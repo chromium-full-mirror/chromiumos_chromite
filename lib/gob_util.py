@@ -16,6 +16,7 @@ import http.cookiejar
 import json
 import logging
 import os
+from pathlib import Path
 import re
 import socket
 import sys
@@ -117,7 +118,7 @@ GOB_ERROR_REASON_CLOSED_CHANGE = "CLOSED CHANGE"
 
 
 class GOBError(Exception):
-    """Exception class for errors communicating with the GOB service."""
+    """Error communicating with the GoB service."""
 
     def __init__(self, http_status=None, reason=None) -> None:
         self.http_status = http_status
@@ -135,7 +136,11 @@ class GOBError(Exception):
 
 
 class InternalGOBError(GOBError):
-    """Exception class for GOB errors with status >= 500"""
+    """GoB errors with HTTP status >= 500.
+
+    This should help differentiate between user/config issues (e.g. creds/ACLs)
+    and transient service issues that should be delayed & retried.
+    """
 
 
 def _QueryString(param_dict, first_param=None):
@@ -149,6 +154,87 @@ def _QueryString(param_dict, first_param=None):
     return "+".join(q)
 
 
+def CookieWalker(path: Path) -> Iterable[str]:
+    """Yield each cookie found in |path|."""
+    if path.is_file():
+        with path.open(encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+
+                fields = line.split("\t")
+                if line.startswith("#HttpOnly_"):
+                    fields[0] = fields[0][10:]
+                if fields[0].startswith("#") or len(fields) != 7:
+                    continue
+
+                yield fields
+
+
+def GetSsoCookies(host: str, user: Optional[str] = None) -> Dict[str, str]:
+    """Load the SSO cookies for this host if available.
+
+    Args:
+        host: The hostname of the Gerrit service.
+        user: The username to look up for the SSO cookies.
+
+    Returns:
+        A dict of cookie name to value, with no URL encoding applied.
+    """
+
+    # See if this system is using SSO.
+    def find_sso_file(name: str) -> Optional[Path]:
+        """Find the |name| file under the sso dir."""
+        path = Path(f"/run/ccache/sso-{user}/{name}")
+        if path.is_file():
+            return path
+
+        path = Path(f"~/.sso/{name}").expanduser()
+        if path.is_file():
+            return path
+
+        return None
+
+    cookies = {}
+
+    if user is None:
+        user = os.environ.get("USER")
+    if user is None:
+        return cookies
+
+    path = find_sso_file("cookie")
+    if not path:
+        return cookies
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if not lines:
+        return cookies
+
+    lines = lines[0].split(",")
+    fields = dict(x.split("=", 1) for x in lines)
+
+    gob = host.split(".")[0][:-7]
+
+    path = Path(f"/run/ccache/sso-{user}/git-persistent-https-cookies.txt")
+    if not path.is_file():
+        # Try to poke the bear.  The side-effects might clear stale cookies.
+        cros_build_lib.dbg_run(
+            ["git", "ls-remote", f"sso://{gob}/All-Projects"],
+            check=False,
+            capture_output=True,
+        )
+        if not path.is_file():
+            return cookies
+
+    git_host = f"{gob}.git.corp.google.com"
+    for fields in CookieWalker(path):
+        domain, key, value = fields[0], fields[5], fields[6]
+        if http.cookiejar.domain_match(git_host, domain):
+            cookies[key] = value
+
+    return cookies
+
+
 def GetCookies(
     host: str,
     path: str,
@@ -157,7 +243,7 @@ def GetCookies(
     """Returns cookies that should be set on a request.
 
     Used by CreateHttpReq for any requests that do not already specify a Cookie
-    header. All requests made by this library are HTTPS.
+    header.  All requests made by this library must only use encrypted channels.
 
     Args:
         host: The hostname of the Gerrit service.
@@ -172,23 +258,22 @@ def GetCookies(
     cookies = {}
     if cookie_paths is None:
         cookie_paths = (constants.GOB_COOKIE_PATH, constants.GITCOOKIES_PATH)
+
     for cookie_path in cookie_paths:
-        if os.path.isfile(cookie_path):
-            with open(cookie_path, encoding="utf-8") as f:
-                for line in f:
-                    fields = line.strip().split("\t")
-                    if line.strip().startswith("#") or len(fields) != 7:
-                        continue
-                    domain, xpath, key, value = (
-                        fields[0],
-                        fields[2],
-                        fields[5],
-                        fields[6],
-                    )
-                    if http.cookiejar.domain_match(
-                        host, domain
-                    ) and path.startswith(xpath):
-                        cookies[key] = value
+        for fields in CookieWalker(Path(cookie_path)):
+            domain, xpath, key, value = (
+                fields[0],
+                fields[2],
+                fields[5],
+                fields[6],
+            )
+            if http.cookiejar.domain_match(host, domain) and path.startswith(
+                xpath
+            ):
+                cookies[key] = value
+
+    cookies.update(GetSsoCookies(host))
+
     return cookies
 
 
