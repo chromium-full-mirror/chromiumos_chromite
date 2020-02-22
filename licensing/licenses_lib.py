@@ -11,6 +11,7 @@ Documentation on this script is also available here:
 import codecs
 import fnmatch
 import html
+import json
 import logging
 import os
 import re
@@ -24,31 +25,6 @@ from chromite.lib import sysroot_lib
 from chromite.lib.parser import ebuild_license
 from chromite.lib.parser import package_info
 
-
-# We are imported by src/repohooks/pre-upload.py in a non chroot environment
-# where yaml may not be there, so we don't error on that since it's not needed
-# in that case.
-try:
-    import yaml
-
-    class SaferLoader(yaml.SafeLoader):
-        """Augment the yaml.SafeLoader with unicode and tuple types."""
-
-        def construct_tuple(self, node):
-            return tuple(self.construct_sequence(node))
-
-        def construct_unicode(self, node):
-            return node.value
-
-    SaferLoader.add_constructor(
-        "tag:yaml.org,2002:python/tuple", SaferLoader.construct_tuple
-    )
-    SaferLoader.add_constructor(
-        "tag:yaml.org,2002:python/unicode", SaferLoader.construct_unicode
-    )
-
-except ImportError:
-    yaml = None
 
 # See https://crbug.com/207004 for discussion.
 PER_PKG_LICENSE_DIR = portage_util.VDB_PATH
@@ -220,6 +196,47 @@ when a CrOS image is built.
 """
 
 
+def _convert_yaml_to_json(yaml_file: str, json_file: str) -> None:
+    """Migrate old YAML format to JSON.
+
+    We have a lot of existing binpkgs that used yaml, so keep this for a while.
+    TODO(build): Make this fatal in Jan 2024.
+
+    Args:
+        yaml_file: Path to the old existing yaml file.
+        json_file: Path to the json file to write.
+    """
+    # The yaml files are legacy, so we don't normally load the module, and
+    # because it's not a common 3rd party install.
+    import yaml  # pylint: disable=import-error
+
+    class SaferLoader(yaml.SafeLoader):
+        """Augment the yaml.SafeLoader with unicode and tuple types."""
+
+        def construct_tuple(self, node):
+            return tuple(self.construct_sequence(node))
+
+        def construct_unicode(self, node):
+            return node.value
+
+    SaferLoader.add_constructor(
+        "tag:yaml.org,2002:python/tuple", SaferLoader.construct_tuple
+    )
+    SaferLoader.add_constructor(
+        "tag:yaml.org,2002:python/unicode", SaferLoader.construct_unicode
+    )
+
+    logging.debug("Migrating YAML (%s) to JSON (%s)", yaml_file, json_file)
+
+    old_data = yaml.load(osutils.ReadFile(yaml_file), Loader=SaferLoader)
+    data = {}
+    for key, value in old_data:
+        if isinstance(value, set):
+            value = sorted(value)
+        data[key] = value
+    osutils.WriteFile(json_file, json.dumps(data), sudo=True)
+
+
 # This is called directly by src/repohooks/pre-upload.py
 def GetLicenseTypesFromEbuild(
     ebuild_contents, overlay_path, buildroot=constants.SOURCE_ROOT
@@ -363,12 +380,12 @@ class PackageInfo:
 
     @property
     def license_dump_path(self):
-        """e.g. /build/x86-alex/var/db/pkg/sys-apps/dtc-1.4.0/license.yaml.
+        """e.g. /build/x86-alex/var/db/pkg/sys-apps/dtc-1.4.0/license.json.
 
         Only valid for packages that have already been emerged.
         """
         return os.path.join(
-            self.sysroot, PER_PKG_LICENSE_DIR, self.fullnamerev, "license.yaml"
+            self.sysroot, PER_PKG_LICENSE_DIR, self.fullnamerev, "license.json"
         )
 
     def _RunEbuildPhases(self, ebuild_path, phases):
@@ -801,17 +818,21 @@ to assign.  Once you've found it, copy the entire license file to:
             )
 
     def SaveLicenseDump(self, save_file):
-        """Save PackageInfo contents to a YAML file.
+        """Save PackageInfo contents for loading later.
 
         This is used to cache license results between the emerge hook phase and
         credits page generation.
 
         Args:
-            save_file: File to save the yaml contents into.
+            save_file: File to save the state into.
         """
         logging.debug("Saving license to %s", save_file)
-        yaml_dump = list(self.__dict__.items())
-        osutils.WriteFile(save_file, yaml.dump(yaml_dump), makedirs=True)
+        dump = {}
+        for key, value in list(self.__dict__.items()):
+            if isinstance(value, set):
+                value = sorted(value)
+            dump[key] = value
+        osutils.WriteFile(save_file, json.dumps(dump), makedirs=True)
 
     def AssertCorrectness(self, build_info_dir, ebuild_path):
         """AssertCorrectness runs various correctness checks on the package.
@@ -1082,8 +1103,11 @@ class Licensing:
     def _LoadLicenseDump(self, pkg):
         save_file = pkg.license_dump_path
         logging.debug("Getting license from %s for %s", save_file, pkg.name)
-        yaml_dump = yaml.load(osutils.ReadFile(save_file), Loader=SaferLoader)
-        for key, value in yaml_dump:
+        with open(save_file, "rb") as fp:
+            dump = json.load(fp)
+        for key, value in dump.items():
+            if isinstance(pkg.__dict__[key], set):
+                value = set(value)
             pkg.__dict__[key] = value
 
     def LicensedPackages(self, license_name):
@@ -1119,6 +1143,12 @@ class Licensing:
                 pkg.license_text_scanned = ["Custom placeholder license text"]
                 pkg.homepages = ["https://dev.chromium.org/"]
                 continue
+
+            # Do inplace/ondemand migration.
+            if not os.path.exists(pkg.license_dump_path):
+                yaml_file = pkg.license_dump_path[0:-4] + "yaml"
+                if os.path.exists(yaml_file):
+                    _convert_yaml_to_json(yaml_file, pkg.license_dump_path)
 
             # Other skipped packages get dumped with incomplete info and the
             # skip flag
@@ -1692,4 +1722,4 @@ def HookPackageProcess(pkg_build_path: str, sysroot: Optional[str] = "/"):
     for license_name in pkg.license_names:
         Licensing.FindLicenseType(license_name, sysroot=sysroot)
 
-    pkg.SaveLicenseDump(os.path.join(build_info_dir, "license.yaml"))
+    pkg.SaveLicenseDump(os.path.join(build_info_dir, "license.json"))

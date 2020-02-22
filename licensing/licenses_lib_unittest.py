@@ -4,6 +4,7 @@
 
 """Test the license_lib module."""
 
+import json
 import os
 from unittest import mock
 
@@ -536,3 +537,68 @@ obj /file bd1b4ffa168f50b0d45571dae51eefc7 1611355468""",
                 licenses_lib._CheckForKnownBadLicenses(
                     "sys-libs/db-18", {"GPL-2", lic}
                 )
+
+    def testYamlToJson(self):
+        """Verify the migration logic."""
+        yaml_file = self.tempdir / "foo.yaml"
+        yaml_file.write_text(
+            """
+- !!python/tuple [sysroot, null]
+- !!python/tuple [category, dev-python]
+- !!python/tuple [name, pycryptodome]
+- !!python/tuple [version, 3.7.3]
+- !!python/tuple [revision, 0]
+- !!python/tuple [fullname, dev-python/pycryptodome]
+- !!python/tuple [fullnamerev, dev-python/pycryptodome-3.7.3]
+- !!python/tuple
+  - license_names
+  - !!set {Unlicense: null}
+- !!python/tuple
+  - license_text_scanned
+  - ["Scanned Source License \
+pycryptodome-3.7.3-python3_6/pycryptodome.egg-info/PKG-INFO:\\n\\
+      Requires-Python: >=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*\\n"]
+- !!python/tuple
+  - homepages
+  - ['https://www.pycryptodome.org',
+    'https://github.com/Legrandin/pycryptodome',
+    'https://pypi.org/project/pycryptodome/']
+- !!python/tuple [skip, false]
+- !!python/tuple [tainted, false]
+- !!python/tuple [ebuild_path, null]
+""",
+            encoding="utf-8",
+        )
+
+        json_file = self.tempdir / "foo.json"
+        licenses_lib._convert_yaml_to_json(yaml_file, json_file)
+
+        data = json.loads(json_file.read_bytes())
+        self.assertEqual(
+            data,
+            {
+                "category": "dev-python",
+                "ebuild_path": None,
+                "fullname": "dev-python/pycryptodome",
+                "fullnamerev": "dev-python/pycryptodome-3.7.3",
+                "homepages": [
+                    "https://www.pycryptodome.org",
+                    "https://github.com/Legrandin/pycryptodome",
+                    "https://pypi.org/project/pycryptodome/",
+                ],
+                "license_names": ["Unlicense"],
+                "license_text_scanned": [
+                    "Scanned Source License "
+                    "pycryptodome-3.7.3-python3_6/pycryptodome.egg-info/"
+                    "PKG-INFO:\n"
+                    "Requires-Python: >=2.6, !=3.0.*, !=3.1.*, !=3.2.*, "
+                    "!=3.3.*\n"
+                ],
+                "name": "pycryptodome",
+                "revision": 0,
+                "skip": False,
+                "sysroot": None,
+                "tainted": False,
+                "version": "3.7.3",
+            },
+        )
