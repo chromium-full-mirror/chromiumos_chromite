@@ -85,6 +85,10 @@ I am the first commit.
     os.mkdir(tmp_path)
     self._run(['git', 'init', '--separate-git-dir', path], cwd=tmp_path)
 
+    # Nerf any hooks the OS might have installed on us as they aren't going to
+    # be useful to us, just slow things down.
+    shutil.rmtree(os.path.join(bare_path, 'hooks'))
+
     # Add an initial commit then wipe the working tree.
     self._run(['git', 'commit', '--allow-empty', '-m', 'initial commit'],
               cwd=tmp_path)
@@ -130,6 +134,9 @@ I am the first commit.
     if alternates:
       cmd += ['--reference', clone]
     self._run(cmd)
+    # Nerf any hooks the OS might have installed on us as they aren't going to
+    # be useful to us, just slow things down.
+    shutil.rmtree(os.path.join(path, '.git', 'hooks'))
     return path
 
   def _MakeCommit(self, repo, commit=None):
