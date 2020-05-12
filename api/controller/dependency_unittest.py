@@ -30,6 +30,7 @@ class BoardBuildDependencyTest(cros_test_lib.MockTestCase,
     self.response = depgraph_pb2.GetBuildDependencyGraphResponse()
     self.json_deps = {
         'target_board': 'deathstar',
+        'sysroot_path': '/build/deathstar',
         'package_deps': {
             'commander/darthvader-1.49.3.3': {
                 'action': 'merge',
@@ -120,7 +121,7 @@ class BoardBuildDependencyTest(cros_test_lib.MockTestCase,
                                        self.api_config)
     self.assertEqual(self.response.dep_graph.build_target.name, 'deathstar')
     pkg_to_cpv.assert_called_once_with(package)
-    get_dep.assert_called_once_with('target', [pkg_mock])
+    get_dep.assert_called_once_with('/build/target', 'target', [pkg_mock])
 
   def testValidateOnly(self):
     """Sanity check that a validate only call does not execute any logic."""

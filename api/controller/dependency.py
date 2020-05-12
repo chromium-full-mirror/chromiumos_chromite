@@ -16,6 +16,8 @@ import sys
 from chromite.api import faux
 from chromite.api import validate
 from chromite.api.controller import controller_util
+# TODO(crbug/1081828): stop using build_target and drop it from the proto.
+from chromite.lib import cros_build_lib
 from chromite.lib import portage_util
 from chromite.service import dependency
 
@@ -32,6 +34,9 @@ def AugmentDepGraphProtoFromJsonMap(json_map, graph):
     graph: the proto object that represents the dependency graph (see DepGraph
       message in chromite/api/depgraph.proto)
   """
+  graph.sysroot.build_target.name = json_map['target_board']
+  graph.sysroot.path = json_map['sysroot_path']
+  # TODO(crbug/1081828): Drop this when no longer used.
   graph.build_target.name = json_map['target_board']
 
   for data in json_map['package_deps'].values():
@@ -62,7 +67,6 @@ def _GetBuildDependencyGraphResponse(_input_proto, output_proto, _config):
 
 @faux.success(_GetBuildDependencyGraphResponse)
 @faux.empty_error
-@validate.require('build_target.name')
 @validate.validation_complete
 def GetBuildDependencyGraph(input_proto, output_proto, _config):
   """Create the build dependency graph.
@@ -72,10 +76,18 @@ def GetBuildDependencyGraph(input_proto, output_proto, _config):
     output_proto (GetBuildDependencyGraphResponse): The empty output message.
     _config (api_config.ApiConfig): The API call config.
   """
-  board = input_proto.build_target.name
+  if input_proto.HasField('sysroot'):
+    board = input_proto.sysroot.build_target.name
+    sysroot_path = input_proto.sysroot.path
+  else:
+    # TODO(crbug/1081828): stop using build_target and drop it from the proto.
+    board = input_proto.build_target.name
+    sysroot_path = cros_build_lib.GetSysroot(board or None)
+
   packages = [controller_util.PackageInfoToCPV(x) for x in input_proto.packages]
 
-  json_map, sdk_json_map = dependency.GetBuildDependency(board, packages)
+  json_map, sdk_json_map = dependency.GetBuildDependency(sysroot_path, board,
+                                                         packages)
   AugmentDepGraphProtoFromJsonMap(json_map, output_proto.dep_graph)
   AugmentDepGraphProtoFromJsonMap(sdk_json_map, output_proto.sdk_dep_graph)
 

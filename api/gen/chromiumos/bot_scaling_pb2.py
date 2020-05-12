@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chromiumos',
   syntax='proto3',
   serialized_options=_b('Z4go.chromium.org/chromiumos/infra/proto/go/chromiumos'),
-  serialized_pb=_b('\n\x1c\x63hromiumos/bot_scaling.proto\x12\nchromiumos\"2\n\x07\x42otType\x12\x10\n\x08\x62ot_size\x18\x01 \x01(\t\x12\x15\n\rcores_per_bot\x18\x02 \x01(\x05\"@\n\x11SwarmingDimension\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\x12\x0e\n\x06values\x18\x03 \x03(\t\"\xcf\x05\n\tBotPolicy\x12\x11\n\tbot_group\x18\x01 \x01(\t\x12%\n\x08\x62ot_type\x18\x02 \x01(\x0b\x32\x13.chromiumos.BotType\x12\x45\n\x13scaling_restriction\x18\x03 \x01(\x0b\x32(.chromiumos.BotPolicy.ScalingRestriction\x12\x44\n\x13region_restrictions\x18\x04 \x03(\x0b\x32\'.chromiumos.BotPolicy.RegionRestriction\x12:\n\x13swarming_dimensions\x18\x05 \x03(\x0b\x32\x1d.chromiumos.SwarmingDimension\x12/\n\x0bpolicy_mode\x18\x06 \x01(\x0e\x32\x1a.chromiumos.BotPolicy.Mode\x12\x16\n\x0elookback_hours\x18\x07 \x01(\x11\x12:\n\x0cscaling_mode\x18\x08 \x01(\x0e\x32$.chromiumos.BotPolicy.BotScalingMode\x1aw\n\x12ScalingRestriction\x12\x13\n\x0b\x62ot_ceiling\x18\x01 \x01(\x05\x12\x11\n\tbot_floor\x18\x02 \x01(\x05\x12\x10\n\x08min_idle\x18\x03 \x01(\x05\x12\x11\n\tstep_size\x18\x04 \x01(\x05\x12\x14\n\x0c\x62ot_fallback\x18\x05 \x01(\x05\x1a\x43\n\x11RegionRestriction\x12\x0e\n\x06region\x18\x01 \x01(\t\x12\x0e\n\x06prefix\x18\x02 \x01(\t\x12\x0e\n\x06weight\x18\x03 \x01(\x02\"7\n\x04Mode\x12\x10\n\x0cUNKNOWN_MODE\x10\x00\x12\r\n\tMONITORED\x10\x01\x12\x0e\n\nCONFIGURED\x10\x02\"C\n\x0e\x42otScalingMode\x12\x18\n\x14UNKNOWN_SCALING_MODE\x10\x00\x12\x0b\n\x07STEPPED\x10\x01\x12\n\n\x06\x44\x45MAND\x10\x02\";\n\x0c\x42otPolicyCfg\x12+\n\x0c\x62ot_policies\x18\x01 \x03(\x0b\x32\x15.chromiumos.BotPolicy\"\xd9\x02\n\rScalingAction\x12\x11\n\tbot_group\x18\x01 \x01(\t\x12%\n\x08\x62ot_type\x18\x02 \x01(\x0b\x32\x13.chromiumos.BotType\x12\x38\n\nactionable\x18\x03 \x01(\x0e\x32$.chromiumos.ScalingAction.Actionable\x12\x16\n\x0e\x62ots_requested\x18\x04 \x01(\x05\x12\x42\n\x10regional_actions\x18\x05 \x03(\x0b\x32(.chromiumos.ScalingAction.RegionalAction\x1aH\n\x0eRegionalAction\x12\x0e\n\x06region\x18\x01 \x01(\t\x12\x0e\n\x06prefix\x18\x02 \x01(\t\x12\x16\n\x0e\x62ots_requested\x18\x03 \x01(\x05\".\n\nActionable\x12\x0f\n\x0bUNSPECIFIED\x10\x00\x12\x07\n\x03YES\x10\x01\x12\x06\n\x02NO\x10\x02\"D\n\x0eRoboCropAction\x12\x32\n\x0fscaling_actions\x18\x01 \x03(\x0b\x32\x19.chromiumos.ScalingActionB6Z4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
+  serialized_pb=_b('\n\x1c\x63hromiumos/bot_scaling.proto\x12\nchromiumos\"Z\n\x07\x42otType\x12\x10\n\x08\x62ot_size\x18\x01 \x01(\t\x12\x15\n\rcores_per_bot\x18\x02 \x01(\x05\x12\x13\n\x0bhourly_cost\x18\x03 \x01(\x02\x12\x11\n\tmemory_gb\x18\x04 \x01(\x02\"@\n\x11SwarmingDimension\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\x12\x0e\n\x06values\x18\x03 \x03(\t\"\xcf\x05\n\tBotPolicy\x12\x11\n\tbot_group\x18\x01 \x01(\t\x12%\n\x08\x62ot_type\x18\x02 \x01(\x0b\x32\x13.chromiumos.BotType\x12\x45\n\x13scaling_restriction\x18\x03 \x01(\x0b\x32(.chromiumos.BotPolicy.ScalingRestriction\x12\x44\n\x13region_restrictions\x18\x04 \x03(\x0b\x32\'.chromiumos.BotPolicy.RegionRestriction\x12:\n\x13swarming_dimensions\x18\x05 \x03(\x0b\x32\x1d.chromiumos.SwarmingDimension\x12/\n\x0bpolicy_mode\x18\x06 \x01(\x0e\x32\x1a.chromiumos.BotPolicy.Mode\x12\x16\n\x0elookback_hours\x18\x07 \x01(\x11\x12:\n\x0cscaling_mode\x18\x08 \x01(\x0e\x32$.chromiumos.BotPolicy.BotScalingMode\x1aw\n\x12ScalingRestriction\x12\x13\n\x0b\x62ot_ceiling\x18\x01 \x01(\x05\x12\x11\n\tbot_floor\x18\x02 \x01(\x05\x12\x10\n\x08min_idle\x18\x03 \x01(\x05\x12\x11\n\tstep_size\x18\x04 \x01(\x05\x12\x14\n\x0c\x62ot_fallback\x18\x05 \x01(\x05\x1a\x43\n\x11RegionRestriction\x12\x0e\n\x06region\x18\x01 \x01(\t\x12\x0e\n\x06prefix\x18\x02 \x01(\t\x12\x0e\n\x06weight\x18\x03 \x01(\x02\"7\n\x04Mode\x12\x10\n\x0cUNKNOWN_MODE\x10\x00\x12\r\n\tMONITORED\x10\x01\x12\x0e\n\nCONFIGURED\x10\x02\"C\n\x0e\x42otScalingMode\x12\x18\n\x14UNKNOWN_SCALING_MODE\x10\x00\x12\x0b\n\x07STEPPED\x10\x01\x12\n\n\x06\x44\x45MAND\x10\x02\";\n\x0c\x42otPolicyCfg\x12+\n\x0c\x62ot_policies\x18\x01 \x03(\x0b\x32\x15.chromiumos.BotPolicy\"\xf4\x02\n\rScalingAction\x12\x11\n\tbot_group\x18\x01 \x01(\t\x12%\n\x08\x62ot_type\x18\x02 \x01(\x0b\x32\x13.chromiumos.BotType\x12\x38\n\nactionable\x18\x03 \x01(\x0e\x32$.chromiumos.ScalingAction.Actionable\x12\x16\n\x0e\x62ots_requested\x18\x04 \x01(\x05\x12\x42\n\x10regional_actions\x18\x05 \x03(\x0b\x32(.chromiumos.ScalingAction.RegionalAction\x12\x19\n\x11\x65stimated_savings\x18\x06 \x01(\x02\x1aH\n\x0eRegionalAction\x12\x0e\n\x06region\x18\x01 \x01(\t\x12\x0e\n\x06prefix\x18\x02 \x01(\t\x12\x16\n\x0e\x62ots_requested\x18\x03 \x01(\x05\".\n\nActionable\x12\x0f\n\x0bUNSPECIFIED\x10\x00\x12\x07\n\x03YES\x10\x01\x12\x06\n\x02NO\x10\x02\"=\n\rResourceUsage\x12\x0b\n\x03vms\x18\x01 \x01(\x05\x12\x0c\n\x04\x63pus\x18\x02 \x01(\x02\x12\x11\n\tmemory_gb\x18\x03 \x01(\x02\"w\n\x0eRoboCropAction\x12\x32\n\x0fscaling_actions\x18\x01 \x03(\x0b\x32\x19.chromiumos.ScalingAction\x12\x31\n\x0eresource_usage\x18\x02 \x01(\x0b\x32\x19.chromiumos.ResourceUsageB6Z4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
 )
 
 
@@ -45,8 +45,8 @@ _BOTPOLICY_MODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=758,
-  serialized_end=813,
+  serialized_start=798,
+  serialized_end=853,
 )
 _sym_db.RegisterEnumDescriptor(_BOTPOLICY_MODE)
 
@@ -71,8 +71,8 @@ _BOTPOLICY_BOTSCALINGMODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=815,
-  serialized_end=882,
+  serialized_start=855,
+  serialized_end=922,
 )
 _sym_db.RegisterEnumDescriptor(_BOTPOLICY_BOTSCALINGMODE)
 
@@ -97,8 +97,8 @@ _SCALINGACTION_ACTIONABLE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1245,
-  serialized_end=1291,
+  serialized_start=1312,
+  serialized_end=1358,
 )
 _sym_db.RegisterEnumDescriptor(_SCALINGACTION_ACTIONABLE)
 
@@ -124,6 +124,20 @@ _BOTTYPE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='hourly_cost', full_name='chromiumos.BotType.hourly_cost', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='memory_gb', full_name='chromiumos.BotType.memory_gb', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -137,7 +151,7 @@ _BOTTYPE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=44,
-  serialized_end=94,
+  serialized_end=134,
 )
 
 
@@ -181,8 +195,8 @@ _SWARMINGDIMENSION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=96,
-  serialized_end=160,
+  serialized_start=136,
+  serialized_end=200,
 )
 
 
@@ -240,8 +254,8 @@ _BOTPOLICY_SCALINGRESTRICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=568,
-  serialized_end=687,
+  serialized_start=608,
+  serialized_end=727,
 )
 
 _BOTPOLICY_REGIONRESTRICTION = _descriptor.Descriptor(
@@ -284,8 +298,8 @@ _BOTPOLICY_REGIONRESTRICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=689,
-  serialized_end=756,
+  serialized_start=729,
+  serialized_end=796,
 )
 
 _BOTPOLICY = _descriptor.Descriptor(
@@ -365,8 +379,8 @@ _BOTPOLICY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=163,
-  serialized_end=882,
+  serialized_start=203,
+  serialized_end=922,
 )
 
 
@@ -396,8 +410,8 @@ _BOTPOLICYCFG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=884,
-  serialized_end=943,
+  serialized_start=924,
+  serialized_end=983,
 )
 
 
@@ -441,8 +455,8 @@ _SCALINGACTION_REGIONALACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1171,
-  serialized_end=1243,
+  serialized_start=1238,
+  serialized_end=1310,
 )
 
 _SCALINGACTION = _descriptor.Descriptor(
@@ -487,6 +501,13 @@ _SCALINGACTION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='estimated_savings', full_name='chromiumos.ScalingAction.estimated_savings', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -500,8 +521,53 @@ _SCALINGACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=946,
-  serialized_end=1291,
+  serialized_start=986,
+  serialized_end=1358,
+)
+
+
+_RESOURCEUSAGE = _descriptor.Descriptor(
+  name='ResourceUsage',
+  full_name='chromiumos.ResourceUsage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='vms', full_name='chromiumos.ResourceUsage.vms', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='cpus', full_name='chromiumos.ResourceUsage.cpus', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='memory_gb', full_name='chromiumos.ResourceUsage.memory_gb', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1360,
+  serialized_end=1421,
 )
 
 
@@ -519,6 +585,13 @@ _ROBOCROPACTION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='resource_usage', full_name='chromiumos.RoboCropAction.resource_usage', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -531,8 +604,8 @@ _ROBOCROPACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1293,
-  serialized_end=1361,
+  serialized_start=1423,
+  serialized_end=1542,
 )
 
 _BOTPOLICY_SCALINGRESTRICTION.containing_type = _BOTPOLICY
@@ -552,11 +625,13 @@ _SCALINGACTION.fields_by_name['actionable'].enum_type = _SCALINGACTION_ACTIONABL
 _SCALINGACTION.fields_by_name['regional_actions'].message_type = _SCALINGACTION_REGIONALACTION
 _SCALINGACTION_ACTIONABLE.containing_type = _SCALINGACTION
 _ROBOCROPACTION.fields_by_name['scaling_actions'].message_type = _SCALINGACTION
+_ROBOCROPACTION.fields_by_name['resource_usage'].message_type = _RESOURCEUSAGE
 DESCRIPTOR.message_types_by_name['BotType'] = _BOTTYPE
 DESCRIPTOR.message_types_by_name['SwarmingDimension'] = _SWARMINGDIMENSION
 DESCRIPTOR.message_types_by_name['BotPolicy'] = _BOTPOLICY
 DESCRIPTOR.message_types_by_name['BotPolicyCfg'] = _BOTPOLICYCFG
 DESCRIPTOR.message_types_by_name['ScalingAction'] = _SCALINGACTION
+DESCRIPTOR.message_types_by_name['ResourceUsage'] = _RESOURCEUSAGE
 DESCRIPTOR.message_types_by_name['RoboCropAction'] = _ROBOCROPACTION
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -618,6 +693,13 @@ ScalingAction = _reflection.GeneratedProtocolMessageType('ScalingAction', (_mess
   ))
 _sym_db.RegisterMessage(ScalingAction)
 _sym_db.RegisterMessage(ScalingAction.RegionalAction)
+
+ResourceUsage = _reflection.GeneratedProtocolMessageType('ResourceUsage', (_message.Message,), dict(
+  DESCRIPTOR = _RESOURCEUSAGE,
+  __module__ = 'chromiumos.bot_scaling_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.ResourceUsage)
+  ))
+_sym_db.RegisterMessage(ResourceUsage)
 
 RoboCropAction = _reflection.GeneratedProtocolMessageType('RoboCropAction', (_message.Message,), dict(
   DESCRIPTOR = _ROBOCROPACTION,

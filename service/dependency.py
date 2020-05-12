@@ -22,11 +22,14 @@ from chromite.scripts import cros_extract_deps
 class Error(Exception):
   """Base error class for the module."""
 
+
 class MissingCacheEntry(Error):
   """No on-disk cache entry could be found for a package."""
 
+
 class NoMatchingFileForDigest(Error):
   """No ebuild or eclass file could be found with the given MD5 digest."""
+
 
 def NormalizeSourcePaths(source_paths):
   """Return the "normalized" form of a list of source paths.
@@ -155,7 +158,7 @@ def parse_md5_cache_entry(md5_cache_file_path):
   return [(c.group('eclass'), c.group('digest')) for c in entries]
 
 
-def GenerateSourcePathMapping(packages, board):
+def GenerateSourcePathMapping(packages, sysroot_path, board):
   """Returns a map from each package to the source paths it depends on.
 
   A source path is considered dependency of a package if modifying files in that
@@ -177,6 +180,8 @@ def GenerateSourcePathMapping(packages, board):
 
   Args:
     packages: The list of packages CPV names (str)
+    sysroot_path (str): The path to the sysroot.  If the packages are board
+      agnostic, then this should be '/'.
     board (str): The name of the board if packages are dependency of board. If
       the packages are board agnostic, then this should be None.
 
@@ -190,7 +195,7 @@ def GenerateSourcePathMapping(packages, board):
   results = {}
 
   packages_to_ebuild_paths = portage_util.FindEbuildsForPackages(
-      packages, sysroot=cros_build_lib.GetSysroot(board), check=True)
+      packages, sysroot=sysroot_path, check=True)
 
   # Source paths which are the directory of ebuild files.
   for package, ebuild_path in packages_to_ebuild_paths.items():
@@ -238,9 +243,7 @@ def GenerateSourcePathMapping(packages, board):
   profile_directories = [
       os.path.join(x, 'profiles') for x in overlay_directories
   ]
-  make_conf_paths = [
-      os.path.join(x, 'make.conf') for x in overlay_directories
-  ]
+  make_conf_paths = [os.path.join(x, 'make.conf') for x in overlay_directories]
 
   # These directories *might* affect a build, so we include them for now to
   # be safe.
@@ -272,11 +275,14 @@ def GenerateSourcePathMapping(packages, board):
   return results
 
 
-def GetBuildDependency(board, packages=None):
+def GetBuildDependency(sysroot_path, board=None, packages=None):
   """Return the build dependency and package -> source path map for |board|.
 
   Args:
-    board (str): The name of the board whose artifacts are being created.
+    sysroot_path (str): The path to the sysroot, or None if no sysroot is being
+        used.
+    board (str): The name of the board whose artifacts are being created, or
+        None if no sysroot is being used.
     packages (list[CPV]): The packages that need to be built, or empty / None
         to use the default list.
 
@@ -287,63 +293,64 @@ def GetBuildDependency(board, packages=None):
       (relative to the repo checkout root, i.e: ~/trunk/ in your cros_sdk) it
       depends on
   """
-  results = {}
-  results['target_board'] = board
-  results['package_deps'] = {}
-  results['source_path_mapping'] = {}
+  results = {
+      'sysroot_path': sysroot_path,
+      'target_board': board,
+      'package_deps': {},
+      'source_path_mapping': {},
+  }
 
-  sdk_results = {}
-  sdk_results['target_board'] = 'sdk'
-  sdk_results['package_deps'] = {}
-  sdk_results['source_path_mapping'] = {}
+  sdk_sysroot = cros_build_lib.GetSysroot(None)
+  sdk_results = {
+      'sysroot_path': sdk_sysroot,
+      'target_board': 'sdk',
+      'package_deps': {},
+      'source_path_mapping': {},
+  }
 
-  board_specific_packages = []
-  if packages:
-    board_specific_packages.extend([cpv.cp for cpv in packages])
-  else:
-    board_specific_packages.extend([
-        'virtual/target-os', 'virtual/target-os-dev', 'virtual/target-os-test',
-        'virtual/target-os-factory'
-    ])
-    # Since we don’t have a clear mapping from autotests to git repos
-    # and/or portage packages, we assume every board run all autotests.
-    board_specific_packages += ['chromeos-base/autotest-all']
+  if sysroot_path != sdk_sysroot:
+    board_packages = []
+    if packages:
+      board_packages.extend([cpv.cp for cpv in packages])
+    else:
+      board_packages.extend([
+          'virtual/target-os', 'virtual/target-os-dev',
+          'virtual/target-os-test', 'virtual/target-os-factory'
+      ])
+      # Since we don’t have a clear mapping from autotests to git repos
+      # and/or portage packages, we assume every board run all autotests.
+      board_packages += ['chromeos-base/autotest-all']
 
-  non_board_specific_packages = [
+    board_deps, board_bdeps = cros_extract_deps.ExtractDeps(
+        sysroot=sysroot_path,
+        package_list=board_packages,
+        include_bdepend=False)
+
+    results['package_deps'].update(board_deps)
+    results['package_deps'].update(board_bdeps)
+    sdk_results['package_deps'].update(board_bdeps)
+
+  indep_packages = [
       'virtual/target-sdk', 'chromeos-base/chromite',
       'virtual/target-sdk-post-cross'
   ]
 
-  board_specific_deps, board_bdeps = cros_extract_deps.ExtractDeps(
-      sysroot=cros_build_lib.GetSysroot(board),
-      package_list=board_specific_packages,
-      include_bdepend=False)
+  indep_deps, _ = cros_extract_deps.ExtractDeps(
+      sysroot=sdk_results['sysroot_path'], package_list=indep_packages)
 
-  non_board_specific_deps, _ = cros_extract_deps.ExtractDeps(
-      sysroot=cros_build_lib.GetSysroot(None),
-      package_list=non_board_specific_packages)
+  indep_map = GenerateSourcePathMapping(list(indep_deps), sdk_sysroot, None)
+  results['package_deps'].update(indep_deps)
+  results['source_path_mapping'].update(indep_map)
 
-  results['package_deps'].update(board_specific_deps)
-  results['package_deps'].update(board_bdeps)
-  results['package_deps'].update(non_board_specific_deps)
+  sdk_results['package_deps'].update(indep_deps)
+  sdk_results['source_path_mapping'].update(indep_map)
 
-  results['source_path_mapping'].update(
-      GenerateSourcePathMapping(list(non_board_specific_deps), None))
-
-  results['source_path_mapping'].update(
-      GenerateSourcePathMapping(list(board_bdeps), None))
-
-  results['source_path_mapping'].update(
-      GenerateSourcePathMapping(list(board_specific_deps), board))
-
-  sdk_results['package_deps'].update(board_bdeps)
-  sdk_results['package_deps'].update(non_board_specific_deps)
-
-  sdk_results['source_path_mapping'].update(
-      GenerateSourcePathMapping(list(non_board_specific_deps), None))
-
-  sdk_results['source_path_mapping'].update(
-      GenerateSourcePathMapping(list(board_bdeps), None))
+  if sysroot_path != sdk_sysroot:
+    bdep_map = GenerateSourcePathMapping(list(board_bdeps), sdk_sysroot, None)
+    board_map = GenerateSourcePathMapping(list(board_deps), sysroot_path, board)
+    results['source_path_mapping'].update(bdep_map)
+    results['source_path_mapping'].update(board_map)
+    sdk_results['source_path_mapping'].update(bdep_map)
 
   return results, sdk_results
 
