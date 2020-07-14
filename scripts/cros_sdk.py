@@ -464,16 +464,18 @@ def _SudoCommand():
   """Get the 'sudo' command, along with all needed environment variables."""
 
   # Pass in the ENVIRONMENT_WHITELIST and ENV_PASSTHRU variables so that
-  # scripts in the chroot know what variables to pass through.  We keep PATH
-  # not for the chroot but for the re-exec & for programs we might run before
-  # we chroot into the SDK.  The process that enters the SDK itself will take
-  # care of initializing PATH to the right value then.
+  # scripts in the chroot know what variables to pass through.
   cmd = ['sudo']
-  for key in (constants.CHROOT_ENVIRONMENT_WHITELIST + constants.ENV_PASSTHRU +
-              ('PATH',)):
+  for key in constants.CHROOT_ENVIRONMENT_WHITELIST + constants.ENV_PASSTHRU:
     value = os.environ.get(key)
     if value is not None:
       cmd += ['%s=%s' % (key, value)]
+
+  # We keep PATH not for the chroot but for the re-exec & for programs we might
+  # run before we chroot into the SDK.  The process that enters the SDK itself
+  # will take care of initializing PATH to the right value then.  But we can't
+  # override the system's default PATH for root as that will hide /sbin.
+  cmd += ['CHROMEOS_SUDO_PATH=%s' % os.environ.get('PATH', '')]
 
   # Pass in the path to the depot_tools so that users can access them from
   # within the chroot.
@@ -883,6 +885,11 @@ def main(argv):
     cros_build_lib.Die(
         "cros_sdk is currently only supported on x86_64; you're running"
         ' %s.  Please find a x86_64 machine.' % (host,))
+
+  # Merge the outside PATH setting if we re-execed ourselves.
+  if 'CHROMEOS_SUDO_PATH' in os.environ:
+    os.environ['PATH'] = '%s:%s' % (os.environ.pop('CHROMEOS_SUDO_PATH'),
+                                    os.environ['PATH'])
 
   _ReportMissing(osutils.FindMissingBinaries(NEEDED_TOOLS))
   if options.proxy_sim:
