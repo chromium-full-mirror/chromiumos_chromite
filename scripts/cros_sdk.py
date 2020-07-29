@@ -467,7 +467,9 @@ def _ReExecuteIfNeeded(argv):
   the chroot can't mess with our mounts.
   """
   if os.geteuid() != 0:
-    cmd = _SudoCommand() + ['--'] + argv
+    # Make sure to preserve the active Python executable in case the version
+    # we're running as is not the default one found via the (new) $PATH.
+    cmd = _SudoCommand() + ['--'] + [sys.executable] + argv
     os.execvp(cmd[0], cmd)
   else:
     # We must set up the cgroups mounts before we enter our own namespace.
