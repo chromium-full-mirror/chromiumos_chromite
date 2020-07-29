@@ -195,7 +195,9 @@ def _ReExecuteIfNeeded(argv):
   """
   MAGIC_VAR = '%CROS_SDK_MOUNT_NS'
   if os.geteuid() != 0:
-    cmd = _SudoCommand() + ['--'] + argv
+    # Make sure to preserve the active Python executable in case the version
+    # we're running as is not the default one found via the (new) $PATH.
+    cmd = _SudoCommand() + ['--'] + [sys.executable] + argv
     os.execvp(cmd[0], cmd)
   elif os.environ.get(MAGIC_VAR, '0') == '0':
     cgroups.Cgroup.InitSystem()
