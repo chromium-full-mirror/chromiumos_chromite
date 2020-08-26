@@ -558,10 +558,12 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
 
   def _ScheduleForApplicableModels(self, archive_board, archive_build,
                                    fsi_configs, suite_name):
-    """Schedule FSI AU tests on every applicable_model.
+    """Schedule FSI AU tests on every applicable_model, if any.
 
     We schedule on every model even if it is not in the 'au' suite.
     This ensures no FSI tests are missed from models being disabled in the lab.
+    Note that if an fsi config has no applicable models then no tests will be
+    scheduled for it.
 
     Args:
       archive_board: The board we schedule against.
@@ -572,7 +574,7 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
     stages = []
     for payload_config in fsi_configs:
       applicable_models = [m for m in self._run.config.models
-                           if m.name in payload_config.applicable_models]
+                           if m.name in payload_config.applicable_models or []]
       stages += self._ScheduleForModels(archive_board, archive_build,
                                         applicable_models, [payload_config],
                                         suite_name)
