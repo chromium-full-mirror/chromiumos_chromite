@@ -573,8 +573,10 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
     """
     stages = []
     for payload_config in fsi_configs:
-      applicable_models = [m for m in self._run.config.models
-                           if m.name in payload_config.applicable_models or []]
+      applicable_models = []
+      for m in self._run.config.models:
+        if m.name in (payload_config.applicable_models or []):
+          applicable_models.append(m)
       stages += self._ScheduleForModels(archive_board, archive_build,
                                         applicable_models, [payload_config],
                                         suite_name)
