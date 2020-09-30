@@ -159,7 +159,8 @@ def _GetGclientSolutions(internal, rev, template):
     # the revision information.
     solution['url'] = url
     if deps_file:
-      solution['deps_file'] = deps_file
+      # Hack to get oak factory build working.
+      solution['deps_file'] = '../CRBUG1044411_DEPS'
 
     # Use 'custom_deps' and 'custom_vars' of a solution when specified by the
     # template gclient file.
