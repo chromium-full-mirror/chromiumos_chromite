@@ -7,7 +7,6 @@
 from __future__ import print_function
 
 import os
-import shutil
 
 from chromite.cbuildbot import constants
 from chromite.lib import commandline
@@ -57,16 +56,6 @@ def main(argv):
     except cros_build_lib.RunCommandError:
       osutils.RmDir(options.chrome_root)
       osutils.SafeMakedirs(options.chrome_root)
-
-  # We're not going to use the deps file provided, instead overriding
-  # to resolve gclient backwards incompatibility issues, see: crbug.com/1044411
-  script_dir = os.path.dirname(os.path.realpath(__file__))
-  hack_dep_file = os.path.realpath(os.path.join(script_dir,
-                                                '..',
-                                                'CRBUG1044411_DEPS'))
-  hack_dep_file_dest = os.path.join(options.chrome_root, 'CRBUG1044411_DEPS')
-  shutil.copyfile(hack_dep_file, hack_dep_file_dest)
-
 
   # Sync new Chrome.
   gclient.WriteConfigFile(gclient_path, options.chrome_root,
