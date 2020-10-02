@@ -370,8 +370,6 @@ def ApplyCustomOverrides(site_config):
       # to validate informational Tast tests on amd64-generic:
       # https://crbug.com/946858
       'amd64-generic-full': site_config.templates.tast_vm_canary_tests,
-      'betty-pi-arc-release': site_config.templates.tast_vm_canary_tests,
-      'betty-release': site_config.templates.tast_vm_canary_tests,
   }
 
   for config_name, overrides in overwritten_configs.items():

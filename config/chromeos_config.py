@@ -1399,7 +1399,6 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
       'arm-generic',
       'arm64-generic',
       'kevin',
-      'kevin64',
       'oak',
       'tael',
       'tatl',
