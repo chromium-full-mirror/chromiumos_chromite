@@ -280,6 +280,7 @@
     hana-kernelnext-release
     hana-release
     hatch-arc-r-release
+    hatch-borealis-release
     hatch-diskswap-release
     hatch-kernelnext-release
     hatch-release
@@ -960,6 +961,12 @@
   hatch-arc-r-release-tryjob
   hatch-arc-r-unittest-stress
   hatch-arc-r-vmrvc-android-pfq-tryjob
+  hatch-borealis-full-tryjob
+  hatch-borealis-llvm-next-toolchain-tryjob
+  hatch-borealis-llvm-toolchain-tryjob
+  hatch-borealis-payloads-tryjob
+  hatch-borealis-release-tryjob
+  hatch-borealis-unittest-stress
   hatch-diskswap-full-tryjob
   hatch-diskswap-llvm-next-toolchain-tryjob
   hatch-diskswap-llvm-toolchain-tryjob
@@ -1173,6 +1180,7 @@
     hana-kernelnext-release-tryjob
     hana-release-tryjob
     hatch-arc-r-release-tryjob
+    hatch-borealis-release-tryjob
     hatch-diskswap-release-tryjob
     hatch-kernelnext-release-tryjob
     hatch-release-tryjob
