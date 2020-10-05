@@ -620,7 +620,7 @@
           "builder": "RELEASE",
           "experimental": false,
           "leader_board": false,
-          "board_group": "",
+          "board_group": "strongbad",
           "arch": "ARM_INTERNAL"
         }
       ]
