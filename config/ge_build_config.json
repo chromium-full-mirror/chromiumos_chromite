@@ -4134,7 +4134,7 @@
         {
           "board_name": "trogdor",
           "name": "pompom",
-          "cq_test_enabled": false,
+          "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true
