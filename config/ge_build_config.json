@@ -4114,47 +4114,6 @@
       ]
     },
     {
-      "name": "trogdor64",
-      "reference_board_name": "trogdor64",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "trogdor64",
-          "name": "lazor",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 462,
-          "is_active": true
-        },
-        {
-          "board_name": "trogdor64",
-          "name": "limozeen",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 462,
-          "is_active": true
-        },
-        {
-          "board_name": "trogdor64",
-          "name": "pompom",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 462,
-          "is_active": true
-        },
-        {
-          "board_name": "trogdor64",
-          "name": "trogdor",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 462,
-          "is_active": true
-        }
-      ]
-    },
-    {
       "name": "volteer",
       "reference_board_name": "volteer",
       "arch": "X86_INTERNAL",

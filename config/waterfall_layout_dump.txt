@@ -329,7 +329,6 @@
     swanky-release
     terra-release
     tidus-release
-    trogdor64-release
     ultima-release
     veyron_fievel-release
     veyron_mickey-release
@@ -1228,7 +1227,6 @@
     swanky-release-tryjob
     terra-release-tryjob
     tidus-release-tryjob
-    trogdor64-release-tryjob
     ultima-release-tryjob
     veyron_fievel-release-tryjob
     veyron_mickey-release-tryjob
@@ -1538,12 +1536,6 @@
   tidus-payloads-tryjob
   tidus-release-tryjob
   tidus-unittest-stress
-  trogdor64-full-tryjob
-  trogdor64-llvm-next-toolchain-tryjob
-  trogdor64-llvm-toolchain-tryjob
-  trogdor64-payloads-tryjob
-  trogdor64-release-tryjob
-  trogdor64-unittest-stress
   ultima-factory-strago-7458.B-factorybranch-tryjob
   ultima-full-tryjob
   ultima-llvm-next-toolchain-tryjob
