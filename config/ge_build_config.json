@@ -4146,6 +4146,14 @@
         },
         {
           "board_name": "volteer",
+          "name": "lillipup",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
           "name": "lindar",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
