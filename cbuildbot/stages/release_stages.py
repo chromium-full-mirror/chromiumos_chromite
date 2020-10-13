@@ -89,8 +89,9 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
   # Poll for new results every 30 seconds.
   SIGNING_PERIOD = 30
 
-  # Timeout for the signing process. 2 hours in seconds.
-  SIGNING_TIMEOUT = 2 * 60 * 60
+  # Timeout for the signing process. 4 hours in seconds.
+  # TODO(crbug.com/1137460): Increased from 2 -> 4 hours.
+  SIGNING_TIMEOUT = 4 * 60 * 60
 
   def __init__(self, builder_run, buildstore, board, **kwargs):
     """Init that accepts the channels argument, if present.
