@@ -2484,9 +2484,6 @@ def ApplyCustomOverrides(site_config):
 
       'dedede-release': {
           'sign_types': ['recovery', 'factory'],
-          'hw_tests': [],
-          'hw_tests_override': [],
-          'hw_tests_disabled_bug': 'https://b/144683687',
       },
 
       # See go/cros-fingerprint-firmware-branching-and-signing for details on
