@@ -377,7 +377,7 @@ def RunCurl(curl_args, *args, **kwargs):
   Raises:
     DownloadError: Whenever curl fails for any reason.
   """
-  cmd = ['curl'] + curl_args
+  cmd = ['curl', '--http1.1'] + curl_args
 
   # These values were discerned via scraping the curl manpage; they're all
   # retry related (dns failed, timeout occurred, etc, see  the manpage for
