@@ -777,23 +777,6 @@
       ]
     },
     {
-      "name": "atlas-arm64",
-      "reference_board_name": "atlas-arm64",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "atlas-arm64",
-          "name": "atlas",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 447,
-          "is_active": true
-        }
-      ]
-    },
-    {
       "name": "coral",
       "reference_board_name": "coral",
       "arch": "X86_INTERNAL",
@@ -2945,23 +2928,6 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 359,
-          "is_active": true
-        }
-      ]
-    },
-    {
-      "name": "nocturne-arm64",
-      "reference_board_name": "nocturne-arm64",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "nocturne-arm64",
-          "name": "nocturne",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 448,
           "is_active": true
         }
       ]
