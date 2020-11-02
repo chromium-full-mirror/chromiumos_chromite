@@ -224,9 +224,15 @@ class CommonPrepareBundleTest(PrepareBundleTest):
     self.assertEqual('78', self.obj.chrome_branch)
     self.glob.assert_called_once()
 
-    self.glob.return_value = ['1', '2']
-    self.assertRaises(toolchain_util.PrepareForBuildHandlerError,
-                      self.obj._GetEbuildInfo, 'chromeos-kernel-3_14')
+  def testGetEbuildInfoWithMultipleChromes(self):
+    self.glob.return_value = [
+        'chromeos-chrome-78.0.3893.0.ebuild',
+        'chromeos-chrome-78.0.3893.0_rc-r1.ebuild',
+        'chromeos-chrome-78.0.3893.100_rc-r1.ebuild',
+        'chromeos-chrome-78.0.3893.10_rc-r1.ebuild'
+    ]
+    ret = self.obj._GetEbuildInfo('chromeos-chrome')
+    self.assertEqual(ret.CPV.version, '78.0.3893.100_rc-r1')
 
   def test_GetArtifactVersionInGob(self):
     """Test that we look in the right place in GoB."""
