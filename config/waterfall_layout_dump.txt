@@ -287,7 +287,6 @@
     guado_labstation-release
     hana-kernelnext-release
     hana-release
-    hatch-arc-r-release
     hatch-arc-r-userdebug-release
     hatch-borealis-release
     hatch-diskswap-release
@@ -979,12 +978,6 @@
   hana-payloads-tryjob
   hana-release-tryjob
   hana-unittest-stress
-  hatch-arc-r-full-tryjob
-  hatch-arc-r-llvm-next-toolchain-tryjob
-  hatch-arc-r-llvm-toolchain-tryjob
-  hatch-arc-r-payloads-tryjob
-  hatch-arc-r-release-tryjob
-  hatch-arc-r-unittest-stress
   hatch-arc-r-userdebug-full-tryjob
   hatch-arc-r-userdebug-llvm-next-toolchain-tryjob
   hatch-arc-r-userdebug-llvm-toolchain-tryjob
@@ -1213,7 +1206,6 @@
     guado_labstation-release-tryjob
     hana-kernelnext-release-tryjob
     hana-release-tryjob
-    hatch-arc-r-release-tryjob
     hatch-arc-r-userdebug-release-tryjob
     hatch-borealis-release-tryjob
     hatch-diskswap-release-tryjob
