@@ -639,7 +639,7 @@ CIPD_SKYLAB_PACKAGE = 'chromiumos/infra/skylab/linux-amd64'
 # crbug.com/1108489: The skylab tool CIPD package is pinned to a specific
 # version to avoid uncontrolled tool release and so that the tool is effectively
 # branched with cbuildbot.
-CIPD_SKYLAB_INSTANCE_ID = 'iYtu-iue_-h4VojzyfDlZDoai95oTZnemPNPi_lfqQ0C'
+CIPD_SKYLAB_INSTANCE_ID = 'rfAczIAWe-S_ySaRTGXRHxo1aN_4oNzUIoD9-w886cYC'
 
 # HWTest result statuses
 HWTEST_STATUS_PASS = 'pass'
