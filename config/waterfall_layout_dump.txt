@@ -333,6 +333,7 @@
     snappy-release
     soraka-release
     strongbad-release
+    sumo-release
     swanky-release
     terra-release
     tidus-release
@@ -1251,6 +1252,7 @@
     snappy-release-tryjob
     soraka-release-tryjob
     strongbad-release-tryjob
+    sumo-release-tryjob
     swanky-release-tryjob
     terra-release-tryjob
     tidus-release-tryjob
@@ -1527,6 +1529,12 @@
   strongbad-unittest-stress
   success-build
   sumo-factory-rambi-6420.B-factorybranch-tryjob
+  sumo-full-tryjob
+  sumo-llvm-next-toolchain-tryjob
+  sumo-llvm-toolchain-tryjob
+  sumo-payloads-tryjob
+  sumo-release-tryjob
+  sumo-unittest-stress
   swanky-factory-rambi-5517.B-factorybranch-tryjob
   swanky-full-tryjob
   swanky-llvm-next-toolchain-tryjob
