@@ -602,6 +602,18 @@
       ]
     },
     {
+      "name": "sumo",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": false,
+          "leader_board": false,
+          "board_group": "rambi",
+          "arch": "X86_INTERNAL"
+        }
+      ]
+    },
+    {
       "name": "swanky",
       "configs": [
         {
