@@ -506,6 +506,18 @@
       ]
     },
     {
+      "name": "puff-borealis",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": false,
+          "leader_board": false,
+          "board_group": "",
+          "arch": "X86_INTERNAL"
+        }
+      ]
+    },
+    {
       "name": "reks",
       "configs": [
         {

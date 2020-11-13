@@ -313,6 +313,7 @@
     novato-release
     octopus-release
     orco-release
+    puff-borealis-release
     puff-release
     pyro-release
     rammus-arc-r-release
@@ -1232,6 +1233,7 @@
     novato-release-tryjob
     octopus-release-tryjob
     orco-release-tryjob
+    puff-borealis-release-tryjob
     puff-release-tryjob
     pyro-release-tryjob
     rammus-arc-r-release-tryjob
@@ -1376,6 +1378,12 @@
   poppy-payloads-tryjob
   poppy-release-tryjob
   poppy-unittest-stress
+  puff-borealis-full-tryjob
+  puff-borealis-llvm-next-toolchain-tryjob
+  puff-borealis-llvm-toolchain-tryjob
+  puff-borealis-payloads-tryjob
+  puff-borealis-release-tryjob
+  puff-borealis-unittest-stress
   puff-factory-puff-13329.B-factorybranch-tryjob
   puff-full-tryjob
   puff-llvm-next-toolchain-tryjob
