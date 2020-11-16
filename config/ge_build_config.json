@@ -4570,6 +4570,14 @@
         },
         {
           "board_name": "volteer",
+          "name": "elemi",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
           "name": "halvor",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -4659,6 +4667,14 @@
         {
           "board_name": "volteer",
           "name": "unprovisioned_volteer",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
+          "name": "voema",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
