@@ -1415,7 +1415,6 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
       'arm64-generic',
       'eve',
       'kevin',
-      'kevin64',
       'oak',
       'tael',
       'tatl',
@@ -2291,10 +2290,6 @@ def AddNotificationConfigs(site_config):
       ],
       'swanky-release': [
           config_lib.NotificationConfig(email='navil+spam@chromium.org'),
-      ],
-      'zork-borealis-release': [
-          config_lib.NotificationConfig(
-              email='borealis-release-builder-alerts@google.com', threshold=2),
       ],
   }
 
