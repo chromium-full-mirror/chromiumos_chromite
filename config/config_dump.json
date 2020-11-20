@@ -7433,7 +7433,7 @@
             "eve-kernelnext"
         ],
         "models": [
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"eve\",\n    \"name\": \"eve\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"eve\",\n    \"name\": \"eve\",\n    \"test_suites\": []\n}"
         ],
         "vm_tests": [],
         "vm_tests_override": null
@@ -7457,7 +7457,7 @@
         "hw_tests_override": null,
         "luci_builder": "Try",
         "models": [
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"eve\",\n    \"name\": \"eve\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"eve\",\n    \"name\": \"eve\",\n    \"test_suites\": []\n}"
         ],
         "paygen": false,
         "push_image": false,
@@ -14788,7 +14788,7 @@
             "jacuzzi"
         ],
         "models": [
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"burnet\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"burnet\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"cerise\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"damu\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"esche\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
@@ -14826,7 +14826,7 @@
         "hw_tests_override": null,
         "luci_builder": "Try",
         "models": [
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"burnet\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"burnet\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"cerise\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"damu\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi\",\n    \"name\": \"esche\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
