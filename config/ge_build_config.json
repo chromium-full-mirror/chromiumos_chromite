@@ -458,18 +458,6 @@
       ]
     },
     {
-      "name": "puff-moblab",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "ninja",
       "configs": [
         {
@@ -513,6 +501,18 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "rambi",
+          "arch": "X86_INTERNAL"
+        }
+      ]
+    },
+    {
+      "name": "puff-moblab",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": false,
+          "leader_board": false,
+          "board_group": "",
           "arch": "X86_INTERNAL"
         }
       ]
