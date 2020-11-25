@@ -130,7 +130,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
         'parameters_json': mock.ANY,
         'bucket': self.TEST_BUCKET,
         'tags': [
-            'buildset:cros/master_buildbucket_id/master_bb_id',
+            'buildset:cros/parent_buildbucket_id/master_bb_id',
             'cbb_branch:test-branch',
             'cbb_config:amd64-generic-paladin',
             'cbb_display_label:display',
@@ -149,7 +149,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
         u'email_notify': [{u'email': u'explicit_email',
                            u'template': u'explicit_template'}],
         u'properties': {
-            u'buildset': u'cros/master_buildbucket_id/master_bb_id',
+            u'buildset': u'cros/parent_buildbucket_id/master_bb_id',
             u'cbb_branch': u'test-branch',
             u'cbb_config': u'amd64-generic-paladin',
             u'cbb_display_label': u'display',
@@ -302,7 +302,7 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
         self.TEST_BUCKET,
         [
             'builder:luci_build',
-            'buildset:cros/master_buildbucket_id/master_bb_id',
+            'buildset:cros/parent_buildbucket_id/master_bb_id',
             'cbb_branch:test-branch',
             'cbb_display_label:display',
             'cbb_config:amd64-generic-paladin',
@@ -316,7 +316,7 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
             u'email_notify': [{u'email': u'explicit_email',
                                u'template': u'explicit_template'}],
             u'properties': {
-                u'buildset': u'cros/master_buildbucket_id/master_bb_id',
+                u'buildset': u'cros/parent_buildbucket_id/master_bb_id',
                 u'cbb_branch': u'test-branch',
                 u'cbb_config': u'amd64-generic-paladin',
                 u'cbb_display_label': u'display',

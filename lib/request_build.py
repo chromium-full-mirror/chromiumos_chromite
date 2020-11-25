@@ -33,19 +33,19 @@ ScheduledBuild = collections.namedtuple(
     ('bucket', 'buildbucket_id', 'build_config', 'url', 'created_ts'))
 
 
-def SlaveBuildSet(master_buildbucket_id):
+def ChildBuildSet(parent_buildbucket_id):
   """Compute the buildset id for all slaves of a master builder.
 
   Args:
-    master_buildbucket_id: The buildbucket id of the master build.
+    parent_buildbucket_id: The buildbucket id of the master build.
 
   Returns:
     A string to use as a buildset for the slave builders, or None.
   """
-  if not master_buildbucket_id:
+  if not parent_buildbucket_id:
     return None
 
-  return 'cros/master_buildbucket_id/%s' % master_buildbucket_id
+  return 'cros/parent_buildbucket_id/%s' % parent_buildbucket_id
 
 class RequestBuild(object):
   """Request a builder via buildbucket."""
@@ -129,7 +129,7 @@ class RequestBuild(object):
     """
     tags = {
         # buildset identifies a group of related builders.
-        'buildset': SlaveBuildSet(self.master_buildbucket_id),
+        'buildset': ChildBuildSet(self.master_buildbucket_id),
         'cbb_display_label': self.display_label,
         'cbb_branch': self.branch,
         'cbb_config': self.build_config,
