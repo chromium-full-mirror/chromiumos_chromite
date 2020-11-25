@@ -223,7 +223,7 @@ class CleanUpStage(generic_stages.BuilderStage):
       ]:
         builds = buildbucket_client.SearchAllBuilds(
             self._run.options.debug,
-            tags=['buildset:%s' % request_build.SlaveBuildSet(master_id)],
+            tags=['buildset:%s' % request_build.ChildBuildSet(master_id)],
             status=status)
 
         ids = buildbucket_lib.ExtractBuildIds(builds)
