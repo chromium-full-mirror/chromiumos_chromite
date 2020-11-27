@@ -20526,6 +20526,7 @@
             "puff-borealis"
         ],
         "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"dooly\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"duffy\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"duffy_legacy\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"faffy\",\n    \"test_suites\": []\n}",
@@ -20558,6 +20559,7 @@
         "hw_tests_override": null,
         "luci_builder": "Try",
         "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"dooly\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"duffy\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"duffy_legacy\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"puff\",\n    \"name\": \"faffy\",\n    \"test_suites\": []\n}",
