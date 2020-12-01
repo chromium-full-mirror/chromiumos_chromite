@@ -30,6 +30,8 @@ from chromite.scripts import pushimage
 from chromite.service import image
 from chromite.utils import metrics
 
+assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
+
 # The image.proto ImageType enum ids.
 _BASE_ID = common_pb2.BASE
 _DEV_ID = common_pb2.DEV
@@ -109,6 +111,14 @@ def _add_image_to_proto(output_proto, path, image_type, board):
   new_image.path = path
   new_image.type = image_type
   new_image.build_target.name = board
+
+# Supported image types for PushImage.
+SUPPORTED_IMAGE_TYPES = {
+    _RECOVERY_ID: constants.IMAGE_TYPE_RECOVERY,
+    _FACTORY_ID: constants.IMAGE_TYPE_FACTORY,
+    _FIRMWARE_ID: constants.IMAGE_TYPE_FIRMWARE,
+    _BASE_ID: constants.IMAGE_TYPE_BASE,
+}
 
 
 def _CreateResponse(_input_proto, output_proto, _config):
