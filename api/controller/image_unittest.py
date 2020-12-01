@@ -17,11 +17,13 @@ from chromite.api import controller
 from chromite.api.controller import image as image_controller
 from chromite.api.gen.chromite.api import image_pb2
 from chromite.api.gen.chromiumos import common_pb2
+from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import image_lib
 from chromite.lib import osutils
+from chromite.scripts import pushimage
 from chromite.service import image as image_service
 
 
@@ -34,7 +36,11 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
   def setUp(self):
     self.response = image_pb2.CreateImageResult()
 
-  def _GetRequest(self, board=None, types=None, version=None, builder_path=None,
+  def _GetRequest(self,
+                  board=None,
+                  types=None,
+                  version=None,
+                  builder_path=None,
                   disable_rootfs_verification=False):
     """Helper to build a request instance."""
     return image_pb2.CreateImageRequest(
@@ -329,3 +335,111 @@ class ImageTestTest(cros_test_lib.MockTempDirTestCase,
     self.PatchObject(image_service, 'Test', return_value=False)
     image_controller.Test(input_proto, output_proto, self.api_config)
     self.assertFalse(output_proto.success)
+
+
+class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
+  """Push image test."""
+
+  def setUp(self):
+    self.response = image_pb2.PushImageResponse()
+
+  def _GetRequest(
+      self,
+      gs_image_dir='gs://chromeos-image-archive/atlas-release/R89-13604.0.0',
+      build_target_name='atlas',
+      profile='foo',
+      sign_types=None,
+      dryrun=True):
+    return image_pb2.PushImageRequest(
+        gs_image_dir=gs_image_dir,
+        sysroot=sysroot_pb2.Sysroot(
+            build_target=common_pb2.BuildTarget(name=build_target_name)),
+        profile=common_pb2.Profile(name=profile),
+        sign_types=sign_types,
+        dryrun=dryrun)
+
+  def testValidateOnly(self):
+    """Check that a validate only call does not execute any logic."""
+    patch = self.PatchObject(pushimage, 'PushImage')
+
+    req = self._GetRequest(sign_types=[
+        common_pb2.IMAGE_TYPE_RECOVERY, common_pb2.IMAGE_TYPE_FACTORY,
+        common_pb2.IMAGE_TYPE_FIRMWARE, common_pb2.IMAGE_TYPE_ACCESSORY_USBPD,
+        common_pb2.IMAGE_TYPE_ACCESSORY_RWSIG, common_pb2.IMAGE_TYPE_BASE,
+        common_pb2.IMAGE_TYPE_GSC_FIRMWARE
+    ])
+    res = image_controller.PushImage(req, self.response,
+                                     self.validate_only_config)
+    patch.assert_not_called()
+    self.assertEqual(res, controller.RETURN_CODE_VALID_INPUT)
+
+  def testValidateOnlyInvalid(self):
+    """Check that validate call rejects invalid sign types."""
+    patch = self.PatchObject(pushimage, 'PushImage')
+
+    # Pass unsupported image type.
+    req = self._GetRequest(sign_types=[common_pb2.IMAGE_TYPE_DLC])
+    res = image_controller.PushImage(req, self.response,
+                                     self.validate_only_config)
+    patch.assert_not_called()
+    self.assertEqual(res, controller.RETURN_CODE_INVALID_INPUT)
+
+  def testMockCall(self):
+    """Test that mock call does not execute any logic, returns mocked value."""
+    patch = self.PatchObject(pushimage, 'PushImage')
+
+    rc = image_controller.PushImage(self._GetRequest(), self.response,
+                                    self.mock_call_config)
+    patch.assert_not_called()
+    self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
+
+  def testMockError(self):
+    """Test that mock call does not execute any logic, returns error."""
+    patch = self.PatchObject(pushimage, 'PushImage')
+
+    rc = image_controller.PushImage(self._GetRequest(), self.response,
+                                    self.mock_error_config)
+    patch.assert_not_called()
+    self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
+
+  def testNoBuildTarget(self):
+    """Test no build target given fails."""
+    request = self._GetRequest(build_target_name='')
+
+    # No build target should cause it to fail.
+    with self.assertRaises(cros_build_lib.DieSystemExit):
+      image_controller.PushImage(request, self.response, self.api_config)
+
+  def testNoGsImageDir(self):
+    """Test no image dir given fails."""
+    request = self._GetRequest(gs_image_dir='')
+
+    # No image dir should cause it to fail.
+    with self.assertRaises(cros_build_lib.DieSystemExit):
+      image_controller.PushImage(request, self.response, self.api_config)
+
+  def testCallCorrect(self):
+    """Check that a call is called with the correct parameters."""
+    patch = self.PatchObject(pushimage, 'PushImage')
+
+    request = self._GetRequest(
+        dryrun=False, profile='', sign_types=[common_pb2.IMAGE_TYPE_RECOVERY])
+    image_controller.PushImage(request, self.response, self.api_config)
+    patch.assert_called_with(
+        request.gs_image_dir,
+        request.sysroot.build_target.name,
+        dry_run=request.dryrun,
+        profile=request.profile.name,
+        sign_types=['recovery'])
+
+  def testCallSucceeds(self):
+    """Check that a (dry run) call is made successfully."""
+    request = self._GetRequest(sign_types=[common_pb2.IMAGE_TYPE_RECOVERY])
+    res = image_controller.PushImage(request, self.response, self.api_config)
+    self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
+
+  def testCallFailsWithBadImageDir(self):
+    """Check that a (dry run) call fails when given a bad gs_image_dir."""
+    request = self._GetRequest(gs_image_dir='foo')
+    res = image_controller.PushImage(request, self.response, self.api_config)
+    self.assertEqual(res, controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY)
