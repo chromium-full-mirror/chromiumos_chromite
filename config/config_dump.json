@@ -71,7 +71,7 @@
         "internal": false,
         "kernel_afdo_verify": false,
         "latest_toolchain": false,
-        "luci_builder": "LegacyRelease",
+        "luci_builder": "LTSRelease",
         "manifest": "default.xml",
         "manifest_branch": null,
         "manifest_repo_url": "https://chromium.googlesource.com/chromiumos/manifest",
@@ -600,6 +600,7 @@
             "display_label": "tryjob",
             "hw_tests_override": [],
             "internal": true,
+            "luci_builder": "LegacyRelease",
             "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
             "manifest_version": true,
             "overlays": "both",
@@ -702,6 +703,7 @@
                 "factory_install"
             ],
             "internal": true,
+            "luci_builder": "LegacyRelease",
             "manifest": "official.xml",
             "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
             "manifest_version": true,
@@ -783,6 +785,7 @@
                 "factory_install"
             ],
             "internal": true,
+            "luci_builder": "LegacyRelease",
             "manifest": "official.xml",
             "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
             "manifest_version": true,

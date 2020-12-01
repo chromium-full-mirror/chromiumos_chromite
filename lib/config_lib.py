@@ -80,6 +80,7 @@ LUCI_BUILDER_INCREMENTAL = 'Incremental'
 LUCI_BUILDER_INFORMATIONAL = 'Informational'
 LUCI_BUILDER_INFRA = 'Infra'
 LUCI_BUILDER_LEGACY_RELEASE = 'LegacyRelease'
+LUCI_BUILDER_LTS_RELEASE = 'LTSRelease'
 LUCI_BUILDER_PFQ = 'PFQ'
 LUCI_BUILDER_RAPID = 'Rapid'
 LUCI_BUILDER_RELEASE = 'Release'
@@ -93,6 +94,7 @@ ALL_LUCI_BUILDER = {
     LUCI_BUILDER_INFORMATIONAL,
     LUCI_BUILDER_INFRA,
     LUCI_BUILDER_LEGACY_RELEASE,
+    LUCI_BUILDER_LTS_RELEASE,
     LUCI_BUILDER_PFQ,
     LUCI_BUILDER_RAPID,
     LUCI_BUILDER_RELEASE,
@@ -660,7 +662,7 @@ def DefaultSettings():
       # https://chrome-internal.git.corp.google.com/chromeos/
       #    manifest-internal/+/infra/config/cr-buildbucket.cfg
       #
-      luci_builder=LUCI_BUILDER_LEGACY_RELEASE,
+      luci_builder=LUCI_BUILDER_LTS_RELEASE,
 
       # The profile of the variant to set up and build.
       profile=None,

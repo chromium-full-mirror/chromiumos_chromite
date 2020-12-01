@@ -2988,26 +2988,38 @@ def BranchScheduleConfig():
   # or the change will fail chromite unittests.
   branch_builds = [
       # Add non release branch schedules here, if needed.
-      # <branch>, <build_config>, <display_label>, <schedule>, <triggers>
+      # <branch>, <build_config>, <display_label>, <schedule>, <triggers>,
+      # <builder>
 
       # NOTE: R69, R73, R77 and R81 are Long Term Support (LTS) milestones for
       # lakitu and they'd like to keep them a little longer. Please let
       # lakitu-dev@google.com know before deleting this.
       ('release-R69-10895.B', 'master-lakitu-release',
-       config_lib.DISPLAY_LABEL_RELEASE, '0 4 * * *', None),
+       config_lib.DISPLAY_LABEL_RELEASE, '0 4 * * *', None,
+       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
       ('release-R73-11647.B', 'master-lakitu-release',
-       config_lib.DISPLAY_LABEL_RELEASE, '0 8 * * *', None),
+       config_lib.DISPLAY_LABEL_RELEASE, '0 8 * * *', None,
+       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
       ('release-R77-12371.B', 'master-lakitu-release',
-       config_lib.DISPLAY_LABEL_RELEASE, '0 12 * * *', None),
+       config_lib.DISPLAY_LABEL_RELEASE, '0 12 * * *', None,
+       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
       ('release-R81-12871.B', 'master-lakitu-release',
-       config_lib.DISPLAY_LABEL_RELEASE, '0 16 * * *', None),
+       config_lib.DISPLAY_LABEL_RELEASE, '0 16 * * *', None,
+       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
   ]
 
   # The three active release branches.
   # (<branch>, [<android PFQs>], <chrome PFQ>, [<orderfiles>], [<Chrome AFDOs>])
 
   RELEASES = [
-      ('release-R85-13310.B',
+      ('release-R88-13597.B',
+       ['grunt-android-pi-pre-flight-branch'],
+       '',
+       [],
+       [],
+       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
+
+      ('release-R87-13505.B',
        ['grunt-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
@@ -3015,7 +3027,8 @@ def BranchScheduleConfig():
        ['benchmark-afdo-generate',
         'chrome-silvermont-release-afdo-verify',
         'chrome-airmont-release-afdo-verify',
-        'chrome-broadwell-release-afdo-verify']),
+        'chrome-broadwell-release-afdo-verify'],
+       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
 
       ('release-R84-13099.B',
        ['grunt-android-pi-pre-flight-branch'],
@@ -3025,9 +3038,10 @@ def BranchScheduleConfig():
        ['benchmark-afdo-generate',
         'chrome-silvermont-release-afdo-verify',
         'chrome-airmont-release-afdo-verify',
-        'chrome-broadwell-release-afdo-verify']),
+        'chrome-broadwell-release-afdo-verify'],
+       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
 
-      ('release-R83-13020.B',
+      ('release-R86-13421.B',
        ['grunt-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
@@ -3035,13 +3049,8 @@ def BranchScheduleConfig():
        ['benchmark-afdo-generate',
         'chrome-silvermont-release-afdo-verify',
         'chrome-airmont-release-afdo-verify',
-        'chrome-broadwell-release-afdo-verify']),
-  ]
-
-  RELEASE_SCHEDULES = [
-      '0 6 * * *',
-      '0 5 * * *',
-      'triggered',
+        'chrome-broadwell-release-afdo-verify'],
+       config_lib.LUCI_BUILDER_LTS_RELEASE),
   ]
 
   PFQ_SCHEDULE = [
@@ -3066,57 +3075,55 @@ def BranchScheduleConfig():
       '0 3/12 * * *',
   ]
 
-  for ((branch, android_pfq, chrome_pfq, orderfile, afdo),
-       schedule, android_schedule) in zip(
-           RELEASES, RELEASE_SCHEDULES, PFQ_SCHEDULE):
+  assert len(RELEASES) == len(PFQ_SCHEDULE)
+  for ((branch, android_pfq, chrome_pfq, orderfile, afdo, builder),
+       android_schedule) in zip(
+           RELEASES, PFQ_SCHEDULE):
     release_num = re.search(r'release-R(\d+)-.*', branch).group(1)
-    # The oldest branch is only triggered by a Chrome uprev.
-    if schedule == 'triggered':
-      branch_builds.append(
-          [branch, 'master-release',
-           config_lib.DISPLAY_LABEL_RELEASE, schedule,
-           [[('https://chromium.googlesource.com/chromiumos/' +
-              'overlays/chromiumos-overlay'),
-             [r'regexp:refs/heads/%s\\..*' % branch],
-             [('chromeos-base/chromeos-chrome/chromeos-chrome-%s.*.ebuild'
-               % release_num)]]]])
-    else:
-      branch_builds.append([branch, 'master-release',
-                            config_lib.DISPLAY_LABEL_RELEASE,
-                            schedule, None])
+    # All branches are only triggered by a Chrome uprev, or manually.
+    branch_builds.append(
+        [branch, 'master-release',
+         config_lib.DISPLAY_LABEL_RELEASE, 'triggered',
+         [[('https://chromium.googlesource.com/chromiumos/' +
+            'overlays/chromiumos-overlay'),
+           [r'regexp:refs/heads/%s\\..*' % branch],
+           [('chromeos-base/chromeos-chrome/chromeos-chrome-%s.*.ebuild'
+             % release_num)]]], builder])
     branch_builds.extend([[branch, pfq,
                            config_lib.DISPLAY_LABEL_RELEASE,
-                           android_schedule, None]
+                           android_schedule, None, builder]
                           for pfq in android_pfq])
 
-    # We extract the release number from the branch, and use it to
-    # watch for new chrome tags to trigger Chrome PFQ builds.
-    # release-R71-11151.B -> 71 -> regexp:refs/tags/71\\..*
-    branch_builds.append(
-        [branch, chrome_pfq, config_lib.DISPLAY_LABEL_RELEASE, 'triggered',
-         [['https://chromium.googlesource.com/chromium/src',
-           [r'regexp:refs/tags/%s\\..*' % release_num]]]])
+    if chrome_pfq:
+      # We extract the release number from the branch, and use it to
+      # watch for new chrome tags to trigger Chrome PFQ builds.
+      # release-R71-11151.B -> 71 -> regexp:refs/tags/71\\..*
+      # Chrome PFQ is retired as of R88, so chrome_pfq may be empty.
+      branch_builds.append(
+          [branch, chrome_pfq, config_lib.DISPLAY_LABEL_RELEASE, 'triggered',
+           [['https://chromium.googlesource.com/chromium/src',
+             [r'regexp:refs/tags/%s\\..*' % release_num]]], builder])
     if orderfile:
       for b, s in zip(orderfile, ORDERFILE_SCHEDULES):
         branch_builds.append([branch, b,
                               config_lib.DISPLAY_LABEL_RELEASE,
-                              s, None])
+                              s, None, builder])
 
     if afdo:
       for b, s in zip(afdo, AFDO_SCHEDULES):
         branch_builds.append([branch, b,
                               config_lib.DISPLAY_LABEL_RELEASE,
-                              s, None])
+                              s, None, builder])
 
   # Convert all branch builds into scheduler config entries.
   default_config = config_lib.GetConfig().GetDefault()
 
   result = []
-  for branch, config_name, label, schedule, trigger in branch_builds:
+  for branch, config_name, label, schedule, trigger, builder in branch_builds:
     result.append(default_config.derive(
         name=config_name,
         display_label=label,
-        luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
+        luci_builder=builder,
         schedule_branch=branch,
         schedule=schedule,
         triggered_gitiles=trigger,
