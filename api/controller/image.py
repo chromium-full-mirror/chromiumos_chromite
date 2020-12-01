@@ -25,9 +25,12 @@ from chromite.api.metrics import deserialize_metrics_log
 from chromite.lib import cros_build_lib
 from chromite.lib import constants
 from chromite.lib import image_lib
+from chromite.lib import cros_logging as logging
+from chromite.scripts import pushimage
 from chromite.service import image
 from chromite.utils import metrics
 
+assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
 
 # The image.proto ImageType enum ids.
 _BASE_ID = common_pb2.BASE
@@ -108,6 +111,14 @@ def _add_image_to_proto(output_proto, path, image_type, board):
   new_image.path = path
   new_image.type = image_type
   new_image.build_target.name = board
+
+# Supported image types for PushImage.
+SUPPORTED_IMAGE_TYPES = {
+    _RECOVERY_ID: constants.IMAGE_TYPE_RECOVERY,
+    _FACTORY_ID: constants.IMAGE_TYPE_FACTORY,
+    _FIRMWARE_ID: constants.IMAGE_TYPE_FIRMWARE,
+    _BASE_ID: constants.IMAGE_TYPE_BASE,
+}
 
 
 def _CreateResponse(_input_proto, output_proto, _config):
@@ -264,8 +275,11 @@ def _ParseCreateBuildConfig(input_proto):
   disk_layout = input_proto.disk_layout or None
   builder_path = input_proto.builder_path or None
   return image.BuildConfig(
-      enable_rootfs_verification=enable_rootfs_verification, replace=True,
-      version=version, disk_layout=disk_layout, builder_path=builder_path,
+      enable_rootfs_verification=enable_rootfs_verification,
+      replace=True,
+      version=version,
+      disk_layout=disk_layout,
+      builder_path=builder_path,
   )
 
 
@@ -332,4 +346,44 @@ def Test(input_proto, output_proto, config):
   if success:
     return controller.RETURN_CODE_SUCCESS
   else:
+    return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
+
+
+@faux.empty_success
+@faux.empty_completed_unsuccessfully_error
+@validate.require('gs_image_dir', 'sysroot.build_target.name')
+def PushImage(input_proto, _output_proto, config):
+  """Push artifacts from the archive bucket to the release bucket.
+
+  Wraps chromite/scripts/pushimage.py.
+
+  Args:
+    input_proto (PushImageRequest): Input proto.
+    _output_proto (PushImageResponse): Output proto.
+    config (api.config.ApiConfig): The API call config.
+
+  Returns:
+    A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
+  """
+  sign_types = []
+  if input_proto.sign_types:
+    for sign_type in input_proto.sign_types:
+      if sign_type not in SUPPORTED_IMAGE_TYPES:
+        logging.error('unsupported sign type %g', sign_type)
+        return controller.RETURN_CODE_INVALID_INPUT
+      sign_types.append(SUPPORTED_IMAGE_TYPES[sign_type])
+
+  # If configured for validation only we're done here.
+  if config.validate_only:
+    return controller.RETURN_CODE_VALID_INPUT
+
+  try:
+    pushimage.PushImage(
+        input_proto.gs_image_dir,
+        input_proto.sysroot.build_target.name,
+        dry_run=input_proto.dryrun,
+        profile=input_proto.profile.name,
+        sign_types=sign_types)
+    return controller.RETURN_CODE_SUCCESS
+  except Exception:
     return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
