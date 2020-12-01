@@ -30,6 +30,8 @@ from chromite.scripts import pushimage
 from chromite.service import image
 from chromite.utils import metrics
 
+assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
+
 # The image.proto ImageType enum ids.
 _BASE_ID = common_pb2.BASE
 _DEV_ID = common_pb2.DEV
@@ -68,6 +70,17 @@ _VM_IMAGE_MAPPING = {
 # Dict to describe the prerequisite built images for each mod image type.
 _MOD_IMAGE_MAPPING = {
     _RECOVERY_ID: _IMAGE_MAPPING[_BASE_ID],
+}
+
+# Supported image types for PushImage.
+SUPPORTED_IMAGE_TYPES = {
+    common_pb2.IMAGE_TYPE_RECOVERY: constants.IMAGE_TYPE_RECOVERY,
+    common_pb2.IMAGE_TYPE_FACTORY: constants.IMAGE_TYPE_FACTORY,
+    common_pb2.IMAGE_TYPE_FIRMWARE: constants.IMAGE_TYPE_FIRMWARE,
+    common_pb2.IMAGE_TYPE_ACCESSORY_USBPD: constants.IMAGE_TYPE_ACCESSORY_USBPD,
+    common_pb2.IMAGE_TYPE_ACCESSORY_RWSIG: constants.IMAGE_TYPE_ACCESSORY_RWSIG,
+    common_pb2.IMAGE_TYPE_BASE: constants.IMAGE_TYPE_BASE,
+    common_pb2.IMAGE_TYPE_GSC_FIRMWARE: constants.IMAGE_TYPE_GSC_FIRMWARE
 }
 
 

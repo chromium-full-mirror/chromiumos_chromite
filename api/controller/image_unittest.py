@@ -91,8 +91,8 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
     build_patch = self.PatchObject(image_service, 'Build', return_value=result)
 
     image_controller.Create(request, self.response, self.api_config)
-    build_patch.assert_any_call(
-        'board', [constants.IMAGE_TYPE_BASE], config=mock.ANY)
+    build_patch.assert_called_with(
+        images=[constants.IMAGE_TYPE_BASE], board='board', config=mock.ANY)
 
   def testSingleTypeSpecified(self):
     """Test it's properly using a specified type."""
@@ -104,8 +104,8 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
     build_patch = self.PatchObject(image_service, 'Build', return_value=result)
 
     image_controller.Create(request, self.response, self.api_config)
-    build_patch.assert_any_call(
-        'board', [constants.IMAGE_TYPE_DEV], config=mock.ANY)
+    build_patch.assert_called_with(
+        images=[constants.IMAGE_TYPE_DEV], board='board', config=mock.ANY)
 
   def testMultipleAndImpliedTypes(self):
     """Test multiple types and implied type handling."""
@@ -121,7 +121,8 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
     build_patch = self.PatchObject(image_service, 'Build', return_value=result)
 
     image_controller.Create(request, self.response, self.api_config)
-    build_patch.assert_any_call('board', expected_images, config=mock.ANY)
+    build_patch.assert_called_with(
+        images=expected_images, board='board', config=mock.ANY)
 
   def testFailedPackageHandling(self):
     """Test failed packages are populated correctly."""
