@@ -111,6 +111,14 @@ def _add_image_to_proto(output_proto, path, image_type, board):
   new_image.type = image_type
   new_image.build_target.name = board
 
+# Supported image types for PushImage.
+SUPPORTED_IMAGE_TYPES = {
+    _RECOVERY_ID: constants.IMAGE_TYPE_RECOVERY,
+    _FACTORY_ID: constants.IMAGE_TYPE_FACTORY,
+    _FIRMWARE_ID: constants.IMAGE_TYPE_FIRMWARE,
+    _BASE_ID: constants.IMAGE_TYPE_BASE,
+}
+
 
 def _CreateResponse(_input_proto, output_proto, _config):
   """Set output_proto success field on a successful Create response."""
