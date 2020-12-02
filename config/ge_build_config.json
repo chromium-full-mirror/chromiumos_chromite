@@ -506,18 +506,6 @@
       ]
     },
     {
-      "name": "puff-moblab",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "reks",
       "configs": [
         {
@@ -4356,6 +4344,31 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 864,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "puff-moblab",
+      "reference_board_name": "puff-moblab",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "puff-moblab",
+          "name": "wyvern",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7146,
+          "is_active": true
+        },
+        {
+          "board_name": "puff-moblab",
+          "name": "wyvern_accelerator",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7146,
           "is_active": true
         }
       ]
