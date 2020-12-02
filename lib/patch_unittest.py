@@ -219,7 +219,8 @@ I am the first commit.
     bare_path = os.path.join(tmp_path, 'bare.git')
     checkout_path = os.path.join(tmp_path, 'checkout')
     cros_build_lib.run(
-        ['git', 'init', '--separate-git-dir', bare_path, checkout_path],
+        ['git', 'init', '--separate-git-dir', bare_path,
+         '--initial-branch', 'master', checkout_path],
         cwd=tmp_path, print_cmd=False, capture_output=True)
 
     # Nerf any hooks the OS might have installed on us as they aren't going to
