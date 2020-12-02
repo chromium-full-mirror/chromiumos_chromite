@@ -632,7 +632,7 @@ class BuildPackagesStage(generic_stages.BoardSpecificBuilderStage,
     # TODO(crbug.com/751010): Revisit to enable DepsCache for non-chrome-pfq
     # bots, too.
     use_goma_deps_cache = self._run.config.name.endswith('chrome-pfq')
-    goma_approach = goma_util.GomaApproach('?prod', 'goma.chromium.org', True)
+    goma_approach = goma_util.GomaApproach('?cros', 'goma.chromium.org', True)
     goma = goma_util.Goma(
         self._run.options.goma_dir,
         self._run.options.goma_client_json,
