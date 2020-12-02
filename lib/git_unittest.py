@@ -517,6 +517,9 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
     git.CreateBranch(remote_manifests, 'default')
     git.CreateBranch(remote_manifests, 'release-R23-2913.B')
     git.CreateBranch(remote_manifests, 'firmware-link-')
+    # This must come last as it sets up HEAD for the default branch, and repo
+    # uses that to figure out which branch to check out.
+    git.CreateBranch(remote_manifests, 'master')
 
     # Create a copy of our existing manifests.git, but rewrite it so it
     # looks like a remote manifests.git.  This is to avoid hitting the
