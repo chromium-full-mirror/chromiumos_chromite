@@ -89,11 +89,12 @@ I am the first commit.
     tmp_path = '%s-tmp' % path
     os.mkdir(path)
     os.mkdir(tmp_path)
-    self._run(['git', 'init', '--separate-git-dir', path], cwd=tmp_path)
+    self._run(['git', 'init', '--separate-git-dir', path,
+               '--initial-branch', 'master'], cwd=tmp_path)
 
     # Nerf any hooks the OS might have installed on us as they aren't going to
     # be useful to us, just slow things down.
-    shutil.rmtree(os.path.join(bare_path, 'hooks'))
+    shutil.rmtree(os.path.join(path, 'hooks'))
 
     # Add an initial commit then wipe the working tree.
     self._run(['git', 'commit', '--allow-empty', '-m', 'initial commit'],
