@@ -292,7 +292,6 @@
     hana-kernelnext-release
     hana-release
     hatch-arc-r-ack-release
-    hatch-arc-r-release
     hatch-arc-r-userdebug-release
     hatch-borealis-release
     hatch-diskswap-release
@@ -998,12 +997,6 @@
   hatch-arc-r-ack-payloads-tryjob
   hatch-arc-r-ack-release-tryjob
   hatch-arc-r-ack-unittest-stress
-  hatch-arc-r-full-tryjob
-  hatch-arc-r-llvm-next-toolchain-tryjob
-  hatch-arc-r-llvm-toolchain-tryjob
-  hatch-arc-r-payloads-tryjob
-  hatch-arc-r-release-tryjob
-  hatch-arc-r-unittest-stress
   hatch-arc-r-userdebug-full-tryjob
   hatch-arc-r-userdebug-llvm-next-toolchain-tryjob
   hatch-arc-r-userdebug-llvm-toolchain-tryjob
@@ -1240,7 +1233,6 @@
     hana-kernelnext-release-tryjob
     hana-release-tryjob
     hatch-arc-r-ack-release-tryjob
-    hatch-arc-r-release-tryjob
     hatch-arc-r-userdebug-release-tryjob
     hatch-borealis-release-tryjob
     hatch-diskswap-release-tryjob
