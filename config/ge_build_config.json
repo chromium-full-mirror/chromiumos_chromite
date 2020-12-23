@@ -4114,6 +4114,14 @@
         },
         {
           "board_name": "volteer",
+          "name": "drobit",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
           "name": "eldrid",
           "test_suites": [
             "sanity",
