@@ -30,3 +30,6 @@ cscope.out
 # Obsolete
 /virtualenv/
 /.venv/
+
+# Intellij files.
+*.iml
