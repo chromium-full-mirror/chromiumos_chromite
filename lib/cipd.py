@@ -169,14 +169,14 @@ def GetInstanceID(cipd_path, package, version, service_account_json=None):
 
 
 @memoize.Memoize
-def InstallPackage(cipd_path, package, instance_id, destination,
+def InstallPackage(cipd_path, package, version, destination,
                    service_account_json=None):
   """Installs a package at a given destination using cipd.
 
   Args:
     cipd_path: The path to a cipd executable. GetCIPDFromCache can give this.
     package: A package name.
-    instance_id: The version of the package to install.
+    version: The CIPD version of the package to install (can be instance ID or a ref).
     destination: The folder to install the package under.
     service_account_json: The path of the service account credentials.
 
@@ -190,7 +190,7 @@ def InstallPackage(cipd_path, package, instance_id, destination,
     service_account_flag = ['-service-account-json', service_account_json]
 
   with tempfile.NamedTemporaryFile() as f:
-    f.write(('%s %s' % (package, instance_id)).encode('utf-8'))
+    f.write(('%s %s' % (package, version)).encode('utf-8'))
     f.flush()
 
     cros_build_lib.run(
