@@ -79,8 +79,12 @@ AFDO_SUFFIX = '.afdo'
 BZ2_COMPRESSION_SUFFIX = '.bz2'
 XZ_COMPRESSION_SUFFIX = '.xz'
 KERNEL_AFDO_COMPRESSION_SUFFIX = '.gcov.xz'
-TOOLCHAIN_UTILS_PATH = os.path.join(
-    constants.SOURCE_ROOT, 'src/third_party/toolchain-utils')
+# FIXME: we should only use constants.SOURCE_ROOT and use
+# path_util.ToChrootPath to convert to inchroot path when needed. So we
+# need fix all the use cases for this variable (we can remove all but one
+# when legacy is retired).
+TOOLCHAIN_UTILS_PATH = os.path.join(constants.CHROOT_SOURCE_ROOT,
+                                    'src/third_party/toolchain-utils')
 AFDO_PROFILE_PATH_IN_CHROMIUM = 'src/chromeos/profiles/%s.afdo.newest.txt'
 MERGED_AFDO_NAME = 'chromeos-chrome-amd64-%s'
 
@@ -756,10 +760,16 @@ class GenerateChromeOrderfile(object):
     ]
 
     try:
-      cros_build_lib.run(cmd, enter_chroot=True, chroot_args=self.chroot_args)
-    except cros_build_lib.RunCommandError:
+      cros_build_lib.run(
+          cmd,
+          enter_chroot=True,
+          chroot_args=self.chroot_args,
+          check=True,
+          capture_output=True)
+    except cros_build_lib.RunCommandError as e:
       raise GenerateChromeOrderfileError(
-          'Unable to run %s to process orderfile.' % (cmd))
+          f'Unable to run %s to process orderfile {cmd} '
+          f'with error: {e.result.stdout} {e.result.stderr}.')
 
     # Return path inside chroot
     return result
@@ -2459,10 +2469,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
     def FilterFile(file_path):
       return extension is None or file_path.endswith(extension)
 
-    files = self._CollectFiles(
-        src_dir,
-        destination,
-        include_file=FilterFile)
+    files = self._CollectFiles(src_dir, destination, include_file=FilterFile)
     if not files:
       logging.info('No data found for %s, skip bundle artifact', tarball)
       raise NoArtifactsToBundleError(f'No {extension} files in {src_dir}')
@@ -2479,11 +2486,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
     with self.chroot.tempdir() as tempdir:
       try:
         return [
-          self._CreateBundle(
-            '/tmp/fatal_clang_warnings',
-            'fatal_clang_warnings',
-            tempdir,
-            '.json')
+            self._CreateBundle('/tmp/fatal_clang_warnings',
+                               'fatal_clang_warnings', tempdir, '.json')
         ]
       except NoArtifactsToBundleError:
         return []
@@ -2496,10 +2500,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
     with osutils.TempDir(prefix='clang_crash_diagnoses_tarball') as tempdir:
       try:
         return [
-          self._CreateBundle(
-            '/tmp/clang_crash_diagnostics',
-            'clang_crash_diagnoses',
-            tempdir)
+            self._CreateBundle('/tmp/clang_crash_diagnostics',
+                               'clang_crash_diagnoses', tempdir)
         ]
       except NoArtifactsToBundleError:
         return []
@@ -2514,14 +2516,12 @@ class BundleArtifactHandler(_CommonPrepareBundle):
     with self.chroot.tempdir() as tempdir:
       try:
         return [
-          self._CreateBundle(
-            '/tmp/compiler_rusage',
-            'compiler_rusage_logs',
-            tempdir,
-            '.json')
+            self._CreateBundle('/tmp/compiler_rusage', 'compiler_rusage_logs',
+                               tempdir, '.json')
         ]
       except NoArtifactsToBundleError:
         return []
+
 
 def PrepareForBuild(artifact_name, chroot, sysroot_path, build_target,
                     input_artifacts, profile_info):

@@ -826,20 +826,24 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
 
     # Test behaviour when artifacts are found.
     self.runToolchainBundleTest(
-      artifact_path,
-      tarball_name,
-      input_files=(
-        'good1.json', 'good2.json', 'good3.json',
-        'bad1.notjson', 'bad2', 'json',
-      ),
-      expected_output_files=(
-          'good1.json',
-          'good2.json',
-          'good3.json',
-          'good10.json',
-          'good20.json',
-          'good30.json',
-      ),
+        artifact_path,
+        tarball_name,
+        input_files=(
+            'good1.json',
+            'good2.json',
+            'good3.json',
+            'bad1.notjson',
+            'bad2',
+            'json',
+        ),
+        expected_output_files=(
+            'good1.json',
+            'good2.json',
+            'good3.json',
+            'good10.json',
+            'good20.json',
+            'good30.json',
+        ),
     )
 
 
@@ -1686,7 +1690,11 @@ class GenerateChromeOrderfileTest(cros_test_lib.MockTempDirTestCase):
         input_orderfile, '--output', output
     ]
     cros_build_lib.run.assert_called_with(
-        cmd, enter_chroot=True, chroot_args=self.chroot_args)
+        cmd,
+        enter_chroot=True,
+        chroot_args=self.chroot_args,
+        check=True,
+        capture_output=True)
 
   def testSuccessRun(self):
     """Test the main function is running successfully."""
@@ -2350,8 +2358,8 @@ class PublishVettedAFDOArtifactTest(cros_test_lib.MockTempDirTestCase):
 
     with open(self.json_file, 'w') as f:
       json.dump(self.afdo_versions, f)
-    self.PatchObject(git, 'GetTrackingBranch',
-                     return_value=git.RemoteRef('origin', 'main'))
+    self.PatchObject(
+        git, 'GetTrackingBranch', return_value=git.RemoteRef('origin', 'main'))
     GitStatus = collections.namedtuple('GitStatus', ['output'])
     self.mock_git = self.PatchObject(
         git, 'RunGit', return_value=GitStatus(output='non-empty'))
@@ -2385,8 +2393,7 @@ class PublishVettedAFDOArtifactTest(cros_test_lib.MockTempDirTestCase):
                                               self.afdo_sorted_by_freshness[1],
                                               self.afdo_sorted_by_freshness[2])
     calls = [
-        mock.call(
-            self.tempdir, ['pull', 'origin'], print_cmd=True),
+        mock.call(self.tempdir, ['pull', 'origin'], print_cmd=True),
         mock.call(
             self.tempdir, ['status', '--porcelain', '-uno'],
             capture_output=True,
@@ -2395,10 +2402,7 @@ class PublishVettedAFDOArtifactTest(cros_test_lib.MockTempDirTestCase):
         mock.call(
             self.tempdir, ['commit', '-a', '-m', message], print_cmd=True),
         mock.call(
-            self.tempdir, [
-                'push', 'origin',
-                'HEAD:main%submit'
-            ],
+            self.tempdir, ['push', 'origin', 'HEAD:main%submit'],
             capture_output=True,
             print_cmd=True)
     ]
