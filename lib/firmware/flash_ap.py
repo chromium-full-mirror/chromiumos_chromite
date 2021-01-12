@@ -114,8 +114,8 @@ def _build_ssh_cmds(futility, ip, port, path, tmp_file_name, fast, verbose):
       '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
       '-o', 'CheckHostIP=no'
   ]
-  ssh_port = ['-p', port] if port else []
-  scp_port = ['-P', port] if port else []
+  ssh_port = ['-p', str(port)] if port else []
+  scp_port = ['-P', str(port)] if port else []
   tmp = '/tmp'
   hostname = 'root@%s' % ip
   scp_cmd = (['scp', '-i', tmp_file_name] + scp_port + ssh_parameters +
