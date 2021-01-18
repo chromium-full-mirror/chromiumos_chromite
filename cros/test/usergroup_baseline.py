@@ -192,6 +192,7 @@ GROUP_BASELINE = dict((e.group, e) for e in (
     GroupEntry(group='cups-proxy', gid=20136, users={'crosvm', 'cups-proxy',
                                                      'pluginvm'}),
     GroupEntry(group='usbprinter', gid=20155, users={'cups', 'saned'}),
+    GroupEntry(group='hotline', gid=20157, users={'hotline', 'hotlog'}),
 ))
 
 GROUP_BASELINE_LAKITU = dict((e.group, e) for e in (
@@ -232,10 +233,6 @@ GROUP_BASELINE_TERMINA = dict((e.group, e) for e in (
     GroupEntry(group='lxd', gid=298, users={'lxd', 'chronos'}),
 ))
 
-GROUP_BASELINE_CFM = dict((e.group, e) for e in (
-    GroupEntry(group='hotline', gid=20157, users={'hotline', 'hotlog'}),
-))
-
 GROUP_BOARD_BASELINES = {
     'lakitu': GROUP_BASELINE_LAKITU,
     'lakitu-gpu': GROUP_BASELINE_LAKITU,
@@ -250,9 +247,4 @@ GROUP_BOARD_BASELINES = {
     'veyron_rialto': GROUP_BASELINE_RIALTO,
     'tael': GROUP_BASELINE_TERMINA,
     'tatl': GROUP_BASELINE_TERMINA,
-    'fizz': GROUP_BASELINE_CFM,
-    'fizz-cfm': GROUP_BASELINE_CFM,
-    'kalista': GROUP_BASELINE_CFM,
-    'kalista-cfm': GROUP_BASELINE_CFM,
-    'endeavour': GROUP_BASELINE_CFM,
 }
