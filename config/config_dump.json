@@ -4353,11 +4353,7 @@
         ],
         "hw_tests": [],
         "hw_tests_disabled_bug": "https://crbug.com/1026430",
-        "hw_tests_override": [],
-        "tast_vm_tests": [
-            "{\n    \"suite_name\": \"tast_vm_canary_critical\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && !informational)\"\n    ],\n    \"timeout\": 3600\n}",
-            "{\n    \"suite_name\": \"tast_vm_canary_informational\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && informational)\"\n    ],\n    \"timeout\": 10800\n}"
-        ]
+        "hw_tests_override": []
     },
     "betty-pi-arc-release-tryjob": {
         "_template": "release",
@@ -4373,10 +4369,6 @@
         "paygen": false,
         "push_image": false,
         "suite_scheduling": false,
-        "tast_vm_tests": [
-            "{\n    \"suite_name\": \"tast_vm_canary_critical\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && !informational)\"\n    ],\n    \"timeout\": 3600\n}",
-            "{\n    \"suite_name\": \"tast_vm_canary_informational\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && informational)\"\n    ],\n    \"timeout\": 10800\n}"
-        ],
         "vm_tests_override": null
     },
     "betty-pi-arc-unittest-stress": {
@@ -4535,11 +4527,7 @@
         ],
         "hw_tests": [],
         "hw_tests_disabled_bug": "https://crbug.com/998427",
-        "hw_tests_override": [],
-        "tast_vm_tests": [
-            "{\n    \"suite_name\": \"tast_vm_canary_critical\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && !informational)\"\n    ],\n    \"timeout\": 3600\n}",
-            "{\n    \"suite_name\": \"tast_vm_canary_informational\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && informational)\"\n    ],\n    \"timeout\": 10800\n}"
-        ]
+        "hw_tests_override": []
     },
     "betty-release-tryjob": {
         "_template": "release",
@@ -4555,10 +4543,6 @@
         "paygen": false,
         "push_image": false,
         "suite_scheduling": false,
-        "tast_vm_tests": [
-            "{\n    \"suite_name\": \"tast_vm_canary_critical\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && !informational)\"\n    ],\n    \"timeout\": 3600\n}",
-            "{\n    \"suite_name\": \"tast_vm_canary_informational\",\n    \"test_exprs\": [\n        \"(\\\"group:mainline\\\" && informational)\"\n    ],\n    \"timeout\": 10800\n}"
-        ],
         "vm_tests_override": null
     },
     "betty-unittest-stress": {
@@ -21464,7 +21448,6 @@
         ],
         "chrome_sdk_build_chrome": false,
         "manifest_branch": "main",
-        "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21492,7 +21475,6 @@
         "hw_tests_override": null,
         "luci_builder": "Try",
         "manifest_branch": "main",
-        "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23932,7 +23914,6 @@
             "arm64-generic-full",
             "eve-full",
             "kevin-full",
-            "kevin64-full",
             "lakitu-full",
             "oak-full",
             "tael-full",
@@ -23970,7 +23951,6 @@
             "arm64-generic-full-tryjob",
             "eve-full-tryjob",
             "kevin-full-tryjob",
-            "kevin64-full-tryjob",
             "lakitu-full-tryjob",
             "oak-full-tryjob",
             "tael-full-tryjob",

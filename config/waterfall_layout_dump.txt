@@ -213,7 +213,6 @@
     arm64-generic-full
     eve-full
     kevin-full
-    kevin64-full
     lakitu-full
     oak-full
     tael-full
@@ -1465,7 +1464,6 @@
     arm64-generic-full-tryjob
     eve-full-tryjob
     kevin-full-tryjob
-    kevin64-full-tryjob
     lakitu-full-tryjob
     oak-full-tryjob
     tael-full-tryjob
