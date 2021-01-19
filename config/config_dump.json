@@ -38359,9 +38359,6 @@
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"zork\",\n    \"name\": \"vilboz360\",\n    \"test_suites\": [\n        \"av-analysis_trace_per-build\"\n    ]\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"zork\",\n    \"name\": \"woomax\",\n    \"test_suites\": [\n        \"av-analysis_trace_per-build\"\n    ]\n}"
         ],
-        "notification_configs": [
-            "{\n    \"email\": \"borealis-release-builder-alerts@google.com\",\n    \"template\": \"legacy_release\",\n    \"threshold\": 2\n}"
-        ],
         "unittests": false,
         "vm_tests": [],
         "vm_tests_override": null
