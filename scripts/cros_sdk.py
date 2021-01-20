@@ -27,7 +27,6 @@ import sys
 from six.moves import urllib
 
 from chromite.lib import constants
-from chromite.lib import cgroups
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
@@ -687,10 +686,6 @@ def _ReExecuteIfNeeded(argv):
     cmd = _SudoCommand() + ['--'] + [sys.executable] + argv
     logging.debug('Reexecing self via sudo:\n%s', cros_build_lib.CmdToStr(cmd))
     os.execvp(cmd[0], cmd)
-  else:
-    # We must set up the cgroups mounts before we enter our own namespace.
-    # This way it is a shared resource in the root mount namespace.
-    cgroups.Cgroup.InitSystem()
 
 
 def _CreateParser(sdk_latest_version, bootstrap_latest_version):
@@ -997,14 +992,13 @@ def main(argv):
       not options.unmount and not missing_image_tools and
       os.path.exists(img_path)):
     # Try to re-mount an existing image in case the user has rebooted.
-    with cgroups.SimpleContainChildren('cros_sdk'):
-      with locking.FileLock(lock_path, 'chroot lock') as lock:
-        logging.debug('Checking if existing chroot image can be mounted.')
-        lock.write_lock()
-        cros_sdk_lib.MountChroot(options.chroot, create=False)
-        chroot_exists = cros_sdk_lib.IsChrootReady(options.chroot)
-        if chroot_exists:
-          logging.notice('Mounted existing image %s on chroot', img_path)
+    with locking.FileLock(lock_path, 'chroot lock') as lock:
+      logging.debug('Checking if existing chroot image can be mounted.')
+      lock.write_lock()
+      cros_sdk_lib.MountChroot(options.chroot, create=False)
+      chroot_exists = cros_sdk_lib.IsChrootReady(options.chroot)
+      if chroot_exists:
+        logging.notice('Mounted existing image %s on chroot', img_path)
 
   # Finally, flip create if necessary.
   if options.enter or options.snapshot_create:
@@ -1022,26 +1016,25 @@ def main(argv):
   # favor of this block.
   chroot_deleted = False
   if options.delete:
-    with cgroups.SimpleContainChildren('cros_sdk'):
-      # Set a timeout of 300 seconds when getting the lock.
-      with locking.FileLock(lock_path, 'chroot lock',
-                            blocking_timeout=300) as lock:
-        try:
-          lock.write_lock()
-        except timeout_util.TimeoutError as e:
-          logging.error('Acquiring write_lock on %s failed: %s', lock_path, e)
-          if not options.force:
-            cros_build_lib.Die('Exiting; use --force to continue w/o lock.')
-          else:
-            logging.warning(
-                'cros_sdk was invoked with force option, continuing.')
-        if missing_image_tools:
-          logging.notice('Unmounting chroot.')
-          osutils.UmountTree(options.chroot)
+    # Set a timeout of 300 seconds when getting the lock.
+    with locking.FileLock(lock_path, 'chroot lock',
+                          blocking_timeout=300) as lock:
+      try:
+        lock.write_lock()
+      except timeout_util.TimeoutError as e:
+        logging.error('Acquiring write_lock on %s failed: %s', lock_path, e)
+        if not options.force:
+          cros_build_lib.Die('Exiting; use --force to continue w/o lock.')
         else:
-          logging.notice('Deleting chroot.')
-          cros_sdk_lib.CleanupChrootMount(options.chroot, delete=True)
-          chroot_deleted = True
+          logging.warning(
+              'cros_sdk was invoked with force option, continuing.')
+      if missing_image_tools:
+        logging.notice('Unmounting chroot.')
+        osutils.UmountTree(options.chroot)
+      else:
+        logging.notice('Deleting chroot.')
+        cros_sdk_lib.CleanupChrootMount(options.chroot, delete=True)
+        chroot_deleted = True
 
   # If cleanup was requested, we have to do it while we're still in the original
   # namespace.  Since cleaning up the mount will interfere with any other
@@ -1079,59 +1072,54 @@ If you want to run without lvm2, pass --nouse-image (chroot
 snapshots will be unavailable).""" % ', '.join(missing_image_tools))
 
     logging.debug('Making sure chroot image is mounted.')
-    with cgroups.SimpleContainChildren('cros_sdk'):
-      with locking.FileLock(lock_path, 'chroot lock') as lock:
-        lock.write_lock()
-        if not cros_sdk_lib.MountChroot(options.chroot, create=True):
-          cros_build_lib.Die('Unable to mount %s on chroot',
-                             _ImageFileForChroot(options.chroot))
-        logging.notice('Mounted %s on chroot',
-                       _ImageFileForChroot(options.chroot))
+    with locking.FileLock(lock_path, 'chroot lock') as lock:
+      lock.write_lock()
+      if not cros_sdk_lib.MountChroot(options.chroot, create=True):
+        cros_build_lib.Die('Unable to mount %s on chroot',
+                           _ImageFileForChroot(options.chroot))
+      logging.notice('Mounted %s on chroot',
+                     _ImageFileForChroot(options.chroot))
 
   # Snapshot operations will always need the VG/LV, but other actions won't.
   if any_snapshot_operation:
-    with cgroups.SimpleContainChildren('cros_sdk'):
-      with locking.FileLock(lock_path, 'chroot lock') as lock:
-        chroot_vg, chroot_lv = cros_sdk_lib.FindChrootMountSource(
-            options.chroot)
-        if not chroot_vg or not chroot_lv:
-          cros_build_lib.Die('Unable to find VG/LV for chroot %s',
-                             options.chroot)
+    with locking.FileLock(lock_path, 'chroot lock') as lock:
+      chroot_vg, chroot_lv = cros_sdk_lib.FindChrootMountSource(options.chroot)
+      if not chroot_vg or not chroot_lv:
+        cros_build_lib.Die('Unable to find VG/LV for chroot %s', options.chroot)
 
-        # Delete snapshot before creating a new one.  This allows the user to
-        # throw out old state, create a new snapshot, and enter the chroot in a
-        # single call to cros_sdk.  Since restore involves deleting, also do it
-        # before creating.
-        if options.snapshot_restore:
-          lock.write_lock()
-          valid_snapshots = ListChrootSnapshots(chroot_vg, chroot_lv)
-          if options.snapshot_restore not in valid_snapshots:
-            cros_build_lib.Die(
-                '%s is not a valid snapshot to restore to. '
-                'Valid snapshots: %s', options.snapshot_restore,
-                ', '.join(valid_snapshots))
-          osutils.UmountTree(options.chroot)
-          if not RestoreChrootSnapshot(options.snapshot_restore, chroot_vg,
-                                       chroot_lv):
-            cros_build_lib.Die('Unable to restore chroot to snapshot.')
-          if not cros_sdk_lib.MountChroot(options.chroot, create=False):
-            cros_build_lib.Die('Unable to mount restored snapshot onto chroot.')
+      # Delete snapshot before creating a new one.  This allows the user to
+      # throw out old state, create a new snapshot, and enter the chroot in a
+      # single call to cros_sdk.  Since restore involves deleting, also do it
+      # before creating.
+      if options.snapshot_restore:
+        lock.write_lock()
+        valid_snapshots = ListChrootSnapshots(chroot_vg, chroot_lv)
+        if options.snapshot_restore not in valid_snapshots:
+          cros_build_lib.Die(
+              '%s is not a valid snapshot to restore to. Valid snapshots: %s',
+              options.snapshot_restore, ', '.join(valid_snapshots))
+        osutils.UmountTree(options.chroot)
+        if not RestoreChrootSnapshot(options.snapshot_restore, chroot_vg,
+                                     chroot_lv):
+          cros_build_lib.Die('Unable to restore chroot to snapshot.')
+        if not cros_sdk_lib.MountChroot(options.chroot, create=False):
+          cros_build_lib.Die('Unable to mount restored snapshot onto chroot.')
 
-        # Use a read lock for snapshot delete and create even though they modify
-        # the filesystem, because they don't modify the mounted chroot itself.
-        # The underlying LVM commands take their own locks, so conflicting
-        # concurrent operations here may crash cros_sdk, but won't corrupt the
-        # chroot image.  This tradeoff seems worth it to allow snapshot
-        # operations on chroots that have a process inside.
-        if options.snapshot_delete:
-          lock.read_lock()
-          DeleteChrootSnapshot(options.snapshot_delete, chroot_vg, chroot_lv)
+      # Use a read lock for snapshot delete and create even though they modify
+      # the filesystem, because they don't modify the mounted chroot itself.
+      # The underlying LVM commands take their own locks, so conflicting
+      # concurrent operations here may crash cros_sdk, but won't corrupt the
+      # chroot image.  This tradeoff seems worth it to allow snapshot
+      # operations on chroots that have a process inside.
+      if options.snapshot_delete:
+        lock.read_lock()
+        DeleteChrootSnapshot(options.snapshot_delete, chroot_vg, chroot_lv)
 
-        if options.snapshot_create:
-          lock.read_lock()
-          if not CreateChrootSnapshot(options.snapshot_create, chroot_vg,
-                                      chroot_lv):
-            cros_build_lib.Die('Unable to create snapshot.')
+      if options.snapshot_create:
+        lock.read_lock()
+        if not CreateChrootSnapshot(options.snapshot_create, chroot_vg,
+                                    chroot_lv):
+          cros_build_lib.Die('Unable to create snapshot.')
 
   img_path = _ImageFileForChroot(options.chroot)
   if (options.use_image and os.path.exists(options.chroot) and
@@ -1162,11 +1150,7 @@ snapshots will be unavailable).""" % ', '.join(missing_image_tools))
 
   # Enter a new set of namespaces.  Everything after here cannot directly affect
   # the hosts's mounts or alter LVM volumes.
-  namespaces.SimpleUnshare()
-  if options.ns_pid:
-    first_pid = namespaces.CreatePidNs()
-  else:
-    first_pid = None
+  namespaces.SimpleUnshare(pid=options.ns_pid)
 
   if options.snapshot_list:
     for snap in ListChrootSnapshots(chroot_vg, chroot_lv):
@@ -1188,68 +1172,67 @@ snapshots will be unavailable).""" % ', '.join(missing_image_tools))
     else:
       urls = GetArchStageTarballs(sdk_version)
 
-  with cgroups.SimpleContainChildren('cros_sdk', pid=first_pid):
-    with locking.FileLock(lock_path, 'chroot lock') as lock:
-      if options.proxy_sim:
-        _ProxySimSetup(options)
+  with locking.FileLock(lock_path, 'chroot lock') as lock:
+    if options.proxy_sim:
+      _ProxySimSetup(options)
 
-      if (options.delete and not chroot_deleted and
-          (os.path.exists(options.chroot) or
-           os.path.exists(_ImageFileForChroot(options.chroot)))):
-        lock.write_lock()
-        DeleteChroot(options.chroot)
+    if (options.delete and not chroot_deleted and
+        (os.path.exists(options.chroot) or
+         os.path.exists(_ImageFileForChroot(options.chroot)))):
+      lock.write_lock()
+      DeleteChroot(options.chroot)
 
-      sdk_cache = os.path.join(options.cache_dir, 'sdks')
-      distfiles_cache = os.path.join(options.cache_dir, 'distfiles')
-      osutils.SafeMakedirsNonRoot(options.cache_dir)
+    sdk_cache = os.path.join(options.cache_dir, 'sdks')
+    distfiles_cache = os.path.join(options.cache_dir, 'distfiles')
+    osutils.SafeMakedirsNonRoot(options.cache_dir)
 
-      for target in (sdk_cache, distfiles_cache):
-        src = os.path.join(constants.SOURCE_ROOT, os.path.basename(target))
-        if not os.path.exists(src):
-          osutils.SafeMakedirsNonRoot(target)
-          continue
-        lock.write_lock(
-            'Upgrade to %r needed but chroot is locked; please exit '
-            'all instances so this upgrade can finish.' % src)
-        if not os.path.exists(src):
-          # Note that while waiting for the write lock, src may've vanished;
-          # it's a rare race during the upgrade process that's a byproduct
-          # of us avoiding taking a write lock to do the src check.  If we
-          # took a write lock for that check, it would effectively limit
-          # all cros_sdk for a chroot to a single instance.
-          osutils.SafeMakedirsNonRoot(target)
-        elif not os.path.exists(target):
-          # Upgrade occurred, but a reversion, or something whacky
-          # occurred writing to the old location.  Wipe and continue.
-          os.rename(src, target)
-        else:
-          # Upgrade occurred once already, but either a reversion or
-          # some before/after separate cros_sdk usage is at play.
-          # Wipe and continue.
-          osutils.RmDir(src)
+    for target in (sdk_cache, distfiles_cache):
+      src = os.path.join(constants.SOURCE_ROOT, os.path.basename(target))
+      if not os.path.exists(src):
+        osutils.SafeMakedirsNonRoot(target)
+        continue
+      lock.write_lock(
+          'Upgrade to %r needed but chroot is locked; please exit '
+          'all instances so this upgrade can finish.' % src)
+      if not os.path.exists(src):
+        # Note that while waiting for the write lock, src may've vanished;
+        # it's a rare race during the upgrade process that's a byproduct
+        # of us avoiding taking a write lock to do the src check.  If we
+        # took a write lock for that check, it would effectively limit
+        # all cros_sdk for a chroot to a single instance.
+        osutils.SafeMakedirsNonRoot(target)
+      elif not os.path.exists(target):
+        # Upgrade occurred, but a reversion, or something whacky
+        # occurred writing to the old location.  Wipe and continue.
+        os.rename(src, target)
+      else:
+        # Upgrade occurred once already, but either a reversion or
+        # some before/after separate cros_sdk usage is at play.
+        # Wipe and continue.
+        osutils.RmDir(src)
 
-      if options.download:
-        lock.write_lock()
-        sdk_tarball = FetchRemoteTarballs(
-            sdk_cache, urls, 'stage3' if options.bootstrap else 'SDK')
+    if options.download:
+      lock.write_lock()
+      sdk_tarball = FetchRemoteTarballs(
+          sdk_cache, urls, 'stage3' if options.bootstrap else 'SDK')
 
-      if options.create:
-        lock.write_lock()
-        # Recheck if the chroot is set up here before creating to make sure we
-        # account for whatever the various delete/unmount/remount steps above
-        # have done.
-        if cros_sdk_lib.IsChrootReady(options.chroot):
-          logging.debug('Chroot already exists.  Skipping creation.')
-        else:
-          CreateChroot(
-              options.chroot,
-              sdk_tarball,
-              options.cache_dir,
-              nousepkg=(options.bootstrap or options.nousepkg))
+    if options.create:
+      lock.write_lock()
+      # Recheck if the chroot is set up here before creating to make sure we
+      # account for whatever the various delete/unmount/remount steps above
+      # have done.
+      if cros_sdk_lib.IsChrootReady(options.chroot):
+        logging.debug('Chroot already exists.  Skipping creation.')
+      else:
+        CreateChroot(
+            options.chroot,
+            sdk_tarball,
+            options.cache_dir,
+            nousepkg=(options.bootstrap or options.nousepkg))
 
-      if options.enter:
-        lock.read_lock()
-        EnterChroot(options.chroot, options.cache_dir, options.chrome_root,
-                    options.chrome_root_mount, options.goma_dir,
-                    options.goma_client_json, options.working_dir,
-                    chroot_command)
+    if options.enter:
+      lock.read_lock()
+      EnterChroot(options.chroot, options.cache_dir, options.chrome_root,
+                  options.chrome_root_mount, options.goma_dir,
+                  options.goma_client_json, options.working_dir,
+                  chroot_command)
