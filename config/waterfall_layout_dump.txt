@@ -258,6 +258,7 @@
     caroline-kernelnext-release
     caroline-ndktranslation-release
     caroline-release
+    caroline-userdebug-release
     cave-release
     celes-release
     chell-release
@@ -304,6 +305,7 @@
     kefka-kernelnext-release
     kefka-release
     kevin-release
+    kevin-userdebug-release
     kip-release
     kukui-arc64-release
     kukui-release
@@ -525,6 +527,12 @@
   caroline-pi-android-pfq-tryjob
   caroline-release-tryjob
   caroline-unittest-stress
+  caroline-userdebug-full-tryjob
+  caroline-userdebug-llvm-next-toolchain-tryjob
+  caroline-userdebug-llvm-toolchain-tryjob
+  caroline-userdebug-payloads-tryjob
+  caroline-userdebug-release-tryjob
+  caroline-userdebug-unittest-stress
   cave-factory-glados-7828.B-factorybranch-tryjob
   cave-full-tryjob
   cave-llvm-next-toolchain-tryjob
@@ -1094,6 +1102,12 @@
   kevin-pi-android-pfq-tryjob
   kevin-release-tryjob
   kevin-unittest-stress
+  kevin-userdebug-full-tryjob
+  kevin-userdebug-llvm-next-toolchain-tryjob
+  kevin-userdebug-llvm-toolchain-tryjob
+  kevin-userdebug-payloads-tryjob
+  kevin-userdebug-release-tryjob
+  kevin-userdebug-unittest-stress
   kip-factory-rambi-5517.B-factorybranch-tryjob
   kip-factory-strago-7458.B-factorybranch-tryjob
   kip-full-tryjob
@@ -1199,6 +1213,7 @@
     caroline-kernelnext-release-tryjob
     caroline-ndktranslation-release-tryjob
     caroline-release-tryjob
+    caroline-userdebug-release-tryjob
     cave-release-tryjob
     celes-release-tryjob
     chell-release-tryjob
@@ -1245,6 +1260,7 @@
     kefka-kernelnext-release-tryjob
     kefka-release-tryjob
     kevin-release-tryjob
+    kevin-userdebug-release-tryjob
     kip-release-tryjob
     kukui-arc64-release-tryjob
     kukui-release-tryjob
