@@ -1074,6 +1074,7 @@
   hatch-arc-r-ack-payloads-tryjob
   hatch-arc-r-ack-release-tryjob
   hatch-arc-r-ack-unittest-stress
+  hatch-arc-r-android-rvc-pre-flight-branch-tryjob
   hatch-arc-r-full-tryjob
   hatch-arc-r-llvm-next-toolchain-tryjob
   hatch-arc-r-llvm-toolchain-tryjob

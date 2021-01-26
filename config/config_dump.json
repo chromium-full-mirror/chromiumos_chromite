@@ -15300,6 +15300,34 @@
             "chrome_internal"
         ]
     },
+    "hatch-arc-r-android-rvc-pre-flight-branch": {
+        "_template": "pre_flight_branch",
+        "android_import_branch": "git_rvc-arc-m89",
+        "android_package": "android-vm-rvc",
+        "android_rev": "latest_release",
+        "boards": [
+            "hatch-arc-r"
+        ],
+        "display_label": "vmrvc_android_pfq",
+        "sync_chrome": true,
+        "vm_tests_override": null
+    },
+    "hatch-arc-r-android-rvc-pre-flight-branch-tryjob": {
+        "_template": "pre_flight_branch",
+        "android_import_branch": "git_rvc-arc-m89",
+        "android_package": "android-vm-rvc",
+        "android_rev": "latest_release",
+        "boards": [
+            "hatch-arc-r"
+        ],
+        "debug": true,
+        "debug_cidb": true,
+        "display_label": "tryjob",
+        "hw_tests_override": null,
+        "luci_builder": "Try",
+        "sync_chrome": true,
+        "vm_tests_override": null
+    },
     "hatch-arc-r-full": {
         "_template": "full",
         "boards": [
