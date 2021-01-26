@@ -295,7 +295,6 @@
     hatch-arc-r-ack-release
     hatch-arc-r-userdebug-release
     hatch-borealis-release
-    hatch-diskswap-release
     hatch-kernelnext-release
     hatch-release
     heli-release
@@ -1019,12 +1018,6 @@
   hatch-borealis-payloads-tryjob
   hatch-borealis-release-tryjob
   hatch-borealis-unittest-stress
-  hatch-diskswap-full-tryjob
-  hatch-diskswap-llvm-next-toolchain-tryjob
-  hatch-diskswap-llvm-toolchain-tryjob
-  hatch-diskswap-payloads-tryjob
-  hatch-diskswap-release-tryjob
-  hatch-diskswap-unittest-stress
   hatch-factory-hatch-12692.B-factorybranch-tryjob
   hatch-full-tryjob
   hatch-kernelnext-full-tryjob
@@ -1251,7 +1244,6 @@
     hatch-arc-r-ack-release-tryjob
     hatch-arc-r-userdebug-release-tryjob
     hatch-borealis-release-tryjob
-    hatch-diskswap-release-tryjob
     hatch-kernelnext-release-tryjob
     hatch-release-tryjob
     heli-release-tryjob
