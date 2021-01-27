@@ -247,6 +247,7 @@
     banjo-release
     banon-release
     beaglebone_servo-release
+    betty-release
     bob-release
     buddy-cfm-release
     buddy-release
@@ -459,8 +460,14 @@
   benchmark-afdo-generate-tryjob
   betty-arcvm-master-vmmst-android-pfq-tryjob
   betty-asan-tryjob
+  betty-full-tryjob
   betty-incremental-tryjob
+  betty-llvm-next-toolchain-tryjob
+  betty-llvm-toolchain-tryjob
+  betty-payloads-tryjob
   betty-pi-arc-pi-android-pfq-tryjob
+  betty-release-tryjob
+  betty-unittest-stress
   betty-vmtest-informational-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
   bob-full-tryjob
@@ -1161,6 +1168,7 @@
     banjo-release-tryjob
     banon-release-tryjob
     beaglebone_servo-release-tryjob
+    betty-release-tryjob
     bob-release-tryjob
     buddy-cfm-release-tryjob
     buddy-release-tryjob
