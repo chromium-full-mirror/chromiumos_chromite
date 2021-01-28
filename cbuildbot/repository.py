@@ -124,7 +124,7 @@ class RepoRepository(object):
   def __init__(self, manifest_repo_url, directory, branch=None,
                referenced_repo=None, manifest=constants.DEFAULT_MANIFEST,
                depth=None, repo_url=None,
-               repo_branch=None, groups=None, repo_cmd='repo',
+               repo_branch=None, groups=None, repo_cmd='/b/depot_tools/repo',
                preserve_paths=(), git_cache_dir=None):
     """Initialize.
 
@@ -203,7 +203,7 @@ class RepoRepository(object):
         failed_to_selfupdate = True
       cmd = [self.repo_cmd, '--version']
       cros_build_lib.run(cmd, cwd=self.directory,
-                         log_output=True)
+                         capture_output=True, log_output=True)
     except cros_build_lib.RunCommandError as e:
       logging.warning('repo selfupdate failed with exception: %s', e)
       failed_to_selfupdate = True
@@ -400,10 +400,11 @@ class RepoRepository(object):
     self.AssertNotNested()
     cmd = ['which', self.repo_cmd]
     cros_build_lib.run(cmd, cwd=self.directory,
-                       log_output=True)
-    cmd = [self.repo_cmd, '--version']
+                       capture_output=True, log_output=True)
+    cmd = [self.repo_cmd, 'version']
     cros_build_lib.run(cmd, cwd=self.directory,
-                       log_output=True)
+                       capture_output=True, log_output=True)
+    self.repo_branch = 'v2.7'
     if manifest_repo_url:
       self.manifest_repo_url = manifest_repo_url
 
@@ -535,6 +536,10 @@ class RepoRepository(object):
 
     cros_build_lib.run(*args, **kwargs)
 
+  def _InstallDepotTools(self):
+    """Installs depot_tools to have access to a full version of repo."""
+    git.Clone(constants.DEPOT_TOOLS_URL, '/b/depot_tools')
+
   def Sync(self, local_manifest=None, jobs=None, all_branches=True,
            network_only=False, detach=False):
     """Sync/update the source.  Changes manifest if specified.
@@ -557,6 +562,8 @@ class RepoRepository(object):
         branches.
     """
     try:
+      # Install depot_tools to have a full version of repo.
+      self._InstallDepotTools()
       # Always re-initialize to the current branch.
       self.Initialize(local_manifest)
       # Fix existing broken mirroring configurations.
