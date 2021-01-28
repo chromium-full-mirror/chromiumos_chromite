@@ -78,7 +78,8 @@ class RepositoryTest(cros_test_lib.RunCommandTempDirTestCase):
         '--depth', '99',
         '--groups', 'abba,queen',
         '--repo-url', 'https://repo.xyz/repo',
-        '--repo-branch', 'repo-branch'
+        '--repo-branch', 'repo-branch',
+        '--repo-rev', 'v2.7',
     ]
     self.rc.AddCmdResult(expected_cmd, side_effect=RepoInitSideEffects)
     repo = repo_util.Repository.Initialize(

@@ -201,6 +201,9 @@ class RepoRepository(object):
         logging.warning('Unable to selfupdate because of warning "%s"',
                         SELFUPDATE_WARNING)
         failed_to_selfupdate = True
+      cmd = [self.repo_cmd, '--version']
+      cros_build_lib.run(cmd, cwd=self.directory,
+                         log_output=True)
     except cros_build_lib.RunCommandError as e:
       logging.warning('repo selfupdate failed with exception: %s', e)
       failed_to_selfupdate = True
@@ -395,7 +398,12 @@ class RepoRepository(object):
       extra_args: Extra args to pass to 'repo init'
     """
     self.AssertNotNested()
-
+    cmd = ['which', self.repo_cmd]
+    cros_build_lib.run(cmd, cwd=self.directory,
+                       log_output=True)
+    cmd = [self.repo_cmd, '--version']
+    cros_build_lib.run(cmd, cwd=self.directory,
+                       log_output=True)
     if manifest_repo_url:
       self.manifest_repo_url = manifest_repo_url
 
@@ -428,7 +436,8 @@ class RepoRepository(object):
     # Use our own repo, in case android.kernel.org (the default location) is
     # down.
     init_cmd = [self.repo_cmd, 'init',
-                '--manifest-url', self.manifest_repo_url]
+                '--manifest-url', self.manifest_repo_url,
+                '--repo-rev', 'v2.7']
     if self.repo_url:
       init_cmd.extend(['--repo-url', self.repo_url])
     if self._referenced_repo:
