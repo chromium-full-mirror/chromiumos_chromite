@@ -39,6 +39,7 @@ DEFAULT_CHROOT_DIR = 'chroot'
 DEFAULT_CHROOT_PATH = os.path.join(SOURCE_ROOT, DEFAULT_CHROOT_DIR)
 DEPOT_TOOLS_URL = ('https://chromium.googlesource.com/'
                    'chromium/tools/depot_tools.git')
+REPO_BRANCH = 'v2.7'
 
 # These constants are defined and used in the die_hook that logs failed
 # packages: 'cros_log_failed_packages' in profiles/base/profile.bashrc in

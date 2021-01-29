@@ -124,7 +124,7 @@ class RepoRepository(object):
   def __init__(self, manifest_repo_url, directory, branch=None,
                referenced_repo=None, manifest=constants.DEFAULT_MANIFEST,
                depth=None, repo_url=None,
-               repo_branch=None, groups=None, repo_cmd='/b/depot_tools/repo',
+               repo_branch=None, groups=None, repo_cmd='repo',
                preserve_paths=(), git_cache_dir=None):
     """Initialize.
 
@@ -201,7 +201,7 @@ class RepoRepository(object):
         logging.warning('Unable to selfupdate because of warning "%s"',
                         SELFUPDATE_WARNING)
         failed_to_selfupdate = True
-      cmd = [self.repo_cmd, '--version']
+      cmd = [self.repo_cmd, 'version']
       cros_build_lib.run(cmd, cwd=self.directory,
                          capture_output=True, log_output=True)
     except cros_build_lib.RunCommandError as e:
@@ -397,14 +397,11 @@ class RepoRepository(object):
       manifest_repo_url: A new value for manifest_repo_url.
       extra_args: Extra args to pass to 'repo init'
     """
+    self.repo_cmd = '/preload/chromeos/.repo/repo/repo'
     self.AssertNotNested()
-    cmd = ['which', self.repo_cmd]
-    cros_build_lib.run(cmd, cwd=self.directory,
-                       capture_output=True, log_output=True)
     cmd = [self.repo_cmd, 'version']
-    cros_build_lib.run(cmd, cwd=self.directory,
-                       capture_output=True, log_output=True)
-    self.repo_branch = 'v2.7'
+    cros_build_lib.run(cmd, capture_output=True,
+                       combine_stdout_stderr=True)
     if manifest_repo_url:
       self.manifest_repo_url = manifest_repo_url
 
@@ -427,17 +424,9 @@ class RepoRepository(object):
     # we can destroy it.
     osutils.SafeUnlink(os.path.join(self.directory, 'local_manifest.xml'))
 
-    # Force a repo update the first time we initialize an old repo checkout.
-    # Don't update if there is nothing to update.
-    if self._repo_update_needed:
-      if IsARepoRoot(self.directory):
-        self._RepoSelfupdate()
-      self._repo_update_needed = False
-
     # Use our own repo, in case android.kernel.org (the default location) is
     # down.
-    init_cmd = [self.repo_cmd, 'init',
-                '--manifest-url', self.manifest_repo_url,
+    init_cmd = [self.repo_cmd, 'init', '--manifest-url', self.manifest_repo_url,
                 '--repo-rev', 'v2.7']
     if self.repo_url:
       init_cmd.extend(['--repo-url', self.repo_url])
@@ -536,10 +525,6 @@ class RepoRepository(object):
 
     cros_build_lib.run(*args, **kwargs)
 
-  def _InstallDepotTools(self):
-    """Installs depot_tools to have access to a full version of repo."""
-    git.Clone(constants.DEPOT_TOOLS_URL, '/b/depot_tools')
-
   def Sync(self, local_manifest=None, jobs=None, all_branches=True,
            network_only=False, detach=False):
     """Sync/update the source.  Changes manifest if specified.
@@ -562,8 +547,6 @@ class RepoRepository(object):
         branches.
     """
     try:
-      # Install depot_tools to have a full version of repo.
-      self._InstallDepotTools()
       # Always re-initialize to the current branch.
       self.Initialize(local_manifest)
       # Fix existing broken mirroring configurations.
@@ -575,8 +558,8 @@ class RepoRepository(object):
       if not all_branches or self._depth is not None:
         # Note that this option can break kernel checkouts. crbug.com/464536
         cmd.append('-c')
-      if self.git_cache_dir is not None:
-        cmd.append('--cache-dir=%s' % self.git_cache_dir)
+      # if self.git_cache_dir is not None:
+      #   cmd.append('--cache-dir=%s' % self.git_cache_dir)
       # Do the network half of the sync; retry as necessary to get the content.
       try:
         if not _IsLocalPath(self.manifest_repo_url):

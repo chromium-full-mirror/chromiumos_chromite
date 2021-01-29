@@ -344,6 +344,8 @@ def InitialCheckout(repo):
     repo: repository.RepoRepository instance.
   """
   logging.PrintBuildbotStepText('Branch: %s' % repo.branch)
+  logging.info('Repo command: %s', repo.repo_cmd)
+  logging.info('Reoo branch: %s', repo.repo_branch)
   logging.info('Bootstrap script starting initial sync on branch: %s',
                repo.branch)
   repo.PreLoad('/preload/chromeos')
@@ -494,7 +496,8 @@ def _main(options, argv):
       manifest_url = config_lib.GetSiteParams().MANIFEST_INT_URL
       repo = repository.RepoRepository(manifest_url, buildroot,
                                        branch=branchname,
-                                       git_cache_dir=options.git_cache_dir)
+                                       git_cache_dir=options.git_cache_dir,
+                                       repo_branch=constants.REPO_BRANCH)
       previous_build_state = GetLastBuildState(root)
 
       # Clean up the buildroot to a safe state.
