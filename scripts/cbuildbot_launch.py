@@ -328,7 +328,7 @@ def CleanBuildRoot(root, repo, cache_dir, build_state):
 
 
 @StageDecorator
-def InitialCheckout(repo):
+def InitialCheckout(repo, options):
   """Preliminary ChromeOS checkout.
 
   Perform a complete checkout of ChromeOS on the specified branch. This does NOT
@@ -342,12 +342,14 @@ def InitialCheckout(repo):
 
   Args:
     repo: repository.RepoRepository instance.
+    options: A parsed options object from a cbuildbot parser.
   """
   logging.PrintBuildbotStepText('Branch: %s' % repo.branch)
   logging.info('Bootstrap script starting initial sync on branch: %s',
                repo.branch)
   repo.PreLoad('/preload/chromeos')
-  repo.Sync(detach=True)
+  repo.Sync(detach=True,
+            downgrade_repo=_ShouldDowngradeRepo(options))
 
 
 def ShouldFixBotoCerts(options):
@@ -364,6 +366,34 @@ def ShouldFixBotoCerts(options):
       version = branch[:-2].split('-')[-1]
       major = int(version.split('.')[0])
       return major <= 9667  # This is the newest known to be failing.
+
+    return False
+  except Exception as e:
+    logging.warning(' failed: %s', e)
+    # Conservatively continue without the fix.
+    return False
+
+
+def _ShouldDowngradeRepo(options):
+  """Determine which repo version to set for the branch.
+
+  Repo version is set at cache creation time, in the nightly builder,
+  which means we are typically at the latest version.  Older branches
+  are incompatible with newer version of ToT, therefore we downgrade
+  repo to a known working version.
+
+  Args:
+    options: A parsed options object from a cbuildbot parser.
+
+  Returns:
+    bool of whether to downgrade repo version based on branch.
+  """
+  try:
+    branch = options.branch or ''
+    # Only apply to "old" branches.
+    if branch.endswith('.B'):
+      branch_num = branch[:-2].split('-')[1][1:3]
+      return branch_num <= 79  # This is the newest known to be failing.
 
     return False
   except Exception as e:
@@ -505,7 +535,7 @@ def _main(options, argv):
       # Get a checkout close enough to the branch that cbuildbot can handle it.
       if options.sync:
         with metrics.SecondsTimer(METRIC_INITIAL):
-          InitialCheckout(repo)
+          InitialCheckout(repo, options)
 
     # Run cbuildbot inside the full ChromeOS checkout, on the specified branch.
     with metrics.SecondsTimer(METRIC_CBUILDBOT), \
