@@ -289,7 +289,6 @@
     hana-kernelnext-release
     hana-release
     hatch-arc-r-userdebug-release
-    hatch-borealis-release
     hatch-kernelnext-release
     hatch-release
     heli-release
@@ -313,7 +312,6 @@
     novato-release
     octopus-release
     orco-release
-    puff-borealis-release
     puff-release
     pyro-release
     rammus-arc-r-release
@@ -993,12 +991,6 @@
   hatch-arc-r-userdebug-release-tryjob
   hatch-arc-r-userdebug-unittest-stress
   hatch-arc-r-vmrvc-android-pfq-tryjob
-  hatch-borealis-full-tryjob
-  hatch-borealis-llvm-next-toolchain-tryjob
-  hatch-borealis-llvm-toolchain-tryjob
-  hatch-borealis-payloads-tryjob
-  hatch-borealis-release-tryjob
-  hatch-borealis-unittest-stress
   hatch-factory-hatch-12692.B-factorybranch-tryjob
   hatch-full-tryjob
   hatch-kernelnext-full-tryjob
@@ -1210,7 +1202,6 @@
     hana-kernelnext-release-tryjob
     hana-release-tryjob
     hatch-arc-r-userdebug-release-tryjob
-    hatch-borealis-release-tryjob
     hatch-kernelnext-release-tryjob
     hatch-release-tryjob
     heli-release-tryjob
@@ -1234,7 +1225,6 @@
     novato-release-tryjob
     octopus-release-tryjob
     orco-release-tryjob
-    puff-borealis-release-tryjob
     puff-release-tryjob
     pyro-release-tryjob
     rammus-arc-r-release-tryjob
@@ -1380,12 +1370,6 @@
   poppy-payloads-tryjob
   poppy-release-tryjob
   poppy-unittest-stress
-  puff-borealis-full-tryjob
-  puff-borealis-llvm-next-toolchain-tryjob
-  puff-borealis-llvm-toolchain-tryjob
-  puff-borealis-payloads-tryjob
-  puff-borealis-release-tryjob
-  puff-borealis-unittest-stress
   puff-factory-puff-13329.B-factorybranch-tryjob
   puff-full-tryjob
   puff-llvm-next-toolchain-tryjob
