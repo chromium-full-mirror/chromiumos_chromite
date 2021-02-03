@@ -428,7 +428,8 @@ class RepoRepository(object):
     # Use our own repo, in case android.kernel.org (the default location) is
     # down.
     init_cmd = [self.repo_cmd, 'init',
-                '--manifest-url', self.manifest_repo_url]
+                '--manifest-url', self.manifest_repo_url,
+                '--repo-rev', 'v2.7']
     if self.repo_url:
       init_cmd.extend(['--repo-url', self.repo_url])
     if self._referenced_repo:

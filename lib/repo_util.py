@@ -94,7 +94,9 @@ class Repository(object):
       raise Error('cannot init in existing repo %r.' % existing_root)
 
     # TODO(lannm): Use 'chromite/bootstrap/repo'?
-    cmd = ['repo', 'init', '--manifest-url', manifest_url]
+    cmd = ['repo', 'init',
+           '--manifest-url', manifest_url,
+           '--repo-rev', 'v2.7']
     if manifest_branch is not None:
       cmd += ['--manifest-branch', manifest_branch]
     if manifest_name is not None:
