@@ -394,6 +394,7 @@ class RepoRepository(object):
       manifest_repo_url: A new value for manifest_repo_url.
       extra_args: Extra args to pass to 'repo init'
     """
+    self.repo_cmd = '/preload/chromeos/.repo/repo/repo'
     self.AssertNotNested()
 
     if manifest_repo_url:
