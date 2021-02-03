@@ -69,14 +69,12 @@ class CbuildbotLaunchTest(cros_test_lib.MockTestCase):
     """Test InitialCheckout with minimum settings."""
     mock_repo = mock.MagicMock()
     mock_repo.branch = 'branch'
-    argv = ['-r', '/root', 'config']
-    options = cbuildbot_launch.PreParseArguments(argv)
 
-    cbuildbot_launch.InitialCheckout(mock_repo, options)
+    cbuildbot_launch.InitialCheckout(mock_repo)
 
     self.assertEqual(mock_repo.mock_calls, [
         mock.call.PreLoad('/preload/chromeos'),
-        mock.call.Sync(detach=True, downgrade_repo=False),
+        mock.call.Sync(detach=True),
     ])
 
   def testConfigureGlobalEnvironment(self):
@@ -179,7 +177,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
 
     # Ensure we checkout, as expected.
     self.assertEqual(mock_checkout.mock_calls,
-                     [mock.call(mock_repo, options)])
+                     [mock.call(mock_repo)])
 
     # Ensure we invoke cbuildbot, as expected.
     self.assertCommandCalled(
@@ -271,7 +269,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
 
     # Ensure we checkout, as expected.
     self.assertEqual(mock_checkout.mock_calls,
-                     [mock.call(mock_repo, options)])
+                     [mock.call(mock_repo)])
 
     # Ensure we invoke cbuildbot, as expected.
     self.assertCommandCalled(

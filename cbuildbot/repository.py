@@ -153,7 +153,6 @@ class RepoRepository(object):
     self.groups = groups
     self.repo_cmd = repo_cmd
     self.preserve_paths = preserve_paths
-    self.repo_rev = None
 
     # It's perfectly acceptable to pass in a reference pathway that isn't
     # usable.  Detect it, and suppress the setting so that any depth
@@ -442,8 +441,6 @@ class RepoRepository(object):
     # Handle branch / manifest options.
     if self.branch:
       init_cmd.extend(['--manifest-branch', self.branch])
-    if self.repo_rev:
-      init_cmd.extend(['--repo-rev', 'v2.7'])
     if self.repo_branch:
       init_cmd.extend(['--repo-branch', self.repo_branch])
     if self.groups:
@@ -529,16 +526,8 @@ class RepoRepository(object):
 
     cros_build_lib.run(*args, **kwargs)
 
-  def _RepoDebugInfo(self):
-    """Display debugging information for the repo binary."""
-    logging.info('Repo path: %s', osutils.Which('repo'))
-    cmd = [self.repo_cmd, 'version']
-    cros_build_lib.run(cmd, capture_output=True,
-                       log_output=True)
-
   def Sync(self, local_manifest=None, jobs=None, all_branches=True,
-           network_only=False, detach=False,
-           downgrade_repo=False):
+           network_only=False, detach=False):
     """Sync/update the source.  Changes manifest if specified.
 
     Args:
@@ -557,13 +546,8 @@ class RepoRepository(object):
         invoking code is fine w/ operating on bare repos, ie .repo/projects/*.
       detach: If true, throw away all local changes, even if on tracking
         branches.
-      downgrade_repo (bool): Bool whether to downgrade repo version.
     """
     try:
-      if downgrade_repo:
-        self.repo_rev = 'v2.7'
-      # Repo debugging information.
-      self._RepoDebugInfo()
       # Always re-initialize to the current branch.
       self.Initialize(local_manifest)
       # Fix existing broken mirroring configurations.

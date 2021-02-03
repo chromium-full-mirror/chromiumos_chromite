@@ -156,7 +156,6 @@ class RepoSyncTests(cros_test_lib.TempDirTestCase, cros_test_lib.MockTestCase):
     site_params = config_lib.GetSiteParams()
     self.repo = repository.RepoRepository(site_params.MANIFEST_URL,
                                           self.tempdir, branch='master')
-    self.PatchObject(repository.RepoRepository, '_RepoDebugInfo')
     self.PatchObject(repository.RepoRepository, 'Initialize')
     self.PatchObject(repository.RepoRepository, '_EnsureMirroring')
     self.PatchObject(repository.RepoRepository, 'BuildRootGitCleanup')
