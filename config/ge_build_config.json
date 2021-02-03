@@ -2008,14 +2008,6 @@
             "bvt-perbuild",
             "bvt-tast-informational"
           ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 417,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-kernelnext",
-          "name": "barla",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 417,
@@ -2023,7 +2015,35 @@
         },
         {
           "board_name": "grunt-kernelnext",
+          "name": "barla",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": true,
+          "release_builder_test_pool": "bvt",
+          "board_id": 417,
+          "is_active": true
+        },
+        {
+          "board_name": "grunt-kernelnext",
           "name": "careena",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 417,
