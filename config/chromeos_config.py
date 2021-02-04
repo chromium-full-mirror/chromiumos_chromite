@@ -12,6 +12,7 @@ import re
 
 from chromite.lib import config_lib
 from chromite.lib import constants
+from chromite.lib import cros_logging as logging
 from chromite.utils import memoize
 
 from chromite.config import chromeos_config_boards as chromeos_boards
@@ -2271,8 +2272,11 @@ def AddNotificationConfigs(site_config):
   }
 
   for config_name, notification_configs in notifiers.items():
-    site_config[config_name].apply(
-        **{'notification_configs': notification_configs})
+    if config_name in site_config:
+      site_config[config_name].apply(
+          **{'notification_configs': notification_configs})
+    else:
+      logging.warning('ignoring notifier for missing config %s', config_name)
 
 
 def ApplyCustomOverrides(site_config):
