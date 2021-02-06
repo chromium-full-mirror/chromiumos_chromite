@@ -304,7 +304,6 @@
     kefka-kernelnext-release
     kefka-release
     kevin-release
-    kevin-userdebug-release
     kip-release
     kukui-arc64-release
     kukui-release
@@ -1095,12 +1094,6 @@
   kevin-pi-android-pfq-tryjob
   kevin-release-tryjob
   kevin-unittest-stress
-  kevin-userdebug-full-tryjob
-  kevin-userdebug-llvm-next-toolchain-tryjob
-  kevin-userdebug-llvm-toolchain-tryjob
-  kevin-userdebug-payloads-tryjob
-  kevin-userdebug-release-tryjob
-  kevin-userdebug-unittest-stress
   kip-factory-rambi-5517.B-factorybranch-tryjob
   kip-factory-strago-7458.B-factorybranch-tryjob
   kip-full-tryjob
@@ -1252,7 +1245,6 @@
     kefka-kernelnext-release-tryjob
     kefka-release-tryjob
     kevin-release-tryjob
-    kevin-userdebug-release-tryjob
     kip-release-tryjob
     kukui-arc64-release-tryjob
     kukui-release-tryjob
