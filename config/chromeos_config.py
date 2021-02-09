@@ -197,7 +197,6 @@ def GeneralTemplates(site_config):
       'informational',
       display_label=config_lib.DISPLAY_LABEL_INFORMATIONAL,
       description='Informational Builds',
-      manifest_branch='main',
       luci_builder=config_lib.LUCI_BUILDER_INFORMATIONAL,
   )
 
@@ -2776,11 +2775,6 @@ def SpecialtyBuilders(site_config, boards_dict, ge_build_config):
       site_config.templates.no_hwtest_builder,
       # The amd64-host has to be last as that is when the toolchains
       # are bundled up for inclusion in the sdk.
-      #
-      # TODO(crbug.com/1159924): Audit this and other builder's branch
-      # since we deprecated the old external tracking branch.
-      manifest_branch='main',
-
       boards=[
           'arm-generic', 'amd64-generic'
       ],
