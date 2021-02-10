@@ -243,6 +243,7 @@
 == release ==
   master-lakitu-release
   master-release
+    ambassador-release
     arkham-release
     asuka-release
     atlas-release
@@ -383,6 +384,12 @@
     rammus-arc-r-vmrvc-android-pfq
 
 == tryjob ==
+  ambassador-full-tryjob
+  ambassador-llvm-next-toolchain-tryjob
+  ambassador-llvm-toolchain-tryjob
+  ambassador-payloads-tryjob
+  ambassador-release-tryjob
+  ambassador-unittest-stress
   amd64-generic-asan-tryjob
   amd64-generic-coverage-fuzzer-tryjob
   amd64-generic-full-tryjob
@@ -1199,6 +1206,7 @@
     eve-release-basic-tryjob
     grunt-release-basic-tryjob
   master-release-tryjob
+    ambassador-release-tryjob
     arkham-release-tryjob
     asuka-release-tryjob
     atlas-release-tryjob
