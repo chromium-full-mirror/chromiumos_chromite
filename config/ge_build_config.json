@@ -761,6 +761,31 @@
   "release_branch": true,
   "reference_board_unified_builds": [
     {
+      "name": "ambassador",
+      "reference_board_name": "ambassador",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "ambassador",
+          "name": "ambassador",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 466,
+          "is_active": true
+        },
+        {
+          "board_name": "ambassador",
+          "name": "genesis",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 466,
+          "is_active": true
+        }
+      ]
+    },
+    {
       "name": "atlas",
       "reference_board_name": "atlas",
       "arch": "X86_INTERNAL",
