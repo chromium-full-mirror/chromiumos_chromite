@@ -386,18 +386,6 @@
       ]
     },
     {
-      "name": "kefka-kernelnext",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "strago",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "kevin",
       "configs": [
         {
