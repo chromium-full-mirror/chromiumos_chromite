@@ -15,7 +15,7 @@ import sys
 import time
 
 from googleapiclient import discovery
-import google.protobuf.internal.well_known_types as types
+from google.protobuf import timestamp_pb2
 from oauth2client.client import GoogleCredentials
 
 from infra_libs import ts_mon
@@ -284,7 +284,7 @@ def _ParseDatetime(date_str):
   Returns:
     A datetime object at the same timestamp as the date_str.
   """
-  time_pb = types.Timestamp()
+  time_pb = timestamp_pb2.Timestamp()
   time_pb.FromJsonString(date_str)
   return time_pb.ToDatetime()
 

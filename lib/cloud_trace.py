@@ -15,7 +15,7 @@ import random
 import re
 import sys
 
-import google.protobuf.internal.well_known_types as types
+from google.protobuf import timestamp_pb2
 from infra_libs import ts_mon
 
 from chromite.lib import cros_logging as log
@@ -126,7 +126,7 @@ class Span(structured.Structured):
 
     Side effect: Records the start time as a Timestamp.
     """
-    start = types.Timestamp()
+    start = timestamp_pb2.Timestamp()
     start.GetCurrentTime()
     self.startTime = start.ToJsonString()
     return self
@@ -137,7 +137,7 @@ class Span(structured.Structured):
     Side-effect:
       Record the end Timestamp.
     """
-    end = types.Timestamp()
+    end = timestamp_pb2.Timestamp()
     end.GetCurrentTime()
     self.endTime = end.ToJsonString()
 
