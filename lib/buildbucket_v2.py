@@ -26,8 +26,9 @@ from chromite.lib import retry_util
 from chromite.lib.luci import utils
 from chromite.lib.luci.prpc.client import Client, ProtocolError
 
-from infra_libs.buildbucket.proto import build_pb2, common_pb2, rpc_pb2
-from infra_libs.buildbucket.proto.rpc_prpc_pb2 import BuildsServiceDescription
+from infra_libs.buildbucket.proto import builds_service_pb2
+from infra_libs.buildbucket.proto import builder_pb2, common_pb2
+from infra_libs.buildbucket.proto import builds_service_prpc_pb2
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
@@ -236,9 +237,11 @@ class BuildbucketV2(object):
       test_env: Whether to have the client connect to test URL endpoint on GAE.
     """
     if test_env:
-      self.client = Client(BBV2_URL_ENDPOINT_TEST, BuildsServiceDescription)
+      self.client = Client(BBV2_URL_ENDPOINT_TEST,
+                           builds_service_prpc_pb2.BuildsServiceDescription)
     else:
-      self.client = Client(BBV2_URL_ENDPOINT_PROD, BuildsServiceDescription)
+      self.client = Client(BBV2_URL_ENDPOINT_PROD,
+                           builds_service_prpc_pb2.BuildsServiceDescription)
 
   # TODO(crbug/1006818): Need to handle ResponseNotReady given by luci prpc.
   @retry_util.WithRetry(max_retry=5, sleep=20.0, exception=SSLError)
@@ -258,12 +261,13 @@ class BuildbucketV2(object):
     """
     batch_requests = []
     for buildbucket_id in buildbucket_ids:
-      batch_requests.append(rpc_pb2.CancelBuildRequest(
+      batch_requests.append(builds_service_pb2.CancelBuildRequest(
          id=buildbucket_id,
          fields=(field_mask_pb2.FieldMask(paths=[properties])
                  if properties else None)
       ))
-    return self.client.Batch(rpc_pb2.BatchRequest(requests=batch_requests))
+    return self.client.Batch(builds_service_pb2.BatchRequest(
+      requests=batch_requests))
 
   # TODO(crbug/1006818): Need to handle ResponseNotReady given by luci prpc.
   @retry_util.WithRetry(max_retry=5, sleep=20.0, exception=SSLError)
@@ -283,12 +287,13 @@ class BuildbucketV2(object):
     """
     batch_requests = []
     for buildbucket_id in buildbucket_ids:
-      batch_requests.append(rpc_pb2.GetBuildRequest(
+      batch_requests.append(builds_service_pb2.GetBuildRequest(
         id=buildbucket_id,
         fields=(field_mask_pb2.FieldMask(paths=[properties])
                 if properties else None)
       ))
-    return self.client.Batch(rpc_pb2.BatchRequest(requests=batch_requests))
+    return self.client.Batch(builds_service_pb2.BatchRequest(
+      requests=batch_requests))
 
   # TODO(crbug/1006818): Need to handle ResponseNotReady given by luci prpc.
   @retry_util.WithRetry(max_retry=5, sleep=20.0, exception=SSLError)
@@ -306,7 +311,7 @@ class BuildbucketV2(object):
       The corresponding Build proto. See here:
       https://chromium.googlesource.com/infra/luci/luci-go/+/HEAD/buildbucket/proto/build.proto
     """
-    cancel_build_request = rpc_pb2.CancelBuildRequest(
+    cancel_build_request = builds_service_pb2.CancelBuildRequest(
          id=buildbucket_id,
          fields=(field_mask_pb2.FieldMask(paths=[properties])
                  if properties else None)
@@ -329,7 +334,7 @@ class BuildbucketV2(object):
       The corresponding Build proto. See here:
       https://chromium.googlesource.com/infra/luci/luci-go/+/HEAD/buildbucket/proto/build.proto
     """
-    get_build_request = rpc_pb2.GetBuildRequest(
+    get_build_request = builds_service_pb2.GetBuildRequest(
         id=buildbucket_id,
         fields=(field_mask_pb2.FieldMask(paths=[properties])
                 if properties else None)
@@ -362,7 +367,7 @@ class BuildbucketV2(object):
       The corresponding Build proto. See here:
       https://chromium.googlesource.com/infra/luci/luci-go/+/HEAD/buildbucket/proto/build.proto
     """
-    schedule_build_request = rpc_pb2.ScheduleBuildRequest(
+    schedule_build_request = builds_service_pb2.ScheduleBuildRequest(
         request_id=request_id,
         template_build_id=template_build_id if template_build_id else None,
         builder=builder,
@@ -391,7 +396,7 @@ class BuildbucketV2(object):
       The corresponding Build proto. See here:
       https://chromium.googlesource.com/infra/luci/luci-go/+/HEAD/buildbucket/proto/build.proto
     """
-    update_build_request = rpc_pb2.UpdateBuildRequest(
+    update_build_request = builds_service_pb2.UpdateBuildRequest(
         build=build,
         update_mask=field_mask_pb2.FieldMask(paths=[update_properties]),
         fields=(field_mask_pb2.FieldMask(paths=[properties])
@@ -555,15 +560,15 @@ class BuildbucketV2(object):
     Returns:
       A SearchBuildResponse instance corresponding to the query.
     """
-    assert isinstance(build_predicate, rpc_pb2.BuildPredicate)
+    assert isinstance(build_predicate, builds_service_pb2.BuildPredicate)
     if fields is not None:
       assert isinstance(fields, field_mask_pb2.FieldMask)
     assert isinstance(page_size, int)
     if fields is None:
-      search_build_request = rpc_pb2.SearchBuildsRequest(
+      search_build_request = builds_service_pb2.SearchBuildsRequest(
           predicate=build_predicate, page_size=page_size)
     else:
-      search_build_request = rpc_pb2.SearchBuildsRequest(
+      search_build_request = builds_service_pb2.SearchBuildsRequest(
           predicate=build_predicate, fields=fields, page_size=page_size)
 
     return self.client.SearchBuilds(search_build_request)
@@ -597,7 +602,7 @@ class BuildbucketV2(object):
       build statuses in descending order (if |reverse| is True, ascending
       order).
     """
-    builder = build_pb2.BuilderID(project='chromeos', bucket='general')
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
     tags = [common_pb2.StringPair(key='cbb_config',
                                   value=build_config)]
     create_time = DateToTimeRange(start_date, end_date)
@@ -608,8 +613,8 @@ class BuildbucketV2(object):
                                         value=branch))
     build = None
     if start_build_id:
-      build = rpc_pb2.BuildRange(start_build_id=int(start_build_id))
-    build_predicate = rpc_pb2.BuildPredicate(
+      build = builds_service_pb2.BuildRange(start_build_id=int(start_build_id))
+    build_predicate = builds_service_pb2.BuildPredicate(
         builder=builder, tags=tags, create_time=create_time, build=build)
     search_result = self.SearchBuild(build_predicate, page_size=num_results)
     build_ids = [build.id for build in search_result.builds]
@@ -633,10 +638,10 @@ class BuildbucketV2(object):
       A list of dictionary corresponding to each child build with keys like
       start_time, end_time, status, version info, critical, build_config, etc.
     """
-    builder = build_pb2.BuilderID(project='chromeos', bucket='general')
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
     tag = common_pb2.StringPair(key='cbb_master_buildbucket_id',
                                 value=str(buildbucket_id))
-    build_predicate = rpc_pb2.BuildPredicate(
+    build_predicate = builds_service_pb2.BuildPredicate(
         builder=builder, tags=[tag])
     child_builds = self.SearchBuild(build_predicate, page_size=200)
     return [self.GetBuildStatus(child_build.id)

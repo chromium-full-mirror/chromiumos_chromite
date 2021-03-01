@@ -21,7 +21,8 @@ from chromite.lib import cros_logging as logging
 from chromite.lib import metadata_lib
 from chromite.lib.luci.prpc.client import Client, ProtocolError
 
-from infra_libs.buildbucket.proto import build_pb2, rpc_pb2, common_pb2
+from infra_libs.buildbucket.proto import build_pb2, builds_service_pb2
+from infra_libs.buildbucket.proto import builder_pb2, common_pb2
 from infra_libs.buildbucket.proto import step_pb2
 
 
@@ -42,15 +43,15 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.batch_cancel_build_request_fn = self.PatchObject(
-        rpc_pb2, 'BatchRequest', return_value=fake_batch_request)
+        builds_service_pb2, 'BatchRequest', return_value=fake_batch_request)
     self.batch_cancel_function = self.PatchObject(client, 'Batch')
     bbv2.BatchCancelBuilds([1234, 1235], 'properties')
     fake_builds = [
-      rpc_pb2.CancelBuildRequest(
+      builds_service_pb2.CancelBuildRequest(
         id=1234,
         fields=fake_field_mask
       ),
-      rpc_pb2.CancelBuildRequest(
+      builds_service_pb2.CancelBuildRequest(
         id=1235,
         fields=fake_field_mask
       ),
@@ -65,15 +66,15 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.batch_get_build_request_fn = self.PatchObject(
-        rpc_pb2, 'BatchRequest', return_value=fake_batch_request)
+        builds_service_pb2, 'BatchRequest', return_value=fake_batch_request)
     self.batch_get_function = self.PatchObject(client, 'Batch')
     bbv2.BatchGetBuilds([1234, 1235], 'properties')
     fake_builds = [
-      rpc_pb2.GetBuildRequest(
+      builds_service_pb2.GetBuildRequest(
         id=1234,
         fields=fake_field_mask
       ),
-      rpc_pb2.GetBuildRequest(
+      builds_service_pb2.GetBuildRequest(
         id=1235,
         fields=fake_field_mask
       ),
@@ -88,7 +89,8 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.cancel_build_request_fn = self.PatchObject(
-        rpc_pb2, 'CancelBuildRequest', return_value=fake_cancel_build_request)
+        builds_service_pb2, 'CancelBuildRequest',
+        return_value=fake_cancel_build_request)
     self.cancel_build_function = self.PatchObject(client, 'CancelBuild')
     bbv2.CancelBuild(1234, 'properties')
     self.cancel_build_request_fn.assert_called_with(id=1234,
@@ -100,7 +102,8 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.cancel_build_request_fn = self.PatchObject(
-        rpc_pb2, 'CancelBuildRequest', return_value=fake_cancel_build_request)
+        builds_service_pb2, 'CancelBuildRequest',
+        return_value=fake_cancel_build_request)
     self.cancel_build_function = self.PatchObject(client, 'CancelBuild')
     bbv2.CancelBuild(1234)
     self.cancel_build_request_fn.assert_called_with(
@@ -114,7 +117,8 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.get_build_request_fn = self.PatchObject(
-        rpc_pb2, 'GetBuildRequest', return_value=fake_get_build_request)
+        builds_service_pb2, 'GetBuildRequest',
+        return_value=fake_get_build_request)
     self.get_build_function = self.PatchObject(client, 'GetBuild')
     bbv2.GetBuild('some-id', 'properties')
     self.get_build_request_fn.assert_called_with(id='some-id',
@@ -126,14 +130,15 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.get_build_request_fn = self.PatchObject(
-        rpc_pb2, 'GetBuildRequest', return_value=fake_get_build_request)
+        builds_service_pb2, 'GetBuildRequest',
+        return_value=fake_get_build_request)
     self.get_build_function = self.PatchObject(client, 'GetBuild')
     bbv2.GetBuild('some-id')
     self.get_build_request_fn.assert_called_with(id='some-id', fields=None)
     self.get_build_function.assert_called_with(fake_get_build_request)
 
   def testScheduleBuild(self):
-    fake_builder = build_pb2.BuilderID(project='chromeos',
+    fake_builder = builder_pb2.BuilderID(project='chromeos',
                                       bucket='general',
                                       builder='test-builder')
     fake_field_mask = field_mask_pb2.FieldMask(paths=['properties'])
@@ -143,7 +148,7 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.schedule_build_request_fn = self.PatchObject(
-        rpc_pb2, 'ScheduleBuildRequest',
+        builds_service_pb2, 'ScheduleBuildRequest',
         return_value=fake_schedule_build_request)
     self.schedule_build_function = self.PatchObject(client, 'ScheduleBuild')
     bbv2.ScheduleBuild(request_id='1234', builder=fake_builder,
@@ -158,7 +163,8 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
         tags=fake_tag,
         fields=fake_field_mask,
         critical=common_pb2.YES)
-    self.schedule_build_function.assert_called_with(fake_schedule_build_request)
+    self.schedule_build_function.assert_called_with(
+      fake_schedule_build_request)
 
   def testUpdateBuildWithProperties(self):
     fake_update_mask = field_mask_pb2.FieldMask(paths=['number'])
@@ -169,7 +175,8 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.update_build_request_fn = self.PatchObject(
-        rpc_pb2, 'UpdateBuildRequest', return_value=fake_update_build_request)
+        builds_service_pb2, 'UpdateBuildRequest',
+        return_value=fake_update_build_request)
     self.update_build_function = self.PatchObject(client, 'UpdateBuild')
     bbv2.UpdateBuild(fake_build, 'number', 'properties')
     self.update_build_request_fn.assert_called_with(
@@ -186,7 +193,8 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
     self.update_build_request_fn = self.PatchObject(
-        rpc_pb2, 'UpdateBuildRequest', return_value=fake_update_build_request)
+        builds_service_pb2, 'UpdateBuildRequest',
+        return_value=fake_update_build_request)
     self.update_build_function = self.PatchObject(client, 'UpdateBuild')
     bbv2.UpdateBuild(fake_build, 'number')
     self.update_build_request_fn.assert_called_with(
@@ -245,7 +253,7 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
 
   def testGetBuildStatusWithValidId(self):
     """Tests for GetBuildStatus with a valid ID."""
-    properties_dict = {
+    props_dict = {
         'cidb_id': '1234',
         'bot_id': 'swarm-cros-34',
         'cbb_branch': 'master',
@@ -260,7 +268,7 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     start_time = Timestamp()
     start_time.GetCurrentTime()
     fake_properties = Struct(fields={
-        key: Value(string_value=value) for key, value in properties_dict.items()
+        key: Value(string_value=value) for key, value in props_dict.items()
     })
     fake_output = build_pb2.Build.Output(properties=fake_properties)
     fake_build = build_pb2.Build(
@@ -332,10 +340,10 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
   def testSearchBuildExceptionCases(self):
     """Test scenarios where SearchBuild raises an Exception."""
     bbv2 = buildbucket_v2.BuildbucketV2()
-    builder = build_pb2.BuilderID(project='chromeos', bucket='general')
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
     tag = common_pb2.StringPair(key='cbb_master_buildbucket_id',
                                 value=str(1234))
-    build_predicate = rpc_pb2.BuildPredicate(
+    build_predicate = builds_service_pb2.BuildPredicate(
         builder=builder, tags=[tag])
     with self.assertRaises(AssertionError):
       bbv2.SearchBuild(None, None, 100)
@@ -347,32 +355,33 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
   def testSearchBuild(self):
     """Test redirection to the underlying RPC call."""
     bbv2 = buildbucket_v2.BuildbucketV2()
-    builder = build_pb2.BuilderID(project='chromeos', bucket='general')
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
     tag = common_pb2.StringPair(key='cbb_master_buildbucket_id',
                                 value=str(1234))
-    build_predicate = rpc_pb2.BuildPredicate(
+    build_predicate = builds_service_pb2.BuildPredicate(
         builder=builder, tags=[tag])
     fields = field_mask_pb2.FieldMask()
     search_builds_fn = self.PatchObject(bbv2.client, 'SearchBuilds')
     bbv2.SearchBuild(build_predicate, fields=fields, page_size=123)
-    search_builds_fn.assert_called_once_with(rpc_pb2.SearchBuildsRequest(
+    search_builds_fn.assert_called_once_with(
+      builds_service_pb2.SearchBuildsRequest(
         predicate=build_predicate, fields=fields, page_size=123))
 
   def testGetBuildHistoryIgnoreIdFoundId(self):
     """Test GetBuildHistory ignore_build_id logic."""
     # pylint: disable=unused-variable
     bbv2 = buildbucket_v2.BuildbucketV2()
-    builder = build_pb2.BuilderID(project='chromeos', bucket='general')
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
     tags = [common_pb2.StringPair(key='cbb_config',
                                   value='something-paladin')]
     build_list = [build_pb2.Build(id=1234),
                   build_pb2.Build(id=2341)]
     search_fn = self.PatchObject(
         bbv2, 'SearchBuild',
-        return_value=rpc_pb2.SearchBuildsResponse(builds=build_list))
+        return_value=builds_service_pb2.SearchBuildsResponse(builds=build_list))
     status_fn = self.PatchObject(bbv2, 'GetBuildStatus')
     bbv2.GetBuildHistory('something-paladin', 1, ignore_build_id=1234)
-    fake_predicate = rpc_pb2.BuildPredicate(
+    fake_predicate = builds_service_pb2.BuildPredicate(
         builder=builder, tags=tags, create_time=None, build=None)
     search_fn.assert_called_once_with(fake_predicate, page_size=2)
     status_fn.assert_called_once_with(2341)
@@ -380,32 +389,32 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
   def testGetBuildHistoryIgnoreIdWithoutId(self):
     """Test GetBuildHistory ignore_build_id logic when ID is absent."""
     bbv2 = buildbucket_v2.BuildbucketV2()
-    builder = build_pb2.BuilderID(project='chromeos', bucket='general')
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
     tags = [common_pb2.StringPair(key='cbb_config',
                                   value='something-paladin')]
     build_list = [build_pb2.Build(id=1234),
                   build_pb2.Build(id=2341)]
     search_fn = self.PatchObject(
         bbv2, 'SearchBuild',
-        return_value=rpc_pb2.SearchBuildsResponse(builds=build_list))
+        return_value=builds_service_pb2.SearchBuildsResponse(builds=build_list))
     status_fn = self.PatchObject(bbv2, 'GetBuildStatus')
     bbv2.GetBuildHistory('something-paladin', 1, ignore_build_id=1000)
-    fake_predicate = rpc_pb2.BuildPredicate(
+    fake_predicate = builds_service_pb2.BuildPredicate(
         builder=builder, tags=tags, create_time=None, build=None)
     search_fn.assert_called_with(fake_predicate, page_size=2)
     status_fn.assert_called_with(1234)
 
   def testGetBuildHistoryOtherArgs(self):
     """Test GetBuildHistory's processing of (args - ignore_build_id)."""
-    builder = build_pb2.BuilderID(project='chromeos', bucket='general')
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
     tags = [common_pb2.StringPair(key='cbb_config',
                                   value='something-paladin'),
             common_pb2.StringPair(key='cbb_branch',
                                   value='master')]
     start_date = date(2019, 4, 16)
     create_time = buildbucket_v2.DateToTimeRange(start_date)
-    fake_build = rpc_pb2.BuildRange(start_build_id=1234)
-    fake_predicate = rpc_pb2.BuildPredicate(
+    fake_build = builds_service_pb2.BuildRange(start_build_id=1234)
+    fake_predicate = builds_service_pb2.BuildPredicate(
         builder=builder, tags=tags, create_time=create_time, build=fake_build)
     bbv2 = buildbucket_v2.BuildbucketV2()
     search_fn = self.PatchObject(bbv2, 'SearchBuild')
@@ -417,12 +426,12 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
   def testGetChildStatusesSuccess(self):
     """Test GetChildStatuses when RPC succeeds."""
     bbv2 = buildbucket_v2.BuildbucketV2()
-    fake_search_build_response = rpc_pb2.SearchBuildsResponse()
+    fake_search_build_response = builds_service_pb2.SearchBuildsResponse()
     self.PatchObject(bbv2, 'SearchBuild',
                      return_value=fake_search_build_response)
     self.assertEqual(bbv2.GetChildStatuses(1234), [])
     fake_build = build_pb2.Build(id=2341)
-    fake_search_build_response = rpc_pb2.SearchBuildsResponse(
+    fake_search_build_response = builds_service_pb2.SearchBuildsResponse(
         builds=[fake_build])
     self.PatchObject(bbv2, 'SearchBuild',
                      return_value=fake_search_build_response)
