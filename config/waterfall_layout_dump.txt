@@ -348,6 +348,7 @@
     veyron_fievel-release
     veyron_rialto-release
     veyron_tiger-release
+    volteer-borealis-release
     volteer-release
     whirlwind-release
     winky-release
@@ -1362,6 +1363,7 @@
     veyron_fievel-release-tryjob
     veyron_rialto-release-tryjob
     veyron_tiger-release-tryjob
+    volteer-borealis-release-tryjob
     volteer-release-tryjob
     whirlwind-release-tryjob
     winky-release-tryjob
@@ -1755,6 +1757,12 @@
   viking-rapid
   viking-release-tryjob
   viking-unittest-stress
+  volteer-borealis-full-tryjob
+  volteer-borealis-llvm-next-toolchain-tryjob
+  volteer-borealis-llvm-toolchain-tryjob
+  volteer-borealis-payloads-tryjob
+  volteer-borealis-release-tryjob
+  volteer-borealis-unittest-stress
   volteer-factory-volteer-13600.B-factorybranch-tryjob
   volteer-full-tryjob
   volteer-llvm-next-toolchain-tryjob
