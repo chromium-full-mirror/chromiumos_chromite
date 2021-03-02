@@ -782,18 +782,6 @@
       ]
     },
     {
-      "name": "volteer-borealis",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "volteer",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "whirlwind",
       "configs": [
         {
@@ -5861,6 +5849,167 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "volteer-borealis",
+      "reference_board_name": "volteer-borealis",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "volteer-borealis",
+          "name": "copano",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "delbin",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "delbin_npcx796fc",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "drobit",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "eldrid",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "eldrid_npcx796",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "elemi",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "halvor",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "lillipup",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "lindar",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "malefor",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "terrador",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "todor",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "trondo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "voema",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "volta",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "volteer",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "volteer2",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "voxel",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
           "is_active": true
         }
       ]
