@@ -5306,6 +5306,14 @@
         },
         {
           "board_name": "zork",
+          "name": "jelboz360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 381,
+          "is_active": true
+        },
+        {
+          "board_name": "zork",
           "name": "morphius",
           "test_suites": [
             "sanity",
