@@ -16,6 +16,7 @@ from chromite.api.controller import artifacts
 from chromite.api.gen.chromite.api import artifacts_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
 from chromite.cbuildbot import commands
+from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -1182,7 +1183,9 @@ class BundleDebugSymbolsTest(BundleTestCase):
     artifacts.BundleDebugSymbols(self.target_request, self.response,
                                  self.api_config)
     # Verify mock objects were called.
-    generate_breakpad_symbols_patch.assert_called()
+    build_target = build_target_lib.BuildTarget('target')
+    generate_breakpad_symbols_patch.assert_called_with(
+        mock.ANY, build_target, debug=True)
     gather_symbol_files_patch.assert_called()
 
     # Verify response proto contents and output directory contents.

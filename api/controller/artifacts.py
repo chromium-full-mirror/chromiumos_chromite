@@ -678,12 +678,12 @@ def BundleDebugSymbols(input_proto, output_proto, _config):
     output_proto (BundleResponse): The output proto.
     _config (api_config.ApiConfig): The API call config.
   """
-  target = input_proto.build_target.name
   output_dir = input_proto.output_dir
 
   chroot = controller_util.ParseChroot(input_proto.chroot)
+  build_target = controller_util.ParseBuildTarget(input_proto.build_target)
   result = artifacts.GenerateBreakpadSymbols(chroot,
-                                             target,
+                                             build_target,
                                              debug=True)
 
   # Verify breakpad symbol generation before gathering the sym files.
@@ -691,7 +691,8 @@ def BundleDebugSymbols(input_proto, output_proto, _config):
     return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
   with chroot.tempdir() as symbol_tmpdir, chroot.tempdir() as dest_tmpdir:
-    breakpad_dir = os.path.join('/build', target, 'usr/lib/debug/breakpad')
+    breakpad_dir = os.path.join('/build', build_target.name,
+                                'usr/lib/debug/breakpad')
     sym_file_list = artifacts.GatherSymbolFiles(tempdir=symbol_tmpdir,
                                                 destdir=dest_tmpdir,
                                                 paths=[breakpad_dir])
