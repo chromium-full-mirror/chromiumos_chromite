@@ -2902,10 +2902,10 @@ def SpecialtyBuilders(site_config, boards_dict, ge_build_config):
     )
 
   site_config.Add(
-      'grunt-android-pi-pre-flight-branch',
+      'kevin-android-pi-pre-flight-branch',
       site_config.templates.pre_flight_branch,
       display_label=config_lib.DISPLAY_LABEL_PI_ANDROID_PFQ,
-      boards=['grunt'],
+      boards=['kevin'],
       sync_chrome=True,
       android_rev=constants.ANDROID_REV_LATEST,
       android_package='android-container-pi',
@@ -3073,7 +3073,7 @@ def BranchScheduleConfig():
 
   RELEASES = [
       ('release-R87-13505.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
         'orderfile-verify-toolchain'],
@@ -3084,7 +3084,7 @@ def BranchScheduleConfig():
 
       # LTS branch, please do not delete. Contact: cros-lts-team@google.com.
       ('release-R86-13421.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
         'orderfile-verify-toolchain'],
@@ -3094,7 +3094,7 @@ def BranchScheduleConfig():
         'chrome-broadwell-release-afdo-verify']),
 
       ('release-R85-13310.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
         'orderfile-verify-toolchain'],
@@ -3104,7 +3104,7 @@ def BranchScheduleConfig():
         'chrome-broadwell-release-afdo-verify']),
 
       ('release-R84-13099.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
         'orderfile-verify-toolchain'],
