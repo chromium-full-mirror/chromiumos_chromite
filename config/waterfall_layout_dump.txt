@@ -962,7 +962,6 @@
   gnawty-unittest-stress
   gonzo-rapid
   gru-factory-gru-9017.B-factorybranch-tryjob
-  grunt-android-pi-pre-flight-branch-tryjob
   grunt-arc-r-full-tryjob
   grunt-arc-r-llvm-next-toolchain-tryjob
   grunt-arc-r-llvm-toolchain-tryjob
@@ -1130,6 +1129,7 @@
   kernel-4_14-release-afdo-verify-tryjob
   kernel-4_19-release-afdo-verify-tryjob
   kernel-4_4-release-afdo-verify-tryjob
+  kevin-android-pi-pre-flight-branch-tryjob
   kevin-arc64-full-tryjob
   kevin-arc64-llvm-next-toolchain-tryjob
   kevin-arc64-llvm-toolchain-tryjob
