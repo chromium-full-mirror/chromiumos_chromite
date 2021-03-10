@@ -2840,10 +2840,10 @@ def SpecialtyBuilders(site_config, boards_dict, ge_build_config):
     )
 
   site_config.Add(
-      'grunt-android-pi-pre-flight-branch',
+      'kevin-android-pi-pre-flight-branch',
       site_config.templates.pre_flight_branch,
       display_label=config_lib.DISPLAY_LABEL_PI_ANDROID_PFQ,
-      boards=['grunt'],
+      boards=['kevin'],
       sync_chrome=True,
       android_rev=constants.ANDROID_REV_LATEST,
       android_package='android-container-pi',
@@ -3013,14 +3013,14 @@ def BranchScheduleConfig():
 
   RELEASES = [
       ('release-R88-13597.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        '',
        [],
        [],
        config_lib.LUCI_BUILDER_LEGACY_RELEASE),
 
       ('release-R87-13505.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
         'orderfile-verify-toolchain'],
@@ -3031,7 +3031,7 @@ def BranchScheduleConfig():
        config_lib.LUCI_BUILDER_LEGACY_RELEASE),
 
       ('release-R84-13099.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
         'orderfile-verify-toolchain'],
@@ -3042,7 +3042,7 @@ def BranchScheduleConfig():
        config_lib.LUCI_BUILDER_LEGACY_RELEASE),
 
       ('release-R86-13421.B',
-       ['grunt-android-pi-pre-flight-branch'],
+       ['kevin-android-pi-pre-flight-branch'],
        'chell-chrome-no-afdo-uprev-pre-flight-branch',
        ['orderfile-generate-toolchain',
         'orderfile-verify-toolchain'],
