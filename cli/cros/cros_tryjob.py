@@ -7,10 +7,11 @@
 
 from __future__ import print_function
 
-import json
 import os
 import sys
 import time
+
+from google.protobuf import json_format
 
 from chromite.lib import constants
 from chromite.cli import command
@@ -18,6 +19,7 @@ from chromite.lib import config_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import git
+from chromite.lib import pformat
 from chromite.lib import request_build
 
 from chromite.cbuildbot import trybot_patch_pool
@@ -346,13 +348,13 @@ def RunRemote(site_config, options, patch_pool, infra_testing=False,
     results.append(tryjob.Submit(dryrun=False))
 
   if options.json:
-    # Just is a list of dicts, not a list of lists.
-    print(json.dumps([r._asdict() for r in results]))
+    # Convert Buildbucket Build object to dict, output as json.
+    print(pformat.json([json_format.MessageToDict(r) for r in results]))
   else:
     print('Tryjob submitted!')
     print('To view your tryjobs, visit:')
     for r in results:
-      print('  %s' % r.url)
+      print('{}{}'.format(constants.CHROMEOS_MILO_HOST, r.id))
 
 
 def AdjustOptions(options):

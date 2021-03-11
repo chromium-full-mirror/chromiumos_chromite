@@ -7,13 +7,13 @@
 
 from __future__ import print_function
 
-import json
 import sys
 
-import mock
+from google.protobuf.struct_pb2 import Struct
 
-from chromite.lib import auth
-from chromite.lib import buildbucket_lib
+from infra_libs.buildbucket.proto import build_pb2, builder_pb2, common_pb2
+
+from chromite.lib import buildbucket_v2
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -66,7 +66,7 @@ class RequestBuildHelperTestsBase(cros_test_lib.MockTestCase):
         build_config=self.UNKNOWN_CONFIG,
         display_label=self.DISPLAY_LABEL,
         branch='master',
-        extra_args=(),
+        extra_args=[],
         user_email='default_email',
         master_buildbucket_id=None)
 
@@ -78,12 +78,12 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
     # This mocks out the class, then creates a return_value for a function on
     # instances of it. We do this instead of just mocking out the function to
     # ensure not real network requests are made in other parts of the class.
-    client_mock = self.PatchObject(buildbucket_lib, 'BuildbucketClient')
-    client_mock().PutBuildRequest.return_value = {
-        'build': {'id': 'fake_buildbucket_id'}
-    }
+    client_mock = self.PatchObject(buildbucket_v2, 'BuildbucketV2')
+    client_mock().ScheduleBuilder.return_value = build_pb2.Build(
+        id=12345,
+    )
 
-  def testMinRequestBody(self):
+  def testMinCreateRequestBody(self):
     """Verify our request body with min options."""
     job = self._CreateJobMin()
 
@@ -91,29 +91,24 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
     self.assertEqual(job.luci_builder, config_lib.LUCI_BUILDER_TRY)
     self.assertEqual(job.display_label, config_lib.DISPLAY_LABEL_TRYJOB)
 
-    body = job._GetRequestBody()
+    body = job.CreateBuildRequest()
 
-    self.assertEqual(body, {
-        'parameters_json': mock.ANY,
-        'bucket': 'luci.chromeos.general',
-        'tags': [
-            'cbb_branch:master',
-            'cbb_config:amd64-generic-paladin-tryjob',
-            'cbb_display_label:tryjob',
-        ]
-    })
-
-    parameters_parsed = json.loads(body['parameters_json'])
-
-    self.assertEqual(parameters_parsed, {
-        u'builder_name': u'Try',
-        u'properties': {
-            u'cbb_branch': u'master',
-            u'cbb_config': u'amd64-generic-paladin-tryjob',
-            u'cbb_display_label': u'tryjob',
-            u'cbb_extra_args': [],
-        }
-    })
+    self.assertEqual(builder_pb2.BuilderID(
+        project='chromeos',
+        bucket=constants.INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
+        builder=config_lib.LUCI_BUILDER_TRY),
+        body['builder'])
+    self.assertEqual(
+        [common_pb2.StringPair(
+             key='cbb_branch',
+             value='master'),
+         common_pb2.StringPair(
+             key='cbb_config',
+             value='amd64-generic-paladin-tryjob'),
+         common_pb2.StringPair(
+             key='cbb_display_label',
+             value='tryjob'),
+        ], body['tags'])
 
 
   def testMaxRequestBody(self):
@@ -124,90 +119,110 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
     self.assertEqual(job.luci_builder, self.LUCI_BUILDER)
     self.assertEqual(job.display_label, 'display')
 
-    body = job._GetRequestBody()
+    body = job.CreateBuildRequest()
 
-    self.assertEqual(body, {
-        'parameters_json': mock.ANY,
-        'bucket': self.TEST_BUCKET,
-        'tags': [
-            'buildset:cros/parent_buildbucket_id/master_bb_id',
-            'cbb_branch:test-branch',
-            'cbb_config:amd64-generic-paladin',
-            'cbb_display_label:display',
-            'cbb_email:explicit_email',
-            'cbb_master_build_id:master_cidb_id',
-            'cbb_master_buildbucket_id:master_bb_id',
-            'full_version:R84-13099.77.0',
-            'master:False',
-        ]
+    self.assertEqual(builder_pb2.BuilderID(
+        project='chromeos',
+        bucket=self.TEST_BUCKET,
+        builder=self.LUCI_BUILDER),
+        body['builder'])
+
+    self.assertEqual(
+        [common_pb2.StringPair(
+            key='buildset',
+            value='cros/parent_buildbucket_id/master_bb_id'),
+         common_pb2.StringPair(
+             key='cbb_branch',
+             value='test-branch'),
+         common_pb2.StringPair(
+             key='cbb_config',
+             value='amd64-generic-paladin'),
+         common_pb2.StringPair(
+             key='cbb_display_label',
+             value='display'),
+         common_pb2.StringPair(
+             key='cbb_email',
+             value='explicit_email'),
+         common_pb2.StringPair(
+             key='cbb_master_build_id',
+             value='master_cidb_id'),
+         common_pb2.StringPair(
+             key='cbb_master_buildbucket_id',
+             value='master_bb_id'),
+         common_pb2.StringPair(
+             key='full_version',
+             value='R84-13099.77.0'),
+         common_pb2.StringPair(
+             key='master',
+             value='False'),
+        ],
+        body['tags'],
+    )
+    props = {
+        u'buildset': u'cros/parent_buildbucket_id/master_bb_id',
+        u'cbb_branch': u'test-branch',
+        u'cbb_config': u'amd64-generic-paladin',
+        u'cbb_display_label': u'display',
+        u'cbb_email': u'explicit_email',
+        u'cbb_master_build_id': u'master_cidb_id',
+        u'cbb_master_buildbucket_id': u'master_bb_id',
+        u'full_version': u'R84-13099.77.0',
+        u'master': u'False',
+    }
+    test_properties = Struct()
+    test_properties.update({k: str(v) for k, v in props.items() if v})
+    test_properties.update({'cbb_extra_args': [u'funky', u'cold', u'medina']})
+    test_properties.update({'email_notify': [{
+          'email': 'explicit_email',
+          'template': 'explicit_template',
+          }]
     })
-
-    parameters_parsed = json.loads(body['parameters_json'])
-
-    self.assertEqual(parameters_parsed, {
-        u'builder_name': u'luci_build',
-        u'email_notify': [{u'email': u'explicit_email',
-                           u'template': u'explicit_template'}],
-        u'properties': {
-            u'buildset': u'cros/parent_buildbucket_id/master_bb_id',
-            u'cbb_branch': u'test-branch',
-            u'cbb_config': u'amd64-generic-paladin',
-            u'cbb_display_label': u'display',
-            u'cbb_email': u'explicit_email',
-            u'cbb_extra_args': [u'funky', u'cold', u'medina'],
-            u'cbb_master_build_id': u'master_cidb_id',
-            u'cbb_master_buildbucket_id': u'master_bb_id',
-            u'full_version': u'R84-13099.77.0',
-            u'master': u'False',
-        },
-        u'swarming': {
-            u'override_builder_cfg': {
-                u'dimensions': [
-                    u'240:id:botname',
-                ]
-            }
-        }
-    })
+    self.assertEqual(
+        test_properties,
+        body['properties'],
+    )
 
   def testUnknownRequestBody(self):
     """Verify our request body with max options."""
-    body = self._CreateJobUnknown()._GetRequestBody()
+    job = self._CreateJobUnknown()
+    body = job.CreateBuildRequest()
 
-    self.assertEqual(body, {
-        'parameters_json': mock.ANY,
-        'bucket': 'luci.chromeos.general',
-        'tags': [
-            'cbb_branch:master',
-            'cbb_config:unknown-config',
-            'cbb_display_label:display',
-            'cbb_email:default_email',
-        ]
-    })
-
-    parameters_parsed = json.loads(body['parameters_json'])
-
-    self.assertEqual(parameters_parsed, {
-        u'builder_name': u'Try',
-        u'email_notify': [{u'email': u'default_email',
-                           u'template': u'default'}],
-        u'properties': {
+    self.assertEqual(builder_pb2.BuilderID(
+        project='chromeos',
+        bucket=constants.INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
+        builder=config_lib.LUCI_BUILDER_TRY),
+        body['builder'])
+    self.assertEqual(
+        [common_pb2.StringPair(
+            key='cbb_branch',
+            value='master'),
+         common_pb2.StringPair(
+             key='cbb_config',
+             value='unknown-config'),
+         common_pb2.StringPair(
+             key='cbb_display_label',
+             value='display'),
+         common_pb2.StringPair(
+             key='cbb_email',
+             value='default_email'),
+        ],
+        body['tags'],
+    )
+    props = {
+            u'cbb_display_label': u'display',
             u'cbb_branch': u'master',
             u'cbb_config': u'unknown-config',
-            u'cbb_display_label': u'display',
             u'cbb_email': u'default_email',
-            u'cbb_extra_args': [],
-        }
+    }
+    test_properties = Struct()
+    test_properties.update({k: str(v) for k, v in props.items() if v})
+    test_properties.update({'cbb_extra_args': job.extra_args})
+    test_properties.update({'email_notify': [{
+          'email': 'default_email',
+          'template': 'default',
+          }]
     })
-
-  def testMinDryRun(self):
-    """Do a dryrun of posting the request, min options."""
-    job = self._CreateJobMin()
-    job.Submit(testjob=True, dryrun=True)
-
-  def testMaxDryRun(self):
-    """Do a dryrun of posting the request, max options."""
-    job = self._CreateJobMax()
-    job.Submit(testjob=True, dryrun=True)
+    self.assertEqual(body['properties'], test_properties)
 
   def testLogGeneration(self):
     """Validate an import log message."""
@@ -227,136 +242,123 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
 
 class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
   """Perform real buildbucket requests against a test instance."""
-
   def verifyBuildbucketRequest(self,
                                buildbucket_id,
                                expected_bucket,
                                expected_tags,
-                               expected_parameters):
+                               expected_properties):
     """Verify the contents of a push to the TEST buildbucket instance.
 
     Args:
       buildbucket_id: Id to verify.
       expected_bucket: Bucket the push was supposed to go to as a string.
-      expected_tags: List of buildbucket tags as strings.
-      expected_parameters: Python dict equivalent to json string in
-                           parameters_json.
+      expected_tags: List of buildbucket tags.
+      expected_properties: List of buildbucket properties.
     """
-    buildbucket_client = buildbucket_lib.BuildbucketClient(
-        auth.GetAccessToken, buildbucket_lib.BUILDBUCKET_TEST_HOST,
-        service_account_json=buildbucket_lib.GetServiceAccount(
-            constants.CHROMEOS_SERVICE_ACCOUNT))
+    client = buildbucket_v2.BuildbucketV2(test_env=True)
+    request = client.GetBuild(buildbucket_id)
 
-    request = buildbucket_client.GetBuildRequest(buildbucket_id, False)
-
-    self.assertEqual(request['build']['id'], buildbucket_id)
-    self.assertEqual(request['build']['bucket'], expected_bucket)
-    self.assertCountEqual(request['build']['tags'], expected_tags)
-
-    request_parameters = json.loads(request['build']['parameters_json'])
-    self.assertEqual(request_parameters, expected_parameters)
+    self.assertEqual(request.id, buildbucket_id)
+    self.assertEqual(request.builder.bucket, expected_bucket)
+    self.assertCountEqual(request.tags, expected_tags)
+    self.assertCountEqual(request.properties, expected_properties)
 
   @cros_test_lib.NetworkTest()
   def testMinTestBucket(self):
     """Talk to a test buildbucket instance with min job settings."""
     job = self._CreateJobMin()
-    result = job.Submit(testjob=True)
+    request = job.CreateBuildRequest()
+    client = buildbucket_v2.BuildbucketV2(test_env=True)
+    result = client.ScheduleBuild(
+        request_id=request.request_id,
+        builder=request.builder,
+        properties=request.properties,
+        tags=request.tags,
+        dimensions=request.dimensions,
+    )
+    props = {
+        u'builder_name': u'Try',
+        u'properties': {
+          u'cbb_branch': u'master',
+          u'cbb_config': u'amd64-generic-paladin-tryjob',
+          u'cbb_display_label': u'tryjob',
+          u'cbb_extra_args': [],
+        },
+    }
+    expected_properties = Struct()
+    expected_properties.update({k: str(v) for k, v in props.items() if v})
 
     self.verifyBuildbucketRequest(
-        result.buildbucket_id,
+        result.id,
         'luci.chromeos.general',
-        [
-            'builder:Try',
-            'cbb_branch:master',
-            'cbb_config:amd64-generic-paladin-tryjob',
-            'cbb_display_label:tryjob',
+        [common_pb2.StringPair(
+             key='cbb_branch',
+             value='master'),
+         common_pb2.StringPair(
+             key='cbb_config',
+             value='amd64-generic-paladin-tryjob'),
+         common_pb2.StringPair(
+             key='cbb_display_label',
+             value='tryjob'),
         ],
-        {
-            u'builder_name': u'Try',
-            u'properties': {
-                u'cbb_branch': u'master',
-                u'cbb_config': u'amd64-generic-paladin-tryjob',
-                u'cbb_display_label': u'tryjob',
-                u'cbb_extra_args': [],
-            },
-        })
-
-    self.assertEqual(
-        result,
-        request_build.ScheduledBuild(
-            bucket='luci.chromeos.general',
-            buildbucket_id=result.buildbucket_id,
-            build_config='amd64-generic-paladin-tryjob',
-            url=u'https://ci.chromium.org/b/%s' % result.buildbucket_id,
-            created_ts=mock.ANY),
-    )
+        expected_properties)
 
   @cros_test_lib.NetworkTest()
   def testMaxTestBucket(self):
     """Talk to a test buildbucket instance with max job settings."""
     job = self._CreateJobMax()
-    result = job.Submit(testjob=True)
+    request = job.CreateBuildRequest()
+    client = buildbucket_v2.BuildbucketV2(test_env=True)
+    result = client.ScheduleBuild(
+        request_id=request.request_id,
+        builder=request.builder,
+        properties=request.properties,
+        tags=request.tags,
+        dimensions=request.dimensions,
+    )
+    props = {
+        u'buildset': u'cros/parent_buildbucket_id/master_bb_id',
+        u'cbb_branch': u'test-branch',
+        u'cbb_config': u'amd64-generic-paladin',
+        u'cbb_display_label': u'display',
+        u'cbb_email': u'explicit_email',
+        u'cbb_extra_args': [u'funky', u'cold', u'medina'],
+        u'cbb_master_build_id': u'master_cidb_id',
+        u'cbb_master_buildbucket_id': u'master_bb_id',
+        u'master': u'False',
+    }
+    expected_properties = Struct()
+    expected_properties.update({k: str(v) for k, v in props.items() if v})
 
     self.verifyBuildbucketRequest(
-        result.buildbucket_id,
+        result.id,
         self.TEST_BUCKET,
-        [
-            'builder:luci_build',
-            'buildset:cros/parent_buildbucket_id/master_bb_id',
-            'cbb_branch:test-branch',
-            'cbb_display_label:display',
-            'cbb_config:amd64-generic-paladin',
-            'cbb_email:explicit_email',
-            'cbb_master_build_id:master_cidb_id',
-            'cbb_master_buildbucket_id:master_bb_id',
-            'master:False',
+        [common_pb2.StringPair(
+            key='buildset',
+            value='cros/parent_buildbucket_id/master_bb_id'),
+         common_pb2.StringPair(
+             key='cbb_branch',
+             value='test-branch'),
+         common_pb2.StringPair(
+             key='cbb_config',
+             value='amd64-generic-paladin'),
+         common_pb2.StringPair(
+             key='cbb_display_label',
+             value='display'),
+         common_pb2.StringPair(
+             key='cbb_email',
+             value='explicit_email'),
+         common_pb2.StringPair(
+             key='cbb_master_build_id',
+             value='master_cidb_id'),
+         common_pb2.StringPair(
+             key='cbb_master_buildbucket_id',
+             value='master_bb_id'),
+         common_pb2.StringPair(
+             key='full_version',
+             value='R84-13099.77.0'),
+         common_pb2.StringPair(
+             key='master',
+             value='False'),
         ],
-        {
-            u'builder_name': u'luci_build',
-            u'email_notify': [{u'email': u'explicit_email',
-                               u'template': u'explicit_template'}],
-            u'properties': {
-                u'buildset': u'cros/parent_buildbucket_id/master_bb_id',
-                u'cbb_branch': u'test-branch',
-                u'cbb_config': u'amd64-generic-paladin',
-                u'cbb_display_label': u'display',
-                u'cbb_email': u'explicit_email',
-                u'cbb_extra_args': [u'funky', u'cold', u'medina'],
-                u'cbb_master_build_id': u'master_cidb_id',
-                u'cbb_master_buildbucket_id': u'master_bb_id',
-                u'master': u'False',
-            },
-            u'swarming': {
-                u'override_builder_cfg': {
-                    u'dimensions': [
-                        u'240:id:botname',
-                    ]
-                }
-            }
-        })
-
-    self.assertEqual(
-        result,
-        request_build.ScheduledBuild(
-            bucket='luci.chromeos.general',
-            buildbucket_id=result.buildbucket_id,
-            build_config='amd64-generic-paladin',
-            url=u'https://ci.chromium.org/b/%s' % result.buildbucket_id,
-            created_ts=mock.ANY),
-    )
-
-  # pylint: disable=protected-access
-  def testPostConfigToBuildBucket(self):
-    """Check syntax for PostConfigsToBuildBucket."""
-    self.PatchObject(auth, 'Login')
-    self.PatchObject(auth, 'Token')
-    self.PatchObject(request_build.RequestBuild, '_PutConfigToBuildBucket')
-
-    remote_try_job = request_build.RequestBuild(
-        build_config=self.BUILD_CONFIG_MIN,
-        display_label=self.DISPLAY_LABEL,
-        branch='master',
-        extra_args=(),
-        user_email='default_email',
-        master_buildbucket_id=None)
-    remote_try_job.Submit(testjob=True, dryrun=True)
+        expected_properties)

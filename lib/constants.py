@@ -928,7 +928,10 @@ CHROMEOS_SERVICE_ACCOUNT = os.path.join('/', 'creds', 'service_accounts',
 # Buildbucket buckets
 CHROMEOS_RELEASE_BUILDBUCKET_BUCKET = 'master.chromeos_release'
 CHROMEOS_BUILDBUCKET_BUCKET = 'master.chromeos'
-INTERNAL_SWARMING_BUILDBUCKET_BUCKET = 'luci.chromeos.general'
+INTERNAL_SWARMING_BUILDBUCKET_BUCKET = 'general'
+
+# Milo URL
+CHROMEOS_MILO_HOST = 'https://ci.chromium.org/b/'
 
 ACTIVE_BUCKETS = [
     CHROMEOS_RELEASE_BUILDBUCKET_BUCKET,

@@ -20,15 +20,14 @@ import sys
 from google.protobuf import field_mask_pb2
 from six.moves import http_client as httplib
 
+from infra_libs.buildbucket.proto import builder_pb2, builds_service_pb2
+from infra_libs.buildbucket.proto import builds_service_prpc_pb2, common_pb2
+
 from chromite.lib import constants
 from chromite.lib import cros_logging as logging
 from chromite.lib import retry_util
 from chromite.lib.luci import utils
 from chromite.lib.luci.prpc.client import Client, ProtocolError
-
-from infra_libs.buildbucket.proto import builds_service_pb2
-from infra_libs.buildbucket.proto import builder_pb2, common_pb2
-from infra_libs.buildbucket.proto import builds_service_prpc_pb2
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
@@ -51,6 +50,46 @@ BB_STATUS_DICT = {
     20: constants.BUILDER_STATUS_FAILED,
     68: constants.BUILDER_STATUS_ABORTED
 }
+
+def GetStringPairValue(content, path, key, default=None):
+  """Get the value of a repeated StringValue pair.
+
+  Get the (nested) value from a nested dict.
+
+  Args:
+    content: A dict of (nested) attributes.
+    path: String list presenting the (nested) attribute to get.
+    key: String representing which key to find.
+    default: Default value to return if the attribute doesn't exist.
+
+  Returns:
+    The corresponding value if the attribute exists; else, default.
+  """
+  assert isinstance(path, list), 'nested_attr must be a list.'
+
+  if content is None:
+    return default
+
+  assert isinstance(content, dict), 'content must be a dict.'
+
+  value = None
+  path_value = content
+  for attr in path:
+    assert isinstance(attr, str), 'attribute name must be a string.'
+
+    if not isinstance(path_value, dict):
+      return default
+
+    path_value = path_value.get(attr, default)
+
+  for sp in path_value:
+    dimensions_kv = list(sp.items())
+    for i, (k, v) in enumerate(dimensions_kv):
+      dimensions_kv[i] = (k, [v,])
+      if v == key:
+        if len(dimensions_kv) >= i+1:
+          return dimensions_kv[i+1][i+1]
+  return value
 
 def UpdateSelfBuildPropertiesNonBlocking(key, value):
   """Updates the build.output.properties with key:value through a service.
@@ -227,6 +266,25 @@ def DateToTimeRange(start_date=None, end_date=None):
   return common_pb2.TimeRange(start_time=start_timestamp,
                               end_time=end_timestamp)
 
+def GetBotId(build):
+  """Return the bot id that ran a build, or None.
+
+  Args:
+    build: BuildbucketV2 build
+
+  Returns:
+    hostname: Swarming hostname
+  """
+  # This produces a list of bot_ids for each build (or None).
+  # I don't think there can ever be more than one entry in the list, but
+  # could be zero.
+  bot_id = GetStringPairValue(build, ['infra', 'swarming', 'botDimensions'],
+                             'id')
+  if not bot_id:
+    return None
+
+  return bot_id
+
 class BuildbucketV2(object):
   """Connection to Buildbucket V2 database."""
 
@@ -347,19 +405,19 @@ class BuildbucketV2(object):
   @retry_util.WithRetry(max_retry=5, sleep=20.0,
                         exception=httplib.ResponseNotReady)
   def ScheduleBuild(self, request_id, template_build_id=None,
-                    builder=None, experiments=None,
-                    properties=None, gerrit_changes=None,
-                    tags=None, fields=None, critical=True):
-    """GetBuild call of a specific build with buildbucket_id.
+                    builder=None, properties=None,
+                    gerrit_changes=None, tags=None,
+                    dimensions=None, fields=None, critical=True):
+    """ScheduleBuild call of a specific build with buildbucket_id.
 
     Args:
       request_id: unique string used to prevent duplicates.
       template_build_id: ID of a build to retry.
       builder: Tuple (builder.project, builder.bucket) defines build ACL
-      experiments: map of string, bool of experiments to set.
       properties: properties key in parameters_json
       gerrit_changes: Repeated GerritChange message type.
       tags: repeated StringPair of Build.tags to associate with build.
+      dimensions: RequestedDimension Swarming dimension to override in config.
       fields: fields to include in the response.
       critical: bool for build.critical.
 
@@ -371,10 +429,10 @@ class BuildbucketV2(object):
         request_id=request_id,
         template_build_id=template_build_id if template_build_id else None,
         builder=builder,
-        experiments=experiments if experiments else None,
         properties=properties if properties else None,
         gerrit_changes=gerrit_changes if gerrit_changes else None,
         tags=tags if tags else None,
+        dimensions=dimensions if dimensions else None,
         fields=field_mask_pb2.FieldMask(paths=[fields]) if fields else None,
         critical=common_pb2.YES if critical else common_pb2.NO)
     return self.client.ScheduleBuild(schedule_build_request)
