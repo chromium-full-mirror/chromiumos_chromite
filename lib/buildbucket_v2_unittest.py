@@ -22,11 +22,71 @@ from chromite.lib import metadata_lib
 from chromite.lib.luci.prpc.client import Client, ProtocolError
 
 from infra_libs.buildbucket.proto import build_pb2, builds_service_pb2
-from infra_libs.buildbucket.proto import builder_pb2, common_pb2
-from infra_libs.buildbucket.proto import step_pb2
+from infra_libs.buildbucket.proto import common_pb2
+from infra_libs.buildbucket.proto import builder_pb2, step_pb2
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
+
+SUCCESS_BUILD = {'infra': {
+                    'swarming': {
+                        'botDimensions': [
+                          {
+                              'key': 'cores',
+                              'value': '32'
+                          },
+                          {
+                              'key': 'cpu',
+                              'value': 'x86'
+                          },
+                          {
+                              'key': 'cpu',
+                              'value': 'x86-64'
+                          },
+                          {
+                              'key': 'cpu',
+                              'value': 'x86-64-Haswell_GCE'
+                          },
+                          {
+                              'key': 'cpu',
+                              'value': 'x86-64-avx2'
+                          },
+                          {
+                              'key': 'gce',
+                              'value': '1'
+                          },
+                          {
+                              'key': 'gcp',
+                              'value': 'chromeos-bot'
+                          },
+                          {
+                              'key': 'id',
+                              'value': 'chromeos-ci-test-bot'
+                          },
+                          {
+                              'key': 'image',
+                              'value': 'chromeos-bionic-21021400-a1c0533ad76'
+                          },
+                          {
+                              'key': 'machine_type',
+                              'value': 'e2-standard-32'
+                          },
+                          {
+                              'key': 'pool',
+                              'value': 'ChromeOS'
+                          },
+                          {
+                              'key': 'role',
+                              'value': 'legacy-release'
+                          },
+                          {
+                              'key': 'zone',
+                              'value': 'us-central1-b'
+                          }
+                      ]
+                  }
+              }
+        }
 
 
 class BuildbucketV2Test(cros_test_lib.MockTestCase):
@@ -157,10 +217,10 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
         request_id='1234',
         template_build_id=None,
         builder=fake_builder,
-        experiments=None,
         properties=None,
         gerrit_changes=None,
         tags=fake_tag,
+        dimensions=None,
         fields=fake_field_mask,
         critical=common_pb2.YES)
     self.schedule_build_function.assert_called_with(
@@ -579,3 +639,24 @@ class StaticFunctionsTest(cros_test_lib.MockTestCase):
     result = buildbucket_v2.DateToTimeRange(end_date=date_example)
     self.assertEqual(result.end_time.seconds, 1555372740)
     self.assertEqual(result.start_time.seconds, 0)
+
+  def testGetStringPairValue(self):
+    bot_id = buildbucket_v2.GetStringPairValue(
+      SUCCESS_BUILD,
+      ['infra', 'swarming', 'botDimensions'],
+      'id')
+    self.assertEqual(bot_id, 'chromeos-ci-test-bot')
+    pool = buildbucket_v2.GetStringPairValue(
+      SUCCESS_BUILD,
+      ['infra', 'swarming', 'botDimensions'],
+      'pool')
+    self.assertEqual(pool, 'ChromeOS')
+    role = buildbucket_v2.GetStringPairValue(
+      SUCCESS_BUILD,
+      ['infra', 'swarming', 'botDimensions'],
+      'role')
+    self.assertEqual(role, 'legacy-release')
+
+  def testGetBotId(self):
+    bot_id = buildbucket_v2.GetBotId(SUCCESS_BUILD)
+    self.assertEqual(bot_id, 'chromeos-ci-test-bot')

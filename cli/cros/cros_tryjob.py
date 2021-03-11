@@ -352,7 +352,8 @@ def RunRemote(site_config, options, patch_pool, infra_testing=False,
     print('Tryjob submitted!')
     print('To view your tryjobs, visit:')
     for r in results:
-      print('  %s' % r.url)
+      print('{}{}'.format(constants.CHROMEOS_MILO_HOST,
+                                           r.id))
 
 
 def AdjustOptions(options):

@@ -8,16 +8,17 @@
 from __future__ import print_function
 
 import collections
-import json
 import sys
+import uuid
 
-from chromite.lib import auth
-from chromite.lib import buildbucket_lib
+from google.protobuf.struct_pb2 import Struct
+from google.protobuf import duration_pb2
+from infra_libs.buildbucket.proto import build_pb2, builder_pb2
+from infra_libs.buildbucket.proto import common_pb2
+
+from chromite.lib import buildbucket_v2
 from chromite.lib import config_lib
 from chromite.lib import constants
-from chromite.lib import cros_logging as logging
-from chromite.lib import pformat
-from chromite.lib import uri_lib
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
@@ -61,7 +62,7 @@ class RequestBuild(object):
                luci_builder=None,
                display_label=None,
                branch='master',
-               extra_args=(),
+               extra_args=None,
                extra_properties=None,
                user_email=None,
                email_template=None,
@@ -121,11 +122,11 @@ class RequestBuild(object):
     self.master_buildbucket_id = master_buildbucket_id
     self.requested_bot = requested_bot
 
-  def _GetRequestBody(self):
-    """Generate the request body for a swarming buildbucket request.
+  def CreateBuildRequest(self):
+    """Generate the details for Buildbucket V2 request.
 
     Returns:
-      buildbucket request properties as a python dict.
+      Parameters for V2 ScheduleBuild.
     """
     tags = {
         # buildset identifies a group of related builders.
@@ -157,91 +158,59 @@ class RequestBuild(object):
     # Recipe expects it to be a string anyway.
     tags = {k: str(v) for k, v in tags.items() if v}
 
-    # All tags should also be listed as properties.
-    properties = tags.copy()
-    properties['cbb_extra_args'] = self.extra_args
-
-    parameters = {
-        'builder_name': self.luci_builder,
-        'properties': properties,
-    }
-
+    properties = Struct()
+    properties.update({k: str(v) for k, v in tags.items() if v})
+    properties.update({'cbb_extra_args': self.extra_args})
     if self.user_email:
-      parameters['email_notify'] = [{
+      properties.update({'email_notify': [{
           'email': self.user_email,
           'template': self.email_template,
-      }]
+          }]
+      })
+
+    tags_proto = []
+    for k, v in sorted(tags.items()):
+      if v:
+        tags_proto.append(common_pb2.StringPair(key=k,value=v))
+    dimensions = []
 
     # If a specific bot was requested, pass along the request with a
     # 240 second (4 minute) timeout. If the bot isn't available, we
     # will fall back to the general builder restrictions (probably
     # based on role).
-    if self.requested_bot:
-      parameters['swarming'] = {
-          'override_builder_cfg': {
-              'dimensions': [
-                  '240:id:%s' % self.requested_bot,
-              ]
-          }
-      }
 
+    # Build Affinity is disabled until protos are updated.
+    if self.requested_bot:
+      dimensions = [common_pb2.RequestedDimension(
+        key='id',
+        value=self.requested_bot,
+        expiration=duration_pb2.Duration(seconds=240))]
     return {
-        'bucket': self.bucket,
-        'parameters_json': pformat.json(parameters, compact=True),
-        # These tags are indexed and searchable in buildbucket.
-        'tags': ['%s:%s' % (k, tags[k]) for k in sorted(tags.keys())],
+        'request_id': uuid.uuid1(),
+        'builder': builder_pb2.BuilderID(project='chromeos',
+                                      bucket=self.bucket,
+                                      builder=self.luci_builder),
+        'properties': properties,
+        'tags': tags_proto,
+        'dimensions': dimensions if dimensions else None,
     }
 
-  def _PutConfigToBuildBucket(self, buildbucket_client, dryrun):
-    """Put the tryjob request to buildbucket.
-
-    Args:
-      buildbucket_client: The buildbucket client instance.
-      dryrun: bool controlling dryrun behavior.
-
-    Returns:
-      ScheduledBuild describing the scheduled build.
-
-    Raises:
-      RemoteRequestFailure.
-    """
-    request_body = self._GetRequestBody()
-    content = buildbucket_client.PutBuildRequest(
-        json.dumps(request_body), dryrun)
-
-    if buildbucket_lib.GetNestedAttr(content, ['error']):
-      raise RemoteRequestFailure(
-          'buildbucket error.\nReason: %s\n Message: %s' %
-          (buildbucket_lib.GetErrorReason(content),
-           buildbucket_lib.GetErrorMessage(content)))
-
-    buildbucket_id = buildbucket_lib.GetBuildId(content)
-    url = uri_lib.ConstructMiloBuildUri(buildbucket_id)
-    created_ts = buildbucket_lib.GetBuildCreated_ts(content)
-
-    result = ScheduledBuild(
-        self.bucket, buildbucket_id, self.build_config, url, created_ts)
-
-    logging.info(self.BUILDBUCKET_PUT_RESP_FORMAT, result._asdict())
-
-    return result
-
-  def Submit(self, testjob=False, dryrun=False):
+  def Submit(self, dryrun=False):
     """Submit the tryjob through Git.
 
     Args:
-      testjob: Submit job to the test branch of the tryjob repo.  The tryjob
-               will be ignored by production master.
       dryrun: Setting to true will run everything except the final submit step.
 
     Returns:
       A ScheduledBuild instance.
     """
-    host = (buildbucket_lib.BUILDBUCKET_TEST_HOST if testjob
-            else buildbucket_lib.BUILDBUCKET_HOST)
-    buildbucket_client = buildbucket_lib.BuildbucketClient(
-        auth.GetAccessToken, host,
-        service_account_json=buildbucket_lib.GetServiceAccount(
-            constants.CHROMEOS_SERVICE_ACCOUNT))
-
-    return self._PutConfigToBuildBucket(buildbucket_client, dryrun)
+    buildbucket_client = buildbucket_v2.BuildbucketV2()
+    request = self.CreateBuildRequest()
+    if dryrun:
+      return build_pb2.Build(id='1')
+    return buildbucket_client.ScheduleBuild(
+      request_id=str(request['request_id']),
+      builder=request['builder'],
+      properties=request['properties'],
+      tags=request['tags'],
+      dimensions=request['dimensions'])

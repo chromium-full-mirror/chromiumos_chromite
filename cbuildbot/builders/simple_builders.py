@@ -290,6 +290,7 @@ class SimpleBuilder(generic_builders.Builder):
   def RunEarlySyncAndSetupStages(self):
     """Runs through the early sync and board setup stages."""
     # If there are slave builders, schedule them.
+    logging.info('Simple Builder run.config: %s', self._run.config)
     if self._run.config.slave_configs:
       self._RunStage(scheduler_stages.ScheduleSlavesStage, self.sync_stage)
     self._RunStage(build_stages.UprevStage)

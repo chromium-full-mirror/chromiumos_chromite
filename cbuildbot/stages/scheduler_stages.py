@@ -9,13 +9,18 @@ from __future__ import print_function
 
 import time
 
+from google.protobuf import field_mask_pb2
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import buildbucket_lib
+from chromite.lib import buildbucket_v2
 from chromite.lib import build_requests
 from chromite.lib import constants
 from chromite.lib import cros_logging as logging
 from chromite.lib import failures_lib
 from chromite.lib import request_build
+
+from infra_libs.buildbucket.proto import builder_pb2, builds_service_pb2
+from infra_libs.buildbucket.proto import common_pb2
 
 
 class ScheduleSlavesStage(generic_stages.BuilderStage):
@@ -26,45 +31,53 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
   def __init__(self, builder_run, buildstore, sync_stage, **kwargs):
     super(ScheduleSlavesStage, self).__init__(builder_run, buildstore, **kwargs)
     self.sync_stage = sync_stage
-    self.buildbucket_client = self.GetBuildbucketClient()
+    self.buildbucket_client = buildbucket_v2.BuildbucketV2()
 
   def _FindMostRecentBotId(self, build_config, branch):
-    buildbucket_client = self.GetBuildbucketClient()
-    if not buildbucket_client:
+    if not self.buildbucket_client:
       logging.info('No buildbucket_client, no bot found.')
       return None
 
-    previous_builds = buildbucket_client.SearchAllBuilds(
-        self._run.options.debug,
-        buckets=constants.ACTIVE_BUCKETS,
-        limit=1,
-        tags=['cbb_config:%s' % build_config,
-              'cbb_branch:%s' % branch],
-        status=constants.BUILDBUCKET_BUILDER_STATUS_COMPLETED)
+    builder = builder_pb2.BuilderID(project='chromeos',
+                                  bucket='general')
+    tags = [common_pb2.StringPair(key='cbb_config',
+                                  value=build_config),
+            common_pb2.StringPair(key='cbb_branch',
+                                  value=branch)]
+    predicate = builds_service_pb2.BuildPredicate(
+      builder=builder,
+      status=common_pb2.SUCCESS,
+      tags=tags)
+    field_mask = field_mask_pb2.FieldMask(
+      paths=['builds.*.infra.swarming.bot_dimensions.*']
+    )
+    previous_builds = self.buildbucket_client.SearchBuild(
+        build_predicate=predicate,
+        fields=field_mask,
+        page_size=1)
 
     if not previous_builds:
       logging.info('No previous build found, no bot found.')
       return None
 
-    bot_id = buildbucket_lib.GetBotId(previous_builds[0])
+    bot_id = buildbucket_v2.GetBotId(previous_builds[0])
     if not bot_id:
       logging.info('Previous build has no bot.')
       return None
 
     return bot_id
 
-  def _CreateRequestBuild(self,
+  def _CreateScheduledBuild(self,
                           build_name,
                           build_config,
                           master_build_id,
                           master_buildbucket_id,
-                          requested_bot):
+                          requested_bot=None):
     if build_config.build_affinity:
       requested_bot = self._FindMostRecentBotId(build_config.name,
                                                 self._run.manifest_branch)
       logging.info('Requesting build affinity for %s against %s',
                    build_config.name, requested_bot)
-
     cbb_extra_args = ['--buildbot']
     if master_buildbucket_id is not None:
       cbb_extra_args.append('--master-buildbucket-id')
@@ -99,11 +112,11 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
                                   master_build_id,
                                   master_buildbucket_id,
                                   dryrun=False):
-    """Send a Put slave build request to Buildbucket.
+    """Scehdule a build within Buildbucket.
 
     Args:
-      build_name: Slave build name to put to Buildbucket.
-      build_config: Slave build config to put to Buildbucket.
+      build_name: Slave build name to schedule.
+      build_config: Slave build config.
       master_build_id: CIDB id of the master scheduling the slave build.
       master_buildbucket_id: buildbucket id of the master scheduling the
                              slave build.
@@ -114,21 +127,30 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         buildbucket_id
         created_ts
     """
-    requested_bot = None
-    request = self._CreateRequestBuild(
+    request = self._CreateScheduledBuild(
         build_name,
         build_config,
         master_build_id,
-        master_buildbucket_id,
-        requested_bot
-    )
-    result = request.Submit(dryrun=dryrun)
+        master_buildbucket_id
+    ).CreateBuildRequest()
+
+    if dryrun:
+      return (str(master_build_id), '1')
+
+    result = self.buildbucket_client.ScheduleBuild(
+      request_id=str(request['request_id']),
+      builder=request['builder'],
+      properties=request['properties'],
+      tags=request['tags'],
+      dimensions=request['dimensions'])
 
     logging.info('Build_name %s buildbucket_id %s created_timestamp %s',
-                 result.build_config, result.buildbucket_id, result.created_ts)
-    logging.PrintBuildbotLink(result.build_config, result.url)
+                 build_config, result.id, result.createTime)
+    logging.PrintBuildbotLink(build_config,
+                             '{}{}'.format(constants.CHROMEOS_MILO_HOST,
+                                           result.id))
 
-    return (result.buildbucket_id, result.created_ts)
+    return (result['id'], result['createTime'])
 
   def ScheduleSlaveBuildsViaBuildbucket(self,
                                         important_only=False,
@@ -164,14 +186,21 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
 
     # Get all active slave build configs.
     slave_config_map = self._GetSlaveConfigMap(important_only)
+    logging.info('Slave config map: %s', slave_config_map)
     for slave_config_name, slave_config in sorted(slave_config_map.items()):
+      logging.info('Slave config name: %s', slave_config_name)
+      logging.info('Slave config: %s', slave_config)
       try:
-        buildbucket_id, created_ts = self.PostSlaveBuildToBuildbucket(
-            slave_config_name,
-            slave_config,
-            build_id,
-            master_buildbucket_id,
-            dryrun=dryrun)
+        if dryrun:
+          buildbucket_id = '1'
+          created_ts = '1'
+        else:
+          buildbucket_id, created_ts = self.PostSlaveBuildToBuildbucket(
+              slave_config_name,
+              slave_config,
+              build_id,
+              master_buildbucket_id,
+              dryrun=dryrun)
         request_reason = None
 
         if slave_config.important:
