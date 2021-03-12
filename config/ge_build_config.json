@@ -6096,6 +6096,14 @@
         },
         {
           "board_name": "zork",
+          "name": "shuboz",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 381,
+          "is_active": true
+        },
+        {
+          "board_name": "zork",
           "name": "trembyle",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
