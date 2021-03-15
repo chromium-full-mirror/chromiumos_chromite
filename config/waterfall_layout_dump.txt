@@ -1034,6 +1034,7 @@
   hana-payloads-tryjob
   hana-release-tryjob
   hana-unittest-stress
+  hatch-android-rvc-pre-flight-branch-tryjob
   hatch-arc-r-ack-full-tryjob
   hatch-arc-r-ack-llvm-next-toolchain-tryjob
   hatch-arc-r-ack-llvm-toolchain-tryjob

@@ -2920,6 +2920,20 @@ def SpecialtyBuilders(site_config, boards_dict, ge_build_config):
   )
 
   site_config.Add(
+      'hatch-android-rvc-pre-flight-branch',
+      site_config.templates.pre_flight_branch,
+      display_label=config_lib.DISPLAY_LABEL_VMRVC_ANDROID_PFQ,
+      boards=['hatch'],
+      sync_chrome=True,
+      android_rev=constants.ANDROID_REV_LATEST,
+      android_package='android-vm-rvc',
+      android_import_branch=constants.ANDROID_VMRVC_BUILD_BRANCH,
+      prebuilts=False,
+      unittests=False,
+  )
+
+  # TODO(b/182520025): Retire once R89 PFQ is gone.
+  site_config.Add(
       'hatch-arc-r-android-rvc-pre-flight-branch',
       site_config.templates.pre_flight_branch,
       display_label=config_lib.DISPLAY_LABEL_VMRVC_ANDROID_PFQ,
