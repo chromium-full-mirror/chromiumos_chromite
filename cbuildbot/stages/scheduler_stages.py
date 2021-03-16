@@ -145,12 +145,12 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
       dimensions=request['dimensions'])
 
     logging.info('Build_name %s buildbucket_id %s created_timestamp %s',
-                 build_config, result.id, result.createTime)
+                 build_config, result.id, result.create_time)
     logging.PrintBuildbotLink(build_config,
                              '{}{}'.format(constants.CHROMEOS_MILO_HOST,
                                            result.id))
 
-    return (result['id'], result['createTime'])
+    return (result.id, result.create_time)
 
   def ScheduleSlaveBuildsViaBuildbucket(self,
                                         important_only=False,
