@@ -9,7 +9,7 @@ from __future__ import print_function
 
 import time
 
-from google.protobuf import field_mask_pb2
+from google.protobuf import field_mask_pb2, timestamp_pb2
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import buildbucket_lib
 from chromite.lib import buildbucket_v2
@@ -145,12 +145,13 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
       dimensions=request['dimensions'])
 
     logging.info('Build_name %s buildbucket_id %s created_timestamp %s',
-                 build_config, result.id, result.create_time)
-    logging.PrintBuildbotLink(build_config,
+                 build_name, result.id,
+                 timestamp_pb2.ToJsonString(result.create_time))
+    logging.PrintBuildbotLink(build_name,
                              '{}{}'.format(constants.CHROMEOS_MILO_HOST,
                                            result.id))
 
-    return (result.id, result.create_time)
+    return (result.id, timestamp_pb2.ToJsonString(result.create_time))
 
   def ScheduleSlaveBuildsViaBuildbucket(self,
                                         important_only=False,
@@ -186,10 +187,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
 
     # Get all active slave build configs.
     slave_config_map = self._GetSlaveConfigMap(important_only)
-    logging.info('Slave config map: %s', slave_config_map)
     for slave_config_name, slave_config in sorted(slave_config_map.items()):
-      logging.info('Slave config name: %s', slave_config_name)
-      logging.info('Slave config: %s', slave_config)
       try:
         if dryrun:
           buildbucket_id = '1'
