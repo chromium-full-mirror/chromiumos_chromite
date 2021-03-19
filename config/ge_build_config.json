@@ -842,6 +842,14 @@
           "release_builder_test_pool": "bvt",
           "board_id": 435,
           "is_active": true
+        },
+        {
+          "board_name": "asurada",
+          "name": "spherion",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 435,
+          "is_active": true
         }
       ]
     },
