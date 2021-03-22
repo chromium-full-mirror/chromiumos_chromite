@@ -396,20 +396,31 @@ class WorkspaceScheduleChildrenStage(WorkspaceStageBase):
       extra_args.append('--debug')
 
     for child_name in self._run.config.slave_configs:
-      child = request_build.RequestBuild(
+      request = request_build.RequestBuild(
           build_config=child_name,
           # See crbug.com/940969. These id's get children killed during
           # multiple quick builds.
           # master_cidb_id=build_id,
           # master_buildbucket_id=master_buildbucket_id,
           extra_args=extra_args,
-      )
-      result = child.Submit(dryrun=self._run.options.debug)
+      ).CreateBuildRequest()
+      buildbucket_client = buildbucket_v2.BuildbucketV2()
+
+      if self._run.options.debug:
+        continue
+      result = buildbucket_client.ScheduleBuild(
+        request_id=str(request['request_id']),
+        builder=request['builder'],
+        properties=request['properties'],
+        tags=request['tags'],
+        dimensions=request['dimensions'])
 
       logging.info(
           'Build_name %s buildbucket_id %s created_timestamp %s',
-          result.build_config, result.buildbucket_id, result.created_ts)
-      logging.PrintBuildbotLink(result.build_config, result.url)
+          child_name, result.id, result.create_time.ToJsonString())
+      logging.PrintBuildbotLink(child_name,
+                                '{}{}'.format(constants.CHROMEOS_MILO_HOST,
+                                              result.id))
 
 
 class WorkspaceInitSDKStage(WorkspaceStageBase):
