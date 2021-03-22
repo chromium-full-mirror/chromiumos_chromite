@@ -30,6 +30,7 @@ from chromite.cbuildbot import manifest_version
 from chromite.cbuildbot import trybot_patch_pool
 from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import generic_stages
+from chromite.lib import buildbucket_v2
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
