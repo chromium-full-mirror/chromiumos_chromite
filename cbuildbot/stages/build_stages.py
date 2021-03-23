@@ -208,23 +208,29 @@ class CleanUpStage(generic_stages.BuilderStage):
     main_search = []
     # Find the 3 most recent master buildbucket ids in active buckets.
     for bucket in constants.ACTIVE_BUCKETS:
-      build_predicate = builds_service_pb2.BuildPredicate(
-        builder=builder_pb2.BuilderID(
-          project='chromeos',
-          bucket=bucket),
-        status=constants.BUILDBUCKET_BUILDER_RESULT_SUCCESS,
-        tags=[common_pb2.StringPair(key='cbb_config',
-                                  value=self._run.config.name),
-            common_pb2.StringPair(key='cbb_branch',
-                                  value=self._run.manifest_branch)],
-      )
-      main_search.append(builds_service_pb2.SearchBuildsRequest(
-            predicate=build_predicate,
-            fields=field_mask_pb2.FieldMask(paths=['builds.*.id']),
-            page_size=3))
+      for status in [
+        constants.BUILDBUCKET_BUILDER_RESULT_CANCELED,
+        constants.BUILDBUCKET_BUILDER_RESULT_SUCCESS,
+      ]:
+        build_predicate = builds_service_pb2.BuildPredicate(
+          builder=builder_pb2.BuilderID(
+            project='chromeos',
+            bucket=bucket),
+          status=status,
+          tags=[common_pb2.StringPair(key='cbb_config',
+                                    value=self._run.config.name),
+              common_pb2.StringPair(key='cbb_branch',
+                                    value=self._run.manifest_branch)],
+        )
+        main_search.append(builds_service_pb2.SearchBuildsRequest(
+              predicate=build_predicate,
+              fields=field_mask_pb2.FieldMask(paths=['builds.*.id']),
+              page_size=3))
+    logging.info('Searching previous builds based on predicates: %s', main_search)
     main_builds = buildbucket_client.BatchSearchBuilds(
       search_requests=main_search
     )
+    logging.info('Previous orchestrator builds: %s', main_builds)
     main_ids = []
     for br in main_builds.responses:
       for build in br.search_builds.builds:
@@ -248,8 +254,10 @@ class CleanUpStage(generic_stages.BuilderStage):
         )
         batch_search.append(builds_service_pb2.SearchBuildsRequest(
           predicate=child_predicate))
+    logging.info('Finding previous nodes based on predicate: %s', batch_search)
     builds = buildbucket_client.BatchSearchBuilds(
       search_requests=batch_search)
+    logging.info('Previous node results: %s', builds)
     cancel_nodes = []
     for cr in builds.responses:
       for cb in cr.search_builds.builds:
