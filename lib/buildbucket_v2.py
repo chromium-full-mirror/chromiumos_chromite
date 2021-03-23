@@ -306,11 +306,13 @@ class BuildbucketV2(object):
   @retry_util.WithRetry(max_retry=5, sleep=20.0, exception=socket.error)
   @retry_util.WithRetry(max_retry=5, sleep=20.0,
                         exception=httplib.ResponseNotReady)
-  def BatchCancelBuilds(self, buildbucket_ids, properties=None):
+  def BatchCancelBuilds(self, buildbucket_ids, summary_markdown,
+                        properties=None):
     """BatchGetBuild repeated GetBuild request with provided ids.
 
     Args:
       buildbucket_ids: list of ids of the builds in buildbucket.
+      summary_markdown: summary of reason for cancel.
       properties: fields to include in the response.
 
     Returns:
@@ -319,11 +321,21 @@ class BuildbucketV2(object):
     """
     batch_requests = []
     for buildbucket_id in buildbucket_ids:
-      batch_requests.append(builds_service_pb2.CancelBuildRequest(
-         id=buildbucket_id,
-         fields=(field_mask_pb2.FieldMask(paths=[properties])
-                 if properties else None)
-      ))
+      logging.info('Canceling buildbucket_id: %s', str(buildbucket_id))
+      if isinstance(buildbucket_id, str):
+        buildbucket_id = int(buildbucket_id)
+      batch_requests.append(
+        builds_service_pb2.BatchRequest.Request(
+          cancel_build=(
+            builds_service_pb2.CancelBuildRequest(
+              id=buildbucket_id,
+              summary_markdown=summary_markdown,
+              fields=(field_mask_pb2.FieldMask(paths=[properties])
+                      if properties else None)
+            )
+          )
+        )
+      )
     return self.client.Batch(builds_service_pb2.BatchRequest(
       requests=batch_requests))
 
@@ -345,24 +357,49 @@ class BuildbucketV2(object):
     """
     batch_requests = []
     for buildbucket_id in buildbucket_ids:
-      batch_requests.append(builds_service_pb2.GetBuildRequest(
-        id=buildbucket_id,
-        fields=(field_mask_pb2.FieldMask(paths=[properties])
-                if properties else None)
-      ))
+      batch_requests.append(
+        builds_service_pb2.BatchRequest.Request(
+          get_build=(
+            builds_service_pb2.GetBuildRequest(
+              id=buildbucket_id,
+              fields=(field_mask_pb2.FieldMask(paths=[properties])
+                      if properties else None)
+            )
+          )
+        )
+      )
     return self.client.Batch(builds_service_pb2.BatchRequest(
       requests=batch_requests))
+
+  def BatchSearchBuilds(self, search_requests):
+    """SearchBuild RPC call wrapping function.
+
+    Args:
+      search_requests: List of SearchBuildRequests
+
+    Returns:
+      The corresponding BatchResponse message. See here:
+      https://chromium.googlesource.com/infra/luci/luci-go/+/HEAD/buildbucket/proto/builds_service.proto
+    """
+    requests = []
+    for request in search_requests:
+      requests.append(
+        builds_service_pb2.BatchRequest.Request(search_builds=request)
+      )
+    return self.client.Batch(builds_service_pb2.BatchRequest(
+      requests=requests))
 
   # TODO(crbug/1006818): Need to handle ResponseNotReady given by luci prpc.
   @retry_util.WithRetry(max_retry=5, sleep=20.0, exception=SSLError)
   @retry_util.WithRetry(max_retry=5, sleep=20.0, exception=socket.error)
   @retry_util.WithRetry(max_retry=5, sleep=20.0,
                         exception=httplib.ResponseNotReady)
-  def CancelBuild(self, buildbucket_id, properties=None):
+  def CancelBuild(self, buildbucket_id, summary_markdown, properties=None):
     """CancelBuild call of a specific build with buildbucket_id.
 
     Args:
       buildbucket_id: id of the build in buildbucket.
+      summary_markdown: summary of reason for cancel.
       properties: fields to include in the response.
 
     Returns:
@@ -371,6 +408,7 @@ class BuildbucketV2(object):
     """
     cancel_build_request = builds_service_pb2.CancelBuildRequest(
          id=buildbucket_id,
+         summary_markdown=summary_markdown,
          fields=(field_mask_pb2.FieldMask(paths=[properties])
                  if properties else None)
     )

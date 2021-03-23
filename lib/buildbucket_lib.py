@@ -290,42 +290,6 @@ class BuildbucketClient(object):
 
     return self.SendBuildbucketRequest(url, GET_METHOD, None, dryrun)
 
-  def CancelBuildRequest(self, buildbucket_id, dryrun):
-    """Send Cancel request to buildbucket server.
-
-    Args:
-      buildbucket_id: Buildbucket_id (string) of the build to cancel.
-      dryrun: Whether a dryrun.
-
-    Returns:
-      See return type of SendBuildbucketRequest.
-    """
-    url = 'https://%(hostname)s/api/buildbucket/v1/builds/%(id)s/cancel' % {
-        'hostname': self.host,
-        'id': buildbucket_id
-    }
-
-    return self.SendBuildbucketRequest(url, POST_METHOD, '{}', dryrun)
-
-  def CancelBatchBuildsRequest(self, buildbucket_ids, dryrun):
-    """Send CancelBatch request to buildbucket server.
-
-    Args:
-      buildbucket_ids: buildbucket_ids (string list) of the builds to cancel.
-      dryrun: Whether a dryrun.
-
-    Returns:
-      See return type of SendBuildbucketRequest.
-    """
-    url = 'https://%(hostname)s/api/buildbucket/v1/builds/cancel' % {
-        'hostname': self.host
-    }
-
-    assert isinstance(buildbucket_ids, list)
-    body = json.dumps({'build_ids': buildbucket_ids})
-
-    return self.SendBuildbucketRequest(url, POST_METHOD, body, dryrun)
-
   def RetryBuildRequest(self, buildbucket_id, dryrun):
     """Send a Retry request to the Buildbucket server.
 

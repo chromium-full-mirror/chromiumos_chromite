@@ -105,15 +105,25 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     self.batch_cancel_build_request_fn = self.PatchObject(
         builds_service_pb2, 'BatchRequest', return_value=fake_batch_request)
     self.batch_cancel_function = self.PatchObject(client, 'Batch')
-    bbv2.BatchCancelBuilds([1234, 1235], 'properties')
+    bbv2.BatchCancelBuilds([1234, 1235], 'test', 'properties')
     fake_builds = [
-      builds_service_pb2.CancelBuildRequest(
-        id=1234,
-        fields=fake_field_mask
+      builds_service_pb2.BatchRequest.Request(
+        cancel_build=(
+          builds_service_pb2.CancelBuildRequest(
+            id=1234,
+            summary_markdown='test',
+            fields=fake_field_mask
+          ),
+        ),
       ),
-      builds_service_pb2.CancelBuildRequest(
-        id=1235,
-        fields=fake_field_mask
+      builds_service_pb2.BatchRequest.Request(
+        cancel_build=(
+          builds_service_pb2.CancelBuildRequest(
+            id=1235,
+            summary_markdown='test',
+            fields=fake_field_mask
+          ),
+        ),
       ),
     ]
     self.batch_cancel_build_request_fn.assert_called_with(
@@ -130,18 +140,54 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     self.batch_get_function = self.PatchObject(client, 'Batch')
     bbv2.BatchGetBuilds([1234, 1235], 'properties')
     fake_builds = [
-      builds_service_pb2.GetBuildRequest(
-        id=1234,
-        fields=fake_field_mask
+      builds_service_pb2.BatchRequest.Request(
+        get_build=(
+          builds_service_pb2.GetBuildRequest(
+            id=1234,
+            fields=fake_field_mask
+          ),
+        ),
       ),
-      builds_service_pb2.GetBuildRequest(
-        id=1235,
-        fields=fake_field_mask
+      builds_service_pb2.BatchRequest.Request(
+        get_build=(
+          builds_service_pb2.GetBuildRequest(
+            id=1235,
+            fields=fake_field_mask
+          ),
+        ),
       ),
     ]
     self.batch_get_build_request_fn.assert_called_with(
         requests=fake_builds)
     self.batch_get_function.assert_called_with(fake_batch_request)
+
+  def testBatchSearchBuilds(self):
+    fake_batch_request = object()
+    bbv2 = buildbucket_v2.BuildbucketV2()
+    builder = builder_pb2.BuilderID(project='chromeos', bucket='general')
+    tag = common_pb2.StringPair(key='cbb_master_buildbucket_id',
+                                value=str(1234))
+    build_predicate = builds_service_pb2.BuildPredicate(
+        builder=builder, tags=[tag])
+    client = bbv2.client
+    self.batch_search_build_request_fn = self.PatchObject(
+        builds_service_pb2, 'BatchRequest', return_value=fake_batch_request)
+    self.batch_search_function = self.PatchObject(client, 'Batch')
+    search_request = [builds_service_pb2.SearchBuildsRequest(
+      predicate=build_predicate)]
+    bbv2.BatchSearchBuilds(search_request)
+    fake_builds = [
+      builds_service_pb2.BatchRequest.Request(
+        search_builds=(
+          builds_service_pb2.SearchBuildsRequest(
+            predicate=build_predicate,
+          ),
+        ),
+      ),
+    ]
+    self.batch_search_build_request_fn.assert_called_with(
+        requests=fake_builds)
+    self.batch_search_function.assert_called_with(fake_batch_request)
 
   def testCancelBuildWithProperties(self):
     fake_field_mask = field_mask_pb2.FieldMask(paths=['properties'])
@@ -152,8 +198,9 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
         builds_service_pb2, 'CancelBuildRequest',
         return_value=fake_cancel_build_request)
     self.cancel_build_function = self.PatchObject(client, 'CancelBuild')
-    bbv2.CancelBuild(1234, 'properties')
+    bbv2.CancelBuild(1234, 'test', 'properties')
     self.cancel_build_request_fn.assert_called_with(id=1234,
+        summary_markdown='test',
         fields=fake_field_mask)
     self.cancel_build_function.assert_called_with(fake_cancel_build_request)
 
@@ -165,9 +212,10 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
         builds_service_pb2, 'CancelBuildRequest',
         return_value=fake_cancel_build_request)
     self.cancel_build_function = self.PatchObject(client, 'CancelBuild')
-    bbv2.CancelBuild(1234)
+    bbv2.CancelBuild(1234, 'test')
     self.cancel_build_request_fn.assert_called_with(
         id=1234,
+        summary_markdown='test',
         fields=None)
     self.cancel_build_function.assert_called_with(fake_cancel_build_request)
 

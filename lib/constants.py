@@ -920,8 +920,8 @@ CHROMEOS_SERVICE_ACCOUNT = os.path.join('/', 'creds', 'service_accounts',
                                         'service-account-chromeos.json')
 
 # Buildbucket buckets
-CHROMEOS_RELEASE_BUILDBUCKET_BUCKET = 'master.chromeos_release'
-CHROMEOS_BUILDBUCKET_BUCKET = 'master.chromeos'
+CHROMEOS_RELEASE_BUILDBUCKET_BUCKET = 'chromeos_release'
+CHROMEOS_BUILDBUCKET_BUCKET = 'chromeos'
 INTERNAL_SWARMING_BUILDBUCKET_BUCKET = 'general'
 
 # Milo URL

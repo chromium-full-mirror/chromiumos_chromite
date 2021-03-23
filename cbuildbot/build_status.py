@@ -12,6 +12,7 @@ import datetime
 import sys
 
 from chromite.lib import buildbucket_lib
+from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import build_requests
 from chromite.lib import constants
@@ -526,11 +527,14 @@ class SlaveStatus(object):
 
     # Check if all builders completed.
     if self._Completed():
-      builder_status_lib.CancelBuilds(
-          list(uncompleted_experimental_build_buildbucket_ids),
-          self.buildbucket_client,
-          self.dry_run,
-          self.config)
+      buildbucket_client = buildbucket_v2.BuildbucketV2()
+      summary_markdown = ('Experimental build, cancelled as all others' +
+                          'completed.')
+      logging.info(summary_markdown)
+      buildbucket_client.BatchCancelBuilds(
+        list(uncompleted_experimental_build_buildbucket_ids),
+        summary_markdown,
+      )
       return False, False, True
 
     current_time = datetime.datetime.now()
@@ -546,12 +550,14 @@ class SlaveStatus(object):
         uncompleted_experimental_build_buildbucket_ids)
 
     if self._ShouldFailForBuilderStartTimeout(current_time):
-      logging.error('Ending build since at least one builder has not started '
-                    'within %d minutes.', BUILD_START_TIMEOUT_MIN)
-      builder_status_lib.CancelBuilds(uncompleted_build_buildbucket_ids,
-                                      self.buildbucket_client,
-                                      self.dry_run,
-                                      self.config)
+      summary_markdown = ('Ending build since at least one builder has ' +
+                    'not started within %d minutes.' % BUILD_START_TIMEOUT_MIN)
+      logging.error(summary_markdown)
+      buildbucket_client = buildbucket_v2.BuildbucketV2()
+      buildbucket_client.BatchCancelBuilds(
+        uncompleted_build_buildbucket_ids,
+        summary_markdown,
+      )
       return False, False, False
 
     # We got here which means no problems, we should still wait.
