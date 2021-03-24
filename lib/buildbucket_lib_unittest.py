@@ -77,67 +77,6 @@ class BuildbucketClientTest(cros_test_lib.MockTestCase):
         buildbucket_id, True)
     self.assertIsNone(result_content_2)
 
-  def testCancelBuildRequest(self):
-    """Test CancelBuild."""
-    buildbucket_id = 'test_buildbucket_id'
-    result = 'CANCELED'
-    content = json.dumps({
-        'build':{
-            'id': buildbucket_id,
-            'result': result
-        }
-    })
-    self.mock_http.request.return_value = (self.success_response, content)
-    result_content = self.client.CancelBuildRequest(
-        buildbucket_id, False)
-    self.assertEqual(buildbucket_lib.GetBuildResult(result_content), result)
-
-    # Test dryrun
-    result_content_2 = self.client.CancelBuildRequest(
-        buildbucket_id, True)
-    self.assertIsNone(result_content_2)
-
-  def testCancelBatchBuildsRequest(self):
-    """Test CancelBatchBuilds."""
-    buildbucket_id_1 = 'test_buildbucket_id_1'
-    buildbucket_id_2 = 'test_buildbucket_id_2'
-    status = 'COMPLETED'
-    result = 'CANCELED'
-    error_reason = 'BUILD_IS_COMPLETED'
-    content = json.dumps({
-        'results':[{
-            'build_id': buildbucket_id_1,
-            'build': {
-                'status': status,
-                'result': result,
-            }
-        }, {
-            'build_id': buildbucket_id_2,
-            'error': {
-                'message': 'Cannot cancel a completed build',
-                'reason': error_reason,
-            }
-        }]
-    })
-    self.mock_http.request.return_value = (self.success_response, content)
-    result_content = self.client.CancelBatchBuildsRequest(
-        [buildbucket_id_1, buildbucket_id_2], False)
-
-    result_map = buildbucket_lib.GetResultMap(result_content)
-    self.assertIsNotNone(buildbucket_lib.GetNestedAttr(
-        result_map[buildbucket_id_1], ['build']))
-    self.assertIsNotNone(buildbucket_lib.GetNestedAttr(
-        result_map[buildbucket_id_2], ['error']))
-    self.assertEqual(buildbucket_lib.GetBuildStatus(
-        result_map[buildbucket_id_1]), status)
-    self.assertEqual(buildbucket_lib.GetErrorReason(
-        result_map[buildbucket_id_2]), error_reason)
-
-    # Test dryrun
-    result_content_2 = self.client.CancelBatchBuildsRequest(
-        [buildbucket_id_1, buildbucket_id_2], True)
-    self.assertIsNone(result_content_2)
-
   def testRetryBuildRequest(self):
     """Test RetryBuild."""
     buildbucket_id = '001'

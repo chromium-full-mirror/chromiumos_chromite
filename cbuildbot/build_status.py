@@ -12,6 +12,7 @@ import datetime
 import sys
 
 from chromite.lib import buildbucket_lib
+from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import build_requests
 from chromite.lib import constants
@@ -21,6 +22,7 @@ from chromite.lib import metrics
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
 
+BUILD_START_TIMEOUT_MIN = 60
 
 # TODO(nxia): Rename this module to slave_status, since this module is for
 # a master build which has slave builds and there is builder_status_lib for
@@ -32,9 +34,6 @@ class SlaveStatus(object):
   interpret slave statuses by querying CIDB and Buildbucket; otherwise,
   it will only interpret slave statuses by querying CIDB.
   """
-
-  BUILD_START_TIMEOUT_MIN = 30
-
   ACCEPTED_STATUSES = (constants.BUILDER_STATUS_PASSED,
                        constants.BUILDER_STATUS_SKIPPED,)
 
@@ -389,7 +388,7 @@ class SlaveStatus(object):
     """
     # Check that we're at least past the start timeout.
     builder_start_deadline = datetime.timedelta(
-        minutes=self.BUILD_START_TIMEOUT_MIN)
+        minutes=BUILD_START_TIMEOUT_MIN)
     past_deadline = current_time - self.start_time > builder_start_deadline
 
     # Check that we have missing builders and logging who they are.
@@ -528,11 +527,14 @@ class SlaveStatus(object):
 
     # Check if all builders completed.
     if self._Completed():
-      builder_status_lib.CancelBuilds(
-          list(uncompleted_experimental_build_buildbucket_ids),
-          self.buildbucket_client,
-          self.dry_run,
-          self.config)
+      buildbucket_client = buildbucket_v2.BuildbucketV2()
+      summary_markdown = ('Experimental build, cancelled as all others ' +
+                          'completed.')
+      logging.info(summary_markdown)
+      buildbucket_client.BatchCancelBuilds(
+        list(uncompleted_experimental_build_buildbucket_ids),
+        summary_markdown,
+      )
       return False, False, True
 
     current_time = datetime.datetime.now()
@@ -548,12 +550,14 @@ class SlaveStatus(object):
         uncompleted_experimental_build_buildbucket_ids)
 
     if self._ShouldFailForBuilderStartTimeout(current_time):
-      logging.error('Ending build since at least one builder has not started '
-                    'within 5 mins.')
-      builder_status_lib.CancelBuilds(uncompleted_build_buildbucket_ids,
-                                      self.buildbucket_client,
-                                      self.dry_run,
-                                      self.config)
+      summary_markdown = ('Ending build since at least one builder has ' +
+                    'not started within %d minutes.' % BUILD_START_TIMEOUT_MIN)
+      logging.error(summary_markdown)
+      buildbucket_client = buildbucket_v2.BuildbucketV2()
+      buildbucket_client.BatchCancelBuilds(
+        uncompleted_build_buildbucket_ids,
+        summary_markdown,
+      )
       return False, False, False
 
     # We got here which means no problems, we should still wait.

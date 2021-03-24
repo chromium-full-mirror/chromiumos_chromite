@@ -18,7 +18,6 @@ from chromite.lib import constants
 from chromite.lib import cros_collections
 from chromite.lib import cros_logging as logging
 from chromite.lib import failure_message_lib
-from chromite.lib import metrics
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
@@ -32,38 +31,6 @@ NUM_RETRIES = 20
 CIDBStatusInfo = collections.namedtuple(
     'CIDBStatusInfo',
     ['buildbucket_id', 'status'])
-
-
-def CancelBuilds(buildbucket_ids, buildbucket_client,
-                 debug=True, config=None):
-  """Cancel Buildbucket builds in a set.
-
-  Args:
-    buildbucket_ids: A list of build_ids (strings).
-    buildbucket_client: Instance of buildbucket_lib.buildbucket_client.
-    debug: Boolean indicating whether it's a dry run. Default to True.
-    config: Instance of config_lib.BuildConfig. Config dict for the master
-      build initiating the cancel. Optional.
-  """
-  if buildbucket_ids:
-    logging.info('Canceling buildbucket_ids: %s', buildbucket_ids)
-    if (not debug) and config:
-      fields = {'build_type': config.build_type,
-                'build_name': config.name}
-      metrics.Counter(constants.MON_BB_CANCEL_BATCH_BUILDS_COUNT).increment(
-          fields=fields)
-    cancel_results = buildbucket_client.CancelBatchBuildsRequest(
-        buildbucket_ids,
-        dryrun=debug)
-    result_map = buildbucket_lib.GetResultMap(cancel_results)
-    for buildbucket_id, result in result_map.items():
-      # Check for error messages
-      if buildbucket_lib.GetNestedAttr(result, ['error']):
-        # TODO(nxia): Get build url and log url in the warnings.
-        logging.warning('Error cancelling build %s with reason: %s. '
-                        'Please check the status of the build.',
-                        buildbucket_id,
-                        buildbucket_lib.GetErrorReason(result))
 
 
 def GetFailedMessages(statuses, failing):
