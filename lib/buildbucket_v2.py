@@ -13,6 +13,7 @@ client out of lib/luci/prpc and third_party/infra_libs/buildbucket.
 from __future__ import print_function
 
 import ast
+import collections
 import socket
 from ssl import SSLError
 import sys
@@ -50,6 +51,129 @@ BB_STATUS_DICT = {
     20: constants.BUILDER_STATUS_FAILED,
     68: constants.BUILDER_STATUS_ABORTED
 }
+
+# Namedtupe to store buildbucket related info.
+BuildbucketInfo = collections.namedtuple(
+    'BuildbucketInfo',
+    ['buildbucket_id', 'retry', 'created_ts', 'status', 'url'])
+
+class BuildbucketResponseException(Exception):
+  """Exception got from Buildbucket Response."""
+
+
+class NoBuildbucketBucketFoundException(Exception):
+  """Failed to found the corresponding buildbucket bucket."""
+
+
+class NoBuildbucketClientException(Exception):
+  """No Buildbucket client exception."""
+
+
+def GetScheduledBuildDict(scheduled_slave_list):
+  """Parse the build information from the scheduled_slave_list metadata.
+
+  Treats all listed builds as newly-scheduled.
+
+  Args:
+    scheduled_slave_list: A list of scheduled builds recorded in the
+                          master metadata. In the format of
+                          [(build_config, buildbucket_id, created_ts)].
+
+  Returns:
+    A dict mapping build config name to its buildbucket information
+    (in the format of BuildbucketInfo).
+  """
+  if scheduled_slave_list is None:
+    return {}
+
+  buildbucket_info_dict = {}
+  for (build_config, buildbucket_id, created_ts) in scheduled_slave_list:
+    if build_config not in buildbucket_info_dict:
+      buildbucket_info_dict[build_config] = BuildbucketInfo(
+          buildbucket_id, 0, created_ts, None, None)
+    else:
+      old_info = buildbucket_info_dict[build_config]
+      # If a slave occurs multiple times, increment retry count and keep
+      # the buildbucket_id and created_ts of most recently created one.
+      new_retry = old_info.retry + 1
+      if created_ts > buildbucket_info_dict[build_config].created_ts:
+        buildbucket_info_dict[build_config] = BuildbucketInfo(
+            buildbucket_id, new_retry, created_ts, None, None)
+      else:
+        buildbucket_info_dict[build_config] = BuildbucketInfo(
+            old_info.buildbucket_id, new_retry, old_info.created_ts, None, None)
+
+  return buildbucket_info_dict
+
+def GetBuildInfoDict(metadata, exclude_experimental=True):
+  """Get buildbucket_info_dict from metadata.
+
+  Args:
+    metadata: Instance of metadata_lib.CBuildbotMetadata.
+    exclude_experimental: Whether to exclude the builds which are important in
+      the config but are marked as experimental in the tree status. Default to
+      True.
+
+  Returns:
+    buildbucket_info_dict: A dict mapping build config name to its buildbucket
+        information in the format of BuildbucketInfo. Build configs that are
+        marked experimental through the tree status will not be in the dict.
+        (See GetScheduledBuildDict for details.)
+  """
+  assert metadata is not None
+
+  scheduled_slaves_list = metadata.GetValueWithDefault(
+      constants.METADATA_SCHEDULED_IMPORTANT_SLAVES, [])
+
+  if exclude_experimental:
+    experimental_builders = metadata.GetValueWithDefault(
+        constants.METADATA_EXPERIMENTAL_BUILDERS, [])
+    scheduled_slaves_list = [
+        (config, bb_id, ts) for config, bb_id, ts in scheduled_slaves_list
+        if config not in experimental_builders
+    ]
+
+  return GetScheduledBuildDict(scheduled_slaves_list)
+
+def GetBuildbucketIds(metadata, exclude_experimental=True):
+  """Get buildbucket_ids of scheduled slave builds from metadata.
+
+  Args:
+    metadata: Instance of metadata_lib.CBuildbotMetadata.
+    exclude_experimental: Whether to exclude the builds which are important in
+      the config but are marked as experimental in the tree status. Default to
+      True.
+
+  Returns:
+    A list of buildbucket_ids (string) of slave builds.
+  """
+  buildbucket_info_dict = GetBuildInfoDict(
+      metadata, exclude_experimental=exclude_experimental)
+  return [info_dict.buildbucket_id
+          for info_dict in buildbucket_info_dict.values()]
+
+def FetchCurrentSlaveBuilders(config, metadata, builders_array,
+                              exclude_experimental=True):
+  """Fetch the current important slave builds.
+
+  Args:
+    config: Instance of config_lib.BuildConfig. Config dict of this build.
+    metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of this
+              build.
+    builders_array: A list of slave build configs to check.
+    exclude_experimental: Whether to exclude the builds which are important in
+      the config but are marked as experimental in the tree status. Default to
+      True.
+
+  Returns:
+    An updated list of slave build configs for a master build.
+  """
+  if config and metadata:
+    scheduled_buildbucket_info_dict = GetBuildInfoDict(
+        metadata, exclude_experimental=exclude_experimental)
+    return list(scheduled_buildbucket_info_dict)
+  else:
+    return builders_array
 
 def GetStringPairValue(content, path, key, default=None):
   """Get the value of a repeated StringValue pair.

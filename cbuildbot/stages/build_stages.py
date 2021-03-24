@@ -208,8 +208,8 @@ class CleanUpStage(generic_stages.BuilderStage):
     # Find the 3 most recent master buildbucket ids in active buckets.
     for bucket in constants.ACTIVE_BUCKETS:
       for status in [
-        constants.BUILDBUCKET_BUILDER_RESULT_CANCELED,
-        constants.BUILDBUCKET_BUILDER_RESULT_SUCCESS,
+        constants.BUILDBUCKET_BUILDER_STATUS_CANCELED,
+        constants.BUILDBUCKET_BUILDER_STATUS_SUCCESS,
       ]:
         build_predicate = builds_service_pb2.BuildPredicate(
           builder=builder_pb2.BuilderID(

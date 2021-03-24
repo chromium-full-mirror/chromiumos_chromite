@@ -11,7 +11,6 @@ import time
 
 from google.protobuf import field_mask_pb2
 from chromite.cbuildbot.stages import generic_stages
-from chromite.lib import buildbucket_lib
 from chromite.lib import buildbucket_v2
 from chromite.lib import build_requests
 from chromite.lib import constants
@@ -213,7 +212,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         scheduled_build_reqs.append(
             build_requests.BuildRequest(None, build_id, slave_config_name, None,
                                         buildbucket_id, request_reason, None))
-      except buildbucket_lib.BuildbucketResponseException as e:
+      except buildbucket_v2.BuildbucketResponseException as e:
         # Use 16-digit ts to be consistent with the created_ts from Buildbucket
         current_ts = int(round(time.time() * 1000000))
         unscheduled_slave_builds.append((slave_config_name, None, current_ts))

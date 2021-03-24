@@ -18,8 +18,6 @@ from chromite.cbuildbot import repository
 from chromite.cbuildbot import trybot_patch_pool
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.cbuildbot.stages import sync_stages
-from chromite.lib import auth
-from chromite.lib import buildbucket_lib
 from chromite.lib import cidb
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -259,13 +257,6 @@ class MasterSlaveLKGMSyncTest(generic_stages_unittest.StageTestCase):
         branch=self.branch,
         buildstore=self.buildstore,
         dry_run=True)
-
-    self.PatchObject(buildbucket_lib, 'GetServiceAccount', return_value=True)
-    self.PatchObject(auth.AuthorizedHttp, '__init__', return_value=None)
-    self.PatchObject(
-        buildbucket_lib.BuildbucketClient,
-        '_GetHost',
-        return_value=buildbucket_lib.BUILDBUCKET_TEST_HOST)
 
     self._Prepare()
 

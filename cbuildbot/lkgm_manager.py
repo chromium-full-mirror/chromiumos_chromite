@@ -89,7 +89,7 @@ class _LKGMCandidateInfo(manifest_version.VersionInfo):
     self.revision_number += 1
     return self.VersionString()
 
-  # pylint: disable=arguments-differ
+  # pylint: disable=arguments-differ, signature-differs
   def UpdateVersionFile(self, *args, **kwargs):
     """Update the version file on disk.
 
@@ -135,7 +135,7 @@ class LKGMManager(manifest_version.BuildSpecsManager):
       metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of this
                 builder.
       buildstore: BuildStore instance to make DB calls.
-      buildbucket_client: Instance of buildbucket_lib.buildbucket_client.
+      buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
     """
     super(LKGMManager, self).__init__(
         source_repo=source_repo, manifest_repo=manifest_repo,
