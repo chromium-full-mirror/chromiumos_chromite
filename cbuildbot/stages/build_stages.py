@@ -226,11 +226,9 @@ class CleanUpStage(generic_stages.BuilderStage):
               predicate=build_predicate,
               fields=field_mask_pb2.FieldMask(paths=['builds.*.id']),
               page_size=3))
-    logging.info('Searching previous builds based on predicates: %s', main_search)
     main_builds = buildbucket_client.BatchSearchBuilds(
       search_requests=main_search
     )
-    logging.info('Previous orchestrator builds: %s', main_builds)
     main_ids = []
     for br in main_builds.responses:
       for build in br.search_builds.builds:
@@ -254,16 +252,14 @@ class CleanUpStage(generic_stages.BuilderStage):
         )
         batch_search.append(builds_service_pb2.SearchBuildsRequest(
           predicate=child_predicate))
-    logging.info('Finding previous nodes based on predicate: %s', batch_search)
     builds = buildbucket_client.BatchSearchBuilds(
       search_requests=batch_search)
-    logging.info('Previous node results: %s', builds)
     cancel_nodes = []
     for cr in builds.responses:
       for cb in cr.search_builds.builds:
         logging.info(
           'Found build %s in status %s from previous orchestrator.',
-          str(cb.id), cb.status)
+          str(cb.id), common_pb2.Status.Name(cb.status))
         cancel_nodes.append(cb.id)
     buildbucket_client.BatchCancelBuilds(cancel_nodes,
       'Canceling builds from a previous orchestrator.')
