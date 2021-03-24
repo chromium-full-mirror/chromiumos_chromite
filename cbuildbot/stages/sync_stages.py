@@ -19,6 +19,7 @@ from chromite.cbuildbot import manifest_version
 from chromite.cbuildbot import patch_series
 from chromite.cbuildbot import trybot_patch_pool
 from chromite.cbuildbot.stages import generic_stages
+from chromite.lib import buildbucket_v2
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import commandline
@@ -307,7 +308,7 @@ class SyncStage(generic_stages.BuilderStage):
     # TODO(mtennant): Why keep a duplicate copy of this config value
     # at self.internal when it can always be retrieved from config?
     self.internal = self._run.config.internal
-    self.buildbucket_client = self.GetBuildbucketClient()
+    self.buildbucket_client = buildbucket_v2.BuildbucketV2()
 
   def _GetManifestVersionsRepoUrl(self, internal=None, test=False):
     if internal is None:

@@ -18,7 +18,7 @@ import tempfile
 from xml.dom import minidom
 
 from chromite.cbuildbot import build_status
-from chromite.lib import buildbucket_lib
+from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -584,7 +584,7 @@ class BuildSpecsManager(object):
       metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of this
                 builder.
       buildstore: BuildStore object to make DB calls.
-      buildbucket_client: Instance of buildbucket_lib.buildbucket_client.
+      buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
     """
     self.cros_source = source_repo
     buildroot = source_repo.directory
@@ -808,7 +808,7 @@ class BuildSpecsManager(object):
       ignore_timeout_exception: Whether to ignore when the timeout exception is
         raised in waiting. Default to True.
     """
-    builders_array = buildbucket_lib.FetchCurrentSlaveBuilders(
+    builders_array = buildbucket_v2.FetchCurrentSlaveBuilders(
         self.config, self.metadata, builders_array)
     logging.info('Waiting for the following builds to complete: %s',
                  builders_array)

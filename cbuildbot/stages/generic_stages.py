@@ -23,8 +23,7 @@ import six
 from chromite.cbuildbot import commands
 from chromite.cbuildbot import repository
 from chromite.cbuildbot import topology
-from chromite.lib import auth
-from chromite.lib import buildbucket_lib
+from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -335,30 +334,6 @@ class BuilderStage(object):
 
     return repository.RepoRepository(**kwargs)
 
-  def GetBuildbucketClient(self):
-    """Build a buildbucket_client instance for Buildbucket related operations.
-
-    Returns:
-      An instance of buildbucket_lib.BuildbucketClient if the build is using
-      Buildbucket as the scheduler; else, None.
-    """
-    if buildbucket_lib.GetServiceAccount(constants.CHROMEOS_SERVICE_ACCOUNT):
-      return buildbucket_lib.BuildbucketClient(
-          auth.GetAccessToken,
-          None,
-          service_account_json=constants.CHROMEOS_SERVICE_ACCOUNT)
-
-    if self._run.InProduction():
-      # If the build using Buildbucket is running on buildbot and
-      # is in production mode, buildbucket_client cannot be None.
-      raise buildbucket_lib.NoBuildbucketClientException(
-          'Buildbucket_client is None. '
-          'Please check if the buildbot has a valid service account file. '
-          'Please find the service account json file at %s.' %
-          constants.CHROMEOS_SERVICE_ACCOUNT)
-
-    return None
-
   def GetScheduledSlaveBuildbucketIds(self):
     """Get buildbucket_ids list of the scheduled slave builds.
 
@@ -368,7 +343,7 @@ class BuilderStage(object):
     """
     buildbucket_ids = None
     if self._run.config.slave_configs:
-      buildbucket_ids = buildbucket_lib.GetBuildbucketIds(
+      buildbucket_ids = buildbucket_v2.GetBuildbucketIds(
           self._run.attrs.metadata)
 
     return buildbucket_ids

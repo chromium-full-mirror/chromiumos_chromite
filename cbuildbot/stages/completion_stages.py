@@ -13,7 +13,7 @@ from chromite.cbuildbot import prebuilts
 from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import sync_stages
 from chromite.lib import alerts
-from chromite.lib import buildbucket_lib
+from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -99,7 +99,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
     self._slave_statuses = {}
     self._experimental_build_statuses = {}
     self._fatal = False
-    self.buildbucket_client = self.GetBuildbucketClient()
+    self.buildbucket_client = buildbucket_v2.BuildbucketV2()
 
   def _WaitForSlavesToComplete(self, manager, build_identifier, builders_array,
                                timeout):
@@ -329,7 +329,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
     Args:
       no_stat: Config names of the slave builds with None status.
     """
-    buildbucket_info_dict = buildbucket_lib.GetBuildInfoDict(
+    buildbucket_info_dict = buildbucket_v2.GetBuildInfoDict(
         self._run.attrs.metadata)
 
     for config_name in no_stat:
@@ -337,29 +337,28 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         buildbucket_id = buildbucket_info_dict[config_name].buildbucket_id
         assert buildbucket_id is not None, 'buildbucket_id is None'
         try:
-          content = self.buildbucket_client.GetBuildRequest(
-              buildbucket_id, self._run.options.debug)
+          build = self.buildbucket_client.GetBuild(
+              buildbucket_id, properties=['id', 'status', 'summary_markdown'])
 
-          status = buildbucket_lib.GetBuildStatus(content)
-          result = buildbucket_lib.GetBuildResult(content)
+          status = build.status
+          text = '%s: [status] %s' % (config_name, status)
 
-          text = '%s: [status] %s [result] %s' % (config_name, status, result)
-
-          if result == constants.BUILDBUCKET_BUILDER_RESULT_FAILURE:
-            failure_reason = buildbucket_lib.GetBuildFailureReason(content)
+          if status == constants.BUILDBUCKET_BUILDER_RESULT_FAILURE:
+            failure_reason = build.summary_markdown
             if failure_reason:
               text += ' [failure_reason] %s' % failure_reason
-          elif result == constants.BUILDBUCKET_BUILDER_RESULT_CANCELED:
-            cancel_reason = buildbucket_lib.GetBuildCancelationReason(content)
+          elif status == constants.BUILDBUCKET_BUILDER_RESULT_CANCELED:
+            cancel_reason = build.summary_markdown
             if cancel_reason:
               text += ' [cancelation_reason] %s' % cancel_reason
 
-          dashboard_url = buildbucket_lib.GetBuildURL(content)
+          dashboard_url = '{}{}'.format(constants.CHROMEOS_MILO_HOST,
+                                        build.id)
           if dashboard_url:
             logging.PrintBuildbotLink(text, dashboard_url)
           else:
             logging.PrintBuildbotStepText(text)
-        except buildbucket_lib.BuildbucketResponseException as e:
+        except buildbucket_v2.BuildbucketResponseException as e:
           logging.error('Cannot get status for %s: %s', config_name, e)
           logging.PrintBuildbotStepText(
               'No status found for build %s buildbucket_id %s' %
