@@ -2311,6 +2311,10 @@ def ApplyCustomOverrides(site_config):
   """
 
   overwritten_configs = {
+      'ambassador-release': {
+          'sign_types': ['recovery', 'factory'],
+      },
+
       'amd64-generic-cheets-release': {
           'hw_tests': [],
           'hw_tests_override': [],
