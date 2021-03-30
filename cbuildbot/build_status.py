@@ -254,9 +254,8 @@ class SlaveStatus(object):
       status_output = ('Build config %s completed: CIDB status: %s.' %
                        (build, cidb_status))
       if self.new_buildbucket_info_dict is not None:
-        status_output += (' Buildbucket status %s result %s.' %
-                          (self.new_buildbucket_info_dict[build].status,
-                           self.new_buildbucket_info_dict[build].result))
+        status_output += (' Buildbucket status %s.' %
+                          (self.new_buildbucket_info_dict[build].status))
       logging.info(status_output)
 
     completed_builds = self.completed_builds | current_completed
