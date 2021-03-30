@@ -7,6 +7,7 @@
 
 from __future__ import print_function
 
+import json
 import os
 import sys
 import time
@@ -20,8 +21,6 @@ from chromite.lib import git
 from chromite.lib import request_build
 
 from chromite.cbuildbot import trybot_patch_pool
-
-from google.protobuf import json_format
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
@@ -348,7 +347,7 @@ def RunRemote(site_config, options, patch_pool, infra_testing=False,
 
   if options.json:
     # Just is a list of dicts, not a list of lists.
-    print(json_format.MessageToJson(r for r in results))
+    print(json.dumps([r.__dict__ for r in results]))
   else:
     print('Tryjob submitted!')
     print('To view your tryjobs, visit:')
