@@ -19,6 +19,8 @@ from chromite.lib import cros_collections
 from chromite.lib import cros_logging as logging
 from chromite.lib import failure_message_lib
 
+from infra_libs.buildbucket.proto import common_pb2
+
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
 
@@ -464,7 +466,7 @@ class SlaveBuilderStatus(object):
 
       try:
         build = buildbucket_client.GetBuild(buildbucket_id)
-        status = build.status
+        status = common_pb2.Status.Name(build.status)
         url = '{}{}'.format(constants.CHROMEOS_MILO_HOST,
                                         build.id)
       except buildbucket_v2.BuildbucketResponseException as e:

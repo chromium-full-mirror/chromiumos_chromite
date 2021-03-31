@@ -343,7 +343,9 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
           status = build.status
           text = '%s: [status] %s' % (config_name, status)
 
-          if status == constants.BUILDBUCKET_BUILDER_RESULT_FAILURE:
+          if status in [
+            constants.BUILDBUCKET_BUILDER_RESULT_FAILURE,
+            constants.BUILDBUCKET_BUILDER_RESULT_INFRA_FAILURE]:
             failure_reason = build.summary_markdown
             if failure_reason:
               text += ' [failure_reason] %s' % failure_reason
