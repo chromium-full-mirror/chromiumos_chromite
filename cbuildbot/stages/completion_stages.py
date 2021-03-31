@@ -344,12 +344,12 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
           text = '%s: [status] %s' % (config_name, status)
 
           if status in [
-            constants.BUILDBUCKET_BUILDER_RESULT_FAILURE,
-            constants.BUILDBUCKET_BUILDER_RESULT_INFRA_FAILURE]:
+            constants.BUILDBUCKET_BUILDER_STATUS_FAILURE,
+            constants.BUILDBUCKET_BUILDER_STATUS_INFRA_FAILURE]:
             failure_reason = build.summary_markdown
             if failure_reason:
               text += ' [failure_reason] %s' % failure_reason
-          elif status == constants.BUILDBUCKET_BUILDER_RESULT_CANCELED:
+          elif status == constants.BUILDBUCKET_BUILDER_STATUS_CANCELED:
             cancel_reason = build.summary_markdown
             if cancel_reason:
               text += ' [cancelation_reason] %s' % cancel_reason
