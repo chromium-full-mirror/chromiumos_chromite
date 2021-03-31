@@ -5528,34 +5528,6 @@
       ]
     },
     {
-      "name": "strongbad",
-      "reference_board_name": "strongbad",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "strongbad",
-          "name": "coachz",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 461,
-          "is_active": true
-        }
-      ]
-    },
-    {
       "name": "trogdor",
       "reference_board_name": "trogdor",
       "arch": "ARM_INTERNAL",
