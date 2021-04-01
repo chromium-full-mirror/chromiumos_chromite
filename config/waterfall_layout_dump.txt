@@ -285,7 +285,6 @@
     eve-release
     excelsior-release
     expresso-release
-    fizz-accelerator-release
     fizz-cfm-release
     fizz-labstation-release
     fizz-moblab-release
@@ -928,12 +927,6 @@
   firmware-yuna-6301.59.B-firmwarebranch-tryjob
   firmware-zork-13434.B-firmwarebranch-tryjob
   fizz-accelerator-factory-fizz-10167.B-factorybranch-tryjob
-  fizz-accelerator-full-tryjob
-  fizz-accelerator-llvm-next-toolchain-tryjob
-  fizz-accelerator-llvm-toolchain-tryjob
-  fizz-accelerator-payloads-tryjob
-  fizz-accelerator-release-tryjob
-  fizz-accelerator-unittest-stress
   fizz-cfm-full-tryjob
   fizz-cfm-llvm-next-toolchain-tryjob
   fizz-cfm-llvm-toolchain-tryjob
@@ -1315,7 +1308,6 @@
     eve-release-tryjob
     excelsior-release-tryjob
     expresso-release-tryjob
-    fizz-accelerator-release-tryjob
     fizz-cfm-release-tryjob
     fizz-labstation-release-tryjob
     fizz-moblab-release-tryjob
