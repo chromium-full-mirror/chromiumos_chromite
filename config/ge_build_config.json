@@ -1848,63 +1848,6 @@
       ]
     },
     {
-      "name": "fizz-accelerator",
-      "reference_board_name": "fizz-accelerator",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "fizz-accelerator",
-          "name": "fizz",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 352,
-          "is_active": true
-        },
-        {
-          "board_name": "fizz-accelerator",
-          "name": "jax",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 352,
-          "is_active": true
-        },
-        {
-          "board_name": "fizz-accelerator",
-          "name": "kench",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 352,
-          "is_active": true
-        },
-        {
-          "board_name": "fizz-accelerator",
-          "name": "sion",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 352,
-          "is_active": true
-        },
-        {
-          "board_name": "fizz-accelerator",
-          "name": "teemo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 352,
-          "is_active": true
-        },
-        {
-          "board_name": "fizz-accelerator",
-          "name": "wukong",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 352,
-          "is_active": true
-        }
-      ]
-    },
-    {
       "name": "fizz-cfm",
       "reference_board_name": "fizz-cfm",
       "arch": "X86_INTERNAL",
