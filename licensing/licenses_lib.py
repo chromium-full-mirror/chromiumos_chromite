@@ -1003,6 +1003,7 @@ def _CheckForDeprecatedLicense(cpf, licenses):
         'media-libs/arc-img-ddk',
         'media-libs/arc-mali-drivers',
         'media-libs/arc-mali-drivers-bifrost',
+        'media-libs/cros-camera-hal-qti',
         'media-libs/cros-camera-hal-qti-bin',
         'media-libs/dlm',
         'media-libs/glk-hotword-support',
