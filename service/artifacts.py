@@ -838,7 +838,7 @@ def GenerateBreakpadSymbols(chroot: chroot_lib.Chroot,
   # starving other parallel processes on the same machine.
   cmd += [
       '--board=%s' % build_target.name,
-      '--jobs', max(1, multiprocessing.cpu_count() // 2)
+      '--jobs', str(max(1, multiprocessing.cpu_count() // 2))
   ]
   cmd += ['--exclude-dir=%s' % x for x in exclude_dirs]
 
