@@ -27,7 +27,6 @@ import time
 
 import six
 
-from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_collections
 from chromite.lib import cros_logging as logging
@@ -1779,15 +1778,6 @@ def GetBoard(device_board, override_board=None, force=False, strict=False):
     logging.warning(msg)
 
   return board
-
-
-def GetSysroot(board=None):
-  """Returns the sysroot for |board| or '/' if |board| is None.
-
-  Deprecated: Use chromite.lib.build_target_lib.get_default_sysroot_path().
-  TODO: Convert the usages of this function to the new one.
-  """
-  return build_target_lib.get_default_sysroot_path(board)
 
 
 # Structure to hold the values produced by TimedSection.

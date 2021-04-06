@@ -19,6 +19,7 @@ import sys
 import tempfile
 
 from chromite.cli.cros import cros_chrome_sdk
+from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -187,7 +188,7 @@ To install the debug symbols for all available packages, run:
     self.in_chroot = self.IsInChroot()
     self.prompt = '(%s-gdb) ' % self.board
     if self.in_chroot:
-      self.sysroot = cros_build_lib.GetSysroot(board=self.board)
+      self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
       self.inf_cmd = self.RemoveSysrootPrefix(self.inf_cmd)
       self.cross_gdb = self.GetCrossGdb()
     else:
@@ -635,8 +636,9 @@ def main(argv):
     gdb_args = options.gdb_args
 
   if inf_cmd:
-    fname = os.path.join(cros_build_lib.GetSysroot(options.board),
-                         inf_cmd.lstrip('/'))
+    fname = os.path.join(
+        build_target_lib.get_default_sysroot_path(options.board),
+        inf_cmd.lstrip('/'))
     if not os.path.exists(fname):
       cros_build_lib.Die('Cannot find program %s.' % fname)
   else:

@@ -19,6 +19,7 @@ from chromite.api.metrics import deserialize_metrics_log
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import test_pb2
 from chromite.cbuildbot import goma_util
+from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import image_lib
@@ -40,7 +41,7 @@ def DebugInfoTest(input_proto, _output_proto, config):
 
   if not sysroot_path:
     if target_name:
-      sysroot_path = cros_build_lib.GetSysroot(target_name)
+      sysroot_path = build_target_lib.get_default_sysroot_path(target_name)
     else:
       cros_build_lib.Die("The sysroot path or the sysroot's build target name "
                          'must be provided.')

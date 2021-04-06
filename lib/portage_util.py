@@ -21,6 +21,7 @@ from typing import Dict, List, Optional
 
 import six
 
+from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import failures_lib
 from chromite.lib import cros_build_lib
@@ -2332,7 +2333,7 @@ def _GetPortageq(board=None, sysroot=None):
 
   # Prefer the sysroot tool if it exists.
   if sysroot is None:
-    sysroot = cros_build_lib.GetSysroot(board)
+    sysroot = build_target_lib.get_default_sysroot_path(board)
   tool = cros_build_lib.GetSysrootToolPath(sysroot, 'portageq')
   if os.path.exists(tool):
     return tool
@@ -2380,7 +2381,7 @@ def PortageqBestVisible(atom, board=None, sysroot=None, pkg_type='ebuild',
     A package_info.CPV object.
   """
   if sysroot is None:
-    sysroot = cros_build_lib.GetSysroot(board=board)
+    sysroot = build_target_lib.get_default_sysroot_path(board)
   cmd = ['best_visible', sysroot, pkg_type, atom]
   result = _Portageq(cmd, board=board, sysroot=sysroot, cwd=cwd)
   return package_info.SplitCPV(result.output.strip())
@@ -2474,7 +2475,7 @@ def PortageqHasVersion(category_package, board=None, sysroot=None):
     cros_build_lib.RunCommandError when the command fails to run.
   """
   if sysroot is None:
-    sysroot = cros_build_lib.GetSysroot(board=board)
+    sysroot = build_target_lib.get_default_sysroot_path(board)
   # Exit codes 0/1+ indicate "have"/"don't have".
   # Normalize them into True/False values.
   result = _Portageq(['has_version', sysroot, category_package], board=board,
@@ -2496,7 +2497,7 @@ def PortageqMatch(atom, board=None, sysroot=None):
     package_info.CPV|None
   """
   if sysroot is None:
-    sysroot = cros_build_lib.GetSysroot(board=board)
+    sysroot = build_target_lib.get_default_sysroot_path(board)
   result = _Portageq(['match', sysroot, atom], board=board, sysroot=sysroot)
   return package_info.SplitCPV(result.output.strip()) if result.output else None
 

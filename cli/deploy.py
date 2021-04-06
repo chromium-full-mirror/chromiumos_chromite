@@ -21,6 +21,7 @@ import sys
 import tempfile
 
 from chromite.cli import command
+from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import dlc_lib
@@ -1162,7 +1163,7 @@ def Deploy(device, packages, board=None, emerge=True, update=False, deep=False,
         raise DeployError('Device (%s) is incompatible with board %s. Use '
                           '--force to deploy anyway.' % (device.board, board))
 
-      sysroot = cros_build_lib.GetSysroot(board=board)
+      sysroot = build_target_lib.get_default_sysroot_path(board)
 
       # Don't bother trying to clean for unmerges.  We won't use the local db,
       # and it just slows things down for the user.

@@ -26,6 +26,7 @@ import tempfile
 from six.moves import urllib
 
 from chromite.lib import binpkg
+from chromite.lib import build_target_lib
 from chromite.lib import cache
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -385,7 +386,7 @@ def main(argv):
 
   # sysroot must have a trailing / as the tree dictionary produced by
   # create_trees in indexed with a trailing /.
-  sysroot = cros_build_lib.GetSysroot(options.board) + '/'
+  sysroot = build_target_lib.get_default_sysroot_path(options.board) + '/'
 
   if options.list:
     ListInstallArgs(options, sysroot)

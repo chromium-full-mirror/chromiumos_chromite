@@ -11,6 +11,7 @@ import subprocess
 import sys
 
 from chromite.cli import command
+from chromite.lib import build_target_lib
 from chromite.lib import chroot_util
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -64,7 +65,7 @@ To just build a single package:
       self.board = cros_build_lib.GetDefaultBoard()
 
     # Set sysroot and friendly name. The latter is None if building for host.
-    self.sysroot = cros_build_lib.GetSysroot(self.board)
+    self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
 
   @classmethod
   def AddParser(cls, parser):

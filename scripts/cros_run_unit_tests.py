@@ -11,6 +11,7 @@ import multiprocessing
 import os
 import sys
 
+from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import chroot_util
@@ -96,7 +97,8 @@ def main(argv):
 
   cros_build_lib.AssertInsideChroot()
 
-  sysroot = opts.sysroot or cros_build_lib.GetSysroot(opts.board)
+  sysroot = (opts.sysroot or
+             build_target_lib.get_default_sysroot_path(opts.board))
   package_blacklist = set()
   if opts.package_blacklist:
     package_blacklist |= set(opts.package_blacklist.split())

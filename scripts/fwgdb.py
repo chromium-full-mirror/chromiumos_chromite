@@ -16,6 +16,7 @@ import time
 
 from elftools.elf.elffile import ELFFile
 
+from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
@@ -96,7 +97,8 @@ def FindSymbols(firmware_dir, board):
           (', '.join(unified_build_dirs)))
 
   if not firmware_dir:
-    firmware_dir = os.path.join(cros_build_lib.GetSysroot(board), 'firmware')
+    firmware_dir = os.path.join(
+        build_target_lib.get_default_sysroot_path(board), 'firmware')
 
   # Very old firmware you might still find on GoldenEye had dev.ro.elf.
   basenames = ['dev.elf', 'dev.ro.elf']

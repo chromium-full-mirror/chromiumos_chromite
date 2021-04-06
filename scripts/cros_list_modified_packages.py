@@ -30,6 +30,7 @@ import sys
 
 from six.moves import queue as Queue
 
+from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -234,7 +235,7 @@ def main(argv):
   flags = _ParseArguments(argv)
   sysroot = None
   if flags.board:
-    sysroot = cros_build_lib.GetSysroot(flags.board)
+    sysroot = build_target_lib.get_default_sysroot_path(flags.board)
   elif flags.host:
     sysroot = '/'
   else:

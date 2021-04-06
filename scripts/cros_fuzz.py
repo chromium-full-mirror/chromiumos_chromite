@@ -50,6 +50,7 @@ import sys
 from elftools.elf.elffile import ELFFile
 import lddtree
 
+from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -145,7 +146,7 @@ class SysrootPath(object):
     Returns:
       The path to the sysroot (the value of path_to_sysroot).
     """
-    cls.path_to_sysroot = cros_build_lib.GetSysroot(board)
+    cls.path_to_sysroot = build_target_lib.get_default_sysroot_path(board)
     return cls.path_to_sysroot
 
   @property

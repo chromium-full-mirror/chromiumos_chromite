@@ -25,6 +25,7 @@ import multiprocessing
 import os
 import sys
 
+from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
@@ -190,7 +191,7 @@ def GenerateBreakpadSymbols(board, breakpad_dir=None, strip_cfi=False,
     The number of errors that were encountered.
   """
   if sysroot is None:
-    sysroot = cros_build_lib.GetSysroot(board=board)
+    sysroot = build_target_lib.get_default_sysroot_path(board)
   if breakpad_dir is None:
     breakpad_dir = FindBreakpadDir(board, sysroot=sysroot)
   if clean_breakpad:
@@ -288,7 +289,7 @@ def GenerateBreakpadSymbols(board, breakpad_dir=None, strip_cfi=False,
 def FindDebugDir(board, sysroot=None):
   """Given a |board|, return the path to the split debug dir for it"""
   if sysroot is None:
-    sysroot = cros_build_lib.GetSysroot(board=board)
+    sysroot = build_target_lib.get_default_sysroot_path(board)
   return os.path.join(sysroot, 'usr', 'lib', 'debug')
 
 

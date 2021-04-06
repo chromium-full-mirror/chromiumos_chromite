@@ -14,6 +14,7 @@ import sys
 import time
 from typing import List, Optional, Union
 
+from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_logging as logging
 from chromite.lib import cros_test_lib
@@ -157,8 +158,8 @@ class DepGraphGenerator(object):
     # point our tools at /build/BOARD and to setup cross compiles to the
     # appropriate board as configured in toolchain.conf.
     if self.board:
-      self.sysroot = os.environ.get('SYSROOT',
-                                    cros_build_lib.GetSysroot(self.board))
+      self.sysroot = os.environ.get(
+          'SYSROOT', build_target_lib.get_default_sysroot_path(self.board))
 
     if self.sysroot:
       os.environ['PORTAGE_CONFIGROOT'] = self.sysroot
@@ -913,7 +914,7 @@ def _get_sysroot_path(
     try:
       return build_target.root
     except AttributeError:
-      return cros_build_lib.GetSysroot(build_target)
+      return build_target_lib.get_default_sysroot_path(build_target)
 
 
 def _get_raw_sdk_depgraph(
@@ -924,7 +925,7 @@ def _get_raw_sdk_depgraph(
   The SDK deps will contain the packages installed to a fresh SDK.
   The bdeps will always be empty since everything is installed to the SDK.
   """
-  sysroot_path = cros_build_lib.GetSysroot(board=None)
+  sysroot_path = build_target_lib.get_default_sysroot_path(None)
   packages = packages or [constants.TARGET_SDK]
   lib_argv = _get_emerge_args(sysroot_path, packages, include_bdeps=True)
   deps = DepGraphGenerator()
@@ -980,4 +981,3 @@ def _get_raw_build_target_depgraph(
 
   deps_tree, _deps_info, bdeps_tree = deps.GenDependencyTree()
   return DepgraphResult(deps=deps_tree, bdeps=bdeps_tree, packages=packages)
-
