@@ -15,6 +15,7 @@ import re
 import shutil
 import sys
 
+from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import osutils
@@ -360,7 +361,7 @@ class DlcGenerator(object):
     if not self.ebuild_params.fullnamerev:
       return
 
-    sysroot = cros_build_lib.GetSysroot(self.board)
+    sysroot = build_target_lib.get_default_sysroot_path(self.board)
     licensing = licenses_lib.Licensing(sysroot,
                                        [self.ebuild_params.fullnamerev], True)
     licensing.LoadPackageInfo()

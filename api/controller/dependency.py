@@ -17,7 +17,7 @@ from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import depgraph_pb2
 # TODO(crbug/1081828): stop using build_target and drop it from the proto.
-from chromite.lib import cros_build_lib
+from chromite.lib import build_target_lib
 from chromite.lib.parser import package_info
 from chromite.service import dependency
 
@@ -76,7 +76,7 @@ def GetBuildDependencyGraph(input_proto, output_proto, _config):
   else:
     # TODO(crbug/1081828): stop using build_target and drop it from the proto.
     board = input_proto.build_target.name
-    sysroot_path = cros_build_lib.GetSysroot(board or None)
+    sysroot_path = build_target_lib.get_default_sysroot_path(board or None)
 
   packages = tuple(
       controller_util.PackageInfoToCPV(x) for x in input_proto.packages)

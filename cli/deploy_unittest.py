@@ -14,6 +14,7 @@ import sys
 
 from chromite.cli import command
 from chromite.cli import deploy
+from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import remote_access
@@ -315,7 +316,8 @@ class TestDeploy(cros_test_lib.ProgressBarTestCase):
     self.PatchObject(
         remote_access, 'ChromiumOSDeviceHandler', return_value=self.device)
     self.PatchObject(cros_build_lib, 'GetBoard', return_value=None)
-    self.PatchObject(cros_build_lib, 'GetSysroot', return_value='sysroot')
+    self.PatchObject(build_target_lib, 'get_default_sysroot_path',
+                     return_value='sysroot')
     self.package_scanner = self.PatchObject(deploy, '_InstallPackageScanner')
     self.get_packages_paths = self.PatchObject(
         deploy, '_GetPackagesByCPV', side_effect=self.FakeGetPackagesByCPV)

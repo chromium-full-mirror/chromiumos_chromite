@@ -18,6 +18,7 @@ import tempfile
 
 import portage  # pylint: disable=import-error
 
+from chromite.lib import build_target_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import commandline
@@ -1811,7 +1812,7 @@ class Upgrader(object):
 
 def _BoardIsSetUp(board):
   """Return true if |board| has been setup."""
-  return os.path.isdir(cros_build_lib.GetSysroot(board=board))
+  return os.path.isdir(build_target_lib.get_default_sysroot_path(board))
 
 
 def _CreateParser():

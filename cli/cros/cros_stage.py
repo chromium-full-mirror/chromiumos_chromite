@@ -15,6 +15,7 @@ from chromite.cbuildbot import commands
 
 from chromite.cli import command
 
+from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import dev_server_wrapper
@@ -227,7 +228,7 @@ NOTES:
     Args:
       tempdir: Temporary Directory to store the generated test artifacts.
     """
-    build_root = cros_build_lib.GetSysroot(board=self.board)
+    build_root = build_target_lib.get_default_sysroot_path(self.board)
     cwd = os.path.join(build_root, BOARD_BUILD_DIR)
     commands.BuildAutotestTarballsForHWTest(build_root, cwd, tempdir)
 

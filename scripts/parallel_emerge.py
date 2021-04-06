@@ -20,9 +20,9 @@ import multiprocessing
 import os
 import sys
 
+from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
@@ -32,7 +32,7 @@ class LookupBoardSysroot(argparse.Action):
   """Translates board argument to sysroot location."""
 
   def __call__(self, parser, namespace, values, option_string=None):
-    sysroot = cros_build_lib.GetSysroot(values)
+    sysroot = build_target_lib.get_default_sysroot_path(values)
     setattr(namespace, 'sysroot', sysroot)
 
 

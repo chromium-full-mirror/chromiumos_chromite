@@ -11,8 +11,13 @@ import copy
 import os
 import sys
 import time
+from typing import List, Optional, Union
 
+from chromite.lib import build_target_lib
+from chromite.lib import constants
+from chromite.lib import cros_logging as logging
 from chromite.lib import cros_test_lib
+from chromite.lib.parser import package_info
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
 
@@ -152,8 +157,8 @@ class DepGraphGenerator(object):
     # point our tools at /build/BOARD and to setup cross compiles to the
     # appropriate board as configured in toolchain.conf.
     if self.board:
-      self.sysroot = os.environ.get('SYSROOT',
-                                    cros_build_lib.GetSysroot(self.board))
+      self.sysroot = os.environ.get(
+          'SYSROOT', build_target_lib.get_default_sysroot_path(self.board))
 
     if self.sysroot:
       os.environ['PORTAGE_CONFIGROOT'] = self.sysroot
@@ -852,3 +857,124 @@ def PrintDepsMap(deps_map):
       print('    %s' % (j))
     if not needs:
       print('    no dependencies')
+
+
+# Depgraph results data container used by the raw depgraph functions. The
+# deps attribute has the main depgraph info, while the bdeps attribute
+# contains just the bdepends depgraph, i.e. the depgraph installed to the SDK.
+DepgraphResult = collections.namedtuple('DepgraphResult',
+                                        ('deps', 'bdeps', 'packages'))
+
+
+def _get_emerge_args(sysroot_path: str,
+                     packages: Union[List[str], List[package_info.PackageInfo]],
+                     include_bdeps: bool) -> List[str]:
+  """Get the default emerge arguments for building a depgraph."""
+  # Pretend: Don't actually install anything.
+  # Emptytree: Act as though nothing is installed (even if some packages are).
+  # Sysroot: Which sysroot we're considering.
+  args = ['--quiet', '--pretend', '--emptytree', '--sysroot', sysroot_path]
+  # Also set the root for DepGraphGenerator specific semantics. This might not
+  # be necessary, pending more investigation.
+  # TODO: Document final reason or remove if unnecessary.
+  args.extend(['--root', sysroot_path])
+  if include_bdeps:
+    args.append('--include-bdepend')
+
+  try:
+    # Assume PackageInfo instance.
+    final_pkgs = [p.atom for p in packages]
+  except AttributeError:
+    # Also accept strings.
+    final_pkgs = [str(p) for p in packages]
+  args.extend(final_pkgs)
+
+  logging.info('Generating depgraph for packages: %s', ', '.join(final_pkgs))
+
+  return args
+
+
+def _get_sysroot_path(
+    sysroot: Union[str, 'sysroot_lib.Sysroot'],
+    build_target: Union[str, 'build_target_lib.BuildTarget']) -> str:
+  """Convenience function to support sysroot paths from a variety of sources.
+
+  Get the sysroot path from a sysroot (the path, or a Sysroot instance), or
+  a build target (by name, or from the BuildTarget instance).
+  """
+  if sysroot:
+    try:
+      return sysroot.path
+    except AttributeError:
+      return sysroot
+  else:
+    try:
+      return build_target.root
+    except AttributeError:
+      return build_target_lib.get_default_sysroot_path(build_target)
+
+
+def _get_raw_sdk_depgraph(
+    packages: Optional[Union[List[str], List[package_info.PackageInfo]]] = None
+) -> DepgraphResult:
+  """Get the depgraph for the SDK itself.
+
+  The SDK deps will contain the packages installed to a fresh SDK.
+  The bdeps will always be empty since everything is installed to the SDK.
+  """
+  sysroot_path = build_target_lib.get_default_sysroot_path(None)
+  packages = packages or [constants.TARGET_SDK]
+  lib_argv = _get_emerge_args(sysroot_path, packages, include_bdeps=True)
+  deps = DepGraphGenerator()
+  deps.Initialize(lib_argv)
+  deps_tree, _deps_info, bdeps_tree = deps.GenDependencyTree()
+
+  return DepgraphResult(deps=deps_tree, bdeps=bdeps_tree, packages=packages)
+
+
+def _get_raw_sysroot_depgraph(
+    sysroot: Optional['sysroot_lib.Sysroot'] = None,
+    build_target: Optional['build_target_lib.BuildTarget'] = None,
+    packages: Optional[Union[List[str], List[package_info.PackageInfo]]] = None
+) -> DepgraphResult:
+  """Get the sysroot depgraph for a build target.
+
+  The sysroot deps are the packages installed to a sysroot -- effectively
+  the packages installed on a device. The bdeps contains all the packages
+  installed to the SDK when the board is built. The two graphs are technically
+  disjoint, but packages can appear in both (with different roots).
+  """
+  assert build_target or sysroot
+  packages = packages or constants.ALL_TARGET_PACKAGES
+  sysroot_path = _get_sysroot_path(sysroot, build_target)
+  lib_argv = _get_emerge_args(sysroot_path, packages, include_bdeps=False)
+
+  deps = DepGraphGenerator()
+  deps.Initialize(lib_argv)
+  deps_tree, _deps_info, bdeps_tree = deps.GenDependencyTree()
+
+  return DepgraphResult(deps=deps_tree, bdeps=bdeps_tree, packages=packages)
+
+
+def _get_raw_build_target_depgraph(
+    sysroot: Optional['sysroot_lib.Sysroot'] = None,
+    build_target: Optional['build_target_lib.BuildTarget'] = None,
+    packages: Optional[Union[List[str], List[package_info.PackageInfo]]] = None
+) -> DepgraphResult:
+  """Get the full depgraph for a build target - its sysroot and bdepends.
+
+  The build target deps contains the [r]depends packages installed
+  to the sysroot and bdepends packages installed to the SDK.
+  The bdeps contains only the bdepends packages installed to
+  the SDK. The bdeps graph is a subgraph of the deps graph.
+  """
+  assert build_target or sysroot
+  packages = packages or constants.ALL_TARGET_PACKAGES
+  sysroot_path = _get_sysroot_path(sysroot, build_target)
+  lib_argv = _get_emerge_args(sysroot_path, packages, include_bdeps=True)
+
+  deps = DepGraphGenerator()
+  deps.Initialize(lib_argv)
+
+  deps_tree, _deps_info, bdeps_tree = deps.GenDependencyTree()
+  return DepgraphResult(deps=deps_tree, bdeps=bdeps_tree, packages=packages)

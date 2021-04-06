@@ -14,6 +14,7 @@ from chromite.cbuildbot import afdo
 from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import generic_stages
+from chromite.lib import build_target_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -460,7 +461,7 @@ class DebugInfoTestStage(generic_stages.BoardSpecificBuilderStage,
     cmd = [
         'debug_info_test',
         os.path.join(
-            cros_build_lib.GetSysroot(board=self._current_board),
+            build_target_lib.get_default_sysroot_path(self._current_board),
             'usr/lib/debug')
     ]
     cros_build_lib.run(cmd, enter_chroot=True)
