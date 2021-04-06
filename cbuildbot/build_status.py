@@ -245,7 +245,7 @@ class SlaveStatus(object):
     if self.new_buildbucket_info_dict is not None:
       # current completed builds (not in self.completed_builds) from Buildbucket
       current_completed_buildbucket = self.GetBuildbucketBuilds(
-          constants.BUILDBUCKET_BUILDER_STATUS_COMPLETED)
+          constants.BUILDBUCKET_BUILDER_STATUS_SUCCESS)
       current_completed = ((current_completed | current_completed_buildbucket))
 
     for build in current_completed:
