@@ -900,7 +900,6 @@
         "boards": [
             "ambassador"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -926,7 +925,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -1107,7 +1105,6 @@
         "boards": [
             "amd64-generic"
         ],
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -1137,7 +1134,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -1345,7 +1341,6 @@
             "arkham"
         ],
         "chrome_sdk": false,
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -1373,7 +1368,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -1494,7 +1488,6 @@
         "boards": [
             "arm-generic"
         ],
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -1521,7 +1514,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -1576,7 +1568,6 @@
             "arm64-generic"
         ],
         "chrome_sdk_build_chrome": false,
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -1604,7 +1595,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -1658,7 +1648,6 @@
         "boards": [
             "arm64-llvmpipe"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -1684,7 +1673,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -1777,7 +1765,6 @@
         "boards": [
             "asuka"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -1803,7 +1790,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -1914,7 +1900,6 @@
         "boards": [
             "asurada"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -1940,7 +1925,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2073,7 +2057,6 @@
         "boards": [
             "atlas"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2099,7 +2082,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2295,7 +2277,6 @@
         "boards": [
             "auron_paine"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2321,7 +2302,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2468,7 +2448,6 @@
         "boards": [
             "auron_yuna"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2494,7 +2473,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2643,7 +2621,6 @@
         "boards": [
             "banjo"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2669,7 +2646,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2818,7 +2794,6 @@
         "boards": [
             "banon"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2844,7 +2819,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -2958,7 +2932,6 @@
         "images": [
             "base"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "rootfs_verification": false,
         "run_cpeexport": true,
@@ -2991,7 +2964,6 @@
             "base"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "rootfs_verification": false,
         "run_cpeexport": true,
@@ -3175,7 +3147,6 @@
         "images": [
             "base"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "rootfs_verification": false,
         "run_cpeexport": true,
@@ -3208,7 +3179,6 @@
             "base"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "rootfs_verification": false,
         "run_cpeexport": true,
@@ -3421,7 +3391,6 @@
         "boards": [
             "betty"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -3446,7 +3415,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -3670,7 +3638,6 @@
         "boards": [
             "bob-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -3696,7 +3663,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -3823,7 +3789,6 @@
         "boards": [
             "bob"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -3849,7 +3814,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -3958,7 +3922,6 @@
         "boards": [
             "buddy-cfm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -3984,7 +3947,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4171,7 +4133,6 @@
         "boards": [
             "buddy"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4197,7 +4158,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4346,7 +4306,6 @@
         "boards": [
             "candy"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4372,7 +4331,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4517,7 +4475,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -4542,7 +4499,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -4762,7 +4718,6 @@
         "boards": [
             "caroline"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4788,7 +4743,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4801,7 +4755,6 @@
         "boards": [
             "caroline-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4827,7 +4780,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4968,7 +4920,6 @@
         "boards": [
             "caroline-ndktranslation"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -4994,7 +4945,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5197,7 +5147,6 @@
         "boards": [
             "caroline-userdebug"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5223,7 +5172,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5372,7 +5320,6 @@
         "boards": [
             "cave"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5398,7 +5345,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5547,7 +5493,6 @@
         "boards": [
             "celes"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5573,7 +5518,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5790,7 +5734,6 @@
         "boards": [
             "chell"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -5816,7 +5759,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6295,7 +6237,6 @@
         "boards": [
             "coral"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6321,7 +6262,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6562,7 +6502,6 @@
         "boards": [
             "cyan"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6588,7 +6527,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6695,7 +6633,6 @@
         "boards": [
             "dedede"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6721,7 +6658,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6893,7 +6829,6 @@
         "boards": [
             "deltaur"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -6919,7 +6854,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7046,7 +6980,6 @@
         "boards": [
             "drallion"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7072,7 +7005,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7259,7 +7191,6 @@
         "boards": [
             "edgar"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7285,7 +7216,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7394,7 +7324,6 @@
         "boards": [
             "elm-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7420,7 +7349,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7553,7 +7481,6 @@
         "boards": [
             "elm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7579,7 +7506,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7592,7 +7518,6 @@
         "boards": [
             "elm-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7618,7 +7543,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7852,7 +7776,6 @@
         "boards": [
             "endeavour"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -7878,7 +7801,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8071,7 +7993,6 @@
         "boards": [
             "enguarde"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8097,7 +8018,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8226,7 +8146,6 @@
         "boards": [
             "eve"
         ],
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -8253,7 +8172,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -8267,7 +8185,6 @@
         "boards": [
             "eve-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8293,7 +8210,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8406,7 +8322,6 @@
         "boards": [
             "eve-kvm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8432,7 +8347,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8754,7 +8668,6 @@
         "boards": [
             "excelsior"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8780,7 +8693,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8933,7 +8845,6 @@
         "boards": [
             "expresso"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -8959,7 +8870,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -10077,7 +9987,6 @@
         "description": "Builder always fails as quickly as possible.",
         "display_label": "tryjob",
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "vm_tests": []
     },
     "falco_li-full": {
@@ -10085,7 +9994,6 @@
         "boards": [
             "falco_li"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -10111,7 +10019,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -11658,7 +11565,6 @@
         "boards": [
             "fizz-cfm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -11684,7 +11590,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -11825,7 +11730,6 @@
         "boards": [
             "fizz"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -11851,7 +11755,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -11864,7 +11767,6 @@
         "boards": [
             "fizz-labstation"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -11890,7 +11792,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12052,7 +11953,6 @@
             "fizz-moblab"
         ],
         "image_test": false,
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12079,7 +11979,6 @@
         "hw_tests_override": null,
         "image_test": false,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12327,7 +12226,6 @@
             "gale"
         ],
         "chrome_sdk": false,
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -12355,7 +12253,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -12557,7 +12454,6 @@
         "boards": [
             "gandof"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12583,7 +12479,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12772,7 +12667,6 @@
         "boards": [
             "glados"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12798,7 +12692,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12945,7 +12838,6 @@
         "boards": [
             "gnawty"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -12971,7 +12863,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -13129,7 +13020,6 @@
         "boards": [
             "grunt-arc-r"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -13156,7 +13046,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -13336,7 +13225,6 @@
         "boards": [
             "grunt-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -13363,7 +13251,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -13523,7 +13410,6 @@
         "boards": [
             "grunt"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -13550,7 +13436,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -13564,7 +13449,6 @@
         "boards": [
             "grunt-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -13590,7 +13474,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -13942,7 +13825,6 @@
         "boards": [
             "guado-cfm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -13968,7 +13850,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14115,7 +13996,6 @@
         "boards": [
             "guado"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14141,7 +14021,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14250,7 +14129,6 @@
         "boards": [
             "guado_labstation"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14276,7 +14154,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14399,7 +14276,6 @@
         "boards": [
             "guybrush"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -14426,7 +14302,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -14540,7 +14415,6 @@
         "boards": [
             "hana-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14566,7 +14440,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14693,7 +14566,6 @@
         "boards": [
             "hana"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14719,7 +14591,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14732,7 +14603,6 @@
         "boards": [
             "hana-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14758,7 +14628,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14962,7 +14831,6 @@
         "boards": [
             "hatch-arc-r-ack"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -14988,7 +14856,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15153,7 +15020,6 @@
         "boards": [
             "hatch-arc-r"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15179,7 +15045,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15316,7 +15181,6 @@
         "boards": [
             "hatch-arc-r-userdebug"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15342,7 +15206,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15533,7 +15396,6 @@
         "boards": [
             "hatch-diskswap"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15559,7 +15421,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15718,7 +15579,6 @@
         "boards": [
             "hatch"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15744,7 +15604,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15757,7 +15616,6 @@
         "boards": [
             "hatch-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -15783,7 +15641,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16103,7 +15960,6 @@
         "boards": [
             "heli"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16129,7 +15985,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16234,7 +16089,6 @@
         "boards": [
             "jacuzzi-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16260,7 +16114,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16417,7 +16270,6 @@
         "boards": [
             "jacuzzi"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16443,7 +16295,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16588,7 +16439,6 @@
         "boards": [
             "jecht"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16614,7 +16464,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16721,7 +16570,6 @@
         "boards": [
             "kalista-cfm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16747,7 +16595,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16880,7 +16727,6 @@
         "boards": [
             "kalista"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -16906,7 +16752,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17059,7 +16904,6 @@
         "boards": [
             "kefka"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17085,7 +16929,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17294,7 +17137,6 @@
         "boards": [
             "kevin-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17320,7 +17162,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17447,7 +17288,6 @@
         "boards": [
             "kevin"
         ],
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -17474,7 +17314,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -17641,7 +17480,6 @@
         "boards": [
             "kevin-userdebug"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17667,7 +17505,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17854,7 +17691,6 @@
         "boards": [
             "kip"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -17880,7 +17716,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -18019,7 +17854,6 @@
         "boards": [
             "kukui-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -18045,7 +17879,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -18186,7 +18019,6 @@
         "boards": [
             "kukui"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -18212,7 +18044,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -18354,7 +18185,6 @@
             "test"
         ],
         "important": false,
-        "manifest_branch": "main",
         "manifest_version": true,
         "paygen_skip_testing": true,
         "prebuilts": "public",
@@ -18385,7 +18215,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "paygen_skip_testing": true,
         "prebuilts": "public",
@@ -18714,7 +18543,6 @@
         "boards": [
             "lars"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -18740,7 +18568,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -18883,7 +18710,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -18908,7 +18734,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -19175,7 +19000,6 @@
         "boards": [
             "lulu"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -19201,7 +19025,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -19310,7 +19133,6 @@
         "boards": [
             "majolica"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -19337,7 +19159,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -19451,7 +19272,6 @@
         "boards": [
             "mancomb"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -19478,7 +19298,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -20210,7 +20029,6 @@
             "mistral"
         ],
         "chrome_sdk": false,
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -20238,7 +20056,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -20396,7 +20213,6 @@
             "moblab-generic-vm"
         ],
         "image_test": false,
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20423,7 +20239,6 @@
         "hw_tests_override": null,
         "image_test": false,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20480,7 +20295,6 @@
         "boards": [
             "monroe"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20506,7 +20320,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20633,7 +20446,6 @@
         "boards": [
             "nami"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20659,7 +20471,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20808,7 +20619,6 @@
         "boards": [
             "nautilus"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20834,7 +20644,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -20989,7 +20798,6 @@
         "boards": [
             "ninja"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21015,7 +20823,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21144,7 +20951,6 @@
         "boards": [
             "nocturne"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21170,7 +20976,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21293,7 +21098,6 @@
         "boards": [
             "novato-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21318,7 +21122,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21417,7 +21220,6 @@
         "boards": [
             "novato"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21442,7 +21244,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21581,7 +21382,6 @@
         "boards": [
             "nyan_big"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21607,7 +21407,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21754,7 +21553,6 @@
         "boards": [
             "nyan_blaze"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21780,7 +21578,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -21927,7 +21724,6 @@
         "boards": [
             "oak"
         ],
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -21954,7 +21750,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "prebuilts": "public",
         "run_cpeexport": true,
@@ -22111,7 +21906,6 @@
         "boards": [
             "octopus"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22137,7 +21931,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22400,7 +22193,6 @@
         "boards": [
             "orco"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22426,7 +22218,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22567,7 +22358,6 @@
         "boards": [
             "poppy"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22593,7 +22383,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22720,7 +22509,6 @@
         "boards": [
             "puff"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22746,7 +22534,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22792,7 +22579,6 @@
             "puff-moblab"
         ],
         "image_test": false,
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -22819,7 +22605,6 @@
         "hw_tests_override": null,
         "image_test": false,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23066,7 +22851,6 @@
         "boards": [
             "pyro"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23092,7 +22876,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23205,7 +22988,6 @@
         "boards": [
             "rammus-arc-r"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23231,7 +23013,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23346,7 +23127,6 @@
         "boards": [
             "rammus-arc-r-userdebug"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23372,7 +23152,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23545,7 +23324,6 @@
         "boards": [
             "rammus"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23571,7 +23349,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23767,7 +23544,6 @@
         "boards": [
             "reef"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23793,7 +23569,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -23984,7 +23759,6 @@
         "boards": [
             "reks"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24010,7 +23784,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24175,7 +23948,6 @@
         "boards": [
             "relm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24201,7 +23973,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24318,7 +24089,6 @@
             "recovery",
             "test"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24352,7 +24122,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24488,7 +24257,6 @@
         "boards": [
             "rikku-cfm"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24514,7 +24282,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24663,7 +24430,6 @@
         "boards": [
             "rikku"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24689,7 +24455,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24827,7 +24592,6 @@
         "boards": [
             "samus"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24853,7 +24617,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24866,7 +24629,6 @@
         "boards": [
             "samus-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -24892,7 +24654,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25115,7 +24876,6 @@
         "boards": [
             "sand"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25141,7 +24901,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25254,7 +25013,6 @@
         "boards": [
             "sarien-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25280,7 +25038,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25419,7 +25176,6 @@
         "boards": [
             "sarien"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25445,7 +25201,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25592,7 +25347,6 @@
         "boards": [
             "scarlet-arc64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25618,7 +25372,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25755,7 +25508,6 @@
         "boards": [
             "scarlet"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25781,7 +25533,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25938,7 +25689,6 @@
         "boards": [
             "sentry"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -25964,7 +25714,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26113,7 +25862,6 @@
         "boards": [
             "setzer"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26139,7 +25887,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26256,7 +26003,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "packages": [
             "virtual/target-os",
             "virtual/target-os-dev",
@@ -26294,7 +26040,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "packages": [
             "virtual/target-os",
             "virtual/target-os-dev",
@@ -26570,7 +26315,6 @@
         "boards": [
             "snappy"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26596,7 +26340,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26733,7 +26476,6 @@
         "boards": [
             "soraka"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26759,7 +26501,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26893,7 +26634,6 @@
         "description": "Builder always passes as quickly as possible.",
         "display_label": "tryjob",
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "vm_tests": []
     },
     "sumo-factory-rambi-6420.B-factorybranch": {
@@ -26941,7 +26681,6 @@
         "boards": [
             "sumo"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -26967,7 +26706,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -27116,7 +26854,6 @@
         "boards": [
             "swanky"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -27142,7 +26879,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -27284,7 +27020,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "manifest_version": true,
         "packages": [
             "virtual/target-os",
@@ -27323,7 +27058,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "packages": [
             "virtual/target-os",
@@ -27595,7 +27329,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "manifest_version": true,
         "packages": [
             "virtual/target-os",
@@ -27634,7 +27367,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "manifest_version": true,
         "packages": [
             "virtual/target-os",
@@ -27934,7 +27666,6 @@
         "boards": [
             "terra"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -27960,7 +27691,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28174,7 +27904,6 @@
         "boards": [
             "tidus"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28200,7 +27929,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28329,7 +28057,6 @@
         "boards": [
             "trogdor"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28355,7 +28082,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28368,7 +28094,6 @@
         "boards": [
             "trogdor-kernelnext"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28394,7 +28119,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28627,7 +28351,6 @@
         "boards": [
             "trogdor64"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28653,7 +28376,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28816,7 +28538,6 @@
         "boards": [
             "ultima"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28842,7 +28563,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -28991,7 +28711,6 @@
         "boards": [
             "veyron_fievel"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29017,7 +28736,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29166,7 +28884,6 @@
         "boards": [
             "veyron_jaq"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29192,7 +28909,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29339,7 +29055,6 @@
         "boards": [
             "veyron_jerry"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29365,7 +29080,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29592,7 +29306,6 @@
         "boards": [
             "veyron_mighty"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29618,7 +29331,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29765,7 +29477,6 @@
         "boards": [
             "veyron_minnie"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29791,7 +29502,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29938,7 +29648,6 @@
         "boards": [
             "veyron_rialto"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -29964,7 +29673,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -30109,7 +29817,6 @@
         "boards": [
             "veyron_speedy"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -30135,7 +29842,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -30282,7 +29988,6 @@
         "boards": [
             "veyron_tiger"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -30308,7 +30013,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -30424,7 +30128,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -30449,7 +30152,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -30541,7 +30243,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -30566,7 +30267,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -30861,7 +30561,6 @@
         "boards": [
             "volteer"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -30887,7 +30586,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -31137,7 +30835,6 @@
             "whirlwind"
         ],
         "chrome_sdk": false,
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -31165,7 +30862,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "sync_chrome": false,
@@ -31367,7 +31063,6 @@
         "boards": [
             "winky"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -31393,7 +31088,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -31542,7 +31236,6 @@
         "boards": [
             "wizpig"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -31568,7 +31261,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -31713,7 +31405,6 @@
             "base",
             "test"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "rootfs_verification": false,
         "run_cpeexport": true,
@@ -31739,7 +31430,6 @@
             "test"
         ],
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "rootfs_verification": false,
         "run_cpeexport": true,
@@ -31927,7 +31617,6 @@
         "boards": [
             "x32-generic"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -31954,7 +31643,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "useflags": [
@@ -32084,7 +31772,6 @@
         "boards": [
             "zork"
         ],
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
@@ -32111,7 +31798,6 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
-        "manifest_branch": "main",
         "prebuilts": "public",
         "run_cpeexport": true,
         "unittests": false,
