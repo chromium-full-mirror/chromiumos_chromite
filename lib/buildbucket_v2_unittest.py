@@ -219,8 +219,12 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
         fields=None)
     self.cancel_build_function.assert_called_with(fake_cancel_build_request)
 
-  def testGetBuildWithProperties(self):
-    fake_field_mask = field_mask_pb2.FieldMask(paths=['properties'])
+  def testGetBuildWithMultipleProperties(self):
+    fake_field_mask = field_mask_pb2.FieldMask(paths=[
+      'output.properties',
+      'id',
+      'status',
+      'summary_markdown'])
     fake_get_build_request = object()
     bbv2 = buildbucket_v2.BuildbucketV2()
     client = bbv2.client
@@ -228,7 +232,22 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
         builds_service_pb2, 'GetBuildRequest',
         return_value=fake_get_build_request)
     self.get_build_function = self.PatchObject(client, 'GetBuild')
-    bbv2.GetBuild('some-id', 'properties')
+    bbv2.GetBuild('some-id', ['output.properties', 'id',
+                              'status', 'summary_markdown'])
+    self.get_build_request_fn.assert_called_with(id='some-id',
+                                                 fields=fake_field_mask)
+    self.get_build_function.assert_called_with(fake_get_build_request)
+
+  def testGetBuildWithOneProperty(self):
+    fake_field_mask = field_mask_pb2.FieldMask(paths=['output.properties'])
+    fake_get_build_request = object()
+    bbv2 = buildbucket_v2.BuildbucketV2()
+    client = bbv2.client
+    self.get_build_request_fn = self.PatchObject(
+        builds_service_pb2, 'GetBuildRequest',
+        return_value=fake_get_build_request)
+    self.get_build_function = self.PatchObject(client, 'GetBuild')
+    bbv2.GetBuild('some-id', 'output.properties')
     self.get_build_request_fn.assert_called_with(id='some-id',
                                                  fields=fake_field_mask)
     self.get_build_function.assert_called_with(fake_get_build_request)
