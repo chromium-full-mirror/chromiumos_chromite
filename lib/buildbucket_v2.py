@@ -548,16 +548,21 @@ class BuildbucketV2(object):
 
     Args:
       buildbucket_id: id of the build in buildbucket.
-      properties: fields to include in the response.
+      properties: list or string of fields to include in the response.
 
     Returns:
       The corresponding Build proto. See here:
       https://chromium.googlesource.com/infra/luci/luci-go/+/HEAD/buildbucket/proto/build.proto
     """
+    field_mask = []
+    if isinstance(properties, list):
+      field_mask = properties
+    elif properties:
+      field_mask.append(properties)
     get_build_request = builds_service_pb2.GetBuildRequest(
         id=buildbucket_id,
-        fields=(field_mask_pb2.FieldMask(paths=[properties])
-                if properties else None)
+        fields=(field_mask_pb2.FieldMask(paths=field_mask)
+                if field_mask else None)
     )
     return self.client.GetBuild(get_build_request)
 
