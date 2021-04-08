@@ -319,7 +319,6 @@
     kip-release
     kukui-arc64-release
     kukui-release
-    lakitu-release
     lars-release
     lulu-release
     mistral-release
@@ -1342,7 +1341,6 @@
     kip-release-tryjob
     kukui-arc64-release-tryjob
     kukui-release-tryjob
-    lakitu-release-tryjob
     lars-release-tryjob
     lulu-release-tryjob
     mistral-release-tryjob
