@@ -8,7 +8,10 @@
 from __future__ import print_function
 
 import os
+import shutil
+from typing import List
 
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import image_lib
@@ -227,6 +230,74 @@ def CreateGuestVm(board, is_test=False, chroot=None):
                          'Consult the logs to determine the problem.')
 
   return os.path.realpath(output_path)
+
+
+def _get_dlc_images_path(base_path: str) -> str:
+  """Get the source path containing the dlc images.
+
+  Specifically files expected to be in:
+    /.../build/rootfs/dlc
+
+  Args:
+    base_path: Base path wherein DLC images are expected to be.
+
+  Returns:
+    Full path for the dlc images.
+  """
+  return os.path.join(base_path, 'build', 'rootfs', 'dlc')
+
+
+def _copy_dlc_image(base_path: str, output_dir: str) -> List[str]:
+  """Copies DLC image folder from base_path to output_dir.
+
+  Args:
+    base_path: Base path wherein DLC images are expected to be.
+    output_dir: Folder destination for DLC images folder.
+
+  Returns:
+    A list of folder paths after move or None if the source path doesn't exist
+  """
+  dlc_source_path = _get_dlc_images_path(base_path)
+  if not os.path.exists(dlc_source_path):
+    return None
+
+  dlc_dest_path = os.path.join(output_dir, 'dlc')
+  shutil.copytree(dlc_source_path, dlc_dest_path)
+  return [dlc_dest_path]
+
+
+def Get(image_proto: common_pb2.ArtifactsByService.Image,
+        base_path: str,
+        output_dir: str) -> list:
+  """Builds and copies images to specified output_dir.
+
+  Copies (after optionally bundling) all required images into the output_dir,
+  returning a mapping of image type to a list of (output_dir) paths to
+  the desired files. Note that currently it is only processing one image (DLC),
+  but the future direction is to process all required images. Required images
+  are located within output_artifact.artifact_type.
+
+  Args:
+    image_proto: Proto request defining reqs.
+    base_path: Base path wherein images are expected to be.
+    output_dir: Folder destination for images.
+
+  Returns:
+    A list of dictionary mapping of ArtifactType to list of paths.
+  """
+  generated = []
+
+  for output_artifact in image_proto.output_artifacts:
+    if image_proto.ArtifactType.DLC_IMAGE in  output_artifact.artifact_types:
+      # Handling DLC copying.
+      result_path = _copy_dlc_image(base_path, output_dir)
+      if result_path:
+        generated.append({
+            'paths': result_path,
+            'type': image_proto.ArtifactType.DLC_IMAGE,
+        })
+
+  return generated
 
 
 def Test(board, result_directory, image_dir=None):
