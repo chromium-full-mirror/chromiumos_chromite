@@ -713,10 +713,13 @@ def BundleDebugSymbols(input_proto, output_proto, _config):
   with chroot.tempdir() as symbol_tmpdir, chroot.tempdir() as dest_tmpdir:
     breakpad_dir = os.path.join('/build', build_target.name,
                                 'usr/lib/debug/breakpad')
-    sym_file_list = artifacts.GatherSymbolFiles(tempdir=symbol_tmpdir,
-                                                destdir=dest_tmpdir,
-                                                paths=[breakpad_dir])
-    if len(sym_file_list) == 0:
+    # Call list on the atifacts.GatherSymbolFiles generator function to
+    # materialize and consume all entries so that all are copied to
+    # dest dir and complete list of all symbol files is returned.
+    sym_file_list = list(artifacts.GatherSymbolFiles(tempdir=symbol_tmpdir,
+                                                     destdir=dest_tmpdir,
+                                                     paths=[breakpad_dir]))
+    if not sym_file_list:
       logging.warning('No sym files found in %s.', breakpad_dir)
     # Create tarball from destination_tmp, then copy it...
     tarball_path = os.path.join(output_dir, constants.DEBUG_SYMBOLS_TAR)
