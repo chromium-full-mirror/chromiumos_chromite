@@ -626,18 +626,6 @@
       ]
     },
     {
-      "name": "senor",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "",
-          "arch": "ARM_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "sentry",
       "configs": [
         {
