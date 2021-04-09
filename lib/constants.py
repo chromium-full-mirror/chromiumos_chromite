@@ -268,8 +268,8 @@ DEFAULT_CTS_APFE_GSURI = 'gs://chromeos-cts-apfe/'
 
 # List of supported Android branches. When adding/removing branches make sure
 # the ANDROID_BRANCH_TO_BUILD_TARGETS map is also updated.
-ANDROID_PI_BUILD_BRANCH = 'git_pi-arc'
-ANDROID_VMRVC_BUILD_BRANCH = 'git_rvc-arc'
+ANDROID_PI_BUILD_BRANCH = 'git_pi-arc-m91'
+ANDROID_VMRVC_BUILD_BRANCH = 'git_rvc-arc-m91'
 ANDROID_VMSC_BUILD_BRANCH = 'git_sc-arc-dev'
 ANDROID_VMMST_BUILD_BRANCH = 'git_master-arc-dev'
 
