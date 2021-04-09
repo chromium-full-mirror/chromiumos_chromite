@@ -719,6 +719,24 @@ STACK CFI 1234
       f.seek(0)
       f.write(content.encode('utf-8'))
 
+  def test_ListOutputOfGatherSymbolFiles(self):
+    """Mimic how the controller materializes output of GatherSymbolFiles."""
+    # Create directory with some symbol files.
+    tar_tmp_dir = os.path.join(self.tempdir, 'tar_tmp')
+    output_dir = os.path.join(self.tempdir, 'output')
+    input_dir = os.path.join(self.tempdir, 'input')
+    osutils.SafeMakedirs(output_dir)
+    self.createSymbolFile(os.path.join(input_dir, 'a/b/c/file1.sym'))
+    self.createSymbolFile(os.path.join(input_dir, 'a/b/c/d/file2.sym'))
+    self.createSymbolFile(os.path.join(input_dir, 'a/file3.sym'))
+    self.createSymbolFile(os.path.join(input_dir, 'a/b/c/d/e/file1.sym'))
+
+    # Call artifacts.GatherSymbolFiles to find symbol files under self.tempdir
+    # and copy them to output_dir.
+    symbol_files = list(artifacts.GatherSymbolFiles(
+        tar_tmp_dir, output_dir, [input_dir]))
+    self.assertEqual(len(symbol_files), 4)
+
   def test_GatherSymbolFiles(self):
     """Test that files are found and copied."""
     # Create directory with some symbol files.
