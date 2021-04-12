@@ -3670,6 +3670,14 @@
         },
         {
           "board_name": "jacuzzi",
+          "name": "cozmo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 401,
+          "is_active": true
+        },
+        {
+          "board_name": "jacuzzi",
           "name": "damu",
           "test_suites": [
             "sanity",
@@ -3864,6 +3872,14 @@
         {
           "board_name": "jacuzzi-arc64",
           "name": "cerise",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7154,
+          "is_active": true
+        },
+        {
+          "board_name": "jacuzzi-arc64",
+          "name": "cozmo",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7154,
