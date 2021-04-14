@@ -277,15 +277,15 @@ class BinhostConfWriter(object):
     return generated_args
 
   @staticmethod
-  def _AddOptionsForSlave(slave_config):
-    """Private helper method to add upload_prebuilts args for a slave builder.
+  def _AddOptionsForNode(slave_config):
+    """Private helper method to add upload_prebuilts args for a node builder.
 
     Args:
-      slave_config: The build config of a slave builder.
+      slave_config: The build config of a node builder.
 
     Returns:
       An array of options to add to upload_prebuilts array that allow a master
-      to submit prebuilt conf modifications on behalf of a slave.
+      to submit prebuilt conf modifications on behalf of a node.
     """
     args = []
     if slave_config['prebuilts']:
@@ -312,7 +312,7 @@ class BinhostConfWriter(object):
     # Update all the binhost conf files.
     generated_args.append('--sync-binhost-conf')
 
-    slave_configs = self._run.site_config.GetSlavesForMaster(
+    slave_configs = self._run.site_config.GetNodesForOrchestrator(
         self._run.config, self._run.options)
     experimental_builders = self._run.attrs.metadata.GetValueWithDefault(
         constants.METADATA_EXPERIMENTAL_BUILDERS, [])
@@ -321,10 +321,10 @@ class BinhostConfWriter(object):
         continue
       if slave_config['prebuilts'] == constants.PUBLIC:
         public_builders.append(slave_config['name'])
-        public_args.extend(self._AddOptionsForSlave(slave_config))
+        public_args.extend(self._AddOptionsForNode(slave_config))
       elif slave_config['prebuilts'] == constants.PRIVATE:
         private_builders.append(slave_config['name'])
-        private_args.extend(self._AddOptionsForSlave(slave_config))
+        private_args.extend(self._AddOptionsForNode(slave_config))
 
     # Upload the public prebuilts, if any.
     if public_builders:

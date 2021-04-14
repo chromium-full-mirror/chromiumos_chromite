@@ -554,7 +554,7 @@ class PrebuiltUploader(object):
       sync_binhost_conf: If set, update binhost config file in
           chromiumos-overlay for the host.
     """
-    # Slave boards are listed before the master board so that the master board
+    # Node boards are listed before the main board so that the main board
     # takes priority (i.e. x86-generic preflight host prebuilts takes priority
     # over preflight host prebuilts from other builders.)
     binhost_urls = []
@@ -667,14 +667,14 @@ class PrebuiltUploader(object):
         UpdateBinhostConfFile(binhost_conf, key, '')
 
 
-class _AddSlaveBoardAction(argparse.Action):
-  """Callback that adds a slave board to the list of slave targets."""
+class _AddNodeBoardAction(argparse.Action):
+  """Callback that adds a node board to the list of node targets."""
   def __call__(self, parser, namespace, values, option_string=None):
     getattr(namespace, self.dest).append(BuildTarget(values))
 
 
-class _AddSlaveProfileAction(argparse.Action):
-  """Callback that adds a slave profile to the list of slave targets."""
+class _AddNodeProfileAction(argparse.Action):
+  """Callback that adds a node profile to the list of node targets."""
   def __call__(self, parser, namespace, values, option_string=None):
     if not namespace.slave_targets:
       parser.error('Must specify --slave-board before --slave-profile')
@@ -717,11 +717,11 @@ def ParseOptions(argv):
                       help='Path to place toolchain tarballs in the sdk tree.')
   parser.add_argument('--profile',
                       help='Profile that was built on this machine')
-  parser.add_argument('--slave-board', default=[], action=_AddSlaveBoardAction,
+  parser.add_argument('--slave-board', default=[], action=_AddNodeBoardAction,
                       dest='slave_targets',
                       help='Board type that was built on a slave machine. To '
                            'add a profile to this board, use --slave-profile.')
-  parser.add_argument('--slave-profile', action=_AddSlaveProfileAction,
+  parser.add_argument('--slave-profile', action=_AddNodeProfileAction,
                       help='Board profile that was built on a slave machine. '
                            'Applies to previous slave board.')
   parser.add_argument('-p', '--build-path', required=True,

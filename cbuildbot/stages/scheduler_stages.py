@@ -22,13 +22,13 @@ from infra_libs.buildbucket.proto import builder_pb2, builds_service_pb2
 from infra_libs.buildbucket.proto import common_pb2
 
 
-class ScheduleSlavesStage(generic_stages.BuilderStage):
-  """Stage that schedules slaves for the master build."""
+class ScheduleNodesStage(generic_stages.BuilderStage):
+  """Stage that schedules nodes for the master build."""
 
   category = constants.CI_INFRA_STAGE
 
   def __init__(self, builder_run, buildstore, sync_stage, **kwargs):
-    super(ScheduleSlavesStage, self).__init__(builder_run, buildstore, **kwargs)
+    super(ScheduleNodesStage, self).__init__(builder_run, buildstore, **kwargs)
     self.sync_stage = sync_stage
     self.buildbucket_client = buildbucket_v2.BuildbucketV2()
 
@@ -105,7 +105,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         requested_bot=requested_bot,
     )
 
-  def PostSlaveBuildToBuildbucket(self,
+  def PostNodeBuildToBuildbucket(self,
                                   build_name,
                                   build_config,
                                   master_build_id,
@@ -114,11 +114,11 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
     """Scehdule a build within Buildbucket.
 
     Args:
-      build_name: Slave build name to schedule.
-      build_config: Slave build config.
-      master_build_id: CIDB id of the master scheduling the slave build.
+      build_name: Node build name to schedule.
+      build_config: Node build config.
+      master_build_id: CIDB id of the master scheduling the node build.
       master_buildbucket_id: buildbucket id of the master scheduling the
-                             slave build.
+                             node build.
       dryrun: Whether a dryrun, default to False.
 
     Returns:
@@ -152,24 +152,24 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
 
     return (result.id, result.create_time.ToJsonString())
 
-  def ScheduleSlaveBuildsViaBuildbucket(self,
+  def ScheduleNodeBuildsViaBuildbucket(self,
                                         important_only=False,
                                         dryrun=False):
-    """Schedule slave builds by sending PUT requests to Buildbucket.
+    """Schedule node builds by sending PUT requests to Buildbucket.
 
     Args:
-      important_only: Whether only schedule important slave builds, default to
+      important_only: Whether only schedule important node builds, default to
         False.
       dryrun: Whether a dryrun, default to False.
     """
     if self.buildbucket_client is None:
-      logging.info('No buildbucket_client. Skip scheduling slaves.')
+      logging.info('No buildbucket_client. Skip scheduling nodes.')
       return
 
     build_identifier, _ = self._run.GetCIDBHandle()
     build_id = build_identifier.cidb_id
     if build_id is None:
-      logging.info('No build id. Skip scheduling slaves.')
+      logging.info('No build id. Skip scheduling nodes.')
       return
 
     # May be None. This is okay.
@@ -185,14 +185,14 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
     scheduled_build_reqs = []
 
     # Get all active slave build configs.
-    slave_config_map = self._GetSlaveConfigMap(important_only)
+    slave_config_map = self._GetNodeConfigMap(important_only)
     for slave_config_name, slave_config in sorted(slave_config_map.items()):
       try:
         if dryrun:
           buildbucket_id = '1'
           created_ts = '1'
         else:
-          buildbucket_id, created_ts = self.PostSlaveBuildToBuildbucket(
+          buildbucket_id, created_ts = self.PostNodeBuildToBuildbucket(
               slave_config_name,
               slave_config,
               build_id,
@@ -233,5 +233,5 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
 
   @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
   def PerformStage(self):
-    self.ScheduleSlaveBuildsViaBuildbucket(
+    self.ScheduleNodeBuildsViaBuildbucket(
         important_only=False, dryrun=self._run.options.debug)

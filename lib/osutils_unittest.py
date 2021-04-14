@@ -775,7 +775,7 @@ mechant"
     osutils.WriteFile(self.env_file, self.ENV)
     osutils.WriteFile(self.env_file_multiline, self.ENV_MULTILINE)
 
-  def testWhiteList(self):
+  def testAllowList(self):
     env_dict = osutils.SourceEnvironment(
         self.env_file, ('ENV1', 'ENV3', 'ENV5', 'ENV6'))
     self.assertEqual(env_dict, self.ENV_WHITELIST)

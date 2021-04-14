@@ -256,18 +256,18 @@ class CBuildbotMetadata(object):
 
     Args:
       builder_run: BuilderRun instance for this run.
-      get_statuses_from_slaves: If True, status information of slave
+      get_statuses_from_slaves: If True, status information of node
                                 builders will be recorded.
       config: The build config for this run.  Defaults to self._run.config.
       stage: The stage name that this metadata file is being uploaded for.
       final_status: Whether the build passed or failed. If None, the build
                     will be treated as still running.
-      completion_instance: The stage instance that was used to wait for slave
-                           completion. Used to add slave build information to
+      completion_instance: The stage instance that was used to wait for node
+                           completion. Used to add node build information to
                            master builder's metadata. If None, no such status
                            information will be included. It not None, this
                            should be a derivative of
-                           MasterSlaveSyncCompletionStage.
+                           OrchestratorNodeSyncCompletionStage.
       child_configs_list: The list of child config metadata.  If specified it
                           should be added to the metadata.
 
@@ -318,7 +318,7 @@ class CBuildbotMetadata(object):
     # If we were a CQ master, then include a summary of the status of slave cq
     # builders in metadata
     if get_statuses_from_slaves:
-      statuses = completion_instance.GetSlaveStatuses()
+      statuses = completion_instance.GetNodeStatuses()
       if not statuses:
         logging.warning('completion_instance did not have any statuses '
                         'to report. Will not add slave status to metadata.')
@@ -388,7 +388,7 @@ class BuildData(object):
 
     mapping = {}
     # Dedup the messages from the slaves.
-    for slave in self.GetFailedSlaves():
+    for slave in self.GetFailedNodes():
       message = self.slaves[slave]['reason']
       mapping[message] = mapping.get(message, []) + [slave]
 
@@ -402,7 +402,7 @@ class BuildData(object):
 
     return ' | '.join(message_list)
 
-  def GetFailedSlaves(self, with_urls=False):
+  def GetFailedNodes(self, with_urls=False):
     def _Failed(slave):
       return slave['status'] == 'fail'
 

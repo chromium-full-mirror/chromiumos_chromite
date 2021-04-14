@@ -198,7 +198,7 @@ class SimpleChromeArtifactsStage(generic_stages.BoardSpecificBuilderStage,
       parallel.RunParallelSteps(steps)
 
       if (self._run.config.chrome_sdk_build_chrome and
-          config_lib.IsCanaryMaster(self._run)):
+          config_lib.IsCanaryMain(self._run)):
         test_stage = TestSimpleChromeWorkflowStage(self._run,
                                                    self.buildstore,
                                                    self._current_board)

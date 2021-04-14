@@ -440,10 +440,10 @@ class DataSeries0Test(CIDBIntegrationTest):
     first_row = readonly_db._Select('buildTable', 1, ['id', 'build_config'])
     self.assertEqual(first_row['build_config'], 'master-paladin')
 
-    # First master build has 29 slaves. Build with id 2 is a slave
-    # build with no slaves of its own.
-    self.assertEqual(len(readonly_db.GetSlaveStatuses(1)), 29)
-    self.assertEqual(len(readonly_db.GetSlaveStatuses(2)), 0)
+    # First orcehstrator build has 29 nodes. Build with id 2 is a node
+    # build with no nodes of its own.
+    self.assertEqual(len(readonly_db.GetNodeStatuses(1)), 29)
+    self.assertEqual(len(readonly_db.GetNodeStatuses(2)), 0)
 
     # Make sure we can get build status by build id.
     self.assertEqual(readonly_db.GetBuildStatus(2).get('id'), 2)
@@ -572,7 +572,7 @@ class BuildStagesAndFailureTest(CIDBIntegrationTest):
     bot_db.FinishBuildStage(build_stage_id, constants.BUILDER_STATUS_PASSED)
 
     child_ids = [c['buildbucket_id']
-                 for c in bot_db.GetSlaveStatuses(master_build_id)]
+                 for c in bot_db.GetNodeStatuses(master_build_id)]
 
     slave_stages = bot_db.GetBuildsStagesWithBuildbucketIds(child_ids)
     self.assertEqual(len(slave_stages), 1)
@@ -647,11 +647,11 @@ class BuildTableTest(CIDBIntegrationTest):
                      'updated summary')
 
   def _GetBuildToBuildbucketIdList(self, slave_statuses):
-    """Convert slave_statuses to a list of (build_config, buildbucket_id)."""
+    """Convert node_statuses to a list of (build_config, buildbucket_id)."""
     return [(x['build_config'], x['buildbucket_id']) for x in slave_statuses]
 
-  def testGetSlaveStatus(self):
-    """Test GetSlaveStatus."""
+  def testGetNodeStatus(self):
+    """Test GetNodeStatus."""
     self._PrepareDatabase()
     bot_db = self.LocalCIDBConnection(self.CIDB_USER_BOT)
 
@@ -680,7 +680,7 @@ class BuildTableTest(CIDBIntegrationTest):
                        buildbucket_id='id_3')
 
     build_bb_id_list = self._GetBuildToBuildbucketIdList(
-        bot_db.GetSlaveStatuses(build_id))
+        bot_db.GetNodeStatuses(build_id))
     expected_list = ([
         ('build_1', 'id_1'),
         ('build_2', 'id_2'),
@@ -689,7 +689,7 @@ class BuildTableTest(CIDBIntegrationTest):
     self.assertListEqual(build_bb_id_list, expected_list)
 
     build_bb_id_list = self._GetBuildToBuildbucketIdList(
-        bot_db.GetSlaveStatuses(build_id, buildbucket_ids=['id_2', 'id_3']))
+        bot_db.GetNodeStatuses(build_id, buildbucket_ids=['id_2', 'id_3']))
     expected_list = ([
         ('build_2', 'id_2'),
         ('build_1', 'id_3')
@@ -697,7 +697,7 @@ class BuildTableTest(CIDBIntegrationTest):
     self.assertListEqual(build_bb_id_list, expected_list)
 
     build_bb_id_list = self._GetBuildToBuildbucketIdList(
-        bot_db.GetSlaveStatuses(build_id, buildbucket_ids=[]))
+        bot_db.GetNodeStatuses(build_id, buildbucket_ids=[]))
     self.assertListEqual(build_bb_id_list, [])
 
   def _InsertBuildAndUpdateMetadata(self, bot_db, build_config, milestone,

@@ -547,10 +547,10 @@ def _CreateParser():
   # cbuildbot doesn't use pickle files anymore, remove this.
   group.add_remote_option('--mock-slave-status',
                           metavar='MOCK_SLAVE_STATUS_PICKLE_FILE',
-                          help='Override the result of the _FetchSlaveStatuses '
-                               'method of MasterSlaveSyncCompletionStage, by '
-                               'specifying a file with a pickle of the result '
-                               'to be returned.')
+                          help='Override the result of the _FetchNodeStatuses '
+                               'method of OrchestratorNodeSyncCompletionStage,'
+                               ' by specifying a file with a pickle of the '
+                               'result to be returned.')
   group.add_option('--previous-build-state', type='string', default='',
                    api=constants.REEXEC_API_PREVIOUS_BUILD_STATE,
                    help='A base64-encoded BuildSummary object describing the '
@@ -922,8 +922,8 @@ def main(argv):
         for key, value in mock_statuses.items():
           mock_statuses[key] = builder_status_lib.BuilderStatus(**value)
       stack.Add(_ObjectMethodPatcher,
-                completion_stages.MasterSlaveSyncCompletionStage,
-                '_FetchSlaveStatuses',
+                completion_stages.OrchestratorNodeSyncCompletionStage,
+                '_FetchNodeStatuses',
                 return_value=mock_statuses)
 
     stack.Add(_SetupConnections, options, build_config)

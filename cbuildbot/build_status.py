@@ -22,15 +22,12 @@ assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
 
 BUILD_START_TIMEOUT_MIN = 60
 
-# TODO(nxia): Rename this module to slave_status, since this module is for
-# a master build which has slave builds and there is builder_status_lib for
-# managing the status of an indivudual build.
-class SlaveStatus(object):
-  """Keep track of statuses of all slaves from CIDB and Buildbucket(optional).
+class NodeStatus(object):
+  """Keep track of statuses of all nodes from CIDB and Buildbucket(optional).
 
-  For the master build scheduling slave builds through Buildbucket, it will
-  interpret slave statuses by querying CIDB and Buildbucket; otherwise,
-  it will only interpret slave statuses by querying CIDB.
+  For the master build scheduling node builds through Buildbucket, it will
+  interpret node statuses by querying CIDB and Buildbucket; otherwise,
+  it will only interpret node statuses by querying CIDB.
   """
   ACCEPTED_STATUSES = (constants.BUILDER_STATUS_PASSED,
                        constants.BUILDER_STATUS_SKIPPED,)
@@ -38,11 +35,11 @@ class SlaveStatus(object):
   def __init__(self, start_time, builders_array, master_build_identifier,
                buildstore, config=None, metadata=None, buildbucket_client=None,
                version=None, dry_run=True):
-    """Initializes a SlaveStatus instance.
+    """Initializes a NodeStatus instance.
 
     Args:
       start_time: datetime.datetime object of when the build started.
-      builders_array: List of the expected slave builds.
+      builders_array: List of the expected node builds.
       master_build_identifier: The BuildIdentifier instance of the master build.
       buildstore: BuildStore instance to make DB calls.
       config: Instance of config_lib.BuildConfig. Config dict of this build.
@@ -66,22 +63,22 @@ class SlaveStatus(object):
 
     # A set of completed builds which will not be retried any more.
     self.completed_builds = set()
-    # Dict mapping config names of slaves not in self.completed_builds to
-    # their new CIDBStatusInfo. Everytime UpdateSlaveStatus is called,
+    # Dict mapping config names of nodes not in self.completed_builds to
+    # their new CIDBStatusInfo. Every time UpdateNodeStatus is called,
     # new (current) status will be pulled from CIDB.
     self.new_cidb_status_dict = None
-    # Dict mapping all slave config names to CIDBStatusInfo.
+    # Dict mapping all node config names to CIDBStatusInfo.
     self.all_cidb_status_dict = None
     self.missing_builds = None
     self.scheduled_builds = None
-    # Dict mapping config names of slaves not in self.completed_builds to
-    # their new BuildbucketInfo. Everytime UpdateSlaveStatus is called,
+    # Dict mapping config names of nodes not in self.completed_builds to
+    # their new BuildbucketInfo. Every time UpdateNodeStatus is called,
     # new (current) status will be pulled from Buildbucket.
     # TODO(jkop): The code uses 'is not None' checks to determine if it's using
     # Buildbucket. Initialize this to a dict for simplicity when that's been
     # refactored.
     self.new_buildbucket_info_dict = None
-    # Dict mapping all slave config names to BuildbucketInfo
+    # Dict mapping all node config names to BuildbucketInfo
     self.all_buildbucket_info_dict = {}
     self.status_buildset_dict = {}
 
@@ -90,35 +87,35 @@ class SlaveStatus(object):
     # any decision logic.
     self._completed_build_history = collections.deque([], 2)
 
-    self.UpdateSlaveStatus()
+    self.UpdateNodeStatus()
 
-  def _GetNewSlaveCIDBStatusInfo(self, all_cidb_status_dict, completed_builds):
-    """Get new build status information for slaves not in completed_builds.
+  def _GetNewNodeCIDBStatusInfo(self, all_cidb_status_dict, completed_builds):
+    """Get new build status information for nodes not in completed_builds.
 
     Args:
       all_cidb_status_dict: A dict mapping all build config names to their
         information fetched from CIDB (in the format of CIDBStatusInfo).
-      completed_builds: A set of slave build configs (strings) completed before.
+      completed_builds: A set of node build configs (strings) completed before.
 
     Returns:
-      A dict mapping the build config names of slave builds which are not in
+      A dict mapping the build config names of node builds which are not in
       the completed_builds to their CIDBStatusInfos.
     """
     return {build_config: status_info
             for build_config, status_info in all_cidb_status_dict.items()
             if build_config not in completed_builds}
 
-  def _GetNewSlaveBuildbucketInfo(self, all_buildbucket_info_dict,
+  def _GetNewNodeBuildbucketInfo(self, all_buildbucket_info_dict,
                                   completed_builds):
-    """Get new buildbucket info for slave builds not in completed_builds.
+    """Get new buildbucket info for node builds not in completed_builds.
 
     Args:
-      all_buildbucket_info_dict: A dict mapping all slave build config names
+      all_buildbucket_info_dict: A dict mapping all node build config names
         to their BuildbucketInfos.
-      completed_builds: A set of slave build configs (strings) completed before.
+      completed_builds: A set of node build configs (strings) completed before.
 
     Returns:
-      A dict mapping config names of slave builds which are not in the
+      A dict mapping config names of node builds which are not in the
       completed_builds set to their BuildbucketInfos.
     """
     completed_builds = completed_builds or {}
@@ -133,29 +130,29 @@ class SlaveStatus(object):
         self.status_buildset_dict.setdefault(info.status, set())
         self.status_buildset_dict[info.status].add(build)
 
-  def UpdateSlaveStatus(self):
-    """Update slave statuses by querying CIDB and Buildbucket(if supported)."""
-    logging.info('Updating slave status...')
+  def UpdateNodeStatus(self):
+    """Update node statuses by querying CIDB and Buildbucket(if supported)."""
+    logging.info('Updating node status...')
 
     if self.config and self.metadata:
       scheduled_buildbucket_info_dict = buildbucket_v2.GetBuildInfoDict(
           self.metadata)
-      # It's possible that CQ-master has a list of important slaves configured
-      # but doesn't schedule any slaves as no CLs were picked up in SyncStage.
+      # It's possible that CQ-master has a list of important nodes configured
+      # but doesn't schedule any nodes as no CLs were picked up in SyncStage.
       # These are set to include only important builds.
       self.all_builders = list(scheduled_buildbucket_info_dict)
       self.all_buildbucket_info_dict = (
-          builder_status_lib.SlaveBuilderStatus.GetAllSlaveBuildbucketInfo(
+          builder_status_lib.NodeBuilderStatus.GetAllNodeBuildbucketInfo(
               self.buildbucket_client, scheduled_buildbucket_info_dict))
-      self.new_buildbucket_info_dict = self._GetNewSlaveBuildbucketInfo(
+      self.new_buildbucket_info_dict = self._GetNewNodeBuildbucketInfo(
           self.all_buildbucket_info_dict, self.completed_builds)
       self._SetStatusBuildsDict()
 
     self.all_cidb_status_dict = (
-        builder_status_lib.SlaveBuilderStatus.GetAllSlaveCIDBStatusInfo(
+        builder_status_lib.NodeBuilderStatus.GetAllNodeCIDBStatusInfo(
             self.buildstore, self.master_build_identifier,
             self.all_buildbucket_info_dict))
-    self.new_cidb_status_dict = self._GetNewSlaveCIDBStatusInfo(
+    self.new_cidb_status_dict = self._GetNewNodeCIDBStatusInfo(
         self.all_cidb_status_dict, self.completed_builds)
 
     self.missing_builds = self._GetMissingBuilds()
@@ -300,13 +297,13 @@ class SlaveStatus(object):
     ]
 
     all_experimental_bb_info_dict = (
-        builder_status_lib.SlaveBuilderStatus.GetAllSlaveBuildbucketInfo(
+        builder_status_lib.NodeBuilderStatus.GetAllNodeBuildbucketInfo(
             self.buildbucket_client,
             buildbucket_v2.GetScheduledBuildDict(experimental_slaves)
         )
     )
     all_experimental_cidb_status_dict = (
-        builder_status_lib.SlaveBuilderStatus.GetAllSlaveCIDBStatusInfo(
+        builder_status_lib.NodeBuilderStatus.GetAllNodeCIDBStatusInfo(
             self.buildstore, self.master_build_identifier,
             all_experimental_bb_info_dict)
     )
@@ -366,7 +363,7 @@ class SlaveStatus(object):
               self.missing_builds)
 
   @staticmethod
-  def _LastSlavesToComplete(completed_builds_history):
+  def _LastNodesToComplete(completed_builds_history):
     """Given a |completed_builds_history|, find the last to complete.
 
     Returns:
@@ -393,10 +390,10 @@ class SlaveStatus(object):
     """
     retval, slaves_remain, long_pole = self._ShouldWait()
 
-    # If we're no longer waiting, record last-slave-to-complete metrics.
+    # If we're no longer waiting, record last-node-to-complete metrics.
     if not retval and long_pole:
       m = metrics.CumulativeMetric(constants.MON_LAST_SLAVE)
-      slaves = self._LastSlavesToComplete(self._completed_build_history)
+      slaves = self._LastNodesToComplete(self._completed_build_history)
       if slaves and self.config:
         increment = 1.0 / len(slaves)
         for s in slaves:

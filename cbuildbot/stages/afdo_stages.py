@@ -111,8 +111,8 @@ class AFDODataGenerateStage(generic_stages.BoardSpecificBuilderStage,
         logging.info('Pointed newest profile at %s', newest_afdo_file)
       else:
         raise afdo.MissingAFDOData('Could not find current "perf" profile. '
-                                   'Master PFQ builder will try to use stale '
-                                   'AFDO profile.')
+                                   'Orchestrator PFQ builder will try to use '
+                                   'stale AFDO profile.')
     # Will let system-exiting exceptions through.
     except Exception:
       logging.PrintBuildbotStepWarnings()

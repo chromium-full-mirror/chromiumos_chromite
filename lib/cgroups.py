@@ -703,7 +703,7 @@ class Cgroup(object):
     return _cros_node.AddGroup(target, autoclean=False)
 
 
-class ContainChildren(cros_build_lib.MasterPidContextManager):
+class ContainChildren(cros_build_lib.MainPidContextManager):
   """Context manager for containing children processes.
 
   This manager creates a job pool derived from the specified Cgroup |node|

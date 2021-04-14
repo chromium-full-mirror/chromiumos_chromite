@@ -20,7 +20,7 @@ from chromite.lib import locking
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
 
 
-class EnforcedCleanupSection(cros_build_lib.MasterPidContextManager):
+class EnforcedCleanupSection(cros_build_lib.MainPidContextManager):
 
   """Context manager used to ensure that a section of cleanup code is run
 
@@ -46,7 +46,7 @@ class EnforcedCleanupSection(cros_build_lib.MasterPidContextManager):
   >>>
   """
   def __init__(self):
-    cros_build_lib.MasterPidContextManager.__init__(self)
+    cros_build_lib.MainPidContextManager.__init__(self)
     self._lock = locking.ProcessLock(verbose=False)
     self._forked = False
     self._is_child = False
@@ -105,7 +105,7 @@ class EnforcedCleanupSection(cros_build_lib.MasterPidContextManager):
 
     # Allow masterpid context managers to run in this case, since we're
     # explicitly designed for this cleanup.
-    cros_build_lib.MasterPidContextManager.ALTERNATE_MASTER_PID = os.getpid()
+    cros_build_lib.MainPidContextManager.ALTERNATE_MASTER_PID = os.getpid()
 
     raise RuntimeError('Parent exited uncleanly; forcing cleanup code to run.')
 

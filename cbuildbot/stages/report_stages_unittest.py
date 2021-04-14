@@ -91,9 +91,9 @@ class ConfigDumpStageTest(generic_stages_unittest.AbstractStageTestCase):
     self.RunStage()
 
 
-class SlaveFailureSummaryStageTest(
+class NodeFailureSummaryStageTest(
     generic_stages_unittest.AbstractStageTestCase):
-  """Tests that SlaveFailureSummaryStage behaves as expected."""
+  """Tests that NodeFailureSummaryStage behaves as expected."""
 
   def setUp(self):
     self.db = mock.MagicMock()
@@ -104,11 +104,11 @@ class SlaveFailureSummaryStageTest(
   # Our API here is not great when it comes to kwargs passing.
   def _Prepare(self, **kwargs):  # pylint: disable=arguments-differ
     """Prepare stage with config['master']=True."""
-    super(SlaveFailureSummaryStageTest, self)._Prepare(**kwargs)
+    super(NodeFailureSummaryStageTest, self)._Prepare(**kwargs)
     self._run.config['master'] = True
 
   def ConstructStage(self):
-    return report_stages.SlaveFailureSummaryStage(self._run, self.buildstore)
+    return report_stages.NodeFailureSummaryStage(self._run, self.buildstore)
 
   def testPerformStage(self):
     """Tests that stage runs without syntax errors."""
@@ -248,7 +248,7 @@ class ReportStageTest(AbstractReportStageTestCase):
   RELEASE_TAG = ''
 
   def setUp(self):
-    self.mock_cidb.GetSlaveStatuses = mock.Mock(return_value=None)
+    self.mock_cidb.GetNodeStatuses = mock.Mock(return_value=None)
 
   def testCheckResults(self):
     """Basic sanity check for results stage functionality"""
@@ -301,7 +301,7 @@ class ReportStageTest(AbstractReportStageTestCase):
         },
     ]
     self.buildstore.GetBuildsStages = mock.Mock(return_value=stages)
-    self.mock_cidb.GetSlaveStatuses = mock.Mock(return_value=statuses)
+    self.mock_cidb.GetNodeStatuses = mock.Mock(return_value=statuses)
     self._SetupUpdateStreakCounter()
     self.PatchObject(report_stages.ReportStage, '_LinkArtifacts')
     self.RunStage()
@@ -346,7 +346,7 @@ class ReportStageTest(AbstractReportStageTestCase):
                         debug=False, update_list=True, acl=mock.ANY)]
     self.assertEqual(calls, commands.UploadArchivedFile.call_args_list)
 
-  def testEmailNotifyMasterBranch(self):
+  def testEmailNotifyMainBranch(self):
     """Send out alerts when streak counter reaches the threshold."""
     self.PatchObject(cbuildbot_run._BuilderRunBase,
                      'InEmailReportingEnvironment', return_value=True)
@@ -375,7 +375,7 @@ class ReportStageTest(AbstractReportStageTestCase):
             notification_config_2.email_notify,
         ])
 
-  def testEmailNotifyNonMasterBranch(self):
+  def testEmailNotifyNonMainBranch(self):
     """Do not send out email alerts for non-master branches."""
     self.PatchObject(
         cbuildbot_run._BuilderRunBase,

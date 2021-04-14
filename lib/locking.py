@@ -43,7 +43,7 @@ def _optional_timer_context(timeout):
     yield
 
 
-class _Lock(cros_build_lib.MasterPidContextManager):
+class _Lock(cros_build_lib.MainPidContextManager):
   """Base lockf based locking.  Derivatives need to override _GetFd"""
 
   def __init__(self, description=None, verbose=True, locktype=LOCKF,
@@ -72,7 +72,7 @@ class _Lock(cros_build_lib.MasterPidContextManager):
       blocking: If True, use a blocking lock.
       blocking_timeout: If not None, time is seconds to wait on blocking calls.
     """
-    cros_build_lib.MasterPidContextManager.__init__(self)
+    cros_build_lib.MainPidContextManager.__init__(self)
     self._verbose = verbose
     self.description = description
     self._fd = None

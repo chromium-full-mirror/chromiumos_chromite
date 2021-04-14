@@ -666,10 +666,10 @@ def ListTests(results_path, show_failed=True, show_passed=True):
     logging.info('Parsing test report %s', report)
     # Format used in the report:
     #   /path/to/base/dir/test_harness/all/SimpleTestUpdateAndVerify/ \
-    #     2_autotest_tests/results-01-security_OpenSSLBlacklist [  FAILED  ]
+    #     2_autotest_tests/results-01-security_OpenSSLAllowList [  FAILED  ]
     #   /path/to/base/dir/test_harness/all/SimpleTestUpdateAndVerify/ \
-    #     2_autotest_tests/results-01-security_OpenSSLBlacklist/ \
-    #     security_OpenBlacklist [  FAILED  ]
+    #     2_autotest_tests/results-01-security_OpenSSLAllowlist/ \
+    #     security_OpenAllowlist [  FAILED  ]
     with open(report) as f:
       folder_re = re.compile(r'([\./\w-]*)\s*\[\s*(\S+?)\s*\]')
       test_name_re = re.compile(r'results-[\d]+?-([\.\w_]*)')

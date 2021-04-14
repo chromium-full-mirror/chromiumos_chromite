@@ -644,7 +644,7 @@ to assign.  Once you've found it, copy the entire license file to:
     """
     # If the total size installed is zero, we installed no content to license.
     if _BuildInfo(build_info_dir, 'SIZE').strip() == '0':
-      # Allow for license generation for the whitelisted empty packages.
+      # Allow for license generation for the allowed empty packages.
       if self.fullname not in SIZE_EXEMPT_PACKAGES:
         logging.debug('Build directory is empty')
         self.skip = True

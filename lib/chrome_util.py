@@ -215,7 +215,7 @@ class Copier(object):
     else:
       for p in paths:
         rel_src = os.path.relpath(p, src_base)
-        if path.IsBlacklisted(rel_src):
+        if path.IsAllowed(rel_src):
           continue
         if path.dest is None:
           rel_dest = rel_src
@@ -232,7 +232,7 @@ class Copier(object):
           for sub_path in osutils.DirectoryIterator(p):
             rel_path = os.path.relpath(sub_path, p)
             sub_dest = os.path.join(dest, rel_path)
-            if path.IsBlacklisted(rel_path):
+            if path.IsAllowed(rel_path):
               continue
             if sub_path.endswith('/'):
               osutils.SafeMakedirs(sub_dest, mode=self.dir_mode)
@@ -293,7 +293,7 @@ class Path(object):
     if blacklist is not None:
       self.blacklist += tuple(blacklist)
 
-  def IsBlacklisted(self, path):
+  def IsAllowed(self, path):
     """Returns whether |path| is in the blacklist.
 
     A file in the blacklist is not copied over to the staging directory.

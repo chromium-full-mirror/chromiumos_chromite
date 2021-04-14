@@ -149,7 +149,7 @@ class ManifestVersionedSyncStageTest(
         return_value=self.next_version)
     self.PatchObject(
         sync_stages.ManifestVersionedSyncStage,
-        '_GetMasterVersion',
+        '_GetOrchestratorVersion',
         return_value='foo',
         autospec=True)
     self.PatchObject(
@@ -224,8 +224,8 @@ class MockPatch(mock.MagicMock):
     return self.mock_diff_status
 
 
-class MasterSlaveLKGMSyncTest(generic_stages_unittest.StageTestCase):
-  """Unit tests for MasterSlaveLKGMSyncStage"""
+class OrchestratorNodeLKGMSyncTest(generic_stages_unittest.StageTestCase):
+  """Unit tests for OrchestratorNodeLKGMSyncStage"""
 
   BOT_ID = constants.VMMST_ANDROID_PFQ_MASTER
 
@@ -262,10 +262,10 @@ class MasterSlaveLKGMSyncTest(generic_stages_unittest.StageTestCase):
 
   # Our API here is not great when it comes to kwargs passing.
   def _Prepare(self, bot_id=None, **kwargs):  # pylint: disable=arguments-differ
-    super(MasterSlaveLKGMSyncTest, self)._Prepare(bot_id, **kwargs)
+    super(OrchestratorNodeLKGMSyncTest, self)._Prepare(bot_id, **kwargs)
 
     self._run.config['manifest_version'] = self.manifest_version_url
-    self.sync_stage = sync_stages.MasterSlaveLKGMSyncStage(
+    self.sync_stage = sync_stages.OrchestratorNodeLKGMSyncStage(
         self._run, self.buildstore)
     self.sync_stage.manifest_manager = self.manager
     self._run.attrs.manifest_manager = self.manager

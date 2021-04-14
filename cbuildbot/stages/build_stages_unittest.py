@@ -678,7 +678,7 @@ class CleanUpStageTest(generic_stages_unittest.StageTestCase):
     stage = self.ConstructStage()
     self.assertFalse(stage.CanReuseChroot(chroot_path))
 
-  def testChrootReusePreviousMasterMissing(self):
+  def testChrootReusePreviousOrchestratorMissing(self):
     self.PatchObject(
         build_stages.CleanUpStage,
         '_GetPreviousBuildStatus',
@@ -691,7 +691,7 @@ class CleanUpStageTest(generic_stages_unittest.StageTestCase):
     stage = self.ConstructStage()
     self.assertFalse(stage.CanReuseChroot(chroot_path))
 
-  def testChrootReusePreviousMasterFailed(self):
+  def testChrootReusePreviousOrchestratorFailed(self):
     master_id = self.fake_db.InsertBuild(
         'test_builder',
         123,
@@ -846,8 +846,8 @@ class CleanUpStageTest(generic_stages_unittest.StageTestCase):
     self.assertFalse(stage._RevertChrootToCleanSnapshot())
 
 
-class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
-  """Test CleanUpStage.CancelObsoleteSlaveBuilds."""
+class CleanUpStageCancelNodeBuilds(generic_stages_unittest.StageTestCase):
+  """Test CleanUpStage.CancelObsoleteNodeBuilds."""
   BOT_ID = 'master-full'
 
   def setUp(self):
@@ -865,8 +865,8 @@ class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
   def ConstructStage(self):
     return build_stages.CleanUpStage(self._run, self.buildstore)
 
-  def testNoPreviousMasterBuilds(self):
-    """Test cancellation if the master has never run."""
+  def testNoPreviousOrchestratorBuilds(self):
+    """Test cancellation if the orchestrator has never run."""
     search_results = builds_service_pb2.BatchResponse(
       responses=[
         builds_service_pb2.BatchResponse.Response(
@@ -882,15 +882,15 @@ class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
     )
     self.cancelMock.return_value = cancel_results
     stage = self.ConstructStage()
-    stage.CancelObsoleteSlaveBuilds()
+    stage.CancelObsoleteNodeBuilds()
 
     # Validate searches and cancellations match expectations.
     self.assertEqual(
       len(self.searchMock.return_value.responses[0].search_builds.builds), 0)
     self.assertEqual(len(self.cancelMock.return_value.responses), 0)
 
-  def testNoPreviousSlaveBuilds(self):
-    """Test cancellation if there are no running slave builds."""
+  def testNoPreviousNodeBuilds(self):
+    """Test cancellation if there are no running node builds."""
     search_results = builds_service_pb2.BatchResponse(
       responses=[
         builds_service_pb2.BatchResponse.Response(
@@ -906,14 +906,14 @@ class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
     )
     self.cancelMock.return_value = cancel_results
     stage = self.ConstructStage()
-    stage.CancelObsoleteSlaveBuilds()
+    stage.CancelObsoleteNodeBuilds()
 
     # Validate searches and cancellations match expectations.
     self.assertEqual(len(self.searchMock.return_value.responses), 1)
     self.assertEqual(len(self.cancelMock.return_value.responses), 0)
 
-  def testPreviousSlaveBuild(self):
-    """Test cancellation if there is a running slave build."""
+  def testPreviousNodeBuild(self):
+    """Test cancellation if there is a running node build."""
     search_results = builds_service_pb2.BatchResponse(
       responses=[
         builds_service_pb2.BatchResponse.Response(
@@ -928,7 +928,7 @@ class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
     )
     self.searchMock.return_value = search_results
     stage = self.ConstructStage()
-    stage.CancelObsoleteSlaveBuilds()
+    stage.CancelObsoleteNodeBuilds()
 
     # Validate searches and cancellations match expectations.
     self.assertEqual(
@@ -938,8 +938,8 @@ class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
     cancelled_ids = self.cancelMock.call_args[0][0]
     self.assertEqual(cancelled_ids, [1, 2])
 
-  def testManyPreviousSlaveBuilds(self):
-    """Test cancellation with an assortment of running slave builds."""
+  def testManyPreviousNodeBuilds(self):
+    """Test cancellation with an assortment of running node builds."""
     search_results = builds_service_pb2.BatchResponse(
       responses=[
         builds_service_pb2.BatchResponse.Response(
@@ -958,7 +958,7 @@ class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
     )
     self.searchMock.return_value = search_results
     stage = self.ConstructStage()
-    stage.CancelObsoleteSlaveBuilds()
+    stage.CancelObsoleteNodeBuilds()
 
     # Validate searches and cancellations match expectations.
     self.assertEqual(

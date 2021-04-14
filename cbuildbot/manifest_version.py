@@ -791,10 +791,10 @@ class BuildSpecsManager(object):
     return (self._latest_build and
             self._latest_build['status'] == constants.BUILDER_STATUS_FAILED)
 
-  def WaitForSlavesToComplete(self, master_build_identifier, builders_array,
+  def WaitForNodesToComplete(self, master_build_identifier, builders_array,
                               timeout=3 * 60,
                               ignore_timeout_exception=True):
-    """Wait for all slaves to complete or timeout.
+    """Wait for all nodes to complete or timeout.
 
     This method checks the statuses of important builds in |builders_array|,
     waits for the builds to complete or timeout after given |timeout|. Builds
@@ -808,7 +808,7 @@ class BuildSpecsManager(object):
       ignore_timeout_exception: Whether to ignore when the timeout exception is
         raised in waiting. Default to True.
     """
-    builders_array = buildbucket_v2.FetchCurrentSlaveBuilders(
+    builders_array = buildbucket_v2.FetchCurrentNodeBuilders(
         self.config, self.metadata, builders_array)
     logging.info('Waiting for the following builds to complete: %s',
                  builders_array)
@@ -821,7 +821,7 @@ class BuildSpecsManager(object):
     def _PrintRemainingTime(remaining):
       logging.info('%s until timeout...', remaining)
 
-    slave_status = build_status.SlaveStatus(
+    slave_status = build_status.NodeStatus(
         start_time, builders_array, master_build_identifier,
         buildstore=self.buildstore,
         config=self.config,
@@ -833,7 +833,7 @@ class BuildSpecsManager(object):
     try:
       timeout_util.WaitForSuccess(
           lambda x: slave_status.ShouldWait(),
-          slave_status.UpdateSlaveStatus,
+          slave_status.UpdateNodeStatus,
           timeout,
           period=self.SLEEP_TIMEOUT,
           side_effect_func=_PrintRemainingTime)

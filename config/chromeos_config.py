@@ -1165,7 +1165,7 @@ def AndroidTemplates(site_config):
       android_import_branch=constants.ANDROID_VMSC_BUILD_BRANCH,
   )
 
-  # Template for Android VM Master.
+  # Template for Android VM Orchestrator.
   site_config.AddTemplate(
       'vmmst_android_pfq',
       site_config.templates.generic_android_pfq,
@@ -1175,7 +1175,7 @@ def AndroidTemplates(site_config):
       android_import_branch=constants.ANDROID_VMMST_BUILD_BRANCH,
   )
 
-  # Mixin for masters.
+  # Mixin for orchestrators.
   site_config.AddTemplate(
       'master_android_pfq_mixin',
       site_config.templates.internal,
@@ -1203,7 +1203,7 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
   vmrvc_hwtest_list = [hwtest for hwtest in hw_test_list.SharedPoolPFQ()
                        if hwtest.suite != constants.HWTEST_ARC_COMMIT_SUITE]
 
-  # Android VM MST master
+  # Android VM MST orchestrator
   vmmst_master_config = site_config.Add(
       constants.VMMST_ANDROID_PFQ_MASTER,
       site_config.templates.vmmst_android_pfq,
@@ -1214,7 +1214,7 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
       'betty-arcvm-master', # No HWTest, No VMTest.
   ])
 
-  # Android PI master.
+  # Android PI orchestrator.
   pi_master_config = site_config.Add(
       constants.PI_ANDROID_PFQ_MASTER,
       site_config.templates.pi_android_pfq,
@@ -1251,7 +1251,7 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
   _pi_vmtest_experimental_boards = _frozen_ge_set(ge_build_config, [
   ])
 
-  # Android VM RVC master.
+  # Android VM RVC orchestrator.
   vmrvc_master_config = site_config.Add(
       constants.VMRVC_ANDROID_PFQ_MASTER,
       site_config.templates.vmrvc_android_pfq,
@@ -1272,7 +1272,7 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
   _vmrvc_vmtest_boards = _frozen_ge_set(ge_build_config, [])
   _vmrvc_vmtest_experimental_boards = _frozen_ge_set(ge_build_config, [])
 
-  # Android VM SC master.
+  # Android VM SC orchestrator.
   vmsc_master_config = site_config.Add(
       constants.VMSC_ANDROID_PFQ_MASTER,
       site_config.templates.vmsc_android_pfq,
@@ -1290,9 +1290,9 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
   _vmsc_vmtest_boards = _frozen_ge_set(ge_build_config, [])
   _vmsc_vmtest_experimental_boards = _frozen_ge_set(ge_build_config, [])
 
-  # Android VMMST slaves.
-  # No board to build for now (just roll). empty slave to pass test.
-  vmmst_master_config.AddSlaves(
+  # Android VMMST nodes.
+  # No board to build for now (just roll). empty node to pass test.
+  vmmst_master_config.AddNodes(
       site_config.AddForBoards(
           'vmmst-android-pfq',
           _vmmst_no_hwtest_boards,
@@ -1301,8 +1301,8 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
       )
   )
 
-  # Android PI slaves.
-  pi_master_config.AddSlaves(
+  # Android PI nodes.
+  pi_master_config.AddNodes(
       site_config.AddForBoards(
           'pi-android-pfq',
           _pi_hwtest_boards - _pi_hwtest_skylab_boards,
@@ -1358,8 +1358,8 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
       )
   )
 
-  # Android VMRVC slaves.
-  vmrvc_master_config.AddSlaves(
+  # Android VMRVC nodes.
+  vmrvc_master_config.AddNodes(
       site_config.AddForBoards(
           'vmrvc-android-pfq',
           _vmrvc_hwtest_boards,
@@ -1400,8 +1400,8 @@ def AndroidPfqBuilders(site_config, boards_dict, ge_build_config):
       )
   )
 
-  # Android VMSC slaves.
-  vmsc_master_config.AddSlaves(
+  # Android VMSC nodes.
+  vmsc_master_config.AddNodes(
       site_config.AddForBoards(
           'vmsc-android-pfq',
           _vmsc_hwtest_boards,
@@ -1492,7 +1492,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
       schedule='0 */3 * * *',
   )
 
-  master_config.AddSlaves(
+  master_config.AddNodes(
       site_config.ApplyForBoards(
           config_lib.CONFIG_TYPE_FULL,
           active_builders,
@@ -1500,7 +1500,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
       )
   )
 
-  master_config.AddSlaves(
+  master_config.AddNodes(
       site_config.ApplyForBoards(
           config_lib.CONFIG_TYPE_FULL,
           unstable_builders,
@@ -1540,7 +1540,7 @@ def IncrementalBuilders(site_config, boards_dict, ge_build_config):
   )
 
   # Build external source, for an internal board.
-  master_config.AddSlave(
+  master_config.AddNode(
       site_config.Add(
           'amd64-generic-incremental',
           site_config.templates.incremental,
@@ -1550,7 +1550,7 @@ def IncrementalBuilders(site_config, boards_dict, ge_build_config):
       )
   )
 
-  master_config.AddSlave(
+  master_config.AddNode(
       site_config.Add(
           'betty-incremental',
           site_config.templates.incremental,
@@ -1561,7 +1561,7 @@ def IncrementalBuilders(site_config, boards_dict, ge_build_config):
       )
   )
 
-  master_config.AddSlave(
+  master_config.AddNode(
       site_config.Add(
           'chell-incremental',
           site_config.templates.incremental,
@@ -1966,7 +1966,7 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
       )
       if branch in old_package_branches:
         child.apply(site_config.templates.old_factorybranch_packages)
-      branch_master.AddSlave(child)
+      branch_master.AddNode(child)
 
 
 def ReleaseBuilders(site_config, boards_dict, ge_build_config):
@@ -1985,9 +1985,9 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
   unified_board_names = set([b[config_lib.CONFIG_TEMPLATE_REFERENCE_BOARD_NAME]
                              for b in unified_builds])
 
-  def _CreateMasterConfig(name,
-                          template=site_config.templates.release,
-                          schedule='  0 2,10,18 * * *'):
+  def _CreateOrchestratorConfig(name,
+                                template=site_config.templates.release,
+                                schedule='  0 2,10,18 * * *'):
     return site_config.Add(
         name,
         template,
@@ -2002,15 +2002,15 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     )
 
   ### Master release configs.
-  master_config = _CreateMasterConfig('master-release')
+  master_config = _CreateOrchestratorConfig('master-release')
   # pylint: disable=unused-variable
-  basic_master_config = _CreateMasterConfig(
+  basic_master_config = _CreateOrchestratorConfig(
       'master-release-basic',
       template=site_config.templates.release_basic,
       schedule='30 */2 * * * *')
 
-  def _AssignToMaster(config):
-    """Add |config| as a slave config to the appropriate master config."""
+  def _AssignToOrchestrator(config):
+    """Add |config| as a node config to the appropriate master config."""
     # Default to chromeos master release builder.
     master = master_config
 
@@ -2018,7 +2018,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     if config.name.endswith('-release-basic'):
       master = basic_master_config
 
-    master.AddSlave(config)
+    master.AddNode(config)
 
   ### Release configs.
 
@@ -2138,7 +2138,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         site_config.templates.release,
         **props
     )
-    _AssignToMaster(site_config[config_name])
+    _AssignToOrchestrator(site_config[config_name])
 
   def GetReleaseConfigName(board):
     """Convert a board name into a release config name."""
@@ -2178,7 +2178,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         site_config[config_name].apply(
             _GetConfigValues(board),
         )
-        _AssignToMaster(site_config[config_name])
+        _AssignToOrchestrator(site_config[config_name])
 
   def _AdjustGroupedReleaseConfigs(builder_group_dict):
     """Adjust leader and follower configs for grouped boards"""
@@ -2194,7 +2194,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
           site_config[config_name].apply(
               _GetConfigValues(board),
           )
-          _AssignToMaster(site_config[config_name])
+          _AssignToOrchestrator(site_config[config_name])
 
         # Followers are built on GCE instances, and turn off testing that breaks
         # on GCE. The missing tests run on the leader board.
@@ -2206,7 +2206,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
               chrome_sdk_build_chrome=False,
               vm_tests=[],
           )
-          _AssignToMaster(site_config[config_name])
+          _AssignToOrchestrator(site_config[config_name])
 
   def _AdjustReleaseConfigs():
     """Adjust ungrouped and grouped release configs"""
@@ -2234,7 +2234,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
       site_config.Add(config_name, site_config.templates.release_basic,
                       site_config[board + '-release'])
       site_config[config_name].apply(site_config.templates.release_basic)
-      _AssignToMaster(site_config[config_name])
+      _AssignToOrchestrator(site_config[config_name])
 
   _AdjustReleaseConfigs()
   AddReleaseBasicMirrors()

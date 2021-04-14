@@ -554,18 +554,18 @@ class ManifestVersionedSyncStage(SyncStage):
     else:
       yield manifest
 
-  def _GetMasterVersion(self, master_id, timeout=5 * 60):
+  def _GetOrchestratorVersion(self, master_id, timeout=5 * 60):
     """Get the platform version associated with the master_build_id.
 
     Args:
       master_id: Our master buildbucket id.
       timeout: How long to wait for the platform version to show up
-        in the database. This is needed because the slave builders are
+        in the database. This is needed because the node builders are
         triggered slightly before the platform version is written. Default
         is 5 minutes.
     """
 
-    # TODO(davidjames): Remove the wait loop here once we've updated slave
+    # TODO(davidjames): Remove the wait loop here once we've updated node
     # builders to only get triggered after the platform version is written.
     def _PrintRemainingTime(remaining):
       logging.info('%s until timeout...', remaining)
@@ -585,7 +585,7 @@ class ManifestVersionedSyncStage(SyncStage):
         period=constants.SLEEP_TIMEOUT,
         side_effect_func=_PrintRemainingTime)
 
-  def _VerifyMasterId(self, master_id):
+  def _VerifyOrchestratorId(self, master_id):
     """Verify that our master id is current and valid.
 
     Args:
@@ -600,7 +600,7 @@ class ManifestVersionedSyncStage(SyncStage):
           1,
           branch=self._run.options.branch)
       if latest and str(latest[0]['buildbucket_id']) != str(master_id):
-        raise failures_lib.MasterSlaveVersionMismatchFailure(
+        raise failures_lib.OrchestratorNodeVersionMismatchFailure(
             "This slave's master (id=%s) has been supplanted by a newer "
             'master (id=%s). Aborting.' % (master_id, latest[0]['id']))
 
@@ -608,10 +608,11 @@ class ManifestVersionedSyncStage(SyncStage):
   def PerformStage(self):
     self.Initialize()
 
-    self._VerifyMasterId(self._run.options.master_buildbucket_id)
+    self._VerifyOrchestratorId(self._run.options.master_buildbucket_id)
     version = self._run.options.force_version
     if self._run.options.master_buildbucket_id:
-      version = self._GetMasterVersion(self._run.options.master_buildbucket_id)
+      version = self._GetOrchestratorVersion(
+        self._run.options.master_buildbucket_id)
 
     next_manifest = None
     if version:
@@ -642,7 +643,7 @@ class ManifestVersionedSyncStage(SyncStage):
       self.ManifestCheckout(new_manifest)
 
 
-class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
+class OrchestratorNodeLKGMSyncStage(ManifestVersionedSyncStage):
   """Stage that generates a unique manifest file candidate, and sync's to it.
 
   This stage uses an LKGM manifest manager that handles LKGM
@@ -654,8 +655,9 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
   category = constants.CI_INFRA_STAGE
 
   def __init__(self, builder_run, buildstore, **kwargs):
-    super(MasterSlaveLKGMSyncStage, self).__init__(builder_run, buildstore,
-                                                   **kwargs)
+    super(OrchestratorNodeLKGMSyncStage, self).__init__(builder_run,
+                                                        buildstore,
+                                                        **kwargs)
     # lkgm_manager deals with making sure we're synced to whatever manifest
     # we get back in GetNextManifest so syncing again is redundant.
     self._android_version = None
@@ -690,25 +692,26 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
     """Override: Creates an LKGMManager rather than a ManifestManager."""
     self._InitializeRepo()
     self.RegisterManifestManager(self._GetInitializedManager(self.internal))
-    if self._run.config.master and self._GetSlaveConfigs():
+    if self._run.config.master and self._GetNodeConfigs():
       assert self.internal, 'Unified masters must use an internal checkout.'
-      MasterSlaveLKGMSyncStage.external_manager = self._GetInitializedManager(
-          False)
+      OrchestratorNodeLKGMSyncStage.external_manager = (self.
+      _GetInitializedManager(False))
 
   def ForceVersion(self, version):
-    manifest = super(MasterSlaveLKGMSyncStage, self).ForceVersion(version)
-    if MasterSlaveLKGMSyncStage.external_manager:
-      MasterSlaveLKGMSyncStage.external_manager.BootstrapFromVersion(version)
+    manifest = super(OrchestratorNodeLKGMSyncStage, self).ForceVersion(version)
+    if OrchestratorNodeLKGMSyncStage.external_manager:
+      OrchestratorNodeLKGMSyncStage.external_manager.BootstrapFromVersion(
+        version)
 
     return manifest
 
-  def _VerifyMasterId(self, master_id):
+  def _VerifyOrchestratorId(self, master_id):
     """Verify that our master id is current and valid."""
-    super(MasterSlaveLKGMSyncStage, self)._VerifyMasterId(master_id)
+    super(OrchestratorNodeLKGMSyncStage, self)._VerifyOrchestratorId(master_id)
     if not self._run.config.master and not master_id:
       raise failures_lib.StepFailure(
           'Cannot start build without a master_build_id. Did you hit force '
-          'build on a slave? Please hit force build on the master instead.')
+          'build on a node? Please hit force build on the master instead.')
 
   def GetNextManifest(self):
     """Gets the next manifest using LKGM logic."""
@@ -729,8 +732,8 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
         android_version=self._android_version,
         chrome_version=self._chrome_version,
         build_id=build_id)
-    if MasterSlaveLKGMSyncStage.external_manager:
-      MasterSlaveLKGMSyncStage.external_manager.CreateFromManifest(
+    if OrchestratorNodeLKGMSyncStage.external_manager:
+      OrchestratorNodeLKGMSyncStage.external_manager.CreateFromManifest(
           manifest, build_id=build_id)
 
     return manifest
@@ -755,8 +758,8 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
 
     if (self._chrome_rev == constants.CHROME_REV_LATEST and
         self._run.config.master):
-      # PFQ master needs to determine what version of Chrome to build
-      # for all slaves.
+      # PFQ orchestrator needs to determine what version of Chrome to build
+      # for all nodes.
       logging.info('I am a master running with CHROME_REV_LATEST, '
                    'therefore getting latest chrome version.')
       self._chrome_version = self.GetLatestChromeVersion()

@@ -17,7 +17,7 @@ _BUILTINS = (str, int, float, bool, type(None))
 
 
 class Structured(object):
-  """An object with a whitelisted set of public properties (.VISIBLE_KEYS)"""
+  """An object with a allowed set of public properties (.VISIBLE_KEYS)"""
 
   def _Keys(self):
     seen = set()

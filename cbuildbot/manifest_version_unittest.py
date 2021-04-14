@@ -343,8 +343,8 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
     osutils.SafeMakedirs(self.tmpmandir)
     self.manager = None
 
-    self.PatchObject(builder_status_lib.SlaveBuilderStatus,
-                     '_InitSlaveInfo')
+    self.PatchObject(builder_status_lib.NodeBuilderStatus,
+                     '_InitNodeInfo')
 
     self.db = mock.Mock()
     self.buildstore = FakeBuildStore(self.db)
@@ -570,28 +570,28 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
                           'platform_version': '1.2.5'}
     self.assertFalse(self.manager.DidLastBuildFail())
 
-  def testWaitForSlavesToCompleteWithEmptyBuildersArray(self):
-    """Test WaitForSlavesToComplete with an empty builders_array."""
+  def testWaitForNodesToCompleteWithEmptyBuildersArray(self):
+    """Test WaitForNodesToComplete with an empty builders_array."""
     self.manager = self.BuildManager()
-    self.manager.WaitForSlavesToComplete(1, [])
+    self.manager.WaitForNodesToComplete(1, [])
 
-  def testWaitForSlavesToComplete(self):
-    """Test WaitForSlavesToComplete."""
-    self.PatchObject(build_status.SlaveStatus, 'UpdateSlaveStatus')
-    self.PatchObject(build_status.SlaveStatus, 'ShouldWait', return_value=False)
+  def testWaitForNodesToComplete(self):
+    """Test WaitForNodesToComplete."""
+    self.PatchObject(build_status.NodeStatus, 'UpdateNodeStatus')
+    self.PatchObject(build_status.NodeStatus, 'ShouldWait', return_value=False)
     self.manager = self.BuildManager()
-    self.manager.WaitForSlavesToComplete(BuildIdentifier(cidb_id=1,
-                                                         buildbucket_id=1234),
+    self.manager.WaitForNodesToComplete(BuildIdentifier(cidb_id=1,
+                                                        buildbucket_id=1234),
                                          ['build_1', 'build_2'])
 
-  def testWaitForSlavesToCompleteWithTimeout(self):
-    """Test WaitForSlavesToComplete raises timeout."""
-    self.PatchObject(build_status.SlaveStatus, 'UpdateSlaveStatus')
-    self.PatchObject(build_status.SlaveStatus, 'ShouldWait', return_value=True)
+  def testWaitForNodesToCompleteWithTimeout(self):
+    """Test WaitForNodesToComplete raises timeout."""
+    self.PatchObject(build_status.NodeStatus, 'UpdateNodeStatus')
+    self.PatchObject(build_status.NodeStatus, 'ShouldWait', return_value=True)
     self.manager = self.BuildManager()
     self.assertRaises(
         timeout_util.TimeoutError,
-        self.manager.WaitForSlavesToComplete,
+        self.manager.WaitForNodesToComplete,
         BuildIdentifier(cidb_id=1, buildbucket_id=1234),
         ['build_1', 'build_2'], timeout=1,
         ignore_timeout_exception=False)

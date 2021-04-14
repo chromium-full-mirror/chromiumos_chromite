@@ -160,7 +160,7 @@ class Builder(object):
     raise NotImplementedError()
 
   def GetCompletionInstance(self):
-    """Returns the MasterSlaveSyncCompletionStage for this build.
+    """Returns the OrchestratorNodeSyncCompletionStage for this build.
 
     Subclasses may override this method.
 

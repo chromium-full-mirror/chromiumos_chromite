@@ -65,7 +65,7 @@ def CreateMockSiteConfig():
       workspace_branch='test-branch',
   )
 
-  buildspec_parent.AddSlaves([
+  buildspec_parent.AddNodes([
       site_config.Add(
           'test-firmwarebranch',
           site_config.templates.firmwarebranch,

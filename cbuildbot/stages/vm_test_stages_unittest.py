@@ -484,7 +484,7 @@ class RunTestSuiteTest(cros_test_lib.RunCommandTempDirTestCase):
     self.assertCommandContains(['---test_that-args=-allow_chrome_crashes'],
                                expected=False)
 
-  def testWhitelistChromeCrashes(self):
+  def testAllowlistChromeCrashes(self):
     """Test SMOKE config with allowing chrome crashes."""
     config = config_lib.VMTestConfig(
         constants.VM_SUITE_TEST_TYPE, test_suite='smoke', use_ctest=False)

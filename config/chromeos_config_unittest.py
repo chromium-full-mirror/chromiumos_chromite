@@ -291,11 +291,11 @@ class ConfigClassTest(ChromeosConfigTestBase):
 class CBuildBotTest(ChromeosConfigTestBase):
   """General tests of chromeos_config."""
 
-  def findAllSlaveBuilds(self):
-    """Test helper for finding all slave builds.
+  def findAllNodeBuilds(self):
+    """Test helper for finding all node builds.
 
     Returns:
-      Set of slave build config names.
+      Set of node build config names.
     """
     all_slaves = set()
     for config in self.site_config.values():
@@ -349,7 +349,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     'Invalid luci_builder "%s" on "%s"' %
                     (config.luci_builder, build_name))
 
-  def testMasterSlaveConfigsExist(self):
+  def testOrchestratorNodeConfigsExist(self):
     """Configs listing slave configs, must list valid configs."""
     for config in self.site_config.values():
       if config.master:
@@ -364,7 +364,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
       else:
         self.assertIsNone(config.slave_configs)
 
-  def testMasterSlaveConfigsSorted(self):
+  def testOrchestratorNodeConfigsSorted(self):
     """Configs listing slave configs, must list valid configs."""
     for config in self.site_config.values():
       if config.slave_configs is not None:
@@ -372,9 +372,9 @@ class CBuildBotTest(ChromeosConfigTestBase):
 
         self.assertEqual(config.slave_configs, expected)
 
-  def testOnlySlaveConfigsNotImportant(self):
+  def testOnlyNodeConfigsNotImportant(self):
     """Configs listing slave configs, must list valid configs."""
-    all_slaves = self.findAllSlaveBuilds()
+    all_slaves = self.findAllNodeBuilds()
 
     for config in self.site_config.values():
       self.assertTrue(config.important or config.name in all_slaves,
@@ -433,7 +433,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
           ('Config %s: push_overlays should be a subset of overlays.' %
            build_name))
 
-  def testOverlayMaster(self):
+  def testOverlayOrchestrator(self):
     """Verify that only one master is pushing uprevs for each overlay."""
     masters = {}
     for build_name, config in self.site_config.items():
@@ -635,8 +635,8 @@ class CBuildBotTest(ChromeosConfigTestBase):
             config.hw_tests,
             'Release builder %s must run hw tests.' % build_name)
 
-  def testValidUnifiedMasterConfig(self):
-    """Make sure any unified master configurations are valid."""
+  def testValidUnifiedOrchestratorConfig(self):
+    """Make sure any unified orchestrator configurations are valid."""
     for build_name, config in self.site_config.items():
       error = 'Unified config for %s has invalid values' % build_name
       # Unified masters must be internal and must rev both overlays.
@@ -648,30 +648,30 @@ class CBuildBotTest(ChromeosConfigTestBase):
         if not config['internal']:
           self.assertEqual(config['overlays'], constants.PUBLIC_OVERLAYS, error)
 
-  def testGetSlaves(self):
-    """Make sure every master has a sane list of slaves"""
+  def testGetNodes(self):
+    """Make sure every master has a sane list of nodes"""
     for build_name, config in self.site_config.items():
       if config.master:
-        configs = self.site_config.GetSlavesForMaster(config)
+        configs = self.site_config.GetNodesForOrchestrator(config)
         self.assertEqual(
             len(configs), len(set(repr(x) for x in configs)),
-            'Duplicate board in slaves of %s will cause upload prebuilts'
+            'Duplicate board in nodes of %s will cause upload prebuilts'
             ' failures' % build_name)
 
-  def _getSlaveConfigsForMaster(self, master_config_name):
-    """Helper to fetch the configs for all slaves of a given master."""
+  def _getNodeConfigsForOrchestrator(self, master_config_name):
+    """Helper to fetch the configs for all nodes of a given orchestrator."""
     master_config = self.site_config[master_config_name]
 
     # Get a list of all active Paladins.
     return [self.site_config[n] for n in master_config.slave_configs]
 
-  def testGetSlavesOnTrybot(self):
-    """Make sure every master has a sane list of slaves"""
+  def testGetNodesOnTrybot(self):
+    """Make sure every master has a sane list of nodes"""
     mock_options = mock.Mock()
     mock_options.remote_trybot = True
     for _, config in self.site_config.items():
       if config['master']:
-        configs = self.site_config.GetSlavesForMaster(config, mock_options)
+        configs = self.site_config.GetNodesForOrchestrator(config, mock_options)
         self.assertEqual([], configs)
 
   def testFactoryFirmwareValidity(self):
@@ -698,7 +698,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
     Ensure now new users are created. See crbug.com/691810.
     """
     for build_name, config in self.site_config.items():
-      # These group builders are whitelisted, for now.
+      # These group builders are allowlisted, for now.
       if not (build_name in ('test-ap-group',
                              'test-ap-group-tryjob',
                              'mixed-wificell-pre-cq') or

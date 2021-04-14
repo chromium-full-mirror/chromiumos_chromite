@@ -1143,10 +1143,10 @@ def GetCWPProfile(cpv, source, _buildroot, gs_context):
 
   # Check 2 most recent milestones.
   #
-  # When a branch just happens, the milestone of master increases by 1. There
-  # will be no profile from that milestone until a dev release is pushed for a
-  # short period of time. Therefore, a profile from previous branches must be
-  # picked instead.
+  # When a branch just happens, the milestone of orchestrator increases by 1.
+  # There will be no profile from that milestone until a dev release is pushed
+  # for a short period of time. Therefore, a profile from previous branches
+  # must be picked instead.
   #
   # Originally, we search toward root in the branch tree for a profile. Now we
   # prefer to look at the previous milestone if there's no profile from current
@@ -1155,9 +1155,9 @@ def GetCWPProfile(cpv, source, _buildroot, gs_context):
   # 1. dev channel has few samples. The profile quality is much better from
   #    beta, which is always in a branch.
   #
-  # 2. Master is actually closer to the branch tip than to the branch point,
-  #    assuming that most of the changes on a branch are cherry-picked from
-  #    master.
+  # 2. Orchestrator is actually closer to the branch tip than to the branch
+  #    point, assuming that most of the changes on a branch are cherry-picked
+  #    from main.
   versions = []
   for milestone in (target[0], target[0] - 1):
     gs_ls_url = os.path.join(

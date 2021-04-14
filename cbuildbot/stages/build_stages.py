@@ -168,8 +168,8 @@ class CleanUpStage(generic_stages.BuilderStage):
         logging.error('Failed to decode previous build state: %s', e)
     return previous_state
 
-  def _GetPreviousMasterStatus(self, previous_state):
-    """Get the state of the previous master build from CIDB.
+  def _GetPreviousOrchestratorStatus(self, previous_state):
+    """Get the state of the previous orchestrator build from CIDB.
 
     Args:
       previous_state: A BuildSummary object representing the previous build.
@@ -196,7 +196,7 @@ class CleanUpStage(generic_stages.BuilderStage):
 
     return master_status['build_number'], master_status['status']
 
-  def CancelObsoleteSlaveBuilds(self):
+  def CancelObsoleteNodeBuilds(self):
     """Cancel the obsolete builds scheduled by the previous orchestrator."""
     logging.info('Canceling obsolete builds.')
 
@@ -232,7 +232,7 @@ class CleanUpStage(generic_stages.BuilderStage):
     for br in main_builds.responses:
       for build in br.search_builds.builds:
         main_ids.append(str(build.id))
-    # Find the scheduled or started slaves for those master builds.
+    # Find the scheduled or started nodes for those orchestrator builds.
     logging.info('Found Previous Orchestrator builds: %s', ', '.join(main_ids))
     builds = []
     batch_search = []
@@ -247,7 +247,7 @@ class CleanUpStage(generic_stages.BuilderStage):
           status=status,
           tags=[common_pb2.StringPair(
             key='buildset',
-            value=request_build.ChildBuildSet(main_id))],
+            value=request_build.NodeBuildSet(main_id))],
         )
         batch_search.append(builds_service_pb2.SearchBuildsRequest(
           predicate=child_predicate))
@@ -301,7 +301,7 @@ class CleanUpStage(generic_stages.BuilderStage):
       return False
 
     if previous_state.master_build_id:
-      build_number, status = self._GetPreviousMasterStatus(previous_state)
+      build_number, status = self._GetPreviousOrchestratorStatus(previous_state)
       if status != constants.BUILDER_STATUS_PASSED:
         logging.info(
             'Previous master build %s did not pass (%s).  '
@@ -418,9 +418,9 @@ class CleanUpStage(generic_stages.BuilderStage):
       if self._run.options.workspace:
         tasks.append(self._CleanWorkspace)
 
-      # CancelObsoleteSlaveBuilds, if there are slave builds to cancel.
+      # CancelObsoleteNodeBuilds, if there are node builds to cancel.
       if self._run.config.slave_configs:
-        tasks.append(self.CancelObsoleteSlaveBuilds)
+        tasks.append(self.CancelObsoleteNodeBuilds)
 
       parallel.RunParallelSteps(tasks)
 

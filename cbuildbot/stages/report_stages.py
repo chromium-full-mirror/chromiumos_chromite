@@ -320,8 +320,8 @@ class BuildStartStage(generic_stages.BuilderStage):
                              '%s.' % (metadata_dict['db_type'], db_type))
 
 
-class SlaveFailureSummaryStage(generic_stages.BuilderStage):
-  """Stage which summarizes and links to the failures of slave builds."""
+class NodeFailureSummaryStage(generic_stages.BuilderStage):
+  """Stage which summarizes and links to the failures of node builds."""
 
   category = constants.CI_INFRA_STAGE
 
@@ -338,7 +338,7 @@ class SlaveFailureSummaryStage(generic_stages.BuilderStage):
       return
 
     child_failures = self.buildstore.GetBuildsFailures(
-        self.GetScheduledSlaveBuildbucketIds())
+        self.GetScheduledNodeBuildbucketIds())
     for failure in child_failures:
       if (failure.stage_status != constants.BUILDER_STATUS_FAILED or
           failure.build_status == constants.BUILDER_STATUS_INFLIGHT):
@@ -739,16 +739,16 @@ class ReportStage(generic_stages.BuilderStage,
         debug=self._run.options.debug_forced, update_list=True, acl=self.acl)
     return os.path.join(archive.download_url_file, timeline_file)
 
-  def _UploadSlavesTimeline(self, builder_run, build_identifier):
-    """Upload an HTML timeline for the slaves at remote archive location.
+  def _UploadNodesTimeline(self, builder_run, build_identifier):
+    """Upload an HTML timeline for the nodes at remote archive location.
 
     Args:
       builder_run: BuilderRun object for this run.
       build_identifier: BuildIdentifier instance for the master build.
 
     Returns:
-      The URL of the timeline is returned if slave builds exists.  If no
-        slave builds exists then this returns None.
+      The URL of the timeline is returned if node builds exists.  If no
+        node builds exists then this returns None.
     """
     archive = builder_run.GetArchive()
     archive_path = archive.archive_path
@@ -765,11 +765,11 @@ class ReportStage(generic_stages.BuilderStage,
     timeline = os.path.join(archive_path, timeline_file)
 
     # Gather information about this build from CIDB.
-    statuses = self.buildstore.GetSlaveStatuses(build_identifier)
+    statuses = self.buildstore.GetNodeStatuses(build_identifier)
     if not statuses:
       return None
-    # Slaves may be started at slightly different times, but what matters most
-    # is which slave is the bottleneck - namely, which slave finishes last.
+    # Nodes may be started at slightly different times, but what matters most
+    # is which node is the bottleneck - namely, which node finishes last.
     # Therefore, sort primarily by finish_time.
     epoch = datetime.datetime.fromtimestamp(0)
     statuses.sort(key=lambda stage: (stage['finish_time'] or epoch,
@@ -778,7 +778,7 @@ class ReportStage(generic_stages.BuilderStage,
              s['start_time'], s['finish_time']) for s in statuses)
 
     # Prepare html head.
-    title = ('Slave Builds Timeline: %s / %s (%s config)' %
+    title = ('Node Builds Timeline: %s / %s (%s config)' %
              (board_names, builder_run.GetVersion(), config.name))
 
     commands.GenerateHtmlTimeline(timeline, rows, title=title)
@@ -796,10 +796,11 @@ class ReportStage(generic_stages.BuilderStage,
       stage: The stage name that this metadata file is being uploaded for.
       final_status: Whether the build passed or failed. If None, the build
         will be treated as still running.
-      completion_instance: The stage instance that was used to wait for slave
-        completion. Used to add slave build information to master builder's
-        metadata. If None, no such status information will be included. It not
-        None, this should be a derivative of MasterSlaveSyncCompletionStage.
+      completion_instance: The stage instance that was used to wait for node
+        completion. Used to add node build information to orcehstrator
+        builder's metadata. If None, no such status information will be
+        included. It not None, this should be a derivative of
+        OrchestratorNodeSyncCompletionStage.
 
     Returns:
       A JSON-able dictionary representation of the metadata object.
@@ -811,7 +812,7 @@ class ReportStage(generic_stages.BuilderStage,
         config['master'] and
         completion_instance and
         isinstance(completion_instance,
-                   completion_stages.MasterSlaveSyncCompletionStage)
+                   completion_stages.OrchestratorNodeSyncCompletionStage)
     )
 
     child_configs_list = GetChildConfigListMetadata(
@@ -849,9 +850,9 @@ class ReportStage(generic_stages.BuilderStage,
         timeline = self._UploadBuildStagesTimeline(builder_run, buildbucket_id)
         logging.PrintBuildbotLink('Build stages timeline', timeline)
 
-        timeline = self._UploadSlavesTimeline(builder_run, build_identifier)
+        timeline = self._UploadNodesTimeline(builder_run, build_identifier)
         if timeline is not None:
-          logging.PrintBuildbotLink('Slaves timeline', timeline)
+          logging.PrintBuildbotLink('Nodes timeline', timeline)
 
       if build_id is not None:
         details_link = uri_lib.ConstructViceroyBuildDetailsUri(build_id)

@@ -683,7 +683,7 @@ class RepoRepository(object):
   def IsManifestDifferent(self, other_manifest):
     """Checks whether this manifest is different than another.
 
-    May blacklists certain repos as part of the diff.
+    May allow certain repos as part of the diff.
 
     Args:
       other_manifest: Second manifest file to compare against.

@@ -175,16 +175,16 @@ class BuildStore(object):
 
     return build_id
 
-  def GetSlaveStatuses(self, master_build_identifier):
-    """Gets the statuses of slave builders to given build.
+  def GetNodeStatuses(self, master_build_identifier):
+    """Gets the statuses of node builders to given build.
 
     Args:
-      master_build_identifier: BuildIdentifier of the master build to fetch the
-          slave statuses for.
+      master_build_identifier: BuildIdentifier of the orchestrator build to
+                               fetch the node statuses for.
 
     Returns:
       A list containing a dictionary with keys BUILD_STATUS_KEYS.
-      The list contains all child builds of the given master.
+      The list contains all child builds of the given orchestrator.
     """
     if not self.InitializeClients():
       raise BuildStoreException('BuildStore clients could not be initialized.')
@@ -193,7 +193,7 @@ class BuildStore(object):
       return self.bb_client.GetChildStatuses(
           int(master_build_identifier.buildbucket_id))
     elif not self._read_from_bb and master_build_identifier.cidb_id is not None:
-      return self.cidb_conn.GetSlaveStatuses(master_build_identifier.cidb_id,
+      return self.cidb_conn.GetNodeStatuses(master_build_identifier.cidb_id,
                                              None)
 
   def GetKilledChildBuilds(self, build_identifier):
@@ -599,8 +599,8 @@ class FakeBuildStore(object):
                                                      status)
     return build_stage_id
 
-  def GetSlaveStatuses(self, master_build_id, buildbucket_ids=None):
-    return self.fake_cidb.GetSlaveStatuses(master_build_id, buildbucket_ids)
+  def GetNodeStatuses(self, master_build_id, buildbucket_ids=None):
+    return self.fake_cidb.GetNodeStatuses(master_build_id, buildbucket_ids)
 
   def GetKilledChildBuilds(self, build_identifier):
     return [m['message_value'] for m in self.fake_cidb.GetBuildMessages(

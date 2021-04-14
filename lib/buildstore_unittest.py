@@ -248,17 +248,17 @@ class TestBuildStore(cros_test_lib.MockTestCase):
     with self.assertRaises(buildstore.BuildStoreException):
       bs.InsertBuildStage(constants.MOCK_BUILD_ID, 'stage_name')
 
-  def testGetSlaveStatuses(self):
-    """Tests the redirect for GetSlaveStatuses function."""
+  def testGetNodeStatuses(self):
+    """Tests the redirect for GetNodeStatuses function."""
     init = self.PatchObject(BuildStore, 'InitializeClients',
                             return_value=True)
     bs = BuildStore(_read_from_bb=False)
     fake_statuses = object()
     bs.cidb_conn = mock.MagicMock()
-    self.PatchObject(bs.cidb_conn, 'GetSlaveStatuses',
+    self.PatchObject(bs.cidb_conn, 'GetNodeStatuses',
                      return_value=fake_statuses)
-    result = bs.GetSlaveStatuses(buildstore.BuildIdentifier(cidb_id=1234))
-    bs.cidb_conn.GetSlaveStatuses.assert_called_once_with(
+    result = bs.GetNodeStatuses(buildstore.BuildIdentifier(cidb_id=1234))
+    bs.cidb_conn.GetNodeStatuses.assert_called_once_with(
         1234, None)
     self.assertEqual(result, fake_statuses)
     bs = BuildStore(_read_from_bb=True)
@@ -266,13 +266,13 @@ class TestBuildStore(cros_test_lib.MockTestCase):
     bs.bb_client = mock.MagicMock()
     self.PatchObject(bs.bb_client, 'GetChildStatuses',
                      return_value=fake_statuses)
-    result = bs.GetSlaveStatuses(buildstore.BuildIdentifier(
+    result = bs.GetNodeStatuses(buildstore.BuildIdentifier(
         cidb_id=1234, buildbucket_id=1234))
     self.assertEqual(result, fake_statuses)
     bs.bb_client.GetChildStatuses.assert_called_once_with(1234)
     init.return_value = False
     with self.assertRaises(buildstore.BuildStoreException):
-      bs.GetSlaveStatuses(1234)
+      bs.GetNodeStatuses(1234)
 
   def testStartBuildStage(self):
     """Tests the redirect for StartBuildStage function."""

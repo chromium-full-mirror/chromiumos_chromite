@@ -20,7 +20,7 @@ from chromite.lib import fake_cidb
 from chromite.lib.buildstore import FakeBuildStore
 
 
-class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
+class ScheduleNodesStageTest(generic_stages_unittest.AbstractStageTestCase):
   """Unit tests for ScheduleSalvesStage."""
 
   BOT_ID = 'master-release'
@@ -39,7 +39,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
 
   def ConstructStage(self):
     bs = FakeBuildStore()
-    return scheduler_stages.ScheduleSlavesStage(self._run, bs, self.sync_stage)
+    return scheduler_stages.ScheduleNodesStage(self._run, bs, self.sync_stage)
 
   def testRequestBuild(self):
     config = config_lib.BuildConfig(
@@ -50,7 +50,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         boards=['board_A'], build_type='paladin')
 
     stage = self.ConstructStage()
-    self.PatchObject(scheduler_stages.ScheduleSlavesStage,
+    self.PatchObject(scheduler_stages.ScheduleNodesStage,
                      '_FindMostRecentBotId',
                      return_value='chromeos-ci-test-1')
     # pylint: disable=protected-access
@@ -71,7 +71,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         boards=['board_A'], build_type='paladin')
 
     stage = self.ConstructStage()
-    self.PatchObject(scheduler_stages.ScheduleSlavesStage,
+    self.PatchObject(scheduler_stages.ScheduleNodesStage,
                      '_FindMostRecentBotId',
                      return_value='chromeos-ci-test-1')
     # Set the annealing snapshot revision to pass to the child builders.
@@ -86,21 +86,21 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
                            '--cbb_snapshot_revision', 'hash1234']
     self.assertEqual(request.extra_args, expected_extra_args)
 
-  def testScheduleSlaveBuildsSuccess(self):
-    """Test ScheduleSlaveBuilds with success."""
+  def testScheduleNodeBuildsSuccess(self):
+    """Test ScheduleNodeBuilds with success."""
     stage = self.ConstructStage()
 
-    self.PatchObject(scheduler_stages.ScheduleSlavesStage,
-                     'PostSlaveBuildToBuildbucket',
+    self.PatchObject(scheduler_stages.ScheduleNodesStage,
+                     'PostNodeBuildToBuildbucket',
                      return_value=('buildbucket_id', None))
 
     slave_config_map = {
         'slave_1': config_lib.BuildConfig(important=False),
         'slave_2': config_lib.BuildConfig(important=True)}
-    self.PatchObject(generic_stages.BuilderStage, '_GetSlaveConfigMap',
+    self.PatchObject(generic_stages.BuilderStage, '_GetNodeConfigMap',
                      return_value=slave_config_map)
 
-    stage.ScheduleSlaveBuildsViaBuildbucket(important_only=False, dryrun=True)
+    stage.ScheduleNodeBuildsViaBuildbucket(important_only=False, dryrun=True)
 
     scheduled_slaves = self._run.attrs.metadata.GetValue(
         constants.METADATA_SCHEDULED_IMPORTANT_SLAVES)
@@ -112,8 +112,8 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         constants.METADATA_UNSCHEDULED_SLAVES)
     self.assertEqual(len(unscheduled_slaves), 0)
 
-  def testPostSlaveBuildToBuildbucket(self):
-    """Test PostSlaveBuildToBuildbucket on builds with a single board."""
+  def testPostNodeBuildToBuildbucket(self):
+    """Test PostNodeBuildToBuildbucket on builds with a single board."""
     slave_config = config_lib.BuildConfig(
         name='slave',
         build_affinity=True,
@@ -122,11 +122,11 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         boards=['board_A'], build_type='paladin')
 
     stage = self.ConstructStage()
-    self.PatchObject(scheduler_stages.ScheduleSlavesStage,
+    self.PatchObject(scheduler_stages.ScheduleNodesStage,
                      '_FindMostRecentBotId',
                      return_value='chromeos-ci-test-1')
 
-    buildbucket_id, created_ts = stage.PostSlaveBuildToBuildbucket(
+    buildbucket_id, created_ts = stage.PostNodeBuildToBuildbucket(
         'slave', slave_config, 0, 'master_bb_id', dryrun=True)
 
     self.assertEqual(buildbucket_id, '0')

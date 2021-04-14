@@ -136,7 +136,7 @@ def GetBuildInfoDict(metadata, exclude_experimental=True):
   return GetScheduledBuildDict(scheduled_slaves_list)
 
 def GetBuildbucketIds(metadata, exclude_experimental=True):
-  """Get buildbucket_ids of scheduled slave builds from metadata.
+  """Get buildbucket_ids of scheduled node builds from metadata.
 
   Args:
     metadata: Instance of metadata_lib.CBuildbotMetadata.
@@ -145,28 +145,28 @@ def GetBuildbucketIds(metadata, exclude_experimental=True):
       True.
 
   Returns:
-    A list of buildbucket_ids (string) of slave builds.
+    A list of buildbucket_ids (string) of node builds.
   """
   buildbucket_info_dict = GetBuildInfoDict(
       metadata, exclude_experimental=exclude_experimental)
   return [info_dict.buildbucket_id
           for info_dict in buildbucket_info_dict.values()]
 
-def FetchCurrentSlaveBuilders(config, metadata, builders_array,
+def FetchCurrentNodeBuilders(config, metadata, builders_array,
                               exclude_experimental=True):
-  """Fetch the current important slave builds.
+  """Fetch the current important node builds.
 
   Args:
     config: Instance of config_lib.BuildConfig. Config dict of this build.
     metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of this
               build.
-    builders_array: A list of slave build configs to check.
+    builders_array: A list of node build configs to check.
     exclude_experimental: Whether to exclude the builds which are important in
       the config but are marked as experimental in the tree status. Default to
       True.
 
   Returns:
-    An updated list of slave build configs for a master build.
+    An updated list of node build configs for a master build.
   """
   if config and metadata:
     scheduled_buildbucket_info_dict = GetBuildInfoDict(

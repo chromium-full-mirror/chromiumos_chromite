@@ -31,7 +31,7 @@ def _GetAndroidVersionFromMetadata(metadata):
   """Return the Android version from metadata; None if is does not exist.
 
   In Android PFQ, Android version is set to metadata in master
-  (MasterSlaveLKGMSyncStage).
+  (OrchestratorNodeLKGMSyncStage).
   """
   version_dict = metadata.GetDict().get('version', {})
   return version_dict.get('android')
@@ -57,9 +57,9 @@ class UprevAndroidStage(generic_stages.BuilderStage,
 
     assert android_package
     assert android_build_branch
-    # |android_version| is usually set by MasterSlaveLKGMSyncStage, but we allow
-    # it to be unset to indicate uprev'ing to the latest version. In fact, it is
-    # not set in trybots.
+    # |android_version| is usually set by OrchestratorNodeLKGMSyncStage, but we
+    # allow it to be unset to indicate uprev'ing to the latest version. In fact,
+    # it is not set in trybots.
 
     logging.info('Android package: %s', android_package)
     logging.info('Android branch: %s', android_build_branch)

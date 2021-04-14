@@ -1044,11 +1044,11 @@ class CIDBConnection(SchemaVersionedMySQLConnection):
     return [dict(zip(columns, values)) for values in results]
 
   @minimum_schema(65)
-  def GetSlaveStatuses(self, master_build_id, buildbucket_ids=None):
-    """Gets the statuses of slave builders to given build.
+  def GetNodeStatuses(self, master_build_id, buildbucket_ids=None):
+    """Gets the statuses of node builders to given build.
 
     Args:
-      master_build_id: build id of the master build to fetch the slave
+      master_build_id: build id of the orchestrator build to fetch the node
                        statuses for.
       buildbucket_ids: A list of buildbucket_ids (string). If it's given,
         only fetch the builds with buildbucket_id in the buildbucket_ids.
@@ -1056,8 +1056,8 @@ class CIDBConnection(SchemaVersionedMySQLConnection):
 
     Returns:
       A list containing a dictionary with keys BUILD_STATUS_KEYS.
-      If buildbucket_ids is None, the list contains all slave builds found
-      in the buildTable; else, the list only contains the slave builds
+      If buildbucket_ids is None, the list contains all node builds found
+      in the buildTable; else, the list only contains the node builds
       with |buildbucket_id| in the buildbucket_ids list.
     """
     if buildbucket_ids is None:
