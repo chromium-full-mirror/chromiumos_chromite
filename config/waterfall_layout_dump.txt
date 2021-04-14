@@ -301,6 +301,7 @@
     jacuzzi-release
     kalista-cfm-release
     kalista-release
+    keeby-release
     kefka-release
     kevin-release
     kevin-userdebug-release
@@ -1127,6 +1128,12 @@
   kalista-payloads-tryjob
   kalista-release-tryjob
   kalista-unittest-stress
+  keeby-full-tryjob
+  keeby-llvm-next-toolchain-tryjob
+  keeby-llvm-toolchain-tryjob
+  keeby-payloads-tryjob
+  keeby-release-tryjob
+  keeby-unittest-stress
   kefka-factory-strago-7458.B-factorybranch-tryjob
   kefka-full-tryjob
   kefka-llvm-next-toolchain-tryjob
@@ -1318,6 +1325,7 @@
     jacuzzi-release-tryjob
     kalista-cfm-release-tryjob
     kalista-release-tryjob
+    keeby-release-tryjob
     kefka-release-tryjob
     kevin-release-tryjob
     kevin-userdebug-release-tryjob
