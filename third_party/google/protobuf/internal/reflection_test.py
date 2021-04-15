@@ -1170,7 +1170,7 @@ class Proto2ReflectionTest(unittest.TestCase):
     proto = unittest_pb2.TestAllTypes()
     self.assertRaises(ValueError, proto.HasField, 'nonexistent_field')
 
-  def testClearRemovesChildren(self):
+  def testClearRemovesNodes(self):
     # Make sure there aren't any implementation bugs that are only partially
     # clearing the message (which can happen in the more complex C++
     # implementation which has parallel message lists).

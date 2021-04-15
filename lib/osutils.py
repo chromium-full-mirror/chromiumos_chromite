@@ -57,12 +57,12 @@ def GetNonRootUser():
     return user
 
 
-def IsChildProcess(pid, name=None):
-  """Return True if pid is a child of the current process.
+def IsNodeProcess(pid, name=None):
+  """Return True if pid is a node of the current process.
 
   Args:
-    pid: Child pid to search for in current process's pstree.
-    name: Name of the child process.
+    pid: Node pid to search for in current process's pstree.
+    name: Name of the node process.
 
   Note:
     This function is not fool proof. If the process tree contains wierd names,

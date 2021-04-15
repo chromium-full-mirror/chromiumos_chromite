@@ -63,7 +63,7 @@ class UsbImagerOperation(operation.ProgressBarOperation):
       pids = cros_build_lib.run(['pgrep', 'dd'], capture_output=True,
                                 print_cmd=False, encoding='utf-8').stdout
       for pid in pids.splitlines():
-        if osutils.IsChildProcess(int(pid), name='dd'):
+        if osutils.IsNodeProcess(int(pid), name='dd'):
           return int(pid)
       return -1
     except cros_build_lib.RunCommandError:

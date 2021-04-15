@@ -80,14 +80,14 @@ def Unshare(flags):
     raise OSError(e, os.strerror(e))
 
 
-def _ReapChildren(pid):
-  """Reap all children that get reparented to us until we see |pid| exit.
+def _ReapNodes(pid):
+  """Reap all nodes that get reparented to us until we see |pid| exit.
 
   Args:
-    pid: The main child to watch for.
+    pid: The main node to watch for.
 
   Returns:
-    The wait status of the |pid| child.
+    The wait status of the |pid| node.
   """
   pid_status = 0
 
@@ -95,7 +95,7 @@ def _ReapChildren(pid):
     try:
       (wpid, status) = os.wait()
       if pid == wpid:
-        # Save the status of our main child so we can exit with it below.
+        # Save the status of our main node so we can exit with it below.
         pid_status = status
     except OSError as e:
       if e.errno == errno.ECHILD:
@@ -122,7 +122,7 @@ def _SafeTcSetPgrp(fd, pgrp):
     os.tcsetpgrp(fd, pgrp)
 
 
-def _ForwardToChildPid(pid, signal_to_forward):
+def _ForwardToNodePid(pid, signal_to_forward):
   """Setup a signal handler that forwards the given signal to the given pid."""
   def _ForwardingHandler(signum, _frame):
     os.kill(pid, signum)
@@ -132,7 +132,7 @@ def _ForwardToChildPid(pid, signal_to_forward):
 def CreatePidNs():
   """Start a new pid namespace
 
-  This will launch all the right manager processes.  The child that returns
+  This will launch all the right manager processes.  The node that returns
   will be isolated in a new pid namespace.
 
   If functionality is not available, then it will return w/out doing anything.
@@ -173,26 +173,26 @@ def CreatePidNs():
   lock = locking.PipeLock()
 
   # Now that we're in the new pid namespace, fork.  The parent is the master
-  # of it in the original namespace, so it only monitors the child inside it.
+  # of it in the original namespace, so it only monitors the node inside it.
   # It is only allowed to fork once too.
   pid = os.fork()
   if pid:
     proctitle.settitle('pid ns', 'external init')
 
-    # We forward termination signals to the child and trust the child to respond
+    # We forward termination signals to the node and trust the node to respond
     # sanely. Later, ExitAsStatus propagates the exit status back up.
-    _ForwardToChildPid(pid, signal.SIGINT)
-    _ForwardToChildPid(pid, signal.SIGTERM)
+    _ForwardToNodePid(pid, signal.SIGINT)
+    _ForwardToNodePid(pid, signal.SIGTERM)
 
-    # Forward the control of the terminal to the child so it can manage input.
+    # Forward the control of the terminal to the node so it can manage input.
     _SafeTcSetPgrp(sys.stdin.fileno(), pid)
 
-    # Signal our child it can move forward.
+    # Signal our node it can move forward.
     lock.Post()
     del lock
 
-    # Reap the children as the parent of the new namespace.
-    process_util.ExitAsStatus(_ReapChildren(pid))
+    # Reap the nodes as the parent of the new namespace.
+    process_util.ExitAsStatus(_ReapNodes(pid))
   else:
     # Make sure to unshare the existing mount point if needed.  Some distros
     # create shared mount points everywhere by default.
@@ -202,7 +202,7 @@ def CreatePidNs():
       if e.errno != errno.EINVAL:
         raise
 
-    # The child needs its own proc mount as it'll be different.
+    # The node needs its own proc mount as it'll be different.
     osutils.Mount('proc', '/proc', 'proc',
                   osutils.MS_NOSUID | osutils.MS_NODEV | osutils.MS_NOEXEC |
                   osutils.MS_RELATIME)
@@ -218,36 +218,36 @@ def CreatePidNs():
     if pid:
       proctitle.settitle('pid ns', 'init')
 
-      # We forward termination signals to the child and trust the child to
+      # We forward termination signals to the node and trust the node to
       # respond sanely. Later, ExitAsStatus propagates the exit status back up.
-      _ForwardToChildPid(pid, signal.SIGINT)
-      _ForwardToChildPid(pid, signal.SIGTERM)
+      _ForwardToNodePid(pid, signal.SIGINT)
+      _ForwardToNodePid(pid, signal.SIGTERM)
 
       # Now that we're in a new pid namespace, start a new process group so that
-      # children have something valid to use.  Otherwise getpgrp/etc... will get
+      # nodes have something valid to use.  Otherwise getpgrp/etc... will get
       # back 0 which tends to confuse -- you can't setpgrp(0) for example.
       os.setpgrp()
 
-      # Forward the control of the terminal to the child so it can manage input.
+      # Forward the control of the terminal to the node so it can manage input.
       _SafeTcSetPgrp(sys.stdin.fileno(), pid)
 
-      # Signal our child it can move forward.
+      # Signal our node it can move forward.
       lock.Post()
       del lock
 
-      # Watch all of the children.  We need to act as the master inside the
+      # Watch all of the nodes.  We need to act as the master inside the
       # namespace and reap old processes.
-      process_util.ExitAsStatus(_ReapChildren(pid))
+      process_util.ExitAsStatus(_ReapNodes(pid))
 
   # Wait for our parent to finish initialization.
   lock.Wait()
   del lock
 
-  # Create a process group for the grandchild so it can manage things
+  # Create a process group for the nested nodes so it can manage things
   # independent of the init process.
   os.setpgrp()
 
-  # The grandchild will return and take over the rest of the sdk steps.
+  # The nested node will return and take over the rest of the sdk steps.
   return first_pid
 
 

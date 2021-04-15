@@ -908,7 +908,7 @@ def main(argv):
       logging.debug('Cbuildbot tempdir is %r.', os.environ.get('TMP'))
 
     if options.cgroups:
-      stack.Add(cgroups.SimpleContainChildren, 'cbuildbot')
+      stack.Add(cgroups.SimpleContainNodes, 'cbuildbot')
 
     # Mark everything between EnforcedCleanupSection and here as having to
     # be rolled back via the contextmanager cleanup handlers.  This

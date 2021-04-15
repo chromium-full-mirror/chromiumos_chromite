@@ -390,7 +390,7 @@ class FullInterfaceTest(cros_test_lib.MockTempDirTestCase):
     # should not be sensitive to it.
     self.PatchObject(cgroups.Cgroup, 'IsSupported',
                      return_value=True)
-    self.PatchObject(cgroups, 'SimpleContainChildren')
+    self.PatchObject(cgroups, 'SimpleContainNodes')
     self.PatchObject(sudo.SudoKeepAlive, '_IdentifyTTY', return_value='unknown')
 
   def assertMain(self, args, common_options=True):

@@ -498,8 +498,8 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
     self.failed = multiprocessing.Event()
     self.passed = multiprocessing.Event()
 
-  def _GetKillChildrenTimeout(self):
-    """Return a timeout that is long enough for _BackgroundTask._KillChildren.
+  def _GetKillNodesTimeout(self):
+    """Return a timeout that is long enough for _BackgroundTask._KillNodes.
 
     This unittest is not meant to restrict which signal succeeds in killing the
     background process, so use a long enough timeout whenever asserting that the
@@ -518,11 +518,11 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
     sys.exit(1)
 
   def _Fail(self):
-    self.failed.wait(self._GetKillChildrenTimeout())
+    self.failed.wait(self._GetKillNodesTimeout())
     self.failed.set()
 
   def _PassEventually(self):
-    self.passed.wait(self._GetKillChildrenTimeout())
+    self.passed.wait(self._GetKillNodesTimeout())
     self.passed.set()
 
   @unittest.skipIf(_SKIP_FLAKY_TESTS, 'Occasionally fails.')
@@ -602,34 +602,34 @@ class TestConstants(cros_test_lib.TestCase):
 class TestExitWithParent(cros_test_lib.TestCase):
   """Tests ExitWithParent."""
 
-  def testChildExits(self):
-    """Create a child and a grandchild. The child should die with the parent."""
-    def GrandChild():
+  def testNodeExits(self):
+    """Create a node and a nested node. The node should die with the main."""
+    def NestedNode():
       parallel.ExitWithParent()
       time.sleep(9)
 
-    def Child(queue):
-      grand_child = multiprocessing.Process(target=GrandChild)
-      grand_child.start()
-      queue.put(grand_child.pid)
+    def Node(queue):
+      nested_node = multiprocessing.Process(target=NestedNode)
+      nested_node.start()
+      queue.put(nested_node.pid)
       time.sleep(9)
 
     with parallel.Manager() as manager:
       q = manager.Queue()
-      child = multiprocessing.Process(target=lambda: Child(q))
-      child.start()
-      grand_child_pid = q.get(timeout=1)
+      node = multiprocessing.Process(target=lambda: Node(q))
+      node.start()
+      nested_node_pid = q.get(timeout=1)
 
-    # Before we kill the child, the grandchild should be running:
-    self.assertTrue(os.path.isdir('/proc/%d' % grand_child_pid))
-    os.kill(child.pid, signal.SIGKILL)
+    # Before we kill the node, the nested node should be running:
+    self.assertTrue(os.path.isdir('/proc/%d' % nested_node_pid))
+    os.kill(node.pid, signal.SIGKILL)
 
-    # (shortly) after we kill the child, the grandchild should kill itself.
-    # We can't use os.waitpid because the grandchild process is not a child
+    # (shortly) after we kill the node, the nested node should kill itself.
+    # We can't use os.waitpid because the nested node process is not a node
     # process of ours. Just wait 20 seconds - this should be enough even if the
     # machine is under load.
     timeout_util.WaitForReturnTrue(
-        lambda: not os.path.isdir('/proc/%d' % grand_child_pid),
+        lambda: not os.path.isdir('/proc/%d' % nested_node_pid),
         20,
         period=0.05)
 

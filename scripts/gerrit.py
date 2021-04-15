@@ -410,7 +410,7 @@ class ActionDeps(_ActionSearchQuery):
       return _Query(opts, cl, raw=False, helper=helper)
 
     transitives = _BreadthFirstSearch(
-        cls, functools.partial(self._Children, opts, _QueryChange),
+        cls, functools.partial(self._Nodes, opts, _QueryChange),
         visited_key=lambda cl: cl.PatchLink())
 
     # This is a hack to avoid losing GoB host for each CL.  The PrintCls
@@ -456,7 +456,7 @@ class ActionDeps(_ActionSearchQuery):
           yield change
 
   @classmethod
-  def _Children(cls, opts, querier, cl):
+  def _Nodes(cls, opts, querier, cl):
     """Yields the Gerrit dependencies of a patch"""
     for change in cls._ProcessDeps(
         opts, querier, cl, cl.GerritDependencies(), False):

@@ -107,7 +107,7 @@ class ExceptionsTest(cros_test_lib.TestCase):
 
 # TODO(mtennant): Turn this into a PartialMock.
 class _BuilderRunTestCase(cros_test_lib.MockTestCase):
-  """Provide methods for creating BuilderRun or ChildBuilderRun."""
+  """Provide methods for creating BuilderRun or NodeBuilderRun."""
 
   def setUp(self):
     self._manager = parallel.Manager()
@@ -140,8 +140,8 @@ class _BuilderRunTestCase(cros_test_lib.MockTestCase):
 
     return cbuildbot_run.BuilderRun(options, site_config, config, self._manager)
 
-  def _NewChildBuilderRun(self, child_index, options=None, config=None):
-    """Create a ChildBuilderRun objection from options and config values.
+  def _NewNodeBuilderRun(self, child_index, options=None, config=None):
+    """Create a NodeBuilderRun objection from options and config values.
 
     Args:
       child_index: Index of child config to use within config.
@@ -149,10 +149,10 @@ class _BuilderRunTestCase(cros_test_lib.MockTestCase):
       config: Specify build config or default to DEFAULT_CONFIG.
 
     Returns:
-      ChildBuilderRun object.
+      NodeBuilderRun object.
     """
     run = self._NewBuilderRun(options, config)
-    return cbuildbot_run.ChildBuilderRun(run, child_index)
+    return cbuildbot_run.NodeBuilderRun(run, child_index)
 
 
 class BuilderRunPickleTest(_BuilderRunTestCase):
@@ -195,8 +195,8 @@ class BuilderRunPickleTest(_BuilderRunTestCase):
   def testPickleBuilderRun(self):
     self._TestPickle(self._NewBuilderRun(config=self.real_config))
 
-  def testPickleChildBuilderRun(self):
-    self._TestPickle(self._NewChildBuilderRun(0, config=self.real_config))
+  def testPickleNodeBuilderRun(self):
+    self._TestPickle(self._NewNodeBuilderRun(0, config=self.real_config))
 
 
 class BuilderRunTest(_BuilderRunTestCase):
@@ -415,14 +415,14 @@ class GetVersionTest(_BuilderRunTestCase):
     self.assertEqual(result, expected_result)
 
 
-class ChildBuilderRunTest(_BuilderRunTestCase):
-  """Test the ChildBuilderRun class"""
+class NodeBuilderRunTest(_BuilderRunTestCase):
+  """Test the NodeBuilderRun class"""
 
   def testInit(self):
     with mock.patch.object(cbuildbot_run._BuilderRunBase, 'GetVersion') as m:
       m.return_value = DEFAULT_VERSION
 
-      crun = self._NewChildBuilderRun(0)
+      crun = self._NewNodeBuilderRun(0)
       self.assertEqual(DEFAULT_BUILDROOT, crun.buildroot)
       self.assertEqual(DEFAULT_BUILDNUMBER, crun.buildnumber)
       self.assertEqual(DEFAULT_BRANCH, crun.manifest_branch)

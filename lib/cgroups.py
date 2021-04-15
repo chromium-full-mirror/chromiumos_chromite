@@ -703,18 +703,18 @@ class Cgroup(object):
     return _cros_node.AddGroup(target, autoclean=False)
 
 
-class ContainChildren(cros_build_lib.MainPidContextManager):
-  """Context manager for containing children processes.
+class ContainNodes(cros_build_lib.MainPidContextManager):
+  """Context manager for containing node processes.
 
   This manager creates a job pool derived from the specified Cgroup |node|
   and transfers the current process into it upon __enter__.
 
-  Any children processes created at that point will inherit our cgroup;
+  Any node processes created at that point will inherit our cgroup;
   they can only escape the group if they're running as root and move
   themselves out of this hierarchy.
 
   Upon __exit__, transfer the current process back to this group, then
-  SIGTERM (progressing to SIGKILL) any immediate children in the pool,
+  SIGTERM (progressing to SIGKILL) any immediate nodes in the pool,
   finally removing the pool if possible. After sending SIGTERM, we wait
   |sigterm_timeout| seconds before sending SIGKILL.
 
@@ -722,11 +722,11 @@ class ContainChildren(cros_build_lib.MainPidContextManager):
   the job pool created.
 
   Finally, note that during cleanup this will suppress all signals
-  to ensure that it cleanses any children before returning.
+  to ensure that it cleanses any nodes before returning.
   """
 
   def __init__(self, node, pool_name=None, sigterm_timeout=10):
-    super(ContainChildren, self).__init__()
+    super(ContainNodes, self).__init__()
     self.node = node
     self.child = None
     self.pid = None
@@ -765,10 +765,10 @@ def _NoOpContextManager():
   yield
 
 
-def SimpleContainChildren(process_name, nesting=True, pid=None, **kwargs):
-  """Convenience context manager to create a cgroup for children containment
+def SimpleContainNodes(process_name, nesting=True, pid=None, **kwargs):
+  """Convenience context manager to create a cgroup for node containment
 
-  See Cgroup.FindStartingGroup and Cgroup.ContainChildren for specifics.
+  See Cgroup.FindStartingGroup and Cgroup.ContainNodes for specifics.
   If Cgroups aren't supported on this system, this is a noop context manager.
   """
   node = Cgroup.FindStartingGroup(process_name, nesting=nesting)
@@ -777,7 +777,7 @@ def SimpleContainChildren(process_name, nesting=True, pid=None, **kwargs):
   if pid is None:
     pid = os.getpid()
   name = '%s:%i' % (process_name, pid)
-  return ContainChildren(node, name, **kwargs)
+  return ContainNodes(node, name, **kwargs)
 
 # This is a generic group, not associated with any specific process id, so
 # we shouldn't autoclean it on exit; doing so would delete the group from

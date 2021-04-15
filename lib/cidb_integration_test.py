@@ -801,7 +801,7 @@ class DataSeries1Test(CIDBIntegrationTest):
 
     # Insert child configs and boards
     for child_config_dict in metadata_dict['child-configs']:
-      db.InsertChildConfigPerBuild(build_id, child_config_dict['name'])
+      db.InsertNodeConfigPerBuild(build_id, child_config_dict['name'])
 
     for board in metadata_dict['board-metadata'].keys():
       db.InsertBoardPerBuild(build_id, board)
@@ -818,7 +818,7 @@ class DataSeries1Test(CIDBIntegrationTest):
       # we have predates the existence of child-config status being
       # stored in metadata.json. Instead, we just pretend all child
       # configs had the same status as the main config.
-      db.FinishChildConfig(build_id, child_config_dict['name'],
+      db.FinishNodeConfig(build_id, child_config_dict['name'],
                            status)
 
     db.FinishBuild(build_id, status)

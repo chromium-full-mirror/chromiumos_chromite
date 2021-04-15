@@ -60,7 +60,7 @@ class GCETestStageTest(generic_stages_unittest.AbstractStageTestCase,
         autospec=True,
         return_value=False)
     self.PatchObject(osutils, 'RmDir', autospec=True)
-    self.PatchObject(cgroups, 'SimpleContainChildren', autospec=True)
+    self.PatchObject(cgroups, 'SimpleContainNodes', autospec=True)
     self._Prepare()
     self.buildstore = FakeBuildStore()
 
@@ -134,7 +134,7 @@ class VMTestStageTest(generic_stages_unittest.AbstractStageTestCase,
         autospec=True,
         return_value=False)
     self.PatchObject(osutils, 'RmDir', autospec=True)
-    self.PatchObject(cgroups, 'SimpleContainChildren', autospec=True)
+    self.PatchObject(cgroups, 'SimpleContainNodes', autospec=True)
     self._Prepare()
     self.buildstore = FakeBuildStore()
 

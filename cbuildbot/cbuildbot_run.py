@@ -5,17 +5,17 @@
 
 """Provide a class for collecting info on one builder run.
 
-There are two public classes, BuilderRun and ChildBuilderRun, that serve
+There are two public classes, BuilderRun and NodeBuilderRun, that serve
 this function.  The first is for most situations, the second is for "child"
 configs within a builder config that has entries in "child_configs".
 
 Almost all functionality is within the common _BuilderRunBase class.  The
-only thing the BuilderRun and ChildBuilderRun classes are responsible for
+only thing the BuilderRun and NodeBuilderRun classes are responsible for
 is overriding the self.config value in the _BuilderRunBase object whenever
 it is accessed.
 
 It is important to note that for one overall run, there will be one
-BuilderRun object and zero or more ChildBuilderRun objects, but they
+BuilderRun object and zero or more NodeBuilderRun objects, but they
 will all share the same _BuilderRunBase *object*.  This means, for example,
 that run attributes (e.g. self.attrs.release_tag) are shared between them
 all, as intended.
@@ -603,7 +603,7 @@ class _BuilderRunBase(object):
     self.options = options
 
     # Note that self.config is filled in dynamically by either of the classes
-    # that are actually instantiated: BuilderRun and ChildBuilderRun.  In other
+    # that are actually instantiated: BuilderRun and NodeBuilderRun.  In other
     # words, self.config can be counted on anywhere except in this __init__.
     # The implication is that any plain attributes that are calculated from
     # self.config contents must be provided as properties (or methods).
@@ -1018,25 +1018,25 @@ class _RealBuilderRun(object):
     finally:
       run_base.config = None
 
-  def GetChildren(self):
-    """Get ChildBuilderRun objects for child configs, if they exist.
+  def GetNodes(self):
+    """Get NodeBuilderRun objects for child configs, if they exist.
 
     Returns:
-      List of ChildBuilderRun objects if self.config has child_configs.  []
+      List of NodeBuilderRun objects if self.config has child_configs.  []
         otherwise.
     """
-    # If there are child configs, construct a list of ChildBuilderRun objects
+    # If there are child configs, construct a list of NodeBuilderRun objects
     # for those child configs and return that.
-    return [ChildBuilderRun(self, ix)
+    return [NodeBuilderRun(self, ix)
             for ix in range(len(self.config.child_configs))]
 
   def GetUngroupedBuilderRuns(self):
-    """Same as GetChildren, but defaults to [self] if no children exist.
+    """Same as GetNodes, but defaults to [self] if no children exist.
 
     Returns:
-      Result of self.GetChildren, if children exist, otherwise [self].
+      Result of self.GetNodes, if children exist, otherwise [self].
     """
-    return self.GetChildren() or [self]
+    return self.GetNodes() or [self]
 
   def GetBuilderIds(self):
     """Return a list of builder names for this config and the child configs."""
@@ -1063,7 +1063,7 @@ class BuilderRun(_RealBuilderRun):
     super(BuilderRun, self).__init__(run_base, build_config)
 
 
-class ChildBuilderRun(_RealBuilderRun):
+class NodeBuilderRun(_RealBuilderRun):
   """A BuilderRun for a "child" build config."""
 
   def __init__(self, builder_run, child_index):
@@ -1079,4 +1079,4 @@ class ChildBuilderRun(_RealBuilderRun):
     # pylint: disable=protected-access
     run_base = builder_run._run_base
     config = builder_run.config.child_configs[child_index]
-    super(ChildBuilderRun, self).__init__(run_base, config)
+    super(NodeBuilderRun, self).__init__(run_base, config)

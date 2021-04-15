@@ -481,7 +481,7 @@ def sudo_run(cmd, user='root', preserve_env=False, **kwargs):
   return run(sudo_cmd, **kwargs)
 
 
-def _KillChildProcess(proc, int_timeout, kill_timeout, cmd, original_handler,
+def _KillNodeProcess(proc, int_timeout, kill_timeout, cmd, original_handler,
                       signum, frame):
   """Used as a signal handler by run.
 
@@ -489,7 +489,7 @@ def _KillChildProcess(proc, int_timeout, kill_timeout, cmd, original_handler,
   """
   if signum:
     # If we've been invoked because of a signal, ignore delivery of that signal
-    # from this point forward.  The invoking context of _KillChildProcess
+    # from this point forward.  The invoking context of _KillNodeProcess
     # restores signal delivery to what it was prior; we suppress future delivery
     # till then since this code handles SIGINT/SIGTERM fully including
     # delivering the signal to the original handler on the way out.
@@ -512,7 +512,7 @@ def _KillChildProcess(proc, int_timeout, kill_timeout, cmd, original_handler,
         # Still doesn't want to die.  Too bad, so sad, time to die.
         proc.kill()
     except EnvironmentError as e:
-      logging.warning('Ignoring unhandled exception in _KillChildProcess: %s',
+      logging.warning('Ignoring unhandled exception in _KillNodeProcess: %s',
                       e)
 
     # Ensure our child process has been reaped.
@@ -866,12 +866,12 @@ def run(cmd, print_cmd=True, stdout=None, stderr=None,
       else:
         old_sigint = signal.getsignal(signal.SIGINT)
         signal.signal(signal.SIGINT,
-                      functools.partial(_KillChildProcess, proc, int_timeout,
+                      functools.partial(_KillNodeProcess, proc, int_timeout,
                                         kill_timeout, cmd, old_sigint))
 
       old_sigterm = signal.getsignal(signal.SIGTERM)
       signal.signal(signal.SIGTERM,
-                    functools.partial(_KillChildProcess, proc, int_timeout,
+                    functools.partial(_KillNodeProcess, proc, int_timeout,
                                       kill_timeout, cmd, old_sigterm))
 
     try:
@@ -929,7 +929,7 @@ def run(cmd, print_cmd=True, stdout=None, stderr=None,
   finally:
     if proc is not None:
       # Ensure the process is dead.
-      _KillChildProcess(proc, int_timeout, kill_timeout, cmd, None, None, None)
+      _KillNodeProcess(proc, int_timeout, kill_timeout, cmd, None, None, None)
 
   # We might capture stdout/stderr for internal reasons (like logging), but we
   # don't want to let it leak back out to the callers.  They only get output if

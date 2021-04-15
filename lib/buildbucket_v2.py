@@ -629,14 +629,14 @@ class BuildbucketV2(object):
     )
     return self.client.UpdateBuild(update_build_request)
 
-  def GetKilledChildBuilds(self, buildbucket_id):
+  def GetKilledNodeBuilds(self, buildbucket_id):
     """Get IDs of all the builds killed by self-destructed master build.
 
     Args:
       buildbucket_id: Buildbucket ID of the master build.
 
     Returns:
-      A list of Buildbucket IDs of the child builds that were killed by the
+      A list of Buildbucket IDs of the node builds that were killed by the
       master build or None if the query was unsuccessful.
     """
     properties = 'output.properties'
@@ -853,14 +853,14 @@ class BuildbucketV2(object):
 
     return [self.GetBuildStatus(x) for x in build_ids]
 
-  def GetChildStatuses(self, buildbucket_id):
-    """Retrieve statuses of all the child builds.
+  def GetNodeStatuses(self, buildbucket_id):
+    """Retrieve statuses of all the node builds.
 
     Args:
       buildbucket_id: buildbucket_id of the parent/master build.
 
     Returns:
-      A list of dictionary corresponding to each child build with keys like
+      A list of dictionary corresponding to each node build with keys like
       start_time, end_time, status, version info, critical, build_config, etc.
     """
     builder = builder_pb2.BuilderID(project='chromeos', bucket='general')

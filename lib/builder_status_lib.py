@@ -77,7 +77,7 @@ def GetNodesAbortedBySelfDestructedOrchestrator(master_build_identifier,
   if not buildstore.AreClientsReady():
     return set()
 
-  slave_buildbucket_ids = buildstore.GetKilledChildBuilds(
+  slave_buildbucket_ids = buildstore.GetKilledNodeBuilds(
       master_build_identifier)
   # tentative fix for crbug.com/890651
   if not slave_buildbucket_ids:

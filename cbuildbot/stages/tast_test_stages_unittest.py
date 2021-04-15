@@ -101,7 +101,7 @@ class TastVMTestStageTest(generic_stages_unittest.AbstractStageTestCase,
     # Mock out functions that make calls to cros_build_lib.run that we
     # don't want to see.
     self.PatchObject(osutils, 'RmDir', autospec=True)
-    self.PatchObject(cgroups, 'SimpleContainChildren', autospec=True)
+    self.PatchObject(cgroups, 'SimpleContainNodes', autospec=True)
 
     # Define mocked functions that can only be created once we've created the
     # stage in ConstructStage.

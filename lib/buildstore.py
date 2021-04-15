@@ -184,32 +184,32 @@ class BuildStore(object):
 
     Returns:
       A list containing a dictionary with keys BUILD_STATUS_KEYS.
-      The list contains all child builds of the given orchestrator.
+      The list contains all node builds of the given orchestrator.
     """
     if not self.InitializeClients():
       raise BuildStoreException('BuildStore clients could not be initialized.')
     if (self._read_from_bb and
         master_build_identifier.buildbucket_id is not None):
-      return self.bb_client.GetChildStatuses(
+      return self.bb_client.GetNodeStatuses(
           int(master_build_identifier.buildbucket_id))
     elif not self._read_from_bb and master_build_identifier.cidb_id is not None:
       return self.cidb_conn.GetNodeStatuses(master_build_identifier.cidb_id,
                                              None)
 
-  def GetKilledChildBuilds(self, build_identifier):
-    """Get the child builds that were killed by the given master.
+  def GetKilledNodeBuilds(self, build_identifier):
+    """Get the node builds that were killed by the given orchestrator.
 
     Args:
-      build_identifier: The master build to get children for.
+      build_identifier: The orchestrator build to get nodes for.
 
     Returns:
-      A list of child buildbucket_ids of the build that were killed.
+      A list of node buildbucket_ids of the build that were killed.
     """
     if not self.InitializeClients():
       raise BuildStoreException('BuildStore clients could not be initialized.')
     if self._read_from_bb:
       if build_identifier.buildbucket_id is not None:
-        return self.bb_client.GetKilledChildBuilds(
+        return self.bb_client.GetKilledNodeBuilds(
             int(build_identifier.buildbucket_id))
     else:
       if build_identifier.cidb_id is not None:
@@ -353,10 +353,10 @@ class BuildStore(object):
     if self._write_to_bb:
       buildbucket_v2.UpdateSelfCommonBuildProperties(metadata_url=metadata_url)
 
-  def FinishChildConfig(self, build_id, child_config, status=None):
-    """Marks the given child config as finished with |status|.
+  def FinishNodeConfig(self, build_id, child_config, status=None):
+    """Marks the given node config as finished with |status|.
 
-    This should be called before FinishBuild, on all child configs that
+    This should be called before FinishBuild, on all node configs that
     were used in a build.
 
     Args:
@@ -369,7 +369,7 @@ class BuildStore(object):
     if not self.InitializeClients():
       raise BuildStoreException('BuildStore clients could not be initialized.')
     if self._write_to_cidb:
-      self.cidb_conn.FinishChildConfig(build_id, child_config, status=status)
+      self.cidb_conn.FinishNodeConfig(build_id, child_config, status=status)
 
   def StartBuildStage(self, build_stage_id):
     """Marks a build stage as inflight, in the database.
@@ -602,7 +602,7 @@ class FakeBuildStore(object):
   def GetNodeStatuses(self, master_build_id, buildbucket_ids=None):
     return self.fake_cidb.GetNodeStatuses(master_build_id, buildbucket_ids)
 
-  def GetKilledChildBuilds(self, build_identifier):
+  def GetKilledNodeBuilds(self, build_identifier):
     return [m['message_value'] for m in self.fake_cidb.GetBuildMessages(
         build_identifier.cidb_id,
         message_type=constants.MESSAGE_TYPE_IGNORED_REASON,

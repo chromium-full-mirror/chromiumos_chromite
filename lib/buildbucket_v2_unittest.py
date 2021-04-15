@@ -354,7 +354,7 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     get_build_fn.assert_called_once_with(1234, properties='steps')
     get_build_status_fn.assert_called_once_with(1234)
 
-  def testGetKilledChildBuildsWithValidId(self):
+  def testGetKilledNodeBuildsWithValidId(self):
     """Test a valid query flow."""
     bbv2 = buildbucket_v2.BuildbucketV2()
     buildbucket_id = 1234
@@ -366,16 +366,16 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     fake_build = build_pb2.Build(id=1234, output=fake_output)
     self.PatchObject(buildbucket_v2.BuildbucketV2, 'GetBuild',
                      return_value=fake_build)
-    builds = bbv2.GetKilledChildBuilds(buildbucket_id)
+    builds = bbv2.GetKilledNodeBuilds(buildbucket_id)
     self.assertEqual(builds, expected_child_builds)
 
-  def testGetKilledChildBuildsWithInvalidId(self):
+  def testGetKilledNodeBuildsWithInvalidId(self):
     """Test an unsuccessful query."""
     bbv2 = buildbucket_v2.BuildbucketV2()
     buildbucket_id = 1234
     self.PatchObject(buildbucket_v2.BuildbucketV2, 'GetBuild',
                      side_effect=ProtocolError)
-    builds = bbv2.GetKilledChildBuilds(buildbucket_id)
+    builds = bbv2.GetKilledNodeBuilds(buildbucket_id)
     self.assertIsNone(builds)
 
   def testGetBuildStatusWithValidId(self):
@@ -550,20 +550,20 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
                          branch='master', start_build_id=1234)
     search_fn.assert_called_once_with(fake_predicate, page_size=10)
 
-  def testGetChildStatusesSuccess(self):
-    """Test GetChildStatuses when RPC succeeds."""
+  def testGetNodeStatusesSuccess(self):
+    """Test GetNodeStatuses when RPC succeeds."""
     bbv2 = buildbucket_v2.BuildbucketV2()
     fake_search_build_response = builds_service_pb2.SearchBuildsResponse()
     self.PatchObject(bbv2, 'SearchBuild',
                      return_value=fake_search_build_response)
-    self.assertEqual(bbv2.GetChildStatuses(1234), [])
+    self.assertEqual(bbv2.GetNodeStatuses(1234), [])
     fake_build = build_pb2.Build(id=2341)
     fake_search_build_response = builds_service_pb2.SearchBuildsResponse(
         builds=[fake_build])
     self.PatchObject(bbv2, 'SearchBuild',
                      return_value=fake_search_build_response)
     get_build_status = self.PatchObject(bbv2, 'GetBuildStatus')
-    bbv2.GetChildStatuses(1234)
+    bbv2.GetNodeStatuses(1234)
     get_build_status.assert_called_once_with(2341)
 
   def testGetStageFailures(self):

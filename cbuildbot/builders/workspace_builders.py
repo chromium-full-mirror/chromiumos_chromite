@@ -42,8 +42,8 @@ class BuildSpecBuilder(generic_builders.Builder):
                      build_root=self._run.options.workspace)
 
     if self._run.config.slave_configs:
-      # If there are child builds to schedule, schedule them.
-      self._RunStage(workspace_stages.WorkspaceScheduleChildrenStage,
+      # If there are node builds to schedule, schedule them.
+      self._RunStage(workspace_stages.WorkspaceScheduleNodesStage,
                      build_root=self._run.options.workspace)
 
 

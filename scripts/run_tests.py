@@ -327,10 +327,10 @@ def RunTests(tests, jobs=1, chroot_available=True, network=False,
         failed = True
 
   except KeyboardInterrupt:
-    # If the user wants to stop, reap all the pending children.
+    # If the user wants to stop, reap all the pending nodes.
     logging.warning('CTRL+C received; cleaning up tests')
     aborted = True
-    CleanupChildren(pids)
+    CleanupNodes(pids)
 
   # Walk through the results.
   passed_tests = []
@@ -358,8 +358,8 @@ def RunTests(tests, jobs=1, chroot_available=True, network=False,
   return True
 
 
-def CleanupChildren(pids):
-  """Clean up all the children in |pids|."""
+def CleanupNodes(pids):
+  """Clean up all the nodes in |pids|."""
   # Note: SIGINT was already sent due to the CTRL+C via the kernel itself.
   # So this func is just waiting for them to clean up.
   handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -370,7 +370,7 @@ def CleanupChildren(pids):
       try:
         pids.remove(pid)
       except ValueError:
-        # We might have reaped a grandchild -- be robust.
+        # We might have reaped a nested node -- be robust.
         pass
     return len(pids)
 

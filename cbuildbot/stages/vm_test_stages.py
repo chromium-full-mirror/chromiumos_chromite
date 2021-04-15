@@ -292,7 +292,7 @@ class VMTestStage(generic_stages.BoardSpecificBuilderStage,
           per_test_results_dir = os.path.join(test_results_root,
                                               vm_test.test_type)
         try:
-          with cgroups.SimpleContainChildren('VMTest'):
+          with cgroups.SimpleContainNodes('VMTest'):
             r = ' Reached VMTestStage test run timeout.'
             with timeout_util.Timeout(vm_test.timeout, reason_message=r):
               self._RunTest(vm_test, per_test_results_dir)
@@ -398,7 +398,7 @@ class GCETestStage(VMTestStage):
         else:
           per_test_results_dir = os.path.join(test_results_root,
                                               gce_test.test_type)
-        with cgroups.SimpleContainChildren('GCETest'):
+        with cgroups.SimpleContainNodes('GCETest'):
           r = ' Reached GCETestStage test run timeout.'
           with timeout_util.Timeout(self.TEST_TIMEOUT, reason_message=r):
             self._RunTest(gce_test, per_test_results_dir)

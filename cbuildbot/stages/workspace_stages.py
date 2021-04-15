@@ -385,7 +385,7 @@ class WorkspacePublishBuildspecStage(WorkspaceStageBase):
     logging.PrintBuildbotStepText(msg)
 
 
-class WorkspaceScheduleChildrenStage(WorkspaceStageBase):
+class WorkspaceScheduleNodesStage(WorkspaceStageBase):
   """Schedule child builds for this buildspec."""
 
   def PerformStage(self):

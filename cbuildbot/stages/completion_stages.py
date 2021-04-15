@@ -40,7 +40,7 @@ def GetBuilderSuccessMap(builder_run, overall_success):
     A dict, mapping the builder names to whether they succeeded.
   """
   success_map = {}
-  for run in [builder_run] + builder_run.GetChildren():
+  for run in [builder_run] + builder_run.GetNodes():
     if run.config.boards and not run.config.child_configs:
       success_map[run.config.name] = True
       for board in run.config.boards:

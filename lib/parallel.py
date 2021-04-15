@@ -332,14 +332,14 @@ class _BackgroundTask(multiprocessing.Process):
             pass
 
           if not running:
-            # Wait for the process to actually exit. If the child doesn't exit
+            # Wait for the process to actually exit. If the node doesn't exit
             # in a timely fashion, kill it.
             self.join(self.EXIT_TIMEOUT)
             if self.exitcode is None:
               msg = '%r hung for %r seconds' % (self, self.EXIT_TIMEOUT)
               run_errors.extend(
                   failures_lib.CreateExceptInfo(ProcessExitTimeout(msg), ''))
-              self._KillChildren([self])
+              self._KillNodes([self])
             elif not exited_cleanly:
               msg = ('%r exited unexpectedly with code %s'
                      % (self, self.exitcode))
@@ -356,7 +356,7 @@ class _BackgroundTask(multiprocessing.Process):
                    (self, self.SILENT_TIMEOUT))
             run_errors.extend(
                 failures_lib.CreateExceptInfo(ProcessSilentTimeout(msg), ''))
-            self._KillChildren([self])
+            self._KillNodes([self])
 
             # Read remaining output from the process.
             output.seek(pos)
@@ -477,7 +477,7 @@ class _BackgroundTask(multiprocessing.Process):
     return errors
 
   @classmethod
-  def _KillChildren(cls, bg_tasks, log_level=logging.WARNING):
+  def _KillNodes(cls, bg_tasks, log_level=logging.WARNING):
     """Kill a deque of background tasks.
 
     This is needed to prevent hangs in the case where child processes refuse
@@ -574,7 +574,7 @@ class _BackgroundTask(multiprocessing.Process):
 
         # If there are still tasks left, kill them.
         if bg_tasks:
-          cls._KillChildren(bg_tasks, log_level=logging.DEBUG)
+          cls._KillNodes(bg_tasks, log_level=logging.DEBUG)
 
         # Propagate any exceptions; foreground exceptions take precedence.
         if foreground_except is not None:

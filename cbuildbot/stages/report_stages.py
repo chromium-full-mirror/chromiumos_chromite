@@ -136,10 +136,10 @@ def WriteTagMetadata(builder_run):
   builder_run.attrs.metadata.UpdateKeyDictWithDict(constants.METADATA_TAGS,
                                                    tags)
 
-def GetChildConfigListMetadata(child_configs, config_status_map):
+def GetNodeConfigListMetadata(child_configs, config_status_map):
   """Creates a list for the child configs metadata.
 
-  This creates a list of child config dictionaries from the given child
+  This creates a list of node config dictionaries from the given node
   configs, optionally adding the final status if the success map is
   specified.
 
@@ -419,7 +419,7 @@ class BuildReexecutionFinishedStage(generic_stages.BuilderStage,
     # Flat list of all child config boards. Since child configs
     # are not allowed to have children, it is not necessary to search
     # deeper than one generation.
-    child_configs = GetChildConfigListMetadata(
+    child_configs = GetNodeConfigListMetadata(
         child_configs=config['child_configs'], config_status_map=None)
 
     sdk_verinfo = key_value_store.LoadFile(
@@ -815,7 +815,7 @@ class ReportStage(generic_stages.BuilderStage,
                    completion_stages.OrchestratorNodeSyncCompletionStage)
     )
 
-    child_configs_list = GetChildConfigListMetadata(
+    child_configs_list = GetNodeConfigListMetadata(
         child_configs=config['child_configs'],
         config_status_map=completion_stages.GetBuilderSuccessMap(self._run,
                                                                  final_status))

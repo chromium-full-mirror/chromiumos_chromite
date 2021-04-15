@@ -720,7 +720,7 @@ class CIDBConnection(SchemaVersionedMySQLConnection):
                                         'board': board})
 
   @minimum_schema(7)
-  def InsertChildConfigPerBuild(self, build_id, child_config):
+  def InsertNodeConfigPerBuild(self, build_id, child_config):
     """Insert a child-config-per-build entry into database.
 
     Args:
@@ -912,8 +912,8 @@ class CIDBConnection(SchemaVersionedMySQLConnection):
     return self._UpdateWhere('buildTable', clause, values)
 
   @minimum_schema(16)
-  def FinishChildConfig(self, build_id, child_config, status=None):
-    """Marks the given child config as finished with |status|.
+  def FinishNodeConfig(self, build_id, child_config, status=None):
+    """Marks the given node config as finished with |status|.
 
     This should be called before FinishBuild, on all child configs that
     were used in a build.

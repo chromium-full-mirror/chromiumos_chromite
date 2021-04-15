@@ -419,8 +419,8 @@ class ReportStageTest(AbstractReportStageTestCase):
     self.assertEqual(tags_content_dict['build_number'],
                      generic_stages_unittest.DEFAULT_BUILD_NUMBER)
 
-  def testGetChildConfigsMetadataList(self):
-    """Test that GetChildConfigListMetadata generates child config metadata."""
+  def testGetNodeConfigsMetadataList(self):
+    """Test that GetNodeConfigListMetadata generates node config metadata."""
     child_configs = [{'name': 'config1', 'boards': ['board1']},
                      {'name': 'config2', 'boards': ['board2']}]
     config_status_map = {'config1': True,
@@ -429,7 +429,7 @@ class ReportStageTest(AbstractReportStageTestCase):
                  'status': constants.BUILDER_STATUS_PASSED},
                 {'name': 'config2', 'boards': ['board2'],
                  'status': constants.BUILDER_STATUS_FAILED}]
-    child_config_list = report_stages.GetChildConfigListMetadata(
+    child_config_list = report_stages.GetNodeConfigListMetadata(
         child_configs, config_status_map)
     self.assertEqual(expected, child_config_list)
 

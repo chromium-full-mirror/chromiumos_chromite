@@ -155,8 +155,8 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
 
     self.assertEqual(self.mock_run_stage.call_args_list, [])
 
-  def testBuildspecChild(self):
-    """Verify RunStages for buildspec with child configs."""
+  def testBuildspecNode(self):
+    """Verify RunStages for buildspec with node configs."""
     builder_run = self._InitConfig('buildspec-child')
     workspace_builders.BuildSpecBuilder(
         builder_run, self.buildstore).RunStages()
@@ -168,11 +168,11 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
                   build_root=self.workspace),
         mock.call(workspace_stages.WorkspacePublishBuildspecStage,
                   build_root=self.workspace),
-        mock.call(workspace_stages.WorkspaceScheduleChildrenStage,
+        mock.call(workspace_stages.WorkspaceScheduleNodesStage,
                   build_root=self.workspace),
     ])
 
-  def testBuildspecChildWithVersion(self):
+  def testBuildspecNodeWithVersion(self):
     """Verify RunStages for buildspec with --version and child configs."""
     builder_run = self._InitConfig('buildspec-child',
                                    extra_argv=['--version', '1.2.3'])
@@ -180,7 +180,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
         builder_run, self.buildstore).RunStages()
 
     self.assertEqual(self.mock_run_stage.call_args_list, [
-        mock.call(workspace_stages.WorkspaceScheduleChildrenStage,
+        mock.call(workspace_stages.WorkspaceScheduleNodesStage,
                   build_root=self.workspace),
     ])
 

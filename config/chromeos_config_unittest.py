@@ -708,7 +708,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
             config.child_configs,
             'Unexpected group builder found: %s' % build_name)
 
-  def testAFDOSameInChildConfigs(self):
+  def testAFDOSameInNodeConfigs(self):
     """Verify that 'afdo_use' is the same for all children in a group."""
     msg = ('Child config %s for %s should have same value for afdo_use '
            'as other children')
@@ -724,12 +724,12 @@ class CBuildBotTest(ChromeosConfigTestBase):
             self.assertEqual(child_config.afdo_use, prev_value,
                              msg % (child_config.name, build_name))
 
-  def testNoGrandChildConfigs(self):
+  def testNoGrandNodeConfigs(self):
     """Verify that no child configs have a child config."""
     for build_name, config in self.site_config.items():
       for child_config in config.child_configs:
         for grandchild_config in child_config.child_configs:
-          self.fail('Config %s has grandchild %s' % (build_name,
+          self.fail('Config %s has nested config %s' % (build_name,
                                                      grandchild_config.name))
 
   def testUseChromeLKGMImpliesInternal(self):

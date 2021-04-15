@@ -14,13 +14,13 @@ from chromite.lib import cros_test_lib
 from chromite.lib import process_util
 
 
-def _SpawnChild(exit_code=None, kill_signal=None):
-  """Create a child, have it exit/killed, and return its status."""
+def _SpawnNode(exit_code=None, kill_signal=None):
+  """Create a node, have it exit/killed, and return its status."""
   assert exit_code is not None or kill_signal is not None
 
   pid = os.fork()
   if pid == 0:
-    # Make sure this child never returns.
+    # Make sure this node never returns.
     while True:
       if exit_code is not None:
         # pylint: disable=protected-access
@@ -36,31 +36,31 @@ class GetExitStatusTests(cros_test_lib.TestCase):
 
   def testExitNormal(self):
     """Verify normal exits get decoded."""
-    status = _SpawnChild(exit_code=0)
+    status = _SpawnNode(exit_code=0)
     ret = process_util.GetExitStatus(status)
     self.assertEqual(ret, 0)
 
   def testExitError(self):
     """Verify error exits (>0 && <128) get decoded."""
-    status = _SpawnChild(exit_code=10)
+    status = _SpawnNode(exit_code=10)
     ret = process_util.GetExitStatus(status)
     self.assertEqual(ret, 10)
 
   def testExitWeird(self):
     """Verify weird exits (>=128) get decoded."""
-    status = _SpawnChild(exit_code=150)
+    status = _SpawnNode(exit_code=150)
     ret = process_util.GetExitStatus(status)
     self.assertEqual(ret, 150)
 
   def testSIGUSR1(self):
     """Verify normal kill signals get decoded."""
-    status = _SpawnChild(kill_signal=signal.SIGUSR1)
+    status = _SpawnNode(kill_signal=signal.SIGUSR1)
     ret = process_util.GetExitStatus(status)
     self.assertEqual(ret, 128 + signal.SIGUSR1)
 
   def testSIGKILL(self):
     """Verify harsh signals get decoded."""
-    status = _SpawnChild(kill_signal=signal.SIGKILL)
+    status = _SpawnNode(kill_signal=signal.SIGKILL)
     ret = process_util.GetExitStatus(status)
     self.assertEqual(ret, 128 + signal.SIGKILL)
 
@@ -71,15 +71,15 @@ class ExitAsStatusTests(cros_test_lib.TestCase):
   def _Tester(self, exit_code=None, kill_signal=None):
     """Helper func for testing ExitAsStatus()
 
-    Create a child to mimic the grandchild.
-    Create a grandchild and have it exit/killed.
+    Create a node to mimic the nested node.
+    Create a nested node and have it exit/killed.
     Assert behavior based on exit/signal behavior.
     """
     pid = os.fork()
     if pid == 0:
-      # Let the grandchild exit/kill itself.
-      # The child should mimic the grandchild.
-      status = _SpawnChild(exit_code=exit_code, kill_signal=kill_signal)
+      # Let the nested node exit/kill itself.
+      # The node should mimic the nested node.
+      status = _SpawnNode(exit_code=exit_code, kill_signal=kill_signal)
       try:
         process_util.ExitAsStatus(status)
       except SystemExit as e:
@@ -87,7 +87,7 @@ class ExitAsStatusTests(cros_test_lib.TestCase):
         os._exit(e.code)
       raise AssertionError('ERROR: should have exited!')
 
-    # The parent returns the child's status.
+    # The parent returns the node's status.
     status = os.waitpid(pid, 0)[1]
     if exit_code is not None:
       self.assertFalse(os.WIFSIGNALED(status))
