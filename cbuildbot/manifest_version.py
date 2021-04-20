@@ -1075,7 +1075,7 @@ def FilterManifest(manifest, whitelisted_remotes=None, whitelisted_groups=None):
     if (name is not None and
         whitelisted_remotes and
         name not in whitelisted_remotes):
-      manifest_node.removeNode(remote_element)
+      manifest_node.removeChild(remote_element)
 
   filtered_projects = set()
   for project_element in projects:
@@ -1100,12 +1100,12 @@ def FilterManifest(manifest, whitelisted_remotes=None, whitelisted_groups=None):
 
     if filter_remote or filter_group:
       filtered_projects.add(project)
-      manifest_node.removeNode(project_element)
+      manifest_node.removeChild(project_element)
 
   for commit_element in pending_commits:
     if commit_element.getAttribute(
         PALADIN_PROJECT_ATTR) in filtered_projects:
-      manifest_node.removeNode(commit_element)
+      manifest_node.removeChild(commit_element)
 
   with os.fdopen(temp_fd, 'w') as manifest_file:
     # Filter out empty lines.
