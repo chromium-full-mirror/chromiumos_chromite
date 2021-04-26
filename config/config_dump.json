@@ -1978,7 +1978,7 @@
         ],
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"asurada\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"hayato\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"hayato\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"spherion\",\n    \"test_suites\": []\n}"
         ],
         "vm_tests": [],
@@ -2004,7 +2004,7 @@
         "luci_builder": "Try",
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"asurada\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"hayato\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"hayato\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"asurada\",\n    \"name\": \"spherion\",\n    \"test_suites\": []\n}"
         ],
         "paygen": false,
