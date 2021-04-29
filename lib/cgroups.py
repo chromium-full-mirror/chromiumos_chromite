@@ -170,6 +170,11 @@ class Cgroup(object):
     """Sanity check as to whether or not cgroups are supported."""
     # Is the cgroup subsystem even enabled?
 
+    # Older branches have been hacked up to not use cgroups at all as this logic
+    # breaks with newer kernels/distros.  We rely on pid namespaces for process
+    # containment now instead.
+    return False
+
     if not os.path.exists(cls.PROC_PATH):
       return False
 
