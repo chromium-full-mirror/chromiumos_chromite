@@ -50,6 +50,30 @@
       ]
     },
     {
+      "name": "aurora",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": false,
+          "leader_board": false,
+          "board_group": "aurora",
+          "arch": "UNKNOWN"
+        }
+      ]
+    },
+    {
+      "name": "aurora-borealis",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": false,
+          "leader_board": false,
+          "board_group": "aurora",
+          "arch": "UNKNOWN"
+        }
+      ]
+    },
+    {
       "name": "banjo",
       "configs": [
         {
