@@ -853,14 +853,6 @@ def main(argv):
                    % (options.reference_repo,))
 
   if (options.buildbot or options.remote_trybot) and not options.resume:
-    if not options.cgroups:
-      parser.error('Options --buildbot/--remote-trybot and --nocgroups cannot '
-                   'be used together.  Cgroup support is required for '
-                   'buildbot/remote-trybot mode.')
-    if not cgroups.Cgroup.IsSupported():
-      parser.error('Option --buildbot/--remote-trybot was given, but this '
-                   'system does not support cgroups.  Failing.')
-
     missing = osutils.FindMissingBinaries(_BUILDBOT_REQUIRED_BINARIES)
     if missing:
       parser.error('Option --buildbot/--remote-trybot requires the following '
