@@ -136,6 +136,11 @@ def GetBoardTypeToBoardsDict(ge_build_config):
       'arm64-generic'
   ])
 
+  all_ge_boards = set()
+  for val in ge_arch_board_dict.values():
+    all_ge_boards |= val
+  boards_dict['unknown_boards'] = frozenset(all_ge_boards - all_boards)
+
   return boards_dict
 
 
@@ -3281,10 +3286,20 @@ def GetConfig():
   defaults = DefaultSettings()
 
   ge_build_config = config_lib.LoadGEBuildConfigFromFile()
+  boards_dict = GetBoardTypeToBoardsDict(ge_build_config)
+
+  # If there are unknown boards in the GE config, issue a warning and ignore
+  # them.
+  unknown = boards_dict['unknown_boards']
+  if unknown:
+    logging.warning('dropping unknown boards from GE config: %s',
+                    ' '.join(x for x in unknown))
+    ge_build_config['boards'] = [x for x in ge_build_config['boards']
+                                 if x['name'] not in unknown]
+    boards_dict = GetBoardTypeToBoardsDict(ge_build_config)
 
   # site_config with no templates or build configurations.
   site_config = config_lib.SiteConfig(defaults=defaults)
-  boards_dict = GetBoardTypeToBoardsDict(ge_build_config)
 
   GeneralTemplates(site_config)
 

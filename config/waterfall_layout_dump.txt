@@ -462,12 +462,18 @@
   auron_yuna-payloads-tryjob
   auron_yuna-release-tryjob
   auron_yuna-unittest-stress
+  aurora-borealis-full-tryjob
   aurora-borealis-llvm-next-toolchain-tryjob
   aurora-borealis-llvm-toolchain-tryjob
+  aurora-borealis-payloads-tryjob
   aurora-borealis-release-tryjob
+  aurora-borealis-unittest-stress
+  aurora-full-tryjob
   aurora-llvm-next-toolchain-tryjob
   aurora-llvm-toolchain-tryjob
+  aurora-payloads-tryjob
   aurora-release-tryjob
+  aurora-unittest-stress
   banjo-factory-rambi-6420.B-factorybranch-tryjob
   banjo-full-tryjob
   banjo-llvm-next-toolchain-tryjob

@@ -50,30 +50,6 @@
       ]
     },
     {
-      "name": "aurora",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "aurora",
-          "arch": "UNKNOWN"
-        }
-      ]
-    },
-    {
-      "name": "aurora-borealis",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "aurora",
-          "arch": "UNKNOWN"
-        }
-      ]
-    },
-    {
       "name": "banjo",
       "configs": [
         {
@@ -948,6 +924,232 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 356,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "aurora",
+      "reference_board_name": "aurora",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "aurora",
+          "name": "akemi",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "dragonair",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "dratini",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "hatch",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "helios",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "helios_diskswap",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "jinlon",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "kindred",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "kled",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "kohaku",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "nightfury",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "unprovisioned_dratini",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora",
+          "name": "unprovisioned_jinlon",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7183,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "aurora-borealis",
+      "reference_board_name": "aurora-borealis",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "aurora-borealis",
+          "name": "akemi",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "dragonair",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "dratini",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "hatch",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "helios",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "helios_diskswap",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "jinlon",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "kindred",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "kled",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "kohaku",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "nightfury",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "unprovisioned_dratini",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
+          "is_active": true
+        },
+        {
+          "board_name": "aurora-borealis",
+          "name": "unprovisioned_jinlon",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7184,
           "is_active": true
         }
       ]
