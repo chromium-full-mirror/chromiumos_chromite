@@ -239,8 +239,6 @@
     atlas-release
     auron_paine-release
     auron_yuna-release
-    aurora-borealis-release
-    aurora-release
     banjo-release
     banon-release
     beaglebone_servo-release
@@ -462,18 +460,6 @@
   auron_yuna-payloads-tryjob
   auron_yuna-release-tryjob
   auron_yuna-unittest-stress
-  aurora-borealis-full-tryjob
-  aurora-borealis-llvm-next-toolchain-tryjob
-  aurora-borealis-llvm-toolchain-tryjob
-  aurora-borealis-payloads-tryjob
-  aurora-borealis-release-tryjob
-  aurora-borealis-unittest-stress
-  aurora-full-tryjob
-  aurora-llvm-next-toolchain-tryjob
-  aurora-llvm-toolchain-tryjob
-  aurora-payloads-tryjob
-  aurora-release-tryjob
-  aurora-unittest-stress
   banjo-factory-rambi-6420.B-factorybranch-tryjob
   banjo-full-tryjob
   banjo-llvm-next-toolchain-tryjob
@@ -1277,8 +1263,6 @@
     atlas-release-tryjob
     auron_paine-release-tryjob
     auron_yuna-release-tryjob
-    aurora-borealis-release-tryjob
-    aurora-release-tryjob
     banjo-release-tryjob
     banon-release-tryjob
     beaglebone_servo-release-tryjob
