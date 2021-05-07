@@ -243,7 +243,6 @@
     banon-release
     beaglebone_servo-release
     betty-release
-    bob-arc64-release
     bob-release
     bubs-release
     buddy-cfm-release
@@ -279,7 +278,6 @@
     gandof-release
     gnawty-release
     grunt-arc-r-release
-    grunt-arc64-release
     grunt-kernelnext-release
     grunt-release
     guado-cfm-release
@@ -297,7 +295,6 @@
     hatch-kernelnext-release
     hatch-release
     heli-release
-    jacuzzi-arc64-release
     jacuzzi-release
     kalista-cfm-release
     kalista-release
@@ -306,7 +303,6 @@
     kevin-release
     kevin-userdebug-release
     kip-release
-    kukui-arc64-release
     kukui-release
     lars-release
     lulu-release
@@ -333,9 +329,7 @@
     rikku-release
     samus-release
     sand-release
-    sarien-arc64-release
     sarien-release
-    scarlet-arc64-release
     scarlet-release
     sentry-release
     setzer-release
@@ -495,12 +489,6 @@
   betty-release-tryjob
   betty-unittest-stress
   betty-vmtest-informational-tryjob
-  bob-arc64-full-tryjob
-  bob-arc64-llvm-next-toolchain-tryjob
-  bob-arc64-llvm-toolchain-tryjob
-  bob-arc64-payloads-tryjob
-  bob-arc64-release-tryjob
-  bob-arc64-unittest-stress
   bob-factory-gru-9017.B-factorybranch-tryjob
   bob-full-tryjob
   bob-llvm-next-toolchain-tryjob
@@ -971,12 +959,6 @@
   grunt-arc-r-release-tryjob
   grunt-arc-r-unittest-stress
   grunt-arc-r-vmrvc-android-pfq-tryjob
-  grunt-arc64-full-tryjob
-  grunt-arc64-llvm-next-toolchain-tryjob
-  grunt-arc64-llvm-toolchain-tryjob
-  grunt-arc64-payloads-tryjob
-  grunt-arc64-release-tryjob
-  grunt-arc64-unittest-stress
   grunt-factory-grunt-11164.B-factorybranch-tryjob
   grunt-full-tryjob
   grunt-kernelnext-full-tryjob
@@ -1096,12 +1078,6 @@
   heli-payloads-tryjob
   heli-release-tryjob
   heli-unittest-stress
-  jacuzzi-arc64-full-tryjob
-  jacuzzi-arc64-llvm-next-toolchain-tryjob
-  jacuzzi-arc64-llvm-toolchain-tryjob
-  jacuzzi-arc64-payloads-tryjob
-  jacuzzi-arc64-release-tryjob
-  jacuzzi-arc64-unittest-stress
   jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
   jacuzzi-full-tryjob
   jacuzzi-llvm-next-toolchain-tryjob
@@ -1175,12 +1151,6 @@
   kip-payloads-tryjob
   kip-release-tryjob
   kip-unittest-stress
-  kukui-arc64-full-tryjob
-  kukui-arc64-llvm-next-toolchain-tryjob
-  kukui-arc64-llvm-toolchain-tryjob
-  kukui-arc64-payloads-tryjob
-  kukui-arc64-release-tryjob
-  kukui-arc64-unittest-stress
   kukui-factory-kukui-12587.B-factorybranch-tryjob
   kukui-full-tryjob
   kukui-llvm-next-toolchain-tryjob
@@ -1267,7 +1237,6 @@
     banon-release-tryjob
     beaglebone_servo-release-tryjob
     betty-release-tryjob
-    bob-arc64-release-tryjob
     bob-release-tryjob
     bubs-release-tryjob
     buddy-cfm-release-tryjob
@@ -1303,7 +1272,6 @@
     gandof-release-tryjob
     gnawty-release-tryjob
     grunt-arc-r-release-tryjob
-    grunt-arc64-release-tryjob
     grunt-kernelnext-release-tryjob
     grunt-release-tryjob
     guado-cfm-release-tryjob
@@ -1321,7 +1289,6 @@
     hatch-kernelnext-release-tryjob
     hatch-release-tryjob
     heli-release-tryjob
-    jacuzzi-arc64-release-tryjob
     jacuzzi-release-tryjob
     kalista-cfm-release-tryjob
     kalista-release-tryjob
@@ -1330,7 +1297,6 @@
     kevin-release-tryjob
     kevin-userdebug-release-tryjob
     kip-release-tryjob
-    kukui-arc64-release-tryjob
     kukui-release-tryjob
     lars-release-tryjob
     lulu-release-tryjob
@@ -1357,9 +1323,7 @@
     rikku-release-tryjob
     samus-release-tryjob
     sand-release-tryjob
-    sarien-arc64-release-tryjob
     sarien-release-tryjob
-    scarlet-arc64-release-tryjob
     scarlet-release-tryjob
     sentry-release-tryjob
     setzer-release-tryjob
@@ -1590,12 +1554,6 @@
   sand-payloads-tryjob
   sand-release-tryjob
   sand-unittest-stress
-  sarien-arc64-full-tryjob
-  sarien-arc64-llvm-next-toolchain-tryjob
-  sarien-arc64-llvm-toolchain-tryjob
-  sarien-arc64-payloads-tryjob
-  sarien-arc64-release-tryjob
-  sarien-arc64-unittest-stress
   sarien-factory-sarien-12033.B-factorybranch-tryjob
   sarien-full-tryjob
   sarien-llvm-next-toolchain-tryjob
@@ -1604,12 +1562,6 @@
   sarien-payloads-tryjob
   sarien-release-tryjob
   sarien-unittest-stress
-  scarlet-arc64-full-tryjob
-  scarlet-arc64-llvm-next-toolchain-tryjob
-  scarlet-arc64-llvm-toolchain-tryjob
-  scarlet-arc64-payloads-tryjob
-  scarlet-arc64-release-tryjob
-  scarlet-arc64-unittest-stress
   scarlet-factory-scarlet-10211.B-factorybranch-tryjob
   scarlet-full-tryjob
   scarlet-llvm-next-toolchain-tryjob

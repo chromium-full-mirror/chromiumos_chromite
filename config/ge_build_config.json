@@ -110,18 +110,6 @@
       ]
     },
     {
-      "name": "bob-arc64",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "ARM_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "bubs",
       "configs": [
         {
@@ -2301,103 +2289,6 @@
       ]
     },
     {
-      "name": "grunt-arc64",
-      "reference_board_name": "grunt-arc64",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "grunt-arc64",
-          "name": "aleena",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "barla",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "careena",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "grunt",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "kasumi",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "kasumi360",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "liara",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "nuwani",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "nuwani360",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "treeya",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        },
-        {
-          "board_name": "grunt-arc64",
-          "name": "treeya360",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7153,
-          "is_active": true
-        }
-      ]
-    },
-    {
       "name": "grunt-kernelnext",
       "reference_board_name": "grunt-kernelnext",
       "arch": "X86_INTERNAL",
@@ -3886,127 +3777,6 @@
       ]
     },
     {
-      "name": "jacuzzi-arc64",
-      "reference_board_name": "jacuzzi-arc64",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "burnet",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "cerise",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "cozmo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "damu",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "esche",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "fennel",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "fennel14",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "jacuzzi",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "juniper",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "kappa",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "kenzo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "makomo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "stern",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        },
-        {
-          "board_name": "jacuzzi-arc64",
-          "name": "willow",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7154,
-          "is_active": true
-        }
-      ]
-    },
-    {
       "name": "kalista",
       "reference_board_name": "kalista",
       "arch": "X86_INTERNAL",
@@ -4129,55 +3899,6 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 364,
-          "is_active": true
-        }
-      ]
-    },
-    {
-      "name": "kukui-arc64",
-      "reference_board_name": "kukui-arc64",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "kukui-arc64",
-          "name": "kakadu",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 450,
-          "is_active": true
-        },
-        {
-          "board_name": "kukui-arc64",
-          "name": "katsu",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 450,
-          "is_active": true
-        },
-        {
-          "board_name": "kukui-arc64",
-          "name": "kodama",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 450,
-          "is_active": true
-        },
-        {
-          "board_name": "kukui-arc64",
-          "name": "krane",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 450,
-          "is_active": true
-        },
-        {
-          "board_name": "kukui-arc64",
-          "name": "kukui",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 450,
           "is_active": true
         }
       ]
@@ -5607,47 +5328,6 @@
       ]
     },
     {
-      "name": "sarien-arc64",
-      "reference_board_name": "sarien-arc64",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "sarien-arc64",
-          "name": "arcada",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7158,
-          "is_active": true
-        },
-        {
-          "board_name": "sarien-arc64",
-          "name": "arcada_signed",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7158,
-          "is_active": true
-        },
-        {
-          "board_name": "sarien-arc64",
-          "name": "sarien",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7158,
-          "is_active": true
-        },
-        {
-          "board_name": "sarien-arc64",
-          "name": "sarien_signed",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7158,
-          "is_active": true
-        }
-      ]
-    },
-    {
       "name": "scarlet",
       "reference_board_name": "scarlet",
       "arch": "ARM_INTERNAL",
@@ -5697,39 +5377,6 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 297,
-          "is_active": true
-        }
-      ]
-    },
-    {
-      "name": "scarlet-arc64",
-      "reference_board_name": "scarlet-arc64",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "scarlet-arc64",
-          "name": "dru",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7155,
-          "is_active": true
-        },
-        {
-          "board_name": "scarlet-arc64",
-          "name": "druwl",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7155,
-          "is_active": true
-        },
-        {
-          "board_name": "scarlet-arc64",
-          "name": "dumo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7155,
           "is_active": true
         }
       ]
