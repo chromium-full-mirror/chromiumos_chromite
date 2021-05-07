@@ -944,6 +944,8 @@ IMAGE_TYPE_NV_LP0_FIRMWARE = 'nv_lp0_firmware'
 IMAGE_TYPE_ACCESSORY_USBPD = 'accessory_usbpd'
 # Standalone accessory microcontroller firmware (e.g. wireless keyboard).
 IMAGE_TYPE_ACCESSORY_RWSIG = 'accessory_rwsig'
+# GSC Firmware
+IMAGE_TYPE_GSC_FIRMWARE = 'gsc_firmware'
 
 IMAGE_TYPE_TO_NAME = {
     IMAGE_TYPE_BASE: BASE_IMAGE_BIN,
