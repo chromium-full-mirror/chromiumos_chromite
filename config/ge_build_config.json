@@ -5763,6 +5763,14 @@
         },
         {
           "board_name": "volteer",
+          "name": "voema_npcx796fc",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
           "name": "volta",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -5947,6 +5955,14 @@
         {
           "board_name": "volteer-borealis",
           "name": "voema",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "voema_npcx796fc",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7165,
