@@ -1212,14 +1212,6 @@
         },
         {
           "board_name": "dedede",
-          "name": "botenflex",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 419,
-          "is_active": true
-        },
-        {
-          "board_name": "dedede",
           "name": "cret",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
