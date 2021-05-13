@@ -352,7 +352,6 @@
     whirlwind-release
     winky-release
     wizpig-release
-    zork-arc-r-release
     zork-release
   master-release-basic
     atlas-release-basic
@@ -374,7 +373,6 @@
     grunt-arc-r-vmrvc-android-pfq
     hatch-vmrvc-android-pfq
     rammus-arc-r-vmrvc-android-pfq
-    zork-arc-r-vmrvc-android-pfq
 
 == vmsc_android_pfq ==
   master-vmsc-android-pfq
@@ -1338,14 +1336,12 @@
     whirlwind-release-tryjob
     winky-release-tryjob
     wizpig-release-tryjob
-    zork-arc-r-release-tryjob
     zork-release-tryjob
   master-vmmst-android-pfq-tryjob
   master-vmrvc-android-pfq-tryjob
     grunt-arc-r-vmrvc-android-pfq-tryjob
     hatch-vmrvc-android-pfq-tryjob
     rammus-arc-r-vmrvc-android-pfq-tryjob
-    zork-arc-r-vmrvc-android-pfq-tryjob
   master-vmsc-android-pfq-tryjob
     hatch-arc-s-vmsc-android-pfq-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
@@ -1756,13 +1752,6 @@
   x32-generic-llvm-next-toolchain-tryjob
   x32-generic-llvm-toolchain-tryjob
   x32-generic-unittest-stress
-  zork-arc-r-full-tryjob
-  zork-arc-r-llvm-next-toolchain-tryjob
-  zork-arc-r-llvm-toolchain-tryjob
-  zork-arc-r-payloads-tryjob
-  zork-arc-r-release-tryjob
-  zork-arc-r-unittest-stress
-  zork-arc-r-vmrvc-android-pfq-tryjob
   zork-factory-zork-13427.B-factorybranch-tryjob
   zork-factory-zork-13700.B-factorybranch-tryjob
   zork-full-tryjob
