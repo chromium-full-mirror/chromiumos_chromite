@@ -15,14 +15,12 @@ from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import artifacts_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
-from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import sysroot_lib
 from chromite.service import artifacts
-from chromite.service import image as image_service
 
 
 def _GetResponse(_input_proto, _output_proto, _config):
@@ -35,7 +33,7 @@ def _GetResponse(_input_proto, _output_proto, _config):
 @faux.empty_error
 @validate.exists('result_path.path.path')
 @validate.validation_complete
-def Get(input_proto, output_proto, _config):
+def Get(_input_proto, _output_proto, _config):
   """Get all artifacts.
 
   Get all artifacts for the build.
@@ -45,28 +43,10 @@ def Get(input_proto, output_proto, _config):
   individual bundler function.
 
   Args:
-    input_proto (GetRequest): The input proto.
-    output_proto (GetResponse): The output proto.
+    _input_proto (GetRequest): The input proto.
+    _output_proto (GetResponse): The output proto.
     _config (api_config.ApiConfig): The API call config.
   """
-
-  image_proto = input_proto.artifact_info.image
-  base_path = os.path.join(input_proto.chroot.path,
-                           input_proto.sysroot.path[1:])
-  output_dir = input_proto.result_path.path.path
-
-  images_list = image_service.Get(image_proto, base_path, output_dir)
-
-  for artifact_dict in images_list:
-    output_proto.artifacts.image.artifacts.add(
-        artifact_type=artifact_dict['type'],
-        paths=[
-            common_pb2.Path(
-                path=x,
-                location=common_pb2.Path.Location.OUTSIDE)
-            for x in artifact_dict['paths']
-        ])
-
   return controller.RETURN_CODE_SUCCESS
 
 
