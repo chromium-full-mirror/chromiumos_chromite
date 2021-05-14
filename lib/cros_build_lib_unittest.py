@@ -19,6 +19,7 @@ import signal
 import socket
 import StringIO
 import sys
+import unittest
 import __builtin__
 
 from chromite.lib import constants
@@ -1079,6 +1080,7 @@ class TestContextManagerStack(cros_test_lib.TestCase):
     self.assertEqual(invoked, list(reversed(range(6))))
 
 
+@unittest.skip('older branches have <python 3.6 which fails w/newer repo')
 class TestManifestCheckout(cros_test_lib.TempDirTestCase):
   """Tests for ManifestCheckout functionality."""
 
