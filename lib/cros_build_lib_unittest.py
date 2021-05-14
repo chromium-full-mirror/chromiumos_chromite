@@ -19,6 +19,7 @@ import signal
 import socket
 import StringIO
 import sys
+import unittest
 import __builtin__
 
 import six
@@ -1035,6 +1036,7 @@ class TestContextManagerStack(cros_test_lib.TestCase):
     self.assertEqual(invoked, list(range(5, -1, -1)))
 
 
+@unittest.skip('older branches have <python 3.6 which fails w/newer repo')
 class TestManifestCheckout(cros_test_lib.TempDirTestCase):
   """Tests for ManifestCheckout functionality."""
 
