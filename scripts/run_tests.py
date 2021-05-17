@@ -593,7 +593,8 @@ def ClearPythonCacheFiles():
   for subdir in set(os.path.dirname(x) for x in result.stdout.split('\0')):
     for path in glob.glob(os.path.join(subdir, '*.pyc')):
       osutils.SafeUnlink(path)
-    osutils.RmDir(os.path.join(subdir, '__pycache__'), ignore_missing=True)
+    osutils.RmDir(
+        os.path.join(subdir, '__pycache__'), ignore_missing=True, sudo=True)
 
 
 def ChrootAvailable():
