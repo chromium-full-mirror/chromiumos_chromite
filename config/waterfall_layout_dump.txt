@@ -349,6 +349,7 @@
     swanky-release
     terra-release
     tidus-release
+    trogdor-arc-r-release
     trogdor-kernelnext-release
     trogdor-release
     trogdor64-release
@@ -1340,6 +1341,7 @@
     swanky-release-tryjob
     terra-release-tryjob
     tidus-release-tryjob
+    trogdor-arc-r-release-tryjob
     trogdor-kernelnext-release-tryjob
     trogdor-release-tryjob
     trogdor64-release-tryjob
@@ -1651,6 +1653,12 @@
   tidus-payloads-tryjob
   tidus-release-tryjob
   tidus-unittest-stress
+  trogdor-arc-r-full-tryjob
+  trogdor-arc-r-llvm-next-toolchain-tryjob
+  trogdor-arc-r-llvm-toolchain-tryjob
+  trogdor-arc-r-payloads-tryjob
+  trogdor-arc-r-release-tryjob
+  trogdor-arc-r-unittest-stress
   trogdor-factory-trogdor-13443.B-factorybranch-tryjob
   trogdor-full-tryjob
   trogdor-kernelnext-full-tryjob

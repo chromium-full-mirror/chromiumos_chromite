@@ -662,6 +662,18 @@
       ]
     },
     {
+      "name": "trogdor-arc-r",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": false,
+          "leader_board": false,
+          "board_group": "",
+          "arch": "ARM_INTERNAL"
+        }
+      ]
+    },
+    {
       "name": "ultima",
       "configs": [
         {
