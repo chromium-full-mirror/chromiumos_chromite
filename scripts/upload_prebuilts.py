@@ -32,6 +32,7 @@ from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import git
+from chromite.lib import gerrit
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel
@@ -154,26 +155,26 @@ def RevGitFile(filename, data, dryrun=False):
   """
   prebuilt_branch = 'prebuilt_branch'
   cwd = os.path.abspath(os.path.dirname(filename))
-  commit = git.RunGit(cwd, ['rev-parse', 'HEAD']).output.rstrip()
+  remote_name = git.RunGit(cwd, ['remote']).stdout.strip()
+  gerrit_helper = gerrit.GetGerritHelper(remote_name)
+  remote_url = git.RunGit(
+      cwd,['config', '--get', f'remote.{remote_name}.url']).stdout.strip()
   description = '%s: updating %s' % (os.path.basename(filename),
                                      ', '.join(data.keys()))
   # UpdateLocalFile will print out the keys/values for us.
   print('Revving git file %s' % filename)
+  git.CreatePushBranch(prebuilt_branch, cwd)
+  for key, value in data.items():
+    UpdateLocalFile(filename, value, key)
+  git.RunGit(cwd, ['add', filename])
+  git.RunGit(cwd, ['commit', '-m', description])
 
-  try:
-    git.CreatePushBranch(prebuilt_branch, cwd)
-    for key, value in data.items():
-      UpdateLocalFile(filename, value, key)
-    git.RunGit(cwd, ['add', filename])
-    git.RunGit(cwd, ['commit', '-m', description])
-    git.PushBranch(prebuilt_branch, cwd, dryrun=dryrun, auto_merge=True)
-  finally:
-    # We reset the index and the working tree state in case there are any
-    # uncommitted or pending changes, but we don't change any existing commits.
-    git.RunGit(cwd, ['reset', '--hard'])
-
-    # Check out the last good commit as a sanity fallback.
-    git.RunGit(cwd, ['checkout', commit])
+  tracking_info = git.GetTrackingBranch(
+      cwd, prebuilt_branch, for_push=True, for_checkout=False)
+  gpatch = gerrit_helper.CreateGerritPatch(
+      cwd, remote_url, ref=tracking_info.ref)
+  gerrit_helper.SetReview(gpatch, labels={'Bot-Commit': 1}, dryrun=dryrun)
+  gerrit_helper.SubmitChange(gpatch, dryrun=dryrun)
 
 
 def GetVersion():
