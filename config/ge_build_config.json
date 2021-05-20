@@ -662,18 +662,6 @@
       ]
     },
     {
-      "name": "trogdor-arc-r",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "ARM_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "ultima",
       "configs": [
         {
@@ -5261,6 +5249,47 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 418,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "trogdor-arc-r",
+      "reference_board_name": "trogdor-arc-r",
+      "arch": "ARM_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "trogdor-arc-r",
+          "name": "lazor",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7189,
+          "is_active": true
+        },
+        {
+          "board_name": "trogdor-arc-r",
+          "name": "limozeen",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7189,
+          "is_active": true
+        },
+        {
+          "board_name": "trogdor-arc-r",
+          "name": "pompom",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7189,
+          "is_active": true
+        },
+        {
+          "board_name": "trogdor-arc-r",
+          "name": "trogdor",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7189,
           "is_active": true
         }
       ]
