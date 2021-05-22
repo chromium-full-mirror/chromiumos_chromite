@@ -236,24 +236,24 @@ class BootstrapStage(PatchChangesStage):
     # Filter all requested patches for the branch.
     branch_pool = self.patch_pool.FilterBranch(filter_branch)
 
-    def _clone_and_patch(subdir, project):
+    def _clone_and_patch(subdir, project, suffix):
       """Clone & patch a project."""
       url = '%s/%s' % (constants.EXTERNAL_GOB_URL, project)
       checkout = os.path.join(self.tempdir, subdir)
       reference_repo = os.path.join(constants.SOURCE_ROOT, subdir, '.git')
       git.Clone(checkout, url, reference=reference_repo)
-      git.RunGit(checkout, ['checkout', filter_branch])
+      git.RunGit(checkout, ['checkout', filter_branch + suffix])
 
       pool = branch_pool.Filter(project=project)
       if pool:
         patches = patch_series.PatchSeries.WorkOnSingleRepo(
-            checkout, filter_branch)
+            checkout, filter_branch + suffix)
         self._ApplyPatchSeries(patches, pool)
 
     # Checkout the new version of infra_virtualenv, and patch it.
-    _clone_and_patch('infra_virtualenv', 'chromiumos/infra_virtualenv')
+    _clone_and_patch('infra_virtualenv', 'chromiumos/infra_virtualenv', '')
     # Checkout the new version of chromite, and patch it.
-    _clone_and_patch('chromite', constants.CHROMITE_PROJECT)
+    _clone_and_patch('chromite', constants.CHROMITE_PROJECT, '-main')
 
     # Re-exec into new instance of cbuildbot, with proper command line args.
     cbuildbot_path = constants.PATH_TO_CBUILDBOT
