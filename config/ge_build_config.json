@@ -5709,6 +5709,22 @@
       "models": [
         {
           "board_name": "volteer",
+          "name": "chronicler",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
+          "name": "collis",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
           "name": "copano",
           "test_suites": [
             "sanity",
@@ -5987,6 +6003,14 @@
         },
         {
           "board_name": "volteer",
+          "name": "volet",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 405,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer",
           "name": "volta",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -6056,6 +6080,22 @@
       "builder": "RELEASE",
       "experimental": false,
       "models": [
+        {
+          "board_name": "volteer-borealis",
+          "name": "chronicler",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "collis",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
         {
           "board_name": "volteer-borealis",
           "name": "copano",
@@ -6179,6 +6219,14 @@
         {
           "board_name": "volteer-borealis",
           "name": "voema_npcx796fc",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7165,
+          "is_active": true
+        },
+        {
+          "board_name": "volteer-borealis",
+          "name": "volet",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7165,
