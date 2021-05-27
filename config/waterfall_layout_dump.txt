@@ -353,6 +353,7 @@
     whirlwind-release
     winky-release
     wizpig-release
+    zork-borealis-release
     zork-release
   master-release-basic
     atlas-release-basic
@@ -1338,6 +1339,7 @@
     whirlwind-release-tryjob
     winky-release-tryjob
     wizpig-release-tryjob
+    zork-borealis-release-tryjob
     zork-release-tryjob
   master-vmmst-android-pfq-tryjob
   master-vmrvc-android-pfq-tryjob
@@ -1760,6 +1762,12 @@
   x32-generic-llvm-next-toolchain-tryjob
   x32-generic-llvm-toolchain-tryjob
   x32-generic-unittest-stress
+  zork-borealis-full-tryjob
+  zork-borealis-llvm-next-toolchain-tryjob
+  zork-borealis-llvm-toolchain-tryjob
+  zork-borealis-payloads-tryjob
+  zork-borealis-release-tryjob
+  zork-borealis-unittest-stress
   zork-factory-zork-13427.B-factorybranch-tryjob
   zork-factory-zork-13700.B-factorybranch-tryjob
   zork-full-tryjob
