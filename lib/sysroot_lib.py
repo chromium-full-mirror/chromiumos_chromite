@@ -509,7 +509,7 @@ class Sysroot(object):
     config['BOARD_OVERLAY'] = '\n'.join(board_overlays)
     config['PORTDIR_OVERLAY'] = '\n'.join(portdir_overlays)
 
-    config['MAKEOPTS'] = f'-O -j{multiprocessing.cpu_count()}'
+    config['MAKEOPTS'] = '-j%s' % str(multiprocessing.cpu_count())
     config['ROOT'] = self.path + '/'
     config['PKG_CONFIG'] = self._WrapperPath('pkg-config')
 
