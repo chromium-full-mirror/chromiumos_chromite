@@ -350,18 +350,6 @@
       ]
     },
     {
-      "name": "keeby",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "kefka",
       "configs": [
         {
@@ -3724,6 +3712,23 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 409,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "keeby",
+      "reference_board_name": "keeby",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "keeby",
+          "name": "lalala",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7175,
           "is_active": true
         }
       ]
