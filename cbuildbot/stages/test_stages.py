@@ -74,6 +74,15 @@ class UnitTestStage(generic_stages.BoardSpecificBuilderStage,
     self.UploadArtifact(tarball, archive=False)
 
 
+class HWTestDUTOverride:
+  """Parameters to override the DUT dimensions configured for all HWTests."""
+  def __init__(self, board, model, pool, extra_dims=None):
+    self.board = board
+    self.model = model
+    self.pool = pool
+    self.extra_dims = extra_dims or []
+
+
 class HWTestStage(generic_stages.BoardSpecificBuilderStage,
                   generic_stages.ArchivingStageMixin):
   """Stage that runs tests in the Autotest lab."""
@@ -115,6 +124,13 @@ class HWTestStage(generic_stages.BoardSpecificBuilderStage,
 
     self._model = model
     self._board_name = lab_board_name or board
+
+    self._pool = suite_config.pool
+    self.extra_dims = []
+    dut_dims_override = self._run.options.hwtest_dut_override
+    if dut_dims_override:
+      self._pool = dut_dims_override.pool
+      self._extra_dims = dut_dims_override.extra_dims
 
   def _SetBranchedSuiteConfig(self, suite_config):
     suite_config.SetBranchedValues()
@@ -196,7 +212,7 @@ class HWTestStage(generic_stages.BoardSpecificBuilderStage,
         self.suite_config.suite,
         self._board_name,
         model=self._model,
-        pool=self.suite_config.pool,
+        pool=self._pool,
         file_bugs=self.suite_config.file_bugs,
         wait_for_results=self.wait_for_results,
         priority=self.suite_config.priority,
@@ -237,7 +253,8 @@ class SkylabHWTestStage(HWTestStage):
         self.suite_config.suite,
         self._board_name,
         model=self._model,
-        pool=self.suite_config.pool,
+        extra_dims=self._extra_dims,
+        pool=self._pool,
         wait_for_results=self.wait_for_results,
         priority=self.suite_config.priority,
         timeout_mins=self.suite_config.timeout_mins,
@@ -469,6 +486,19 @@ class DebugInfoTestStage(generic_stages.BoardSpecificBuilderStage,
 class TestPlanStage(generic_stages.BoardSpecificBuilderStage):
   """Stage that constructs test plans."""
 
+  def ModelsToTest(self):
+    """All models to run tests against."""
+    if self._run.options.hwtest_dut_override:
+      return [config_lib.ModelTestConfig(
+        self._run.options.hwtest_dut_override.model, None)]
+
+    if self._run.config.models:
+      return self._run.config.models
+
+    return [config_lib.ModelTestConfig(
+      None, config_lib.GetNonUniBuildLabBoardName(self._current_board))]
+
+
   def WaitUntilReady(self):
     config = self._run.config
     return bool('hw_tests' in config and config.hw_tests)
@@ -483,11 +513,7 @@ class TestPlanStage(generic_stages.BoardSpecificBuilderStage):
                       'option in the builder config is set to True.')
       return
 
-
-    models = [config_lib.ModelTestConfig(
-        None, config_lib.GetNonUniBuildLabBoardName(board))]
-    if builder_run.config.models:
-      models = builder_run.config.models
+    models = self.ModelsToTest()
 
     logging.info('Suites defined for the board: %s', str(
         [x.suite for x in builder_run.config.hw_tests]))

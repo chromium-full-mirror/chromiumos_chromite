@@ -265,10 +265,21 @@ class SimpleBuilder(generic_builders.Builder):
     # http://crbug/932644
     self._RunVMTests(builder_run, board)
 
+  def BoardsForSimpleBuilder(self, builder_run):
+    """All boards for this builder.
+
+    Defaults to builder_run.config.boards, but can be overridden if a
+    HWTestDUTOverride was specified for this run.
+    """
+    if self._run.options.hwtest_dut_override:
+      return [self._run.options.hwtest_dut_override.board]
+
+    return builder_run.config.boards
+
   def RunSetupBoard(self):
     """Run the SetupBoard stage for all child configs and boards."""
     for builder_run in self._run.GetUngroupedBuilderRuns():
-      for board in builder_run.config.boards:
+      for board in self.BoardsForSimpleBuilder(builder_run):
         self._RunStage(build_stages.SetupBoardStage, board,
                        builder_run=builder_run)
 
@@ -309,7 +320,7 @@ class SimpleBuilder(generic_builders.Builder):
       # Prepare a local archive directory for each "run".
       builder_run.GetArchive().SetupArchivePath()
 
-      for board in builder_run.config.boards:
+      for board in self.BoardsForSimpleBuilder(builder_run):
         archive_stage = self._GetStageInstance(
             artifact_stages.ArchiveStage, board, builder_run=builder_run,
             chrome_version=self._run.attrs.chrome_version)

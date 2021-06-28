@@ -10,6 +10,7 @@ from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot.builders import generic_builders
 from chromite.cbuildbot.builders import simple_builders
 from chromite.cbuildbot.stages import generic_stages
+from chromite.cbuildbot.stages import test_stages
 from chromite.cbuildbot.stages import tast_test_stages
 from chromite.cbuildbot.stages import vm_test_stages
 from chromite.lib import config_lib
@@ -216,3 +217,19 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
     }
     self.assertEqual([failures_lib.TestFailure], self._RunVMTests())
     self.assertEqual(self.all_vm_test_stages, self.called_stages)
+
+  def testBoardsForSimpleBuilderWithDUTOverride(self):
+    """Test the BoardsForSimpleBuilder function with a DUT board override."""
+    builder_run = self._initConfig('amd64-generic-full')
+    builder_run.options.hwtest_dut_override = test_stages.HWTestDUTOverride(
+      'bar-board', 'bar-model', 'bar-pool')
+    simple_builder = simple_builders.SimpleBuilder(builder_run, self.buildstore)
+    self.assertEqual(simple_builder.BoardsForSimpleBuilder(builder_run),
+                     ['bar-board'])
+
+  def testBoardsForSimpleBuilderWithoutDUTOverride(self):
+    """Test the BoardsForSimpleBuilder function withhut a DUT board override."""
+    builder_run = self._initConfig('amd64-generic-full')
+    simple_builder = simple_builders.SimpleBuilder(builder_run, self.buildstore)
+    self.assertEqual(simple_builder.BoardsForSimpleBuilder(builder_run),
+                     ['amd64-generic'])

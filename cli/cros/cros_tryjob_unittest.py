@@ -416,6 +416,8 @@ class TryjobTestVerifyOptions(TryjobTest):
         '--yes',
         '--latest-toolchain', '--nochromesdk',
         '--hwtest', '--notests', '--novmtests', '--noimagetests',
+        '--hwtest_dut_dimensions',
+        'label-board:foo label-model:bar label-pool:baz',
         '--cbuildbot', '--buildroot', '/buildroot',
         '--timeout', '5', '--sanity-check-build',
         '--gerrit-patches', '123', '-g', '*123', '-g', '123..456',
@@ -556,6 +558,15 @@ class TryjobTestVerifyOptions(TryjobTest):
     with self.assertRaises(cros_build_lib.DieSystemExit) as cm:
       cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
     self.assertEqual(cm.exception.code, 1)
+
+  def testInvalidHWTestDUTDimensions(self):
+    """Test option verification with invalid hw_test_dut_dimensions."""
+    self.SetupCommandMock([
+      '--hwtest_dut_dimensions',
+      'label-board:foo-board label-model:foo-model label-pol:foo-typo'])
+
+    with self.assertRaises(cros_build_lib.DieSystemExit):
+      cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
   def testRemoteTryjobBranchProductionConfig(self):
     """Test a tryjob on a branch for a production config w/confirm."""
@@ -713,6 +724,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
         '--cbuildbot', '--yes',
         '--latest-toolchain', '--nochromesdk',
         '--hwtest', '--notests', '--novmtests', '--noimagetests',
+        '--hwtest_dut_dimensions', 'foo:bar baz:lol',
         '--buildroot', '/buildroot',
         '--timeout', '5', '--sanity-check-build',
         '--gerrit-patches', '123', '-g', '*123', '-g', '123..456',
@@ -733,6 +745,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
         '--no-buildbot-tags',
         '-b', 'source_branch',
         '-g', '123', '-g', '*123', '-g', '123..456',
+        '--hwtest_dut_dimensions', 'foo:bar baz:lol',
         '--latest-toolchain', '--nochromesdk',
         '--hwtest', '--notests', '--novmtests', '--noimagetests',
         '--timeout', '5', '--sanity-check-build',

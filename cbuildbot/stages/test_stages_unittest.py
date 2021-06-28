@@ -455,3 +455,23 @@ class HWTestPlanStageTest(cros_test_lib.MockTempDirTestCase):
     hw_stage = stage._GetHWTestStage(unified_build, self.buildstore, 'eve',
                                      model2, test_phase2)
     self.assertIsNotNone(hw_stage)
+
+
+  def testModelsToTestWithDUTOverride(self):
+    """Test TestPlanStage.ModelsToTest with a DUT model override."""
+    builder_run = self._initConfig('octopus-release')
+    builder_run.options.hwtest_dut_override = test_stages.HWTestDUTOverride(
+      'bar-board', 'bar-model', 'bar-pool')
+    stage = test_stages.TestPlanStage(builder_run, self.buildstore, 'octopus')
+    models_to_test = stage.ModelsToTest()
+    self.assertEqual([model.name for model in models_to_test], ['bar-model'])
+
+
+  def testModelsToTestWithoutDUTOverride(self):
+    """Test TestPlanStage.ModelsToTest without a DUT model override."""
+    builder_run = self._initConfig('octopus-release')
+    stage = test_stages.TestPlanStage(builder_run, self.buildstore, 'octopus')
+    models_to_test = stage.ModelsToTest()
+    # Too many models to list them all; just check the first few.
+    self.assertEqual([model.name for model in models_to_test[0:3]],
+                     ['ampton', 'apel', 'bip'])

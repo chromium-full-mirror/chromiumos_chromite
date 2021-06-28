@@ -218,6 +218,7 @@ class SkylabHWLabCommandsTest(cros_test_lib.RunCommandTestCase):
     suite = 'foo-suite'
     board = 'foo-board'
     pool = 'foo-pool'
+    extra_dims = ['drone:foo-drone', 'label-sku:foo-sku']
     # An OrderedDict is used to make the keyval order on the command line
     # deterministic for testing purposes.
     keyvals = collections.OrderedDict([('k1', 'v1'), ('k2', 'v2')])
@@ -233,6 +234,8 @@ class SkylabHWLabCommandsTest(cros_test_lib.RunCommandTestCase):
         '-image', build,
         '-board', board,
         '-pool', pool,
+        '-dim', extra_dims[0],
+        '-dim', extra_dims[1],
         '-priority', '140',
         '-timeout-mins', str(timeout_mins),
         '-max-retries', str(max_retries),
@@ -248,9 +251,9 @@ class SkylabHWLabCommandsTest(cros_test_lib.RunCommandTestCase):
         create_cmd, output=self._fakeCreateJson(task_id, 'foo://foo'))
 
     result = commands.RunSkylabHWTestSuite(
-        build, suite, board, pool=pool, job_keyvals=keyvals, priority=priority,
-        quota_account=quota_account, max_retries=max_retries,
-        timeout_mins=timeout_mins)
+        build, suite, board, pool=pool, extra_dims=extra_dims,
+        job_keyvals=keyvals, priority=priority, quota_account=quota_account,
+        max_retries=max_retries, timeout_mins=timeout_mins)
 
     self.assertIsInstance(result, commands.HWTestSuiteResult)
     self.assertEqual(result.to_raise, None)

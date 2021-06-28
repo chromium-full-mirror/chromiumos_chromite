@@ -5,6 +5,7 @@
 """Unit tests for the cbuildbot program"""
 
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.scripts import cbuildbot
 
@@ -60,3 +61,25 @@ class PostsubmitBuilderTest(cros_test_lib.TestCase):
     expected = ['pkgA', 'pkgB']
     self.assertEqual(expected, options.cbb_build_packages)
     self.assertEqual('hash1234', options.cbb_snapshot_revision)
+
+
+class ParseHWTestDUTDimsTest(cros_test_lib.TestCase):
+  """Test for ParseHWTestDUTDims function."""
+
+  def testParseInvalidDims(self):
+    invalid_dims = ['label-board:foo', 'label-model:bar', 'label-pol:baz',
+                    'extra:haha']
+    with self.assertRaises(cros_build_lib.DieSystemExit):
+      cbuildbot.ParseHWTestDUTDims(invalid_dims)
+
+  def testParseValidDims(self):
+    dimsObject = cbuildbot.ParseHWTestDUTDims([
+      'label-board:foo', 'label-model:bar', 'label-pool:baz', 'a:b', 'c:d'])
+    self.assertEqual(dimsObject.board, 'foo')
+    self.assertEqual(dimsObject.model, 'bar')
+    self.assertEqual(dimsObject.pool, 'baz')
+    self.assertEqual(dimsObject.extra_dims, ['a:b', 'c:d'])
+
+  def testParseNoDims(self):
+    self.assertIsNone(cbuildbot.ParseHWTestDUTDims([]))
+    self.assertIsNone(cbuildbot.ParseHWTestDUTDims(None))
