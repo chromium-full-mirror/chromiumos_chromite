@@ -1338,6 +1338,14 @@
         },
         {
           "board_name": "dedede",
+          "name": "drawper",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 419,
+          "is_active": true
+        },
+        {
+          "board_name": "dedede",
           "name": "galith",
           "test_suites": [
             "sanity",
@@ -2844,8 +2852,6 @@
           "name": "kled",
           "test_suites": [
             "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
             "bvt-installer",
             "bvt-arc",
             "au",
@@ -2863,8 +2869,6 @@
           "name": "kohaku",
           "test_suites": [
             "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
             "bvt-installer",
             "bvt-arc",
             "au",
