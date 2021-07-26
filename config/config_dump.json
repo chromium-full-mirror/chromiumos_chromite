@@ -601,6 +601,7 @@
             "display_label": "tryjob",
             "hw_tests_override": [],
             "internal": true,
+            "luci_builder": "LTSRelease",
             "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
             "manifest_version": true,
             "overlays": "both",
@@ -703,6 +704,7 @@
                 "factory_install"
             ],
             "internal": true,
+            "luci_builder": "LTSRelease",
             "manifest": "official.xml",
             "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
             "manifest_version": true,
@@ -784,6 +786,7 @@
                 "factory_install"
             ],
             "internal": true,
+            "luci_builder": "LTSRelease",
             "manifest": "official.xml",
             "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
             "manifest_version": true,

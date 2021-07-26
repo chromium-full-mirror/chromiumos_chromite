@@ -459,7 +459,7 @@ def GeneralTemplates(site_config):
       site_config.templates.internal,
       display_label=config_lib.DISPLAY_LABEL_RELEASE,
       build_type=constants.CANARY_TYPE,
-      luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
+      luci_builder=config_lib.LUCI_BUILDER_LTS_RELEASE,
       chroot_use_image=False,
       suite_scheduling=True,
       # Because release builders never use prebuilts, they need the
@@ -505,7 +505,7 @@ def GeneralTemplates(site_config):
   site_config.AddTemplate(
       'release_basic',
       site_config.templates.release_common,
-      luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
+      luci_builder=config_lib.LUCI_BUILDER_LTS_RELEASE,
       description='Fail Fast Release Builds (canary) (internal)',
       basic_builder=True,
       notification_configs=[
@@ -538,7 +538,7 @@ def GeneralTemplates(site_config):
   site_config.AddTemplate(
       'release',
       site_config.templates.release_common,
-      luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
+      luci_builder=config_lib.LUCI_BUILDER_LTS_RELEASE,
   )
 
   site_config.AddTemplate(
@@ -625,7 +625,7 @@ def GeneralTemplates(site_config):
       site_config.templates.no_unittest_builder,
       display_label=config_lib.DISPLAY_LABEL_TRYJOB,
       build_type=constants.PAYLOADS_TYPE,
-      luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
+      luci_builder=config_lib.LUCI_BUILDER_LTS_RELEASE,
       builder_class_name='release_builders.GeneratePayloadsBuilder',
       description='Regenerate release payloads.',
       # Sync to the code used to do the build the first time.
@@ -1938,6 +1938,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         slave_configs=[],
         sync_chrome=True,
         chrome_sdk=False,
+        luci_builder=config_lib.LUCI_BUILDER_LTS_RELEASE,
         # Because PST is 8 hours from UTC, these times are the same in both. But
         # daylight savings time is NOT adjusted for
         schedule=schedule,
@@ -3102,14 +3103,14 @@ def BranchScheduleConfig():
        '',
        [],
        [],
-       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
+       config_lib.LUCI_BUILDER_LTS_RELEASE),
 
       ('release-R88-13597.B',
        ['kevin-android-pi-pre-flight-branch'],
        '',
        [],
        [],
-       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
+       config_lib.LUCI_BUILDER_LTS_RELEASE),
 
       ('release-R87-13505.B',
        ['kevin-android-pi-pre-flight-branch'],
@@ -3120,7 +3121,7 @@ def BranchScheduleConfig():
         'chrome-silvermont-release-afdo-verify',
         'chrome-airmont-release-afdo-verify',
         'chrome-broadwell-release-afdo-verify'],
-       config_lib.LUCI_BUILDER_LEGACY_RELEASE),
+       config_lib.LUCI_BUILDER_LTS_RELEASE),
 
       # LTS branch, please do not delete. Contact: cros-lts-team@google.com.
       # BOT-TAG:NO_PRUNE
@@ -3133,7 +3134,7 @@ def BranchScheduleConfig():
         'chrome-silvermont-release-afdo-verify',
         'chrome-airmont-release-afdo-verify',
         'chrome-broadwell-release-afdo-verify'],
-       config_lib.LUCI_BUILDER_LTS_RELEASE ),
+       config_lib.LUCI_BUILDER_LTS_RELEASE),
   ]
   # BOT-TAG:RELEASES_END
 
