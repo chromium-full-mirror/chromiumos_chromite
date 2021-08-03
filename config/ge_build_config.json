@@ -26,30 +26,6 @@
       ]
     },
     {
-      "name": "auron_paine",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "auron",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
-      "name": "auron_yuna",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "auron",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "banjo",
       "configs": [
         {
@@ -118,18 +94,6 @@
           "leader_board": true,
           "board_group": "",
           "arch": "ARM_INTERNAL"
-        }
-      ]
-    },
-    {
-      "name": "buddy",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "auron",
-          "arch": "X86_INTERNAL"
         }
       ]
     },
@@ -302,18 +266,6 @@
       ]
     },
     {
-      "name": "gandof",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "auron",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "gnawty",
       "configs": [
         {
@@ -470,18 +422,6 @@
       ]
     },
     {
-      "name": "lulu",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "auron",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "mistral",
       "configs": [
         {
@@ -585,18 +525,6 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "cfm",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
-      "name": "samus",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
           "arch": "X86_INTERNAL"
         }
       ]
