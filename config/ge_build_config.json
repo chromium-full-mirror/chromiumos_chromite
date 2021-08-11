@@ -86,18 +86,6 @@
       ]
     },
     {
-      "name": "buddy-cfm",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "candy",
       "configs": [
         {
@@ -261,18 +249,6 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "rambi",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
-      "name": "guado-cfm",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
           "arch": "X86_INTERNAL"
         }
       ]
@@ -489,18 +465,6 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "strago",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
-      "name": "rikku-cfm",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "cfm",
           "arch": "X86_INTERNAL"
         }
       ]

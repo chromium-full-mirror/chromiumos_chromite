@@ -247,7 +247,6 @@
     betty-release
     bob-release
     bubs-release
-    buddy-cfm-release
     candy-release
     caroline-kernelnext-release
     caroline-ndktranslation-release
@@ -280,7 +279,6 @@
     grunt-arc-r-release
     grunt-kernelnext-release
     grunt-release
-    guado-cfm-release
     guado_labstation-release
     hana-arc64-release
     hana-kernelnext-release
@@ -323,7 +321,6 @@
     reef-release
     reks-release
     relm-release
-    rikku-cfm-release
     sand-release
     sarien-release
     scarlet-release
@@ -486,12 +483,6 @@
   bubs-payloads-tryjob
   bubs-release-tryjob
   bubs-unittest-stress
-  buddy-cfm-full-tryjob
-  buddy-cfm-llvm-next-toolchain-tryjob
-  buddy-cfm-llvm-toolchain-tryjob
-  buddy-cfm-payloads-tryjob
-  buddy-cfm-release-tryjob
-  buddy-cfm-unittest-stress
   buddy-factory-auron-6459.B-factorybranch-tryjob
   buddy-factory-auron-6772.B-factorybranch-tryjob
   candy-factory-rambi-6420.B-factorybranch-tryjob
@@ -951,12 +942,6 @@
   grunt-release-basic-tryjob
   grunt-release-tryjob
   grunt-unittest-stress
-  guado-cfm-full-tryjob
-  guado-cfm-llvm-next-toolchain-tryjob
-  guado-cfm-llvm-toolchain-tryjob
-  guado-cfm-payloads-tryjob
-  guado-cfm-release-tryjob
-  guado-cfm-unittest-stress
   guado-factory-auron-6772.B-factorybranch-tryjob
   guado_labstation-full-tryjob
   guado_labstation-llvm-next-toolchain-tryjob
@@ -1207,7 +1192,6 @@
     betty-release-tryjob
     bob-release-tryjob
     bubs-release-tryjob
-    buddy-cfm-release-tryjob
     candy-release-tryjob
     caroline-kernelnext-release-tryjob
     caroline-ndktranslation-release-tryjob
@@ -1240,7 +1224,6 @@
     grunt-arc-r-release-tryjob
     grunt-kernelnext-release-tryjob
     grunt-release-tryjob
-    guado-cfm-release-tryjob
     guado_labstation-release-tryjob
     hana-arc64-release-tryjob
     hana-kernelnext-release-tryjob
@@ -1283,7 +1266,6 @@
     reef-release-tryjob
     reks-release-tryjob
     relm-release-tryjob
-    rikku-cfm-release-tryjob
     sand-release-tryjob
     sarien-release-tryjob
     scarlet-release-tryjob
@@ -1472,12 +1454,6 @@
   relm-payloads-tryjob
   relm-release-tryjob
   relm-unittest-stress
-  rikku-cfm-full-tryjob
-  rikku-cfm-llvm-next-toolchain-tryjob
-  rikku-cfm-llvm-toolchain-tryjob
-  rikku-cfm-payloads-tryjob
-  rikku-cfm-release-tryjob
-  rikku-cfm-unittest-stress
   rikku-factory-auron-6772.B-factorybranch-tryjob
   sand-factory-reef-8811.B-factorybranch-tryjob
   sand-full-tryjob
