@@ -253,7 +253,6 @@
     chell-release
     coral-release
     cyan-release
-    dedede-release
     drallion-release
     edgar-release
     elm-arc64-release
@@ -562,12 +561,6 @@
   cyan-release-tryjob
   cyan-unittest-stress
   dedede-factory-dedede-13683.B-factorybranch-tryjob
-  dedede-full-tryjob
-  dedede-llvm-next-toolchain-tryjob
-  dedede-llvm-toolchain-tryjob
-  dedede-payloads-tryjob
-  dedede-release-tryjob
-  dedede-unittest-stress
   deltaur-full-tryjob
   deltaur-llvm-next-toolchain-tryjob
   deltaur-llvm-toolchain-tryjob
@@ -1188,7 +1181,6 @@
     chell-release-tryjob
     coral-release-tryjob
     cyan-release-tryjob
-    dedede-release-tryjob
     drallion-release-tryjob
     edgar-release-tryjob
     elm-arc64-release-tryjob
