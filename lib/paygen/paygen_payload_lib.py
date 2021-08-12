@@ -16,7 +16,6 @@ import tempfile
 import threading
 import time
 
-from chromite.lib import cgpt
 from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -89,7 +88,8 @@ class PaygenPayload(object):
                verify=False,
                private_key=None,
                upload=True,
-               cache_dir=None):
+               cache_dir=None,
+               minios=None):
     """Init for PaygenPayload.
 
     Args:
@@ -109,6 +109,7 @@ class PaygenPayload(object):
                    private key and is used for verification.
       upload: Boolean saying if payload generation results should be uploaded.
       cache_dir: If passed, override the default cache dir (useful on bots).
+      minios: If passed, extract minios partition instead of root and kernel.
     """
     self.payload = payload
     self.work_dir = work_dir
@@ -117,6 +118,7 @@ class PaygenPayload(object):
     self._public_key = None
     self._minor_version = None
     self._upload = upload
+    self._minios = minios
 
     self.src_image_file = os.path.join(work_dir, 'src_image.bin')
     self.tgt_image_file = os.path.join(work_dir, 'tgt_image.bin')
@@ -292,7 +294,7 @@ class PaygenPayload(object):
                         'not do auto updates, like amd64-generic, this is '
                         'expected, otherwise this is an error.', board)
         minor_version = None
-        if self.payload.minios:
+        if self._minios:
           # Update APPID for miniOS partition.
           if app_id:
             app_id += '_minios'
@@ -305,38 +307,6 @@ class PaygenPayload(object):
             logging.info('Minor version extracted from source: %s',
                          minor_version)
         return app_id, minor_version
-
-  def _ShouldSkipPayloadGeneration(self):
-    """Returns whether payload generation should be skipped.
-
-    Due to target or source images not meeting the requirements for payload
-    generation.
-
-    Returns:
-      bool: True if payload generation should be skipped.
-    """
-    if not self.payload.minios:
-      return False
-
-    # For miniOS extraction payloads:
-    # Check to see if both target and source images have miniOS partitions.
-    tgt_disk = cgpt.Disk.FromImage(self.tgt_image_file)
-    try:
-      tgt_disk.GetPartitionByTypeGuid(cgpt.MINIOS_TYPE_GUID)
-    except KeyError:
-      logging.info('Target missing miniOS partition')
-      return True
-
-    if self.payload.src_image:
-      src_disk = cgpt.Disk.FromImage(self.src_image_file)
-      try:
-        src_disk.GetPartitionByTypeGuid(cgpt.MINIOS_TYPE_GUID)
-      except KeyError:
-        logging.info('Source missing miniOS partition')
-        return True
-
-    return False
-
 
   def _PreparePartitions(self):
     """Prepares parameters related to partitions of the given image.
@@ -365,7 +335,7 @@ class PaygenPayload(object):
 
     elif tgt_image_type == partition_lib.CROS_IMAGE:
       logging.info('Detected a Chromium OS image.')
-      if self.payload.minios:
+      if self._minios:
         logging.info('Extracting the MINIOS partition.')
         self.partition_names = (self._MINIOS,)
         self._GetPartitionFiles()
@@ -598,7 +568,7 @@ class PaygenPayload(object):
       cmd += ['--old_partitions=' +
               ':'.join(path_util.ToChrootPath(x) for x in self.src_partitions)]
 
-    if self.payload.minios and self._minor_version:
+    if self._minios and self._minor_version:
       cmd += ['--minor_version=' + self._minor_version]
 
 
@@ -898,11 +868,7 @@ class PaygenPayload(object):
     return (payload_signatures, metadata_signatures)
 
   def _Create(self):
-    """Create a given payload, if it doesn't already exist.
-
-    Returns:
-      A bool, True if the payload was created. False doesn't indicate failure.
-    """
+    """Create a given payload, if it doesn't already exist."""
 
     logging.info('Generating %s payload %s',
                  'delta' if self.payload.src_image else 'full', self.payload)
@@ -941,11 +907,6 @@ class PaygenPayload(object):
       if self.payload.src_image:
         self._PrepareImage(self.payload.src_image, self.src_image_file)
 
-      # Check if payload generation should proceed.
-      if self._ShouldSkipPayloadGeneration():
-        logging.info('Skipping payload generation.')
-        return False
-
       # Setup parameters about the payload like whether it is a DLC or not. Or
       # parameters like the APPID, etc.
       self._PreparePartitions()
@@ -963,8 +924,6 @@ class PaygenPayload(object):
 
     # Store hash and signatures json.
     self._StorePayloadJson(metadata_signatures)
-
-    return True
 
   def _VerifyPayload(self):
     """Checks the integrity of the generated payload.
@@ -1033,12 +992,12 @@ class PaygenPayload(object):
     logging.info('* Starting payload generation')
     start_time = datetime.datetime.now()
 
-    if self._Create():
-      if self._verify:
-        self._VerifyPayload()
-      if self._upload:
-        self._UploadResults()
-        ret_uri = self.payload.uri
+    self._Create()
+    if self._verify:
+      self._VerifyPayload()
+    if self._upload:
+      self._UploadResults()
+      ret_uri = self.payload.uri
 
     end_time = datetime.datetime.now()
     logging.info('* Total elapsed payload generation in %s',
@@ -1083,13 +1042,13 @@ def GenerateUpdatePayload(tgt_image, payload, src_image=None, work_dir=None,
 
   tgt_image = gspaths.Image(uri=tgt_image)
   src_image = gspaths.Image(uri=src_image) if src_image else None
-
   payload = gspaths.Payload(tgt_image=tgt_image, src_image=src_image,
-                            uri=payload, minios=minios)
+                            uri=payload)
   with chroot_util.TempDirInChroot() as temp_dir:
     work_dir = work_dir if work_dir is not None else temp_dir
     paygen = PaygenPayload(payload, work_dir, sign=private_key is not None,
-                           verify=check, private_key=private_key)
+                           verify=check, private_key=private_key,
+                           minios=minios)
     paygen.Run()
 
 

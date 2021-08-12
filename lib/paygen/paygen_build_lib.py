@@ -236,12 +236,6 @@ def _DefaultPayloadUri(payload, random_str=None):
         image_channel=payload.tgt_image.image_channel,
         image_version=payload.tgt_image.image_version,
         src_version=src_version)
-  elif gspaths.IsMiniOSImage(payload.tgt_image):
-    # Signed MiniOS payload.
-    return gspaths.ChromeosReleases.MiniOSPayloadUri(
-        payload.build, random_str=random_str, key=payload.tgt_image.key,
-        image_channel=payload.tgt_image.image_channel,
-        image_version=payload.tgt_image.image_version, src_version=src_version)
   elif gspaths.IsImage(payload.tgt_image):
     # Signed payload.
     return gspaths.ChromeosReleases.PayloadUri(
@@ -543,19 +537,6 @@ class PaygenBuild(object):
         msg = '%s has unexpected DLC images: %s.' % (build, image.uri)
         raise BuildCorrupt(msg)
 
-  def _ValidateExpectedMiniOSBuildImages(self, build, images):
-    """Validate that we got the expected MiniOS images for a build.
-
-    Args:
-      build: The build the images are from.
-      images: The MiniOS images discovered associated with the build.
-
-    Raises:
-      BuildCorrupt: Raised if unexpected images are found.
-    """
-    if any(not x.minios for x in images):
-      raise BuildCorrupt(f'{build} has unexpected MiniOS images: {images}.')
-
   @retry_util.WithRetry(max_retry=3, exception=ImageMissing,
                         sleep=BUILD_DISCOVER_RETRY_SLEEP)
   def _DiscoverSignedImages(self, build):
@@ -584,43 +565,6 @@ class PaygenBuild(object):
 
     # Unparsable URIs will result in Nones; filter them out.
     images = [i for i in images if i]
-
-    # We only care about recovery and test image types, ignore all others.
-    images = _FilterForValidImageType(images)
-
-    self._ValidateExpectedBuildImages(build, images)
-
-    return images
-
-  @retry_util.WithRetry(max_retry=3, exception=ImageMissing,
-                        sleep=BUILD_DISCOVER_RETRY_SLEEP)
-  def _DiscoverMiniOSSignedImages(self, build):
-    """Return a list of images associated with a given build.
-
-    Args:
-      build: The build to find images for.
-
-    Returns:
-      A list of images associated with the build. This may include premp, and mp
-      images.
-
-    Raises:
-      BuildCorrupt: Raised if unexpected images are found.
-      ImageMissing: Raised if expected images are missing.
-    """
-    # Ideally, |image_type| below should be constrained to the type(s) expected
-    # for the board. But the board signing configs are not easily accessible at
-    # this point, so we use the wildcard here and rely on the signers to upload
-    # the expected artifacts.
-    search_uri = gspaths.ChromeosReleases.ImageUri(
-        build, key='*', image_type='*', image_channel='*', image_version='*')
-
-    image_uris = self._ctx.LS(search_uri)
-    images = [gspaths.ChromeosReleases.ParseMiniOSImageUri(x)
-              for x in image_uris]
-
-    # Unparsable URIs will result in Nones; filter them out.
-    images = [x for x in images if x]
 
     # We only care about recovery and test image types, ignore all others.
     images = _FilterForValidImageType(images)
@@ -728,33 +672,6 @@ class PaygenBuild(object):
 
     return results
 
-  def _DiscoverRequiredMiniOSDeltasBuildToBuild(self, source_images, images):
-    """Find the MiniOS deltas to generate between two builds.
-
-    Args:
-      source_images: All MiniOS images associated with the source build.
-      images: All MiniOS images associated with the target build.
-
-    Returns:
-      A list of gspaths.Payload objects.
-    """
-    results = []
-
-    for func in (_FilterForMp, _FilterForPremp, _FilterForTest):
-      filtered_source = func(source_images)
-      filtered_target = func(images)
-
-      if filtered_source and filtered_target:
-        assert len(filtered_source) == 1, f'Unexpected: {filtered_source}.'
-        assert len(filtered_target) == 1, f'Unexpected: {filtered_target}.'
-
-        # A delta from each previous image to current image.
-        results.append(gspaths.Payload(tgt_image=filtered_target[0],
-                                       src_image=filtered_source[0],
-                                       minios=True))
-
-    return results
-
   def _DiscoverRequiredDLCDeltasBuildToBuild(self, source_images, images):
     """Find the DLC deltas to generate between two builds.
 
@@ -805,7 +722,6 @@ class PaygenBuild(object):
       # When discovering the images for our current build, they might not be
       # discoverable right away (GS eventual consistency). So, we retry.
       images = self._DiscoverSignedImages(self._build)
-      minios_images = self._DiscoverMiniOSSignedImages(self._build)
       test_image = self._DiscoverTestImage(self._build)
       dlc_module_images = self._DiscoverDLCImages(self._build)
 
@@ -815,16 +731,11 @@ class PaygenBuild(object):
       logging.info(e)
       raise BuildNotReady()
 
-    _LogList('Images found', images + [test_image] + dlc_module_images +
-             minios_images)
+    _LogList('Images found', images + [test_image] + dlc_module_images)
 
     # Add full payloads for PreMP and MP (as needed).
     for i in images:
       payloads.append(gspaths.Payload(tgt_image=i))
-
-    # Add full miniOS payloads.
-    for i in minios_images:
-      payloads.append(gspaths.Payload(tgt_image=i, minios=True))
 
     # Add full DLC payloads.
     for dlc_module_image in dlc_module_images:
@@ -861,23 +772,17 @@ class PaygenBuild(object):
         continue
 
       source_images = self._DiscoverSignedImages(source_build)
-      source_minios_images = self._DiscoverMiniOSSignedImages(source_build)
       source_test_image = self._DiscoverTestImage(source_build)
       source_dlc_module_images = self._DiscoverDLCImages(source_build)
 
       _LogList('Images found (source)', (source_images + [source_test_image] +
-                                         source_dlc_module_images +
-                                         source_minios_images))
+                                         source_dlc_module_images))
 
       applicable_models = source.get('applicable_models', None)
       if not self._skip_delta_payloads and source['generate_delta']:
         # Generate the signed deltas.
         payloads.extend(self._DiscoverRequiredDeltasBuildToBuild(
             source_images, images+[test_image]))
-
-        # Generate MiniOS deltas.
-        payloads.extend(self._DiscoverRequiredMiniOSDeltasBuildToBuild(
-            source_minios_images, minios_images))
 
         # Generate DLC deltas.
         payloads.extend(self._DiscoverRequiredDLCDeltasBuildToBuild(
@@ -919,8 +824,7 @@ class PaygenBuild(object):
     Returns:
       True if to sign the image, false if not to sign the image.
     """
-    return (gspaths.IsImage(image) or gspaths.IsDLCImage(image) or
-            gspaths.IsMiniOSImage(image))
+    return gspaths.IsImage(image) or gspaths.IsDLCImage(image)
 
   def _GeneratePayloads(self, payloads):
     """Generate the payloads called for by a list of payload definitions.

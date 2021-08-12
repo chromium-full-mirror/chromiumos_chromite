@@ -17,7 +17,6 @@ This includes definitions for various build flags:
 import logging
 import os
 import re
-from typing import Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib.paygen import utils
@@ -141,23 +140,6 @@ class DLCImage(Image):
                               self.dlc_image)
 
 
-class MiniOSImage(Image):
-  """Define a ChromeOS MiniOS Image."""
-  _name = 'MiniOS Image definition'
-  _slots = Image._slots + ('minios',)
-
-  def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    self.minios = True
-
-  def __str__(self):
-    if self.uri:
-      return self.uri.split('/')[-1]
-    else:
-      return '%s %r (minios)' % (super().__str__(),
-                                 self.minios)
-
-
 class UnsignedImageArchive(utils.RestrictedAttrDict):
   """Define a unsigned ChromeOS image archive.
 
@@ -195,10 +177,9 @@ class Payload(utils.RestrictedAttrDict):
            build.
     uri: The URI of the payload. This can be any format understood by urilib.
     exists: A boolean. If true, artifacts for this build already exist.
-    minios: If true, extracts the minios partition instead of root and kernel.
   """
   _name = 'Payload definition'
-  _slots = ('tgt_image', 'src_image', 'build', 'uri', 'exists', 'minios')
+  _slots = ('tgt_image', 'src_image', 'build', 'uri', 'exists')
 
   def __init__(self, exists=False, *args, **kwargs):
     kwargs.update(exists=exists)
@@ -433,20 +414,16 @@ class ChromeosReleases(object):
                         ChromeosReleases.DLCImageName())
 
   @classmethod
-  def _ParseImageUriValues(cls, image_uri):
+  def ParseImageUri(cls, image_uri):
+    """Parse the URI of an image into an Image object."""
+
     # The named values in this regex must match the arguments to gspaths.Image.
     exp = (r'^gs://(?P<bucket>.*)/(?P<channel>.*)/(?P<board>.*)/'
            r'(?P<version>.*)/chromeos_(?P<image_version>[^_]+)_'
            r'(?P=board)_(?P<image_type>[^_]+)_(?P<image_channel>[^_]+)_'
            '(?P<key>[^_]+).bin$')
 
-    return Build.BuildValuesFromUri(exp, image_uri)
-
-  @classmethod
-  def ParseImageUri(cls, image_uri):
-    """Parse the URI of an image into an Image object."""
-
-    values = cls._ParseImageUriValues(image_uri)
+    values = Build.BuildValuesFromUri(exp, image_uri)
     if not values:
       return None
 
@@ -455,20 +432,6 @@ class ChromeosReleases(object):
 
     # Create an Image object using the values we parsed out.
     return Image(values)
-
-  @classmethod
-  def ParseMiniOSImageUri(cls, image_uri):
-    """Parse the URI of an MiniOS image into an Image object."""
-
-    values = cls._ParseImageUriValues(image_uri)
-    if not values:
-      return None
-
-    # Insert the URI.
-    values['uri'] = image_uri
-
-    # Create an Image object using the values we parsed out.
-    return MiniOSImage(values)
 
   @classmethod
   def ParseUnsignedImageUri(cls, image_uri):
@@ -571,47 +534,6 @@ class ChromeosReleases(object):
       }
 
   @staticmethod
-  def MiniOSPayloadName(channel, board, version, key=None, random_str=None,
-                        src_version=None,
-                        unsigned_image_type: Optional[str] = 'test'):
-    """Creates the payload file name of a DLC image.
-
-    Args:
-      channel: What channel does the build belong to? Usually "xxx-channel".
-      board: What board is the build for? "x86-alex", "lumpy", etc.
-      version: What is the build version? "3015.0.0", "1945.76.3", etc
-      key: What is the signing key? "premp", "mp", "mp-v2", etc; None indicates
-          that the image is not signed, e.g. a test image
-      random_str: Force a given random string. None means generate one.
-      src_version: If this payload is a delta, this is the version of the image
-          it updates from.
-      unsigned_image_type: the type descriptor of an unsigned image;
-          significant iff key is None.
-
-    Returns:
-      The name for the specified build's payloads.
-    """
-    if random_str is None:
-      random_str = cros_build_lib.GetRandomString()
-
-    if not key:
-      signed_ext = ''
-      key = unsigned_image_type
-    else:
-      signed_ext = '.signed'
-
-    if src_version:
-      return (
-          f'minios_{src_version}-{version}_{board}_{channel}_'
-          f'delta_{key}.bin-{random_str}{signed_ext}'
-      )
-    else:
-      return (
-          f'minios_{version}_{board}_{channel}_'
-          f'full_{key}.bin-{random_str}{signed_ext}'
-      )
-
-  @staticmethod
   def PayloadName(channel, board, version, key=None, random_str=None,
                   src_version=None, unsigned_image_type='test'):
     """Creates the gspath for a payload associated with a given build.
@@ -709,49 +631,6 @@ class ChromeosReleases(object):
                                                         dlc_package,
                                                         random_str,
                                                         src_version))
-
-  @staticmethod
-  def MiniOSPayloadUri(build, random_str, key=None, image_channel=None,
-                       image_version=None, src_version=None):
-    """Creates the gspath for a payload associated with a given build.
-
-    Args:
-      build: An instance of gspaths.Build that defines the build.
-      random_str: Force a given random string. None means generate one.
-      key: What is the signing key? "premp", "mp", "mp-v2", etc; None means
-           that the image is unsigned (e.g. a test image).
-      image_channel: Sometimes an image has a different channel than the build
-                     directory it's in. (ie: nplusone).
-      image_version: Sometimes an image has a different version than the build
-                     directory it's in. (ie: nplusone).
-      src_version: If this payload is a delta, this is the version of the image
-                   it updates from.
-
-    Returns:
-      The url for the specified build's payloads. Should be of the form:
-
-        gs://chromeos-releases/stable-channel/x86-alex/2913.377.0/payloads/
-          minios/chromeos_0.12.433.257-2913.377.0_x86-alex_stable-channel_
-          delta_mp-v3.bin-b334762d0f6b80f471069153bbe8b97a.signed
-
-        gs://chromeos-releases/stable-channel/x86-alex/2913.377.0/payloads/
-          minios/chromeos_2913.377.0_x86-alex_stable-channel_full_mp-v3.
-          bin-610c97c30fae8561bde01a6116d65cb9.signed
-    """
-    if image_channel is None:
-      image_channel = build.channel
-
-    if image_version is None:
-      image_version = build.version
-
-    # MiniOS payloads are pushed to minios subfolder.
-    return os.path.join(ChromeosReleases.BuildPayloadsUri(build), 'minios',
-                        ChromeosReleases.MiniOSPayloadName(image_channel,
-                                                           build.board,
-                                                           image_version,
-                                                           key,
-                                                           random_str,
-                                                           src_version))
 
   @staticmethod
   def PayloadUri(build, random_str, key=None, image_channel=None,
@@ -966,15 +845,3 @@ def IsDLCImage(a):
     True if |a| is of DLCImage type, False otherwise
   """
   return isinstance(a, DLCImage)
-
-
-def IsMiniOSImage(obj):
-  """Return if the |obj| is of MiniOSImage type.
-
-  Args:
-    obj: Object whose type needs to be checked.
-
-  Returns:
-    True if |obj| is of MiniOSImage type, False otherwise
-  """
-  return isinstance(obj, MiniOSImage)

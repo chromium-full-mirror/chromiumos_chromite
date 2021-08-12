@@ -103,11 +103,6 @@ class PaygenPayloadLibTest(cros_test_lib.RunCommandTempDirTestCase):
                                             src_image=None,
                                             uri='gs://full_old_foo/boo')
 
-    self.full_minios_payload = gspaths.Payload(tgt_image=self.old_base_image,
-                                               src_image=None,
-                                               uri='gs://full_old_foo/boo',
-                                               minios=True)
-
     self.delta_payload = gspaths.Payload(tgt_image=self.new_image,
                                          src_image=self.old_image,
                                          uri='gs://delta_new_old/boo')
@@ -147,13 +142,12 @@ class PaygenPayloadLibBasicTest(PaygenPayloadLibTest):
     if work_dir is None:
       work_dir = self.tempdir
 
-    payload.minios = payload.minios or minios
-
     gen = paygen_payload_lib.PaygenPayload(
         payload=payload,
         work_dir=work_dir,
         sign=sign,
-        verify=False)
+        verify=False,
+        minios=minios)
 
     gen.partition_names = ('foo-root', 'foo-kernel')
     gen.tgt_partitions = ('/work/tgt_root.bin', '/work/tgt_kernel.bin')
@@ -820,61 +814,6 @@ class PaygenPayloadLibBasicTest(PaygenPayloadLibTest):
         mock.call(payload.tgt_image, gen.tgt_image_file),
         mock.call(payload.src_image, gen.src_image_file),
     ])
-    gen_mock.assert_called_once_with()
-    sign_mock.assert_called_once_with()
-    store_mock.assert_called_once_with(['metadata_sigs'])
-    prep_part_mock.assert_called_once()
-
-  def testCreateSignedMiniOSFullWithoutMiniOSPartition(self):
-    """Test the overall payload generation process with miniOS."""
-    payload = self.full_minios_payload
-    gen = self._GetStdGenerator(payload=payload, work_dir='/work')
-
-    # Set up stubs.
-    prep_image_mock = self.PatchObject(paygen_payload_lib.PaygenPayload,
-                                       '_PrepareImage')
-    check_minios_mock = self.PatchObject(paygen_payload_lib.PaygenPayload,
-                                         '_ShouldSkipPayloadGeneration',
-                                         return_value=True)
-
-    # Run the test.
-    self.assertFalse(gen._Create())
-
-    # Check expected calls.
-    self.assertEqual(prep_image_mock.call_args_list, [
-        mock.call(payload.tgt_image, gen.tgt_image_file),
-    ])
-    check_minios_mock.assert_called_once_with()
-
-  def testCreateSignedMiniOSFullWithMiniOSPartition(self):
-    """Test the overall payload generation process with miniOS."""
-    payload = self.full_minios_payload
-    gen = self._GetStdGenerator(payload=payload, work_dir='/work')
-
-    # Set up stubs.
-    prep_image_mock = self.PatchObject(paygen_payload_lib.PaygenPayload,
-                                       '_PrepareImage')
-    check_minios_mock = self.PatchObject(paygen_payload_lib.PaygenPayload,
-                                         '_ShouldSkipPayloadGeneration',
-                                         return_value=False)
-    prep_part_mock = self.PatchObject(paygen_payload_lib.PaygenPayload,
-                                      '_PreparePartitions')
-    gen_mock = self.PatchObject(paygen_payload_lib.PaygenPayload,
-                                '_GenerateUnsignedPayload')
-    sign_mock = self.PatchObject(
-        paygen_payload_lib.PaygenPayload, '_SignPayload',
-        return_value=(['payload_sigs'], ['metadata_sigs']))
-    store_mock = self.PatchObject(paygen_payload_lib.PaygenPayload,
-                                  '_StorePayloadJson')
-
-    # Run the test.
-    self.assertTrue(gen._Create())
-
-    # Check expected calls.
-    self.assertEqual(prep_image_mock.call_args_list, [
-        mock.call(payload.tgt_image, gen.tgt_image_file),
-    ])
-    check_minios_mock.assert_called_once_with()
     gen_mock.assert_called_once_with()
     sign_mock.assert_called_once_with()
     store_mock.assert_called_once_with(['metadata_sigs'])

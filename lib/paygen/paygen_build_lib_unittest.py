@@ -175,8 +175,6 @@ class BasePaygenBuildLibTestWithBuilds(BasePaygenBuildLibTest,
                                             src_image=self.prev_image)
     self.test_delta_payload = gspaths.Payload(tgt_image=self.test_image,
                                               src_image=self.prev_test_image)
-    self.minios_full_payload = gspaths.Payload(tgt_image=self.basic_image,
-                                               minios=True)
 
     self.full_payload_test = paygen_build_lib.PayloadTest(
         self.test_full_payload,
@@ -370,31 +368,6 @@ class TestPaygenBuildLibTestGSSearch(BasePaygenBuildLibTestWithBuilds):
 
     self.assertEqual(result, expected_result)
 
-  def testDiscoverMiniOSSignedImages(self):
-    """Test _DiscoverMiniOSSignedImages (success)."""
-    paygen = self._GetPaygenBuildInstance()
-
-    uri_base = 'gs://crt/foo-channel/foo-board/1.2.3'
-
-    uri_basic = os.path.join(
-        uri_base, 'chromeos_1.2.3_foo-board_recovery_foo-channel_mp-v3.bin')
-    uri_premp = os.path.join(
-        uri_base, 'chromeos_1.2.3_foo-board_recovery_foo-channel_premp.bin')
-
-    self.mockUriList.return_value = [uri_basic, uri_premp]
-
-    # Run the test.
-    result = paygen._DiscoverMiniOSSignedImages(self.target_build)
-
-    # See if we got the results we expect.
-    expected_basic = gspaths.MiniOSImage(build=self.target_build, key='mp-v3',
-                                         uri=uri_basic)
-    expected_premp = gspaths.MiniOSImage(build=self.target_build, key='premp',
-                                         uri=uri_premp)
-    expected_result = [expected_basic, expected_premp]
-
-    self.assertEqual(result, expected_result)
-
   def testDiscoverTestImages(self):
     """Test _DiscoverTestImages (success)."""
     paygen = self._GetPaygenBuildInstance()
@@ -522,16 +495,12 @@ class MockImageDiscoveryHelper(BasePaygenBuildLibTest):
     # We want to use a dict as dict key, but can't.
     # Use a list of key, value tuples.
     self.signedResults = []
-    self.signedMiniOSResults = []
     self.testResults = []
     self.dlcResults = []
 
     self.PatchObject(
         paygen_build_lib.PaygenBuild, '_DiscoverSignedImages',
         side_effect=self._DiscoverSignedImages)
-    self.PatchObject(
-        paygen_build_lib.PaygenBuild, '_DiscoverMiniOSSignedImages',
-        side_effect=self._DiscoverMiniOSSignedImages)
     self.PatchObject(
         paygen_build_lib.PaygenBuild, '_DiscoverTestImage',
         side_effect=self._DiscoverTestImage)
@@ -541,12 +510,6 @@ class MockImageDiscoveryHelper(BasePaygenBuildLibTest):
 
   def _DiscoverSignedImages(self, build):
     for b, images in self.signedResults:
-      if build == b:
-        return images
-    raise paygen_build_lib.ImageMissing(build)
-
-  def _DiscoverMiniOSSignedImages(self, build):
-    for b, images in self.signedMiniOSResults:
       if build == b:
         return images
     raise paygen_build_lib.ImageMissing(build)
@@ -575,21 +538,6 @@ class MockImageDiscoveryHelper(BasePaygenBuildLibTest):
                           image_type='recovery')
     images.append(image)
     self.signedResults.append((build, images))
-    return image
-
-  def addMiniOSSignedImage(self, build, key='mp'):
-    images = []
-    for i, _ in enumerate(self.signedMiniOSResults):
-      if build == self.signedMiniOSResults[i][0]:
-        images = self.signedMiniOSResults[i][1]
-        self.signedMiniOSResults.pop(i)
-        break
-
-    image = gspaths.MiniOSImage(build=build, key=key,
-                                image_version=build.version,
-                                image_type='recovery')
-    images.append(image)
-    self.signedMiniOSResults.append((build, images))
     return image
 
   def addTestImage(self, build):
@@ -656,14 +604,10 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Create our images.
     premp_image = self.addSignedImage(target_build, key='premp')
-    premp_image_minios = self.addMiniOSSignedImage(target_build, key='premp')
     mp_image = self.addSignedImage(target_build)
-    mp_image_minios = self.addMiniOSSignedImage(target_build)
     test_image = self.addTestImage(target_build)
     prev_premp_image = self.addSignedImage(prev_build, key='premp')
-    prev_premp_image_minios = self.addMiniOSSignedImage(prev_build, key='premp')
     prev_mp_image = self.addSignedImage(prev_build)
-    prev_mp_image_minios = self.addMiniOSSignedImage(prev_build)
     prev_test_image = self.addTestImage(prev_build)
     dlc_image = self.addDLCImage(target_build, dlc_id=dlc_id,
                                  dlc_package=dlc_package)
@@ -682,12 +626,6 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
     premp_full = gspaths.Payload(
         tgt_image=premp_image,
         uri='gs://crt/canary-channel/auron-yuna/9999.0.0/payloads/chromeos_9999.0.0_auron-yuna_canary-channel_full_premp.bin-<random>.signed')
-    mp_full_minios = gspaths.Payload(
-        tgt_image=mp_image_minios,
-        uri='gs://crt/canary-channel/auron-yuna/9999.0.0/payloads/minios/minios_9999.0.0_auron-yuna_canary-channel_full_mp.bin-<random>.signed', minios=True)
-    premp_full_minios = gspaths.Payload(
-        tgt_image=premp_image_minios,
-        uri='gs://crt/canary-channel/auron-yuna/9999.0.0/payloads/minios/minios_9999.0.0_auron-yuna_canary-channel_full_premp.bin-<random>.signed', minios=True)
     test_full = gspaths.Payload(
         tgt_image=test_image,
         uri='gs://crt/canary-channel/auron-yuna/9999.0.0/payloads/chromeos_9999.0.0_auron-yuna_canary-channel_full_test.bin-<random>')
@@ -703,14 +641,6 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
         tgt_image=premp_image,
         src_image=prev_premp_image,
         uri='gs://crt/canary-channel/auron-yuna/9999.0.0/payloads/chromeos_9756.0.0-9999.0.0_auron-yuna_canary-channel_delta_premp.bin-<random>.signed')
-    mp_delta_minios = gspaths.Payload(
-        tgt_image=mp_image_minios,
-        src_image=prev_mp_image_minios,
-        uri='gs://crt/canary-channel/auron-yuna/9999.0.0/payloads/minios/minios_9756.0.0-9999.0.0_auron-yuna_canary-channel_delta_mp.bin-<random>.signed', minios=True)
-    premp_delta_minios = gspaths.Payload(
-        tgt_image=premp_image_minios,
-        src_image=prev_premp_image_minios,
-        uri='gs://crt/canary-channel/auron-yuna/9999.0.0/payloads/minios/minios_9756.0.0-9999.0.0_auron-yuna_canary-channel_delta_premp.bin-<random>.signed', minios=True)
     test_delta = gspaths.Payload(
         tgt_image=test_image,
         src_image=prev_test_image,
@@ -733,14 +663,10 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
         [
             mp_full,
             premp_full,
-            mp_full_minios,
-            premp_full_minios,
             test_full,
             n2n_delta,
             mp_delta,
             premp_delta,
-            mp_delta_minios,
-            premp_delta_minios,
             test_delta,
             dlc_full,
             dlc_delta,
@@ -770,11 +696,8 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Create our images.
     mp_image = self.addSignedImage(target_build)
-    mp_image_minios = self.addMiniOSSignedImage(target_build)
     test_image = self.addTestImage(target_build)
     _prev_premp_image = self.addSignedImage(prev_build, key='premp')
-    _prev_premp_image_minios = self.addMiniOSSignedImage(prev_build,
-                                                         key='premp')
     prev_test_image = self.addTestImage(prev_build)
 
     # Run the test.
@@ -783,8 +706,6 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Define the expected payloads. Test delta from prev, but no signed ones.
     mp_full = gspaths.Payload(tgt_image=mp_image, uri=mock.ANY)
-    mp_full_minios = gspaths.Payload(tgt_image=mp_image_minios, uri=mock.ANY,
-                                     minios=True)
     test_full = gspaths.Payload(tgt_image=test_image, uri=mock.ANY)
     n2n_delta = gspaths.Payload(tgt_image=test_image, src_image=test_image,
                                 uri=mock.ANY)
@@ -797,7 +718,6 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
         payloads,
         [
             mp_full,
-            mp_full_minios,
             test_full,
             n2n_delta,
             test_delta,
@@ -827,10 +747,8 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Create our images.
     mp_image = self.addSignedImage(target_build)
-    mp_image_minios = self.addMiniOSSignedImage(target_build)
     test_image = self.addTestImage(target_build)
     _prev_premp_image = self.addSignedImage(prev_build, key='premp')
-    _prev_premp_image_minos = self.addMiniOSSignedImage(prev_build, key='premp')
     _prev_test_image = self.addTestImage(prev_build)
 
     # Run the test.
@@ -840,8 +758,6 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Define the expected payloads. Test delta from prev, but no signed ones.
     mp_full = gspaths.Payload(tgt_image=mp_image, uri=mock.ANY)
-    mp_full_minios = gspaths.Payload(tgt_image=mp_image_minios, uri=mock.ANY,
-                                     minios=True)
     test_full = gspaths.Payload(tgt_image=test_image, uri=mock.ANY)
 
     # Verify the results.
@@ -849,7 +765,6 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
         payloads,
         [
             mp_full,
-            mp_full_minios,
             test_full,
         ])
 
@@ -901,39 +816,30 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Create our images, ignore FSI 6457.83.0, 7390.68.0
     mp_image = self.addSignedImage(target_build)
-    mp_image_minios = self.addMiniOSSignedImage(target_build)
     test_image = self.addTestImage(target_build)
 
     image_8530 = self.addSignedImage(build_8530)
-    image_8530_minios = self.addMiniOSSignedImage(build_8530)
     test_image_8530 = self.addTestImage(build_8530)
 
     image_8743 = self.addSignedImage(build_8743)
-    image_8743_minios = self.addMiniOSSignedImage(build_8743)
     test_image_8743 = self.addTestImage(build_8743)
 
     image_8872 = self.addSignedImage(build_8872)
-    image_8872_minios = self.addMiniOSSignedImage(build_8872)
     test_image_8872 = self.addTestImage(build_8872)
 
     image_9000 = self.addSignedImage(build_9000)
-    image_9000_minios = self.addMiniOSSignedImage(build_9000)
     test_image_9000 = self.addTestImage(build_9000)
 
     image_9202 = self.addSignedImage(build_9202)
-    image_9202_minios = self.addMiniOSSignedImage(build_9202)
     test_image_9202 = self.addTestImage(build_9202)
 
     image_9334 = self.addSignedImage(build_9334)
-    image_9334_minios = self.addMiniOSSignedImage(build_9334)
     test_image_9334 = self.addTestImage(build_9334)
 
     image_9460 = self.addSignedImage(build_9460)
-    image_9460_minios = self.addMiniOSSignedImage(build_9460)
     test_image_9460 = self.addTestImage(build_9460)
 
     image_9460_67 = self.addSignedImage(build_9460_67)
-    image_9460_67_minios = self.addMiniOSSignedImage(build_9460_67)
     test_image_9460_67 = self.addTestImage(build_9460_67)
 
     # Run the test.
@@ -942,66 +848,40 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Define the expected payloads. Test delta from prev, but no signed ones.
     mp_full = gspaths.Payload(tgt_image=mp_image, uri=mock.ANY)
-    mp_full_minios = gspaths.Payload(tgt_image=mp_image_minios, uri=mock.ANY,
-                                     minios=True)
     test_full = gspaths.Payload(tgt_image=test_image, uri=mock.ANY)
     n2n_delta = gspaths.Payload(tgt_image=test_image, src_image=test_image,
                                 uri=mock.ANY)
 
     mp_delta_8530 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_8530, uri=mock.ANY)
-    mp_delta_8530_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_8530_minios, uri=mock.ANY,
-        minios=True)
     test_delta_8530 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_8530, uri=mock.ANY)
     mp_delta_8743 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_8743, uri=mock.ANY)
-    mp_delta_8743_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_8743_minios, uri=mock.ANY,
-        minios=True)
     test_delta_8743 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_8743, uri=mock.ANY)
     mp_delta_8872 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_8872, uri=mock.ANY)
-    mp_delta_8872_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_8872_minios, uri=mock.ANY,
-        minios=True)
     test_delta_8872 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_8872, uri=mock.ANY)
     mp_delta_9000 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_9000, uri=mock.ANY)
-    mp_delta_9000_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_9000_minios, uri=mock.ANY,
-        minios=True)
     test_delta_9000 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_9000, uri=mock.ANY)
     mp_delta_9202 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_9202, uri=mock.ANY)
-    mp_delta_9202_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_9202_minios, uri=mock.ANY,
-        minios=True)
     test_delta_9202 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_9202, uri=mock.ANY)
     mp_delta_9334 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_9334, uri=mock.ANY)
-    mp_delta_9334_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_9334_minios, uri=mock.ANY,
-        minios=True)
     test_delta_9334 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_9334, uri=mock.ANY)
     mp_delta_9460 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_9460, uri=mock.ANY)
-    mp_delta_9460_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_9460_minios, uri=mock.ANY,
-        minios=True)
     test_delta_9460 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_9460, uri=mock.ANY)
     mp_delta_9460_67 = gspaths.Payload(
         tgt_image=mp_image, src_image=image_9460_67, uri=mock.ANY)
-    mp_delta_9460_67_minios = gspaths.Payload(
-        tgt_image=mp_image_minios, src_image=image_9460_67_minios, uri=mock.ANY,
-        minios=True)
     test_delta_9460_67 = gspaths.Payload(
         tgt_image=test_image, src_image=test_image_9460_67, uri=mock.ANY)
 
@@ -1010,17 +890,16 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
         payloads,
         [
             mp_full,
-            mp_full_minios,
             test_full,
             n2n_delta,
-            mp_delta_8530, mp_delta_8530_minios, test_delta_8530,
-            mp_delta_8743, mp_delta_8743_minios,  test_delta_8743,
-            mp_delta_8872, mp_delta_8872_minios,  test_delta_8872,
-            mp_delta_9000, mp_delta_9000_minios,  test_delta_9000,
-            mp_delta_9202, mp_delta_9202_minios,  test_delta_9202,
-            mp_delta_9334, mp_delta_9334_minios,  test_delta_9334,
-            mp_delta_9460, mp_delta_9460_minios,  test_delta_9460,
-            mp_delta_9460_67, mp_delta_9460_67_minios, test_delta_9460_67,
+            mp_delta_8530, test_delta_8530,
+            mp_delta_8743, test_delta_8743,
+            mp_delta_8872, test_delta_8872,
+            mp_delta_9000, test_delta_9000,
+            mp_delta_9202, test_delta_9202,
+            mp_delta_9334, test_delta_9334,
+            mp_delta_9460, test_delta_9460,
+            mp_delta_9460_67, test_delta_9460_67,
         ])
 
     self.assertCountEqual(
@@ -1098,25 +977,18 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
 
     # Tell the build instance about all of them
     self.addSignedImage(target_build)
-    self.addMiniOSSignedImage(target_build)
     self.addTestImage(target_build)
     self.addSignedImage(build_61)
-    self.addMiniOSSignedImage(build_61)
     self.addTestImage(build_61)
     self.addSignedImage(build_64)
-    self.addMiniOSSignedImage(build_64)
     self.addTestImage(build_64)
     self.addSignedImage(build_58)
-    self.addMiniOSSignedImage(build_58)
     self.addTestImage(build_58)
     self.addSignedImage(build_72)
-    self.addMiniOSSignedImage(build_72)
     self.addTestImage(build_72)
     self.addSignedImage(build_60)
-    self.addMiniOSSignedImage(build_60)
     self.addTestImage(build_60)
     self.addSignedImage(build_56)
-    self.addMiniOSSignedImage(build_56)
     self.addTestImage(build_56)
 
     # Generate the payloads and tests
@@ -1151,8 +1023,7 @@ class TestPaygenBuildLibDiscoverRequiredPayloads(MockImageDiscoveryHelper,
                 'board': 'reef',
                 'channel': 'stable-channel',
                 'uri': None
-            },
-            'minios': None
+            }
         }
     }
 
@@ -1264,7 +1135,6 @@ class TestCreatePayloads(BasePaygenBuildLibTestWithBuilds):
         self.mp_full_payload,
         self.test_full_payload,
         self.test_delta_payload,
-        self.minios_full_payload,
     ]
     payload_tests = [
         self.full_payload_test,
@@ -1307,7 +1177,6 @@ class TestCreatePayloads(BasePaygenBuildLibTestWithBuilds):
         self.mp_full_payload,
         self.test_full_payload,
         self.test_delta_payload,
-        self.minios_full_payload,
     ]
     payload_tests = [
         self.full_payload_test,

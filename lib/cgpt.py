@@ -9,10 +9,6 @@ import collections
 from chromite.lib import cros_build_lib
 
 
-# MiniOS partition type GUID
-MINIOS_TYPE_GUID = '09845860-705F-4BB5-B16C-8A8A099CAF52'
-
-
 class Error(Exception):
   """Raised when there is an error with Cgpt."""
 
