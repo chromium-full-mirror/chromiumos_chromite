@@ -1245,7 +1245,18 @@
         {
           "board_name": "dedede",
           "name": "drawper",
-          "cq_test_enabled": false,
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true
@@ -3863,23 +3874,6 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 409,
-          "is_active": true
-        }
-      ]
-    },
-    {
-      "name": "keeby",
-      "reference_board_name": "keeby",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "keeby",
-          "name": "lalala",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7175,
           "is_active": true
         }
       ]
