@@ -1,6 +1,6 @@
-This branch contains chromeos-chromite configurations for chrome-infra services.
+This branch used to contain chromeos-chromite configurations for LUCI services.
 
-It is **DEPRECATED**, and only used for buildbot integration buckets/scheduling.
-See [crbug.com/718230](https://crbug.com/718230) for details.
+It is no longer used. See [chromiumos] and [chromeos] LUCI projects instead.
 
-Please prefer the chromiumos and chromeos projects where possible.
+[chromiumos]: https://luci-config.appspot.com/#/projects/chromiumos
+[chromeos]: https://luci-config.appspot.com/#/projects/chromeos
