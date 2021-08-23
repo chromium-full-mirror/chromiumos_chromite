@@ -3717,6 +3717,14 @@
         },
         {
           "board_name": "jacuzzi",
+          "name": "pico",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 401,
+          "is_active": true
+        },
+        {
+          "board_name": "jacuzzi",
           "name": "stern",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -3974,6 +3982,14 @@
             "bvt-perbuild",
             "bvt-tast-informational"
           ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7172,
+          "is_active": true
+        },
+        {
+          "board_name": "jacuzzi-kernelnext",
+          "name": "pico",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
