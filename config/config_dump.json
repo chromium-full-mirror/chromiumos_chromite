@@ -1004,6 +1004,7 @@
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"ambassador\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"genesis\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"moonbuggy\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"scout\",\n    \"test_suites\": []\n}"
         ],
         "vm_tests": [],
@@ -1030,6 +1031,7 @@
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"ambassador\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"genesis\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"moonbuggy\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"ambassador\",\n    \"name\": \"scout\",\n    \"test_suites\": []\n}"
         ],
         "paygen": false,
