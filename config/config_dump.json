@@ -16088,6 +16088,7 @@
         "hw_tests_disabled_bug": "b/185377942",
         "hw_tests_override": [],
         "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"cappy2\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"lalala\",\n    \"test_suites\": []\n}"
         ],
         "sign_types": [
@@ -16109,6 +16110,7 @@
         "hw_tests_override": null,
         "luci_builder": "Try",
         "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"cappy2\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"lalala\",\n    \"test_suites\": []\n}"
         ],
         "paygen": false,
