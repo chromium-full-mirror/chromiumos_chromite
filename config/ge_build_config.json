@@ -3929,6 +3929,14 @@
       "models": [
         {
           "board_name": "keeby",
+          "name": "cappy2",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7175,
+          "is_active": true
+        },
+        {
+          "board_name": "keeby",
           "name": "lalala",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
