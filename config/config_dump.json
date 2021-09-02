@@ -15466,6 +15466,8 @@
         "hw_tests_override": [],
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"cappy2\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"habokay\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"haboki\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"lalala\",\n    \"test_suites\": []\n}"
         ],
         "sign_types": [
@@ -15488,6 +15490,8 @@
         "luci_builder": "Try",
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"cappy2\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"habokay\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"haboki\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"keeby\",\n    \"name\": \"lalala\",\n    \"test_suites\": []\n}"
         ],
         "paygen": false,
