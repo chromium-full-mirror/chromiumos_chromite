@@ -40,21 +40,27 @@ class ImageToVmError(Error):
 class BuildConfig(object):
   """Value object to hold the build configuration options."""
 
-  def __init__(self, builder_path=None, disk_layout=None,
-               enable_rootfs_verification=True, replace=False, version=None,
-               build_attempt=None, symlink=None):
+  def __init__(self,
+               builder_path: Optional[str] = None,
+               disk_layout: Optional[str] = None,
+               enable_rootfs_verification: bool = True,
+               replace: bool = False,
+               version: Optional[str] = None,
+               build_attempt: Optional[int] = None,
+               symlink: Optional[str] = None,
+               output_dir_suffix: Optional[str] = None):
     """Build config initialization.
 
     Args:
       builder_path (str): The value to which the builder path lsb key should be
         set, the build_name installed on DUT during hwtest.
-      disk_layout (str): The disk layout type.
-      enable_rootfs_verification (bool): Whether the rootfs verification is
-        enabled.
-      replace (bool): Whether to replace existing output if any exists.
-      version (str): The version string to use for the image.
-      build_attempt (int): The build_attempt number to pass to build_image.
-      symlink (str): Symlink string.
+      disk_layout: The disk layout type.
+      enable_rootfs_verification: Whether the rootfs verification is enabled.
+      replace: Whether to replace existing output if any exists.
+      version: The version string to use for the image.
+      build_attempt: The build_attempt number to pass to build_image.
+      symlink: Symlink name (defaults to "latest").
+      output_dir_suffix: String to append to the image build directory.
     """
     self.builder_path = builder_path
     self.disk_layout = disk_layout
@@ -63,6 +69,7 @@ class BuildConfig(object):
     self.version = version
     self.build_attempt = build_attempt
     self.symlink = symlink
+    self.output_dir_suffix = output_dir_suffix
 
   def GetArguments(self):
     """Get the build_image arguments for the configuration."""
@@ -82,6 +89,8 @@ class BuildConfig(object):
       args.extend(['--build_attempt', self.build_attempt])
     if self.symlink:
       args.extend(['--symlink', self.symlink])
+    if self.output_dir_suffix:
+      args.extend(['--output_suffix', self.output_dir_suffix])
 
     return args
 
