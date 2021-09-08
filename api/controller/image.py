@@ -147,6 +147,7 @@ def Create(input_proto, output_proto, _config):
   factory_build_config = copy.copy(build_config)
   build_config.symlink = LOCATION_CORE
   factory_build_config.symlink = LOCATION_FACTORY
+  factory_build_config.output_dir_suffix = LOCATION_FACTORY
 
   # Try building the core and factory images.
   # Sorted isn't really necessary here, but it's much easier to test.
