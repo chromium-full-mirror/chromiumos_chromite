@@ -301,6 +301,13 @@ class DlcGenerator(object):
       ],
                          capture_output=True)
 
+      # Verity cannot create hashes for device images which are less than two
+      # pages in size. So fix this squashfs image if it's too small.
+      # Check out b/187725419 for details.
+      if os.path.getsize(self.dest_image) < self._BLOCK_SIZE * 2:
+        logging.warning('Increasing DLC image size to at least two pages.')
+        os.truncate(self.dest_image, self._BLOCK_SIZE * 2)
+
       # We changed the ownership and permissions of the squashfs_root
       # directory. Now we need to remove it manually.
       osutils.RmDir(squashfs_root, sudo=True)

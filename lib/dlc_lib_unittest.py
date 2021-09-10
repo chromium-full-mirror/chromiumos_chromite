@@ -255,10 +255,31 @@ class DlcGeneratorTest(cros_test_lib.LoggingTestCase,
 
   def testCreateSquashfsImage(self):
     """Test that creating squashfs commands are run with correct parameters."""
+    self.PatchObject(
+        os.path,
+        'getsize',
+        return_value=(_BLOCK_SIZE * 2))
     copy_dir_mock = self.PatchObject(osutils, 'CopyDirContents')
 
     self.GetDlcGenerator().CreateSquashfsImage()
     self.assertCommandContains(['mksquashfs', '-4k-align', '-noappend'])
+    copy_dir_mock.assert_called_once_with(
+        partial_mock.HasString('src'),
+        partial_mock.HasString('root'),
+        symlinks=True)
+
+  def testCreateSquashfsImagePageAlignment(self):
+    """Test that creating squashfs commands are run with page alignment."""
+    self.PatchObject(
+        os.path,
+        'getsize',
+        return_value=(_BLOCK_SIZE * 1))
+    truncate_mock = self.PatchObject(os, 'truncate')
+    copy_dir_mock = self.PatchObject(osutils, 'CopyDirContents')
+
+    self.GetDlcGenerator().CreateSquashfsImage()
+    self.assertCommandContains(['mksquashfs', '-4k-align', '-noappend'])
+    truncate_mock.asset_called()
     copy_dir_mock.assert_called_once_with(
         partial_mock.HasString('src'),
         partial_mock.HasString('root'),
