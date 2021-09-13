@@ -283,9 +283,8 @@ class Goma(object):
 
   def _RunGomaCtl(self, command):
     goma_ctl = os.path.join(self.linux_goma_dir, 'goma_ctl.py')
-    # TODO(crbug.com/1007384): Stop forcing Python 2.
     cros_build_lib.run(
-        ['python2', goma_ctl, command], extra_env=self.GetExtraEnv())
+        ['python3', goma_ctl, command], extra_env=self.GetExtraEnv())
 
   def Start(self):
     """Starts goma compiler proxy."""
