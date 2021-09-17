@@ -5339,6 +5339,22 @@
           "release_builder_test_pool": "bvt",
           "board_id": 461,
           "is_active": true
+        },
+        {
+          "board_name": "strongbad",
+          "name": "mrbland",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 461,
+          "is_active": true
+        },
+        {
+          "board_name": "strongbad",
+          "name": "wormdingler",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 461,
+          "is_active": true
         }
       ]
     },
