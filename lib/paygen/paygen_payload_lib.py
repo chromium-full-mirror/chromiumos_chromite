@@ -46,8 +46,8 @@ _mem_semaphore = utils.MemoryConsumptionSemaphore(
     system_available_buffer_bytes=2**31 + 2**32,  # 6 GB
     single_proc_max_bytes=2**31 + 2**32,  # 6 GB
     quiescence_time_seconds=60.0,
-    total_max=10,
-    unchecked_acquires=4)
+    total_max=18,
+    unchecked_acquires=8)
 
 
 class Error(Exception):
