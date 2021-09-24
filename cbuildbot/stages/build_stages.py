@@ -419,9 +419,11 @@ class CleanUpStage(generic_stages.BuilderStage):
       if self._run.options.workspace:
         tasks.append(self._CleanWorkspace)
 
+      # TODO(b/201081848): Don't cancel for now, paygen going on too long.
+      #
       # CancelObsoleteSlaveBuilds, if there are slave builds to cancel.
-      if self._run.config.slave_configs:
-        tasks.append(self.CancelObsoleteSlaveBuilds)
+      # if self._run.config.slave_configs:
+      #  tasks.append(self.CancelObsoleteSlaveBuilds)
 
       parallel.RunParallelSteps(tasks)
 
