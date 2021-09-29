@@ -276,7 +276,6 @@
     fizz-release
     gale-release
     gnawty-release
-    goroh-release
     grunt-arc-r-release
     grunt-kernelnext-release
     grunt-release
@@ -924,12 +923,6 @@
   gnawty-payloads-tryjob
   gnawty-release-tryjob
   gnawty-unittest-stress
-  goroh-full-tryjob
-  goroh-llvm-next-toolchain-tryjob
-  goroh-llvm-toolchain-tryjob
-  goroh-payloads-tryjob
-  goroh-release-tryjob
-  goroh-unittest-stress
   gru-factory-gru-9017.B-factorybranch-tryjob
   grunt-arc-r-full-tryjob
   grunt-arc-r-llvm-next-toolchain-tryjob
@@ -1229,7 +1222,6 @@
     fizz-release-tryjob
     gale-release-tryjob
     gnawty-release-tryjob
-    goroh-release-tryjob
     grunt-arc-r-release-tryjob
     grunt-kernelnext-release-tryjob
     grunt-release-tryjob
