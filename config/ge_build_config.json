@@ -194,18 +194,6 @@
       ]
     },
     {
-      "name": "goroh",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "goroh",
-          "arch": "ARM_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "guado_labstation",
       "configs": [
         {
