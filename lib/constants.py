@@ -77,7 +77,7 @@ HOME_DIRECTORY = os.path.expanduser('~')
 CIDB_PROD_BOT_CREDS = os.path.join(HOME_DIRECTORY, '.cidb_creds',
                                    'prod_cidb_bot')
 CIDB_DEBUG_BOT_CREDS = os.path.join(HOME_DIRECTORY, '.cidb_creds',
-                                   'debug_cidb_bot')
+                                    'debug_cidb_bot')
 
 # Crash Server upload API key.
 CRASH_API_KEY = os.path.join('/', 'creds', 'api_keys',
