@@ -205,25 +205,25 @@ class CleanUpStage(generic_stages.BuilderStage):
     # Find the 3 most recent master buildbucket ids in active buckets.
     for bucket in constants.ACTIVE_BUCKETS:
       for status in [
-        constants.BUILDBUCKET_BUILDER_STATUS_CANCELED,
-        constants.BUILDBUCKET_BUILDER_STATUS_SUCCESS,
+          constants.BUILDBUCKET_BUILDER_STATUS_CANCELED,
+          constants.BUILDBUCKET_BUILDER_STATUS_SUCCESS,
       ]:
         build_predicate = builds_service_pb2.BuildPredicate(
-          builder=builder_pb2.BuilderID(
-            project='chromeos',
-            bucket=bucket),
-          status=status,
-          tags=[common_pb2.StringPair(key='cbb_config',
-                                    value=self._run.config.name),
-              common_pb2.StringPair(key='cbb_branch',
-                                    value=self._run.manifest_branch)],
+            builder=builder_pb2.BuilderID(
+                project='chromeos',
+                bucket=bucket),
+            status=status,
+            tags=[common_pb2.StringPair(key='cbb_config',
+                                        value=self._run.config.name),
+                  common_pb2.StringPair(key='cbb_branch',
+                                        value=self._run.manifest_branch)],
         )
         main_search.append(builds_service_pb2.SearchBuildsRequest(
-              predicate=build_predicate,
-              fields=field_mask_pb2.FieldMask(paths=['builds.*.id']),
-              page_size=3))
+            predicate=build_predicate,
+            fields=field_mask_pb2.FieldMask(paths=['builds.*.id']),
+            page_size=3))
     main_builds = buildbucket_client.BatchSearchBuilds(
-      search_requests=main_search
+        search_requests=main_search
     )
     main_ids = []
     for br in main_builds.responses:
@@ -238,27 +238,27 @@ class CleanUpStage(generic_stages.BuilderStage):
           constants.BUILDBUCKET_BUILDER_STATUS_SCHEDULED,
           constants.BUILDBUCKET_BUILDER_STATUS_STARTED]:
         child_predicate = builds_service_pb2.BuildPredicate(
-          builder=builder_pb2.BuilderID(
-            project='chromeos',
-            bucket=bucket),
-          status=status,
-          tags=[common_pb2.StringPair(
-            key='buildset',
-            value=request_build.ChildBuildSet(main_id))],
+            builder=builder_pb2.BuilderID(
+                project='chromeos',
+                bucket=bucket),
+            status=status,
+            tags=[common_pb2.StringPair(
+                key='buildset',
+                value=request_build.ChildBuildSet(main_id))],
         )
         batch_search.append(builds_service_pb2.SearchBuildsRequest(
-          predicate=child_predicate))
+            predicate=child_predicate))
     builds = buildbucket_client.BatchSearchBuilds(
-      search_requests=batch_search)
+        search_requests=batch_search)
     cancel_nodes = []
     for cr in builds.responses:
       for cb in cr.search_builds.builds:
         logging.info(
-          'Found build %s in status %s from previous orchestrator.',
-          str(cb.id), common_pb2.Status.Name(cb.status))
+            'Found build %s in status %s from previous orchestrator.',
+            str(cb.id), common_pb2.Status.Name(cb.status))
         cancel_nodes.append(cb.id)
-    buildbucket_client.BatchCancelBuilds(cancel_nodes,
-      'Canceling builds from a previous orchestrator.')
+    buildbucket_client.BatchCancelBuilds(
+        cancel_nodes, 'Canceling builds from a previous orchestrator.')
 
   def CanReuseChroot(self, chroot_path):
     """Determine if the chroot can be reused.
@@ -375,7 +375,10 @@ class CleanUpStage(generic_stages.BuilderStage):
     # Clean mount points first to be safe about deleting.
     chroot_path = os.path.join(self._build_root, constants.DEFAULT_CHROOT_DIR)
     cros_sdk_lib.CleanupChrootMount(chroot=chroot_path)
-    osutils.UmountTree(self._build_root)
+
+    logging.info('Build root path: %s', self._build_root)
+    if not os.path.ismount(self._build_root):
+      osutils.UmountTree(self._build_root)
 
     if not delete_chroot:
       delete_chroot = not self.CanReuseChroot(chroot_path)
