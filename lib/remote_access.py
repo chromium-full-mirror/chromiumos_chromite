@@ -216,7 +216,7 @@ def CompileSSHConnectSettings(**kwargs):
     A list of arguments to pass to SSH.
   """
   settings = {
-      'ConnectTimeout': 30,
+      'ConnectTimeout': 60,
       'ConnectionAttempts': 4,
       'NumberOfPasswordPrompts': 0,
       'Protocol': 2,
