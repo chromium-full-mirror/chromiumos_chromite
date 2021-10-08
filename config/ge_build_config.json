@@ -1477,6 +1477,14 @@
         },
         {
           "board_name": "dedede",
+          "name": "magneto",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 419,
+          "is_active": true
+        },
+        {
+          "board_name": "dedede",
           "name": "magolor",
           "test_suites": [
             "sanity",
