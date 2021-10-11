@@ -357,14 +357,16 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
       build_target_name='atlas',
       profile='foo',
       sign_types=None,
-      dryrun=True):
+      dryrun=True,
+      channels=None):
     return image_pb2.PushImageRequest(
         gs_image_dir=gs_image_dir,
         sysroot=sysroot_pb2.Sysroot(
             build_target=common_pb2.BuildTarget(name=build_target_name)),
         profile=common_pb2.Profile(name=profile),
         sign_types=sign_types,
-        dryrun=dryrun)
+        dryrun=dryrun,
+        channels=channels)
 
   def testValidateOnly(self):
     """Check that a validate only call does not execute any logic."""
@@ -431,7 +433,8 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     patch = self.PatchObject(pushimage, 'PushImage')
 
     request = self._GetRequest(
-        dryrun=False, profile='', sign_types=[common_pb2.IMAGE_TYPE_RECOVERY])
+        dryrun=False, profile='', sign_types=[common_pb2.IMAGE_TYPE_RECOVERY],
+        channels=[common_pb2.CHANNEL_DEV, common_pb2.CHANNEL_CANARY])
     request.dest_bucket = 'gs://foo'
     image_controller.PushImage(request, self.response, self.api_config)
     patch.assert_called_with(
@@ -439,7 +442,8 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         request.sysroot.build_target.name,
         dry_run=request.dryrun,
         sign_types=['recovery'],
-        dest_bucket=request.dest_bucket)
+        dest_bucket=request.dest_bucket,
+        force_channels=['dev', 'canary'])
 
   def testCallSucceeds(self):
     """Check that a (dry run) call is made successfully."""

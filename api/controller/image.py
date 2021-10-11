@@ -164,7 +164,7 @@ def GetArtifacts(in_proto: common_pb2.ArtifactsByService.Image,
   base_path = chroot.full_path(sysroot_class.path)
   board = build_target.name
   factory_shim_location = Path(
-    image_lib.GetLatestImageLink(board, pointer=LOCATION_FACTORY)).resolve()
+      image_lib.GetLatestImageLink(board, pointer=LOCATION_FACTORY)).resolve()
 
   generated = []
   dlc_func = functools.partial(image.copy_dlc_image, base_path)
@@ -458,6 +458,11 @@ def PushImage(input_proto, _output_proto, config):
     kwargs['profile'] = input_proto.profile.name
   if input_proto.dest_bucket:
     kwargs['dest_bucket'] = input_proto.dest_bucket
+  if input_proto.channels:
+    kwargs['force_channels'] = [
+        common_pb2.Channel.Name(channel).lower()[len('channel_'):]
+        for channel in input_proto.channels
+    ]
   try:
     pushimage.PushImage(
         input_proto.gs_image_dir,
