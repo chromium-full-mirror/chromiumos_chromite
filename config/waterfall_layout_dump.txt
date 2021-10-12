@@ -509,11 +509,10 @@
   candy-payloads-tryjob
   candy-release-tryjob
   candy-unittest-stress
-  capri-rapid
   capri-zfpga-full-tryjob
   capri-zfpga-llvm-next-toolchain-tryjob
   capri-zfpga-llvm-toolchain-tryjob
-  capri-zfpga-rapid
+  capri-zfpga-payloads-tryjob
   capri-zfpga-release-tryjob
   capri-zfpga-unittest-stress
   caroline-factory-glados-7828.B-factorybranch-tryjob
@@ -572,7 +571,6 @@
   chromeos-infra-go-tryjob
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
-  cobblepot-rapid
   config-updater-tryjob
   coral-factory-coral-10122.B-factorybranch-tryjob
   coral-full-tryjob
@@ -941,7 +939,6 @@
   gnawty-payloads-tryjob
   gnawty-release-tryjob
   gnawty-unittest-stress
-  gonzo-rapid
   gru-factory-gru-9017.B-factorybranch-tryjob
   grunt-arc-r-full-tryjob
   grunt-arc-r-llvm-next-toolchain-tryjob
@@ -1143,7 +1140,6 @@
   lars-payloads-tryjob
   lars-release-tryjob
   lars-unittest-stress
-  lasilla-ground-rapid
   littlejoe-full-tryjob
   littlejoe-llvm-next-toolchain-tryjob
   littlejoe-llvm-toolchain-tryjob
@@ -1401,7 +1397,6 @@
   nyan_blaze-payloads-tryjob
   nyan_blaze-release-tryjob
   nyan_blaze-unittest-stress
-  octavius-rapid
   octopus-factory-octopus-11512.B-factorybranch-tryjob
   octopus-full-tryjob
   octopus-llvm-next-toolchain-tryjob
@@ -1503,7 +1498,6 @@
   rikku-payloads-tryjob
   rikku-release-tryjob
   rikku-unittest-stress
-  romer-rapid
   samus-full-tryjob
   samus-kernelnext-full-tryjob
   samus-kernelnext-llvm-next-toolchain-tryjob
@@ -1730,7 +1724,6 @@
   wizpig-payloads-tryjob
   wizpig-release-tryjob
   wizpig-unittest-stress
-  wooten-rapid
   wristpin-full-tryjob
   wristpin-llvm-next-toolchain-tryjob
   wristpin-llvm-toolchain-tryjob

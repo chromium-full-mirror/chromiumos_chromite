@@ -4385,57 +4385,13 @@
             "chrome_internal"
         ]
     },
-    "capri-rapid": {
-        "_template": "release",
-        "boards": [
-            "capri"
-        ],
-        "chrome_sdk": false,
-        "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
-    },
     "capri-zfpga-full": {
         "_template": "full",
         "boards": [
             "capri-zfpga"
         ],
-        "chrome_sdk": false,
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests_override": [],
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
         "prebuilts": "public",
         "run_cpeexport": true,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
         "useflags": [
             "-chrome_internal"
         ],
@@ -4446,23 +4402,21 @@
         "boards": [
             "capri-zfpga"
         ],
-        "chrome_sdk": false,
         "debug": true,
         "display_label": "tryjob",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests_override": null,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
+        "hw_tests": [
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-inline\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-arc\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-tast-cq\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-tast-informational\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-installer\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-cq\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-perbuild\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}"
         ],
+        "hw_tests_override": null,
         "luci_builder": "Try",
         "prebuilts": "public",
         "run_cpeexport": true,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
         "useflags": [
             "-chrome_internal"
         ],
@@ -4472,138 +4426,54 @@
         "_template": "llvm_next_toolchain",
         "boards": [
             "capri-zfpga"
-        ],
-        "chrome_sdk": false,
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": [],
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false
+        ]
     },
     "capri-zfpga-llvm-next-toolchain-tryjob": {
         "_template": "llvm_next_toolchain",
         "boards": [
             "capri-zfpga"
         ],
-        "chrome_sdk": false,
         "debug": true,
         "display_label": "tryjob",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
         "hw_tests_override": null,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Try",
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false
+        "luci_builder": "Try"
     },
     "capri-zfpga-llvm-toolchain": {
         "_template": "llvm_toolchain",
         "boards": [
             "capri-zfpga"
-        ],
-        "chrome_sdk": false,
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": [],
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false
+        ]
     },
     "capri-zfpga-llvm-toolchain-tryjob": {
         "_template": "llvm_toolchain",
         "boards": [
             "capri-zfpga"
         ],
-        "chrome_sdk": false,
         "debug": true,
         "display_label": "tryjob",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
         "hw_tests_override": null,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Try",
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false
+        "luci_builder": "Try"
     },
-    "capri-zfpga-rapid": {
-        "_template": "release",
+    "capri-zfpga-payloads": {
+        "_template": "payloads",
+        "boards": [
+            "capri-zfpga"
+        ]
+    },
+    "capri-zfpga-payloads-tryjob": {
+        "_template": "payloads",
         "boards": [
             "capri-zfpga"
         ],
-        "chrome_sdk": false,
         "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
         "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
+        "luci_builder": "Try"
     },
     "capri-zfpga-release": {
         "_template": "release",
         "boards": [
             "capri-zfpga"
         ],
-        "chrome_sdk": false,
-        "dev_installer_prebuilts": false,
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": [],
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "paygen": false,
-        "signer_tests": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
         "vm_tests": [],
         "vm_tests_override": null
     },
@@ -4612,28 +4482,22 @@
         "boards": [
             "capri-zfpga"
         ],
-        "chrome_sdk": false,
         "debug": true,
-        "dev_installer_prebuilts": false,
         "display_label": "tryjob",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
+        "hw_tests": [
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-inline\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-arc\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-tast-cq\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-tast-informational\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-installer\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-cq\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}",
+            "{\n    \"async\": true,\n    \"blocking\": false,\n    \"critical\": false,\n    \"enable_skylab\": true,\n    \"file_bugs\": false,\n    \"max_retries\": 5,\n    \"minimum_duts\": 0,\n    \"offload_failures_only\": false,\n    \"pool\": \"quota\",\n    \"priority\": \"PostBuild\",\n    \"quota_account\": \"legacypool-suites\",\n    \"retry\": true,\n    \"suite\": \"bvt-perbuild\",\n    \"suite_args\": null,\n    \"suite_min_duts\": 1,\n    \"timeout\": 15000,\n    \"warn_only\": false\n}"
         ],
+        "hw_tests_override": null,
         "luci_builder": "Try",
         "paygen": false,
         "push_image": false,
-        "signer_tests": false,
         "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
         "vm_tests": [],
         "vm_tests_override": null
     },
@@ -4642,17 +4506,12 @@
         "boards": [
             "capri-zfpga"
         ],
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
         "hw_tests_override": null,
         "internal": true,
         "luci_builder": "Try",
         "manifest": "official.xml",
         "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
         "overlays": "both",
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
         "useflags": [
             "chrome_internal"
         ]
@@ -6137,38 +5996,6 @@
         "use_sdk": false,
         "usepkg_build_packages": false,
         "vm_tests": []
-    },
-    "cobblepot-rapid": {
-        "_template": "release",
-        "boards": [
-            "cobblepot"
-        ],
-        "chrome_sdk": false,
-        "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
     },
     "config-updater": {
         "boards": [],
@@ -12871,38 +12698,6 @@
             "chrome_internal"
         ]
     },
-    "gonzo-rapid": {
-        "_template": "release",
-        "boards": [
-            "gonzo"
-        ],
-        "chrome_sdk": false,
-        "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
-    },
     "gru-factory-gru-9017.B-factorybranch": {
         "_template": "factorybranch",
         "boards": [
@@ -17933,38 +17728,6 @@
             "chrome_internal"
         ]
     },
-    "lasilla-ground-rapid": {
-        "_template": "release",
-        "boards": [
-            "lasilla-ground"
-        ],
-        "chrome_sdk": false,
-        "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
-    },
     "littlejoe-full": {
         "_template": "full",
         "boards": [
@@ -20845,38 +20608,6 @@
             "chrome_internal"
         ]
     },
-    "octavius-rapid": {
-        "_template": "release",
-        "boards": [
-            "octavius"
-        ],
-        "chrome_sdk": false,
-        "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
-    },
     "octopus-factory-octopus-11512.B-factorybranch": {
         "_template": "factorybranch",
         "boards": [
@@ -23379,38 +23110,6 @@
         "useflags": [
             "chrome_internal"
         ]
-    },
-    "romer-rapid": {
-        "_template": "release",
-        "boards": [
-            "romer"
-        ],
-        "chrome_sdk": false,
-        "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
     },
     "samus-full": {
         "_template": "full",
@@ -29678,38 +29377,6 @@
         "useflags": [
             "chrome_internal"
         ]
-    },
-    "wooten-rapid": {
-        "_template": "release",
-        "boards": [
-            "wooten"
-        ],
-        "chrome_sdk": false,
-        "debug": true,
-        "description": "Create unsigned release image for ingestion into build tool",
-        "dev_installer_prebuilts": false,
-        "display_label": "utility",
-        "factory": false,
-        "factory_install_netboot": false,
-        "factory_toolkit": false,
-        "hw_tests": [],
-        "hw_tests_override": null,
-        "hwqual": false,
-        "image_test": false,
-        "images": [
-            "base",
-            "test"
-        ],
-        "luci_builder": "Rapid",
-        "paygen": false,
-        "push_image": false,
-        "rootfs_verification": false,
-        "signer_tests": false,
-        "suite_scheduling": false,
-        "sync_chrome": false,
-        "upload_hw_test_artifacts": false,
-        "vm_tests": [],
-        "vm_tests_override": null
     },
     "wristpin-full": {
         "_template": "full",

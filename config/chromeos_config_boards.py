@@ -97,14 +97,6 @@ lassen_boards = frozenset([
 ])
 
 loonix_boards = frozenset([
-    'capri',
-    'capri-zfpga',
-    'cobblepot',
-    'gonzo',
-    'lasilla-ground',
-    'octavius',
-    'romer',
-    'wooten',
 ])
 
 reven_boards = frozenset([
