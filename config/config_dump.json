@@ -3681,8 +3681,7 @@
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"kano\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"primus\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"redrix\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"taeko\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"taeland\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"taeko\",\n    \"test_suites\": []\n}"
         ],
         "sign_types": [
             "recovery",
@@ -3710,8 +3709,7 @@
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"kano\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"primus\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"redrix\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"taeko\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"taeland\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"brya\",\n    \"name\": \"taeko\",\n    \"test_suites\": []\n}"
         ],
         "paygen": false,
         "push_image": false,
