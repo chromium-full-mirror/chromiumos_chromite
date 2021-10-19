@@ -187,8 +187,12 @@ class CleanUpStage(generic_stages.BuilderStage):
                           self._build_root, e)
 
     # Clean mount points first to be safe about deleting.
-    cros_build_lib.CleanupChrootMount(buildroot=self._build_root)
-    osutils.UmountTree(self._build_root)
+    chroot_path = os.path.join(self._build_root, constants.DEFAULT_CHROOT_DIR)
+    cros_build_lib.CleanupChrootMount(chroot=chroot_path)
+
+    logging.info('Build root path: %s', self._build_root)
+    if not os.path.ismount(self._build_root):
+      osutils.UmountTree(self._build_root)
 
     # Re-mount chroot if it exists so that subsequent steps can clean up inside.
     try:
