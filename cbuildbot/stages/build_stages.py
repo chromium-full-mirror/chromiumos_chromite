@@ -129,8 +129,9 @@ class CleanUpStage(generic_stages.BuilderStage):
           cros_build_lib.Warning("ManifestCheckout at %s is unusable: %s",
                                  self._build_root, e)
 
-    # Clean mount points first to be safe about deleting.
-    commands.CleanUpMountPoints(self._build_root)
+    logging.info('Build root path: %s', self._build_root)
+    if not os.path.ismount(self._build_root):
+      commands.CleanUpMountPoints(self._build_root)
 
     if manifest is None:
       self._DeleteChroot()
