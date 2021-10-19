@@ -353,7 +353,10 @@ class CleanUpStage(generic_stages.BuilderStage):
     # Clean mount points first to be safe about deleting.
     chroot_path = os.path.join(self._build_root, constants.DEFAULT_CHROOT_DIR)
     cros_sdk_lib.CleanupChrootMount(chroot=chroot_path)
-    osutils.UmountTree(self._build_root)
+
+    logging.info('Build root path: %s', self._build_root)
+    if not os.path.ismount(self._build_root):
+      osutils.UmountTree(self._build_root)
 
     if not delete_chroot:
       delete_chroot = not self.CanReuseChroot(chroot_path)
