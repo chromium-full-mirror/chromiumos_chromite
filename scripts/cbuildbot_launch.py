@@ -207,8 +207,24 @@ def RunCbuildbot(options):
     Return code of cbuildbot as an integer.
   """
   logging.info('Bootstrap cbuildbot in: %s', options.buildroot)
-  cbuildbot_path = os.path.join(
-      options.buildroot, 'chromite', 'bin', 'cbuildbot')
+
+  # Fixup buildroot parameter.
+  argv = argv[:]
+  for i in xrange(len(argv)):
+    if argv[i] in ('-r', '--buildroot'):
+      argv[i+1] = buildroot
+
+  # Source_cache flag is only used to indicate a transition to cache disks
+  # and doesn't need to be passed back to Cbuildbot.
+  if '--source_cache' in argv:
+    argv.remove('--source_cache')
+  logging.info('Cbuildbot Args: %s', argv)
+
+  # This filters out command line arguments not supported by older versions
+  # of cbuildbot.
+  parser = cbuildbot.CreateParser()
+  options, _ = cbuildbot.ParseCommandLine(parser, argv)
+  cbuildbot_path = os.path.join(buildroot, 'chromite', 'bin', 'cbuildbot')
 
   cmd = sync_stages.BootstrapStage.FilterArgsForTargetCbuildbot(
       options.buildroot, cbuildbot_path, options)
