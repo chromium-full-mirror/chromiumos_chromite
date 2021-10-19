@@ -232,6 +232,12 @@ def RunCbuildbot(buildroot, argv):
     if argv[i] in ('-r', '--buildroot'):
       argv[i+1] = buildroot
 
+  # Source_cache flag is only used to indicate a transition to cache disks
+  # and doesn't need to be passed back to Cbuildbot.
+  if '--source_cache' in argv:
+    argv.remove('--source_cache')
+  logging.info('Cbuildbot Args: %s', argv)
+
   # This filters out command line arguments not supported by older versions
   # of cbuildbot.
   parser = cbuildbot.CreateParser()
