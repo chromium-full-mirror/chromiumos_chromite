@@ -190,7 +190,10 @@ class CleanUpStage(generic_stages.BuilderStage):
     # Clean mount points first to be safe about deleting.
     chroot_path = os.path.join(self._build_root, constants.DEFAULT_CHROOT_DIR)
     cros_build_lib.CleanupChrootMount(chroot=chroot_path)
-    osutils.UmountTree(self._build_root)
+
+    logging.info('Build root path: %s', self._build_root)
+    if not os.path.ismount(self._build_root):
+      osutils.UmountTree(self._build_root)
 
     # If our chroot.img status doesn't match what is requested in the config
     # (exists when chroot_use_image is False or vice versa), delete the chroot
