@@ -6,7 +6,7 @@
 
 from __future__ import division
 
-import getopt
+import multiprocessing
 import os
 
 from chromite.lib import commandline
@@ -14,99 +14,34 @@ from chromite.lib import osutils
 from chromite.utils import memoize
 
 
-PIXZ_DISABLE_VAR = 'FOR_TEST_XZ_AUTO_NO_PIXZ'
-
-
 @memoize.Memoize
 def HasPixz():
   """Returns path to pixz if it's on PATH or None otherwise."""
-  return osutils.Which('pixz') and not os.environ.get(PIXZ_DISABLE_VAR)
+  return osutils.Which('pixz')
 
 
-def BasePixzCommand(jobs):
-  """Returns a command that invokes pixz with the given job count."""
-  return ['pixz', '-p', str(jobs)]
+@memoize.Memoize
+def GetJobCount():
+  """Returns half of the total number of the machine's CPUs as a string.
+
+  Returns half rather than all of them to avoid starving out other parallel
+  processes on the same machine.
+  """
+  return str(int(max(1, multiprocessing.cpu_count() / 2)))
 
 
-def BaseXzCommand(jobs):
-  """Returns a command that invokes xz with the given job count."""
-  return ['xz', f'-T{jobs}']
-
-
-def DetermineFilesPassedToPixz(argv):
-  """Attempt to figure out what file we're trying to compress."""
-  # Glancing at docs, the following opts are supported. -i and -o are ignored,
-  # since we assert in `main` that they're not present, but include parsing for
-  # them anyway.
-  _, args = getopt.gnu_getopt(
-      args=argv,
-      shortopts='dlxi:o:0123456789p:tkch',
-  )
-  if not args:
-    file_to_compress = None
-    target = None
-  elif len(args) == 1:
-    file_to_compress = args[0]
-    target = None
-  else:
-    file_to_compress = args[0]
-    target = args[1]
-
-  return file_to_compress, target
-
-
-def GetCompressCommand(stdout, jobs, argv):
-  """Returns compression command."""
-  # It appears that in order for pixz to do parallel decompression, compression
-  # needs to be done with pixz. xz itself is only capable of parallel
-  # compression.
-  if HasPixz():
-    cmd = BasePixzCommand(jobs)
-
-    compressed_file_name, specifies_output_file = DetermineFilesPassedToPixz(
-        argv)
-
-    if compressed_file_name:
-      if not (stdout or specifies_output_file):
-        # Pixz defaults to a `.pxz` suffix (or `.tpxz` if it's compressing a
-        # tar file). We need the suffix to be consistent, so force it here.
-        cmd += ['-o', f'{compressed_file_name}.xz']
-    else:
-      cmd += ['-i', '/dev/stdin']
-    return cmd
-
-  cmd = BaseXzCommand(jobs)
-
-  if stdout:
-    cmd.append('-zc')
-  else:
-    cmd.append('-z')
-  return cmd
-
-
-def GetDecompressCommand(stdout, jobs, argv):
+def GetDecompressCommand(stdout):
   """Returns decompression command."""
   if HasPixz():
-    cmd = BasePixzCommand(jobs)
-    cmd.append('-d')
-
-    compressed_file_name, _ = DetermineFilesPassedToPixz(argv)
+    cmd = ['pixz', '-d', '-p', GetJobCount()]
     if stdout:
       # Explicitly tell pixz the file is the input, so it will dump the output
       # to stdout, instead of automatically choosing an output name.
       cmd.append('-i')
-      if not compressed_file_name:
-        cmd.append('/dev/stdin')
-    elif not compressed_file_name:
-      cmd += ['-i', '/dev/stdin']
     return cmd
-
-  cmd = BaseXzCommand(jobs)
   if stdout:
-    cmd.append('-dc')
-  else:
-    cmd.append('-d')
-  return cmd
+    return ['xz', '-dc']
+  return ['xz', '-d']
 
 
 def GetParser():
@@ -132,12 +67,12 @@ def main(argv):
   if '-i' in argv or '-o' in argv:
     parser.error('It is invalid to use -i or -o with xz_auto')
 
-  # Use half of our CPUs to avoid starving other processes.
-  jobs = max(1, os.cpu_count() // 2)
-
+  # xz doesn't support multi-threaded decompression, so try using pixz for that.
   if known_args.decompress:
-    args = GetDecompressCommand(known_args.stdout, jobs, argv)
+    args = GetDecompressCommand(known_args.stdout)
+    os.execvp(args[0], args + argv)
   else:
-    args = GetCompressCommand(known_args.stdout, jobs, argv)
-
-  os.execvp(args[0], args + argv)
+    cmd = ['xz', '-T0']
+    if known_args.stdout:
+      cmd.append('-c')
+    os.execvp(cmd[0], cmd + argv)
