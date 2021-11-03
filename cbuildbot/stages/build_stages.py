@@ -404,10 +404,12 @@ class CleanUpStage(generic_stages.BuilderStage):
                                 self._run.options.preserve_paths)
     else:
       tasks = [
-          self._BuildRootGitCleanup, self._WipeOldOutput,
+          self._WipeOldOutput,
           self._DeleteArchivedTrybotImages, self._DeleteArchivedPerfResults,
           self._DeleteAutotestSitePackages
       ]
+      if not os.path.ismount(self._build_root):
+        tasks.insert(0, self._BuildRootGitCleanup)
       if self._run.options.chrome_root:
         tasks.append(self._DeleteChromeBuildOutput)
       if delete_chroot:
