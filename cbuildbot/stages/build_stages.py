@@ -139,13 +139,14 @@ class CleanUpStage(generic_stages.BuilderStage):
       repository.ClearBuildRoot(self._build_root,
                                 self._run.options.preserve_paths)
     else:
-      tasks = [functools.partial(commands.BuildRootGitCleanup,
-                                 self._build_root),
-               functools.partial(commands.WipeOldOutput, self._build_root),
-               self._DeleteArchivedTrybotImages,
-               self._DeleteArchivedPerfResults,
-               self._DeleteAutotestSitePackages,
-               self._AbortPreviousHWTestSuites]
+      tasks = [
+          self._WipeOldOutput,
+          self._DeleteArchivedTrybotImages, self._DeleteArchivedPerfResults,
+          self._DeleteAutotestSitePackages
+      ]
+      if not os.path.ismount(self._build_root):
+        tasks.insert(0, functools.partial(commands.BuildRootGitCleanup,
+                                          self._build_root))
       if self._run.options.chrome_root:
         tasks.append(self._DeleteChromeBuildOutput)
       if self._run.config.chroot_replace and self._run.options.build:
