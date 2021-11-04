@@ -409,7 +409,7 @@ class CleanUpStage(generic_stages.BuilderStage):
           self._DeleteAutotestSitePackages
       ]
       if not os.path.ismount(self._build_root):
-        tasks.insert(self._BuildRootGitCleanup)
+        tasks.insert(0, self._BuildRootGitCleanup)
       if self._run.options.chrome_root:
         tasks.append(self._DeleteChromeBuildOutput)
       if delete_chroot:
