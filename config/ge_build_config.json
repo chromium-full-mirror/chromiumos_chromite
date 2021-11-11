@@ -194,18 +194,6 @@
       ]
     },
     {
-      "name": "gale",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "gale",
-          "arch": "UNKNOWN"
-        }
-      ]
-    },
-    {
       "name": "guado_labstation",
       "configs": [
         {
@@ -310,18 +298,6 @@
           "leader_board": true,
           "board_group": "kunimitsu",
           "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
-      "name": "mistral",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "ARM_INTERNAL"
         }
       ]
     },
