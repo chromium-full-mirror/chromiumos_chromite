@@ -18322,6 +18322,7 @@
         ],
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"ampton\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"amptone\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"apel\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"apele\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"bloog\",\n    \"test_suites\": []\n}",
@@ -18390,6 +18391,7 @@
         "luci_builder": "Try",
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"ampton\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"amptone\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"apel\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"apele\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"octopus\",\n    \"name\": \"bloog\",\n    \"test_suites\": []\n}",

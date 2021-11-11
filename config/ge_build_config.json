@@ -5378,6 +5378,14 @@
         },
         {
           "board_name": "octopus-arc-r",
+          "name": "amptone",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7201,
+          "is_active": true
+        },
+        {
+          "board_name": "octopus-arc-r",
           "name": "apel",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
