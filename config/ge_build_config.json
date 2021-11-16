@@ -6607,6 +6607,10 @@
         {
           "board_name": "trogdor-kernelnext",
           "name": "limozeen",
+          "test_suites": [
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
@@ -6623,6 +6627,10 @@
         {
           "board_name": "trogdor-kernelnext",
           "name": "pompom",
+          "test_suites": [
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
