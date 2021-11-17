@@ -4152,6 +4152,14 @@
         },
         {
           "board_name": "jacuzzi-kernelnext",
+          "name": "pico6",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7172,
+          "is_active": true
+        },
+        {
+          "board_name": "jacuzzi-kernelnext",
           "name": "stern",
           "test_suites": [
             "sanity",
