@@ -5946,6 +5946,14 @@
       "models": [
         {
           "board_name": "trogdor-kernelnext",
+          "name": "kingoftown",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7159,
+          "is_active": true
+        },
+        {
+          "board_name": "trogdor-kernelnext",
           "name": "lazor",
           "test_suites": [
             "sanity",
@@ -6012,6 +6020,14 @@
       "builder": "RELEASE",
       "experimental": false,
       "models": [
+        {
+          "board_name": "trogdor64",
+          "name": "kingoftown",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 462,
+          "is_active": true
+        },
         {
           "board_name": "trogdor64",
           "name": "lazor",
