@@ -6603,6 +6603,14 @@
       "models": [
         {
           "board_name": "trogdor",
+          "name": "kingoftown",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 418,
+          "is_active": true
+        },
+        {
+          "board_name": "trogdor",
           "name": "lazor",
           "test_suites": [
             "sanity",
@@ -6683,6 +6691,14 @@
       "builder": "RELEASE",
       "experimental": false,
       "models": [
+        {
+          "board_name": "trogdor-arc-r",
+          "name": "kingoftown",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7189,
+          "is_active": true
+        },
         {
           "board_name": "trogdor-arc-r",
           "name": "lazor",
