@@ -191,6 +191,7 @@
     celes-release
     chell-release
     cherry-release
+    cherry64-release
     coral-kernelnext-release
     coral-release
     cyan-release
@@ -486,6 +487,12 @@
   cherry-payloads-tryjob
   cherry-release-tryjob
   cherry-unittest-stress
+  cherry64-full-tryjob
+  cherry64-llvm-next-toolchain-tryjob
+  cherry64-llvm-toolchain-tryjob
+  cherry64-payloads-tryjob
+  cherry64-release-tryjob
+  cherry64-unittest-stress
   chrome-airmont-release-afdo-verify-tryjob
   chrome-broadwell-release-afdo-verify-tryjob
   chrome-silvermont-release-afdo-verify-tryjob
@@ -1065,6 +1072,7 @@
     celes-release-tryjob
     chell-release-tryjob
     cherry-release-tryjob
+    cherry64-release-tryjob
     coral-kernelnext-release-tryjob
     coral-release-tryjob
     cyan-release-tryjob
