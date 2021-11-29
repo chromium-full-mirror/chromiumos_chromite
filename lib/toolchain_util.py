@@ -2319,7 +2319,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         ],
         enter_chroot=True,
         print_cmd=True)
-    profile_size = os.path.getsize(afdo_path_inside)
+    profile_size = os.path.getsize(self.chroot.full_path(afdo_path_inside))
     # Check if the profile is empty.
     # Empty profiles in a binary format can have a non-zero size
     # because of the header but they won't exceed the page size.
