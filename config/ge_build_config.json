@@ -182,18 +182,6 @@
       ]
     },
     {
-      "name": "gale",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "gale",
-          "arch": "UNKNOWN"
-        }
-      ]
-    },
-    {
       "name": "guado_labstation",
       "configs": [
         {
