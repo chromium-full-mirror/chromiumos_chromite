@@ -1267,9 +1267,8 @@ def ScheduleAutotestTests(suite_name, board, model, build,
       suite_name=suite_name,
       build=build)
 
-  # Double timeout for crbug.com/930256. Will change back once paygen
-  # suites been migrated to skylab.
-  timeout_mins = 2 * config_lib.HWTestConfig.SHARED_HW_TEST_TIMEOUT // 60
+  # 4x timeout for b/209034161.
+  timeout_mins = 4 * config_lib.HWTestConfig.SHARED_HW_TEST_TIMEOUT // 60
   tags = ['build:%s' % build,
           'suite:%s' % suite_name,
           'user:PaygenTestStage']
