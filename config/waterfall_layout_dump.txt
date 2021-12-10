@@ -184,7 +184,6 @@
     brya-release
     bubs-release
     caroline-kernelnext-release
-    caroline-ndktranslation-release
     caroline-release
     caroline-userdebug-release
     cave-release
@@ -258,7 +257,6 @@
     sand-release
     sarien-release
     scarlet-release
-    senor-release
     sentry-release
     setzer-release
     snappy-kernelnext-release
@@ -438,12 +436,6 @@
   caroline-kernelnext-unittest-stress
   caroline-llvm-next-toolchain-tryjob
   caroline-llvm-toolchain-tryjob
-  caroline-ndktranslation-full-tryjob
-  caroline-ndktranslation-llvm-next-toolchain-tryjob
-  caroline-ndktranslation-llvm-toolchain-tryjob
-  caroline-ndktranslation-payloads-tryjob
-  caroline-ndktranslation-release-tryjob
-  caroline-ndktranslation-unittest-stress
   caroline-payloads-tryjob
   caroline-release-tryjob
   caroline-unittest-stress
@@ -1049,7 +1041,6 @@
     brya-release-tryjob
     bubs-release-tryjob
     caroline-kernelnext-release-tryjob
-    caroline-ndktranslation-release-tryjob
     caroline-release-tryjob
     caroline-userdebug-release-tryjob
     cave-release-tryjob
@@ -1123,7 +1114,6 @@
     sand-release-tryjob
     sarien-release-tryjob
     scarlet-release-tryjob
-    senor-release-tryjob
     sentry-release-tryjob
     setzer-release-tryjob
     snappy-kernelnext-release-tryjob
@@ -1347,12 +1337,6 @@
   scarlet-payloads-tryjob
   scarlet-release-tryjob
   scarlet-unittest-stress
-  senor-full-tryjob
-  senor-llvm-next-toolchain-tryjob
-  senor-llvm-toolchain-tryjob
-  senor-payloads-tryjob
-  senor-release-tryjob
-  senor-unittest-stress
   sentry-factory-glados-7828.B-factorybranch-tryjob
   sentry-full-tryjob
   sentry-llvm-next-toolchain-tryjob
