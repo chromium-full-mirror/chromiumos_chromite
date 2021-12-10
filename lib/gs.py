@@ -1303,9 +1303,12 @@ wheel: <
       # raising errors internally like other commands), we have to look
       # for errors ourselves.  See the related bug report here:
       # https://github.com/GoogleCloudPlatform/gsutil/issues/288
-      # Example line:
+      # Example lines:
       # No URLs matched gs://bucket/file
-      if e.result.error and e.result.error.startswith('No URLs matched'):
+      # Some more msg: No URLs matched gs://bucket/file
+      if (e.result.error and
+          any(x.startswith('No URLs matched')
+              for x in e.result.error.splitlines())):
         raise GSNoSuchKey('Stat Error: No URLs matched %s.' % path)
 
       # No idea what this is, so just choke.

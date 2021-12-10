@@ -1386,6 +1386,10 @@ class StatTest(AbstractGSContextTest):
 
   # When stat throws an error.  It's a special snow flake.
   STAT_ERROR_OUTPUT = b'No URLs matched gs://abc/1'
+  RETRY_STAT_ERROR_OUTPUT = (
+      b'Retrying request, attempt #1...\nNo URLs matched gs://abc/1'
+  )
+
 
   def testStat(self):
     """Test ability to get the generation of a file."""
@@ -1445,6 +1449,15 @@ class StatTest(AbstractGSContextTest):
     """Test ability to get the generation of a file."""
     self.gs_mock.AddCmdResult(['stat', '--', 'gs://abc/1'],
                               error=self.STAT_ERROR_OUTPUT,
+                              returncode=1)
+    ctx = gs.GSContext()
+    self.assertRaises(gs.GSNoSuchKey, ctx.Stat, 'gs://abc/1')
+    self.gs_mock.assertCommandContains(['stat', '--', 'gs://abc/1'])
+
+  def testStatRetryNoExist(self):
+    """Test ability to get the generation of a file."""
+    self.gs_mock.AddCmdResult(['stat', '--', 'gs://abc/1'],
+                              error=self.RETRY_STAT_ERROR_OUTPUT,
                               returncode=1)
     ctx = gs.GSContext()
     self.assertRaises(gs.GSNoSuchKey, ctx.Stat, 'gs://abc/1')
