@@ -188,7 +188,6 @@
     cave-release
     celes-release
     chell-release
-    coral-kernelnext-release
     coral-release
     cyan-release
     dedede-release
@@ -209,7 +208,6 @@
     grunt-arc-r-release
     grunt-kernelnext-release
     grunt-release
-    guado_labstation-release
     hana-arc64-release
     hana-kernelnext-release
     hana-release
@@ -258,7 +256,6 @@
     senor-release
     sentry-release
     setzer-release
-    shadowkeep-release
     snappy-kernelnext-release
     snappy-release
     soraka-release
@@ -482,12 +479,6 @@
   config-updater-tryjob
   coral-factory-coral-10122.B-factorybranch-tryjob
   coral-full-tryjob
-  coral-kernelnext-full-tryjob
-  coral-kernelnext-llvm-next-toolchain-tryjob
-  coral-kernelnext-llvm-toolchain-tryjob
-  coral-kernelnext-payloads-tryjob
-  coral-kernelnext-release-tryjob
-  coral-kernelnext-unittest-stress
   coral-llvm-next-toolchain-tryjob
   coral-llvm-toolchain-tryjob
   coral-master-factorybranch-tryjob
@@ -1048,7 +1039,6 @@
     cave-release-tryjob
     celes-release-tryjob
     chell-release-tryjob
-    coral-kernelnext-release-tryjob
     coral-release-tryjob
     cyan-release-tryjob
     dedede-release-tryjob
@@ -1069,7 +1059,6 @@
     grunt-arc-r-release-tryjob
     grunt-kernelnext-release-tryjob
     grunt-release-tryjob
-    guado_labstation-release-tryjob
     hana-arc64-release-tryjob
     hana-kernelnext-release-tryjob
     hana-release-tryjob
@@ -1118,7 +1107,6 @@
     senor-release-tryjob
     sentry-release-tryjob
     setzer-release-tryjob
-    shadowkeep-release-tryjob
     snappy-kernelnext-release-tryjob
     snappy-release-tryjob
     soraka-release-tryjob
@@ -1347,12 +1335,6 @@
   setzer-payloads-tryjob
   setzer-release-tryjob
   setzer-unittest-stress
-  shadowkeep-full-tryjob
-  shadowkeep-llvm-next-toolchain-tryjob
-  shadowkeep-llvm-toolchain-tryjob
-  shadowkeep-payloads-tryjob
-  shadowkeep-release-tryjob
-  shadowkeep-unittest-stress
   sludge-full-tryjob
   sludge-llvm-next-toolchain-tryjob
   sludge-llvm-toolchain-tryjob

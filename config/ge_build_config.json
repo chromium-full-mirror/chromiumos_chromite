@@ -182,18 +182,6 @@
       ]
     },
     {
-      "name": "guado_labstation",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "UNKNOWN"
-        }
-      ]
-    },
-    {
       "name": "hana",
       "configs": [
         {
@@ -381,18 +369,6 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "strago",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
-      "name": "shadowkeep",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "",
           "arch": "X86_INTERNAL"
         }
       ]
@@ -1110,159 +1086,6 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 312,
-          "is_active": true
-        }
-      ]
-    },
-    {
-      "name": "coral-kernelnext",
-      "reference_board_name": "coral-kernelnext",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "coral-kernelnext",
-          "name": "astronaut",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "babymega",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "babytiger",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "blacktip",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "blacktip360",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "blacktiplte",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "blue",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "bruce",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "epaulette",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "lava",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "nasher",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "nasher360",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "porbeagle",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "rabbid",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "robo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "robo360",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "santa",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
-          "is_active": true
-        },
-        {
-          "board_name": "coral-kernelnext",
-          "name": "whitetip",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7180,
           "is_active": true
         }
       ]
