@@ -259,7 +259,6 @@
     scarlet-release
     sentry-release
     setzer-release
-    snappy-kernelnext-release
     snappy-release
     soraka-release
     strongbad-release
@@ -1116,7 +1115,6 @@
     scarlet-release-tryjob
     sentry-release-tryjob
     setzer-release-tryjob
-    snappy-kernelnext-release-tryjob
     snappy-release-tryjob
     soraka-release-tryjob
     strongbad-release-tryjob
@@ -1358,12 +1356,6 @@
   sludge-unittest-stress
   snappy-factory-reef-8811.B-factorybranch-tryjob
   snappy-full-tryjob
-  snappy-kernelnext-full-tryjob
-  snappy-kernelnext-llvm-next-toolchain-tryjob
-  snappy-kernelnext-llvm-toolchain-tryjob
-  snappy-kernelnext-payloads-tryjob
-  snappy-kernelnext-release-tryjob
-  snappy-kernelnext-unittest-stress
   snappy-llvm-next-toolchain-tryjob
   snappy-llvm-toolchain-tryjob
   snappy-payloads-tryjob
