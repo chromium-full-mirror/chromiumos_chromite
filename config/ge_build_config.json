@@ -1310,6 +1310,15 @@
         {
           "board_name": "dedede",
           "name": "beetley",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 419,
@@ -2904,6 +2913,14 @@
       "builder": "RELEASE",
       "experimental": false,
       "models": [
+        {
+          "board_name": "guybrush",
+          "name": "dewatt",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7148,
+          "is_active": true
+        },
         {
           "board_name": "guybrush",
           "name": "guybrush",
