@@ -1268,7 +1268,9 @@
             "bvt-installer",
             "bvt-arc",
             "au",
-            "bvt-cq"
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
           ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
