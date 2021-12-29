@@ -70,7 +70,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         self,
         build_name,
         build_config,
-        master_build_id,
         master_buildbucket_id,
         requested_bot=None,
     ):
@@ -107,7 +106,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
             build_config=build_name,
             display_label=build_config.display_label,
             branch=self._run.manifest_branch,
-            master_cidb_id=master_build_id,
             master_buildbucket_id=master_buildbucket_id,
             extra_args=cbb_extra_args,
             extra_properties=extra_properties,
@@ -118,7 +116,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         self,
         build_name,
         build_config,
-        master_build_id,
         master_buildbucket_id,
         dryrun=False,
     ):
@@ -127,7 +124,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         Args:
           build_name: Slave build name to schedule.
           build_config: Slave build config.
-          master_build_id: CIDB id of the master scheduling the slave build.
           master_buildbucket_id: buildbucket id of the master scheduling the
                                  slave build.
           dryrun: Whether a dryrun, default to False.
@@ -138,11 +134,11 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
             created_ts
         """
         request = self._CreateScheduledBuild(
-            build_name, build_config, master_build_id, master_buildbucket_id
+            build_name, build_config, master_buildbucket_id
         ).CreateBuildRequest()
 
         if dryrun:
-            return (str(master_build_id), "1")
+            return ("0", "1")
 
         result = self.buildbucket_client.ScheduleBuild(
             request_id=str(request["request_id"]),
@@ -159,7 +155,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
             result.create_time.ToJsonString(),
         )
         cbuildbot_alerts.PrintBuildbotLink(
-            build_name, "{}{}".format(constants.CHROMEOS_MILO_HOST, result.id)
+            build_name, "%s%s" % constants.CHROMEOS_MILO_HOST, result.id
         )
 
         return (result.id, result.create_time.ToJsonString())
@@ -176,12 +172,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         """
         if self.buildbucket_client is None:
             logging.info("No buildbucket_client. Skip scheduling slaves.")
-            return
-
-        build_identifier, _ = self._run.GetCIDBHandle()
-        build_id = build_identifier.cidb_id
-        if build_id is None:
-            logging.info("No build id. Skip scheduling slaves.")
             return
 
         # May be None. This is okay.
@@ -221,7 +211,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
                     ) = self.PostSlaveBuildToBuildbucket(
                         slave_config_name,
                         slave_config,
-                        build_id,
                         master_buildbucket_id,
                         dryrun=dryrun,
                     )
@@ -241,7 +230,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
                 scheduled_build_reqs.append(
                     build_requests.BuildRequest(
                         None,
-                        build_id,
+                        None,
                         slave_config_name,
                         None,
                         buildbucket_id,

@@ -1049,32 +1049,16 @@ def _GetRunEnvironment(options, build_config):
 
 
 def _SetupConnections(options, build_config):
-    """Set up CIDB connections using the appropriate Setup call.
+    """Set up mock CIDB connections using the appropriate Setup call.
+
+    CIDB is deprecated and we will only use the mock client.
 
     Args:
       options: Command line options structure.
       build_config: Config object for this build.
     """
-    # Outline:
-    # 1) Based on options and build_config, decide whether we are a production
-    # run, debug run, or standalone run.
-    # 2) Set up cidb instance accordingly.
-    # 3) Update topology info from cidb, so that any other service set up can use
-    # topology.
-    # 4) Set up any other services.
-    run_type = _GetRunEnvironment(options, build_config)
-
-    if run_type == _ENVIRONMENT_PROD:
-        cidb.CIDBConnectionFactory.SetupProdCidb()
-        context = ts_mon_config.SetupTsMonGlobalState(
-            "cbuildbot", indirect=True
-        )
-    elif run_type == _ENVIRONMENT_DEBUG:
-        cidb.CIDBConnectionFactory.SetupDebugCidb()
-        context = ts_mon_config.TrivialContextManager()
-    else:
-        cidb.CIDBConnectionFactory.SetupNoCidb()
-        context = ts_mon_config.TrivialContextManager()
+    cidb.CIDBConnectionFactory.SetupNoCidb()
+    context = ts_mon_config.TrivialContextManager()
 
     topology.FetchTopology()
     return context
