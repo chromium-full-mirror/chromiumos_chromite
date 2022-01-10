@@ -614,7 +614,7 @@
     {
       "name": "brya",
       "reference_board_name": "brya",
-      "arch": "X86_INTERNAL",
+      "arch": "ARM_INTERNAL",
       "builder": "RELEASE",
       "experimental": false,
       "models": [
