@@ -233,7 +233,6 @@
     kukui-kernelnext-release
     kukui-release
     lars-release
-    mistral-release
     nami-release
     nautilus-release
     nocturne-kernelnext-release
@@ -1089,7 +1088,6 @@
     kukui-kernelnext-release-tryjob
     kukui-release-tryjob
     lars-release-tryjob
-    mistral-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
     nocturne-kernelnext-release-tryjob
@@ -1143,13 +1141,7 @@
     hatch-arc-s-vmsc-android-pfq-tryjob
   master-vmt-android-pfq-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
-  mistral-full-tryjob
-  mistral-llvm-next-toolchain-tryjob
-  mistral-llvm-toolchain-tryjob
   mistral-master-factorybranch-tryjob
-  mistral-payloads-tryjob
-  mistral-release-tryjob
-  mistral-unittest-stress
   moblab-generic-vm-full-tryjob
   moblab-generic-vm-llvm-next-toolchain-tryjob
   moblab-generic-vm-llvm-toolchain-tryjob
