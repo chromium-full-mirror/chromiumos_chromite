@@ -196,23 +196,6 @@ class BuildTargetUnitTestTest(cros_test_lib.MockTempDirTestCase,
     self.assertEqual(response.failed_packages[1].category, 'cat')
     self.assertEqual(response.failed_packages[1].package_name, 'pkg')
 
-  def testNoArgumentFails(self):
-    """Test no arguments fails."""
-    input_msg = self._GetInput()
-    output_msg = self._GetOutput()
-    with self.assertRaises(cros_build_lib.DieSystemExit):
-      test_controller.BuildTargetUnitTest(input_msg, output_msg,
-                                          self.api_config)
-
-  def testNoResultPathFails(self):
-    """Test missing result path fails."""
-    # Missing result_path.
-    input_msg = self._GetInput(board='board')
-    output_msg = self._GetOutput()
-    with self.assertRaises(cros_build_lib.DieSystemExit):
-      test_controller.BuildTargetUnitTest(input_msg, output_msg,
-                                          self.api_config)
-
   def testInvalidPackageFails(self):
     """Test missing result path fails."""
     # Missing result_path.
@@ -277,8 +260,8 @@ class BuildTargetUnitTestTest(cros_test_lib.MockTempDirTestCase,
 
     pkgs = ['foo/bar', 'cat/pkg']
     blocklist = [package_info.SplitCPV(p, strict=False) for p in pkgs]
-    input_msg = self._GetInput(board='board', result_path=self.tempdir,
-                               empty_sysroot=True, blocklist=blocklist)
+    input_msg = self._GetInput(board='board', empty_sysroot=True,
+                               blocklist=blocklist)
     output_msg = self._GetOutput()
 
     rc = test_controller.BuildTargetUnitTest(input_msg, output_msg,
@@ -291,21 +274,15 @@ class BuildTargetUnitTestTest(cros_test_lib.MockTempDirTestCase,
     """Test BuildTargetUnitTest successful call."""
     pkgs = ['foo/bar', 'cat/pkg']
     packages = [package_info.SplitCPV(p, strict=False) for p in pkgs]
-    input_msg = self._GetInput(
-        board='board', result_path=self.tempdir, packages=packages)
+    input_msg = self._GetInput(board='board', packages=packages)
 
     result = test_service.BuildTargetUnitTestResult(0, None)
     self.PatchObject(test_service, 'BuildTargetUnitTest', return_value=result)
 
-    tarball_result = os.path.join(input_msg.result_path, 'unit_tests.tar')
-    self.PatchObject(test_service, 'BuildTargetUnitTestTarball',
-                     return_value=tarball_result)
-
     response = self._GetOutput()
     test_controller.BuildTargetUnitTest(input_msg, response,
                                         self.api_config)
-    self.assertEqual(response.tarball_path,
-                     os.path.join(input_msg.result_path, 'unit_tests.tar'))
+    self.assertFalse(response.failed_packages)
 
 
 class DockerConstraintsTest(cros_test_lib.MockTestCase):
