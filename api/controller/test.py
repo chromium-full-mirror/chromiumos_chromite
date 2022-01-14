@@ -84,16 +84,11 @@ def _BuildTargetUnitTestFailedResponse(_input_proto, output_proto, _config):
 
 @faux.success(_BuildTargetUnitTestResponse)
 @faux.error(_BuildTargetUnitTestFailedResponse)
-@validate.require('build_target.name')
-@validate.exists('result_path')
 @validate.require_each('packages', ['category', 'package_name'])
 @validate.validation_complete
 @metrics.collect_metrics
 def BuildTargetUnitTest(input_proto, output_proto, _config):
   """Run a build target's ebuild unit tests."""
-  # Required args.
-  result_path = input_proto.result_path
-
   # Method flags.
   # An empty sysroot means build packages was not run. This is used for
   # certain boards that need to use prebuilts (e.g. grunt's unittest-only).
@@ -144,10 +139,6 @@ def BuildTargetUnitTest(input_proto, output_proto, _config):
     else:
       return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
-  sysroot = sysroot_lib.Sysroot(build_target.root)
-  tarball = test.BuildTargetUnitTestTarball(chroot, sysroot, result_path)
-  if tarball:
-    output_proto.tarball_path = tarball
   deserialize_metrics_log(output_proto.events, prefix=build_target.name)
 
 
