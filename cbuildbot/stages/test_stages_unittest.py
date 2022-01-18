@@ -469,6 +469,7 @@ class HWTestPlanStageTest(cros_test_lib.MockTempDirTestCase):
     self.assertEqual([model.name for model in models_to_test], ['bar-model'])
 
 
+  @pytest.mark.skip(reason='Test relies on external state: b/215089089')
   def testModelsToTestWithoutDUTOverride(self):
     """Test TestPlanStage.ModelsToTest without a DUT model override."""
     builder_run = self._initConfig('octopus-release')
