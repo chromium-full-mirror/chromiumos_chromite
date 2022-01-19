@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x18\x63hromite/api/image.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x17\x63hromiumos/common.proto\x1a\x18\x63hromiumos/metrics.proto\"i\n\x05Image\x12\x0c\n\x04path\x18\x01 \x01(\t\x12#\n\x04type\x18\x02 \x01(\x0e\x32\x15.chromiumos.ImageType\x12-\n\x0c\x62uild_target\x18\x03 \x01(\x0b\x32\x17.chromiumos.BuildTarget\"\xf4\x01\n\x12\x43reateImageRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12*\n\x0bimage_types\x18\x02 \x03(\x0e\x32\x15.chromiumos.ImageType\x12#\n\x1b\x64isable_rootfs_verification\x18\x03 \x01(\x08\x12\x0f\n\x07version\x18\x04 \x01(\t\x12\x13\n\x0b\x64isk_layout\x18\x05 \x01(\t\x12\x14\n\x0c\x62uilder_path\x18\x06 \x01(\t\x12\"\n\x06\x63hroot\x18\x07 \x01(\x0b\x32\x12.chromiumos.Chroot\"\xa4\x01\n\x11\x43reateImageResult\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12#\n\x06images\x18\x02 \x03(\x0b\x32\x13.chromite.api.Image\x12\x30\n\x0f\x66\x61iled_packages\x18\x03 \x03(\x0b\x32\x17.chromiumos.PackageInfo\x12\'\n\x06\x65vents\x18\x04 \x03(\x0b\x32\x17.chromiumos.MetricEvent\"\xdd\x01\n\x10TestImageRequest\x12\"\n\x05image\x18\x01 \x01(\x0b\x32\x13.chromite.api.Image\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x35\n\x06result\x18\x03 \x01(\x0b\x32%.chromite.api.TestImageRequest.Result\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\x1a\x1b\n\x06Result\x12\x11\n\tdirectory\x18\x01 \x01(\t\"\"\n\x0fTestImageResult\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\xfe\x01\n\x10PushImageRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x0e\n\x06\x64ryrun\x18\x02 \x01(\x08\x12\x14\n\x0cgs_image_dir\x18\x03 \x01(\t\x12&\n\x07sysroot\x18\x04 \x01(\x0b\x32\x15.chromite.api.Sysroot\x12$\n\x07profile\x18\x05 \x01(\x0b\x32\x13.chromiumos.Profile\x12)\n\nsign_types\x18\x06 \x03(\x0e\x32\x15.chromiumos.ImageType\x12\x13\n\x0b\x64\x65st_bucket\x18\x07 \x01(\t\x12\x12\n\nis_staging\x18\x08 \x01(\x08\"\x13\n\x11PushImageResponse2\xcc\x02\n\x0cImageService\x12K\n\x06\x43reate\x12 .chromite.api.CreateImageRequest\x1a\x1f.chromite.api.CreateImageResult\x12\x45\n\x04Test\x12\x1e.chromite.api.TestImageRequest\x1a\x1d.chromite.api.TestImageResult\x12K\n\nSignerTest\x12\x1e.chromite.api.TestImageRequest\x1a\x1d.chromite.api.TestImageResult\x12L\n\tPushImage\x12\x1e.chromite.api.PushImageRequest\x1a\x1f.chromite.api.PushImageResponse\x1a\r\xc2\xed\x1a\t\n\x05image\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3'
+  serialized_pb=b'\n\x18\x63hromite/api/image.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x17\x63hromiumos/common.proto\x1a\x18\x63hromiumos/metrics.proto\"i\n\x05Image\x12\x0c\n\x04path\x18\x01 \x01(\t\x12#\n\x04type\x18\x02 \x01(\x0e\x32\x15.chromiumos.ImageType\x12-\n\x0c\x62uild_target\x18\x03 \x01(\x0b\x32\x17.chromiumos.BuildTarget\"\xf4\x01\n\x12\x43reateImageRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12*\n\x0bimage_types\x18\x02 \x03(\x0e\x32\x15.chromiumos.ImageType\x12#\n\x1b\x64isable_rootfs_verification\x18\x03 \x01(\x08\x12\x0f\n\x07version\x18\x04 \x01(\t\x12\x13\n\x0b\x64isk_layout\x18\x05 \x01(\t\x12\x14\n\x0c\x62uilder_path\x18\x06 \x01(\t\x12\"\n\x06\x63hroot\x18\x07 \x01(\x0b\x32\x12.chromiumos.Chroot\"\xa4\x01\n\x11\x43reateImageResult\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12#\n\x06images\x18\x02 \x03(\x0b\x32\x13.chromite.api.Image\x12\x30\n\x0f\x66\x61iled_packages\x18\x03 \x03(\x0b\x32\x17.chromiumos.PackageInfo\x12\'\n\x06\x65vents\x18\x04 \x03(\x0b\x32\x17.chromiumos.MetricEvent\"\xdd\x01\n\x10TestImageRequest\x12\"\n\x05image\x18\x01 \x01(\x0b\x32\x13.chromite.api.Image\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x35\n\x06result\x18\x03 \x01(\x0b\x32%.chromite.api.TestImageRequest.Result\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\x1a\x1b\n\x06Result\x12\x11\n\tdirectory\x18\x01 \x01(\t\"\"\n\x0fTestImageResult\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\xa5\x02\n\x10PushImageRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x0e\n\x06\x64ryrun\x18\x02 \x01(\x08\x12\x14\n\x0cgs_image_dir\x18\x03 \x01(\t\x12&\n\x07sysroot\x18\x04 \x01(\x0b\x32\x15.chromite.api.Sysroot\x12$\n\x07profile\x18\x05 \x01(\x0b\x32\x13.chromiumos.Profile\x12)\n\nsign_types\x18\x06 \x03(\x0e\x32\x15.chromiumos.ImageType\x12\x13\n\x0b\x64\x65st_bucket\x18\x07 \x01(\t\x12\x12\n\nis_staging\x18\x08 \x01(\x08\x12%\n\x08\x63hannels\x18\t \x03(\x0e\x32\x13.chromiumos.Channel\"\x13\n\x11PushImageResponse2\xcc\x02\n\x0cImageService\x12K\n\x06\x43reate\x12 .chromite.api.CreateImageRequest\x1a\x1f.chromite.api.CreateImageResult\x12\x45\n\x04Test\x12\x1e.chromite.api.TestImageRequest\x1a\x1d.chromite.api.TestImageResult\x12K\n\nSignerTest\x12\x1e.chromite.api.TestImageRequest\x1a\x1d.chromite.api.TestImageResult\x12L\n\tPushImage\x12\x1e.chromite.api.PushImageRequest\x1a\x1f.chromite.api.PushImageResponse\x1a\r\xc2\xed\x1a\t\n\x05image\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3'
   ,
   dependencies=[chromite_dot_api_dot_build__api__pb2.DESCRIPTOR,chromite_dot_api_dot_sysroot__pb2.DESCRIPTOR,chromiumos_dot_common__pb2.DESCRIPTOR,chromiumos_dot_metrics__pb2.DESCRIPTOR,])
 
@@ -383,6 +383,13 @@ _PUSHIMAGEREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='channels', full_name='chromite.api.PushImageRequest.channels', index=8,
+      number=9, type=14, cpp_type=8, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -396,7 +403,7 @@ _PUSHIMAGEREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=933,
-  serialized_end=1187,
+  serialized_end=1226,
 )
 
 
@@ -420,8 +427,8 @@ _PUSHIMAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1189,
-  serialized_end=1208,
+  serialized_start=1228,
+  serialized_end=1247,
 )
 
 _IMAGE.fields_by_name['type'].enum_type = chromiumos_dot_common__pb2._IMAGETYPE
@@ -441,6 +448,7 @@ _PUSHIMAGEREQUEST.fields_by_name['chroot'].message_type = chromiumos_dot_common_
 _PUSHIMAGEREQUEST.fields_by_name['sysroot'].message_type = chromite_dot_api_dot_sysroot__pb2._SYSROOT
 _PUSHIMAGEREQUEST.fields_by_name['profile'].message_type = chromiumos_dot_common__pb2._PROFILE
 _PUSHIMAGEREQUEST.fields_by_name['sign_types'].enum_type = chromiumos_dot_common__pb2._IMAGETYPE
+_PUSHIMAGEREQUEST.fields_by_name['channels'].enum_type = chromiumos_dot_common__pb2._CHANNEL
 DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
 DESCRIPTOR.message_types_by_name['CreateImageRequest'] = _CREATEIMAGEREQUEST
 DESCRIPTOR.message_types_by_name['CreateImageResult'] = _CREATEIMAGERESULT
@@ -517,8 +525,8 @@ _IMAGESERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=b'\302\355\032\t\n\005image\020\001',
   create_key=_descriptor._internal_create_key,
-  serialized_start=1211,
-  serialized_end=1543,
+  serialized_start=1250,
+  serialized_end=1582,
   methods=[
   _descriptor.MethodDescriptor(
     name='Create',

@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chromiumos.test.api',
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
-  serialized_pb=b'\n%chromiumos/test/api/dut_service.proto\x12\x13\x63hromiumos.test.api\x1a,chromiumos/config/api/device_config_id.proto\x1a\'chromiumos/longrunning/operations.proto\"\xaa\x01\n\x12\x45xecCommandRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ommand\x18\x02 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x03 \x03(\t\x12\r\n\x05stdin\x18\x04 \x01(\x0c\x12+\n\x06stdout\x18\x05 \x01(\x0e\x32\x1b.chromiumos.test.api.Output\x12+\n\x06stderr\x18\x06 \x01(\x0e\x32\x1b.chromiumos.test.api.Output\"\xd1\x01\n\x13\x45xecCommandResponse\x12\x44\n\texit_info\x18\x01 \x01(\x0b\x32\x31.chromiumos.test.api.ExecCommandResponse.ExitInfo\x12\x0e\n\x06stdout\x18\x02 \x01(\x0c\x12\x0e\n\x06stderr\x18\x03 \x01(\x0c\x1aT\n\x08\x45xitInfo\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x10\n\x08signaled\x18\x02 \x01(\x08\x12\x0f\n\x07started\x18\x03 \x01(\x08\x12\x15\n\rerror_message\x18\x04 \x01(\t\"/\n\x13\x46\x65tchCrashesRequest\x12\x12\n\nfetch_core\x18\x02 \x01(\x08J\x04\x08\x01\x10\x02\"\xa1\x01\n\x14\x46\x65tchCrashesResponse\x12\x10\n\x08\x63rash_id\x18\x01 \x01(\x03\x12/\n\x05\x63rash\x18\x02 \x01(\x0b\x32\x1e.chromiumos.test.api.CrashInfoH\x00\x12.\n\x04\x62lob\x18\x03 \x01(\x0b\x32\x1e.chromiumos.test.api.CrashBlobH\x00\x12\x0e\n\x04\x63ore\x18\x04 \x01(\x0cH\x00\x42\x06\n\x04\x64\x61ta\"\xb3\x01\n\tCrashInfo\x12\x11\n\texec_name\x18\x01 \x01(\t\x12\x0c\n\x04prod\x18\x02 \x01(\t\x12\x0b\n\x03ver\x18\x03 \x01(\t\x12\x0b\n\x03sig\x18\x04 \x01(\t\x12$\n\x1cin_progress_integration_test\x18\x05 \x01(\t\x12\x11\n\tcollector\x18\x06 \x01(\t\x12\x32\n\x06\x66ields\x18\x07 \x03(\x0b\x32\".chromiumos.test.api.CrashMetadata\"*\n\rCrashMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\"8\n\tCrashBlob\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0c\n\x04\x62lob\x18\x02 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x03 \x01(\t\"\x1e\n\x0eRestartRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x03(\t\"!\n\x0fRestartResponse\x12\x0e\n\x06output\x18\x01 \x01(\t\"\x11\n\x0fRestartMetadata\"\x1d\n\x1b\x44\x65tectDeviceConfigIdRequest\"\xc1\x02\n\x1c\x44\x65tectDeviceConfigIdResponse\x12L\n\x07success\x18\x01 \x01(\x0b\x32\x39.chromiumos.test.api.DetectDeviceConfigIdResponse.SuccessH\x00\x12L\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32\x39.chromiumos.test.api.DetectDeviceConfigIdResponse.FailureH\x00\x1aY\n\x07Success\x12N\n\x14\x64\x65tected_scan_config\x18\x01 \x01(\x0b\x32\x30.chromiumos.config.api.DeviceConfigId.ScanConfig\x1a \n\x07\x46\x61ilure\x12\x15\n\rerror_message\x18\x01 \x01(\tB\x08\n\x06result*,\n\x06Output\x12\x0f\n\x0bOUTPUT_PIPE\x10\x00\x12\x11\n\rOUTPUT_STDOUT\x10\x01\x32\xd0\x03\n\nDutService\x12\x62\n\x0b\x45xecCommand\x12\'.chromiumos.test.api.ExecCommandRequest\x1a(.chromiumos.test.api.ExecCommandResponse0\x01\x12\x65\n\x0c\x46\x65tchCrashes\x12(.chromiumos.test.api.FetchCrashesRequest\x1a).chromiumos.test.api.FetchCrashesResponse0\x01\x12x\n\x07Restart\x12#.chromiumos.test.api.RestartRequest\x1a!.chromiumos.longrunning.Operation\"%\xd2\x41\"\n\x0fRestartResponse\x12\x0fRestartMetadata\x12}\n\x14\x44\x65tectDeviceConfigId\x12\x30.chromiumos.test.api.DetectDeviceConfigIdRequest\x1a\x31.chromiumos.test.api.DetectDeviceConfigIdResponse0\x01\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\n%chromiumos/test/api/dut_service.proto\x12\x13\x63hromiumos.test.api\x1a,chromiumos/config/api/device_config_id.proto\x1a\'chromiumos/longrunning/operations.proto\"\xaa\x01\n\x12\x45xecCommandRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ommand\x18\x02 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x03 \x03(\t\x12\r\n\x05stdin\x18\x04 \x01(\x0c\x12+\n\x06stdout\x18\x05 \x01(\x0e\x32\x1b.chromiumos.test.api.Output\x12+\n\x06stderr\x18\x06 \x01(\x0e\x32\x1b.chromiumos.test.api.Output\"\xd1\x01\n\x13\x45xecCommandResponse\x12\x44\n\texit_info\x18\x01 \x01(\x0b\x32\x31.chromiumos.test.api.ExecCommandResponse.ExitInfo\x12\x0e\n\x06stdout\x18\x02 \x01(\x0c\x12\x0e\n\x06stderr\x18\x03 \x01(\x0c\x1aT\n\x08\x45xitInfo\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x10\n\x08signaled\x18\x02 \x01(\x08\x12\x0f\n\x07started\x18\x03 \x01(\x08\x12\x15\n\rerror_message\x18\x04 \x01(\t\"/\n\x13\x46\x65tchCrashesRequest\x12\x12\n\nfetch_core\x18\x02 \x01(\x08J\x04\x08\x01\x10\x02\"\xa1\x01\n\x14\x46\x65tchCrashesResponse\x12\x10\n\x08\x63rash_id\x18\x01 \x01(\x03\x12/\n\x05\x63rash\x18\x02 \x01(\x0b\x32\x1e.chromiumos.test.api.CrashInfoH\x00\x12.\n\x04\x62lob\x18\x03 \x01(\x0b\x32\x1e.chromiumos.test.api.CrashBlobH\x00\x12\x0e\n\x04\x63ore\x18\x04 \x01(\x0cH\x00\x42\x06\n\x04\x64\x61ta\"\xb3\x01\n\tCrashInfo\x12\x11\n\texec_name\x18\x01 \x01(\t\x12\x0c\n\x04prod\x18\x02 \x01(\t\x12\x0b\n\x03ver\x18\x03 \x01(\t\x12\x0b\n\x03sig\x18\x04 \x01(\t\x12$\n\x1cin_progress_integration_test\x18\x05 \x01(\t\x12\x11\n\tcollector\x18\x06 \x01(\t\x12\x32\n\x06\x66ields\x18\x07 \x03(\x0b\x32\".chromiumos.test.api.CrashMetadata\"*\n\rCrashMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\"8\n\tCrashBlob\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0c\n\x04\x62lob\x18\x02 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x03 \x01(\t\"\x1e\n\x0eRestartRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x03(\t\"!\n\x0fRestartResponse\x12\x0e\n\x06output\x18\x01 \x01(\t\"\x11\n\x0fRestartMetadata\"\x8e\x04\n\x0c\x43\x61\x63heRequest\x12;\n\x04\x66ile\x18\x01 \x01(\x0b\x32+.chromiumos.test.api.CacheRequest.LocalFileH\x00\x12\x36\n\x04pipe\x18\x02 \x01(\x0b\x32&.chromiumos.test.api.CacheRequest.PipeH\x00\x12;\n\x07gs_file\x18\x03 \x01(\x0b\x32(.chromiumos.test.api.CacheRequest.GSFileH\x01\x12\x42\n\x0bgs_zip_file\x18\x04 \x01(\x0b\x32+.chromiumos.test.api.CacheRequest.GSZipFileH\x01\x12\x42\n\x0bgs_tar_file\x18\x05 \x01(\x0b\x32+.chromiumos.test.api.CacheRequest.GSTARFileH\x01\x1a\x19\n\tLocalFile\x12\x0c\n\x04path\x18\x01 \x01(\t\x1a\x18\n\x04Pipe\x12\x10\n\x08\x63ommands\x18\x01 \x01(\t\x1a\x1d\n\x06GSFile\x12\x13\n\x0bsource_path\x18\x01 \x01(\t\x1a \n\tGSZipFile\x12\x13\n\x0bsource_path\x18\x01 \x01(\t\x1a\x35\n\tGSTARFile\x12\x13\n\x0bsource_path\x18\x01 \x01(\t\x12\x13\n\x0bsource_file\x18\x02 \x01(\tB\r\n\x0b\x64\x65stinationB\x08\n\x06source\"\xc4\x01\n\rCacheResponse\x12=\n\x07success\x18\x01 \x01(\x0b\x32*.chromiumos.test.api.CacheResponse.SuccessH\x00\x12=\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32*.chromiumos.test.api.CacheResponse.FailureH\x00\x1a\t\n\x07Success\x1a \n\x07\x46\x61ilure\x12\x15\n\rerror_message\x18\x01 \x01(\tB\x08\n\x06result\"\x0f\n\rCacheMetadata\"\x17\n\x15\x46orceReconnectRequest\"\xdf\x01\n\x16\x46orceReconnectResponse\x12\x46\n\x07success\x18\x01 \x01(\x0b\x32\x33.chromiumos.test.api.ForceReconnectResponse.SuccessH\x00\x12\x46\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32\x33.chromiumos.test.api.ForceReconnectResponse.FailureH\x00\x1a\t\n\x07Success\x1a \n\x07\x46\x61ilure\x12\x15\n\rerror_message\x18\x01 \x01(\tB\x08\n\x06result\"\x18\n\x16\x46orceReconnectMetadata\"\x1d\n\x1b\x44\x65tectDeviceConfigIdRequest\"\xc1\x02\n\x1c\x44\x65tectDeviceConfigIdResponse\x12L\n\x07success\x18\x01 \x01(\x0b\x32\x39.chromiumos.test.api.DetectDeviceConfigIdResponse.SuccessH\x00\x12L\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32\x39.chromiumos.test.api.DetectDeviceConfigIdResponse.FailureH\x00\x1aY\n\x07Success\x12N\n\x14\x64\x65tected_scan_config\x18\x01 \x01(\x0b\x32\x30.chromiumos.config.api.DeviceConfigId.ScanConfig\x1a \n\x07\x46\x61ilure\x12\x15\n\rerror_message\x18\x01 \x01(\tB\x08\n\x06result*,\n\x06Output\x12\x0f\n\x0bOUTPUT_PIPE\x10\x00\x12\x11\n\rOUTPUT_STDOUT\x10\x01\x32\xd9\x05\n\nDutService\x12\x62\n\x0b\x45xecCommand\x12\'.chromiumos.test.api.ExecCommandRequest\x1a(.chromiumos.test.api.ExecCommandResponse0\x01\x12\x65\n\x0c\x46\x65tchCrashes\x12(.chromiumos.test.api.FetchCrashesRequest\x1a).chromiumos.test.api.FetchCrashesResponse0\x01\x12x\n\x07Restart\x12#.chromiumos.test.api.RestartRequest\x1a!.chromiumos.longrunning.Operation\"%\xd2\x41\"\n\x0fRestartResponse\x12\x0fRestartMetadata\x12}\n\x14\x44\x65tectDeviceConfigId\x12\x30.chromiumos.test.api.DetectDeviceConfigIdRequest\x1a\x31.chromiumos.test.api.DetectDeviceConfigIdResponse0\x01\x12p\n\x05\x43\x61\x63he\x12!.chromiumos.test.api.CacheRequest\x1a!.chromiumos.longrunning.Operation\"!\xd2\x41\x1e\n\rCacheResponse\x12\rCacheMetadata\x12\x94\x01\n\x0e\x46orceReconnect\x12*.chromiumos.test.api.ForceReconnectRequest\x1a!.chromiumos.longrunning.Operation\"3\xd2\x41\x30\n\x16\x46orceReconnectResponse\x12\x16\x46orceReconnectMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
   ,
   dependencies=[chromiumos_dot_config_dot_api_dot_device__config__id__pb2.DESCRIPTOR,chromiumos_dot_longrunning_dot_operations__pb2.DESCRIPTOR,])
 
@@ -42,8 +42,8 @@ _OUTPUT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1472,
-  serialized_end=1516,
+  serialized_start=2494,
+  serialized_end=2538,
 )
 _sym_db.RegisterEnumDescriptor(_OUTPUT)
 
@@ -543,6 +543,488 @@ _RESTARTMETADATA = _descriptor.Descriptor(
 )
 
 
+_CACHEREQUEST_LOCALFILE = _descriptor.Descriptor(
+  name='LocalFile',
+  full_name='chromiumos.test.api.CacheRequest.LocalFile',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='path', full_name='chromiumos.test.api.CacheRequest.LocalFile.path', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1448,
+  serialized_end=1473,
+)
+
+_CACHEREQUEST_PIPE = _descriptor.Descriptor(
+  name='Pipe',
+  full_name='chromiumos.test.api.CacheRequest.Pipe',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='commands', full_name='chromiumos.test.api.CacheRequest.Pipe.commands', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1475,
+  serialized_end=1499,
+)
+
+_CACHEREQUEST_GSFILE = _descriptor.Descriptor(
+  name='GSFile',
+  full_name='chromiumos.test.api.CacheRequest.GSFile',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='source_path', full_name='chromiumos.test.api.CacheRequest.GSFile.source_path', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1501,
+  serialized_end=1530,
+)
+
+_CACHEREQUEST_GSZIPFILE = _descriptor.Descriptor(
+  name='GSZipFile',
+  full_name='chromiumos.test.api.CacheRequest.GSZipFile',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='source_path', full_name='chromiumos.test.api.CacheRequest.GSZipFile.source_path', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1532,
+  serialized_end=1564,
+)
+
+_CACHEREQUEST_GSTARFILE = _descriptor.Descriptor(
+  name='GSTARFile',
+  full_name='chromiumos.test.api.CacheRequest.GSTARFile',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='source_path', full_name='chromiumos.test.api.CacheRequest.GSTARFile.source_path', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='source_file', full_name='chromiumos.test.api.CacheRequest.GSTARFile.source_file', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1566,
+  serialized_end=1619,
+)
+
+_CACHEREQUEST = _descriptor.Descriptor(
+  name='CacheRequest',
+  full_name='chromiumos.test.api.CacheRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='file', full_name='chromiumos.test.api.CacheRequest.file', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='pipe', full_name='chromiumos.test.api.CacheRequest.pipe', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='gs_file', full_name='chromiumos.test.api.CacheRequest.gs_file', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='gs_zip_file', full_name='chromiumos.test.api.CacheRequest.gs_zip_file', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='gs_tar_file', full_name='chromiumos.test.api.CacheRequest.gs_tar_file', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_CACHEREQUEST_LOCALFILE, _CACHEREQUEST_PIPE, _CACHEREQUEST_GSFILE, _CACHEREQUEST_GSZIPFILE, _CACHEREQUEST_GSTARFILE, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='destination', full_name='chromiumos.test.api.CacheRequest.destination',
+      index=0, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='source', full_name='chromiumos.test.api.CacheRequest.source',
+      index=1, containing_type=None, fields=[]),
+  ],
+  serialized_start=1118,
+  serialized_end=1644,
+)
+
+
+_CACHERESPONSE_SUCCESS = _descriptor.Descriptor(
+  name='Success',
+  full_name='chromiumos.test.api.CacheResponse.Success',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1790,
+  serialized_end=1799,
+)
+
+_CACHERESPONSE_FAILURE = _descriptor.Descriptor(
+  name='Failure',
+  full_name='chromiumos.test.api.CacheResponse.Failure',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='error_message', full_name='chromiumos.test.api.CacheResponse.Failure.error_message', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1801,
+  serialized_end=1833,
+)
+
+_CACHERESPONSE = _descriptor.Descriptor(
+  name='CacheResponse',
+  full_name='chromiumos.test.api.CacheResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='success', full_name='chromiumos.test.api.CacheResponse.success', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='failure', full_name='chromiumos.test.api.CacheResponse.failure', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_CACHERESPONSE_SUCCESS, _CACHERESPONSE_FAILURE, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='result', full_name='chromiumos.test.api.CacheResponse.result',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=1647,
+  serialized_end=1843,
+)
+
+
+_CACHEMETADATA = _descriptor.Descriptor(
+  name='CacheMetadata',
+  full_name='chromiumos.test.api.CacheMetadata',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1845,
+  serialized_end=1860,
+)
+
+
+_FORCERECONNECTREQUEST = _descriptor.Descriptor(
+  name='ForceReconnectRequest',
+  full_name='chromiumos.test.api.ForceReconnectRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1862,
+  serialized_end=1885,
+)
+
+
+_FORCERECONNECTRESPONSE_SUCCESS = _descriptor.Descriptor(
+  name='Success',
+  full_name='chromiumos.test.api.ForceReconnectResponse.Success',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1790,
+  serialized_end=1799,
+)
+
+_FORCERECONNECTRESPONSE_FAILURE = _descriptor.Descriptor(
+  name='Failure',
+  full_name='chromiumos.test.api.ForceReconnectResponse.Failure',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='error_message', full_name='chromiumos.test.api.ForceReconnectResponse.Failure.error_message', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1801,
+  serialized_end=1833,
+)
+
+_FORCERECONNECTRESPONSE = _descriptor.Descriptor(
+  name='ForceReconnectResponse',
+  full_name='chromiumos.test.api.ForceReconnectResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='success', full_name='chromiumos.test.api.ForceReconnectResponse.success', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='failure', full_name='chromiumos.test.api.ForceReconnectResponse.failure', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_FORCERECONNECTRESPONSE_SUCCESS, _FORCERECONNECTRESPONSE_FAILURE, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='result', full_name='chromiumos.test.api.ForceReconnectResponse.result',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=1888,
+  serialized_end=2111,
+)
+
+
+_FORCERECONNECTMETADATA = _descriptor.Descriptor(
+  name='ForceReconnectMetadata',
+  full_name='chromiumos.test.api.ForceReconnectMetadata',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2113,
+  serialized_end=2137,
+)
+
+
 _DETECTDEVICECONFIGIDREQUEST = _descriptor.Descriptor(
   name='DetectDeviceConfigIdRequest',
   full_name='chromiumos.test.api.DetectDeviceConfigIdRequest',
@@ -562,8 +1044,8 @@ _DETECTDEVICECONFIGIDREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1117,
-  serialized_end=1146,
+  serialized_start=2139,
+  serialized_end=2168,
 )
 
 
@@ -593,8 +1075,8 @@ _DETECTDEVICECONFIGIDRESPONSE_SUCCESS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1337,
-  serialized_end=1426,
+  serialized_start=2359,
+  serialized_end=2448,
 )
 
 _DETECTDEVICECONFIGIDRESPONSE_FAILURE = _descriptor.Descriptor(
@@ -623,8 +1105,8 @@ _DETECTDEVICECONFIGIDRESPONSE_FAILURE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1428,
-  serialized_end=1460,
+  serialized_start=1801,
+  serialized_end=1833,
 )
 
 _DETECTDEVICECONFIGIDRESPONSE = _descriptor.Descriptor(
@@ -663,8 +1145,8 @@ _DETECTDEVICECONFIGIDRESPONSE = _descriptor.Descriptor(
       name='result', full_name='chromiumos.test.api.DetectDeviceConfigIdResponse.result',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1149,
-  serialized_end=1470,
+  serialized_start=2171,
+  serialized_end=2492,
 )
 
 _EXECCOMMANDREQUEST.fields_by_name['stdout'].enum_type = _OUTPUT
@@ -683,6 +1165,51 @@ _FETCHCRASHESRESPONSE.oneofs_by_name['data'].fields.append(
   _FETCHCRASHESRESPONSE.fields_by_name['core'])
 _FETCHCRASHESRESPONSE.fields_by_name['core'].containing_oneof = _FETCHCRASHESRESPONSE.oneofs_by_name['data']
 _CRASHINFO.fields_by_name['fields'].message_type = _CRASHMETADATA
+_CACHEREQUEST_LOCALFILE.containing_type = _CACHEREQUEST
+_CACHEREQUEST_PIPE.containing_type = _CACHEREQUEST
+_CACHEREQUEST_GSFILE.containing_type = _CACHEREQUEST
+_CACHEREQUEST_GSZIPFILE.containing_type = _CACHEREQUEST
+_CACHEREQUEST_GSTARFILE.containing_type = _CACHEREQUEST
+_CACHEREQUEST.fields_by_name['file'].message_type = _CACHEREQUEST_LOCALFILE
+_CACHEREQUEST.fields_by_name['pipe'].message_type = _CACHEREQUEST_PIPE
+_CACHEREQUEST.fields_by_name['gs_file'].message_type = _CACHEREQUEST_GSFILE
+_CACHEREQUEST.fields_by_name['gs_zip_file'].message_type = _CACHEREQUEST_GSZIPFILE
+_CACHEREQUEST.fields_by_name['gs_tar_file'].message_type = _CACHEREQUEST_GSTARFILE
+_CACHEREQUEST.oneofs_by_name['destination'].fields.append(
+  _CACHEREQUEST.fields_by_name['file'])
+_CACHEREQUEST.fields_by_name['file'].containing_oneof = _CACHEREQUEST.oneofs_by_name['destination']
+_CACHEREQUEST.oneofs_by_name['destination'].fields.append(
+  _CACHEREQUEST.fields_by_name['pipe'])
+_CACHEREQUEST.fields_by_name['pipe'].containing_oneof = _CACHEREQUEST.oneofs_by_name['destination']
+_CACHEREQUEST.oneofs_by_name['source'].fields.append(
+  _CACHEREQUEST.fields_by_name['gs_file'])
+_CACHEREQUEST.fields_by_name['gs_file'].containing_oneof = _CACHEREQUEST.oneofs_by_name['source']
+_CACHEREQUEST.oneofs_by_name['source'].fields.append(
+  _CACHEREQUEST.fields_by_name['gs_zip_file'])
+_CACHEREQUEST.fields_by_name['gs_zip_file'].containing_oneof = _CACHEREQUEST.oneofs_by_name['source']
+_CACHEREQUEST.oneofs_by_name['source'].fields.append(
+  _CACHEREQUEST.fields_by_name['gs_tar_file'])
+_CACHEREQUEST.fields_by_name['gs_tar_file'].containing_oneof = _CACHEREQUEST.oneofs_by_name['source']
+_CACHERESPONSE_SUCCESS.containing_type = _CACHERESPONSE
+_CACHERESPONSE_FAILURE.containing_type = _CACHERESPONSE
+_CACHERESPONSE.fields_by_name['success'].message_type = _CACHERESPONSE_SUCCESS
+_CACHERESPONSE.fields_by_name['failure'].message_type = _CACHERESPONSE_FAILURE
+_CACHERESPONSE.oneofs_by_name['result'].fields.append(
+  _CACHERESPONSE.fields_by_name['success'])
+_CACHERESPONSE.fields_by_name['success'].containing_oneof = _CACHERESPONSE.oneofs_by_name['result']
+_CACHERESPONSE.oneofs_by_name['result'].fields.append(
+  _CACHERESPONSE.fields_by_name['failure'])
+_CACHERESPONSE.fields_by_name['failure'].containing_oneof = _CACHERESPONSE.oneofs_by_name['result']
+_FORCERECONNECTRESPONSE_SUCCESS.containing_type = _FORCERECONNECTRESPONSE
+_FORCERECONNECTRESPONSE_FAILURE.containing_type = _FORCERECONNECTRESPONSE
+_FORCERECONNECTRESPONSE.fields_by_name['success'].message_type = _FORCERECONNECTRESPONSE_SUCCESS
+_FORCERECONNECTRESPONSE.fields_by_name['failure'].message_type = _FORCERECONNECTRESPONSE_FAILURE
+_FORCERECONNECTRESPONSE.oneofs_by_name['result'].fields.append(
+  _FORCERECONNECTRESPONSE.fields_by_name['success'])
+_FORCERECONNECTRESPONSE.fields_by_name['success'].containing_oneof = _FORCERECONNECTRESPONSE.oneofs_by_name['result']
+_FORCERECONNECTRESPONSE.oneofs_by_name['result'].fields.append(
+  _FORCERECONNECTRESPONSE.fields_by_name['failure'])
+_FORCERECONNECTRESPONSE.fields_by_name['failure'].containing_oneof = _FORCERECONNECTRESPONSE.oneofs_by_name['result']
 _DETECTDEVICECONFIGIDRESPONSE_SUCCESS.fields_by_name['detected_scan_config'].message_type = chromiumos_dot_config_dot_api_dot_device__config__id__pb2._DEVICECONFIGID_SCANCONFIG
 _DETECTDEVICECONFIGIDRESPONSE_SUCCESS.containing_type = _DETECTDEVICECONFIGIDRESPONSE
 _DETECTDEVICECONFIGIDRESPONSE_FAILURE.containing_type = _DETECTDEVICECONFIGIDRESPONSE
@@ -704,6 +1231,12 @@ DESCRIPTOR.message_types_by_name['CrashBlob'] = _CRASHBLOB
 DESCRIPTOR.message_types_by_name['RestartRequest'] = _RESTARTREQUEST
 DESCRIPTOR.message_types_by_name['RestartResponse'] = _RESTARTRESPONSE
 DESCRIPTOR.message_types_by_name['RestartMetadata'] = _RESTARTMETADATA
+DESCRIPTOR.message_types_by_name['CacheRequest'] = _CACHEREQUEST
+DESCRIPTOR.message_types_by_name['CacheResponse'] = _CACHERESPONSE
+DESCRIPTOR.message_types_by_name['CacheMetadata'] = _CACHEMETADATA
+DESCRIPTOR.message_types_by_name['ForceReconnectRequest'] = _FORCERECONNECTREQUEST
+DESCRIPTOR.message_types_by_name['ForceReconnectResponse'] = _FORCERECONNECTRESPONSE
+DESCRIPTOR.message_types_by_name['ForceReconnectMetadata'] = _FORCERECONNECTMETADATA
 DESCRIPTOR.message_types_by_name['DetectDeviceConfigIdRequest'] = _DETECTDEVICECONFIGIDREQUEST
 DESCRIPTOR.message_types_by_name['DetectDeviceConfigIdResponse'] = _DETECTDEVICECONFIGIDRESPONSE
 DESCRIPTOR.enum_types_by_name['Output'] = _OUTPUT
@@ -787,6 +1320,120 @@ RestartMetadata = _reflection.GeneratedProtocolMessageType('RestartMetadata', (_
   })
 _sym_db.RegisterMessage(RestartMetadata)
 
+CacheRequest = _reflection.GeneratedProtocolMessageType('CacheRequest', (_message.Message,), {
+
+  'LocalFile' : _reflection.GeneratedProtocolMessageType('LocalFile', (_message.Message,), {
+    'DESCRIPTOR' : _CACHEREQUEST_LOCALFILE,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheRequest.LocalFile)
+    })
+  ,
+
+  'Pipe' : _reflection.GeneratedProtocolMessageType('Pipe', (_message.Message,), {
+    'DESCRIPTOR' : _CACHEREQUEST_PIPE,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheRequest.Pipe)
+    })
+  ,
+
+  'GSFile' : _reflection.GeneratedProtocolMessageType('GSFile', (_message.Message,), {
+    'DESCRIPTOR' : _CACHEREQUEST_GSFILE,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheRequest.GSFile)
+    })
+  ,
+
+  'GSZipFile' : _reflection.GeneratedProtocolMessageType('GSZipFile', (_message.Message,), {
+    'DESCRIPTOR' : _CACHEREQUEST_GSZIPFILE,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheRequest.GSZipFile)
+    })
+  ,
+
+  'GSTARFile' : _reflection.GeneratedProtocolMessageType('GSTARFile', (_message.Message,), {
+    'DESCRIPTOR' : _CACHEREQUEST_GSTARFILE,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheRequest.GSTARFile)
+    })
+  ,
+  'DESCRIPTOR' : _CACHEREQUEST,
+  '__module__' : 'chromiumos.test.api.dut_service_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheRequest)
+  })
+_sym_db.RegisterMessage(CacheRequest)
+_sym_db.RegisterMessage(CacheRequest.LocalFile)
+_sym_db.RegisterMessage(CacheRequest.Pipe)
+_sym_db.RegisterMessage(CacheRequest.GSFile)
+_sym_db.RegisterMessage(CacheRequest.GSZipFile)
+_sym_db.RegisterMessage(CacheRequest.GSTARFile)
+
+CacheResponse = _reflection.GeneratedProtocolMessageType('CacheResponse', (_message.Message,), {
+
+  'Success' : _reflection.GeneratedProtocolMessageType('Success', (_message.Message,), {
+    'DESCRIPTOR' : _CACHERESPONSE_SUCCESS,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheResponse.Success)
+    })
+  ,
+
+  'Failure' : _reflection.GeneratedProtocolMessageType('Failure', (_message.Message,), {
+    'DESCRIPTOR' : _CACHERESPONSE_FAILURE,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheResponse.Failure)
+    })
+  ,
+  'DESCRIPTOR' : _CACHERESPONSE,
+  '__module__' : 'chromiumos.test.api.dut_service_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheResponse)
+  })
+_sym_db.RegisterMessage(CacheResponse)
+_sym_db.RegisterMessage(CacheResponse.Success)
+_sym_db.RegisterMessage(CacheResponse.Failure)
+
+CacheMetadata = _reflection.GeneratedProtocolMessageType('CacheMetadata', (_message.Message,), {
+  'DESCRIPTOR' : _CACHEMETADATA,
+  '__module__' : 'chromiumos.test.api.dut_service_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.CacheMetadata)
+  })
+_sym_db.RegisterMessage(CacheMetadata)
+
+ForceReconnectRequest = _reflection.GeneratedProtocolMessageType('ForceReconnectRequest', (_message.Message,), {
+  'DESCRIPTOR' : _FORCERECONNECTREQUEST,
+  '__module__' : 'chromiumos.test.api.dut_service_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.ForceReconnectRequest)
+  })
+_sym_db.RegisterMessage(ForceReconnectRequest)
+
+ForceReconnectResponse = _reflection.GeneratedProtocolMessageType('ForceReconnectResponse', (_message.Message,), {
+
+  'Success' : _reflection.GeneratedProtocolMessageType('Success', (_message.Message,), {
+    'DESCRIPTOR' : _FORCERECONNECTRESPONSE_SUCCESS,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.ForceReconnectResponse.Success)
+    })
+  ,
+
+  'Failure' : _reflection.GeneratedProtocolMessageType('Failure', (_message.Message,), {
+    'DESCRIPTOR' : _FORCERECONNECTRESPONSE_FAILURE,
+    '__module__' : 'chromiumos.test.api.dut_service_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.ForceReconnectResponse.Failure)
+    })
+  ,
+  'DESCRIPTOR' : _FORCERECONNECTRESPONSE,
+  '__module__' : 'chromiumos.test.api.dut_service_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.ForceReconnectResponse)
+  })
+_sym_db.RegisterMessage(ForceReconnectResponse)
+_sym_db.RegisterMessage(ForceReconnectResponse.Success)
+_sym_db.RegisterMessage(ForceReconnectResponse.Failure)
+
+ForceReconnectMetadata = _reflection.GeneratedProtocolMessageType('ForceReconnectMetadata', (_message.Message,), {
+  'DESCRIPTOR' : _FORCERECONNECTMETADATA,
+  '__module__' : 'chromiumos.test.api.dut_service_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.ForceReconnectMetadata)
+  })
+_sym_db.RegisterMessage(ForceReconnectMetadata)
+
 DetectDeviceConfigIdRequest = _reflection.GeneratedProtocolMessageType('DetectDeviceConfigIdRequest', (_message.Message,), {
   'DESCRIPTOR' : _DETECTDEVICECONFIGIDREQUEST,
   '__module__' : 'chromiumos.test.api.dut_service_pb2'
@@ -826,8 +1473,8 @@ _DUTSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=1519,
-  serialized_end=1983,
+  serialized_start=2541,
+  serialized_end=3270,
   methods=[
   _descriptor.MethodDescriptor(
     name='ExecCommand',
@@ -864,6 +1511,24 @@ _DUTSERVICE = _descriptor.ServiceDescriptor(
     input_type=_DETECTDEVICECONFIGIDREQUEST,
     output_type=_DETECTDEVICECONFIGIDRESPONSE,
     serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Cache',
+    full_name='chromiumos.test.api.DutService.Cache',
+    index=4,
+    containing_service=None,
+    input_type=_CACHEREQUEST,
+    output_type=chromiumos_dot_longrunning_dot_operations__pb2._OPERATION,
+    serialized_options=b'\322A\036\n\rCacheResponse\022\rCacheMetadata',
+  ),
+  _descriptor.MethodDescriptor(
+    name='ForceReconnect',
+    full_name='chromiumos.test.api.DutService.ForceReconnect',
+    index=5,
+    containing_service=None,
+    input_type=_FORCERECONNECTREQUEST,
+    output_type=chromiumos_dot_longrunning_dot_operations__pb2._OPERATION,
+    serialized_options=b'\322A0\n\026ForceReconnectResponse\022\026ForceReconnectMetadata',
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_DUTSERVICE)

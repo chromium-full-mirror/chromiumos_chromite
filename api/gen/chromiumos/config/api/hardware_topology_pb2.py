@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z(go.chromium.org/chromiumos/config/go/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n-chromiumos/config/api/hardware_topology.proto\x12\x15\x63hromiumos.config.api\x1a$chromiumos/config/api/topology.proto\"\xfa\n\n\x10HardwareTopology\x12/\n\x06screen\x18\x01 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x34\n\x0b\x66orm_factor\x18\x02 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12.\n\x05\x61udio\x18\x03 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12/\n\x06stylus\x18\x04 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x31\n\x08keyboard\x18\x05 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x30\n\x07thermal\x18\x06 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12/\n\x06\x63\x61mera\x18\x07 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12M\n$accelerometer_gyroscope_magnetometer\x18\x08 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x34\n\x0b\x66ingerprint\x18\t \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x39\n\x10proximity_sensor\x18\n \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x37\n\x0e\x64\x61ughter_board\x18\x0b \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12=\n\x14non_volatile_storage\x18\x0c \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12,\n\x03ram\x18\r \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12-\n\x04wifi\x18\x0e \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x32\n\tlte_board\x18\x0f \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x32\n\tsd_reader\x18\x10 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x38\n\x0fmotherboard_usb\x18\x11 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x32\n\tbluetooth\x18\x12 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x33\n\nbarreljack\x18\x13 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x35\n\x0cpower_button\x18\x14 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x36\n\rvolume_button\x18\x15 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12+\n\x02\x65\x63\x18\x16 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12.\n\x05touch\x18\x17 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12,\n\x03tpm\x18\x18 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12?\n\x16microphone_mute_switch\x18\x19 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12-\n\x04hdmi\x18\x1a \x01(\x0b\x32\x1f.chromiumos.config.api.TopologyB*Z(go.chromium.org/chromiumos/config/go/apib\x06proto3'
+  serialized_pb=b'\n-chromiumos/config/api/hardware_topology.proto\x12\x15\x63hromiumos.config.api\x1a$chromiumos/config/api/topology.proto\"\xe4\x0b\n\x10HardwareTopology\x12/\n\x06screen\x18\x01 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x34\n\x0b\x66orm_factor\x18\x02 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12.\n\x05\x61udio\x18\x03 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12/\n\x06stylus\x18\x04 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x31\n\x08keyboard\x18\x05 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x30\n\x07thermal\x18\x06 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12/\n\x06\x63\x61mera\x18\x07 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12M\n$accelerometer_gyroscope_magnetometer\x18\x08 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x34\n\x0b\x66ingerprint\x18\t \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x39\n\x10proximity_sensor\x18\n \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x37\n\x0e\x64\x61ughter_board\x18\x0b \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12=\n\x14non_volatile_storage\x18\x0c \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12,\n\x03ram\x18\r \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12-\n\x04wifi\x18\x0e \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x37\n\x0e\x63\x65llular_board\x18\x0f \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x32\n\tsd_reader\x18\x10 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x38\n\x0fmotherboard_usb\x18\x11 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x32\n\tbluetooth\x18\x12 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x33\n\nbarreljack\x18\x13 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x35\n\x0cpower_button\x18\x14 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x36\n\rvolume_button\x18\x15 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12+\n\x02\x65\x63\x18\x16 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12.\n\x05touch\x18\x17 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12,\n\x03tpm\x18\x18 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12?\n\x16microphone_mute_switch\x18\x19 \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12-\n\x04hdmi\x18\x1a \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12,\n\x03hps\x18\x1b \x01(\x0b\x32\x1f.chromiumos.config.api.Topology\x12\x35\n\x0c\x64p_converter\x18\x1c \x01(\x0b\x32\x1f.chromiumos.config.api.TopologyB*Z(go.chromium.org/chromiumos/config/go/apib\x06proto3'
   ,
   dependencies=[chromiumos_dot_config_dot_api_dot_topology__pb2.DESCRIPTOR,])
 
@@ -134,7 +134,7 @@ _HARDWARETOPOLOGY = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='lte_board', full_name='chromiumos.config.api.HardwareTopology.lte_board', index=14,
+      name='cellular_board', full_name='chromiumos.config.api.HardwareTopology.cellular_board', index=14,
       number=15, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -217,6 +217,20 @@ _HARDWARETOPOLOGY = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='hps', full_name='chromiumos.config.api.HardwareTopology.hps', index=26,
+      number=27, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='dp_converter', full_name='chromiumos.config.api.HardwareTopology.dp_converter', index=27,
+      number=28, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -230,7 +244,7 @@ _HARDWARETOPOLOGY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=111,
-  serialized_end=1513,
+  serialized_end=1619,
 )
 
 _HARDWARETOPOLOGY.fields_by_name['screen'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
@@ -247,7 +261,7 @@ _HARDWARETOPOLOGY.fields_by_name['daughter_board'].message_type = chromiumos_dot
 _HARDWARETOPOLOGY.fields_by_name['non_volatile_storage'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 _HARDWARETOPOLOGY.fields_by_name['ram'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 _HARDWARETOPOLOGY.fields_by_name['wifi'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
-_HARDWARETOPOLOGY.fields_by_name['lte_board'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
+_HARDWARETOPOLOGY.fields_by_name['cellular_board'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 _HARDWARETOPOLOGY.fields_by_name['sd_reader'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 _HARDWARETOPOLOGY.fields_by_name['motherboard_usb'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 _HARDWARETOPOLOGY.fields_by_name['bluetooth'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
@@ -259,6 +273,8 @@ _HARDWARETOPOLOGY.fields_by_name['touch'].message_type = chromiumos_dot_config_d
 _HARDWARETOPOLOGY.fields_by_name['tpm'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 _HARDWARETOPOLOGY.fields_by_name['microphone_mute_switch'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 _HARDWARETOPOLOGY.fields_by_name['hdmi'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
+_HARDWARETOPOLOGY.fields_by_name['hps'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
+_HARDWARETOPOLOGY.fields_by_name['dp_converter'].message_type = chromiumos_dot_config_dot_api_dot_topology__pb2._TOPOLOGY
 DESCRIPTOR.message_types_by_name['HardwareTopology'] = _HARDWARETOPOLOGY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 

@@ -892,13 +892,7 @@ class GetCoverageRulesTest(cros_test_lib.RunCommandTempDirTestCase,
                       json_format.MessageToJson(flat_config_list))
 
     return test_pb2.GetCoverageRulesRequest(
-        source_test_plans=[
-            source_test_plan_pb2.SourceTestPlan(
-                requirements=source_test_plan_pb2.SourceTestPlan.Requirements(
-                    kernel_versions=source_test_plan_pb2.SourceTestPlan
-                    .Requirements.KernelVersions()),
-                test_tags=['kernel']),
-        ],
+        source_test_plans=[source_test_plan_pb2.SourceTestPlan()],
         build_metadata_list=common_pb2.Path(
             path=build_metadata_list_path, location=common_pb2.Path.OUTSIDE),
         dut_attribute_list=common_pb2.Path(

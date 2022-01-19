@@ -17,9 +17,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='chromiumos/storage_path.proto',
   package='chromiumos',
   syntax='proto3',
-  serialized_options=b'Z$go.chromium.org/chromiumos/config/go',
+  serialized_options=b'Z(go.chromium.org/chromiumos/config/go;_go',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1d\x63hromiumos/storage_path.proto\x12\nchromiumos\"\x89\x01\n\x0bStoragePath\x12\x33\n\thost_type\x18\x01 \x01(\x0e\x32 .chromiumos.StoragePath.HostType\x12\x0c\n\x04path\x18\x02 \x01(\t\"7\n\x08HostType\x12\x18\n\x14HOSTTYPE_UNSPECIFIED\x10\x00\x12\t\n\x05LOCAL\x10\x01\x12\x06\n\x02GS\x10\x02\x42&Z$go.chromium.org/chromiumos/config/gob\x06proto3'
+  serialized_pb=b'\n\x1d\x63hromiumos/storage_path.proto\x12\nchromiumos\"\x89\x01\n\x0bStoragePath\x12\x33\n\thost_type\x18\x01 \x01(\x0e\x32 .chromiumos.StoragePath.HostType\x12\x0c\n\x04path\x18\x02 \x01(\t\"7\n\x08HostType\x12\x18\n\x14HOSTTYPE_UNSPECIFIED\x10\x00\x12\t\n\x05LOCAL\x10\x01\x12\x06\n\x02GS\x10\x02\x42*Z(go.chromium.org/chromiumos/config/go;_gob\x06proto3'
 )
 
 

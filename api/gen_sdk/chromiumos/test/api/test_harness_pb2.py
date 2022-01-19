@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chromiumos.test.api',
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
-  serialized_pb=b'\n&chromiumos/test/api/test_harness.proto\x12\x13\x63hromiumos.test.api\"\xaa\x02\n\x0bTestHarness\x12\x39\n\x06manual\x18\x01 \x01(\x0b\x32\'.chromiumos.test.api.TestHarness.ManualH\x00\x12\x37\n\x05tauto\x18\x02 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.TautoH\x00\x12\x35\n\x04tast\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.TestHarness.TastH\x00\x12\x37\n\x05gtest\x18\x04 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.GtestH\x00\x1a\x08\n\x06Manual\x1a\x06\n\x04Tast\x1a\x07\n\x05Tauto\x1a\x07\n\x05GtestB\x13\n\x11test_harness_typeB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\n&chromiumos/test/api/test_harness.proto\x12\x13\x63hromiumos.test.api\"\xc7\x02\n\x0bTestHarness\x12\x39\n\x06manual\x18\x01 \x01(\x0b\x32\'.chromiumos.test.api.TestHarness.ManualH\x00\x12\x37\n\x05tauto\x18\x02 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.TautoH\x00\x12\x35\n\x04tast\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.TestHarness.TastH\x00\x12\x37\n\x05gtest\x18\x04 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.GtestH\x00\x1a\x08\n\x06Manual\x1a\x06\n\x04Tast\x1a\x07\n\x05Tauto\x1a$\n\x05Gtest\x12\x1b\n\x13target_bin_location\x18\x01 \x01(\tB\x13\n\x11test_harness_typeB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
 )
 
 
@@ -100,6 +100,13 @@ _TESTHARNESS_GTEST = _descriptor.Descriptor(
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
+    _descriptor.FieldDescriptor(
+      name='target_bin_location', full_name='chromiumos.test.api.TestHarness.Gtest.target_bin_location', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -113,7 +120,7 @@ _TESTHARNESS_GTEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=334,
-  serialized_end=341,
+  serialized_end=370,
 )
 
 _TESTHARNESS = _descriptor.Descriptor(
@@ -167,7 +174,7 @@ _TESTHARNESS = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=64,
-  serialized_end=362,
+  serialized_end=391,
 )
 
 _TESTHARNESS_MANUAL.containing_type = _TESTHARNESS
