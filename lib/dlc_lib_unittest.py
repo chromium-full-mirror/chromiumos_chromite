@@ -74,6 +74,8 @@ class EbuildParamsTest(cros_test_lib.TempDirTestCase):
         'used_by': dlc_lib.USED_BY_USER,
         'days_to_purge': _DAYS_TO_PURGE,
         'mount_file_required': True,
+        'reserved': False,
+        'critical_update': False,
     }
 
   def testGetParamsPath(self):
@@ -99,6 +101,8 @@ class EbuildParamsTest(cros_test_lib.TempDirTestCase):
                   used_by=dlc_lib.USED_BY_SYSTEM,
                   days_to_purge=_DAYS_TO_PURGE,
                   mount_file_required=False,
+                  reserved=False,
+                  critical_update=False,
                   fullnamerev=_FULLNAME_REV):
     """Tests EbuildParams JSON values"""
     self.assertDictEqual(ebuild_params,
@@ -114,6 +118,8 @@ class EbuildParamsTest(cros_test_lib.TempDirTestCase):
                           'used_by': used_by,
                           'days_to_purge': days_to_purge,
                           'mount_file_required': mount_file_required,
+                          'reserved': reserved,
+                          'critical_update': critical_update,
                           'fullnamerev': fullnamerev})
 
   def GenerateParams(self,
@@ -130,6 +136,8 @@ class EbuildParamsTest(cros_test_lib.TempDirTestCase):
                      used_by=dlc_lib.USED_BY_SYSTEM,
                      days_to_purge=_DAYS_TO_PURGE,
                      mount_file_required=False,
+                     reserved=False,
+                     critical_update=False,
                      fullnamerev=_FULLNAME_REV):
     """Creates and Stores DLC params at install_root_dir"""
     params = dlc_lib.EbuildParams(
@@ -145,6 +153,8 @@ class EbuildParamsTest(cros_test_lib.TempDirTestCase):
         used_by=used_by,
         days_to_purge=days_to_purge,
         mount_file_required=mount_file_required,
+        reserved=reserved,
+        critical_update=critical_update,
         fullnamerev=fullnamerev)
     return params.StoreDlcParameters(
         install_root_dir=install_root_dir, sudo=False)
@@ -224,6 +234,8 @@ class DlcGeneratorTest(cros_test_lib.LoggingTestCase,
         used_by=dlc_lib.USED_BY_SYSTEM,
         days_to_purge=_DAYS_TO_PURGE,
         mount_file_required=False,
+        reserved=False,
+        critical_update=False,
         fullnamerev=_FULLNAME_REV)
     return dlc_lib.DlcGenerator(
         ebuild_params=params,
@@ -346,6 +358,8 @@ class DlcGeneratorTest(cros_test_lib.LoggingTestCase,
             'factory-install': False,
             'used-by': dlc_lib.USED_BY_SYSTEM,
             'days-to-purge': _DAYS_TO_PURGE,
+            'reserved': False,
+            'critical-update': False,
         })
 
   def testVerifyImageSize(self):

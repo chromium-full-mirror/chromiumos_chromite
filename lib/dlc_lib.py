@@ -104,13 +104,15 @@ class EbuildParams(object):
     used_by: (str) The user of this DLC, e.g. "system" or "user"
     days_to_purge: (int) The number of days to keep a DLC after uninstall and
         before it is purged.
+    reserved: (bool) always reserve space for DLC on disk.
+    critical_update: (bool) DLC always updates with the OS.
     fullnamerev: (str) The full package & version name.
   """
 
   def __init__(self, dlc_id, dlc_package, fs_type, pre_allocated_blocks,
                version, name, description, preload, used_by,
-               mount_file_required, fullnamerev, days_to_purge=0,
-               factory_install=False):
+               mount_file_required, fullnamerev, reserved=False,
+               critical_update=False, days_to_purge=0, factory_install=False):
     """Initializes the object.
 
     When adding a new variable in here, always set a default value. The reason
@@ -131,6 +133,8 @@ class EbuildParams(object):
     self.mount_file_required = mount_file_required
     self.fullnamerev = fullnamerev
     self.days_to_purge = days_to_purge
+    self.reserved = reserved
+    self.critical_update = critical_update
 
   def StoreDlcParameters(self, install_root_dir, sudo):
     """Store DLC parameters defined in the ebuild.
@@ -486,6 +490,8 @@ class DlcGenerator(object):
         'used-by': self.ebuild_params.used_by,
         'days-to-purge': self.ebuild_params.days_to_purge,
         'mount-file-required': self.ebuild_params.mount_file_required,
+        'reserved': self.ebuild_params.reserved,
+        'critical-update': self.ebuild_params.critical_update,
     }
 
   def GenerateVerity(self):

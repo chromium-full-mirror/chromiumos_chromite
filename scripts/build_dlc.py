@@ -109,6 +109,16 @@ def GetParser():
       action='store_true',
       help='Allow indirect mount file generation for DLC.')
   one_dlc.add_argument(
+      '--reserved',
+      default=False,
+      action='store_true',
+      help='Always reserve space for this DLC.')
+  one_dlc.add_argument(
+      '--critical-update',
+      default=False,
+      action='store_true',
+      help='Always update with the OS for this DLC.')
+  one_dlc.add_argument(
       '--build-package',
       default=False,
       action='store_true',
@@ -161,7 +171,8 @@ def main(argv):
   else:
     per_dlc_req_args += ['sysroot', 'board']
     per_dlc_invalid_args += ['name', 'pre_allocated_blocks', 'version',
-                             'package', 'days_to_purge']
+                             'package', 'days_to_purge', 'reserved',
+                             'critical_update']
 
   ValidateArguments(parser, opts, per_dlc_req_args, per_dlc_invalid_args)
 
@@ -178,6 +189,8 @@ def main(argv):
         preload=opts.preload,
         factory_install=opts.factory_install,
         mount_file_required=opts.mount_file_required,
+        reserved=opts.reserved,
+        critical_update=opts.critical_update,
         used_by=opts.used_by,
         days_to_purge=opts.days_to_purge,
         fullnamerev=opts.fullnamerev)
