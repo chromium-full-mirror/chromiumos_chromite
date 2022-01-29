@@ -14843,6 +14843,9 @@
         "boards": [
             "kevin-userdebug"
         ],
+        "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"kevin\",\n    \"name\": \"kevin1\",\n    \"test_suites\": []\n}"
+        ],
         "vm_tests_override": null
     },
     "kevin-userdebug-release-tryjob": {
@@ -14863,6 +14866,9 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
+        "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"kevin\",\n    \"name\": \"kevin1\",\n    \"test_suites\": []\n}"
+        ],
         "paygen": false,
         "push_image": false,
         "suite_scheduling": false,
