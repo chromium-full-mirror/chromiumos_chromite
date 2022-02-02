@@ -237,6 +237,9 @@
     rammus-pi-android-pfq
 
 == release ==
+  gwifi-release
+    gale-release
+    mistral-release
   master-release
     ambassador-release
     asuka-release
@@ -271,7 +274,6 @@
     fizz-labstation-release
     fizz-moblab-release
     fizz-release
-    gale-release
     grunt-arc-r-release
     grunt-kernelnext-release
     grunt-release
@@ -299,7 +301,6 @@
     kukui-kernelnext-release
     kukui-release
     lars-release
-    mistral-release
     nami-release
     nautilus-release
     nocturne-release
@@ -918,6 +919,9 @@
   guybrush-payloads-tryjob
   guybrush-release-tryjob
   guybrush-unittest-stress
+  gwifi-release-tryjob
+    gale-release-tryjob
+    mistral-release-tryjob
   hana-arc64-full-tryjob
   hana-arc64-llvm-next-toolchain-tryjob
   hana-arc64-llvm-toolchain-tryjob
@@ -1169,7 +1173,6 @@
     fizz-labstation-release-tryjob
     fizz-moblab-release-tryjob
     fizz-release-tryjob
-    gale-release-tryjob
     grunt-arc-r-release-tryjob
     grunt-kernelnext-release-tryjob
     grunt-release-tryjob
@@ -1197,7 +1200,6 @@
     kukui-kernelnext-release-tryjob
     kukui-release-tryjob
     lars-release-tryjob
-    mistral-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
     nocturne-release-tryjob

@@ -2100,6 +2100,8 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
 
   ### Master release configs.
   master_config = _CreateMasterConfig('master-release')
+  gwifi_config = _CreateMasterConfig('gwifi-release')
+  gwifi_build_configs = ['gale-release', 'mistral-release']
   # pylint: disable=unused-variable
   basic_master_config = _CreateMasterConfig(
       'master-release-basic',
@@ -2114,6 +2116,9 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     # Add this config to the master release basic builder.
     if config.name.endswith('-release-basic'):
       master = basic_master_config
+    # Add this config to the gwifi release builder.
+    if config.name in gwifi_build_configs:
+      master = gwifi_config
 
     master.AddSlave(config)
 
