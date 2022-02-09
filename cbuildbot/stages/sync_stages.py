@@ -605,7 +605,8 @@ class ManifestVersionedSyncStage(SyncStage):
   def PerformStage(self):
     self.Initialize()
 
-    self._VerifyMasterId(self._run.options.master_buildbucket_id)
+    # TODO(b/214153533): Disable check on CIDB bug.
+    # self._VerifyMasterId(self._run.options.master_buildbucket_id)
     version = self._run.options.force_version
     if self._run.options.master_buildbucket_id:
       version = self._GetMasterVersion(self._run.options.master_buildbucket_id)
