@@ -98,18 +98,6 @@
       ]
     },
     {
-      "name": "cave",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "glados",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "celes",
       "configs": [
         {
@@ -922,6 +910,23 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "cave",
+      "reference_board_name": "cave",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "cave",
+          "name": "cave",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 267,
           "is_active": true
         }
       ]
