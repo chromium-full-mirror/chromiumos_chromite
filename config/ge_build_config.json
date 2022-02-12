@@ -1076,6 +1076,14 @@
         },
         {
           "board_name": "brya",
+          "name": "tarlo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 459,
+          "is_active": true
+        },
+        {
+          "board_name": "brya",
           "name": "vell",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
