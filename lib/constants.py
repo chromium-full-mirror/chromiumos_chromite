@@ -274,8 +274,8 @@ ANDROID_ALL_PACKAGES = frozenset([ANDROID_PI_PACKAGE,
 
 # List of supported Android branches. When adding/removing branches make sure
 # the ANDROID_BRANCH_TO_BUILD_TARGETS map is also updated.
-ANDROID_PI_BUILD_BRANCH = 'git_pi-arc'
-ANDROID_VMRVC_BUILD_BRANCH = 'git_rvc-arc'
+ANDROID_PI_BUILD_BRANCH = 'git_pi-arc-m100'
+ANDROID_VMRVC_BUILD_BRANCH = 'git_rvc-arc-m100'
 ANDROID_VMSC_BUILD_BRANCH = 'git_sc-arc-dev'
 ANDROID_VMT_BUILD_BRANCH = 'git_master-arc-dev'
 
