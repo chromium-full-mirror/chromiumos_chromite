@@ -3655,8 +3655,7 @@
         ],
         "sign_types": [
             "recovery",
-            "factory",
-            "hps_firmware"
+            "factory"
         ],
         "vm_tests_override": null
     },
@@ -3704,8 +3703,7 @@
         "push_image": false,
         "sign_types": [
             "recovery",
-            "factory",
-            "hps_firmware"
+            "factory"
         ],
         "suite_scheduling": false,
         "vm_tests_override": null
