@@ -174,14 +174,11 @@
     aurora-borealis-release
     aurora-release
     banon-release
-    beaglebone_servo-release
     betty-release
     bob-release
     brya-release
     bubs-release
-    caroline-kernelnext-release
     caroline-release
-    caroline-userdebug-release
     cave-release
     celes-release
     chell-release
@@ -196,7 +193,6 @@
     elm-kernelnext-release
     elm-release
     endeavour-release
-    eve-kernelnext-release
     eve-kvm-release
     eve-release
     excelsior-release
@@ -272,7 +268,6 @@
     trogdor-release
     trogdor64-release
     ultima-release
-    volteer-borealis-release
     volteer-release
     wizpig-release
     zork-borealis-release
@@ -420,23 +415,11 @@
   candy-factory-rambi-6420.B-factorybranch-tryjob
   caroline-factory-glados-7828.B-factorybranch-tryjob
   caroline-full-tryjob
-  caroline-kernelnext-full-tryjob
-  caroline-kernelnext-llvm-next-toolchain-tryjob
-  caroline-kernelnext-llvm-toolchain-tryjob
-  caroline-kernelnext-payloads-tryjob
-  caroline-kernelnext-release-tryjob
-  caroline-kernelnext-unittest-stress
   caroline-llvm-next-toolchain-tryjob
   caroline-llvm-toolchain-tryjob
   caroline-payloads-tryjob
   caroline-release-tryjob
   caroline-unittest-stress
-  caroline-userdebug-full-tryjob
-  caroline-userdebug-llvm-next-toolchain-tryjob
-  caroline-userdebug-llvm-toolchain-tryjob
-  caroline-userdebug-payloads-tryjob
-  caroline-userdebug-release-tryjob
-  caroline-userdebug-unittest-stress
   cave-factory-glados-7828.B-factorybranch-tryjob
   cave-full-tryjob
   cave-llvm-next-toolchain-tryjob
@@ -550,12 +533,6 @@
   enguarde-factory-rambi-6420.B-factorybranch-tryjob
   eve-factory-eve-9667.B-factorybranch-tryjob
   eve-full-tryjob
-  eve-kernelnext-full-tryjob
-  eve-kernelnext-llvm-next-toolchain-tryjob
-  eve-kernelnext-llvm-toolchain-tryjob
-  eve-kernelnext-payloads-tryjob
-  eve-kernelnext-release-tryjob
-  eve-kernelnext-unittest-stress
   eve-kvm-full-tryjob
   eve-kvm-llvm-next-toolchain-tryjob
   eve-kvm-llvm-toolchain-tryjob
@@ -1026,14 +1003,11 @@
     aurora-borealis-release-tryjob
     aurora-release-tryjob
     banon-release-tryjob
-    beaglebone_servo-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
     brya-release-tryjob
     bubs-release-tryjob
-    caroline-kernelnext-release-tryjob
     caroline-release-tryjob
-    caroline-userdebug-release-tryjob
     cave-release-tryjob
     celes-release-tryjob
     chell-release-tryjob
@@ -1048,7 +1022,6 @@
     elm-kernelnext-release-tryjob
     elm-release-tryjob
     endeavour-release-tryjob
-    eve-kernelnext-release-tryjob
     eve-kvm-release-tryjob
     eve-release-tryjob
     excelsior-release-tryjob
@@ -1124,7 +1097,6 @@
     trogdor-release-tryjob
     trogdor64-release-tryjob
     ultima-release-tryjob
-    volteer-borealis-release-tryjob
     volteer-release-tryjob
     wizpig-release-tryjob
     zork-borealis-release-tryjob
@@ -1458,12 +1430,6 @@
   viking-rapid
   viking-release-tryjob
   viking-unittest-stress
-  volteer-borealis-full-tryjob
-  volteer-borealis-llvm-next-toolchain-tryjob
-  volteer-borealis-llvm-toolchain-tryjob
-  volteer-borealis-payloads-tryjob
-  volteer-borealis-release-tryjob
-  volteer-borealis-unittest-stress
   volteer-factory-volteer-13600.B-factorybranch-tryjob
   volteer-full-tryjob
   volteer-llvm-next-toolchain-tryjob
