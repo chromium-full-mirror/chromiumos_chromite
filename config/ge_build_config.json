@@ -634,6 +634,14 @@
         },
         {
           "board_name": "brya",
+          "name": "banshee",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 459,
+          "is_active": true
+        },
+        {
+          "board_name": "brya",
           "name": "brya",
           "test_suites": [
             "sanity",
@@ -673,6 +681,22 @@
         {
           "board_name": "brya",
           "name": "brya4esti50",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 459,
+          "is_active": true
+        },
+        {
+          "board_name": "brya",
+          "name": "crota",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 459,
+          "is_active": true
+        },
+        {
+          "board_name": "brya",
+          "name": "crota360",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
