@@ -426,25 +426,6 @@
       "models": [
         {
           "board_name": "asurada",
-          "name": "asurada",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 435,
-          "is_active": true
-        },
-        {
-          "board_name": "asurada",
           "name": "hayato",
           "test_suites": [
             "sanity",
