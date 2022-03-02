@@ -215,7 +215,6 @@
     hatch-arc-r-ack-release
     hatch-arc-r-release
     hatch-arc-r-userdebug-release
-    hatch-arc-s-release
     hatch-borealis-release
     hatch-diskswap-release
     hatch-kernelnext-release
@@ -297,7 +296,6 @@
 
 == vmsc_android_pfq ==
   master-vmsc-android-pfq
-    hatch-arc-s-vmsc-android-pfq
 
 == vmt_android_pfq ==
   master-vmt-android-pfq
@@ -844,13 +842,6 @@
   hatch-arc-r-userdebug-payloads-tryjob
   hatch-arc-r-userdebug-release-tryjob
   hatch-arc-r-userdebug-unittest-stress
-  hatch-arc-s-full-tryjob
-  hatch-arc-s-llvm-next-toolchain-tryjob
-  hatch-arc-s-llvm-toolchain-tryjob
-  hatch-arc-s-payloads-tryjob
-  hatch-arc-s-release-tryjob
-  hatch-arc-s-unittest-stress
-  hatch-arc-s-vmsc-android-pfq-tryjob
   hatch-borealis-full-tryjob
   hatch-borealis-llvm-next-toolchain-tryjob
   hatch-borealis-llvm-toolchain-tryjob
@@ -1075,7 +1066,6 @@
     hatch-arc-r-ack-release-tryjob
     hatch-arc-r-release-tryjob
     hatch-arc-r-userdebug-release-tryjob
-    hatch-arc-s-release-tryjob
     hatch-borealis-release-tryjob
     hatch-diskswap-release-tryjob
     hatch-kernelnext-release-tryjob
@@ -1142,7 +1132,6 @@
     hatch-vmrvc-android-pfq-tryjob
     rammus-arc-r-vmrvc-android-pfq-tryjob
   master-vmsc-android-pfq-tryjob
-    hatch-arc-s-vmsc-android-pfq-tryjob
   master-vmt-android-pfq-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
   mistral-master-factorybranch-tryjob
