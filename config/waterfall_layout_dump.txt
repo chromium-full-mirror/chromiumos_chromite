@@ -173,7 +173,6 @@
     ambassador-release
     asuka-release
     asurada-release
-    atlas-kernelnext-release
     atlas-release
     aurora-release
     banon-release
@@ -204,7 +203,6 @@
     guado_labstation-release
     guybrush-release
     hana-release
-    hatch-arc-r-ack-release
     hatch-arc-r-release
     hatch-release
     herobrine-release
@@ -326,12 +324,6 @@
   asurada-unittest-stress
   atlas-factory-atlas-11907.B-factorybranch-tryjob
   atlas-full-tryjob
-  atlas-kernelnext-full-tryjob
-  atlas-kernelnext-llvm-next-toolchain-tryjob
-  atlas-kernelnext-llvm-toolchain-tryjob
-  atlas-kernelnext-payloads-tryjob
-  atlas-kernelnext-release-tryjob
-  atlas-kernelnext-unittest-stress
   atlas-llvm-next-toolchain-tryjob
   atlas-llvm-toolchain-tryjob
   atlas-master-factorybranch-tryjob
@@ -746,12 +738,6 @@
   hana-release-tryjob
   hana-unittest-stress
   hatch-android-rvc-pre-flight-branch-tryjob
-  hatch-arc-r-ack-full-tryjob
-  hatch-arc-r-ack-llvm-next-toolchain-tryjob
-  hatch-arc-r-ack-llvm-toolchain-tryjob
-  hatch-arc-r-ack-payloads-tryjob
-  hatch-arc-r-ack-release-tryjob
-  hatch-arc-r-ack-unittest-stress
   hatch-arc-r-android-rvc-pre-flight-branch-tryjob
   hatch-arc-r-full-tryjob
   hatch-arc-r-llvm-next-toolchain-tryjob
@@ -899,7 +885,6 @@
     ambassador-release-tryjob
     asuka-release-tryjob
     asurada-release-tryjob
-    atlas-kernelnext-release-tryjob
     atlas-release-tryjob
     aurora-release-tryjob
     banon-release-tryjob
@@ -930,7 +915,6 @@
     guado_labstation-release-tryjob
     guybrush-release-tryjob
     hana-release-tryjob
-    hatch-arc-r-ack-release-tryjob
     hatch-arc-r-release-tryjob
     hatch-release-tryjob
     herobrine-release-tryjob
