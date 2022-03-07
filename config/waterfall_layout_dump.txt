@@ -196,7 +196,6 @@
     edgar-release
     elm-release
     endeavour-release
-    eve-kvm-release
     eve-release
     excelsior-release
     fizz-cfm-release
@@ -207,7 +206,6 @@
     guado_labstation-release
     guybrush-release
     hana-release
-    hatch-arc-r-release
     hatch-release
     herobrine-release
     jacuzzi-release
@@ -227,7 +225,6 @@
     puff-moblab-release
     puff-release
     pyro-release
-    rammus-arc-r-release
     rammus-release
     reef-release
     reks-release
@@ -268,7 +265,6 @@
   master-vmrvc-android-pfq
     eve-vmrvc-android-pfq
     hatch-vmrvc-android-pfq
-    rammus-arc-r-vmrvc-android-pfq
 
 == vmsc_android_pfq ==
   master-vmsc-android-pfq
@@ -497,12 +493,6 @@
   enguarde-factory-rambi-6420.B-factorybranch-tryjob
   eve-factory-eve-9667.B-factorybranch-tryjob
   eve-full-tryjob
-  eve-kvm-full-tryjob
-  eve-kvm-llvm-next-toolchain-tryjob
-  eve-kvm-llvm-toolchain-tryjob
-  eve-kvm-payloads-tryjob
-  eve-kvm-release-tryjob
-  eve-kvm-unittest-stress
   eve-llvm-next-toolchain-tryjob
   eve-llvm-toolchain-tryjob
   eve-llvm-tot-toolchain-tryjob
@@ -743,12 +733,6 @@
   hana-unittest-stress
   hatch-android-rvc-pre-flight-branch-tryjob
   hatch-arc-r-android-rvc-pre-flight-branch-tryjob
-  hatch-arc-r-full-tryjob
-  hatch-arc-r-llvm-next-toolchain-tryjob
-  hatch-arc-r-llvm-toolchain-tryjob
-  hatch-arc-r-payloads-tryjob
-  hatch-arc-r-release-tryjob
-  hatch-arc-r-unittest-stress
   hatch-factory-hatch-12692.B-factorybranch-tryjob
   hatch-full-tryjob
   hatch-llvm-next-toolchain-tryjob
@@ -910,7 +894,6 @@
     edgar-release-tryjob
     elm-release-tryjob
     endeavour-release-tryjob
-    eve-kvm-release-tryjob
     eve-release-tryjob
     excelsior-release-tryjob
     fizz-cfm-release-tryjob
@@ -921,7 +904,6 @@
     guado_labstation-release-tryjob
     guybrush-release-tryjob
     hana-release-tryjob
-    hatch-arc-r-release-tryjob
     hatch-release-tryjob
     herobrine-release-tryjob
     jacuzzi-release-tryjob
@@ -941,7 +923,6 @@
     puff-moblab-release-tryjob
     puff-release-tryjob
     pyro-release-tryjob
-    rammus-arc-r-release-tryjob
     rammus-release-tryjob
     reef-release-tryjob
     reks-release-tryjob
@@ -969,7 +950,6 @@
   master-vmrvc-android-pfq-tryjob
     eve-vmrvc-android-pfq-tryjob
     hatch-vmrvc-android-pfq-tryjob
-    rammus-arc-r-vmrvc-android-pfq-tryjob
   master-vmsc-android-pfq-tryjob
   master-vmt-android-pfq-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
@@ -1062,13 +1042,6 @@
   pyro-payloads-tryjob
   pyro-release-tryjob
   pyro-unittest-stress
-  rammus-arc-r-full-tryjob
-  rammus-arc-r-llvm-next-toolchain-tryjob
-  rammus-arc-r-llvm-toolchain-tryjob
-  rammus-arc-r-payloads-tryjob
-  rammus-arc-r-release-tryjob
-  rammus-arc-r-unittest-stress
-  rammus-arc-r-vmrvc-android-pfq-tryjob
   rammus-factory-rammus-11289.B-factorybranch-tryjob
   rammus-full-tryjob
   rammus-llvm-next-toolchain-tryjob
