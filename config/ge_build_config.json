@@ -993,6 +993,14 @@
         },
         {
           "board_name": "cherry",
+          "name": "dojo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7163,
+          "is_active": true
+        },
+        {
+          "board_name": "cherry",
           "name": "tomato",
           "test_suites": [
             "sanity",
