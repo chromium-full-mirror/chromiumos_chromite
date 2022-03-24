@@ -114,12 +114,9 @@ def patch_ebuild_vars(ebuild_path, variables):
   """
   try:
     for line in fileinput.input(ebuild_path, inplace=1):
-      varname, eq, _ = line.partition('=')
-      if eq == '=' and varname.strip() in variables:
-        value = variables[varname]
-        sys.stdout.write('%s="%s"\n' % (varname, value))
-      else:
-        sys.stdout.write(line)
+      for var, value in variables.items():
+        line = re.sub(fr'\b{var}=\S+', f'{var}="{value}"', line)
+      sys.stdout.write(line)
   finally:
     fileinput.close()
 

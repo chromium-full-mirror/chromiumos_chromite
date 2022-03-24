@@ -4,9 +4,11 @@
 
 """Packages service tests."""
 
+import io
 import json
 import os
 import re
+from unittest import mock
 
 import pytest
 
@@ -182,6 +184,97 @@ class UprevBuildTargetsTest(cros_test_lib.RunCommandTestCase):
     """Test None type fails."""
     with self.assertRaises(AssertionError):
       packages.uprev_build_targets([build_target_lib.BuildTarget('foo')], None)
+
+
+class PatchEbuildVarsTest(cros_test_lib.MockTestCase):
+  """patch_ebuild_vars test."""
+  def setUp(self):
+    self.mock_input = self.PatchObject(packages.fileinput, 'input')
+    self.mock_stdout_write = self.PatchObject(packages.sys.stdout, 'write')
+    self.ebuild_path = '/path/to/ebuild'
+    self.old_var_value = 'R100-5678.0.123456789'
+    self.new_var_value = 'R102-5678.0.234566789'
+
+  def test_patch_ebuild_vars_var_only(self):
+    """patch_ebuild_vars changes ^var=value$."""
+    ebuild_contents = (
+        'This line does not change.\n'
+        'AFDO_PROFILE_VERSION="{var_value}"\n'
+        '\n'
+        '# The line with AFDO_PROFILE_VERSION is also unchanged.'
+    )
+    # Ebuild contains old_var_value.
+    self.mock_input.return_value = io.StringIO(
+        ebuild_contents.format(var_value=self.old_var_value))
+    expected_calls = []
+    # Expect the line with new_var_value.
+    for line in io.StringIO(ebuild_contents.format(
+        var_value=self.new_var_value)):
+      expected_calls.append(mock.call(line))
+
+    packages.patch_ebuild_vars(self.ebuild_path,
+                               {'AFDO_PROFILE_VERSION': self.new_var_value})
+
+    self.mock_stdout_write.assert_has_calls(expected_calls)
+
+  def test_patch_ebuild_vars_ignore_export(self):
+    """patch_ebuild_vars changes ^export var=value$ and keeps export."""
+    ebuild_contents = (
+        'This line does not change.\n'
+        'export AFDO_PROFILE_VERSION="{var_value}"\n'
+        '# This line is also unchanged.'
+    )
+    # Ebuild contains old_var_value.
+    self.mock_input.return_value = io.StringIO(
+        ebuild_contents.format(var_value=self.old_var_value))
+    expected_calls = []
+    # Expect the line with new_var_value.
+    for line in io.StringIO(ebuild_contents.format(
+        var_value=self.new_var_value)):
+      expected_calls.append(mock.call(line))
+
+    packages.patch_ebuild_vars(self.ebuild_path,
+                               {'AFDO_PROFILE_VERSION': self.new_var_value})
+
+    self.mock_stdout_write.assert_has_calls(expected_calls)
+
+  def test_patch_ebuild_vars_partial_match(self):
+    """patch_ebuild_vars ignores ^{prefix}var=value$."""
+    ebuild_contents = (
+        'This and the line below do not change.\n'
+        'NEW_AFDO="{var_value}"'
+    )
+    # Ebuild contains old_var_value.
+    self.mock_input.return_value = io.StringIO(
+        ebuild_contents.format(var_value=self.old_var_value))
+    expected_calls = []
+    # Expect the line with UNCHANGED old_var_value.
+    for line in io.StringIO(ebuild_contents.format(
+        var_value=self.old_var_value)):
+      expected_calls.append(mock.call(line))
+
+    # Note that the var name partially matches the ebuild var and hence it has
+    # to be ignored.
+    packages.patch_ebuild_vars(self.ebuild_path,
+                               {'AFDO': self.new_var_value})
+
+    self.mock_stdout_write.assert_has_calls(expected_calls)
+
+  def test_patch_ebuild_vars_no_vars(self):
+    """patch_ebuild_vars keeps ebuild intact if there are no vars."""
+    ebuild_contents = (
+        'This line does not change.\n'
+        'The line with AFDO_PROFILE_VERSION is also unchanged.'
+    )
+    self.mock_input.return_value = io.StringIO(ebuild_contents)
+    expected_calls = []
+    for line in io.StringIO(ebuild_contents):
+      expected_calls.append(mock.call(line))
+
+    packages.patch_ebuild_vars(self.ebuild_path,
+                               {'AFDO_PROFILE_VERSION': self.new_var_value})
+
+    self.mock_stdout_write.assert_has_calls(expected_calls)
 
 
 class UprevsVersionedPackageTest(cros_test_lib.MockTestCase):
