@@ -181,6 +181,7 @@
     celes-release
     chell-release
     cherry-release
+    cherry64-release
     coral-release
     cyan-release
     dedede-release
@@ -407,6 +408,12 @@
   cherry-payloads-tryjob
   cherry-release-tryjob
   cherry-unittest-stress
+  cherry64-full-tryjob
+  cherry64-llvm-next-toolchain-tryjob
+  cherry64-llvm-toolchain-tryjob
+  cherry64-payloads-tryjob
+  cherry64-release-tryjob
+  cherry64-unittest-stress
   chromeos-infra-go-tryjob
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
@@ -853,6 +860,7 @@
     celes-release-tryjob
     chell-release-tryjob
     cherry-release-tryjob
+    cherry64-release-tryjob
     coral-release-tryjob
     cyan-release-tryjob
     dedede-release-tryjob
