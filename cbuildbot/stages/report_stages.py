@@ -216,7 +216,7 @@ class BuildStartStage(generic_stages.BuilderStage):
   def PerformStage(self):
     if self._run.config['doc']:
       cbuildbot_alerts.PrintBuildbotLink('Builder documentation',
-                                self._run.config['doc'])
+                                         self._run.config['doc'])
 
     WriteBasicMetadata(self._run)
 
@@ -274,7 +274,7 @@ class BuildStartStage(generic_stages.BuilderStage):
       logging.info('Inserted build_id %s into cidb database type %s.',
                    build_id, db_type)
       cbuildbot_alerts.PrintBuildbotStepText('database: %s, build_id: %s' %
-                                    (db_type, build_id))
+                                             (db_type, build_id))
 
       master_build_id = d['master_build_id']
       if master_build_id is not None:
@@ -343,8 +343,8 @@ class SlaveFailureSummaryStage(generic_stages.BuilderStage):
       slave_stage_url = uri_lib.ConstructMiloBuildUri(
           failure.buildbucket_id)
       cbuildbot_alerts.PrintBuildbotLink('%s %s' % (failure.build_config,
-                                           failure.stage_name),
-                                slave_stage_url)
+                                                    failure.stage_name),
+                                         slave_stage_url)
 
 
 class BuildReexecutionFinishedStage(generic_stages.BuilderStage,
@@ -835,7 +835,9 @@ class ReportStage(generic_stages.BuilderStage,
     # Upload metadata, and update the pass/fail streak counter for the main
     # run only. These aren't needed for the child builder runs.
     self.UploadMetadata(export=True)
-    self._UpdateEmailNotify(self._run, final_status)
+    # This non-critical step is killing all CBuildbot builders. Disabling.
+    # BUG: http://b/227316467
+    # self._UpdateEmailNotify(self._run, final_status)
 
     build_identifier, db = self._run.GetCIDBHandle()
     build_id = build_identifier.cidb_id
