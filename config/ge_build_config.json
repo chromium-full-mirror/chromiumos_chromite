@@ -242,18 +242,6 @@
       ]
     },
     {
-      "name": "sentry",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "kunimitsu",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    },
-    {
       "name": "setzer",
       "configs": [
         {
@@ -4806,6 +4794,23 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 297,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "sentry",
+      "reference_board_name": "sentry",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "sentry",
+          "name": "sentry",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 259,
           "is_active": true
         }
       ]
