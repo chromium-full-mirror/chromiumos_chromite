@@ -229,7 +229,6 @@
     relm-release
     reven-release
     reven-vmtest-release
-    rex-release
     sand-release
     sarien-release
     scarlet-release
@@ -921,7 +920,6 @@
     relm-release-tryjob
     reven-release-tryjob
     reven-vmtest-release-tryjob
-    rex-release-tryjob
     sand-release-tryjob
     sarien-release-tryjob
     scarlet-release-tryjob
@@ -1069,12 +1067,6 @@
   reven-vmtest-payloads-tryjob
   reven-vmtest-release-tryjob
   reven-vmtest-unittest-stress
-  rex-full-tryjob
-  rex-llvm-next-toolchain-tryjob
-  rex-llvm-toolchain-tryjob
-  rex-payloads-tryjob
-  rex-release-tryjob
-  rex-unittest-stress
   rikku-factory-auron-6772.B-factorybranch-tryjob
   sand-factory-reef-8811.B-factorybranch-tryjob
   sand-full-tryjob
