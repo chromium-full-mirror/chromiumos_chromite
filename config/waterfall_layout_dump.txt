@@ -125,10 +125,6 @@
   factory-trogdor-13443.B-buildspec
     strongbad-factory-trogdor-13443.B-factorybranch
     trogdor-factory-trogdor-13443.B-factorybranch
-  factory-veyron-7505.B-buildspec
-    veyron_fievel-factory-veyron-7505.B-factorybranch
-    veyron_rialto-factory-veyron-7505.B-factorybranch
-    veyron_tiger-factory-veyron-7505.B-factorybranch
   factory-volteer-13600.B-buildspec
     volteer-factory-volteer-13600.B-factorybranch
   factory-zork-13427.B-buildspec
@@ -709,10 +705,6 @@
   factory-trogdor-13443.B-buildspec-tryjob
     strongbad-factory-trogdor-13443.B-factorybranch-tryjob
     trogdor-factory-trogdor-13443.B-factorybranch-tryjob
-  factory-veyron-7505.B-buildspec-tryjob
-    veyron_fievel-factory-veyron-7505.B-factorybranch-tryjob
-    veyron_rialto-factory-veyron-7505.B-factorybranch-tryjob
-    veyron_tiger-factory-veyron-7505.B-factorybranch-tryjob
   factory-volteer-13600.B-buildspec-tryjob
     volteer-factory-volteer-13600.B-factorybranch-tryjob
   factory-zork-13427.B-buildspec-tryjob
@@ -1424,7 +1416,6 @@
   ultima-payloads-tryjob
   ultima-release-tryjob
   ultima-unittest-stress
-  veyron_fievel-factory-veyron-7505.B-factorybranch-tryjob
   veyron_fievel-full-tryjob
   veyron_fievel-llvm-next-toolchain-tryjob
   veyron_fievel-llvm-toolchain-tryjob
@@ -1443,7 +1434,6 @@
   veyron_minnie-payloads-tryjob
   veyron_minnie-release-tryjob
   veyron_minnie-unittest-stress
-  veyron_rialto-factory-veyron-7505.B-factorybranch-tryjob
   veyron_rialto-full-tryjob
   veyron_rialto-llvm-next-toolchain-tryjob
   veyron_rialto-llvm-toolchain-tryjob
@@ -1456,7 +1446,6 @@
   veyron_speedy-payloads-tryjob
   veyron_speedy-release-tryjob
   veyron_speedy-unittest-stress
-  veyron_tiger-factory-veyron-7505.B-factorybranch-tryjob
   veyron_tiger-full-tryjob
   veyron_tiger-llvm-next-toolchain-tryjob
   veyron_tiger-llvm-toolchain-tryjob

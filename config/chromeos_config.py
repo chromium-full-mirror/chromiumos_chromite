@@ -1738,8 +1738,6 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
           'cyan', 'celes', 'ultima', 'reks', 'terra', 'edgar', 'wizpig',
           'setzer', 'banon', 'kefka', 'relm', 'kip'
       ]),
-      (MONTHLY, 'factory-veyron-7505.B',
-       ['veyron_tiger', 'veyron_fievel', 'veyron_rialto']),
       (MONTHLY, 'factory-glados-7657.B', ['glados', 'chell']),
       (MONTHLY, 'factory-glados-7828.B',
        ['glados', 'chell', 'lars', 'sentry', 'cave', 'asuka', 'caroline']),
@@ -1828,7 +1826,6 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
       'factory-auron-6772.B',
       'factory-samus-6658.B',
       'factory-strago-7458.B',
-      'factory-veyron-7505.B',
       'factory-glados-7657.B',
       'factory-glados-7828.B',
   }
@@ -2329,14 +2326,6 @@ def ApplyCustomOverrides(site_config, ge_build_config):
           'hw_tests_override': [],
           'hw_tests_disabled_bug': 'https://crbug.com/1092947',
       },
-
-      # No hw tests for any veyron_rialto builders. See http://b/141387161.
-      'veyron_rialto-release': {
-          'hw_tests': [],
-          'hw_tests_override': [],
-          'hw_tests_disabled_bug': 'https://b/141387161',
-      },
-
       # No hw_tests for arkham, whirlwind, gale, mistral.  See b/140317527.
       'arkham-release': {
           'hw_tests': [],
