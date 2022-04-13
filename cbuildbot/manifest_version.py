@@ -1000,9 +1000,13 @@ class BuildSpecsManager(object):
         logging.error('Retrying to update the status:  Retry %d/%d', index + 1,
                       retries)
 
+    # TODO(b/229102878): We're not going to raise here to prevent failed
+    # builds until we can get relaxed builds working in suite scheduler.
+    logging.warning('Swallowing StatusUpdateException for b/229102878.')
+
     # Cleanse any failed local changes and throw an exception.
-    self.RefreshManifestCheckout()
-    raise StatusUpdateException(last_error)
+    # self.RefreshManifestCheckout()
+    # raise StatusUpdateException(last_error)
 
 
 def _GetDefaultRemote(manifest_dom):
