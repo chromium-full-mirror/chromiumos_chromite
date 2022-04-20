@@ -218,6 +218,7 @@
     lars-release
     nami-release
     nautilus-release
+    nissa-release
     nocturne-release
     novato-arc64-release
     novato-release
@@ -912,6 +913,7 @@
     lars-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
+    nissa-release-tryjob
     nocturne-release-tryjob
     novato-arc64-release-tryjob
     novato-release-tryjob
@@ -963,6 +965,12 @@
   nautilus-release-tryjob
   nautilus-unittest-stress
   ninja-factory-rambi-6420.B-factorybranch-tryjob
+  nissa-full-tryjob
+  nissa-llvm-next-toolchain-tryjob
+  nissa-llvm-toolchain-tryjob
+  nissa-payloads-tryjob
+  nissa-release-tryjob
+  nissa-unittest-stress
   nocturne-factory-nocturne-11066.B-factorybranch-tryjob
   nocturne-full-tryjob
   nocturne-llvm-next-toolchain-tryjob
