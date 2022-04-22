@@ -4878,7 +4878,7 @@
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"cherry\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"dojo\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"tomato\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"tomato\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}"
         ],
         "sign_types": [
             "recovery"
@@ -4906,7 +4906,7 @@
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"cherry\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"dojo\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"tomato\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"cherry64\",\n    \"name\": \"tomato\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}"
         ],
         "paygen": false,
         "push_image": false,
