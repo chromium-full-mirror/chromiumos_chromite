@@ -10966,7 +10966,24 @@
         "boards": [
             "jacuzzi64"
         ],
-        "chrome_sdk_build_chrome": false,
+        "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"burnet\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"cerise\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"cozmo\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"damu\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"esche\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"fennel\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"fennel14\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"jacuzzi\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"juniper\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"kappa\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"kenzo\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"makomo\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"pico\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"pico6\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"stern\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"willow\",\n    \"test_suites\": []\n}"
+        ],
         "vm_tests_override": null
     },
     "jacuzzi64-release-tryjob": {
@@ -10974,7 +10991,6 @@
         "boards": [
             "jacuzzi64"
         ],
-        "chrome_sdk_build_chrome": false,
         "debug": true,
         "display_label": "tryjob",
         "hw_tests": [
@@ -10988,6 +11004,24 @@
         ],
         "hw_tests_override": null,
         "luci_builder": "Try",
+        "models": [
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"burnet\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"cerise\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"cozmo\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"damu\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"esche\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"fennel\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"fennel14\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"jacuzzi\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"juniper\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"kappa\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"kenzo\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"makomo\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"pico\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"pico6\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"stern\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"jacuzzi64\",\n    \"name\": \"willow\",\n    \"test_suites\": []\n}"
+        ],
         "paygen": false,
         "push_image": false,
         "suite_scheduling": false,
