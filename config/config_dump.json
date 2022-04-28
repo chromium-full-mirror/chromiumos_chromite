@@ -17604,7 +17604,7 @@
             "sentry"
         ],
         "models": [
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"sentry\",\n    \"name\": \"sentry\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"sentry\",\n    \"name\": \"sentry\",\n    \"test_suites\": [\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\"\n    ]\n}"
         ],
         "vm_tests_override": null
     },
@@ -17627,7 +17627,7 @@
         "hw_tests_override": null,
         "luci_builder": "Try",
         "models": [
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"sentry\",\n    \"name\": \"sentry\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"sentry\",\n    \"name\": \"sentry\",\n    \"test_suites\": [\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\"\n    ]\n}"
         ],
         "paygen": false,
         "push_image": false,
