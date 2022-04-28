@@ -1987,6 +1987,17 @@
         {
           "board_name": "dedede",
           "name": "pasara",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 419,
@@ -2395,6 +2406,77 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 390,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "fizz-kernelnext",
+      "reference_board_name": "fizz-kernelnext",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "fizz-kernelnext",
+          "name": "jax",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7224,
+          "is_active": true
+        },
+        {
+          "board_name": "fizz-kernelnext",
+          "name": "kench",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7224,
+          "is_active": true
+        },
+        {
+          "board_name": "fizz-kernelnext",
+          "name": "sion",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7224,
+          "is_active": true
+        },
+        {
+          "board_name": "fizz-kernelnext",
+          "name": "teemo",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7224,
+          "is_active": true
+        },
+        {
+          "board_name": "fizz-kernelnext",
+          "name": "wukong",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7224,
           "is_active": true
         }
       ]
@@ -3249,6 +3331,34 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 409,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "kalista-kernelnext",
+      "reference_board_name": "kalista-kernelnext",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "kalista-kernelnext",
+          "name": "karma",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7225,
           "is_active": true
         }
       ]
