@@ -356,6 +356,7 @@ class ToolchainInfo(object):
   _PKG_LIBCXX = 'libcxx'
   _PKG_LIBCXXABI = 'libcxxabi'
   _PKG_LIBGCC = 'llvm-libunwind'
+  _PKG_LIBXCRYPT = 'libxcrypt'
   _PKG_GO = 'go'
   _PKG_RPCSVC = 'rpcsvc'
 
@@ -366,6 +367,7 @@ class ToolchainInfo(object):
       _PKG_LIBCXX: 'sys-libs/libcxx',
       _PKG_LIBCXXABI: 'sys-libs/libcxxabi',
       _PKG_LIBGCC: 'sys-libs/llvm-libunwind',
+      _PKG_LIBXCRYPT: 'sys-libs/libxcrypt',
       _PKG_GO: 'dev-lang/go',
       _PKG_RPCSVC: 'net-libs/rpcsvc-proto',
   }
