@@ -14233,6 +14233,7 @@
         ],
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"nissa\",\n    \"name\": \"nereid\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"nissa\",\n    \"name\": \"nirwen\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"nissa\",\n    \"name\": \"nivviks\",\n    \"test_suites\": []\n}"
         ],
         "vm_tests_override": null
@@ -14257,6 +14258,7 @@
         "luci_builder": "Try",
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"nissa\",\n    \"name\": \"nereid\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"nissa\",\n    \"name\": \"nirwen\",\n    \"test_suites\": []\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"nissa\",\n    \"name\": \"nivviks\",\n    \"test_suites\": []\n}"
         ],
         "paygen": false,
