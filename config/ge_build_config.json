@@ -4812,6 +4812,69 @@
       ]
     },
     {
+      "name": "sarien-kernelnext",
+      "reference_board_name": "sarien-kernelnext",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "sarien-kernelnext",
+          "name": "arcada",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7210,
+          "is_active": true
+        },
+        {
+          "board_name": "sarien-kernelnext",
+          "name": "arcada_signed",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7210,
+          "is_active": true
+        },
+        {
+          "board_name": "sarien-kernelnext",
+          "name": "sarien",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7210,
+          "is_active": true
+        },
+        {
+          "board_name": "sarien-kernelnext",
+          "name": "sarien_signed",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7210,
+          "is_active": true
+        }
+      ]
+    },
+    {
       "name": "scarlet",
       "reference_board_name": "scarlet",
       "arch": "ARM_INTERNAL",
