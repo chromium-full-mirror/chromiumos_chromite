@@ -5047,6 +5047,50 @@
       ]
     },
     {
+      "name": "snappy-kernelnext",
+      "reference_board_name": "snappy-kernelnext",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "snappy-kernelnext",
+          "name": "alan",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7179,
+          "is_active": true
+        },
+        {
+          "board_name": "snappy-kernelnext",
+          "name": "bigdaddy",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7179,
+          "is_active": true
+        },
+        {
+          "board_name": "snappy-kernelnext",
+          "name": "snappy",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7179,
+          "is_active": true
+        }
+      ]
+    },
+    {
       "name": "soraka",
       "reference_board_name": "soraka",
       "arch": "X86_INTERNAL",
