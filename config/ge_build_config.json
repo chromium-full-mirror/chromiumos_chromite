@@ -985,6 +985,11 @@
         {
           "board_name": "cherry",
           "name": "dojo",
+          "test_suites": [
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-cq"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7163,
