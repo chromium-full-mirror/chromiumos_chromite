@@ -10203,7 +10203,8 @@
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"dewatt\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"guybrush\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"guybrush360\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"guybrush360\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"nipperkin\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}"
         ],
         "sign_types": [
             "recovery",
@@ -10233,7 +10234,8 @@
         "models": [
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"dewatt\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}",
             "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"guybrush\",\n    \"test_suites\": []\n}",
-            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"guybrush360\",\n    \"test_suites\": []\n}"
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"guybrush360\",\n    \"test_suites\": []\n}",
+            "{\n    \"enable_skylab\": true,\n    \"lab_board_name\": \"guybrush\",\n    \"name\": \"nipperkin\",\n    \"test_suites\": [\n        \"sanity\",\n        \"bvt-inline\",\n        \"bvt-tast-cq\",\n        \"bvt-installer\",\n        \"bvt-arc\",\n        \"au\",\n        \"bvt-cq\",\n        \"bvt-perbuild\",\n        \"bvt-tast-informational\"\n    ]\n}"
         ],
         "paygen": false,
         "push_image": false,
