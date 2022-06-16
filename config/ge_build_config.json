@@ -654,6 +654,14 @@
         },
         {
           "board_name": "brya",
+          "name": "mithrax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 459,
+          "is_active": true
+        },
+        {
+          "board_name": "brya",
           "name": "osiris",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
