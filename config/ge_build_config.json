@@ -489,14 +489,6 @@
         },
         {
           "board_name": "brya",
-          "name": "anahera4es",
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true
-        },
-        {
-          "board_name": "brya",
           "name": "banshee",
           "test_suites": [
             "sanity",
@@ -627,14 +619,6 @@
         },
         {
           "board_name": "brya",
-          "name": "gimble4es",
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true
-        },
-        {
-          "board_name": "brya",
           "name": "kano",
           "test_suites": [
             "sanity",
@@ -689,14 +673,6 @@
         },
         {
           "board_name": "brya",
-          "name": "primus4es",
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true
-        },
-        {
-          "board_name": "brya",
           "name": "redrix",
           "test_suites": [
             "sanity",
@@ -716,14 +692,6 @@
         },
         {
           "board_name": "brya",
-          "name": "redrix4es",
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true
-        },
-        {
-          "board_name": "brya",
           "name": "taeko",
           "test_suites": [
             "sanity",
@@ -736,14 +704,6 @@
             "bvt-perbuild",
             "bvt-tast-informational"
           ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true
-        },
-        {
-          "board_name": "brya",
-          "name": "taeko4es",
           "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
