@@ -7,6 +7,7 @@
 import collections
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from chromite.api import controller
 from chromite.api import faux
@@ -15,9 +16,13 @@ from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import toolchain_pb2
 from chromite.api.gen.chromite.api.artifacts_pb2 import PrepareForBuildResponse
 from chromite.api.gen.chromiumos.builder_config_pb2 import BuilderConfig
+from chromite.lib import toolchain as toolchain_lib
 from chromite.lib import toolchain_util
 from chromite.service import toolchain
 
+
+if TYPE_CHECKING:
+  from chromite.api import api_config
 
 # TODO(b/229665884): Move the implementation details for most/all endpoints to:
 #   chromite/services/toolchain.py
@@ -97,7 +102,10 @@ _TOOLCHAIN_COMMIT_HANDLERS = {
 # recipe calls PrepareForBuild.  The second time, they are specified.  No
 # validation check because "all" values are valid.
 @validate.validation_complete
-def PrepareForBuild(input_proto, output_proto, _config):
+def PrepareForBuild(
+    input_proto: 'toolchain_pb2.PrepareForToolchainBuildRequest',
+    output_proto: 'toolchain_pb2.PrepareForToolchainBuildResponse',
+    _config: 'api_config.ApiConfig'):
   """Prepare to build toolchain artifacts.
 
   The handlers (from _TOOLCHAIN_ARTIFACT_HANDLERS above) are called with:
@@ -120,9 +128,9 @@ def PrepareForBuild(input_proto, output_proto, _config):
   This function sets output_proto.build_relevance to the result.
 
   Args:
-    input_proto (PrepareForToolchainBuildRequest): The input proto
-    output_proto (PrepareForToolchainBuildResponse): The output proto
-    _config (api_config.ApiConfig): The API call config.
+    input_proto: The input proto
+    output_proto: The output proto
+    _config): The API call config.
   """
   if input_proto.chroot.path:
     chroot = controller_util.ParseChroot(input_proto.chroot)
@@ -171,7 +179,9 @@ def PrepareForBuild(input_proto, output_proto, _config):
 @validate.require('chroot.path', 'output_dir', 'artifact_types')
 @validate.exists('output_dir')
 @validate.validation_complete
-def BundleArtifacts(input_proto, output_proto, _config):
+def BundleArtifacts(input_proto: 'toolchain_pb2.BundleToolchainRequest',
+                    output_proto: 'toolchain_pb2.BundleToolchainResponse',
+                    _config: 'api_config.ApiConfig'):
   """Bundle valid toolchain artifacts.
 
   The handlers (from _TOOLCHAIN_ARTIFACT_HANDLERS above) are called with:
@@ -189,9 +199,9 @@ def BundleArtifacts(input_proto, output_proto, _config):
   Note: the actual upload to GS is done by CI, not here.
 
   Args:
-    input_proto (BundleToolchainRequest): The input proto
-    output_proto (BundleToolchainResponse): The output proto
-    _config (api_config.ApiConfig): The API call config.
+    input_proto: The input proto
+    output_proto: The output proto
+    _config: The API call config.
   """
   chroot = controller_util.ParseChroot(input_proto.chroot)
 
@@ -249,7 +259,9 @@ def _GetUpdatedFilesResponse(_input_proto, output_proto, _config):
 @faux.success(_GetUpdatedFilesResponse)
 @validate.require('uploaded_artifacts')
 @validate.validation_complete
-def GetUpdatedFiles(input_proto, output_proto, _config):
+def GetUpdatedFiles(input_proto: 'toolchain_pb2.GetUpdatedFilesRequest',
+                    output_proto: 'toolchain_pb2.GetUpdatedFilesResponse',
+                    _config: 'api_config.ApiConfig'):
   """Use uploaded artifacts to update some updates in a chromeos checkout.
 
   The function will call toolchain_util.GetUpdatedFiles using the type of
@@ -260,9 +272,9 @@ def GetUpdatedFiles(input_proto, output_proto, _config):
   Note: the actual creation of the commit is done by CI, not here.
 
   Args:
-    input_proto (GetUpdatedFilesRequest): The input proto
-    output_proto (GetUpdatedFilesResponse): The output proto
-    _config (api_config.ApiConfig): The API call config.
+    input_proto: The input proto
+    output_proto: The output proto
+    _config: The API call config.
   """
   commit_message = ''
   for artifact in input_proto.uploaded_artifacts:
@@ -286,11 +298,11 @@ def GetUpdatedFiles(input_proto, output_proto, _config):
     # No commit footer is added for now. Can add more here if needed
 
 
-def _GetProfileInfoDict(profile_info):
+def _GetProfileInfoDict(profile_info: 'toolchain_pb2.ArtifactProfileInfo'):
   """Convert profile_info to a dict.
 
   Args:
-    profile_info (ArtifactProfileInfo): The artifact profile_info.
+    profile_info: The artifact profile_info.
 
   Returns:
     A dictionary containing profile info.
@@ -319,13 +331,15 @@ LINTER_CODES = {
 @validate.exists('sysroot.path')
 @validate.require('packages')
 @validate.validation_complete
-def EmergeWithLinting(input_proto, output_proto, _config):
+def EmergeWithLinting(input_proto: 'toolchain_pb2.LinterRequest',
+                      output_proto: 'toolchain_pb2.LinterResponse',
+                      _config: 'api_config.ApiConfig'):
   """Emerge packages with linter features enabled and retrieves all findings.
 
   Args:
-    input_proto (LinterRequest): The nput proto with package and sysroot info.
-    output_proto (LinterResponse): The output proto where findings are stored.
-    _config (api_config.ApiConfig): The API call config (unused).
+    input_proto: The nput proto with package and sysroot info.
+    output_proto: The output proto where findings are stored.
+    _config: The API call config (unused).
   """
   packages = [
       controller_util.deserialize_package_info(package)
@@ -352,3 +366,23 @@ def EmergeWithLinting(input_proto, output_proto, _config):
             message=finding.message,
             locations=locations,
             linter=LINTER_CODES[finding.linter]))
+
+
+@faux.all_empty
+@validate.require('board')
+@validate.validation_complete
+def GetToolchainsForBoard(input_proto: 'toolchain_pb2.ToolchainsRequest',
+                          output_proto: 'toolchain_pb2.ToolchainsReponse',
+                          _config: 'api_config.ApiConfig'):
+  """Gets the default and non-default toolchains for a board.
+
+  Args:
+    input_proto: The input proto with board and sysroot info.
+    output_proto: The output proto where findings are stored.
+    _config: The API call config (unused).
+  """
+  toolchains = toolchain_lib.GetToolchainsForBoard(input_proto.board)
+  output_proto.default_toolchains.extend(
+      list(toolchain_lib.FilterToolchains(toolchains, 'default', True)))
+  output_proto.nondefault_toolchains.extend(
+      list(toolchain_lib.FilterToolchains(toolchains, 'default', False)))
