@@ -17,6 +17,7 @@ from chromite.api.gen.chromiumos.builder_config_pb2 import BuilderConfig
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import toolchain as toolchain_lib
 from chromite.lib import toolchain_util
 
 
@@ -300,3 +301,38 @@ class GetUpdatedFilesTest(cros_test_lib.MockTempDirTestCase,
     )
     self.assertIn('Commit Message', self.response.commit_message)
     self.assertEqual(len(self.response.commit_footer), 0)
+
+
+class GetToolchainsForBoardTest(cros_test_lib.MockTempDirTestCase,
+                                api_config.ApiConfigMixin):
+  """Unittests for GetToolchainsForBoard."""
+
+  def setUp(self):
+    self.response = toolchain_pb2.ToolchainsResponse()
+
+  def _GetRequest(self, board='betty-pi-arc'):
+    return toolchain_pb2.ToolchainsRequest(board=board)
+
+  def testValidateOnly(self):
+    """Confidence check that a validate only call does not execute any logic."""
+    request = self._GetRequest()
+    toolchain.GetToolchainsForBoard(request, self.response,
+                                    self.validate_only_config)
+
+  def testUpdateSuccess(self):
+    toolchain_info = {
+        'default-a': {'default': True},
+        'default-b': {'default': True},
+        'nondefault-a': {'default': False},
+        'nondefault-b': {'default': False},
+    }
+    self.PatchObject(toolchain_lib, 'GetToolchainsForBoard',
+                     return_value=toolchain_info)
+
+    request = self._GetRequest()
+    toolchain.GetToolchainsForBoard(request, self.response, self.api_config)
+
+    self.assertEqual(self.response.default_toolchains,
+                     ['default-a', 'default-b'])
+    self.assertEqual(self.response.nondefault_toolchains,
+                     ['nondefault-a', 'nondefault-b'])
