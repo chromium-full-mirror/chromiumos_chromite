@@ -508,25 +508,6 @@
         },
         {
           "board_name": "brya",
-          "name": "brya",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true
-        },
-        {
-          "board_name": "brya",
           "name": "brya4es",
           "test_suites": [
             "sanity",
