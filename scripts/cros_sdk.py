@@ -31,6 +31,7 @@ from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import cros_sdk_lib
+from chromite.lib import gs
 from chromite.lib import locking
 from chromite.lib import namespaces
 from chromite.lib import osutils
@@ -38,7 +39,6 @@ from chromite.lib import path_util
 from chromite.lib import process_util
 from chromite.lib import retry_util
 from chromite.lib import timeout_util
-from chromite.lib import toolchain
 from chromite.utils import key_value_store
 
 
@@ -89,11 +89,25 @@ IMAGE_NEEDED_TOOLS = ('losetup', 'lvchange', 'lvcreate', 'lvs', 'mke2fs',
 MAX_UNUSED_IMAGE_GBS = 20
 
 
+def GetSdkURL(for_gsutil=False, suburl=''):
+  """Construct a Google Storage URL for accessing SDK related archives
+
+  Args:
+    for_gsutil: Do you want a URL for passing to `gsutil`?
+    suburl: A url fragment to tack onto the end
+
+  Returns:
+    The fully constructed URL
+  """
+  return gs.GetGsURL(constants.SDK_GS_BUCKET, for_gsutil=for_gsutil,
+                     suburl=suburl)
+
+
 def GetArchStageTarballs(version):
   """Returns the URL for a given arch/version"""
   extension = {'bz2': 'tbz2', 'xz': 'tar.xz'}
   return [
-      toolchain.GetSdkURL(
+      GetSdkURL(
           suburl='cros-sdk-%s.%s' % (version, extension[compressor]))
       for compressor in COMPRESSION_PREFERENCE
   ]
