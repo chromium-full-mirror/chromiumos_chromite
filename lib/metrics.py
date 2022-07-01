@@ -24,10 +24,8 @@ from six.moves import queue as Queue
 
 from chromite.lib import cros_logging as logging
 
-try:
-  from infra_libs import ts_mon
-except (ImportError, RuntimeError):
-  ts_mon = None
+# lakitu: don't use ts_mon, since we don't need it, and it causes problems
+ts_mon = None
 
 
 # This number is chosen because 1.16^100 seconds is about
