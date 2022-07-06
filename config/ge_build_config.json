@@ -71,7 +71,8 @@
           "board_group": "",
           "arch": "UNKNOWN"
         }
-      ]
+      ],
+      "rubik_target_milestone": 105
     },
     {
       "name": "hana",
@@ -326,7 +327,8 @@
           "board_id": 7177,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 102
     },
     {
       "name": "aurora",
@@ -897,7 +899,8 @@
           "board_id": 7216,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 105
     },
     {
       "name": "coral",
@@ -2388,7 +2391,8 @@
           "board_id": 7224,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "fizz-labstation",
@@ -2405,7 +2409,8 @@
           "board_id": 377,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 105
     },
     {
       "name": "fizz-moblab",
@@ -2429,7 +2434,8 @@
           "board_id": 353,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "grunt",
@@ -3334,7 +3340,8 @@
           "board_id": 7228,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 105
     },
     {
       "name": "kalista",
@@ -3379,7 +3386,8 @@
           "board_id": 409,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 105
     },
     {
       "name": "kalista-kernelnext",
@@ -3407,7 +3415,8 @@
           "board_id": 7225,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "keeby",
@@ -3572,7 +3581,8 @@
           "board_id": 7199,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 102
     },
     {
       "name": "kukui",
@@ -4758,7 +4768,8 @@
           "board_id": 7146,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "pyro",
@@ -5021,7 +5032,8 @@
           "board_id": 7210,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "scarlet",
@@ -5141,7 +5153,8 @@
           "board_id": 7212,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "sentry",
@@ -5254,7 +5267,8 @@
           "board_id": 7179,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "soraka",
@@ -5555,7 +5569,8 @@
           "board_id": 462,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 105
     },
     {
       "name": "volteer",
