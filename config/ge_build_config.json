@@ -132,7 +132,8 @@
           "board_group": "",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "reven-vmtest",
@@ -144,7 +145,8 @@
           "board_group": "",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "tael",
@@ -224,7 +226,8 @@
           "board_id": 466,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "asurada",
@@ -425,7 +428,8 @@
           "board_id": 7183,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "bob",
@@ -900,7 +904,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 105
+      "rubik_target_milestone": 103
     },
     {
       "name": "coral",
@@ -2153,7 +2157,8 @@
           "board_id": 428,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "eve",
@@ -2198,7 +2203,8 @@
           "board_id": 410,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 103
     },
     {
       "name": "fizz",
@@ -2410,7 +2416,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 105
+      "rubik_target_milestone": 103
     },
     {
       "name": "fizz-moblab",
@@ -3341,7 +3347,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 105
+      "rubik_target_milestone": 103
     },
     {
       "name": "kalista",
@@ -3387,7 +3393,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 105
+      "rubik_target_milestone": 103
     },
     {
       "name": "kalista-kernelnext",
@@ -5578,7 +5584,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 105
+      "rubik_target_milestone": 103
     },
     {
       "name": "volteer",
