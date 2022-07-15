@@ -458,6 +458,9 @@ CANARY_TYPE = 'canary'
 # Generate payloads for an already built build/version.
 PAYLOADS_TYPE = 'payloads'
 
+# How long we should wait for the signing fleet to sign payloads.
+PAYLOAD_SIGNING_TIMEOUT = 10800
+
 # Similar behavior to canary, but used to validate toolchain changes.
 TOOLCHAIN_TYPE = 'toolchain'
 
