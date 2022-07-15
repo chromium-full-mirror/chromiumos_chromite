@@ -259,7 +259,8 @@ versionrev = %(version)s
         SIGNER_PRIORITY,
         relative_uri.replace('/', ','))
 
-  def _WaitForSignatures(self, signature_uris, timeout=3600):
+  def _WaitForSignatures(self, signature_uris,
+                         timeout=constants.PAYLOAD_SIGNING_TIMEOUT):
     """Wait until all uris exist, or timeout.
 
     Args:
