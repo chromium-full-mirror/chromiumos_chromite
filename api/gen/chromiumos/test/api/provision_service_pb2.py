@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n+chromiumos/test/api/provision_service.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a\'chromiumos/longrunning/operations.proto\x1a\x1d\x63hromiumos/storage_path.proto\"\x10\n\x0eInstallSuccess\"\xaf\x02\n\x0eInstallFailure\x12:\n\x06reason\x18\x01 \x01(\x0e\x32*.chromiumos.test.api.InstallFailure.Reason\"\xe0\x01\n\x06Reason\x12\x1a\n\x16REASON_INVALID_REQUEST\x10\x00\x12(\n$REASON_DUT_UNREACHABLE_PRE_PROVISION\x10\x01\x12#\n\x1fREASON_DOWNLOADING_IMAGE_FAILED\x10\x02\x12 \n\x1cREASON_PROVISIONING_TIMEDOUT\x10\x03\x12\x1e\n\x1aREASON_PROVISIONING_FAILED\x10\x04\x12)\n%REASON_DUT_UNREACHABLE_POST_PROVISION\x10\x05\"\x88\x02\n\x12InstallCrosRequest\x12\x30\n\x0f\x63ros_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x42\n\tdlc_specs\x18\x02 \x03(\x0b\x32/.chromiumos.test.api.InstallCrosRequest.DLCSpec\x12\x19\n\x11preserve_stateful\x18\x03 \x01(\x08\x12\x16\n\x0eprevent_reboot\x18\x04 \x01(\x08\x12\x32\n\x11overwrite_payload\x18\x05 \x01(\x0b\x32\x17.chromiumos.StoragePath\x1a\x15\n\x07\x44LCSpec\x12\n\n\x02id\x18\x01 \x01(\t\"\x90\x01\n\x13InstallCrosResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x15\n\x13InstallCrosMetadata\"J\n\x14InstallLacrosRequest\x12\x32\n\x11lacros_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x92\x01\n\x15InstallLacrosResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x17\n\x15InstallLacrosMetadata\"D\n\x11InstallAshRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallAshResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallAshMetadata\"D\n\x11InstallArcRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallArcResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallArcMetadata\"y\n\x16InstallFirmwareRequest\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfig\x12\r\n\x05\x66orce\x18\x08 \x01(\x08\x12\x11\n\tuse_servo\x18\t \x01(\x08\"\x94\x01\n\x17InstallFirmwareResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x19\n\x17InstallFirmwareMetadata2\xd9\x05\n\x10ProvisionService\x12\x88\x01\n\x0bInstallCros\x12\'.chromiumos.test.api.InstallCrosRequest\x1a!.chromiumos.longrunning.Operation\"-\xd2\x41*\n\x13InstallCrosResponse\x12\x13InstallCrosMetadata\x12\x90\x01\n\rInstallLacros\x12).chromiumos.test.api.InstallLacrosRequest\x1a!.chromiumos.longrunning.Operation\"1\xd2\x41.\n\x15InstallLacrosResponse\x12\x15InstallLacrosMetadata\x12\x84\x01\n\nInstallAsh\x12&.chromiumos.test.api.InstallAshRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallAshResponse\x12\x12InstallAshMetadata\x12\x84\x01\n\nInstallArc\x12&.chromiumos.test.api.InstallArcRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallArcResponse\x12\x12InstallArcMetadata\x12\x98\x01\n\x0fInstallFirmware\x12+.chromiumos.test.api.InstallFirmwareRequest\x1a!.chromiumos.longrunning.Operation\"5\xd2\x41\x32\n\x17InstallFirmwareResponse\x12\x17InstallFirmwareMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\n+chromiumos/test/api/provision_service.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a\'chromiumos/longrunning/operations.proto\x1a\x1d\x63hromiumos/storage_path.proto\"\x10\n\x0eInstallSuccess\"\xb6\x03\n\x0eInstallFailure\x12:\n\x06reason\x18\x01 \x01(\x0e\x32*.chromiumos.test.api.InstallFailure.Reason\"\xe7\x02\n\x06Reason\x12\x1a\n\x16REASON_INVALID_REQUEST\x10\x00\x12(\n$REASON_DUT_UNREACHABLE_PRE_PROVISION\x10\x01\x12#\n\x1fREASON_DOWNLOADING_IMAGE_FAILED\x10\x02\x12 \n\x1cREASON_PROVISIONING_TIMEDOUT\x10\x03\x12\x1e\n\x1aREASON_PROVISIONING_FAILED\x10\x04\x12)\n%REASON_DUT_UNREACHABLE_POST_PROVISION\x10\x05\x12!\n\x1dREASON_UPDATE_FIRMWARE_FAILED\x10\x06\x12\x31\n-REASON_FIRMWARE_MISMATCH_POST_FIRMWARE_UPDATE\x10\x07\x12/\n+REASON_DUT_UNREACHABLE_POST_FIRMWARE_UPDATE\x10\x08\"\xa1\x02\n\x12InstallCrosRequest\x12\x30\n\x0f\x63ros_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x42\n\tdlc_specs\x18\x02 \x03(\x0b\x32/.chromiumos.test.api.InstallCrosRequest.DLCSpec\x12\x19\n\x11preserve_stateful\x18\x03 \x01(\x08\x12\x16\n\x0eprevent_reboot\x18\x04 \x01(\x08\x12\x32\n\x11overwrite_payload\x18\x05 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x17\n\x0fupdate_firmware\x18\x06 \x01(\x08\x1a\x15\n\x07\x44LCSpec\x12\n\n\x02id\x18\x01 \x01(\t\"\x90\x01\n\x13InstallCrosResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x15\n\x13InstallCrosMetadata\"J\n\x14InstallLacrosRequest\x12\x32\n\x11lacros_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x92\x01\n\x15InstallLacrosResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x17\n\x15InstallLacrosMetadata\"D\n\x11InstallAshRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallAshResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallAshMetadata\"D\n\x11InstallArcRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallArcResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallArcMetadata\"y\n\x16InstallFirmwareRequest\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfig\x12\r\n\x05\x66orce\x18\x08 \x01(\x08\x12\x11\n\tuse_servo\x18\t \x01(\x08\"\x94\x01\n\x17InstallFirmwareResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x19\n\x17InstallFirmwareMetadata2\xd9\x05\n\x10ProvisionService\x12\x88\x01\n\x0bInstallCros\x12\'.chromiumos.test.api.InstallCrosRequest\x1a!.chromiumos.longrunning.Operation\"-\xd2\x41*\n\x13InstallCrosResponse\x12\x13InstallCrosMetadata\x12\x90\x01\n\rInstallLacros\x12).chromiumos.test.api.InstallLacrosRequest\x1a!.chromiumos.longrunning.Operation\"1\xd2\x41.\n\x15InstallLacrosResponse\x12\x15InstallLacrosMetadata\x12\x84\x01\n\nInstallAsh\x12&.chromiumos.test.api.InstallAshRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallAshResponse\x12\x12InstallAshMetadata\x12\x84\x01\n\nInstallArc\x12&.chromiumos.test.api.InstallArcRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallArcResponse\x12\x12InstallArcMetadata\x12\x98\x01\n\x0fInstallFirmware\x12+.chromiumos.test.api.InstallFirmwareRequest\x1a!.chromiumos.longrunning.Operation\"5\xd2\x41\x32\n\x17InstallFirmwareResponse\x12\x17InstallFirmwareMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
   ,
   dependencies=[chromiumos_dot_build_dot_api_dot_firmware__config__pb2.DESCRIPTOR,chromiumos_dot_longrunning_dot_operations__pb2.DESCRIPTOR,chromiumos_dot_storage__path__pb2.DESCRIPTOR,])
 
@@ -65,11 +65,26 @@ _INSTALLFAILURE_REASON = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='REASON_UPDATE_FIRMWARE_FAILED', index=6, number=6,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='REASON_FIRMWARE_MISMATCH_POST_FIRMWARE_UPDATE', index=7, number=7,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='REASON_DUT_UNREACHABLE_POST_FIRMWARE_UPDATE', index=8, number=8,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=282,
-  serialized_end=506,
+  serialized_end=641,
 )
 _sym_db.RegisterEnumDescriptor(_INSTALLFAILURE_REASON)
 
@@ -128,7 +143,7 @@ _INSTALLFAILURE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=203,
-  serialized_end=506,
+  serialized_end=641,
 )
 
 
@@ -159,8 +174,8 @@ _INSTALLCROSREQUEST_DLCSPEC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=752,
-  serialized_end=773,
+  serialized_start=912,
+  serialized_end=933,
 )
 
 _INSTALLCROSREQUEST = _descriptor.Descriptor(
@@ -206,6 +221,13 @@ _INSTALLCROSREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='update_firmware', full_name='chromiumos.test.api.InstallCrosRequest.update_firmware', index=5,
+      number=6, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -218,8 +240,8 @@ _INSTALLCROSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=509,
-  serialized_end=773,
+  serialized_start=644,
+  serialized_end=933,
 )
 
 
@@ -262,8 +284,8 @@ _INSTALLCROSRESPONSE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=776,
-  serialized_end=920,
+  serialized_start=936,
+  serialized_end=1080,
 )
 
 
@@ -287,8 +309,8 @@ _INSTALLCROSMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=922,
-  serialized_end=943,
+  serialized_start=1082,
+  serialized_end=1103,
 )
 
 
@@ -319,8 +341,8 @@ _INSTALLLACROSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=945,
-  serialized_end=1019,
+  serialized_start=1105,
+  serialized_end=1179,
 )
 
 
@@ -363,8 +385,8 @@ _INSTALLLACROSRESPONSE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1022,
-  serialized_end=1168,
+  serialized_start=1182,
+  serialized_end=1328,
 )
 
 
@@ -388,8 +410,8 @@ _INSTALLLACROSMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1170,
-  serialized_end=1193,
+  serialized_start=1330,
+  serialized_end=1353,
 )
 
 
@@ -420,8 +442,8 @@ _INSTALLASHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1195,
-  serialized_end=1263,
+  serialized_start=1355,
+  serialized_end=1423,
 )
 
 
@@ -464,8 +486,8 @@ _INSTALLASHRESPONSE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1266,
-  serialized_end=1409,
+  serialized_start=1426,
+  serialized_end=1569,
 )
 
 
@@ -489,8 +511,8 @@ _INSTALLASHMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1411,
-  serialized_end=1431,
+  serialized_start=1571,
+  serialized_end=1591,
 )
 
 
@@ -521,8 +543,8 @@ _INSTALLARCREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1433,
-  serialized_end=1501,
+  serialized_start=1593,
+  serialized_end=1661,
 )
 
 
@@ -565,8 +587,8 @@ _INSTALLARCRESPONSE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1504,
-  serialized_end=1647,
+  serialized_start=1664,
+  serialized_end=1807,
 )
 
 
@@ -590,8 +612,8 @@ _INSTALLARCMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1649,
-  serialized_end=1669,
+  serialized_start=1809,
+  serialized_end=1829,
 )
 
 
@@ -636,8 +658,8 @@ _INSTALLFIRMWAREREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1671,
-  serialized_end=1792,
+  serialized_start=1831,
+  serialized_end=1952,
 )
 
 
@@ -680,8 +702,8 @@ _INSTALLFIRMWARERESPONSE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1795,
-  serialized_end=1943,
+  serialized_start=1955,
+  serialized_end=2103,
 )
 
 
@@ -705,8 +727,8 @@ _INSTALLFIRMWAREMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1945,
-  serialized_end=1970,
+  serialized_start=2105,
+  serialized_end=2130,
 )
 
 _INSTALLFAILURE.fields_by_name['reason'].enum_type = _INSTALLFAILURE_REASON
@@ -915,8 +937,8 @@ _PROVISIONSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1973,
-  serialized_end=2702,
+  serialized_start=2133,
+  serialized_end=2862,
   methods=[
   _descriptor.MethodDescriptor(
     name='InstallCros',
