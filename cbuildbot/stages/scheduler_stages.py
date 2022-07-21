@@ -188,8 +188,8 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
     # Get all active slave build configs.
     slave_config_map = self._GetSlaveConfigMap(important_only)
     for slave_config_name, slave_config in sorted(slave_config_map.items()):
-      if slave_config_name in constants.LEGACY_RELEASE_DENYLIST:
-        logging.info('Child %s in LEGACY_RELEASE_DENYLIST (b/238925754), skipping...',
+      if slave_config_name not in constants.LEGACY_RELEASE_ALLOWLIST:
+        logging.info('Child %s not in LEGACY_RELEASE_ALLOWLIST (b/238925754), skipping...',
                      slave_config_name)
         continue
       try:

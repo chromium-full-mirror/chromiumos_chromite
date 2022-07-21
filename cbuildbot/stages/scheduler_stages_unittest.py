@@ -97,8 +97,8 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         'child_3': config_lib.BuildConfig(important=True)}
     self.PatchObject(generic_stages.BuilderStage, '_GetSlaveConfigMap',
                      return_value=slave_config_map)
-    self.PatchObject(constants, 'LEGACY_RELEASE_DENYLIST',
-                     new=['child_3'])
+    self.PatchObject(constants, 'LEGACY_RELEASE_ALLOWLIST',
+                     new=['slave_1', 'slave_2'])
 
     stage.ScheduleSlaveBuildsViaBuildbucket(important_only=False, dryrun=True)
 
