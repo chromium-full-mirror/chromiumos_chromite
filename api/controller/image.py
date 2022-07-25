@@ -169,7 +169,7 @@ def GetArtifacts(in_proto: common_pb2.ArtifactsByService.Image,
   base_path = chroot.full_path(sysroot_class.path)
   board = build_target.name
   factory_shim_location = Path(
-      image_lib.GetLatestImageLink(board, pointer=LOCATION_FACTORY)).resolve()
+      image_lib.GetLatestImageLink(board, pointer=LOCATION_FACTORY))
 
   generated = []
   dlc_func = functools.partial(image.copy_dlc_image, base_path)
