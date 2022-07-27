@@ -12832,6 +12832,7 @@
       "nissa"
     ],
     "models": [
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"craask\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"nereid\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"nirwen\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"nirwen_ufs\",\n  \"test_suites\": []\n}",
@@ -12862,6 +12863,7 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "models": [
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"craask\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"nereid\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"nirwen\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"nirwen_ufs\",\n  \"test_suites\": []\n}",
