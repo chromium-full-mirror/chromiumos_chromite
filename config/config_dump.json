@@ -9709,9 +9709,11 @@
       "herobrine-userdebug"
     ],
     "models": [
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"evoker\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"herobrine\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"hoglin\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"villager\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"villager\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"zoglin\",\n  \"test_suites\": []\n}"
     ],
     "vm_tests_override": null
   },
@@ -9734,9 +9736,11 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "models": [
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"evoker\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"herobrine\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"hoglin\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"villager\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"villager\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"herobrine\",\n  \"name\": \"zoglin\",\n  \"test_suites\": []\n}"
     ],
     "paygen": false,
     "push_image": false,

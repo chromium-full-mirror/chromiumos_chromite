@@ -2978,6 +2978,14 @@
       "models": [
         {
           "board_name": "herobrine-userdebug",
+          "name": "evoker",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7238,
+          "is_active": true
+        },
+        {
+          "board_name": "herobrine-userdebug",
           "name": "herobrine",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -2995,6 +3003,14 @@
         {
           "board_name": "herobrine-userdebug",
           "name": "villager",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7238,
+          "is_active": true
+        },
+        {
+          "board_name": "herobrine-userdebug",
+          "name": "zoglin",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7238,
