@@ -5533,6 +5533,14 @@
         },
         {
           "board_name": "trogdor",
+          "name": "pazquel360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 418,
+          "is_active": true
+        },
+        {
+          "board_name": "trogdor",
           "name": "pompom",
           "test_suites": [
             "sanity",
