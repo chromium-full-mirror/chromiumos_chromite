@@ -27,6 +27,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
         virtual = package_info.parse("virtual/target-foo-1.2.3")
         dep1 = package_info.parse("cat/dep-1.0.0-r1")
         dep2 = package_info.parse("cat/dep-2.0.0-r1")
+        virtual_dep = package_info.parse("virtual/depdep-1.0")
         depdep = package_info.parse("cat/depdep-2.0.1-r5")
 
         virtual_node = dependency_graph.PackageNode(
@@ -38,15 +39,25 @@ class DependencyTests(cros_test_lib.MockTestCase):
         dep2_node = dependency_graph.PackageNode(
             dep2, sysroot, src_paths=["/cat/dep/two"]
         )
+        virtual_dep_node = dependency_graph.PackageNode(
+            virtual_dep, sysroot, src_paths=["/virtual/depdep"]
+        )
         depdep_node = dependency_graph.PackageNode(
             depdep, sysroot, src_paths=["/cat/depdep", "/other/depdep"]
         )
 
         virtual_node.add_dependency(dep1_node)
         virtual_node.add_dependency(dep2_node)
-        dep1_node.add_dependency(depdep_node)
+        dep1_node.add_dependency(virtual_dep_node)
+        virtual_dep_node.add_dependency(depdep_node)
 
-        nodes = (virtual_node, dep1_node, dep2_node, depdep_node)
+        nodes = (
+            virtual_node,
+            dep1_node,
+            dep2_node,
+            virtual_dep_node,
+            depdep_node,
+        )
 
         return dependency_graph.DependencyGraph(nodes, sysroot, [virtual])
 
@@ -140,10 +151,11 @@ class DependencyTests(cros_test_lib.MockTestCase):
         dep1 = package_info.parse("cat/dep-1.0.0-r1")
         dep2 = package_info.parse("cat/dep-2.0.0-r1")
         virtual = package_info.parse("virtual/target-foo-1.2.3")
+        virtual_depdep = package_info.parse("virtual/depdep-1.0")
         depdep = package_info.parse("cat/depdep-2.0.1-r5")
 
-        expected_deps = [dep1, dep2, virtual, depdep]
-        self.assertCountEqual(expected_deps, actual_deps)
+        expected_deps = [dep1, dep2, virtual, virtual_depdep, depdep]
+        self.assertEqual(set(expected_deps), set(actual_deps))
 
     def testGetDependenciesWithSrcPaths(self):
         """Test GetDependencies given a list of paths."""
@@ -173,7 +185,49 @@ class DependencyTests(cros_test_lib.MockTestCase):
 
         revdep = package_info.parse("virtual/target-foo-1.2.3")
         dep = package_info.parse("cat/dep-1.0.0-r1")
-        self.assertCountEqual([dep, revdep], actual_deps)
+        self.assertEqual({dep, revdep}, actual_deps)
+
+    def testGetDependenciesAffectedPackagesVirtualRedirect(self):
+        """Test include_affected_pkgs traverses redirection virtuals."""
+        self.PatchObject(
+            depgraph,
+            "get_sysroot_dependency_graph",
+            return_value=(self._build_sysroot_depgraph()),
+        )
+        sysroot_path = "/build/target"
+        src_paths = ["/cat/depdep"]
+
+        actual_deps = dependency.GetDependencies(
+            sysroot_path,
+            src_paths,
+            include_affected_pkgs=True,
+        )
+
+        expected = {
+            package_info.parse("cat/depdep-2.0.1-r5"),
+            package_info.parse("virtual/depdep-1.0"),
+            package_info.parse("cat/dep-1.0.0-r1"),
+        }
+
+        self.assertEqual(expected, actual_deps)
+
+    def testGetDependenciesAffectedPackagesVirtualParent(self):
+        """Test include_affected_pkgs does not include virtual parents."""
+        self.PatchObject(
+            depgraph,
+            "get_sysroot_dependency_graph",
+            return_value=(self._build_sysroot_depgraph()),
+        )
+        sysroot_path = "/build/target"
+        src_paths = ["/cat/dep/one"]
+        actual_deps = dependency.GetDependencies(
+            sysroot_path,
+            src_paths,
+            include_affected_pkgs=True,
+        )
+
+        dep = package_info.parse("cat/dep-1.0.0-r1")
+        self.assertEqual({dep}, actual_deps)
 
 
 def test_generate_source_path_mapping_sdk(monkeypatch):

@@ -236,6 +236,7 @@ def GetDependencies(
     src_paths: Optional[Collection[str]] = None,
     packages: Optional[Collection[str]] = None,
     include_rev_dependencies: bool = False,
+    include_affected_pkgs: bool = False,
 ) -> Set["PackageInfo"]:
     """Return the packages dependent on the given source paths for |board|.
 
@@ -247,6 +248,8 @@ def GetDependencies(
             default list.
         include_rev_dependencies: Whether to include the reverse dependencies of
             relevant packages.
+        include_affected_pkgs: Whether to include packages that may be affected
+            by changes to the given path/packages.
 
     Returns:
         The relevant package dependencies based on the given list of packages
@@ -262,10 +265,15 @@ def GetDependencies(
 
     dep_nodes = dep_graph.get_relevant_nodes(src_paths=src_paths)
     rev_dep_nodes: List["PackageNode"] = []
-    if include_rev_dependencies:
-        for dep in dep_nodes:
+    affected_nodes = []
+    for dep in dep_nodes:
+        if include_rev_dependencies:
             rev_dep_nodes.extend(dep.reverse_dependencies)
-    return set(dep.pkg_info for dep in dep_nodes + rev_dep_nodes)
+        if include_affected_pkgs:
+            # Include the revdeps affected by this package.
+            affected_nodes.extend(dep.affected_dependencies)
+
+    return set(x.pkg_info for x in dep_nodes + rev_dep_nodes + affected_nodes)
 
 
 def DetermineToolchainSourcePaths() -> List[str]:

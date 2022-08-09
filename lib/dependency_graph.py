@@ -124,6 +124,39 @@ class PackageNode:
         yield from self._rev_deps
 
     @property
+    def affected_dependencies(self) -> Iterable["PackageNode"]:
+        """Get packages affected by changes to this package.
+
+        Examples:
+            virtual/a -> virtual/b -> foo/c -> virtual/d -> virtual/e -> foo/f
+                                |
+                                -> foo/g
+
+            Changes to foo/f may affect foo/c because c transitively depends on
+            f through virtual packages, so c, d, and e should all be marked as
+            affected.
+            Changes to foo/c should not affect foo/g because g does not depend
+            directly or transitively on c, so g should not be considered
+            affected. a and b are both virtuals, which do not themselves
+            produce anything, so they cannot be directly affected.
+        """
+        for rdep in self.reverse_dependencies:
+            if rdep.pkg_info.category != "virtual":
+                # Non-virtual. It depends on the package so is affected.
+                # Yield the package and go to the next rev dep.
+                yield rdep
+                continue
+
+            # Virtual package. It should be considered affected if there is a
+            # non-virtual package in its transitive reverse dependencies. If it
+            # has only virtual reverse dependencies, then it should be skipped.
+            affected = list(rdep.affected_dependencies)
+            if affected:
+                # There's a transitive, non-virtual rev dep.
+                yield rdep
+                yield from affected
+
+    @property
     def atom(self):
         """Get the package atom ("category/package")."""
         return self.pkg_info.atom
