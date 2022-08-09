@@ -208,7 +208,7 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             self.sysroot,
             src_paths=[],
             packages=[],
-            include_rev_dependencies=False,
+            include_affected_pkgs=False,
         )
 
     def testListResponse(self):
@@ -244,7 +244,7 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             self.sysroot,
             src_paths=[path],
             packages=[input_package_info],
-            include_rev_dependencies=True,
+            include_affected_pkgs=True,
         )
         self.assertCountEqual(
             [return_package_info_proto], self.response.package_deps

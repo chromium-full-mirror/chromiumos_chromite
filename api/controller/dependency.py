@@ -127,7 +127,7 @@ def List(
             controller_util.deserialize_package_info(package)
             for package in input_proto.packages
         ],
-        include_rev_dependencies=input_proto.include_rev_deps,
+        include_affected_pkgs=input_proto.include_rev_deps,
     )
     for package in package_deps:
         pkg_info_msg = output_proto.package_deps.add()
