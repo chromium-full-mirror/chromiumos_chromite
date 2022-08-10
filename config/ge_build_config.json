@@ -4017,6 +4017,22 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true
+        },
+        {
+          "board_name": "nissa",
+          "name": "pujjo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7206,
+          "is_active": true
+        },
+        {
+          "board_name": "nissa",
+          "name": "pujjoteen",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7206,
+          "is_active": true
         }
       ]
     },
