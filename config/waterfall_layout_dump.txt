@@ -173,22 +173,18 @@
     atlas-kernelnext-release
     atlas-release
     aurora-release
-    banon-release
     betty-release
     bob-release
     brya-release
     bubs-release
     caroline-release
     cave-release
-    celes-release
     chell-release
     cherry-release
     cherry64-release
     coral-release
-    cyan-release
     dedede-release
     drallion-release
-    edgar-release
     elm-release
     endeavour-release
     eve-release
@@ -210,7 +206,6 @@
     kalista-kernelnext-release
     kalista-release
     keeby-release
-    kefka-release
     kevin-kernelnext-release
     kevin-release
     kukui-release
@@ -328,11 +323,6 @@
   aurora-release-tryjob
   banjo-factory-rambi-6420.B-factorybranch-tryjob
   banon-factory-strago-7458.B-factorybranch-tryjob
-  banon-full-tryjob
-  banon-llvm-next-toolchain-tryjob
-  banon-llvm-toolchain-tryjob
-  banon-payloads-tryjob
-  banon-release-tryjob
   beaglebone-full-tryjob
   beaglebone-llvm-next-toolchain-tryjob
   beaglebone-llvm-toolchain-tryjob
@@ -381,11 +371,6 @@
   cave-payloads-tryjob
   cave-release-tryjob
   celes-factory-strago-7458.B-factorybranch-tryjob
-  celes-full-tryjob
-  celes-llvm-next-toolchain-tryjob
-  celes-llvm-toolchain-tryjob
-  celes-payloads-tryjob
-  celes-release-tryjob
   chell-chrome-no-afdo-uprev-pre-flight-branch-tryjob
   chell-factory-glados-7657.B-factorybranch-tryjob
   chell-factory-glados-7828.B-factorybranch-tryjob
@@ -416,11 +401,6 @@
   coral-payloads-tryjob
   coral-release-tryjob
   cyan-factory-strago-7458.B-factorybranch-tryjob
-  cyan-full-tryjob
-  cyan-llvm-next-toolchain-tryjob
-  cyan-llvm-toolchain-tryjob
-  cyan-payloads-tryjob
-  cyan-release-tryjob
   dedede-factory-dedede-13683.B-factorybranch-tryjob
   dedede-full-tryjob
   dedede-llvm-next-toolchain-tryjob
@@ -440,11 +420,6 @@
   drallion-payloads-tryjob
   drallion-release-tryjob
   edgar-factory-strago-7458.B-factorybranch-tryjob
-  edgar-full-tryjob
-  edgar-llvm-next-toolchain-tryjob
-  edgar-llvm-toolchain-tryjob
-  edgar-payloads-tryjob
-  edgar-release-tryjob
   elm-factory-oak-8182.B-factorybranch-tryjob
   elm-full-tryjob
   elm-llvm-next-toolchain-tryjob
@@ -745,11 +720,6 @@
   keeby-payloads-tryjob
   keeby-release-tryjob
   kefka-factory-strago-7458.B-factorybranch-tryjob
-  kefka-full-tryjob
-  kefka-llvm-next-toolchain-tryjob
-  kefka-llvm-toolchain-tryjob
-  kefka-payloads-tryjob
-  kefka-release-tryjob
   kevin-android-pi-pre-flight-branch-tryjob
   kevin-factory-gru-8652.B-factorybranch-tryjob
   kevin-full-tryjob
@@ -828,22 +798,18 @@
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
     aurora-release-tryjob
-    banon-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
     brya-release-tryjob
     bubs-release-tryjob
     caroline-release-tryjob
     cave-release-tryjob
-    celes-release-tryjob
     chell-release-tryjob
     cherry-release-tryjob
     cherry64-release-tryjob
     coral-release-tryjob
-    cyan-release-tryjob
     dedede-release-tryjob
     drallion-release-tryjob
-    edgar-release-tryjob
     elm-release-tryjob
     endeavour-release-tryjob
     eve-release-tryjob
@@ -865,7 +831,6 @@
     kalista-kernelnext-release-tryjob
     kalista-release-tryjob
     keeby-release-tryjob
-    kefka-release-tryjob
     kevin-kernelnext-release-tryjob
     kevin-release-tryjob
     kukui-release-tryjob
