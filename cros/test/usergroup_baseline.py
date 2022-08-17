@@ -156,7 +156,7 @@ GROUP_BASELINE = dict((e.group, e) for e in (
                                                      'crosvm', 'shill'}),
     GroupEntry(group='logs-access', gid=401, users={'debugd-logs'}),
     GroupEntry(group='serial', gid=402, users={'uucp'}),
-    GroupEntry(group='hidraw', gid=403, users={'fwupdate-hidraw'}),
+    GroupEntry(group='hidraw', gid=403, users={'fwupd', 'fwupdate-hidraw'}),
     GroupEntry(group='i2c', gid=404, users={'fwupdate-i2c',
                                             'fwupdate-drm_dp_aux-i2c',
                                             'fwupd', 'power'}),
