@@ -11,7 +11,8 @@
           "board_group": "glados",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "betty",
@@ -23,7 +24,8 @@
           "board_group": "vm builds",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "bubs",
@@ -35,7 +37,8 @@
           "board_group": "",
           "arch": "ARM_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 106
     },
     {
       "name": "caroline",
@@ -47,7 +50,8 @@
           "board_group": "glados",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "chell",
@@ -59,7 +63,8 @@
           "board_group": "glados",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "guado_labstation",
@@ -84,7 +89,8 @@
           "board_group": "oak",
           "arch": "ARM_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "lars",
@@ -96,7 +102,8 @@
           "board_group": "kunimitsu",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "novato",
@@ -108,7 +115,8 @@
           "board_group": "vm builds",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "novato-arc64",
@@ -120,7 +128,8 @@
           "board_group": "vm builds",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "reven",
@@ -158,7 +167,8 @@
           "board_group": "guest vm builds",
           "arch": "ARM_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "tatl",
@@ -170,7 +180,8 @@
           "board_group": "guest vm builds",
           "arch": "X86_INTERNAL"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "veyron_rialto",
@@ -182,7 +193,8 @@
           "board_group": "veyron",
           "arch": "UNKNOWN"
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     }
   ],
   "release_branch": true,
@@ -274,7 +286,8 @@
           "board_id": 435,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 106
     },
     {
       "name": "atlas",
@@ -302,7 +315,8 @@
           "board_id": 356,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "atlas-kernelnext",
@@ -457,7 +471,8 @@
           "board_id": 292,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "brya",
@@ -787,7 +802,8 @@
           "board_id": 459,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 106
     },
     {
       "name": "cave",
@@ -815,7 +831,8 @@
           "board_id": 267,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "cherry",
@@ -870,7 +887,8 @@
           "board_id": 7163,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 106
     },
     {
       "name": "cherry64",
@@ -1212,7 +1230,8 @@
           "board_id": 312,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "dedede",
@@ -2035,7 +2054,8 @@
           "board_id": 419,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "draco",
@@ -2060,7 +2080,8 @@
           "board_id": 7215,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 106
     },
     {
       "name": "drallion",
@@ -2123,7 +2144,8 @@
           "board_id": 402,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "elm",
@@ -2151,7 +2173,8 @@
           "board_id": 265,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "endeavour",
@@ -2197,7 +2220,8 @@
           "board_id": 294,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "excelsior",
@@ -2288,7 +2312,8 @@
           "board_id": 306,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "fizz-cfm",
@@ -2337,7 +2362,8 @@
           "board_id": 390,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "fizz-kernelnext",
@@ -2661,7 +2687,8 @@
           "board_id": 333,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "guybrush",
@@ -2724,7 +2751,8 @@
           "board_id": 7148,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "hatch",
@@ -2918,78 +2946,8 @@
           "board_id": 372,
           "is_active": true
         }
-      ]
-    },
-    {
-      "name": "herobrine",
-      "reference_board_name": "herobrine",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "herobrine",
-          "name": "evoker",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7166,
-          "is_active": true
-        },
-        {
-          "board_name": "herobrine",
-          "name": "herobrine",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7166,
-          "is_active": true
-        },
-        {
-          "board_name": "herobrine",
-          "name": "hoglin",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7166,
-          "is_active": true
-        },
-        {
-          "board_name": "herobrine",
-          "name": "villager",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7166,
-          "is_active": true
-        },
-        {
-          "board_name": "herobrine",
-          "name": "zoglin",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7166,
-          "is_active": true
-        }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "jacuzzi",
@@ -3258,7 +3216,8 @@
           "board_id": 401,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "jacuzzi64",
@@ -3424,7 +3383,8 @@
           "board_id": 369,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "kalista-cfm",
@@ -3580,7 +3540,8 @@
           "board_id": 7175,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "kevin",
@@ -3608,7 +3569,8 @@
           "board_id": 273,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "kevin-kernelnext",
@@ -3722,7 +3684,8 @@
           "board_id": 364,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "nami",
@@ -3879,7 +3842,8 @@
           "board_id": 351,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "nautilus",
@@ -3925,88 +3889,8 @@
           "board_id": 331,
           "is_active": true
         }
-      ]
-    },
-    {
-      "name": "nissa",
-      "reference_board_name": "nissa",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "nissa",
-          "name": "craask",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "craaskbowl",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "craaskvin",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "nereid",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "nirwen",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "nirwen_ufs",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "nivviks",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "pujjo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        },
-        {
-          "board_name": "nissa",
-          "name": "pujjoteen",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true
-        }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "nocturne",
@@ -4034,7 +3918,8 @@
           "board_id": 359,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "octopus",
@@ -4696,7 +4581,8 @@
           "board_id": 354,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "puff",
@@ -4846,7 +4732,8 @@
           "board_id": 411,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "puff-moblab",
@@ -4900,7 +4787,8 @@
           "board_id": 291,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "rammus",
@@ -4946,7 +4834,8 @@
           "board_id": 365,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "reef",
@@ -4982,7 +4871,8 @@
           "board_id": 283,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "sand",
@@ -5010,7 +4900,8 @@
           "board_id": 301,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "sarien",
@@ -5072,7 +4963,8 @@
           "board_id": 370,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "sarien-kernelnext",
@@ -5190,7 +5082,8 @@
           "board_id": 297,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "scarlet-kernelnext",
@@ -5282,7 +5175,8 @@
           "board_id": 259,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "snappy",
@@ -5326,7 +5220,8 @@
           "board_id": 290,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "snappy-kernelnext",
@@ -5399,7 +5294,8 @@
           "board_id": 311,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "strongbad",
@@ -5503,7 +5399,8 @@
           "board_id": 461,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "trogdor",
@@ -5612,7 +5509,8 @@
           "board_id": 418,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "trogdor64",
@@ -6044,7 +5942,8 @@
           "board_id": 405,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     },
     {
       "name": "zork",
@@ -6278,7 +6177,8 @@
           "board_id": 381,
           "is_active": true
         }
-      ]
+      ],
+      "rubik_target_milestone": 108
     }
   ]
 }
