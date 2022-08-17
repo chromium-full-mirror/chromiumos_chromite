@@ -175,6 +175,7 @@
     aurora-release
     betty-release
     bob-release
+    brask-release
     brya-release
     bubs-release
     caroline-release
@@ -340,6 +341,11 @@
   bob-payloads-tryjob
   bob-release-tryjob
   brask-factory-brya-14517.B-factorybranch-tryjob
+  brask-full-tryjob
+  brask-llvm-next-toolchain-tryjob
+  brask-llvm-toolchain-tryjob
+  brask-payloads-tryjob
+  brask-release-tryjob
   brya-factory-brya-14517.B-factorybranch-tryjob
   brya-full-tryjob
   brya-llvm-next-toolchain-tryjob
@@ -806,6 +812,7 @@
     aurora-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
+    brask-release-tryjob
     brya-release-tryjob
     bubs-release-tryjob
     caroline-release-tryjob

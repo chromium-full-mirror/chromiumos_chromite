@@ -460,6 +460,69 @@
       ]
     },
     {
+      "name": "brask",
+      "reference_board_name": "brask",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "brask",
+          "name": "brask",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7196,
+          "is_active": true
+        },
+        {
+          "board_name": "brask",
+          "name": "kinox",
+          "cq_test_enabled": true,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7196,
+          "is_active": true
+        },
+        {
+          "board_name": "brask",
+          "name": "kuldax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7196,
+          "is_active": true
+        },
+        {
+          "board_name": "brask",
+          "name": "moli",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": true,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7196,
+          "is_active": true
+        }
+      ]
+    },
+    {
       "name": "brya",
       "reference_board_name": "brya",
       "arch": "X86_INTERNAL",
