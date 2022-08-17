@@ -351,7 +351,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
             if cancel_reason:
               text += ' [cancelation_reason] %s' % cancel_reason
 
-          dashboard_url = constants.CHROMEOS_MILO_HOST + build.id
+          dashboard_url = constants.CHROMEOS_MILO_HOST + str(build.id)
           if dashboard_url:
             cbuildbot_alerts.PrintBuildbotLink(text, dashboard_url)
           else:
