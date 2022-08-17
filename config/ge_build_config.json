@@ -12,7 +12,7 @@
           "arch": "X86_INTERNAL"
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "betty",
@@ -51,7 +51,7 @@
           "arch": "X86_INTERNAL"
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "chell",
@@ -64,7 +64,7 @@
           "arch": "X86_INTERNAL"
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "guado_labstation",
@@ -103,7 +103,7 @@
           "arch": "X86_INTERNAL"
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "novato",
@@ -472,7 +472,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "brya",
@@ -832,7 +832,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "cherry",
@@ -2145,7 +2145,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "elm",
@@ -2221,7 +2221,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "excelsior",
@@ -2752,7 +2752,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 106
     },
     {
       "name": "hatch",
@@ -3384,7 +3384,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "kalista-cfm",
@@ -3541,7 +3541,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 106
     },
     {
       "name": "kevin",
@@ -3570,7 +3570,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "kevin-kernelnext",
@@ -3919,7 +3919,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "octopus",
@@ -4788,7 +4788,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "rammus",
@@ -4901,7 +4901,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "sarien",
@@ -5083,7 +5083,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 106
     },
     {
       "name": "scarlet-kernelnext",
@@ -5176,7 +5176,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 106
     },
     {
       "name": "snappy",
@@ -5295,7 +5295,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "strongbad",
@@ -5400,7 +5400,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "trogdor",
