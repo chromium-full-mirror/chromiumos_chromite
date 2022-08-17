@@ -199,7 +199,6 @@
     guybrush-release
     hana-release
     hatch-release
-    herobrine-release
     jacuzzi-release
     jacuzzi64-release
     kalista-cfm-release
@@ -212,7 +211,6 @@
     lars-release
     nami-release
     nautilus-release
-    nissa-release
     nocturne-release
     novato-arc64-release
     novato-release
@@ -669,11 +667,6 @@
   hatch-payloads-tryjob
   hatch-release-tryjob
   heli-factory-rambi-6420.B-factorybranch-tryjob
-  herobrine-full-tryjob
-  herobrine-llvm-next-toolchain-tryjob
-  herobrine-llvm-toolchain-tryjob
-  herobrine-payloads-tryjob
-  herobrine-release-tryjob
   jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
   jacuzzi-factory-kukui-14374.B-factorybranch-tryjob
   jacuzzi-full-tryjob
@@ -818,7 +811,6 @@
     guybrush-release-tryjob
     hana-release-tryjob
     hatch-release-tryjob
-    herobrine-release-tryjob
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
     kalista-cfm-release-tryjob
@@ -831,7 +823,6 @@
     lars-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
-    nissa-release-tryjob
     nocturne-release-tryjob
     novato-arc64-release-tryjob
     novato-release-tryjob
@@ -877,11 +868,6 @@
   nautilus-payloads-tryjob
   nautilus-release-tryjob
   ninja-factory-rambi-6420.B-factorybranch-tryjob
-  nissa-full-tryjob
-  nissa-llvm-next-toolchain-tryjob
-  nissa-llvm-toolchain-tryjob
-  nissa-payloads-tryjob
-  nissa-release-tryjob
   nocturne-factory-nocturne-11066.B-factorybranch-tryjob
   nocturne-full-tryjob
   nocturne-llvm-next-toolchain-tryjob
