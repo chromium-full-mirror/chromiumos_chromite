@@ -151,10 +151,14 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
     kwargs.setdefault('capture_output', False)
     kwargs.setdefault('debug_level', logging.DEBUG)
     kwargs.setdefault('encoding', 'utf-8')
-    self.assertCommandCalled([RepoCmdPath(self.root)] + repo_args, **kwargs)
+    self.assertCommandCalled(
+        ['python3', RepoCmdPath(self.root)] + repo_args, **kwargs
+    )
 
   def AddRepoResult(self, repo_args, **kwargs):
-    self.rc.AddCmdResult([RepoCmdPath(self.root)] + repo_args, **kwargs)
+    self.rc.AddCmdResult(
+        ['python3', RepoCmdPath(self.root)] + repo_args, **kwargs
+    )
 
   def testAssertRepoCalled(self):
     """Test that AddRepoResult test helper works."""
