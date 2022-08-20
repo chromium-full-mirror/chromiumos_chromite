@@ -160,7 +160,9 @@ class Repository(object):
       RunCommandError: if the command failed.
     """
     # Use the checkout's copy of repo so that it doesn't have to be in PATH.
-    cmd = [os.path.join(self._repo_dir, 'repo', 'repo')] + repo_cmd
+    # repo has 'python' in shebang, which may call python2. So use python3
+    # here explicitly.
+    cmd = ['python3', os.path.join(self._repo_dir, 'repo', 'repo')] + repo_cmd
     if cwd is None:
       cwd = self.root
     elif git.FindRepoCheckoutRoot(cwd) != self.root:
