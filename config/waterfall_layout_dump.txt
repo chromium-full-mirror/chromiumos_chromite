@@ -172,7 +172,6 @@
     asurada-release
     atlas-kernelnext-release
     atlas-release
-    aurora-release
     betty-release
     bob-release
     brya-release
@@ -205,7 +204,6 @@
     kalista-cfm-release
     kalista-kernelnext-release
     kalista-release
-    keeby-release
     kevin-kernelnext-release
     kevin-release
     kukui-release
@@ -309,11 +307,6 @@
   atlas-release-tryjob
   auron_paine-factory-auron-6459.B-factorybranch-tryjob
   auron_yuna-factory-auron-6459.B-factorybranch-tryjob
-  aurora-full-tryjob
-  aurora-llvm-next-toolchain-tryjob
-  aurora-llvm-toolchain-tryjob
-  aurora-payloads-tryjob
-  aurora-release-tryjob
   banjo-factory-rambi-6420.B-factorybranch-tryjob
   banon-factory-strago-7458.B-factorybranch-tryjob
   beaglebone-full-tryjob
@@ -707,11 +700,6 @@
   kalista-payloads-tryjob
   kalista-release-tryjob
   keeby-factory-keeby-14162.B-factorybranch-tryjob
-  keeby-full-tryjob
-  keeby-llvm-next-toolchain-tryjob
-  keeby-llvm-toolchain-tryjob
-  keeby-payloads-tryjob
-  keeby-release-tryjob
   kefka-factory-strago-7458.B-factorybranch-tryjob
   kevin-android-pi-pre-flight-branch-tryjob
   kevin-factory-gru-8652.B-factorybranch-tryjob
@@ -790,7 +778,6 @@
     asurada-release-tryjob
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
-    aurora-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
     brya-release-tryjob
@@ -823,7 +810,6 @@
     kalista-cfm-release-tryjob
     kalista-kernelnext-release-tryjob
     kalista-release-tryjob
-    keeby-release-tryjob
     kevin-kernelnext-release-tryjob
     kevin-release-tryjob
     kukui-release-tryjob
