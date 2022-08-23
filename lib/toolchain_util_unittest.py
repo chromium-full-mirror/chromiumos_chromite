@@ -57,6 +57,16 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             major=77, minor=0, build=3849, patch=0, revision=1,
             is_merged=False))
 
+    # Test Arm parsing.
+    profile_name = 'chromeos-chrome-arm-77.0.3849.0_rc-r1.afdo'
+    result = toolchain_util._ParseBenchmarkProfileName(profile_name)
+    self.assertEqual(
+        result,
+        toolchain_util.BenchmarkProfileVersion(
+            major=77, minor=0, build=3849, patch=0, revision=1,
+            is_merged=False))
+
+
   def testParseCWPProfileName(self):
     """Test top-level function _ParseCWPProfileName."""
     # Test parse failure
@@ -102,6 +112,17 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             is_merged=False),
                  toolchain_util.CWPProfileVersion(
                      major=77, build=3809, patch=38, clock=1562580965)))
+    # Test parse release Arm AFDO success
+    afdo_name = ('chromeos-chrome-arm-none-77-3809.38-1562580965'
+                 '-benchmark-77.0.3849.0-r1-redacted.afdo.xz')
+    result = toolchain_util._ParseMergedProfileName(afdo_name)
+    self.assertEqual(
+        result, (toolchain_util.BenchmarkProfileVersion(
+            major=77, minor=0, build=3849, patch=0, revision=1,
+            is_merged=False),
+                 toolchain_util.CWPProfileVersion(
+                     major=77, build=3809, patch=38, clock=1562580965)))
+
 
   def testGetOrderfileName(self):
     """Test method _GetOrderfileName and related methods."""
@@ -372,6 +393,9 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
     self.orderfile_name = (
         'chromeos-chrome-orderfile-field-78-3877.0-1567418235-'
         'benchmark-78.0.3893.0-r1.orderfile')
+    self.verified_afdo_name = (
+        'chromeos-chrome-amd64-atom-78-3877.0-1658747184-'
+        'benchmark-78.0.3839.0-r1-redacted.afdo')
     self.afdo_name = 'chromeos-chrome-amd64-78.0.3893.0-r1.afdo'
     self.PatchObject(
         toolchain_util._CommonPrepareBundle,
@@ -382,10 +406,13 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         '_FindLatestOrderfileArtifact',
         return_value=self.orderfile_name + toolchain_util.XZ_COMPRESSION_SUFFIX)
 
-  def SetUpPrepare(self, artifact_type, input_artifacts, mock_patch=True):
+  def SetUpPrepare(self, artifact_type, input_artifacts, mock_patch=True,
+                   profile_info_extra=None):
     """Set up to test _Prepare${artifactType}."""
     self.artifact_type = artifact_type
     self.input_artifacts = input_artifacts
+    if profile_info_extra:
+      self.profile_info.update(profile_info_extra)
     self.obj = toolchain_util.PrepareForBuildHandler(self.artifact_type,
                                                      self.chroot, self.sysroot,
                                                      self.board,
@@ -450,13 +477,16 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
                                                    self.orderfile_name)
     self.patch_ebuild.assert_called_once()
 
-  def setupUnverifiedChromeBenchmarkAfdoFileInputProperties(self):
+  def setupUnverifiedChromeBenchmarkAfdoFileInputProperties(
+      self, profile_info_extra=None):
     self.SetUpPrepare(
-        'UnverifiedChromeBenchmarkAfdoFile', {
+        'UnverifiedChromeBenchmarkAfdoFile',
+        {
             'UnverifiedChromeBenchmarkPerfFile': ['gs://path/to/perfdata'],
             'UnverifiedChromeBenchmarkAfdoFile': ['gs://path/to/unvetted'],
             'ChromeDebugBinary': ['gs://image-archive/path'],
-        })
+        },
+        profile_info_extra=profile_info_extra)
 
   def testPrepareUnverifiedChromeBenchmarkAfdoFileExists(self):
     """Normal flow, build is needed, all artifacts are present."""
@@ -477,6 +507,34 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
                   'chromeos-chrome-amd64-*.debug.bz2'),
         mock.call('gs://path/to/perfdata/'
                   'chromeos-chrome-amd64-78.0.3893.0.perf.data.bz2'),
+    ]
+    self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
+    self.assertEqual(expected_ls, self.gs_context.LS.call_args_list)
+    # There is no need to patch the ebuild.
+    self.patch_ebuild.assert_not_called()
+
+  def testPrepareUnverifiedChromeBenchmarkArmAfdoFile(self):
+    """Normal flow with Arm, build is needed, all artifacts are present."""
+    profile_info_extra = {'chrome_cwp_profile': 'arm'}
+    self.setupUnverifiedChromeBenchmarkAfdoFileInputProperties(
+        profile_info_extra)
+    # Published artifact is missing, debug binary is present, perf.data is
+    # present.
+    self.gsc_exists.return_value = False
+    self.gsc_ls.side_effect = (['gs://image-archive/path/to/debug'],
+                               ['gs://image-archive/path/to/perf'])
+    self.assertEqual(toolchain_util.PrepareForBuildReturn.NEEDED,
+                     self.obj.Prepare())
+    # Expect arm profiles.
+    expected_exists = [
+        mock.call('gs://path/to/unvetted/'
+                  'chromeos-chrome-arm-78.0.3893.0_rc-r1.afdo.bz2'),
+    ]
+    expected_ls = [
+        mock.call('gs://image-archive/path/'
+                  'chromeos-chrome-arm-*.debug.bz2'),
+        mock.call('gs://path/to/perfdata/'
+                  'chromeos-chrome-arm-78.0.3893.0.perf.data.bz2'),
     ]
     self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
     self.assertEqual(expected_ls, self.gs_context.LS.call_args_list)
@@ -599,6 +657,112 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
                    'export AFDO_LOCATION="{kernel_cwp_loc}"\n',
                    'export AFDO_PROFILE_VERSION="{kernel_cwp_ver}"')
     self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
+
+  def setupPrepareVerifiedReleaseAfdoFileMocks(self):
+    self.PatchObject(
+        self.obj, '_FindLatestAFDOArtifact',
+        side_effect=(
+            os.path.join(toolchain_util.BENCHMARK_AFDO_GS_URL,
+                         'chromeos-chrome-amd64-78.0.3839.0_rc-r1.afdo.bz2'),
+            os.path.join(toolchain_util.CWP_AFDO_GS_URL,
+                         'R78-3877.0-1658747184.afdo.xz')))
+    self.PatchObject(self.obj.chroot, 'tempdir', return_value=self.tempdir)
+    self.PatchObject(self.obj, '_MergeAFDOProfiles')
+    self.PatchObject(self.obj, '_ProcessAFDOProfile')
+    self.PatchObject(os, 'rename')
+
+  def testPrepareVerifiedReleaseAfdoFileExists(self):
+    """Test that _PrepareVerifiedReleaseAfdoFile works when POINTLESS."""
+    profile_info_extra = {'chrome_cwp_profile': 'atom'}
+    self.SetUpPrepare(
+        'VerifiedReleaseAfdoFile',
+        {
+            'VerifiedReleaseAfdoFile': ['gs://path/to/vetted']
+        },
+        profile_info_extra=profile_info_extra)
+    self.setupPrepareVerifiedReleaseAfdoFileMocks()
+    self.assertEqual(toolchain_util.PrepareForBuildReturn.POINTLESS,
+                     self.obj.Prepare())
+    self.gs_context.Exists.assert_called_once_with(
+        f'gs://path/to/vetted/{self.verified_afdo_name}.xz')
+    # The ebuild is still updated.
+    self.patch_ebuild.assert_called_once()
+
+  def setupPrepareVerifiedReleaseAfdoFileInputProperties(
+      self, profile_info_extra=None):
+    self.SetUpPrepare(
+        'VerifiedReleaseAfdoFile',
+        {
+            'UnverifiedChromeBenchmarkAfdoFile': [
+                toolchain_util.BENCHMARK_AFDO_GS_URL
+            ],
+            'UnverifiedChromeCwpAfdoFile': [
+                toolchain_util.CWP_AFDO_GS_URL
+            ],
+        },
+        profile_info_extra=profile_info_extra)
+
+  def testPrepareVerifiedReleaseAfdoFile(self):
+    """Normal flow, build is needed, all artifacts are present."""
+    profile_info_extra = {'chrome_cwp_profile': 'atom'}
+    self.setupPrepareVerifiedReleaseAfdoFileInputProperties(profile_info_extra)
+    self.setupPrepareVerifiedReleaseAfdoFileMocks()
+    # Published artifact is missing, debug binary is present, perf.data is
+    # present.
+    self.gsc_exists.return_value = False
+    self.assertEqual(toolchain_util.PrepareForBuildReturn.NEEDED,
+                     self.obj.Prepare())
+    expected_exists = [
+        mock.call(os.path.join(
+            toolchain_util.RELEASE_AFDO_GS_URL_VETTED,
+            ('chromeos-chrome-amd64-atom-78-3877.0-1658747184-'
+             'benchmark-78.0.3839.0-r1-redacted.afdo.xz'))),
+    ]
+    self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
+    self.patch_ebuild.assert_called_once_with(
+        self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
+        {
+            'UNVETTED_AFDO_FILE': os.path.join(
+                self.tempdir,
+                ('tmp/chromeos-chrome-amd64-atom-78-3877.0-1658747184-'
+                 'benchmark-78.0.3839.0-r1-redacted.afdo'))
+        }, uprev=True)
+
+  def testPrepareVerifiedReleaseAfdoFileArmProfile(self):
+    """Normal flow with Arm, build is needed, all artifacts are present."""
+    profile_info_extra = {'chrome_cwp_profile': 'arm'}
+    self.setupPrepareVerifiedReleaseAfdoFileInputProperties(profile_info_extra)
+    self.setupPrepareVerifiedReleaseAfdoFileMocks()
+    # Published artifact is missing, debug binary is present, perf.data is
+    # present.
+    self.gsc_exists.return_value = False
+    self.assertEqual(toolchain_util.PrepareForBuildReturn.NEEDED,
+                     self.obj.Prepare())
+    # Expect to see -arm-none-.
+    expected_exists = [
+        mock.call(os.path.join(
+            toolchain_util.RELEASE_AFDO_GS_URL_VETTED,
+            'chromeos-chrome-arm-none-78-3877.0-1658747184-'
+            'benchmark-78.0.3839.0-r1-redacted.afdo.xz')),
+    ]
+    self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
+    self.patch_ebuild.assert_called_once_with(
+        self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
+        {
+            'UNVETTED_AFDO_FILE': os.path.join(
+                self.tempdir,
+                ('tmp/chromeos-chrome-arm-none-78-3877.0-1658747184-'
+                 'benchmark-78.0.3839.0-r1-redacted.afdo'))
+        }, uprev=True)
+
+  def testPrepareVerifiedReleaseAfdoFileMissingInput(self):
+    """Test that _PrepareVerifiedReleaseAfdoFile works when POINTLESS."""
+    self.setupPrepareVerifiedReleaseAfdoFileInputProperties()
+    self.setupPrepareVerifiedReleaseAfdoFileMocks()
+    with self.assertRaisesRegex(
+        toolchain_util.PrepareForBuildHandlerError,
+        r'Could not find profile name.'):
+      self.obj.Prepare()
 
 
 class BundleArtifactHandlerTest(PrepareBundleTest):

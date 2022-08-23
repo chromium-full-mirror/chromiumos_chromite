@@ -66,7 +66,7 @@ KERNEL_AFDO_COMPRESSION_SUFFIX = '.gcov.xz'
 TOOLCHAIN_UTILS_PATH = os.path.join(constants.CHROOT_SOURCE_ROOT,
                                     'src/third_party/toolchain-utils')
 AFDO_PROFILE_PATH_IN_CHROMIUM = 'src/chromeos/profiles/%s.afdo.newest.txt'
-MERGED_AFDO_NAME = 'chromeos-chrome-amd64-%s'
+MERGED_AFDO_NAME = 'chromeos-chrome-{arch}-{name}'
 
 # How old can the Kernel AFDO data be? (in days).
 KERNEL_ALLOWED_STALE_DAYS = 42
@@ -103,7 +103,7 @@ ChromeVersion = collections.namedtuple(
     'ChromeVersion', ['major', 'minor', 'build', 'patch', 'revision'])
 
 BENCHMARK_PROFILE_NAME_REGEX = r"""
-       ^chromeos-chrome-amd64-
+       ^chromeos-chrome-(?:\w+)-
        (\d+)\.                    # Major
        (\d+)\.                    # Minor
        (\d+)\.                    # Build
@@ -136,10 +136,10 @@ CWPProfileVersion = collections.namedtuple('CWPProfileVersion',
 
 MERGED_PROFILE_NAME_REGEX = r"""
       ^chromeos-chrome
-      -(?:orderfile|amd64)                       # prefix for either orderfile
+      -(?:orderfile|amd64|arm)                   # prefix for either orderfile
                                                  # or release profile.
       # CWP parts
-      -(?:field|atom|bigcore)                    # Valid names
+      -(?:field|atom|bigcore|none)               # Valid names
       -(\d+)                                     # Major
       -(\d+)                                     # Build
       \.(\d+)                                    # Patch
@@ -270,9 +270,9 @@ def _ParseMergedProfileName(artifact_name):
   groups = match.groups()
   cwp_groups = groups[:4]
   benchmark_groups = groups[4:]
-  return (BenchmarkProfileVersion(
-      *[int(x) for x in benchmark_groups],
-      is_merged=False), CWPProfileVersion(*[int(x) for x in cwp_groups]))
+  return (BenchmarkProfileVersion(*[int(x) for x in benchmark_groups],
+                                  is_merged=False),
+          CWPProfileVersion(*[int(x) for x in cwp_groups]))
 
 
 def _GetArtifactVersionInChromium(arch, chrome_root):
@@ -589,10 +589,16 @@ class _CommonPrepareBundle(object):
     self.chroot = chroot
     self.sysroot_path = sysroot_path
     self.build_target = build_target
-    # TODO(b/204477388): This should be modified in the Arm pipeline.
-    self.arch = 'amd64'
     self.input_artifacts = input_artifacts or {}
     self.profile_info = profile_info or {}
+    # This may look confusing but here is the rule:
+    # 1. arch is amd64 by default.
+    # 2. if chrome_cwp_profile is atom or bigcore, arch is amd64.
+    # 3. otherwise arch is chrome_cwp_profile (for example arm).
+    arch = self.profile_info.get('chrome_cwp_profile', 'amd64')
+    if arch in ('atom', 'bigcore'):
+      arch = 'amd64'
+    self.arch = arch
     self._ebuild_info = {}
 
   @property
@@ -1594,9 +1600,20 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
     # is where we will publish the verified profile.
     published_loc = self.input_artifacts.get('VerifiedReleaseAfdoFile',
                                              [RELEASE_AFDO_GS_URL_VETTED])[0]
-    merged_name = MERGED_AFDO_NAME % _GetCombinedAFDOName(
-        _ParseCWPProfileName(os.path.splitext(cwp_name)[0]), profile,
-        _ParseBenchmarkProfileName(os.path.splitext(bench_name)[0]))
+    # Profile represents either Intel uarch or other archs.
+    # In case of Arm use 'none' since we also pass self.arch.
+    # As the result we will have AFDO names like:
+    # *-amd64-atom-*
+    # *-arm-none-*
+    if self.arch == 'arm':
+      uarch = 'none'
+    else:
+      uarch = profile
+    merged_name = MERGED_AFDO_NAME.format(
+        arch=self.arch,
+        name=_GetCombinedAFDOName(
+            _ParseCWPProfileName(os.path.splitext(cwp_name)[0]), uarch,
+            _ParseBenchmarkProfileName(os.path.splitext(bench_name)[0])))
     published_name = merged_name + '-redacted.afdo' + XZ_COMPRESSION_SUFFIX
     published_path = os.path.join(published_loc, published_name)
 
