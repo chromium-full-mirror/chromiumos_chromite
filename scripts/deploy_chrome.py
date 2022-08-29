@@ -254,7 +254,7 @@ class DeployChrome:
         # <status> is in the format <goal>/<state>.
         try:
             result = self.device.run(
-                "status ui", capture_output=True, encoding="utf-8"
+                ["status", "ui"], capture_output=True, encoding="utf-8"
             )
         except cros_build_lib.RunCommandError as e:
             if "Unknown job" in e.stderr:

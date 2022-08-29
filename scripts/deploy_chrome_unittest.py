@@ -249,7 +249,8 @@ class DeployChromeMock(partial_mock.PartialMock):
         )
 
         self.rsh_mock.AddCmdResult(
-            "status ui", stdout="ui start/running, process 123"
+            partial_mock.ListRegex("status ui"),
+            stdout="ui start/running, process 123",
         )
 
     def MockMountCmd(self, returnvalue) -> None:
@@ -462,7 +463,9 @@ class TestUiJobStarted(DeployTest):
     """Test detection of a running 'ui' job."""
 
     def MockStatusUiCmd(self, **kwargs) -> None:
-        self.deploy_mock.rsh_mock.AddCmdResult("status ui", **kwargs)
+        self.deploy_mock.rsh_mock.AddCmdResult(
+            partial_mock.ListRegex("status ui"), **kwargs
+        )
 
     def testUiJobStartedFalse(self) -> None:
         """Correct results with a stopped job."""
