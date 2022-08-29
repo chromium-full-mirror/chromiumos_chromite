@@ -316,7 +316,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "atlas-kernelnext",
@@ -2021,7 +2021,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "draco",
@@ -2140,7 +2140,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "endeavour",
@@ -2279,7 +2279,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "fizz-cfm",
@@ -2913,7 +2913,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "herobrine-userdebug",
@@ -3591,7 +3591,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "nami",
@@ -3749,7 +3749,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "nautilus",
@@ -3796,7 +3796,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "nocturne",
@@ -4639,7 +4639,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "puff-moblab",
@@ -4741,7 +4741,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "reef",
@@ -4778,7 +4778,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "sand",
@@ -4870,7 +4870,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "sarien-kernelnext",
@@ -5416,7 +5416,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "trogdor64",
@@ -5849,7 +5849,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     },
     {
       "name": "zork",
@@ -6084,7 +6084,7 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 107
     }
   ]
 }
