@@ -188,7 +188,7 @@ class DeployChrome:
 
     def _GetRemoteDirSize(self, remote_dir):
         result = self.device.run(
-            "du -ks %s" % remote_dir, capture_output=True, encoding="utf-8"
+            ["du", "-ks", remote_dir], capture_output=True, encoding="utf-8"
         )
         return int(result.stdout.split()[0])
 
