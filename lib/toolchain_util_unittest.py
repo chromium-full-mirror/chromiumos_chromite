@@ -8,6 +8,7 @@ import base64
 import builtins
 import collections
 import datetime
+import fnmatch
 import glob
 import io
 import json
@@ -317,10 +318,16 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
     ]
     self.gsc_list.return_value = self.gs_list
 
+  def testValidBenchmarkProfileVersion(self):
+    """Test that it returns None for unparsable profile name."""
+    prof = 'unparsable-file.data'
+    ver_none = self.obj._ValidBenchmarkProfileVersion(prof)
+    self.assertIsNone(ver_none)
+
   def testFindLatestAFDOArtifactPassWithBenchmarkAFDO(self):
     """Test _FindLatestAFDOArtifact returns latest benchmark AFDO."""
     latest_afdo = self.obj._FindLatestAFDOArtifact(
-        [self.gs_url], self.obj._RankValidBenchmarkProfiles)
+        [self.gs_url], self.obj._ValidBenchmarkProfileVersion)
     self.assertEqual(
         latest_afdo,
         os.path.join(self.gs_url,
@@ -329,7 +336,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
   def testFindLatestAFDOArtifactPassWithOrderfile(self):
     """Test _FindLatestAFDOArtifact return latest orderfile."""
     latest_orderfile = self.obj._FindLatestAFDOArtifact(
-        [self.gs_url], self.obj._RankValidOrderfiles)
+        [self.gs_url], self.obj._ValidOrderfileVersion)
     self.assertEqual(
         latest_orderfile,
         os.path.join(
@@ -343,7 +350,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
         CPV=package_info.parse(
             'chromeos-base/chromeos-chrome-79.0.3900.0_rc-r1'))
     latest_orderfile = self.obj._FindLatestAFDOArtifact(
-        [self.gs_url], self.obj._RankValidOrderfiles)
+        [self.gs_url], self.obj._ValidOrderfileVersion)
     self.assertEqual(
         latest_orderfile,
         os.path.join(
@@ -359,7 +366,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
     self.gsc_list.side_effect = gs.GSNoSuchKey('No files')
     with self.assertRaises(RuntimeError) as context:
       self.obj._FindLatestAFDOArtifact([self.gs_url],
-                                       self.obj._RankValidOrderfiles)
+                                       self.obj._ValidOrderfileVersion)
     self.assertEqual('No files for branch 80 found in %s' % self.gs_url,
                      str(context.exception))
 
@@ -373,7 +380,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
     self.gsc_list.return_value = mock_gs_list
     with self.assertRaises(RuntimeError) as context:
       self.obj._FindLatestAFDOArtifact([self.gs_url],
-                                       self.obj._RankValidBenchmarkProfiles)
+                                       self.obj._ValidBenchmarkProfileVersion)
     self.assertIn('No valid latest artifact was found', str(context.exception))
 
 
@@ -1449,10 +1456,11 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
                                    patch=0,
                                    rev=1,
                                    merged_suffix=False,
-                                   compression_suffix=True):
+                                   compression_suffix=True,
+                                   arch='amd64'):
     suffix = '-merged' if merged_suffix else ''
-    result = 'chromeos-chrome-amd64-%d.%d.%d.%d_rc-r%d%s' % (
-        major, minor, build, patch, rev, suffix)
+    result = (f'chromeos-chrome-{arch}-{major}.{minor}.{build}.{patch}'
+              f'_rc-r{rev}{suffix}')
     result += toolchain_util.AFDO_SUFFIX
     if compression_suffix:
       result += toolchain_util.BZ2_COMPRESSION_SUFFIX
@@ -1469,7 +1477,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
     self.output_dir_inchroot = self.chroot.chroot_path(self.output_dir)
     self.now = datetime.datetime.now()
 
-  def runCreateAndUploadMergedAFDOProfileOnce(self, **kwargs):
+  def runCreateAndUploadMergedAFDOProfileOnce(self, arch=None, **kwargs):
     if 'unmerged_name' not in kwargs:
       # Match everything.
       kwargs['unmerged_name'] = self._benchmark_afdo_profile_name(
@@ -1477,6 +1485,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
 
     if 'output_dir' not in kwargs:
       kwargs['output_dir'] = self.output_dir
+
     Mocks = collections.namedtuple('Mocks', [
         'gs_context',
         'find_artifact',
@@ -1495,16 +1504,23 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
           self._benchmark_afdo_profile_name(major=10, build=11),
           self._benchmark_afdo_profile_name(major=10, build=12),
           self._benchmark_afdo_profile_name(major=10, build=13),
+          # Profiles with 'arm' have to be filtered out unless Bundle uses
+          # other than 'amd64' arch.
+          self._benchmark_afdo_profile_name(major=10, build=13, arch='arm'),
           self._benchmark_afdo_profile_name(
               major=10, build=13, merged_suffix=True),
+          self._benchmark_afdo_profile_name(
+              major=10, build=13, patch=1, arch='arm'),
           self._benchmark_afdo_profile_name(major=10, build=13, patch=1),
           self._benchmark_afdo_profile_name(major=10, build=13, patch=2),
           self._benchmark_afdo_profile_name(
               major=10, build=13, patch=2, merged_suffix=True),
           self._benchmark_afdo_profile_name(major=11, build=14),
+          self._benchmark_afdo_profile_name(major=11, build=14, arch='arm'),
           self._benchmark_afdo_profile_name(
               major=11, build=14, merged_suffix=True),
           self._benchmark_afdo_profile_name(major=11, build=15),
+          self._benchmark_afdo_profile_name(major=11, build=15, arch='arm'),
       ]
 
       results = []
@@ -1512,7 +1528,14 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
         url = os.path.join(self.benchmark_url, name)
         now = self.now - datetime.timedelta(days=len(files) - i)
         results.append(self.MockListResult(url=url, creation_time=now))
-      return results
+      # Add a random file with the newest timestamp.
+      # The file has to be ignored by the pattern matcher.
+      results.append(
+          self.MockListResult(url='file-to-be-ignored', creation_time=self.now))
+      # Make MockList() a little bit smarter.
+      # Give the list of files glob matching "path" from gs_context.List(path).
+      # fnmatch() is what glob() is eventually calling.
+      return [res for res in results if fnmatch.fnmatch(res.url, _args[0])]
 
     self.gs_context.List = MockList
     run_command = self.PatchObject(cros_build_lib, 'run')
@@ -1524,6 +1547,9 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
     osutils.Touch(unmerged_profile)
     kwargs['unmerged_profile'] = unmerged_profile
 
+    # Change arch based on the test argument.
+    if arch:
+      self.obj.arch = arch
     merged_name = self.obj._CreateAndUploadMergedAFDOProfile(**kwargs)
     return merged_name, Mocks(
         gs_context=self.gs_context,
@@ -1689,6 +1715,69 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
     mocks.uncompress_file.assert_has_calls(
         any_order=True, calls=[call_for(n) for n in input_afdo_names[:-1]])
 
+  def testCreateAndUploadMergedAFDOProfileWorksForArm(self):
+    prof = self._benchmark_afdo_profile_name(
+        major=9999, compression_suffix=False, arch='arm')
+    merged_name, mocks = self.runCreateAndUploadMergedAFDOProfileOnce(
+        unmerged_name=prof, arch='arm')
+    self.assertIsNotNone(merged_name)
+
+    # Note that we always return the *basename*
+    self.assertEqual(
+        merged_name,
+        self._benchmark_afdo_profile_name(major=9999,
+                                          merged_suffix=True,
+                                          compression_suffix=False,
+                                          arch='arm'))
+
+    mocks.run_command.assert_called_once()
+
+    # Note that these should all be in-chroot names.
+    expected_ordered_args = ['llvm-profdata', 'merge', '-sample']
+
+    def _afdo_name(major, build=0, patch=0, merged_suffix=False):
+      return self._benchmark_afdo_profile_name(
+          major=major,
+          build=build,
+          patch=patch,
+          merged_suffix=merged_suffix,
+          compression_suffix=False,
+          arch='arm')
+
+    input_afdo_names = [
+        _afdo_name(major=10, build=13),
+        _afdo_name(major=10, build=13, patch=1),
+        _afdo_name(major=11, build=14),
+        _afdo_name(major=11, build=15),
+        _afdo_name(major=9999),
+    ]
+
+    output_afdo_name = _afdo_name(major=9999, merged_suffix=True)
+    expected_unordered_args = [
+        '-output=' +
+        os.path.join(self.output_dir_inchroot, 'raw-' + output_afdo_name)
+    ] + [
+        '-weighted-input=1,' + os.path.join(self.output_dir_inchroot, n)
+        for n in input_afdo_names
+    ]
+
+    args = mocks.run_command.call_args[0][0]
+    ordered_args = args[:len(expected_ordered_args)]
+    self.assertEqual(ordered_args, expected_ordered_args)
+
+    unordered_args = args[len(expected_ordered_args):]
+    self.assertCountEqual(unordered_args, expected_unordered_args)
+    self.assertEqual(mocks.gs_context.Copy.call_count, 4)
+    self.assertEqual(mocks.uncompress_file.call_count, 4)
+
+    def call_for(name):
+      basis = os.path.join(self.output_dir, name)
+      return mock.call(basis + toolchain_util.BZ2_COMPRESSION_SUFFIX, basis)
+
+    # The last profile is not compressed, so no need to uncompress it
+    mocks.uncompress_file.assert_has_calls(
+        any_order=True, calls=[call_for(n) for n in input_afdo_names[:-1]])
+
   def testMergeIsOKIfWeFindFewerProfilesThanWeWant(self):
     merged_name, mocks = self.runCreateAndUploadMergedAFDOProfileOnce(
         recent_to_merge=1000, max_age_days=1000)
@@ -1698,8 +1787,9 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
   def testNoFilesAfterUnmergedNameAreIncluded(self):
     max_name = self._benchmark_afdo_profile_name(
         major=10, build=11, patch=2, compression_suffix=False)
+    # Profiles in this test can be older than 14 days.
     merged_name, mocks = self.runCreateAndUploadMergedAFDOProfileOnce(
-        unmerged_name=max_name)
+        unmerged_name=max_name, max_age_days=21)
     self.assertIsNotNone(merged_name)
 
     self.assertEqual(

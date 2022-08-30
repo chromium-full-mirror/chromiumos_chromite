@@ -207,7 +207,9 @@ def _ParseBenchmarkProfileName(profile_name):
     profile_name: The name of a benchmark profile.
 
   Returns:
-    Named tuple of BenchmarkProfileVersion. With the input above, returns
+    Named tuple of BenchmarkProfileVersion if the profile is parsable
+
+  Raises if the name is not parsable.
   """
   pattern = re.compile(BENCHMARK_PROFILE_NAME_REGEX, re.VERBOSE)
   match = pattern.match(profile_name)
@@ -763,7 +765,7 @@ class _CommonPrepareBundle(object):
     Raises:
       See _FindLatestAFDOArtifact.
     """
-    return self._FindLatestAFDOArtifact(gs_urls, self._RankValidOrderfiles)
+    return self._FindLatestAFDOArtifact(gs_urls, self._ValidOrderfileVersion)
 
   def _FindLatestAFDOArtifact(self, gs_urls, rank_func):
     """Find the latest AFDO artifact in a bucket.
@@ -940,8 +942,8 @@ class _CommonPrepareBundle(object):
     return CPV
 
   @staticmethod
-  def _RankValidOrderfiles(url):
-    """Rank the given URL for comparison."""
+  def _ValidOrderfileVersion(url):
+    """Convert the given URL to a version for rank comparison."""
     try:
       bench, cwp = _ParseMergedProfileName(os.path.basename(url))
       if bench.is_merged:
@@ -952,7 +954,7 @@ class _CommonPrepareBundle(object):
       return None
 
   @staticmethod
-  def _RankValidBenchmarkProfiles(name):
+  def _ValidBenchmarkProfileVersion(name):
     """Calculate a value used to rank valid benchmark profiles.
 
     Args:
@@ -960,7 +962,8 @@ class _CommonPrepareBundle(object):
 
     Returns:
       A BenchmarkProfileNamedTuple used for ranking if the name
-      is a valid benchmark profile. Otherwise, returns None.
+      of the benchmark profile is valid and it's not merged.
+      Otherwise, returns None.
     """
     try:
       version = _ParseBenchmarkProfileName(os.path.basename(name))
@@ -1196,7 +1199,9 @@ class _CommonPrepareBundle(object):
     benchmark_url = self.input_artifacts.get(
         'UnverifiedChromeBenchmarkAfdoFile', [BENCHMARK_AFDO_GS_URL])[0]
     benchmark_listing = self.gs_context.List(
-        os.path.join(benchmark_url, '*' + profile_suffix), details=True)
+        os.path.join(benchmark_url,
+                     f'chromeos-chrome-{self.arch}-*' + profile_suffix),
+        details=True)
 
     if not benchmark_listing:
       raise RuntimeError(
@@ -1205,16 +1210,19 @@ class _CommonPrepareBundle(object):
                                     [BENCHMARK_AFDO_GS_URL])[0]))
     unmerged_version = _ParseBenchmarkProfileName(unmerged_name)
 
-    def _GetOrderedMergeableProfiles(benchmark_listing):
+    def _GetOrderedMergeableProfiles(
+        benchmark_listing: Iterable[gs.GSListResult]
+    ) -> Iterable[gs.GSListResult]:
       """Returns a list of mergeable profiles ordered by increasing version."""
-      profile_versions = [(_ParseBenchmarkProfileName(os.path.basename(x.url)),
-                           x) for x in benchmark_listing]
       # Exclude merged profiles, because merging merged profiles into merged
-      # profiles is likely bad.
+      # profiles is likely bad. _ValidBenchmarkProfileVersion takes care of it.
+      profile_versions = [(self._ValidBenchmarkProfileVersion(x.url), x)
+                          for x in benchmark_listing]
+      # Filter in only necessary profiles.
       candidates = sorted(
           (version, x)
           for version, x in profile_versions
-          if unmerged_version >= version and not version.is_merged)
+          if version and unmerged_version >= version)
       return [x for _, x in candidates]
 
     benchmark_profiles = _GetOrderedMergeableProfiles(benchmark_listing)
@@ -1590,7 +1598,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
 
     # This will raise a RuntimeError if no artifact is found.
     bench = self._FindLatestAFDOArtifact(bench_locs,
-                                         self._RankValidBenchmarkProfiles)
+                                         self._ValidBenchmarkProfileVersion)
     cwp = self._FindLatestAFDOArtifact(cwp_locs, _RankValidCWPProfiles)
     bench_name = os.path.split(bench)[1]
     cwp_name = os.path.split(cwp)[1]
