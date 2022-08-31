@@ -619,8 +619,10 @@ if [ ! -x "${FLAGS_chroot}/usr/bin/sudo" ]; then
   error "Requested enter_chroot command was: $*"
   exit 127
 else
-  # TODO(b/307703861): Drop -i here.
-  cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
+  cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" )
+  if [[ $# -eq 0 ]]; then
+    cmd+=( -i )
+  fi
 fi
 
 cmd+=( "${env_vars[@]}" "$@" )
