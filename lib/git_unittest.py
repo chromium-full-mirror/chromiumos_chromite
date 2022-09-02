@@ -647,7 +647,7 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
                 'refs/remotes/origin/*:refs/heads/*'])
     git.RunGit(temp_manifests, ['branch', '-D', 'default'])
     cros_build_lib.run([
-        'repo', 'init', '-u', temp_manifests,
+        'repo', 'init', '-u', temp_manifests, '--no-current-branch',
         '--repo-branch', 'default', '--repo-url', 'file://%s' % local_repo,
     ], cwd=self.tempdir)
 
