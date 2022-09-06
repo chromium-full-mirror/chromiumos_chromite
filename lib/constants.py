@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -695,6 +695,7 @@ CHROOT_ENVIRONMENT_ALLOWLIST = (
     'CHROMEOS_VERSION_DEVSERVER',
     'CHROMEOS_VERSION_TRACK',
     'GCC_GITHASH',
+    'GCE_METADATA_HOST',
     'GIT_AUTHOR_EMAIL',
     'GIT_AUTHOR_NAME',
     'GIT_COMMITTER_EMAIL',

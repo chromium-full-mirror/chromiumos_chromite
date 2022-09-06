@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -276,10 +276,10 @@ def _CreateParser():
                     api=constants.REEXEC_API_CHROMEOS_GOMA_DIR,
                     help='Specify a directory containing goma for '
                          'build package.')
+  # TODO(crbug.com/1359171): cleanup the flag.
   parser.add_option('--goma_client_json', type='path',
                     api=constants.REEXEC_API_GOMA,
-                    help='Specify a service-account-goma-client.json path. '
-                         'The file is needed on bots to run GOMA.')
+                    help='Specify a service-account-goma-client.json path.')
 
   group = CustomGroup(
       parser,

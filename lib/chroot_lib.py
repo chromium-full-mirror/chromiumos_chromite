@@ -1,4 +1,4 @@
-# Copyright 2019 The Chromium OS Authors. All rights reserved.
+# Copyright 2019 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -115,8 +115,11 @@ class Chroot(object):
     if self.goma:
       args.extend([
           '--goma_dir', self.goma.linux_goma_dir,
-          '--goma_client_json', self.goma.goma_client_json,
       ])
+      if self.goma.goma_client_json:
+        args.extend([
+          '--goma_client_json', self.goma.goma_client_json,
+        ])
     if self.remoteexec:
       args.extend([
           '--reclient-dir', self.remoteexec.reclient_dir,
