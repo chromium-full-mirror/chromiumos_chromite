@@ -646,10 +646,23 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
                ['fetch', '-f', '-u', local_manifests,
                 'refs/remotes/origin/*:refs/heads/*'])
     git.RunGit(temp_manifests, ['branch', '-D', 'default'])
-    cros_build_lib.run([
-        'repo', 'init', '-u', temp_manifests, '--no-current-branch',
-        '--repo-branch', 'default', '--repo-url', 'file://%s' % local_repo,
-    ], cwd=self.tempdir)
+    cmd = [
+        "repo",
+        "init",
+        "-u",
+        temp_manifests,
+        "--no-current-branch",
+        "--repo-branch",
+        "default",
+        "--repo-url",
+        "file://%s" % local_repo,
+    ]
+    result = cros_build_lib.run(
+        ["repo", "init", "--help"], capture_output=True, cwd=self.tempdir
+    )
+    if b"--manifest-depth" in result.stdout:
+        cmd += ["--manifest-depth=0"]
+    cros_build_lib.run(cmd, cwd=self.tempdir)
 
     self.active_manifest = os.path.realpath(
         os.path.join(self.tempdir, '.repo', 'manifest.xml'))
