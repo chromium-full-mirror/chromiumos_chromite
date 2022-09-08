@@ -518,7 +518,8 @@ EC (RW) version: reef_v1.1.5909-bd1f0c9
           temp_goma_client_json.name
       ], chroot_args)
       portage_env = stage._portage_extra_env
-      self.assertRegex(portage_env.get('GOMA_DIR', ''), '^/home/.*/goma$')
+      self.assertEqual(
+          portage_env.get('GOMA_DIR', ''), os.path.expanduser('~/goma'))
       self.assertEqual(portage_env.get('USE_GOMA', ''), 'true')
       self.assertEqual(
           '/creds/service_accounts/service-account-goma-client.json',
