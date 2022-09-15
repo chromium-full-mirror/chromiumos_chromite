@@ -266,7 +266,7 @@ GROUP_BASELINE_JETSTREAM = dict((e.group, e) for e in (
             'ap-rodizio', 'ap-speed-test', 'ap-taxonomy', 'ap-ui-server',
             'ap-update-manager', 'ap-vorlon-client', 'ap-wifi-diagnostics',
             'ap-wifi-manager', 'ap-wifiblaster', 'ap-wireless-optimizer',
-            'gdisp'
+            'gdisp', 'ap-ppn-manager'
         }),
     # Add users to gdisp group in order to allow those processes to access
     # the unix domain socket file to communicate with gdisp-broker daemon
