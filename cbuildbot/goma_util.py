@@ -227,7 +227,10 @@ class Goma(object):
     if self.goma_client_json:
       result['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = self.goma_client_json
     elif cros_build_lib.HostIsCIBuilder():
-      result['GOMA_GCE_SERCVICE_ACCOUNT'] = 'default'
+      result['GOMA_GCE_SERVICE_ACCOUNT'] = 'default'
+      result['GCE_METADATA_HOST'] = os.environ.get(
+          'GCE_METADATA_HOST', ''
+      )
 
     if self.goma_cache:
       result['GOMA_CACHE_DIR'] = self.goma_cache
