@@ -191,10 +191,10 @@
     eve-release
     excelsior-release
     fizz-cfm-release
-    fizz-kernelnext-release
     fizz-labstation-release
     fizz-moblab-release
     fizz-release
+    geralt-release
     grunt-release
     guado_labstation-release
     guybrush-release
@@ -204,7 +204,6 @@
     jacuzzi-release
     jacuzzi64-release
     kalista-cfm-release
-    kalista-kernelnext-release
     kalista-release
     kevin-kernelnext-release
     kevin-release
@@ -603,11 +602,6 @@
   fizz-cfm-release-tryjob
   fizz-factory-fizz-10167.B-factorybranch-tryjob
   fizz-full-tryjob
-  fizz-kernelnext-full-tryjob
-  fizz-kernelnext-llvm-next-toolchain-tryjob
-  fizz-kernelnext-llvm-toolchain-tryjob
-  fizz-kernelnext-payloads-tryjob
-  fizz-kernelnext-release-tryjob
   fizz-labstation-full-tryjob
   fizz-labstation-llvm-next-toolchain-tryjob
   fizz-labstation-llvm-toolchain-tryjob
@@ -630,6 +624,11 @@
   gale-release-tryjob
   gale-test-ap-tryjob
   gandof-factory-auron-6459.B-factorybranch-tryjob
+  geralt-full-tryjob
+  geralt-llvm-next-toolchain-tryjob
+  geralt-llvm-toolchain-tryjob
+  geralt-payloads-tryjob
+  geralt-release-tryjob
   glados-factory-glados-7657.B-factorybranch-tryjob
   glados-factory-glados-7828.B-factorybranch-tryjob
   glados-full-tryjob
@@ -702,11 +701,6 @@
   kalista-cfm-release-tryjob
   kalista-factory-nami-10715.B-factorybranch-tryjob
   kalista-full-tryjob
-  kalista-kernelnext-full-tryjob
-  kalista-kernelnext-llvm-next-toolchain-tryjob
-  kalista-kernelnext-llvm-toolchain-tryjob
-  kalista-kernelnext-payloads-tryjob
-  kalista-kernelnext-release-tryjob
   kalista-llvm-next-toolchain-tryjob
   kalista-llvm-toolchain-tryjob
   kalista-payloads-tryjob
@@ -809,10 +803,10 @@
     eve-release-tryjob
     excelsior-release-tryjob
     fizz-cfm-release-tryjob
-    fizz-kernelnext-release-tryjob
     fizz-labstation-release-tryjob
     fizz-moblab-release-tryjob
     fizz-release-tryjob
+    geralt-release-tryjob
     grunt-release-tryjob
     guado_labstation-release-tryjob
     guybrush-release-tryjob
@@ -822,7 +816,6 @@
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
     kalista-cfm-release-tryjob
-    kalista-kernelnext-release-tryjob
     kalista-release-tryjob
     kevin-kernelnext-release-tryjob
     kevin-release-tryjob
