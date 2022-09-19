@@ -60,7 +60,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         )
         # pylint: disable=protected-access
         request = stage._CreateScheduledBuild(
-            "child", config, "master_bb_0", None
+            "child", config, 0, "master_bb_0", None
         )
         self.assertEqual(request.build_config, "child")
         self.assertEqual(request.master_buildbucket_id, "master_bb_0")
@@ -89,7 +89,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         # pylint: disable=protected-access
         stage._run.options.cbb_snapshot_revision = "hash1234"
         request = stage._CreateScheduledBuild(
-            "child", config, "master_bb_1", None
+            "child", config, 0, "master_bb_1", None
         )
         self.assertEqual(request.build_config, "child")
         self.assertEqual(request.master_buildbucket_id, "master_bb_1")
@@ -162,7 +162,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         )
 
         buildbucket_id, created_ts = stage.PostSlaveBuildToBuildbucket(
-            "slave", slave_config, "master_bb_id", dryrun=True
+            "slave", slave_config, 0, "master_bb_id", dryrun=True
         )
 
         self.assertEqual(buildbucket_id, "0")
