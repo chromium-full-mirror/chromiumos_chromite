@@ -130,7 +130,7 @@ class BuildStore(object):
             self.bb_client = buildbucket_v2.BuildbucketV2()
 
         return not (
-            self._IsCIDBClientMissing() or self._IsBuildbucketClientMissing()
+            self._IsCIDBClientMissing() and self._IsBuildbucketClientMissing()
         )
 
     def AreClientsReady(self):
