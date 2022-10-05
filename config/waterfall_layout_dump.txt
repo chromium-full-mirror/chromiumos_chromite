@@ -205,7 +205,6 @@
     jacuzzi64-release
     kalista-cfm-release
     kalista-release
-    kevin-kernelnext-release
     kevin-release
     kukui-release
     lars-release
@@ -225,7 +224,6 @@
     sand-release
     sarien-kernelnext-release
     sarien-release
-    scarlet-kernelnext-release
     scarlet-release
     sentry-release
     snappy-kernelnext-release
@@ -710,11 +708,6 @@
   kevin-android-pi-pre-flight-branch-tryjob
   kevin-factory-gru-8652.B-factorybranch-tryjob
   kevin-full-tryjob
-  kevin-kernelnext-full-tryjob
-  kevin-kernelnext-llvm-next-toolchain-tryjob
-  kevin-kernelnext-llvm-toolchain-tryjob
-  kevin-kernelnext-payloads-tryjob
-  kevin-kernelnext-release-tryjob
   kevin-llvm-next-toolchain-tryjob
   kevin-llvm-toolchain-tryjob
   kevin-llvm-tot-toolchain-tryjob
@@ -817,7 +810,6 @@
     jacuzzi64-release-tryjob
     kalista-cfm-release-tryjob
     kalista-release-tryjob
-    kevin-kernelnext-release-tryjob
     kevin-release-tryjob
     kukui-release-tryjob
     lars-release-tryjob
@@ -837,7 +829,6 @@
     sand-release-tryjob
     sarien-kernelnext-release-tryjob
     sarien-release-tryjob
-    scarlet-kernelnext-release-tryjob
     scarlet-release-tryjob
     sentry-release-tryjob
     snappy-kernelnext-release-tryjob
@@ -969,11 +960,6 @@
   sarien-release-tryjob
   scarlet-factory-scarlet-10211.B-factorybranch-tryjob
   scarlet-full-tryjob
-  scarlet-kernelnext-full-tryjob
-  scarlet-kernelnext-llvm-next-toolchain-tryjob
-  scarlet-kernelnext-llvm-toolchain-tryjob
-  scarlet-kernelnext-payloads-tryjob
-  scarlet-kernelnext-release-tryjob
   scarlet-llvm-next-toolchain-tryjob
   scarlet-llvm-toolchain-tryjob
   scarlet-payloads-tryjob
