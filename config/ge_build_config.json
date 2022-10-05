@@ -443,11 +443,22 @@
         {
           "board_name": "brask",
           "name": "kuldax",
-          "cq_test_enabled": false,
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 7196,
           "is_active": true,
-          "stable_target_milestone": 105
+          "stable_target_milestone": 108
         },
         {
           "board_name": "brask",
@@ -3716,35 +3727,6 @@
       "rubik_target_milestone": 107
     },
     {
-      "name": "kevin-kernelnext",
-      "reference_board_name": "kevin-kernelnext",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "kevin-kernelnext",
-          "name": "kevin",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7199,
-          "is_active": true
-        }
-      ],
-      "rubik_target_milestone": 102
-    },
-    {
       "name": "kukui",
       "reference_board_name": "kukui",
       "arch": "ARM_INTERNAL",
@@ -5333,73 +5315,6 @@
         }
       ],
       "rubik_target_milestone": 106
-    },
-    {
-      "name": "scarlet-kernelnext",
-      "reference_board_name": "scarlet-kernelnext",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "scarlet-kernelnext",
-          "name": "dru",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7212,
-          "is_active": true
-        },
-        {
-          "board_name": "scarlet-kernelnext",
-          "name": "druwl",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7212,
-          "is_active": true
-        },
-        {
-          "board_name": "scarlet-kernelnext",
-          "name": "dumo",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7212,
-          "is_active": true
-        }
-      ],
-      "rubik_target_milestone": 103
     },
     {
       "name": "sentry",
