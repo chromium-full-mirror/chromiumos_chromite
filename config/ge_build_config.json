@@ -240,7 +240,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 88
     },
     {
       "name": "asurada",
@@ -290,7 +291,8 @@
           "stable_target_milestone": 93
         }
       ],
-      "rubik_target_milestone": 106
+      "rubik_target_milestone": 106,
+      "stable_target_milestone": 91
     },
     {
       "name": "atlas",
@@ -319,7 +321,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 75
     },
     {
       "name": "atlas-kernelnext",
@@ -348,7 +351,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 102
+      "rubik_target_milestone": 102,
+      "stable_target_milestone": 101
     },
     {
       "name": "bob",
@@ -377,7 +381,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 59
     },
     {
       "name": "brask",
@@ -467,7 +472,8 @@
           "stable_target_milestone": 107
         }
       ],
-      "rubik_target_milestone": 106
+      "rubik_target_milestone": 106,
+      "stable_target_milestone": 105
     },
     {
       "name": "brya",
@@ -834,7 +840,8 @@
           "stable_target_milestone": 108
         }
       ],
-      "rubik_target_milestone": 104
+      "rubik_target_milestone": 104,
+      "stable_target_milestone": 100
     },
     {
       "name": "cave",
@@ -863,7 +870,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 53
     },
     {
       "name": "cherry",
@@ -921,7 +929,8 @@
           "stable_target_milestone": 98
         }
       ],
-      "rubik_target_milestone": 106
+      "rubik_target_milestone": 106,
+      "stable_target_milestone": 98
     },
     {
       "name": "cherry64",
@@ -966,7 +975,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 98
     },
     {
       "name": "coral",
@@ -1281,7 +1291,8 @@
           "stable_target_milestone": 64
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 64
     },
     {
       "name": "dedede",
@@ -2155,7 +2166,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 87
     },
     {
       "name": "draco",
@@ -2181,7 +2193,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 106
+      "rubik_target_milestone": 106,
+      "stable_target_milestone": 104
     },
     {
       "name": "drallion",
@@ -2249,7 +2262,8 @@
           "stable_target_milestone": 83
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 83
     },
     {
       "name": "elm",
@@ -2278,7 +2292,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 52
     },
     {
       "name": "endeavour",
@@ -2296,7 +2311,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 80
     },
     {
       "name": "eve",
@@ -2325,7 +2341,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 61
     },
     {
       "name": "excelsior",
@@ -2343,7 +2360,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 80
     },
     {
       "name": "fizz",
@@ -2422,7 +2440,8 @@
           "stable_target_milestone": 65
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 65
     },
     {
       "name": "fizz-cfm",
@@ -2472,7 +2491,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 76
     },
     {
       "name": "fizz-labstation",
@@ -2490,7 +2510,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 86
     },
     {
       "name": "fizz-moblab",
@@ -2515,7 +2536,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 66
     },
     {
       "name": "grunt",
@@ -2737,7 +2759,8 @@
           "stable_target_milestone": 80
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 71
     },
     {
       "name": "guybrush",
@@ -2803,7 +2826,8 @@
           "stable_target_milestone": 100
         }
       ],
-      "rubik_target_milestone": 106
+      "rubik_target_milestone": 106,
+      "stable_target_milestone": 100
     },
     {
       "name": "hana",
@@ -2880,7 +2904,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 56
     },
     {
       "name": "hatch",
@@ -3085,7 +3110,8 @@
           "stable_target_milestone": 86
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 78
     },
     {
       "name": "herobrine-userdebug",
@@ -3135,7 +3161,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 105
+      "rubik_target_milestone": 105,
+      "stable_target_milestone": 105
     },
     {
       "name": "jacuzzi",
@@ -3420,7 +3447,8 @@
           "stable_target_milestone": 86
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 81
     },
     {
       "name": "jacuzzi64",
@@ -3558,7 +3586,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 102
     },
     {
       "name": "kalista",
@@ -3588,7 +3617,8 @@
           "stable_target_milestone": 73
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 73
     },
     {
       "name": "kalista-cfm",
@@ -3606,7 +3636,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 78
     },
     {
       "name": "kevin",
@@ -3635,7 +3666,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 55
     },
     {
       "name": "kukui",
@@ -3725,7 +3757,8 @@
           "stable_target_milestone": 79
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 79
     },
     {
       "name": "lars",
@@ -3762,7 +3795,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 50
     },
     {
       "name": "nami",
@@ -3929,7 +3963,8 @@
           "stable_target_milestone": 68
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 68
     },
     {
       "name": "nautilus",
@@ -3978,7 +4013,8 @@
           "stable_target_milestone": 66
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 66
     },
     {
       "name": "nocturne",
@@ -4007,7 +4043,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 71
     },
     {
       "name": "octopus",
@@ -4706,7 +4743,8 @@
           "stable_target_milestone": 71
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 71
     },
     {
       "name": "puff",
@@ -4864,7 +4902,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 85
     },
     {
       "name": "puff-moblab",
@@ -4890,7 +4929,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 88
     },
     {
       "name": "pyro",
@@ -4919,7 +4959,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 57
     },
     {
       "name": "rammus",
@@ -4968,7 +5009,8 @@
           "stable_target_milestone": 72
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 72
     },
     {
       "name": "reef",
@@ -5007,7 +5049,8 @@
           "stable_target_milestone": 57
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 57
     },
     {
       "name": "sand",
@@ -5036,7 +5079,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 60
     },
     {
       "name": "sarien",
@@ -5103,7 +5147,8 @@
           "stable_target_milestone": 75
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 75
     },
     {
       "name": "sarien-kernelnext",
@@ -5167,7 +5212,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 78
     },
     {
       "name": "scarlet",
@@ -5225,7 +5271,8 @@
           "stable_target_milestone": 65
         }
       ],
-      "rubik_target_milestone": 106
+      "rubik_target_milestone": 106,
+      "stable_target_milestone": 65
     },
     {
       "name": "sentry",
@@ -5251,7 +5298,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 106
+      "rubik_target_milestone": 106,
+      "stable_target_milestone": 50
     },
     {
       "name": "snappy",
@@ -5296,7 +5344,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 108
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 57
     },
     {
       "name": "snappy-kernelnext",
@@ -5341,7 +5390,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 57
     },
     {
       "name": "soraka",
@@ -5371,7 +5421,8 @@
           "stable_target_milestone": 65
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 65
     },
     {
       "name": "strongbad",
@@ -5481,7 +5532,8 @@
           "stable_target_milestone": 97
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 91
     },
     {
       "name": "trogdor",
@@ -5588,7 +5640,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 88
     },
     {
       "name": "trogdor64",
@@ -5665,7 +5718,8 @@
           "is_active": true
         }
       ],
-      "rubik_target_milestone": 103
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 87
     },
     {
       "name": "volteer",
@@ -6034,7 +6088,8 @@
           "stable_target_milestone": 89
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 87
     },
     {
       "name": "zork",
@@ -6280,7 +6335,8 @@
           "stable_target_milestone": 88
         }
       ],
-      "rubik_target_milestone": 107
+      "rubik_target_milestone": 107,
+      "stable_target_milestone": 86
     }
   ]
 }
