@@ -1113,6 +1113,7 @@ LEGACY_RELEASE_ALLOWLIST = [
     'elm-release',
     'eve-release',
     'fizz-release',
+    'fizz-cfm-release',
     'grunt-release',
     'guybrush-release',
     'hana-release',
