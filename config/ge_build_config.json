@@ -227,7 +227,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 466,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "ambassador",
@@ -235,7 +236,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 466,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "ambassador",
@@ -243,7 +245,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 466,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "ambassador",
@@ -251,7 +254,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 466,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -282,7 +286,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 435,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "asurada",
@@ -302,7 +307,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 435,
           "is_active": true,
-          "stable_target_milestone": 93
+          "stable_target_milestone": 93,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -332,7 +338,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 356,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -362,7 +369,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7177,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 102,
@@ -392,7 +400,8 @@
           "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 292,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -423,7 +432,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7196,
           "is_active": true,
-          "stable_target_milestone": 105
+          "stable_target_milestone": 105,
+          "is_experimental": false
         },
         {
           "board_name": "brask",
@@ -443,7 +453,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7196,
           "is_active": true,
-          "stable_target_milestone": 106
+          "stable_target_milestone": 106,
+          "is_experimental": false
         },
         {
           "board_name": "brask",
@@ -463,7 +474,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7196,
           "is_active": true,
-          "stable_target_milestone": 108
+          "stable_target_milestone": 108,
+          "is_experimental": false
         },
         {
           "board_name": "brask",
@@ -483,7 +495,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7196,
           "is_active": true,
-          "stable_target_milestone": 107
+          "stable_target_milestone": 107,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -502,7 +515,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -522,7 +536,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -542,7 +557,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 106
+          "stable_target_milestone": 106,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -561,7 +577,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -569,7 +586,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -578,7 +596,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 107
+          "stable_target_milestone": 107,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -598,7 +617,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 107
+          "stable_target_milestone": 107,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -618,7 +638,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 101
+          "stable_target_milestone": 101,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -638,7 +659,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 102
+          "stable_target_milestone": 102,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -658,7 +680,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 101
+          "stable_target_milestone": 101,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -678,7 +701,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 106
+          "stable_target_milestone": 106,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -698,7 +722,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 105
+          "stable_target_milestone": 105,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -718,7 +743,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -738,7 +764,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -746,7 +773,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -754,7 +782,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -774,7 +803,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -794,7 +824,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 104
+          "stable_target_milestone": 104,
+          "is_experimental": true
         },
         {
           "board_name": "brya",
@@ -803,7 +834,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 104
+          "stable_target_milestone": 104,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -823,7 +855,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 105
+          "stable_target_milestone": 105,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -842,7 +875,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 104
+          "stable_target_milestone": 104,
+          "is_experimental": false
         },
         {
           "board_name": "brya",
@@ -851,7 +885,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 108
+          "stable_target_milestone": 108,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 104,
@@ -881,7 +916,8 @@
           "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 267,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -900,7 +936,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7163,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "cherry",
@@ -920,7 +957,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7163,
           "is_active": true,
-          "stable_target_milestone": 104
+          "stable_target_milestone": 104,
+          "is_experimental": false
         },
         {
           "board_name": "cherry",
@@ -940,7 +978,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7163,
           "is_active": true,
-          "stable_target_milestone": 98
+          "stable_target_milestone": 98,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -959,7 +998,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7216,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "cherry64",
@@ -967,7 +1007,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7216,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "cherry64",
@@ -986,7 +1027,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7216,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -1017,7 +1059,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1036,7 +1079,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1056,7 +1100,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1076,7 +1121,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1093,7 +1139,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1112,7 +1159,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1121,7 +1169,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1134,7 +1183,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1154,7 +1204,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1171,7 +1222,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1188,7 +1240,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1208,7 +1261,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1228,7 +1282,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1248,7 +1303,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1265,7 +1321,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1285,7 +1342,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         },
         {
           "board_name": "coral",
@@ -1302,7 +1360,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 312,
           "is_active": true,
-          "stable_target_milestone": 64
+          "stable_target_milestone": 64,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -1333,7 +1392,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 105
+          "stable_target_milestone": 105,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1353,7 +1413,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 97
+          "stable_target_milestone": 97,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1373,7 +1434,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1393,7 +1455,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 99
+          "stable_target_milestone": 99,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1413,7 +1476,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1433,7 +1497,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1453,7 +1518,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 97
+          "stable_target_milestone": 97,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1473,7 +1539,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 94
+          "stable_target_milestone": 94,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1493,7 +1560,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 94
+          "stable_target_milestone": 94,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1513,7 +1581,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1533,7 +1602,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 87
+          "stable_target_milestone": 87,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1553,7 +1623,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 87
+          "stable_target_milestone": 87,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1573,7 +1644,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 96
+          "stable_target_milestone": 96,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1593,7 +1665,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1613,7 +1686,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 97
+          "stable_target_milestone": 97,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1633,7 +1707,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1653,7 +1728,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 103
+          "stable_target_milestone": 103,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1673,7 +1749,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 103
+          "stable_target_milestone": 103,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1693,7 +1770,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 97
+          "stable_target_milestone": 97,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1713,7 +1791,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 97
+          "stable_target_milestone": 97,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1733,7 +1812,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 93
+          "stable_target_milestone": 93,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1753,7 +1833,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 104
+          "stable_target_milestone": 104,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1773,7 +1854,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 103
+          "stable_target_milestone": 103,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1793,7 +1875,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 103
+          "stable_target_milestone": 103,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1813,7 +1896,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1833,7 +1917,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 89
+          "stable_target_milestone": 89,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1853,7 +1938,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1873,7 +1959,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 96
+          "stable_target_milestone": 96,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1893,7 +1980,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 98
+          "stable_target_milestone": 98,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1913,7 +2001,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 94
+          "stable_target_milestone": 94,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1933,7 +2022,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 94
+          "stable_target_milestone": 94,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1953,7 +2043,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 99
+          "stable_target_milestone": 99,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1973,7 +2064,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 98
+          "stable_target_milestone": 98,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -1993,7 +2085,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 89
+          "stable_target_milestone": 89,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2013,7 +2106,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2033,7 +2127,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2053,7 +2148,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2073,7 +2169,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 96
+          "stable_target_milestone": 96,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2093,7 +2190,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2113,7 +2211,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2121,7 +2220,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 419,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2141,7 +2241,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2161,7 +2262,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2169,7 +2271,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 419,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "dedede",
@@ -2177,7 +2280,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 419,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -2196,7 +2300,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7215,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "draco",
@@ -2204,7 +2309,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7215,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -2235,7 +2341,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 402,
           "is_active": true,
-          "stable_target_milestone": 83
+          "stable_target_milestone": 83,
+          "is_experimental": false
         },
         {
           "board_name": "drallion",
@@ -2255,7 +2362,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 402,
           "is_active": true,
-          "stable_target_milestone": 83
+          "stable_target_milestone": 83,
+          "is_experimental": false
         },
         {
           "board_name": "drallion",
@@ -2264,7 +2372,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 402,
           "is_active": true,
-          "stable_target_milestone": 83
+          "stable_target_milestone": 83,
+          "is_experimental": false
         },
         {
           "board_name": "drallion",
@@ -2273,7 +2382,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 402,
           "is_active": true,
-          "stable_target_milestone": 83
+          "stable_target_milestone": 83,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -2303,7 +2413,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 265,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -2322,7 +2433,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 428,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -2352,7 +2464,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 294,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -2371,7 +2484,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 410,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -2401,7 +2515,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 306,
           "is_active": true,
-          "stable_target_milestone": 73
+          "stable_target_milestone": 73,
+          "is_experimental": false
         },
         {
           "board_name": "fizz",
@@ -2413,7 +2528,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 306,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         },
         {
           "board_name": "fizz",
@@ -2422,7 +2538,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 306,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         },
         {
           "board_name": "fizz",
@@ -2442,7 +2559,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 306,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         },
         {
           "board_name": "fizz",
@@ -2451,7 +2569,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 306,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -2470,7 +2589,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 390,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "fizz-cfm",
@@ -2478,7 +2598,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 390,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "fizz-cfm",
@@ -2486,7 +2607,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 390,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "fizz-cfm",
@@ -2494,7 +2616,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 390,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "fizz-cfm",
@@ -2502,7 +2625,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 390,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -2521,7 +2645,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 377,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -2547,7 +2672,8 @@
           "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 353,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -2578,7 +2704,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2597,7 +2724,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2616,7 +2744,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2625,7 +2754,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2634,7 +2764,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2653,7 +2784,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2673,7 +2805,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2692,7 +2825,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2712,7 +2846,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 84
+          "stable_target_milestone": 84,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2732,7 +2867,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 84
+          "stable_target_milestone": 84,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2751,7 +2887,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 80
+          "stable_target_milestone": 80,
+          "is_experimental": false
         },
         {
           "board_name": "grunt",
@@ -2770,7 +2907,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 333,
           "is_active": true,
-          "stable_target_milestone": 80
+          "stable_target_milestone": 80,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -2801,7 +2939,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7148,
           "is_active": true,
-          "stable_target_milestone": 102
+          "stable_target_milestone": 102,
+          "is_experimental": false
         },
         {
           "board_name": "guybrush",
@@ -2809,7 +2948,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7148,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "guybrush",
@@ -2817,7 +2957,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7148,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "guybrush",
@@ -2837,7 +2978,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7148,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -2856,7 +2998,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 289,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "hana",
@@ -2875,7 +3018,8 @@
           "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 289,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "hana",
@@ -2883,7 +3027,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 289,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "hana",
@@ -2891,7 +3036,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 289,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "hana",
@@ -2899,7 +3045,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 289,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "hana",
@@ -2907,7 +3054,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 289,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "hana",
@@ -2915,7 +3063,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 289,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -2946,7 +3095,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 81
+          "stable_target_milestone": 81,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -2966,7 +3116,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 81
+          "stable_target_milestone": 81,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -2986,7 +3137,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 81
+          "stable_target_milestone": 81,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -2995,7 +3147,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 78
+          "stable_target_milestone": 78,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -3014,7 +3167,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 79
+          "stable_target_milestone": 79,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -3022,7 +3176,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 372,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -3042,7 +3197,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 84
+          "stable_target_milestone": 84,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -3061,7 +3217,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 79
+          "stable_target_milestone": 79,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -3081,7 +3238,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 81
+          "stable_target_milestone": 81,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -3101,7 +3259,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 79
+          "stable_target_milestone": 79,
+          "is_experimental": false
         },
         {
           "board_name": "hatch",
@@ -3121,7 +3280,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 372,
           "is_active": true,
-          "stable_target_milestone": 86
+          "stable_target_milestone": 86,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -3140,7 +3300,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7166,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "herobrine",
@@ -3148,7 +3309,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7166,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "herobrine",
@@ -3168,7 +3330,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7166,
           "is_active": true,
-          "stable_target_milestone": 109
+          "stable_target_milestone": 109,
+          "is_experimental": true
         },
         {
           "board_name": "herobrine",
@@ -3188,7 +3351,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7166,
           "is_active": true,
-          "stable_target_milestone": 109
+          "stable_target_milestone": 109,
+          "is_experimental": false
         },
         {
           "board_name": "herobrine",
@@ -3197,7 +3361,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7166,
           "is_active": true,
-          "stable_target_milestone": 109
+          "stable_target_milestone": 109,
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 106,
@@ -3216,7 +3381,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7238,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "herobrine-userdebug",
@@ -3224,7 +3390,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7238,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "herobrine-userdebug",
@@ -3232,7 +3399,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7238,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "herobrine-userdebug",
@@ -3240,7 +3408,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7238,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "herobrine-userdebug",
@@ -3248,7 +3417,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7238,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 105,
@@ -3279,7 +3449,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 87
+          "stable_target_milestone": 87,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3288,7 +3459,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3308,7 +3480,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3328,7 +3501,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 87
+          "stable_target_milestone": 87,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3348,7 +3522,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 87
+          "stable_target_milestone": 87,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3368,7 +3543,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3388,7 +3564,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3396,7 +3573,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 401,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3416,7 +3594,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 81
+          "stable_target_milestone": 81,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3436,7 +3615,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 84
+          "stable_target_milestone": 84,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3456,7 +3636,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 89
+          "stable_target_milestone": 89,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3465,7 +3646,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3485,7 +3667,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 96
+          "stable_target_milestone": 96,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3505,7 +3688,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 99
+          "stable_target_milestone": 99,
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi",
@@ -3514,7 +3698,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi",
@@ -3534,7 +3719,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 401,
           "is_active": true,
-          "stable_target_milestone": 86
+          "stable_target_milestone": 86,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -3553,7 +3739,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3561,7 +3748,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3569,7 +3757,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3577,7 +3766,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3585,7 +3775,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3593,7 +3784,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3601,7 +3793,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3609,7 +3802,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3617,7 +3811,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3625,7 +3820,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3633,7 +3829,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3641,7 +3838,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3649,7 +3847,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3657,7 +3856,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3665,7 +3865,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "jacuzzi64",
@@ -3673,7 +3874,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -3704,7 +3906,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 369,
           "is_active": true,
-          "stable_target_milestone": 73
+          "stable_target_milestone": 73,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -3723,7 +3926,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 409,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -3753,7 +3957,8 @@
           "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 273,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -3784,7 +3989,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 364,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "kukui",
@@ -3804,7 +4010,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 364,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "kukui",
@@ -3824,7 +4031,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 364,
           "is_active": true,
-          "stable_target_milestone": 80
+          "stable_target_milestone": 80,
+          "is_experimental": false
         },
         {
           "board_name": "kukui",
@@ -3844,7 +4052,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 364,
           "is_active": true,
-          "stable_target_milestone": 79
+          "stable_target_milestone": 79,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -3874,7 +4083,8 @@
           "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 252,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "lars",
@@ -3882,7 +4092,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 252,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -3913,7 +4124,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -3930,7 +4142,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -3950,7 +4163,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -3970,7 +4184,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -3979,7 +4194,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -3996,7 +4212,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -4013,7 +4230,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -4033,7 +4251,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "nami",
@@ -4050,7 +4269,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 351,
           "is_active": true,
-          "stable_target_milestone": 68
+          "stable_target_milestone": 68,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -4081,7 +4301,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 331,
           "is_active": true,
-          "stable_target_milestone": 66
+          "stable_target_milestone": 66,
+          "is_experimental": false
         },
         {
           "board_name": "nautilus",
@@ -4100,7 +4321,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 331,
           "is_active": true,
-          "stable_target_milestone": 66
+          "stable_target_milestone": 66,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -4130,7 +4352,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 359,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -4161,7 +4384,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 73
+          "stable_target_milestone": 73,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4169,7 +4393,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 354,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4188,7 +4413,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 73
+          "stable_target_milestone": 73,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4197,7 +4423,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4217,7 +4444,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4236,7 +4464,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 76
+          "stable_target_milestone": 76,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4255,7 +4484,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 79
+          "stable_target_milestone": 79,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4274,7 +4504,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 76
+          "stable_target_milestone": 76,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4294,7 +4525,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 76
+          "stable_target_milestone": 76,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4314,7 +4546,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 76
+          "stable_target_milestone": 76,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4333,7 +4566,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4352,7 +4586,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4372,7 +4607,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 75
+          "stable_target_milestone": 75,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4392,7 +4628,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 83
+          "stable_target_milestone": 83,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4410,7 +4647,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 78
+          "stable_target_milestone": 78,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4429,7 +4667,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 76
+          "stable_target_milestone": 76,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4448,7 +4687,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4468,7 +4708,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 83
+          "stable_target_milestone": 83,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4488,7 +4729,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 83
+          "stable_target_milestone": 83,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4508,7 +4750,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 104
+          "stable_target_milestone": 104,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4527,7 +4770,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 80
+          "stable_target_milestone": 80,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4546,7 +4790,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 80
+          "stable_target_milestone": 80,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4566,7 +4811,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4575,7 +4821,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4595,7 +4842,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 74
+          "stable_target_milestone": 74,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4615,7 +4863,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 80
+          "stable_target_milestone": 80,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4635,7 +4884,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 73
+          "stable_target_milestone": 73,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4655,7 +4905,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 73
+          "stable_target_milestone": 73,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4675,7 +4926,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4695,7 +4947,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4715,7 +4968,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4734,7 +4988,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4753,7 +5008,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4772,7 +5028,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4791,7 +5048,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 78
+          "stable_target_milestone": 78,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4810,7 +5068,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 78
+          "stable_target_milestone": 78,
+          "is_experimental": false
         },
         {
           "board_name": "octopus",
@@ -4830,7 +5089,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 354,
           "is_active": true,
-          "stable_target_milestone": 71
+          "stable_target_milestone": 71,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -4861,7 +5121,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 411,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "puff",
@@ -4881,7 +5142,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 411,
           "is_active": true,
-          "stable_target_milestone": 85
+          "stable_target_milestone": 85,
+          "is_experimental": false
         },
         {
           "board_name": "puff",
@@ -4901,7 +5163,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 411,
           "is_active": true,
-          "stable_target_milestone": 85
+          "stable_target_milestone": 85,
+          "is_experimental": false
         },
         {
           "board_name": "puff",
@@ -4921,7 +5184,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 411,
           "is_active": true,
-          "stable_target_milestone": 85
+          "stable_target_milestone": 85,
+          "is_experimental": false
         },
         {
           "board_name": "puff",
@@ -4941,7 +5205,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 411,
           "is_active": true,
-          "stable_target_milestone": 85
+          "stable_target_milestone": 85,
+          "is_experimental": false
         },
         {
           "board_name": "puff",
@@ -4961,7 +5226,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 411,
           "is_active": true,
-          "stable_target_milestone": 85
+          "stable_target_milestone": 85,
+          "is_experimental": false
         },
         {
           "board_name": "puff",
@@ -4981,7 +5247,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 411,
           "is_active": true,
-          "stable_target_milestone": 86
+          "stable_target_milestone": 86,
+          "is_experimental": false
         },
         {
           "board_name": "puff",
@@ -4989,7 +5256,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 411,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5008,7 +5276,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7146,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "puff-moblab",
@@ -5016,7 +5285,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7146,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -5046,7 +5316,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 291,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5077,7 +5348,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 365,
           "is_active": true,
-          "stable_target_milestone": 75
+          "stable_target_milestone": 75,
+          "is_experimental": false
         },
         {
           "board_name": "rammus",
@@ -5096,7 +5368,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 365,
           "is_active": true,
-          "stable_target_milestone": 72
+          "stable_target_milestone": 72,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5116,7 +5389,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 283,
           "is_active": true,
-          "stable_target_milestone": 57
+          "stable_target_milestone": 57,
+          "is_experimental": false
         },
         {
           "board_name": "reef",
@@ -5136,7 +5410,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 283,
           "is_active": true,
-          "stable_target_milestone": 57
+          "stable_target_milestone": 57,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5166,7 +5441,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 301,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5197,7 +5473,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 370,
           "is_active": true,
-          "stable_target_milestone": 75
+          "stable_target_milestone": 75,
+          "is_experimental": false
         },
         {
           "board_name": "sarien",
@@ -5206,7 +5483,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 370,
           "is_active": true,
-          "stable_target_milestone": 75
+          "stable_target_milestone": 75,
+          "is_experimental": false
         },
         {
           "board_name": "sarien",
@@ -5225,7 +5503,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 370,
           "is_active": true,
-          "stable_target_milestone": 75
+          "stable_target_milestone": 75,
+          "is_experimental": false
         },
         {
           "board_name": "sarien",
@@ -5234,7 +5513,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 370,
           "is_active": true,
-          "stable_target_milestone": 75
+          "stable_target_milestone": 75,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5264,7 +5544,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "sarien-kernelnext",
@@ -5272,7 +5553,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "sarien-kernelnext",
@@ -5291,7 +5573,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "sarien-kernelnext",
@@ -5299,7 +5582,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -5330,7 +5614,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 297,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         },
         {
           "board_name": "scarlet",
@@ -5339,7 +5624,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 297,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         },
         {
           "board_name": "scarlet",
@@ -5358,7 +5644,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 297,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -5385,7 +5672,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 259,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -5404,7 +5692,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 290,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "snappy",
@@ -5412,7 +5701,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 290,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "snappy",
@@ -5431,7 +5721,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 290,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -5450,7 +5741,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7179,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "snappy-kernelnext",
@@ -5458,7 +5750,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7179,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "snappy-kernelnext",
@@ -5477,7 +5770,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7179,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -5508,7 +5802,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 311,
           "is_active": true,
-          "stable_target_milestone": 65
+          "stable_target_milestone": 65,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5539,7 +5834,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 461,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "strongbad",
@@ -5559,7 +5855,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 461,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "strongbad",
@@ -5579,7 +5876,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 461,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         },
         {
           "board_name": "strongbad",
@@ -5599,7 +5897,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 461,
           "is_active": true,
-          "stable_target_milestone": 101
+          "stable_target_milestone": 101,
+          "is_experimental": false
         },
         {
           "board_name": "strongbad",
@@ -5619,7 +5918,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 461,
           "is_active": true,
-          "stable_target_milestone": 97
+          "stable_target_milestone": 97,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5639,7 +5939,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true,
-          "stable_target_milestone": 101
+          "stable_target_milestone": 101,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor",
@@ -5659,7 +5960,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor",
@@ -5679,7 +5981,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true,
-          "stable_target_milestone": 89
+          "stable_target_milestone": 89,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor",
@@ -5699,7 +6002,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true,
-          "stable_target_milestone": 100
+          "stable_target_milestone": 100,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor",
@@ -5719,7 +6023,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor",
@@ -5727,7 +6032,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 418,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -5746,7 +6052,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 462,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor64",
@@ -5765,7 +6072,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 462,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor64",
@@ -5773,7 +6081,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 462,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor64",
@@ -5781,7 +6090,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 462,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor64",
@@ -5789,7 +6099,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 462,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor64",
@@ -5797,7 +6108,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 462,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "trogdor64",
@@ -5805,7 +6117,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 462,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 103,
@@ -5836,7 +6149,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 93
+          "stable_target_milestone": 93,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5856,7 +6170,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5876,7 +6191,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5896,7 +6212,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 87
+          "stable_target_milestone": 87,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5916,7 +6233,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5936,7 +6254,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 89
+          "stable_target_milestone": 89,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5956,7 +6275,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5964,7 +6284,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -5984,7 +6305,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6004,7 +6326,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6012,7 +6335,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6020,7 +6344,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6028,7 +6353,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6036,7 +6362,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6044,7 +6371,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6052,7 +6380,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6060,7 +6389,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6080,7 +6410,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6100,7 +6431,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 93
+          "stable_target_milestone": 93,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6120,7 +6452,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6128,7 +6461,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6147,7 +6481,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6155,7 +6490,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "volteer",
@@ -6175,7 +6511,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 405,
           "is_active": true,
-          "stable_target_milestone": 89
+          "stable_target_milestone": 89,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
@@ -6206,7 +6543,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 86
+          "stable_target_milestone": 86,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6226,7 +6564,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6246,7 +6585,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 91
+          "stable_target_milestone": 91,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6266,7 +6606,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6286,7 +6627,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6306,7 +6648,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 92
+          "stable_target_milestone": 92,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6326,7 +6669,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 86
+          "stable_target_milestone": 86,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6334,7 +6678,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 381,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6342,7 +6687,8 @@
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 381,
-          "is_active": true
+          "is_active": true,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6362,7 +6708,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6382,7 +6729,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6402,7 +6750,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 90
+          "stable_target_milestone": 90,
+          "is_experimental": false
         },
         {
           "board_name": "zork",
@@ -6422,7 +6771,8 @@
           "release_builder_test_pool": "bvt",
           "board_id": 381,
           "is_active": true,
-          "stable_target_milestone": 88
+          "stable_target_milestone": 88,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 107,
