@@ -12309,7 +12309,7 @@
   },
   "hatch-android-rvc-pre-flight-branch": {
     "_template": "pre_flight_branch",
-    "android_import_branch": "git_rvc-arc",
+    "android_import_branch": "git_rvc-arc-m108",
     "android_package": "android-vm-rvc",
     "android_rev": "latest_release",
     "boards": [
@@ -12321,7 +12321,7 @@
   },
   "hatch-android-rvc-pre-flight-branch-tryjob": {
     "_template": "pre_flight_branch",
-    "android_import_branch": "git_rvc-arc",
+    "android_import_branch": "git_rvc-arc-m108",
     "android_package": "android-vm-rvc",
     "android_rev": "latest_release",
     "boards": [
@@ -14467,7 +14467,7 @@
   },
   "kevin-android-pi-pre-flight-branch": {
     "_template": "pre_flight_branch",
-    "android_import_branch": "git_pi-arc",
+    "android_import_branch": "git_pi-arc-m108",
     "android_package": "android-container-pi",
     "android_rev": "latest_release",
     "boards": [
@@ -14479,7 +14479,7 @@
   },
   "kevin-android-pi-pre-flight-branch-tryjob": {
     "_template": "pre_flight_branch",
-    "android_import_branch": "git_pi-arc",
+    "android_import_branch": "git_pi-arc-m108",
     "android_package": "android-container-pi",
     "android_rev": "latest_release",
     "boards": [
