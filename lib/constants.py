@@ -1092,6 +1092,7 @@ MINIOS_KEYBLOCK = 'minios_kernel.keyblock'
 # LegacyRelease allowlist.
 # TODO(b/238925754): Delete when Rubik is fully rolled out.
 LEGACY_RELEASE_ALLOWLIST = [
+    'ambassador-release',
     'asuka-release',
     'asurada-release',
     'atlas-release',
@@ -1111,7 +1112,9 @@ LEGACY_RELEASE_ALLOWLIST = [
     'draco-release',
     'drallion-release',
     'elm-release',
+    'endeavour-release',
     'eve-release',
+    'excelsior-release',
     'fizz-release',
     'fizz-cfm-release',
     'grunt-release',
@@ -1120,6 +1123,7 @@ LEGACY_RELEASE_ALLOWLIST = [
     'hatch-release',
     'herobrine-release',
     'jacuzzi-release',
+    'kalista-cfm-release',
     'kalista-release',
     'keeby-release',
     'kevin-release',
