@@ -551,8 +551,8 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
     """Schedule AU tests on applicable_models, if any.
 
     Note that if a config has no applicable models then no tests will be
-    scheduled for it. N2N configs never have applicable_models so they will run
-    on everything.
+    scheduled for it. N2N and stepping stone configs never have
+    applicable_models so they will run on everything.
 
     Args:
       archive_board: The board we schedule against.
@@ -563,19 +563,32 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
     """
     stages = []
     for payload_config in payload_configs:
-      # N2N payloads do not have applicable_models so just schedule on ALL
-      # models that should be running tests in the lab.
-      if payload_config.payload_type == paygen_build_lib.PAYLOAD_TYPE_N2N:
-        stages += self._ScheduleForModels(archive_board, archive_build, models,
-                                          [payload_config], suite_name)
-        continue
+      # N2N and stepping stone payloads do not have applicable_models so
+      # just schedule on ALL models that should be running tests in the
+      # lab.
+      if payload_config.payload_type in (
+          paygen_build_lib.PAYLOAD_TYPE_N2N,
+          paygen_build_lib.PAYLOAD_TYPE_STEPPING_STONE,
+      ):
+          stages += self._ScheduleForModels(
+              archive_board,
+              archive_build,
+              models,
+              [payload_config],
+              suite_name,
+          )
+          continue
       applicable_models = []
       for m in models:
-        if m.name in (payload_config.applicable_models or []):
-          applicable_models.append(m)
-      stages += self._ScheduleForModels(archive_board, archive_build,
-                                        applicable_models, [payload_config],
-                                        suite_name)
+          if m.name in (payload_config.applicable_models or []):
+              applicable_models.append(m)
+      stages += self._ScheduleForModels(
+          archive_board,
+          archive_build,
+          applicable_models,
+          [payload_config],
+          suite_name,
+      )
     return stages
 
 
