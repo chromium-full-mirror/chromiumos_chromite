@@ -3350,6 +3350,15 @@
           "board_id": 7238,
           "is_active": true,
           "is_experimental": false
+        },
+        {
+          "board_name": "herobrine-userdebug",
+          "name": "zombie",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7238,
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 105,
