@@ -341,6 +341,10 @@ class PaygenStageTest(
         self.payload_config3.payload_type = paygen_build_lib.PAYLOAD_TYPE_OMAHA
         self.payload_config4 = mock.MagicMock()
         self.payload_config4.payload_type = paygen_build_lib.PAYLOAD_TYPE_N2N
+        self.payload_config5 = mock.MagicMock()
+        self.payload_config5.payload_type = (
+            paygen_build_lib.PAYLOAD_TYPE_STEPPING_STONE
+        )
 
         instanceMock.CreatePayloads.side_effect = iter(
             [
@@ -353,6 +357,7 @@ class PaygenStageTest(
                         self.payload_config2,
                         self.payload_config3,
                         self.payload_config4,
+                        self.payload_config5,
                     ],
                 )
             ]
@@ -513,6 +518,7 @@ class PaygenStageTest(
                     self.payload_config2,
                     self.payload_config3,
                     self.payload_config4,
+                    self.payload_config5,
                 ],
             )
 
@@ -554,6 +560,7 @@ class PaygenStageTest(
                     self.payload_config2,
                     self.payload_config3,
                     self.payload_config4,
+                    self.payload_config5,
                 ],
             )
 
@@ -607,6 +614,7 @@ class PaygenStageTest(
                     self.payload_config2,
                     self.payload_config3,
                     self.payload_config4,
+                    self.payload_config5,
                 ],
             )
 
@@ -639,6 +647,7 @@ class PaygenStageTest(
                     self.payload_config2,
                     self.payload_config3,
                     self.payload_config4,
+                    self.payload_config5,
                 ],
             )
 
@@ -649,8 +658,10 @@ class PaygenStageTest(
         # model3 does not get scheduled since config2 has type OMAHA.
         # payload_config3 has type OMAHA with no applicable models so doesn't get
         # scheduled.
-        # payload_config4 has type N2N which never have applicable_models but
+        # payload_config4 has type N2N and which never have applicable_models but
         # should get scheduled on all ['au'] models.
+        # payload_config5 has type STEPPING_STONE which also never has
+        # applicable models but should get scheduled on all ['au'] models too.
         self._run.config.models = [
             config_lib.ModelTestConfig("model1", "model1", ["au"]),
             config_lib.ModelTestConfig("model2", "model1", ["au"]),
@@ -665,10 +676,8 @@ class PaygenStageTest(
                 "foo", "foo-board", "foo-version", True, False, False
             )
             # 2 tests scheduled for FSI, 1 test scheduled for OMAHA,
-            # 2 tests scheduled for N2N.
-            parallel_tests.assert_called_once_with(
-                [mock.ANY, mock.ANY, mock.ANY, mock.ANY, mock.ANY]
-            )
+            # 2 tests scheduled for N2N, 2 tests scheduled for STEPPING_STONE.
+            parallel_tests.assert_called_once_with([mock.ANY] * 7)
 
     def testPayloadBuildSetCorrectly(self):
         """Test that payload build is passed correctly to PaygenBuild."""
