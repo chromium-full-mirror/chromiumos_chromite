@@ -770,7 +770,7 @@
         {
           "board_name": "brya",
           "name": "skolas",
-          "cq_test_enabled": false,
+          "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
