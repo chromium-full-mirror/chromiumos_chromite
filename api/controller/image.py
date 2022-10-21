@@ -335,7 +335,10 @@ def Create(
                 factory_shim_dir = os.path.dirname(
                     factory_result.images[constants.IMAGE_TYPE_FACTORY_SHIM]
                 )
-                image.create_netboot_kernel(board, factory_shim_dir)
+                try:
+                    image.create_netboot_kernel(board, factory_shim_dir)
+                except cros_build_lib.RunCommandError as e:
+                    logging.warning(e)
             else:
                 cros_build_lib.Die(
                     "_RECOVERY_ID and _NETBOOT_ID are the only mod_image_type."
@@ -454,6 +457,35 @@ def _ParseCreateBuildConfig(input_proto):
         symlink=LOCATION_CORE,
         base_is_recovery=base_is_recovery,
     )
+
+
+@faux.all_empty
+@validate.require("build_target.name")
+@validate.validation_complete
+def CreateNetboot(input_proto, _output_proto, _config):
+    """Create a netboot kernel.
+
+    The netboot kernel currently needs network access because it's not building
+    everything in build_packages like other images. Once that has been remedied,
+    using Create to build the netboot kernel will be the expected workflow, and
+    this endpoint will be deprecated (b/255397725).
+    """
+    build_target = controller_util.ParseBuildTarget(input_proto.build_target)
+    if input_proto.factory_shim_path:
+        factory_shim_location = Path(input_proto.factory_shim_path).parent
+    else:
+        factory_shim_location = Path(
+            image_lib.GetLatestImageLink(
+                build_target.name, pointer=LOCATION_FACTORY
+            )
+        )
+    if not factory_shim_location.exists():
+        logging.warning(
+            "Factory shim directory does not exist. Skipping netboot creation."
+        )
+        return
+
+    image.create_netboot_kernel(build_target.name, str(factory_shim_location))
 
 
 def _SignerTestResponse(_input_proto, output_proto, _config):
