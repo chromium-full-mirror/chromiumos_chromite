@@ -321,6 +321,10 @@ class LinkageTest(image_test_lib.ImageTestCase):
                     "camera.qcom.core.so",
                     # libasound_module_ctl_ipaudio.so dep outside normal search paths.
                     "libasound_module_pcm_ipaudio.so",
+                    # libfwupdutil.so dep outside normal search paths.
+                    "libfwupdutil.so",
+                    # libfwupdengine.so dep outside normal search paths.
+                    "libfwupdengine.so",
                 ]:
                     continue
 
