@@ -3222,6 +3222,15 @@
         },
         {
           "board_name": "hana",
+          "name": "hanawl",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 289,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "hana",
           "name": "maple",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
