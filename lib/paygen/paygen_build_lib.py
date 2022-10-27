@@ -1182,7 +1182,7 @@ class PaygenBuild(object):
 
         # We create related files for each payload that have the payload name
         # plus these extensions. Skip these files.
-        NOT_PAYLOAD = (".json", ".log")
+        NOT_PAYLOAD = (".json", ".log", ".intoto.jsonl", "attestation")
         full_test_payloads = [
             u
             for u in payload_candidate
