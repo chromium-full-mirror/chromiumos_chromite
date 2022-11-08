@@ -163,7 +163,6 @@
     guybrush-release
     hana-release
     hatch-release
-    herobrine-release
     herobrine-userdebug-release
     jacuzzi-release
     jacuzzi64-release
@@ -581,11 +580,6 @@
   hatch-llvm-toolchain-tryjob
   hatch-payloads-tryjob
   hatch-release-tryjob
-  herobrine-full-tryjob
-  herobrine-llvm-next-toolchain-tryjob
-  herobrine-llvm-toolchain-tryjob
-  herobrine-payloads-tryjob
-  herobrine-release-tryjob
   herobrine-userdebug-full-tryjob
   herobrine-userdebug-llvm-next-toolchain-tryjob
   herobrine-userdebug-llvm-toolchain-tryjob
@@ -717,7 +711,6 @@
     guybrush-release-tryjob
     hana-release-tryjob
     hatch-release-tryjob
-    herobrine-release-tryjob
     herobrine-userdebug-release-tryjob
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
