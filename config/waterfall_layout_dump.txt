@@ -115,145 +115,79 @@
 
 == release ==
   master-release
-    adlnrvp-release
-    adlrvp-release
     ambassador-release
     asuka-release
-    asurada-connectivitynext-release
     asurada-release
     atlas-kernelnext-release
     atlas-release
-    aurora-borealis-release
-    betty-arc-r-release
-    betty-arc-t-release
-    betty-arc-u-release
-    betty-kernelnext-release
-    betty-pi-arc-release
     betty-release
     bob-release
     brask-release
-    brya-arc-t-release
-    brya-hibernate-release
-    brya-kernelnext-release
-    brya-lvm-stateful-release
     brya-manatee-release
-    brya-pkvm-release
     brya-release
-    brya-zephyr-release
     bubs-release
-    caroline-ndktranslation-release
     caroline-release
     cave-release
     chell-release
     cherry-release
     cherry64-release
-    coral-arc-r-release
     coral-release
     corsola-release
     corsola64-release
     dedede-release
     draco-release
     drallion-release
-    elm-kernelnext-release
     elm-release
     endeavour-release
-    eve-arc-r-release
-    eve-arm64-release
     eve-release
-    eve-userdebug-release
     excelsior-release
     fizz-cfm-release
     fizz-labstation-release
     fizz-moblab-release
     fizz-release
     geralt-release
-    goroh-release
-    grunt-arc-r-release
-    grunt-kernelnext-release
     grunt-release
-    guado-macrophage-release
     guado_labstation-release
-    guybrush-kernelnext-release
     guybrush-release
-    hana-kernelnext-release
     hana-release
-    hatch-arc-r-userdebug-release
-    hatch-arc-t-release
-    hatch-connectivitynext-release
-    hatch-kernelnext-release
     hatch-release
     herobrine-angle-release
-    herobrine-kernelnext-release
-    herobrine-release
     herobrine-userdebug-release
-    jacuzzi-kernelnext-release
     jacuzzi-release
     jacuzzi64-release
     kalista-cfm-release
     kalista-release
     kevin-release
-    kevin-userdebug-release
-    kevin64-release
-    kukui-arc-r-release
-    kukui-kernelnext-release
     kukui-release
     lars-release
-    majolica-release
-    nami-kernelnext-release
     nami-release
     nautilus-release
     nissa-release
-    nocturne-kernelnext-release
     nocturne-release
     novato-arc64-release
     novato-release
-    octopus-arc-r-release
-    octopus-kernelnext-release
     octopus-release
-    palkia-release
     puff-moblab-release
     puff-release
     pyro-release
-    rammus-arc-r-userdebug-release
     rammus-release
-    reef-arc-r-release
     reef-release
     reven-release
     reven-vmtest-release
-    rex-release
     sand-release
     sarien-kernelnext-release
     sarien-release
     scarlet-release
-    senor-release
     sentry-release
-    shotzo-release
-    skyrim-chausie-release
-    skyrim-kernelnext-release
-    skyrim-release
     snappy-kernelnext-release
     snappy-release
-    soraka-libcamera-release
     soraka-release
-    strongbad-kernelnext-release
     strongbad-release
-    strongbad-userdebug-release
-    strongbad64-release
     tael-release
     tatl-release
-    trogdor-arc-r-release
-    trogdor-connectivitynext-release
-    trogdor-kernelnext-release
     trogdor-release
-    trogdor-userdebug-release
-    trogdor-zephyr-release
     trogdor64-release
-    volteer-kernelnext-release
-    volteer-manatee-release
     volteer-release
-    zork-arc-r-release
-    zork-connectivitynext-release
-    zork-kernelnext-release
     zork-release
   master-release-basic
     atlas-release-basic
@@ -267,16 +201,6 @@
   luci-scheduler-updater
 
 == tryjob ==
-  adlnrvp-full-tryjob
-  adlnrvp-llvm-next-toolchain-tryjob
-  adlnrvp-llvm-toolchain-tryjob
-  adlnrvp-payloads-tryjob
-  adlnrvp-release-tryjob
-  adlrvp-full-tryjob
-  adlrvp-llvm-next-toolchain-tryjob
-  adlrvp-llvm-toolchain-tryjob
-  adlrvp-payloads-tryjob
-  adlrvp-release-tryjob
   ambassador-factory-ambassador-14265.B-factorybranch-tryjob
   ambassador-full-tryjob
   ambassador-llvm-next-toolchain-tryjob
@@ -314,11 +238,6 @@
   asuka-llvm-toolchain-tryjob
   asuka-payloads-tryjob
   asuka-release-tryjob
-  asurada-connectivitynext-full-tryjob
-  asurada-connectivitynext-llvm-next-toolchain-tryjob
-  asurada-connectivitynext-llvm-toolchain-tryjob
-  asurada-connectivitynext-payloads-tryjob
-  asurada-connectivitynext-release-tryjob
   asurada-factory-asurada-13929.B-factorybranch-tryjob
   asurada-full-tryjob
   asurada-llvm-next-toolchain-tryjob
@@ -338,11 +257,6 @@
   atlas-payloads-tryjob
   atlas-release-basic-tryjob
   atlas-release-tryjob
-  aurora-borealis-full-tryjob
-  aurora-borealis-llvm-next-toolchain-tryjob
-  aurora-borealis-llvm-toolchain-tryjob
-  aurora-borealis-payloads-tryjob
-  aurora-borealis-release-tryjob
   beaglebone-full-tryjob
   beaglebone-llvm-next-toolchain-tryjob
   beaglebone-llvm-toolchain-tryjob
@@ -351,36 +265,11 @@
   beaglebone_servo-llvm-next-toolchain-tryjob
   beaglebone_servo-llvm-toolchain-tryjob
   beaglebone_servo-release-tryjob
-  betty-arc-r-full-tryjob
-  betty-arc-r-llvm-next-toolchain-tryjob
-  betty-arc-r-llvm-toolchain-tryjob
-  betty-arc-r-payloads-tryjob
-  betty-arc-r-release-tryjob
-  betty-arc-t-full-tryjob
-  betty-arc-t-llvm-next-toolchain-tryjob
-  betty-arc-t-llvm-toolchain-tryjob
-  betty-arc-t-payloads-tryjob
-  betty-arc-t-release-tryjob
-  betty-arc-u-full-tryjob
-  betty-arc-u-llvm-next-toolchain-tryjob
-  betty-arc-u-llvm-toolchain-tryjob
-  betty-arc-u-payloads-tryjob
-  betty-arc-u-release-tryjob
   betty-asan-tryjob
   betty-full-tryjob
-  betty-kernelnext-full-tryjob
-  betty-kernelnext-llvm-next-toolchain-tryjob
-  betty-kernelnext-llvm-toolchain-tryjob
-  betty-kernelnext-payloads-tryjob
-  betty-kernelnext-release-tryjob
   betty-llvm-next-toolchain-tryjob
   betty-llvm-toolchain-tryjob
   betty-payloads-tryjob
-  betty-pi-arc-full-tryjob
-  betty-pi-arc-llvm-next-toolchain-tryjob
-  betty-pi-arc-llvm-toolchain-tryjob
-  betty-pi-arc-payloads-tryjob
-  betty-pi-arc-release-tryjob
   betty-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
   bob-full-tryjob
@@ -394,48 +283,18 @@
   brask-llvm-toolchain-tryjob
   brask-payloads-tryjob
   brask-release-tryjob
-  brya-arc-t-full-tryjob
-  brya-arc-t-llvm-next-toolchain-tryjob
-  brya-arc-t-llvm-toolchain-tryjob
-  brya-arc-t-payloads-tryjob
-  brya-arc-t-release-tryjob
   brya-factory-brya-14517.B-factorybranch-tryjob
   brya-factory-brya-14909.124.B-factorybranch-tryjob
   brya-full-tryjob
-  brya-hibernate-full-tryjob
-  brya-hibernate-llvm-next-toolchain-tryjob
-  brya-hibernate-llvm-toolchain-tryjob
-  brya-hibernate-payloads-tryjob
-  brya-hibernate-release-tryjob
-  brya-kernelnext-full-tryjob
-  brya-kernelnext-llvm-next-toolchain-tryjob
-  brya-kernelnext-llvm-toolchain-tryjob
-  brya-kernelnext-payloads-tryjob
-  brya-kernelnext-release-tryjob
   brya-llvm-next-toolchain-tryjob
   brya-llvm-toolchain-tryjob
-  brya-lvm-stateful-full-tryjob
-  brya-lvm-stateful-llvm-next-toolchain-tryjob
-  brya-lvm-stateful-llvm-toolchain-tryjob
-  brya-lvm-stateful-payloads-tryjob
-  brya-lvm-stateful-release-tryjob
   brya-manatee-full-tryjob
   brya-manatee-llvm-next-toolchain-tryjob
   brya-manatee-llvm-toolchain-tryjob
   brya-manatee-payloads-tryjob
   brya-manatee-release-tryjob
   brya-payloads-tryjob
-  brya-pkvm-full-tryjob
-  brya-pkvm-llvm-next-toolchain-tryjob
-  brya-pkvm-llvm-toolchain-tryjob
-  brya-pkvm-payloads-tryjob
-  brya-pkvm-release-tryjob
   brya-release-tryjob
-  brya-zephyr-full-tryjob
-  brya-zephyr-llvm-next-toolchain-tryjob
-  brya-zephyr-llvm-toolchain-tryjob
-  brya-zephyr-payloads-tryjob
-  brya-zephyr-release-tryjob
   bubs-full-tryjob
   bubs-llvm-next-toolchain-tryjob
   bubs-llvm-toolchain-tryjob
@@ -445,11 +304,6 @@
   caroline-full-tryjob
   caroline-llvm-next-toolchain-tryjob
   caroline-llvm-toolchain-tryjob
-  caroline-ndktranslation-full-tryjob
-  caroline-ndktranslation-llvm-next-toolchain-tryjob
-  caroline-ndktranslation-llvm-toolchain-tryjob
-  caroline-ndktranslation-payloads-tryjob
-  caroline-ndktranslation-release-tryjob
   caroline-payloads-tryjob
   caroline-release-tryjob
   cave-factory-glados-7828.B-factorybranch-tryjob
@@ -480,11 +334,6 @@
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
   config-updater-tryjob
-  coral-arc-r-full-tryjob
-  coral-arc-r-llvm-next-toolchain-tryjob
-  coral-arc-r-llvm-toolchain-tryjob
-  coral-arc-r-payloads-tryjob
-  coral-arc-r-release-tryjob
   coral-factory-coral-10122.B-factorybranch-tryjob
   coral-full-tryjob
   coral-llvm-next-toolchain-tryjob
@@ -528,11 +377,6 @@
   drallion-release-tryjob
   elm-factory-oak-8182.B-factorybranch-tryjob
   elm-full-tryjob
-  elm-kernelnext-full-tryjob
-  elm-kernelnext-llvm-next-toolchain-tryjob
-  elm-kernelnext-llvm-toolchain-tryjob
-  elm-kernelnext-payloads-tryjob
-  elm-kernelnext-release-tryjob
   elm-llvm-next-toolchain-tryjob
   elm-llvm-toolchain-tryjob
   elm-payloads-tryjob
@@ -543,16 +387,6 @@
   endeavour-llvm-toolchain-tryjob
   endeavour-payloads-tryjob
   endeavour-release-tryjob
-  eve-arc-r-full-tryjob
-  eve-arc-r-llvm-next-toolchain-tryjob
-  eve-arc-r-llvm-toolchain-tryjob
-  eve-arc-r-payloads-tryjob
-  eve-arc-r-release-tryjob
-  eve-arm64-full-tryjob
-  eve-arm64-llvm-next-toolchain-tryjob
-  eve-arm64-llvm-toolchain-tryjob
-  eve-arm64-payloads-tryjob
-  eve-arm64-release-tryjob
   eve-factory-eve-9667.B-factorybranch-tryjob
   eve-full-tryjob
   eve-llvm-next-toolchain-tryjob
@@ -562,11 +396,6 @@
   eve-payloads-tryjob
   eve-release-basic-tryjob
   eve-release-tryjob
-  eve-userdebug-full-tryjob
-  eve-userdebug-llvm-next-toolchain-tryjob
-  eve-userdebug-llvm-toolchain-tryjob
-  eve-userdebug-payloads-tryjob
-  eve-userdebug-release-tryjob
   excelsior-factory-excelsior-12812.B-factorybranch-tryjob
   excelsior-full-tryjob
   excelsior-llvm-next-toolchain-tryjob
@@ -732,35 +561,15 @@
   glados-llvm-toolchain-tryjob
   glados-payloads-tryjob
   glados-release-tryjob
-  goroh-full-tryjob
-  goroh-llvm-next-toolchain-tryjob
-  goroh-llvm-toolchain-tryjob
-  goroh-payloads-tryjob
-  goroh-release-tryjob
   gru-factory-gru-9017.B-factorybranch-tryjob
-  grunt-arc-r-full-tryjob
-  grunt-arc-r-llvm-next-toolchain-tryjob
-  grunt-arc-r-llvm-toolchain-tryjob
-  grunt-arc-r-payloads-tryjob
-  grunt-arc-r-release-tryjob
   grunt-factory-grunt-11164.135.B-factorybranch-tryjob
   grunt-factory-grunt-11164.B-factorybranch-tryjob
   grunt-full-tryjob
-  grunt-kernelnext-full-tryjob
-  grunt-kernelnext-llvm-next-toolchain-tryjob
-  grunt-kernelnext-llvm-toolchain-tryjob
-  grunt-kernelnext-payloads-tryjob
-  grunt-kernelnext-release-tryjob
   grunt-llvm-next-toolchain-tryjob
   grunt-llvm-toolchain-tryjob
   grunt-payloads-tryjob
   grunt-release-basic-tryjob
   grunt-release-tryjob
-  guado-macrophage-full-tryjob
-  guado-macrophage-llvm-next-toolchain-tryjob
-  guado-macrophage-llvm-toolchain-tryjob
-  guado-macrophage-payloads-tryjob
-  guado-macrophage-release-tryjob
   guado_labstation-full-tryjob
   guado_labstation-llvm-next-toolchain-tryjob
   guado_labstation-llvm-toolchain-tryjob
@@ -768,48 +577,18 @@
   guado_labstation-release-tryjob
   guybrush-factory-guybrush-14908.B-factorybranch-tryjob
   guybrush-full-tryjob
-  guybrush-kernelnext-full-tryjob
-  guybrush-kernelnext-llvm-next-toolchain-tryjob
-  guybrush-kernelnext-llvm-toolchain-tryjob
-  guybrush-kernelnext-payloads-tryjob
-  guybrush-kernelnext-release-tryjob
   guybrush-llvm-next-toolchain-tryjob
   guybrush-llvm-toolchain-tryjob
   guybrush-payloads-tryjob
   guybrush-release-tryjob
   hana-factory-oak-8182.B-factorybranch-tryjob
   hana-full-tryjob
-  hana-kernelnext-full-tryjob
-  hana-kernelnext-llvm-next-toolchain-tryjob
-  hana-kernelnext-llvm-toolchain-tryjob
-  hana-kernelnext-payloads-tryjob
-  hana-kernelnext-release-tryjob
   hana-llvm-next-toolchain-tryjob
   hana-llvm-toolchain-tryjob
   hana-payloads-tryjob
   hana-release-tryjob
-  hatch-arc-r-userdebug-full-tryjob
-  hatch-arc-r-userdebug-llvm-next-toolchain-tryjob
-  hatch-arc-r-userdebug-llvm-toolchain-tryjob
-  hatch-arc-r-userdebug-payloads-tryjob
-  hatch-arc-r-userdebug-release-tryjob
-  hatch-arc-t-full-tryjob
-  hatch-arc-t-llvm-next-toolchain-tryjob
-  hatch-arc-t-llvm-toolchain-tryjob
-  hatch-arc-t-payloads-tryjob
-  hatch-arc-t-release-tryjob
-  hatch-connectivitynext-full-tryjob
-  hatch-connectivitynext-llvm-next-toolchain-tryjob
-  hatch-connectivitynext-llvm-toolchain-tryjob
-  hatch-connectivitynext-payloads-tryjob
-  hatch-connectivitynext-release-tryjob
   hatch-factory-hatch-12692.B-factorybranch-tryjob
   hatch-full-tryjob
-  hatch-kernelnext-full-tryjob
-  hatch-kernelnext-llvm-next-toolchain-tryjob
-  hatch-kernelnext-llvm-toolchain-tryjob
-  hatch-kernelnext-payloads-tryjob
-  hatch-kernelnext-release-tryjob
   hatch-llvm-next-toolchain-tryjob
   hatch-llvm-toolchain-tryjob
   hatch-payloads-tryjob
@@ -819,16 +598,6 @@
   herobrine-angle-llvm-toolchain-tryjob
   herobrine-angle-payloads-tryjob
   herobrine-angle-release-tryjob
-  herobrine-full-tryjob
-  herobrine-kernelnext-full-tryjob
-  herobrine-kernelnext-llvm-next-toolchain-tryjob
-  herobrine-kernelnext-llvm-toolchain-tryjob
-  herobrine-kernelnext-payloads-tryjob
-  herobrine-kernelnext-release-tryjob
-  herobrine-llvm-next-toolchain-tryjob
-  herobrine-llvm-toolchain-tryjob
-  herobrine-payloads-tryjob
-  herobrine-release-tryjob
   herobrine-userdebug-full-tryjob
   herobrine-userdebug-llvm-next-toolchain-tryjob
   herobrine-userdebug-llvm-toolchain-tryjob
@@ -837,11 +606,6 @@
   jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
   jacuzzi-factory-kukui-14374.B-factorybranch-tryjob
   jacuzzi-full-tryjob
-  jacuzzi-kernelnext-full-tryjob
-  jacuzzi-kernelnext-llvm-next-toolchain-tryjob
-  jacuzzi-kernelnext-llvm-toolchain-tryjob
-  jacuzzi-kernelnext-payloads-tryjob
-  jacuzzi-kernelnext-release-tryjob
   jacuzzi-llvm-next-toolchain-tryjob
   jacuzzi-llvm-toolchain-tryjob
   jacuzzi-payloads-tryjob
@@ -875,29 +639,9 @@
   kevin-llvm-tot-toolchain-tryjob
   kevin-payloads-tryjob
   kevin-release-tryjob
-  kevin-userdebug-full-tryjob
-  kevin-userdebug-llvm-next-toolchain-tryjob
-  kevin-userdebug-llvm-toolchain-tryjob
-  kevin-userdebug-payloads-tryjob
-  kevin-userdebug-release-tryjob
-  kevin64-full-tryjob
-  kevin64-llvm-next-toolchain-tryjob
-  kevin64-llvm-toolchain-tryjob
-  kevin64-payloads-tryjob
-  kevin64-release-tryjob
-  kukui-arc-r-full-tryjob
-  kukui-arc-r-llvm-next-toolchain-tryjob
-  kukui-arc-r-llvm-toolchain-tryjob
-  kukui-arc-r-payloads-tryjob
-  kukui-arc-r-release-tryjob
   kukui-factory-kukui-12587.B-factorybranch-tryjob
   kukui-factory-kukui-14374.B-factorybranch-tryjob
   kukui-full-tryjob
-  kukui-kernelnext-full-tryjob
-  kukui-kernelnext-llvm-next-toolchain-tryjob
-  kukui-kernelnext-llvm-toolchain-tryjob
-  kukui-kernelnext-payloads-tryjob
-  kukui-kernelnext-release-tryjob
   kukui-llvm-next-toolchain-tryjob
   kukui-llvm-toolchain-tryjob
   kukui-payloads-tryjob
@@ -942,7 +686,6 @@
     hana-full-tryjob
     jacuzzi-full-tryjob
     kevin-full-tryjob
-    kevin64-full-tryjob
     octopus-full-tryjob
     tael-full-tryjob
     tatl-full-tryjob
@@ -952,155 +695,84 @@
     eve-release-basic-tryjob
     grunt-release-basic-tryjob
   master-release-tryjob
-    adlnrvp-release-tryjob
-    adlrvp-release-tryjob
     ambassador-release-tryjob
     asuka-release-tryjob
-    asurada-connectivitynext-release-tryjob
     asurada-release-tryjob
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
-    aurora-borealis-release-tryjob
-    betty-arc-r-release-tryjob
-    betty-arc-t-release-tryjob
-    betty-arc-u-release-tryjob
-    betty-kernelnext-release-tryjob
-    betty-pi-arc-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
     brask-release-tryjob
-    brya-arc-t-release-tryjob
-    brya-hibernate-release-tryjob
-    brya-kernelnext-release-tryjob
-    brya-lvm-stateful-release-tryjob
     brya-manatee-release-tryjob
-    brya-pkvm-release-tryjob
     brya-release-tryjob
-    brya-zephyr-release-tryjob
     bubs-release-tryjob
-    caroline-ndktranslation-release-tryjob
     caroline-release-tryjob
     cave-release-tryjob
     chell-release-tryjob
     cherry-release-tryjob
     cherry64-release-tryjob
-    coral-arc-r-release-tryjob
     coral-release-tryjob
     corsola-release-tryjob
     corsola64-release-tryjob
     dedede-release-tryjob
     draco-release-tryjob
     drallion-release-tryjob
-    elm-kernelnext-release-tryjob
     elm-release-tryjob
     endeavour-release-tryjob
-    eve-arc-r-release-tryjob
-    eve-arm64-release-tryjob
     eve-release-tryjob
-    eve-userdebug-release-tryjob
     excelsior-release-tryjob
     fizz-cfm-release-tryjob
     fizz-labstation-release-tryjob
     fizz-moblab-release-tryjob
     fizz-release-tryjob
     geralt-release-tryjob
-    goroh-release-tryjob
-    grunt-arc-r-release-tryjob
-    grunt-kernelnext-release-tryjob
     grunt-release-tryjob
-    guado-macrophage-release-tryjob
     guado_labstation-release-tryjob
-    guybrush-kernelnext-release-tryjob
     guybrush-release-tryjob
-    hana-kernelnext-release-tryjob
     hana-release-tryjob
-    hatch-arc-r-userdebug-release-tryjob
-    hatch-arc-t-release-tryjob
-    hatch-connectivitynext-release-tryjob
-    hatch-kernelnext-release-tryjob
     hatch-release-tryjob
     herobrine-angle-release-tryjob
-    herobrine-kernelnext-release-tryjob
-    herobrine-release-tryjob
     herobrine-userdebug-release-tryjob
-    jacuzzi-kernelnext-release-tryjob
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
     kalista-cfm-release-tryjob
     kalista-release-tryjob
     kevin-release-tryjob
-    kevin-userdebug-release-tryjob
-    kevin64-release-tryjob
-    kukui-arc-r-release-tryjob
-    kukui-kernelnext-release-tryjob
     kukui-release-tryjob
     lars-release-tryjob
-    majolica-release-tryjob
-    nami-kernelnext-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
     nissa-release-tryjob
-    nocturne-kernelnext-release-tryjob
     nocturne-release-tryjob
     novato-arc64-release-tryjob
     novato-release-tryjob
-    octopus-arc-r-release-tryjob
-    octopus-kernelnext-release-tryjob
     octopus-release-tryjob
-    palkia-release-tryjob
     puff-moblab-release-tryjob
     puff-release-tryjob
     pyro-release-tryjob
-    rammus-arc-r-userdebug-release-tryjob
     rammus-release-tryjob
-    reef-arc-r-release-tryjob
     reef-release-tryjob
     reven-release-tryjob
     reven-vmtest-release-tryjob
-    rex-release-tryjob
     sand-release-tryjob
     sarien-kernelnext-release-tryjob
     sarien-release-tryjob
     scarlet-release-tryjob
-    senor-release-tryjob
     sentry-release-tryjob
-    shotzo-release-tryjob
-    skyrim-chausie-release-tryjob
-    skyrim-kernelnext-release-tryjob
-    skyrim-release-tryjob
     snappy-kernelnext-release-tryjob
     snappy-release-tryjob
-    soraka-libcamera-release-tryjob
     soraka-release-tryjob
-    strongbad-kernelnext-release-tryjob
     strongbad-release-tryjob
-    strongbad-userdebug-release-tryjob
-    strongbad64-release-tryjob
     tael-release-tryjob
     tatl-release-tryjob
-    trogdor-arc-r-release-tryjob
-    trogdor-connectivitynext-release-tryjob
-    trogdor-kernelnext-release-tryjob
     trogdor-release-tryjob
-    trogdor-userdebug-release-tryjob
-    trogdor-zephyr-release-tryjob
     trogdor64-release-tryjob
-    volteer-kernelnext-release-tryjob
-    volteer-manatee-release-tryjob
     volteer-release-tryjob
-    zork-arc-r-release-tryjob
-    zork-connectivitynext-release-tryjob
-    zork-kernelnext-release-tryjob
     zork-release-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
   mistral-master-factorybranch-tryjob
   nami-factory-nami-10715.B-factorybranch-tryjob
   nami-full-tryjob
-  nami-kernelnext-full-tryjob
-  nami-kernelnext-llvm-next-toolchain-tryjob
-  nami-kernelnext-llvm-toolchain-tryjob
-  nami-kernelnext-payloads-tryjob
-  nami-kernelnext-release-tryjob
   nami-llvm-next-toolchain-tryjob
   nami-llvm-toolchain-tryjob
   nami-payloads-tryjob
@@ -1119,11 +791,6 @@
   nissa-release-tryjob
   nocturne-factory-nocturne-11066.B-factorybranch-tryjob
   nocturne-full-tryjob
-  nocturne-kernelnext-full-tryjob
-  nocturne-kernelnext-llvm-next-toolchain-tryjob
-  nocturne-kernelnext-llvm-toolchain-tryjob
-  nocturne-kernelnext-payloads-tryjob
-  nocturne-kernelnext-release-tryjob
   nocturne-llvm-next-toolchain-tryjob
   nocturne-llvm-toolchain-tryjob
   nocturne-payloads-tryjob
@@ -1148,28 +815,13 @@
   nyan_blaze-llvm-toolchain-tryjob
   nyan_blaze-payloads-tryjob
   nyan_blaze-release-tryjob
-  octopus-arc-r-full-tryjob
-  octopus-arc-r-llvm-next-toolchain-tryjob
-  octopus-arc-r-llvm-toolchain-tryjob
-  octopus-arc-r-payloads-tryjob
-  octopus-arc-r-release-tryjob
   octopus-factory-octopus-11512.B-factorybranch-tryjob
   octopus-full-tryjob
-  octopus-kernelnext-full-tryjob
-  octopus-kernelnext-llvm-next-toolchain-tryjob
-  octopus-kernelnext-llvm-toolchain-tryjob
-  octopus-kernelnext-payloads-tryjob
-  octopus-kernelnext-release-tryjob
   octopus-llvm-next-toolchain-tryjob
   octopus-llvm-toolchain-tryjob
   octopus-master-factorybranch-tryjob
   octopus-payloads-tryjob
   octopus-release-tryjob
-  palkia-full-tryjob
-  palkia-llvm-next-toolchain-tryjob
-  palkia-llvm-toolchain-tryjob
-  palkia-payloads-tryjob
-  palkia-release-tryjob
   poppy-full-tryjob
   poppy-llvm-next-toolchain-tryjob
   poppy-llvm-toolchain-tryjob
@@ -1194,11 +846,6 @@
   pyro-llvm-toolchain-tryjob
   pyro-payloads-tryjob
   pyro-release-tryjob
-  rammus-arc-r-userdebug-full-tryjob
-  rammus-arc-r-userdebug-llvm-next-toolchain-tryjob
-  rammus-arc-r-userdebug-llvm-toolchain-tryjob
-  rammus-arc-r-userdebug-payloads-tryjob
-  rammus-arc-r-userdebug-release-tryjob
   rammus-factory-rammus-11289.B-factorybranch-tryjob
   rammus-full-tryjob
   rammus-llvm-next-toolchain-tryjob
@@ -1206,11 +853,6 @@
   rammus-master-factorybranch-tryjob
   rammus-payloads-tryjob
   rammus-release-tryjob
-  reef-arc-r-full-tryjob
-  reef-arc-r-llvm-next-toolchain-tryjob
-  reef-arc-r-llvm-toolchain-tryjob
-  reef-arc-r-payloads-tryjob
-  reef-arc-r-release-tryjob
   reef-factory-reef-8811.B-factorybranch-tryjob
   reef-full-tryjob
   reef-llvm-next-toolchain-tryjob
@@ -1227,11 +869,6 @@
   reven-vmtest-llvm-toolchain-tryjob
   reven-vmtest-payloads-tryjob
   reven-vmtest-release-tryjob
-  rex-full-tryjob
-  rex-llvm-next-toolchain-tryjob
-  rex-llvm-toolchain-tryjob
-  rex-payloads-tryjob
-  rex-release-tryjob
   sand-factory-reef-8811.B-factorybranch-tryjob
   sand-full-tryjob
   sand-llvm-next-toolchain-tryjob
@@ -1256,11 +893,6 @@
   scarlet-llvm-toolchain-tryjob
   scarlet-payloads-tryjob
   scarlet-release-tryjob
-  senor-full-tryjob
-  senor-llvm-next-toolchain-tryjob
-  senor-llvm-toolchain-tryjob
-  senor-payloads-tryjob
-  senor-release-tryjob
   sentry-factory-glados-7828.B-factorybranch-tryjob
   sentry-full-tryjob
   sentry-llvm-next-toolchain-tryjob
@@ -1268,26 +900,6 @@
   sentry-payloads-tryjob
   sentry-release-tryjob
   shotzo-factory-dedede-13683.B-factorybranch-tryjob
-  shotzo-full-tryjob
-  shotzo-llvm-next-toolchain-tryjob
-  shotzo-llvm-toolchain-tryjob
-  shotzo-payloads-tryjob
-  shotzo-release-tryjob
-  skyrim-chausie-full-tryjob
-  skyrim-chausie-llvm-next-toolchain-tryjob
-  skyrim-chausie-llvm-toolchain-tryjob
-  skyrim-chausie-payloads-tryjob
-  skyrim-chausie-release-tryjob
-  skyrim-full-tryjob
-  skyrim-kernelnext-full-tryjob
-  skyrim-kernelnext-llvm-next-toolchain-tryjob
-  skyrim-kernelnext-llvm-toolchain-tryjob
-  skyrim-kernelnext-payloads-tryjob
-  skyrim-kernelnext-release-tryjob
-  skyrim-llvm-next-toolchain-tryjob
-  skyrim-llvm-toolchain-tryjob
-  skyrim-payloads-tryjob
-  skyrim-release-tryjob
   sludge-full-tryjob
   sludge-llvm-next-toolchain-tryjob
   sludge-llvm-toolchain-tryjob
@@ -1305,11 +917,6 @@
   snappy-release-tryjob
   soraka-factory-soraka-10323.39.B-factorybranch-tryjob
   soraka-full-tryjob
-  soraka-libcamera-full-tryjob
-  soraka-libcamera-llvm-next-toolchain-tryjob
-  soraka-libcamera-llvm-toolchain-tryjob
-  soraka-libcamera-payloads-tryjob
-  soraka-libcamera-release-tryjob
   soraka-llvm-next-toolchain-tryjob
   soraka-llvm-toolchain-tryjob
   soraka-payloads-tryjob
@@ -1318,25 +925,10 @@
   strongbad-factory-trogdor-13443.B-factorybranch-tryjob
   strongbad-factory-trogdor-15210.B-factorybranch-tryjob
   strongbad-full-tryjob
-  strongbad-kernelnext-full-tryjob
-  strongbad-kernelnext-llvm-next-toolchain-tryjob
-  strongbad-kernelnext-llvm-toolchain-tryjob
-  strongbad-kernelnext-payloads-tryjob
-  strongbad-kernelnext-release-tryjob
   strongbad-llvm-next-toolchain-tryjob
   strongbad-llvm-toolchain-tryjob
   strongbad-payloads-tryjob
   strongbad-release-tryjob
-  strongbad-userdebug-full-tryjob
-  strongbad-userdebug-llvm-next-toolchain-tryjob
-  strongbad-userdebug-llvm-toolchain-tryjob
-  strongbad-userdebug-payloads-tryjob
-  strongbad-userdebug-release-tryjob
-  strongbad64-full-tryjob
-  strongbad64-llvm-next-toolchain-tryjob
-  strongbad64-llvm-toolchain-tryjob
-  strongbad64-payloads-tryjob
-  strongbad64-release-tryjob
   success-build
   sync-test-cbuildbot-tryjob
   tael-full-tryjob
@@ -1348,39 +940,14 @@
   tatl-llvm-toolchain-tryjob
   tatl-release-tryjob
   test-ap-group-tryjob
-  trogdor-arc-r-full-tryjob
-  trogdor-arc-r-llvm-next-toolchain-tryjob
-  trogdor-arc-r-llvm-toolchain-tryjob
-  trogdor-arc-r-payloads-tryjob
-  trogdor-arc-r-release-tryjob
-  trogdor-connectivitynext-full-tryjob
-  trogdor-connectivitynext-llvm-next-toolchain-tryjob
-  trogdor-connectivitynext-llvm-toolchain-tryjob
-  trogdor-connectivitynext-payloads-tryjob
-  trogdor-connectivitynext-release-tryjob
   trogdor-factory-strongbad-13963.B-factorybranch-tryjob
   trogdor-factory-trogdor-13443.B-factorybranch-tryjob
   trogdor-factory-trogdor-15210.B-factorybranch-tryjob
   trogdor-full-tryjob
-  trogdor-kernelnext-full-tryjob
-  trogdor-kernelnext-llvm-next-toolchain-tryjob
-  trogdor-kernelnext-llvm-toolchain-tryjob
-  trogdor-kernelnext-payloads-tryjob
-  trogdor-kernelnext-release-tryjob
   trogdor-llvm-next-toolchain-tryjob
   trogdor-llvm-toolchain-tryjob
   trogdor-payloads-tryjob
   trogdor-release-tryjob
-  trogdor-userdebug-full-tryjob
-  trogdor-userdebug-llvm-next-toolchain-tryjob
-  trogdor-userdebug-llvm-toolchain-tryjob
-  trogdor-userdebug-payloads-tryjob
-  trogdor-userdebug-release-tryjob
-  trogdor-zephyr-full-tryjob
-  trogdor-zephyr-llvm-next-toolchain-tryjob
-  trogdor-zephyr-llvm-toolchain-tryjob
-  trogdor-zephyr-payloads-tryjob
-  trogdor-zephyr-release-tryjob
   trogdor64-full-tryjob
   trogdor64-llvm-next-toolchain-tryjob
   trogdor64-llvm-toolchain-tryjob
@@ -1413,18 +980,8 @@
   viking-release-tryjob
   volteer-factory-volteer-13600.B-factorybranch-tryjob
   volteer-full-tryjob
-  volteer-kernelnext-full-tryjob
-  volteer-kernelnext-llvm-next-toolchain-tryjob
-  volteer-kernelnext-llvm-toolchain-tryjob
-  volteer-kernelnext-payloads-tryjob
-  volteer-kernelnext-release-tryjob
   volteer-llvm-next-toolchain-tryjob
   volteer-llvm-toolchain-tryjob
-  volteer-manatee-full-tryjob
-  volteer-manatee-llvm-next-toolchain-tryjob
-  volteer-manatee-llvm-toolchain-tryjob
-  volteer-manatee-payloads-tryjob
-  volteer-manatee-release-tryjob
   volteer-payloads-tryjob
   volteer-release-tryjob
   whirlwind-full-tryjob
@@ -1438,24 +995,9 @@
   wristpin-llvm-toolchain-tryjob
   wristpin-rapid
   wristpin-release-tryjob
-  zork-arc-r-full-tryjob
-  zork-arc-r-llvm-next-toolchain-tryjob
-  zork-arc-r-llvm-toolchain-tryjob
-  zork-arc-r-payloads-tryjob
-  zork-arc-r-release-tryjob
-  zork-connectivitynext-full-tryjob
-  zork-connectivitynext-llvm-next-toolchain-tryjob
-  zork-connectivitynext-llvm-toolchain-tryjob
-  zork-connectivitynext-payloads-tryjob
-  zork-connectivitynext-release-tryjob
   zork-factory-zork-13427.B-factorybranch-tryjob
   zork-factory-zork-13700.B-factorybranch-tryjob
   zork-full-tryjob
-  zork-kernelnext-full-tryjob
-  zork-kernelnext-llvm-next-toolchain-tryjob
-  zork-kernelnext-llvm-toolchain-tryjob
-  zork-kernelnext-payloads-tryjob
-  zork-kernelnext-release-tryjob
   zork-llvm-next-toolchain-tryjob
   zork-llvm-toolchain-tryjob
   zork-payloads-tryjob
