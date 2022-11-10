@@ -286,7 +286,7 @@ DEFAULT_CTS_APFE_GSURI = "gs://chromeos-cts-apfe/"
 # to update that file on release branches.
 ANDROID_PI_BUILD_BRANCH = "git_pi-arc-m109"
 ANDROID_RVC_BUILD_BRANCH = "git_rvc-arc-m109"
-ANDROID_VMRVC_BUILD_BRANCH = "git_rvc-arc"
+ANDROID_VMRVC_BUILD_BRANCH = "git_rvc-arc-m109"
 ANDROID_VMSC_BUILD_BRANCH = "git_sc-arc-dev"
 ANDROID_VMTM_BUILD_BRANCH = "git_tm-arc"
 ANDROID_VMUDC_BUILD_BRANCH = "git_master-arc-dev"
