@@ -2423,15 +2423,6 @@
         },
         {
           "board_name": "dedede",
-          "name": "shotzo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 419,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "dedede",
           "name": "storo",
           "test_suites": [
             "sanity",
