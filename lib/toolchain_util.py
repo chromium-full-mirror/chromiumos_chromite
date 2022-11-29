@@ -683,14 +683,19 @@ class _CommonPrepareBundle(object):
         self.build_target = build_target
         self.input_artifacts = input_artifacts or {}
         self.profile_info = profile_info or {}
-        # This may look confusing but here is the rule:
-        # 1. arch is amd64 by default.
-        # 2. if chrome_cwp_profile is atom or bigcore, arch is amd64.
-        # 3. otherwise arch is chrome_cwp_profile (for example arm).
-        arch = self.profile_info.get("chrome_cwp_profile", "amd64")
-        if arch in ("atom", "bigcore"):
-            arch = "amd64"
-        self.arch = arch
+        # TODO(b/246457583): Pass arch, uarch, and kernel in proto.
+        profile = self.profile_info.get("chrome_cwp_profile")
+        if profile in ("atom", "bigcore"):
+            self.arch = "amd64"
+            self.uarch = profile
+        elif profile in ("arm", "arm32"):
+            self.arch = "arm"
+            self.uarch = "armv7a" if profile == "arm32" else "none"
+        else:
+            # "chrome_cwp_profile" can be unset,
+            # in this case default arch is amd64.
+            self.arch = "amd64"
+            self.uarch = None
         self._ebuild_info = {}
 
     @property
@@ -1844,9 +1849,11 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         See also "chrome_afdo" code elsewhere in this file.
         """
         ret = PrepareForBuildReturn.NEEDED
-        profile = self.profile_info.get("chrome_cwp_profile")
-        if not profile:
-            raise PrepareForBuildHandlerError("Could not find profile name.")
+        if not self.uarch:
+            raise PrepareForBuildHandlerError(
+                "Uarch is not set. "
+                "Is 'chrome_cwp_profile' missing in profile_info?"
+            )
         bench_locs = self.input_artifacts.get(
             "UnverifiedChromeBenchmarkAfdoFile", [BENCHMARK_AFDO_GS_URL]
         )
@@ -1895,20 +1902,11 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         published_loc = self.input_artifacts.get(
             "VerifiedReleaseAfdoFile", [RELEASE_AFDO_GS_URL_VETTED]
         )[0]
-        # Profile represents either Intel uarch or other archs.
-        # In case of Arm use 'none' since we also pass self.arch.
-        # As the result we will have AFDO names like:
-        # *-amd64-atom-*
-        # *-arm-none-*
-        if self.arch == "arm":
-            uarch = "none"
-        else:
-            uarch = profile
         merged_name = MERGED_AFDO_NAME.format(
             arch=self.arch,
             name=_GetCombinedAFDOName(
                 _ParseCWPProfileName(os.path.splitext(cwp_name)[0]),
-                uarch,
+                self.uarch,
                 _ParseBenchmarkProfileName(os.path.splitext(bench_name)[0]),
             ),
         )

@@ -1204,14 +1204,46 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         )
 
     def testPrepareVerifiedReleaseAfdoFileMissingInput(self):
-        """Test that _PrepareVerifiedReleaseAfdoFile works when POINTLESS."""
+        """Test that _PrepareVerifiedReleaseAfdoFile raises assert."""
         self.setupPrepareVerifiedReleaseAfdoFileInputProperties()
         self.setupPrepareVerifiedReleaseAfdoFileMocks()
         with self.assertRaisesRegex(
             toolchain_util.PrepareForBuildHandlerError,
-            r"Could not find profile name.",
+            (
+                r"Uarch is not set. "
+                r"Is 'chrome_cwp_profile' missing in profile_info?"
+            ),
         ):
             self.obj.Prepare()
+
+    def testPrepareVerifiedReleaseAfdoFileArm32Profile(self):
+        """Test fresh arm profiles for arm32."""
+        pi_extra = {"chrome_cwp_profile": "arm32"}
+        self.setupPrepareVerifiedReleaseAfdoFileInputProperties(
+            profile_info_extra=pi_extra, arch="arm"
+        )
+        self.setupPrepareVerifiedReleaseAfdoFileMocks(
+            find_latest_mock=self.mockFindLatestAFDOArtifactNewArm
+        )
+        self.gsc_exists.return_value = False
+        self.assertEqual(
+            toolchain_util.PrepareForBuildReturn.NEEDED, self.obj.Prepare()
+        )
+        # The merged profile must have -arm-armv7a-.
+        self.patch_ebuild.assert_called_once_with(
+            self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
+            {
+                "UNVETTED_AFDO_FILE": os.path.join(
+                    self.tempdir,
+                    (
+                        "tmp/chromeos-chrome-arm-armv7a-78-3877.0-"
+                        f"{self.day_old_ts}-benchmark-78.0.3839.0-r1-redacted"
+                        ".afdo"
+                    ),
+                )
+            },
+            uprev=True,
+        )
 
 
 class BundleArtifactHandlerTest(PrepareBundleTest):
