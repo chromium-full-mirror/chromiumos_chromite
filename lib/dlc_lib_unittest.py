@@ -7,6 +7,7 @@
 import itertools
 import json
 import os
+import string
 from unittest import mock
 
 from chromite.lib import cros_test_lib
@@ -300,6 +301,119 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             params["scaled"],
         )
         self.CheckParams(ebuild_params_class.__dict__, **params)
+
+
+class DlcMetadataTest(cros_test_lib.TempDirTestCase):
+    """Tests DlcMetadata."""
+
+    # Smaller file_size setting to test creating multiple metadata files.
+    _FILE_SIZE = 256
+
+    def setUp(self):
+        """Create DLC metadata files for test"""
+        self._sysroot = os.path.join(self.tempdir, "build_root")
+        self._src_dir = os.path.join(self.tempdir, "src_dir")
+        # Create 'dlc-a' to 'dlc-z' source metadata files for testing.
+        self._dlc_all = []
+        for i in string.ascii_lowercase:
+            d_id = f"dlc-{i}"
+            self.MakeSrcMetadata(d_id)
+            self._dlc_all.append((d_id, self._src_dir))
+
+        with dlc_lib.DlcMetadata(
+            metadata_path=self._sysroot,
+            max_file_size=self._FILE_SIZE,
+        ) as metadata:
+            metadata.Create(self._dlc_all)
+
+    def MakeSrcMetadata(self, dlc_id: str, extra: dict = None):
+        """Create source metadata files for test.
+
+        Args:
+            dlc_id: The dlc id to be created.
+            extra: Add additional manifest fields.
+        """
+        src_dir = os.path.join(
+            self._src_dir, dlc_id, "package", dlc_lib.DLC_TMP_META_DIR
+        )
+        src_manifest = {"description": f"test manifest for {dlc_id}"}
+        if extra:
+            src_manifest.update(extra)
+        src_table = f"test table for {dlc_id}"
+        osutils.SafeMakedirs(src_dir)
+        with open(
+            os.path.join(src_dir, dlc_lib.IMAGELOADER_JSON),
+            mode="w",
+            encoding="utf-8",
+        ) as f:
+            json.dump(src_manifest, f)
+        osutils.WriteFile(
+            path=os.path.join(src_dir, dlc_lib.DLC_VERITY_TABLE),
+            content=src_table,
+        )
+
+    def VerifyMetadata(self):
+        """Verifies metadata.
+
+        Load and compare to the source metadata file content.
+        """
+        i = 0
+        metadata_reader = dlc_lib.DlcMetadata(metadata_path=self._sysroot)
+        for f in sorted(metadata_reader.ListFiles()):
+            parsed = metadata_reader.LoadDestMetadata(f)
+            for d_id, metadata in sorted(parsed.items()):
+                self.assertEqual(d_id, self._dlc_all[i][0])
+                src_dir = os.path.join(
+                    self._src_dir, d_id, "package", dlc_lib.DLC_TMP_META_DIR
+                )
+                src_manifest = osutils.ReadFile(
+                    os.path.join(src_dir, dlc_lib.IMAGELOADER_JSON)
+                )
+                src_table = osutils.ReadFile(
+                    os.path.join(src_dir, dlc_lib.DLC_VERITY_TABLE)
+                )
+                dest_manifest = json.dumps(metadata["package"]["manifest"])
+                dest_table = metadata["package"]["table"]
+                self.assertEqual(src_manifest, dest_manifest)
+                self.assertEqual(src_table, dest_table)
+                i += 1
+
+    def testCreateDlcMetadata(self):
+        """Tests creating metadata, and verifies the generated files"""
+        self.VerifyMetadata()
+
+    def testAddDlcMetadata(self):
+        """Tests adding a metadata"""
+        dlc_info = ("dlc-nn", self._src_dir)
+        self.MakeSrcMetadata(dlc_info[0])
+        self._dlc_all.append(dlc_info)
+        self._dlc_all.sort()
+        with dlc_lib.DlcMetadata(
+            metadata_path=self._sysroot, max_file_size=self._FILE_SIZE
+        ) as metadata:
+            metadata.Create(self._dlc_all)
+        self.VerifyMetadata()
+
+    def testModifyDlcMetadata(self):
+        """Tests modifying a metadata, and verifies it"""
+        dlc_info = ("dlc-n", self._src_dir)
+        self.MakeSrcMetadata(dlc_info[0], extra={"modified": True})
+        with dlc_lib.DlcMetadata(
+            metadata_path=self._sysroot, max_file_size=self._FILE_SIZE
+        ) as metadata:
+            metadata.Create(self._dlc_all)
+        self.VerifyMetadata()
+
+    def testRemoveDlcMetadata(self):
+        """Tests removing a metadata, and verifies it"""
+        dlc_info = ("dlc-n", self._src_dir)
+        self._dlc_all.remove(dlc_info)
+        osutils.RmDir(os.path.join(self._src_dir, dlc_info[0]))
+        with dlc_lib.DlcMetadata(
+            metadata_path=self._sysroot, max_file_size=self._FILE_SIZE
+        ) as metadata:
+            metadata.Create(self._dlc_all)
+        self.VerifyMetadata()
 
 
 class DlcGeneratorTest(

@@ -13,6 +13,7 @@ import math
 import os
 import re
 import shutil
+import zlib
 
 from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
@@ -34,6 +35,10 @@ DLC_IMAGE = "dlc.img"
 DLC_LOADPIN_FILE_HEADER = "# LOADPIN_TRUSTED_VERITY_ROOT_DIGESTS"
 DLC_LOADPIN_TRUSTED_VERITY_DIGESTS = "_trusted_verity_digests"
 DLC_META_DIR = "opt/google/dlc"
+DLC_META_FILE_PREFIX = "_metadata_"
+DLC_META_FILE_SIZE_LIMIT = 4096
+DLC_META_JSON_BEGIN = b"{"
+DLC_META_JSON_END = b"}"
 DLC_PACKAGE = "package"
 DLC_TMP_META_DIR = "meta"
 DLC_UID = 20118
@@ -261,6 +266,223 @@ class EbuildParams(object):
 
     def __str__(self):
         return str(self.__dict__)
+
+
+# TODO(yuanpengni): Create a utility to use the metadata library from dlcservice
+# so that the implementation of DLC metadata creation and on-device modification
+# is in sync.
+class DlcMetadata(object):
+    """The class to create and read DLC metadata.
+
+    The DLC metadata consists of metadata files. The metadata file contains
+    compressed DLC metadata in json dict entries:
+    <id>:{<package>:{"manifest":<manifest>,"table":<table>}},
+    Multiple DLC metadata are grouped and compressed together as a file. The
+    metadata files are named with the first of ascending DLC IDs it contains.
+    """
+
+    def __init__(
+        self,
+        metadata_path: str,
+        max_file_size: int = DLC_META_FILE_SIZE_LIMIT,
+        sudo: bool = False,
+    ):
+        """Object initializer.
+
+        Args:
+            metadata_path: The path to the metadata directory.
+            max_file_size: The max size of each metadata file, align with
+                           file system block size to get better efficiency.
+            sudo: Write files as root.
+        """
+        self._metadata_path = metadata_path
+        self._max_file_size = max_file_size
+        self._sudo = sudo
+
+        self._compressobj = zlib.compressobj(
+            level=zlib.Z_BEST_COMPRESSION, wbits=-zlib.MAX_WBITS
+        )
+        # The buffer for creating compressed metadata files.
+        self._compressed = bytearray()
+
+        osutils.SafeMakedirs(path=metadata_path, sudo=sudo)
+
+    def __enter__(self):
+        """Enter the context and clear the existing metadata.
+
+        Makes it ready for creating new metadata.
+        """
+        self.Clear()
+        return self
+
+    def __exit__(self, *args):
+        """Exit the context"""
+
+    def _CompressionSize(self, compressobj, metadata: bytes) -> int:
+        """Estimate the compressed size of given metadata
+
+        Compress and flush with a copy of compression object and get the size.
+
+        Args:
+            compressobj: The zlib compression object. This method will not
+                         change the internal state of the object.
+            metadata: The metadata for calculating the size after compression.
+
+        Returns:
+            The expected size after compress and full flush.
+        """
+        compressobj_copy = compressobj.copy()
+        compress_size = len(compressobj_copy.compress(metadata))
+        flushed_size = len(compressobj_copy.flush(zlib.Z_FULL_FLUSH))
+        return compress_size + flushed_size
+
+    def Clear(self):
+        """Clear existing metadata files"""
+        for f in self.ListFiles():
+            osutils.SafeUnlink(
+                os.path.join(self._metadata_path, f"{DLC_META_FILE_PREFIX}{f}"),
+                self._sudo,
+            )
+
+    def Create(self, dlc_list: list):
+        """Create DLC metadata from the source manifest and table files.
+
+        Args:
+            dlc_list: A list of tuples (dlc_id, build_dir)
+        """
+        # The first of ascending DLC IDs added to current metadata file, it will
+        # be used to name the metadata file.
+        min_id = None
+        for d_id, dlc_build_dir in sorted(dlc_list):
+            metadata = self.LoadSrcMetadata(os.path.join(dlc_build_dir, d_id))
+            if not metadata:
+                raise Exception(f"Unable to load metadata for DLC '{d_id}'.")
+
+            metadata_str = json.dumps(metadata, separators=(",", ":"))
+            metadata_enc = f'"{d_id}":{metadata_str},'.encode("utf-8")
+
+            if (
+                len(self._compressed)
+                + self._CompressionSize(self._compressobj, metadata_enc)
+                > self._max_file_size
+            ):
+                self.FlushCompressed(min_id)
+                min_id = None
+
+                if (
+                    self._CompressionSize(self._compressobj, metadata_enc)
+                    > self._max_file_size
+                ):
+                    raise Exception(
+                        f"Unable to add metadata for DLC '{d_id}' as it "
+                        "exceeds the file size limit."
+                    )
+
+            self._compressed.extend(self._compressobj.compress(metadata_enc))
+            if min_id is None:
+                min_id = d_id
+
+        self.FlushCompressed(min_id)
+
+    def FlushCompressed(self, file_id: str):
+        """Write the compressed metadata buffer to a file and reset the state.
+
+        The metadata file name is the first of ascending DLC IDs added to the
+        buffer.
+
+        Args:
+            file_id: The metadata file will be named `file_prefix``file_id`.
+        """
+        self._compressed.extend(self._compressobj.flush(zlib.Z_FULL_FLUSH))
+        if file_id:
+            assert len(self._compressed) > 0
+            osutils.WriteFile(
+                os.path.join(
+                    self._metadata_path, f"{DLC_META_FILE_PREFIX}{file_id}"
+                ),
+                bytes(self._compressed),
+                mode="wb",
+                sudo=self._sudo,
+            )
+        self._compressed = bytearray()
+
+    def LoadSrcMetadata(self, src_dir: str) -> dict:
+        """Read manifest and table from the source directory and make metadata.
+
+        Args:
+            src_dir: The source dlc metadata directory.
+
+        Returns:
+            The metadata as a dict.
+        """
+        metadata = {}
+        if not os.path.isdir(src_dir):
+            return metadata
+
+        for pkg in os.listdir(src_dir):
+            pkg_path = os.path.join(src_dir, pkg, DLC_TMP_META_DIR)
+            if not os.path.isdir(pkg_path):
+                continue
+            try:
+                with open(
+                    os.path.join(pkg_path, IMAGELOADER_JSON),
+                    encoding="utf-8",
+                ) as f:
+                    manifest = json.load(f)
+                table = osutils.ReadFile(
+                    os.path.join(pkg_path, DLC_VERITY_TABLE),
+                    mode="rb",
+                ).strip()
+            except Exception as e:
+                logging.error("Failed to read the source metadata: %s.", e)
+                continue
+            metadata[pkg] = {
+                "manifest": manifest,
+                "table": table.decode("utf-8"),
+            }
+        return metadata
+
+    def LoadDestMetadata(self, file_id: str) -> dict:
+        """Load a metadata file from the destination directory and parse it.
+
+        Args:
+            file_id: The suffix name of the file to be loaded. It equals to
+                     the first of ascending DLC IDs in the file.
+
+        Returns:
+            The metadata as a dict.
+        """
+        # Read the file content and decompress.
+        contents = osutils.ReadFile(
+            os.path.join(
+                self._metadata_path, f"{DLC_META_FILE_PREFIX}{file_id}"
+            ),
+            mode="rb",
+        )
+        decompressobj = zlib.decompressobj(wbits=-zlib.MAX_WBITS)
+        decompressed = bytearray(decompressobj.decompress(contents))
+        decompressed.extend(decompressobj.flush())
+
+        # Parse json.
+        parsed = json.loads(
+            DLC_META_JSON_BEGIN + decompressed.rstrip(b",") + DLC_META_JSON_END
+        )
+        if not isinstance(parsed, dict):
+            raise Exception("The metadata file is corrupted.")
+
+        return parsed
+
+    def ListFiles(self) -> list:
+        """List metadata files in the `self._metadata_path`.
+
+        Returns:
+            The metadata file list.
+        """
+        return [
+            f[len(DLC_META_FILE_PREFIX) :]
+            for f in os.listdir(self._metadata_path)
+            if f.startswith(DLC_META_FILE_PREFIX) and f != DLC_META_FILE_PREFIX
+        ]
 
 
 class DlcGenerator(object):
@@ -1007,6 +1229,9 @@ def InstallDlcImages(
                     )
 
                 # Create metadata directory in rootfs.
+                # TODO(yuanpengni): Remove copying individual imageloader.json
+                # and table files after fully migrated to used the compressed
+                # metadata.
                 if rootfs:
                     meta_rootfs = os.path.join(
                         rootfs, DLC_META_DIR, d_id, d_package
@@ -1088,6 +1313,26 @@ def InstallDlcImages(
                         "rootfs value was not provided. Copying metadata "
                         "skipped."
                     )
+
+    if rootfs:
+        logging.debug("Creating compressed DLC metadata.")
+        dlc_all = []
+        for scaled in (False, True):
+            dlc_build_dir = build_dir_scaled if scaled else build_dir
+
+            if not os.path.isdir(dlc_build_dir):
+                logging.debug("Skipping build directory %s.", dlc_build_dir)
+                continue
+
+            dlc_all.extend(
+                [(id, dlc_build_dir) for id in os.listdir(dlc_build_dir)]
+            )
+
+        with DlcMetadata(
+            metadata_path=os.path.join(rootfs, DLC_META_DIR),
+            sudo=True,
+        ) as metadata:
+            metadata.Create(dlc_all)
 
     logging.debug("Done installing DLCs.")
 
