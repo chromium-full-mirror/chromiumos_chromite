@@ -117,6 +117,7 @@
 == release ==
   master-release
     ambassador-release
+    arkham-release
     asuka-release
     asurada-release
     atlas-kernelnext-release
@@ -145,7 +146,7 @@
     fizz-labstation-release
     fizz-moblab-release
     fizz-release
-    geralt-release
+    gale-release
     grunt-release
     guado_labstation-release
     guybrush-release
@@ -159,6 +160,7 @@
     kevin-release
     kukui-release
     lars-release
+    mistral-release
     nami-release
     nautilus-release
     nissa-release
@@ -166,6 +168,7 @@
     novato-arc64-release
     novato-release
     octopus-release
+    parrot-release
     puff-moblab-release
     puff-release
     pyro-release
@@ -187,6 +190,9 @@
     trogdor-release
     trogdor64-release
     volteer-release
+    whirlwind-release
+    x86-alex-release
+    x86-zgb-release
     zork-release
   master-release-basic
     atlas-release-basic
@@ -535,11 +541,6 @@
   gale-payloads-tryjob
   gale-release-tryjob
   gale-test-ap-tryjob
-  geralt-full-tryjob
-  geralt-llvm-next-toolchain-tryjob
-  geralt-llvm-toolchain-tryjob
-  geralt-payloads-tryjob
-  geralt-release-tryjob
   glados-factory-glados-7657.B-factorybranch-tryjob
   glados-factory-glados-7828.B-factorybranch-tryjob
   glados-full-tryjob
@@ -679,6 +680,7 @@
     grunt-release-basic-tryjob
   master-release-tryjob
     ambassador-release-tryjob
+    arkham-release-tryjob
     asuka-release-tryjob
     asurada-release-tryjob
     atlas-kernelnext-release-tryjob
@@ -707,7 +709,7 @@
     fizz-labstation-release-tryjob
     fizz-moblab-release-tryjob
     fizz-release-tryjob
-    geralt-release-tryjob
+    gale-release-tryjob
     grunt-release-tryjob
     guado_labstation-release-tryjob
     guybrush-release-tryjob
@@ -721,6 +723,7 @@
     kevin-release-tryjob
     kukui-release-tryjob
     lars-release-tryjob
+    mistral-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
     nissa-release-tryjob
@@ -728,6 +731,7 @@
     novato-arc64-release-tryjob
     novato-release-tryjob
     octopus-release-tryjob
+    parrot-release-tryjob
     puff-moblab-release-tryjob
     puff-release-tryjob
     pyro-release-tryjob
@@ -749,9 +753,17 @@
     trogdor-release-tryjob
     trogdor64-release-tryjob
     volteer-release-tryjob
+    whirlwind-release-tryjob
+    x86-alex-release-tryjob
+    x86-zgb-release-tryjob
     zork-release-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
+  mistral-full-tryjob
+  mistral-llvm-next-toolchain-tryjob
+  mistral-llvm-toolchain-tryjob
   mistral-master-factorybranch-tryjob
+  mistral-payloads-tryjob
+  mistral-release-tryjob
   nami-factory-nami-10715.B-factorybranch-tryjob
   nami-full-tryjob
   nami-llvm-next-toolchain-tryjob
@@ -802,6 +814,11 @@
   octopus-master-factorybranch-tryjob
   octopus-payloads-tryjob
   octopus-release-tryjob
+  parrot-full-tryjob
+  parrot-llvm-next-toolchain-tryjob
+  parrot-llvm-toolchain-tryjob
+  parrot-payloads-tryjob
+  parrot-release-tryjob
   poppy-full-tryjob
   poppy-llvm-next-toolchain-tryjob
   poppy-llvm-toolchain-tryjob
@@ -976,6 +993,16 @@
   x32-generic-full-tryjob
   x32-generic-llvm-next-toolchain-tryjob
   x32-generic-llvm-toolchain-tryjob
+  x86-alex-full-tryjob
+  x86-alex-llvm-next-toolchain-tryjob
+  x86-alex-llvm-toolchain-tryjob
+  x86-alex-payloads-tryjob
+  x86-alex-release-tryjob
+  x86-zgb-full-tryjob
+  x86-zgb-llvm-next-toolchain-tryjob
+  x86-zgb-llvm-toolchain-tryjob
+  x86-zgb-payloads-tryjob
+  x86-zgb-release-tryjob
   zork-factory-zork-13427.B-factorybranch-tryjob
   zork-factory-zork-13700.B-factorybranch-tryjob
   zork-full-tryjob
