@@ -3056,7 +3056,8 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"tarlo\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"vell\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"volmar\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"zavala\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"zavala\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"zydron\",\n  \"test_suites\": []\n}"
     ],
     "vm_tests_override": null
   },
@@ -3107,7 +3108,8 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"tarlo\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"vell\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"volmar\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"zavala\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"zavala\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"zydron\",\n  \"test_suites\": []\n}"
     ],
     "paygen": false,
     "push_image": false,
