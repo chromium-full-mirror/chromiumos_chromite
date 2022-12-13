@@ -117,7 +117,6 @@
 == release ==
   master-release
     ambassador-release
-    arkham-release
     asuka-release
     asurada-release
     atlas-kernelnext-release
@@ -146,7 +145,6 @@
     fizz-labstation-release
     fizz-moblab-release
     fizz-release
-    gale-release
     grunt-release
     guado_labstation-release
     guybrush-release
@@ -160,7 +158,6 @@
     kevin-release
     kukui-release
     lars-release
-    mistral-release
     nami-release
     nautilus-release
     nissa-release
@@ -680,7 +677,6 @@
     grunt-release-basic-tryjob
   master-release-tryjob
     ambassador-release-tryjob
-    arkham-release-tryjob
     asuka-release-tryjob
     asurada-release-tryjob
     atlas-kernelnext-release-tryjob
@@ -709,7 +705,6 @@
     fizz-labstation-release-tryjob
     fizz-moblab-release-tryjob
     fizz-release-tryjob
-    gale-release-tryjob
     grunt-release-tryjob
     guado_labstation-release-tryjob
     guybrush-release-tryjob
@@ -723,7 +718,6 @@
     kevin-release-tryjob
     kukui-release-tryjob
     lars-release-tryjob
-    mistral-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
     nissa-release-tryjob
@@ -758,12 +752,7 @@
     x86-zgb-release-tryjob
     zork-release-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
-  mistral-full-tryjob
-  mistral-llvm-next-toolchain-tryjob
-  mistral-llvm-toolchain-tryjob
   mistral-master-factorybranch-tryjob
-  mistral-payloads-tryjob
-  mistral-release-tryjob
   nami-factory-nami-10715.B-factorybranch-tryjob
   nami-full-tryjob
   nami-llvm-next-toolchain-tryjob
