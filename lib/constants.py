@@ -284,9 +284,9 @@ DEFAULT_CTS_APFE_GSURI = "gs://chromeos-cts-apfe/"
 # List of supported Android branches.
 # TODO(b/187795616): Maybe move this to service/android.py and ask release TPgM
 # to update that file on release branches.
-ANDROID_PI_BUILD_BRANCH = "git_pi-arc"
-ANDROID_RVC_BUILD_BRANCH = "git_rvc-arc"
-ANDROID_VMRVC_BUILD_BRANCH = "git_rvc-arc"
+ANDROID_PI_BUILD_BRANCH = "git_pi-arc-m110"
+ANDROID_RVC_BUILD_BRANCH = "git_rvc-arc-m110"
+ANDROID_VMRVC_BUILD_BRANCH = "git_rvc-arc-m110"
 ANDROID_VMSC_BUILD_BRANCH = "git_sc-arc-dev"
 ANDROID_VMTM_BUILD_BRANCH = "git_tm-arc"
 ANDROID_VMUDC_BUILD_BRANCH = "git_master-arc-dev"
