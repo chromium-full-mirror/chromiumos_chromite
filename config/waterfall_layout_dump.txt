@@ -133,7 +133,6 @@
     cherry64-release
     coral-release
     corsola-release
-    corsola64-release
     dedede-release
     draco-release
     drallion-release
@@ -347,11 +346,6 @@
   corsola-llvm-toolchain-tryjob
   corsola-payloads-tryjob
   corsola-release-tryjob
-  corsola64-full-tryjob
-  corsola64-llvm-next-toolchain-tryjob
-  corsola64-llvm-toolchain-tryjob
-  corsola64-payloads-tryjob
-  corsola64-release-tryjob
   dedede-factory-dedede-13683.B-factorybranch-tryjob
   dedede-full-tryjob
   dedede-llvm-next-toolchain-tryjob
@@ -713,7 +707,6 @@
     cherry64-release-tryjob
     coral-release-tryjob
     corsola-release-tryjob
-    corsola64-release-tryjob
     dedede-release-tryjob
     draco-release-tryjob
     drallion-release-tryjob
