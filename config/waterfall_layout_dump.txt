@@ -123,7 +123,6 @@
     betty-release
     bob-release
     brask-release
-    brya-manatee-release
     brya-release
     bubs-release
     caroline-release
@@ -287,11 +286,6 @@
   brya-full-tryjob
   brya-llvm-next-toolchain-tryjob
   brya-llvm-toolchain-tryjob
-  brya-manatee-full-tryjob
-  brya-manatee-llvm-next-toolchain-tryjob
-  brya-manatee-llvm-toolchain-tryjob
-  brya-manatee-payloads-tryjob
-  brya-manatee-release-tryjob
   brya-payloads-tryjob
   brya-release-tryjob
   bubs-full-tryjob
@@ -697,7 +691,6 @@
     betty-release-tryjob
     bob-release-tryjob
     brask-release-tryjob
-    brya-manatee-release-tryjob
     brya-release-tryjob
     bubs-release-tryjob
     caroline-release-tryjob
