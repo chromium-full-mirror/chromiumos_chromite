@@ -1524,6 +1524,15 @@
           "is_active": true,
           "stable_target_milestone": 109,
           "is_experimental": false
+        },
+        {
+          "board_name": "corsola",
+          "name": "voltorb",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7211,
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
@@ -4627,10 +4636,22 @@
         {
           "board_name": "nissa",
           "name": "craaskino",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true,
+          "stable_target_milestone": 115,
           "is_experimental": false
         },
         {
