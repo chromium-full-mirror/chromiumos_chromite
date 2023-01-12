@@ -127,7 +127,6 @@ def GetBuildImageCommand(
     _config = config._asdict()
     if constants.FACTORY_IMAGE_BIN in image_names:
         _config["boot_args"] += " cros_factory_install"
-        _config["enable_rootfs_verification"] = False
         _config["enable_bootcache"] = False
 
     if _config["builder_path"]:
