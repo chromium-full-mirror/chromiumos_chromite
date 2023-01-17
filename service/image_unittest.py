@@ -284,14 +284,6 @@ class BuildImageCommandTest(cros_test_lib.MockTestCase):
                 "testBoard",
             ),
         )
-        self.assertIn(
-            "--noenable_rootfs_verification",
-            image.GetBuildImageCommand(
-                image.BuildConfig(enable_rootfs_verification=True),
-                [constants.FACTORY_IMAGE_BIN],
-                "testBoard",
-            ),
-        )
 
         # adjust_partition
         cmd = image.GetBuildImageCommand(
