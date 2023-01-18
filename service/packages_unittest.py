@@ -180,7 +180,9 @@ class UprevAndroidLKGBTest(cros_test_lib.MockTestCase):
     def test_success(self):
         """Test a successful uprev."""
         self.PatchObject(android, "OVERLAY_DIR", new="overlay-dir")
-        self.PatchObject(android, "ReadLKGB", return_value="android-lkgb")
+        self.PatchObject(
+            android, "ReadLKGB", return_value=dict(build_id="android-lkgb")
+        )
         self.PatchObject(
             packages,
             "uprev_android",
@@ -208,7 +210,9 @@ class UprevAndroidLKGBTest(cros_test_lib.MockTestCase):
 
     def test_no_rev(self):
         """Test when nothing revved."""
-        self.PatchObject(android, "ReadLKGB", return_value="android-lkgb")
+        self.PatchObject(
+            android, "ReadLKGB", return_value=dict(build_id="android-lkgb")
+        )
         self.PatchObject(
             packages,
             "uprev_android",

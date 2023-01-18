@@ -553,32 +553,60 @@ class InvalidLKGBError(Exception):
     """LKGB file for the given Android package contains invalid content."""
 
 
-def WriteLKGB(android_package_dir: str, build_id: str) -> str:
+def LKGB(
+    build_id: str,
+    runtime_artifacts_pin: Optional[str] = None,
+    **kwargs,
+) -> dict:
+    """Constructs an "LKGB object".
+
+    The LKGB object is basically a dict with additional handling for optional
+    keys to make sure two LKGB objects are comparable, and to discard unwanted
+    fields from the JSON file (absorbed by **kwargs).
+
+    Args:
+        build_id: The last known good Android build ID.
+        runtime_artifacts_pin: (Optional) The runtime artifacts pin, if present.
+
+    Returns:
+        The constructed LKGB object.
+    """
+    del kwargs  # Delete unused var to make pylint happy.
+
+    lkgb = dict(build_id=build_id)
+    if runtime_artifacts_pin is not None:
+        lkgb["runtime_artifacts_pin"] = runtime_artifacts_pin
+    return lkgb
+
+
+def WriteLKGB(android_package_dir: str, lkgb: dict) -> str:
     """Writes the LKGB file under the given Android package directory.
 
     Args:
         android_package_dir: The Android package directory.
-        build_id: The last known good Android build ID.
+        lkgb: The LKGB object; see LKGB().
 
     Returns:
         Path to the updated file.
     """
     path = os.path.join(android_package_dir, _LKGB_JSON)
-    lkgb = {"build_id": build_id}
     with open(path, "w") as f:
-        json.dump(lkgb, f, indent=2)
+        json.dump(lkgb, f, indent=2, sort_keys=True)
         f.write("\n")
     return path
 
 
-def ReadLKGB(android_package_dir: str) -> str:
+def ReadLKGB(android_package_dir: str) -> dict:
     """Reads the LKGB file under the given Android package directory.
+
+    See LKGB() for possible fields in the dict; if additional fields are found
+    in the LKGB file, they are silently discarded without triggering an error.
 
     Args:
         android_package_dir: The Android package directory.
 
     Returns:
-        The last known good Android build ID as described in the file.
+        An LKGB object from the file; see LKGB().
 
     Raises:
         MissingLKGBError: If the LKGB file is not found under android_package_dir.
@@ -591,8 +619,43 @@ def ReadLKGB(android_package_dir: str) -> str:
     try:
         with open(path, "r") as f:
             lkgb = json.load(f)
-        return lkgb["build_id"]
     except json.JSONDecodeError as e:
         raise InvalidLKGBError("Error decoding LKGB file as JSON: " + str(e))
-    except KeyError:
+
+    if "build_id" not in lkgb:
         raise InvalidLKGBError("Field build_id not found in LKGB file")
+    return LKGB(**lkgb)
+
+
+_RUNTIME_ARTIFACTS_BUCKET_URL = "gs://chromeos-arc-images/runtime_artifacts"
+
+
+def FindRuntimeArtifactsPin(
+    android_package: str,
+    milestone: str,
+    runtime_artifacts_bucket_url: Optional[str] = _RUNTIME_ARTIFACTS_BUCKET_URL,
+) -> Optional[str]:
+    """Finds the runtime artifacts pin for given package/milestone, if present.
+
+    TODO(b/258558620): The code here is intentionally duplicated from
+    cros_mark_android_as_stable.py to maximize cherry-pick-ability. Refactor
+    away dupe code on main branch.
+
+    Args:
+        android_package: The Android package.
+        milestone: The ChromeOS milestone (can be found using
+            chromite.service.packages.determine_milestone_version)
+        runtime_artifacts_bucket_url: URL of the runtime artifacts bucket.
+
+    Returns:
+        The pinned version, or None if not present.
+    """
+    gs_context = gs.GSContext()
+    pin_path = (
+        f"{runtime_artifacts_bucket_url}/{android_package}/"
+        f"M{milestone}_pin_version"
+    )
+    if not gs_context.Exists(pin_path):
+        return None
+
+    return gs_context.Cat(pin_path, encoding="utf-8").rstrip()

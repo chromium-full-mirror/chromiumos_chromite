@@ -231,6 +231,13 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     def setUp(self):
         self._output_proto = android_pb2.WriteLKGBResponse()
 
+        # Mock milestone for FindRuntimeArtifactsPin().
+        self.PatchObject(
+            packages,
+            "determine_milestone_version",
+            return_value="999",
+        )
+
     def testValidateOnly(self):
         """Test that a validate only call does not execute any logic."""
         mock_write_lkgb = self.PatchObject(service_android, "WriteLKGB")
@@ -271,7 +278,9 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     def testSuccess(self):
         """Successful request."""
         mock_read_lkgb = self.PatchObject(
-            service_android, "ReadLKGB", return_value="old-version"
+            service_android,
+            "ReadLKGB",
+            return_value=dict(build_id="old-version"),
         )
         mock_write_lkgb = self.PatchObject(
             service_android, "WriteLKGB", return_value="mock_file"
@@ -281,6 +290,11 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             "GetAndroidPackageDir",
             return_value="android-package-dir",
         )
+        self.PatchObject(
+            service_android,
+            "FindRuntimeArtifactsPin",
+            return_value=None,
+        )
 
         req = android_pb2.WriteLKGBRequest(
             android_package="android-package", android_version="android-version"
@@ -289,7 +303,8 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         mock_read_lkgb.assert_called_once_with("android-package-dir")
         mock_write_lkgb.assert_called_once_with(
-            "android-package-dir", "android-version"
+            "android-package-dir",
+            dict(build_id="android-version"),
         )
         self.assertSequenceEqual(
             self._output_proto.modified_files, ["mock_file"]
@@ -298,13 +313,23 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     def testSameVersion(self):
         """Nothing is modified if LKGB is already the same version."""
         mock_read_lkgb = self.PatchObject(
-            service_android, "ReadLKGB", return_value="android-version"
+            service_android,
+            "ReadLKGB",
+            return_value=dict(
+                build_id="android-version",
+                runtime_artifacts_pin="runtime-artifacts-pin",
+            ),
         )
         mock_write_lkgb = self.PatchObject(service_android, "WriteLKGB")
         self.PatchObject(
             service_android,
             "GetAndroidPackageDir",
             return_value="android-package-dir",
+        )
+        self.PatchObject(
+            service_android,
+            "FindRuntimeArtifactsPin",
+            return_value="runtime-artifacts-pin",
         )
 
         req = android_pb2.WriteLKGBRequest(
@@ -331,6 +356,11 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             "GetAndroidPackageDir",
             return_value="android-package-dir",
         )
+        self.PatchObject(
+            service_android,
+            "FindRuntimeArtifactsPin",
+            return_value=None,
+        )
 
         req = android_pb2.WriteLKGBRequest(
             android_package="android-package", android_version="android-version"
@@ -339,7 +369,8 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         mock_read_lkgb.assert_called_once_with("android-package-dir")
         mock_write_lkgb.assert_called_once_with(
-            "android-package-dir", "android-version"
+            "android-package-dir",
+            dict(build_id="android-version"),
         )
         self.assertSequenceEqual(
             self._output_proto.modified_files, ["mock_file"]
@@ -360,6 +391,11 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             "GetAndroidPackageDir",
             return_value="android-package-dir",
         )
+        self.PatchObject(
+            service_android,
+            "FindRuntimeArtifactsPin",
+            return_value=None,
+        )
 
         req = android_pb2.WriteLKGBRequest(
             android_package="android-package", android_version="android-version"
@@ -368,7 +404,48 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         mock_read_lkgb.assert_called_once_with("android-package-dir")
         mock_write_lkgb.assert_called_once_with(
-            "android-package-dir", "android-version"
+            "android-package-dir",
+            dict(build_id="android-version"),
+        )
+        self.assertSequenceEqual(
+            self._output_proto.modified_files, ["mock_file"]
+        )
+
+    def testNewRuntimeArtifactsPin(self):
+        """Proceed if a new runtime artifacts pin is found."""
+        mock_read_lkgb = self.PatchObject(
+            service_android,
+            "ReadLKGB",
+            return_value=dict(build_id="android-version"),
+        )
+        mock_write_lkgb = self.PatchObject(
+            service_android,
+            "WriteLKGB",
+            return_value="mock_file",
+        )
+        self.PatchObject(
+            service_android,
+            "GetAndroidPackageDir",
+            return_value="android-package-dir",
+        )
+        self.PatchObject(
+            service_android,
+            "FindRuntimeArtifactsPin",
+            return_value="runtime-artifacts-pin",
+        )
+
+        req = android_pb2.WriteLKGBRequest(
+            android_package="android-package", android_version="android-version"
+        )
+        android.WriteLKGB(req, self._output_proto, self.api_config)
+
+        mock_read_lkgb.assert_called_once_with("android-package-dir")
+        mock_write_lkgb.assert_called_once_with(
+            "android-package-dir",
+            dict(
+                build_id="android-version",
+                runtime_artifacts_pin="runtime-artifacts-pin",
+            ),
         )
         self.assertSequenceEqual(
             self._output_proto.modified_files, ["mock_file"]

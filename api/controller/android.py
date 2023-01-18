@@ -158,8 +158,24 @@ def WriteLKGB(input_proto, output_proto, _config):
     except android.InvalidLKGBError:
         logging.warning("Current LKGB file is invalid, overwriting.")
 
+    # For release branches: check if the runtime artifacts pin exists.
+    milestone = packages.determine_milestone_version()
+    runtime_artifacts_pin = android.FindRuntimeArtifactsPin(
+        android_package, milestone
+    )
+    if runtime_artifacts_pin is not None:
+        logging.info(
+            "Found runtime artifacts pin for M%s: %s",
+            milestone,
+            runtime_artifacts_pin,
+        )
+
+    lkgb = android.LKGB(
+        build_id=android_version, runtime_artifacts_pin=runtime_artifacts_pin
+    )
+
     # Do nothing if LKGB is already set to the requested version.
-    if current_lkgb == android_version:
+    if current_lkgb == lkgb:
         logging.warning(
             "LKGB of %s is already %s, doing nothing.",
             android_package,
@@ -168,5 +184,5 @@ def WriteLKGB(input_proto, output_proto, _config):
         return
 
     # Actually update LKGB.
-    lkgb = android.WriteLKGB(android_package_dir, android_version)
-    output_proto.modified_files.append(lkgb)
+    modified = android.WriteLKGB(android_package_dir, lkgb)
+    output_proto.modified_files.append(modified)
