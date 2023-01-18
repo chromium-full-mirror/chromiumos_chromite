@@ -265,7 +265,7 @@ def uprev_android_lkgb(
       list of modified files.
     """
     android_package_dir = android.GetAndroidPackageDir(android_package)
-    android_version = android.ReadLKGB(android_package_dir)
+    android_version = android.ReadLKGB(android_package_dir)["build_id"]
 
     result = uprev_lib.UprevVersionedPackageResult()
     uprev_result = uprev_android(
