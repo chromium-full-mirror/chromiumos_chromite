@@ -147,6 +147,10 @@ def _WriteLKGBResponse(_input_proto, output_proto, _config):
 def WriteLKGB(input_proto, output_proto, _config):
     android_package = input_proto.android_package
     android_version = input_proto.android_version
+    android_branch = (
+        input_proto.android_branch
+        or android.GetAndroidBranchForPackage(android_package)
+    )
     android_package_dir = android.GetAndroidPackageDir(android_package)
 
     # Attempt to read current LKGB, if available.
@@ -171,7 +175,9 @@ def WriteLKGB(input_proto, output_proto, _config):
         )
 
     lkgb = android.LKGB(
-        build_id=android_version, runtime_artifacts_pin=runtime_artifacts_pin
+        build_id=android_version,
+        branch=android_branch,
+        runtime_artifacts_pin=runtime_artifacts_pin,
     )
 
     # Do nothing if LKGB is already set to the requested version.

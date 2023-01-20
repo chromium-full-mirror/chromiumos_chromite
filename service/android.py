@@ -570,6 +570,7 @@ class InvalidLKGBError(Exception):
 
 def LKGB(
     build_id: str,
+    branch: Optional[str] = None,
     runtime_artifacts_pin: Optional[str] = None,
     **kwargs,
 ) -> dict:
@@ -581,6 +582,7 @@ def LKGB(
 
     Args:
         build_id: The last known good Android build ID.
+        branch: The Android branch associated with build_id.
         runtime_artifacts_pin: The runtime artifacts pin, if present.
 
     Returns:
@@ -589,6 +591,8 @@ def LKGB(
     del kwargs  # Delete unused var to make pylint happy.
 
     lkgb = dict(build_id=build_id)
+    if branch:
+        lkgb["branch"] = branch
     if runtime_artifacts_pin is not None:
         lkgb["runtime_artifacts_pin"] = runtime_artifacts_pin
     return lkgb

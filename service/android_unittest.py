@@ -404,6 +404,7 @@ class LKGBTest(cros_test_lib.TempDirTestCase):
         (android_package_dir / "LKGB.json").write_text(
             """{
     "build_id": "build-id",
+    "branch": "branch",
     "runtime_artifacts_pin": "runtime-artifacts-pin",
     "unused": "foo"
 }""",
@@ -415,6 +416,7 @@ class LKGBTest(cros_test_lib.TempDirTestCase):
             lkgb,
             dict(
                 build_id="build-id",
+                branch="branch",
                 runtime_artifacts_pin="runtime-artifacts-pin",
             ),
         )
