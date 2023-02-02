@@ -4688,15 +4688,6 @@
         },
         {
           "board_name": "nissa",
-          "name": "craaskino15w",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "nissa",
           "name": "craaskvin",
           "test_suites": [
             "sanity",
@@ -4735,15 +4726,6 @@
           "board_id": 7206,
           "is_active": true,
           "stable_target_milestone": 114,
-          "is_experimental": false
-        },
-        {
-          "board_name": "nissa",
-          "name": "craasneto15w",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7206,
-          "is_active": true,
           "is_experimental": false
         },
         {
