@@ -804,15 +804,6 @@
         },
         {
           "board_name": "brya",
-          "name": "skolas4es",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "brya",
           "name": "taeko",
           "test_suites": [
             "sanity",
@@ -923,27 +914,6 @@
           "board_id": 459,
           "is_active": true,
           "stable_target_milestone": 108,
-          "is_experimental": false
-        },
-        {
-          "board_name": "brya",
-          "name": "zydron",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true,
-          "stable_target_milestone": 112,
           "is_experimental": false
         }
       ],
