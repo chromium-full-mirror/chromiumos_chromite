@@ -196,6 +196,20 @@
       ],
       "rubik_target_milestone": 107,
       "stable_target_milestone": 90
+    },
+    {
+      "name": "whirlwind",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": false,
+          "leader_board": true,
+          "board_group": "whirlwind",
+          "arch": "UNKNOWN"
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 42
     }
   ],
   "release_branch": true,
