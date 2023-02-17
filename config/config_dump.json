@@ -11301,6 +11301,7 @@
       "trogdor-release",
       "trogdor64-release",
       "volteer-release",
+      "whirlwind-release",
       "zork-release"
     ],
     "sync_chrome": true
@@ -11431,6 +11432,7 @@
       "trogdor-release-tryjob",
       "trogdor64-release-tryjob",
       "volteer-release-tryjob",
+      "whirlwind-release-tryjob",
       "zork-release-tryjob"
     ],
     "suite_scheduling": false,

@@ -189,6 +189,7 @@
     trogdor-release
     trogdor64-release
     volteer-release
+    whirlwind-release
     zork-release
   master-release-basic
     atlas-release-basic
@@ -766,6 +767,7 @@
     trogdor-release-tryjob
     trogdor64-release-tryjob
     volteer-release-tryjob
+    whirlwind-release-tryjob
     zork-release-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
   mistral-master-factorybranch-tryjob
