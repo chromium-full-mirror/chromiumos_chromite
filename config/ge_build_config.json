@@ -442,6 +442,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7196,
           "is_active": true,
+          "stable_target_milestone": 116,
           "is_experimental": false
         },
         {
