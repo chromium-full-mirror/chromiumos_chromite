@@ -192,7 +192,6 @@
     tael-release
     tatl-release
     trogdor-release
-    trogdor64-release
     volteer-release
     whirlwind-release
     zork-release
@@ -781,7 +780,6 @@
     tael-release-tryjob
     tatl-release-tryjob
     trogdor-release-tryjob
-    trogdor64-release-tryjob
     volteer-release-tryjob
     whirlwind-release-tryjob
     zork-release-tryjob
@@ -983,11 +981,6 @@
   trogdor-llvm-toolchain-tryjob
   trogdor-payloads-tryjob
   trogdor-release-tryjob
-  trogdor64-full-tryjob
-  trogdor64-llvm-next-toolchain-tryjob
-  trogdor64-llvm-toolchain-tryjob
-  trogdor64-payloads-tryjob
-  trogdor64-release-tryjob
   veyron_mighty-full-tryjob
   veyron_mighty-llvm-next-toolchain-tryjob
   veyron_mighty-llvm-toolchain-tryjob
