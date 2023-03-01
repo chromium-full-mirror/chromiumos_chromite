@@ -402,6 +402,15 @@
       "models": [
         {
           "board_name": "brask",
+          "name": "aurash",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7196,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask",
           "name": "brask",
           "test_suites": [
             "sanity",
