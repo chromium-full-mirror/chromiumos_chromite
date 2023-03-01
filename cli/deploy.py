@@ -1191,19 +1191,8 @@ def _RestoreSELinuxContext(
     )
     # Testing shows restorecon splits on newlines instead of spaces.
     device.run(
-        [
-            "cd",
-            root,
-            "&&",
-            "tar",
-            "tf",
-            pkgpath_device,
-            "|",
-            "restorecon",
-            "-i",
-            "-f",
-            "-",
-        ],
+        f"cd {root} && tar tf {pkgpath_device} | restorecon -i -f -",
+        shell=True,
         remote_sudo=True,
     )
 
@@ -1367,16 +1356,9 @@ def _EmergePackages(
     if dlc_deployed:
         # Clean up empty directories created by emerging DLCs.
         device.run(
-            [
-                "test",
-                "-d",
-                "/build/rootfs",
-                "&&",
-                "rmdir",
-                "--ignore-fail-on-non-empty",
-                "/build/rootfs",
-                "/build",
-            ],
+            "[ -d /build/rootfs ] && "
+            "rmdir --ignore-fail-on-non-empty /build/rootfs /build",
+            shell=True,
             check=False,
         )
 

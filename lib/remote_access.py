@@ -992,15 +992,11 @@ class RemoteDevice:
 
         if self._work_dir is None:
             self._work_dir = self.run(
-                [
-                    "mkdir",
-                    "-p",
-                    self._base_dir,
-                    "&&",
-                    "mktemp",
-                    "-d",
-                    "--tmpdir=%s" % self._base_dir,
-                ],
+                (
+                    f"mkdir -p {self._base_dir} && "
+                    f"mktemp -d --tmpdir={self._base_dir}"
+                ),
+                shell=True,
                 capture_output=True,
             ).stdout.strip()
             logging.debug(

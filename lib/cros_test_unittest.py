@@ -837,17 +837,11 @@ class CrOSTesterChromeTest(CrOSTesterBase):
         )
         args = " ".join(test_args) if test_args else ""
         # Ensure the chrome test is run.
-        self.assertCommandContains(
-            [
-                "ssh",
-                "-p",
-                "9222",
-                "chronos@localhost",
-                "--",
-                "cd /usr/local/chrome_test && out_amd64-generic/Release/%s %s"
-                % (test_exe, args),
-            ]
+        cmd = (
+            "cd /usr/local/chrome_test && "
+            f"out_amd64-generic/Release/{test_exe} {args}"
         )
+        assert cmd in self.rc.call_args_list[-1].args[0]
 
     def testChromeTestRsync(self) -> None:
         """Verify build/deploy and chrome test commands using rsync to copy."""

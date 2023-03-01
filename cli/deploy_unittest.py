@@ -739,21 +739,7 @@ class TestDeploy(
 
         def GetRestoreconCommand(pkgfile):
             remote_path = os.path.join("/testdir/packages/to/", pkgfile)
-            return [
-                [
-                    "cd",
-                    "/",
-                    "&&",
-                    "tar",
-                    "tf",
-                    remote_path,
-                    "|",
-                    "restorecon",
-                    "-i",
-                    "-f",
-                    "-",
-                ]
-            ]
+            return [f"cd / && tar tf {remote_path} | restorecon -i -f -"]
 
         self.device.device.selinux_available = True
         packages = ["some/foo-1.2.3", _BINPKG, "some/foobar-2.0"]
