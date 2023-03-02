@@ -285,7 +285,7 @@ class RemoteShTest(RemoteAccessTest):
         test_cmd = "ls && pwd"
         self.rsh_mock.AddCmdResult(test_cmd, returncode=0)
         result = self.host.RemoteSh(test_cmd, shell=True)
-        self.assertTrue(result.cmd[-1].endswith("'%s'" % test_cmd))
+        self.assertEqual(result.cmd[-1], test_cmd)
 
     def testRemoteCmdFailure(self) -> None:
         """Test failure in remote cmd."""

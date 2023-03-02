@@ -465,12 +465,7 @@ class RemoteAccess:
             # fatal.
             fatal_only_in_test = True
             if isinstance(cmd, str):
-                if kwargs.get("shell"):
-                    ssh_cmd = "%s %s" % (
-                        " ".join(ssh_cmd),
-                        shell_util.quote(cmd),
-                    )
-                else:
+                if not kwargs.pop("shell", None):
                     if fatal_only_in_test:
                         assert "PYTEST_CURRENT_TEST" not in os.environ
                         warnings.warn(
@@ -480,7 +475,7 @@ class RemoteAccess:
                         raise ValueError(
                             "Cannot run a string command without a shell"
                         )
-                    ssh_cmd += [cmd]
+                ssh_cmd += [cmd]
             else:
                 if kwargs.pop("shell", False):
                     raise ValueError("Cannot run a list command with a shell")
