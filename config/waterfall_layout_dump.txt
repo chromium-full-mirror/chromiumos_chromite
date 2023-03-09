@@ -150,6 +150,7 @@
     grunt-release
     guado_labstation-release
     guybrush-release
+    hana-arc64-release
     hana-release
     hatch-release
     herobrine-angle-release
@@ -585,6 +586,11 @@
   guybrush-llvm-toolchain-tryjob
   guybrush-payloads-tryjob
   guybrush-release-tryjob
+  hana-arc64-full-tryjob
+  hana-arc64-llvm-next-toolchain-tryjob
+  hana-arc64-llvm-toolchain-tryjob
+  hana-arc64-payloads-tryjob
+  hana-arc64-release-tryjob
   hana-factory-oak-8182.B-factorybranch-tryjob
   hana-full-tryjob
   hana-llvm-next-toolchain-tryjob
@@ -737,6 +743,7 @@
     grunt-release-tryjob
     guado_labstation-release-tryjob
     guybrush-release-tryjob
+    hana-arc64-release-tryjob
     hana-release-tryjob
     hatch-release-tryjob
     herobrine-angle-release-tryjob
