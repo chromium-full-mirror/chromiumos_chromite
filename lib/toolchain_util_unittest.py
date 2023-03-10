@@ -414,11 +414,19 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
                 "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
                 "benchmark-78.0.3893.0-r1.orderfile.xz",
                 1.2,
-            ),  # Latest
+            ),
+            # Latest on 78.
             (
                 "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
                 "benchmark-78.0.3850.0-r1.orderfile.xz",
                 2.2,
+            ),
+            # This artifact includes 78 but comes from the next milestone,
+            # which is reflected in benchmark-79.
+            (
+                "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
+                "benchmark-79.0.3900.0-r1.orderfile.xz",
+                3.2,
             ),
         ]
 
@@ -480,7 +488,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
         self.obj._ebuild_info["chromeos-chrome"] = toolchain_util._EbuildInfo(
             path="path",
             CPV=package_info.parse(
-                "chromeos-base/chromeos-chrome-79.0.3900.0_rc-r1"
+                "chromeos-base/chromeos-chrome-80.0.4000.0_rc-r1"
             ),
         )
         latest_orderfile = self.obj._FindLatestAFDOArtifact(
@@ -491,7 +499,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
             os.path.join(
                 self.gs_url,
                 "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
-                "benchmark-78.0.3893.0-r1.orderfile.xz",
+                "benchmark-79.0.3900.0-r1.orderfile.xz",
             ),
         )
 

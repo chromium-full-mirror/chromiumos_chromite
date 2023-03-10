@@ -723,24 +723,28 @@ class _CommonPrepareBundle(object):
             Returns:
               Files matching the branch.
             """
-            # Filter out those not match pattern. And filter out text files for legacy
-            # PFQ like latest-chromeos-chrome-amd64-79.afdo.
+            profile_type = "field" if self.arch == "amd64" else self.arch
+            cwp_afdo_pattern = re.compile(rf"R{branch}")
+            # Search by the arch and branch number.
+            bench_afdo_pattern = re.compile(
+                rf"chromeos-chrome-{self.arch}-{branch}"
+            )
+            # Search for the benchmark branch version and ignore the cwp version.
+            # When main branch switches from 100 to 101 and we are checking 100
+            # branch we have to ignore "-field-100-*-benchmark-101-" profiles
+            # which are going to come from main.
+            orderfile_pattern = re.compile(
+                rf"chromeos-chrome-orderfile-{profile_type}-[0-9\-.]+-"
+                rf"benchmark-{branch}"
+            )
             results = []
             for x in all_files:
-                if "latest-" in x.url:
-                    continue
-
                 x_name = os.path.basename(x.url)
-                profile_type = "field" if self.arch == "amd64" else self.arch
                 # Filter in CWP, benchmark AFDO and Orderfiles.
                 if (
-                    x_name.startswith(f"R{branch}")
-                    or x_name.startswith(
-                        f"chromeos-chrome-orderfile-{profile_type}-{branch}"
-                    )
-                    or x_name.startswith(
-                        f"chromeos-chrome-{self.arch}-{branch}"
-                    )
+                    cwp_afdo_pattern.match(x_name)
+                    or orderfile_pattern.match(x_name)
+                    or bench_afdo_pattern.match(x_name)
                 ):
                     results.append(x)
 
