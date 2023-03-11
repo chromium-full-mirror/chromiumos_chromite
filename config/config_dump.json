@@ -8944,6 +8944,16 @@
     "boards": [
       "hana-arc64"
     ],
+    "models": [
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"birch\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"hana\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"hanawl\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"maple\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"maple14\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"sycamore\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"sycamore360\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"telesu\",\n  \"test_suites\": []\n}"
+    ],
     "vm_tests_override": null
   },
   "hana-arc64-release-tryjob": {
@@ -8964,6 +8974,16 @@
     ],
     "hw_tests_override": null,
     "luci_builder": "Try",
+    "models": [
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"birch\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"hana\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"hanawl\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"maple\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"maple14\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"sycamore\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"sycamore360\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hana\",\n  \"name\": \"telesu\",\n  \"test_suites\": []\n}"
+    ],
     "paygen": false,
     "push_image": false,
     "suite_scheduling": false,
