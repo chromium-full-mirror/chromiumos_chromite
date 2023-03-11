@@ -29,7 +29,7 @@ __git_branch_ps1() {
   m_branch=$(__git_m_branch)
   # Do not print the default branch names.
   case "${m_branch}" in
-    ""|main|master|stable) ;;
+    "" | main | master | stable) ;;
     *)
       # shellcheck disable=SC2059
       format_str=$(printf "${format_str}" "${m_branch}/%s")

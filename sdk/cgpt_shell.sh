@@ -32,11 +32,11 @@ create_image() {
     # Zap any old partitions (otherwise gpt complains).
     dd if=/dev/zero of="${dev}" conv=notrunc bs=512 count=64
     dd if=/dev/zero of="${dev}" conv=notrunc bs=512 count=64 \
-      seek=$(( min_disk_size / 512 - 64 ))
+      seek=$((min_disk_size / 512 - 64))
   else
     if [ ! -e "${dev}" ]; then
       # Align to 512 bytes
-      min_disk_size=$(( (min_disk_size + 511) & ~511 ))
+      min_disk_size=$(((min_disk_size + 511) & ~511))
       truncate -s "${min_disk_size}" "${dev}"
     fi
   fi

@@ -15,10 +15,10 @@ set -e
 should_upgrade() {
   TARGET=my_visualizations/bin/visualize_depgraph
   DEPS=(depgraph_visualization requirements.txt)
-  if [[ ! -x "${TARGET}" ]] ; then
+  if [[ ! -x "${TARGET}" ]]; then
     return 0
   fi
-  if [[ -n "$(find "${DEPS[@]}" -newer "${TARGET}" -print -quit)" ]] ; then
+  if [[ -n "$(find "${DEPS[@]}" -newer "${TARGET}" -print -quit)" ]]; then
     return 0
   fi
   return 1
@@ -36,7 +36,7 @@ install() {
   pip "${INSTALL_OPTIONS[@]}" .
 }
 
-if should_upgrade ; then
+if should_upgrade; then
   install
 fi
 

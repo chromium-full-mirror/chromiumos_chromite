@@ -13,7 +13,7 @@ gcertstatus >&/dev/null || gcert
 dremel \
   --min_completion_ratio 1 \
   --output csv \
-  << SQLtoHERE
+  <<SQLtoHERE
 SELECT
   package_name,
   ARRAY_CONCAT(board_name) AS boards

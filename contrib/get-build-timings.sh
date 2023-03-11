@@ -13,7 +13,7 @@ gcertstatus >&/dev/null || gcert
 
 # Run the query.
 (f1-sql -quiet=1 -csv_output=1 \
-  | tr -d '"') << SQLtoHERE
+  | tr -d '"') <<SQLtoHERE
 SELECT
   board,
   pkg_phase,

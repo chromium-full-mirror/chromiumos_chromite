@@ -27,13 +27,13 @@ echoWarning() {
 
 cd "$(dirname "$0")"
 
-if ! which node > /dev/null; then
+if ! which node >/dev/null; then
   echoWarning "node not found; please install it following \
 http://go/nodejs/installing-node"
   exit 1
 fi
 
-current_version="$(node --version)";
+current_version="$(node --version)"
 if [[ "${current_version}" < "${min_node_ver}" ]]; then
   echoWarning "Node version ${current_version} is too low. Please get node \
 ${min_node_ver} or higher to avoid unexpected issues."
@@ -54,7 +54,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-if ! which "${exe}" > /dev/null; then
+if ! which "${exe}" >/dev/null; then
   echo "VSCode executable not found. Did you forget --exe ?"
   exit 1
 fi
