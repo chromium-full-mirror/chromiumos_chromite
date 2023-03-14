@@ -7332,6 +7332,15 @@
         },
         {
           "board_name": "skyrim-kernelnext",
+          "name": "markarth",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7220,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "skyrim-kernelnext",
           "name": "skyrim15w",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
