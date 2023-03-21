@@ -11,6 +11,7 @@ import * as boilerplate from '../boilerplate';
 import * as chromiumBuild from './chromium_build';
 import * as outputDirectories from './output_directories';
 import * as format from './format';
+import * as relatedFiles from './related_files';
 
 /**
  * Extension context value provided to this class. We omit subscriptions here
@@ -94,6 +95,12 @@ export class Chromium implements vscode.Disposable {
 
     this.featureName = 'chromiumFormat';
     format.activate(ephemeralContext, this.root);
+    // TODO(cmfcmf): This is Chromium-only for now, but we should also consider enabling it for
+    // other repos once we understand their file structures better.
+    if (config.underDevelopment.relatedFiles.get()) {
+      this.featureName = 'relatedFiles';
+      relatedFiles.activate(ephemeralContext);
+    }
   }
 }
 

@@ -259,6 +259,11 @@
         "enablement": "!commentIsEmpty"
       },
       {
+        "command": "cros-ide.relatedFiles.create",
+        "title": "Create related file",
+        "enablement": "config.cros-ide.underDevelopment.relatedFiles"
+      },
+      {
         "command": "cros-ide.showHelpForBoardsPackages",
         "title": "Show Help",
         "icon": "$(question)"
@@ -594,6 +599,10 @@
         {
           "command": "cros-ide.gerrit.replyAndUnresolve",
           "when": "false"
+        },
+        {
+          "command": "cros-ide.relatedFiles.create",
+          "when": "false"
         }
       ]
     },
@@ -741,6 +750,11 @@
         "cros-ide.underDevelopment.platformEC": {
           "type": "boolean",
           "description": "Enable Platform EC support (under development)",
+          "default": false
+        },
+        "cros-ide.underDevelopment.relatedFiles": {
+          "type": "boolean",
+          "description": "Enable buttons at the top of each C++ file to create/open related files, such as test and header files (under development, and Chromium-only for now)",
           "default": false
         },
         "cros-ide.underDevelopment.systemLogViewer": {
