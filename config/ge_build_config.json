@@ -72,20 +72,6 @@
       "stable_target_milestone": 50
     },
     {
-      "name": "geralt",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "geralt",
-          "arch": "ARM_INTERNAL"
-        }
-      ],
-      "rubik_target_milestone": 103,
-      "stable_target_milestone": 105
-    },
-    {
       "name": "guado_labstation",
       "configs": [
         {
@@ -2897,6 +2883,26 @@
       ],
       "rubik_target_milestone": 103,
       "stable_target_milestone": 66
+    },
+    {
+      "name": "geralt",
+      "reference_board_name": "geralt",
+      "arch": "ARM_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "geralt",
+          "name": "geralt",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7244,
+          "is_active": true,
+          "is_experimental": false
+        }
+      ],
+      "rubik_target_milestone": 103,
+      "stable_target_milestone": 105
     },
     {
       "name": "grunt",
