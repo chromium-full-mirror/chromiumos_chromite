@@ -154,6 +154,7 @@
     guybrush-release
     hana-arc64-release
     hana-release
+    hatch-arc-t-release
     hatch-release
     herobrine-angle-release
     herobrine-release
@@ -601,6 +602,11 @@
   hana-llvm-toolchain-tryjob
   hana-payloads-tryjob
   hana-release-tryjob
+  hatch-arc-t-full-tryjob
+  hatch-arc-t-llvm-next-toolchain-tryjob
+  hatch-arc-t-llvm-toolchain-tryjob
+  hatch-arc-t-payloads-tryjob
+  hatch-arc-t-release-tryjob
   hatch-factory-hatch-12692.B-factorybranch-tryjob
   hatch-full-tryjob
   hatch-llvm-next-toolchain-tryjob
@@ -749,6 +755,7 @@
     guybrush-release-tryjob
     hana-arc64-release-tryjob
     hana-release-tryjob
+    hatch-arc-t-release-tryjob
     hatch-release-tryjob
     herobrine-angle-release-tryjob
     herobrine-release-tryjob
