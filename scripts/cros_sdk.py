@@ -834,6 +834,10 @@ def main(argv):
         distfiles_cache = os.path.join(chroot.cache_dir, "distfiles")
         osutils.SafeMakedirsNonRoot(chroot.cache_dir)
         osutils.SafeMakedirsNonRoot(options.out_dir)
+        # Create here (and not, say, in cros_sdk_lib.MountChrootPaths())
+        # because some usages want to create tmp files here even before we've
+        # fully mounted the SDK.
+        osutils.SafeMakedirsNonRoot(options.out_dir / "tmp", mode=0o777)
 
         for target in (sdk_cache, distfiles_cache):
             src = os.path.join(constants.SOURCE_ROOT, os.path.basename(target))

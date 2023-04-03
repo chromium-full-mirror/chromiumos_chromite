@@ -99,7 +99,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         )
         osutils.SafeMakedirs(chroot.tmp)
 
-        self.assertEqual(os.path.join(self.chroot_path, "tmp"), chroot.tmp)
+        self.assertEqual(os.path.join(self.out_path, "tmp"), chroot.tmp)
 
         with chroot.tempdir() as tempdir:
             self.assertStartsWith(tempdir, chroot.tmp)

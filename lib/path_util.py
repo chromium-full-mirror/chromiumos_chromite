@@ -114,6 +114,7 @@ class ChrootPathResolver(object):
             self._chroot_to_host_roots = (
                 (constants.CHROOT_SOURCE_ROOT, self._source_path),
                 (constants.CHROOT_CACHE_ROOT, self._GetCachePath),
+                ("/tmp", self._out_path / "tmp"),
                 (constants.CHROOT_OUT_ROOT, self._out_path),
             )
 
@@ -244,6 +245,7 @@ class ChrootPathResolver(object):
             (chroot_link, "/"),
             # Check the cache directory.
             (self._GetCachePath(), constants.CHROOT_CACHE_ROOT),
+            (self._out_path / "tmp", "/tmp"),
             (self._out_path, constants.CHROOT_OUT_ROOT),
             # Check the current SDK checkout tree.
             (source_path, constants.CHROOT_SOURCE_ROOT),

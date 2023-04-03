@@ -6,6 +6,7 @@
 
 import errno
 import os
+from pathlib import Path
 import stat
 
 from chromite.lib import chroot_lib
@@ -104,7 +105,9 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
         )
 
         # TODO(b/265885353): fill map as we migrate state paths.
-        self.state_path_map = ()
+        self.state_path_map = (
+            (Path(self.chroot.path) / "tmp", self.chroot.out_path / "tmp"),
+        )
 
     def _crossdevice_rename(self, src, dst):
         raise OSError(errno.EXDEV, "fake cross-device rename failure")
