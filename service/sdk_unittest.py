@@ -246,6 +246,21 @@ class UnmountTest(
         self.assertIn("Umount failed:", str(unmount_exception))
 
 
+class CleanTest(cros_test_lib.RunCommandTestCase):
+    """Delete function tests."""
+
+    def testClean(self):
+        """Test with chroot provided."""
+        path = "/some/path"
+        out_path = "/some/out"
+        sdk.Clean(
+            chroot=chroot_lib.Chroot(path, out_path=out_path),
+            safe=True,
+            sysroots=True,
+        )
+        self.assertCommandContains(["--safe", "--sysroots"])
+
+
 class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Create function tests."""
 
