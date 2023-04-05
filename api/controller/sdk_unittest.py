@@ -130,8 +130,66 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
 
 
+class SdkCleanTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
+    """Clean tests."""
+
+    def setUp(self):
+        """Setup method."""
+        # We need to run the command outside the chroot.
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.response = sdk_pb2.CleanResponse()
+
+    def _GetRequest(self, chroot_path=None, incrementals=False):
+        """Helper to build a clean request message."""
+        request = sdk_pb2.CleanRequest()
+        if chroot_path:
+            request.chroot.path = chroot_path
+
+        request.incrementals = incrementals
+
+        return request
+
+    def testMockCall(self):
+        """Sanity check that a mock call does not execute any logic."""
+        patch = self.PatchObject(sdk_service, "Clean")
+
+        rc = sdk_controller.Clean(
+            self._GetRequest(), self.response, self.mock_call_config
+        )
+        patch.assert_not_called()
+        self.assertFalse(rc)
+
+    def testSuccess(self):
+        """Test the successful call by verifying service invocation."""
+        patch = self.PatchObject(sdk_service, "Clean", return_value=0)
+
+        request = self._GetRequest(incrementals=True)
+
+        sdk_controller.Clean(request, self.response, self.api_config)
+        patch.assert_called_once_with(
+            mock.ANY,
+            safe=False,
+            images=False,
+            sysroots=False,
+            tmp=False,
+            cache=False,
+            logs=False,
+            workdirs=False,
+            incrementals=True,
+        )
+
+    def testDefaults(self):
+        """Test the successful call by verifying service invocation."""
+        patch = self.PatchObject(sdk_service, "Clean", return_value=0)
+
+        request = self._GetRequest()
+
+        sdk_controller.Clean(request, self.response, self.api_config)
+        patch.assert_called_once_with(mock.ANY, safe=True, sysroots=True)
+
+
 class SdkDeleteTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
-    """Create tests."""
+    """Delete tests."""
 
     def setUp(self):
         """Setup method."""
