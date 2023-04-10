@@ -125,7 +125,6 @@
     betty-release
     bob-release
     brask-release
-    brya-arc-t-release
     brya-release
     bubs-release
     caroline-release
@@ -290,11 +289,6 @@
   brask-llvm-toolchain-tryjob
   brask-payloads-tryjob
   brask-release-tryjob
-  brya-arc-t-full-tryjob
-  brya-arc-t-llvm-next-toolchain-tryjob
-  brya-arc-t-llvm-toolchain-tryjob
-  brya-arc-t-payloads-tryjob
-  brya-arc-t-release-tryjob
   brya-factory-brya-14517.B-factorybranch-tryjob
   brya-factory-brya-14909.124.B-factorybranch-tryjob
   brya-factory-brya-15231.B-factorybranch-tryjob
@@ -718,7 +712,6 @@
     betty-release-tryjob
     bob-release-tryjob
     brask-release-tryjob
-    brya-arc-t-release-tryjob
     brya-release-tryjob
     bubs-release-tryjob
     caroline-release-tryjob
