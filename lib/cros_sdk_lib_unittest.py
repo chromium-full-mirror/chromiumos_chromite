@@ -505,6 +505,9 @@ class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
         sudo = chroot_path / "usr" / "bin" / "sudo"
         osutils.Touch(sudo, makedirs=True, mode=0o7755)
 
+        # We can't really verify these in any useful way atm.
+        self.mount_mock = self.PatchObject(osutils, "Mount")
+
         self.enteror = cros_sdk_lib.ChrootEnteror(self.chroot)
 
         self.sysctl_vm_max_map_count = self.tempdir / "vm_max_map_count"

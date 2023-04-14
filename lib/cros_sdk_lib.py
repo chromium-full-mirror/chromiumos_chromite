@@ -1069,6 +1069,15 @@ class ChrootEnteror:
         """Enter the chroot."""
         self._check_chroot()
 
+        # Prepare for pivot_root(2).
+        # `man 2 pivot_root` says new_root must be a mount point.
+        osutils.Mount(
+            self.chroot.path,
+            self.chroot.path,
+            None,
+            osutils.MS_BIND | osutils.MS_REC,
+        )
+
         if cmd is None:
             cmd = self.cmd
         if cwd is None:
