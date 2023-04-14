@@ -166,7 +166,6 @@ def Clean(
     cache: bool = False,
     logs: bool = False,
     workdirs: bool = False,
-    incrementals: bool = False,
 ) -> None:
     """Clean the chroot.
 
@@ -174,15 +173,14 @@ def Clean(
       cros clean -h
 
     Args:
-        chroot: The chroot to clean.
-        images: Remove all built images.
-        sysroots: Remove all of the sysroots.
-        tmp: Clean the tmp/ directory.
-        safe: Clean all produced artifacts.
-        cache: Clean the shared cache.
-        logs: Clean up various logs.
-        workdirs: Clean out various package build work directories.
-        incrementals: Clean out the incremental artifacts.
+      chroot: The chroot to clean.
+      images: Remove all built images.
+      sysroots: Remove all of the sysroots.
+      tmp: Clean the tmp/ directory.
+      safe: Clean all produced artifacts.
+      cache: Clean the shared cache.
+      logs: Clean up various logs.
+      workdirs: Clean out various package build work directories.
     """
     if not (images or sysroots or tmp or safe or cache or logs or workdirs):
         # Nothing specified to clean.
@@ -205,8 +203,6 @@ def Clean(
         cmd.append("--logs")
     if workdirs:
         cmd.append("--workdirs")
-    if incrementals:
-        cmd.append("--incrementals")
 
     cros_build_lib.run(cmd)
 
