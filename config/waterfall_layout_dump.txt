@@ -124,6 +124,7 @@
     asurada-release
     atlas-kernelnext-release
     atlas-release
+    betty-pi-arc-release
     betty-release
     bob-release
     brask-release
@@ -279,6 +280,11 @@
   betty-llvm-next-toolchain-tryjob
   betty-llvm-toolchain-tryjob
   betty-payloads-tryjob
+  betty-pi-arc-full-tryjob
+  betty-pi-arc-llvm-next-toolchain-tryjob
+  betty-pi-arc-llvm-toolchain-tryjob
+  betty-pi-arc-payloads-tryjob
+  betty-pi-arc-release-tryjob
   betty-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
   bob-full-tryjob
@@ -725,6 +731,7 @@
     asurada-release-tryjob
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
+    betty-pi-arc-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
     brask-release-tryjob
