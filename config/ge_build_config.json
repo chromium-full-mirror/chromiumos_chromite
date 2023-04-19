@@ -924,16 +924,6 @@
         },
         {
           "board_name": "brya",
-          "name": "tarlo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 459,
-          "is_active": true,
-          "stable_target_milestone": 104,
-          "is_experimental": false
-        },
-        {
-          "board_name": "brya",
           "name": "vell",
           "test_suites": [
             "sanity",
