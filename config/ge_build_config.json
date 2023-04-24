@@ -244,7 +244,7 @@
           "is_experimental": false
         }
       ],
-      "rubik_target_milestone": 103,
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 88
     },
     {
@@ -2977,7 +2977,7 @@
           "is_experimental": false
         }
       ],
-      "rubik_target_milestone": 103,
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 80
     },
     {
@@ -4737,7 +4737,7 @@
           "is_experimental": false
         }
       ],
-      "rubik_target_milestone": 103,
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 78
     },
     {
