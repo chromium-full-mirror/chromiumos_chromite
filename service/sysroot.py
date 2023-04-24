@@ -5,6 +5,7 @@
 """Sysroot service."""
 
 import contextlib
+import datetime
 import getpass
 import glob
 import logging
@@ -32,6 +33,7 @@ from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
 from chromite.lib import goma_lib
+from chromite.lib import gs
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -869,6 +871,9 @@ def BuildPackages(
         )
         logging.info("PORTAGE_BINHOST: %s", portage_binhost)
 
+        binhosts = portage_binhost.strip().split()
+        _LogBinhostAge(binhosts, date_threshold=30)
+
         # Before running any emerge operations, regenerate the Portage
         # dependency cache in parallel.
         logging.info("Rebuilding Portage cache.")
@@ -938,6 +943,47 @@ def BuildPackages(
         # Remove any broken or outdated binpkgs.
         if run_configs.eclean:
             portage_util.CleanOutdatedBinaryPackages(sysroot.path, deep=True)
+
+
+def _LogBinhostAge(binhosts: List[str], date_threshold: int) -> None:
+    """Log the age of the binhosts and suggest remediation steps if necessary.
+
+    Args:
+        binhosts: The list of binhost gs urls.
+        date_threshold: The maximum number of days considered as acceptable
+            before logging a warning.
+    """
+    today = datetime.datetime.now()
+
+    for binhost in binhosts:
+        # In some cases the binhost url ends with a trailing slash, the rstrip
+        # handles those urls.
+        package_index = binhost.rstrip("/") + "/Packages"
+
+        try:
+            binhost_age = gs.GSContext().GetCreationTimeSince(
+                path=package_index, since_date=today
+            )
+        # Using the catch-all gs.GSContextException to record and suppress gs
+        # errors since this is a function for logging and should not halt
+        # program execution.
+        except gs.GSContextException as e:
+            logging.info("PORTAGE_BINHOST %s", binhost)
+            logging.warning("Error getting the binhost age: %s", e)
+            return
+
+        logging.info(
+            "PORTAGE_BINHOST %s was created %d days ago.",
+            binhost,
+            binhost_age.days,
+        )
+
+        if binhost_age.days >= date_threshold:
+            logging.warning(
+                "PORTAGE_BINHOST %s was created more than 30 days ago. "
+                "Please repo sync for the latest build artifacts.",
+                binhost,
+            )
 
 
 def _CleanStaleBinpkgs(sysroot: Union[str, os.PathLike]) -> None:
