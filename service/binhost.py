@@ -12,12 +12,15 @@ import tempfile
 from typing import List, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import binpkg
+from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import git
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
+from chromite.lib import repo_util
 from chromite.utils import key_value_store
 
 
@@ -32,6 +35,9 @@ _GOOGLESTORAGE_GSUTIL_FILE = "googlestorage_acl.txt"
 # The name of the package file (relative to sysroot) where the list of packages
 # for dev-install is stored.
 _DEV_INSTALL_PACKAGES_FILE = "build/dev-install/package.installable"
+
+# The maximum number of binhosts to return from the lookup service.
+_MAX_BINHOSTS = 10
 
 
 class Error(Exception):
@@ -590,3 +596,45 @@ def GetPrebuiltsForPackages(
         if not os.path.exists(full_pkg_path):
             raise LookupError("Archive %s does not exist" % full_pkg_path)
     return upload_targets_list
+
+
+def lookup_binhosts() -> List[Optional[str]]:
+    """Call Cloud Functions to lookup BINHOSTs."""
+    # TODO(b/270985155): Implement the lookup logic.
+    return _get_snapshot_shas()
+
+
+def _get_snapshot_shas() -> List[Optional[str]]:
+    """Get the last n=_MAX_BINHOSTS snapshot SHAs using git log.
+
+    We're intentionally swallowing errors related to determining the snapshot
+    SHAs since the lookup service will contain logic for these error cases.
+    """
+    site_params = config_lib.GetSiteParams()
+
+    # Get the repo directory.
+    try:
+        repo_dir = repo_util.Repository.MustFind(constants.SOURCE_ROOT)
+    except repo_util.NotInRepoError as e:
+        logging.error("Unable to determine a repo directory: %s", e)
+        return []
+
+    # Determine if checkout is public or internal.
+    internal = repo_dir.Manifest().HasRemote(site_params.INTERNAL_REMOTE)
+
+    # Get the last n (_MAX_BINHOSTS) snapshot SHAs.
+    manifest_type = "manifest-internal" if internal else "manifest"
+    manifest_dir = os.path.join(constants.SOURCE_ROOT, manifest_type)
+    remote_name = (
+        site_params.INTERNAL_REMOTE if internal else site_params.EXTERNAL_REMOTE
+    )
+    try:
+        return git.Log(
+            manifest_dir,
+            format="format:%H",
+            max_count=_MAX_BINHOSTS,
+            rev=f"{remote_name}/snapshot",
+        ).splitlines()
+    except cros_build_lib.RunCommandError as e:
+        logging.error(e)
+        return []

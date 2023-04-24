@@ -14,11 +14,14 @@ from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import git
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel_unittest
 from chromite.lib import portage_util
+from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
 from chromite.service import binhost
 
@@ -643,6 +646,81 @@ CPV: package/exclude-2
         )
         self.assertNotIn("CPV: package/exclude-1", actual_packages_content)
         self.assertNotIn("CPV: package/exclude-2", actual_packages_content)
+
+
+class LookupBinhostsTest(
+    cros_test_lib.MockTempDirTestCase, cros_test_lib.LoggingTestCase
+):
+    """Unittests for lookup_binhosts."""
+
+    def setUp(self):
+        self.find_repo_mock = self.PatchObject(repo_util.Repository, "MustFind")
+        self.has_remote_mock = (
+            self.find_repo_mock.return_value.Manifest.return_value.HasRemote
+        )
+        self.git_log_mock = self.PatchObject(git, "Log")
+        self.source_root_mock = self.PatchObject(
+            constants, "SOURCE_ROOT", new=self.tempdir
+        )
+
+    def testInternalSuccess(self):
+        """Test basic internal success case."""
+        self.git_log_mock.return_value = (
+            "internal-snapshot-sha1\ninternal-snapshot-sha2"
+        )
+
+        result = binhost.lookup_binhosts()
+
+        self.git_log_mock.assert_called_with(
+            os.path.join(self.tempdir, "manifest-internal"),
+            format="format:%H",
+            max_count=10,
+            rev="cros-internal/snapshot",
+        )
+        self.assertEqual(
+            ["internal-snapshot-sha1", "internal-snapshot-sha2"], result
+        )
+
+    def testExternalSuccess(self):
+        """Test basic external success case."""
+        self.git_log_mock.return_value = (
+            "external-snapshot-sha1\nexternal-snapshot-sha2"
+        )
+        self.has_remote_mock.return_value = False
+
+        result = binhost.lookup_binhosts()
+
+        self.git_log_mock.assert_called_with(
+            os.path.join(self.tempdir, "manifest"),
+            format="format:%H",
+            max_count=10,
+            rev="cros/snapshot",
+        )
+        self.assertEqual(
+            ["external-snapshot-sha1", "external-snapshot-sha2"], result
+        )
+
+    def testGetSnapshotShasRepoError(self):
+        """Test repo error when getting snapshot SHAs."""
+        with cros_test_lib.LoggingCapturer() as logs:
+            self.find_repo_mock.side_effect = repo_util.NotInRepoError()
+
+            result = binhost.lookup_binhosts()
+
+            self.AssertLogsContain(logs, "Unable to determine a repo directory")
+            self.assertEqual([], result)
+
+    def testGetSnapshotShasGitError(self):
+        """Test git error when getting snapshot SHAs."""
+        with cros_test_lib.LoggingCapturer() as logs:
+            self.git_log_mock.side_effect = cros_build_lib.RunCommandError(
+                "Run Command Error."
+            )
+
+            result = binhost.lookup_binhosts()
+
+            self.AssertLogsContain(logs, "Run Command Error.")
+            self.assertEqual([], result)
 
 
 @pytest.mark.parametrize(

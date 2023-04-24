@@ -156,6 +156,13 @@ class Manifest(object):
                 return remote
         raise ValueError("no remote named %s" % name)
 
+    def HasRemote(self, name: str) -> bool:
+        """Return whether the manifest contains the specified remote."""
+        for remote in self.Remotes():
+            if remote.name == name:
+                return True
+        return False
+
     def Projects(self):
         """Yield a Project for each <project> element in the manifest."""
         for project_element in self._etree.iterfind("project"):

@@ -172,6 +172,16 @@ class ManifestTest(cros_test_lib.TempDirTestCase, XMLTestCase):
         with self.assertRaises(ValueError):
             self.manifest.GetRemote("missing")
 
+    def testHasRemote(self):
+        """Test Manifest.HasRemote."""
+        result = self.manifest.HasRemote("simple_remote")
+        self.assertEqual(result, True)
+
+    def testHasRemoteMissing(self):
+        """Test Manifest.HasRemote without named <remote>."""
+        result = self.manifest.HasRemote("missing")
+        self.assertEqual(result, False)
+
     def testProjects(self):
         """Test Manifest.Projects."""
         project_names = [x.name for x in self.manifest.Projects()]
