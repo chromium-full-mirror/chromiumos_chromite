@@ -3330,7 +3330,8 @@
     ],
     "chrome_rev": "stable_release",
     "display_label": "chrome_pfq",
-    "sync_chrome": true
+    "sync_chrome": true,
+    "vm_tests_override": null
   },
   "chell-chrome-no-afdo-uprev-pre-flight-branch-tryjob": {
     "_template": "pre_flight_branch",
@@ -3346,11 +3347,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "sync_chrome": true,
-    "vm_tests": [
-      "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": \"smoke\",\n  \"test_type\": \"vm_suite\",\n  \"timeout\": 5400,\n  \"use_ctest\": false,\n  \"warn_only\": false\n}",
-      "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": null,\n  \"test_type\": \"pfq_suite\",\n  \"timeout\": 5400,\n  \"use_ctest\": true,\n  \"warn_only\": false\n}",
-      "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": null,\n  \"test_type\": \"cros_vm_test\",\n  \"timeout\": 5400,\n  \"use_ctest\": true,\n  \"warn_only\": false\n}"
-    ],
     "vm_tests_override": null
   },
   "chell-factory-glados-7657.B-factorybranch": {

@@ -2239,6 +2239,7 @@ def SpecialtyBuilders(site_config):
         chrome_rev=constants.CHROME_REV_STICKY,
         prebuilts=False,
         archive_build_debug=True,
+        vm_tests_override=None,
     )
 
     # Loonix release builders; no signed images nor testing
