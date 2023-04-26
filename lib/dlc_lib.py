@@ -96,9 +96,6 @@ DLC_APPID_KEY = "DLC_RELEASE_APPID"
 SQUASHFS_TYPE = "squashfs"
 EXT4_TYPE = "ext4"
 
-USED_BY_USER = "user"
-USED_BY_SYSTEM = "system"
-
 _MAX_ID_NAME = 80
 
 _IMAGE_SIZE_NEARING_RATIO = 1.05
@@ -276,9 +273,6 @@ class EbuildParams:
         preload: (bool) allow for preloading DLC.
         factory_install: (bool) allow factory installing the DLC.
         mount_file_required: (bool) allow for mount file generation for DLC.
-        used_by: (str) The user of this DLC, e.g. "system" or "user"
-        days_to_purge: (int) The number of days to keep a DLC after uninstall
-            and before it is purged.
         reserved: (bool) always reserve space for DLC on disk.
         critical_update: (bool) DLC always updates with the OS.
         fullnamerev: (str) The full package & version name.
@@ -300,17 +294,17 @@ class EbuildParams:
         name,
         description,
         preload,
-        used_by,
         mount_file_required,
         fullnamerev,
         reserved=False,
         critical_update=False,
-        days_to_purge=0,
         factory_install=False,
         loadpin_verity_digest=False,
         scaled=False,
         powerwash_safe=False,
         use_logical_volume=False,
+        *args,  # pylint: disable=unused-argument
+        **kwargs,  # pylint: disable=unused-argument
     ):
         """Initializes the object.
 
@@ -328,10 +322,8 @@ class EbuildParams:
         self.description = description
         self.preload = preload
         self.factory_install = factory_install
-        self.used_by = used_by
         self.mount_file_required = mount_file_required
         self.fullnamerev = fullnamerev
-        self.days_to_purge = days_to_purge
         self.reserved = reserved
         self.critical_update = critical_update
         self.loadpin_verity_digest = loadpin_verity_digest
@@ -1114,8 +1106,6 @@ class DlcGenerator:
             "version": self.ebuild_params.version,
             "preload-allowed": self.ebuild_params.preload,
             "factory-install": self.ebuild_params.factory_install,
-            "used-by": self.ebuild_params.used_by,
-            "days-to-purge": self.ebuild_params.days_to_purge,
             "mount-file-required": self.ebuild_params.mount_file_required,
             "reserved": self.ebuild_params.reserved,
             "critical-update": self.ebuild_params.critical_update,

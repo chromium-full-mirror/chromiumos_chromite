@@ -33,7 +33,6 @@ _FULLNAME_REV = None
 _BLOCK_SIZE = 4096
 _IMAGE_SIZE_NEARING_RATIO = 1.05
 _IMAGE_SIZE_GROWTH_RATIO = 1.2
-_DAYS_TO_PURGE = 3
 _DLC_LOADPIN_FILE_HEADER = "# LOADPIN_TRUSTED_VERITY_ROOT_DIGESTS"
 
 # pylint: disable=protected-access
@@ -120,8 +119,6 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             "preload": True,
             "factory_install": False,
             "loadpin_verity_digest": False,
-            "used_by": dlc_lib.USED_BY_USER,
-            "days_to_purge": _DAYS_TO_PURGE,
             "mount_file_required": True,
             "reserved": False,
             "critical_update": False,
@@ -171,8 +168,6 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         preload=False,
         factory_install=False,
         loadpin_verity_digest=False,
-        used_by=dlc_lib.USED_BY_SYSTEM,
-        days_to_purge=_DAYS_TO_PURGE,
         mount_file_required=False,
         reserved=False,
         critical_update=False,
@@ -195,8 +190,6 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
                 "preload": preload,
                 "factory_install": factory_install,
                 "loadpin_verity_digest": loadpin_verity_digest,
-                "used_by": used_by,
-                "days_to_purge": days_to_purge,
                 "mount_file_required": mount_file_required,
                 "reserved": reserved,
                 "critical_update": critical_update,
@@ -220,8 +213,6 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         preload=False,
         factory_install=False,
         loadpin_verity_digest=False,
-        used_by=dlc_lib.USED_BY_SYSTEM,
-        days_to_purge=_DAYS_TO_PURGE,
         mount_file_required=False,
         reserved=False,
         critical_update=False,
@@ -242,8 +233,6 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             preload=preload,
             factory_install=factory_install,
             loadpin_verity_digest=loadpin_verity_digest,
-            used_by=used_by,
-            days_to_purge=days_to_purge,
             mount_file_required=mount_file_required,
             reserved=reserved,
             critical_update=critical_update,
@@ -526,8 +515,6 @@ class DlcGeneratorTest(
             version=_VERSION,
             preload=False,
             factory_install=False,
-            used_by=dlc_lib.USED_BY_SYSTEM,
-            days_to_purge=_DAYS_TO_PURGE,
             mount_file_required=False,
             reserved=False,
             critical_update=False,
@@ -705,8 +692,6 @@ class DlcGeneratorTest(
                 "preload-allowed": False,
                 "powerwash-safe": False,
                 "factory-install": False,
-                "used-by": dlc_lib.USED_BY_SYSTEM,
-                "days-to-purge": _DAYS_TO_PURGE,
                 "reserved": False,
                 "critical-update": False,
                 "loadpin-verity-digest": False,
@@ -864,8 +849,6 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             pre_allocated_blocks=_PRE_ALLOCATED_BLOCKS,
             version=_VERSION,
             preload=False,
-            used_by=dlc_lib.USED_BY_SYSTEM,
-            days_to_purge=_DAYS_TO_PURGE,
             mount_file_required=False,
             reserved=False,
             critical_update=False,
@@ -896,8 +879,6 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             pre_allocated_blocks=_PRE_ALLOCATED_BLOCKS,
             version=_VERSION,
             preload=False,
-            used_by=dlc_lib.USED_BY_SYSTEM,
-            days_to_purge=_DAYS_TO_PURGE,
             mount_file_required=False,
             reserved=False,
             critical_update=False,

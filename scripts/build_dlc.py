@@ -120,26 +120,6 @@ def GetParser():
         help="Allow DLC to be a trusted dm-verity digest.",
     )
     one_dlc.add_argument(
-        "--used-by",
-        default=dlc_lib.USED_BY_SYSTEM,
-        choices=(dlc_lib.USED_BY_USER, dlc_lib.USED_BY_SYSTEM),
-        help=(
-            "Defines how this DLC will be used so dlcservice can take proper"
-            ' actions based on the type of usage. For example, if "user" is'
-            " passed, dlcservice does ref counting when DLC is installed/"
-            'uninstalled. For "system", there will be no such provisions.'
-        ),
-    )
-    one_dlc.add_argument(
-        "--days-to-purge",
-        type=int,
-        default=0,
-        help=(
-            "Defines the number of days before purging a DLC after it has "
-            "been uninstalled."
-        ),
-    )
-    one_dlc.add_argument(
         "--mount-file-required",
         default=False,
         action="store_true",
@@ -237,7 +217,6 @@ def main(argv):
             "description",
             "package",
             "install_root_dir",
-            "days_to_purge",
         ]
         per_dlc_invalid_args += ["src_dir", "sysroot", "stateful"]
     else:
@@ -247,7 +226,6 @@ def main(argv):
             "pre_allocated_blocks",
             "version",
             "package",
-            "days_to_purge",
             "reserved",
             "critical_update",
         ]
@@ -270,8 +248,6 @@ def main(argv):
             mount_file_required=opts.mount_file_required,
             reserved=opts.reserved,
             critical_update=opts.critical_update,
-            used_by=opts.used_by,
-            days_to_purge=opts.days_to_purge,
             fullnamerev=opts.fullnamerev,
             scaled=opts.scaled,
             powerwash_safe=opts.powerwash_safe,
