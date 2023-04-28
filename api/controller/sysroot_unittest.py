@@ -281,6 +281,56 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
                 self.assertEqual(data["failure_reason"], "foo bar")
         self.assertTrue(found_artifact)
 
+    def testArtifactsBreakpadDebugSymbols(self):
+        """Tests the extra parameters to BundleBreakpadSymbols"""
+        proto = common_pb2.ArtifactsByService.Sysroot(
+            output_artifacts=[
+                common_pb2.ArtifactsByService.Sysroot.ArtifactInfo(
+                    artifact_types=[
+                        # pylint: disable=line-too-long
+                        common_pb2.ArtifactsByService.Sysroot.ArtifactType.BREAKPAD_DEBUG_SYMBOLS
+                        # pylint: enable=line-too-long
+                    ]
+                )
+            ],
+            ignore_breakpad_symbol_generation_errors=True,
+            ignore_breakpad_symbol_generation_expected_files=[
+                # pylint: disable=line-too-long
+                common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.EXPECTED_FILE_LIBC,
+                common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.EXPECTED_FILE_CRASH_REPORTER,
+                # pylint: enable=line-too-long
+            ],
+        )
+        sysroot_controller.GetArtifacts(
+            proto, None, None, "build_target", "out"
+        )
+        self._mocks[
+            # pylint: disable=line-too-long
+            common_pb2.ArtifactsByService.Sysroot.ArtifactType.BREAKPAD_DEBUG_SYMBOLS
+            # pylint: enable=line-too-long
+        ].assert_called_once_with(
+            None,
+            None,
+            "build_target",
+            "out",
+            True,
+            ["LIBC", "CRASH_REPORTER"],
+        )
+
+    def testArtifactsExpectedFileNames(self):
+        """Verify all BreakpadSymbolGenerationExpectedFile have valid names.
+
+        _BundleBreakpadSymbols inside GetArtifacts assumes that all values of
+        the BreakpadSymbolGenerationExpectedFile enum are named starting with
+        EXPECTED_FILE_. Confirm that assumption.
+        """
+        for enum in (
+            # pylint: disable=line-too-long
+            common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.keys()
+            # pylint: enable=line-too-long
+        ):
+            self.assertTrue(enum.startswith("EXPECTED_FILE_"))
+
 
 class GenerateArchiveTest(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin

@@ -565,6 +565,7 @@ def GenerateBreakpadSymbol(
     num_errors=None,
     found_files=None,
     dump_syms_cmd="dump_syms",
+    force_basic_fallback=False,
 ):
     """Generate the symbols for |elf_file| using |debug_file|
 
@@ -580,6 +581,8 @@ def GenerateBreakpadSymbol(
             ExpectedFiles, representing which of the "should always be present"
             files have been processed.
         dump_syms_cmd: Command to use for dumping symbols.
+        force_basic_fallback: If True, always use _DumpAllowingBasicFallback()
+            instead of _DumpExpectingSymbols().
 
     Returns:
         The name of symbol file written out on success, or the failure count.
@@ -718,7 +721,7 @@ def GenerateBreakpadSymbol(
     with cros_build_lib.UnbufferedNamedTemporaryFile(
         dir=breakpad_dir, delete=False
     ) as temp:
-        if _ExpectGoodSymbols(elf_file, sysroot):
+        if not force_basic_fallback and _ExpectGoodSymbols(elf_file, sysroot):
             result = _DumpExpectingSymbols()
             # Until the EXPECTED_POOR_SYMBOLIZATION_FILES allowlist is
             # completely set up for all boards, don't fail the build if
@@ -763,6 +766,8 @@ def GenerateBreakpadSymbols(
     clean_breakpad=False,
     exclude_dirs=(),
     file_list=None,
+    always_use_basic_fallback=False,
+    ignore_expected_files=(),
 ):
     """Generate symbols for this board.
 
@@ -788,6 +793,10 @@ def GenerateBreakpadSymbols(
         file_list: Only generate symbols for files in this list. Each file must
             be a full path (including |sysroot| prefix).
             TODO(build): Support paths w/o |sysroot|.
+        always_use_basic_fallback: If True, use the "basic fallback" mode for
+            all symbol files.
+        ignore_expected_files: A list of ExpectedFiles that will not be
+            considered "missing" if we do not generate symbols for them.
 
     Returns:
         The number of errors that were encountered.
@@ -884,6 +893,7 @@ def GenerateBreakpadSymbols(
             processes=num_processes,
             sysroot=sysroot,
             found_files=found_files,
+            force_basic_fallback=always_use_basic_fallback,
         ) as queue:
             for _, elf_file, debug_file in sorted(targets, reverse=True):
                 if generate_count == 0:
@@ -895,8 +905,17 @@ def GenerateBreakpadSymbols(
                     if generate_count == 0:
                         break
 
-        missing = ALL_EXPECTED_FILES - frozenset(found_files)
-        if missing and not file_filter and generate_count is None:
+        missing = (
+            ALL_EXPECTED_FILES
+            - frozenset(found_files)
+            - frozenset(ignore_expected_files)
+        )
+        if (
+            missing
+            and not file_filter
+            and generate_count is None
+            and not always_use_basic_fallback
+        ):
             logging.warning(
                 "Not all expected files were processed successfully, "
                 "missing %s",
@@ -968,6 +987,22 @@ def main(argv):
         help="do not generate CFI data (pass -c to dump_syms)",
     )
     parser.add_argument(
+        "--ignore_errors",
+        action="store_true",
+        default=False,
+        help="Ignore errors from dump_syms, do not validate symbol files, "
+        "just generate symbols best effort",
+    )
+    parser.add_argument(
+        "--ignore_expected_file",
+        type=str,
+        action="append",
+        default=[],
+        choices=[x.name for x in ExpectedFiles],
+        help="do not generate errors if symbols are not generated for these "
+        "files",
+    )
+    parser.add_argument(
         "file_list",
         nargs="*",
         default=None,
@@ -979,6 +1014,9 @@ def main(argv):
 
     opts = parser.parse_args(argv)
     opts.Freeze()
+    ignore_expected_files = [
+        ExpectedFiles[x] for x in opts.ignore_expected_file
+    ]
 
     if opts.board is None and opts.sysroot is None:
         cros_build_lib.Die("--board or --sysroot is required")
@@ -993,11 +1031,16 @@ def main(argv):
         clean_breakpad=opts.clean,
         exclude_dirs=opts.exclude_dir,
         file_list=opts.file_list,
+        always_use_basic_fallback=opts.ignore_errors,
+        ignore_expected_files=ignore_expected_files,
     )
     if ret:
         logging.error("encountered %i problem(s)", ret)
         # Since exit(status) gets masked, clamp it to 1 so we don't
         # inadvertently return 0 in case we are a multiple of the mask.
         ret = 1
+
+    if opts.ignore_errors:
+        return 0
 
     return ret

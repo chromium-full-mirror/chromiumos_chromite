@@ -1299,6 +1299,8 @@ def BundleBreakpadSymbols(
     sysroot_class: sysroot_lib.Sysroot,
     build_target: "build_target_lib.BuildTarget",
     output_dir: str,
+    ignore_generation_errors: bool,
+    ignore_generation_expected_files: List[str],
 ) -> Optional[str]:
     """Bundle breakpad debug symbols into a tarball for importing into GCE.
 
@@ -1309,13 +1311,27 @@ def BundleBreakpadSymbols(
         sysroot_class: The sysroot class used for these artifacts.
         build_target: The build target used for these artifacts.
         output_dir: The path to write artifacts to.
+        ignore_generation_errors: If True, ignore errors during symbol
+            generation.
+        ignore_generation_expected_files: A list of files (like "ASH_CHROME" or
+            "LIBC") that symbol generation normally expects to generate symbols
+            for; the generate symbols program will not generate errors if it
+            doesn't generate symbols for a file in the list. See
+            cros_generate_breakpad_symbols.py's ExpectedFiles enum for the list
+            of valid values.
 
     Returns:
         A string path to the output debug_breakpad.tar.gz artifact, or None.
     """
     base_path = chroot.full_path(sysroot_class.path)
 
-    result = GenerateBreakpadSymbols(chroot, build_target, debug=True)
+    result = GenerateBreakpadSymbols(
+        chroot,
+        build_target,
+        debug=True,
+        ignore_errors=ignore_generation_errors,
+        ignore_expected_files=ignore_generation_expected_files,
+    )
 
     # Verify breakpad symbol generation before gathering the sym files.
     if result.returncode:
@@ -1377,6 +1393,8 @@ def GenerateBreakpadSymbols(
     chroot: "chroot_lib.Chroot",
     build_target: "build_target_lib.BuildTarget",
     debug: bool,
+    ignore_errors: bool,
+    ignore_expected_files: List[str],
 ) -> cros_build_lib.CompletedProcess:
     """Generate breakpad (go/breakpad) symbols for debugging.
 
@@ -1388,6 +1406,11 @@ def GenerateBreakpadSymbols(
         chroot: The chroot in which the sysroot should be built.
         build_target: The sysroot's build target.
         debug: Include extra debugging output.
+        ignore_errors: If True, ignore errors and generate symbols best effort.
+        ignore_expected_files: A list of files (like "ASH_CHROME" or "LIBC")
+            that we tell cros_generate_breakpad_symbols it should not expect to
+            generate symbols for. See cros_generate_breakpad_symbols.py's
+            ExpectedFiles enum for the list of valid values.
     """
     # The firmware directory contains elf symbols that we have trouble parsing
     # and that don't help with breakpad debugging (see crbug.com/213670).
@@ -1396,6 +1419,10 @@ def GenerateBreakpadSymbols(
     cmd = ["cros_generate_breakpad_symbols"]
     if debug:
         cmd += ["--debug"]
+    if ignore_errors:
+        cmd += ["--ignore_errors"]
+    for ignore_expected_file in ignore_expected_files:
+        cmd += ["--ignore_expected_file=" + ignore_expected_file]
 
     # Execute for board in parallel with half # of cpus available to avoid
     # starving other parallel processes on the same machine.

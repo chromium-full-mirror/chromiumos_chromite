@@ -281,6 +281,149 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(ret, 0)
             self.assertEqual(gen_mock.call_count, 3)
 
+    def testExpectedFilesCompleteFailure(self, _):
+        """Verify if no files are processed, all expected files give errors"""
+        with parallel_unittest.ParallelMock() and self.assertLogs(
+            level=logging.WARNING
+        ) as cm:
+            ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
+                self.board, sysroot=self.board_dir
+            )
+            self.assertEqual(ret, 0)
+            self.assertIn(
+                "Not all expected files were processed successfully",
+                "\n".join(cm.output),
+            )
+            for output in cm.output:
+                if (
+                    "Not all expected files were processed successfully"
+                    in output
+                ):
+                    # This is the line that lists all the files we didn't find.
+                    for (
+                        expected_file
+                    ) in cros_generate_breakpad_symbols.ExpectedFiles:
+                        self.assertIn(expected_file.name, output)
+
+    def testExpectedFilesPartialFailure(self, gen_mock):
+        """If some expected files are processed, the others give errors"""
+        expected_found = (
+            cros_generate_breakpad_symbols.ExpectedFiles.LIBC,
+            cros_generate_breakpad_symbols.ExpectedFiles.CRASH_REPORTER,
+        )
+
+        def _SetFound(*_args, **kwargs):
+            kwargs["found_files"].extend(expected_found)
+            gen_mock.side_effect = None
+            return 1
+
+        gen_mock.side_effect = _SetFound
+        with parallel_unittest.ParallelMock() and self.assertLogs(
+            level=logging.WARNING
+        ) as cm:
+            ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
+                self.board, sysroot=self.board_dir
+            )
+            self.assertEqual(ret, 0)
+            self.assertIn(
+                "Not all expected files were processed successfully",
+                "\n".join(cm.output),
+            )
+            for output in cm.output:
+                if (
+                    "Not all expected files were processed successfully"
+                    in output
+                ):
+                    # This is the line that lists all the files we didn't find.
+                    for (
+                        expected_file
+                    ) in cros_generate_breakpad_symbols.ExpectedFiles:
+                        if expected_file in expected_found:
+                            self.assertNotIn(expected_file.name, output)
+                        else:
+                            self.assertIn(expected_file.name, output)
+
+    def testExpectedFilesWithSomeIgnored(self, _):
+        """If some expected files are ignored, they don't give errors"""
+        ignore_expected_files = [
+            cros_generate_breakpad_symbols.ExpectedFiles.ASH_CHROME,
+            cros_generate_breakpad_symbols.ExpectedFiles.LIBC,
+        ]
+        with parallel_unittest.ParallelMock() and self.assertLogs(
+            level=logging.WARNING
+        ) as cm:
+            ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
+                self.board,
+                sysroot=self.board_dir,
+                ignore_expected_files=ignore_expected_files,
+            )
+            self.assertEqual(ret, 0)
+            self.assertIn(
+                "Not all expected files were processed successfully",
+                "\n".join(cm.output),
+            )
+            for output in cm.output:
+                if (
+                    "Not all expected files were processed successfully"
+                    in output
+                ):
+                    # This is the line that lists all the files we didn't find.
+                    for (
+                        expected_file
+                    ) in cros_generate_breakpad_symbols.ExpectedFiles:
+                        if expected_file in ignore_expected_files:
+                            self.assertNotIn(expected_file.name, output)
+                        else:
+                            self.assertIn(expected_file.name, output)
+
+    def testExpectedFilesWithAllIgnored(self, _):
+        """If all expected files are ignored, there is no error"""
+        with parallel_unittest.ParallelMock() and self.assertLogs(
+            level=logging.WARNING
+        ) as cm:
+            ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
+                self.board,
+                sysroot=self.board_dir,
+                ignore_expected_files=list(
+                    cros_generate_breakpad_symbols.ExpectedFiles
+                ),
+            )
+            self.assertEqual(ret, 0)
+            self.assertNotIn(
+                "Not all expected files were processed successfully",
+                "\n".join(cm.output),
+            )
+
+    def testExpectedFilesWithSomeIgnoredAndSomeFound(self, gen_mock):
+        """Some expected files are ignored, others processed => no error"""
+        expected_found = (
+            cros_generate_breakpad_symbols.ExpectedFiles.LIBC,
+            cros_generate_breakpad_symbols.ExpectedFiles.CRASH_REPORTER,
+        )
+
+        def _SetFound(*_args, **kwargs):
+            kwargs["found_files"].extend(expected_found)
+            gen_mock.side_effect = None
+            return 1
+
+        gen_mock.side_effect = _SetFound
+        with parallel_unittest.ParallelMock() and self.assertLogs(
+            level=logging.WARNING
+        ) as cm:
+            ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
+                self.board,
+                sysroot=self.board_dir,
+                ignore_expected_files=[
+                    cros_generate_breakpad_symbols.ExpectedFiles.ASH_CHROME,
+                    cros_generate_breakpad_symbols.ExpectedFiles.LIBMETRICS,
+                ],
+            )
+            self.assertEqual(ret, 0)
+            self.assertNotIn(
+                "Not all expected files were processed successfully",
+                "\n".join(cm.output),
+            )
+
 
 class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
     """Test GenerateBreakpadSymbol."""
@@ -392,6 +535,34 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertCommandArgs(
             3, ["dump_syms", "-v", "-c", "-r", self.elf_file, self.debug_dir]
+        )
+        self.assertExists(self.sym_file)
+
+    def testForceBasicFallback(self):
+        """Running with force_basic_fallback
+
+        Test force_basic_fallback goes straight to _DumpAllowingBasicFallback().
+        """
+        self.rc.AddCmdResult(
+            ["dump_syms", "-v", self.elf_file, self.debug_dir], returncode=1
+        )
+        ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
+            self.elf_file,
+            self.debug_file,
+            self.breakpad_dir,
+            force_basic_fallback=True,
+        )
+        self.assertEqual(ret, self.sym_file)
+        self.assertEqual(self.rc.call_count, 2)
+        # dump_syms -v should only happen once in _DumpAllowingBasicFallback()
+        # and not in _DumpExpectingSymbols(). We don't call /usr/bin/file in
+        # _ExpectGoodSymbols() either, so there's 2 fewer commands than
+        # in testLargeDebugFail.
+        self.assertCommandArgs(
+            0, ["dump_syms", "-v", self.elf_file, self.debug_dir]
+        )
+        self.assertCommandArgs(
+            1, ["dump_syms", "-v", "-c", "-r", self.elf_file, self.debug_dir]
         )
         self.assertExists(self.sym_file)
 

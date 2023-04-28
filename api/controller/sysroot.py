@@ -115,12 +115,39 @@ def GetArtifacts(
     Returns:
         A list of dictionary mappings of ArtifactType to list of paths.
     """
+
+    def _BundleBreakpadSymbols(chroot, sysroot_class, build_target, output_dir):
+        ignore_breakpad_symbol_generation_expected_files = [
+            common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.Name(
+                x
+            )
+            for x in in_proto.ignore_breakpad_symbol_generation_expected_files
+            if x
+            != common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.EXPECTED_FILE_UNSET
+            and x
+            in common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.values()
+        ]
+
+        ignore_breakpad_symbol_generation_expected_files = [
+            x[len("EXPECTED_FILE_") :]
+            for x in ignore_breakpad_symbol_generation_expected_files
+        ]
+
+        return sysroot.BundleBreakpadSymbols(
+            chroot,
+            sysroot_class,
+            build_target,
+            output_dir,
+            in_proto.ignore_breakpad_symbol_generation_errors,
+            ignore_breakpad_symbol_generation_expected_files,
+        )
+
     generated = []
     # pylint: disable=line-too-long
     artifact_types = {
         in_proto.ArtifactType.SIMPLE_CHROME_SYSROOT: sysroot.CreateSimpleChromeSysroot,
         in_proto.ArtifactType.CHROME_EBUILD_ENV: sysroot.CreateChromeEbuildEnv,
-        in_proto.ArtifactType.BREAKPAD_DEBUG_SYMBOLS: sysroot.BundleBreakpadSymbols,
+        in_proto.ArtifactType.BREAKPAD_DEBUG_SYMBOLS: _BundleBreakpadSymbols,
         in_proto.ArtifactType.DEBUG_SYMBOLS: sysroot.BundleDebugSymbols,
         in_proto.ArtifactType.FUZZER_SYSROOT: sysroot.CreateFuzzerSysroot,
         in_proto.ArtifactType.SYSROOT_ARCHIVE: sysroot.ArchiveSysroot,

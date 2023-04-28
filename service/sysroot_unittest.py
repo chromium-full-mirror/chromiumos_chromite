@@ -1174,7 +1174,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(cros_build_lib, "run")
 
         # Call the method being tested.
-        sysroot.GenerateBreakpadSymbols(chroot, build_target, False)
+        sysroot.GenerateBreakpadSymbols(chroot, build_target, False, False, [])
 
         cros_build_lib.run.assert_called_with(
             [
@@ -1195,12 +1195,59 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(cros_build_lib, "run")
 
         # Call the method being tested.
-        sysroot.GenerateBreakpadSymbols(chroot, build_target, True)
+        sysroot.GenerateBreakpadSymbols(chroot, build_target, True, False, [])
 
         cros_build_lib.run.assert_called_with(
             [
                 "cros_generate_breakpad_symbols",
                 "--debug",
+                "--board=board",
+                "--jobs",
+                mock.ANY,
+                "--exclude-dir=firmware",
+            ],
+            enter_chroot=True,
+            chroot_args=["--chroot", mock.ANY],
+        )
+
+    def test_generateBreakpadSymbolsWithIgnoreErrors(self):
+        """Verify that calling with debug invokes the script as expected."""
+        chroot = chroot_lib.Chroot(self.chroot_dir)
+        build_target = build_target_lib.BuildTarget("board")
+        self.PatchObject(cros_build_lib, "run")
+
+        # Call the method being tested.
+        sysroot.GenerateBreakpadSymbols(chroot, build_target, False, True, [])
+
+        cros_build_lib.run.assert_called_with(
+            [
+                "cros_generate_breakpad_symbols",
+                "--ignore_errors",
+                "--board=board",
+                "--jobs",
+                mock.ANY,
+                "--exclude-dir=firmware",
+            ],
+            enter_chroot=True,
+            chroot_args=["--chroot", mock.ANY],
+        )
+
+    def test_generateBreakpadSymbolsWithIgnoreIgnoreExpectedFiles(self):
+        """Verify that calling with debug invokes the script as expected."""
+        chroot = chroot_lib.Chroot(self.chroot_dir)
+        build_target = build_target_lib.BuildTarget("board")
+        self.PatchObject(cros_build_lib, "run")
+
+        # Call the method being tested.
+        sysroot.GenerateBreakpadSymbols(
+            chroot, build_target, False, False, ["ASH_CHROME", "LIBC"]
+        )
+
+        cros_build_lib.run.assert_called_with(
+            [
+                "cros_generate_breakpad_symbols",
+                "--ignore_expected_file=ASH_CHROME",
+                "--ignore_expected_file=LIBC",
                 "--board=board",
                 "--jobs",
                 mock.ANY,
@@ -1261,12 +1308,21 @@ class BundleDebugSymbolsTest(cros_test_lib.MockTempDirTestCase):
         )
 
         tar_file = sysroot.BundleBreakpadSymbols(
-            self.chroot, self.sysroot, self.build_target, self.output_dir
+            self.chroot,
+            self.sysroot,
+            self.build_target,
+            self.output_dir,
+            False,
+            ["ASH_CHROME"],
         )
 
         # Verify mock objects were called.
         generate_breakpad_symbols_patch.assert_called_with(
-            self.chroot, self.build_target, debug=True
+            self.chroot,
+            self.build_target,
+            debug=True,
+            ignore_errors=False,
+            ignore_expected_files=["ASH_CHROME"],
         )
         gather_symbol_files_patch.assert_called()
 
