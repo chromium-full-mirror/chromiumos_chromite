@@ -94,6 +94,8 @@ class BoardSpecificGdb(object):
 To install the debug symbols for all available packages, run:
 
    cros_install_debug_syms --board=%(board)s --all"""
+    _ASH_CHROME_REMOTE_BIN = "/opt/google/chrome/chrome"
+    _LACROS_CHROME_REMOTE_BIN = "/usr/local/lacros-chrome/chrome"
 
     def __init__(
         self,
@@ -113,12 +115,20 @@ To install the debug symbols for all available packages, run:
         self.sysroot = None
         self.prompt = "(gdb) "
         self.inf_cmd = inf_cmd
+        if not self.inf_cmd:
+            if remote_process_name.startswith("lacros-"):
+                self.inf_cmd = self._LACROS_CHROME_REMOTE_BIN
+            else:
+                self.inf_cmd = self._ASH_CHROME_REMOTE_BIN
         self.run_as_root = False
         self.gdb_args = gdb_args
         self.inf_args = inf_args
         self.remote = remote.hostname if remote else None
+        # strip off the lacros- or ash- specifics
+        self.remote_process_name = remote_process_name.lstrip("lacros-").lstrip(
+            "ash-"
+        )
         self.pid = pid
-        self.remote_process_name = remote_process_name
         # Port used for sending ssh commands to DUT.
         self.remote_port = remote.port if remote else None
         # Port for communicating between gdb & gdbserver.
@@ -140,6 +150,10 @@ To install the debug symbols for all available packages, run:
     def IsInChroot(self):
         """Decide whether we are in chroot or chrome-sdk."""
         return os.path.exists("/mnt/host/source/chromite/")
+
+    def IsLacros(self):
+        """The --attach option specifies the type of if you want to attach to browser, renderer or gpu-process. Prefixed with either lacros-, ash- you can specify which browser you want to attach to. Default is ash."""
+        return self.inf_cmd == self._LACROS_CHROME_REMOTE_BIN
 
     def SimpleChromeGdb(self):
         """Get the name of the cross gdb based on board name."""
@@ -172,7 +186,11 @@ To install the debug symbols for all available packages, run:
         if self.binary:
             return self.binary
 
-        output_dir = os.path.join(self.chrome_path, "src", f"out_{self.board}")
+        output_dir = (
+            os.path.join(self.chrome_path, "src", f"out_{self.board}_lacros")
+            if self.IsLacros()
+            else os.path.join(self.chrome_path, "src", f"out_{self.board}")
+        )
         target_binary = None
         binary_name = os.path.basename(self.inf_cmd)
         for root, _, files in os.walk(output_dir):
@@ -414,17 +432,19 @@ To install the debug symbols for all available packages, run:
             return
 
         if self.remote_process_name:
-            # Look for a process with the specified name on the remote device;
-            # if found, get its pid.
-            pname = self.remote_process_name
+            # Look for a process with the specified name on the remote device; if
+            # found, get its pid. Strip off the lacros- or ash- part.
+            pname = self.remote_process_name.lstrip("lacros-").lstrip("ash-")
             if pname == "browser":
-                all_chrome_pids = set(
-                    device.GetRunningPids("/opt/google/chrome/chrome")
+                all_chrome_pids = set(device.GetRunningPids(self.inf_cmd))
+                non_main_chrome_pids = set(
+                    device.GetRunningPids("%s.+type=" % self.inf_cmd)
                 )
-                non_main_chrome_pids = set(device.GetRunningPids("type="))
                 pids = list(all_chrome_pids - non_main_chrome_pids)
             elif pname in ("renderer", "gpu-process"):
-                pids = device.GetRunningPids("type=%s" % pname)
+                pids = device.GetRunningPids(
+                    "%s.+type=%s" % (self.inf_cmd, pname)
+                )
             else:
                 pids = device.GetRunningPids(pname)
 
@@ -697,11 +717,8 @@ def main(argv):
         dest="attach_name",
         default="",
         help="Name of existing process to which to attach, on"
-        ' remote device (remote debugging only). "--attach'
-        ' browser" will find the main chrome browser process;'
-        ' "--attach renderer" will find a chrome renderer'
-        ' process; "--attach gpu-process" will find the chrome'
-        " gpu process.",
+        " remote device (remote debugging only)."
+        'Options are [browser, renderer, gpu-process] and can be prefixed with either "ash-" or "lacros-".',
     )
     parser.add_argument(
         "--cgdb",
@@ -757,10 +774,7 @@ def main(argv):
             " running process (--remote-pid or --attach)."
         )
 
-    if options.remote:
-        if options.attach_name and options.attach_name == "browser":
-            inf_cmd = "/opt/google/chrome/chrome"
-    else:
+    if not options.remote:
         if options.cgdb:
             parser.error(
                 "--cgdb option can only be used with remote debugging."
