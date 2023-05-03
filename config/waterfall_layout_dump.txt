@@ -127,6 +127,7 @@
     betty-pi-arc-release
     betty-release
     bob-release
+    brask-labstation-release
     brask-release
     brya-arc-t-release
     brya-release
@@ -295,6 +296,7 @@
   brask-factory-brya-14517.B-factorybranch-tryjob
   brask-factory-brya-15231.B-factorybranch-tryjob
   brask-full-tryjob
+  brask-labstation-release-tryjob
   brask-llvm-next-toolchain-tryjob
   brask-llvm-toolchain-tryjob
   brask-payloads-tryjob
@@ -734,6 +736,7 @@
     betty-pi-arc-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
+    brask-labstation-release-tryjob
     brask-release-tryjob
     brya-arc-t-release-tryjob
     brya-release-tryjob

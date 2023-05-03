@@ -562,6 +562,90 @@
       "stable_target_milestone": 105
     },
     {
+      "name": "brask-labstation",
+      "reference_board_name": "brask-labstation",
+      "arch": "UNKNOWN",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "brask-labstation",
+          "name": "aurash",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask-labstation",
+          "name": "brask",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "stable_target_milestone": 114,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask-labstation",
+          "name": "gaelin",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask-labstation",
+          "name": "gladios",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask-labstation",
+          "name": "kinox",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask-labstation",
+          "name": "kuldax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask-labstation",
+          "name": "lisbon",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brask-labstation",
+          "name": "moli",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7260,
+          "is_active": true,
+          "is_experimental": false
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 114
+    },
+    {
       "name": "brya",
       "reference_board_name": "brya",
       "arch": "X86_INTERNAL",
