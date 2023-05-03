@@ -201,9 +201,6 @@ def _JsonLintFile(path, _output_format, _debug):
   # Strip out comments for JSON parsing.
   stripped_data = re.sub(r'^\s*#.*', '', data, flags=re.M)
 
-  # Strip out c style comments for JSON parsing.
-  stripped_data = re.sub(r'//.*?\n|/\*.*?\*/', '', stripped_data, flags=re.S)
-
   # See if it validates.
   try:
     json.loads(stripped_data)
