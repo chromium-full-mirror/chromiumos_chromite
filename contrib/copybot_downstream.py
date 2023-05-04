@@ -77,6 +77,10 @@ class CopybotDownstream:
         self.cq_dry_run = cq_dry_run
         self.stop_at = stop_at
         self.ignore_warnings = ignore_warnings
+        # dict of dicts containing CL info returned by gerrit.
+        #   Key - CL Number
+        #   Value - Gerrit dictionary data
+        self.cl_info = {}
         if not limit or limit > MAX_GERRIT_CHANGES:
             logging.info(
                 "Limiting to maximum Gerrit changes (%d)", MAX_GERRIT_CHANGES
@@ -254,18 +258,19 @@ class CopybotDownstream:
 
         return warnings
 
-    def _filter_cls(self, cls_to_downstream: List[Dict]) -> List[Dict]:
-        """Filter full CL list based on the limit and/or CL the chain should stop at.
+    def _filter_cls(self, cls_to_downstream: List[str]) -> List[Dict]:
+        """Filter full CL list based on:
+            The limit.
+            CL the chain should stop at.
+            copybot-skip hashtag.
 
         Args:
-            cls_to_downstream: Ordered list of all CL candidates to be downstreamed.
+            cls_to_downstream: Ordered list of all candidate CL numbers to be downstreamed.
 
         Returns:
-            Tuple(cls_to_downstream, all_warnings)
-            cls_to_downstream: Ordered list of filtered CLs to be downstreamed.
+            cls_to_downstream: Ordered list of filtered CL numbers to be downstreamed.
         """
         filtered_cls = []
-        cls_to_downstream = cls_to_downstream[: self.limit]
         for change_num in cls_to_downstream:
             if self.stop_at and self.stop_at == change_num:
                 logging.info(
@@ -273,8 +278,10 @@ class CopybotDownstream:
                     change_num,
                 )
                 break
+            if self.check_hashtags(self.cl_info[change_num], ["copybot-skip"]):
+                continue
             filtered_cls.append(change_num)
-        return filtered_cls
+        return filtered_cls[: self.limit]
 
     def _get_related_cls(self, change_number: str) -> List[str]:
         """Get the list of related CLs for the passed in CL number.
@@ -293,7 +300,7 @@ class CopybotDownstream:
             if x["status"] == "NEW"
         ]
 
-    def _act_on_cls(self, cls_to_downstream: List[Dict]) -> None:
+    def _act_on_cls(self, cls_to_downstream: List[str]) -> None:
         """Perform Gerrit updates on the CLs to downstream.
 
         Args:
@@ -360,13 +367,12 @@ class CopybotDownstream:
 
         all_warnings = defaultdict(list)
         cls_to_downstream = []
-        full_cl_list = []
 
         for change in copybot_downstream_cls:
             logging.debug("Top level Change: %s", change["_number"])
             if change["_number"] not in cls_to_downstream:
                 cls_to_downstream.append(change["_number"])
-                full_cl_list.append(change)
+                self.cl_info[change["_number"]] = change
                 logging.debug("\tAdded to list")
             for related_change_number in self._get_related_cls(
                 change["_number"]
@@ -377,17 +383,17 @@ class CopybotDownstream:
                         "\t\tSkipping this one since it already exists"
                     )
                     continue
-                full_cl_list.append(
-                    self.gerrit_helper.GetChangeDetail(
-                        related_change_number, verbose=True
-                    )
+                self.cl_info[
+                    related_change_number
+                ] = self.gerrit_helper.GetChangeDetail(
+                    related_change_number, verbose=True
                 )
                 cls_to_downstream.append(related_change_number)
 
-        for change in full_cl_list:
+        for change_num, change in self.cl_info.items():
             warnings = self._check_cl(change)
             if warnings:
-                all_warnings[change["_number"]] = warnings
+                all_warnings[change_num] = warnings
 
         # CL dependencies come in with newest first, so do reverse.
         cls_to_downstream.reverse()
