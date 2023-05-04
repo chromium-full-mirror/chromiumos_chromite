@@ -134,6 +134,7 @@
     bubs-release
     caroline-release
     cave-release
+    celes-release
     chell-release
     cherry-release
     cherry64-release
@@ -331,6 +332,11 @@
   cave-llvm-toolchain-tryjob
   cave-payloads-tryjob
   cave-release-tryjob
+  celes-full-tryjob
+  celes-llvm-next-toolchain-tryjob
+  celes-llvm-toolchain-tryjob
+  celes-payloads-tryjob
+  celes-release-tryjob
   chell-chrome-no-afdo-uprev-pre-flight-branch-tryjob
   chell-factory-glados-7657.B-factorybranch-tryjob
   chell-factory-glados-7828.B-factorybranch-tryjob
@@ -743,6 +749,7 @@
     bubs-release-tryjob
     caroline-release-tryjob
     cave-release-tryjob
+    celes-release-tryjob
     chell-release-tryjob
     cherry-release-tryjob
     cherry64-release-tryjob
