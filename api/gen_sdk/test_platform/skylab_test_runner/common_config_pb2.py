@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n4test_platform/skylab_test_runner/common_config.proto\x12 test_platform.skylab_test_runner\"\xd9\x04\n\x0c\x43ommonConfig\x12l\n\x1b\x63ros_firmware_update_config\x18\x01 \x01(\x0b\x32G.test_platform.skylab_test_runner.CommonConfig.CrosFirmwareUpdateConfig\x12\x17\n\x0fpartner_private\x18\x02 \x01(\x08\x12H\n\x12\x65nable_trv2_config\x18\x03 \x01(\x0b\x32,.test_platform.skylab_test_runner.Trv2Config\x12$\n\x1cskip_board_model_realm_check\x18\x04 \x01(\x08\x1a\xd1\x02\n\x18\x43rosFirmwareUpdateConfig\x12\x0f\n\x07\x65nabled\x18\x01 \x01(\x08\x12i\n\nallow_list\x18\x02 \x01(\x0b\x32S.test_platform.skylab_test_runner.CommonConfig.CrosFirmwareUpdateConfig.CrosSlectorH\x00\x12i\n\nblock_list\x18\x03 \x01(\x0b\x32S.test_platform.skylab_test_runner.CommonConfig.CrosFirmwareUpdateConfig.CrosSlectorH\x00\x1a-\n\x0b\x43rosSlector\x12\x0e\n\x06\x62oards\x18\x01 \x03(\t\x12\x0e\n\x06models\x18\x02 \x03(\tB\x1f\n\x1d\x63ros_firmware_update_selector\"\xc3\x01\n\nTrv2Config\x12\x16\n\x0e\x61llowed_suites\x18\x01 \x03(\t\x12\x16\n\x0e\x61llowed_boards\x18\x02 \x03(\t\x12S\n\x13\x61llowed_build_types\x18\x03 \x03(\x0e\x32\x36.test_platform.skylab_test_runner.Trv2Config.BuildType\"0\n\tBuildType\x12\x06\n\x02\x43Q\x10\x00\x12\x0b\n\x07RELEASE\x10\x01\x12\x0e\n\nPOSTSUBMIT\x10\x02\"\x84\x02\n\x11IleDeFranceConfig\x12\x0f\n\x07\x65nabled\x18\x01 \x01(\x08\x12S\n\nallow_list\x18\x02 \x01(\x0b\x32=.test_platform.skylab_test_runner.IleDeFranceConfig.ModelListH\x00\x12R\n\tdeny_list\x18\x03 \x01(\x0b\x32=.test_platform.skylab_test_runner.IleDeFranceConfig.ModelListH\x00\x1a\x1b\n\tModelList\x12\x0e\n\x06models\x18\x01 \x03(\tB\x18\n\x16ile_de_france_selectorBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runnerb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n4test_platform/skylab_test_runner/common_config.proto\x12 test_platform.skylab_test_runner\"\xb3\x05\n\x0c\x43ommonConfig\x12l\n\x1b\x63ros_firmware_update_config\x18\x01 \x01(\x0b\x32G.test_platform.skylab_test_runner.CommonConfig.CrosFirmwareUpdateConfig\x12\x17\n\x0fpartner_private\x18\x02 \x01(\x08\x12H\n\x12\x65nable_trv2_config\x18\x03 \x01(\x0b\x32,.test_platform.skylab_test_runner.Trv2Config\x12X\n\x1b\x65nable_ile_de_france_config\x18\x05 \x01(\x0b\x32\x33.test_platform.skylab_test_runner.IleDeFranceConfig\x12$\n\x1cskip_board_model_realm_check\x18\x04 \x01(\x08\x1a\xd1\x02\n\x18\x43rosFirmwareUpdateConfig\x12\x0f\n\x07\x65nabled\x18\x01 \x01(\x08\x12i\n\nallow_list\x18\x02 \x01(\x0b\x32S.test_platform.skylab_test_runner.CommonConfig.CrosFirmwareUpdateConfig.CrosSlectorH\x00\x12i\n\nblock_list\x18\x03 \x01(\x0b\x32S.test_platform.skylab_test_runner.CommonConfig.CrosFirmwareUpdateConfig.CrosSlectorH\x00\x1a-\n\x0b\x43rosSlector\x12\x0e\n\x06\x62oards\x18\x01 \x03(\t\x12\x0e\n\x06models\x18\x02 \x03(\tB\x1f\n\x1d\x63ros_firmware_update_selector\"\xc3\x01\n\nTrv2Config\x12\x16\n\x0e\x61llowed_suites\x18\x01 \x03(\t\x12\x16\n\x0e\x61llowed_boards\x18\x02 \x03(\t\x12S\n\x13\x61llowed_build_types\x18\x03 \x03(\x0e\x32\x36.test_platform.skylab_test_runner.Trv2Config.BuildType\"0\n\tBuildType\x12\x06\n\x02\x43Q\x10\x00\x12\x0b\n\x07RELEASE\x10\x01\x12\x0e\n\nPOSTSUBMIT\x10\x02\"\x84\x02\n\x11IleDeFranceConfig\x12\x0f\n\x07\x65nabled\x18\x01 \x01(\x08\x12S\n\nallow_list\x18\x02 \x01(\x0b\x32=.test_platform.skylab_test_runner.IleDeFranceConfig.ModelListH\x00\x12R\n\tdeny_list\x18\x03 \x01(\x0b\x32=.test_platform.skylab_test_runner.IleDeFranceConfig.ModelListH\x00\x1a\x1b\n\tModelList\x12\x0e\n\x06models\x18\x01 \x03(\tB\x18\n\x16ile_de_france_selectorBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runnerb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'test_platform.skylab_test_runner.common_config_pb2', globals())
@@ -22,17 +22,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'ZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runner'
   _COMMONCONFIG._serialized_start=91
-  _COMMONCONFIG._serialized_end=692
-  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG._serialized_start=355
-  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG._serialized_end=692
-  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG_CROSSLECTOR._serialized_start=614
-  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG_CROSSLECTOR._serialized_end=659
-  _TRV2CONFIG._serialized_start=695
-  _TRV2CONFIG._serialized_end=890
-  _TRV2CONFIG_BUILDTYPE._serialized_start=842
-  _TRV2CONFIG_BUILDTYPE._serialized_end=890
-  _ILEDEFRANCECONFIG._serialized_start=893
-  _ILEDEFRANCECONFIG._serialized_end=1153
-  _ILEDEFRANCECONFIG_MODELLIST._serialized_start=1100
-  _ILEDEFRANCECONFIG_MODELLIST._serialized_end=1127
+  _COMMONCONFIG._serialized_end=782
+  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG._serialized_start=445
+  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG._serialized_end=782
+  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG_CROSSLECTOR._serialized_start=704
+  _COMMONCONFIG_CROSFIRMWAREUPDATECONFIG_CROSSLECTOR._serialized_end=749
+  _TRV2CONFIG._serialized_start=785
+  _TRV2CONFIG._serialized_end=980
+  _TRV2CONFIG_BUILDTYPE._serialized_start=932
+  _TRV2CONFIG_BUILDTYPE._serialized_end=980
+  _ILEDEFRANCECONFIG._serialized_start=983
+  _ILEDEFRANCECONFIG._serialized_end=1243
+  _ILEDEFRANCECONFIG_MODELLIST._serialized_start=1190
+  _ILEDEFRANCECONFIG_MODELLIST._serialized_end=1217
 # @@protoc_insertion_point(module_scope)
