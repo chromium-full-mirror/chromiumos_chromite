@@ -509,6 +509,14 @@ def _ExpectGoodSymbols(elf_file, sysroot):
     if relative_path.startswith("usr/local"):
         return False
 
+    # TODO(b/279668555): tael and tatl libraries in
+    # /opt/google/cros-containers/lib have invalid .debug files (CRC32
+    # mismatches). Since only tael and tatl have
+    # /opt/google/cros-containers/lib, we can just allowlist the directory until
+    # the issue is fixed.
+    if relative_path.startswith("opt/google/cros-containers/lib"):
+        return False
+
     return True
 
 
