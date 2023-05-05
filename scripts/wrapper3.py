@@ -19,10 +19,10 @@ import sys
 
 
 # Assert some minimum Python versions as we don't test or support any others.
-# We only support Python 3.6+.
-if sys.version_info < (3, 6):
+# We only support Python 3.8+.
+if sys.version_info < (3, 8):
     print(
-        '%s: chromite: error: Python-3.6+ is required, but "%s" is "%s"'
+        '%s: chromite: error: Python-3.8+ is required, but "%s" is "%s"'
         % (sys.argv[0], sys.executable, sys.version.replace("\n", " ")),
         file=sys.stderr,
     )
