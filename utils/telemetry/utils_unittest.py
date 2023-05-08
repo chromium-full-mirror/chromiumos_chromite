@@ -17,7 +17,7 @@ def test_default_anonymizer_to_remove_username_from_path():
     a = utils.Anonymizer()
 
     output = a.apply(text)
-    assert output == "/home/${USER}/docs"
+    assert output == "/home/<user>/docs"
 
 
 def test_anonymizer_to_apply_passed_replacements():

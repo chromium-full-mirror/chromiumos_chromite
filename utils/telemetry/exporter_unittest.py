@@ -5,6 +5,7 @@
 """Unittests for SpanExporter classes."""
 
 import datetime
+import re
 import time
 import urllib.request
 
@@ -14,6 +15,7 @@ from opentelemetry.sdk.trace import export
 from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
 from chromite.api.gen.chromite.telemetry import trace_span_pb2
 from chromite.utils.telemetry import exporter
+from chromite.utils.telemetry import utils
 
 
 class MockResponse(object):
@@ -34,6 +36,18 @@ class MockResponse(object):
 
 
 tracer = trace.TracerProvider().get_tracer(__name__)
+
+
+def test_anonymizing_filter_to_redact_info_from_msg():
+    """Test AnonymizingFilter to apply the passed anonymizer to msg."""
+    msg = trace_span_pb2.TraceSpan()
+    msg.name = "log-user-user1234"
+
+    anonymizer = utils.Anonymizer([(re.escape("user1234"), "<user>")])
+    f = exporter.AnonymizingFilter(anonymizer)
+
+    filtered_msg = f(msg)
+    assert filtered_msg.name == "log-user-<user>"
 
 
 def test_otel_span_translation(monkeypatch):
@@ -73,6 +87,41 @@ def test_otel_span_translation(monkeypatch):
     assert tspan.name == span.name
     assert tspan.start_time_millis == int(span.start_time / 10e6)
     assert tspan.end_time_millis == int(span.end_time / 10e6)
+
+
+def test_otel_span_translation_with_anonymization(monkeypatch):
+    """Test ClearcutSpanExporter to anonymize spans to before export."""
+    requests = []
+
+    def mock_urlopen(request, timeout=0):
+        requests.append((request, timeout))
+        resp = clientanalytics_pb2.LogResponse()
+        resp.next_request_wait_millis = 1
+        body = resp.SerializeToString()
+        return MockResponse(200, body)
+
+    monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen)
+
+    span = tracer.start_span("span-user4321")
+    span.set_attributes({"username": "user4321"})
+    span.add_event("event-for-user4321")
+    span.end()
+
+    anonymizer = utils.Anonymizer([(re.escape("user4321"), "<user>")])
+    f = exporter.AnonymizingFilter(anonymizer)
+    e = exporter.ClearcutSpanExporter(prefilter=f)
+
+    assert e.export([span]) == export.SpanExportResult.SUCCESS
+    req, _ = requests[0]
+    log_request = clientanalytics_pb2.LogRequest()
+    log_request.ParseFromString(req.data)
+
+    tspan = trace_span_pb2.TraceSpan()
+    tspan.ParseFromString(log_request.log_event[0].source_extension)
+
+    assert tspan.name == "span-<user>"
+    assert tspan.events[0].name == "event-for-<user>"
+    assert tspan.attributes["username"] == "<user>"
 
 
 def test_export_to_http_api(monkeypatch):

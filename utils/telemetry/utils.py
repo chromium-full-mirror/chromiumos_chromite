@@ -16,7 +16,7 @@ class Anonymizer:
         self, replacements: Optional[Sequence[Tuple[Pattern[str], str]]] = None
     ):
         self._replacements = replacements or []
-        self._replacements.append((re.escape(getpass.getuser()), "${USER}"))
+        self._replacements.append((re.escape(getpass.getuser()), "<user>"))
 
     def apply(self, data: str) -> str:
         """Applies the replacement rules to data text."""

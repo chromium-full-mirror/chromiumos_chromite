@@ -7,9 +7,10 @@
 import datetime
 import logging
 import time
-from typing import Dict, Sequence
+from typing import Callable, Dict, Optional, Sequence
 import urllib.request
 
+from chromite.third_party.google.protobuf import json_format
 from chromite.third_party.google.protobuf import message as proto_msg
 from chromite.third_party.google.protobuf import struct_pb2
 from opentelemetry import trace as trace_api
@@ -25,6 +26,7 @@ from opentelemetry.util import types
 from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
 from chromite.api.gen.chromite.telemetry import trace_span_pb2
 from chromite.utils.telemetry import detector
+from chromite.utils.telemetry import utils
 
 
 _DEFAULT_ENDPOINT = "https://play.googleapis.com/log"
@@ -36,6 +38,23 @@ _LOG_SOURCE = 2044
 _CLIENT_TYPE = 33
 
 
+class AnonymizingFilter:
+    """Applies the anonymizer to TraceSpan messages."""
+
+    def __init__(self, anonymizer: utils.Anonymizer):
+        self._anonymizer = anonymizer
+
+    def __call__(
+        self, msg: trace_span_pb2.TraceSpan
+    ) -> trace_span_pb2.TraceSpan:
+        """Applies the anonymizer to TraceSpan message."""
+        raw = json_format.MessageToJson(msg)
+        json_msg = self._anonymizer.apply(raw)
+        output = trace_span_pb2.TraceSpan()
+        json_format.Parse(json_msg, output)
+        return output
+
+
 class ClearcutSpanExporter(export.SpanExporter):
     """Exports the spans to google http endpoint."""
 
@@ -43,9 +62,13 @@ class ClearcutSpanExporter(export.SpanExporter):
         self,
         endpoint: str = _DEFAULT_ENDPOINT,
         timeout: int = _DEFAULT_TIMEOUT,
+        prefilter: Optional[
+            Callable[[trace_span_pb2.TraceSpan], trace_span_pb2.TraceSpan]
+        ] = None,
     ):
         self._endpoint = endpoint
         self._timeout = timeout
+        self._prefilter = prefilter or AnonymizingFilter(utils.Anonymizer())
         self._log_source = _LOG_SOURCE
         self._next_request_dt = datetime.datetime.now()
 
@@ -287,6 +310,7 @@ class ClearcutSpanExporter(export.SpanExporter):
         for span in spans:
             log_event = log_request.log_event.add()
             log_event.event_time_ms = int(time.time() * 1000)
-            log_event.source_extension = span.SerializeToString()
+            filtered_span = self._prefilter(span)
+            log_event.source_extension = filtered_span.SerializeToString()
 
         return log_request
