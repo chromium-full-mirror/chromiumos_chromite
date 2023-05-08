@@ -25,8 +25,9 @@ to a local folder.
 {fwbuddy.USAGE}
 
 Examples:
-    cros fwget fwbuddy://dedede/galnat360/galtic/latest/signed path/to/put/extracted/archive
-    cros fwget fwbuddy://dedede/galnat360/galtic/latest/signed path/to/put/ec.bin
+    cros fwget fwbuddy://dedede/galnat360/galtic/latest/signed some/folder
+    cros fwget fwbuddy://dedede/galith/galtic/unsigned/R99-123.456.0/serial some/folder
+    cros fwget fwbuddy://octopus/dood/dood/unsigned/stable/dev some/folder
 """
 
     @classmethod
@@ -35,12 +36,10 @@ Examples:
         super(FwgetCommand, cls).AddParser(parser)
         parser.add_argument(
             "uri",
-            nargs=1,
             help="The fwbuddy URI that identifies the firmware archive.",
         )
         parser.add_argument(
             "path",
-            nargs=1,
             type="dir_exists",
             help="The path to the local folder where the firmware archive will "
             "be extracted to.",
@@ -48,5 +47,8 @@ Examples:
 
     def Run(self):
         """Downloads the firmware archive and extract its contents to path"""
-        logging.notice(self.options.uri[0])
-        logging.notice(self.options.path[0])
+        logging.notice(self.options.uri)
+        logging.notice(self.options.path)
+        f = fwbuddy.FwBuddy(uri=self.options.uri)
+        f.download()
+        f.extract(self.options.path)
