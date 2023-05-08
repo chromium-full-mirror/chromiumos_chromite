@@ -14,9 +14,10 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen_sdk.chromite.api import build_api_pb2 as chromite_dot_api_dot_build__api__pb2
 from chromite.api.gen_sdk.chromite.api import image_pb2 as chromite_dot_api_dot_image__pb2
 from chromite.api.gen_sdk.chromite.observability import sizes_pb2 as chromite_dot_observability_dot_sizes__pb2
+from chromite.api.gen_sdk.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n chromite/api/observability.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x18\x63hromite/api/image.proto\x1a\"chromite/observability/sizes.proto\"D\n\x17GetImageSizeDataRequest\x12)\n\x0c\x62uilt_images\x18\x01 \x03(\x0b\x32\x13.chromite.api.Image\"Q\n\x18GetImageSizeDataResponse\x12\x35\n\nimage_data\x18\x01 \x03(\x0b\x32!.chromite.observability.ImageData2\x90\x01\n\x14ObservabilityService\x12\x61\n\x10GetImageSizeData\x12%.chromite.api.GetImageSizeDataRequest\x1a&.chromite.api.GetImageSizeDataResponse\x1a\x15\xc2\xed\x1a\x11\n\robservability\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n chromite/api/observability.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x18\x63hromite/api/image.proto\x1a\"chromite/observability/sizes.proto\x1a\x17\x63hromiumos/common.proto\"h\n\x17GetImageSizeDataRequest\x12)\n\x0c\x62uilt_images\x18\x01 \x03(\x0b\x32\x13.chromite.api.Image\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\"Q\n\x18GetImageSizeDataResponse\x12\x35\n\nimage_data\x18\x01 \x03(\x0b\x32!.chromite.observability.ImageData2\x90\x01\n\x14ObservabilityService\x12\x61\n\x10GetImageSizeData\x12%.chromite.api.GetImageSizeDataRequest\x1a&.chromite.api.GetImageSizeDataResponse\x1a\x15\xc2\xed\x1a\x11\n\robservability\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.observability_pb2', globals())
@@ -26,10 +27,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api'
   _OBSERVABILITYSERVICE._options = None
   _OBSERVABILITYSERVICE._serialized_options = b'\302\355\032\021\n\robservability\020\001'
-  _GETIMAGESIZEDATAREQUEST._serialized_start=142
-  _GETIMAGESIZEDATAREQUEST._serialized_end=210
-  _GETIMAGESIZEDATARESPONSE._serialized_start=212
-  _GETIMAGESIZEDATARESPONSE._serialized_end=293
-  _OBSERVABILITYSERVICE._serialized_start=296
-  _OBSERVABILITYSERVICE._serialized_end=440
+  _GETIMAGESIZEDATAREQUEST._serialized_start=167
+  _GETIMAGESIZEDATAREQUEST._serialized_end=271
+  _GETIMAGESIZEDATARESPONSE._serialized_start=273
+  _GETIMAGESIZEDATARESPONSE._serialized_end=354
+  _OBSERVABILITYSERVICE._serialized_start=357
+  _OBSERVABILITYSERVICE._serialized_end=501
 # @@protoc_insertion_point(module_scope)

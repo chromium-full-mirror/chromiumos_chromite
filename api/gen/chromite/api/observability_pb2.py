@@ -14,6 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_build__api__pb2
 from chromite.api.gen.chromite.api import image_pb2 as chromite_dot_api_dot_image__pb2
 from chromite.api.gen.chromite.observability import sizes_pb2 as chromite_dot_observability_dot_sizes__pb2
+from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -22,9 +23,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n chromite/api/observability.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x18\x63hromite/api/image.proto\x1a\"chromite/observability/sizes.proto\"D\n\x17GetImageSizeDataRequest\x12)\n\x0c\x62uilt_images\x18\x01 \x03(\x0b\x32\x13.chromite.api.Image\"Q\n\x18GetImageSizeDataResponse\x12\x35\n\nimage_data\x18\x01 \x03(\x0b\x32!.chromite.observability.ImageData2\x90\x01\n\x14ObservabilityService\x12\x61\n\x10GetImageSizeData\x12%.chromite.api.GetImageSizeDataRequest\x1a&.chromite.api.GetImageSizeDataResponse\x1a\x15\xc2\xed\x1a\x11\n\robservability\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3'
+  serialized_pb=b'\n chromite/api/observability.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x18\x63hromite/api/image.proto\x1a\"chromite/observability/sizes.proto\x1a\x17\x63hromiumos/common.proto\"h\n\x17GetImageSizeDataRequest\x12)\n\x0c\x62uilt_images\x18\x01 \x03(\x0b\x32\x13.chromite.api.Image\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\"Q\n\x18GetImageSizeDataResponse\x12\x35\n\nimage_data\x18\x01 \x03(\x0b\x32!.chromite.observability.ImageData2\x90\x01\n\x14ObservabilityService\x12\x61\n\x10GetImageSizeData\x12%.chromite.api.GetImageSizeDataRequest\x1a&.chromite.api.GetImageSizeDataResponse\x1a\x15\xc2\xed\x1a\x11\n\robservability\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3'
   ,
-  dependencies=[chromite_dot_api_dot_build__api__pb2.DESCRIPTOR,chromite_dot_api_dot_image__pb2.DESCRIPTOR,chromite_dot_observability_dot_sizes__pb2.DESCRIPTOR,])
+  dependencies=[chromite_dot_api_dot_build__api__pb2.DESCRIPTOR,chromite_dot_api_dot_image__pb2.DESCRIPTOR,chromite_dot_observability_dot_sizes__pb2.DESCRIPTOR,chromiumos_dot_common__pb2.DESCRIPTOR,])
 
 
 
@@ -44,6 +45,13 @@ _GETIMAGESIZEDATAREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='chroot', full_name='chromite.api.GetImageSizeDataRequest.chroot', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -56,8 +64,8 @@ _GETIMAGESIZEDATAREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=142,
-  serialized_end=210,
+  serialized_start=167,
+  serialized_end=271,
 )
 
 
@@ -88,11 +96,12 @@ _GETIMAGESIZEDATARESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=212,
-  serialized_end=293,
+  serialized_start=273,
+  serialized_end=354,
 )
 
 _GETIMAGESIZEDATAREQUEST.fields_by_name['built_images'].message_type = chromite_dot_api_dot_image__pb2._IMAGE
+_GETIMAGESIZEDATAREQUEST.fields_by_name['chroot'].message_type = chromiumos_dot_common__pb2._CHROOT
 _GETIMAGESIZEDATARESPONSE.fields_by_name['image_data'].message_type = chromite_dot_observability_dot_sizes__pb2._IMAGEDATA
 DESCRIPTOR.message_types_by_name['GetImageSizeDataRequest'] = _GETIMAGESIZEDATAREQUEST
 DESCRIPTOR.message_types_by_name['GetImageSizeDataResponse'] = _GETIMAGESIZEDATARESPONSE
@@ -122,8 +131,8 @@ _OBSERVABILITYSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=b'\302\355\032\021\n\robservability\020\001',
   create_key=_descriptor._internal_create_key,
-  serialized_start=296,
-  serialized_end=440,
+  serialized_start=357,
+  serialized_end=501,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetImageSizeData',
