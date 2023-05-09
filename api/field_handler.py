@@ -70,7 +70,7 @@ class ChrootHandler(object):
 
 
 def handle_chroot(
-    message: protobuf_message.Message, clear_field: Optional[bool] = True
+    message: protobuf_message.Message, clear_field: bool = True
 ) -> "chroot_lib.Chroot":
     """Find and parse the chroot field, returning the Chroot instance."""
     handler = ChrootHandler(clear_field)
