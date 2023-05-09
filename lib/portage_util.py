@@ -1466,9 +1466,11 @@ class PortageDBError(Error):
 class PortageDB(object):
     """Wrapper class to access the portage database located in var/db/pkg."""
 
+    _ebuilds: Dict[str, "InstalledPackage"]
+
     def __init__(
         self,
-        root: os.PathLike = "/",
+        root: Union[os.PathLike, str] = "/",
         vdb: Optional[os.PathLike] = None,
         package_install_path: Optional[os.PathLike] = None,
     ):
@@ -1912,26 +1914,27 @@ def RegenCache(
     """
     repo_name = GetOverlayName(overlay)
     if not repo_name:
-        return
+        return None
 
     layout = key_value_store.LoadFile(
         os.path.join(GetOverlayRoot(overlay), "metadata", "layout.conf"),
         ignore_missing=True,
     )
     if layout.get("cache-format") != "md5-dict":
-        return
+        return None
 
     chroot_args = None
     if chroot:
         chroot_args = chroot.get_enter_args()
-        repos_conf = chroot.chroot_path(repos_conf)
+        if repos_conf:
+            repos_conf = chroot.chroot_path(repos_conf)
 
     # Regen for the whole repo.
     _Egencache(repo_name, repos_conf=repos_conf, chroot_args=chroot_args)
     # If there was nothing new generated, then let's just bail.
     result = git.RunGit(overlay, ["status", "-s", "metadata/"])
     if not result.stdout:
-        return
+        return None
 
     if not commit_changes:
         return overlay
@@ -1940,6 +1943,7 @@ def RegenCache(
     git.RunGit(overlay, ["add", "metadata/"])
     # Explicitly tell git to also include rm-ed files.
     git.RunGit(overlay, ["commit", "-m", "regen cache", "metadata/"])
+    return None
 
 
 def RegenDependencyCache(
