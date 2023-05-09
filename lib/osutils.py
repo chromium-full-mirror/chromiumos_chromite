@@ -719,7 +719,6 @@ def _CopyDirContents(
                     shutil.move(
                         str(from_path),
                         str(to_path),
-                        copy_function=shutil.copytree,
                     )
             else:
                 shutil.copytree(from_path, to_path, symlinks=symlinks)

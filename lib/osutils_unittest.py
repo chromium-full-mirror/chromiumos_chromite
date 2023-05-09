@@ -1472,6 +1472,23 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
             str(self.tempdir / "a.txt"),
         )
 
+    def testMoveDirCrossDevice(self):
+        """Move dir across filesystem boundaries."""
+        # Mock os.rename() to fail, so shutil will fall back to copy
+        # operations.
+        _ = self.PatchObject(os, "rename", side_effect=self._crossdevice_rename)
+
+        osutils.SafeMakedirs(self.from_dir / "b")
+        osutils.WriteFile(self.from_dir / "b" / "a.txt", "aaa")
+        osutils.WriteFile(self.from_dir / "b" / "b.txt", "bbb")
+
+        osutils.MoveDirContents(self.from_dir, self.to_dir)
+        self.assertFileContents(self.to_dir / "b" / "a.txt", "aaa")
+        self.assertFileContents(self.to_dir / "b" / "b.txt", "bbb")
+        self.assertExists(self.from_dir)
+        self.assertNotExists(self.from_dir / "b" / "a.txt")
+        self.assertNotExists(self.from_dir / "b" / "b.txt")
+
     def testOverWriteFiles(self):
         """Move files with same name from source to destination."""
         # test dotfiles in top and multiple level directories.
