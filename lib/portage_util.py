@@ -134,10 +134,10 @@ def _GetKnownOverlays(buildroot):
     overlays is the same no matter the board given for _ListOverlays.
 
     Args:
-      buildroot: Source root to find overlays.
+        buildroot: Source root to find overlays.
 
     Returns:
-      List of overlays.
+        List of overlays.
     """
     paths = (
         "projects",
@@ -183,8 +183,8 @@ def _ListOverlays(board=None, buildroot=constants.SOURCE_ROOT):
     perform any filtering.
 
     Args:
-      board: Board to look at.
-      buildroot: Source root to find overlays.
+        board: Board to look at.
+        buildroot: Source root to find overlays.
     """
     # Load all the known overlays so we can extract the details below.
     overlays = _GetKnownOverlays(buildroot)
@@ -249,12 +249,12 @@ def FindOverlays(overlay_type, board=None, buildroot=constants.SOURCE_ROOT):
     The returned list of overlays will be in parent -> child order.
 
     Args:
-      overlay_type: A string describing which overlays you want.
-        'private': Just the private overlays.
-        'public': Just the public overlays.
-        'both': Both the public and private overlays.
-      board: Board to look at.
-      buildroot: Source root to find overlays.
+        overlay_type: A string describing which overlays you want.
+            'private': Just the private overlays.
+            'public': Just the public overlays.
+            'both': Both the public and private overlays.
+        board: Board to look at.
+        buildroot: Source root to find overlays.
     """
     overlays = _ListOverlays(board=board, buildroot=buildroot)
     private_prefix = _PRIVATE_PREFIX % dict(buildroot=buildroot)
@@ -276,11 +276,11 @@ def FindOverlaysForBoards(overlay_type: str, boards: List[str]) -> List[str]:
     Produces a unique list of overlays.
 
     Args:
-      overlay_type: Type of overlays to search. See FindOverlays.
-      boards: The list of boards to compile a the overlays for.
+        overlay_type: Type of overlays to search. See FindOverlays.
+        boards: The list of boards to compile a the overlays for.
 
     Returns:
-      The list of unique overlays from all boards.
+        The list of unique overlays from all boards.
     """
     overlays = set()
     for board in boards:
@@ -302,16 +302,17 @@ def FindOverlayFile(
     overlays are searched in child -> parent order.
 
     Args:
-      filename: Path to search for inside the overlay.
-      overlay_type: A string describing which overlays you want.
-        'private': Just the private overlays.
-        'public': Just the public overlays.
-        'both': Both the public and private overlays.
-      board: Board to look at.
-      buildroot: Source root to find overlays.
+        filename: Path to search for inside the overlay.
+        overlay_type: A string describing which overlays you want.
+            'private': Just the private overlays.
+            'public': Just the public overlays.
+            'both': Both the public and private overlays.
+        board: Board to look at.
+        buildroot: Source root to find overlays.
 
     Returns:
-      Path to the first file found in the search. None if the file is not found.
+        Path to the first file found in the search. None if the file is not
+        found.
     """
     for overlay in reversed(FindOverlays(overlay_type, board, buildroot)):
         if os.path.isfile(os.path.join(overlay, filename)):
@@ -326,10 +327,10 @@ def FindSysrootOverlays(sysroot):
     is only partially ordered.
 
     Args:
-      sysroot: The root directory being inspected.
+        sysroot: The root directory being inspected.
 
     Returns:
-      list of overlays used in sysroot.
+        list of overlays used in sysroot.
     """
     return PortageqEnvvar("PORTDIR_OVERLAY", board=os.path.basename(sysroot))
 
@@ -346,16 +347,16 @@ def ReadOverlayFile(
     overlays are searched in child -> parent order.
 
     Args:
-      filename: Path to open inside the overlay.
-      overlay_type: A string describing which overlays you want.
-        'private': Just the private overlays.
-        'public': Just the public overlays.
-        'both': Both the public and private overlays.
-      board: Board to look at.
-      buildroot: Source root to find overlays.
+        filename: Path to open inside the overlay.
+        overlay_type: A string describing which overlays you want.
+            'private': Just the private overlays.
+            'public': Just the public overlays.
+            'both': Both the public and private overlays.
+        board: Board to look at.
+        buildroot: Source root to find overlays.
 
     Returns:
-      The contents of the file, or None if no files could be opened.
+        The contents of the file, or None if no files could be opened.
     """
     file_found = FindOverlayFile(filename, overlay_type, board, buildroot)
     if file_found is None:
@@ -477,9 +478,9 @@ class EBuild(object):
         """Static function that updates WORKON information in the ebuild.
 
         Args:
-          ebuild_path: The path of the ebuild.
-          variables: Dictionary of variables to update in ebuild.
-          make_stable: Actually make the ebuild stable.
+            ebuild_path: The path of the ebuild.
+            variables: Dictionary of variables to update in ebuild.
+            make_stable: Actually make the ebuild stable.
         """
         written = False
         old_lines = osutils.ReadFile(ebuild_path).splitlines()
@@ -521,11 +522,11 @@ class EBuild(object):
         set the commit_keyword=commit_value pair in the ebuild.
 
         Args:
-          unstable_ebuild_path: The path to the unstable ebuild.
-          new_stable_ebuild_path: The path you want to use for the new stable
-            ebuild.
-          variables: Dictionary of variables to update in ebuild.
-          make_stable: Actually make the ebuild stable.
+            unstable_ebuild_path: The path to the unstable ebuild.
+            new_stable_ebuild_path: The path you want to use for the new stable
+                ebuild.
+            variables: Dictionary of variables to update in ebuild.
+            make_stable: Actually make the ebuild stable.
         """
         shutil.copyfile(unstable_ebuild_path, new_stable_ebuild_path)
         EBuild.UpdateEBuild(new_stable_ebuild_path, variables, make_stable)
@@ -535,11 +536,11 @@ class EBuild(object):
         """Commits current changes in git locally with given commit message.
 
         Args:
-          message: the commit string to write when committing to git.
-          overlay: directory in which to commit the changes.
+            message: the commit string to write when committing to git.
+            overlay: directory in which to commit the changes.
 
         Raises:
-          RunCommandError: Error occurred while committing.
+            RunCommandError: Error occurred while committing.
         """
         logging.info("Committing changes with commit message: %s", message)
         git_commit_cmd = ["commit", "-a", "-m", message]
@@ -549,9 +550,9 @@ class EBuild(object):
         """Sets up data about an ebuild from its path.
 
         Args:
-          path: Path to the ebuild.
-          subdir_support: Support obsolete CROS_WORKON_SUBDIR.
-                          Intended for branchs older than 10363.0.0.
+            path: Path to the ebuild.
+            subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
+                branches older than 10363.0.0.
         """
         self.subdir_support = subdir_support
 
@@ -684,10 +685,10 @@ class EBuild(object):
         """Return a list of test names, when given a settings dictionary.
 
         Args:
-          settings: A dictionary containing ebuild variables contents.
+            settings: A dictionary containing ebuild variables contents.
 
         Returns:
-          A list of test name strings.
+            A list of test name strings.
         """
         # We do a bit of string wrangling to extract directory names from test
         # names. First, get rid of special characters.
@@ -749,11 +750,11 @@ class EBuild(object):
         """Return the finalized values of CROS_WORKON vars in an ebuild script.
 
         Args:
-          ebuild_path: Path to the ebuild file (e.g: platform2-9999.ebuild).
-          pkg_name: The package name (e.g.: platform2).
+            ebuild_path: Path to the ebuild file (e.g: platform2-9999.ebuild).
+            pkg_name: The package name (e.g.: platform2).
 
         Returns:
-          A CrosWorkonVars tuple.
+            A CrosWorkonVars tuple.
         """
         cros_workon_vars = EBuild._ReadCrosWorkonVars(ebuild_path, pkg_name)
         return EBuild._FinalizeCrosWorkonVars(cros_workon_vars, ebuild_path)
@@ -845,11 +846,11 @@ class EBuild(object):
         all variables have the same number of entries.
 
         Args:
-          cros_workon_vars: A CrosWorkonVars tuple.
-          ebuild_path: Path to the ebuild file (e.g: platform2-9999.ebuild).
+            cros_workon_vars: A CrosWorkonVars tuple.
+            ebuild_path: Path to the ebuild file (e.g: platform2-9999.ebuild).
 
         Returns:
-          A completed CrosWorkonVars tuple.
+            A completed CrosWorkonVars tuple.
         """
         localnames = cros_workon_vars.localname
         projects = cros_workon_vars.project
@@ -929,7 +930,7 @@ class EBuild(object):
                 git repo as it is tracking for uprevs.
 
         Returns:
-          EBuild.SourceInfo namedtuple.
+            EBuild.SourceInfo namedtuple.
 
         Raises:
             raise Error if there are errors with extracting/validating data
@@ -1040,10 +1041,10 @@ class EBuild(object):
         """Get the commit id for this ebuild.
 
         Returns:
-          Commit id (string) for this ebuild.
+            Commit id (string) for this ebuild.
 
         Raises:
-          raise Error if git fails to return the HEAD commit id.
+            raise Error if git fails to return the HEAD commit id.
         """
         if not os.path.exists(srcdir):
             raise SourceDirectoryDoesNotExistError(
@@ -1065,7 +1066,7 @@ class EBuild(object):
         exist, None is returned.
 
         Raises:
-          raise Error if git fails to determine the HEAD tree hash.
+            raise Error if git fails to determine the HEAD tree hash.
         """
         if not os.path.exists(path):
             return None
@@ -1087,8 +1088,8 @@ class EBuild(object):
         the $FILESDIR (chromeos-version.sh).
 
         Raises:
-          raise Error when chromeos-version.sh script fails to return the raw
-            version number.
+            raise Error when chromeos-version.sh script fails to return the raw
+                version number.
         """
         vers_script = os.path.join(
             os.path.dirname(self._ebuild_path_no_version),
@@ -1164,11 +1165,11 @@ class EBuild(object):
         That is both backwards-compatible and more readable.
 
         Args:
-          unformatted_list: an iterable to format as a bash array. This variable
-            has to be sanitized first, as we don't do any safeties.
+            unformatted_list: an iterable to format as a bash array. This
+                variable has to be sanitized first, as we don't do any safeties.
 
         Returns:
-          A text string that can be used by bash as array declaration.
+            A text string that can be used by bash as array declaration.
         """
         if len(unformatted_list) > 1:
             return '("%s")' % '" "'.join(unformatted_list)
@@ -1362,13 +1363,13 @@ class EBuild(object):
         subdirs_to_rev is empty, this function trivially returns True.
 
         Args:
-          commit_ids: Commit ID of the tip of tree for the source dir.
-          srcdirs: Source directory where the git repo is located.
-          subdirs_to_rev: Test subdirectories which have to be checked for
-          modifications since the last stable commit hash.
+            commit_ids: Commit ID of the tip of tree for the source dir.
+            srcdirs: Source directory where the git repo is located.
+            subdirs_to_rev: Test subdirectories which have to be checked for
+            modifications since the last stable commit hash.
 
         Returns:
-          True is an Uprev is needed, False otherwise.
+            True is an Uprev is needed, False otherwise.
         """
         if not self.cros_workon_vars:
             return True
@@ -1452,7 +1453,7 @@ class EBuild(object):
         """Generate the path to each ebuild in |package_dir|.
 
         Args:
-          package_dir: The package directory.
+            package_dir: The package directory.
         """
         for entry in os.listdir(package_dir):
             if entry.endswith(".ebuild"):
@@ -1573,7 +1574,7 @@ class InstalledPackage(object):
                 when this value is known.
 
         Raises:
-          PortageDBError if the pkgdir doesn't contain a valid package.
+            PortageDBError if the pkgdir doesn't contain a valid package.
         """
         self._portage_db = portage_db
         self.pkgdir = pkgdir
@@ -1611,12 +1612,12 @@ class InstalledPackage(object):
         """Reads the contents of the file in the installed package directory.
 
         Args:
-          field_name: The name of the field to read, for example, 'SLOT' or
-              'LICENSE'.
+            field_name: The name of the field to read, for example, 'SLOT' or
+                'LICENSE'.
 
         Returns:
-          A string with the contents of the file. The contents of the file are
-          cached in _fields. If the file doesn't exists returns None.
+            A string with the contents of the file. The contents of the file are
+            cached in _fields. If the file doesn't exists returns None.
         """
         if field_name not in self._fields:
             try:
@@ -1721,13 +1722,13 @@ def _FindUprevCandidates(files, allow_manual_uprev, subdir_support):
     If the package isn't a cros_workon package, return None.
 
     Args:
-      files: List of files in a package directory.
-      allow_manual_uprev: If False, discard manually uprevved packages.
-      subdir_support: Support obsolete CROS_WORKON_SUBDIR.
-                      Intended for branchs older than 10363.0.0.
+        files: List of files in a package directory.
+        allow_manual_uprev: If False, discard manually uprevved packages.
+        subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
+            branches older than 10363.0.0.
 
     Raises:
-      raise Error if there is error with validating the ebuild files.
+        raise Error if there is error with validating the ebuild files.
     """
     stable_ebuilds = []
     unstable_ebuilds = []
@@ -1801,18 +1802,18 @@ def GetOverlayEBuilds(
     """Get ebuilds from the specified overlay.
 
     Args:
-      overlay: The path of the overlay to get ebuilds.
-      use_all: Whether to include all ebuilds in the specified directories.
-        If true, then we gather all packages in the directories regardless
-        of whether they are in our set of packages.
-      packages: A set of the packages we want to gather.  If use_all is
-        True, this argument is ignored, and should be None.
-      allow_manual_uprev: Whether to consider manually uprevved ebuilds.
-      subdir_support: Support obsolete CROS_WORKON_SUBDIR.
-                      Intended for branchs older than 10363.0.0.
+        overlay: The path of the overlay to get ebuilds.
+        use_all: Whether to include all ebuilds in the specified directories.
+            If true, then we gather all packages in the directories regardless
+            of whether they are in our set of packages.
+        packages: A set of the packages we want to gather.  If use_all is
+            True, this argument is ignored, and should be None.
+        allow_manual_uprev: Whether to consider manually uprevved ebuilds.
+        subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
+            branches older than 10363.0.0.
 
     Returns:
-      A list of ebuilds of the overlay
+        A list of ebuilds of the overlay.
     """
     ebuilds = []
     for package_dir, _dirs, files in os.walk(overlay):
@@ -1847,13 +1848,13 @@ def _Egencache(
     """Execute egencache for repo_name inside the chroot.
 
     Args:
-      repo_name: Name of the repo for the overlay.
-      repos_conf: Alternative repos.conf file.
-      chroot_args: chroot enter args.
-      log_output: Log output of cros_build_run commands.
+        repo_name: Name of the repo for the overlay.
+        repos_conf: Alternative repos.conf file.
+        chroot_args: chroot enter args.
+        log_output: Log output of cros_build_run commands.
 
     Returns:
-      A cros_build_lib.CompletedProcess object.
+        A cros_build_lib.CompletedProcess object.
     """
     cmd = [
         "egencache",
@@ -1880,7 +1881,7 @@ def generate_repositories_configuration(
     The repositories configuration can be accepted as a string in egencache.
 
     Returns:
-      The string of the new repositories configuration.
+        The string of the new repositories configuration.
     """
     repos_config = ""
     overlays = FindOverlays(constants.BOTH_OVERLAYS)
@@ -1901,16 +1902,16 @@ def RegenCache(
     """Regenerate the cache of the specified overlay.
 
     Args:
-      overlay: The tree to regenerate the cache for.
-      commit_changes: Whether to commit the changes.
-      chroot: A chroot to enter.
-      repos_conf: Alternative repos.conf file.
+        overlay: The tree to regenerate the cache for.
+        commit_changes: Whether to commit the changes.
+        chroot: A chroot to enter.
+        repos_conf: Alternative repos.conf file.
 
     Returns:
-      The overlay when there are outstanding changes, or None when there were no
-      updates or all updates were committed. This is meant to be a simple,
-      parallel_lib friendly means of identifying which overlays have been
-      changed.
+        The overlay when there are outstanding changes, or None when there were
+        no updates or all updates were committed. This is meant to be a simple,
+        parallel_lib friendly means of identifying which overlays have been
+        changed.
     """
     repo_name = GetOverlayName(overlay)
     if not repo_name:
@@ -1957,12 +1958,12 @@ def RegenDependencyCache(
     all overlays (egencache only updates the cache for specific overlays).
 
     Args:
-      board: The board to inspect.
-      sysroot: The root directory being inspected.
-      jobs: The number of regeneration jobs to run in parallel.
+        board: The board to inspect.
+        sysroot: The root directory being inspected.
+        jobs: The number of regeneration jobs to run in parallel.
 
     Raises:
-      cros_build_lib.RunCommandError
+        cros_build_lib.RunCommandError
     """
     logging.info("Rebuilding Portage dependency cache.")
     cmd = ["parallel_emerge", "--regen", "--quiet"]
@@ -1993,12 +1994,12 @@ def WorkonEBuildGeneratorForDirectory(base_dir, subdir_support=False):
     """Yields cros_workon EBuilds in |base_dir|.
 
     Args:
-      base_dir: Path to the base directory.
-      subdir_support: Support obsolete CROS_WORKON_SUBDIR.
-                      Intended for branchs older than 10363.0.0.
+        base_dir: Path to the base directory.
+        subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
+            branches older than 10363.0.0.
 
     Yields:
-      A cros_workon EBuild instance.
+        A cros_workon EBuild instance.
     """
     for root, _, files in os.walk(base_dir):
         for filename in files:
@@ -2015,12 +2016,12 @@ def WorkonEBuildGenerator(buildroot, overlay_type):
     """Scans all overlays and yields cros_workon EBuilds.
 
     Args:
-      buildroot: Path to source root to find overlays.
-      overlay_type: The type of overlay to use (one of
-        constants.VALID_OVERLAYS).
+        buildroot: Path to source root to find overlays.
+        overlay_type: The type of overlay to use (one of
+            constants.VALID_OVERLAYS).
 
     Yields:
-      A cros_workon EBuild instance.
+        A cros_workon EBuild instance.
     """
     # Get the list of all overlays.
     overlays = FindOverlays(overlay_type, buildroot=buildroot)
@@ -2034,8 +2035,8 @@ def GetWorkonProjectMap(overlay, subdirectories):
     """Get a mapping of cros_workon ebuilds to projects and source paths.
 
     Args:
-      overlay: Overlay to look at.
-      subdirectories: List of subdirectories to look in on the overlay.
+        overlay: Overlay to look at.
+        subdirectories: List of subdirectories to look in on the overlay.
 
     Yields:
         Tuples containing (filename, projects, srcpaths) for cros-workon ebuilds
@@ -2056,10 +2057,10 @@ def EbuildToCP(path):
     """Return the category/path string from an ebuild path.
 
     Args:
-      path: Path to an ebuild.
+        path: Path to an ebuild.
 
     Returns:
-      '$CATEGORY/$PN' (e.g. 'sys-apps/dbus')
+        '$CATEGORY/$PN' (e.g. 'sys-apps/dbus')
     """
     return os.path.join(*SplitEbuildPath(path)[0:2])
 
@@ -2072,14 +2073,14 @@ def SplitEbuildPath(path):
     a filename, absolute or relative, and returns the last 3 components.
 
     Examples:
-      For /any/path/chromeos-base/power_manager/power_manager-9999.ebuild,
-      returns ('chromeos-base', 'power_manager', 'power_manager-9999').
+        For /any/path/chromeos-base/power_manager/power_manager-9999.ebuild,
+        returns ('chromeos-base', 'power_manager', 'power_manager-9999').
 
     Args:
-      path: Path to the ebuild.
+        path: Path to the ebuild.
 
     Returns:
-      $CATEGORY, $PN, $P
+        $CATEGORY, $PN, $P
     """
     return os.path.splitext(path)[0].rsplit("/", 3)[-3:]
 
@@ -2088,10 +2089,10 @@ def FindWorkonProjects(packages):
     """Find the projects associated with the specified cros_workon packages.
 
     Args:
-      packages: List of cros_workon packages.
+        packages: List of cros_workon packages.
 
     Returns:
-      The set of projects associated with the specified cros_workon packages.
+        The set of projects associated with the specified cros_workon packages.
     """
     all_projects = set()
     buildroot, both = constants.SOURCE_ROOT, constants.BOTH_OVERLAYS
@@ -2109,10 +2110,10 @@ def ListInstalledPackages(sysroot):
     This function is DEPRECATED, please use PortageDB.InstalledPackages instead.
 
     Args:
-      sysroot: The root directory being inspected.
+        sysroot: The root directory being inspected.
 
     Returns:
-      A list of (cp,v) tuples in the given sysroot.
+        A list of (cp,v) tuples in the given sysroot.
     """
     return [
         ("%s/%s" % (pkg.category, pkg.package), pkg.version)
@@ -2124,8 +2125,8 @@ def IsPackageInstalled(package, sysroot="/"):
     """Return whether a portage package is in a given portage-managed root.
 
     Args:
-      package: The CP to look for.
-      sysroot: The root being inspected.
+        package: The CP to look for.
+        sysroot: The root being inspected.
     """
     for key, _version in ListInstalledPackages(sysroot):
         if key == package:
@@ -2189,12 +2190,12 @@ def _EqueryList(
     """Executes equery list command.
 
     Args:
-      pkg_str: The package name with optional category, version, and slot.
-      board: The board to inspect.
-      buildroot: Source root to find overlays.
+        pkg_str: The package name with optional category, version, and slot.
+        board: The board to inspect.
+        buildroot: Source root to find overlays.
 
     Returns:
-      A cros_build_lib.CompletedProcess object.
+        A cros_build_lib.CompletedProcess object.
     """
     return _Equery(
         "list", pkg_str, board=board, buildroot=buildroot, check=False
@@ -2209,12 +2210,12 @@ def FindPackageNameMatches(
     """Finds a list of installed packages matching |pkg_str|.
 
     Args:
-      pkg_str: The package name with optional category, version, and slot.
-      board: The board to inspect.
-      buildroot: Source root to find overlays.
+        pkg_str: The package name with optional category, version, and slot.
+        board: The board to inspect.
+        buildroot: Source root to find overlays.
 
     Returns:
-      An iterable of matched PackageInfo objects.
+        An iterable of matched PackageInfo objects.
     """
     result = _EqueryList(pkg_str, board, buildroot)
 
@@ -2249,20 +2250,20 @@ def _EqueryWhich(
     """Executes an equery command, returns the result of the cmd.
 
     Args:
-      packages_list: The list of package (string) names with optional category,
-        version, and slot.
-      sysroot: The root directory being inspected.
-      include_masked: True iff we should include masked ebuilds in our query.
-      extra_env: optional dictionary of extra string/string pairs to use as the
-        environment of equery command.
-      check: If False, do not raise an exception when run returns
-        a non-zero exit code.
-        If any package does not exist causing the run to fail, we will
-        return information for none of the packages, i.e: return an
-        empty dictionary.
+        packages_list: The list of package (string) names with optional
+            category, version, and slot.
+        sysroot: The root directory being inspected.
+        include_masked: True iff we should include masked ebuilds in our query.
+        extra_env: optional dictionary of extra string/string pairs to use as
+            the environment of equery command.
+        check: If False, do not raise an exception when run returns
+            a non-zero exit code.
+            If any package does not exist causing the run to fail, we will
+            return information for none of the packages, i.e: return an
+            empty dictionary.
 
     Returns:
-      result (cros_build_lib.CompletedProcess)
+        result (cros_build_lib.CompletedProcess)
     """
     args = []
     if include_masked:
@@ -2285,20 +2286,20 @@ def FindEbuildsForPackages(
     """Returns paths to the ebuilds for the packages in |packages_list|.
 
     Args:
-      packages_list: The list of package (string) names with optional category,
-        version, and slot.
-      sysroot: The root directory being inspected.
-      include_masked: True iff we should include masked ebuilds in our query.
-      extra_env: optional dictionary of extra string/string pairs to use as the
-        environment of equery command.
-      check: If False, do not raise an exception when run returns
-        a non-zero exit code.
-        If any package does not exist causing the run to fail, we will
-        return information for none of the packages, i.e: return an
-        empty dictionary.
+        packages_list: The list of package (string) names with optional
+            category, version, and slot.
+        sysroot: The root directory being inspected.
+        include_masked: True iff we should include masked ebuilds in our query.
+        extra_env: optional dictionary of extra string/string pairs to use as
+            the environment of equery command.
+        check: If False, do not raise an exception when run returns
+            a non-zero exit code.
+            If any package does not exist causing the run to fail, we will
+            return information for none of the packages, i.e: return an
+            empty dictionary.
 
     Returns:
-      A map from packages in |packages_list| to their corresponding ebuilds.
+        A map from packages in |packages_list| to their corresponding ebuilds.
     """
     if not packages_list:
         return {}
@@ -2338,16 +2339,16 @@ def FindEbuildForPackage(
     """Returns a path to an ebuild responsible for package matching |pkg_str|.
 
     Args:
-      pkg_str: The package name with optional category, version, and slot.
-      sysroot: The root directory being inspected.
-      include_masked: True iff we should include masked ebuilds in our query.
-      extra_env: optional dictionary of extra string/string pairs to use as the
-        environment of equery command.
-      check: If False, do not raise an exception when run returns
-        a non-zero exit code. Instead, return None.
+        pkg_str: The package name with optional category, version, and slot.
+        sysroot: The root directory being inspected.
+        include_masked: True iff we should include masked ebuilds in our query.
+        extra_env: optional dictionary of extra string/string pairs to use as the
+            environment of equery command.
+        check: If False, do not raise an exception when run returns
+            a non-zero exit code. Instead, return None.
 
     Returns:
-      Path to ebuild for this package.
+        Path to ebuild for this package.
     """
     ebuilds_map = FindEbuildsForPackages(
         [pkg_str], sysroot, include_masked, extra_env, check=check
@@ -2363,10 +2364,10 @@ def FindEbuildsForOverlays(
     """Get paths to ebuilds using the given overlay paths.
 
     Args:
-      overlays: A list of overlay paths to get ebuilds for.
+        overlays: A list of overlay paths to get ebuilds for.
 
     Returns:
-      A generator of paths to ebuild files.
+        A generator of paths to ebuild files.
     """
     return itertools.chain.from_iterable(
         Path(x).rglob("*.ebuild") for x in overlays
@@ -2379,14 +2380,14 @@ def _EqueryDepgraph(
     """Executes equery depgraph to find dependencies.
 
     Args:
-      pkg_str: The package name with optional category, version, and slot.
-      sysroot: The root directory being inspected.
-      board: The board to inspect.
-      depth: The depth of the transitive dependency tree to explore. 0 for
-        unlimited.
+        pkg_str: The package name with optional category, version, and slot.
+        sysroot: The root directory being inspected.
+        board: The board to inspect.
+        depth: The depth of the transitive dependency tree to explore. 0 for
+            unlimited.
 
     Returns:
-      result (cros_build_lib.CompletedProcess)
+        result (cros_build_lib.CompletedProcess)
     """
     return _Equery(
         "depgraph",
@@ -2403,15 +2404,15 @@ def GetFlattenedDepsForPackage(
     """Returns a depth-limited list of the dependencies for a given package.
 
     Args:
-      pkg_str: The package name with optional category, version, and slot.
-      sysroot: The root directory being inspected.
-      board: The board being inspected.
-      depth: The depth of the transitive dependency tree to explore. 0 for
-        unlimited.
+        pkg_str: The package name with optional category, version, and slot.
+        sysroot: The root directory being inspected.
+        board: The board being inspected.
+        depth: The depth of the transitive dependency tree to explore. 0 for
+            unlimited.
 
     Returns:
-      List[str]: A list of the dependencies of the package. Includes the package
-        itself.
+        List[str]: A list of the dependencies of the package. Includes the
+        package itself.
     """
     if not pkg_str:
         raise ValueError("pkg_str must be non-empty")
@@ -2425,17 +2426,17 @@ def _ParseDepTreeOutput(equery_output):
     """Parses the output of `equery -CQn depgraph` in to a list of package CPVs.
 
     Args:
-      equery_output: A string containing the output of the `equery depgraph`
-        command as formatted by the -C/--nocolor and -q/--quiet command line
-        options. The contents should roughly resemble:
-        ```
-        app-editors/vim-8.1.1486:
-        [  0]  app-editors/vim-8.1.1486
-        [  1]  app-eselect/eselect-vi-1.1.9
-        ```
+        equery_output: A string containing the output of the `equery depgraph`
+            command as formatted by the -C/--nocolor and -q/--quiet command line
+            options. The contents should roughly resemble:
+            ```
+            app-editors/vim-8.1.1486:
+            [  0]  app-editors/vim-8.1.1486
+            [  1]  app-eselect/eselect-vi-1.1.9
+            ```
 
     Returns:
-      List[str]: A list of package CPVs parsed from the command output.
+        List[str]: A list of package CPVs parsed from the command output.
     """
     equery_output_regex = r"\[[\d ]+\]\s*([^\s]+)"
     return re.findall(equery_output_regex, equery_output)
@@ -2449,18 +2450,18 @@ def GetReverseDependencies(
     """List all reverse dependencies for the given list of packages.
 
     Args:
-      packages: Packages with optional category, version, and slot.
-      sysroot: The root directory being inspected.
-      indirect: If True, search for both the direct and indirect dependencies
-        on the specified packages.
+        packages: Packages with optional category, version, and slot.
+        sysroot: The root directory being inspected.
+        indirect: If True, search for both the direct and indirect dependencies
+            on the specified packages.
 
     Returns:
         List[package_info.PackageInfo]: Packages that depend on the given
         packages.
 
     Raises:
-      ValueError when no packages are provided.
-      cros_build_lib.RunCommandError when the equery depends command errors.
+        ValueError when no packages are provided.
+        cros_build_lib.RunCommandError when the equery depends command errors.
     """
     if not packages:
         raise ValueError("Must provide at least one package.")
@@ -2486,12 +2487,12 @@ def _Qlist(
     """Run qlist with the given args.
 
     Args:
-      args: The qlist arguments.
-      board: The board to inspect.
-      buildroot: Source root to find overlays.
+        args: The qlist arguments.
+        board: The board to inspect.
+        buildroot: Source root to find overlays.
 
     Returns:
-      The command result
+        The command result.
     """
     cmd = [_GetSysrootTool("qlist", board=board)]
     # Simplify output.
@@ -2514,13 +2515,13 @@ def GetInstalledPackageUseFlags(
     """Gets the list of USE flags for installed packages matching |pkg_str|.
 
     Args:
-      pkg_str: The package name with optional category, version, and slot.
-      board: The board to inspect.
-      buildroot: Source root to find overlays.
+        pkg_str: The package name with optional category, version, and slot.
+        board: The board to inspect.
+        buildroot: Source root to find overlays.
 
     Returns:
-      A dictionary with the key being a package CP and the value being the list
-      of USE flags for that package.
+        A dictionary with the key being a package CP and the value being the
+        list of USE flags for that package.
     """
     result = _Qlist(["-U", pkg_str], board, buildroot)
     use_flags = {}
@@ -2542,14 +2543,14 @@ def GetBinaryPackagePath(c, p, v, sysroot="/", packages_dir=None):
     """Returns the path to the binary package.
 
     Args:
-      c: category.
-      p: package.
-      v: version.
-      sysroot: The root being inspected.
-      packages_dir: Name of the packages directory in |sysroot|.
+        c: category.
+        p: package.
+        v: version.
+        sysroot: The root being inspected.
+        packages_dir: Name of the packages directory in |sysroot|.
 
     Returns:
-      The path to the binary package.
+        The path to the binary package.
     """
     pkgdir = GetBinaryPackageDir(sysroot=sysroot, packages_dir=packages_dir)
     path = os.path.join(pkgdir, c, "%s-%s.tbz2" % (p, v))
@@ -2574,15 +2575,15 @@ def _EmergeBoard(
     """Call emerge board to get dependences of package.
 
     Args:
-      board: The board to inspect.
-      sysroot: The root directory being inspected.
-      package: The package name with optional category, version, and slot.
-      buildroot: Source root to find overlays.
-      set_empty_root: Set the --root argument to /mnt/empty. This is a
-        workaround for an issue for portage versions before 2.3.75.
+        board: The board to inspect.
+        sysroot: The root directory being inspected.
+        package: The package name with optional category, version, and slot.
+        buildroot: Source root to find overlays.
+        set_empty_root: Set the --root argument to /mnt/empty. This is a
+            workaround for an issue for portage versions before 2.3.75.
 
     Returns:
-      result (cros_build_lib.CompletedProcess)
+        result (cros_build_lib.CompletedProcess)
     """
     emerge = _GetSysrootTool("emerge", board=board, sysroot=sysroot)
     cmd = [emerge, "-p", "--cols", "--quiet", "-e"]
@@ -2657,11 +2658,11 @@ def _EbuildInfo(
     """Get ebuild info for <ebuild_path>.
 
     Args:
-      ebuild_path: string full path to ebuild file.
-      sysroot: The root directory being inspected.
+        ebuild_path: string full path to ebuild file.
+        sysroot: The root directory being inspected.
 
     Returns:
-      result (cros_build_lib.CompletedProcess)
+        result (cros_build_lib.CompletedProcess)
     """
     cmd = (_GetSysrootTool("ebuild", sysroot=sysroot), ebuild_path, "info")
     return cros_build_lib.run(
@@ -2676,11 +2677,11 @@ def GetRepositoryForEbuild(ebuild_path, sysroot):
     cros-workon.eclass defines that step and prints both variables.
 
     Args:
-      ebuild_path: string full path to ebuild file.
-      sysroot: The root directory being inspected.
+        ebuild_path: string full path to ebuild file.
+        sysroot: The root directory being inspected.
 
     Returns:
-      list of RepositoryInfoTuples.
+        list of RepositoryInfoTuples.
     """
     result = _EbuildInfo(ebuild_path, sysroot)
     return GetRepositoryFromEbuildInfo(result.stdout)
@@ -2694,17 +2695,17 @@ def CleanOutdatedBinaryPackages(
     """Cleans outdated binary packages from |sysroot|.
 
     Args:
-      sysroot: The root directory being inspected.
-      deep: If set to True, keep minimal files for reinstallation by examining
-        vartree for installed packages. If set to False, use porttree, which
-        contains every ebuild in the tree, to determine which binpkgs to clean.
-      exclusion_file: Path to the exclusion file.
+        sysroot: The root directory being inspected.
+        deep: If set to True, keep minimal files for reinstallation by examining
+            vartree for installed packages. If set to False, use porttree, which
+            contains every ebuild in the tree, to determine which binpkgs to clean.
+        exclusion_file: Path to the exclusion file.
 
     Returns:
-      result (cros_build_lib.CompletedProcess)
+        result (cros_build_lib.CompletedProcess)
 
     Raises:
-      cros_build_lib.RunCommandError
+        cros_build_lib.RunCommandError
     """
     sysroot = Path(sysroot)
     if exclusion_file:
@@ -2723,16 +2724,16 @@ def _CheckHasTest(cp, sysroot, require_workon: bool = False):
     """Checks if the ebuild for |cp| has tests.
 
     Args:
-      cp: A portage package in the form category/package_name.
-      sysroot: Path to the sysroot.
-      require_workon: Whether to only test workon packages.
+        cp: A portage package in the form category/package_name.
+        sysroot: Path to the sysroot.
+        require_workon: Whether to only test workon packages.
 
     Returns:
-      |cp| if the ebuild for |cp| defines a test stanza, None otherwise.
+        |cp| if the ebuild for |cp| defines a test stanza, None otherwise.
 
     Raises:
-      raise failures_lib.PackageBuildFailure if FindEbuildForPackage
-      raises a RunCommandError
+        raise failures_lib.PackageBuildFailure if FindEbuildForPackage
+        raises a RunCommandError
     """
     try:
         path = FindEbuildForPackage(cp, sysroot, check=True)
@@ -2751,12 +2752,12 @@ def PackagesWithTest(sysroot, packages, require_workon: bool = False):
     """Returns the subset of |packages| that have unit tests.
 
     Args:
-      sysroot: Path to the sysroot.
-      packages: List of packages to filter.
-      require_workon: Whether to only test workon packages.
+        sysroot: Path to the sysroot.
+        packages: List of packages to filter.
+        require_workon: Whether to only test workon packages.
 
     Returns:
-      The subset of |packages| that defines unit tests.
+        The subset of |packages| that defines unit tests.
     """
     inputs = [(cp, sysroot, require_workon) for cp in packages]
     pkg_with_test = set(parallel.RunTasksInProcessPool(_CheckHasTest, inputs))
@@ -2771,11 +2772,11 @@ def ParseDieHookStatusFile(metrics_dir: str) -> List[package_info.CPV]:
     """Parse the status file generated by the failed packages die_hook
 
     Args:
-      metrics_dir: The value of CROS_METRICS_DIR, which is where the status file
-        is expected to have been generated.
+        metrics_dir: The value of CROS_METRICS_DIR, which is where the status
+            file is expected to have been generated.
 
     Returns:
-      Packages that failed in the build attempt.
+        Packages that failed in the build attempt.
     """
     file_path = os.path.join(metrics_dir, constants.DIE_HOOK_STATUS_FILE_NAME)
     if not os.path.exists(file_path):
@@ -2838,10 +2839,10 @@ def _Portageq(command, board=None, sysroot=None, **kwargs):
         **kwargs: Additional run arguments.
 
     Returns:
-      cros_build_lib.CompletedProcess
+        cros_build_lib.CompletedProcess
 
     Raises:
-      cros_build_lib.RunCommandError
+        cros_build_lib.RunCommandError
     """
     if "capture_output" not in kwargs:
         kwargs.setdefault("stdout", True)
@@ -2865,17 +2866,17 @@ def PortageqBestVisible(
     """Get the best visible ebuild CPV for the given atom.
 
     Args:
-      atom: Portage atom.
-      board: Board to look at. By default, look in chroot.
-      sysroot: The sysroot to query.
-      pkg_type: Package type (ebuild, binary, or installed).
-      cwd: Path to use for the working directory for run.
+        atom: Portage atom.
+        board: Board to look at. By default, look in chroot.
+        sysroot: The sysroot to query.
+        pkg_type: Package type (ebuild, binary, or installed).
+        cwd: Path to use for the working directory for run.
 
     Returns:
-      The parsed package information, which may be empty.
+        The parsed package information, which may be empty.
 
     Raises:
-      NoVisiblePackageError when no version of the package can be found.
+        NoVisiblePackageError when no version of the package can be found.
     """
     if sysroot is None:
         sysroot = build_target_lib.get_default_sysroot_path(board)
@@ -2898,18 +2899,18 @@ def PortageqEnvvar(variable, board=None, sysroot=None, allow_undefined=False):
     than a mapping.
 
     Args:
-      variable: str - The variable to retrieve.
-      board: str|None - See PortageqEnvvars.
-      sysroot: The sysroot to query.
-      allow_undefined: bool - See PortageqEnvvars.
+        variable: str - The variable to retrieve.
+        board: str|None - See PortageqEnvvars.
+        sysroot: The sysroot to query.
+        allow_undefined: bool - See PortageqEnvvars.
 
     Returns:
-      str - The value retrieved from portageq envvar.
+        str - The value retrieved from portageq envvar.
 
     Raises:
-      See PortageqEnvvars.
-      TypeError when variable is not a valid type.
-      ValueError when variable is empty.
+        See PortageqEnvvars.
+        TypeError when variable is not a valid type.
+        ValueError when variable is empty.
     """
     if not isinstance(variable, str):
         raise TypeError("Variable must be a string.")
@@ -2929,19 +2930,20 @@ def PortageqEnvvars(variables, board=None, sysroot=None, allow_undefined=False):
     """Run portageq envvar for the given variables.
 
     Args:
-      variables: List[str] - Variables to query.
-      board: str|None - Specific board to query.
-      sysroot: The sysroot to query.
-      allow_undefined: bool - True to quietly allow empty strings when the
-          variable is undefined. False to raise an error.
+        variables: List[str] - Variables to query.
+        board: str|None - Specific board to query.
+        sysroot: The sysroot to query.
+        allow_undefined: bool - True to quietly allow empty strings when the
+            variable is undefined. False to raise an error.
 
     Returns:
-      dict - Variable to envvar value mapping for each of the |variables|.
+        dict - Variable to envvar value mapping for each of the |variables|.
 
     Raises:
-      TypeError if variables is a string.
-      PortageqError when a variable is undefined and not allowed to be.
-      cros_build_lib.RunCommandError when the command does not run successfully.
+        TypeError if variables is a string.
+        PortageqError when a variable is undefined and not allowed to be.
+        cros_build_lib.RunCommandError when the command does not run
+        successfully.
     """
     if isinstance(variables, str):
         raise TypeError(
@@ -2975,15 +2977,15 @@ def PortageqHasVersion(category_package, board=None, sysroot=None):
     """Run portageq has_version.
 
     Args:
-      category_package: str - The atom whose version is to be verified.
-      board: str|None - Specific board to query.
-      sysroot: str - Root directory to consider.
+        category_package: str - The atom whose version is to be verified.
+        board: str|None - Specific board to query.
+        sysroot: str - Root directory to consider.
 
     Returns:
-      bool
+        bool
 
     Raises:
-      cros_build_lib.RunCommandError when the command fails to run.
+        cros_build_lib.RunCommandError when the command fails to run.
     """
     if sysroot is None:
         sysroot = build_target_lib.get_default_sysroot_path(board)
@@ -3004,12 +3006,12 @@ def PortageqMatch(atom, board=None, sysroot=None):
     Find the full category/package-version for the specified atom.
 
     Args:
-      atom: str - Portage atom.
-      board: str|None - Specific board to query.
-      sysroot: The sysroot to query.
+        atom: str - Portage atom.
+        board: str|None - Specific board to query.
+        sysroot: The sysroot to query.
 
     Returns:
-      package_info.PackageInfo|None
+        package_info.PackageInfo|None
     """
     if sysroot is None:
         sysroot = build_target_lib.get_default_sysroot_path(board)
@@ -3044,7 +3046,7 @@ def GeneratePackageSizes(db, root, installed_packages):
     """Collect package sizes and generate package size pairs.
 
     Yields:
-      (str, int): A pair of cpv and total package size.
+        (str, int): A pair of cpv and total package size.
     """
     visited_cpvs = set()
     for installed_package in installed_packages:
@@ -3092,12 +3094,12 @@ def CalculatePackageSize(
     inodes is not accounted for in this function.
 
     Args:
-      files_in_package: A list of file information for all files installed by a
-        single package.
-      package_install_path: The path prefix for the installation location.
+        files_in_package: A list of file information for all files installed by
+            a single package.
+        package_install_path: The path prefix for the installation location.
 
     Returns:
-      A PackageSizes object containing the calculated apparent size and disk
+        A PackageSizes object containing the calculated apparent size and disk
         utilization.
     """
     total_apparent_size = 0
@@ -3153,11 +3155,11 @@ def UpdateEbuildManifest(
     """Updates the ebuild manifest for the provided ebuild path.
 
     Args:
-      ebuild_path: The absolute path to the ebuild.
-      chroot: A chroot to enter.
+        ebuild_path: The absolute path to the ebuild.
+        chroot: A chroot to enter.
 
     Returns:
-      The command result.
+        The command result.
     """
 
     chroot_args = None
