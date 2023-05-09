@@ -21,6 +21,7 @@ from typing import (
     Set,
     Tuple,
     Type,
+    Union,
 )
 
 from chromite.lib import constants
@@ -132,7 +133,7 @@ class Overlay(QueryTarget):
         return self.name.endswith("-private")
 
     @property
-    def board_name(self) -> str:
+    def board_name(self) -> Optional[str]:
         """If this overlay is a top-level overlay for a board, the name of that
         board.  Otherwise, this is None.
         """
@@ -197,7 +198,7 @@ class Overlay(QueryTarget):
 
         return list(_scan_profiles(self.profiles_dir))
 
-    def get_profile(self, name: str) -> Optional[Profile]:
+    def get_profile(self, name: Union[Path, str]) -> Optional[Profile]:
         """Get a specific profile by name.
 
         Args:
@@ -209,14 +210,16 @@ class Overlay(QueryTarget):
         """
         profile_dir = self.path / "profiles" / name
         if profile_dir.is_dir():
-            return Profile(name, profile_dir, self)
+            return Profile(str(name), profile_dir, self)
         return None
 
     @functools.cached_property
     def ebuilds(self) -> List[Ebuild]:
         """A list of all ebuilds in this overlay."""
+        ebuilds = []
         for ebuild_path in self.path.glob("*/*/*.ebuild"):
-            yield Ebuild(ebuild_file=ebuild_path, overlay=self)
+            ebuilds.append(Ebuild(ebuild_file=ebuild_path, overlay=self))
+        return ebuilds
 
     @functools.cached_property
     def make_conf_vars(self) -> Dict[str, str]:
@@ -235,7 +238,7 @@ class Overlay(QueryTarget):
 
 
 @functools.lru_cache(maxsize=None)
-def _get_all_overlays_by_name() -> Dict[Overlay]:
+def _get_all_overlays_by_name() -> Dict[str, Overlay]:
     """Get all overlays, in a dictionary by name.
 
     Returns:
@@ -250,7 +253,7 @@ def _get_all_overlays_by_name() -> Dict[Overlay]:
 class Profile(QueryTarget):
     """A portage profile, e.g., chromiumos:base."""
 
-    _obj_cache = {}
+    _obj_cache: Dict[Path, Profile] = {}
 
     def __new__(cls, _name: str, path: Path, _overlay: Overlay):
         # Caching the construction of profiles prevents a re-parse of
@@ -313,7 +316,7 @@ class Profile(QueryTarget):
         Returns:
             The resolved variable, as a set of the tokens.
         """
-        result = set()
+        result: Set[str] = set()
 
         # portage_testables creates recursive overlays.  We don't technically
         # need to track visited overlays for well-formed overlays.
@@ -410,7 +413,7 @@ class Profile(QueryTarget):
     # TODO(b/236161656): Fix.
     # pylint: disable-next=cache-max-size-none
     @functools.lru_cache(maxsize=None)
-    def _parse_conf(self, name: str) -> List[str]:
+    def _parse_conf(self, name: str) -> List[List[str]]:
         """Parse a basic conf file, such as parent, use.mask, or use.force."""
         file_path = self.path / name
         if not file_path.is_file():
@@ -672,9 +675,11 @@ class Board(QueryTarget):
         return result
 
     @property
-    def arch(self) -> str:
+    def arch(self) -> Optional[str]:
         """The machine architecture of this board."""
-        return self.top_level_profile.arch
+        if self.top_level_profile:
+            return self.top_level_profile.arch
+        return None
 
     @property
     def is_variant(self) -> bool:
@@ -701,6 +706,8 @@ class Query:
 
         board = Query(Board).filter(lambda board: board.name == "volteer").one()
     """
+
+    _filters: List[Callable[[QueryTarget], bool]]
 
     def __init__(
         self,

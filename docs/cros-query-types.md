@@ -7,7 +7,7 @@
 
 **Attributes:**
 
-* `arch` (`str`): The machine architecture of this board.
+* `arch` (`Optional[str]`): The machine architecture of this board.
 * `is_variant` (`bool`): True if this board has another board's top level overlay in its
         overlays parents.
 
@@ -77,11 +77,11 @@
 
 **Attributes:**
 
-* `board_name` (`str`): If this overlay is a top-level overlay for a board, the name of that
+* `board_name` (`Optional[str]`): If this overlay is a top-level overlay for a board, the name of that
         board.  Otherwise, this is None.
 
 * `ebuilds` (`List[Ebuild]`): A list of all ebuilds in this overlay.
-* `get_profile(name: str) -> Optional[Profile]`: Get a specific profile by name.
+* `get_profile(name: Union[Path, str]) -> Optional[Profile]`: Get a specific profile by name.
 
         Args:
             name: The name of the profile (e.g., "base").
