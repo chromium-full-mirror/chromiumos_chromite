@@ -240,16 +240,10 @@ class TestPathResolver(cros_test_lib.MockTestCase):
             os.path.realpath("/some/path"), resolver.ToChroot("/some/path")
         )
         self.assertEqual(
-            os.path.realpath("/tmp/path"), resolver.ToChroot("/tmp/path")
-        )
-        self.assertEqual(
             os.path.realpath("some/path"), resolver.FromChroot("some/path")
         )
         self.assertEqual(
             os.path.realpath("/some/path"), resolver.FromChroot("/some/path")
-        )
-        self.assertEqual(
-            os.path.realpath("/tmp/path"), resolver.FromChroot("/tmp/path")
         )
 
     @mock.patch(
@@ -576,24 +570,6 @@ class TestPathResolver(cros_test_lib.MockTestCase):
         self.SetChrootPath(constants.SOURCE_ROOT)
         resolver = path_util.ChrootPathResolver()
 
-        self.assertEqual(
-            "/tmp/foo",
-            resolver.ToChroot(
-                os.path.join(constants.SOURCE_ROOT, "out/tmp/foo")
-            ),
-        )
-        self.assertEqual(
-            os.path.join(constants.SOURCE_ROOT, "out/tmp/foo"),
-            resolver.FromChroot("/tmp/foo"),
-        )
-        self.assertEqual(
-            os.path.join(constants.SOURCE_ROOT, "out/tmp"),
-            resolver.FromChroot("/tmp"),
-        )
-        self.assertEqual(
-            "/tmp",
-            resolver.ToChroot(os.path.join(constants.SOURCE_ROOT, "out/tmp")),
-        )
         self.assertEqual(
             os.path.join(constants.SOURCE_ROOT, "out/foo"),
             resolver.FromChroot(os.path.join(constants.CHROOT_OUT_ROOT, "foo")),
