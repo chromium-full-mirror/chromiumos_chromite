@@ -43,6 +43,7 @@ _BASH_COMPLETION_DIR = (
 _CHROOT_STATE_MIGRATIONS = (
     ("tmp", "tmp"),
     ("home", "home"),
+    ("build", "build"),
 )
 
 
@@ -235,6 +236,14 @@ def MountChrootPaths(path: Union[Path, str], out_dir: Path):
     osutils.Mount(
         out_dir / "home",
         path / "home",
+        None,
+        osutils.MS_BIND | osutils.MS_REC,
+    )
+    osutils.SafeMakedirsNonRoot(out_dir / "build")
+    osutils.SafeMakedirs(path / "build")
+    osutils.Mount(
+        out_dir / "build",
+        path / "build",
         None,
         osutils.MS_BIND | osutils.MS_REC,
     )
