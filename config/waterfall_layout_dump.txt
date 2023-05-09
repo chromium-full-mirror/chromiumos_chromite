@@ -147,7 +147,6 @@
     brya-zephyr-release
     bubs-release
     caroline-ndktranslation-release
-    celes-release
     cherry-release
     cherry64-release
     constitution-release
@@ -449,11 +448,6 @@
   caroline-ndktranslation-payloads-tryjob
   caroline-ndktranslation-release-tryjob
   cave-factory-glados-7828.B-factorybranch-tryjob
-  celes-full-tryjob
-  celes-llvm-next-toolchain-tryjob
-  celes-llvm-toolchain-tryjob
-  celes-payloads-tryjob
-  celes-release-tryjob
   chell-chrome-no-afdo-uprev-pre-flight-branch-tryjob
   chell-factory-glados-7657.B-factorybranch-tryjob
   chell-factory-glados-7828.B-factorybranch-tryjob
@@ -997,7 +991,6 @@
     brya-zephyr-release-tryjob
     bubs-release-tryjob
     caroline-ndktranslation-release-tryjob
-    celes-release-tryjob
     cherry-release-tryjob
     cherry64-release-tryjob
     constitution-release-tryjob
