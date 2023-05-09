@@ -11,7 +11,6 @@ import logging
 import os
 from pathlib import Path
 import pwd
-import re
 import resource
 import shutil
 from typing import List, Optional, Union
@@ -251,67 +250,6 @@ def MountChrootPaths(path: Union[Path, str], out_dir: Path):
     osutils.Mount(
         "/dev", path / "dev", "/dev", osutils.MS_BIND | osutils.MS_REC
     )
-
-
-def FindVolumeGroupForDevice(chroot_path, chroot_dev):
-    """Find a usable VG name for a given path and device.
-
-    If there is an existing VG associated with the device, it will be returned
-    even if the path doesn't match.  If not, find an unused name in the format
-    cros_<safe_path>_NNN, where safe_path is an escaped version of the last 90
-    characters of the path and NNN is a counter.  Example:
-      /home/user/cros/chroot/ -> cros_home+user+cros+chroot_000.
-    If no unused name with this pattern can be found, return None.
-
-    A VG with the returned name will not necessarily exist.  The caller should
-    call vgs or otherwise check the name before attempting to use it.
-
-    Args:
-      chroot_path: Path where the chroot will be mounted.
-      chroot_dev: Device that should hold the VG, e.g. /dev/loop0.
-
-    Returns:
-      A VG name that can be used for the chroot/device pair, or None if no name
-      can be found.
-    """
-
-    safe_path = re.sub(r"[^A-Za-z0-9_+.-]", "+", chroot_path.strip("/"))[-90:]
-    vg_prefix = "cros_%s_" % safe_path
-
-    cmd = [
-        "pvs",
-        "-q",
-        "--noheadings",
-        "-o",
-        "vg_name,pv_name",
-        "--unbuffered",
-        "--separator",
-        "\t",
-    ]
-    result = cros_build_lib.sudo_run(
-        cmd, capture_output=True, print_cmd=False, encoding="utf-8"
-    )
-    existing_vgs = set()
-    for line in result.stdout.strip().splitlines():
-        # Typical lines are '  vg_name\tpv_name\n'.  Match with a regex
-        # instead of split because the first field can be empty or missing when
-        # a VG isn't completely set up.
-        match = re.match(r"([^\t]+)\t(.*)$", line.strip(" "))
-        if not match:
-            continue
-        vg_name, pv_name = match.group(1), match.group(2)
-        if chroot_dev == pv_name:
-            return vg_name
-        elif vg_name.startswith(vg_prefix):
-            existing_vgs.add(vg_name)
-
-    for i in range(1000):
-        vg_name = "%s%03d" % (vg_prefix, i)
-        if vg_name not in existing_vgs:
-            return vg_name
-
-    logging.error("Unable to find an unused VG with prefix %s", vg_prefix)
-    return None
 
 
 FileSystemDebugInfo = collections.namedtuple(
