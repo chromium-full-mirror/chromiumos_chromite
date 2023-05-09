@@ -106,6 +106,7 @@ class ChrootPathResolver:
                 (constants.CHROOT_SOURCE_ROOT, self._source_path),
                 (constants.CHROOT_CACHE_ROOT, self._GetCachePath),
                 ("/tmp", self._out_path / "tmp"),
+                ("/home", self._out_path / "home"),
                 (constants.CHROOT_OUT_ROOT, self._out_path),
             )
 
@@ -204,6 +205,7 @@ class ChrootPathResolver:
             # Check the cache directory.
             (self._GetCachePath(), constants.CHROOT_CACHE_ROOT),
             (self._out_path / "tmp", "/tmp"),
+            (self._out_path / "home", "/home"),
             (self._out_path, constants.CHROOT_OUT_ROOT),
             # Check the current SDK checkout tree.
             (source_path, constants.CHROOT_SOURCE_ROOT),

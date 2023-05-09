@@ -108,6 +108,7 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
         # TODO(b/265885353): fill map as we migrate state paths.
         self.state_path_map = (
             (Path(self.chroot.path) / "tmp", self.chroot.out_path / "tmp"),
+            (Path(self.chroot.path) / "home", self.chroot.out_path / "home"),
         )
 
     def _crossdevice_rename(self, src, dst):

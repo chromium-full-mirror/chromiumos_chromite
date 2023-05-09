@@ -40,7 +40,10 @@ _BASH_COMPLETION_DIR = (
 # path (prefixed at the "chroot" base) to the new path (prefixed at the "output
 # directory" base).
 # TODO(b/265885353): add paths as we migrate state.
-_CHROOT_STATE_MIGRATIONS = (("tmp", "tmp"),)
+_CHROOT_STATE_MIGRATIONS = (
+    ("tmp", "tmp"),
+    ("home", "home"),
+)
 
 
 class Error(Exception):
@@ -225,6 +228,13 @@ def MountChrootPaths(path: Union[Path, str], out_dir: Path):
     osutils.Mount(
         out_dir / "tmp",
         path / "tmp",
+        None,
+        osutils.MS_BIND | osutils.MS_REC,
+    )
+    osutils.SafeMakedirsNonRoot(out_dir / "home")
+    osutils.Mount(
+        out_dir / "home",
+        path / "home",
         None,
         osutils.MS_BIND | osutils.MS_REC,
     )
