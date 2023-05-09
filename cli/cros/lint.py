@@ -153,7 +153,7 @@ class EncodingChecker(pylint.checkers.BaseChecker):
         node: astroid.Call,
         encoding_idx: int,
         mode_idx: Optional[int] = None,
-    ) -> Tuple[Optional[str], Optional[str]]:
+    ) -> Tuple[str, Optional[str]]:
         """Extract the mode & encoding settings in the call."""
         mode = "r"
         encoding = None
@@ -979,9 +979,6 @@ class SourceChecker(pylint.checkers.BaseChecker):
     class _MessageR9203(object):
         pass
 
-    class _MessageR9204(object):
-        pass
-
     class _MessageR9205(object):
         pass
 
@@ -1015,15 +1012,9 @@ class SourceChecker(pylint.checkers.BaseChecker):
             ("unittest-misnamed"),
             _MessageR9203,
         ),
-        "R9204": (
-            "File encoding missing (the first line after the shebang"
-            ' should be "# -*- coding: utf-8 -*-")',
-            ("missing-file-encoding"),
-            _MessageR9204,
-        ),
         "R9205": (
-            'File encoding should be "utf-8"',
-            ("old-bad-file-encoding"),
+            "Omit the coding cookie (PEP 263) (Python 3 defaults to utf-8).",
+            ("omit-coding-cookie"),
             _MessageR9205,
         ),
         "R9206": (
@@ -1044,7 +1035,7 @@ class SourceChecker(pylint.checkers.BaseChecker):
         with node.stream() as stream:
             st = os.fstat(stream.fileno())
             self._check_shebang(node, stream, st)
-            self._check_encoding(node, stream, st)
+            self._check_encoding(stream)
             self._check_module_name(node)
             self._check_backslashes(node, stream)
 
@@ -1072,16 +1063,15 @@ class SourceChecker(pylint.checkers.BaseChecker):
         ):
             self.add_message("R9200")
 
-    def _check_encoding(self, _node, stream, st):
-        """Verify the file has an encoding set
+    def _check_encoding(self, stream):
+        """Verify the file has no -*- coding: utf-8 -*- cookie.
+
+        In CrOS, all files should be utf-8, which is the Python 3 default.
+        So these comments are just noise.
 
         See PEP-263 for more details.
         https://www.python.org/dev/peps/pep-0263/
         """
-        # Only allow empty files to have no encoding (e.g. __init__.py).
-        if not st.st_size:
-            return
-
         stream.seek(0)
         encoding = stream.readline()
 
@@ -1091,14 +1081,8 @@ class SourceChecker(pylint.checkers.BaseChecker):
             encoding = stream.readline()
 
         # See if the encoding matches the standard.
-        m = self._ENCODING_RE.match(encoding)
-        if m:
-            if m.group(1) != b"utf-8":
-                self.add_message("R9205")
-        else:
-            # Only enforce this on Python 2 files.
-            if sys.version_info.major < 3:
-                self.add_message("R9204")
+        if self._ENCODING_RE.match(encoding):
+            self.add_message("R9205")
 
     def _check_module_name(self, node):
         """Make sure the module name is correct"""

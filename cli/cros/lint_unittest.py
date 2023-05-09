@@ -7,7 +7,7 @@
 import collections
 import io
 import os
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 import astroid
 
@@ -561,7 +561,7 @@ class DocStringCheckerTest(CheckerTestCase):
             self.checker._check_func_signature(node)
             self.assertLintFailed(expected=("C9011",))
 
-    def testGoodFuncArgs(self):
+    def testGoodFuncArgs(self) -> None:
         """Verify normal args in Args are allowed"""
 
         class TestData(NamedTuple):
@@ -569,8 +569,8 @@ class DocStringCheckerTest(CheckerTestCase):
 
             dc: str
             args: tuple
-            vararg: str = None
-            kwarg: str = None
+            vararg: Optional[str] = None
+            kwarg: Optional[str] = None
 
         datasets = (
             TestData(
@@ -618,7 +618,7 @@ class DocStringCheckerTest(CheckerTestCase):
             self.checker._check_all_args_in_doc(node, node.lines, sections)
             self.assertLintPassed()
 
-    def testBadFuncArgs(self):
+    def testBadFuncArgs(self) -> None:
         """Verify bad/missing args in Args are caught"""
 
         class TestData(NamedTuple):
@@ -626,8 +626,8 @@ class DocStringCheckerTest(CheckerTestCase):
 
             dc: str
             args: tuple
-            vararg: str = None
-            kwarg: str = None
+            vararg: Optional[str] = None
+            kwarg: Optional[str] = None
 
         datasets = (
             TestData(
@@ -948,67 +948,21 @@ class SourceCheckerTest(CheckerTestCase):
 
     def testEmptyFileNoEncoding(self):
         """_check_encoding should ignore 0 byte files"""
-        node = TestNode()
         self.results = []
         stream = io.BytesIO(b"")
-        self.checker._check_encoding(node, stream, StatStub())
+        self.checker._check_encoding(stream)
         self.assertLintPassed()
 
-    def testMissingEncoding(self):
-        """_check_encoding should fail when there is no encoding"""
-        headers = (
-            b"#",
-            b"#\n",
-            b"#\n#",
-            b"#\n#\n",
-            b"#!/usr/bin/python\n# foo\n" b"#!/usr/bin/python\n",
-            b"# some comment\n",
-            b"# some comment\n# another line\n",
-            b"# first line is not a shebang\n# -*- coding: utf-8 -*-\n",
-            b"#!/usr/bin/python\n# second line\n# -*- coding: utf-8 -*-\n",
-        )
-        node = TestNode()
-        for header in headers:
-            self.results = []
-            stream = io.BytesIO(header)
-            self.checker._check_encoding(
-                node, stream, StatStub(size=len(header))
-            )
-            # NB: We no longer require file encodings w/Python 3.
-            self.assertLintPassed()
-
-    def testBadEncoding(self):
-        """_check_encoding should reject non-"utf-8" encodings"""
-        encodings = (
-            b"UTF8",
-            b"UTF-8",
-            b"utf8",
-            b"ISO-8859-1",
-        )
-        node = TestNode()
-        for encoding in encodings:
-            self.results = []
-            header = b"# -*- coding: %s -*-\n" % (encoding,)
-            stream = io.BytesIO(header)
-            self.checker._check_encoding(
-                node, stream, StatStub(size=len(header))
-            )
-            self.assertLintFailed(expected=("R9205",))
-
-    def testGoodEncodings(self):
-        """Verify _check_encoding accepts various correct encoding forms"""
+    def testGoodEncodings(self) -> None:
+        """Verify _check_encoding detects unnecessary coding cookies"""
         shebang = b"#!/usr/bin/python\n"
-        encodings = (b"# -*- coding: utf-8 -*-",)
-        node = TestNode()
-        self.results = []
+        encoding = b"# -*- coding: utf-8 -*-"
         for first in (b"", shebang):
-            for encoding in encodings:
-                data = first + encoding + b"\n"
-                stream = io.BytesIO(data)
-                self.checker._check_encoding(
-                    node, stream, StatStub(size=len(data))
-                )
-                self.assertLintPassed()
+            data = first + encoding + b"\n"
+            stream = io.BytesIO(data)
+            self.results = []
+            self.checker._check_encoding(stream)
+            self.assertLintFailed(expected=("R9205",))
 
     def testGoodUnittestName(self):
         """Verify _check_module_name accepts good unittest names"""
