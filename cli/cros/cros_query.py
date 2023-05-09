@@ -115,7 +115,7 @@ def compile_formatter(arg: str) -> Callable[[build_query.QueryTarget], str]:
     f_string = f"f{arg!r}"
     code = compile(f_string, "<command_line>", "eval")
 
-    def _result(query_result: build_query.QueryTarget) -> bool:
+    def _result(query_result: build_query.QueryTarget) -> str:
         mapping = ObjectMapping(query_result)
         try:
             # pylint: disable=eval-used
