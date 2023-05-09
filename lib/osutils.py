@@ -686,6 +686,8 @@ def _CopyDirContents(
 
         if from_path.is_symlink():
             if move:
+                if to_path.is_file() or to_path.is_symlink():
+                    SafeUnlink(to_path)
                 shutil.move(from_path, to_path)
             elif symlinks:
                 to_path.symlink_to(os.readlink(from_path))
@@ -709,7 +711,7 @@ def _CopyDirContents(
                 else:
                     # If it is a file or symbolic link, remove the destination
                     # file and then move the content.
-                    if to_path.is_file():
+                    if to_path.is_file() or to_path.is_symlink():
                         SafeUnlink(to_path)
                     # TODO(python3.9): In python 3.9, shutil.move() accepts
                     #   Path object. Remove the typecast to string, once python

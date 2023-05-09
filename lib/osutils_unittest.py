@@ -6,6 +6,7 @@
 
 import collections
 import ctypes
+import errno
 import filecmp
 import glob
 import grp
@@ -1358,7 +1359,7 @@ class IsInsideVmTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(osutils.IsInsideVm())
 
 
-class MoveDirContentsTestCase(cros_test_lib.TempDirTestCase):
+class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
     """Test MoveDirContents."""
 
     def setUp(self):
@@ -1366,6 +1367,9 @@ class MoveDirContentsTestCase(cros_test_lib.TempDirTestCase):
         self.to_dir = self.tempdir / "to"
         osutils.SafeMakedirs(self.from_dir)
         osutils.SafeMakedirs(self.to_dir)
+
+    def _crossdevice_rename(self, src, dst):
+        raise OSError(errno.EXDEV, "fake cross-device rename failure")
 
     def testMoveEmptyDir(self):
         """Move empty from directory."""
@@ -1442,6 +1446,30 @@ class MoveDirContentsTestCase(cros_test_lib.TempDirTestCase):
         self.assertNotExists(self.tempdir / "a.txt")
         self.assertEqual(
             os.readlink(self.to_dir / "sym.txt"), str(self.tempdir / "a.txt")
+        )
+
+    def testSymlinkTargetDoesntExistCrossDevice(self):
+        """Move symlink from source to destination, cross-device.
+
+        Cover a few cases when we can't do easy os.rename(), such as when
+        moving across filesystem boundaries.
+        """
+        # Mock os.rename() to fail, so shutil will fall back to copy
+        # operations.
+        _ = self.PatchObject(os, "rename", side_effect=self._crossdevice_rename)
+
+        (self.from_dir / "sym.txt").symlink_to(self.tempdir / "a.txt")
+        (self.to_dir / "sym.txt").symlink_to(self.tempdir / "b.txt")
+        self.assertNotExists(self.tempdir / "a.txt")
+        self.assertNotExists(self.tempdir / "b.txt")
+
+        osutils.MoveDirContents(self.from_dir, self.to_dir, allow_nonempty=True)
+
+        self.assertTrue((self.to_dir / "sym.txt").is_symlink())
+        self.assertNotExists(self.tempdir / "a.txt")
+        self.assertEqual(
+            os.readlink(self.to_dir / "sym.txt"),
+            str(self.tempdir / "a.txt"),
         )
 
     def testOverWriteFiles(self):
