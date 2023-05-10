@@ -866,18 +866,6 @@ class Sysroot(object):
             )
 
         config = []
-        if package_indexes:
-            # TODO(crbug/1088059): Drop all use of overlay commits, once the
-            #   solution is in place for non-snapshot checkouts.
-            # If present, this defines PORTAGE_BINHOST.  These are independent
-            # of the overlay commits.
-            config.append("# This is the list of binhosts provided by the API.")
-            config.append(
-                'PASSED_BINHOST="%s"'
-                % " ".join(x.location for x in reversed(package_indexes))
-            )
-            config.append('PORTAGE_BINHOST="$PASSED_BINHOST"')
-            return "\n".join(config)
 
         config.append(
             """
@@ -898,6 +886,18 @@ PORTAGE_BINHOST="$FULL_BINHOST"
                 "CQ", board, expanded_binhost_inheritance, source_root
             )
         )
+
+        if package_indexes:
+            # If present, this is appended to PORTAGE_BINHOST. These are higher
+            # priority than the overlay commits.
+            config.append("# This is the list of binhosts provided by the API.")
+            config.append(
+                'BINHOSTS_PASSED_BY_API="%s"'
+                % " ".join(x.location for x in reversed(package_indexes))
+            )
+            config.append(
+                'PORTAGE_BINHOST="$PORTAGE_BINHOST $BINHOSTS_PASSED_BY_API"'
+            )
 
         return "\n".join(config)
 
