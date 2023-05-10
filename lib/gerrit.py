@@ -49,11 +49,11 @@ class GerritHelper(object):
         """Initialize.
 
         Args:
-          host: Hostname (without protocol prefix) of the gerrit server.
-          remote: The symbolic name of a known remote git host,
-              taken from cbuildbot.contants.
-          print_cmd: Determines whether all run invocations will be echoed.
-              Set to False for quiet operation.
+            host: Hostname (without protocol prefix) of the gerrit server.
+            remote: The symbolic name of a known remote git host, taken from
+                cbuildbot.constants.
+            print_cmd: Determines whether all run invocations will be echoed.
+                Set to False for quiet operation.
         """
         self.host = host
         self.remote = remote
@@ -84,9 +84,9 @@ class GerritHelper(object):
         """Sets the private bit on the given CL.
 
         Args:
-          change: CL number.
-          private: bool to indicate what value to set for the private bit.
-          dryrun: If True, only print what would have been done.
+            change: CL number.
+            private: bool to indicate what value to set for the private bit.
+            dryrun: If True, only print what would have been done.
         """
         if private:
             if dryrun:
@@ -111,12 +111,13 @@ class GerritHelper(object):
         """Modify the attention set of a gerrit change.
 
         Args:
-          change: ChangeId or change number for a gerrit review.
-          add: Sequence of email addresses to add to attention set.
-          remove: Sequence of email addresses to remove from attention set.
-          dryrun: If True, only print what would have been done.
-          notify: A string, parameter controlling gerrit's email generation.
-          message: A string, setting the reason for changing the attention set.
+            change: ChangeId or change number for a gerrit review.
+            add: Sequence of email addresses to add to attention set.
+            remove: Sequence of email addresses to remove from attention set.
+            dryrun: If True, only print what would have been done.
+            notify: A string, parameter controlling gerrit's email generation.
+            message: A string, setting the reason for changing the attention
+                set.
         """
         if add:
             if dryrun:
@@ -145,11 +146,11 @@ class GerritHelper(object):
         """Modify the list of reviewers on a gerrit change.
 
         Args:
-          change: ChangeId or change number for a gerrit review.
-          add: Sequence of email addresses of reviewers to add.
-          remove: Sequence of email addresses of reviewers to remove.
-          dryrun: If True, only print what would have been done.
-          notify: A string, parameter controlling gerrit's email generation.
+            change: ChangeId or change number for a gerrit review.
+            add: Sequence of email addresses of reviewers to add.
+            remove: Sequence of email addresses of reviewers to remove.
+            dryrun: If True, only print what would have been done.
+            notify: A string, parameter controlling gerrit's email generation.
         """
         if add:
             if dryrun:
@@ -168,10 +169,11 @@ class GerritHelper(object):
         """Sets the work in progress bit on the given CL.
 
         Args:
-          change: CL number.
-          wip: bool to indicate what value to set for the work in progress bit.
-          msg: Message to post to the CL.
-          dryrun: If True, only print what would have been done.
+            change: CL number.
+            wip: bool to indicate what value to set for the work in progress
+                bit.
+            msg: Message to post to the CL.
+            dryrun: If True, only print what would have been done.
         """
         if wip:
             if dryrun:
@@ -188,8 +190,8 @@ class GerritHelper(object):
         """Return detailed information about a gerrit change.
 
         Args:
-          change_num: A gerrit change number.
-          verbose: (optional) Whether to print more properties of the change
+            change_num: A gerrit change number.
+            verbose: (optional) Whether to print more properties of the change
         """
         if verbose:
             o_params = (
@@ -212,7 +214,7 @@ class GerritHelper(object):
         """Returns a python dict that represents a gerrit API RelatedChangesInfo entity.
 
         Args:
-          change_num: A gerrit change number.
+            change_num: A gerrit change number.
 
         Returns:
             A dict representing a RelatedChangesInfo entity.
@@ -224,10 +226,10 @@ class GerritHelper(object):
         """Return a cros_patch.GerritPatch representing a gerrit change.
 
         Args:
-          project: The name of the gerrit project for the change.
-          change: A ChangeId or gerrit number for the change.
-          commit: The git commit hash for a patch associated with the change.
-          must_match: Raise an exception if the change is not found.
+            project: The name of the gerrit project for the change.
+            change: A ChangeId or gerrit number for the change.
+            commit: The git commit hash for a patch associated with the change.
+            must_match: Raise an exception if the change is not found.
         """
         query = {"project": project, "commit": commit, "must_match": must_match}
         return self.QuerySingleRecord(change, **query)
@@ -236,9 +238,9 @@ class GerritHelper(object):
         """Check whether a gerrit change has been merged.
 
         Args:
-          change: A gerrit change number.
-          must_match: Raise an exception if the change is not found.  If this is
-              False, then a missing change will return None.
+            change: A gerrit change number.
+            must_match: Raise an exception if the change is not found.  If this
+                is False, then a missing change will return None.
         """
         change = gob_util.GetChange(self.host, change)
         if not change:
@@ -271,9 +273,9 @@ class GerritHelper(object):
             change: A gerrit change number.
             **kwargs:
                 dryrun: Don't query the gerrit server; just return None.
-                must_match: Raise an exception if the query comes back empty.
-                    If this is False, an unsatisfied query will return None.
-            Refer to Query() docstring for remaining arguments.
+                must_match: Raise an exception if the query comes back empty. If
+                    this is False, an unsatisfied query will return None. Refer
+                    to Query() docstring for remaining arguments.
 
         Returns:
             If kwargs['raw'] == True, return a python dict representing the
@@ -611,9 +613,9 @@ class GerritHelper(object):
         """Update the topic on a gerrit change.
 
         Args:
-          change: A gerrit change number.
-          topic: The topic to set the review to.
-          dryrun: If True, don't actually set the topic.
+            change: A gerrit change number.
+            topic: The topic to set the review to.
+            dryrun: If True, don't actually set the topic.
         """
         if dryrun:
             logging.info(
@@ -626,10 +628,10 @@ class GerritHelper(object):
         """Add/Remove hashtags for a gerrit change.
 
         Args:
-          change: A gerrit change number.
-          add: a list of hashtags to add.
-          remove: a list of hashtags to remove.
-          dryrun: If True, don't actually set the hashtag.
+            change: A gerrit change number.
+            add: a list of hashtags to add.
+            remove: a list of hashtags to remove.
+            dryrun: If True, don't actually set the hashtag.
         """
         if dryrun:
             logging.info(
@@ -722,12 +724,12 @@ class GerritHelper(object):
         """Cherry pick a CL to a branch.
 
         Args:
-          change: A gerrit change number.
-          branch: The destination branch.
-          rev: The specific revision to cherry pick back.
-          msg: An additional message to include.
-          dryrun: If True, don't actually set the hashtag.
-          notify: Who to send notifications to.
+            change: A gerrit change number.
+            branch: The destination branch.
+            rev: The specific revision to cherry pick back.
+            msg: An additional message to include.
+            dryrun: If True, don't actually set the hashtag.
+            notify: Who to send notifications to.
         """
         if dryrun:
             logging.info(
@@ -769,15 +771,15 @@ class GerritHelper(object):
         GerritPatch without a local checkout, use CreateChange() below.
 
         Args:
-          cwd: The repository that we are working on.
-          remote: The remote to upload changes to.
-          ref: The ref where changes will be uploaded to.
-          dryrun: If True, then return None.
-          notify: A string, parameter controlling gerrit's email generation.
-          **kwargs: Keyword arguments to be passed to QuerySingleRecord.
+            cwd: The repository that we are working on.
+            remote: The remote to upload changes to.
+            ref: The ref where changes will be uploaded to.
+            dryrun: If True, then return None.
+            notify: A string, parameter controlling gerrit's email generation.
+            **kwargs: Keyword arguments to be passed to QuerySingleRecord.
 
         Returns:
-          A GerritPatch object describing the change for the HEAD commit.
+            A GerritPatch object describing the change for the HEAD commit.
         """
         # If dryrun is true then skip all network calls and return None.
         if dryrun:
@@ -831,14 +833,14 @@ def GetGerritPatchInfoWithPatchQueries(patches):
     """Query Gerrit server for patch information using PatchQuery objects.
 
     Args:
-      patches: A list of PatchQuery objects to query.
+        patches: A list of PatchQuery objects to query.
 
     Returns:
-      A list of GerritPatch objects describing each patch.  Only the first
-      instance of a requested patch is returned.
+        A list of GerritPatch objects describing each patch.  Only the first
+        instance of a requested patch is returned.
 
     Raises:
-      PatchException if a patch can't be found.
+        PatchException if a patch can't be found.
     """
     site_params = config_lib.GetSiteParams()
     seen = set()
@@ -892,13 +894,13 @@ def GetChangeRef(change_number, patchset=None):
     """Given a change number, return the refs/changes/* space for it.
 
     Args:
-      change_number: The gerrit change number you want a refspec for.
-      patchset: If given it must either be an integer or '*'.  When given,
-        the returned refspec is for that exact patchset.  If '*' is given, it's
-        used for pulling down all patchsets for that change.
+        change_number: The gerrit change number you want a refspec for.
+        patchset: If given it must either be an integer or '*'.  When given, the
+            returned refspec is for that exact patchset.  If '*' is given, it's
+            used for pulling down all patchsets for that change.
 
     Returns:
-      A git refspec.
+        A git refspec.
     """
     change_number = int(change_number)
     s = "refs/changes/%02i/%i" % (change_number % 100, change_number)

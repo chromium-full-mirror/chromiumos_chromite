@@ -201,12 +201,12 @@ def _ListOverlays(board=None, buildroot=constants.SOURCE_ROOT):
         """Recursively add |repo|'s masters from |overlays| to |ret|.
 
         Args:
-          repo: The repo name to look up.
-          optional: If |repo| does not exist, return False, else
-            raise an MissingOverlayError.
+            repo: The repo name to look up.
+            optional: If |repo| does not exist, return False, else raise an
+                MissingOverlayError.
 
         Returns:
-          True if |repo| was found.
+            True if |repo| was found.
         """
         if repo not in overlays:
             if optional:
@@ -409,7 +409,7 @@ class EBuildVersionFormatError(Error):
     def __init__(self, filename):
         self.filename = filename
         message = (
-            "Ebuild file name %s " "does not match expected format." % filename
+            "Ebuild file name %s does not match expected format." % filename
         )
         super().__init__(message)
 
@@ -764,11 +764,11 @@ class EBuild(object):
         """Return the raw values of CROS_WORKON vars in an ebuild script.
 
         Args:
-          ebuild_path: Path to the ebuild file (e.g: platform2-9999.ebuild).
-          pkg_name: The package name (e.g.: platform2).
+            ebuild_path: Path to the ebuild file (e.g: platform2-9999.ebuild).
+            pkg_name: The package name (e.g.: platform2).
 
         Returns:
-          A CrosWorkonVars tuple.
+            A CrosWorkonVars tuple.
         """
         workon_vars = (
             "CROS_WORKON_LOCALNAME",
@@ -1009,8 +1009,7 @@ class EBuild(object):
                 ]
                 if project != real_project:
                     raise Error(
-                        "Project name mismatch for %s "
-                        "(found %s, expected %s)"
+                        "Project name mismatch for %s (found %s, expected %s)"
                         % (subdir_path, real_project, project)
                     )
 
@@ -1089,7 +1088,7 @@ class EBuild(object):
 
         Raises:
             raise Error when chromeos-version.sh script fails to return the raw
-                version number.
+            version number.
         """
         vers_script = os.path.join(
             os.path.dirname(self._ebuild_path_no_version),
@@ -1336,8 +1335,7 @@ class EBuild(object):
             and not unstable_ebuild_or_files_changed
         ):
             logging.info(
-                "Old and new ebuild %s are exactly identical; "
-                "skipping uprev",
+                "Old and new ebuild %s are exactly identical; skipping uprev",
                 new_stable_ebuild_path,
             )
             os.unlink(new_stable_ebuild_path)
@@ -1366,7 +1364,7 @@ class EBuild(object):
             commit_ids: Commit ID of the tip of tree for the source dir.
             srcdirs: Source directory where the git repo is located.
             subdirs_to_rev: Test subdirectories which have to be checked for
-            modifications since the last stable commit hash.
+                modifications since the last stable commit hash.
 
         Returns:
             True is an Uprev is needed, False otherwise.
@@ -1601,8 +1599,8 @@ class InstalledPackage(object):
         split_pv = package_info.parse(self.pf)
         if not split_pv.pv:
             raise PortageDBError(
-                'Package and version "%s" doesn\'t have a valid '
-                "format." % self.pf
+                'Package and version "%s" doesn\'t have a valid format.'
+                % self.pf
             )
         self.package = split_pv.package
         self.version = split_pv.vr
@@ -1803,11 +1801,11 @@ def GetOverlayEBuilds(
 
     Args:
         overlay: The path of the overlay to get ebuilds.
-        use_all: Whether to include all ebuilds in the specified directories.
-            If true, then we gather all packages in the directories regardless
-            of whether they are in our set of packages.
-        packages: A set of the packages we want to gather.  If use_all is
-            True, this argument is ignored, and should be None.
+        use_all: Whether to include all ebuilds in the specified directories. If
+            true, then we gather all packages in the directories regardless of
+            whether they are in our set of packages.
+        packages: A set of the packages we want to gather.  If use_all is True,
+            this argument is ignored, and should be None.
         allow_manual_uprev: Whether to consider manually uprevved ebuilds.
         subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
             branches older than 10363.0.0.
@@ -2256,10 +2254,9 @@ def _EqueryWhich(
         include_masked: True iff we should include masked ebuilds in our query.
         extra_env: optional dictionary of extra string/string pairs to use as
             the environment of equery command.
-        check: If False, do not raise an exception when run returns
-            a non-zero exit code.
-            If any package does not exist causing the run to fail, we will
-            return information for none of the packages, i.e: return an
+        check: If False, do not raise an exception when run returns a non-zero
+            exit code. If any package does not exist causing the run to fail, we
+            will return information for none of the packages, i.e: return an
             empty dictionary.
 
     Returns:
@@ -2292,10 +2289,9 @@ def FindEbuildsForPackages(
         include_masked: True iff we should include masked ebuilds in our query.
         extra_env: optional dictionary of extra string/string pairs to use as
             the environment of equery command.
-        check: If False, do not raise an exception when run returns
-            a non-zero exit code.
-            If any package does not exist causing the run to fail, we will
-            return information for none of the packages, i.e: return an
+        check: If False, do not raise an exception when run returns a non-zero
+            exit code. If any package does not exist causing the run to fail, we
+            will return information for none of the packages, i.e: return an
             empty dictionary.
 
     Returns:
@@ -2326,8 +2322,8 @@ def FindEbuildsForPackages(
             )
 
     assert not mismatches, (
-        "Detected mismatches between the package & "
-        "corresponding ebuilds: %s" % "\n".join(mismatches)
+        "Detected mismatches between the package & corresponding ebuilds: %s"
+        % "\n".join(mismatches)
     )
 
     return ret
@@ -2342,10 +2338,10 @@ def FindEbuildForPackage(
         pkg_str: The package name with optional category, version, and slot.
         sysroot: The root directory being inspected.
         include_masked: True iff we should include masked ebuilds in our query.
-        extra_env: optional dictionary of extra string/string pairs to use as the
-            environment of equery command.
-        check: If False, do not raise an exception when run returns
-            a non-zero exit code. Instead, return None.
+        extra_env: optional dictionary of extra string/string pairs to use as
+            the environment of equery command.
+        check: If False, do not raise an exception when run returns a non-zero
+            exit code. Instead, return None.
 
     Returns:
         Path to ebuild for this package.
@@ -2698,7 +2694,8 @@ def CleanOutdatedBinaryPackages(
         sysroot: The root directory being inspected.
         deep: If set to True, keep minimal files for reinstallation by examining
             vartree for installed packages. If set to False, use porttree, which
-            contains every ebuild in the tree, to determine which binpkgs to clean.
+            contains every ebuild in the tree, to determine which binpkgs to
+            clean.
         exclusion_file: Path to the exclusion file.
 
     Returns:

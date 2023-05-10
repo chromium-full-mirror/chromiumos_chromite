@@ -223,10 +223,10 @@ class FwBuddy:
                 pass
 
         raise FwBuddyException(
-            f"Unable to locate the firmware archive for: {self.uri} Please double "
-            f"check your fwbuddy uri. If you are confident that the firmware "
-            f"you are looking for exists, please submit a bug at "
-            f"{BUG_SUBMIT_URL}"
+            f"Unable to locate the firmware archive for: {self.uri} Please"
+            " double check your fwbuddy uri. If you are confident that the"
+            " firmware you are looking for exists, please submit a bug at"
+            f" {BUG_SUBMIT_URL}"
         )
 
     def download(self) -> None:
@@ -318,9 +318,9 @@ def parse_release_string(release_str: str) -> Release:
     fields = RELEASE_STRING_REGEX_PATTERN.findall(release_str)
     if len(fields) == 0 or (len(fields) == 1 and len(fields[0]) != 4):
         raise FwBuddyException(
-            f"Unrecognized or unsupported firmware version format: "
+            "Unrecognized or unsupported firmware version format: "
             f'"{release_str}" Expected either one of {PINNED_VERSIONS} or a '
-            f'full release string like "R99-123.456.0"'
+            'full release string like "R99-123.456.0"'
         )
     return Release(fields[0][0], fields[0][1], fields[0][2], fields[0][3])
 
@@ -329,7 +329,8 @@ def generate_gspaths(fw_image: FwImage) -> List[str]:
     """Generates all possible GS paths the firmware archive may be stored at
 
     Args:
-        fw_image: The FwImage that contains all the data we need to populate the schemas
+        fw_image: The FwImage that contains all the data we need to populate the
+            schemas
 
     Returns:
         A list of all possible paths the archive may be.

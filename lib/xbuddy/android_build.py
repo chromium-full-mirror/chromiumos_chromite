@@ -59,10 +59,10 @@ class BuildAccessor(object):
         """Get the build type based on the given build id.
 
         Args:
-          build_id: Build id of the Android build, e.g., 2155602.
+            build_id: Build id of the Android build, e.g., 2155602.
 
         Returns:
-          The build type, e.g., submitted, pending.
+            The build type, e.g., submitted, pending.
         """
         if build_id and build_id.lower().startswith("p"):
             return "pending"
@@ -73,14 +73,15 @@ class BuildAccessor(object):
         """Verify the build with given id and target is for the specified branch.
 
         Args:
-          service_obj: A service object to be used to make API call to build server.
-          branch: branch of the desired build.
-          build_id: Build id of the Android build, e.g., 2155602.
-          target: Target of the Android build, e.g., shamu-userdebug.
+            service_obj: A service object to be used to make API call to build
+                server.
+            branch: branch of the desired build.
+            build_id: Build id of the Android build, e.g., 2155602.
+            target: Target of the Android build, e.g., shamu-userdebug.
 
         Raises:
-          AndroidBuildFetchError: If the given build id and target are not for the
-                                  specified branch.
+            AndroidBuildFetchError: If the given build id and target are not for
+            the specified branch.
         """
         build_type = cls._GetBuildType(build_id)
         builds = (
@@ -96,8 +97,8 @@ class BuildAccessor(object):
         )
         if not builds:
             raise AndroidBuildFetchError(
-                "Failed to locate build with branch %s, build id %s and target %s."
-                % (branch, build_id, target)
+                "Failed to locate build with branch %s, build id %s and"
+                " target %s." % (branch, build_id, target)
             )
 
     @classmethod
@@ -116,12 +117,12 @@ class BuildAccessor(object):
              u'size': u'6999296'},
 
         Args:
-          branch: branch of the desired build.
-          build_id: Build id of the Android build, e.g., 2155602.
-          target: Target of the Android build, e.g., shamu-userdebug.
+            branch: branch of the desired build.
+            build_id: Build id of the Android build, e.g., 2155602.
+            target: Target of the Android build, e.g., shamu-userdebug.
 
         Returns:
-          A list of artifacts for given build id and target.
+            A list of artifacts for given build id and target.
         """
         service_obj = cls._GetServiceObject()
         cls._VerifyBranch(service_obj, branch, build_id, target)
@@ -151,11 +152,11 @@ class BuildAccessor(object):
         """Download the list of artifacts for given build id and target.
 
         Args:
-          branch: branch of the desired build.
-          build_id: Build id of the Android build, e.g., 2155602.
-          target: Target of the Android build, e.g., shamu-userdebug.
-          resource_id: Name of the artifact to donwload.
-          dest_file: Path to the file to download to.
+            branch: branch of the desired build.
+            build_id: Build id of the Android build, e.g., 2155602.
+            target: Target of the Android build, e.g., shamu-userdebug.
+            resource_id: Name of the artifact to download.
+            dest_file: Path to the file to download to.
         """
         service_obj = cls._GetServiceObject()
         cls._VerifyBranch(service_obj, branch, build_id, target)
@@ -190,12 +191,12 @@ class BuildAccessor(object):
         """Get the latest build ID for the given target and branch.
 
         Args:
-          branch: branch of the desired build.
-          target: Target of the Android build, e.g., shamu-userdebug.
+            branch: branch of the desired build.
+            target: Target of the Android build, e.g., shamu-userdebug.
 
         Returns:
-          Build id of the latest successful Android build for the given target and
-          branch, e.g., 2155602.
+            Build id of the latest successful Android build for the given target
+            and branch, e.g., 2155602.
         """
         service_obj = cls._GetServiceObject()
         builds = (
