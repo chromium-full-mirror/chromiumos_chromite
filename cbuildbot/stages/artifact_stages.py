@@ -246,8 +246,10 @@ class ArchiveStage(
 
             # Upload project toolkits tarball if needed.
             toolkits_src_path = os.path.join(
-                commands.FACTORY_PACKAGE_PATH
-                % {"buildroot": buildroot, "board": board},
+                path_util.FromChrootPath(
+                    commands.FACTORY_PACKAGE_CHROOT_PATH % {"board": board},
+                    source_path=buildroot,
+                ),
                 "project_toolkits",
                 commands.FACTORY_PROJECT_PACKAGE,
             )

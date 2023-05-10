@@ -8,6 +8,7 @@ import base64
 import glob
 import logging
 import os
+from pathlib import Path
 
 from chromite.third_party.google.protobuf import field_mask_pb2
 from chromite.third_party.infra_libs.buildbucket.proto import (
@@ -32,6 +33,7 @@ from chromite.lib import git
 from chromite.lib import goma_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
+from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import request_build
 from chromite.lib.parser import package_info
@@ -52,10 +54,10 @@ class CleanUpStage(generic_stages.BuilderStage):
     def _CleanChroot(self):
         logging.info("Cleaning chroot.")
         commands.CleanupChromeKeywordsFile(self._boards, self._build_root)
-        chroot_dir = os.path.join(
-            self._build_root, constants.DEFAULT_CHROOT_DIR
+        path_resolver = path_util.ChrootPathResolver(
+            source_path=self._build_root
         )
-        chroot_tmpdir = os.path.join(chroot_dir, "tmp")
+        chroot_tmpdir = path_resolver.FromChroot("/tmp")
         if os.path.exists(chroot_tmpdir):
             osutils.RmDir(chroot_tmpdir, ignore_missing=True, sudo=True)
             cros_build_lib.sudo_run(
@@ -64,10 +66,12 @@ class CleanUpStage(generic_stages.BuilderStage):
 
         # Clear out the incremental build cache between runs.
         cache_dir = "var/cache/portage"
-        d = os.path.join(chroot_dir, cache_dir)
+        d = path_resolver.FromChroot(cache_dir)
         osutils.RmDir(d, ignore_missing=True, sudo=True)
         for board in self._boards:
-            d = os.path.join(chroot_dir, "build", board, cache_dir)
+            d = path_resolver.FromChroot(
+                os.path.join(os.path.sep, "build", board, cache_dir)
+            )
             osutils.RmDir(d, ignore_missing=True, sudo=True)
 
     def _DeleteChroot(self):
@@ -651,6 +655,8 @@ class BuildPackagesStage(
             self._run.options.goma_dir,
             stage_name=self.StageNamePrefix() if use_goma_deps_cache else None,
             chromeos_goma_dir=self._run.options.chromeos_goma_dir,
+            chroot_dir=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
+            out_dir=self._build_root / Path(constants.DEFAULT_OUT_DIR),
             goma_approach=goma_approach,
         )
 
@@ -858,10 +864,10 @@ class BuildImageStage(BuildPackagesStage):
 
     def _BuildGuestVMImage(self):
         if self._run.config.guest_vm_image:
-            chroot_path = os.path.join(
-                self._build_root, constants.DEFAULT_CHROOT_DIR
+            chroot = chroot_lib.Chroot(
+                path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
+                out_path=self._build_root / Path(constants.DEFAULT_OUT_DIR),
             )
-            chroot = chroot_lib.Chroot(path=chroot_path)
             for image in self._run.config.images:
                 if image in (
                     constants.IMAGE_TYPE_BASE,
@@ -977,7 +983,8 @@ class RegenPortageCacheStage(generic_stages.BuilderStage):
 
     def PerformStage(self):
         chroot = chroot_lib.Chroot(
-            path=os.path.join(self._build_root, constants.DEFAULT_CHROOT_PATH)
+            path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
+            out_path=self._build_root / constants.DEFAULT_OUT_DIR,
         )
         binhost_service.RegenBuildCache(
             chroot,

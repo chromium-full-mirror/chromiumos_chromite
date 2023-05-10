@@ -8,6 +8,7 @@ import glob
 import json
 import logging
 import os
+from pathlib import Path
 import re
 
 from chromite.cbuildbot import cbuildbot_alerts
@@ -18,6 +19,7 @@ from chromite.lib import binpkg
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib import perf_uploader
 from chromite.lib import portage_util
 from chromite.service import sdk
@@ -25,8 +27,9 @@ from chromite.service import sdk
 
 def SdkPerfPath(buildroot):
     """Return the path to the perf file for sdk stages."""
-    return os.path.join(
-        buildroot, constants.DEFAULT_CHROOT_DIR, "tmp", "cros-sdk.perf"
+    return path_util.FromChrootPath(
+        os.path.join(os.path.sep, "tmp", "cros-sdk.perf"),
+        source_path=buildroot,
     )
 
 
@@ -67,8 +70,8 @@ class SDKBuildToolchainsStage(
     category = constants.PRODUCT_TOOLCHAIN_STAGE
 
     def PerformStage(self):
-        chroot_location = os.path.join(
-            self._build_root, constants.DEFAULT_CHROOT_DIR
+        path_resolver = path_util.ChrootPathResolver(
+            source_path=self._build_root
         )
 
         # Build the toolchains first.  Since we're building & installing the
@@ -78,9 +81,9 @@ class SDKBuildToolchainsStage(
         )
 
         # Create toolchain packages.
-        self.CreateRedistributableToolchains(chroot_location)
-        toolchain_path = os.path.join(
-            chroot_location, constants.SDK_TOOLCHAINS_OUTPUT
+        self.CreateRedistributableToolchains(path_resolver)
+        toolchain_path = path_resolver.FromChroot(
+            Path("/") / constants.SDK_TOOLCHAINS_OUTPUT
         )
         for files in os.listdir(toolchain_path):
             self.UploadArtifact(
@@ -97,10 +100,14 @@ class SDKBuildToolchainsStage(
             **kwargs,
         )
 
-    def CreateRedistributableToolchains(self, chroot_location):
+    def CreateRedistributableToolchains(
+        self, path_resolver: path_util.ChrootPathResolver
+    ):
         """Create the toolchain packages"""
         osutils.RmDir(
-            os.path.join(chroot_location, constants.SDK_TOOLCHAINS_OUTPUT),
+            path_resolver.FromChroot(
+                Path("/") / constants.SDK_TOOLCHAINS_OUTPUT
+            ),
             ignore_missing=True,
         )
 
@@ -136,10 +143,9 @@ class SDKPackageStage(
         tarball_location = os.path.join(
             self._build_root, constants.SDK_TARBALL_NAME
         )
-        chroot_location = os.path.join(
-            self._build_root, constants.DEFAULT_CHROOT_DIR
+        board_location = path_util.FromChrootPath(
+            "/build/amd64-host", source_path=self._build_root
         )
-        board_location = os.path.join(chroot_location, "build/amd64-host")
         manifest_location = tarball_location + ".Manifest"
 
         # Cleanup etc/make.conf.board_setup for use in SDK.
@@ -199,11 +205,13 @@ class SDKPackageStage(
         )
 
         for tarball in glob.glob(
-            os.path.join(
-                buildroot,
-                constants.DEFAULT_CHROOT_DIR,
-                constants.SDK_TOOLCHAINS_OUTPUT,
-                "*.tar.*",
+            path_util.FromChrootPath(
+                os.path.join(
+                    os.path.sep,
+                    constants.SDK_TOOLCHAINS_OUTPUT,
+                    "*.tar.*",
+                ),
+                source_path=buildroot,
             )
         ):
             name = os.path.basename(tarball).rsplit(".", 2)[0]
@@ -287,8 +295,9 @@ class SDKTestStage(generic_stages.BuilderStage):
         # systems, they'd be fetched from the binpkg mirror, but we don't have
         # one set up for this local build.
         pkgdir = os.path.join("var", "lib", "portage", "pkgs")
-        old_pkgdir = os.path.join(
-            self._build_root, constants.DEFAULT_CHROOT_DIR, pkgdir
+        old_pkgdir = path_util.FromChrootPath(
+            os.path.join(os.path.sep, pkgdir),
+            source_path=self._build_root,
         )
         new_pkgdir = os.path.join(self._build_root, new_chroot_dir, pkgdir)
         osutils.SafeMakedirs(new_pkgdir, sudo=True)

@@ -427,11 +427,13 @@ class BundleVmFilesTest(cros_test_lib.TempDirTestCase):
         self.assertCountEqual(archives, expected_archive_files)
 
 
-class BuildFirmwareArchiveTest(cros_test_lib.TempDirTestCase):
+class BuildFirmwareArchiveTest(cros_test_lib.MockTempDirTestCase):
     """BuildFirmwareArchive tests."""
 
     def testBuildFirmwareArchive(self):
         """Verifies that firmware archiver includes proper files"""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         # Assorted set of file names, some of which are supposed to be included
         # in the archive.
         fw_files = (
@@ -447,19 +449,16 @@ class BuildFirmwareArchiveTest(cros_test_lib.TempDirTestCase):
         )
 
         board = "link"
-        # fw_test_root = os.path.join(self.tempdir, os.path.basename(__file__))
-        fw_test_root = self.tempdir
-        fw_files_root = os.path.join(
-            fw_test_root, "chroot/build/%s/firmware" % board
-        )
-        # Generate a representative set of files produced by a typical build.
-        cros_test_lib.CreateOnDiskHierarchy(fw_files_root, fw_files)
 
         # Create the chroot and sysroot instances.
-        chroot_path = self.tempdir / "chroot"
-        out_path = self.tempdir / "out"
+        fw_test_root = self.tempdir
+        chroot_path = fw_test_root / "chroot"
+        out_path = fw_test_root / "out"
         chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
         sysroot = sysroot_lib.Sysroot("/build/link")
+        fw_files_root = chroot.full_path("/build/%s/firmware" % board)
+        # Generate a representative set of files produced by a typical build.
+        cros_test_lib.CreateOnDiskHierarchy(fw_files_root, fw_files)
 
         # Create an archive from the simulated firmware directory
         tarball = os.path.join(
@@ -471,27 +470,29 @@ class BuildFirmwareArchiveTest(cros_test_lib.TempDirTestCase):
         cros_test_lib.VerifyTarball(tarball, fw_files)
 
 
-class BundleFpmcuUnittestsTest(cros_test_lib.TempDirTestCase):
+class BundleFpmcuUnittestsTest(cros_test_lib.MockTempDirTestCase):
     """BundleFpmcuUnittests tests."""
 
     def testBundleFpmcuUnittests(self):
         """Verifies that the resulting tarball includes proper files"""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         unittest_files = (
             "bloonchipper/test_rsa.bin",
             "dartmonkey/test_utils.bin",
         )
 
         board = "hatch"
-        unittest_files_root = os.path.join(
-            self.tempdir,
-            "chroot/build/%s/firmware/chromeos-fpmcu-unittests" % board,
-        )
-        cros_test_lib.CreateOnDiskHierarchy(unittest_files_root, unittest_files)
 
         chroot_path = self.tempdir / "chroot"
         out_path = self.tempdir / "out"
         chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
         sysroot = sysroot_lib.Sysroot("/build/%s" % board)
+
+        unittest_files_root = chroot.full_path(
+            "/build/%s/firmware/chromeos-fpmcu-unittests" % board
+        )
+        cros_test_lib.CreateOnDiskHierarchy(unittest_files_root, unittest_files)
 
         tarball = os.path.join(
             self.tempdir,

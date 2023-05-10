@@ -18,6 +18,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import gs_unittest
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib import portage_util
 
 
@@ -72,6 +73,12 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
     """Test FactoryArchiveStage."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        self.path_resolver = path_util.ChrootPathResolver(
+            source_path=self.workspace
+        )
+
         self.build_image_mock = self.PatchObject(
             commands, "BuildFactoryInstallImage", return_value="/factory_image"
         )
@@ -261,8 +268,8 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
             [
                 mock.call(
                     self.workspace,
-                    os.path.join(
-                        self.workspace, "chroot/build/board/usr/local/build"
+                    self.path_resolver.FromChroot(
+                        "/build/board/usr/local/build"
                     ),
                     "/tempdir",
                 ),
@@ -274,7 +281,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
             [
                 mock.call(
                     self.workspace,
-                    os.path.join(self.workspace, "chroot/build/board/build"),
+                    self.path_resolver.FromChroot("/build/board/build"),
                     "/tempdir",
                 ),
             ],
@@ -446,8 +453,8 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
             [
                 mock.call(
                     self.workspace,
-                    os.path.join(
-                        self.workspace, "chroot/build/board/usr/local/build"
+                    self.path_resolver.FromChroot(
+                        "/build/board/usr/local/build"
                     ),
                     "/tempdir",
                 ),
@@ -459,7 +466,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
             [
                 mock.call(
                     self.workspace,
-                    os.path.join(self.workspace, "chroot/build/board/build"),
+                    self.path_resolver.FromChroot("/build/board/build"),
                     "/tempdir",
                 ),
             ],

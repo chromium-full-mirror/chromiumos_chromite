@@ -71,7 +71,9 @@ class RunBuildScriptTest(cros_test_lib.RunCommandTempDirTestCase):
             sudo_cmd, returncode=returncode, side_effect=WriteError
         )
 
-        self.PatchObject(path_util, "ToChrootPath", side_effect=lambda x: x)
+        self.PatchObject(
+            path_util, "ToChrootPath", side_effect=lambda x, **kwargs: x
+        )
 
         with cros_test_lib.LoggingCapturer():
             # If the script failed, the exception should be raised and printed.
@@ -1017,9 +1019,13 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
     """Test general cbuildbot command methods."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self._board = "test-board"
         self._buildroot = self.tempdir
-        self._chroot = os.path.join(self._buildroot, "chroot")
+        self._path_resolver = path_util.ChrootPathResolver(
+            source_path=self._buildroot
+        )
         os.makedirs(os.path.join(self._buildroot, ".repo"))
 
         self._dropfile = os.path.join(
@@ -1033,8 +1039,8 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def testGenerateStackTraces(self):
         """Test if we can generate stack traces for minidumps."""
-        os.makedirs(os.path.join(self._chroot, "tmp"))
-        dump_file = os.path.join(self._chroot, "tmp", "test.dmp")
+        os.makedirs(self._path_resolver.FromChroot("/tmp"))
+        dump_file = self._path_resolver.FromChroot("/tmp/test.dmp")
         dump_file_dir, dump_file_name = os.path.split(dump_file)
         ret = [(dump_file_dir, [""], [dump_file_name])]
         with mock.patch("os.walk", return_value=ret):
@@ -1163,10 +1169,10 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertCommandContains(
             [
-                os.path.join(
-                    self._buildroot,
-                    constants.CHROMITE_BIN_SUBDIR,
-                    "build_packages",
+                self._path_resolver.ToChroot(
+                    self._buildroot
+                    / constants.CHROMITE_BIN_SUBDIR
+                    / "build_packages"
                 )
             ]
         )
@@ -1211,13 +1217,14 @@ c98ca54db130886142ad582a58e90ddc *./common.sh
 312e8ee6122057f2a246d7bcf1572f49 *./vpd
 """
         )
-        build_sbin = os.path.join(
-            self._buildroot,
-            constants.DEFAULT_CHROOT_DIR,
-            "build",
-            self._board,
-            "usr",
-            "sbin",
+        build_sbin = self._path_resolver.FromChroot(
+            os.path.join(
+                os.path.sep,
+                "build",
+                self._board,
+                "usr",
+                "sbin",
+            )
         )
         osutils.Touch(
             os.path.join(build_sbin, "chromeos-firmwareupdate"), makedirs=True
@@ -1273,13 +1280,14 @@ a3326e34e8c9f221cc2dcd2489284e30 *./mosys
 ae8cf9fca3165a1c1f12decfd910c4fe *./vpd
 """
         )
-        build_sbin = os.path.join(
-            self._buildroot,
-            constants.DEFAULT_CHROOT_DIR,
-            "build",
-            self._board,
-            "usr",
-            "sbin",
+        build_sbin = self._path_resolver.FromChroot(
+            os.path.join(
+                os.path.sep,
+                "build",
+                self._board,
+                "usr",
+                "sbin",
+            )
         )
         osutils.Touch(
             os.path.join(build_sbin, "chromeos-firmwareupdate"), makedirs=True
@@ -1368,13 +1376,14 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
 79aabd7cd8a215a54234c53d7bb2e6fb *./vpd
 """
         )
-        build_sbin = os.path.join(
-            self._buildroot,
-            constants.DEFAULT_CHROOT_DIR,
-            "build",
-            self._board,
-            "usr",
-            "sbin",
+        build_sbin = self._path_resolver.FromChroot(
+            os.path.join(
+                os.path.sep,
+                "build",
+                self._board,
+                "usr",
+                "sbin",
+            )
         )
         osutils.Touch(
             os.path.join(build_sbin, "chromeos-firmwareupdate"), makedirs=True
@@ -1453,10 +1462,10 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
         self.testBuild(extra_env=extra_env)
         self.assertCommandContains(
             [
-                os.path.join(
-                    self._buildroot,
-                    constants.CHROMITE_BIN_SUBDIR,
-                    "build_packages",
+                self._path_resolver.ToChroot(
+                    self._buildroot
+                    / constants.CHROMITE_BIN_SUBDIR
+                    / "build_packages"
                 )
             ],
             extra_env=extra_env,
@@ -1470,7 +1479,7 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
     def testGenerateAndroidBreakpadSymbols(self):
         """Test GenerateAndroidBreakpadSymbols Command."""
         with mock.patch.object(
-            path_util, "ToChrootPath", side_effect=lambda s: s
+            path_util, "ToChrootPath", side_effect=lambda s, **kwargs: s
         ):
             commands.GenerateAndroidBreakpadSymbols(
                 "/buildroot", "MyBoard", "symbols.zip"
@@ -1621,14 +1630,17 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
         self.assertCommandContains(["-i", "my_config/my_version"])
 
 
-class GenerateDebugTarballTests(cros_test_lib.TempDirTestCase):
+class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
     """Tests related to building tarball artifacts."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self._board = "test-board"
         self._buildroot = os.path.join(self.tempdir, "buildroot")
-        self._debug_base = os.path.join(
-            self._buildroot, "chroot", "build", self._board, "usr", "lib"
+        self._debug_base = path_util.FromChrootPath(
+            os.path.join(os.path.sep, "build", self._board, "usr", "lib"),
+            source_path=self._buildroot,
         )
 
         self._files = [
@@ -1725,27 +1737,32 @@ class RunLocalTryjobTests(cros_test_lib.RunCommandTestCase):
         )
 
 
-class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
+class BuildTarballTests(
+    cros_test_lib.RunCommandTestCase, cros_test_lib.MockTempDirTestCase
+):
     """Tests related to building tarball artifacts."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self._buildroot = os.path.join(self.tempdir, "buildroot")
+        self._path_resolver = path_util.ChrootPathResolver(
+            source_path=self._buildroot
+        )
         os.makedirs(self._buildroot)
         self._board = "test-board"
         self._cwd = os.path.abspath(
-            os.path.join(
-                self._buildroot,
-                "chroot",
-                "build",
-                self._board,
-                constants.AUTOTEST_BUILD_PATH,
-                "..",
+            self._path_resolver.FromChroot(
+                os.path.join(
+                    "/build",
+                    self._board,
+                    constants.AUTOTEST_BUILD_PATH,
+                    "..",
+                )
             )
         )
-        self._sysroot_build = os.path.abspath(
-            os.path.join(
-                self._buildroot, "chroot", "build", self._board, "build"
-            )
+        self._sysroot_build = self._path_resolver.FromChroot(
+            os.path.join("/build", self._board, "build")
         )
         self._tarball_dir = self.tempdir
 
@@ -1817,8 +1834,11 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         # Touch Tast paths so they'll be included in the tar command. Skip
         # creating the last file so we can verify that it's omitted from the tar
         # command.
-        for p in commands.TAST_SSP_FILES[:-1]:
-            path = os.path.join(self._buildroot, p)
+        for p in commands.TAST_SSP_CHROOT_FILES[:-1]:
+            path = path_util.FromChrootPath(
+                p,
+                source_path=self._buildroot,
+            )
             if not os.path.exists(os.path.dirname(path)):
                 os.makedirs(os.path.dirname(path))
             # TODO(b/236161656): Fix.
@@ -1888,7 +1908,9 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
         # Drop "stripped packages".
-        sysroot = os.path.join(self._buildroot, "chroot", "build", "test-board")
+        sysroot = self._path_resolver.FromChroot(
+            os.path.join("/build", "test-board")
+        )
         pkg_dir = os.path.join(sysroot, "stripped-packages")
         osutils.Touch(
             os.path.join(pkg_dir, "chromeos-base", "chrome-1-r0.tbz2"),
@@ -1929,10 +1951,17 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         )
 
 
-class UnmockedTests(cros_test_lib.TempDirTestCase):
-    """Test cases which really run tests, instead of using mocks."""
+class UnmockedTests(cros_test_lib.MockTempDirTestCase):
+    """Test cases which really run tests, instead of using mocks.
+
+    ...except that we mock IsInsideChroot, for consistent behavior and to test
+    the real flow, where chromite code runs outside the SDK.
+    """
 
     _TEST_BOARD = "board"
+
+    def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
     def testBuildFirmwareArchive(self):
         """Verifies that the archiver creates a tarfile with the expected files."""
@@ -1949,9 +1978,11 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
             "x86-memtest",
         )
         board = "link"
-        chroot_path = "chroot/build/%s/firmware" % board
         fw_test_root = os.path.join(self.tempdir, os.path.basename(__file__))
-        fw_files_root = os.path.join(fw_test_root, chroot_path)
+        fw_files_root = path_util.FromChrootPath(
+            "/build/%s/firmware" % board,
+            source_path=fw_test_root,
+        )
 
         # Generate the fw_files in fw_files_root.
         cros_test_lib.CreateOnDiskHierarchy(fw_files_root, fw_files)
@@ -1979,9 +2010,9 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
             "bloonchipper/test_rsa.bin",
             "dartmonkey/test_utils.bin",
         )
-        unittest_files_root = os.path.join(
-            self.tempdir,
-            f"chroot/build/{self._TEST_BOARD}/firmware/chromeos-fpmcu-unittests",
+        unittest_files_root = path_util.FromChrootPath(
+            f"/build/{self._TEST_BOARD}/firmware/chromeos-fpmcu-unittests",
+            source_path=self.tempdir,
         )
         cros_test_lib.CreateOnDiskHierarchy(unittest_files_root, unittest_files)
 
@@ -2260,10 +2291,7 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
         # GCE expects the tarball to be in a particular format.
         cros_test_lib.VerifyTarball(output_path, ["disk.raw"])
 
-    @mock.patch(
-        "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
-    )
-    def testBuildEbuildLogsTarballPositive(self, _):
+    def testBuildEbuildLogsTarballPositive(self):
         """Verifies that the ebuild logs archiver builds correct logs"""
         # Names of log files typically found in a build directory.
         log_files = (
@@ -2280,8 +2308,9 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
             "x11-proto:xproto-7.0.31:20170816-174849.log",
         )
         tarred_files = [os.path.join("logs", x) for x in log_files]
-        log_files_root = os.path.join(
-            self.tempdir, f"chroot/build/{self._TEST_BOARD}/tmp/portage/logs"
+        log_files_root = path_util.FromChrootPath(
+            f"/build/{self._TEST_BOARD}/tmp/portage/logs",
+            source_path=self.tempdir,
         )
         # Generate a representative set of log files produced by a typical
         # build.
@@ -2314,8 +2343,9 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
         )
 
         # Create a malformed directory name.
-        log_files_root = os.path.join(
-            self.tempdir, f"{self._TEST_BOARD}/tmp/portage/wrong_dir_name"
+        log_files_root = path_util.FromChrootPath(
+            f"{self._TEST_BOARD}/tmp/portage/wrong_dir_name",
+            source_path=self.tempdir,
         )
         # Generate a representative set of log files produced by a typical
         # build.
@@ -2341,7 +2371,9 @@ class ImageTestCommandsTest(cros_test_lib.RunCommandTestCase):
         self._board = "test-board"
         self._image_dir = "image-dir"
         self._result_dir = "result-dir"
-        self.PatchObject(path_util, "ToChrootPath", side_effect=lambda x: x)
+        self.PatchObject(
+            path_util, "ToChrootPath", side_effect=lambda x, **kwargs: x
+        )
 
     def testRunTestImage(self):
         """Verifies RunTestImage calls into test-image script properly."""

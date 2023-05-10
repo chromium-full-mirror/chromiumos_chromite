@@ -5,6 +5,7 @@
 """Unittests for Binhost operations."""
 
 import os
+from pathlib import Path
 from unittest import mock
 
 from chromite.api import api_config
@@ -12,6 +13,7 @@ from chromite.api.controller import binhost
 from chromite.api.gen.chromite.api import binhost_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -475,12 +477,12 @@ class PrepareDevInstallerBinhostUploadsTest(
     def setUp(self):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         # target packages dir
-        self.chroot_path = os.path.join(self.tempdir, "chroot")
         self.sysroot_path = "/build/target"
-        self.chroot_path = os.path.join(self.tempdir, "chroot")
-        full_sysroot_path = os.path.join(
-            self.chroot_path, self.sysroot_path.lstrip(os.sep)
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
         )
+        full_sysroot_path = self.chroot.full_path(self.sysroot_path)
         self.full_sysroot_package_path = os.path.join(
             full_sysroot_path, "packages"
         )
@@ -548,7 +550,8 @@ CPV: virtual/python-enum34-1
 
         input_proto = binhost_pb2.PrepareDevInstallBinhostUploadsRequest()
         input_proto.uri = "gs://chromeos-prebuilt/target"
-        input_proto.chroot.path = self.chroot_path
+        input_proto.chroot.path = self.chroot.path
+        input_proto.chroot.out_path = str(self.chroot.out_path)
         input_proto.sysroot.path = self.sysroot_path
         input_proto.uploads_dir = self.uploads_dir
         binhost.PrepareDevInstallBinhostUploads(
@@ -564,7 +567,8 @@ CPV: virtual/python-enum34-1
 
         input_proto = binhost_pb2.PrepareDevInstallBinhostUploadsRequest()
         input_proto.uri = "gs://chromeos-prebuilt/target"
-        input_proto.chroot.path = self.chroot_path
+        input_proto.chroot.path = self.chroot.path
+        input_proto.chroot.out_path = str(self.chroot.out_path)
         input_proto.sysroot.path = self.sysroot_path
         input_proto.uploads_dir = self.uploads_dir
         binhost.PrepareDevInstallBinhostUploads(
@@ -579,7 +583,8 @@ CPV: virtual/python-enum34-1
         # self.RunStage()
         input_proto = binhost_pb2.PrepareDevInstallBinhostUploadsRequest()
         input_proto.uri = "gs://chromeos-prebuilt/target"
-        input_proto.chroot.path = self.chroot_path
+        input_proto.chroot.path = self.chroot.path
+        input_proto.chroot.out_path = str(self.chroot.out_path)
         input_proto.sysroot.path = self.sysroot_path
         input_proto.uploads_dir = self.uploads_dir
         # Call method under test
@@ -606,7 +611,8 @@ CPV: virtual/python-enum34-1
     def testPrepareBinhostUploadsNonGsUri(self):
         """PrepareBinhostUploads dies when URI does not point to GS."""
         input_proto = binhost_pb2.PrepareDevInstallBinhostUploadsRequest()
-        input_proto.chroot.path = self.chroot_path
+        input_proto.chroot.path = self.chroot.path
+        input_proto.chroot.out_path = str(self.chroot.out_path)
         input_proto.sysroot.path = self.sysroot_path
         input_proto.uploads_dir = self.uploads_dir
         input_proto.uri = "https://foo.bar"
@@ -627,17 +633,23 @@ class PrepareChromeBinhostUploadsTest(
             binhost_service, "CreateChromePackageIndex"
         )
 
-        self.chroot_path = self.tempdir / "chroot"
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
         self.sysroot_path = "build/target"
         self.uploads_dir = self.tempdir / "uploads_dir"
         self.input_proto = binhost_pb2.PrepareChromeBinhostUploadsRequest()
         self.input_proto.uri = "gs://chromeos-prebuilt/target"
-        self.input_proto.chroot.path = str(self.chroot_path)
+        self.input_proto.chroot.path = str(self.chroot.path)
+        self.input_proto.chroot.out_path = str(self.chroot.out_path)
         self.input_proto.sysroot.path = self.sysroot_path
         self.input_proto.uploads_dir = str(self.uploads_dir)
         self.response = binhost_pb2.PrepareChromeBinhostUploadsResponse()
 
-        self.packages_path = self.chroot_path / self.sysroot_path / "packages"
+        self.packages_path = Path(
+            self.chroot.full_path(self.sysroot_path, "packages")
+        )
         self.chrome_packages_path = self.packages_path / constants.CHROME_CN
         osutils.Touch(
             self.chrome_packages_path / "chromeos-chrome-100-r1.tbz2",

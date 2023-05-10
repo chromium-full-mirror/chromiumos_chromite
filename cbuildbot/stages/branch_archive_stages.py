@@ -23,6 +23,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import timeout_util
 from chromite.utils import pformat
@@ -264,8 +265,11 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
     def CreateFactoryProjectToolkitsZip(self):
         """Create/publish the factory project toolkits for the current board."""
         toolkits_src_path = os.path.join(
-            commands.FACTORY_PACKAGE_PATH
-            % {"buildroot": self._build_root, "board": self._current_board},
+            path_util.FromChrootPath(
+                commands.FACTORY_PACKAGE_CHROOT_PATH
+                % {"board": self._current_board},
+                source_path=self._build_root,
+            ),
             "project_toolkits",
             commands.FACTORY_PROJECT_PACKAGE,
         )
@@ -276,13 +280,15 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
         """Build the autotest tarballs."""
         with osutils.TempDir(prefix="cbuildbot-autotest") as tempdir:
             cwd = os.path.abspath(
-                os.path.join(
-                    self._build_root,
-                    "chroot",
-                    "build",
-                    self._current_board,
-                    constants.AUTOTEST_BUILD_PATH,
-                    "..",
+                path_util.FromChrootPath(
+                    os.path.join(
+                        os.path.sep,
+                        "build",
+                        self._current_board,
+                        constants.AUTOTEST_BUILD_PATH,
+                        "..",
+                    ),
+                    source_path=self._build_root,
                 )
             )
             logging.debug(
@@ -301,12 +307,14 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
         """Build the tarball containing private Tast test bundles."""
         with osutils.TempDir(prefix="cbuildbot-tast") as tempdir:
             cwd = os.path.abspath(
-                os.path.join(
-                    self._build_root,
-                    "chroot",
-                    "build",
-                    self._current_board,
-                    "build",
+                path_util.FromChrootPath(
+                    os.path.join(
+                        os.path.sep,
+                        "build",
+                        self._current_board,
+                        "build",
+                    ),
+                    source_path=self._build_root,
                 )
             )
             logging.debug("Running commands.BuildTastBundleTarball")

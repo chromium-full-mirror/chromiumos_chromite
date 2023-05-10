@@ -785,19 +785,6 @@ class FindMetadataTestCase(cros_test_lib.MockTestCase):
     chroot_path = Path("/usr/chroot")
     out_path = Path("/usr/out")
 
-    expected_autotest_metadata_file = (
-        "/usr/chroot/build/coral/usr/local/build/autotest/autotest_metadata.pb"
-    )
-    expected_tast_local_metadata_file = (
-        "/usr/chroot/build/coral/usr/share/tast/metadata/local/cros.pb"
-    )
-    expected_tast_local_private_metadata_file = (
-        "/usr/chroot/build/coral/build/share/tast/metadata/local/crosint.pb"
-    )
-    expected_tast_remote_metadata_file = (
-        "/usr/chroot/usr/share/tast/metadata/remote/cros.pb"
-    )
-
     def setUp(self):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
@@ -808,13 +795,17 @@ class FindMetadataTestCase(cros_test_lib.MockTestCase):
 
     def testFindAllMetadataFiles(self):
         """Test case for Sysroot.FindAllMetadataFiles."""
-        actual = test.FindAllMetadataFiles(self.chroot, self.sysroot)
         expected = [
-            self.expected_autotest_metadata_file,
-            self.expected_tast_local_metadata_file,
-            self.expected_tast_local_private_metadata_file,
-            self.expected_tast_remote_metadata_file,
+            self.chroot.full_path(f)
+            for f in (
+                "/build/coral/usr/local/build/autotest/autotest_metadata.pb",
+                "/build/coral/usr/share/tast/metadata/local/cros.pb",
+                "/build/coral/build/share/tast/metadata/local/crosint.pb",
+                "/usr/share/tast/metadata/remote/cros.pb",
+            )
         ]
+
+        actual = test.FindAllMetadataFiles(self.chroot, self.sysroot)
         self.assertEqual(sorted(actual), sorted(expected))
 
 

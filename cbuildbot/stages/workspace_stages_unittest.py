@@ -615,7 +615,9 @@ class WorkspaceSetupBoardStageTest(WorkspaceStageBase):
     def setUp(self):
         # Prevent the setup_board tempdir path from being translated because it
         # ends up raising an error when that path can't be found in the chroot.
-        self.PatchObject(path_util, "ToChrootPath", side_effect=lambda x: x)
+        self.PatchObject(
+            path_util, "ToChrootPath", side_effect=lambda x, **kwargs: x
+        )
         self.setup_board = os.path.join(
             self.workspace, constants.CHROMITE_BIN_SUBDIR, "setup_board"
         )

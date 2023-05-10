@@ -85,13 +85,14 @@ class BundleTestCase(
         osutils.SafeMakedirs(self.output_dir)
         self.sysroot_path = "/build/target"
         self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
-        self.chroot_path = self.tempdir / "chroot"
-        self.chroot_out_path = self.tempdir / "out"
-        full_sysroot_path = os.path.join(
-            self.chroot_path, self.sysroot_path.lstrip(os.sep)
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
         )
+        full_sysroot_path = self.chroot.full_path(self.sysroot_path)
         osutils.SafeMakedirs(full_sysroot_path)
-        osutils.SafeMakedirs(self.chroot_out_path)
+        osutils.SafeMakedirs(self.chroot.path)
+        osutils.SafeMakedirs(self.chroot.out_path)
 
         # All requests use same response type.
         self.response = artifacts_pb2.BundleResponse()
@@ -100,7 +101,7 @@ class BundleTestCase(
         self.target_request = self.BuildTargetRequest(
             build_target="target",
             output_dir=self.output_dir,
-            chroot=str(self.chroot_path),
+            chroot=self.chroot.path,
         )
 
         # Sysroot request.
@@ -108,8 +109,8 @@ class BundleTestCase(
             sysroot=self.sysroot_path,
             build_target="target",
             output_dir=self.output_dir,
-            chroot=self.chroot_path,
-            chroot_out=self.chroot_out_path,
+            chroot=self.chroot.path,
+            chroot_out=self.chroot.out_path,
         )
 
         self.source_root = self.tempdir
@@ -292,7 +293,7 @@ class BundleAutotestFilesTest(BundleTestCase):
     def testInvalidOutputDir(self):
         """Test invalid output directory argument."""
         request = self.SysrootRequest(
-            chroot=self.chroot_path, sysroot=self.sysroot_path
+            chroot=self.chroot.path, sysroot=self.sysroot_path
         )
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
@@ -303,7 +304,7 @@ class BundleAutotestFilesTest(BundleTestCase):
     def testInvalidSysroot(self):
         """Test no sysroot directory."""
         request = self.SysrootRequest(
-            chroot=self.chroot_path, output_dir=self.output_dir
+            chroot=self.chroot.path, output_dir=self.output_dir
         )
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
@@ -314,7 +315,7 @@ class BundleAutotestFilesTest(BundleTestCase):
     def testSysrootDoesNotExist(self):
         """Test dies when no sysroot does not exist."""
         request = self.SysrootRequest(
-            chroot=self.chroot_path,
+            chroot=self.chroot.path,
             sysroot="/does/not/exist",
             output_dir=self.output_dir,
         )
@@ -357,10 +358,6 @@ class BundleTastFilesTest(BundleTestCase):
 
     def testBundleTastFiles(self):
         """BundleTastFiles calls service correctly."""
-        chroot = chroot_lib.Chroot(
-            self.chroot_path, out_path=self.chroot_out_path
-        )
-
         expected_archive = os.path.join(
             self.output_dir, artifacts_svc.TAST_BUNDLE_NAME
         )
@@ -378,7 +375,7 @@ class BundleTastFilesTest(BundleTestCase):
         self.assertEqual(expected_archive, self.response.artifacts[0].path)
         # Make sure the service got called correctly.
         bundle_patch.assert_called_once_with(
-            chroot, self.sysroot, self.output_dir
+            self.chroot, self.sysroot, self.output_dir
         )
 
 
@@ -1118,15 +1115,19 @@ class FetchMetadataTestCase(
 
     def setUp(self):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
-        self.chroot_path = os.path.join(self.tempdir, "chroot")
-        pathlib.Path(self.chroot_path).touch()
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+        pathlib.Path(self.chroot.path).touch()
+        self.chroot.out_path.touch()
         self.expected_filepaths = [
-            os.path.join(self.chroot_path, fp)
+            self.chroot.full_path(fp)
             for fp in (
-                "build/coral/usr/local/build/autotest/autotest_metadata.pb",
-                "build/coral/usr/share/tast/metadata/local/cros.pb",
-                "build/coral/build/share/tast/metadata/local/crosint.pb",
-                "usr/share/tast/metadata/remote/cros.pb",
+                "/build/coral/usr/local/build/autotest/autotest_metadata.pb",
+                "/build/coral/usr/share/tast/metadata/local/cros.pb",
+                "/build/coral/build/share/tast/metadata/local/crosint.pb",
+                "/usr/share/tast/metadata/remote/cros.pb",
             )
         ]
         self.PatchObject(cros_build_lib, "AssertOutsideChroot")
@@ -1139,7 +1140,8 @@ class FetchMetadataTestCase(
         if use_sysroot_path:
             request.sysroot.path = self.sysroot_path
         if use_chroot:
-            request.chroot.path = self.chroot_path
+            request.chroot.path = self.chroot.path
+            request.chroot.out_path = str(self.chroot.out_path)
         return request
 
     def testValidateOnly(self):

@@ -171,7 +171,9 @@ class SetupBoardTest(_RunAbstractStageTestCase):
 
         # Prevent the setup_board tempdir path from being translated because it
         # ends up raising an error when that path can't be found in the chroot.
-        self.PatchObject(path_util, "ToChrootPath", side_effect=lambda x: x)
+        self.PatchObject(
+            path_util, "ToChrootPath", side_effect=lambda x, **kwargs: x
+        )
         self.setup_board = os.path.join(
             self.tempdir,
             "buildroot",
@@ -320,6 +322,12 @@ class BuildPackagesStageTest(
     """Tests BuildPackagesStage."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.path_resolver = path_util.ChrootPathResolver(
+            source_path=self.build_root
+        )
+        osutils.SafeMakedirs(self.path_resolver.FromChroot("/tmp"))
+
         self._release_tag = None
         self._update_metadata = False
         self._mock_configurator = None
@@ -342,11 +350,13 @@ class BuildPackagesStageTest(
         """Test with the config for the specified bot_id."""
         self._Prepare(bot_id)
         self._run.options.tests = options_tests
-        build_packages = os.path.join(
-            self.tempdir,
-            "buildroot",
-            constants.CHROMITE_BIN_SUBDIR,
-            "build_packages",
+        build_packages = self.path_resolver.ToChroot(
+            os.path.join(
+                self.tempdir,
+                "buildroot",
+                constants.CHROMITE_BIN_SUBDIR,
+                "build_packages",
+            )
         )
 
         with self.RunStageWithConfig(self._mock_configurator) as rc:
@@ -394,9 +404,8 @@ class BuildPackagesStageTest(
             )
 
         self._update_metadata = True
-        update = os.path.join(
-            self.build_root,
-            "chroot/build/amd64-generic/usr/sbin/chromeos-firmwareupdate",
+        update = self.path_resolver.FromChroot(
+            "/build/amd64-generic/usr/sbin/chromeos-firmwareupdate"
         )
         osutils.Touch(update, makedirs=True)
 
@@ -434,9 +443,8 @@ class BuildPackagesStageTest(
             )
 
         self._update_metadata = True
-        update = os.path.join(
-            self.build_root,
-            "chroot/build/amd64-generic/usr/sbin/chromeos-firmwareupdate",
+        update = self.path_resolver.FromChroot(
+            "/build/amd64-generic/usr/sbin/chromeos-firmwareupdate"
         )
         osutils.Touch(update, makedirs=True)
 
@@ -445,6 +453,9 @@ class BuildPackagesStageTest(
         board_metadata = self._run.attrs.metadata.GetDict()[
             "board-metadata"
         ].get("amd64-generic")
+        import logging
+
+        logging.error("board-metatdata: %s", board_metadata)
         if board_metadata:
             self.assertIn("main-firmware-version", board_metadata)
             self.assertEqual(
@@ -492,14 +503,13 @@ EC (RW) version: reef_v1.1.5909-bd1f0c9
             )
 
         self._update_metadata = True
-        update = os.path.join(
-            self.build_root,
-            "chroot/build/amd64-generic/usr/sbin/chromeos-firmwareupdate",
+        update = self.path_resolver.FromChroot(
+            "/build/amd64-generic/usr/sbin/chromeos-firmwareupdate"
         )
         osutils.Touch(update, makedirs=True)
 
-        cros_config_host = os.path.join(
-            self.build_root, "chroot/usr/bin/cros_config_host"
+        cros_config_host = self.path_resolver.FromChroot(
+            "/usr/bin/cros_config_host"
         )
         osutils.Touch(cros_config_host, makedirs=True)
 
@@ -546,8 +556,8 @@ EC (RW) version: reef_v1.1.5909-bd1f0c9
             )
 
         self._update_metadata = True
-        cros_config_host = os.path.join(
-            self.build_root, "chroot/usr/bin/cros_config_host"
+        cros_config_host = self.path_resolver.FromChroot(
+            "/usr/bin/cros_config_host"
         )
         osutils.Touch(cros_config_host, makedirs=True)
         self._mock_configurator = _HookRunCommandCrosConfigHost
@@ -619,9 +629,7 @@ class BuildImageStageMock(partial_mock.PartialMock):
     ATTRS = ("_BuildImages",)
 
     def _BuildImages(self, *args, **kwargs):
-        with patches(
-            patch(os, "symlink"), patch(os, "readlink", return_value="foo.txt")
-        ):
+        with patches(patch(os, "symlink")):
             self.backup["_BuildImages"](*args, **kwargs)
 
 
@@ -629,12 +637,22 @@ class BuildImageStageTest(BuildPackagesStageTest):
     """Tests BuildImageStage."""
 
     def setUp(self):
-        self.StartPatcher(BuildImageStageMock())
         self.fake_db = fake_cidb.FakeCIDBConnection()
         self.buildstore = FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
 
     def ConstructStage(self):
+        latest_image_dir = (
+            Path(self.build_root)
+            / "src"
+            / "build"
+            / "images"
+            / self._current_board
+        )
+        osutils.SafeMakedirs(latest_image_dir)
+        osutils.SafeSymlink("someboard", latest_image_dir / "latest")
+        self.StartPatcher(BuildImageStageMock())
+
         return build_stages.BuildImageStage(
             self._run, self.buildstore, self._current_board
         )

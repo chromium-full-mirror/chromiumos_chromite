@@ -56,16 +56,15 @@ from chromite.utils import pformat
 
 
 _PACKAGE_FILE = "%(buildroot)s/src/scripts/cbuildbot_package.list"
-CHROME_KEYWORDS_FILE = (
-    "%(buildroot)s/%(chroot)s/build/%(board)s"
-    "/etc/portage/package.accept_keywords/chrome"
+_CHROME_KEYWORDS_CHROOT_FILE = (
+    "/build/%(board)s/etc/portage/package.accept_keywords/chrome"
 )
-CHROME_UNMASK_FILE = (
-    "%(buildroot)s/%(chroot)s/build/%(board)s/etc/portage/package.unmask/chrome"
+_CHROME_UNMASK_CHROOT_FILE = (
+    "/build/%(board)s/etc/portage/package.unmask/chrome"
 )
 _CROS_ARCHIVE_URL = "CROS_ARCHIVE_URL"
 _FACTORY_SHIM = "factory_shim"
-FACTORY_PACKAGE_PATH = "%(buildroot)s/chroot/build/%(board)s/usr/local/factory"
+FACTORY_PACKAGE_CHROOT_PATH = "/build/%(board)s/usr/local/factory"
 # Filename for tarball containing factory project specific files.
 FACTORY_PROJECT_PACKAGE = "factory_project_toolkits.tar.gz"
 _AUTOTEST_RPC_CLIENT = (
@@ -103,7 +102,7 @@ _TAST_SSP_SUBDIR = "tast"
 
 # Tast files and directories to include in AUTOTEST_SERVER_PACKAGE relative to
 # the build root. Public so it can be used by commands_unittest.py.
-TAST_SSP_FILES = [
+TAST_SSP_CHROOT_FILES = [
     "chroot/etc/tast/vars",  # Secret variables tast interprets.
     "chroot/usr/bin/remote_test_runner",  # Runs remote tests.
     "chroot/usr/bin/tast",  # Main Tast executable.
@@ -147,11 +146,11 @@ def RunBuildScript(buildroot, cmd, chromite_cmd=False, **kwargs):
         cmd = cmd[:]
         cmd[0] = str(buildroot / constants.CHROMITE_BIN_SUBDIR / cmd[0])
         if enter_chroot:
-            cmd[0] = path_util.ToChrootPath(cmd[0])
+            cmd[0] = path_util.ToChrootPath(cmd[0], source_path=buildroot)
 
     # If we are entering the chroot, create status file for tracking what
     # packages failed to build.
-    chroot_tmp = os.path.join(buildroot, "chroot", "tmp")
+    chroot_tmp = path_util.FromChrootPath("/tmp", source_path=buildroot)
     status_file = None
     with cros_build_lib.ContextManagerStack() as stack:
         if enter_chroot and os.path.exists(chroot_tmp):
@@ -164,7 +163,7 @@ def RunBuildScript(buildroot, cmd, chromite_cmd=False, **kwargs):
             )
             kwargs["extra_env"][
                 constants.PARALLEL_EMERGE_STATUS_FILE_ENVVAR
-            ] = path_util.ToChrootPath(status_file.name)
+            ] = path_util.ToChrootPath(status_file.name, source_path=buildroot)
         runcmd = cros_build_lib.run
         if sudo:
             runcmd = cros_build_lib.sudo_run
@@ -729,16 +728,15 @@ def GetFirmwareVersionCmdResult(buildroot, board):
         Command execution result.
     """
     updater = os.path.join(
-        buildroot,
-        constants.DEFAULT_CHROOT_DIR,
-        build_target_lib.get_default_sysroot_path(board).lstrip(os.path.sep),
+        build_target_lib.get_default_sysroot_path(board),
         "usr",
         "sbin",
         "chromeos-firmwareupdate",
     )
-    if not os.path.isfile(updater):
+    if not os.path.isfile(
+        path_util.FromChrootPath(updater, source_path=buildroot)
+    ):
         return ""
-    updater = path_util.ToChrootPath(updater)
 
     return cros_build_lib.run(
         [updater, "-V"],
@@ -2249,12 +2247,14 @@ def MarkChromeAsStable(
             for package in constants.OTHER_CHROME_PACKAGES:
                 data += f"={package}-{atom.vr}\n"
 
-            for cfg_file in (CHROME_KEYWORDS_FILE, CHROME_UNMASK_FILE):
-                cfg_file %= {
-                    "buildroot": buildroot,
-                    "chroot": constants.DEFAULT_CHROOT_DIR,
-                    "board": board,
-                }
+            for cfg_file in (
+                _CHROME_KEYWORDS_CHROOT_FILE,
+                _CHROME_UNMASK_CHROOT_FILE,
+            ):
+                cfg_file = path_util.FromChrootPath(
+                    cfg_file % {"board": board},
+                    source_path=buildroot,
+                )
                 osutils.WriteFile(cfg_file, data, makedirs=True, sudo=True)
 
         # Sanity check: We should always be able to merge the version of
@@ -2278,11 +2278,10 @@ def MarkChromeAsStable(
 def CleanupChromeKeywordsFile(boards, buildroot):
     """Cleans chrome uprev artifact if it exists."""
     for board in boards:
-        keywords_file = CHROME_KEYWORDS_FILE % {
-            "buildroot": buildroot,
-            "chroot": constants.DEFAULT_CHROOT_DIR,
-            "board": board,
-        }
+        keywords_file = path_util.FromChrootPath(
+            _CHROME_KEYWORDS_CHROOT_FILE % {"board": board},
+            source_path=buildroot,
+        )
         osutils.SafeUnlink(keywords_file, sudo=True)
 
 
@@ -2388,7 +2387,7 @@ def ExtractDependencies(
     # output. Avoid that by instructing the script to explicitly dump
     # the deps into a file.
     with tempfile.NamedTemporaryFile(
-        dir=os.path.join(buildroot, "chroot", "tmp")
+        dir=path_util.FromChrootPath("/tmp", source_path=buildroot)
     ) as f:
         cmd += ["--output-path", path_util.ToChrootPath(f.name)]
         RunBuildScript(
@@ -2575,8 +2574,10 @@ def GenerateDebugTarball(
     """
     # Generate debug tarball. This needs to run as root because some of the
     # symbols are only readable by root.
-    chroot = os.path.join(buildroot, "chroot")
-    board_dir = os.path.join(chroot, "build", board, "usr", "lib")
+    board_dir = path_util.FromChrootPath(
+        os.path.join(os.path.sep, "build", board, "usr", "lib"),
+        source_path=buildroot,
+    )
     debug_tarball = os.path.join(archive_path, archive_name)
     extra_args = None
     inputs = None
@@ -2594,7 +2595,7 @@ def GenerateDebugTarball(
 
     compression_chroot = None
     if chroot_compression:
-        compression_chroot = chroot
+        compression_chroot = os.path.join(buildroot, "chroot")
 
     compression = cros_build_lib.CompressionExtToType(debug_tarball)
     cros_build_lib.CreateTarball(
@@ -3255,8 +3256,11 @@ def _GetTastServerFilesAndTarTransforms(buildroot):
     files = []
     transforms = []
 
-    for p in TAST_SSP_FILES:
-        path = os.path.join(buildroot, p)
+    for p in TAST_SSP_CHROOT_FILES:
+        path = path_util.FromChrootPath(
+            p,
+            source_path=buildroot,
+        )
         if os.path.exists(path):
             files.append(path)
             dest = os.path.join(_TAST_SSP_SUBDIR, os.path.basename(path))
@@ -3309,8 +3313,7 @@ def BuildTastBundleTarball(buildroot, cwd, tarball_dir):
         path=os.path.join(buildroot, "chroot"),
         out_path=buildroot / constants.DEFAULT_OUT_DIR,
     )
-    sysroot_path = cwd.replace(chroot.path, "", 1)
-    sysroot_path = sysroot_path.rstrip("build").rstrip(os.sep)
+    sysroot_path = chroot.chroot_path(os.path.normpath(os.path.join(cwd, "..")))
     sysroot = sysroot_lib.Sysroot(sysroot_path)
 
     return artifacts_service.BundleTastFiles(chroot, sysroot, tarball_dir)
@@ -3486,13 +3489,14 @@ def BuildFullAutotestTarball(buildroot, board, tarball_dir):
 
     tarball = os.path.join(tarball_dir, "autotest.tar.bz2")
     cwd = os.path.abspath(
-        os.path.join(
-            buildroot,
-            "chroot",
-            "build",
-            board,
-            constants.AUTOTEST_BUILD_PATH,
-            "..",
+        path_util.FromChrootPath(
+            os.path.join(
+                "/build",
+                board,
+                constants.AUTOTEST_BUILD_PATH,
+                "..",
+            ),
+            source_path=buildroot,
         )
     )
     result = BuildTarball(
@@ -3639,8 +3643,10 @@ def BuildStrippedPackagesTarball(buildroot, board, package_globs, archive_dir):
     Returns:
         The file name of the output tarball, None if no package found.
     """
-    chroot_path = os.path.join(buildroot, constants.DEFAULT_CHROOT_DIR)
-    board_path = os.path.join(chroot_path, "build", board)
+    board_path = path_util.FromChrootPath(
+        os.path.join("/build", board),
+        source_path=buildroot,
+    )
     stripped_pkg_dir = os.path.join(board_path, "stripped-packages")
     tarball_paths = []
     strip_package_path = path_util.ToChrootPath(
@@ -3866,7 +3872,10 @@ def BuildFactoryZip(
     # Everything in /usr/local/factory/bundle gets overlaid into the
     # bundle.
     bundle_src_dir = os.path.join(
-        FACTORY_PACKAGE_PATH % {"buildroot": buildroot, "board": board},
+        path_util.FromChrootPath(
+            FACTORY_PACKAGE_CHROOT_PATH % {"board": board},
+            source_path=buildroot,
+        ),
         "bundle",
     )
     if os.path.exists(bundle_src_dir):
@@ -3921,12 +3930,11 @@ def CreateTestRoot(build_root):
         The path inside the chroot rather than whole path.
     """
     # Create test directory within tmp in chroot.
-    chroot = os.path.join(build_root, "chroot")
-    chroot_tmp = os.path.join(chroot, "tmp")
+    chroot_tmp = path_util.FromChrootPath("/tmp", source_path=build_root)
     test_root = tempfile.mkdtemp(prefix="cbuildbot", dir=chroot_tmp)
 
     # Path inside chroot.
-    return os.path.sep + os.path.relpath(test_root, start=chroot)
+    return path_util.ToChrootPath(test_root)
 
 
 def GeneratePayloads(

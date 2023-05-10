@@ -352,7 +352,9 @@ class ImageTestStageTest(
             autospec=True,
             return_value="/tmp/results_dir",
         )
-        self.PatchObject(path_util, "ToChrootPath", side_effect=lambda x: x)
+        self.PatchObject(
+            path_util, "ToChrootPath", side_effect=lambda x, **kwargs: x
+        )
         self._Prepare()
         self.buildstore = FakeBuildStore()
 

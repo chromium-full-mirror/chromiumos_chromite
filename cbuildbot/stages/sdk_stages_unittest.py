@@ -34,6 +34,8 @@ class SDKBuildToolchainsStageTest(
     RELEASE_TAG = "ToT.0.0"
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self.buildstore = FakeBuildStore()
         # This code has its own unit tests, so no need to go testing it here.
         self.run_mock = self.PatchObject(commands, "RunBuildScript")
@@ -84,6 +86,8 @@ class SDKPackageStageTest(
     )
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self.buildstore = FakeBuildStore()
         # Replace sudo_run, since we don't care about sudo.
         self.PatchObject(cros_build_lib, "sudo_run", wraps=cros_build_lib.run)
@@ -95,12 +99,13 @@ class SDKPackageStageTest(
             generic_stages.ArchivingStageMixin, "UploadArtifact"
         )
         # Prepare a fake chroot.
-        self.fake_chroot = os.path.join(
-            self.build_root, "chroot/build/amd64-host"
+        fake_sysroot_path = path_util.FromChrootPath(
+            "/build/amd64-host",
+            source_path=self.build_root,
         )
         self.fake_json_data = {}
-        osutils.SafeMakedirs(self.fake_chroot)
-        osutils.Touch(os.path.join(self.fake_chroot, "file"))
+        osutils.SafeMakedirs(fake_sysroot_path)
+        osutils.Touch(os.path.join(fake_sysroot_path, "file"))
         for package, v in self.fake_packages:
             cpv = package_info.SplitCPV("%s-%s" % (package, v))
             self.fake_json_data.setdefault(cpv.cp, []).append([v, {}])
@@ -156,10 +161,12 @@ class SDKPackageStageTest(
         sdk_tarball = os.path.join(self.tempdir, "sdk.tar.xz")
         osutils.WriteFile(sdk_tarball, sdk_data)
 
-        tarball_dir = os.path.join(
-            self.tempdir,
-            constants.DEFAULT_CHROOT_DIR,
-            constants.SDK_TOOLCHAINS_OUTPUT,
+        tarball_dir = path_util.FromChrootPath(
+            os.path.join(
+                os.path.sep,
+                constants.SDK_TOOLCHAINS_OUTPUT,
+            ),
+            source_path=self.tempdir,
         )
         arm_tar = os.path.join(tarball_dir, "arm-cros-linux-gnu.tar.xz")
         x86_tar = os.path.join(tarball_dir, "i686-pc-linux-gnu.tar.xz")
@@ -261,6 +268,8 @@ class SDKUprevStageTest(generic_stages_unittest.AbstractStageTestCase):
         )
 
     def testUprev(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         recorded_args = []
         self.PatchObject(
             binpkg,
@@ -268,7 +277,7 @@ class SDKUprevStageTest(generic_stages_unittest.AbstractStageTestCase):
             lambda *args, **kwargs: recorded_args.append(args),
         )
 
-        out_dir = path_util.ToChrootPath(
+        out_dir = path_util.FromChrootPath(
             Path("/") / "tmp" / "toolchain-pkgs", source_path=self.build_root
         )
         osutils.SafeMakedirs(out_dir)

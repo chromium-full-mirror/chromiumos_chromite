@@ -89,9 +89,7 @@ def BuildFirmwareArchive(
     Returns:
         The archive file path if created, None otherwise.
     """
-    firmware_root = os.path.join(
-        chroot.path, sysroot.path.lstrip(os.sep), "firmware"
-    )
+    firmware_root = chroot.full_path(sysroot.Path("firmware"))
     if not os.path.exists(firmware_root):
         return None
 
@@ -143,11 +141,11 @@ def BundleFpmcuUnittests(
     Returns:
         The archive file path if created, None otherwise.
     """
-    fpmcu_unittests_root = os.path.join(
-        chroot.path,
-        sysroot.path.lstrip(os.sep),
-        "firmware",
-        "chromeos-fpmcu-unittests",
+    fpmcu_unittests_root = chroot.full_path(
+        sysroot.Path(
+            "firmware",
+            "chromeos-fpmcu-unittests",
+        )
     )
     files = [
         os.path.relpath(f, fpmcu_unittests_root)
