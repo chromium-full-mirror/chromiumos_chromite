@@ -157,24 +157,24 @@ class RunAttributes(object):
     process and PARALLEL attributes are available to all stages, no matter what
     process they are in.  REGULAR attributes are accessed directly as normal
     attributes on a RunAttributes object, while PARALLEL attributes are accessed
-    through the {Set|Has|Get}Parallel methods.  PARALLEL attributes also have the
-    restriction that their values must be pickle-able (in order to be sent
+    through the {Set|Has|Get}Parallel methods.  PARALLEL attributes also have
+    the restriction that their values must be pickle-able (in order to be sent
     through multiprocessing queue).
 
     The currently supported attributes of each kind are listed in REGULAR_ATTRS
     and PARALLEL_ATTRS below.  To add support for a new run attribute simply
     add it to one of those sets.
 
-    A subset of PARALLEL_ATTRS is BOARD_ATTRS.  These attributes only have meaning
-    in the context of a specific board and config target.  The attributes become
-    available once a board/config is registered for a run, and then they can be
-    accessed through the {Set|Has|Get}BoardParallel methods or through the
-    {Get|Set|Has}Parallel methods of a BoardRunAttributes object.  The latter is
-    encouraged.
+    A subset of PARALLEL_ATTRS is BOARD_ATTRS.  These attributes only have
+    meaning in the context of a specific board and config target.  The
+    attributes become available once a board/config is registered for a run, and
+    then they can be accessed through the {Set|Has|Get}BoardParallel methods or
+    through the {Get|Set|Has}Parallel methods of a BoardRunAttributes object.
+    The latter is encouraged.
 
-    To add a new BOARD attribute simply add it to the BOARD_ATTRS set below, which
-    will also add it to PARALLEL_ATTRS (all BOARD attributes are assumed to need
-    PARALLEL support).
+    To add a new BOARD attribute simply add it to the BOARD_ATTRS set below,
+    which will also add it to PARALLEL_ATTRS (all BOARD attributes are assumed
+    to need PARALLEL support).
     """
 
     REGULAR_ATTRS = frozenset(
@@ -248,15 +248,18 @@ class RunAttributes(object):
         self._board_targets = set()
 
     def RegisterBoardAttrs(self, board, target):
-        """Register a new valid board/target combination.  Safe to repeat.
+        """Register a new valid board/target combination.
+
+        Safe to repeat.
 
         Args:
-          board: Board name to register.
-          target: Build config name to register.
+            board: Board name to register.
+            target: Build config name to register.
 
         Returns:
-          A new BoardRunAttributes object for more convenient access to the newly
-            registered attributes specific to this board/target combination.
+            A new BoardRunAttributes object for more convenient access to the
+            newly registered attributes specific to this board/target
+            combination.
         """
         board_target = RunAttributes.BOARD_ATTR_SEP.join((board, target))
 
@@ -285,15 +288,15 @@ class RunAttributes(object):
         """Translate plain |attr| to uniquified board attribute name.
 
         Args:
-          attr: Plain run attribute name.
-          board: Board name.
-          target: Build config name.
+            attr: Plain run attribute name.
+            board: Board name.
+            target: Build config name.
 
         Returns:
-          The uniquified board-specific attribute name.
+            The uniquified board-specific attribute name.
 
         Raises:
-          AssertionError if the board/target combination does not exist.
+            AssertionError if the board/target combination does not exist.
         """
         board_target = RunAttributes.BOARD_ATTR_SEP.join((board, target))
         assert (
@@ -307,10 +310,10 @@ class RunAttributes(object):
         """Set board-specific parallel run attribute value.
 
         Args:
-          attr: Plain board run attribute name.
-          value: Value to set.
-          board: Board name.
-          target: Build config name.
+            attr: Plain board run attribute name.
+            value: Value to set.
+            board: Board name.
+            target: Build config name.
         """
         unique_attr = self._GetBoardAttrName(attr, board, target)
         self.SetParallel(unique_attr, value)
@@ -319,9 +322,9 @@ class RunAttributes(object):
         """Return True if board-specific parallel run attribute is known and set.
 
         Args:
-          attr: Plain board run attribute name.
-          board: Board name.
-          target: Build config name.
+            attr: Plain board run attribute name.
+            board: Board name.
+            target: Build config name.
         """
         unique_attr = self._GetBoardAttrName(attr, board, target)
         return self.HasParallel(unique_attr)
@@ -330,10 +333,10 @@ class RunAttributes(object):
         """Set board-specific parallel run attribute value, if not already set.
 
         Args:
-          attr: Plain board run attribute name.
-          default_value: Value to set.
-          board: Board name.
-          target: Build config name.
+            attr: Plain board run attribute name.
+            default_value: Value to set.
+            board: Board name.
+            target: Build config name.
         """
         if not self.HasBoardParallel(attr, board, target):
             self.SetBoardParallel(attr, default_value, board, target)
@@ -342,13 +345,13 @@ class RunAttributes(object):
         """Get board-specific parallel run attribute value.
 
         Args:
-          attr: Plain board run attribute name.
-          board: Board name.
-          target: Build config name.
-          timeout: See GetParallel for description.
+            attr: Plain board run attribute name.
+            board: Board name.
+            target: Build config name.
+            timeout: See GetParallel for description.
 
         Returns:
-          The value found.
+            The value found.
         """
         unique_attr = self._GetBoardAttrName(attr, board, target)
         return self.GetParallel(unique_attr, timeout=timeout)
@@ -357,15 +360,15 @@ class RunAttributes(object):
         """Return the queue for the given attribute, if it exists.
 
         Args:
-          attr: The run attribute name.
-          strict: If True, then complain if queue for |attr| is not found.
+            attr: The run attribute name.
+            strict: If True, then complain if queue for |attr| is not found.
 
         Returns:
-          The LockableQueue for this attribute, if it has one, or None
+            The LockableQueue for this attribute, if it has one, or None
             (assuming strict is False).
 
         Raises:
-          ParallelAttributeError if no queue for this attribute is registered,
+            ParallelAttributeError if no queue for this attribute is registered,
             meaning no parallel attribute by this name is known.
         """
         queue = self._queues.get(attr)
@@ -382,13 +385,13 @@ class RunAttributes(object):
         saved onto a multiprocessing queue for that attribute.
 
         Args:
-          attr: Name of the attribute.
-          value: Value to give the attribute.  This value must be pickleable.
+            attr: Name of the attribute.
+            value: Value to give the attribute.  This value must be pickleable.
 
         Raises:
-          ParallelAttributeError if attribute is not a valid parallel attribute.
-          AttrNotPickleableError if value cannot be pickled, meaning it cannot
-            go through the queue system.
+            ParallelAttributeError if attribute is not a valid parallel
+            attribute.  AttrNotPickleableError if value cannot be pickled,
+            meaning it cannot go through the queue system.
         """
         # Confirm that value can be pickled, because otherwise it will fail
         # in the queue.
@@ -413,7 +416,7 @@ class RunAttributes(object):
         """Return True if the given parallel run attribute is known and set.
 
         Args:
-          attr: Name of the attribute.
+            attr: Name of the attribute.
         """
         try:
             queue = self._GetQueue(attr, strict=True)
@@ -429,14 +432,14 @@ class RunAttributes(object):
         This leverages HasParallel and SetParallel in a convenient pattern.
 
         Args:
-          attr: Name of the attribute.
-          default_value: Value to give the attribute if it is not set.  This value
-            must be pickleable.
+            attr: Name of the attribute.
+            default_value: Value to give the attribute if it is not set.  This
+                value must be pickleable.
 
         Raises:
-          ParallelAttributeError if attribute is not a valid parallel attribute.
-          AttrNotPickleableError if value cannot be pickled, meaning it cannot
-            go through the queue system.
+            ParallelAttributeError if attribute is not a valid parallel
+            attribute.  AttrNotPickleableError if value cannot be pickled,
+            meaning it cannot go through the queue system.
         """
         if not self.HasParallel(attr):
             self.SetParallel(attr, default_value)
@@ -450,17 +453,18 @@ class RunAttributes(object):
         If the given parallel run attr already has a value in the queue it will
         return that value right away.  Otherwise, it will wait for a value to
         appear in the queue up to the timeout specified (timeout of None means
-        wait forever) before returning the value found or raising AttrTimeoutError
-        if a timeout was reached.
+        wait forever) before returning the value found or raising
+        AttrTimeoutError if a timeout was reached.
 
         Args:
-          attr: The name of the run attribute.
-          timeout: Timeout, in seconds.  A None value means wait forever,
-            which is probably never a good idea.  A value of 0 does not wait at all.
+            attr: The name of the run attribute.
+            timeout: Timeout, in seconds.  A None value means wait forever,
+                which is probably never a good idea.  A value of 0 does not wait
+                at all.
 
         Raises:
-          ParallelAttributeError if attribute is not set and timeout was 0.
-          AttrTimeoutError if timeout is greater than 0 and timeout is reached
+            ParallelAttributeError if attribute is not set and timeout was 0.
+            AttrTimeoutError if timeout is greater than 0 and timeout is reached
             before a value is available on the queue.
         """
         got_value = False
@@ -512,7 +516,8 @@ class BoardRunAttributes(object):
     For example, to access the breakpad_symbols_generated board run attribute on
     a regular RunAttributes object requires this:
 
-      value = attrs.GetBoardParallel('breakpad_symbols_generated', board, target)
+      value =
+            attrs.GetBoardParallel('breakpad_symbols_generated', board, target)
 
     But on a BoardRunAttributes object:
 
@@ -529,9 +534,9 @@ class BoardRunAttributes(object):
         """Initialize.
 
         Args:
-          attrs: The main RunAttributes object.
-          board: The board name this is specific to.
-          target: The build config name this is specific to.
+            attrs: The main RunAttributes object.
+            board: The board name this is specific to.
+            target: The build config name this is specific to.
         """
         self._attrs = attrs
         self._board = board
@@ -560,8 +565,9 @@ class BoardRunAttributes(object):
     def SetParallelDefault(self, attr, default_value, *args, **kwargs):
         """Set the value of parallel board attribute |attr| to |value|, if not set.
 
-        Relay to SetBoardParallelDefault on self._attrs, supplying board and target.
-        See documentation on RunAttributes.SetBoardParallelDefault for more details.
+        Relay to SetBoardParallelDefault on self._attrs, supplying board and
+        target. See documentation on RunAttributes.SetBoardParallelDefault for
+        more details.
         """
         self._attrs.SetBoardParallelDefault(
             attr, default_value, self._board, self._target, *args, **kwargs
@@ -684,14 +690,15 @@ class _BuilderRunBase(object):
     def ConstructDashboardURL(self, stage=None):
         """Return the dashboard URL
 
-        This is the direct link to logdog logs if given a stage, or the link to the
-        build page for the build.
+        This is the direct link to logdog logs if given a stage, or the link to
+        the build page for the build.
 
         Args:
-          stage: Link to a specific |stage|, otherwise the general buildbot log
+            stage: Link to a specific |stage|, otherwise the general buildbot
+                log
 
         Returns:
-          The fully formed URL
+            The fully formed URL
         """
         if stage:
             return uri_lib.ConstructLogDogUri(self.options.buildnumber, stage)
@@ -710,9 +717,9 @@ class _BuilderRunBase(object):
         """Get the build_identifier and cidb handle, if available.
 
         Returns:
-          A (BuildIdentifier, CIDBConnection) tuple if cidb is set up and
-          a build_id is known in metadata. Otherwise,
-          (BuildIdentifier(None, None), None).
+            A (BuildIdentifier, CIDBConnection) tuple if cidb is set up and
+            a build_id is known in metadata. Otherwise,
+            (BuildIdentifier(None, None), None).
         """
         try:
             build_id = self.attrs.metadata.GetValue("build_id")
@@ -757,15 +764,15 @@ class _BuilderRunBase(object):
     def GetVersionInfo(self):
         """Helper for picking apart various version bits.
 
-        The Builder must set attrs.version_info before calling this.  Further, it
-        should do so only after the sources have been fully synced & patched, else
-        it could return a confusing value.
+        The Builder must set attrs.version_info before calling this.  Further,
+        it should do so only after the sources have been fully synced & patched,
+        else it could return a confusing value.
 
         Returns:
-          A chromeos_version.VersionInfo object.
+            A chromeos_version.VersionInfo object.
 
         Raises:
-          VersionNotSetError if the version has not yet been set.
+            VersionNotSetError if the version has not yet been set.
         """
         if not hasattr(self.attrs, "version_info"):
             raise VersionNotSetError("builder must call SetVersionInfo first")
@@ -777,10 +784,10 @@ class _BuilderRunBase(object):
         See GetVersionInfo() notes about runtime usage.
 
         Args:
-          include_chrome: Whether to include the Chrome version.
+            include_chrome: Whether to include the Chrome version.
 
         Returns:
-          The version string for this run.
+            The version string for this run.
         """
         verinfo = self.GetVersionInfo()
         release_tag = self.attrs.release_tag
@@ -860,8 +867,8 @@ class _BuilderRunBase(object):
             android_package = self.DetermineAndroidPackage(board)
         except cros_build_lib.RunCommandError as rce:
             raise NoAndroidVariantError(
-                "Android Variant could not be determined for %s; original error: %s"
-                % (board, rce)
+                "Android Variant could not be determined for %s; original"
+                " error: %s" % (board, rce)
             )
         if not android_package:
             raise NoAndroidVariantError(
@@ -928,17 +935,18 @@ class _BuilderRunBase(object):
     def DetermineAndroidVersion(self, boards=None):
         """Determine the current Android version in buildroot now and return it.
 
-        This uses the typical portage logic to determine which version of Android
-        is active right now in the buildroot.
+        This uses the typical portage logic to determine which version of
+        Android is active right now in the buildroot.
 
         Args:
-          boards: List of boards to check version of.
+            boards: List of boards to check version of.
 
         Returns:
-          The Android build ID of the container for the boards.
+            The Android build ID of the container for the boards.
 
         Raises:
-          NoAndroidVersionError: if no unique Android version can be determined.
+            NoAndroidVersionError: if no unique Android version can be
+            determined.
         """
         if not boards:
             return None
@@ -971,7 +979,7 @@ class _BuilderRunBase(object):
         is active right now in the buildroot.
 
         Returns:
-          The new value of attrs.chrome_version (e.g. "35.0.1863.0").
+            The new value of attrs.chrome_version (e.g. "35.0.1863.0").
         """
         pkg_info = portage_util.PortageqBestVisible(
             constants.CHROME_CP, cwd=self.buildroot
@@ -1001,8 +1009,8 @@ class _RealBuilderRun(object):
         """_RealBuilderRun constructor.
 
         Args:
-          run_base: _BuilderRunBase object.
-          build_config: BuildConfig object.
+            run_base: _BuilderRunBase object.
+            build_config: BuildConfig object.
         """
         self._run_base = run_base
         self._config = build_config
@@ -1064,8 +1072,8 @@ class _RealBuilderRun(object):
         """Get ChildBuilderRun objects for child configs, if they exist.
 
         Returns:
-          List of ChildBuilderRun objects if self.config has child_configs.  []
-            otherwise.
+            List of ChildBuilderRun objects if self.config has child_configs.
+            [] otherwise.
         """
         # If there are child configs, construct a list of ChildBuilderRun objects
         # for those child configs and return that.
@@ -1078,7 +1086,7 @@ class _RealBuilderRun(object):
         """Same as GetChildren, but defaults to [self] if no children exist.
 
         Returns:
-          Result of self.GetChildren, if children exist, otherwise [self].
+            Result of self.GetChildren, if children exist, otherwise [self].
         """
         return self.GetChildren() or [self]
 
@@ -1100,10 +1108,10 @@ class BuilderRun(_RealBuilderRun):
         """Initialize.
 
         Args:
-          options: Command line options from this cbuildbot run.
-          site_config: Site config for this cbuildbot run.
-          build_config: Build config for this cbuildbot run.
-          multiprocess_manager: A multiprocessing.Manager.
+            options: Command line options from this cbuildbot run.
+            site_config: Site config for this cbuildbot run.
+            build_config: Build config for this cbuildbot run.
+            multiprocess_manager: A multiprocessing.Manager.
         """
         run_base = _BuilderRunBase(site_config, options, multiprocess_manager)
         super().__init__(run_base, build_config)
@@ -1116,11 +1124,11 @@ class ChildBuilderRun(_RealBuilderRun):
         """Initialize.
 
         Args:
-          builder_run: BuilderRun for the parent (main) cbuildbot run.  Extract
-            the _BuilderRunBase from it to make sure the same base is used for
-            both the main cbuildbot run and any child runs.
-          child_index: The child index of this child run, used to index into
-            the main run's config.child_configs.
+            builder_run: BuilderRun for the parent (main) cbuildbot run. Extract
+                the _BuilderRunBase from it to make sure the same base is used
+                for both the main cbuildbot run and any child runs.
+            child_index: The child index of this child run, used to index into
+                the main run's config.child_configs.
         """
         # pylint: disable=protected-access
         run_base = builder_run._run_base

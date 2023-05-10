@@ -133,7 +133,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         """Helper method that runs VM tests and returns exceptions.
 
         Returns:
-          List of exception classes in CompoundFailure.
+            List of exception classes in CompoundFailure.
         """
         board = "betty-release"
         builder_run = self._initConfig(board)
@@ -177,8 +177,8 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
     def testThatWeScheduleHWTestsRegardlessOfBlocking(self):
         """Verify RunStages for boards w/hwtests (blocking).
 
-        Make sure the same stages get scheduled regardless of whether their hwtest
-        suites are marked blocking or not.
+        Make sure the same stages get scheduled regardless of whether their
+        hwtest suites are marked blocking or not.
         """
         extra_argv = ["--hwtest"]
         builder_run_without_blocking = self._initConfig(

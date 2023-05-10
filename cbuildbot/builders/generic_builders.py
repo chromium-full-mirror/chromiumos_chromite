@@ -34,9 +34,9 @@ class Builder(object):
     Its intended use is builder_instance.Run().
 
     Attributes:
-      _run: The BuilderRun object for this run.
-      archive_stages: Dict of BuildConfig keys to ArchiveStage values.
-      patch_pool: TrybotPatchPool.
+        _run: The BuilderRun object for this run.
+        archive_stages: Dict of BuildConfig keys to ArchiveStage values.
+        patch_pool: TrybotPatchPool.
     """
 
     def __init__(self, builder_run, buildstore):
@@ -76,8 +76,8 @@ class Builder(object):
     def _SetReleaseTag(self):
         """Sets run.attrs.release_tag from the manifest manager used in sync.
 
-        Must be run after sync stage as syncing enables us to have a release tag,
-        and must be run before any usage of attrs.release_tag.
+        Must be run after sync stage as syncing enables us to have a release
+        tag, and must be run before any usage of attrs.release_tag.
 
         TODO(mtennant): Find a bottleneck place in syncing that can set this
         directly.  Be careful, as there are several kinds of syncing stages, and
@@ -112,7 +112,7 @@ class Builder(object):
         """Run the specified stages in parallel.
 
         Args:
-          stage_objs: BuilderStage objects.
+            stage_objs: BuilderStage objects.
         """
         steps = [stage.Run for stage in stage_objs]
         try:
@@ -148,8 +148,8 @@ class Builder(object):
     def GetVersionInfo(self):
         """Returns a chromeos_version.VersionInfo object for this build.
 
-        Chrome OS Subclasses must override this method. Site specific builds which
-        don't use Chrome OS versioning should leave this alone.
+        Chrome OS Subclasses must override this method. Site specific builds
+        which don't use Chrome OS versioning should leave this alone.
         """
         # Placeholder version for non-Chrome OS builds.
         return chromeos_version.VersionInfo("1.0.0")
@@ -167,7 +167,7 @@ class Builder(object):
         Subclasses may override this method.
 
         Returns:
-          None
+            None
         """
         return None
 
@@ -178,15 +178,15 @@ class Builder(object):
     def _ReExecuteInBuildroot(self, sync_instance):
         """Reexecutes self in buildroot and returns True if build succeeds.
 
-        This allows the buildbot code to test itself when changes are patched for
-        buildbot-related code.  This is a no-op if the buildroot == buildroot
-        of the running chromite checkout.
+        This allows the buildbot code to test itself when changes are patched
+        for buildbot-related code.  This is a no-op if the buildroot ==
+        buildroot of the running chromite checkout.
 
         Args:
-          sync_instance: Instance of the sync stage that was run to sync.
+            sync_instance: Instance of the sync stage that was run to sync.
 
         Returns:
-          True if the Build succeeded.
+            True if the Build succeeded.
         """
         if not self._run.options.resume:
             results_lib.WriteCheckpoint(self._run.options.buildroot)
@@ -295,10 +295,12 @@ class Builder(object):
         return stage
 
     def Run(self):
-        """Main runner for this builder class.  Runs build and prints summary.
+        """Main runner for this builder class.
+
+        Runs build and prints summary.
 
         Returns:
-          Whether the build succeeded.
+            Whether the build succeeded.
         """
         self._InitializeTrybotPatchPool()
 
@@ -390,8 +392,8 @@ because the stage that threw the exception should be marked as failing."""
 class ManifestVersionedBuilder(Builder):
     """Base class for most custom Builder classes.
 
-    This class uses ManifestVersionedSync, which is appropriate for most builders
-    without specific sync requirements.
+    This class uses ManifestVersionedSync, which is appropriate for most
+    builders without specific sync requirements.
     """
 
     def GetVersionInfo(self):

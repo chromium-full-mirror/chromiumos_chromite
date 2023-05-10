@@ -275,8 +275,8 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
         """Tests that PublishManifest writes a build id."""
         self.manager = self.BuildManager()
         expected_message = (
-            "Automatic: Start amd64-generic-release master 1\n"
-            "CrOS-Build-Id: %s" % MOCK_BUILD_ID
+            "Automatic: Start amd64-generic-release master 1\nCrOS-Build-Id: %s"
+            % MOCK_BUILD_ID
         )
         push_mock = self.PatchObject(self.manager, "PushSpecChanges")
 

@@ -33,13 +33,13 @@ def GetBuilderClass(name):
       builder = cls(...)
 
     Args:
-      name: The base name of the builder class.
+        name: The base name of the builder class.
 
     Returns:
-      The class used to instantiate this type of builder.
+        The class used to instantiate this type of builder.
 
     Raises:
-      AttributeError when |name| could not be found.
+        AttributeError when |name| could not be found.
     """
     if "." not in name:
         raise ValueError('name should be "<module>.<builder>" not "%s"' % name)
@@ -72,15 +72,15 @@ def Builder(builder_run, buildstore):
     """Given a |builder_run| runtime, return an instantiated builder
 
     This is a helper wrapper that resolves the builder_class_name field in the
-    builder settings (which was declared in the build config) to the actual class
-    found in the builder modules.
+    builder settings (which was declared in the build config) to the actual
+    class found in the builder modules.
 
     Args:
-      builder_run: A cbuildbot_run.BuilderRun object.
-      buildstore: BuildStore instance to make DB calls with.
+        builder_run: A cbuildbot_run.BuilderRun object.
+        buildstore: BuildStore instance to make DB calls with.
 
     Returns:
-      An object of type generic_builders.Builder.
+        An object of type generic_builders.Builder.
     """
     cls = GetBuilderClass(builder_run.config.builder_class_name)
     return cls(builder_run, buildstore)

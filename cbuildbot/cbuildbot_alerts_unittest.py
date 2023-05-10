@@ -25,9 +25,9 @@ class CrosloggingTest(cros_test_lib.OutputTestCase):
         """Asserts that calling functor logs a line that contains msg.
 
         Args:
-          msg: The message to look for.
-          functor: A function taking no arguments to test.
-          *args, **kwargs: passthrough arguments to AssertLogContainsMsg.
+            msg: The message to look for.
+            functor: A function taking no arguments to test.
+            *args, **kwargs: passthrough arguments to AssertLogContainsMsg.
         """
         with self.OutputCapturer():
             functor()

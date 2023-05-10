@@ -179,8 +179,8 @@ class LKGMManagerTest(cros_test_lib.MockTempDirTestCase):
         my_info = lkgm_manager._LKGMCandidateInfo("2010.0.0")
         new_candidate = lkgm_manager._LKGMCandidateInfo(version)
         manifest = (
-            "/tmp/manifest-versions-internal/paladin/buildspecs/"
-            "20/%s.xml" % version
+            "/tmp/manifest-versions-internal/paladin/buildspecs/20/%s.xml"
+            % version
         )
         new_manifest = "/path/to/tmp/file.xml"
 

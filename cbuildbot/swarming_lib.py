@@ -53,26 +53,25 @@ def RunSwarmingCommand(
     """Run command via swarming proxy.
 
     Args:
-      cmd: Commands to run, represented as a list.
-      swarming_server: The swarming server to send request to.
-      is_skylab: A boolean indicating whether the call is for skylab.
-      task_name: String, represent a task.
-      dimensions: A list of tuple with two elements, representing dimension for
-                 selecting a swarming bots. E.g. ('os', 'Linux') and pools and
-                 other dimension related stuff.
-      priority: An int number to indicate the priority of this swarming cmd.
-          By default it's None.
-      print_status_updates: Boolean, whether to output status updates,
-                            can be used to prevent from hitting
-                            buildbot silent timeout.
-      timeout_secs: Timeout to wait for result used by swarming client.
-      hard_timeout_secs: Seconds to allow the task to complete.
-      io_timeout_secs: Seconds to allow the task to be silent.
-      expiration_secs: Seconds to allow the task to be pending for a bot to
-                       run before this task request expires.
-      temp_json_path: Where swarming client should dump the result.
-      tags: Dict, representing tags to add to the swarming command.
-      service_account_json: Location of the service account json file.
+        cmd: Commands to run, represented as a list.
+        swarming_server: The swarming server to send request to.
+        is_skylab: A boolean indicating whether the call is for skylab.
+        task_name: String, represent a task.
+        dimensions: A list of tuple with two elements, representing dimension
+            for selecting a swarming bots. E.g. ('os', 'Linux') and pools and
+            other dimension related stuff.
+        priority: An int number to indicate the priority of this swarming cmd.
+            By default it's None.
+        print_status_updates: Boolean, whether to output status updates, can be
+            used to prevent from hitting buildbot silent timeout.
+        timeout_secs: Timeout to wait for result used by swarming client.
+        hard_timeout_secs: Seconds to allow the task to complete.
+        io_timeout_secs: Seconds to allow the task to be silent.
+        expiration_secs: Seconds to allow the task to be pending for a bot to
+            run before this task request expires.
+        temp_json_path: Where swarming client should dump the result.
+        tags: Dict, representing tags to add to the swarming command.
+        service_account_json: Location of the service account json file.
     """
     with osutils.TempDir() as tempdir:
         if temp_json_path is None:
@@ -137,7 +136,8 @@ def RunSwarmingCommand(
                     # buildbot salency check.
                     with timeout_util.Timeout(SILENCE_INTERVAL_MIN * 60):
                         logging.info(
-                            "Re-run swarming_cmd to avoid buildbot salency check."
+                            "Re-run swarming_cmd to avoid buildbot salency"
+                            " check."
                         )
                         if is_skylab:
                             result = cros_build_lib.run(
@@ -171,10 +171,10 @@ def SwarmingRetriableErrorCheck(exception):
     """Check if a swarming error is retriable.
 
     Args:
-      exception: A cros_build_lib.RunCommandError exception.
+        exception: A cros_build_lib.RunCommandError exception.
 
     Returns:
-      True if retriable, otherwise False.
+        True if retriable, otherwise False.
     """
     if not isinstance(exception, cros_build_lib.RunCommandError):
         logging.warning("Exception is not retriable: %s", str(exception))
@@ -215,15 +215,15 @@ def RunSwarmingCommandWithRetries(max_retry, *args, **kwargs):
     """Wrapper for RunSwarmingCommand that will retry a command.
 
     Args:
-      max_retry: See RetryCommand.
-      *args: See RetryCommand and RunSwarmingCommand.
-      **kwargs: See RetryCommand and RunSwarmingCommand.
+        max_retry: See RetryCommand.
+        *args: See RetryCommand and RunSwarmingCommand.
+        **kwargs: See RetryCommand and RunSwarmingCommand.
 
     Returns:
-      A SwarmingCommandResult object.
+        A SwarmingCommandResult object.
 
     Raises:
-      RunCommandError: When the command fails.
+        RunCommandError: When the command fails.
     """
     return retry_util.RetryCommand(
         RunSwarmingCommand, max_retry, *args, **kwargs
@@ -237,8 +237,9 @@ class SwarmingCommandResult(cros_build_lib.CompletedProcess):
         """Initialize.
 
         Args:
-          task_summary_json: A dictionary, loaded from the json file output by
-              swarming client. It cantains all details about the swarming task.
+            task_summary_json: A dictionary, loaded from the json file output by
+                swarming client. It contains all details about the swarming
+                task.
         """
         super().__init__(*args, **kwargs)
         self.task_summary_json = task_summary_json
@@ -248,10 +249,11 @@ class SwarmingCommandResult(cros_build_lib.CompletedProcess):
         """Load json file into a dict.
 
         Args:
-          task_summary_json_path: A json that contains output of a swarming task.
+            task_summary_json_path: A json that contains output of a swarming
+                task.
 
         Returns:
-          A dictionary or None if task_summary_json_path doesn't exist.
+            A dictionary or None if task_summary_json_path doesn't exist.
         """
         if os.path.exists(task_summary_json_path):
             logging.debug(
@@ -265,12 +267,12 @@ class SwarmingCommandResult(cros_build_lib.CompletedProcess):
         """Create a SwarmingCommandResult object from a CompletedProcess object.
 
         Args:
-          task_summary_json_path: The path to a json file that contains
-                                  output of a swarming task.
-          command_result: A CompletedProcess object.
+            task_summary_json_path: The path to a json file that contains output
+                of a swarming task.
+            command_result: A CompletedProcess object.
 
         Returns:
-          A SwarmingCommandResult object.
+            A SwarmingCommandResult object.
         """
         task_summary_json = SwarmingCommandResult.LoadJsonSummary(
             task_summary_json_path
@@ -287,7 +289,7 @@ class SwarmingCommandResult(cros_build_lib.CompletedProcess):
         """Check whether the result has valid summary json.
 
         Returns:
-          True if the summary is valid else False.
+            True if the summary is valid else False.
         """
         if not self.task_summary_json:
             logging.warning("Failed to load task summary json")
@@ -314,11 +316,11 @@ class SwarmingCommandResult(cros_build_lib.CompletedProcess):
         """Get the value of |field| from the json summary.
 
         Args:
-          field: Name of the field.
-          default: Default value if field does not exist.
+            field: Name of the field.
+            default: Default value if field does not exist.
 
         Returns:
-          Value of the field.
+            Value of the field.
         """
         if self.HasValidSummary():
             # Hack for crbug.com/951373, will be changed after CL:1159239 is merged.

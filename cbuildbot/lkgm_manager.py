@@ -52,14 +52,17 @@ class _LKGMCandidateInfo(chromeos_version.VersionInfo):
            e.g. 41.0.0-r1.
 
         Args:
-          version_string: Optional 3 component version string to parse.  Contains:
-              build_number: release build number.
-              branch_build_number: current build number on a branch.
-              patch_number: patch number.
-              revision_number: version revision
-          chrome_branch: If version_string specified, specify chrome_branch i.e. 13.
-          incr_type: How we should increment this version - build|branch|patch.
-          version_file: version file location.
+            version_string: Optional 3 component version string to parse.
+            Contains:
+            build_number: release build number.
+            branch_build_number: current build number on a branch.
+            patch_number: patch number.
+            revision_number: version revision
+            chrome_branch: If version_string specified, specify chrome_branch
+                i.e. 13.
+            incr_type: How we should increment this version -
+                build|branch|patch.
+            version_file: version file location.
         """
         self.revision_number = 1
         if version_string:
@@ -102,7 +105,8 @@ class _LKGMCandidateInfo(chromeos_version.VersionInfo):
     def UpdateVersionFile(self, *args, **kwargs):
         """Update the version file on disk.
 
-        For LKGMCandidateInfo there is no version file so this function is a no-op.
+        For LKGMCandidateInfo there is no version file so this function is a
+        no-op.
         """
 
 
@@ -140,24 +144,25 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         """Initialize an LKGM Manager.
 
         Args:
-          source_repo: Repository object for the source code.
-          manifest_repo: Manifest repository for manifest versions/buildspecs.
-          build_names: Identifiers for the build. Must match config_lib
-              entries. If multiple identifiers are provided, the first item in the
-              list must be an identifier for the group.
-          build_type: Type of build.  Must be a pfq type.
-          incr_type: How we should increment this version - build|branch|patch
-          force: Create a new manifest even if there are no changes.
-          branch: Branch this builder is running on.
-          manifest: Manifest to use for checkout. E.g. 'full' or 'buildtools'.
-          dry_run: Whether we actually commit changes we make or not.
-          master: Whether we are the master builder.
-          lkgm_path_rel: Path to the LKGM symlink, relative to manifest dir.
-          config: Instance of config_lib.BuildConfig. Config dict of this builder.
-          metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of this
-                    builder.
-          buildstore: BuildStore instance to make DB calls.
-          buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
+            source_repo: Repository object for the source code.
+            manifest_repo: Manifest repository for manifest versions/buildspecs.
+            build_names: Identifiers for the build. Must match config_lib
+                entries. If multiple identifiers are provided, the first item in
+                the list must be an identifier for the group.
+            build_type: Type of build.  Must be a pfq type.
+            incr_type: How we should increment this version - build|branch|patch
+            force: Create a new manifest even if there are no changes.
+            branch: Branch this builder is running on.
+            manifest: Manifest to use for checkout. E.g. 'full' or 'buildtools'.
+            dry_run: Whether we actually commit changes we make or not.
+            master: Whether we are the master builder.
+            lkgm_path_rel: Path to the LKGM symlink, relative to manifest dir.
+            config: Instance of config_lib.BuildConfig. Config dict of this
+                builder.
+            metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of
+                this builder.
+            buildstore: BuildStore instance to make DB calls.
+            buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
         """
         super().__init__(
             source_repo=source_repo,
@@ -202,8 +207,9 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         """Wrapper function to write xml encoded in a proper way.
 
         Args:
-          dom_instance: A DOM document instance contains contents to be written.
-          file_path: Path to the file to write into.
+            dom_instance: A DOM document instance contains contents to be
+                written.
+            file_path: Path to the file to write into.
         """
         with codecs.open(file_path, "w+", "utf-8") as f:
             dom_instance.writexml(f)
@@ -215,8 +221,8 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         PFQ slaves.
 
         Args:
-          manifest: Path to the manifest
-          android_version: A string representing the version of Android
+            manifest: Path to the manifest
+            android_version: A string representing the version of Android
         """
         manifest_dom = minidom.parse(manifest)
         android = manifest_dom.createElement(ANDROID_ELEMENT)
@@ -231,9 +237,9 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         PFQ slaves.
 
         Args:
-          manifest: Path to the manifest
-          chrome_version: A string representing the version of Chrome
-            (e.g. 35.0.1863.0).
+            manifest: Path to the manifest
+            chrome_version: A string representing the version of Chrome (e.g.
+                35.0.1863.0).
         """
         manifest_dom = minidom.parse(manifest)
         chrome = manifest_dom.createElement(CHROME_ELEMENT)
@@ -251,17 +257,18 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         """Creates, syncs to, and returns the next candidate manifest.
 
         Args:
-          android_version: The Android version to write in the manifest. Defaults
-            to None, in which case no version is written.
-          chrome_version: The Chrome version to write in the manifest. Defaults
-            to None, in which case no version is written.
-          retries: Number of retries for updating the status. Defaults to
-            manifest_version.NUM_RETRIES.
-          build_id: Optional integer cidb id of the build that is creating
-                    this candidate.
+            android_version: The Android version to write in the manifest.
+                Defaults to None, in which case no version is written.
+            chrome_version: The Chrome version to write in the manifest.
+                Defaults to None, in which case no version is written.
+            retries: Number of retries for updating the status. Defaults to
+                manifest_version.NUM_RETRIES.
+            build_id: Optional integer cidb id of the build that is creating
+                this candidate.
 
         Raises:
-          GenerateBuildSpecException in case of failure to generate a buildspec
+            GenerateBuildSpecException in case of failure to generate a
+            buildspec
         """
         self.CheckoutSourceCode()
 
@@ -335,19 +342,21 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         internal repositories and changes out of it.
 
         Args:
-          manifest: A manifest that possibly contains private changes/projects. It
-            is named with the given version we want to create a new manifest from
-            i.e R20-1920.0.1-rc7.xml where R20-1920.0.1-rc7 is the version.
-          retries: Number of retries for updating the status.
-          build_id: Optional integer cidb build id of the build publishing the
-                    manifest.
+            manifest: A manifest that possibly contains private
+                changes/projects. It is named with the given version we want to
+                create a new manifest from i.e R20-1920.0.1-rc7.xml where
+                R20-1920.0.1-rc7 is the version.
+            retries: Number of retries for updating the status.
+            build_id: Optional integer cidb build id of the build publishing the
+                manifest.
 
         Returns:
-          Path to the manifest version file to use.
+            Path to the manifest version file to use.
 
         Raises:
-          GenerateBuildSpecException in case of failure to check-in the new
-            manifest because of a git error or the manifest is already checked-in.
+            GenerateBuildSpecException in case of failure to check-in the new
+            manifest because of a git error or the manifest is already
+            checked-in.
         """
         last_error = None
         new_manifest = manifest_version.FilterManifest(

@@ -47,7 +47,7 @@ class SimpleBuilder(generic_builders.Builder):
         """Sync to lkgm or TOT as necessary.
 
         Returns:
-          The instance of the sync stage to run.
+            The instance of the sync stage to run.
         """
         if self._run.options.force_version:
             sync_stage = self._GetStageInstance(
@@ -71,8 +71,8 @@ class SimpleBuilder(generic_builders.Builder):
         """Run hwtest-related stages for the specified board.
 
         Args:
-          builder_run: BuilderRun object for these background stages.
-          board: Board name.
+            builder_run: BuilderRun object for these background stages.
+            board: Board name.
         """
         self._RunStage(
             test_stages.TestPlanStage, board, builder_run=builder_run
@@ -82,8 +82,8 @@ class SimpleBuilder(generic_builders.Builder):
         """Run VM test stages for the specified board.
 
         Args:
-          builder_run: BuilderRun object for stages.
-          board: String containing board name.
+            builder_run: BuilderRun object for stages.
+            board: String containing board name.
         """
         config = builder_run.config
         except_infos = []
@@ -135,8 +135,8 @@ class SimpleBuilder(generic_builders.Builder):
         """Run debug-related stages for the specified board.
 
         Args:
-          builder_run: BuilderRun object for these background stages.
-          board: Board name.
+            builder_run: BuilderRun object for these background stages.
+            board: Board name.
         """
         # These stages should run sequentially.
         self._RunStage(
@@ -156,8 +156,8 @@ class SimpleBuilder(generic_builders.Builder):
         After finishing the build, mark it as successful.
 
         Args:
-          builder_run: BuilderRun object for these background stages.
-          board: Board name.
+            builder_run: BuilderRun object for these background stages.
+            board: Board name.
         """
         self._RunBackgroundStagesForBoard(builder_run, board)
         board_runattrs = builder_run.GetBoardRunAttrs(board)
@@ -166,12 +166,12 @@ class SimpleBuilder(generic_builders.Builder):
     def _RunBackgroundStagesForBoard(self, builder_run, board):
         """Run background board-specific stages for the specified board.
 
-        Used by _RunBackgroundStagesForBoardAndMarkAsSuccessful. Callers should use
-        that method instead.
+        Used by _RunBackgroundStagesForBoardAndMarkAsSuccessful. Callers should
+        use that method instead.
 
         Args:
-          builder_run: BuilderRun object for these background stages.
-          board: Board name.
+            builder_run: BuilderRun object for these background stages.
+            board: Board name.
         """
         config = builder_run.config
 
@@ -370,8 +370,8 @@ class DistributedBuilder(SimpleBuilder):
         """Initializes a buildbot builder.
 
         Extra variables:
-          completion_stage_class:  Stage used to complete a build.  Set in the Sync
-            stage.
+          completion_stage_class:  Stage used to complete a build.  Set in the
+          Sync stage.
         """
         super().__init__(*args, **kwargs)
         self.completion_stage_class = None
@@ -382,7 +382,7 @@ class DistributedBuilder(SimpleBuilder):
         """Syncs the tree using one of the distributed sync logic paths.
 
         Returns:
-          The instance of the sync stage to run.
+            The instance of the sync stage to run.
         """
         # Determine sync class to use.  CQ overrides PFQ bits so should check it
         # first.
@@ -421,8 +421,8 @@ class DistributedBuilder(SimpleBuilder):
         """Returns the completion_stage_class instance that was used for this build.
 
         Returns:
-          None if the completion_stage instance was not yet created (this
-          occurs during Publish).
+            None if the completion_stage instance was not yet created (this
+            occurs during Publish).
         """
         return self._completion_stage
 
@@ -430,9 +430,9 @@ class DistributedBuilder(SimpleBuilder):
         """Completes build by publishing any required information.
 
         Args:
-          was_build_successful: Whether the build succeeded.
-          build_finished: Whether the build completed. A build can be successful
-            without completing if it raises ExitEarlyException.
+            was_build_successful: Whether the build succeeded.
+            build_finished: Whether the build completed. A build can be
+                successful without completing if it raises ExitEarlyException.
         """
         self._completion_stage = self._GetStageInstance(
             self.completion_stage_class, self.sync_stage, was_build_successful
@@ -454,10 +454,10 @@ class DistributedBuilder(SimpleBuilder):
         """Updates and publishes uprevs.
 
         Args:
-          was_build_successful: Whether the build succeeded.
-          build_finished: Whether the build completed. A build can be successful
-            without completing if it raises ExitEarlyException.
-          completion_successful: Whether the compeletion_stage succeeded.
+            was_build_successful: Whether the build succeeded.
+            build_finished: Whether the build completed. A build can be
+                successful without completing if it raises ExitEarlyException.
+            completion_successful: Whether the compeletion_stage succeeded.
         """
         if self._run.config.master:
             self._RunStage(report_stages.SlaveFailureSummaryStage)

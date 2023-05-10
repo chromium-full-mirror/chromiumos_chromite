@@ -35,8 +35,8 @@ class ModuleTest(cros_test_lib.MockTempDirTestCase):
     def testGetBuilderClassConfig(self):
         """Check behavior when requesting config builders.
 
-        This can't be done with live classes since the site config may or may not
-        be there.
+        This can't be done with live classes since the site config may or may
+        not be there.
         """
         # Setup
         mock_module = mock.Mock()

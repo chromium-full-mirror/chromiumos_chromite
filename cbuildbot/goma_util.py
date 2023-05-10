@@ -40,12 +40,13 @@ class GomaLogUploader(object):
         """Initializes the uploader.
 
         Args:
-          goma_log_dir: path to the directory containing goma's INFO log files.
-          today: datetime.date instance representing today. This is for testing
-            purpose, because datetime.date is unpatchable. In real use case,
-            this must be None.
-          dry_run: If True, no actual upload. This is for testing purpose.
-          cbb_config_name: Name of cbb_config.
+            goma_log_dir: path to the directory containing goma's INFO log
+                files.
+            today: datetime.date instance representing today. This is for
+                testing purpose, because datetime.date is unpatchable. In real
+                use case, this must be None.
+            dry_run: If True, no actual upload. This is for testing purpose.
+            cbb_config_name: Name of cbb_config.
         """
         self._goma_log_dir = goma_log_dir
         logging.info("Goma log directory is: %s", self._goma_log_dir)
@@ -97,8 +98,8 @@ class GomaLogUploader(object):
         """Uploads all necessary log files to Google Storage.
 
         Returns:
-          A list of pairs of label and URL of goma log visualizers to be linked
-          from the build status page.
+            A list of pairs of label and URL of goma log visualizers to be
+            linked from the build status page.
         """
         compiler_proxy_subproc_paths = self._UploadInfoFiles(
             "compiler_proxy-subproc"
@@ -148,10 +149,10 @@ class GomaLogUploader(object):
         """Uploads INFO files matched with pattern, with gzip'ing.
 
         Args:
-          pattern: matching path pattern.
+            pattern: matching path pattern.
 
         Returns:
-          A list of uploaded file paths.
+            A list of uploaded file paths.
         """
         # Find files matched with the pattern in |goma_log_dir|. Sort for
         # stabilization.
@@ -179,7 +180,7 @@ class GomaLogUploader(object):
         """Uploads gomacc INFO files, with gzip'ing.
 
         Returns:
-          Uploaded file path. If failed, None.
+            Uploaded file path. If failed, None.
         """
 
         # Since the number of gomacc logs can be large, we'd like to compress them.
@@ -229,11 +230,11 @@ class GomaLogUploader(object):
         '# end of ninja log' marker.
 
         Args:
-          compiler_proxy_path: Path to the compiler proxy, which will be contained
-            in the metadata.
+            compiler_proxy_path: Path to the compiler proxy, which will be
+                contained in the metadata.
 
         Returns:
-          The name of the uploaded file.
+            The name of the uploaded file.
         """
         ninja_log_path = os.path.join(self._goma_log_dir, "ninja_log")
         if not os.path.exists(ninja_log_path):
@@ -280,14 +281,14 @@ class GomaLogUploader(object):
     def _BuildNinjaInfo(self, compiler_proxy_path):
         """Reads metadata for the ninja run.
 
-        Each metadata should be written into a dedicated file in the log directory.
-        Read the info, and build the dict containing metadata.
+        Each metadata should be written into a dedicated file in the log
+        directory. Read the info, and build the dict containing metadata.
 
         Args:
-          compiler_proxy_path: Path to the compiler_proxy log file.
+            compiler_proxy_path: Path to the compiler_proxy log file.
 
         Returns:
-          A dict of the metadata.
+            A dict of the metadata.
         """
 
         info = {"platform": "chromeos"}

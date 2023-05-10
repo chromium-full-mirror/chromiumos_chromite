@@ -32,12 +32,12 @@ def _AddPackagesForPrebuilt(filename):
     upload_prebuilts.
 
     Args:
-      filename: file with the package full name (category/name-version), one
-                package per line.
+        filename: file with the package full name (category/name-version), one
+            package per line.
 
     Returns:
-      A list of parameters for upload_prebuilts. For example:
-      ['--packages=net-misc/dhcp', '--packages=app-admin/eselect-python']
+        A list of parameters for upload_prebuilts. For example:
+        ['--packages=net-misc/dhcp', '--packages=app-admin/eselect-python']
     """
     try:
         cmd = []
@@ -65,11 +65,11 @@ def GetToolchainSdkPaths(build_root, is_overlay=False):
     """Returns toolchain-sdk's built tar paths, and their target names.
 
     Args:
-      build_root: Path to the build root directory.
-      is_overlay: True if finding toolchain-sdk-overlay tars.
+        build_root: Path to the build root directory.
+        is_overlay: True if finding toolchain-sdk-overlay tars.
 
     Returns:
-      A list of pairs of (upload_sdk_target_name, toolchain_sdk_tarball_path).
+        A list of pairs of (upload_sdk_target_name, toolchain_sdk_tarball_path).
     """
     if is_overlay:
         prefix = "built-sdk-overlay-toolchains-"
@@ -98,12 +98,12 @@ def GetToolchainSdkUploadFormat(version, tarball, is_overlay=False):
     """Returns format string of the upload toolchain path.
 
     Args:
-      version: Dot-delimited version number string of the toolchain sdk.
-      tarball: Path to the tarball to be uploaded.
-      is_overlay: True if the format is for toolchain-sdk-overlay.
+        version: Dot-delimited version number string of the toolchain sdk.
+        tarball: Path to the tarball to be uploaded.
+        is_overlay: True if the format is for toolchain-sdk-overlay.
 
     Returns:
-      Upload format string for the given toolchain tarball.
+        Upload format string for the given toolchain tarball.
     """
     # Remaining artifacts get uploaded into <year>/<month>/ subdirs so we don't
     # start dumping even more stuff into the top level. Also, the following
@@ -132,13 +132,13 @@ def UploadPrebuilts(
     """Upload Prebuilts for non-dev-installer use cases.
 
     Args:
-      category: Build type.
-        Can be [binary|full|chrome|chroot|paladin|postsubmit].
-      private_bucket: True if we are uploading to a private bucket.
-      buildroot: The root directory where the build occurs.
-      version: Specific version to set.
-      board: Board type that was built on this machine.
-      extra_args: Extra args to pass to prebuilts script.
+        category: Build type. Can be
+            [binary|full|chrome|chroot|paladin|postsubmit].
+        private_bucket: True if we are uploading to a private bucket.
+        buildroot: The root directory where the build occurs.
+        version: Specific version to set.
+        board: Board type that was built on this machine.
+        extra_args: Extra args to pass to prebuilts script.
     """
     extra_args = ["--prepend-version", category]
     extra_args.extend(["--upload", "gs://chromeos-prebuilt"])
@@ -219,15 +219,15 @@ def UploadDevInstallerPrebuilts(
     """Upload Prebuilts for dev-installer use case.
 
     Args:
-      binhost_bucket: bucket for uploading prebuilt packages. If it equals None
-                      then the default bucket is used.
-      binhost_key: key parameter to pass onto upload_prebuilts. If it equals
-                   None, then chrome_rev is used to select a default key.
-      binhost_base_url: base url for upload_prebuilts. If None the parameter
-                        --binhost-base-url is absent.
-      buildroot: The root directory where the build occurs.
-      board: Board type that was built on this machine.
-      extra_args: Extra args to pass to prebuilts script.
+        binhost_bucket: bucket for uploading prebuilt packages. If it equals
+            None then the default bucket is used.
+        binhost_key: key parameter to pass onto upload_prebuilts. If it equals
+            None, then chrome_rev is used to select a default key.
+        binhost_base_url: base url for upload_prebuilts. If None the parameter
+            --binhost-base-url is absent.
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine.
+        extra_args: Extra args to pass to prebuilts script.
     """
     extra_args = [
         "--binhost-base-url",
@@ -259,9 +259,9 @@ def _UploadPrebuilts(buildroot, board, extra_args):
     """Upload prebuilts.
 
     Args:
-      buildroot: The root directory where the build occurs.
-      board: Board type that was built on this machine.
-      extra_args: Extra args to pass to prebuilts script.
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine.
+        extra_args: Extra args to pass to prebuilts script.
     """
     cmd = ["upload_prebuilts", "--build-path", buildroot]
     if board:
@@ -284,7 +284,7 @@ class BinhostConfWriter(object):
         """BinhostConfWriter constructor.
 
         Args:
-          builder_run: BuilderRun instance of the currently running build.
+            builder_run: BuilderRun instance of the currently running build.
         """
         self._run = builder_run
         self._prebuilt_type = self._run.config.build_type
@@ -312,11 +312,11 @@ class BinhostConfWriter(object):
         """Private helper method to add upload_prebuilts args for a slave builder.
 
         Args:
-          slave_config: The build config of a slave builder.
+            slave_config: The build config of a slave builder.
 
         Returns:
-          An array of options to add to upload_prebuilts array that allow a master
-          to submit prebuilt conf modifications on behalf of a slave.
+            An array of options to add to upload_prebuilts array that allow a
+            master to submit prebuilt conf modifications on behalf of a slave.
         """
         args = []
         if slave_config["prebuilts"]:

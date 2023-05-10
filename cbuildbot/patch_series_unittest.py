@@ -75,7 +75,8 @@ class FakePatch(partial_mock.PartialMock):
 class FakeGerritPatch(FakePatch):
     """Mocks out the "GerritDependencies" method of GerritPatch.
 
-    This is necessary because GerritPatch overrides the GerritDependencies method.
+    This is necessary because GerritPatch overrides the GerritDependencies
+    method.
     """
 
     TARGET = "chromite.lib.patch.GerritPatch"

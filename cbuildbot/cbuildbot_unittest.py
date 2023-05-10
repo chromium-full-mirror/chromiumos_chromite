@@ -409,8 +409,8 @@ class InterfaceTest(cros_test_lib.MockTestCase, cros_test_lib.LoggingTestCase):
 class FullInterfaceTest(cros_test_lib.MockTempDirTestCase):
     """Tests that run the cbuildbot.main() function directly.
 
-    Note this explicitly suppresses automatic VerifyAll() calls; thus if you want
-    that checked, you have to invoke it yourself.
+    Note this explicitly suppresses automatic VerifyAll() calls; thus if you
+    want that checked, you have to invoke it yourself.
     """
 
     def MakeTestRootDir(self, relpath):

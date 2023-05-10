@@ -92,8 +92,8 @@ def _PatchWrapException(functor):
         except gerrit.GerritException as e:
             if isinstance(e, gerrit.QueryNotSpecific):
                 e = (
-                    "%s\nSuggest you use gerrit numbers instead (prefixed with a "
-                    "'chrome-internal:' if it's an internal change)." % e
+                    "%s\nSuggest you use gerrit numbers instead (prefixed with"
+                    " a 'chrome-internal:' if it's an internal change)." % e
                 )
             new_exc = cros_patch.PatchException(parent, e)
             raise new_exc.with_traceback(sys.exc_info()[2])
@@ -111,10 +111,10 @@ def _FetchChangesForRepo(fetched_changes, by_repo, repo):
     """Fetch the changes for a given `repo`.
 
     Args:
-      fetched_changes: A dict from change ids to changes which is updated by
-        this method.
-      by_repo: A mapping from repositories to changes.
-      repo: The repository we should fetch the changes for.
+        fetched_changes: A dict from change ids to changes which is updated by
+            this method.
+        by_repo: A mapping from repositories to changes.
+        repo: The repository we should fetch the changes for.
     """
     changes = by_repo[repo]
     refs = set(c.ref for c in changes if not c.HasBeenFetched(repo))
@@ -150,11 +150,11 @@ class HelperPool(object):
         """Classmethod helper for creating a HelperPool from boolean options.
 
         Args:
-          cros_internal: If True, allow access to a GerritHelper for internal.
-          cros: If True, allow access to a GerritHelper for external.
+            cros_internal: If True, allow access to a GerritHelper for internal.
+            cros: If True, allow access to a GerritHelper for external.
 
         Returns:
-          An appropriately configured HelperPool instance.
+            An appropriately configured HelperPool instance.
         """
         site_params = config_lib.GetSiteParams()
         if cros:
@@ -218,12 +218,12 @@ class _ManifestShim(object):
     def FindCheckouts(self, *_args, **_kwargs):
         """Returns the list of checkouts.
 
-        In this case, we only have one repository so we just return that repository.
-        We accept the same arguments as git.ManifestCheckout.FindCheckouts, but we
-        do not make any use of them.
+        In this case, we only have one repository so we just return that
+        repository. We accept the same arguments as
+        git.ManifestCheckout.FindCheckouts, but we do not make any use of them.
 
         Returns:
-          A list of ProjectCheckout objects.
+            A list of ProjectCheckout objects.
         """
         return [self.checkout]
 
@@ -242,16 +242,17 @@ class PatchSeries(object):
         """Constructor.
 
         Args:
-          path: Path to the buildroot.
-          helper_pool: Pool of allowed GerritHelpers to be used for fetching
-            patches. Defaults to allowing both internal and external fetches.
-          forced_manifest: A manifest object to use for mapping projects to
-            repositories. Defaults to the buildroot.
-          deps_filter_fn: A function which specifies what patches you would
-            like to accept. It is passed a patch and is expected to return
-            True or False.
-          is_submitting: Whether we are currently submitting patchsets. This is
-            used to print better error messages.
+            path: Path to the buildroot.
+            helper_pool: Pool of allowed GerritHelpers to be used for fetching
+                patches. Defaults to allowing both internal and external
+                fetches.
+            forced_manifest: A manifest object to use for mapping projects to
+                repositories. Defaults to the buildroot.
+            deps_filter_fn: A function which specifies what patches you would
+                like to accept. It is passed a patch and is expected to return
+                True or False.
+            is_submitting: Whether we are currently submitting patchsets. This
+                is used to print better error messages.
         """
         self.manifest = forced_manifest
 
@@ -276,8 +277,8 @@ class PatchSeries(object):
     def _ManifestDecorator(functor):
         """Method decorator that sets self.manifest automatically.
 
-        This function automatically initializes the manifest, and allows callers to
-        override the manifest if needed.
+        This function automatically initializes the manifest, and allows callers
+        to override the manifest if needed.
         """
 
         # pylint: disable=no-self-argument,protected-access,not-callable
@@ -313,14 +314,16 @@ class PatchSeries(object):
         """Get the project path(s) associated with the specified change.
 
         Args:
-          change: The change to operate on.
-          strict: If True, throw ChangeNotInManifest rather than returning
-            None. Default: False.
-          manifest: A ManifestCheckout instance representing what we're working on.
+            change: The change to operate on.
+            strict: If True, throw ChangeNotInManifest rather than returning
+                None.
+            Default: False.
+            manifest: A ManifestCheckout instance representing what we're
+                working on.
 
         Returns:
-          List of the project paths, if found in the manifest. Otherwise returns
-          None (if strict=False).
+            List of the project paths, if found in the manifest. Otherwise
+            returns None (if strict=False).
         """
         if manifest is None:
             manifest = self.manifest
@@ -336,14 +339,16 @@ class PatchSeries(object):
         """Get the project path associated with the specified change.
 
         Args:
-          change: The change to operate on.
-          strict: If True, throw ChangeNotInManifest rather than returning
-            None. Default: False.
-          manifest: A ManifestCheckout instance representing what we're working on.
+            change: The change to operate on.
+            strict: If True, throw ChangeNotInManifest rather than returning
+                None.
+            Default: False.
+            manifest: A ManifestCheckout instance representing what we're
+                working on.
 
         Returns:
-          The project path if found in the manifest. Otherwise returns
-          None (if strict=False).
+            The project path if found in the manifest. Otherwise returns
+            None (if strict=False).
         """
         project_dir = None
         if manifest is None:
@@ -368,11 +373,11 @@ class PatchSeries(object):
         """Query the configured helpers looking for a given change.
 
         Args:
-          project: The gerrit project to query.
-          query: A cros_patch.PatchQuery object.
+            project: The gerrit project to query.
+            query: A cros_patch.PatchQuery object.
 
         Returns:
-          A GerritPatch object.
+            A GerritPatch object.
         """
         helper = self._LookupHelper(query)
         query_text = query.ToGerritQueryText()
@@ -401,20 +406,20 @@ class PatchSeries(object):
         """Given a set of deps (changes), return unsatisfied dependencies.
 
         Args:
-          deps: A list of cros_patch.PatchQuery objects representing
-            sequence of dependencies for the leaf that we need to identify
-            as either merged, or needing resolving.
-          limit_to: If non-None, then this must be a mapping (preferably a
-            cros_patch.PatchCache for translation reasons) of which non-committed
-            changes are allowed to be used for a transaction.
+            deps: A list of cros_patch.PatchQuery objects representing sequence
+                of dependencies for the leaf that we need to identify as either
+                merged, or needing resolving.
+            limit_to: If non-None, then this must be a mapping (preferably a
+                cros_patch.PatchCache for translation reasons) of which
+                non-committed changes are allowed to be used for a transaction.
 
         Returns:
-          A sequence of cros_patch.GitRepoPatch instances (or derivatives) that
-          need to be resolved for this change to be mergable.
+            A sequence of cros_patch.GitRepoPatch instances (or derivatives)
+            that need to be resolved for this change to be mergeable.
 
         Raises:
-          Some variety of cros_patch.PatchException if an unsatisfiable required
-          dependency is encountered.
+            Some variety of cros_patch.PatchException if an unsatisfiable
+            required dependency is encountered.
         """
         unsatisfied = []
         for dep in deps:
@@ -457,18 +462,19 @@ class PatchSeries(object):
         parent deps, and its CQ-DEPEND.
 
         Args:
-          change: A cros_patch.GitRepoPatch instance to generate a transaction
-            for.
-          limit_to: If non-None, limit the allowed uncommitted patches to
-            what's in that container/mapping.
+            change: A cros_patch.GitRepoPatch instance to generate a transaction
+                for.
+            limit_to: If non-None, limit the allowed uncommitted patches to
+                what's in that container/mapping.
 
         Returns:
-          A sequence of the necessary cros_patch.GitRepoPatch objects for
-          this transaction.
+            A sequence of the necessary cros_patch.GitRepoPatch objects for
+            this transaction.
 
         Raises:
-          DependencyError: If we could not resolve a dependency.
-          GerritException or GOBError: If there is a failure in querying gerrit.
+            DependencyError: If we could not resolve a dependency.
+            GerritException or GOBError: If there is a failure in querying
+            gerrit.
         """
         plan = []
         gerrit_deps_seen = cros_patch.PatchCache()
@@ -481,15 +487,15 @@ class PatchSeries(object):
         """Create a list of transactions from a list of changes.
 
         Args:
-          changes: A list of cros_patch.GitRepoPatch instances to generate
-            transactions for.
-          limit_to: See CreateTransaction docs.
+            changes: A list of cros_patch.GitRepoPatch instances to generate
+                transactions for.
+            limit_to: See CreateTransaction docs.
 
         Returns:
-          A list of (change, plan, e) tuples for the given list of changes. The
-          plan represents the necessary GitRepoPatch objects for a given change. If
-          an exception occurs while creating the transaction, e will contain the
-          exception. (Otherwise, e will be None.)
+            A list of (change, plan, e) tuples for the given list of changes.
+            The plan represents the necessary GitRepoPatch objects for a given
+            change.  If an exception occurs while creating the transaction, e
+            will contain the exception. (Otherwise, e will be None.)
         """
         for change in changes:
             try:
@@ -517,18 +523,20 @@ class PatchSeries(object):
         """Add a change and its dependencies into a |plan|.
 
         Args:
-          change: The change to add to the plan.
-          plan: The list of changes to apply, in order. This function will append
-            |change| and any necessary dependencies to |plan|.
-          gerrit_deps_seen: The changes whose Gerrit dependencies have already been
-            processed.
-          limit_to: If non-None, limit the allowed uncommitted patches to
-            what's in that container/mapping.
-          remaining_depth: Amount of permissible recursion depth from this call.
+            change: The change to add to the plan.
+            plan: The list of changes to apply, in order. This function will
+                append |change| and any necessary dependencies to |plan|.
+            gerrit_deps_seen: The changes whose Gerrit dependencies have already
+                been processed.
+            limit_to: If non-None, limit the allowed uncommitted patches to
+                what's in that container/mapping.
+            remaining_depth: Amount of permissible recursion depth from this
+                call.
 
         Raises:
-          DependencyError: If we could not resolve a dependency.
-          GerritException or GOBError: If there is a failure in querying gerrit.
+            DependencyError: If we could not resolve a dependency.
+            GerritException or GOBError: If there is a failure in querying
+            gerrit.
         """
         if change in self._committed_cache:
             return
@@ -567,12 +575,13 @@ class PatchSeries(object):
         """Look up the Gerrit/CQ deps for |change|.
 
         Returns:
-          A tuple of PatchQuery objects representing change's Gerrit
-          dependencies, and CQ dependencies.
+            A tuple of PatchQuery objects representing change's Gerrit
+            dependencies, and CQ dependencies.
 
         Raises:
-          DependencyError: If we could not resolve a dependency.
-          GerritException or GOBError: If there is a failure in querying gerrit.
+            DependencyError: If we could not resolve a dependency.
+            GerritException or GOBError: If there is a failure in querying
+            gerrit.
         """
         val = self._change_deps_cache.get(change)
         if val is None:
@@ -601,12 +610,14 @@ class PatchSeries(object):
         If we're an external builder, internal changes are filtered out.
 
         Args:
-          changes: A list of changes to fetch.
-          manifest: A ManifestCheckout instance representing what we're working on.
+            changes: A list of changes to fetch.
+            manifest: A ManifestCheckout instance representing what we're
+                working on.
 
         Returns:
-          A list of the filtered changes and a list of
-          cros_patch.ChangeNotInManifest instances for changes not in manifest.
+            A list of the filtered changes and a list of
+            cros_patch.ChangeNotInManifest instances for changes not in
+            manifest.
         """
         by_repo = {}
         changes_to_fetch = []
@@ -668,30 +679,30 @@ class PatchSeries(object):
         to ToT.
 
         Args:
-          changes: A sequence of cros_patch.GitRepoPatch instances to resolve
-            and apply.
-          frozen: If True, then resolving of the given changes is explicitly
-            limited to just the passed in changes, or known committed changes.
-            This is basically CQ/Paladin mode, used to limit the changes being
-            pulled in/committed to just what we allow.
-          honor_ordering: Apply normally will reorder the transactions it
-            computes, trying the largest first, then degrading through smaller
-            transactions if the larger of the two fails.  If honor_ordering
-            is False, then the ordering given via changes is preserved-
-            this is mainly of use for cbuildbot induced patching, and shouldn't
-            be used for CQ patching.
-          changes_filter: If not None, must be a functor taking two arguments:
-            series, changes; it must return the changes to work on.
-            This is invoked after the initial changes have been fetched,
-            thus this is a way for consumers to do last minute checking of the
-            changes being inspected, and expand the changes if necessary.
-            Primarily this is of use for cbuildbot patching when dealing w/
-            uploaded/remote patches.
+            changes: A sequence of cros_patch.GitRepoPatch instances to resolve
+                and apply.
+            frozen: If True, then resolving of the given changes is explicitly
+                limited to just the passed in changes, or known committed
+                changes. This is basically CQ/Paladin mode, used to limit the
+                changes being pulled in/committed to just what we allow.
+            honor_ordering: Apply normally will reorder the transactions it
+                computes, trying the largest first, then degrading through
+                smaller transactions if the larger of the two fails.  If
+                honor_ordering is False, then the ordering given via changes is
+                preserved- this is mainly of use for cbuildbot induced patching,
+                and shouldn't be used for CQ patching.
+            changes_filter: If not None, must be a functor taking two arguments:
+                series, changes; it must return the changes to work on. This is
+                invoked after the initial changes have been fetched, thus this
+                is a way for consumers to do last minute checking of the changes
+                being inspected, and expand the changes if necessary. Primarily
+                this is of use for cbuildbot patching when dealing w/
+                uploaded/remote patches.
 
         Returns:
-          A tuple of changes-applied, Exceptions for the changes that failed
-          against ToT, and Exceptions that failed inflight;  These exceptions
-          are cros_patch.PatchException instances.
+            A tuple of changes-applied, Exceptions for the changes that failed
+            against ToT, and Exceptions that failed in-flight;  These
+            exceptions are cros_patch.PatchException instances.
         """
         resolved, applied, failed = [], [], []
 
@@ -784,9 +795,10 @@ class PatchSeries(object):
         involved.
 
         Args:
-          commits: A sequence of cros_patch.GitRepoPatch instances that compromise
-            this transaction- this is used to identify exactly what may be changed,
-            thus what needs to be tracked and rolled back if the transaction fails.
+            commits: A sequence of cros_patch.GitRepoPatch instances that
+                compromise this transaction- this is used to identify exactly
+                what may be changed, thus what needs to be tracked and rolled
+                back if the transaction fails.
         """
         # First, the book keeping code; gather required data so we know what
         # to rollback to should this transaction fail.  Specifically, we track
@@ -828,12 +840,14 @@ class PatchSeries(object):
         """Apply a given ordered sequence of changes.
 
         Args:
-          _inducing_change: The core GitRepoPatch instance that lead to this
-            sequence of changes; basically what this transaction was computed from.
-            Needs to be passed in so that the exception wrapping machinery can
-            convert any failures, assigning blame appropriately.
-          manifest: A ManifestCheckout instance representing what we're working on.
-          changes: A ordered sequence of GitRepoPatch instances to apply.
+            _inducing_change: The core GitRepoPatch instance that lead to this
+                sequence of changes; basically what this transaction was
+                computed from. Needs to be passed in so that the exception
+                wrapping machinery can convert any failures, assigning blame
+                appropriately.
+            manifest: A ManifestCheckout instance representing what we're
+                working on.
+            changes: A ordered sequence of GitRepoPatch instances to apply.
         """
         # Bail immediately if we know one of the requisite patches won't apply.
         for change in changes:
@@ -878,7 +892,7 @@ class PatchSeries(object):
 
         if "forced_manifest" in kwargs:
             raise ValueError(
-                "RawPatchSeries doesn't allow a forced_manifest " "argument."
+                "RawPatchSeries doesn't allow a forced_manifest argument."
             )
         kwargs["forced_manifest"] = _ManifestShim(git_repo, tracking_branch)
 

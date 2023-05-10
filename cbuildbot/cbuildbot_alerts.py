@@ -25,14 +25,14 @@ def _PrintForBuildbot(handle, annotation_class, *args):
     """Log a line for buildbot.
 
     This function dumps a line to log recognizable by buildbot if
-    EnableBuildbotMarkers has been called. Otherwise, it dumps the same line in a
-    human friendly way that buildbot ignores.
+    EnableBuildbotMarkers has been called. Otherwise, it dumps the same line in
+    a human friendly way that buildbot ignores.
 
     Args:
-      handle: The pipe to dump the log to. If None, log to sys.stderr.
-      annotation_class: Annotation subclass for the type of buildbot log.
-      buildbot_tag: A tag specifying the type of buildbot log.
-      *args: The rest of the str arguments to be dumped to the log.
+        handle: The pipe to dump the log to. If None, log to sys.stderr.
+        annotation_class: Annotation subclass for the type of buildbot log.
+        buildbot_tag: A tag specifying the type of buildbot log.
+        *args: The rest of the str arguments to be dumped to the log.
     """
     if handle is None:
         handle = sys.stderr

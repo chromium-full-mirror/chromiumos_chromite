@@ -51,10 +51,10 @@ def _IsLocalPath(url):
     """Returns whether the url is a local path.
 
     Args:
-      url: The url string to parse.
+        url: The url string to parse.
 
     Returns:
-      True if the url actually refers to a local path (with prefix
+        True if the url actually refers to a local path (with prefix
         'file://' or '/'); else, False.
     """
     o = urllib.parse.urlparse(url)
@@ -67,11 +67,11 @@ def CloneWorkingRepo(dest, url, reference, branch=None, single_branch=False):
     Also copy the hooks into the new repository.
 
     Args:
-      dest: The directory to clone int.
-      url: The URL of the repository to clone.
-      reference: Local checkout to draw objects from.
-      branch: The branch to clone.
-      single_branch: Clone only one the requested branch.
+        dest: The directory to clone int.
+        url: The URL of the repository to clone.
+        reference: Local checkout to draw objects from.
+        branch: The branch to clone.
+        single_branch: Clone only one the requested branch.
     """
     git.Clone(
         dest,
@@ -90,7 +90,7 @@ def ClearBuildRoot(buildroot, preserve_paths=()):
     """Remove all files in the buildroot not preserved.
 
     Args:
-      buildroot: buildroot to clear.
+        buildroot: buildroot to clear.
         preserve_paths: paths need to be preserved during clean.
     """
     if os.path.exists(buildroot):
@@ -130,21 +130,23 @@ class RepoRepository(object):
         """Initialize.
 
         Args:
-          manifest_repo_url: URL to fetch repo manifest from.
-          directory: local path where to checkout the repository.
-          branch: Branch to check out the manifest at.
-          referenced_repo: Repository to reference for git objects, if possible.
-          manifest: Which manifest.xml within the branch to use.  Effectively
-            default.xml if not given.
-          depth: Mutually exclusive option to referenced_repo; this limits the
-            checkout to a max commit history of the given integer.
-          repo_url: URL to fetch repo tool from.
-          repo_branch: Branch to check out the repo tool at.
-          groups: Only sync projects that match this filter.
-          repo_cmd: Name of repo_cmd to use.
-          preserve_paths: paths need to be preserved in repo clean
-            in case we want to clean and retry repo sync.
-          git_cache_dir: If specified, use --cache-dir=git_cache_dir in repo sync.
+            manifest_repo_url: URL to fetch repo manifest from.
+            directory: local path where to checkout the repository.
+            branch: Branch to check out the manifest at.
+            referenced_repo: Repository to reference for git objects, if
+                possible.
+            manifest: Which manifest.xml within the branch to use.  Effectively
+                default.xml if not given.
+            depth: Mutually exclusive option to referenced_repo; this limits the
+                checkout to a max commit history of the given integer.
+            repo_url: URL to fetch repo tool from.
+            repo_branch: Branch to check out the repo tool at.
+            groups: Only sync projects that match this filter.
+            repo_cmd: Name of repo_cmd to use.
+            preserve_paths: paths need to be preserved in repo clean in case we
+                want to clean and retry repo sync.
+            git_cache_dir: If specified, use --cache-dir=git_cache_dir in repo
+                sync.
         """
         self.manifest_repo_url = manifest_repo_url
         self.repo_url = repo_url
@@ -192,9 +194,9 @@ class RepoRepository(object):
     def _RepoSelfupdate(self):
         """Execute repo selfupdate command.
 
-        'repo selfupdate' would clean up the .repo/repo dir on certain exceptions
-        and warnings, it must be followed by the 'repo init' command, which would
-        recover .repo/repo in this circumstance.
+        'repo selfupdate' would clean up the .repo/repo dir on certain
+        exceptions and warnings, it must be followed by the 'repo init' command,
+        which would recover .repo/repo in this circumstance.
         """
         cmd = [self.repo_cmd, "selfupdate"]
         failed_to_selfupdate = False
@@ -236,7 +238,7 @@ class RepoRepository(object):
         """Clean up the manifest and repo dirs under the '.repo' dir.
 
         Args:
-          directory: The directory where stores repo and manifest dirs.
+            directory: The directory where stores repo and manifest dirs.
         """
         paths = [
             os.path.join(directory, ".repo", x)
@@ -265,7 +267,9 @@ class RepoRepository(object):
     def CleanStaleLocks(self):
         """Clean up stale locks left behind in any git repos.
 
-        This might occur if earlier git commands were killed during an operation.
+        This might occur if earlier git commands were killed during an
+        operation.
+
         Warning: This is dangerous because these locks are intended to prevent
         corruption. Only use this if you are sure that no other git process is
         accessing the repo (such as at the beginning of a fresh build).
@@ -285,11 +289,12 @@ class RepoRepository(object):
         These are stored separately from the git checkout location.
 
         Args:
-          project: String name of the manifest project to locate.
-          path: String path where the manifest checks out the project.
+            project: String name of the manifest project to locate.
+            path: String path where the manifest checks out the project.
 
         Returns:
-          A tuple containing the string directory paths: (git dir, objects dir).
+            A tuple containing the string directory paths: (git dir, objects
+            dir).
         """
         relpath = os.path.relpath(path, self.directory)
         projects_dir = os.path.join(self.directory, ".repo", "projects")
@@ -301,13 +306,16 @@ class RepoRepository(object):
         return repo_git_store, repo_obj_store
 
     def BuildRootGitCleanup(self, prune_all=False):
-        """Put buildroot onto manifest branch. Delete branches created on last run.
+        """Put buildroot onto manifest branch.
+
+        Delete branches created on last run.
 
         Args:
-          prune_all: If True, prune all loose objects regardless of gc.pruneExpire.
+            prune_all: If True, prune all loose objects regardless of
+                gc.pruneExpire.
 
         Raises:
-          A variety of exceptions if the buildroot is missing/corrupt.
+            A variety of exceptions if the buildroot is missing/corrupt.
         """
         logging.info("Resetting all repo branches: %s", self.directory)
         lock_path = os.path.join(self.directory, ".clean_lock")
@@ -382,8 +390,8 @@ class RepoRepository(object):
     def AssertNotNested(self):
         """Assert that the current repository isn't inside another repository.
 
-        Since repo detects it's root by looking for .repo, it can't support having
-        one repo inside another.
+        Since repo detects it's root by looking for .repo, it can't support
+        having one repo inside another.
         """
         if not IsARepoRoot(self.directory):
             repo_root = git.FindRepoDir(self.directory)
@@ -397,15 +405,16 @@ class RepoRepository(object):
         """Preinitialize new .repo directory for faster initial sync.
 
         This is a hint that the new .repo directory can be copied from
-        source_repo/.repo to avoid network sync operations. It does nothing if the
-        .repo already exists, or source is invalid. source_repo defaults to the repo
-        of the current checkout for the script.
+        source_repo/.repo to avoid network sync operations. It does nothing if
+        the .repo already exists, or source is invalid. source_repo defaults to
+        the repo of the current checkout for the script.
 
-        This should be done before the target is cleaned, to avoid corruption, since
-        the source is in an unknown state.
+        This should be done before the target is cleaned, to avoid corruption,
+        since the source is in an unknown state.
 
         Args:
-          source_repo: Directory path to use as a template for new repo checkout.
+            source_repo: Directory path to use as a template for new repo
+                checkout.
         """
         if not source_repo:
             source_repo = constants.SOURCE_ROOT
@@ -423,13 +432,15 @@ class RepoRepository(object):
     def Initialize(
         self, local_manifest=None, manifest_repo_url=None, extra_args=()
     ):
-        """Initializes a repository.  Optionally forces a local manifest.
+        """Initializes a repository.
+
+        Optionally forces a local manifest.
 
         Args:
-          local_manifest: The absolute path to a custom manifest to use.  This will
-                          replace .repo/manifest.xml.
-          manifest_repo_url: A new value for manifest_repo_url.
-          extra_args: Extra args to pass to 'repo init'
+            local_manifest: The absolute path to a custom manifest to use.  This
+                will replace .repo/manifest.xml.
+            manifest_repo_url: A new value for manifest_repo_url.
+            extra_args: Extra args to pass to 'repo init'
         """
         self.AssertNotNested()
 
@@ -605,25 +616,30 @@ class RepoRepository(object):
         detach=False,
         downgrade_repo: bool = False,
     ):
-        """Sync/update the source.  Changes manifest if specified.
+        """Sync/update the source.
+
+        Changes manifest if specified.
 
         Args:
-          local_manifest: If true, checks out source to manifest.  DEFAULT_MANIFEST
-            may be used to set it back to the default manifest.
-          jobs: May be set to override the default sync parallelism defined by
-            the manifest.
-          all_branches: If False, a repo sync -c is performed; this saves on
-            sync'ing via grabbing only what is needed for the manifest specified
-            branch. Defaults to True. TODO(davidjames): Set the default back to
-            False once we've fixed https://crbug.com/368722 .
-          network_only: If true, perform only the network half of the sync; skip
-            the checkout.  Primarily of use to validate a manifest (although
-            if the manifest has bad copyfile statements, via skipping checkout
-            the broken copyfile tag won't be spotted), or of use when the
-            invoking code is fine w/ operating on bare repos, ie .repo/projects/*.
-          detach: If true, throw away all local changes, even if on tracking
-            branches.
-          downgrade_repo: Whether to downgrade repo version.
+            local_manifest: If true, checks out source to manifest.
+                DEFAULT_MANIFEST may be used to set it back to the default
+                manifest.
+            jobs: May be set to override the default sync parallelism defined by
+                the manifest.
+            all_branches: If False, a repo sync -c is performed; this saves on
+                sync'ing via grabbing only what is needed for the manifest
+                specified branch. Defaults to True. TODO(davidjames): Set the
+                default back to False once we've fixed https://crbug.com/368722
+                .
+            network_only: If true, perform only the network half of the sync;
+                skip the checkout.  Primarily of use to validate a manifest
+                (although if the manifest has bad copyfile statements, via
+                skipping checkout the broken copyfile tag won't be spotted), or
+                of use when the invoking code is fine w/ operating on bare
+                repos, ie .repo/projects/*.
+            detach: If true, throw away all local changes, even if on tracking
+                branches.
+            downgrade_repo: Whether to downgrade repo version.
         """
         try:
             if downgrade_repo:
@@ -718,8 +734,8 @@ class RepoRepository(object):
         """Run repo forall -c git fetch --all'.
 
         Args:
-          detach: If true, throw away all local changes, even if on tracking
-            branches.
+            detach: If true, throw away all local changes, even if on tracking
+                branches.
         """
         cmd = [self.repo_cmd, "forall", "-c", "git", "fetch", "--all"]
         if detach:
@@ -735,15 +751,15 @@ class RepoRepository(object):
         """Export the revision locked manifest
 
         Args:
-          mark_revision: If True, then the sha1 of manifest.git is recorded
-            into the resultant manifest tag as a version attribute.
-            Specifically, if manifests.git is at 1234, <manifest> becomes
-            <manifest revision="1234">.
-          revisions: If True, then rewrite all branches/tags into a specific
-            sha1 revision.  If False, don't.
+            mark_revision: If True, then the sha1 of manifest.git is recorded
+                into the resultant manifest tag as a version attribute.
+                Specifically, if manifests.git is at 1234, <manifest> becomes
+                <manifest revision="1234">.
+            revisions: If True, then rewrite all branches/tags into a specific
+                sha1 revision.  If False, don't.
 
         Returns:
-          The manifest as a string.
+            The manifest as a string.
         """
         cmd = [self.repo_cmd, "manifest", "-o", "-"]
         if revisions:
@@ -774,11 +790,11 @@ class RepoRepository(object):
         May ignore certain repos as part of the diff.
 
         Args:
-          other_manifest: Second manifest file to compare against.
+            other_manifest: Second manifest file to compare against.
 
         Returns:
-          True: If the manifests are different
-          False: If the manifests are same
+            True: If the manifests are different
+            False: If the manifests are same
         """
         logging.debug("Calling IsManifestDifferent against %s", other_manifest)
 

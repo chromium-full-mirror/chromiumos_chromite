@@ -92,8 +92,10 @@ class PrebuiltTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(
             [
                 "--toolchains-overlay-upload-path",
-                "1994/04/cros-sdk-overlay-toolchains-%%(toolchains)s-"
-                "%(version)s.tar.xz",
+                (
+                    "1994/04/cros-sdk-overlay-toolchains-%%(toolchains)s-"
+                    "%(version)s.tar.xz"
+                ),
             ]
         )
         self.assertCommandContains(
@@ -176,7 +178,7 @@ class BinhostConfWriterTest(
         """Prepare and run a BinhostConfWriter.
 
         Args:
-          build_config: Name of build config to run for.
+            build_config: Name of build config to run for.
         """
         self._Prepare(build_config)
         confwriter = prebuilts.BinhostConfWriter(self._run)
@@ -192,8 +194,8 @@ class BinhostConfWriterTest(
         There should be one private (--private) and one public (default) run.
 
         Args:
-          public_slave_boards: List of public slave boards.
-          private_slave_boards: List of private slave boards.
+            public_slave_boards: List of public slave boards.
+            private_slave_boards: List of private slave boards.
         """
         # TODO(mtennant): Add functionality in partial_mock to support more flexible
         # asserting.  For example here, asserting that '--sync-host' appears in

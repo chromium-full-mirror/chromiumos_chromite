@@ -586,15 +586,15 @@ The suite job has another 2:39:39.789250 till timeout.
         """Set the expected results from the specified commands.
 
         Args:
-          create_return_code: Return code from create command.
-          wait_return_code: Return code from wait command.
-          dump_json_return_code: Return code from json_dump command.
-          wait_retry: Boolean, if wait command should be retried.
-          args: Additional args to pass to create and wait commands.
-          swarming_timeout_secs: swarming client timeout.
-          swarming_io_timeout_secs: swarming client io timeout.
-          swarming_hard_timeout_secs: swarming client hard timeout.
-          swarming_expiration_secs: swarming task expiration.
+            create_return_code: Return code from create command.
+            wait_return_code: Return code from wait command.
+            dump_json_return_code: Return code from json_dump command.
+            wait_retry: Boolean, if wait command should be retried.
+            args: Additional args to pass to create and wait commands.
+            swarming_timeout_secs: swarming client timeout.
+            swarming_io_timeout_secs: swarming client io timeout.
+            swarming_hard_timeout_secs: swarming client hard timeout.
+            swarming_expiration_secs: swarming task expiration.
         """
         # Pull out the test priority for the swarming tag.
         priority = None
@@ -701,13 +701,13 @@ The suite job has another 2:39:39.789250 till timeout.
         """Mock out the code that loads from json.
 
         Args:
-          task_outputs: A list of tuple, the first element is the value of 'outputs'
-                        field in the json dictionary, the second is a boolean
-                        indicating whether there is an internal failure,
-                        the third is a state code for the internal failure.
-                        e.g.
-                        ('some output', True, 80)
-                        ('some output', False, None)
+            task_outputs: A list of tuple, the first element is the value of
+                'outputs' field in the json dictionary, the second is a boolean
+                indicating whether there is an internal failure, the third is a
+                state code for the internal failure.
+                e.g.
+                ('some output', True, 80)
+                ('some output', False, None)
         """
         orig_func = commands._CreateSwarmingArgs
 
@@ -2539,7 +2539,9 @@ class MarkChromeAsStableTest(cros_test_lib.RunCommandTempDirTestCase):
             partial_mock.In(
                 os.path.join(chromite_bindir, "cros_mark_chrome_as_stable")
             ),
-            stdout="CHROME_VERSION_ATOM=chromeos-base/chromeos-chrome-123_alpha-r1",
+            stdout=(
+                "CHROME_VERSION_ATOM=chromeos-base/chromeos-chrome-123_alpha-r1"
+            ),
         )
 
         ret = commands.MarkChromeAsStable(

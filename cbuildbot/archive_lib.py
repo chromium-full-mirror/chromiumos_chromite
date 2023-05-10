@@ -21,14 +21,14 @@ def GetBaseUploadURI(config, archive_base=None, bot_id=None):
     latest build available for a given builder.
 
     Args:
-      config: The build config to examine.
-      archive_base: Optional. The root URL under which objects from all
-        builders are uploaded. If not specified, we use the default archive
-        bucket.
-      bot_id: The bot ID to archive files under.
+        config: The build config to examine.
+        archive_base: Optional. The root URL under which objects from all
+            builders are uploaded. If not specified, we use the default archive
+            bucket.
+        bot_id: The bot ID to archive files under.
 
     Returns:
-      Google Storage URI (i.e. 'gs://...') under which all archived files
+        Google Storage URI (i.e. 'gs://...') under which all archived files
         should be uploaded.  In other words, a path like a directory, even
         through GS has no real directories.
     """
@@ -63,11 +63,13 @@ class Archive(object):
     soon (i.e. before the sync stage) they will raise an exception.
 
     Attributes:
-      archive_path: The full local path where output from this builder is stored.
-      download_url: The URL where we can download directory artifacts.
-      download_url_file: The URL where we can download file artifacts.
-      upload_url: The Google Storage location where we should upload artifacts.
-      version: The ChromeOS version for this archive.
+        archive_path: The full local path where output from this builder is
+            stored.
+        download_url: The URL where we can download directory artifacts.
+        download_url_file: The URL where we can download file artifacts.
+        upload_url: The Google Storage location where we should upload
+            artifacts.
+        version: The ChromeOS version for this archive.
     """
 
     # TODO(davidriley): The use of a special download url for directories and
@@ -81,12 +83,12 @@ class Archive(object):
         """Initialize.
 
         Args:
-          bot_id: The bot id associated with this archive.
-          version_getter: Functor that should return the ChromeOS version for
-            this run when called, if the version is known.  Typically, this
-            is BuilderRun.GetVersion.
-          options: The command options object for this run.
-          config: The build config for this run.
+            bot_id: The bot id associated with this archive.
+            version_getter: Functor that should return the ChromeOS version for
+                this run when called, if the version is known.  Typically, this
+                is BuilderRun.GetVersion.
+            options: The command options object for this run.
+            config: The build config for this run.
         """
         self._options = options
         self._config = config
@@ -182,9 +184,10 @@ class Archive(object):
         """Update the LATEST markers in GS archive area.
 
         Args:
-          manifest_branch: The name of the branch in the manifest for this run.
-          debug: Boolean debug value for this run.
-          upload_urls: Google storage urls to upload the Latest Markers to.
+            manifest_branch: The name of the branch in the manifest for this
+                run.
+            debug: Boolean debug value for this run.
+            upload_urls: Google storage urls to upload the Latest Markers to.
         """
         if not upload_urls:
             upload_urls = [self.upload_url]

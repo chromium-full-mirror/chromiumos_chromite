@@ -28,7 +28,7 @@ def CreateMockSiteConfig():
     """Create a mocked site_config object for workspace builds.
 
     Returns:
-      SiteConfig instance with new configs on it.
+        SiteConfig instance with new configs on it.
     """
     site_config = config_lib_unittest.MockSiteConfig()
     production_config = config_lib.GetConfig()

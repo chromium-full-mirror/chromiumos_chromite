@@ -72,14 +72,15 @@ def ResolveBuildspec(manifest_dir, buildspec):
       paladin/buildspecs/26/3560.0.0-rc5.xml
 
     Args:
-      manifest_dir: Path to a manifest-versions instance (internal or external).
-      buildspec: buildspec defining which manifest to use.
+        manifest_dir: Path to a manifest-versions instance (internal or
+            external).
+        buildspec: buildspec defining which manifest to use.
 
     Returns:
-      Absolute path to pinned manifest file matching the buildspec.
+        Absolute path to pinned manifest file matching the buildspec.
 
     Raises:
-      BuildSpecsValueError if no pinned manifest matches.
+        BuildSpecsValueError if no pinned manifest matches.
     """
     candidate = os.path.join(manifest_dir, buildspec)
     if not candidate.endswith(".xml"):
@@ -95,14 +96,15 @@ def ResolveBuildspecVersion(manifest_dir, version):
     """Resolve a version '1.2.3' to the pinned manifest matching it.
 
     Args:
-      manifest_dir: Path to a manifest-versions instance (internal or external).
-      version: ChromeOS version number, of the form 11040.0.0.
+        manifest_dir: Path to a manifest-versions instance (internal or
+            external).
+        version: ChromeOS version number, of the form 11040.0.0.
 
     Returns:
-      Absolute path to pinned manifest file matching the version number.
+        Absolute path to pinned manifest file matching the version number.
 
     Raises:
-      BuildSpecsValueError if no pinned manifest matches.
+        BuildSpecsValueError if no pinned manifest matches.
     """
     chrome_branches = os.listdir(os.path.join(manifest_dir, "buildspecs"))
 
@@ -152,11 +154,11 @@ def _PushGitChanges(git_repo, message, dry_run=False, push_to=None):
     """Push the final commit into the git repo.
 
     Args:
-      git_repo: git repo to push
-      message: Commit message
-      dry_run: If true, don't actually push changes to the server
-      push_to: A git.RemoteRef object specifying the remote branch to push to.
-        Defaults to the tracking branch of the current branch.
+        git_repo: git repo to push
+        message: Commit message
+        dry_run: If true, don't actually push changes to the server
+        push_to: A git.RemoteRef object specifying the remote branch to push to.
+            Defaults to the tracking branch of the current branch.
     """
     if push_to is None:
         # TODO(akeshet): Clean up git.GetTrackingBranch to always or never return a
@@ -189,15 +191,16 @@ def _PushGitChanges(git_repo, message, dry_run=False, push_to=None):
 def CreateSymlink(src_file, dest_file):
     """Creates a relative symlink from src to dest with optional removal of file.
 
-    More robust symlink creation that creates a relative symlink from src_file to
-    dest_file.
+    More robust symlink creation that creates a relative symlink from src_file
+    to dest_file.
 
     This is useful for multiple calls of CreateSymlink where you are using
-    the dest_file location to store information about the status of the src_file.
+    the dest_file location to store information about the status of the
+    src_file.
 
     Args:
-      src_file: source for the symlink
-      dest_file: destination for the symlink
+        src_file: source for the symlink
+        dest_file: destination for the symlink
     """
     dest_dir = os.path.dirname(dest_file)
     osutils.SafeUnlink(dest_file)
@@ -212,10 +215,10 @@ def OfficialBuildSpecPath(version_info):
     """Generate an offical build version build spec file path.
 
     Args:
-      version_info: VersionInfo instance describing the current version.
+        version_info: VersionInfo instance describing the current version.
 
     Returns:
-      Path for buildspec, relative to manifest_versions root.
+        Path for buildspec, relative to manifest_versions root.
     """
     return os.path.join(
         "buildspecs",
@@ -233,14 +236,15 @@ def _CommitAndPush(manifest_repo, git_url, buildspec, contents, dryrun):
     considered clean when this function exits.
 
     Args:
-      manifest_repo: Path to root of git repo for manifest_versions (int or ext).
-      git_url: Git URL for remote git repository.
-      buildspec: Relative path to buildspec in  repo.
-      contents: String constaining contents of buildspec manifest.
-      dryrun: Git push --dry-run if set to True.
+        manifest_repo: Path to root of git repo for manifest_versions (int or
+            ext).
+        git_url: Git URL for remote git repository.
+        buildspec: Relative path to buildspec in  repo.
+        contents: String containing contents of buildspec manifest.
+        dryrun: Git push --dry-run if set to True.
 
     Returns:
-      Full path to buildspec created.
+        Full path to buildspec created.
     """
     RefreshManifestCheckout(manifest_repo, git_url)
 
@@ -278,11 +282,11 @@ def PopulateAndPublishBuildSpec(
     be consistent from build to build for performance reasons.
 
     Args:
-      rel_build_spec: Path relative to manifest_verions root for buildspec.
-      manifest: Contents of the manifest to publish as a string.
-      manifest_versions_int: Path to manifest-versions-internal checkout.
-      manifest_versions_ext: Path to manifest-versions checkout (public).
-      dryrun: Git push --dry-run if set to True.
+        rel_build_spec: Path relative to manifest_verions root for buildspec.
+        manifest: Contents of the manifest to publish as a string.
+        manifest_versions_int: Path to manifest-versions-internal checkout.
+        manifest_versions_ext: Path to manifest-versions checkout (public).
+        dryrun: Git push --dry-run if set to True.
     """
     site_params = config_lib.GetSiteParams()
 
@@ -328,15 +332,15 @@ def GenerateAndPublishOfficialBuildSpec(
     external/filtered version is created in manifest-versions.
 
     Args:
-      repo: Repository.RepoRepository instance.
-      incr_type: If this is an offical build spec, how we should increment the
-                 version? See VersionInfo.
-      manifest_versions_int: Path to manifest-versions-internal checkout.
-      manifest_versions_ext: Path to manifest-versions checkout (public).
-      dryrun: Git push --dry-run if set to True.
+        repo: Repository.RepoRepository instance.
+        incr_type: If this is an official build spec, how we should increment
+            the version? See VersionInfo.
+        manifest_versions_int: Path to manifest-versions-internal checkout.
+        manifest_versions_ext: Path to manifest-versions checkout (public).
+        dryrun: Git push --dry-run if set to True.
 
     Returns:
-      Path for buildspec, relative to manifest_versions root.
+        Path for buildspec, relative to manifest_versions root.
     """
     version_info = chromeos_version.VersionInfo.from_repo(
         repo.directory, incr_type=incr_type
@@ -384,21 +388,23 @@ class BuildSpecsManager(object):
         """Initializes a build specs manager.
 
         Args:
-          source_repo: Repository object for the source code.
-          manifest_repo: Manifest repository for manifest versions / buildspecs.
-          build_names: Identifiers for the build. Must match SiteConfig
-              entries. If multiple identifiers are provided, the first item in the
-              list must be an identifier for the group.
-          incr_type: How we should increment this version - build|branch|patch
-          force: Create a new manifest even if there are no changes.
-          branch: Branch this builder is running on.
-          manifest: Manifest to use for checkout. E.g. 'full' or 'buildtools'.
-          dry_run: Whether we actually commit changes we make or not.
-          config: Instance of config_lib.BuildConfig. Config dict of this builder.
-          metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of this
-                    builder.
-          buildstore: BuildStore object to make DB calls.
-          buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
+            source_repo: Repository object for the source code.
+            manifest_repo: Manifest repository for manifest versions /
+                buildspecs.
+            build_names: Identifiers for the build. Must match SiteConfig
+                entries. If multiple identifiers are provided, the first item in
+                the list must be an identifier for the group.
+            incr_type: How we should increment this version - build|branch|patch
+            force: Create a new manifest even if there are no changes.
+            branch: Branch this builder is running on.
+            manifest: Manifest to use for checkout. E.g. 'full' or 'buildtools'.
+            dry_run: Whether we actually commit changes we make or not.
+            config: Instance of config_lib.BuildConfig. Config dict of this
+                builder.
+            metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of
+                this builder.
+            buildstore: BuildStore object to make DB calls.
+            buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
         """
         self.cros_source = source_repo
         buildroot = source_repo.directory
@@ -443,11 +449,11 @@ class BuildSpecsManager(object):
         """Find the latest spec in a list of specs.
 
         Args:
-          specs: List of specs.
+            specs: List of specs.
 
         Returns:
-          The latest spec if specs is non-empty.
-          None otherwise.
+            The latest spec if specs is non-empty.
+            None otherwise.
         """
         if specs:
             return max(specs, key=self.compare_versions_fn)
@@ -456,9 +462,9 @@ class BuildSpecsManager(object):
         """Returns the latest buildspec that match '*.xml' in a directory.
 
         Args:
-          version_info: A VersionInfo object which will provide a build prefix
-                        to match for.
-          directory: Directory of the buildspecs.
+            version_info: A VersionInfo object which will provide a build prefix
+                to match for.
+            directory: Directory of the buildspecs.
         """
         if os.path.exists(directory):
             match_string = version_info.BuildPrefix() + "*.xml"
@@ -475,12 +481,12 @@ class BuildSpecsManager(object):
         """Initializes manifest-related instance variables.
 
         Args:
-          version_info: Info class for version information of cros. If None,
-                        version must be specified instead.
-          version: Requested version. If None, build the latest version.
+            version_info: Info class for version information of cros. If None,
+                version must be specified instead.
+            version: Requested version. If None, build the latest version.
 
         Returns:
-          Whether the requested version was found.
+            Whether the requested version was found.
         """
         assert (
             version_info or version
@@ -599,8 +605,8 @@ class BuildSpecsManager(object):
         else:
             # See https://crbug.com/927911
             logging.info(
-                "Version file does not match, not updating. Latest from buildspec"
-                " is %s but chromeos_version.sh has %s.",
+                "Version file does not match, not updating. Latest from"
+                " buildspec is %s but chromeos_version.sh has %s.",
                 self.latest,
                 version,
             )
@@ -611,11 +617,11 @@ class BuildSpecsManager(object):
         """Publishes the manifest as the manifest for the version to others.
 
         Args:
-          manifest: Path to manifest file to publish.
-          version: Manifest version string, e.g. 6102.0.0-rc4
-          build_id: Optional integer giving build_id of the build that is
-                    publishing this manifest. If specified and non-negative,
-                    build_id will be included in the commit message.
+            manifest: Path to manifest file to publish.
+            version: Manifest version string, e.g. 6102.0.0-rc4
+            build_id: Optional integer giving build_id of the build that is
+                publishing this manifest. If specified and non-negative,
+                build_id will be included in the commit message.
         """
         # Note: This commit message is used by master.cfg for figuring out when to
         #       trigger slave builders.
@@ -659,16 +665,16 @@ class BuildSpecsManager(object):
         """Wait for all slaves to complete or timeout.
 
         This method checks the statuses of important builds in |builders_array|,
-        waits for the builds to complete or timeout after given |timeout|. Builds
-        marked as experimental through the tree status will not be considered
-        in deciding whether to wait.
+        waits for the builds to complete or timeout after given |timeout|.
+        Builds marked as experimental through the tree status will not be
+        considered in deciding whether to wait.
 
         Args:
-          master_build_identifier: Master build identifier to check.
-          builders_array: The name list of the build configs to check.
-          timeout: Number of seconds to wait for the results.
-          ignore_timeout_exception: Whether to ignore when the timeout exception is
-            raised in waiting. Default to True.
+            master_build_identifier: Master build identifier to check.
+            builders_array: The name list of the build configs to check.
+            timeout: Number of seconds to wait for the results.
+            ignore_timeout_exception: Whether to ignore when the timeout
+                exception is raised in waiting. Default to True.
         """
         builders_array = buildbucket_v2.FetchCurrentSlaveBuilders(
             self.config, self.metadata, builders_array
@@ -707,8 +713,7 @@ class BuildSpecsManager(object):
             )
         except timeout_util.TimeoutError as e:
             logging.error(
-                "Not all builds finished before timeout (%d minutes)"
-                " reached.",
+                "Not all builds finished before timeout (%d minutes) reached.",
                 int((timeout / 60.0) + 0.5),
             )
 
@@ -724,8 +729,8 @@ class BuildSpecsManager(object):
         """Return path to local copy of manifest given by version.
 
         Returns:
-          Path of |version|.  By default if version is not set, returns the path
-          of the current version.
+            Path of |version|.  By default if version is not set, returns the
+            path of the current version.
         """
         if not self.all_specs_dir:
             raise BuildSpecsValueError(
@@ -767,12 +772,13 @@ class BuildSpecsManager(object):
         """Returns a path to the next manifest to build.
 
         Args:
-          retries: Number of retries for updating the status.
-          build_id: Optional integer cidb id of this build, which will be used to
-                    annotate the manifest-version commit if one is created.
+            retries: Number of retries for updating the status.
+            build_id: Optional integer cidb id of this build, which will be used
+                to annotate the manifest-version commit if one is created.
 
         Raises:
-          GenerateBuildSpecException in case of failure to generate a buildspec
+            GenerateBuildSpecException in case of failure to generate a
+            buildspec
         """
         last_error = None
         for index in range(0, retries + 1):
@@ -830,7 +836,7 @@ class BuildSpecsManager(object):
         """Marks the buildspec as passed by creating a symlink in passed dir.
 
         Args:
-          success_map: Map of config names to whether they succeeded.
+            success_map: Map of config names to whether they succeeded.
         """
         src_file = "%s.xml" % os.path.join(
             self.all_specs_dir, self.current_version
@@ -851,7 +857,7 @@ class BuildSpecsManager(object):
         """Pushes any changes you have in the manifest directory.
 
         Args:
-          commit_message: Message that the git commit will contain.
+            commit_message: Message that the git commit will contain.
         """
         # %submit enables Gerrit automerge feature to manage contention on the
         # high traffic manifest_versions repository.
@@ -874,9 +880,9 @@ class BuildSpecsManager(object):
         """Updates the status of the build for the current build spec.
 
         Args:
-          success_map: Map of config names to whether they succeeded.
-          message: Message accompanied with change in status.
-          retries: Number of retries for updating the status
+            success_map: Map of config names to whether they succeeded.
+            message: Message accompanied with change in status.
+            retries: Number of retries for updating the status
         """
         last_error = None
         if message:
@@ -922,10 +928,10 @@ def _GetDefaultRemote(manifest_dom):
     """Returns the default remote in a manifest (if any).
 
     Args:
-      manifest_dom: DOM Document object representing the manifest.
+        manifest_dom: DOM Document object representing the manifest.
 
     Returns:
-      Default remote if one exists, None otherwise.
+        Default remote if one exists, None otherwise.
     """
     default_nodes = manifest_dom.getElementsByTagName(DEFAULT_ELEMENT)
     if default_nodes:
@@ -941,10 +947,10 @@ def _GetGroups(project_element):
     """Returns the default remote in a manifest (if any).
 
     Args:
-      project_element: DOM Document object representing a project.
+        project_element: DOM Document object representing a project.
 
     Returns:
-      List of names of the groups the project belongs too.
+        List of names of the groups the project belongs too.
     """
     group = project_element.getAttribute(PROJECT_GROUP_ATTR)
     if not group:
@@ -957,15 +963,15 @@ def FilterManifest(manifest, whitelisted_remotes=None, whitelisted_groups=None):
     """Returns a path to a new manifest with whitelists enforced.
 
     Args:
-      manifest: Path to an existing manifest that should be filtered.
-      whitelisted_remotes: Tuple of remotes to allow in the generated manifest.
-        Only projects with those remotes will be included in the external
-        manifest. (None means all remotes are acceptable)
-      whitelisted_groups: Tuple of groups to allow in the generated manifest.
-        (None means all groups are acceptable)
+        manifest: Path to an existing manifest that should be filtered.
+        whitelisted_remotes: Tuple of remotes to allow in the generated
+            manifest. Only projects with those remotes will be included in the
+            external manifest. (None means all remotes are acceptable)
+        whitelisted_groups: Tuple of groups to allow in the generated manifest.
+            (None means all groups are acceptable)
 
     Returns:
-      Path to a new manifest that is a filtered copy of the original.
+        Path to a new manifest that is a filtered copy of the original.
     """
     temp_fd, new_path = tempfile.mkstemp("external_manifest")
     manifest_dom = minidom.parse(manifest)

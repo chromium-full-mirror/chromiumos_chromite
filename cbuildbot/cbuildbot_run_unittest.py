@@ -120,11 +120,11 @@ class _BuilderRunTestCase(cros_test_lib.MockTestCase):
         """Create a BuilderRun objection from options and config values.
 
         Args:
-          options: Specify options or default to DEFAULT_OPTIONS.
-          config: Specify build config or default to DEFAULT_CONFIG.
+            options: Specify options or default to DEFAULT_OPTIONS.
+            config: Specify build config or default to DEFAULT_CONFIG.
 
         Returns:
-          BuilderRun object.
+            BuilderRun object.
         """
         options = options or DEFAULT_OPTIONS
         config = config or DEFAULT_CONFIG
@@ -139,12 +139,12 @@ class _BuilderRunTestCase(cros_test_lib.MockTestCase):
         """Create a ChildBuilderRun objection from options and config values.
 
         Args:
-          child_index: Index of child config to use within config.
-          options: Specify options or default to DEFAULT_OPTIONS.
-          config: Specify build config or default to DEFAULT_CONFIG.
+            child_index: Index of child config to use within config.
+            options: Specify options or default to DEFAULT_OPTIONS.
+            config: Specify build config or default to DEFAULT_CONFIG.
 
         Returns:
-          ChildBuilderRun object.
+            ChildBuilderRun object.
         """
         run = self._NewBuilderRun(options, config)
         return cbuildbot_run.ChildBuilderRun(run, child_index)
@@ -658,9 +658,10 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
         """Helper to run "stages" in parallel, according to |stage_args|.
 
         Args:
-          stage_args: List of tuples of the form (stage_object, extra_args, ...)
-            where stage_object has a Run method which takes a BoardRunAttributes
-            object as the first argument and extra_args for the remaining arguments.
+            stage_args: List of tuples of the form (stage_object, extra_args,
+                ...) where stage_object has a Run method which takes a
+                BoardRunAttributes object as the first argument and extra_args
+                for the remaining arguments.
         """
         stages = [a[0](self.bra, *a[1:]) for a in stage_args]
         steps = [stage.Run for stage in stages]

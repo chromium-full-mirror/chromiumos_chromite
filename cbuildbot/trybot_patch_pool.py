@@ -60,8 +60,8 @@ class TrybotPatchPool(object):
         """Returns a new pool with only patches that match constraints.
 
         Args:
-          **kwargs: constraints in the form of attr=value.  I.e.,
-                    project='chromiumos/chromite', tracking_branch='master'.
+            **kwargs: constraints in the form of attr=value.  I.e.,
+                project='chromiumos/chromite', tracking_branch='master'.
         """
 
         def AttributeFilter(patch):
@@ -78,9 +78,9 @@ class TrybotPatchPool(object):
         """Returns a new pool with only patches that match constraints.
 
         Args:
-          filter_fn: Functor that accepts a 'patch' argument, and returns whether to
-                     include the patch in the results.
-          negate: Return patches that don't pass the filter_fn.
+            filter_fn: Functor that accepts a 'patch' argument, and returns
+                whether to include the patch in the results.
+            negate: Return patches that don't pass the filter_fn.
         """
         f = filter_fn
         if negate:
@@ -130,16 +130,18 @@ class TrybotPatchPool(object):
         """Generate patch objects from passed in options.
 
         Args:
-          gerrit_patches: Gerrit ids that gerrit.GetGerritPatchInfo accepts.
-          local_patches: Local ids that cros_patch.PrepareLocalPatches accepts.
-          sourceroot: The source repository to look up |local_patches|.
-          remote_patches: Remote ids that cros_patch.PrepareRemotePatches accepts.
+            gerrit_patches: Gerrit ids that gerrit.GetGerritPatchInfo accepts.
+            local_patches: Local ids that cros_patch.PrepareLocalPatches
+                accepts.
+            sourceroot: The source repository to look up |local_patches|.
+            remote_patches: Remote ids that cros_patch.PrepareRemotePatches
+                accepts.
 
         Returns:
-          A TrybotPatchPool object.
+            A TrybotPatchPool object.
 
         Raises:
-          gerrit.GerritException, cros_patch.PatchException
+            gerrit.GerritException, cros_patch.PatchException
         """
         if gerrit_patches:
             gerrit_patches = gerrit.GetGerritPatchInfo(gerrit_patches)

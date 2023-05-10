@@ -48,17 +48,19 @@ class SlaveStatus(object):
         """Initializes a SlaveStatus instance.
 
         Args:
-          start_time: datetime.datetime object of when the build started.
-          builders_array: List of the expected slave builds.
-          master_build_identifier: The BuildIdentifier instance of the master build.
-          buildstore: BuildStore instance to make DB calls.
-          config: Instance of config_lib.BuildConfig. Config dict of this build.
-          metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of this
-                    build.
-          buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
-          version: Current manifest version string. See the return type of
-                   VersionInfo.VersionString().
-          dry_run: Boolean indicating whether it's a dry run. Default to True.
+            start_time: datetime.datetime object of when the build started.
+            builders_array: List of the expected slave builds.
+            master_build_identifier: The BuildIdentifier instance of the master
+                build.
+            buildstore: BuildStore instance to make DB calls.
+            config: Instance of config_lib.BuildConfig. Config dict of this
+                build.
+            metadata: Instance of metadata_lib.CBuildbotMetadata. Metadata of
+                this build.
+            buildbucket_client: Instance of buildbucket_v2.BuildbucketV2 client.
+            version: Current manifest version string. See the return type of
+                VersionInfo.VersionString().
+            dry_run: Boolean indicating whether it's a dry run. Default to True.
         """
         self.start_time = start_time
         self.all_builders = builders_array
@@ -105,13 +107,14 @@ class SlaveStatus(object):
         """Get new build status information for slaves not in completed_builds.
 
         Args:
-          all_cidb_status_dict: A dict mapping all build config names to their
-            information fetched from CIDB (in the format of CIDBStatusInfo).
-          completed_builds: A set of slave build configs (strings) completed before.
+            all_cidb_status_dict: A dict mapping all build config names to their
+                information fetched from CIDB (in the format of CIDBStatusInfo).
+            completed_builds: A set of slave build configs (strings) completed
+                before.
 
         Returns:
-          A dict mapping the build config names of slave builds which are not in
-          the completed_builds to their CIDBStatusInfos.
+            A dict mapping the build config names of slave builds which are not
+            in the completed_builds to their CIDBStatusInfos.
         """
         return {
             build_config: status_info
@@ -125,13 +128,14 @@ class SlaveStatus(object):
         """Get new buildbucket info for slave builds not in completed_builds.
 
         Args:
-          all_buildbucket_info_dict: A dict mapping all slave build config names
-            to their BuildbucketInfos.
-          completed_builds: A set of slave build configs (strings) completed before.
+            all_buildbucket_info_dict: A dict mapping all slave build config
+                names to their BuildbucketInfos.
+            completed_builds: A set of slave build configs (strings) completed
+                before.
 
         Returns:
-          A dict mapping config names of slave builds which are not in the
-          completed_builds set to their BuildbucketInfos.
+            A dict mapping config names of slave builds which are not in the
+            completed_builds set to their BuildbucketInfos.
         """
         completed_builds = completed_builds or {}
         return {
@@ -187,11 +191,11 @@ class SlaveStatus(object):
         """Get the buildbucket builds which are in the build_status status.
 
         Args:
-          build_status: The status of the builds to get. The status must
-                        be a member of constants.BUILDBUCKET_BUILDER_STATUSES.
+            build_status: The status of the builds to get. The status must be a
+                member of constants.BUILDBUCKET_BUILDER_STATUSES.
 
         Returns:
-          A set of builds in build_status status.
+            A set of builds in build_status status.
         """
         if build_status not in constants.BUILDBUCKET_BUILDER_STATUSES:
             raise ValueError(
@@ -205,7 +209,7 @@ class SlaveStatus(object):
         """Returns the list of expected slave build configs.
 
         Returns:
-          A list of build slave config names.
+            A list of build slave config names.
         """
         experimental_builders = []
         if self.metadata:
@@ -227,7 +231,7 @@ class SlaveStatus(object):
         reporting status to CIDB.
 
         Returns:
-          A set of the config names of missing builds.
+            A set of the config names of missing builds.
         """
         if self.new_buildbucket_info_dict is not None:
             return set(
@@ -246,9 +250,9 @@ class SlaveStatus(object):
         """Returns the scheduled builds.
 
         Returns:
-          For builds scheduled by Buildbucket, a set of config names of builds
-          with 'SCHEDULED' status in Buildbucket;
-          For other builds, None.
+            For builds scheduled by Buildbucket, a set of config names of builds
+            with 'SCHEDULED' status in Buildbucket;
+            For other builds, None.
         """
         if self.new_buildbucket_info_dict is not None:
             return self.GetBuildbucketBuilds(
@@ -261,7 +265,7 @@ class SlaveStatus(object):
         """Returns the builds that have completed and will not be retried.
 
         Returns:
-          A set of config names of completed and not retriable builds.
+            A set of config names of completed and not retriable builds.
         """
         # current completed builds (not in self.completed_builds) from CIDB
         current_completed = set(
@@ -304,7 +308,8 @@ class SlaveStatus(object):
         """Returns a bool if all builds have completed successfully.
 
         Returns:
-          A bool of True if all builds successfully completed, False otherwise.
+            A bool of True if all builds successfully completed, False
+            otherwise.
         """
         return len(self.completed_builds) == len(self._GetExpectedBuilders())
 
@@ -312,10 +317,11 @@ class SlaveStatus(object):
         """Get uncompleted important builds.
 
         Args:
-          completed_builds: a set of config names (strings) of completed builds.
+            completed_builds: a set of config names (strings) of completed
+                builds.
 
         Returns:
-          A set of config names (strings) of uncompleted important builds.
+            A set of config names (strings) of uncompleted important builds.
         """
         return set(self._GetExpectedBuilders()) - completed_builds
 
@@ -323,7 +329,8 @@ class SlaveStatus(object):
         """Get buildbucket_ids for uncompleted experimental builds.
 
         Returns:
-          A set of Buildbucket IDs (strings) of uncompleted experimental builds.
+            A set of Buildbucket IDs (strings) of uncompleted experimental
+            builds.
         """
         flagged_experimental_builders = self.metadata.GetValueWithDefault(
             constants.METADATA_EXPERIMENTAL_BUILDERS, []
@@ -378,10 +385,11 @@ class SlaveStatus(object):
         the builds have finished, let the caller know that we should fail.
 
         Args:
-          current_time: A datetime.datetime object letting us know the current time.
+            current_time: A datetime.datetime object letting us know the current
+                time.
 
         Returns:
-          A bool saying True that we should fail, False otherwise.
+            A bool saying True that we should fail, False otherwise.
         """
         # Check that we're at least past the start timeout.
         builder_start_deadline = datetime.timedelta(
@@ -425,7 +433,7 @@ class SlaveStatus(object):
         """Given a |completed_builds_history|, find the last to complete.
 
         Returns:
-          A set of build_configs that were the last to complete.
+            A set of build_configs that were the last to complete.
         """
         if not completed_builds_history:
             return set()
@@ -439,13 +447,14 @@ class SlaveStatus(object):
     def ShouldWait(self):
         """Decides if we should continue to wait for the builds to finish.
 
-        This will be the retry function for timeout_util.WaitForSuccess, basically
-        this function will return False if all builds finished or we see a problem
-        with the builds. Otherwise it returns True to continue polling
-        for the builds statuses.
+        This will be the retry function for timeout_util.WaitForSuccess,
+        basically this function will return False if all builds finished or we
+        see a problem with the builds. Otherwise it returns True to continue
+        polling for the builds statuses.
 
         Returns:
-          A bool of True if we should continue to wait and False if we should not.
+            A bool of True if we should continue to wait and False if we should
+            not.
         """
         retval, slaves_remain, long_pole = self._ShouldWait()
 
@@ -471,10 +480,10 @@ class SlaveStatus(object):
         """Private helper with all the main logic of ShouldWait.
 
         Returns:
-          A tuple of (bool indicating if we should wait,
-                      bool indicating if slaves remain,
-                      bool indicating if the final slave(s) to complete should
-                      be considered the long-pole reason for terminating)
+            A tuple of (bool indicating if we should wait,
+                        bool indicating if slaves remain,
+                        bool indicating if the final slave(s) to complete should
+                        be considered the long-pole reason for terminating)
         """
         self._completed_build_history.append(list(self.completed_builds))
 

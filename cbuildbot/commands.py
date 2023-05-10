@@ -61,8 +61,7 @@ CHROME_KEYWORDS_FILE = (
     "/etc/portage/package.accept_keywords/chrome"
 )
 CHROME_UNMASK_FILE = (
-    "%(buildroot)s/%(chroot)s"
-    "/build/%(board)s/etc/portage/package.unmask/chrome"
+    "%(buildroot)s/%(chroot)s/build/%(board)s/etc/portage/package.unmask/chrome"
 )
 _CROS_ARCHIVE_URL = "CROS_ARCHIVE_URL"
 _FACTORY_SHIM = "factory_shim"
@@ -194,10 +193,10 @@ def ValidateClobber(buildroot):
     """Do due diligence if user wants to clobber buildroot.
 
     Args:
-      buildroot: buildroot that's potentially clobbered.
+        buildroot: buildroot that's potentially clobbered.
 
     Returns:
-      True if the clobber is ok.
+        True if the clobber is ok.
     """
     cwd = os.path.dirname(os.path.realpath(__file__))
     if cwd.startswith(buildroot):
@@ -218,8 +217,8 @@ def WipeOldOutput(buildroot):
     """Wipes out build output directory.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Delete image directories for this board name.
+        buildroot: Root directory where build occurs.
+        board: Delete image directories for this board name.
     """
     image_dir = os.path.join(buildroot, "src", "build", "images")
     osutils.RmDir(image_dir, ignore_missing=True, sudo=True)
@@ -258,11 +257,12 @@ def UpdateChroot(
     """Wrapper around update_chroot.
 
     Args:
-      buildroot: The buildroot of the current build.
-      usepkg: Whether to use binary packages when setting up the toolchain.
-      toolchain_boards: List of boards to always include.
-      extra_env: A dictionary of environmental variables to set during generation.
-      chroot_args: The args to the chroot.
+        buildroot: The buildroot of the current build.
+        usepkg: Whether to use binary packages when setting up the toolchain.
+        toolchain_boards: List of boards to always include.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        chroot_args: The args to the chroot.
     """
     cmd = ["./update_chroot"]
 
@@ -302,15 +302,16 @@ def SetupBoard(
     """Wrapper around setup_board.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board to set up.
-      usepkg: Whether to use binary packages when setting up the board.
-      extra_env: A dictionary of environmental variables to set during generation.
-      force: Whether to remove the board prior to setting it up.
-      profile: The profile to use with this board.
-      chroot_upgrade: Whether to update the chroot. If the chroot is already up to
-        date, you can specify chroot_upgrade=False.
-      chroot_args: The args to the chroot.
+        buildroot: The buildroot of the current build.
+        board: The board to set up.
+        usepkg: Whether to use binary packages when setting up the board.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        force: Whether to remove the board prior to setting it up.
+        profile: The profile to use with this board.
+        chroot_upgrade: Whether to update the chroot. If the chroot is already
+            up to date, you can specify chroot_upgrade=False.
+        chroot_args: The args to the chroot.
     """
     cmd = ["setup_board", "--board=%s" % board, "--accept-licenses=@CHROMEOS"]
 
@@ -353,22 +354,23 @@ def LegacySetupBoard(
 ):
     """Wrapper around setup_board for the workspace stage only.
 
-    This wrapper supports the old version of setup_board, and is only meant to be
-    used for the workspace builders so they can support old firmware/factory
+    This wrapper supports the old version of setup_board, and is only meant to
+    be used for the workspace builders so they can support old firmware/factory
     branches.
 
     This function should not need to be changed until it's deleted.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board to set up.
-      usepkg: Whether to use binary packages when setting up the board.
-      extra_env: A dictionary of environmental variables to set during generation.
-      force: Whether to remove the board prior to setting it up.
-      profile: The profile to use with this board.
-      chroot_upgrade: Whether to update the chroot. If the chroot is already up to
-        date, you can specify chroot_upgrade=False.
-      chroot_args: The args to the chroot.
+        buildroot: The buildroot of the current build.
+        board: The board to set up.
+        usepkg: Whether to use binary packages when setting up the board.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        force: Whether to remove the board prior to setting it up.
+        profile: The profile to use with this board.
+        chroot_upgrade: Whether to update the chroot. If the chroot is already
+            up to date, you can specify chroot_upgrade=False.
+        chroot_args: The args to the chroot.
     """
     cmd = ["./setup_board", "--board=%s" % board, "--accept_licenses=@CHROMEOS"]
 
@@ -406,11 +408,11 @@ def BuildSDKBoard(
     """Wrapper around setup_host_board.
 
     Args:
-      board: The name of the board.
-      buildroot: The buildroot of the current build.
-      force: Whether to remove existing sysroot if it exists.
-      extra_env: A dictionary of environment variables to set.
-      chroot_args: The args to the chroot.
+        board: The name of the board.
+        buildroot: The buildroot of the current build.
+        force: Whether to remove existing sysroot if it exists.
+        extra_env: A dictionary of environment variables to set.
+        chroot_args: The args to the chroot.
     """
     cmd = ["./build_sdk_board", "--board", board]
     if force:
@@ -441,13 +443,13 @@ def SetupToolchains(
     than buildroot.
 
     Args:
-      buildroot: str - The buildroot of the current build.
-      usepkg: bool - Whether to use prebuilt packages.
-      create_packages: bool - Whether to build redistributable packages.
-      targets: str - Type of target for the toolchain install, e.g. 'boards'.
-      sysroot: str - The sysroot in which to install the toolchains.
-      boards: str|list - The board(s) whose toolchain should be installed.
-      output_dir: str - The output directory.
+        buildroot: str - The buildroot of the current build.
+        usepkg: bool - Whether to use prebuilt packages.
+        create_packages: bool - Whether to build redistributable packages.
+        targets: str - Type of target for the toolchain install, e.g. 'boards'.
+        sysroot: str - The sysroot in which to install the toolchains.
+        boards: str|list - The board(s) whose toolchain should be installed.
+        output_dir: str - The output directory.
     """
     kwargs.setdefault("chromite_cmd", True)
     kwargs.setdefault("enter_chroot", True)
@@ -479,18 +481,20 @@ def VerifyBinpkg(buildroot, board, pkg, packages, extra_env=None):
     """Verify that an appropriate binary package exists for |pkg|.
 
     Using the depgraph from |packages|, check to see if |pkg| would be pulled in
-    as a binary or from source.  If |pkg| isn't installed at all, then ignore it.
+    as a binary or from source.  If |pkg| isn't installed at all, then ignore
+    it.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board to set up.
-      pkg: The package to look for.
-      packages: The list of packages that get installed on |board|.
-      extra_env: A dictionary of environmental variables to set.
+        buildroot: The buildroot of the current build.
+        board: The board to set up.
+        pkg: The package to look for.
+        packages: The list of packages that get installed on |board|.
+        extra_env: A dictionary of environmental variables to set.
 
     Raises:
-      If the package is found and is built from source, raise MissingBinpkg.
-      If the package is not found, or it is installed from a binpkg, do nothing.
+        If the package is found and is built from source, raise MissingBinpkg.
+        If the package is not found, or it is installed from a binpkg, do
+        nothing.
     """
     cmd = [
         "emerge-%s" % board,
@@ -524,10 +528,10 @@ def RunLocalTryjob(buildroot, build_config, args=None, target_buildroot=None):
     whatever patches are applied, but cbuildbot from the requested build.
 
     Args:
-      buildroot: The buildroot of the current build.
-      build_config: The name of the build config to build.
-      args: List of strings giving additional command line arguments.
-      target_buildroot: Buildroot for the tryjob. None for a tmpdir.
+        buildroot: The buildroot of the current build.
+        build_config: The name of the build config to build.
+        args: List of strings giving additional command line arguments.
+        target_buildroot: Buildroot for the tryjob. None for a tmpdir.
     """
     with osutils.TempDir() as tempdir:
         if not target_buildroot:
@@ -567,23 +571,24 @@ def Build(
     """Wrapper around build_packages.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board to set up.
-      build_autotest: Whether to build autotest-related packages.
-      usepkg: Whether to use binary packages.
-      packages: Tuple of specific packages we want to build. If empty,
-        build_packages will calculate a list of packages automatically.
-      skip_chroot_upgrade: Whether to skip the chroot update. If the chroot is
-        not yet up to date, you should specify skip_chroot_upgrade=False.
-      extra_env: A dictionary of environmental variables to set during generation.
-      chrome_root: The directory where chrome is stored.
-      noretry: Deprecated.
-      chroot_args: The args to the chroot.
-      build_all_with_goma: Deprecated.
-      run_goma: Set `build_package --run-goma` option, which starts and stops
-        goma server in chroot while building packages.
-      disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling the
-        reverse dependency calculation step.
+        buildroot: The buildroot of the current build.
+        board: The board to set up.
+        build_autotest: Whether to build autotest-related packages.
+        usepkg: Whether to use binary packages.
+        packages: Tuple of specific packages we want to build. If empty,
+            build_packages will calculate a list of packages automatically.
+        skip_chroot_upgrade: Whether to skip the chroot update. If the chroot is
+            not yet up to date, you should specify skip_chroot_upgrade=False.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        chrome_root: The directory where chrome is stored.
+        noretry: Deprecated.
+        chroot_args: The args to the chroot.
+        build_all_with_goma: Deprecated.
+        run_goma: Set `build_package --run-goma` option, which starts and stops
+            goma server in chroot while building packages.
+        disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling
+            the reverse dependency calculation step.
     """
     cmd = [
         "build_packages",
@@ -645,23 +650,24 @@ def LegacyBuild(
     firmware/factory branches. Do not change this function until it's deleted.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board to set up.
-      build_autotest: Whether to build autotest-related packages.
-      usepkg: Whether to use binary packages.
-      packages: Tuple of specific packages we want to build. If empty,
-        build_packages will calculate a list of packages automatically.
-      skip_chroot_upgrade: Whether to skip the chroot update. If the chroot is
-        not yet up to date, you should specify skip_chroot_upgrade=False.
-      extra_env: A dictionary of environmental variables to set during generation.
-      chrome_root: The directory where chrome is stored.
-      noretry: Do not retry package failures.
-      chroot_args: The args to the chroot.
-      build_all_with_goma: Use goma to build all board packages.
-      run_goma: Set ./build_package --run_goma option, which starts and stops
-        goma server in chroot while building packages.
-      disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling the
-        reverse dependency calculation step.
+        buildroot: The buildroot of the current build.
+        board: The board to set up.
+        build_autotest: Whether to build autotest-related packages.
+        usepkg: Whether to use binary packages.
+        packages: Tuple of specific packages we want to build. If empty,
+            build_packages will calculate a list of packages automatically.
+        skip_chroot_upgrade: Whether to skip the chroot update. If the chroot is
+            not yet up to date, you should specify skip_chroot_upgrade=False.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        chrome_root: The directory where chrome is stored.
+        noretry: Do not retry package failures.
+        chroot_args: The args to the chroot.
+        build_all_with_goma: Use goma to build all board packages.
+        run_goma: Set ./build_package --run_goma option, which starts and stops
+            goma server in chroot while building packages.
+        disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling
+            the reverse dependency calculation step.
     """
     cmd = [
         "./build_packages",
@@ -716,11 +722,11 @@ def GetFirmwareVersionCmdResult(buildroot, board):
     """Gets the raw result output of the firmware updater version command.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board the firmware is for.
+        buildroot: The buildroot of the current build.
+        board: The board the firmware is for.
 
     Returns:
-      Command execution result.
+        Command execution result.
     """
     updater = os.path.join(
         buildroot,
@@ -748,12 +754,12 @@ def FindFirmwareVersions(cmd_output):
     """Finds firmware version output via regex matches against the cmd_output.
 
     Args:
-      cmd_output: The raw output to search against.
+        cmd_output: The raw output to search against.
 
     Returns:
-      FirmwareVersions namedtuple with results.
-      Each element will either be set to the string output by the firmware
-      updater shellball, or None if there is no match.
+        FirmwareVersions namedtuple with results.
+        Each element will either be set to the string output by the firmware
+        updater shellball, or None if there is no match.
     """
 
     # Sometimes a firmware bundle includes a special combination of RO+RW
@@ -795,13 +801,13 @@ def GetAllFirmwareVersions(buildroot, board):
     """Extract firmware version for all models present.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board the firmware is for.
+        buildroot: The buildroot of the current build.
+        board: The board the firmware is for.
 
     Returns:
-      A dict of FirmwareVersions namedtuple instances by model.
-      Each element will be populated based on whether it was present in the
-      command output.
+        A dict of FirmwareVersions namedtuple instances by model.
+        Each element will be populated based on whether it was present in the
+        command output.
     """
     result = {}
     cmd_result = GetFirmwareVersionCmdResult(buildroot, board)
@@ -819,13 +825,13 @@ def GetFirmwareVersions(buildroot, board):
     """Extract version information from the firmware updater, if one exists.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board the firmware is for.
+        buildroot: The buildroot of the current build.
+        board: The board the firmware is for.
 
     Returns:
-      A FirmwareVersions namedtuple instance.
-      Each element will either be set to the string output by the firmware
-      updater shellball, or None if there is no firmware updater.
+        A FirmwareVersions namedtuple instance.
+        Each element will either be set to the string output by the firmware
+        updater shellball, or None if there is no firmware updater.
     """
     cmd_result = GetFirmwareVersionCmdResult(buildroot, board)
     if cmd_result:
@@ -838,13 +844,13 @@ def RunCrosConfigHost(buildroot, board, args, log_output=True):
     """Run the cros_config_host tool in the buildroot
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board the build is for.
-      args: List of arguments to pass.
-      log_output: Whether to log the output of the cros_config_host.
+        buildroot: The buildroot of the current build.
+        board: The board the build is for.
+        args: List of arguments to pass.
+        log_output: Whether to log the output of the cros_config_host.
 
     Returns:
-      Output of the tool
+        Output of the tool
     """
     tool = os.path.join(
         buildroot,
@@ -891,13 +897,14 @@ def GetModels(buildroot, board, log_output=True):
     these at present.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board the build is for.
-      log_output: Whether to log the output of the cros_config_host invocation.
+        buildroot: The buildroot of the current build.
+        board: The board the build is for.
+        log_output: Whether to log the output of the cros_config_host
+            invocation.
 
     Returns:
-      A list of models supported by this board, if it is a unified build; None,
-      if it is not a unified build.
+        A list of models supported by this board, if it is a unified build;
+        None, if it is not a unified build.
     """
     return RunCrosConfigHost(
         buildroot, board, ["list-models"], log_output=log_output
@@ -918,15 +925,16 @@ def BuildImage(
     """Run the script which builds images.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board of the image.
-      images_to_build: The images to be built.
-      version: The version of image.
-      builder_path: The path of the builder to build the image.
-      rootfs_verification: Whether to enable the rootfs verification.
-      extra_env: A dictionary of environmental variables to set during generation.
-      disk_layout: The disk layout.
-      chroot_args: The args to the chroot.
+        buildroot: The buildroot of the current build.
+        board: The board of the image.
+        images_to_build: The images to be built.
+        version: The version of image.
+        builder_path: The path of the builder to build the image.
+        rootfs_verification: Whether to enable the rootfs verification.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        disk_layout: The disk layout.
+        chroot_args: The args to the chroot.
     """
 
     # Default to base if images_to_build is passed empty.
@@ -971,13 +979,13 @@ def RunTestImage(buildroot, board, image_dir, results_dir):
     dependencies better.
 
     Args:
-      buildroot: The buildroot of the current build.
-      board: The board the image was built for.
-      image_dir: The directory in which to find the image.
-      results_dir: The directory to store result files.
+        buildroot: The buildroot of the current build.
+        board: The board the image was built for.
+        image_dir: The directory in which to find the image.
+        results_dir: The directory to store result files.
 
     Raises:
-      failures_lib.BuildScriptFailure if the test script fails.
+        failures_lib.BuildScriptFailure if the test script fails.
     """
     cmd = [
         "test_image",
@@ -1026,11 +1034,11 @@ def BuildAndArchiveTestResultsTarball(src_dir, buildroot):
     """Create a compressed tarball of test results.
 
     Args:
-      src_dir: The directory containing the test results.
-      buildroot: Build root directory.
+        src_dir: The directory containing the test results.
+        buildroot: Build root directory.
 
     Returns:
-      The name of the tarball.
+        The name of the tarball.
     """
     tarball_path = "%s.tgz" % src_dir.rstrip(os.path.sep)
     chroot = os.path.join(buildroot, constants.DEFAULT_CHROOT_DIR)
@@ -1077,40 +1085,40 @@ def RunHWTestSuite(
     """Run the test suite in the Autotest lab.
 
     Args:
-      build: The build is described as the bot_id and the build version.
-        e.g. x86-mario-release/R18-1655.0.0-a1-b1584.
-      suite: Name of the Autotest suite.
-      board: The board the test suite should be scheduled against.
-      model: A specific model to schedule the test suite against.
-      pool: The pool of machines we should use to run the hw tests on.
-      file_bugs: File bugs on test failures for this suite run.
-      wait_for_results: If True, wait for autotest results before returning.
-      priority: Priority of this suite run.
-      timeout_mins: Timeout in minutes for the suite job and its sub-jobs.
-      max_runtime_mins: Maximum runtime for the suite job and its sub-jobs.
-      retry: If True, will enable job-level retry. Only works when
-             wait_for_results is True.
-      max_retries: Integer, maximum job retries allowed at suite level.
-                   None for no max.
-      minimum_duts: The minimum number of DUTs should be available in lab for the
-                    suite job to be created. If it's set to 0, the check will be
-                    skipped.
-      suite_min_duts: Preferred minimum duts, lab will prioritize on getting
-                      such many duts even if the suite is competing with
-                      a suite that has higher priority.
-      suite_args: Arguments passed to the suite.  This should be a dict
-                  representing keyword arguments.  The value is marshalled
-                  using repr(), so the dict values should be basic types.
-      offload_failures_only: Only offload failed tests to Google Storage.
-      debug: Whether we are in debug mode.
-      skip_duts_check: If True, skip minimum available DUTs check.
-      job_keyvals: A dict of job keyvals to be inject to suite control file.
-      test_args: A dict of test parameters to be inject to suite control file.
+        build: The build is described as the bot_id and the build version. e.g.
+            x86-mario-release/R18-1655.0.0-a1-b1584.
+        suite: Name of the Autotest suite.
+        board: The board the test suite should be scheduled against.
+        model: A specific model to schedule the test suite against.
+        pool: The pool of machines we should use to run the hw tests on.
+        file_bugs: File bugs on test failures for this suite run.
+        wait_for_results: If True, wait for autotest results before returning.
+        priority: Priority of this suite run.
+        timeout_mins: Timeout in minutes for the suite job and its sub-jobs.
+        max_runtime_mins: Maximum runtime for the suite job and its sub-jobs.
+        retry: If True, will enable job-level retry. Only works when
+            wait_for_results is True.
+        max_retries: Integer, maximum job retries allowed at suite level. None
+            for no max.
+        minimum_duts: The minimum number of DUTs should be available in lab for
+            the suite job to be created. If it's set to 0, the check will be
+            skipped.
+        suite_min_duts: Preferred minimum duts, lab will prioritize on getting
+            such many duts even if the suite is competing with a suite that has
+            higher priority.
+        suite_args: Arguments passed to the suite.  This should be a dict
+            representing keyword arguments.  The value is marshalled using
+            repr(), so the dict values should be basic types.
+        offload_failures_only: Only offload failed tests to Google Storage.
+        debug: Whether we are in debug mode.
+        skip_duts_check: If True, skip minimum available DUTs check.
+        job_keyvals: A dict of job keyvals to be inject to suite control file.
+        test_args: A dict of test parameters to be inject to suite control file.
 
     Returns:
-      An instance of named tuple HWTestSuiteResult, the first element is the
-      exception to be raised; the second element is the json dump cmd result,
-      if json_dump cmd is not called, None will be returned.
+        An instance of named tuple HWTestSuiteResult, the first element is the
+        exception to be raised; the second element is the json dump cmd result,
+        if json_dump cmd is not called, None will be returned.
     """
     try:
         cmd = [RUN_SUITE_PATH]
@@ -1218,8 +1226,8 @@ def RunHWTestSuite(
                     json_dump_result = _HWTestParseJSONDump(s)
                 except ValueError as err:
                     logging.error(
-                        "Failed to parse HWTest JSON dump string, "
-                        "subsystem based partial submission will be skipped:  %s",
+                        "Failed to parse HWTest JSON dump string, subsystem"
+                        " based partial submission will be skipped:  %s",
                         err,
                     )
             else:
@@ -1268,11 +1276,12 @@ def _GetSkylabWaitTaskArgs(task_id, timeout_mins=None):
     """Get arguments for the `skylab wait-task` command.
 
     Args:
-      timeout_mins: maximum number of minutes to wait for task completion.
-      task_id: id of the task to wait for.
+        timeout_mins: maximum number of minutes to wait for task completion.
+        task_id: id of the task to wait for.
 
     Returns:
-      List of args for `skylab wait-task`, not including the subcommand itself.
+        List of args for `skylab wait-task`, not including the subcommand
+        itself.
     """
     args = ["-service-account-json", constants.CHROMEOS_SERVICE_ACCOUNT]
     if timeout_mins is not None:
@@ -1300,25 +1309,25 @@ def _GetSkylabCreateSuiteArgs(
     Command will run in -json mode.
 
     Args:
-      build: string image name to use, e.g. elm-paladin/R99-12345
-      suite: suite name to run
-      board: board name to run suite for
-      pool: pool to run the suite in
-      model: (optional) model name to run suite for
-      extra_dims: (optional) list of additional scheduling dimensions
-      priority: (optional) integer priority for the suite. Higher number is a
-          lower priority
-      timeout_mins: (optional) suite timeout
-      max_retries: (optional) max retries allowed across all child tasks
-      job_keyvals: (optional) dictionary of {'key': 'value'} keyvals to be
-                   injected into all children of suite.
-      quota_account: (optional) quotascheduler account to use for child tasks
-      upload_crashes: If set, upload crashes detected on DUT during tests to crash
-                      server.
+        build: string image name to use, e.g. elm-paladin/R99-12345
+        suite: suite name to run
+        board: board name to run suite for
+        pool: pool to run the suite in
+        model: (optional) model name to run suite for
+        extra_dims: (optional) list of additional scheduling dimensions
+        priority: (optional) integer priority for the suite. Higher number is a
+            lower priority
+        timeout_mins: (optional) suite timeout
+        max_retries: (optional) max retries allowed across all child tasks
+        job_keyvals: (optional) dictionary of {'key': 'value'} keyvals to be
+            injected into all children of suite.
+        quota_account: (optional) quotascheduler account to use for child tasks
+        upload_crashes: If set, upload crashes detected on DUT during tests to
+            crash server.
 
     Returns:
-      A list of args for the `skylab create-suite` subcommand (not including)
-      the subcommand itself.
+        A list of args for the `skylab create-suite` subcommand (not including)
+        the subcommand itself.
     """
     args = ["-image", build, "-board", board]
     if model:
@@ -1363,7 +1372,7 @@ def _InstallSkylabTool():
     """Install skylab tool.
 
     Returns:
-      the path of installed skylab tool.
+        the path of installed skylab tool.
     """
     path = cipd.InstallPackage(
         cipd.GetCIPDFromCache(),
@@ -1400,10 +1409,10 @@ def RunSkylabHWTestSuite(
     """Run the test suite in the Autotest lab using Skylab.
 
     Args:
-      See args of RunHWTestSuite.
+        See args of RunHWTestSuite.
 
     Returns:
-      See returns of RunHWTestSuite.
+        See returns of RunHWTestSuite.
     """
     if suite_args:
         logging.warning(
@@ -1421,7 +1430,7 @@ def RunSkylabHWTestSuite(
 
     if not pool:
         raise ValueError(
-            "|pool| argument is required in Skylab, but was not " "supplied."
+            "|pool| argument is required in Skylab, but was not supplied."
         )
 
     if priority:
@@ -1505,18 +1514,19 @@ def RunSkylabHWTestPlan(
     """Run a skylab test in the Autotest lab using skylab tool.
 
     Args:
-      test_plan: A JSONpb string containing a TestPlan object.
-      build: A string full image name.
-      legacy_suite: A string suite name, if non-empty it overrides the test plan
-                    on the autotest backend.
-      pool: A string pool to run the test on.
-      quota_account: A string quota account to be used for Skylab tasks created by
-                     the cros_test_platform build triggered for this test plan.
-      board: A string board to run the test on.
-      model: A string model to run the test on.
-      timeout_mins: An integer to indicate the test's timeout.
-      tags: A list of strings to tag the task in swarming.
-      keyvals: A list of strings to be passed to the test as job_keyvals.
+        test_plan: A JSONpb string containing a TestPlan object.
+        build: A string full image name.
+        legacy_suite: A string suite name, if non-empty it overrides the test
+            plan on the autotest backend.
+        pool: A string pool to run the test on.
+        quota_account: A string quota account to be used for Skylab tasks
+            created by the cros_test_platform build triggered for this test
+            plan.
+        board: A string board to run the test on.
+        model: A string model to run the test on.
+        timeout_mins: An integer to indicate the test's timeout.
+        tags: A list of strings to tag the task in swarming.
+        keyvals: A list of strings to be passed to the test as job_keyvals.
     """
     if not test_plan:
         raise ValueError("Need to specify test plan.")
@@ -1611,10 +1621,10 @@ def _GetRunSuiteArgs(
     """Get a list of args for run_suite.
 
     Args:
-      See RunHWTestSuite.
+        See RunHWTestSuite.
 
     Returns:
-      A list of args for run_suite
+        A list of args for run_suite
     """
     args = ["--build", build, "--board", board]
 
@@ -1698,16 +1708,16 @@ def _CreateSwarmingArgs(
     """Create args for swarming client.
 
     Args:
-      build: Name of the build, will be part of the swarming task name.
-      suite: Name of the suite, will be part of the swarming task name.
-      timeout_mins: run_suite timeout mins, will be used to figure out
-                    timeouts for swarming task.
-      board: Name of the board.
-      priority: A String, e.g. CQ, representing the priority of this call.
-      run_skylab: Indicate whether to create a swarming cmd for Skylab HWTest.
+        build: Name of the build, will be part of the swarming task name.
+        suite: Name of the suite, will be part of the swarming task name.
+        timeout_mins: run_suite timeout mins, will be used to figure out
+            timeouts for swarming task.
+        board: Name of the board.
+        priority: A String, e.g. CQ, representing the priority of this call.
+        run_skylab: Indicate whether to create a swarming cmd for Skylab HWTest.
 
     Returns:
-      A dictionary of args for swarming client.
+        A dictionary of args for swarming client.
     """
 
     swarming_timeout = timeout_mins or _DEFAULT_HWTEST_TIMEOUT_MINS
@@ -1812,7 +1822,7 @@ def _HWTestWait(cmd, job_id, **kwargs):
         **kwargs: args to be passed to RunSwarmingCommand.
 
     Returns:
-      True if all tests pass.
+        True if all tests pass.
     """
     # Wait on the suite
     wait_cmd = list(cmd) + ["-m", str(job_id)]
@@ -1855,12 +1865,13 @@ def _HWTestParseJSONDump(dump_output):
     """Parses JSON dump output and returns the parsed JSON dict.
 
     Args:
-      dump_output: The string containing the HWTest result JSON dictionary to
-          parse, marked up with #JSON_START# and #JSON_END# start/end delimiters.
+        dump_output: The string containing the HWTest result JSON dictionary to
+            parse, marked up with #JSON_START# and #JSON_END# start/end
+            delimiters.
 
     Returns:
-      Decoded JSON dict. May raise ValueError upon failure to pass the embedded
-      JSON object.
+        Decoded JSON dict. May raise ValueError upon failure to pass the
+        embedded JSON object.
     """
     i = dump_output.find(JSON_DICT_START) + len(JSON_DICT_START)
     j = dump_output.find(JSON_DICT_END)
@@ -1878,7 +1889,7 @@ def _HWTestDumpJson(cmd, job_id, **kwargs):
         **kwargs: args to be passed to RunSwarmingCommand.
 
     Returns:
-      The parsed json_dump dictionary.
+        The parsed json_dump dictionary.
     """
     dump_json_cmd = list(cmd) + ["--json_dump", "-m", str(job_id)]
     result = swarming_lib.RunSwarmingCommandWithRetries(
@@ -1901,12 +1912,12 @@ def AbortHWTests(config_type_or_name, version, debug, suite=""):
     """Abort the specified hardware tests for the given bot(s).
 
     Args:
-      config_type_or_name: Either the name of the builder (e.g. link-paladin) or
-                           the config type if you want to abort all HWTests for
-                           that config (e.g. config_lib.CONFIG_TYPE_FULL).
-      version: The version of the current build. E.g. R18-1655.0.0-rc1
-      debug: Whether we are in debug mode.
-      suite: Name of the Autotest suite. If empty, abort all suites.
+        config_type_or_name: Either the name of the builder (e.g. link-paladin)
+            or the config type if you want to abort all HWTests for that config
+            (e.g. config_lib.CONFIG_TYPE_FULL).
+        version: The version of the current build. E.g. R18-1655.0.0-rc1
+        debug: Whether we are in debug mode.
+        suite: Name of the Autotest suite. If empty, abort all suites.
     """
     # Abort all jobs for the given config and version.
     # Example for a specific config: link-paladin/R35-5542.0.0-rc1
@@ -1941,10 +1952,10 @@ def AbortSkylabHWTests(build, board, debug, suite):
     """Abort the specified hardware tests for the given bot(s).
 
     Args:
-      build: A string build name, like 'link-paladin/R18-1655.0.0-rc1'.
-      board: The name of the board.
-      debug: Whether we are in debug mode.
-      suite: Name of the Autotest suite.
+        build: A string build name, like 'link-paladin/R18-1655.0.0-rc1'.
+        board: The name of the board.
+        debug: Whether we are in debug mode.
+        suite: Name of the Autotest suite.
     """
     abort_args = ["--board", board, "--suite_name", suite, "--build", build]
 
@@ -1982,14 +1993,14 @@ def GenerateStackTraces(
     """Generates stack traces for logs in |gzipped_test_tarball|
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Name of the board being worked on.
-      test_results_dir: Directory of the test results.
-      archive_dir: Local directory for archiving.
-      got_symbols: True if breakpad symbols have been generated.
+        buildroot: Root directory where build occurs.
+        board: Name of the board being worked on.
+        test_results_dir: Directory of the test results.
+        archive_dir: Local directory for archiving.
+        got_symbols: True if breakpad symbols have been generated.
 
     Returns:
-      List of stack trace file names.
+        List of stack trace file names.
     """
     stack_trace_filenames = []
     asan_log_signaled = False
@@ -2076,11 +2087,11 @@ def ArchiveFile(file_to_archive, archive_dir):
     """Archives the specified file.
 
     Args:
-      file_to_archive: Full path to file to archive.
-      archive_dir: Local directory for archiving.
+        file_to_archive: Full path to file to archive.
+        archive_dir: Local directory for archiving.
 
     Returns:
-      The base name of the archived file.
+        The base name of the archived file.
     """
     filename = os.path.basename(file_to_archive)
     if archive_dir:
@@ -2098,8 +2109,8 @@ class AndroidIsPinnedUprevError(failures_lib.InfrastructureFailure):
         """Initialize a AndroidIsPinnedUprevError.
 
         Args:
-          new_android_atom: The Android atom that we failed to
-                            uprev to, due to Android being pinned.
+            new_android_atom: The Android atom that we failed to uprev to, due
+                to Android being pinned.
         """
         assert new_android_atom
         msg = (
@@ -2117,8 +2128,8 @@ class ChromeIsPinnedUprevError(failures_lib.InfrastructureFailure):
         """Initialize a ChromeIsPinnedUprevError.
 
         Args:
-          new_chrome_atom: The chrome atom that we failed to
-                           uprev to, due to chrome being pinned.
+            new_chrome_atom: The chrome atom that we failed to uprev to, due to
+                chrome being pinned.
         """
         msg = (
             "Failed up uprev to chrome version %s as chrome was pinned."
@@ -2180,8 +2191,8 @@ def MarkAndroidLKGB(buildroot, android_package, android_version):
     """Marks the given Android version as LKGB.
 
     This is to implement Phase 2 migration of go/android-uprev-recipes. The
-    Android PFQ calls this function to update the LKGB file instead of committing
-    uprevs directly.
+    Android PFQ calls this function to update the LKGB file instead of
+    committing uprevs directly.
     """
     cmd = [
         "cros_mark_android_as_stable",
@@ -2252,8 +2263,7 @@ def MarkChromeAsStable(
             )
         except cros_build_lib.RunCommandError:
             logging.error(
-                "Cannot emerge-%s =%s\nIs Chrome pinned to an older "
-                "version?",
+                "Cannot emerge-%s =%s\nIs Chrome pinned to an older version?",
                 board,
                 chrome_atom,
             )
@@ -2277,10 +2287,10 @@ def UprevPackages(buildroot, boards, overlay_type, workspace=None):
     """Uprevs non-browser chromium os packages that have changed.
 
     Args:
-      buildroot: Root directory where build occurs.
-      boards: List of boards to uprev.
-      overlay_type: A value from constants.VALID_OVERLAYS.
-      workspace: Alternative buildroot directory to uprev.
+        buildroot: Root directory where build occurs.
+        boards: List of boards to uprev.
+        overlay_type: A value from constants.VALID_OVERLAYS.
+        workspace: Alternative buildroot directory to uprev.
     """
     assert overlay_type
 
@@ -2304,10 +2314,10 @@ def UprevPush(buildroot, overlay_type, dryrun=True, workspace=None):
     """Pushes uprev changes to the main line.
 
     Args:
-      buildroot: Root directory where build occurs.
-      dryrun: If True, do not actually push.
-      overlay_type: A value from constants.VALID_OVERLAYS.
-      workspace: Alternative buildroot directory to uprev.
+        buildroot: Root directory where build occurs.
+        dryrun: If True, do not actually push.
+        overlay_type: A value from constants.VALID_OVERLAYS.
+        workspace: Alternative buildroot directory to uprev.
     """
     assert overlay_type
 
@@ -2335,18 +2345,18 @@ def ExtractDependencies(
     """Extracts dependencies for |packages|.
 
     Args:
-      buildroot: The root directory where the build occurs.
-      packages: A list of packages for which to extract dependencies.
-      board: Board type that was built on this machine.
-      useflags: A list of useflags for this build.
-      cpe_format: Set output format to CPE-only JSON; otherwise,
-        output traditional deps.
-      raw_cmd_result: If set True, returns the CompletedProcess object.
-        Otherwise, returns the dependencies as a dictionary.
+        buildroot: The root directory where the build occurs.
+        packages: A list of packages for which to extract dependencies.
+        board: Board type that was built on this machine.
+        useflags: A list of useflags for this build.
+        cpe_format: Set output format to CPE-only JSON; otherwise, output
+            traditional deps.
+        raw_cmd_result: If set True, returns the CompletedProcess object.
+            Otherwise, returns the dependencies as a dictionary.
 
     Returns:
-      Returns the CompletedProcess object if |raw_cmd_result| is set; returns
-      the dependencies in a dictionary otherwise.
+        Returns the CompletedProcess object if |raw_cmd_result| is set; returns
+        the dependencies in a dictionary otherwise.
     """
     cmd = ["cros_extract_deps"]
     if board:
@@ -2393,8 +2403,8 @@ def ExtractBuildDepsGraph(buildroot, board):
     """Extract the build deps graph for |board| using build_api proto service.
 
     Args:
-      buildroot: The root directory where the build occurs.
-      board: Board type that was built on this machine.
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine.
     """
     input_proto = {
         "build_target": {
@@ -2413,13 +2423,13 @@ def GenerateBuildConfigs(board, config_useflags):
     """Generate build configs..
 
     Args:
-      board: Board type that was built on this machine.
-      config_useflags: A list of useflags for this build set by the cbuildbot
-        configs.
+        board: Board type that was built on this machine.
+        config_useflags: A list of useflags for this build set by the cbuildbot
+            configs.
 
     Returns:
-      A jsonizable object which is the combination of config.yaml (for unibuild)
-      and use flags.
+        A jsonizable object which is the combination of config.yaml (for
+        unibuild) and use flags.
     """
     config_chroot_path = os.path.join(
         build_target_lib.get_default_sysroot_path(board),
@@ -2454,13 +2464,13 @@ def GenerateCPEExport(buildroot, board, useflags=None):
     """Generate CPE export.
 
     Args:
-      buildroot: The root directory where the build occurs.
-      board: Board type that was built on this machine.
-      useflags: A list of useflags for this build.
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine.
+        useflags: A list of useflags for this build.
 
     Returns:
-      A CompletedProcess object with the results of running the CPE
-      export command.
+        A CompletedProcess object with the results of running the CPE
+        export command.
     """
     return ExtractDependencies(
         buildroot,
@@ -2478,11 +2488,12 @@ def GenerateBreakpadSymbols(
     """Generate breakpad symbols.
 
     Args:
-      buildroot: The root directory where the build occurs.
-      board: Board type that was built on this machine.
-      debug: Include extra debugging output.
-      extra_env: A dictionary of environmental variables to set during generation.
-      chroot_args: The args to the chroot.
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine.
+        debug: Include extra debugging output.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        chroot_args: The args to the chroot.
     """
     # We don't care about firmware symbols.
     # See https://crbug.com/213670.
@@ -2513,11 +2524,12 @@ def GenerateAndroidBreakpadSymbols(
     """Generate breakpad symbols of Android binaries.
 
     Args:
-      buildroot: The root directory where the build occurs.
-      board: Board type that was built on this machine.
-      symbols_file: Path to a symbol archive file.
-      extra_env: A dictionary of environmental variables to set during generation.
-      chroot_args: The args to the chroot.
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine.
+        symbols_file: Path to a symbol archive file.
+        extra_env: A dictionary of environmental variables to set during
+            generation.
+        chroot_args: The args to the chroot.
     """
     board_path = build_target_lib.get_default_sysroot_path(board)
     breakpad_dir = os.path.join(board_path, "usr", "lib", "debug", "breakpad")
@@ -2547,16 +2559,16 @@ def GenerateDebugTarball(
     """Generates a debug tarball in the archive_dir.
 
     Args:
-      buildroot: The root directory where the build occurs.
-      board: Board type that was built on this machine
-      archive_path: Directory where tarball should be stored.
-      gdb_symbols: Include *.debug files for debugging core files with gdb.
-      archive_name: Name of the tarball to generate.
-      chroot_compression: Whether to use compression tools in the chroot if
-                          they're available.
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine
+        archive_path: Directory where tarball should be stored.
+        gdb_symbols: Include *.debug files for debugging core files with gdb.
+        archive_name: Name of the tarball to generate.
+        chroot_compression: Whether to use compression tools in the chroot if
+            they're available.
 
     Returns:
-      The filename of the created debug tarball.
+        The filename of the created debug tarball.
     """
     # Generate debug tarball. This needs to run as root because some of the
     # symbols are only readable by root.
@@ -2602,12 +2614,14 @@ def GenerateDebugTarball(
 def GenerateUploadJSON(filepath, archive_path, uploaded):
     """Generate upload.json file given a set of filenames.
 
-    The JSON is a dictionary keyed by filename, with entries for size, and hashes.
+    The JSON is a dictionary keyed by filename, with entries for size, and
+    hashes.
 
     Args:
-      filepath: complete output filepath as string.
-      archive_path: location of files.
-      uploaded: file with list of uploaded filepaths, relative to archive_path.
+        filepath: complete output filepath as string.
+        archive_path: location of files.
+        uploaded: file with list of uploaded filepaths, relative to
+            archive_path.
     """
     utcnow = datetime.datetime.utcnow
     start = utcnow()
@@ -2630,12 +2644,13 @@ def GenerateHtmlIndex(index, files, title="Index", url_base=None):
     """Generate a simple index.html file given a set of filenames
 
     Args:
-      index: The file to write the html index to.
-      files: The list of files to create the index of.  If a string, then it
-             may be a path to a file (with one file per line), or a directory
-             (which will be listed).
-      title: Title string for the HTML file.
-      url_base: The URL to prefix to all elements (otherwise they'll be relative).
+        index: The file to write the html index to.
+        files: The list of files to create the index of.  If a string, then it
+            may be a path to a file (with one file per line), or a directory
+            (which will be listed).
+        title: Title string for the HTML file.
+        url_base: The URL to prefix to all elements (otherwise they'll be
+            relative).
     """
 
     def GenLink(target, name=None):
@@ -2685,10 +2700,10 @@ def GenerateHtmlTimeline(timeline, rows, title):
     """Generate a simple timeline.html file given a list of timings.
 
     Args:
-      timeline: The file to write the html index to.
-      rows: The list of rows to generate a timeline of.  Each row should be
+        timeline: The file to write the html index to.
+        rows: The list of rows to generate a timeline of.  Each row should be
             tuple of (entry, start_time, end_time)
-      title: Title of the timeline.
+        title: Title of the timeline.
     """
 
     _HTML = """<html>
@@ -2783,12 +2798,12 @@ def _UploadPathToGS(local_path, upload_urls, debug, timeout, acl=None):
     """Upload |local_path| to Google Storage.
 
     Args:
-      local_path: Local path to upload.
-      upload_urls: Iterable of GS locations to upload to.
-      debug: Whether we are in debug mode.
-      filename: Filename of the file to upload.
-      timeout: Timeout in seconds.
-      acl: Canned gsutil acl to use.
+        local_path: Local path to upload.
+        upload_urls: Iterable of GS locations to upload to.
+        debug: Whether we are in debug mode.
+        filename: Filename of the file to upload.
+        timeout: Timeout in seconds.
+        acl: Canned gsutil acl to use.
     """
     gs_context = gs.GSContext(acl=acl, dry_run=debug)
     for upload_url in upload_urls:
@@ -2811,19 +2826,20 @@ def ExportToGCloud(
     """Export the given file to gCloud Datastore using export_to_gcloud
 
     Args:
-      build_root: The root of the chromium os checkout.
-      creds_file: Filename of gcloud credential file
-      filename: Name of file to export.
-      namespace: Optional, namespace to store entities. Defaults to
-                 datastore credentials
-      parent_key: Optional, Key of parent entity to insert into, expects tuple.
-      project_id: Optional, project_id of datastore to write to. Defaults to
-                  datastore credentials
-      caller: Optional, name of the caller. We emit a metric for each run with
-              this value in the metric:caller field.
+        build_root: The root of the chromium os checkout.
+        creds_file: Filename of gcloud credential file
+        filename: Name of file to export.
+        namespace: Optional, namespace to store entities. Defaults to datastore
+            credentials
+        parent_key: Optional, Key of parent entity to insert into, expects
+            tuple.
+        project_id: Optional, project_id of datastore to write to. Defaults to
+            datastore credentials
+        caller: Optional, name of the caller. We emit a metric for each run with
+            this value in the metric:caller field.
 
     Returns:
-      If command was successfully run or not
+        If command was successfully run or not
     """
     export_cmd = os.path.join(build_root, "chromite", "bin", "export_to_gcloud")
 
@@ -2865,13 +2881,13 @@ def UploadArchivedFile(
     """Uploads |filename| in |archive_dir| to Google Storage.
 
     Args:
-      archive_dir: Path to the archive directory.
-      upload_urls: Iterable of GS locations to upload to.
-      debug: Whether we are in debug mode.
-      filename: Name of the file to upload.
-      update_list: Flag to update the list of uploaded files.
-      timeout: Timeout in seconds.
-      acl: Canned gsutil acl to use.
+        archive_dir: Path to the archive directory.
+        upload_urls: Iterable of GS locations to upload to.
+        debug: Whether we are in debug mode.
+        filename: Name of the file to upload.
+        update_list: Flag to update the list of uploaded files.
+        timeout: Timeout in seconds.
+        acl: Canned gsutil acl to use.
     """
     # Upload the file.
     file_path = os.path.join(archive_dir, filename)
@@ -2972,12 +2988,12 @@ def BuildFactoryInstallImage(buildroot, board, extra_env):
     """Build a factory install image.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Board type that was built on this machine
-      extra_env: Flags to be added to the environment for the new process.
+        buildroot: Root directory where build occurs.
+        board: Board type that was built on this machine
+        extra_env: Flags to be added to the environment for the new process.
 
     Returns:
-      The basename of the symlink created for the image.
+        The basename of the symlink created for the image.
     """
 
     # We use build_attempt=3 here to ensure that this image uses a different
@@ -3006,9 +3022,9 @@ def MakeNetboot(buildroot, board, image_dir):
     """Build a netboot image.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Board type that was built on this machine.
-      image_dir: Directory containing factory install shim.
+        buildroot: Root directory where build occurs.
+        board: Board type that was built on this machine.
+        image_dir: Directory containing factory install shim.
     """
     cmd = [
         "./make_netboot.sh",
@@ -3022,10 +3038,10 @@ def BuildRecoveryImage(buildroot, board, image_dir, extra_env):
     """Build a recovery image.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Board type that was built on this machine.
-      image_dir: Directory containing base image.
-      extra_env: Flags to be added to the environment for the new process.
+        buildroot: Root directory where build occurs.
+        board: Board type that was built on this machine.
+        image_dir: Directory containing base image.
+        extra_env: Flags to be added to the environment for the new process.
     """
     base_image = os.path.join(image_dir, constants.BASE_IMAGE_BIN)
     # mod_image_for_recovery leaves behind some artifacts in the source directory
@@ -3061,15 +3077,15 @@ def BuildTarball(
     """Tars and zips files and directories from input_list to tarball_path.
 
     Args:
-      buildroot: Root directory where build occurs.
-      input_list: A list of files and directories to be archived.
-      tarball_path: Path of output tar archive file.
-      cwd: Current working directory when tar command is executed.
-      compressed: Whether or not the tarball should be compressed with pbzip2.
-      **kwargs: Keyword arguments to pass to CreateTarball.
+        buildroot: Root directory where build occurs.
+        input_list: A list of files and directories to be archived.
+        tarball_path: Path of output tar archive file.
+        cwd: Current working directory when tar command is executed.
+        compressed: Whether or not the tarball should be compressed with pbzip2.
+        **kwargs: Keyword arguments to pass to CreateTarball.
 
     Returns:
-      Return value of cros_build_lib.CreateTarball.
+        Return value of cros_build_lib.CreateTarball.
     """
     compressor = cros_build_lib.CompressionType.NONE
     chroot = None
@@ -3090,13 +3106,13 @@ def FindFilesWithPattern(pattern, target="./", cwd=os.curdir, exclude_dirs=()):
     """Search the root directory recursively for matching filenames.
 
     Args:
-      pattern: the pattern used to match the filenames.
-      target: the target directory to search.
-      cwd: current working directory.
-      exclude_dirs: Directories to not include when searching.
+        pattern: the pattern used to match the filenames.
+        target: the target directory to search.
+        cwd: current working directory.
+        exclude_dirs: Directories to not include when searching.
 
     Returns:
-      A list of paths of the matched files.
+        A list of paths of the matched files.
     """
     # Backup the current working directory before changing it
     old_cwd = os.getcwd()
@@ -3118,12 +3134,12 @@ def BuildAutotestControlFilesTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest control files.
 
     Args:
-      buildroot: Root directory where build occurs.
-      cwd: Current working directory.
-      tarball_dir: Location for storing autotest tarball.
+        buildroot: Root directory where build occurs.
+        cwd: Current working directory.
+        tarball_dir: Location for storing autotest tarball.
 
     Returns:
-      Path of the partial autotest control files tarball.
+        Path of the partial autotest control files tarball.
     """
     # Find the control files in autotest/
     control_files = FindFilesWithPattern(
@@ -3147,12 +3163,12 @@ def BuildAutotestPackagesTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest packages.
 
     Args:
-      buildroot: Root directory where build occurs.
-      cwd: Current working directory.
-      tarball_dir: Location for storing autotest tarball.
+        buildroot: Root directory where build occurs.
+        cwd: Current working directory.
+        tarball_dir: Location for storing autotest tarball.
 
     Returns:
-      Path of the partial autotest packages tarball.
+        Path of the partial autotest packages tarball.
     """
     input_list = ["autotest/packages"]
     packages_tarball = os.path.join(tarball_dir, "autotest_packages.tar")
@@ -3166,12 +3182,12 @@ def BuildAutotestTestSuitesTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest test suite control files.
 
     Args:
-      buildroot: Root directory where build occurs.
-      cwd: Current working directory.
-      tarball_dir: Location for storing autotest tarball.
+        buildroot: Root directory where build occurs.
+        cwd: Current working directory.
+        tarball_dir: Location for storing autotest tarball.
 
     Returns:
-      Path of the autotest test suites tarball.
+        Path of the autotest test suites tarball.
     """
     test_suites_tarball = os.path.join(tarball_dir, "test_suites.tar.bz2")
     BuildTarball(
@@ -3184,12 +3200,12 @@ def BuildAutotestServerPackageTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest files required by the server package.
 
     Args:
-      buildroot: Root directory where build occurs.
-      cwd: Current working directory.
-      tarball_dir: Location for storing autotest tarballs.
+        buildroot: Root directory where build occurs.
+        cwd: Current working directory.
+        tarball_dir: Location for storing autotest tarballs.
 
     Returns:
-      The path of the autotest server package tarball.
+        The path of the autotest server package tarball.
     """
     # Find all files in autotest excluding certain directories.
     autotest_files = FindFilesWithPattern(
@@ -3226,12 +3242,12 @@ def _GetTastServerFilesAndTarTransforms(buildroot):
     appropriate destinations in the tarball.
 
     Args:
-      buildroot: Absolute path to root build directory.
+        buildroot: Absolute path to root build directory.
 
     Returns:
-      (files, transforms), where files is a list of absolute paths to Tast server
-          files/directories and transforms is a list of --transform arguments to
-          pass to GNU tar when archiving those files.
+        (files, transforms), where files is a list of absolute paths to Tast
+        server files/directories and transforms is a list of --transform
+        arguments to pass to GNU tar when archiving those files.
     """
     files = []
     transforms = []
@@ -3251,16 +3267,16 @@ def _GetTastServerFilesAndTarTransforms(buildroot):
 def BuildAutotestTarballsForHWTest(buildroot, cwd, tarball_dir):
     """Generate the "usual" autotest tarballs required for running HWTests.
 
-    These tarballs are created in multiple places wherever they need to be staged
-    for running HWTests.
+    These tarballs are created in multiple places wherever they need to be
+    staged for running HWTests.
 
     Args:
-      buildroot: Root directory where build occurs.
-      cwd: Current working directory.
-      tarball_dir: Location for storing autotest tarballs.
+        buildroot: Root directory where build occurs.
+        cwd: Current working directory.
+        tarball_dir: Location for storing autotest tarballs.
 
     Returns:
-      A list of paths of the generated tarballs.
+        A list of paths of the generated tarballs.
 
     TODO(crbug.com/924655): Has been ported to a build API endpoint. Remove this
     function and any unused child functions when the stages have been updated to
@@ -3278,12 +3294,13 @@ def BuildTastBundleTarball(buildroot, cwd, tarball_dir):
     """Tar up the Tast private test bundles.
 
     Args:
-      buildroot: Root directory where build occurs.
-      cwd: Current working directory pointing /build/$board/build.
-      tarball_dir: Location for storing the tarball.
+        buildroot: Root directory where build occurs.
+        cwd: Current working directory pointing /build/$board/build.
+        tarball_dir: Location for storing the tarball.
 
     Returns:
-      Path of the generated tarball, or None if there is no private test bundles.
+        Path of the generated tarball, or None if there is no private test
+        bundles.
     """
     chroot = chroot_lib.Chroot(
         path=os.path.join(buildroot, "chroot"),
@@ -3300,12 +3317,12 @@ def BuildCFTImages(chroot, sysroot, version):
     """Tar up the Tast private test bundles.
 
     Args:
-      chroot: Full path to chroot dir.
-      sysroot: Relative dir to sysroot from the chroot.
-      version: chromeos build version.
+        chroot: Full path to chroot dir.
+        sysroot: Relative dir to sysroot from the chroot.
+        version: chromeos build version.
 
     Returns:
-      Path of the generated metadata.
+        Path of the generated metadata.
 
     Notes:
       Currently there is no plumbing for --host and --project flags,
@@ -3400,11 +3417,11 @@ def ConvertResultsProtoToJson(results, board_name):
     """Convert [TestServiceContainerBuildResult] to ContainerMetadata json.
 
     Args:
-      results: list of TestServiceContainerBuildResult
-      board_name: The board name the results were built for.
+        results: list of TestServiceContainerBuildResult
+        board_name: The board name the results were built for.
 
     Returns:
-      json formatted ContainerMetadata.
+        json formatted ContainerMetadata.
     """
 
     # Set up links to built containers.
@@ -3456,12 +3473,12 @@ def BuildFullAutotestTarball(buildroot, board, tarball_dir):
     """Tar up the full autotest directory into image_dir.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Board type that was built on this machine.
-      tarball_dir: Location for storing autotest tarballs.
+        buildroot: Root directory where build occurs.
+        board: Board type that was built on this machine.
+        tarball_dir: Location for storing autotest tarballs.
 
     Returns:
-      A tuple the path of the full autotest tarball.
+        A tuple the path of the full autotest tarball.
     """
 
     tarball = os.path.join(tarball_dir, "autotest.tar.bz2")
@@ -3502,11 +3519,11 @@ def BuildImageZip(archive_dir, image_dir):
     Exclude the dev image from the zipfile.
 
     Args:
-      archive_dir: Directory to store image.zip.
-      image_dir: Directory to zip up.
+        archive_dir: Directory to store image.zip.
+        image_dir: Directory to zip up.
 
     Returns:
-      The basename of the zipfile.
+        The basename of the zipfile.
     """
     filename = "image.zip"
     zipfile = os.path.join(archive_dir, filename)
@@ -3540,18 +3557,18 @@ def BuildStandaloneArchive(archive_dir, image_dir, artifact_info):
         useful for tar. If omitted, an uncompressed tar will be created.
 
     Args:
-      archive_dir: Directory to store image zip.
-      image_dir: Base path for all inputs.
-      artifact_info: Extended archive configuration dictionary containing:
-        - paths - required, list of files to archive.
-        - output, archive & compress entries from the JSON file.
+        archive_dir: Directory to store image zip.
+        image_dir: Base path for all inputs.
+        artifact_info: Extended archive configuration dictionary containing: -
+            paths - required, list of files to archive. - output archive &
+            compress entries from the JSON file.
 
     Returns:
-      The base name of the archive.
+        The base name of the archive.
 
     Raises:
-      A ValueError if the compression or archive values are unknown.
-      A KeyError is a required field is missing from artifact_info.
+        A ValueError if the compression or archive values are unknown.
+        A KeyError is a required field is missing from artifact_info.
     """
     if "archive" not in artifact_info:
         # Copy the file in 'paths' as is to the archive directory.
@@ -3610,14 +3627,14 @@ def BuildStrippedPackagesTarball(buildroot, board, package_globs, archive_dir):
     """Builds a tarball containing stripped packages.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: The board for which packages should be tarred up.
-      package_globs: List of package search patterns. Each pattern is used to
-          search for packages via `equery list`.
-      archive_dir: The directory to drop the tarball in.
+        buildroot: Root directory where build occurs.
+        board: The board for which packages should be tarred up.
+        package_globs: List of package search patterns. Each pattern is used to
+            search for packages via `equery list`.
+        archive_dir: The directory to drop the tarball in.
 
     Returns:
-      The file name of the output tarball, None if no package found.
+        The file name of the output tarball, None if no package found.
     """
     chroot_path = os.path.join(buildroot, constants.DEFAULT_CHROOT_DIR)
     board_path = os.path.join(chroot_path, "build", board)
@@ -3671,12 +3688,12 @@ def BuildEbuildLogsTarball(buildroot, board, archive_dir):
     """Builds a tarball containing ebuild logs.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: The board for which packages should be tarred up.
-      archive_dir: The directory to drop the tarball in.
+        buildroot: Root directory where build occurs.
+        board: The board for which packages should be tarred up.
+        archive_dir: The directory to drop the tarball in.
 
     Returns:
-      The file name of the output tarball, None if no package found.
+        The file name of the output tarball, None if no package found.
     """
     sysroot = sysroot_lib.Sysroot(os.path.join("build", board))
     chroot = chroot_lib.Chroot(
@@ -3696,12 +3713,12 @@ def BuildGceTarball(archive_dir, image_dir, image):
     https://cloud.google.com/compute/docs/tutorials/building-images#requirements
 
     Args:
-      archive_dir: Directory to store the output tarball.
-      image_dir: Directory where raw disk file can be found.
-      image: Name of raw disk file.
+        archive_dir: Directory to store the output tarball.
+        image_dir: Directory where raw disk file can be found.
+        image: Name of raw disk file.
 
     Returns:
-      The file name of the output tarball.
+        The file name of the output tarball.
     """
     with osutils.TempDir() as tempdir:
         temp_disk_raw = os.path.join(tempdir, "disk.raw")
@@ -3725,14 +3742,14 @@ def BuildFirmwareArchive(
     """Build firmware_from_source.tar.bz2 in archive_dir from build root.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Board name of build target.
-      archive_dir: Directory to store output file.
-      archive_name: Name of file to create in archive_dir.
+        buildroot: Root directory where build occurs.
+        board: Board name of build target.
+        archive_dir: Directory to store output file.
+        archive_name: Name of file to create in archive_dir.
 
     Returns:
-      The basename of the archived file, or None if the target board does
-      not have firmware from source.
+        The basename of the archived file, or None if the target board does
+        not have firmware from source.
     """
     sysroot = sysroot_lib.Sysroot(os.path.join("build", board))
     chroot = chroot_lib.Chroot(
@@ -3754,13 +3771,13 @@ def BuildFpmcuUnittestsArchive(buildroot, board, tarball_dir):
     """Build fpmcu_unittests.tar.bz2 for fingerprint MCU on-device testing.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Board name of build target.
-      tarball_dir: Directory to store output file.
+        buildroot: Root directory where build occurs.
+        board: Board name of build target.
+        tarball_dir: Directory to store output file.
 
     Returns:
-      The path of the archived file, or None if the target board does
-      not have fingerprint MCU unittest binaries.
+        The path of the archived file, or None if the target board does
+        not have fingerprint MCU unittest binaries.
     """
     sysroot = sysroot_lib.Sysroot(os.path.join("build", board))
     chroot = chroot_lib.Chroot(
@@ -3777,12 +3794,12 @@ def CallBuildApiWithInputProto(
     """Call BuildApi with the input_proto and buildroot.
 
     Args:
-      buildroot: Root directory where build occurs.
-      build_api_command: Service (command) to execute.
-      input_proto: The input proto as a dict.
+        buildroot: Root directory where build occurs.
+        build_api_command: Service (command) to execute.
+        input_proto: The input proto as a dict.
 
     Returns:
-      The json-encoded output proto.
+        The json-encoded output proto.
     """
     cmd = ["build_api", build_api_command]
     with osutils.TempDir() as tmpdir:
@@ -3805,14 +3822,14 @@ def BuildFactoryZip(
     """Build factory_image.zip in archive_dir.
 
     Args:
-      buildroot: Root directory where build occurs.
-      board: Board name of build target.
-      archive_dir: Directory to store factory_image.zip.
-      factory_shim_dir: Directory containing factory shim.
-      version: The version string to be included in the factory image.zip.
+        buildroot: Root directory where build occurs.
+        board: Board name of build target.
+        archive_dir: Directory to store factory_image.zip.
+        factory_shim_dir: Directory containing factory shim.
+        version: The version string to be included in the factory image.zip.
 
     Returns:
-      The basename of the zipfile.
+        The basename of the zipfile.
     """
     filename = "factory_image.zip"
 
@@ -3872,10 +3889,10 @@ def ArchiveHWQual(buildroot, hwqual_name, archive_dir, image_dir):
     """Create a hwqual tarball in archive_dir.
 
     Args:
-      buildroot: Root directory where build occurs.
-      hwqual_name: Name for tarball.
-      archive_dir: Local directory for hwqual tarball.
-      image_dir: Directory containing test image.
+        buildroot: Root directory where build occurs.
+        hwqual_name: Name for tarball.
+        archive_dir: Local directory for hwqual tarball.
+        image_dir: Directory containing test image.
     """
     script_dir = os.path.join(buildroot, "src", "platform", "crostestutils")
     ssh_private_key = os.path.join(image_dir, constants.TEST_KEY_PRIVATE)
@@ -3898,7 +3915,7 @@ def CreateTestRoot(build_root):
     """Returns a temporary directory for test results in chroot.
 
     Returns:
-      The path inside the chroot rather than whole path.
+        The path inside the chroot rather than whole path.
     """
     # Create test directory within tmp in chroot.
     chroot = os.path.join(build_root, "chroot")
@@ -3920,12 +3937,12 @@ def GeneratePayloads(
     """Generates the payloads for hw testing.
 
     Args:
-      target_image_path: The path to the image to generate payloads to.
-      archive_dir: Where to store payloads we generated.
-      full: Generate full payloads.
-      delta: Generate delta payloads.
-      stateful: Generate stateful payload.
-      dlc: Generate sample-dlc payloads.
+        target_image_path: The path to the image to generate payloads to.
+        archive_dir: Where to store payloads we generated.
+        full: Generate full payloads.
+        delta: Generate delta payloads.
+        stateful: Generate stateful payload.
+        dlc: Generate sample-dlc payloads.
     """
     artifacts_service.GenerateTestPayloads(
         target_image_path,
@@ -3968,13 +3985,13 @@ def SyncChrome(
     """Sync chrome.
 
     Args:
-      build_root: The root of the chromium os checkout.
-      chrome_root: The directory where chrome is stored.
-      useflags: Array of use flags.
-      tag: If supplied, the Chrome tag to sync.
-      revision: If supplied, the Chrome revision to sync.
-      git_cache_dir: Directory to use for git-cache.
-      workspace: Alternative buildroot directory to sync.
+        build_root: The root of the chromium os checkout.
+        chrome_root: The directory where chrome is stored.
+        useflags: Array of use flags.
+        tag: If supplied, the Chrome tag to sync.
+        revision: If supplied, the Chrome revision to sync.
+        git_cache_dir: Directory to use for git-cache.
+        workspace: Alternative buildroot directory to sync.
     """
     sync_chrome = os.path.join(build_root, "chromite", "bin", "sync_chrome")
     internal = constants.USE_CHROME_INTERNAL in useflags
@@ -4016,15 +4033,15 @@ class ChromeSDK(object):
         """Initialization.
 
         Args:
-          cwd: Where to invoke 'cros chrome-sdk'.
-          board: The board to run chrome-sdk for.
-          extra_args: Extra args to pass in on the command line.
-          chrome_src: Path to pass in with --chrome-src.
-          goma: If True, run using goma.
-          debug_log: If set, run with debug log-level.
-          cache_dir: Specify non-default cache directory.
-          target_tc: Override target toolchain.
-          toolchain_url: Override toolchain url pattern.
+            cwd: Where to invoke 'cros chrome-sdk'.
+            board: The board to run chrome-sdk for.
+            extra_args: Extra args to pass in on the command line.
+            chrome_src: Path to pass in with --chrome-src.
+            goma: If True, run using goma.
+            debug_log: If set, run with debug log-level.
+            cache_dir: Specify non-default cache directory.
+            target_tc: Override target toolchain.
+            toolchain_url: Override toolchain url pattern.
         """
         self.cwd = cwd
         self.board = board
@@ -4043,12 +4060,12 @@ class ChromeSDK(object):
         """Run a command inside the chrome-sdk context.
 
         Args:
-          cmd: Command (list) to run inside 'cros chrome-sdk'.
-          extra_args: Extra arguments for 'cros chorme-sdk'.
-          run_args: If set (dict), pass to run as kwargs.
+            cmd: Command (list) to run inside 'cros chrome-sdk'.
+            extra_args: Extra arguments for 'cros chorme-sdk'.
+            run_args: If set (dict), pass to run as kwargs.
 
         Returns:
-          A CompletedProcess object.
+            A CompletedProcess object.
         """
         if run_args is None:
             run_args = {}
@@ -4069,11 +4086,11 @@ class ChromeSDK(object):
         """Run 'ninja' inside a chrome-sdk context.
 
         Args:
-          debug: Whether to do a Debug build (defaults to Release).
-          run_args: If set (dict), pass to run as kwargs.
+            debug: Whether to do a Debug build (defaults to Release).
+            run_args: If set (dict), pass to run as kwargs.
 
         Returns:
-          A CompletedProcess object.
+            A CompletedProcess object.
         """
         return self.Run(self.GetNinjaCommand(debug=debug), run_args=run_args)
 
@@ -4081,10 +4098,10 @@ class ChromeSDK(object):
         """Returns a command line to run "ninja".
 
         Args:
-          debug: Whether to do a Debug build (defaults to Release).
+            debug: Whether to do a Debug build (defaults to Release).
 
         Returns:
-          Command line to run "ninja".
+            Command line to run "ninja".
         """
         cmd = ["autoninja"]
         if self.goma:
@@ -4102,11 +4119,11 @@ class ChromeSDK(object):
         Only run tests for boards where we build a VM.
 
         Args:
-          image_path: VM image path.
-          debug: True if this is a debug build.
+            image_path: VM image path.
+            debug: True if this is a debug build.
 
         Returns:
-          A CompletedProcess object.
+            A CompletedProcess object.
         """
         return self.Run(
             [
@@ -4123,10 +4140,10 @@ class ChromeSDK(object):
         """Returns the path to the output directory.
 
         Args:
-          debug: Whether to do a Debug build (defaults to Release).
+            debug: Whether to do a Debug build (defaults to Release).
 
         Returns:
-          Path to the output directory.
+            Path to the output directory.
         """
         flavor = "Debug" if debug else "Release"
         return "out_%s/%s" % (self.board, flavor)
@@ -4135,10 +4152,10 @@ class ChromeSDK(object):
         """Returns the path to the .ninja_log file.
 
         Args:
-          debug: Whether to do a Debug build (defaults to Release).
+            debug: Whether to do a Debug build (defaults to Release).
 
         Returns:
-          Path to the .ninja_log file.
+            Path to the .ninja_log file.
         """
         return os.path.join(self._GetOutDirectory(debug=debug), ".ninja_log")
 
@@ -4149,14 +4166,14 @@ def GenerateAFDOArtifacts(buildroot, chrome_root, board, output_path, target):
     This is only a wrapper of the build API. It doesn't validate the inputs.
 
     Args:
-      buildroot: The path to build root.
-      chrome_root: The path to Chrome root.
-      board: Name of the board.
-      output_path: The path to save output.
-      target: A valid toolchain_pb2.AFDOArtifactType.
+        buildroot: The path to build root.
+        chrome_root: The path to Chrome root.
+        board: Name of the board.
+        output_path: The path to save output.
+        target: A valid toolchain_pb2.AFDOArtifactType.
 
     Returns:
-      List of artifact names.
+        List of artifact names.
     """
     input_proto = {
         "chroot": {
@@ -4185,14 +4202,14 @@ def VerifyAFDOArtifacts(buildroot, board, target, build_api):
     This is only a wrapper of the build API. It doesn't validate the inputs.
 
     Args:
-      buildroot: The path to build root.
-      board: Name of the board.
-      target: A valid toolchain_pb2.AFDOArtifactType.
-      build_api: Full path of the build API. Only applies to APIs that returns
-      a single field containing the status.
+        buildroot: The path to build root.
+        board: Name of the board.
+        target: A valid toolchain_pb2.AFDOArtifactType.
+        build_api: Full path of the build API. Only applies to APIs that returns
+            a single field containing the status.
 
     Returns:
-      True of False: The status of the build API.
+        True of False: The status of the build API.
     """
     input_proto = {
         "build_target": {
@@ -4218,16 +4235,16 @@ def GetTargetChromiteApiVersion(buildroot, validate_version=True):
     """Get the re-exec API version of the target chromite.
 
     Args:
-      buildroot: The directory containing the chromite to check.
-      validate_version: If set to true, checks the target chromite for
-        compatibility, and raises an ApiMismatchError when there is an
-        incompatibility.
+        buildroot: The directory containing the chromite to check.
+        validate_version: If set to true, checks the target chromite for
+            compatibility, and raises an ApiMismatchError when there is an
+            incompatibility.
 
     Returns:
-      The version number in (major, minor) tuple.
+        The version number in (major, minor) tuple.
 
     Raises:
-      May raise an ApiMismatchError if validate_version is set.
+        May raise an ApiMismatchError if validate_version is set.
     """
     try:
         api = cros_build_lib.run(
@@ -4245,8 +4262,8 @@ def GetTargetChromiteApiVersion(buildroot, validate_version=True):
         )
         if not os.path.exists(full_cbuildbot_path):
             raise NoChromiteError(
-                "No cbuildbot found in buildroot %s, expected to "
-                "find %s. " % (buildroot, full_cbuildbot_path)
+                "No cbuildbot found in buildroot %s, expected to find %s. "
+                % (buildroot, full_cbuildbot_path)
             )
         raise
 

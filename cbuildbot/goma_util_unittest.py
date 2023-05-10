@@ -284,6 +284,8 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
                 "cwd": "ninja_cwd",
                 "exit": 0,
                 "env": {"key1": "value1", "key2": "value2"},
-                "compiler_proxy_info": "compiler_proxy.host.log.INFO.20170821-120000.000000",
+                "compiler_proxy_info": (
+                    "compiler_proxy.host.log.INFO.20170821-120000.000000"
+                ),
             },
         )
