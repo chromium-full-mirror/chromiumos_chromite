@@ -435,7 +435,6 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         )
 
         # Check various root files.
-        self.assertExists(self.chroot_path / "etc" / "debian_chroot")
         self.assertExists(self.chroot_path / "etc" / "localtime")
 
         # Check user home files.

@@ -910,10 +910,6 @@ $ cros_sdk --delete%s
 
         self._make_chroot()
 
-        # TODO(build): Delete this once all users migrate to
-        # cros_chroot_version.
-        osutils.Touch(self.chroot_path / "etc" / "debian_chroot")
-
         self.print_success_summary()
 
 
