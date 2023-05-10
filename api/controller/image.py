@@ -30,6 +30,7 @@ from chromite.lib import sysroot_lib
 from chromite.scripts import pushimage
 from chromite.service import image
 from chromite.service import packages as packages_service
+from chromite.utils import timer
 
 
 if TYPE_CHECKING:
@@ -288,14 +289,16 @@ def Create(
 
     # Try building the core and factory images.
     # Sorted isn't really necessary here, but it's much easier to test.
-    core_result = image.Build(
-        board, sorted(image_types.core_images), config=build_config
-    )
+    with timer.timer("build-base-dev-test-timer"):
+        core_result = image.Build(
+            board, sorted(image_types.core_images), config=build_config
+        )
     logging.debug("Core Result Images: %s", core_result.images)
 
-    factory_result = image.Build(
-        board, image_types.factory, config=factory_build_config
-    )
+    with timer.timer("factory-timer"):
+        factory_result = image.Build(
+            board, image_types.factory, config=factory_build_config
+        )
     logging.debug("Factory Result Images: %s", factory_result.images)
 
     # A successful run will have no images missing, will have run at least one
@@ -319,20 +322,21 @@ def Create(
             is_test = vm_type in [_TEST_VM_ID, _TEST_GUEST_VM_ID]
             img_type = _IMAGE_MAPPING[_TEST_ID if is_test else _BASE_ID]
             img_dir = core_result.images[img_type].parent.resolve()
-            try:
-                if vm_type in [_BASE_GUEST_VM_ID, _TEST_GUEST_VM_ID]:
-                    vm_path = image.CreateGuestVm(
-                        board, is_test=is_test, image_dir=img_dir
-                    )
-                else:
-                    vm_path = image.CreateVm(
-                        board,
-                        disk_layout=build_config.disk_layout,
-                        is_test=is_test,
-                        image_dir=img_dir,
-                    )
-            except image.ImageToVmError as e:
-                cros_build_lib.Die(e)
+            with timer.timer(f"vm-image-{vm_type}-timer"):
+                try:
+                    if vm_type in [_BASE_GUEST_VM_ID, _TEST_GUEST_VM_ID]:
+                        vm_path = image.CreateGuestVm(
+                            board, is_test=is_test, image_dir=img_dir
+                        )
+                    else:
+                        vm_path = image.CreateVm(
+                            board,
+                            disk_layout=build_config.disk_layout,
+                            is_test=is_test,
+                            image_dir=img_dir,
+                        )
+                except image.ImageToVmError as e:
+                    cros_build_lib.Die(e)
 
             _add_image_to_proto(output_proto, vm_path, vm_type, board)
 
@@ -341,14 +345,15 @@ def Create(
             if mod_type == _RECOVERY_ID:
                 base_image_path = core_result.images[constants.IMAGE_TYPE_BASE]
                 # For ChromeOS Flex special case.
-                if build_config.base_is_recovery:
-                    result = image.CopyBaseToRecovery(
-                        board=board, image_path=base_image_path
-                    )
-                else:
-                    result = image.BuildRecoveryImage(
-                        board=board, image_path=base_image_path
-                    )
+                with timer.timer("recovery-image-timer"):
+                    if build_config.base_is_recovery:
+                        result = image.CopyBaseToRecovery(
+                            board=board, image_path=base_image_path
+                        )
+                    else:
+                        result = image.BuildRecoveryImage(
+                            board=board, image_path=base_image_path
+                        )
                 if result.all_built:
                     _add_image_to_proto(
                         output_proto,
@@ -362,10 +367,11 @@ def Create(
                 factory_shim_dir = os.path.dirname(
                     factory_result.images[constants.IMAGE_TYPE_FACTORY_SHIM]
                 )
-                try:
-                    image.create_netboot_kernel(board, factory_shim_dir)
-                except cros_build_lib.RunCommandError as e:
-                    logging.warning(e)
+                with timer.timer("netboot-kernel-timer"):
+                    try:
+                        image.create_netboot_kernel(board, factory_shim_dir)
+                    except cros_build_lib.RunCommandError as e:
+                        logging.warning(e)
             else:
                 cros_build_lib.Die(
                     "_RECOVERY_ID and _NETBOOT_ID are the only mod_image_type."
