@@ -44,7 +44,7 @@ def GetProjectTmpDir(project):
     """Return the project tmp directory inside chroot.
 
     Args:
-      project: The name of the project to create tmp dir.
+        project: The name of the project to create tmp dir.
     """
     return os.path.join("tmp", "tmp_%s" % project)
 
@@ -53,7 +53,7 @@ def GetProjectWorkDir(project):
     """Return the project work directory.
 
     Args:
-      project: The name of the project to create work dir.
+        project: The name of the project to create work dir.
     """
     project_work_dir = GetProjectTmpDir(project)
 
@@ -71,13 +71,13 @@ def GetProjectRepoDir(project, project_url, clean_old_dir=False):
     """Clone the project repo locally and return the repo directory.
 
     Args:
-      project: git project name to clone.
-      project_url: git project url to clone.
-      clean_old_dir: Boolean to indicate whether to clean old work_dir. Default
-        to False.
+        project: git project name to clone.
+        project_url: git project url to clone.
+        clean_old_dir: Boolean to indicate whether to clean old work_dir.
+            Default to False.
 
     Returns:
-      project_dir: local project directory.
+        project_dir: local project directory.
     """
     work_dir = GetProjectWorkDir(project)
 
@@ -157,7 +157,7 @@ class CheckTemplateStage(generic_stages.BuilderStage):
         """List and return template files from GS bucket.
 
         Returns:
-          A list of template files.
+            A list of template files.
         """
         template_gs_paths = []
 
@@ -260,7 +260,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
         """Checkout to the corresponding branch in the temp repository.
 
         Raises:
-          BranchNotFoundException if failed to checkout to the branch.
+            BranchNotFoundException if failed to checkout to the branch.
         """
         logging.info("Checking out %s in %s", self.branch, self.chromite_dir)
         git.RunGit(self.chromite_dir, ["checkout", self.branch])
@@ -311,7 +311,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
         """Check if updates exist and requires a push.
 
         Returns:
-          True if updates exist; otherwise False.
+            True if updates exist; otherwise False.
         """
         modifications = git.RunGit(
             self.chromite_dir,
@@ -491,7 +491,7 @@ class DeployLuciSchedulerStage(generic_stages.BuilderStage):
         """Makes and returns the path to a temporary directory.
 
         Args:
-          name: name to use in the creation of the temporary directory.
+            name: name to use in the creation of the temporary directory.
         """
         path = GetProjectWorkDir(name)
         osutils.RmDir(path, ignore_missing=True, sudo=True)
@@ -502,7 +502,7 @@ class DeployLuciSchedulerStage(generic_stages.BuilderStage):
         """Checkout the LUCI project config.
 
         Raises:
-          BranchNotFoundException if failed to checkout to the branch.
+            BranchNotFoundException if failed to checkout to the branch.
         """
         self.project_dir = self._MakeWorkDir("luci_config")
 

@@ -34,9 +34,9 @@ def CreateTarball(source_root, tarball_path, exclude_paths=None):
     """Packs |source_root| into |tarball_path|.
 
     Args:
-      source_root: Path to the directory we want to package.
-      tarball_path: Path of the tarball that should be created.
-      exclude_paths: Subdirectories to exclude.
+        source_root: Path to the directory we want to package.
+        tarball_path: Path of the tarball that should be created.
+        exclude_paths: Subdirectories to exclude.
     """
     # TODO(zbehan): We cannot use xz from the chroot unless it's
     # statically linked.
@@ -162,8 +162,8 @@ class SDKPackageStage(
         """Creates a manifest from a given source chroot.
 
         Args:
-          sdk_path: Path to the root of the SDK to describe.
-          dest_manifest: Path to the manifest that should be generated.
+            sdk_path: Path to the root of the SDK to describe.
+            dest_manifest: Path to the manifest that should be generated.
         """
         logging.info("Generating manifest for new sdk")
         package_data = {}

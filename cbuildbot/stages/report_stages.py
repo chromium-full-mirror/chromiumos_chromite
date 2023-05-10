@@ -48,7 +48,7 @@ def WriteBasicMetadata(builder_run):
     execution) because it will write the same data each time.
 
     Args:
-      builder_run: The BuilderRun instance for this build.
+        builder_run: The BuilderRun instance for this build.
     """
     start_time = results_lib.Results.start_time
     start_time_stamp = cros_build_lib.UserDateTimeFormat(timeval=start_time)
@@ -145,11 +145,11 @@ def GetChildConfigListMetadata(child_configs, config_status_map):
     specified.
 
     Args:
-      child_configs: The list of child configs for this build.
-      config_status_map: The map of config name to final build status.
+        child_configs: The list of child configs for this build.
+        config_status_map: The map of config name to final build status.
 
     Returns:
-      List of child config dictionaries, with optional final status
+        List of child config dictionaries, with optional final status
     """
     child_config_list = []
     for c in child_configs:
@@ -172,15 +172,17 @@ def GetChildConfigListMetadata(child_configs, config_status_map):
 def _UploadAndLinkGomaLogIfNecessary(
     stage_name, cbb_config_name, goma_dir, goma_tmp_dir
 ):
-    """Uploads the logs for goma, if needed. Also create a link to the visualizer.
+    """Uploads the logs for goma, if needed.
+
+    Also create a link to the visualizer.
 
     If |goma_tmp_dir| is given, |goma_dir| must not be None.
 
     Args:
-      stage_name: Name of the stage where goma is used.
-      cbb_config_name: Name of cbb_config used for the build.
-      goma_dir: Path to goma installed directory.
-      goma_tmp_dir: Goma's working directory.
+        stage_name: Name of the stage where goma is used.
+        cbb_config_name: Name of cbb_config used for the build.
+        goma_dir: Path to goma installed directory.
+        goma_tmp_dir: Goma's working directory.
     """
     if not goma_tmp_dir:
         return
@@ -210,7 +212,7 @@ class BuildStartStage(generic_stages.BuilderStage):
         """Get the overall build timeout to be published to cidb.
 
         Returns:
-          Timeout in seconds. None if no sensible timeout can be inferred.
+            Timeout in seconds. None if no sensible timeout can be inferred.
         """
         timeout_seconds = self._run.options.timeout
         if self._run.config.master:
@@ -343,8 +345,8 @@ class BuildStartStage(generic_stages.BuilderStage):
             if db_type != metadata_dict["db_type"]:
                 cidb.CIDBConnectionFactory.InvalidateCIDBSetup()
                 raise AssertionError(
-                    "Invalid attempt to switch from database %s to "
-                    "%s." % (metadata_dict["db_type"], db_type)
+                    "Invalid attempt to switch from database %s to %s."
+                    % (metadata_dict["db_type"], db_type)
                 )
 
 
@@ -364,7 +366,7 @@ class SlaveFailureSummaryStage(generic_stages.BuilderStage):
 
         if not self.buildstore.AreClientsReady():
             logging.info(
-                "No buildstore connection for this build. " "Doing nothing."
+                "No buildstore connection for this build. Doing nothing."
             )
             return
 
@@ -623,8 +625,8 @@ class ReportStage(
         email_notify property based on the new streak.
 
         Args:
-          builder_run: BuilderRun for this run.
-          final_status: Final status string for this run.
+            builder_run: BuilderRun for this run.
+            final_status: Final status string for this run.
         """
         if builder_run.InEmailReportingEnvironment():
             streak_value = self._UpdateStreakCounter(
@@ -655,18 +657,18 @@ class ReportStage(
         """Update the given streak counter based on the final status of build.
 
         A streak counter counts the number of consecutive passes or failures of
-        a particular builder. Consecutive passes are indicated by a positive value,
-        consecutive failures by a negative value.
+        a particular builder. Consecutive passes are indicated by a positive
+        value, consecutive failures by a negative value.
 
         Args:
-          final_status: String indicating final status of build,
-                        constants.BUILDER_STATUS_PASSED indicating success.
-          counter_name: Name of counter to increment, typically the name of the
-                        build config.
-          dry_run: Pretend to update counter only. Default: False.
+            final_status: String indicating final status of build,
+                constants.BUILDER_STATUS_PASSED indicating success.
+            counter_name: Name of counter to increment, typically the name of
+                the build config.
+            dry_run: Pretend to update counter only. Default: False.
 
         Returns:
-          The new value of the streak counter.
+            The new value of the streak counter.
         """
         site_params = config_lib.GetSiteParams()
         gs_ctx = gs.GSContext(dry_run=dry_run)
@@ -701,7 +703,7 @@ class ReportStage(
         If there are no artifacts in the archive then do nothing.
 
         Args:
-          builder_run: BuilderRun object for this run.
+            builder_run: BuilderRun object for this run.
         """
         archive = builder_run.GetArchive()
         archive_path = archive.archive_path
@@ -802,11 +804,12 @@ class ReportStage(
         """Upload an HTML timeline for the build stages at remote archive location.
 
         Args:
-          builder_run: BuilderRun object for this run.
-          buildbucket_id: Buildbucket id for the current build.
+            builder_run: BuilderRun object for this run.
+            buildbucket_id: Buildbucket id for the current build.
 
         Returns:
-          If an index file is uploaded then a dict is returned where each value
+            If an index file is uploaded then a dict is returned where each
+            value
             is the same (the URL for the uploaded HTML index) and the keys are
             the boards it applies to, including None if applicable.  If no index
             file is uploaded then this returns None.
@@ -864,11 +867,11 @@ class ReportStage(
         """Upload an HTML timeline for the slaves at remote archive location.
 
         Args:
-          builder_run: BuilderRun object for this run.
-          build_identifier: BuildIdentifier instance for the master build.
+            builder_run: BuilderRun object for this run.
+            build_identifier: BuildIdentifier instance for the master build.
 
         Returns:
-          The URL of the timeline is returned if slave builds exists.  If no
+            The URL of the timeline is returned if slave builds exists.  If no
             slave builds exists then this returns None.
         """
         archive = builder_run.GetArchive()
@@ -936,17 +939,19 @@ class ReportStage(
         """Generate ReportStage metadata.
 
         Args:
-          config: The build config for this run.  Defaults to self._run.config.
-          stage: The stage name that this metadata file is being uploaded for.
-          final_status: Whether the build passed or failed. If None, the build
-            will be treated as still running.
-          completion_instance: The stage instance that was used to wait for slave
-            completion. Used to add slave build information to master builder's
-            metadata. If None, no such status information will be included. It not
-            None, this should be a derivative of MasterSlaveSyncCompletionStage.
+            config: The build config for this run.  Defaults to
+                self._run.config.
+            stage: The stage name that this metadata file is being uploaded for.
+            final_status: Whether the build passed or failed. If None, the build
+                will be treated as still running.
+            completion_instance: The stage instance that was used to wait for
+                slave completion. Used to add slave build information to master
+                builder's metadata. If None, no such status information will be
+                included. It not None, this should be a derivative of
+                MasterSlaveSyncCompletionStage.
 
         Returns:
-          A JSON-able dictionary representation of the metadata object.
+            A JSON-able dictionary representation of the metadata object.
         """
         builder_run = self._run
         config = config or builder_run.config
@@ -981,8 +986,8 @@ class ReportStage(
         """Archive our build results.
 
         Args:
-          final_status: constants.BUILDER_STATUS_PASSED or
-                        constants.BUILDER_STATUS_FAILED
+            final_status: constants.BUILDER_STATUS_PASSED or
+                constants.BUILDER_STATUS_FAILED
         """
         # Make sure local archive directory is prepared, if it was not already.
         if not os.path.exists(self.archive_path):
@@ -1055,8 +1060,8 @@ class ReportStage(
     def PerformStage(self):
         """Perform the actual work for this stage.
 
-        This includes final metadata archival, and update CIDB with our final status
-        as well as producting a logged build result summary.
+        This includes final metadata archival, and update CIDB with our final
+        status as well as producing a logged build result summary.
         """
         build_identifier, _ = self._run.GetCIDBHandle()
         build_id = build_identifier.cidb_id
@@ -1103,7 +1108,8 @@ class ReportStage(
                     arches.append(toolchain.GetArchForTarget(default[0]))
                 except cros_build_lib.RunCommandError as e:
                     logging.warning(
-                        "Unable to retrieve arch for board %s default toolchain %s: %s",
+                        "Unable to retrieve arch for board %s default toolchain"
+                        " %s: %s",
                         board,
                         default,
                         e,

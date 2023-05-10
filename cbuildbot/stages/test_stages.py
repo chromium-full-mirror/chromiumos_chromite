@@ -49,7 +49,7 @@ class UnitTestStage(
         The attribute 'test_artifacts_uploaded' is set by UploadTestArtifacts.
 
         Returns:
-          Boolean that authorizes running this stage.
+            Boolean that authorizes running this stage.
         """
         self.board_runattrs.GetParallel("test_artifacts_uploaded", timeout=None)
         self.board_runattrs.GetParallel("debug_symbols_completed", timeout=None)
@@ -311,7 +311,7 @@ class ImageTestStage(
         The uploading will be retried 3 times for each file.
 
         Args:
-          test_results_dir: A path to the directory with perf files.
+            test_results_dir: A path to the directory with perf files.
         """
         # A dict of list of perf values, keyed by test name.
         perf_entries = collections.defaultdict(list)
@@ -331,8 +331,7 @@ class ImageTestStage(
             cros_ver = self._run.GetVersionInfo().VersionString()
         except cbuildbot_run.VersionNotSetError:
             logging.error(
-                "Could not obtain version info. "
-                "Failed to upload perf results."
+                "Could not obtain version info. Failed to upload perf results."
             )
             return
 
@@ -369,12 +368,13 @@ class CbuildbotLaunchTestBuildStage(generic_stages.BuilderStage):
         """Init.
 
         Args:
-          builder_run: See builder_run on ArchiveStage
-          buildstore: BuildStore instance to make DB calls with.
-          tryjob_buildroot: buildroot to use for test build, NOT current build.
-          branch: Branch to build. None means 'current' branch.
-          build_config: Name of build config to build.
-          expect_success: Is the test build expected to pass?
+            builder_run: See builder_run on ArchiveStage
+            buildstore: BuildStore instance to make DB calls with.
+            tryjob_buildroot: buildroot to use for test build, NOT current
+                build.
+            branch: Branch to build. None means 'current' branch.
+            build_config: Name of build config to build.
+            expect_success: Is the test build expected to pass?
         """
         super().__init__(builder_run, buildstore, **kwargs)
 
@@ -408,8 +408,8 @@ class CbuildbotLaunchTestStage(generic_stages.BuilderStage):
         """Init.
 
         Args:
-          builder_run: See builder_run on ArchiveStage
-          buildstore: BuildStore instance to make DB calls with.
+            builder_run: See builder_run on ArchiveStage
+            buildstore: BuildStore instance to make DB calls with.
         """
         super().__init__(builder_run, buildstore, **kwargs)
         self.tryjob_buildroot = None
@@ -574,14 +574,14 @@ class TestPlanStage(generic_stages.BoardSpecificBuilderStage):
         """Gets the correct hw test stage for a given test suite and model.
 
         Args:
-          builder_run: BuilderRun object for these background stages.
-          buildstore: BuildStore instance to make DB calls with.
-          board: board overlay name
-          model: ModelTestConfig object to test against.
-          suite_config: HWTestConfig object that defines the test suite.
+            builder_run: BuilderRun object for these background stages.
+            buildstore: BuildStore instance to make DB calls with.
+            board: board overlay name
+            model: ModelTestConfig object to test against.
+            suite_config: HWTestConfig object that defines the test suite.
 
         Returns:
-          The test stage or None if the test suite was filtered for the model.
+            The test stage or None if the test suite was filtered for the model.
         """
         result = None
 

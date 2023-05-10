@@ -42,8 +42,8 @@ def ReportStageFailure(exception, metrics_fields=None):
     """Reports stage failure to Mornach along with inner exceptions.
 
     Args:
-      exception: The failure exception to report.
-      metrics_fields: (Optional) Fields for ts_mon metric.
+        exception: The failure exception to report.
+        metrics_fields: (Optional) Fields for ts_mon metric.
     """
     _InsertFailureToMonarch(
         exception_category=failures_lib.GetExceptionCategory(type(exception)),
@@ -65,10 +65,10 @@ def _InsertFailureToMonarch(
     """Report a single stage failure to Mornach if needed.
 
     Args:
-      exception_category: (Optional) one of
-                          constants.EXCEPTION_CATEGORY_ALL_CATEGORIES,
-                          Default: 'unknown'.
-      metrics_fields: (Optional) Fields for ts_mon metric.
+        exception_category: (Optional) one of
+            constants.EXCEPTION_CATEGORY_ALL_CATEGORIES,
+        Default: 'unknown'.
+        metrics_fields: (Optional) Fields for ts_mon metric.
     """
     if (
         metrics_fields is not None
@@ -120,15 +120,16 @@ class BuilderStage(object):
         """Create a builder stage.
 
         Args:
-          builder_run: The BuilderRun object for the run this stage is part of.
-          buildstore: BuildStore object to make DB calls.
-          suffix: The suffix to append to the buildbot name. Defaults to None.
-          attempt: If this build is to be retried, the current attempt number
-            (starting from 1). Defaults to None. Is only valid if |max_retry| is
-            also specified.
-          max_retry: The maximum number of retries. Defaults to None. Is only valid
-            if |attempt| is also specified.
-          build_root: Override the builder_run build_root.
+            builder_run: The BuilderRun object for the run this stage is part
+                of.
+            buildstore: BuildStore object to make DB calls.
+            suffix: The suffix to append to the buildbot name. Defaults to None.
+            attempt: If this build is to be retried, the current attempt number
+                (starting from 1). Defaults to None. Is only valid if
+                |max_retry| is also specified.
+            max_retry: The maximum number of retries. Defaults to None. Is only
+                valid if |attempt| is also specified.
+            build_root: Override the builder_run build_root.
         """
         self._run = builder_run
         self.buildstore = buildstore
@@ -211,16 +212,16 @@ class BuilderStage(object):
 
         Use this function to concatenate the tag for the current class with the
         suffix passed in by a child class.
-        This function is expected to be called before __init__, and as such should
-        not use any object attributes.
+        This function is expected to be called before __init__, and as such
+        should not use any object attributes.
 
         Args:
-          tag: The tag for this class. Should not be None.
-          child_suffix: The suffix passed up by the child class. May be None.
+            tag: The tag for this class. Should not be None.
+            child_suffix: The suffix passed up by the child class. May be None.
 
         Returns:
-          Extended suffix that incoroporates the tag, to be passed up to the parent
-          class's __init__.
+            Extended suffix that incoroporates the tag, to be passed up to the
+            parent class's __init__.
         """
         if child_suffix is None:
             child_suffix = ""
@@ -234,19 +235,20 @@ class BuilderStage(object):
         This is the direct link to buildbot logs as seen in build.chromium.org
 
         Args:
-          stage: Link to a specific |stage|, otherwise the general buildbot log
+            stage: Link to a specific |stage|, otherwise the general buildbot
+                log
 
         Returns:
-          The fully formed URL
+            The fully formed URL
         """
         return self._run.ConstructDashboardURL(stage=stage)
 
     def _UploadPerfValues(self, *args, **kwargs):
         """Helper for uploading perf values.
 
-        This currently handles common checks only.  We could make perf values more
-        integrated in the overall stage running process in the future though if we
-        had more stages that cared about this.
+        This currently handles common checks only.  We could make perf values
+        more integrated in the overall stage running process in the future
+        though if we had more stages that cared about this.
         """
         # Only upload perf data for buildbots as the data from local tryjobs
         # probably isn't useful to us.
@@ -285,10 +287,10 @@ class BuilderStage(object):
         """Mark the stage as finished in cidb.
 
         Args:
-          stage_result: results_lib.Results.* object of this stage.
-          status: The finish status of the build. Enum type
-              constants.BUILDER_COMPLETED_STATUSES
-          elapsed_time_seconds: (optional) Elapsed time in stage, in seconds.
+            stage_result: results_lib.Results.* object of this stage.
+            status: The finish status of the build. Enum type
+                constants.BUILDER_COMPLETED_STATUSES
+            elapsed_time_seconds: (optional) Elapsed time in stage, in seconds.
         """
         if (
             self._build_stage_id is not None
@@ -351,10 +353,10 @@ class BuilderStage(object):
         """Translates the different result_lib.Result results to builder statuses.
 
         Args:
-          result: Same as the result passed to results_lib.Result.Record()
+            result: Same as the result passed to results_lib.Result.Record()
 
         Returns:
-          A value in the enum constants.BUILDER_ALL_STATUSES.
+            A value in the enum constants.BUILDER_ALL_STATUSES.
         """
         if result == results_lib.Results.SUCCESS:
             return constants.BUILDER_STATUS_PASSED
@@ -397,8 +399,8 @@ class BuilderStage(object):
         """Get buildbucket_ids list of the scheduled slave builds.
 
         Returns:
-          A list of buildbucket_ids (strings) of the slave builds. The list doesn't
-          contain the old builds which were retried in Buildbucket.
+            A list of buildbucket_ids (strings) of the slave builds. The list
+            doesn't contain the old builds which were retried in Buildbucket.
         """
         buildbucket_ids = None
         if self._run.config.slave_configs:
@@ -414,11 +416,12 @@ class BuilderStage(object):
         """Get message summarizing failures of this build from BuildStore.
 
         Args:
-          buildstore: An instance of BuildStore to make DB calls.
-          build_identifier: The instance of BuildIdentifier of the current build.
+            buildstore: An instance of BuildStore to make DB calls.
+            build_identifier: The instance of BuildIdentifier of the current
+                build.
 
         Returns:
-          An instance of build_failure_message.BuildFailureMessage.
+            An instance of build_failure_message.BuildFailureMessage.
         """
         stage_failures = buildstore.GetBuildsFailures(
             [build_identifier.buildbucket_id]
@@ -453,7 +456,7 @@ class BuilderStage(object):
         """Get message summarizing failures of this build from result_lib.Results.
 
         Returns:
-          An instance of build_failure_message.BuildFailureMessage.
+            An instance of build_failure_message.BuildFailureMessage.
         """
         failure_messages = results_lib.Results.GetStageFailureMessage()
         return (
@@ -526,12 +529,12 @@ class BuilderStage(object):
         """Get a portage environment variable for the configuration's board.
 
         Args:
-          envvar: The environment variable to get. E.g. 'PORTAGE_BINHOST'.
-          board: The board to apply, if any.  Specify None to use host.
+            envvar: The environment variable to get. E.g. 'PORTAGE_BINHOST'.
+            board: The board to apply, if any.  Specify None to use host.
 
         Returns:
-          The value of the environment variable, as a string. If no such variable
-          can be found, return the empty string.
+            The value of the environment variable, as a string. If no such
+            variable can be found, return the empty string.
         """
         return portage_util.PortageqEnvvar(
             envvar, board=board, allow_undefined=True
@@ -543,11 +546,11 @@ class BuilderStage(object):
         This assumes self._run.config is a master config.
 
         Returns:
-          A list of build configs corresponding to the slaves for the master
+            A list of build configs corresponding to the slaves for the master
             build config at self._run.config.
 
         Raises:
-          See config_lib.Config.GetSlavesForMaster for details.
+            See config_lib.Config.GetSlavesForMaster for details.
         """
         experimental_builders = self._run.attrs.metadata.GetValueWithDefault(
             constants.METADATA_EXPERIMENTAL_BUILDERS, []
@@ -568,13 +571,13 @@ class BuilderStage(object):
         This assumes self._run.config is a master config.
 
         Args:
-          important_only: If True, only get important slaves.
+            important_only: If True, only get important slaves.
 
         Returns:
-          A map of slave_name to slave_config for the current master.
+            A map of slave_name to slave_config for the current master.
 
         Raises:
-          See config_lib.Config.GetSlaveConfigMapForMaster for details.
+            See config_lib.Config.GetSlaveConfigMapForMaster for details.
         """
 
         slave_config_map = self._run.site_config.GetSlaveConfigMapForMaster(
@@ -597,7 +600,7 @@ class BuilderStage(object):
         """Called before a stage is performed.
 
         Args:
-          tag: Extra tag to add to the stage name on the waterfall.
+            tag: Extra tag to add to the stage name on the waterfall.
         """
         waterfall_name = self.name
         if tag is not None:
@@ -625,7 +628,7 @@ class BuilderStage(object):
         of PerformStage; else, skip this stage.
 
         Returns:
-          By default it just returns True. Subclass can override it
+            By default it just returns True. Subclass can override it
             to return the boolean indicating if Wait succeeds and
             if PerformStage should be run
         """
@@ -646,10 +649,11 @@ class BuilderStage(object):
         """Convert an exception into a string.
 
         Args:
-          exc_info: A (type, value, traceback) tuple as returned by sys.exc_info().
+            exc_info: A (type, value, traceback) tuple as returned by
+                sys.exc_info().
 
         Returns:
-          A string description of the exception.
+            A string description of the exception.
         """
         exc_type, exc_value = exc_info[:2]
         if issubclass(exc_type, failures_lib.StepFailure):
@@ -676,10 +680,11 @@ class BuilderStage(object):
         Meant as a helper for _HandleStageException code only.
 
         Args:
-          exc_info: A (type, value, traceback) tuple as returned by sys.exc_info().
+            exc_info: A (type, value, traceback) tuple as returned by
+                sys.exc_info().
 
         Returns:
-          Result tuple of (exception, description, retrying).
+            Result tuple of (exception, description, retrying).
         """
         # Tell the user about the exception, and record it.
         retrying = False
@@ -689,14 +694,17 @@ class BuilderStage(object):
         return (exc_info[1], description, retrying)
 
     def _HandleStageException(self, exc_info):
-        """Called when PerformStage throws an exception.  Can be overriden.
+        """Called when PerformStage throws an exception.
+
+        Can be overridden.
 
         Args:
-          exc_info: A (type, value, traceback) tuple as returned by sys.exc_info().
+            exc_info: A (type, value, traceback) tuple as returned by
+                sys.exc_info().
 
         Returns:
-          Result tuple of (exception, description, retrying).  If it isn't an
-          exception, then description will be None.
+            Result tuple of (exception, description, retrying).  If it isn't an
+            exception, then description will be None.
         """
         if (
             self._attempt
@@ -901,12 +909,13 @@ class RetryStage(object):
         """Create a RetryStage object.
 
         Args:
-          builder_run: See arguments to BuilderStage.__init__()
-          buildstore: BuildStore instance to make DB calls with.
-          max_retry: The number of times to try the given stage.
-          stage: The stage class to create.
-          *args: A list of arguments to pass to the stage constructor.
-          **kwargs: A list of keyword arguments to pass to the stage constructor.
+            builder_run: See arguments to BuilderStage.__init__()
+            buildstore: BuildStore instance to make DB calls with.
+            max_retry: The number of times to try the given stage.
+            stage: The stage class to create.
+            *args: A list of arguments to pass to the stage constructor.
+            **kwargs: A list of keyword arguments to pass to the stage
+                constructor.
         """
         self._run = builder_run
         self.buildstore = buildstore
@@ -963,12 +972,13 @@ class RepeatStage(object):
         """Create a RepeatStage object.
 
         Args:
-          builder_run: See arguments to BuilderStage.__init__()
-          buildstore: BuildStore instance to make DB calls with.
-          count: The number of times to try the given stage.
-          stage: The stage class to create.
-          *args: A list of arguments to pass to the stage constructor.
-          **kwargs: A list of keyword arguments to pass to the stage constructor.
+            builder_run: See arguments to BuilderStage.__init__()
+            buildstore: BuildStore instance to make DB calls with.
+            count: The number of times to try the given stage.
+            stage: The stage class to create.
+            *args: A list of arguments to pass to the stage constructor.
+            **kwargs: A list of keyword arguments to pass to the stage
+                constructor.
         """
         self._run = builder_run
         self.buildstore = buildstore
@@ -1084,16 +1094,16 @@ class BoardSpecificBuilderStage(BuilderStage):
         """Wait for given |board_attr| to show up.
 
         Args:
-          board_attr: A valid board runattribute name.
-          timeout: Timeout in seconds.  None value means wait forever.
-          pretty_name: Optional name to use instead of raw board_attr in
-            log messages.
+            board_attr: A valid board runattribute name.
+            timeout: Timeout in seconds.  None value means wait forever.
+            pretty_name: Optional name to use instead of raw board_attr in log
+                messages.
 
         Returns:
-          Value of board_attr found.
+            Value of board_attr found.
 
         Raises:
-          AttrTimeoutError if timeout occurs.
+            AttrTimeoutError if timeout occurs.
         """
         timeout_str = "forever"
         if timeout is not None:
@@ -1123,15 +1133,15 @@ class ArchivingStageMixin(object):
     to the BuilderRun object at self._run.  No __init__ needed.
 
     Attributes:
-      acl: GS ACL to use for uploads.
-      archive: Archive object.
-      archive_path: Local path where archives are kept for this run.  Also copy
-        of self.archive.archive_path.
-      download_url: The URL where artifacts for this run can be downloaded.
-        Also copy of self.archive.download_url.
-      upload_url: The Google Storage location where artifacts for this run should
-        be uploaded.  Also copy of self.archive.upload_url.
-      version: Copy of self.archive.version.
+        acl: GS ACL to use for uploads.
+        archive: Archive object.
+        archive_path: Local path where archives are kept for this run.  Also
+            copy of self.archive.archive_path.
+        download_url: The URL where artifacts for this run can be downloaded.
+            Also copy of self.archive.download_url.
+        upload_url: The Google Storage location where artifacts for this run
+            should be uploaded.  Also copy of self.archive.upload_url.
+        version: Copy of self.archive.version.
     """
 
     PROCESSES = 10
@@ -1180,13 +1190,14 @@ class ArchivingStageMixin(object):
         self.UploadArtifact(*args, archive=archive) for each input in the queue.
 
         Args:
-          queue: Queue to use. Add artifacts to this queue, and they will be
-            uploaded in the background.  If None, one will be created on the fly.
-          archive: Whether to automatically copy files to the archive dir.
-          strict: Whether to treat upload errors as fatal.
+            queue: Queue to use. Add artifacts to this queue, and they will be
+                uploaded in the background.  If None, one will be created on the
+                fly.
+            archive: Whether to automatically copy files to the archive dir.
+            strict: Whether to treat upload errors as fatal.
 
         Returns:
-          The queue to use. This is only useful if you did not supply a queue.
+            The queue to use. This is only useful if you did not supply a queue.
         """
         upload = lambda path: self.UploadArtifact(path, archive, strict)
         with parallel.BackgroundTaskRunner(
@@ -1198,12 +1209,13 @@ class ArchivingStageMixin(object):
         """Log a link to an artifact in Google Storage and return the URL.
 
         Args:
-          filename: The filename of the uploaded file.
-          prefix: The prefix to put in front of the filename.
-          text_to_display: Text to display. If None, use |prefix| + |filename|.
+            filename: The filename of the uploaded file.
+            prefix: The prefix to put in front of the filename.
+            text_to_display: Text to display. If None, use |prefix| +
+                |filename|.
 
         Returns:
-          The download URL.
+            The download URL.
         """
         url = "%s/%s" % (self.download_url.rstrip("/"), filename)
         if not text_to_display:
@@ -1215,10 +1227,10 @@ class ArchivingStageMixin(object):
         """Check if this file is allowed to go into a board's extra buckets.
 
         Args:
-          filename: The filename of the file we want to check.
+            filename: The filename of the file we want to check.
 
         Returns:
-          True if the file may be uploaded, False otherwise.
+            True if the file may be uploaded, False otherwise.
         """
         return not any(
             fnmatch.fnmatch(filename, x)
@@ -1229,11 +1241,11 @@ class ArchivingStageMixin(object):
         """Deteminine if this is a build that should not be copied to moblab.
 
         Args:
-          url: The gs url of the target bucket.
-          bot_id: The name of the bot
+            url: The gs url of the target bucket.
+            bot_id: The name of the bot
 
         Returns:
-          True is the build should not be copied to this moblab url
+            True is the build should not be copied to this moblab url
         """
         bot_filter_list = [
             "paladin",
@@ -1256,10 +1268,11 @@ class ArchivingStageMixin(object):
         """Returns a list of all urls for which to upload filename to.
 
         Args:
-          filename: The filename of the file we want to upload.
-          builder_run: builder_run object from which to get the board, base upload
-                       url, and bot_id. If none, this stage's values.
-          prefix: When not None, add an additional directory prefix by this value.
+            filename: The filename of the file we want to upload.
+            builder_run: builder_run object from which to get the board, base
+                upload url, and bot_id. If none, this stage's values.
+            prefix: When not None, add an additional directory prefix by this
+                value.
         """
         board = None
         urls = [self.upload_url]
@@ -1298,12 +1311,13 @@ class ArchivingStageMixin(object):
         """Upload generated artifact to Google Storage.
 
         Args:
-          path: Path of local file to upload to Google Storage
-            if |archive| is True. Otherwise, this is the name of the file
-            in self.archive_path.
-          archive: Whether to automatically copy files to the archive dir.
-          strict: Whether to treat upload errors as fatal.
-          prefix: When not None, add an additional directory prefix by this value.
+            path: Path of local file to upload to Google Storage if |archive| is
+                True. Otherwise, this is the name of the file in
+                self.archive_path.
+            archive: Whether to automatically copy files to the archive dir.
+            strict: Whether to treat upload errors as fatal.
+            prefix: When not None, add an additional directory prefix by this
+                value.
         """
         filename = path
         if archive:
@@ -1341,21 +1355,21 @@ class ArchivingStageMixin(object):
 
         This uses the existing metadata stored in the builder run. The default
         metadata.json file should only be uploaded once, at the end of the run,
-        and considered immutable. During the build, intermediate metadata snapshots
-        can be uploaded to other files, such as partial-metadata.json.
+        and considered immutable. During the build, intermediate metadata
+        snapshots can be uploaded to other files, such as partial-metadata.json.
 
-        This method also updates the metadata in the cidb database, if there is a
-        valid cidb connection set up.
+        This method also updates the metadata in the cidb database, if there is
+        a valid cidb connection set up.
 
         Args:
-          upload_queue: If specified then put the artifact file to upload on
-            this queue.  If None then upload it directly now.
-          filename: Name of file to dump metadata to.
-                    Defaults to constants.METADATA_JSON
-          export: If true, constants.METADATA_TAGS will be exported to gcloud.
+            upload_queue: If specified then put the artifact file to upload on
+                this queue.  If None then upload it directly now.
+            filename: Name of file to dump metadata to. Defaults to
+                constants.METADATA_JSON
+            export: If true, constants.METADATA_TAGS will be exported to gcloud.
 
         Returns:
-          If upload was successful or not
+            If upload was successful or not
         """
         metadata_json = os.path.join(self.archive_path, filename)
 

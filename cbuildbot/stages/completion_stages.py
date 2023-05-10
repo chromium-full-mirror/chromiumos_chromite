@@ -33,11 +33,11 @@ def GetBuilderSuccessMap(builder_run, overall_success):
     fall back and instead just look at whether the entire build was successful.
 
     Args:
-      builder_run: The builder run we wish to get the status of.
-      overall_success: The overall status of the build.
+        builder_run: The builder run we wish to get the status of.
+        overall_success: The overall status of the build.
 
     Returns:
-      A dict, mapping the builder names to whether they succeeded.
+        A dict, mapping the builder names to whether they succeeded.
     """
     success_map = {}
     for run in [builder_run] + builder_run.GetChildren():
@@ -108,10 +108,10 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         """Wait for slave builds to complete.
 
         Args:
-          manager: An instance of BuildSpecsManager.
-          build_identifier: The BuildIdentifier instance of the master build.
-          builders_array: A list of builder names (strings) of slave builds.
-          timeout: Number of seconds to wait for the results.
+            manager: An instance of BuildSpecsManager.
+            build_identifier: The BuildIdentifier instance of the master build.
+            builders_array: A list of builder names (strings) of slave builds.
+            timeout: Number of seconds to wait for the results.
         """
         return manager.WaitForSlavesToComplete(
             build_identifier, builders_array, timeout=timeout
@@ -124,7 +124,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         constructing and returning the BuilderStatusesFetcher instance.
 
         Returns:
-          A instance of builder_status_lib.BuilderStatusesFetcher.
+            A instance of builder_status_lib.BuilderStatusesFetcher.
         """
         # Wait for slaves if we're a master, in production or mock-production.
         # Otherwise just look at our own status.
@@ -224,11 +224,12 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         out. This function may be overridden by subclasses.
 
         Args:
-          failing: The names of the failing builders.
-          inflight: The names of the builders that are still running.
-          no_stat: Set of builder names of slave builders that had status None.
-          self_destructed: Boolean indicating whether the master build destructed
-                           itself and stopped waiting completion of its slaves.
+            failing: The names of the failing builders.
+            inflight: The names of the builders that are still running.
+            no_stat: Set of builder names of slave builders that had status
+                None.
+            self_destructed: Boolean indicating whether the master build
+                destructed itself and stopped waiting completion of its slaves.
         """
         if failing or inflight or no_stat:
             cbuildbot_alerts.PrintBuildbotStepWarnings()
@@ -239,7 +240,10 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
                     [
                         "The following builders failed with this manifest:",
                         ", ".join(sorted(failing)),
-                        "Please check the logs of the failing builders for details.",
+                        (
+                            "Please check the logs of the failing builders for"
+                            " details."
+                        ),
                     ]
                 )
             )
@@ -259,7 +263,10 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
             logging.warning(
                 "\n".join(
                     [
-                        "The following builders did not start or failed prematurely:",
+                        (
+                            "The following builders did not start or failed"
+                            " prematurely:"
+                        ),
                         ", ".join(sorted(no_stat)),
                         "Please check the logs of these builders for details.",
                     ]
@@ -315,15 +322,17 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         """Returns a boolean indicating whether the build should fail.
 
         Args:
-          failing: Set of build config names of builders that failed.
-          inflight: Set of build config names of builders that are inflight
-          no_stat: Set of build config names of builders that had status None.
-          self_destructed: Boolean indicating whether it's a master build which
-            destructed itself and stopped waiting its slaves to complete.
+            failing: Set of build config names of builders that failed.
+            inflight: Set of build config names of builders that are inflight
+            no_stat: Set of build config names of builders that had status None.
+            self_destructed: Boolean indicating whether it's a master build
+                which destructed itself and stopped waiting its slaves to
+                complete.
 
         Returns:
-          True if any of the failing, inflight or no_stat builders are not sanity
-          checker builders and not ignored by self-destruction; else, False.
+            True if any of the failing, in-flight or no_stat builders are not
+            sanity checker builders and not ignored by self-destruction;
+            else, False.
         """
         not_passed_builders = failing | inflight | no_stat
 
@@ -355,8 +364,8 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         """Print the build message.
 
         Args:
-          text: Text (string) to print.
-          url: URL (string) to link to the text, default to None.
+            text: Text (string) to print.
+            url: URL (string) to link to the text, default to None.
         """
         if url is not None:
             cbuildbot_alerts.PrintBuildbotLink(text, url)
@@ -367,10 +376,11 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         """Annotate the build statuses fetched from the Buildbucket.
 
         Some builds may fail to upload statuses to GS. If the builds were
-        scheduled by Buildbucket, get the build statuses and annotate the results.
+        scheduled by Buildbucket, get the build statuses and annotate the
+        results.
 
         Args:
-          no_stat: Config names of the slave builds with None status.
+            no_stat: Config names of the slave builds with None status.
         """
         buildbucket_info_dict = buildbucket_v2.GetBuildInfoDict(
             self._run.attrs.metadata
@@ -435,21 +445,21 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         """Annotate the failing, inflight and no_stat builds with text and links.
 
         Add text and buildbot links to build dashboards for failing builds and
-        inflight builds. For master builds using Buildbucket schdeduler, add text
-        and buildbot links for the no_stat builds; for other master builds, add
-        step text for the no_stat builds.
+        in-flight builds. For master builds using Buildbucket schdeduler, add
+        text and buildbot links for the no_stat builds; for other master builds,
+        add step text for the no_stat builds.
 
         Args:
-          failing: Set of builder names of slave builders that failed.
-          inflight: Set of builder names of slave builders that are inflight.
-          no_stat: Set of builder names of slave builders that had status None.
-          statuses: A builder-name->status dictionary, which will provide
-                    the dashboard_url values for any links.
-          experimental_statuses: A builder-name->status dictionary for all slaves
-                                 that were set as experimental through the tree
-                                 status.
-          self_destructed: Boolean indicating whether the master build destructed
-                           itself and stopped waiting completion of its slaves.
+            failing: Set of builder names of slave builders that failed.
+            inflight: Set of builder names of slave builders that are inflight.
+            no_stat: Set of builder names of slave builders that had status
+                None.
+            statuses: A builder-name->status dictionary, which will provide the
+                dashboard_url values for any links.
+            experimental_statuses: A builder-name->status dictionary for all
+                slaves that were set as experimental through the tree status.
+            self_destructed: Boolean indicating whether the master build
+                destructed itself and stopped waiting completion of its slaves.
         """
         for build in failing:
             if statuses[build].message:
@@ -496,8 +506,8 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         should only be called after PerformStage has returned.
 
         Returns:
-          A dictionary from build names to builder_status_lib.BuilderStatus
-          builder status objects.
+            A dictionary from build names to builder_status_lib.BuilderStatus
+            builder status objects.
         """
         return self._slave_statuses
 
@@ -508,7 +518,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         should only be called after PerformStage has returned.
 
         Returns:
-          A dictionary from names of experimental slave builds to their
+            A dictionary from names of experimental slave builds to their
             builder_status_lib.BuilderStatus objects.
         """
         return self._experimental_build_statuses
@@ -520,8 +530,8 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         should only be called after PerformStage has returned.
 
         Returns:
-          A boolean indicating whether the build  (and its important slaves) failed
-          with fatal.
+            A boolean indicating whether the build  (and its important slaves)
+            failed with fatal.
         """
         return self._fatal
 
@@ -535,11 +545,12 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
         """Handle a build failure or timeout in the Canary builders.
 
         Args:
-          failing: Names of the builders that failed.
-          inflight: Names of the builders that timed out.
-          no_stat: Set of builder names of slave builders that had status None.
-          self_destructed: Boolean indicating whether the master build destructed
-                           itself and stopped waiting completion of its slaves.
+            failing: Names of the builders that failed.
+            inflight: Names of the builders that timed out.
+            no_stat: Set of builder names of slave builders that had status
+                None.
+            self_destructed: Boolean indicating whether the master build
+                destructed itself and stopped waiting completion of its slaves.
         """
         # Print out the status about what builds failed or not.
         MasterSlaveSyncCompletionStage.HandleFailure(
@@ -553,9 +564,9 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
         """Send an alert email to summarize canary failures.
 
         Args:
-          failing: The names of the failing builders.
-          inflight: The names of the builders that are still running.
-          no_stat: The names of the builders that had status None.
+            failing: The names of the failing builders.
+            inflight: The names of the builders that are still running.
+            no_stat: The names of the builders that had status None.
         """
         builder_name = "Canary Master"
         title = "%s has detected build failures:" % builder_name
@@ -589,9 +600,10 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
         """Handles the failure by sending out an alert email.
 
         Args:
-          failing: Names of the builders that failed.
-          inflight: Names of the builders that timed out.
-          no_stat: Set of builder names of slave builders that had status None.
+            failing: Names of the builders that failed.
+            inflight: Names of the builders that timed out.
+            no_stat: Set of builder names of slave builders that had status
+                None.
         """
         if self._run.manifest_branch in ("main", "master"):
             self.SendCanaryFailureAlert(failing, inflight, no_stat)
@@ -666,10 +678,11 @@ class PublishUprevChangesStage(generic_stages.BuilderStage):
 
     Push local commits for uprevs, binhost, and portage cache. We resync to the
     latest version of repos as they exist in GoB.  We can't rely on the commits
-    we pulled originally because our CL submit stage might have failed in some way
-    (GoB sometimes flakes), or we don't want to submit all the CLs (we pushed some
-    repos, but rejected others based on CQ repo settings). There might also be
-    commits pushed independently (chumped by sheriffs or the precq submitted).
+    we pulled originally because our CL submit stage might have failed in some
+    way (GoB sometimes flakes), or we don't want to submit all the CLs (we
+    pushed some repos, but rejected others based on CQ repo settings). There
+    might also be commits pushed independently (chumped by sheriffs or the precq
+    submitted).
     """
 
     category = constants.CI_INFRA_STAGE
@@ -678,10 +691,10 @@ class PublishUprevChangesStage(generic_stages.BuilderStage):
         """Constructor.
 
         Args:
-          builder_run: BuilderRun object.
-          buildstore: BuildStore instance to make DB calls with.
-          sync_stage: An instance of sync stage.
-          success: Boolean indicating whether the build succeeded.
+            builder_run: BuilderRun object.
+            buildstore: BuildStore instance to make DB calls with.
+            sync_stage: An instance of sync stage.
+            success: Boolean indicating whether the build succeeded.
         """
         super().__init__(builder_run, buildstore, **kwargs)
         self.sync_stage = sync_stage
@@ -691,11 +704,11 @@ class PublishUprevChangesStage(generic_stages.BuilderStage):
         """Check whether the master builder has passed BinhostTest stage.
 
         Args:
-          buildbucket_id: buildbucket_id of the master build to check for.
+            buildbucket_id: buildbucket_id of the master build to check for.
 
         Returns:
-          True if the status of the master build BinhostTest stage is 'pass';
-          else, False.
+            True if the status of the master build BinhostTest stage is 'pass';
+            else, False.
         """
         stage_name = "BinhostTest"
 
@@ -754,9 +767,9 @@ class PublishUprevChangesStage(generic_stages.BuilderStage):
         the UploadPrebuilts stage.
 
         Returns:
-          True if all the important slaves have passed the stage;
-          True if it's in debug environment;
-          else, False.
+            True if all the important slaves have passed the stage;
+            True if it's in debug environment;
+            else, False.
         """
         stage_name = "UploadPrebuilts"
 

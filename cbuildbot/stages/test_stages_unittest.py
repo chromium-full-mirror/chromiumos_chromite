@@ -139,11 +139,11 @@ class HWTestStageTest(
         """Verify the stage behavior in various circumstances.
 
         Args:
-          debug: Whether the HWTest suite should be run in debug mode.
-          fails: Whether the stage should fail.
-          warns: Whether the stage should warn.
-          cmd_fail_mode: How commands.RunHWTestSuite() should fail.
-            If None, don't fail.
+            debug: Whether the HWTest suite should be run in debug mode.
+            fails: Whether the stage should fail.
+            warns: Whether the stage should warn.
+            cmd_fail_mode: How commands.RunHWTestSuite() should fail. If None,
+                don't fail.
         """
         # We choose to define these mocks in setUp() because they are
         # useful for tests that do not call this method. However, this

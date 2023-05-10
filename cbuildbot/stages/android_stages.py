@@ -129,10 +129,10 @@ class AndroidMetadataStage(
         """Updates board metadata to fill in Android build info.
 
         Returns:
-          (versions, branches, targets) where:
-            versions: A set of Android versions used in target boards.
-            branches: A set of Android branch names used in target boards.
-            targets: A set of Android targets used in target boards.
+            (versions, branches, targets) where:
+                versions: A set of Android versions used in target boards.
+                branches: A set of Android branch names used in target boards.
+                targets: A set of Android targets used in target boards.
         """
         # Need to always iterate through and generate the board-specific
         # Android version metadata.  Each board must be handled separately

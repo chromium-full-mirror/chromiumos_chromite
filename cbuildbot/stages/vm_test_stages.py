@@ -81,14 +81,14 @@ class VMTestStage(
         """Initiailization of the VMTestStage.
 
         Args:
-          builder_run: BoardRunAttributes object for this stage.
-          buildstore: BuildStore instance to make DB calls with.
-          board: The active board for this stage.
-          vm_tests: vm_tests to run at this stage. If None is specified, use
-                    builder_run.config.vm_tests instead.
-          ssh_port: ssh port to access the VM. Default: 9228.
-          test_basename: The basename that the tests are archived to. If None is
-                         specified, use constants.VM_TEST_RESULTS instead.
+            builder_run: BoardRunAttributes object for this stage.
+            buildstore: BuildStore instance to make DB calls with.
+            board: The active board for this stage.
+            vm_tests: vm_tests to run at this stage. If None is specified, use
+                builder_run.config.vm_tests instead.
+            ssh_port: ssh port to access the VM. Default: 9228.
+            test_basename: The basename that the tests are archived to. If None
+                is specified, use constants.VM_TEST_RESULTS instead.
         """
         self._vm_tests = vm_tests
         self._ssh_port = ssh_port
@@ -100,8 +100,8 @@ class VMTestStage(
         """Print links to failed tests.
 
         Args:
-          results_path: Path to directory containing the test results.
-          test_basename: The basename that the tests are archived to.
+            results_path: Path to directory containing the test results.
+            test_basename: The basename that the tests are archived to.
         """
         test_list = ListTests(results_path, show_passed=False)
         for test_name, path in test_list:
@@ -118,8 +118,8 @@ class VMTestStage(
         """Archives test results to Google Storage.
 
         Args:
-          test_results_dir: Name of the directory containing the test results.
-          test_basename: The basename to archive the tests.
+            test_results_dir: Name of the directory containing the test results.
+            test_basename: The basename to archive the tests.
         """
         results_path = GetTestResultsDir(self._build_root, test_results_dir)
 
@@ -160,7 +160,7 @@ class VMTestStage(
         """Report VMTests results to chromeperf and CTS dashboard.
 
         Args:
-          test_results_dir: Name of the directory containing the test results.
+            test_results_dir: Name of the directory containing the test results.
         """
         # TODO(pwang): also upload to sponge and afe/tko so results show up
         # consistently on all dashboards like wmatrix and goldeneye.
@@ -183,8 +183,8 @@ class VMTestStage(
         """Report CTS/GTS result to their dashboards.
 
         Args:
-          test_name: name of the test.
-          test_dir: path to the test directory.
+            test_name: name of the test.
+            test_dir: path to the test directory.
         """
         logging.info("Reporting cts test: %s in %s", test_name, test_dir)
         builder = self._run.GetBuilderName()
@@ -240,9 +240,9 @@ class VMTestStage(
         """Run a VM test.
 
         Args:
-          test_config: Any config_lib.VMTestConfig with test_type in
-                       constants.VALID_VM_TEST_TYPES.
-          test_results_dir: The base directory to store the results.
+            test_config: Any config_lib.VMTestConfig with test_type in
+                constants.VALID_VM_TEST_TYPES.
+            test_results_dir: The base directory to store the results.
         """
         test_type = test_config.test_type
         if test_type == constants.CROS_VM_TEST_TYPE:
@@ -285,7 +285,7 @@ class VMTestStage(
         The attribute 'autotest_tarball_generated' is set by ArchiveStage.
 
         Returns:
-          Boolean that authorizes running of this stage.
+            Boolean that authorizes running of this stage.
         """
         return self.board_runattrs.GetParallel(
             "autotest_tarball_generated", timeout=None
@@ -362,12 +362,12 @@ def ListTests(results_path, show_failed=True, show_passed=True):
     Parse the test report logs from autotest to find tests.
 
     Args:
-      results_path: Path to the directory of test results.
-      show_failed: Return failed tests.
-      show_passed: Return passed tests.
+        results_path: Path to the directory of test results.
+        show_failed: Return failed tests.
+        show_passed: Return passed tests.
 
     Returns:
-      A lists of (test_name, relative/path/to/tests)
+        A lists of (test_name, relative/path/to/tests)
     """
     # TODO: we don't have to parse the log to find tests once
     # crbug.com/350520 is fixed.
@@ -430,9 +430,9 @@ def GetTestResultsDir(buildroot, test_results_dir):
     """Returns the test results directory located in chroot.
 
     Args:
-      buildroot: Root directory where build occurs.
-      test_results_dir: Path from buildroot/chroot to find test results.
-        This must a subdir of /tmp.
+        buildroot: Root directory where build occurs.
+        test_results_dir: Path from buildroot/chroot to find test results. This
+            must a subdir of /tmp.
     """
     test_results_dir = test_results_dir.lstrip("/")
     return os.path.join(
@@ -444,8 +444,8 @@ def ArchiveTestResults(results_path, archive_dir):
     """Archives the test results to |archive_dir|.
 
     Args:
-      results_path: Path to test results.
-      archive_dir: Local directory to archive to.
+        results_path: Path to test results.
+        archive_dir: Local directory to archive to.
     """
     cros_build_lib.sudo_run(
         ["chmod", "-R", "a+rw", results_path], print_cmd=False
@@ -480,13 +480,13 @@ def ArchiveVMFiles(buildroot, test_results_dir, archive_path):
     independently.
 
     Args:
-      buildroot: Build root directory.
-      test_results_dir: Path from buildroot/chroot to find test results.
-        This must a subdir of /tmp.
-      archive_path: Directory the tarballs should be written to.
+        buildroot: Build root directory.
+        test_results_dir: Path from buildroot/chroot to find test results. This
+            must a subdir of /tmp.
+        archive_path: Directory the tarballs should be written to.
 
     Returns:
-      The paths to the tarballs.
+        The paths to the tarballs.
     """
     images_dir = os.path.join(buildroot, "chroot", test_results_dir.lstrip("/"))
     return artifacts_svc.ArchiveFilesFromImageDir(images_dir, archive_path)

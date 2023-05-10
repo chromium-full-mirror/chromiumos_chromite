@@ -125,15 +125,15 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         """Scehdule a build within Buildbucket.
 
         Args:
-          build_name: Slave build name to schedule.
-          build_config: Slave build config.
-          master_build_id: CIDB id of the master scheduling the slave build.
-          master_buildbucket_id: buildbucket id of the master scheduling the
-                                 slave build.
-          dryrun: Whether a dryrun, default to False.
+            build_name: Slave build name to schedule.
+            build_config: Slave build config.
+            master_build_id: CIDB id of the master scheduling the slave build.
+            master_buildbucket_id: buildbucket id of the master scheduling the
+                slave build.
+            dryrun: Whether a dryrun, default to False.
 
         Returns:
-          Tuple:
+            Tuple:
             buildbucket_id
             created_ts
         """
@@ -170,9 +170,9 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         """Schedule slave builds by sending PUT requests to Buildbucket.
 
         Args:
-          important_only: Whether only schedule important slave builds, default to
-            False.
-          dryrun: Whether a dryrun, default to False.
+            important_only: Whether only schedule important slave builds,
+                default to False.
+            dryrun: Whether a dryrun, default to False.
         """
         if self.buildbucket_client is None:
             logging.info("No buildbucket_client. Skip scheduling slaves.")
@@ -206,7 +206,8 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
                 and slave_config_name not in constants.LEGACY_RELEASE_ALLOWLIST
             ):
                 logging.info(
-                    "Child %s not in LEGACY_RELEASE_ALLOWLIST (b/238925754), skipping...",
+                    "Child %s not in LEGACY_RELEASE_ALLOWLIST (b/238925754),"
+                    " skipping...",
                     slave_config_name,
                 )
                 continue

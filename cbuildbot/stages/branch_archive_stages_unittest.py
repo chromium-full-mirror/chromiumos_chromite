@@ -53,7 +53,9 @@ class BranchArchiveStageTestBase(
         self.read_overlay_file_mock = self.PatchObject(
             portage_util,
             "ReadOverlayFile",
-            return_value='{"extra_upload_urls":["gs://chromeos-extra-archive"]}',
+            return_value=(
+                '{"extra_upload_urls":["gs://chromeos-extra-archive"]}'
+            ),
         )
 
     def ConstructStage(self):
@@ -247,7 +249,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
                     sign_types=["factory"],
                     dryrun=False,
                     archive_url=(
-                        "gs://chromeos-image-archive/" "board-factory/R1-1.2.3"
+                        "gs://chromeos-image-archive/board-factory/R1-1.2.3"
                     ),
                     board="board",
                 ),
@@ -293,8 +295,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
         self.assertEqual(self.stage.branch_version, "R1-1.2.3-bNone")
         self.assertEqual(
             self.stage.branch_archive_url,
-            "gs://chromeos-image-archive/board-factory-tryjob/"
-            "R1-1.2.3-bNone",
+            "gs://chromeos-image-archive/board-factory-tryjob/R1-1.2.3-bNone",
         )
 
         self.assertEqual(

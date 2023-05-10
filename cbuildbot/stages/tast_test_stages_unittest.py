@@ -248,11 +248,12 @@ class TastVMTestStageTest(
         """Verifies that the stage reported the expected result.
 
         Args:
-          result: Either a string result constant from results_lib.Results
-                  (e.g. SUCCESS, FORGIVEN, SKIPPED) or (in the case of a failure)
-                  the exception class thrown by the test (e.g.
-                  failures_lib.TestFailure).
-          description: String exactly matching description in results_lib.Results().
+            result: Either a string result constant from results_lib.Results
+                (e.g. SUCCESS, FORGIVEN, SKIPPED) or (in the case of a failure)
+                the exception class thrown by the test (e.g.
+                failures_lib.TestFailure).
+            description: String exactly matching description in
+                results_lib.Results().
         """
         self.assertEqual(
             [
@@ -378,8 +379,8 @@ class CopyResultsDirTest(cros_test_lib.TempDirTestCase):
         """Creates a file within self.src.
 
         Args:
-          path: String containing relative path to create within self.src.
-          data: String data to write to file.
+            path: String containing relative path to create within self.src.
+            data: String data to write to file.
         """
         full_path = os.path.join(self.src, path)
         dir_path = os.path.dirname(full_path)

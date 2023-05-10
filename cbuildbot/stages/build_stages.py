@@ -148,7 +148,7 @@ class CleanUpStage(generic_stages.BuilderStage):
         """Extract the status of the previous build from command-line arguments.
 
         Returns:
-          A BuildSummary object representing the previous build.
+            A BuildSummary object representing the previous build.
         """
         previous_state = build_summary.BuildSummary()
         if self._run.options.previous_build_state:
@@ -170,11 +170,12 @@ class CleanUpStage(generic_stages.BuilderStage):
         """Get the state of the previous master build from CIDB.
 
         Args:
-          previous_state: A BuildSummary object representing the previous build.
+            previous_state: A BuildSummary object representing the previous
+                build.
 
         Returns:
-          A tuple containing the master build number and status, or None, None
-          if there isn't one.
+            A tuple containing the master build number and status, or None, None
+            if there isn't one.
         """
         if not previous_state.master_build_id:
             return None, None
@@ -296,7 +297,7 @@ class CleanUpStage(generic_stages.BuilderStage):
             3.  If there was a previous master build, that build also succeeded.
 
         Returns:
-          True if the chroot can be reused, False if not.
+            True if the chroot can be reused, False if not.
         """
 
         if self._run.config.chroot_replace and self._run.options.build:
@@ -413,9 +414,9 @@ class InitSDKStage(generic_stages.BuilderStage):
         """InitSDK constructor.
 
         Args:
-          builder_run: Builder run instance for this run.
-          buildstore: BuildStore instance to make DB calls with.
-          chroot_replace: If True, force the chroot to be replaced.
+            builder_run: Builder run instance for this run.
+            buildstore: BuildStore instance to make DB calls with.
+            chroot_replace: If True, force the chroot to be replaced.
         """
         super().__init__(builder_run, buildstore, **kwargs)
         self.force_chroot_replace = chroot_replace
@@ -634,8 +635,8 @@ class BuildPackagesStage(
         Updates related env vars, and returns args to chroot.
 
         Returns:
-          args which should be provided to chroot in order to enable goma.
-          If goma is unusable or disabled, None is returned.
+            args which should be provided to chroot in order to enable goma.
+            If goma is unusable or disabled, None is returned.
         """
         if not self._ShouldEnableGoma():
             return None
@@ -876,10 +877,10 @@ class BuildImageStage(BuildPackagesStage):
     def _BuildGceTarballs(self):
         """Creates .tar.gz files that can be converted to GCE images.
 
-        These files will be used by VMTestStage for tests on GCE. They will also be
-        be uploaded to GCS buckets, where they can be used as input to the "gcloud
-        compute images create" command. This will convert them into images that can
-        be used to create GCE VM instances.
+        These files will be used by VMTestStage for tests on GCE. They will also
+        be be uploaded to GCS buckets, where they can be used as input to the
+        "gcloud compute images create" command. This will convert them into
+        images that can be used to create GCE VM instances.
         """
         if self._run.config.gce_image:
             image_bins = []

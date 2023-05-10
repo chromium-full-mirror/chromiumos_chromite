@@ -41,10 +41,10 @@ class PatchChangesStage(generic_stages.BuilderStage):
         """Construct a PatchChangesStage.
 
         Args:
-          builder_run: BuilderRun object.
-          buildstore: BuildStore instance to make DB calls with.
-          patch_pool: A TrybotPatchPool object containing the different types of
-                      patches to apply.
+            builder_run: BuilderRun object.
+            buildstore: BuildStore instance to make DB calls with.
+            patch_pool: A TrybotPatchPool object containing the different types
+                of patches to apply.
         """
         super().__init__(builder_run, buildstore, **kwargs)
         self.patch_pool = patch_pool
@@ -56,9 +56,9 @@ class PatchChangesStage(generic_stages.BuilderStage):
         for change in changes:
             if change.id is None:
                 logging.warning(
-                    "Change %s lacks a usable ChangeId; duplicate checking cannot "
-                    "be done for this change.  If cherry-picking fails, this is a "
-                    "potential cause.",
+                    "Change %s lacks a usable ChangeId; duplicate checking"
+                    " cannot be done for this change.  If cherry-picking fails,"
+                    " this is a potential cause.",
                     change,
                 )
                 continue
@@ -135,8 +135,8 @@ class BootstrapStage(PatchChangesStage):
     """Stage that patches a chromite repo and re-executes inside it.
 
     Attributes:
-      returncode - the returncode of the cbuildbot re-execution.  Valid after
-                   calling stage.Run().
+        returncode: The returncode of the cbuildbot re-execution. Valid after
+            calling stage.Run().
     """
 
     option_name = "bootstrap"
@@ -158,13 +158,13 @@ class BootstrapStage(PatchChangesStage):
         """Apply a pool of manifest patches to a temp manifest checkout.
 
         Args:
-          patch_pool: The pool to apply.
+            patch_pool: The pool to apply.
 
         Returns:
-          The path to the patched manifest checkout.
+            The path to the patched manifest checkout.
 
         Raises:
-          Exception, if the new patched manifest cannot be parsed.
+            Exception, if the new patched manifest cannot be parsed.
         """
         checkout_dir = os.path.join(self.tempdir, "manfest-checkout")
         git.Clone(checkout_dir, self._run.config.manifest_repo_url)
@@ -220,11 +220,11 @@ class BootstrapStage(PatchChangesStage):
         Does NOT determine if they have already been applied.
 
         Args:
-          builder_run: BuilderRun object for this build.
-          patch_pool: All patches to be applied this run.
+            builder_run: BuilderRun object for this build.
+            patch_pool: All patches to be applied this run.
 
         Returns:
-          boolean True if bootstrapping is needed.
+            boolean True if bootstrapping is needed.
         """
         chromite_pool = patch_pool.Filter(project=constants.CHROMITE_PROJECT)
         if builder_run.config.internal:
@@ -458,7 +458,7 @@ class ManifestVersionedSyncStage(SyncStage):
         """Save the given manifest manager for later use in this run.
 
         Args:
-          manifest_manager: Expected to be a BuildSpecsManager.
+            manifest_manager: Expected to be a BuildSpecsManager.
         """
         self._run.attrs.manifest_manager = (
             self.manifest_manager
@@ -497,7 +497,7 @@ class ManifestVersionedSyncStage(SyncStage):
         """If 'android' is in |manifest|, write version to the BuilderRun object.
 
         Args:
-          manifest: Path to the manifest.
+            manifest: Path to the manifest.
         """
         manifest_dom = minidom.parse(manifest)
         elements = manifest_dom.getElementsByTagName(
@@ -524,7 +524,7 @@ class ManifestVersionedSyncStage(SyncStage):
         """If 'chrome' is in |manifest|, write the version to the BuilderRun object.
 
         Args:
-          manifest: Path to the manifest.
+            manifest: Path to the manifest.
         """
         manifest_dom = minidom.parse(manifest)
         elements = manifest_dom.getElementsByTagName(
@@ -578,9 +578,9 @@ class ManifestVersionedSyncStage(SyncStage):
         """Remove restricted checkouts from the manifest if needed.
 
         Args:
-          manifest: The manifest to localize.
-          filter_cros: If set, then only checkouts with a remote of 'cros' or
-            'cros-internal' are kept, and the rest are filtered out.
+            manifest: The manifest to localize.
+            filter_cros: If set, then only checkouts with a remote of 'cros' or
+                'cros-internal' are kept, and the rest are filtered out.
         """
         if filter_cros:
             with osutils.TempDir() as tempdir:
@@ -603,11 +603,11 @@ class ManifestVersionedSyncStage(SyncStage):
         """Get the platform version associated with the master_build_id.
 
         Args:
-          master_id: Our master buildbucket id.
-          timeout: How long to wait for the platform version to show up
-            in the database. This is needed because the slave builders are
-            triggered slightly before the platform version is written. Default
-            is 5 minutes.
+            master_id: Our master buildbucket id.
+            timeout: How long to wait for the platform version to show up in the
+                database. This is needed because the slave builders are
+                triggered slightly before the platform version is written.
+                Default is 5 minutes.
         """
 
         # TODO(davidjames): Remove the wait loop here once we've updated slave
@@ -637,7 +637,7 @@ class ManifestVersionedSyncStage(SyncStage):
         """Verify that our master id is current and valid.
 
         Args:
-          master_id: Our master buildbucket id.
+            master_id: Our master buildbucket id.
         """
         if self.buildstore.AreClientsReady() and master_id:
             assert not self._run.options.force_version
@@ -651,8 +651,8 @@ class ManifestVersionedSyncStage(SyncStage):
             )
             if latest and str(latest[0]["buildbucket_id"]) != str(master_id):
                 raise failures_lib.MasterSlaveVersionMismatchFailure(
-                    "This slave's master (id=%s) has been supplanted by a newer "
-                    "master (id=%s). Aborting." % (master_id, latest[0]["id"])
+                    "This slave's master (id=%s) has been supplanted by a newer"
+                    " master (id=%s). Aborting." % (master_id, latest[0]["id"])
                 )
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
@@ -721,10 +721,10 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
         """Returns an initialized lkgm manager.
 
         Args:
-          internal: Boolean.  True if this is using an internal manifest.
+            internal: Boolean.  True if this is using an internal manifest.
 
         Returns:
-          lkgm_manager.LKGMManager.
+            lkgm_manager.LKGMManager.
         """
         increment = self.VersionIncrementType()
         return lkgm_manager.LKGMManager(
@@ -769,8 +769,9 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
         super()._VerifyMasterId(master_id)
         if not self._run.config.master and not master_id:
             raise failures_lib.StepFailure(
-                "Cannot start build without a master_build_id. Did you hit force "
-                "build on a slave? Please hit force build on the master instead."
+                "Cannot start build without a master_build_id. Did you hit"
+                " force build on a slave? Please hit force build on the master"
+                " instead."
             )
 
     def GetNextManifest(self):
@@ -785,7 +786,7 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
 
         build_id = self._run.attrs.metadata.GetDict().get("build_id")
         logging.info(
-            "Creating new candidate manifest, including chrome version " "%s.",
+            "Creating new candidate manifest, including chrome version %s.",
             self._chrome_version,
         )
         if self._android_version:

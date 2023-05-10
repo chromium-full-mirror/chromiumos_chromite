@@ -226,9 +226,9 @@ class MockPatch(mock.MagicMock):
         constants.DEFAULT_CQ_READY_FIELDS, but not any other fields.
 
         Args:
-          field: The name of the field as a string. 'CRVW', etc.
-          allowed: Value, or list of values that are acceptable expressed as
-                   strings.
+            field: The name of the field as a string. 'CRVW', etc.
+            allowed: Value, or list of values that are acceptable expressed as
+                strings.
         """
         flag_value = self.flags.get(field, 0)
         if isinstance(allowed, (tuple, list)):

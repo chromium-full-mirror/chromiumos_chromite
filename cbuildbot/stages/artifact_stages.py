@@ -49,9 +49,9 @@ class ArchiveStage(
     """Archives build and test artifacts for developer consumption.
 
     Attributes:
-      release_tag: The release tag. E.g. 2981.0.0
-      version: The full version string, including the milestone.
-          E.g. R26-2981.0.0-b123
+        release_tag: The release tag. E.g. 2981.0.0
+        version: The full version string, including the milestone. E.g.
+            R26-2981.0.0-b123
     """
 
     option_name = "archive"
@@ -78,8 +78,8 @@ class ArchiveStage(
         """Wait until artifacts needed by SignerTest stage are created.
 
         Returns:
-          True if artifacts created successfully.
-          False otherwise.
+            True if artifacts created successfully.
+            False otherwise.
         """
         logging.info("Waiting for recovery image...")
         status = self._recovery_image_status_queue.get()
@@ -616,7 +616,8 @@ class DebugSymbolsStage(
         """Generate and upload the debug tarball.
 
         Args:
-          upload: Boolean indicating whether to upload the generated debug tarball.
+            upload: Boolean indicating whether to upload the generated debug
+                tarball.
         """
         filename = commands.GenerateDebugTarball(
             self._build_root,
@@ -637,7 +638,8 @@ class DebugSymbolsStage(
         """Generate and upload the debug tarball with only breakpad files.
 
         Args:
-          upload: Boolean indicating whether to upload the generated debug tarball.
+            upload: Boolean indicating whether to upload the generated debug
+                tarball.
         """
         filename = commands.GenerateDebugTarball(
             self._build_root,
@@ -762,12 +764,12 @@ class UploadPrebuiltsStage(generic_stages.BoardSpecificBuilderStage):
         """Private helper method to add upload_prebuilts args for a slave builder.
 
         Args:
-          slave_config: The build config of a slave builder.
-          board: The name of the "master" board on the master builder.
+            slave_config: The build config of a slave builder.
+            board: The name of the "master" board on the master builder.
 
         Returns:
-          An array of options to add to upload_prebuilts array that allow a master
-          to submit prebuilt conf modifications on behalf of a slave.
+            An array of options to add to upload_prebuilts array that allow a
+            master to submit prebuilt conf modifications on behalf of a slave.
         """
         args = []
         if slave_config["prebuilts"]:
@@ -866,7 +868,8 @@ class UploadTestArtifactsStage(
                     )
                 )
                 logging.debug(
-                    "Running BuildAutotestTarballsForHWTest root %s cwd %s target %s",
+                    "Running BuildAutotestTarballsForHWTest root %s cwd %s"
+                    " target %s",
                     self._build_root,
                     cwd,
                     tempdir,
@@ -909,8 +912,8 @@ class UploadTestArtifactsStage(
         """Generate and upload payloads for |image_name|.
 
         Args:
-          image_name: The image to use.
-          **kwargs: Keyword arguments to pass to commands.GeneratePayloads.
+            image_name: The image to use.
+            **kwargs: Keyword arguments to pass to commands.GeneratePayloads.
         """
         with osutils.TempDir(prefix="cbuildbot-payloads") as tempdir:
             with self.ArtifactUploader() as queue:
@@ -1046,7 +1049,7 @@ class ArchivingStage(
     See ArchivingStageMixin for functionality.
 
     Attributes:
-      archive_stage: The ArchiveStage instance for this board.
+        archive_stage: The ArchiveStage instance for this board.
     """
 
     category = constants.CI_INFRA_STAGE

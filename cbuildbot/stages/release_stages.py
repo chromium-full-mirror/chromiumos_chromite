@@ -96,9 +96,9 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         """Init that accepts the channels argument, if present.
 
         Args:
-          builder_run: See builder_run on ArchivingStage.
-          buildstore: BuildStore instance to make DB calls with.
-          board: See board on ArchivingStage.
+            builder_run: See builder_run on ArchivingStage.
+            buildstore: BuildStore instance to make DB calls with.
+            board: See board on ArchivingStage.
         """
         super().__init__(builder_run, buildstore, board, **kwargs)
 
@@ -126,15 +126,15 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         """Fetch a GS Url, and parse it as Json.
 
         Args:
-          gs_ctx: GS Context.
-          url: Url to fetch and parse.
+            gs_ctx: GS Context.
+            url: Url to fetch and parse.
 
         Returns:
-          None if the Url doesn't exist.
-          Parsed Json structure if it did.
+            None if the Url doesn't exist.
+            Parsed Json structure if it did.
 
         Raises:
-          MalformedResultsException if it failed to parse.
+            MalformedResultsException if it failed to parse.
         """
         try:
             signer_txt = gs_ctx.Cat(url)
@@ -151,11 +151,12 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         """Extract a signing status from a signer result Json DOM.
 
         Args:
-          signer_json: The parsed json status from a signer operation.
+            signer_json: The parsed json status from a signer operation.
 
         Returns:
-          string with a simple status: SIGNER_STATUS_PASSED, SIGNER_STATUS_FAILED,
-          etc, or '' if the json doesn't contain a status.
+            string with a simple status: SIGNER_STATUS_PASSED,
+            SIGNER_STATUS_FAILED,
+            etc, or '' if the json doesn't contain a status.
         """
         return (signer_json or {}).get("status", {}).get("status", "")
 
@@ -165,13 +166,13 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         """timeout_util.WaitForSuccess func to check a list of signer results.
 
         Args:
-          gs_ctx: Google Storage Context.
-          instruction_urls_per_channel: Urls of the signer result files
-                                        we're expecting.
-          channel_notifier: Method to call when a channel is ready or None.
+            gs_ctx: Google Storage Context.
+            instruction_urls_per_channel: Urls of the signer result files we're
+                expecting.
+            channel_notifier: Method to call when a channel is ready or None.
 
         Returns:
-          Number of results not yet collected.
+            Number of results not yet collected.
         """
         COMPLETED_STATUS = (
             constants.SIGNER_STATUS_PASSED,
@@ -239,12 +240,14 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         """Do the work of waiting for signer results and logging them.
 
         Args:
-          instruction_urls_per_channel: push_image data (see _WaitForPushImage).
-          channel_notifier: Method to call with channel name when ready or None.
+            instruction_urls_per_channel: push_image data (see
+                _WaitForPushImage).
+            channel_notifier: Method to call with channel name when ready or
+                None.
 
         Raises:
-          ValueError: If the signer result isn't valid json.
-          RunCommandError: If we are unable to download signer results.
+            ValueError: If the signer result isn't valid json.
+            RunCommandError: If we are unable to download signer results.
         """
         gs_ctx = gs.GSContext(dry_run=self._run.options.debug)
 
@@ -295,7 +298,7 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         Sets self.instruction_urls_per_channel as described in __init__.
 
         Returns:
-          Boolean that tells if we can run this stage.
+            Boolean that tells if we can run this stage.
         """
         # This call will NEVER time out.
         self.instruction_urls_per_channel = self.board_runattrs.GetParallel(
@@ -341,13 +344,13 @@ class PaygenStage(generic_stages.BoardSpecificBuilderStage):
         """Init that accepts the channels argument, if present.
 
         Args:
-          builder_run: See builder_run on ArchivingStage.
-          buildstore: BuildStore instance to make DB calls with.
-          board: See board on ArchivingStage.
-          channels: Explicit list of channels to generate payloads for.
-                    If empty, will instead wait on values from push_image.
-                    Channels is normally None in release builds, and normally set
-                    for trybot 'payloads' builds.
+            builder_run: See builder_run on ArchivingStage.
+            buildstore: BuildStore instance to make DB calls with.
+            board: See board on ArchivingStage.
+            channels: Explicit list of channels to generate payloads for. If
+                empty, will instead wait on values from push_image. Channels is
+                normally None in release builds, and normally set for trybot
+                'payloads' builds.
         """
         super().__init__(builder_run, buildstore, board, **kwargs)
         self.channels = channels
@@ -371,7 +374,7 @@ class PaygenStage(generic_stages.BoardSpecificBuilderStage):
         """Block until signed images are ready.
 
         Returns:
-          Boolean that tells if we can run this stage.
+            Boolean that tells if we can run this stage.
         """
         # If we did got an explicit channel list, there is no need to wait.
         if self.channels is None:
@@ -466,14 +469,15 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
         """Init that accepts the channels argument, if present.
 
         Args:
-          builder_run: See builder_run on ArchiveStage
-          buildstore: BuildStore instance to make DB calls with.
-          board: Board of payloads to generate ('x86-mario', 'x86-alex-he', etc)
-          channel: Channel of payloads to generate ('stable', 'beta', etc)
-          version: Version of payloads to generate.
-          debug: Flag telling if this is a real run, or a test run.
-          skip_testing: Do not generate test artifacts or run payload tests.
-          skip_delta_payloads: Skip generating delta payloads.
+            builder_run: See builder_run on ArchiveStage
+            buildstore: BuildStore instance to make DB calls with.
+            board: Board of payloads to generate ('x86-mario', 'x86-alex-he',
+                etc)
+            channel: Channel of payloads to generate ('stable', 'beta', etc)
+            version: Version of payloads to generate.
+            debug: Flag telling if this is a real run, or a test run.
+            skip_testing: Do not generate test artifacts or run payload tests.
+            skip_delta_payloads: Skip generating delta payloads.
         """
         super().__init__(
             builder_run,
@@ -491,7 +495,9 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
         self.skip_delta_payloads = skip_delta_payloads
 
     def PerformStage(self):
-        """Invoke payload generation. If testing is enabled, schedule tests.
+        """Invoke payload generation.
+
+        If testing is enabled, schedule tests.
 
         This method is intended to be safe to invoke inside a process.
         """
@@ -625,11 +631,11 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
         """Schedule AU tests on models.
 
         Args:
-          archive_board: The board we schedule against.
-          archive_build: The build of the payload config.
-          models: The models with 'au' enabled.
-          payload_configs: The list of payload configs.
-          suite_name: The name of the suite we are scheduling.
+            archive_board: The board we schedule against.
+            archive_build: The build of the payload config.
+            models: The models with 'au' enabled.
+            payload_configs: The list of payload configs.
+            suite_name: The name of the suite we are scheduling.
         """
         return [
             PaygenTestStage(
@@ -658,11 +664,11 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
         applicable_models so they will run on everything.
 
         Args:
-          archive_board: The board we schedule against.
-          archive_build: The build of the payload config.
-          models: The list of models to iterate over.
-          payload_configs: The list of payload configs.
-          suite_name: The name of the suite we are scheduling.
+            archive_board: The board we schedule against.
+            archive_build: The build of the payload config.
+            models: The list of models to iterate over.
+            payload_configs: The list of payload configs.
+            suite_name: The name of the suite we are scheduling.
         """
         stages = []
         for payload_config in payload_configs:
@@ -718,19 +724,20 @@ class PaygenTestStage(generic_stages.BoardSpecificBuilderStage):
         """Init that accepts the channels argument, if present.
 
         Args:
-          builder_run: See builder_run on ArchiveStage
-          buildstore: BuildStore instance to make DB calls with.
-          suite_name: See builder_run on ArchiveStage
-          board: Board overlay name.
-          model: Model that will be tested. ('reef', 'pyro', etc)
-          lab_board_name: The actual board label tested against in Autotest
-          channel: Channel of payloads to generate ('stable', 'beta', etc)
-          build: Version of payloads to generate.
-          debug: Boolean indicating if this is a test run or a real run.
-          payload_test_configs: A list of test_params.TestConfig objects. Only used
-                                for scheduling HWTest with skylab tool.
-          test_env: A string to indicate the env that the test should run in. The
-                    value could be constants.ENV_SKYLAB or constants.ENV_AUTOTEST.
+            builder_run: See builder_run on ArchiveStage
+            buildstore: BuildStore instance to make DB calls with.
+            suite_name: See builder_run on ArchiveStage
+            board: Board overlay name.
+            model: Model that will be tested. ('reef', 'pyro', etc)
+            lab_board_name: The actual board label tested against in Autotest
+            channel: Channel of payloads to generate ('stable', 'beta', etc)
+            build: Version of payloads to generate.
+            debug: Boolean indicating if this is a test run or a real run.
+            payload_test_configs: A list of test_params.TestConfig objects. Only
+                used for scheduling HWTest with skylab tool.
+            test_env: A string to indicate the env that the test should run in.
+                The value could be constants.ENV_SKYLAB or
+                constants.ENV_AUTOTEST.
         """
         self.suite_name = suite_name
         self.board = board

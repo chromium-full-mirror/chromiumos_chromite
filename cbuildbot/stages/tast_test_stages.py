@@ -68,13 +68,13 @@ def _CopyResultsDir(src, dest):
     """Copies a results dir to a new directory for archiving.
 
     Args:
-      src: String source path.
-      dest: String destination path (presumably under
+        src: String source path.
+        dest: String destination path (presumably under
             generic_stages.ArchivingStageMixin.archive_path). Must not exist
             already.
 
     Raises:
-      OSError if dest already exists or the copy fails.
+        OSError if dest already exists or the copy fails.
     """
 
     # Skip symlinks since gsutil chokes on broken ones (and just duplicates
@@ -133,11 +133,11 @@ class TastVMTestStage(
         """Appends the supplied path to the chroot's path.
 
         Args:
-          path: String containing path (either relative or absolute) to be rooted
-                in chroot.
+            path: String containing path (either relative or absolute) to be
+                rooted in chroot.
 
         Returns:
-          String containing chroot suffixed by path.
+            String containing chroot suffixed by path.
         """
         # When os.path.join encounters an absolute path, it throws away everything
         # it's already seen.
@@ -149,18 +149,18 @@ class TastVMTestStage(
         """Runs multiple test suites sequentially.
 
         Args:
-          suites: List of TastVMTestConfig objects describing suites to run.
-          base_chroot_results_dir: Base results directory relative to chroot.
+            suites: List of TastVMTestConfig objects describing suites to run.
+            base_chroot_results_dir: Base results directory relative to chroot.
 
         Raises:
-          failures_lib.TestFailure if an internal error is encountered.
+            failures_lib.TestFailure if an internal error is encountered.
         """
         with cgroups.SimpleContainChildren("TastVMTest"):
             for suite in suites:
                 logging.info(
                     "Running Tast VM test suite %s (%s)",
                     suite.suite_name,
-                    (" ".join(suite.test_exprs)),
+                    " ".join(suite.test_exprs),
                 )
                 # We apparently always prefix reasons with spaces because timeout_util
                 # appends them directly to error messages.
@@ -176,19 +176,18 @@ class TastVMTestStage(
         """Runs a collection of tests.
 
         Args:
-          test_exprs: List of string expressions describing which tests to run; this
-                      is passed directly to the 'tast run' command. See
-                      https://goo.gl/UPNEgT for info about test expressions.
-          suite_chroot_results_dir: String containing path of directory where the
-                                    tast command should store test results,
-                                    relative to chroot.
-          timeout: Integer containing timeout in seconds to pass to Tast. This is
-                   used to let the Tast process reserve adequate time to collect
-                   system information after running tests so that it can exit
-                   cleanly instead of being killed.
+            test_exprs: List of string expressions describing which tests to
+                run; this is passed directly to the 'tast run' command. See
+            https://goo.gl/UPNEgT for info about test expressions.
+            suite_chroot_results_dir: String containing path of directory where
+                the tast command should store test results, relative to chroot.
+            timeout: Integer containing timeout in seconds to pass to Tast. This
+                is used to let the Tast process reserve adequate time to collect
+                system information after running tests so that it can exit
+                cleanly instead of being killed.
 
         Raises:
-          failures_lib.TestFailure if an internal error is encountered.
+            failures_lib.TestFailure if an internal error is encountered.
         """
         vm_path = os.path.join(
             self.GetImageDirSymlink(), constants.TEST_IMAGE_BIN
@@ -227,12 +226,12 @@ class TastVMTestStage(
         """Processes and archives test results.
 
         Args:
-          abs_results_dir: Absolute path to directory containing test results.
-          suite_names: List of string test suite names.
-          already_have_error: Boolean for whether testing has already failed.
+            abs_results_dir: Absolute path to directory containing test results.
+            suite_names: List of string test suite names.
+            already_have_error: Boolean for whether testing has already failed.
 
         Raises:
-          failures_lib.TestFailure if one or more tests failed or results were
+            failures_lib.TestFailure if one or more tests failed or results were
             unavailable. Suppressed if already_have_error is True.
         """
         if not os.path.isdir(abs_results_dir) or not os.listdir(
@@ -272,12 +271,13 @@ class TastVMTestStage(
         """Parses the results file and prints links to failed tests.
 
         Args:
-          abs_results_dir: Absolute path to directory containing test results.
-          url_base: Relative path within the archive dir where results are stored.
-          suite_names: List of string test suite names.
+            abs_results_dir: Absolute path to directory containing test results.
+            url_base: Relative path within the archive dir where results are
+                stored.
+            suite_names: List of string test suite names.
 
         Raises:
-          failures_lib.TestFailure if one or more tests failed or results were
+            failures_lib.TestFailure if one or more tests failed or results were
             missing or unreadable.
         """
         num_failed = 0

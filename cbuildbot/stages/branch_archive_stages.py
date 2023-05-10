@@ -39,9 +39,9 @@ class WorkspaceArchiveBase(
 ):
     """Base class for workspace archive stages.
 
-    The expectation is that the archive stages will be creating a "branch" upload
-    that looks like an older style branched infrastructure build would have
-    generated in addition to a factory branch set of archive results.
+    The expectation is that the archive stages will be creating a "branch"
+    upload that looks like an older style branched infrastructure build would
+    have generated in addition to a factory branch set of archive results.
     """
 
     BRANCH_NAME = "branch"
@@ -82,10 +82,10 @@ class WorkspaceArchiveBase(
         """Return an archive url unique to the current board.
 
         Args:
-          archive_url: The base archive URL (e.g. 'chromeos-image-archive').
+            archive_url: The base archive URL (e.g. 'chromeos-image-archive').
 
         Returns:
-          The unique archive URL.
+            The unique archive URL.
         """
         return os.path.join(
             archive_url, self.branch_config, self.branch_version
@@ -285,7 +285,8 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
                 )
             )
             logging.debug(
-                "Running BuildAutotestTarballsForHWTest root %s cwd %s target %s",
+                "Running BuildAutotestTarballsForHWTest root %s cwd %s"
+                " target %s",
                 self._build_root,
                 cwd,
                 tempdir,

@@ -66,10 +66,10 @@ def ChrootArgs(options):
     compute them here.
 
     Args:
-      options: self._run.options
+        options: self._run.options
 
     Returns:
-      List of command line arguments, normally passed into run as chroot_args.
+        List of command line arguments, normally passed into run as chroot_args.
     """
     chroot_args = ["--cache-dir", options.cache_dir]
     if options.chrome_root:
@@ -89,9 +89,9 @@ class WorkspaceStageBase(generic_stages.BuilderStage):
           self._orig_root to access the original buildroot.
 
         Args:
-          builder_run: BuilderRun object.
-          buildstore: BuildStore instance to make DB calls with.
-          build_root: Fully qualified path to use as a string.
+            builder_run: BuilderRun object.
+            buildstore: BuildStore instance to make DB calls with.
+            build_root: Fully qualified path to use as a string.
         """
         super().__init__(
             builder_run, buildstore, build_root=build_root, **kwargs
@@ -103,7 +103,7 @@ class WorkspaceStageBase(generic_stages.BuilderStage):
         """Fetch a repo object for the workspace.
 
         Returns:
-          repository.RepoRepository instance for the workspace.
+            repository.RepoRepository instance for the workspace.
         """
         # TODO: Properly select the manifest. Currently hard coded to internal
         # branch checkouts.
@@ -121,7 +121,7 @@ class WorkspaceStageBase(generic_stages.BuilderStage):
         Only valid after the workspace has been synced.
 
         Returns:
-          manifest-version.VersionInfo object based on the workspace checkout.
+            manifest-version.VersionInfo object based on the workspace checkout.
         """
         return chromeos_version.VersionInfo.from_repo(self._build_root)
 
@@ -129,10 +129,10 @@ class WorkspaceStageBase(generic_stages.BuilderStage):
         """Is worksapce version newer than cutoff limit?
 
         Args:
-          limit: String version of format '123.0.0'
+            limit: String version of format '123.0.0'
 
         Returns:
-          bool: True if workspace has newer version than limit.
+            bool: True if workspace has newer version than limit.
         """
         version_info = self.GetWorkspaceVersionInfo()
         return version_info > chromeos_version.VersionInfo(limit)
@@ -193,14 +193,14 @@ class SyncStage(WorkspaceStageBase):
         """Initializer.
 
         Args:
-          builder_run: BuilderRun object.
-          buildstore: BuildStore instance to make DB calls with.
-          build_root: Path to sync into.
-          external: Boolean telling if this an internal or external checkout.
-          branch: Branch to sync, with default to master.
-          version: Version number to sync too.
-          patch_pool: None or a list of lib.patch.GerritPatch objects.
-          copy_repo: None, or the copy of a repo to seed the sync from.
+            builder_run: BuilderRun object.
+            buildstore: BuildStore instance to make DB calls with.
+            build_root: Path to sync into.
+            external: Boolean telling if this an internal or external checkout.
+            branch: Branch to sync, with default to master.
+            version: Version number to sync too.
+            patch_pool: None or a list of lib.patch.GerritPatch objects.
+            copy_repo: None, or the copy of a repo to seed the sync from.
         """
         super().__init__(
             builder_run, buildstore, build_root=build_root, **kwargs
@@ -340,8 +340,8 @@ class WorkspaceSyncChromeStage(WorkspaceStageBase):
 class WorkspaceUprevStage(WorkspaceStageBase):
     """Uprev ebuilds.
 
-    This stage updates ebuilds to top of branch with no verification, or prebuilt
-    generation. This is generally intended only for branch builds.
+    This stage updates ebuilds to top of branch with no verification, or
+    prebuilt generation. This is generally intended only for branch builds.
     """
 
     config_name = "uprev"
@@ -789,7 +789,7 @@ class WorkspaceDebugSymbolsStage(
         Workspace version of cbuildbot_run.DetermineAndroidPackage().
 
         Returns:
-          String identifier for a package, or None
+            String identifier for a package, or None
         """
         packages = portage_util.GetPackageDependencies(
             "virtual/target-os",
@@ -818,10 +818,10 @@ class WorkspaceDebugSymbolsStage(
         Workspace version of cbuildbot_run.DetermineAndroidBranch().
 
         Args:
-          package: String name of Android package to get branch of.
+            package: String name of Android package to get branch of.
 
         Returns:
-          String with the android container branch name.
+            String with the android container branch name.
         """
         ebuild_path = portage_util.FindEbuildForBoardPackage(
             package, self._current_board, buildroot=self._build_root
@@ -847,16 +847,16 @@ class WorkspaceDebugSymbolsStage(
     def DetermineAndroidVersion(self, package):
         """Determine the current Android version in buildroot now and return it.
 
-        This uses the typical portage logic to determine which version of Android
-        is active right now in the buildroot.
+        This uses the typical portage logic to determine which version of
+        Android is active right now in the buildroot.
 
         Workspace version of cbuildbot_run.DetermineAndroidVersion().
 
         Args:
-          package: String name of Android package to get version of.
+            package: String name of Android package to get version of.
 
         Returns:
-          The Android build ID of the container for the boards.
+            The Android build ID of the container for the boards.
         """
         cpv = package_info.SplitCPV(package)
         return cpv.version_no_rev
@@ -867,10 +867,10 @@ class WorkspaceDebugSymbolsStage(
         Workspace version of cbuildbot_run.DetermineAndroidABI().
 
         Args:
-          package: String name of Android package to get ABI version of.
+            package: String name of Android package to get ABI version of.
 
         Returns:
-          string defining ABI of the container.
+            string defining ABI of the container.
         """
         use_flags = portage_util.GetInstalledPackageUseFlags(
             "sys-devel/arc-build",
@@ -926,7 +926,7 @@ class WorkspaceDebugSymbolsStage(
         downloads it's symbols.
 
         Returns:
-          path to downloaded symbols file, or None if not downloaded.
+            path to downloaded symbols file, or None if not downloaded.
         """
         android_package = self.DetermineAndroidPackage()
         if not android_package:

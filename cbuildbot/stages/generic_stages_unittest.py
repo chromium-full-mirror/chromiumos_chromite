@@ -78,8 +78,8 @@ class StageTestCase(
         """Helper for creating an overlay in the fake buildroot.
 
         Args:
-          overlay: The overlay name to create. Usually the board name.
-          build_root: The buildroot in which to create the mock overlay.
+            overlay: The overlay name to create. Usually the board name.
+            build_root: The buildroot in which to create the mock overlay.
         """
         if not build_root:
             build_root = self.build_root
@@ -114,7 +114,8 @@ class StageTestCase(
         """Prepare a BuilderRun at self._run for this test.
 
         This method must allow being called more than once.  Subclasses can
-        override this method, but those subclass methods should also call this one.
+        override this method, but those subclass methods should also call this
+        one.
 
         The idea is that all test preparation that falls out from the choice of
         build config and cbuildbot options should go in _Prepare.
@@ -122,23 +123,24 @@ class StageTestCase(
         This will populate the following attributes on self:
           run: A BuilderRun object.
           bot_id: The bot id (name) that was used from the site_config.
-          self._boards: Same as self._run.config.boards.  TODO(mtennant): remove.
+          self._boards: Same as self._run.config.boards.
+            TODO(mtennant): remove.
           self._current_board: First board in list, if there is one.
 
         Args:
-          bot_id: Name of build config to use, defaults to self.BOT_ID.
-          extra_config: Dict used to add to the build config for the given
-            bot_id.  Example: {'push_image': True}.
-          cmd_args: List to override the default cbuildbot command args, including
-            the bot_id.
-          extra_cmd_args: List to add to default cbuildbot command args.  This
-            is a good way to adjust an options value for your test.
+            bot_id: Name of build config to use, defaults to self.BOT_ID.
+            extra_config: Dict used to add to the build config for the given
+                bot_id.  Example: {'push_image': True}.
+            cmd_args: List to override the default cbuildbot command args,
+                including the bot_id.
+            extra_cmd_args: List to add to default cbuildbot command args.  This
+                is a good way to adjust an options value for your test.
             Example: ['branch-name', 'some-branch-name'] will effectively cause
-            self._run.options.branch_name to be set to 'some-branch-name'.
-          build_id: mock build id
-          buildbucket_id: mock buildbucket_id
-          master_build_id: mock build id of master build.
-          site_config: SiteConfig to use (or MockSiteConfig)
+                self._run.options.branch_name to be set to 'some-branch-name'.
+            build_id: mock build id
+            buildbucket_id: mock buildbucket_id
+            master_build_id: mock build id of master build.
+            site_config: SiteConfig to use (or MockSiteConfig)
         """
         assert not bot_id or not cmd_args
 
@@ -207,8 +209,8 @@ class StageTestCase(
         """Patch a list of objects with autospec=True.
 
         Args:
-          to_patch: A list of tuples in the form (target, attr) to patch.  Will be
-          directly passed to mock.patch.object.
+            to_patch: A list of tuples in the form (target, attr) to patch. Will
+                be directly passed to mock.patch.object.
         """
         for item in to_patch:
             self.PatchObject(*item, autospec=True)
@@ -225,8 +227,8 @@ class StageTestCase(
     def assertRaisesStringifyable(self, exception, functor, *args, **kwargs):
         """assertRaises replacement that also verifies exception is Stringifyable.
 
-        This helper is intended to be used anywhere assertRaises can be used, but
-        will also verify the exception raised can pass through
+        This helper is intended to be used anywhere assertRaises can be used,
+        but will also verify the exception raised can pass through
         BuilderStage._StringifyException.
 
         Args:
@@ -282,7 +284,7 @@ class AbstractStageTestCase(StageTestCase):
         Note: Requires ConstructStage() to be implemented.
 
         Raises:
-          NotImplementedError: ConstructStage() was not implemented.
+            NotImplementedError: ConstructStage() was not implemented.
         """
 
         # Stage construction is usually done as late as possible because the tests
@@ -329,10 +331,10 @@ class BuilderStageTest(AbstractStageTestCase):
         """Construct an instance of the stage, verifying expectations from init.
 
         Args:
-          stage_class: The class to instantitate.
+            stage_class: The class to instantitate.
 
         Returns:
-          The instantiated class instance.
+            The instantiated class instance.
         """
         if stage_class is None:
             stage_class = generic_stages.BuilderStage
