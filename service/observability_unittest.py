@@ -94,7 +94,7 @@ _FAKE_FILES = [
         "1390848093",
     ),
     ("sym", "lib64/libe2p.so.2", "->", "libe2p.so.2.3", "1390850489"),
-    ("foo"),
+    "foo",
 ]
 _FAKE_EXPECTED_APPARENT_PACKAGE_SIZE = sum(
     [_FAKE_DATA_SIZE for f in _FAKE_FILES if f[0] == "obj"]
@@ -272,4 +272,4 @@ def test_get_installed_package_data__bad_image_type(tmp_path, caplog):
         constants.IMAGE_TYPE_FACTORY, tmp_path / "chromiumos_factory_image.bin"
     )
     assert "Provided image type is not supported." in caplog.text
-    assert result == {}
+    assert not result

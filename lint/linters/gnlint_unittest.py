@@ -121,7 +121,10 @@ def CreateTestData(flag_name, operator, value):
                 "child": [
                     {
                         "child": [
-                            {"type": "LITERAL", "value": '"my_static_library"'}
+                            {
+                                "type": "LITERAL",
+                                "value": '"my_static_library"',
+                            }
                         ],
                         "type": "LIST",
                     },
@@ -272,7 +275,10 @@ class GnLintTests(LintTestCase):
                             "child": [
                                 {
                                     "child": [
-                                        {"type": "LITERAL", "value": '"shared"'}
+                                        {
+                                            "type": "LITERAL",
+                                            "value": '"shared"',
+                                        }
                                     ],
                                     "type": "LIST",
                                 },
@@ -346,7 +352,9 @@ class GnLintTests(LintTestCase):
                                                     "child": [
                                                         {
                                                             "type": "LITERAL",
-                                                            "value": '"//common-mk:pic"',
+                                                            "value": (
+                                                                '"//common-mk:pic"'
+                                                            ),
                                                         }
                                                     ],
                                                     "type": "LIST",
@@ -365,7 +373,9 @@ class GnLintTests(LintTestCase):
                                                     "child": [
                                                         {
                                                             "type": "LITERAL",
-                                                            "value": '"//common-mk:pie"',
+                                                            "value": (
+                                                                '"//common-mk:pie"'
+                                                            ),
                                                         }
                                                     ],
                                                     "type": "LIST",
@@ -385,7 +395,10 @@ class GnLintTests(LintTestCase):
                             "child": [
                                 {
                                     "child": [
-                                        {"type": "LITERAL", "value": '"shared"'}
+                                        {
+                                            "type": "LITERAL",
+                                            "value": '"shared"',
+                                        }
                                     ],
                                     "type": "LIST",
                                 },

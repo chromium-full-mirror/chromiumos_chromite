@@ -116,7 +116,7 @@ class CopybotDownstream:
 
         Returns:
             warning_strings a list of strings to be printed for this CL.
-                * This must match the expected prototype used in check_funcs.
+            * This must match the expected prototype used in check_funcs.
         """
         warning_strings = []
         revision = cl["revisions"][cl["current_revision"]]
@@ -138,13 +138,13 @@ class CopybotDownstream:
 
         Args:
             cl: gerrit CL dict for use in parsing.
-            paths_domains: list of tuples(path, restricted_domains), where path is the path to
-                be restricted, and restricted_domains is a list of domains that should
-                have been a part of the review.
+            paths_domains: list of tuples(path, restricted_domains), where path
+                is the path to be restricted, and restricted_domains is a list
+                of domains that should have been a part of the review.
 
         Returns:
             warning_strings a list of strings to be printed for this CL.
-                * This must match the expected prototype used in check_funcs.
+            * This must match the expected prototype used in check_funcs.
         """
         warning_strings = []
         revision = cl["revisions"][cl["current_revision"]]
@@ -161,8 +161,8 @@ class CopybotDownstream:
                 if not reviewer_found:
                     warning_strings.append(
                         (
-                            f"Found filepath({path}) which requires downstreamer review from"
-                            f"domain(s) {str(domains)}"
+                            f"Found filepath({path}) which requires"
+                            f" downstreamer review fromdomain(s) {str(domains)}"
                         )
                     )
         return warning_strings
@@ -181,7 +181,7 @@ class CopybotDownstream:
 
         Returns:
             warning_strings a list of strings to be printed for this CL.
-                * This must match the expected prototype used in check_funcs.
+            * This must match the expected prototype used in check_funcs.
         """
         warning_strings = []
         for banned_term in args:
@@ -205,7 +205,7 @@ class CopybotDownstream:
 
         Returns:
             warning_strings a list of strings to be printed for this CL.
-                * This must match the expected prototype used in checks.
+            * This must match the expected prototype used in checks.
         """
         warning_strings = []
         for banned_hashtag in args:
@@ -239,11 +239,12 @@ class CopybotDownstream:
         """Check whether the given CL is OK to downstream.
 
         Args:
-            downstream_candidate_cl: dict representing the CL that we want to downstream.
+            downstream_candidate_cl: dict representing the CL that we want to
+                downstream.
 
         Returns:
             warnings: A list of warning strings stating problems with the CL.
-                If empty, that means there are no problems.
+            If empty, that means there are no problems.
         """
         warnings = []
         logging.info("Processing %s", downstream_candidate_cl["_number"])
@@ -260,15 +261,18 @@ class CopybotDownstream:
 
     def _filter_cls(self, cls_to_downstream: List[str]) -> List[Dict]:
         """Filter full CL list based on:
+
             The limit.
             CL the chain should stop at.
             copybot-skip hashtag.
 
         Args:
-            cls_to_downstream: Ordered list of all candidate CL numbers to be downstreamed.
+            cls_to_downstream: Ordered list of all candidate CL numbers to be
+                downstreamed.
 
         Returns:
-            cls_to_downstream: Ordered list of filtered CL numbers to be downstreamed.
+            cls_to_downstream: Ordered list of filtered CL numbers to be
+            downstreamed.
         """
         filtered_cls = []
         for change_num in cls_to_downstream:
@@ -304,7 +308,8 @@ class CopybotDownstream:
         """Perform Gerrit updates on the CLs to downstream.
 
         Args:
-            cls_to_downstream: Ordered list of all CL candidates to be downstreamed.
+            cls_to_downstream: Ordered list of all CL candidates to be
+                downstreamed.
         """
         # TODO(b/278748163): Investigate bulk changes instead.
         for i, change_num in enumerate(cls_to_downstream):
@@ -333,10 +338,11 @@ class CopybotDownstream:
         """Perform Gerrit updates on the CLs to downstream.
 
         Args:
-            all_warnings: A dictionary of lists of warning strings stating problems with these CLs.
+            all_warnings: A dictionary of lists of warning strings stating
+                problems with these CLs.
                 Key: CL number with warnings
-                Value: List of warnings (str) found in the CL associated with the key.
-                If empty, that means there are no problems.
+                Value: List of warnings (str) found in the CL associated with
+                    the key. If empty, that means there are no problems.
 
         Returns:
             0 if warnings are acceptable/ignored.
@@ -351,7 +357,9 @@ class CopybotDownstream:
                 )
             if not self.ignore_warnings:
                 logging.error(
-                    "Warnings detected in this run.  Please address them.\n\t\tTo ignore the listed warnings, rerun with --ignore-warnings"
+                    "Warnings detected in this run.  Please address"
+                    " them.\n\t\tTo ignore the listed warnings, rerun with"
+                    " --ignore-warnings"
                 )
                 return 1
         return 0

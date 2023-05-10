@@ -232,8 +232,7 @@ def uprev_android(
             )
         except cros_build_lib.RunCommandError:
             logging.error(
-                "Cannot emerge-%s =%s\nIs Android pinned to an older "
-                "version?",
+                "Cannot emerge-%s =%s\nIs Android pinned to an older version?",
                 target,
                 android_atom,
             )
@@ -418,7 +417,7 @@ def uprev_virglrenderer(_build_targets, refs, _chroot):
 
     Returns:
         UprevVersionedPackageResult: The result of updating virglrenderer
-            ebuilds.
+        ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -448,7 +447,7 @@ def uprev_igt_gpu_tools(_build_targets, refs, _chroot):
 
     Returns:
         UprevVersionedPackageResult: The result of updating igt-gpu-tools
-            ebuilds.
+        ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -760,8 +759,8 @@ def uprev_parallels_desktop(_build_targets, _refs, chroot):
 
     if "version" not in pinned or "test_image" not in pinned:
         raise UprevError(
-            "VERSION-PIN for %s missing version and/or "
-            "test_image field" % package
+            "VERSION-PIN for %s missing version and/or test_image field"
+            % package
         )
 
     version = pinned["version"]
@@ -1173,7 +1172,7 @@ def uprev_ti50_emulator(_build_targets, refs, _chroot):
 
     Returns:
         UprevVersionedPackageResult: The result of updating ti50-emulator
-            ebuild.
+        ebuild.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMEOS_OVERLAY_DIR
@@ -1269,7 +1268,7 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
 
     Returns:
         UprevVersionedPackageResult: The result of updating ec-utils-test
-            ebuilds.
+        ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
