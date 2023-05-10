@@ -20,19 +20,25 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
         path = self.tempdir / "telemetry.cfg"
         cfg = config.Config(path)
 
-        self.assertFileContents(path, "[trace]\nenabled = False\n\n")
-        self.assertEqual(cfg.trace_config.enabled, False)
+        self.assertFileContents(
+            path, "[consent]\nrecorded = False\n\n[trace]\nenabled = False\n\n"
+        )
+        self.assertFalse(cfg.trace_config.enabled)
+        self.assertFalse(cfg.consent_config.recorded)
 
     def test_load_config_file(self):
         """Test Config to load config file."""
 
         path = "telemetry.cfg"
-        self.WriteTempFile(path, "[trace]\nenabled = True\n\n")
+        self.WriteTempFile(
+            path, "[consent]\nrecorded = True\n\n[trace]\nenabled = True\n\n"
+        )
 
         path = self.tempdir / path
         cfg = config.Config(path)
 
-        self.assertEqual(cfg.trace_config.enabled, True)
+        self.assertTrue(cfg.trace_config.enabled)
+        self.assertTrue(cfg.consent_config.recorded)
 
 
 def test_default_trace_config():
@@ -47,7 +53,7 @@ def test_default_trace_config():
 def test_trace_config():
     """Test TraceConfig to instantiate from passed dict."""
     cfg = configparser.ConfigParser()
-    cfg[config.TRACE_KEY] = {config.ENABLED_KEY: True}
-    trace_config = config.TraceConfig(cfg[config.TRACE_KEY])
+    cfg[config.TRACE_SECTION_KEY] = {config.ENABLED_KEY: True}
+    trace_config = config.TraceConfig(cfg[config.TRACE_SECTION_KEY])
 
     assert trace_config.enabled
