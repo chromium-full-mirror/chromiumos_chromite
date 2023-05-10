@@ -75,9 +75,9 @@ class InputInsns(object):
         """Initialization.
 
         Args:
-          board: The board to look up details.
-          image_type: The type of image we will be signing (see --sign-types).
-          buildroot: Buildroot in which to look for signing instructions.
+            board: The board to look up details.
+            image_type: The type of image we will be signing (see --sign-types).
+            buildroot: Buildroot in which to look for signing instructions.
         """
         self.board = board
         self.buildroot = buildroot or constants.SOURCE_ROOT
@@ -116,11 +116,12 @@ class InputInsns(object):
         """Find the signer instruction files for this board/image type.
 
         Args:
-          image_type: The type of instructions to load.  It can be a common file
-            (like "DEFAULT"), or one of the --sign-types.
+            image_type: The type of instructions to load.  It can be a common
+                file (like "DEFAULT"), or one of the --sign-types.
 
         Returns:
-          Full path to the instruction file using |image_type| and |self.board|.
+            Full path to the instruction file using |image_type| and
+            |self.board|.
         """
         if image_type == image_type.upper():
             name = image_type
@@ -144,10 +145,10 @@ class InputInsns(object):
         being delimited by either a space or comma.
 
         Args:
-          val: The string to split.
+            val: The string to split.
 
         Returns:
-          The list of elements from having done split the string.
+            The list of elements from having done split the string.
         """
         return val.replace(",", " ").split()
 
@@ -163,7 +164,7 @@ class InputInsns(object):
         """Return the list of keysets to sign for this board.
 
         Args:
-          insns_merge: The additional section to look at over [insns].
+            insns_merge: The additional section to look at over [insns].
         """
         # First load the default value from [insns.keyset] if available.
         sections = ["insns"]
@@ -219,14 +220,15 @@ class InputInsns(object):
           [insns_merge]  (should be named "insns.xxx")
           sect_insns
 
-        Note: The format of the instruction file pushimage outputs (and the signer
-        reads) is not exactly the same as the instruction file pushimage reads.
+        Note: The format of the instruction file pushimage outputs (and the
+        signer reads) is not exactly the same as the instruction file pushimage
+        reads.
 
         Args:
-          output_file: The file to write the new instruction file to.
-          sect_insns: Items to set/override in the [insns] section.
-          sect_general: Items to set/override in the [general] section.
-          insns_merge: The alternative insns.xxx section to merge.
+            output_file: The file to write the new instruction file to.
+            sect_insns: Items to set/override in the [insns] section.
+            sect_general: Items to set/override in the [general] section.
+            insns_merge: The alternative insns.xxx section to merge.
         """
         # Create a copy so we can clobber certain fields.
         config = self.CopyConfigParser(self.cfg)
@@ -267,13 +269,13 @@ def MarkImageToBeSigned(ctx, tbs_base, insns_path, priority):
     the signers.
 
     Args:
-      ctx: A viable gs.GSContext.
-      tbs_base: The full path to where the tobesigned directory lives.
-      insns_path: The path (relative to |tbs_base|) of the file to sign.
-      priority: Set the signing priority (lower == higher prio).
+        ctx: A viable gs.GSContext.
+        tbs_base: The full path to where the tobesigned directory lives.
+        insns_path: The path (relative to |tbs_base|) of the file to sign.
+        priority: Set the signing priority (lower == higher prio).
 
     Returns:
-      The full path to the remote tobesigned file.
+        The full path to the remote tobesigned file.
     """
     if priority < 0 or priority > 99:
         raise ValueError("priority must be [0, 99] inclusive")
@@ -310,20 +312,20 @@ def PushImage(
     """Push the image from the archive bucket to the release bucket.
 
     Args:
-      src_path: Where to copy the files from; can be a local path or gs:// URL.
-        Should be a full path to the artifacts in either case.
-      board: The board we're uploading artifacts for (e.g. $BOARD).
-      versionrev: The full Chromium OS version string (e.g. R34-5126.0.0).
-      profile: The board profile in use (e.g. "asan").
-      priority: Set the signing priority (lower == higher prio).
-      sign_types: If set, a set of types which we'll restrict ourselves to
-        signing.  See the --sign-types option for more details.
-      dryrun: Show what would be done, but do not upload anything.
-      mock: Upload to a testing bucket rather than the real one.
-      force_keysets: Set of keysets to use rather than what the inputs say.
-      force_channels: Set of channels to use rather than what the inputs say.
-      buildroot: Buildroot in which to look for signing instructions.
-      dest_bucket: Bucket to push results to.
+        src_path: Where to copy the files from; can be a local path or gs://
+            URL. Should be a full path to the artifacts in either case.
+        board: The board we're uploading artifacts for (e.g. $BOARD).
+        versionrev: The full Chromium OS version string (e.g. R34-5126.0.0).
+        profile: The board profile in use (e.g. "asan").
+        priority: Set the signing priority (lower == higher prio).
+        sign_types: If set, a set of types which we'll restrict ourselves to
+            signing.  See the --sign-types option for more details.
+        dryrun: Show what would be done, but do not upload anything.
+        mock: Upload to a testing bucket rather than the real one.
+        force_keysets: Set of keysets to use rather than what the inputs say.
+        force_channels: Set of channels to use rather than what the inputs say.
+        buildroot: Buildroot in which to look for signing instructions.
+        dest_bucket: Bucket to push results to.
 
     Returns:
       A dictionary that maps 'channel' -> ['gs://signer_instruction_uri1',
@@ -774,8 +776,8 @@ def main(argv):
         prolog = "\n".join(
             textwrap.wrap(
                 textwrap.dedent(
-                    "Uploading images for signing to the *release* bucket is not something "
-                    "you generally should be doing yourself."
+                    "Uploading images for signing to the *release* bucket is"
+                    " not something you generally should be doing yourself."
                 ),
                 80,
             )

@@ -170,8 +170,10 @@ def get_parser():
         "--quickstart",
         dest="quick",
         action="store_true",
-        help="Skip normal test sandboxing and namespacing for faster start up "
-        "time.",
+        help=(
+            "Skip normal test sandboxing and namespacing for faster start up "
+            "time."
+        ),
     )
     parser.add_argument(
         "--network",
@@ -188,8 +190,10 @@ def get_parser():
         "--no-chroot",
         dest="chroot",
         action="store_false",
-        help="Don't initialize or enter a chroot for the test invocation. May "
-        "cause tests to unexpectedly fail!",
+        help=(
+            "Don't initialize or enter a chroot for the test invocation. May "
+            "cause tests to unexpectedly fail!"
+        ),
     )
     parser.add_argument(
         "pytest_args",

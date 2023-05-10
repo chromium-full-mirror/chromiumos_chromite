@@ -67,10 +67,9 @@ class TestPrebuilt(cros_test_lib.MockTestCase):
         )
         expected = {
             self._local_path: self._gs_bucket_path + "/public1.tbz2",
-            self._local_path.replace(
-                ".tbz2", ".debug.tbz2"
-            ): self._gs_bucket_path
-            + "/public1.debug.tbz2",
+            self._local_path.replace(".tbz2", ".debug.tbz2"): (
+                self._gs_bucket_path + "/public1.debug.tbz2"
+            ),
         }
         self.assertEqual(result, expected)
 

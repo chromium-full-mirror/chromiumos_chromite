@@ -64,8 +64,8 @@ def _ExecInVenv(venvdir, args):
     """Exec command in chromite venv.
 
     Args:
-      venvdir: virtualenv directory
-      args: Sequence of arguments.
+        venvdir: virtualenv directory
+        args: Sequence of arguments.
     """
     venv_python = os.path.join(venvdir, "bin", "python")
     os.execve(
@@ -82,10 +82,11 @@ def _CreateVenvEnvironment(env_dict):
     and returns the copy.
 
     Args:
-      env_dict: Environment variable dict to use as base, which is not modified.
+        env_dict: Environment variable dict to use as base, which is not
+            modified.
 
     Returns:
-      New environment dict for a virtualenv.
+        New environment dict for a virtualenv.
     """
     new_env_dict = env_dict.copy()
     new_env_dict[_VENV_MARKER] = "1"
@@ -100,10 +101,10 @@ def _IsInsideVenv(env_dict):
     _CreateVenvEnvironment().
 
     Args:
-      env_dict: Environment variable dict to check
+        env_dict: Environment variable dict to check
 
     Returns:
-      A true value if inside virtualenv, else a false value.
+        A true value if inside virtualenv, else a false value.
     """
     # Checking sys.prefix or doing any kind of path check is unreliable because
     # we check out chromite to weird places.

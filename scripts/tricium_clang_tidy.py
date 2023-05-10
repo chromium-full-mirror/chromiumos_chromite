@@ -201,11 +201,11 @@ def parse_tidy_fixes_file(
     """Parses a clang-tidy YAML file.
 
     Args:
-      yaml_data: The parsed YAML data from clang-tidy's fixits file.
-      tidy_invocation_dir: The directory clang-tidy was run in.
+        yaml_data: The parsed YAML data from clang-tidy's fixits file.
+        tidy_invocation_dir: The directory clang-tidy was run in.
 
     Returns:
-      A generator of |TidyDiagnostic|s.
+        A generator of |TidyDiagnostic|s.
     """
     assert tidy_invocation_dir.is_absolute(), tidy_invocation_dir
 
@@ -348,11 +348,11 @@ def parse_tidy_invocation(
     |raise| (except under a KeyboardInterrupt or similar).
 
     Args:
-      json_file: The JSON invocation metadata file to parse.
+        json_file: The JSON invocation metadata file to parse.
 
     Returns:
-      An |ExceptionData| instance on failure. On success, it returns a
-      (InvocationMetadata, [TidyLint]).
+        An |ExceptionData| instance on failure. On success, it returns a
+        (InvocationMetadata, [TidyLint]).
     """
     try:
         assert json_file.suffix == ".json", json_file
@@ -408,13 +408,14 @@ def generate_lints(board: str, ebuild_path: str) -> Path:
     """Collects the lints for a given package on a given board.
 
     Args:
-      board: the board to collect lints for.
-      ebuild_path: the path to the ebuild to collect lints for.
+        board: the board to collect lints for.
+        ebuild_path: the path to the ebuild to collect lints for.
 
     Returns:
-      The path to a tmpdir that all of the lint YAML files (if any) will be in.
-      This will also be populated by JSON files containing InvocationMetadata.
-      The generation of this is handled by our compiler wrapper.
+        The path to a tmpdir that all of the lint YAML files (if any) will be
+        in. This will also be populated by JSON files containing
+        InvocationMetadata. The generation of this is handled by our compiler
+        wrapper.
     """
     logging.info("Running lints for %r on board %r", ebuild_path, board)
 
@@ -589,15 +590,15 @@ def filter_tidy_lints(
     """Transforms and filters the given TidyDiagnostics.
 
     Args:
-      only_files: a set of file paths, or None; if this is not None, only
-        |TidyDiagnostic|s in these files will be kept.
-      git_repo_base: if not None, only files in the given directory will be kept.
-        All paths of the returned diagnostics will be made relative to
-        |git_repo_base|.
-      diags: diagnostics to transform/filter.
+        only_files: a set of file paths, or None; if this is not None, only
+            |TidyDiagnostic|s in these files will be kept.
+        git_repo_base: if not None, only files in the given directory will be
+            kept. All paths of the returned diagnostics will be made relative to
+            |git_repo_base|.
+        diags: diagnostics to transform/filter.
 
     Returns:
-      A sorted list of |TidyDiagnostic|s.
+        A sorted list of |TidyDiagnostic|s.
     """
     result_diags = []
     total_diags = 0
@@ -642,9 +643,11 @@ def get_parser() -> commandline.ArgumentParser:
     parser.add_argument(
         "--git-repo-base",
         type="path",
-        help="Base directory of the git repo we're looking at. If specified, "
-        "only diagnostics in files in this directory will be emitted. All "
-        "diagnostic file paths will be made relative to this directory.",
+        help=(
+            "Base directory of the git repo we're looking at. If specified, "
+            "only diagnostics in files in this directory will be emitted. All "
+            "diagnostic file paths will be made relative to this directory."
+        ),
     )
     parser.add_argument("--board", required=True, help="Board to run under.")
     parser.add_argument(
@@ -656,8 +659,10 @@ def get_parser() -> commandline.ArgumentParser:
     parser.add_argument(
         "--keep-lint-dirs",
         action="store_true",
-        help="Keep directories with tidy lints around; meant primarily for "
-        "debugging.",
+        help=(
+            "Keep directories with tidy lints around; meant primarily for "
+            "debugging."
+        ),
     )
     parser.add_argument(
         "--nonfatal-parse-errors",
@@ -668,9 +673,11 @@ def get_parser() -> commandline.ArgumentParser:
         "file",
         nargs="*",
         type="path",
-        help="File(s) to output lints for. If none are specified, this tool "
-        "outputs all lints that clang-tidy emits after applying filtering "
-        "from |--git-repo-base|, if applicable.",
+        help=(
+            "File(s) to output lints for. If none are specified, this tool "
+            "outputs all lints that clang-tidy emits after applying filtering "
+            "from |--git-repo-base|, if applicable."
+        ),
     )
     return parser
 

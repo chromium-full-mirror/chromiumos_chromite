@@ -53,7 +53,8 @@ class CargoClippyFieldError(Error):
 
     def __init__(self, source: Text, line_num: int, field: Text):
         super().__init__(
-            f"{source}:{line_num}: {field} could not be parsed from original json"
+            f"{source}:{line_num}: {field} could not be parsed from original"
+            " json"
         )
         self.source = source
         self.line_num = line_num
@@ -103,15 +104,15 @@ def parse_locations(
     locations specified.
 
     Args:
-      orig_json: An iterable of clippy entries in original json.
-      package_path: A resolved path to the rust package.
-      git_repo: Base directory for git repo to strip out in diagnostics.
+        orig_json: An iterable of clippy entries in original json.
+        package_path: A resolved path to the rust package.
+        git_repo: Base directory for git repo to strip out in diagnostics.
 
     Yields:
-      A CodeLocation object associated with a relevant span.
+        A CodeLocation object associated with a relevant span.
 
     Raises:
-      CargoClippyFieldError: Parsing failed to determine any code locations.
+        CargoClippyFieldError: Parsing failed to determine any code locations.
     """
     spans = orig_json.get("message", {}).get("spans", [])
     children = orig_json.get("message", {}).get("children", [])
@@ -145,15 +146,15 @@ def parse_level(src: Text, src_line: int, orig_json: Dict[Text, Any]) -> Text:
     """The level (error or warning) associated with this diagnostic.
 
     Args:
-      src: Name of the file orig_json was found in.
-      src_line: Line number where orig_json was found.
-      orig_json: An iterable of clippy entries in original json.
+        src: Name of the file orig_json was found in.
+        src_line: Line number where orig_json was found.
+        orig_json: An iterable of clippy entries in original json.
 
     Returns:
-      The level of the diagnostic as a string (either error or warning).
+        The level of the diagnostic as a string (either error or warning).
 
     Raises:
-      CargoClippyFieldError: Parsing failed to determine the level.
+        CargoClippyFieldError: Parsing failed to determine the level.
     """
     level = orig_json.get("level")
     if not level:
@@ -167,15 +168,15 @@ def parse_message(src: Text, src_line: int, orig_json: Dict[Text, Any]) -> Text:
     """The formatted linter message for this diagnostic.
 
     Args:
-      src: Name of the file orig_json was found in.
-      src_line: Line number where orig_json was found.
-      orig_json: An iterable of clippy entries in original json.
+        src: Name of the file orig_json was found in.
+        src_line: Line number where orig_json was found.
+        orig_json: An iterable of clippy entries in original json.
 
     Returns:
-      The rendered message of the diagnostic.
+        The rendered message of the diagnostic.
 
     Raises:
-      CargoClippyFieldError: Parsing failed to determine the message.
+        CargoClippyFieldError: Parsing failed to determine the message.
     """
     message = orig_json.get("message", {}).get("rendered")
     if message is None:
@@ -189,17 +190,17 @@ def parse_diagnostics(
     """Parses original JSON to find the fields of a Clippy Diagnostic.
 
     Args:
-      src: Name of the file orig_json was found in.
-      orig_jsons: An iterable of clippy entries in original json.
-      git_repo: Base directory for git repo to strip out in diagnostics.
+        src: Name of the file orig_json was found in.
+        orig_jsons: An iterable of clippy entries in original json.
+        git_repo: Base directory for git repo to strip out in diagnostics.
 
     Yields:
-      A ClippyDiagnostic for orig_json.
+        A ClippyDiagnostic for orig_json.
 
     Raises:
-      CargoClippyJSONError: if a diagnostic is not valid JSON.
-      CargoClippyReasonError: if a diagnostic is missing a "reason" field.
-      CargoClippyFieldError: if a field cannot be determined while parsing.
+        CargoClippyJSONError: if a diagnostic is not valid JSON.
+        CargoClippyReasonError: if a diagnostic is missing a "reason" field.
+        CargoClippyFieldError: if a field cannot be determined while parsing.
     """
     for src_line, orig_json in enumerate(orig_jsons):
         try:
@@ -239,11 +240,11 @@ def parse_files(input_dir: Text, git_repo: Text) -> Iterable[ClippyDiagnostic]:
     """Gets all compiler-message lints from all the input files in input_dir.
 
     Args:
-      input_dir: path to directory to scan for files
-      git_repo: Base directory for git repo to strip out in diagnostics.
+        input_dir: path to directory to scan for files
+        git_repo: Base directory for git repo to strip out in diagnostics.
 
     Yields:
-      Clippy Diagnostics objects found in files in the input directory
+        Clippy Diagnostics objects found in files in the input directory
     """
     for root_path, _, file_names in os.walk(input_dir):
         for file_name in file_names:

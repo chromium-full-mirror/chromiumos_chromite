@@ -67,9 +67,11 @@ def GetParser():
         "--external",
         action="store_true",
         default=False,
-        help="Sync to the external version of a manifest. Switch from "
-        "manifest-versions-internal to manifest-versions for buildspecs. "
-        "Not usable with --manifest.",
+        help=(
+            "Sync to the external version of a manifest. Switch from "
+            "manifest-versions-internal to manifest-versions for buildspecs. "
+            "Not usable with --manifest."
+        ),
     )
     manifest_url_ex.add_argument(
         "--manifest-url", help="Manually set URL to fetch repo manifest from."
@@ -84,9 +86,11 @@ def GetParser():
         action="split_extend",
         default=[],
         metavar="Id1 *int_Id2...IdN",
-        help="Space-separated list of short-form Gerrit "
-        "Change-Id's or change numbers to patch. "
-        "Please prepend '*' to internal Change-Id's",
+        help=(
+            "Space-separated list of short-form Gerrit "
+            "Change-Id's or change numbers to patch. "
+            "Please prepend '*' to internal Change-Id's"
+        ),
     )
 
     resources_group = parser.add_argument_group(
@@ -96,15 +100,19 @@ def GetParser():
     resources_group.add_argument(
         "--manifest-versions-int",
         type="path",
-        help="Directory for internal manifest versions checkout. "
-        "May be refreshed.",
+        help=(
+            "Directory for internal manifest versions checkout. "
+            "May be refreshed."
+        ),
     )
 
     resources_group.add_argument(
         "--manifest-versions-ext",
         type="path",
-        help="Directory for internal manifest versions checkout. "
-        "May be refreshed.",
+        help=(
+            "Directory for internal manifest versions checkout. "
+            "May be refreshed."
+        ),
     )
 
     optimization_group = parser.add_argument_group(
@@ -115,8 +123,10 @@ def GetParser():
     optimization_group.add_argument(
         "--copy-repo",
         type="path",
-        help="Path to an existing repo root. Used to preload the local "
-        "checkout if the local checkout doesn't exist.",
+        help=(
+            "Path to an existing repo root. Used to preload the local "
+            "checkout if the local checkout doesn't exist."
+        ),
     )
     optimization_group.add_argument(
         "--git-cache-dir", type="path", help="Git cache directory to use."
@@ -135,13 +145,13 @@ def PrepareManifestVersions(options):
     use, and updates (or creates) it as needed.
 
     Args:
-      options: Parsed command line options.
+        options: Parsed command line options.
 
     Returns:
-      Full path to manifest-versions directory to use for this sync.
+        Full path to manifest-versions directory to use for this sync.
 
     Raises:
-      AssertionError: If the needed manifest-versions path wasn't con the
+        AssertionError: If the needed manifest-versions path wasn't con the
         command line.
     """
     site_params = config_lib.GetSiteParams()
@@ -171,10 +181,10 @@ def ResolveLocalManifestPath(options):
     """Based on command line options, decide what local manifest file to use.
 
     Args:
-      options: Our parsed command line options.
+        options: Our parsed command line options.
 
     Returns:
-      Path to local manifest file to use, or None for no file.
+        Path to local manifest file to use, or None for no file.
     """
     if options.manifest_file:
         # If the user gives us an explicit local manifest file, use it.

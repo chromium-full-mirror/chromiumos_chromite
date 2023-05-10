@@ -365,7 +365,8 @@ def _is_recipe(proc):
 def _is_swarming_bot(proc):
     """Return whether proc is a Swarming bot.
 
-    A swarming bot process is like '/usr/bin/python3.8 <bot-zip-path> start_bot'.
+    A swarming bot process is like
+    '/usr/bin/python3.8 <bot-zip-path> start_bot'.
     """
     cmdline = proc.cmdline()
     return (

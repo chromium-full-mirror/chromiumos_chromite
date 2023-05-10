@@ -100,8 +100,8 @@ UPLOAD_STATS = "UPLOAD"
 def BatchGenerator(iterator, batch_size):
     """Given an iterator, break into lists of size batch_size.
 
-    The result is a generator, that will only read in as many inputs as needed for
-    the current batch. The final result can be smaller than batch_size.
+    The result is a generator, that will only read in as many inputs as needed
+    for the current batch. The final result can be smaller than batch_size.
     """
     batch = []
     for i in iterator:
@@ -134,14 +134,15 @@ class SymbolFile(object):
     """This class represents the state of a symbol file during processing.
 
     Attributes:
-      display_path: Name of symbol file that should be consistent between builds.
-      file_name: Transient path of the symbol file.
-      header: ReadSymsHeader output. Dict with assorted meta-data.
-      status: INITIAL, DUPLICATE, or UPLOADED based on status of processing.
-      dedupe_item: None or instance of DedupeItem for this symbol file.
-      dedupe_push_state: Opaque value to return to dedupe code for file.
-      display_name: Read only friendly (short) file name for logging.
-      file_size: Read only size of the symbol file.
+        display_path: Name of symbol file that should be consistent between
+            builds.
+        file_name: Transient path of the symbol file.
+        header: ReadSymsHeader output. Dict with assorted meta-data.
+        status: INITIAL, DUPLICATE, or UPLOADED based on status of processing.
+        dedupe_item: None or instance of DedupeItem for this symbol file.
+        dedupe_push_state: Opaque value to return to dedupe code for file.
+        display_name: Read only friendly (short) file name for logging.
+        file_size: Read only size of the symbol file.
     """
 
     INITIAL = "initial"
@@ -153,10 +154,10 @@ class SymbolFile(object):
         """An instance of this class represents a symbol file over time.
 
         Args:
-          display_path: A unique/persistent between builds name to present to the
-                        crash server. It is the file name, relative to where it
-                        came from (tarball, breakpad dir, etc).
-          file_name: A the current location of the symbol file.
+            display_path: A unique/persistent between builds name to present to
+                the crash server. It is the file name, relative to where it came
+                from (tarball, breakpad dir, etc).
+            file_name: A the current location of the symbol file.
         """
         self.display_path = display_path
         self.file_name = file_name
@@ -182,13 +183,13 @@ def FindSymbolFiles(tempdir, paths):
     SymbolFile's valid after tempdir is cleaned up.
 
     Args:
-      tempdir: Path to use for temporary files.
-      paths: A list of input paths to walk. Files are returned w/out any checks.
-        Dirs are searched for files that end in ".sym". Urls are fetched and then
-        processed. Tarballs are unpacked and walked.
+        tempdir: Path to use for temporary files.
+        paths: A list of input paths to walk. Files are returned w/out any
+            checks. Dirs are searched for files that end in ".sym". Urls are
+            fetched and then processed. Tarballs are unpacked and walked.
 
     Yields:
-      A SymbolFile for every symbol file found in paths.
+        A SymbolFile for every symbol file found in paths.
     """
     cache_dir = path_util.GetCacheDir()
     common_path = os.path.join(cache_dir, constants.COMMON_CACHE)
@@ -251,13 +252,13 @@ def AdjustSymbolFileSize(symbol, tempdir, file_limit):
     We also warn, if a symbols file is still too large after stripping.
 
     Args:
-      symbol: SymbolFile instance to be examined and modified as needed..
-      tempdir: A temporary directory we can create files in that the caller will
-               clean up.
-      file_limit: We only strip files which are larger than this limit.
+        symbol: SymbolFile instance to be examined and modified as needed..
+        tempdir: A temporary directory we can create files in that the caller
+            will clean up.
+        file_limit: We only strip files which are larger than this limit.
 
     Returns:
-      SymbolFile instance (original or modified as needed)
+        SymbolFile instance (original or modified as needed)
     """
     file_size = symbol.FileSize()
 
@@ -302,10 +303,10 @@ def GetUploadTimeout(symbol):
     This is a function largely to make unittesting easier.
 
     Args:
-      symbol: A SymbolFile instance.
+        symbol: A SymbolFile instance.
 
     Returns:
-      Timeout length (in seconds)
+        Timeout length (in seconds)
     """
     # Scale the timeout based on the filesize.
     return max(symbol.FileSize() // UPLOAD_MIN_RATE, UPLOAD_MIN_TIMEOUT)
@@ -321,13 +322,13 @@ def ExecRequest(operator, url, timeout, api_key, **kwargs):
     subsystem will write your api key to the logs!
 
     Args:
-      operator: HTTP method.
-      url: Endpoint URL.
-      timeout: HTTP timeout for request.
-      api_key: Authentication key.
+        operator: HTTP method.
+        url: Endpoint URL.
+        timeout: HTTP timeout for request.
+        api_key: Authentication key.
 
     Returns:
-      HTTP response content
+        HTTP response content
     """
     resp = requests.request(
         operator,
@@ -357,14 +358,14 @@ def FindDuplicates(symbols, status_url, api_key, timeout=DEDUPE_TIMEOUT):
     """Check whether the symbol files have already been uploaded.
 
     Args:
-      symbols: A iterable of SymbolFiles to be uploaded
-      status_url: The crash URL to validate the file existence.
-      api_key: Authentication key.
-      timeout: HTTP timeout for request.
+        symbols: A iterable of SymbolFiles to be uploaded
+        status_url: The crash URL to validate the file existence.
+        api_key: Authentication key.
+        timeout: HTTP timeout for request.
 
     Yields:
-      All SymbolFiles from symbols, but duplicates have status updated to
-      DUPLICATE.
+        All SymbolFiles from symbols, but duplicates have status updated to
+        DUPLICATE.
     """
     for batch in BatchGenerator(symbols, DEDUPE_LIMIT):
         items = []
@@ -406,9 +407,9 @@ def UploadSymbolFile(upload_url, symbol, api_key):
     """Upload a symbol file to the crash server, returning the status result.
 
     Args:
-      upload_url: The crash URL to POST the |sym_file| to
-      symbol: A SymbolFile instance.
-      api_key: Authentication key
+        upload_url: The crash URL to POST the |sym_file| to
+        symbol: A SymbolFile instance.
+        api_key: Authentication key
     """
     timeout = GetUploadTimeout(symbol)
     logging.debug("Executing post to uploads:create: %s", symbol.display_name)
@@ -452,13 +453,13 @@ def PerformSymbolsFileUpload(symbols, upload_url, api_key):
     """Upload the symbols to the crash server
 
     Args:
-      symbols: An iterable of SymbolFiles to be uploaded.
-      upload_url: URL of crash server to upload too.
-      api_key: Authentication key.
-      failures: Tracker for total upload failures.
+        symbols: An iterable of SymbolFiles to be uploaded.
+        upload_url: URL of crash server to upload too.
+        api_key: Authentication key.
+        failures: Tracker for total upload failures.
 
     Yields:
-      Each symbol from symbols, perhaps modified.
+        Each symbol from symbols, perhaps modified.
     """
     failures = 0
     # Failures are figured per request, therefore each HTTP failure
@@ -535,11 +536,12 @@ def ReportResults(symbols, failed_list):
     This has the side effect of fully consuming the symbols iterator.
 
     Args:
-      symbols: An iterator of SymbolFiles to be uploaded.
-      failed_list: A filename at which to write out a list of our failed uploads.
+        symbols: An iterator of SymbolFiles to be uploaded.
+        failed_list: A filename at which to write out a list of our failed
+            uploads.
 
     Returns:
-      The number of symbols not uploaded.
+        The number of symbols not uploaded.
     """
     upload_failures = []
     result_counts = {
@@ -597,17 +599,19 @@ def UploadSymbols(
     """Upload all the generated symbols for |board| to the crash server
 
     Args:
-      sym_paths: Specific symbol files (or dirs of sym files) to upload,
-        otherwise search |breakpad_dir|
-      upload_url: URL of crash server to upload too.
-      failed_list: A filename at which to write out a list of our failed uploads.
-      upload_limit: Integer listing how many files to upload. None for no limit.
-      strip_cfi: File size at which we strip out CFI data. None for no limit.
-      timeout: HTTP timeout for request.
-      api_key: A string based authentication key
+        sym_paths: Specific symbol files (or dirs of sym files) to upload,
+            otherwise search |breakpad_dir|
+        upload_url: URL of crash server to upload too.
+        failed_list: A filename at which to write out a list of our failed
+            uploads.
+        upload_limit: Integer listing how many files to upload. None for no
+            limit.
+        strip_cfi: File size at which we strip out CFI data. None for no limit.
+        timeout: HTTP timeout for request.
+        api_key: A string based authentication key
 
     Returns:
-      The number of errors that were encountered.
+        The number of errors that were encountered.
     """
     retry_stats.SetupStats()
 

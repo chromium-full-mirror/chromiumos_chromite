@@ -22,7 +22,8 @@ from chromite.scripts import tricium_clang_tidy
 class Replacement(NamedTuple):
     """A YAML `tricium_clang_tidy.TidyReplacement`.
 
-    The data contained in YAML is slightly different than what `TidyReplacement`s
+    The data contained in YAML is slightly different than what
+    `TidyReplacement`s
     carry.
     """
 
@@ -126,16 +127,16 @@ def mocked_readonly_open(contents=None, default=None):
     Writing to open'ed files is not supported.
 
     Args:
-      contents: a |dict| mapping |file_path| => file_contents.
-      default: a default string to return if the given |file_path| doesn't
-        exist in |contents|.
+        contents: a |dict| mapping |file_path| => file_contents.
+        default: a default string to return if the given |file_path| doesn't
+            exist in |contents|.
 
     Returns:
-      |contents[file_path]| if it exists; otherwise, |default|.
+        |contents[file_path]| if it exists; otherwise, |default|.
 
     Raises:
-      If |default| is None and |contents[file_path]| does not exist, this will
-      raise a |ValueError|.
+        If |default| is None and |contents[file_path]| does not exist, this will
+        raise a |ValueError|.
     """
 
     if contents is None:

@@ -30,10 +30,10 @@ def ParsePixzArgs(argv):
     """Determines flags to pass to pixz, per argv.
 
     Returns:
-      A tuple containing:
-      - A raw list of flags to pass to pixz.
-      - An optional input file.
-      - An optional output file (only exists if the input file is present).
+        A tuple containing:
+        - A raw list of flags to pass to pixz.
+        - An optional input file.
+        - An optional output file (only exists if the input file is present).
     """
     # Glancing at docs, the following opts are supported. -i and -o are ignored,
     # since we assert in `main` that they're not present, but include parsing for
