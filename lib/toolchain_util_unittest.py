@@ -248,17 +248,17 @@ class PrepareBundleTest(cros_test_lib.RunCommandTempDirTestCase):
     """Setup code common to Prepare/Bundle class methods."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self.board = "chell"
         self.chroot = chroot_lib.Chroot(
-            os.path.join(self.tempdir, "chroot"),
-            out_path=self.tempdir / Path("out"),
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
         )
         osutils.SafeMakedirs(self.chroot.path)
         osutils.SafeMakedirs(self.chroot.tmp)
         self.sysroot = f"/build/{self.board}"
-        self.sysroot_full_path = os.path.join(
-            self.chroot.path, "build", self.board
-        )
+        self.sysroot_full_path = self.chroot.full_path("build", self.board)
         self.chrome_package = "chromeos-chrome"
         self.kernel_package = "chromeos-kernel-3_18"
         self.profile_info = {"arch": "amd64"}
@@ -936,7 +936,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             self.sysroot_full_path, format(kernel_cpv, ebuild_spec)
         )
         ebuild_info = toolchain_util._EbuildInfo(
-            path=self.chroot.chroot_path(ebuild_info_path), CPV=kernel_cpv
+            path=ebuild_info_path, CPV=kernel_cpv
         )
         self.PatchObject(toolchain_util, "_GetProfileAge", return_value=0)
         self.PatchObject(self.obj, "_GetEbuildInfo", return_value=ebuild_info)
@@ -1155,7 +1155,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
             {
                 "UNVETTED_AFDO_FILE": os.path.join(
-                    self.chroot.tmp,
+                    os.path.sep,
+                    "tmp",
                     (
                         "chromeos-chrome-amd64-atom-78-3876.0-"
                         f"{self.week_old_ts}-benchmark-78.0.3839.0-r1"
@@ -1182,7 +1183,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
             {
                 "UNVETTED_AFDO_FILE": os.path.join(
-                    self.chroot.tmp,
+                    os.path.sep,
+                    "tmp",
                     (
                         f"chromeos-chrome-arm-none-78-3879.0-{self.day_old_ts}-"
                         "benchmark-78.0.3840.0-r1-redacted.afdo"
@@ -1231,7 +1233,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
             {
                 "UNVETTED_AFDO_FILE": os.path.join(
-                    self.chroot.tmp,
+                    os.path.sep,
+                    "tmp",
                     (
                         "chromeos-chrome-arm-arm32-78-3879.0-"
                         f"{self.day_old_ts}-benchmark-78.0.3840.0-r1-redacted"
@@ -1268,7 +1271,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
             {
                 "UNVETTED_AFDO_FILE": os.path.join(
-                    self.chroot.tmp,
+                    os.path.sep,
+                    "tmp",
                     (
                         "chromeos-chrome-arm-exp-78-3876.0-"
                         f"{self.week_old_ts}-benchmark-78.0.3840.0-r1-redacted"
@@ -1305,7 +1309,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             self.obj._GetEbuildInfo(toolchain_util.constants.CHROME_PN),
             {
                 "UNVETTED_AFDO_FILE": os.path.join(
-                    self.chroot.tmp,
+                    os.path.sep,
+                    "tmp",
                     (
                         "chromeos-chrome-arm-exp-78-3876.0-"
                         f"{self.week_old_ts}-benchmark-78.0.3839.0-r1-redacted"
@@ -1374,7 +1379,6 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.kernel_name = "R89-13638.0-1607337135"
 
-        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.copy2 = self.PatchObject(shutil, "copy2")
         self.fetch = self.PatchObject(
             gob_util,
@@ -1565,8 +1569,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         artifact = os.path.join(self.outdir, "%s.xz" % self.orderfile_name)
         self.assertEqual([artifact], self.obj.Bundle())
         self.copy2.assert_called_once_with(
-            os.path.join(
-                self.chroot.path,
+            self.chroot.full_path(
                 "build",
                 self.board,
                 "opt/google/chrome",
@@ -1989,15 +1992,15 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         )
         self.merge_inputs = [
             (
-                os.path.join(self.tempdir, self.cwp_name),
+                os.path.join(self.chroot.tmp, self.cwp_name),
                 toolchain_util.RELEASE_CWP_MERGE_WEIGHT,
             ),
             (
-                os.path.join(self.tempdir, self.benchmark_name),
+                os.path.join(self.chroot.tmp, self.benchmark_name),
                 toolchain_util.RELEASE_BENCHMARK_MERGE_WEIGHT,
             ),
         ]
-        self.merge_output = os.path.join(self.tempdir, self.merged_name)
+        self.merge_output = os.path.join(self.chroot.tmp, self.merged_name)
 
         self.gs_copy = self.PatchObject(self.gs_context, "Copy")
         self.decompress = self.PatchObject(cros_build_lib, "UncompressFile")
@@ -2024,9 +2027,9 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         **kwargs,
     ):
         if not input_path:
-            input_path = os.path.join(self.tempdir, "input.afdo")
+            input_path = self.chroot.full_path("input.afdo")
         if not output_path:
-            output_path = os.path.join(self.tempdir, "output.afdo")
+            output_path = self.chroot.full_path("output.afdo")
         # Return ~1MB profile size.
         self.PatchObject(os.path, "getsize", return_value=100000)
         self.obj._ProcessAFDOProfile(input_path, output_path, *args, **kwargs)
@@ -2036,13 +2039,13 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
 
     def testProcessAFDOProfileForAndroidLinuxProfile(self):
         """Test call on _processAFDOProfile() for Android/Linux profiles."""
-        input_path = os.path.join(self.tempdir, "android.prof.afdo")
+        input_path = self.chroot.full_path("android.prof.afdo")
         input_path_inchroot = self.chroot.chroot_path(input_path)
         input_to_text = input_path_inchroot + ".text.temp"
         removed_temp = input_path_inchroot + ".removed.temp"
         reduced_temp = input_path_inchroot + ".reduced.tmp"
         reduce_functions = 70000
-        output_path = os.path.join(self.tempdir, "android.prof.output.afdo")
+        output_path = self.chroot.full_path("android.prof.output.afdo")
         expected_commands = [
             [
                 "llvm-profdata",
@@ -2083,8 +2086,8 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         )
 
     def testProcessAFDOProfileRaisesError(self):
-        input_path = os.path.join(self.tempdir, "input.afdo")
-        output_path = os.path.join(self.tempdir, "output.afdo")
+        input_path = self.chroot.full_path("input.afdo")
+        output_path = self.chroot.full_path("output.afdo")
         # Return invalid size of the profile.
         self.PatchObject(os.path, "getsize", return_value=100)
         with self.assertRaises(toolchain_util.BundleArtifactsHandlerError):
@@ -2092,15 +2095,17 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
 
     def testProcessAFDOProfileForChromeOSReleaseProfile(self):
         """Test call on _processAFDOProfile() for CrOS release profiles."""
-        input_path = os.path.join(self.tempdir, self.merged_name)
+        input_path = self.chroot.full_path(self.merged_name)
         input_path_inchroot = self.chroot.chroot_path(input_path)
         input_to_text = input_path_inchroot + ".text.temp"
         redacted_temp = input_path_inchroot + ".redacted.temp"
         removed_temp = input_path_inchroot + ".removed.temp"
         reduced_temp = input_path_inchroot + ".reduced.tmp"
         reduce_functions = 70000
-        output_path = os.path.join(self.tempdir, self.redacted_name)
-        self.WriteTempFile(input_to_text, "", makedirs=True)
+        output_path = self.chroot.full_path(self.redacted_name)
+        osutils.WriteFile(
+            self.chroot.full_path(input_to_text), "", makedirs=True
+        )
 
         expected_commands = [
             [
@@ -2148,18 +2153,18 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         merged_call = self.PatchObject(self.obj, "_MergeAFDOProfiles")
         process_call = self.PatchObject(self.obj, "_ProcessAFDOProfile")
         ret = self.obj._CreateReleaseChromeAFDO(
-            self.cwp_url, self.benchmark_url, self.tempdir, self.merged_name
+            self.cwp_url, self.benchmark_url, self.chroot.tmp, self.merged_name
         )
 
-        self.assertEqual(ret, os.path.join(self.tempdir, self.redacted_name))
+        self.assertEqual(ret, os.path.join(self.chroot.tmp, self.redacted_name))
         self.gs_copy.assert_has_calls(
             [
                 mock.call(
-                    self.cwp_url, os.path.join(self.tempdir, self.cwp_full)
+                    self.cwp_url, os.path.join(self.chroot.tmp, self.cwp_full)
                 ),
                 mock.call(
                     self.benchmark_url,
-                    os.path.join(self.tempdir, self.benchmark_full),
+                    os.path.join(self.chroot.tmp, self.benchmark_full),
                 ),
             ]
         )
@@ -2167,12 +2172,12 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         # Check decompress files.
         decompress_calls = [
             mock.call(
-                os.path.join(self.tempdir, self.cwp_full),
-                os.path.join(self.tempdir, self.cwp_name),
+                os.path.join(self.chroot.tmp, self.cwp_full),
+                os.path.join(self.chroot.tmp, self.cwp_name),
             ),
             mock.call(
-                os.path.join(self.tempdir, self.benchmark_full),
-                os.path.join(self.tempdir, self.benchmark_name),
+                os.path.join(self.chroot.tmp, self.benchmark_full),
+                os.path.join(self.chroot.tmp, self.benchmark_name),
             ),
         ]
         self.decompress.assert_has_calls(decompress_calls)
@@ -2180,13 +2185,13 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         # Check call to merge.
         merged_call.assert_called_once_with(
             self.merge_inputs,
-            os.path.join(self.tempdir, self.merged_name),
+            os.path.join(self.chroot.tmp, self.merged_name),
         )
 
         # Check calls to redact.
         process_call.assert_called_once_with(
             self.merge_output,
-            os.path.join(self.tempdir, self.redacted_name),
+            os.path.join(self.chroot.tmp, self.redacted_name),
             redact=True,
             remove=True,
             reduce_functions=20000,
