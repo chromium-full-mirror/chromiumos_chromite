@@ -25,9 +25,9 @@ to a local folder.
 {fwbuddy.USAGE}
 
 Examples:
-    cros fwget fwbuddy://dedede/galnat360/galtic/latest/signed some/folder
-    cros fwget fwbuddy://dedede/galith/galtic/unsigned/R99-123.456.0/serial some/folder
-    cros fwget fwbuddy://octopus/dood/dood/unsigned/stable/dev some/folder
+    cros fwget fwbuddy://dedede/galith/galtic/R89-13606.459.0/unsigned/serial ~/Downloads
+    cros fwget fwbuddy://dedede/galnat360/galtic/latest/signed ~/Downloads
+    cros fwget fwbuddy://octopus/dood/dood/stable/unsigned/dev ~/Downloads
 """
 
     @classmethod

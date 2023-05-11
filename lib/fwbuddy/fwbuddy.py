@@ -4,6 +4,7 @@
 
 """Main module for finding and retrieving firmware archives"""
 
+import logging
 import os
 import re
 import shutil
@@ -209,10 +210,15 @@ class FwBuddy:
         Raises:
             FwbuddyException: If we couldn't find any real gspaths.
         """
+        logging.notice("Attempting to locate the firmware archive...")
         possible_gspaths = generate_gspaths(self.fw_image)
         for gspath in possible_gspaths:
             try:
-                return self.gs.LS(gspath)[0]
+                gspath = self.gs.LS(gspath)[0]
+                logging.notice(
+                    "Succesfully located the firmware archive at %s", gspath
+                )
+                return gspath
             except gs.GSNoSuchKey:
                 pass
 
@@ -225,7 +231,16 @@ class FwBuddy:
 
     def download(self) -> None:
         """Downloads the firmware archive from Google Storage to tmp"""
+        logging.notice(
+            "Downloading firmware archive from: %s "
+            "This may take a few minutes...",
+            self.gspath,
+        )
         self.gs.Copy(self.gspath, TMP_STORAGE_FOLDER)
+        logging.notice(
+            "Successfully downloaded the firmware archive from: %s ",
+            self.gspath,
+        )
         file_name = self.gspath.split("/")[-1]
 
         # Store the file path in self rather than return it as a string
@@ -238,10 +253,14 @@ class FwBuddy:
         Args:
             directory: Where to extract the firmware contents.
         """
+        logging.notice("Extracting firmware contents to: %s...", directory)
         cros_build_lib.run(
-            ["tar", "-xvf", self.archive_path, f"--directory={directory}"],
+            ["tar", "-xf", self.archive_path, f"--directory={directory}"],
             capture_output=True,
             encoding="utf-8",
+        )
+        logging.notice(
+            "Successfully extracted firmware contents to: %s", directory
         )
 
 
