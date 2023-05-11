@@ -561,6 +561,41 @@ class RouterTest(
             [self.tempdir / "bin" / "build_api", f"{service}/{method}"]
         )
 
+    def test_branched_call_no_config(self):
+        """Re-execute branched BAPI with no config passed."""
+        self.PatchObject(
+            self.router,
+            "_GetMethod",
+            return_value=self._mock_callable(expect_called=False),
+        )
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.PatchObject(constants, "IS_BRANCHED_CHROMITE", new=False)
+        self.PatchObject(constants, "BRANCHED_CHROMITE_DIR", new=self.tempdir)
+
+        service = "chromite.api.TotExecutionService"
+        method = "TotServiceBranchedMethod"
+
+        config_handler = message_util.get_message_handler(
+            None, message_util.FORMAT_BINARY
+        )
+        self.router.Route(
+            service,
+            method,
+            self.api_config,
+            self.binary_input_handler,
+            [self.binary_output_handler],
+            config_handler,
+        )
+
+        self.assertCommandContains(
+            [self.tempdir / "bin" / "build_api", f"{service}/{method}"]
+        )
+        # Branched BAPI calls don't parse and rewrite the messages, so when no
+        # config is given, an empty one isn't written out like with SDK reexecs.
+        self.assertCommandContains(
+            ["--config-binary", "--config-json"], expected=False
+        )
+
     def test_tot_service_branched_method_inside(self):
         """Re-execute branched BAPI.
 

@@ -408,14 +408,20 @@ class Router(object):
             f"{service_name}/{method_name}",
             input_handler.input_arg,
             input_handler.path,
-            config_handler.config_arg,
-            config_handler.path,
             "--debug",
         ]
+
         for output_handler in output_handlers:
             cmd += [
                 output_handler.output_arg,
                 output_handler.path,
+            ]
+
+        # Config is optional, check it was actually used before adding.
+        if config_handler.path:
+            cmd += [
+                config_handler.config_arg,
+                config_handler.path,
             ]
 
         try:
