@@ -126,6 +126,9 @@ def json_format_lint(lint: toolchain.LinterFinding) -> Text:
             # Handle lists, sets, etc.
             else:
                 return [_dictify(x) for x in original]
+        # Handle PackageInfo objects
+        elif isinstance(original, package_info.PackageInfo):
+            return original.atom
         # Handle everything else
         return original
 
