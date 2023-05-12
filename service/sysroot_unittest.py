@@ -849,6 +849,20 @@ class BuildPackagesTest(
         error = cros_build_lib.RunCommandError("Error", result)
         self.PatchObject(
             cros_build_lib,
+            "sudo_run",
+            side_effect=(
+                cros_build_lib.CompletedProcess(stdout=""),
+                cros_build_lib.CompletedProcess(stdout=""),
+                cros_build_lib.RunCommandError(
+                    "Error",
+                    cros_build_lib.CompletedProcess(
+                        self.base_command, returncode=0
+                    ),
+                ),
+            ),
+        )
+        self.PatchObject(
+            cros_build_lib,
             "run",
             side_effect=(
                 cros_build_lib.CompletedProcess(stdout=""),

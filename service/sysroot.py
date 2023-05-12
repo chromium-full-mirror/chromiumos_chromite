@@ -6,7 +6,6 @@
 
 import contextlib
 import datetime
-import getpass
 import glob
 import logging
 import multiprocessing
@@ -28,7 +27,6 @@ from typing import (
 import urllib
 
 from chromite.lib import cache
-from chromite.lib import chromite_config
 from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
@@ -841,21 +839,17 @@ def BuildPackages(
     cros_build_lib.AssertNonRootUser()
     metrics_prefix = "service.sysroot.BuildPackages"
 
-    if (
-        os.path.isfile(chromite_config.AUTO_COP_CONFIG)
-        or getpass.getuser() == "chrome-bot"
-    ):
-        cop_command = [
-            "cros",
-            "clean-outdated-pkgs",
-            f"--board={target.name}",
-        ]
-        # Set check=False to allow cop to fail.
-        cros_build_lib.sudo_run(
-            cop_command,
-            preserve_env=True,
-            check=False,
-        )
+    cop_command = [
+        "cros",
+        "clean-outdated-pkgs",
+        f"--board={target.name}",
+    ]
+    # Set check=False to allow cop to fail.
+    cros_build_lib.sudo_run(
+        cop_command,
+        preserve_env=True,
+        check=False,
+    )
 
     extra_env = run_configs.GetExtraEnv()
     extra_env["PKGDIR"] = f"{sysroot.path}/packages"
