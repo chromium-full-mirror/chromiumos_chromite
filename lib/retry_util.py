@@ -445,14 +445,16 @@ def RunCurl(curl_args, *args, **kwargs):
     # These values were discerned via scraping the curl manpage; they're all
     # retry related (dns failed, timeout occurred, etc., see  the manpage for
     # exact specifics of each).
-    # Note we allow 22 to deal w/ 500's- they're thrown by google storage
-    # occasionally.  This is also thrown when getting 4xx, but curl doesn't
-    # make it easy to differentiate between them.
+    # Note we allow 22 and 92 to deal w/ 500's- they're thrown by google
+    # storage occasionally.  This is also thrown when getting 4xx, but curl
+    # doesn't make it easy to differentiate between them.
     # Note we allow 35 to deal w/ Unknown SSL Protocol error, thrown by
     # google storage occasionally.
     # Finally, we do not use curl's --retry option since it generally doesn't
     # actually retry anything; code 18 for example, it will not retry on.
-    retriable_exits = frozenset([5, 6, 7, 15, 16, 18, 22, 26, 28, 35, 52, 56])
+    retriable_exits = frozenset(
+        [5, 6, 7, 15, 16, 18, 22, 26, 28, 35, 52, 56, 92]
+    )
 
     def _CheckExit(exc):
         """Filter out specific error codes when getting exit 22
