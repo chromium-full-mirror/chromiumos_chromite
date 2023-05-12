@@ -874,6 +874,9 @@ def InstallDlcImages(
                         d_id,
                     )
                 else:
+                    # Install time validity check.
+                    params.VerifyDlcParameters()
+
                     dlc_generator = DlcGenerator(
                         src_dir=src_dir,
                         sysroot=sysroot,
