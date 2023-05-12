@@ -8,13 +8,13 @@ import configparser
 import os
 
 
-CONSENT_SECTION_KEY = "consent"
-RECORDED_KEY = "recorded"
+ROOT_SECTION_KEY = "root"
+NOTICE_COUNT_KEY = "notice_count"
 ENABLED_KEY = "enabled"
 TRACE_SECTION_KEY = "trace"
 DEFAULT_CONFIG = {
-    CONSENT_SECTION_KEY: {RECORDED_KEY: False},
-    TRACE_SECTION_KEY: {ENABLED_KEY: False},
+    ROOT_SECTION_KEY: {NOTICE_COUNT_KEY: 10},
+    TRACE_SECTION_KEY: {ENABLED_KEY: True},
 }
 
 
@@ -22,50 +22,61 @@ class TraceConfig:
     """Tracing specific config in Telemetry config."""
 
     def __init__(self, config):
-        self._enabled = config.getboolean(ENABLED_KEY, False)
+        self._config = config
+
+    def update(self, enabled: bool):
+        self._config.set(TRACE_SECTION_KEY, ENABLED_KEY, str(enabled))
 
     @property
     def enabled(self) -> bool:
         """Value of trace.enabled property in telemetry.cfg."""
 
-        return self._enabled
+        return self._config[TRACE_SECTION_KEY].getboolean(ENABLED_KEY, True)
 
 
-class ConsentConfig:
-    """Consent specific config in Telemetry config."""
+class RootConfig:
+    """Root configs in Telemetry config."""
 
     def __init__(self, config):
-        self._recorded = config.getboolean(RECORDED_KEY, False)
+        self._config = config
+
+    def update(self, notice_count: int):
+        self._config.set(ROOT_SECTION_KEY, NOTICE_COUNT_KEY, str(notice_count))
 
     @property
-    def recorded(self) -> bool:
-        """Value for consent.recorded property in telemetry.cfg."""
+    def notice_count(self) -> int:
+        """Value for root.notice_count property in telemetry.cfg."""
 
-        return self._recorded
+        return self._config[ROOT_SECTION_KEY].getint(NOTICE_COUNT_KEY, 10)
 
 
 class Config:
     """Telemetry configuration."""
 
     def __init__(self, path: os.PathLike):
+        self._path = path
         self._config = configparser.ConfigParser()
 
         self._config.read_dict(DEFAULT_CONFIG)
         if not os.path.exists(path):
-            with open(path, "w", encoding="utf-8") as configfile:
-                self._config.write(configfile)
+            self.flush()
         else:
             with open(path, "r", encoding="utf-8") as configfile:
                 self._config.read_file(configfile)
 
-        self._trace_config = TraceConfig(self._config[TRACE_SECTION_KEY])
-        self._consent_config = ConsentConfig(self._config[CONSENT_SECTION_KEY])
+        self._trace_config = TraceConfig(self._config)
+        self._root_config = RootConfig(self._config)
+
+    def flush(self):
+        """Flushes the current config to confi file."""
+        with open(self._path, "w", encoding="utf-8") as configfile:
+            self._config.write(configfile)
 
     @property
-    def consent_config(self) -> ConsentConfig:
-        """The consent config in telemetry."""
+    def root_config(self) -> RootConfig:
+        """The root config in telemetry."""
 
-        return self._consent_config
+        return self._root_config
 
     @property
     def trace_config(self) -> TraceConfig:
