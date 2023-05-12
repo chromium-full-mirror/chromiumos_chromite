@@ -158,6 +158,12 @@ def GetParser():
         help="Flag to indicate if the script is executed during the "
         "build_packages phase.",
     )
+    one_dlc.add_argument(
+        "--powerwash-safe",
+        default=False,
+        action="store_true",
+        help="DLC will be powerwash safe. (Only on LVM supported devices)",
+    )
     return parser
 
 
@@ -246,6 +252,7 @@ def main(argv):
             days_to_purge=opts.days_to_purge,
             fullnamerev=opts.fullnamerev,
             scaled=opts.scaled,
+            powerwash_safe=opts.powerwash_safe,
         )
         params.VerifyDlcParameters()
         params.StoreDlcParameters(

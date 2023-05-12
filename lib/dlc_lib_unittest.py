@@ -82,6 +82,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             "name": f"{_NAME}_new",
             "description": f"{_DESCRIPTION}_new",
             "pre_allocated_blocks": _PRE_ALLOCATED_BLOCKS * 2,
+            "powerwash_safe": True,
             "version": f"{_VERSION}_new",
             "preload": True,
             "factory_install": False,
@@ -143,6 +144,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         critical_update=False,
         fullnamerev=_FULLNAME_REV,
         scaled=False,
+        powerwash_safe=False,
     ):
         """Tests EbuildParams JSON values"""
         self.assertDictEqual(
@@ -165,6 +167,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
                 "critical_update": critical_update,
                 "fullnamerev": fullnamerev,
                 "scaled": scaled,
+                "powerwash_safe": powerwash_safe,
             },
         )
 
@@ -188,6 +191,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         critical_update=False,
         fullnamerev=_FULLNAME_REV,
         scaled=False,
+        powerwash_safe=False,
     ) -> dlc_lib.EbuildParams:
         """Creates and Stores DLC params at install_root_dir"""
         params = dlc_lib.EbuildParams(
@@ -208,6 +212,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             critical_update=critical_update,
             fullnamerev=fullnamerev,
             scaled=scaled,
+            powerwash_safe=powerwash_safe,
         )
         params.StoreDlcParameters(install_root_dir=install_root_dir, sudo=False)
         return params
@@ -458,6 +463,7 @@ class DlcGeneratorTest(
                 "manifest-version": 1,
                 "mount-file-required": False,
                 "preload-allowed": False,
+                "powerwash-safe": False,
                 "factory-install": False,
                 "used-by": dlc_lib.USED_BY_SYSTEM,
                 "days-to-purge": _DAYS_TO_PURGE,
@@ -585,6 +591,38 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(
             str(e.exception),
             "DLC=id is not allowed to be factory installed.",
+        )
+
+    def testInstallDlcImagesPowerwashSafeDisallowed(self):
+        """Verify InstallDlcImages sanity checks powerwash safe parameter."""
+        sysroot = os.path.join(self.tempdir, "sysroot")
+        params = dlc_lib.EbuildParams(
+            dlc_id=_ID,
+            dlc_package=_PACKAGE,
+            fs_type=dlc_lib.SQUASHFS_TYPE,
+            name=_NAME,
+            description=_DESCRIPTION,
+            pre_allocated_blocks=_PRE_ALLOCATED_BLOCKS,
+            version=_VERSION,
+            preload=False,
+            used_by=dlc_lib.USED_BY_SYSTEM,
+            days_to_purge=_DAYS_TO_PURGE,
+            mount_file_required=False,
+            reserved=False,
+            critical_update=False,
+            fullnamerev=_FULLNAME_REV,
+            powerwash_safe=True,
+        )
+        params.StoreDlcParameters(sysroot, False)
+        output = os.path.join(self.tempdir, "output")
+
+        with self.assertRaises(Exception) as e:
+            dlc_lib.InstallDlcImages(
+                board=_BOARD, sysroot=sysroot, install_root_dir=output
+            )
+        self.assertEqual(
+            str(e.exception),
+            "DLC=id is not allowed to be powerwash safe.",
         )
 
     def testInstallDlcImagesLegacy(self):

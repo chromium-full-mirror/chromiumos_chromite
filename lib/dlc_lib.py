@@ -128,6 +128,7 @@ class EbuildParams(object):
         loadpin_verity_digest: (bool) DLC digest is part of LoadPin trusted
             dm-verity digest.
         scaled: (bool) DLC will be fed through scaling design.
+        powerwash_safe: (bool) DLC will be powerwash safe.
     """
 
     def __init__(
@@ -149,6 +150,7 @@ class EbuildParams(object):
         factory_install=False,
         loadpin_verity_digest=False,
         scaled=False,
+        powerwash_safe=False,
     ):
         """Initializes the object.
 
@@ -174,6 +176,7 @@ class EbuildParams(object):
         self.critical_update = critical_update
         self.loadpin_verity_digest = loadpin_verity_digest
         self.scaled = scaled
+        self.powerwash_safe = powerwash_safe
 
     def VerifyDlcParameters(self):
         """Verifies certain DLC parameters are valid and allowed."""
@@ -181,6 +184,13 @@ class EbuildParams(object):
             if not dlc_allowlist.IsFactoryInstallAllowlisted(self.dlc_id):
                 err_msg = (
                     f"DLC={self.dlc_id} is not allowed to be factory installed."
+                )
+                logging.error(err_msg)
+                raise Exception(err_msg)
+        if self.powerwash_safe:
+            if not dlc_allowlist.IsPowerwashSafeAllowlisted(self.dlc_id):
+                err_msg = (
+                    f"DLC={self.dlc_id} is not allowed to be powerwash safe."
                 )
                 logging.error(err_msg)
                 raise Exception(err_msg)
@@ -625,6 +635,7 @@ class DlcGenerator(object):
             # Initial rollout is to have all scaled DLCs use logical volumes on
             # devices that support LVM stateful.
             "use-logical-volume": self.ebuild_params.scaled,
+            "powerwash-safe": self.ebuild_params.powerwash_safe,
         }
 
     def GenerateVerity(self):
@@ -753,6 +764,27 @@ def IsFactoryInstallAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
 
     if not dlc_allowlist.IsFactoryInstallAllowlisted(dlc_id):
         err_msg = f"DLC={dlc_id} is not allowed to be factory installed."
+        logging.error(err_msg)
+        raise Exception(err_msg)
+
+    return True
+
+
+def IsPowerwashSafeAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
+    """Validates that DLC is built with DLC_POWERWASH_SAFE=true.
+
+    Args:
+        dlc_id: The DLC ID.
+        dlc_build_dir: The root path where DLC build files reside.
+
+    Returns:
+        Whether powerwash safety for the DLC is allowed.
+    """
+    if not IsFieldAllowed(dlc_id, dlc_build_dir, "powerwash-safe"):
+        return False
+
+    if not dlc_allowlist.IsPowerwashSafeAllowlisted(dlc_id):
+        err_msg = f"DLC={dlc_id} is not allowed to be powerwash safe."
         logging.error(err_msg)
         raise Exception(err_msg)
 
