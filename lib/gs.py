@@ -187,6 +187,10 @@ class GSNoSuchKey(GSContextException):
     """Thrown when google storage returns code=NoSuchKey."""
 
 
+class GSAuthenticationError(GSContextException):
+    """Thrown when the user is unable to authenticate"""
+
+
 # Detailed results of GSContext.Stat.
 #
 # The fields directory correspond to gsutil stat results.
@@ -729,11 +733,12 @@ wheel: <
         if not os.path.isfile(afile):
             raise GSContextException("%s, %s is not a file" % (errmsg, afile))
 
-    def _TestGSLs(self):
+    def _TestGSLs(self, path=AUTHENTICATION_BUCKET, **kwargs):
         """Quick test of gsutil functionality."""
-        # The bucket in question is readable by any authenticated account.
+        # The AUTHENTICATION_BUCKET is readable by any authenticated account.
         # If we can list its contents, we have valid authentication.
-        cmd = ["ls", AUTHENTICATION_BUCKET]
+        cmd = ["ls", path]
+        kwargs.setdefault("capture_output", True)
         result = self.DoCommand(
             cmd,
             retries=0,
@@ -742,8 +747,11 @@ wheel: <
             check=False,
         )
 
+        if result.returncode == 1 and not kwargs["capture_output"]:
+            return False
+
         # Did we fail with an authentication error?
-        if result.returncode == 1 and any(
+        if kwargs["capture_output"] and any(
             e in result.stderr for e in self.AUTHORIZATION_ERRORS
         ):
             logging.warning(
@@ -1053,6 +1061,24 @@ wheel: <
                 )
 
         return ErrorDetails(type="unknown", retriable=False)
+
+    def CheckPathAccess(self, path: str):
+        """Check that the user can access a given gs path and prompts them to reauthenticate if not."""
+        # Attempt to LS the path, prompting the user for
+        # reauthentication if necessary.
+        self._TestGSLs(path, capture_output=False, stdout=True, stderr=False)
+
+        # Attempt to LS the path again, but this time capture
+        # the input so we can verify if we authenticated correctly.
+        if not self._TestGSLs(path):
+            logging.warning(
+                "Unable to access %s "
+                "Running `gcloud auth login` may resolve the problem. "
+                "For more information, see "
+                "https://chromium.googlesource.com/chromiumos/docs/+/HEAD/gsutil.md#setup",
+                path,
+            )
+            raise GSAuthenticationError(f"Unable to access path: {path}")
 
     # TODO(mtennant): Make a private method.
     def DoCommand(

@@ -41,10 +41,10 @@ IMAGE_TYPES = [SIGNED, UNSIGNED]
 UNSIGNED_ARCHIVE_NAME = "firmware_from_source.tar.bz2"
 
 # The GS bucket that contains our unsigned firmware archives.
-UNSIGNED_ARCHIVE_BUCKET = "chromeos-image-archive"
+UNSIGNED_ARCHIVE_BUCKET = "gs://chromeos-image-archive"
 
 # The GS bucket that contains our signed firmware archives.
-SIGNED_ARCHIVE_BUCKET = "chromeos-releases"
+SIGNED_ARCHIVE_BUCKET = "gs://chromeos-releases"
 
 # Where to temporarily store files downloaded from Google Storage.
 TMP_STORAGE_FOLDER = "/tmp/fwbuddy"
@@ -62,15 +62,15 @@ AP_FIRMWARE_TYPES = [SERIAL, DEV, NET]
 # All known file path schemas that unsigned firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 UNSIGNED_GSPATH_SCHEMAS = [
-    f"gs://{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
-    f"gs://{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}",
-    f"gs://{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
+    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
+    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}",
+    f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
 ]
 
 # All known file path schemas that signed firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 SIGNED_GSPATH_SCHEMAS = [
-    f"gs://{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s.%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
+    f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s.%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
 ]
 
 # Example: R89-13606.459.0
@@ -214,6 +214,7 @@ class FwBuddy:
         possible_gspaths = generate_gspaths(self.fw_image)
         for gspath in possible_gspaths:
             try:
+                self.gs.CheckPathAccess(gspath)
                 gspath = self.gs.LS(gspath)[0]
                 logging.notice(
                     "Succesfully located the firmware archive at %s", gspath
@@ -236,6 +237,7 @@ class FwBuddy:
             "This may take a few minutes...",
             self.gspath,
         )
+        self.gs.CheckPathAccess(self.gspath)
         self.gs.Copy(self.gspath, TMP_STORAGE_FOLDER)
         logging.notice(
             "Successfully downloaded the firmware archive from: %s ",

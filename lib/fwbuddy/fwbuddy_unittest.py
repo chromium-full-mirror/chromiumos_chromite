@@ -17,6 +17,7 @@ from chromite.lib.fwbuddy import fwbuddy
 def fixture_setup(monkeypatch):
     monkeypatch.setattr(gs.GSContext, "LS", lambda *_,: ["some/path"])
     monkeypatch.setattr(gs.GSContext, "Copy", lambda *_,: None)
+    monkeypatch.setattr(gs.GSContext, "CheckPathAccess", lambda *_,: None)
     monkeypatch.setattr(fwbuddy.FwBuddy, "setup", lambda *_,: None)
     monkeypatch.setattr(fwbuddy.FwBuddy, "cleanup", lambda *_,: None)
 
