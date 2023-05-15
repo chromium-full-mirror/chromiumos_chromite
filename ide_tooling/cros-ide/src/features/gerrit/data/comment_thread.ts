@@ -184,8 +184,10 @@ export class CommentThread {
       vscodeCommentThread.label = `Patchset ${revisionNumber} / Unresolved`;
       vscodeCommentThread.collapsibleState =
         vscode.CommentThreadCollapsibleState.Expanded;
+      vscodeCommentThread.state = vscode.CommentThreadState.Unresolved;
     } else {
       vscodeCommentThread.label = `Patchset ${revisionNumber} / Resolved`;
+      vscodeCommentThread.state = vscode.CommentThreadState.Resolved;
     }
     vscodeCommentThread.contextValue = this.getContextValue();
   }
