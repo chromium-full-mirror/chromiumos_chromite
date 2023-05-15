@@ -674,6 +674,14 @@ class DocStringCheckerTest(CheckerTestCase):
                 ("moo",),
             ),
             TestData(
+                """deprecated use of type
+
+         Args:
+           moo: (str) Ok.
+         """,
+                ("moo",),
+            ),
+            TestData(
                 """duplicated arg
 
                 Args:

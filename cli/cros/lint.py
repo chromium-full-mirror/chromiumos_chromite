@@ -858,8 +858,11 @@ class DocStringChecker(pylint.checkers.BaseChecker):
             if arg.name.startswith("_"):
                 continue
 
-            # Valid arguments may look like `<arg>:` or `<arg> (<type>):`.
-            arg_re = re.compile(r"%s( \([^)]+\))?:" % re.escape(arg.name))
+            # Valid arguments may look like `<arg>:` or `<arg> (<type>):` or
+            # `<arg>: (<type>)`.
+            arg_re = re.compile(
+                r"%s( \([^)]+\))?:( \([^)]+\))?" % re.escape(arg.name)
+            )
             for l in section.lines:
                 aline = l.lstrip()
                 m = arg_re.match(aline)
@@ -871,7 +874,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
                         )
                     found_args.add(arg.name)
 
-                    if m.group(1) is not None:
+                    if m.group(1) is not None or m.group(2) is not None:
                         margs = {"arg": l}
                         self.add_message(
                             "C9019", node=node, line=node.fromlineno, args=margs

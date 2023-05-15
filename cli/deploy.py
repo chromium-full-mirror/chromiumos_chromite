@@ -966,7 +966,7 @@ def _Emerge(
 
     Args:
         device: A ChromiumOSDevice object.
-        pkg_paths: (Local) paths to binary packages.
+        pkg_paths: Local paths to binary packages.
         root: Package installation root path.
         extra_args: Extra arguments to pass to emerge.
 
