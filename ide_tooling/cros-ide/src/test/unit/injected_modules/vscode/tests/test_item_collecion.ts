@@ -5,6 +5,14 @@
 import type * as vscode from 'vscode';
 
 export class TestItemCollection implements vscode.TestItemCollection {
+  [Symbol.iterator](): Iterator<
+    [id: string, testItem: vscode.TestItem],
+    unknown,
+    undefined
+  > {
+    return this.idToItem.entries();
+  }
+
   private readonly idToItem = new Map<string, vscode.TestItem>();
 
   get size() {

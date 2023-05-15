@@ -2,13 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import type * as vscode from 'vscode'; // import types only
+import * as vscode from 'vscode'; // import types only
 
 /**
  * An OutputChannel that discards logs.
  */
-export class VoidOutputChannel implements vscode.OutputChannel {
+export class VoidOutputChannel implements vscode.LogOutputChannel {
   constructor(public readonly name = 'void') {}
+
+  logLevel = vscode.LogLevel.Info;
+  onDidChangeLogLevel = new vscode.EventEmitter<vscode.LogLevel>().event;
+
+  trace(_message: string, ..._args: unknown[]): void {}
+  debug(_message: string, ..._args: unknown[]): void {}
+  info(_message: string, ..._args: unknown[]): void {}
+  warn(_message: string, ..._args: unknown[]): void {}
+  error(_error: string | Error, ..._args: unknown[]): void {}
 
   append(): void {}
   appendLine(): void {}

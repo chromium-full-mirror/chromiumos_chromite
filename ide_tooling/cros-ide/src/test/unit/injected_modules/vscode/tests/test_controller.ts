@@ -18,6 +18,9 @@ export function createTestController(
 class TestController implements vscode.TestController {
   constructor(readonly id: string, public label: string) {}
 
+  readonly resolveHandler = undefined;
+  readonly refreshHandler = undefined;
+
   readonly items = new TestItemCollection();
 
   createRunProfile(

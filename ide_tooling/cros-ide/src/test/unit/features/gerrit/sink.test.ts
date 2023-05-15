@@ -13,7 +13,7 @@ describe('Sink', () => {
   const {vscodeSpy} = testing.installVscodeDouble();
 
   const state = testing.cleanState(() => {
-    const outputChannel = jasmine.createSpyObj<vscode.OutputChannel>(
+    const outputChannel = jasmine.createSpyObj<vscode.LogOutputChannel>(
       'outputChannel',
       ['appendLine']
     );

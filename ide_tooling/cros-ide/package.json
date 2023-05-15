@@ -1033,7 +1033,7 @@
     "@types/source-map-support": "^0.5.6",
     "@types/ssh2": "^0.5.52",
     "@types/uuid": "^8.3.4",
-    "@types/vscode": "^1.60.0",
+    "@types/vscode": "^1.75.1",
     "@types/vscode-webview": "^1.57.0",
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.59.1",

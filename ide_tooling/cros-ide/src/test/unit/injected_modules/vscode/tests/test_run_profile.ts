@@ -5,6 +5,8 @@
 import type * as vscode from 'vscode';
 
 export class TestRunProfile implements vscode.TestRunProfile {
+  readonly supportsContinuousRun: boolean = false;
+
   constructor(
     public label: string,
     readonly kind: vscode.TestRunProfileKind,
