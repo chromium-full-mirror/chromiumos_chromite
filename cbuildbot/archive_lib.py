@@ -128,9 +128,9 @@ class Archive(object):
     def download_url(self):
         if self._options.buildbot or self._options.remote_trybot:
             # Translate the gs:// URI to the URL for downloading the same files.
-            # TODO(akeshet): The use of a special download url is a workaround for
-            # b/27653354. If that is ultimately fixed, revisit this workaround.
-            # This download link works for directories.
+            # TODO(akeshet): The use of a special download url is a workaround
+            # for b/27653354. If that is ultimately fixed, revisit this
+            # workaround. This download link works for directories.
             return self.upload_url.replace(
                 "gs://", gs.PRIVATE_BASE_HTTPS_DOWNLOAD_URL
             )
@@ -141,9 +141,9 @@ class Archive(object):
     def download_url_file(self):
         if self._options.buildbot or self._options.remote_trybot:
             # Translate the gs:// URI to the URL for downloading the same files.
-            # TODO(akeshet): The use of a special download url is a workaround for
-            # b/27653354. If that is ultimately fixed, revisit this workaround.
-            # This download link works for files.
+            # TODO(akeshet): The use of a special download url is a workaround
+            # for b/27653354. If that is ultimately fixed, revisit this
+            # workaround. This download link works for files.
             return self.upload_url.replace("gs://", gs.PRIVATE_BASE_HTTPS_URL)
         else:
             return self.archive_path
@@ -171,9 +171,9 @@ class Archive(object):
             # back the number of archive paths to the last X runs.
             osutils.RmDir(self.archive_path, ignore_missing=True)
         else:
-            # Clear the list of uploaded file if it exists.  In practice, the Clean
-            # stage deletes everything in the archive root, so this may not be
-            # doing anything at all.
+            # Clear the list of uploaded file if it exists.  In practice, the
+            # Clean stage deletes everything in the archive root, so this may
+            # not be doing anything at all.
             osutils.SafeUnlink(
                 os.path.join(self.archive_path, commands.UPLOADED_LIST_FILENAME)
             )
@@ -192,7 +192,8 @@ class Archive(object):
         if not upload_urls:
             upload_urls = [self.upload_url]
         # self.version will be one of these forms, shown through examples:
-        # R35-1234.5.6 or R35-1234.5.6-b123.  In either case, we want "1234.5.6".
+        # R35-1234.5.6 or R35-1234.5.6-b123.  In either case, we want
+        # "1234.5.6".
         version_marker = self.version.split("-")[1]
 
         filenames = (

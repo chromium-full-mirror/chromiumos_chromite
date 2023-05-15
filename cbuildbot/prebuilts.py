@@ -42,8 +42,8 @@ def _AddPackagesForPrebuilt(filename):
     try:
         cmd = []
         with open(filename, encoding="utf-8") as f:
-            # Get only the package name and category as that is what upload_prebuilts
-            # matches on.
+            # Get only the package name and category as that is what
+            # upload_prebuilts matches on.
             for line in f:
                 atom = line.split("#", 1)[0].strip()
                 cpv = package_info.parse(atom)
@@ -164,9 +164,9 @@ def UploadPrebuilts(
         extra_args.extend(["--prepackaged-tarball", tarball_location])
 
         # Find toolchain overlay tarballs of the form
-        # built-sdk-overlay-toolchains-<toolchains_spec>.tar.* and create an upload
-        # specification for each of them. The upload path template has the form
-        # cros-sdk-overlay-toolchains-<toolchain_spec>-<version>.tar.*.
+        # built-sdk-overlay-toolchains-<toolchains_spec>.tar.* and create an
+        # upload specification for each of them. The upload path template has
+        # the form cros-sdk-overlay-toolchains-<toolchain_spec>-<version>.tar.*.
         toolchain_overlay_paths = GetToolchainSdkPaths(
             buildroot, is_overlay=True
         )
@@ -185,9 +185,9 @@ def UploadPrebuilts(
                     ["--toolchains-overlay-tarball", "%s:%s" % entry]
                 )
 
-        # Find toolchain package tarballs of the form <target>.tar.* and create an
-        # upload specificion for each fo them. The upload path template has the
-        # form <target>-<version>.tar.*.
+        # Find toolchain package tarballs of the form <target>.tar.* and create
+        # an upload specificion for each fo them. The upload path template has
+        # the form <target>-<version>.tar.*.
         toolchain_paths = GetToolchainSdkPaths(buildroot)
         if toolchain_paths:
             # Only add the path arg when processing the first tarball.  We do

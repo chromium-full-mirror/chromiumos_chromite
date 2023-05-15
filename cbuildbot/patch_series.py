@@ -388,9 +388,10 @@ class PatchSeries(object):
         if not change:
             return
 
-        # If the query was a gerrit number based query, check the projects/change-id
-        # to see if we already have it locally, but couldn't map it since we didn't
-        # know the gerrit number at the time of the initial injection.
+        # If the query was a gerrit number based query, check the
+        # projects/change-id to see if we already have it locally, but couldn't
+        # map it since we didn't know the gerrit number at the time of the
+        # initial injection.
         existing = self._lookup_cache[change]
         if cros_patch.ParseGerritNumber(query_text) and existing is not None:
             keys = change.LookupAliases()
@@ -548,9 +549,9 @@ class PatchSeries(object):
         # These are returned as cros_patch.PatchQuery objects.
         gerrit_deps = self.GetDepsForChange(change)
 
-        # Only process the Gerrit dependencies for each change once. We prioritize
-        # Gerrit dependencies over CQ dependencies, since Gerrit dependencies might
-        # be required in order for the change to apply.
+        # Only process the Gerrit dependencies for each change once. We
+        # prioritize Gerrit dependencies over CQ dependencies, since Gerrit
+        # dependencies might be required in order for the change to apply.
         if change not in gerrit_deps_seen:
             gerrit_deps = self._LookupUncommittedChanges(
                 gerrit_deps, limit_to=limit_to
@@ -740,9 +741,9 @@ class PatchSeries(object):
             return [], failed, []
 
         if not honor_ordering:
-            # Sort by length, falling back to the order the changes were given to us.
-            # This is done to prefer longer transactions (more painful to rebase)
-            # over shorter transactions.
+            # Sort by length, falling back to the order the changes were given
+            # to us. This is done to prefer longer transactions (more painful to
+            # rebase) over shorter transactions.
             position = dict((change, idx) for idx, change in enumerate(changes))
 
             def mk_key(data):

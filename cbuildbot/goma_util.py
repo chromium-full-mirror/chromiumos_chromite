@@ -183,9 +183,9 @@ class GomaLogUploader(object):
             Uploaded file path. If failed, None.
         """
 
-        # Since the number of gomacc logs can be large, we'd like to compress them.
-        # Otherwise, upload will take long (> 10 mins).
-        # Each gomacc logs file size must be small (around 4KB).
+        # Since the number of gomacc logs can be large, we'd like to compress
+        # them. Otherwise, upload will take long (> 10 mins). Each gomacc logs
+        # file size must be small (around 4KB).
 
         # Find files matched with the pattern in |goma_log_dir|.
         # The paths were themselves used as the inputs for the create
@@ -204,9 +204,10 @@ class GomaLogUploader(object):
         # Taking the alphabetically first name as uploaded_filename.
         tarball_name = os.path.basename(min(gomacc_paths)) + ".tar.gz"
         # When using the pigz compressor (what we use for gzip) to create an
-        # archive in a folder that is also a source for contents, there is a race
-        # condition involving the created archive itself that can cause it to fail
-        # creating the archive. To avoid this, make the archive in a tempdir.
+        # archive in a folder that is also a source for contents, there is a
+        # race condition involving the created archive itself that can cause it
+        # to fail creating the archive. To avoid this, make the archive in a
+        # tempdir.
         with osutils.TempDir() as tempdir:
             tarball_path = os.path.join(tempdir, tarball_name)
             cros_build_lib.CreateTarball(

@@ -340,7 +340,8 @@ class RepoRepository(object):
                     cbuildbot_alerts.PrintBuildbotStepWarnings()
                     logging.warning("\n%s", result.stderr)
 
-                    # If there's no repository corruption, just delete the index.
+                    # If there's no repository corruption, just delete the
+                    # index.
                     corrupted = git.IsGitRepositoryCorrupted(repo_git_store)
                     lock.write_lock()
                     logging.warning(
@@ -354,21 +355,24 @@ class RepoRepository(object):
                             logging.warning("Deleting %s as well", store)
                             osutils.RmDir(store, ignore_missing=True)
 
-                # TODO: Make the deletions below smarter. Look to see what exists,
-                # instead of just deleting things we think might be there.
+                # TODO: Make the deletions below smarter. Look to see what
+                # exists, instead of just deleting things we think might be
+                # there.
 
                 # Delete all branches created by cbuildbot.
                 if os.path.isdir(repo_git_store):
                     cmd = ["branch", "-D"] + list(constants.CREATED_BRANCHES)
-                    # Ignore errors, since we delete branches without checking existence.
+                    # Ignore errors, since we delete branches without checking
+                    # existence.
                     git.RunGit(repo_git_store, cmd, check=False)
 
                 if os.path.isdir(path):
-                    # Above we deleted refs/heads/<branch> for each created branch, now
-                    # we need to delete the bare ref <branch> if it was created somehow.
+                    # Above we deleted refs/heads/<branch> for each created
+                    # branch, now we need to delete the bare ref <branch> if it
+                    # was created somehow.
                     for ref in constants.CREATED_BRANCHES:
-                        # Ignore errors, since we delete branches without checking
-                        # existence.
+                        # Ignore errors, since we delete branches without
+                        # checking existence.
                         git.RunGit(path, ["update-ref", "-d", ref], check=False)
 
         # Cleanup all of the directories.
@@ -380,10 +384,10 @@ class RepoRepository(object):
         ]
         parallel.RunTasksInProcessPool(RunCleanupCommands, dirs)
 
-        # repo shares git object directories amongst multiple project paths. If the
-        # first pass deleted an object dir for a project path, then other
-        # repositories (project paths) of that same project may now be broken. Do a
-        # second pass to clean them up as well.
+        # repo shares git object directories amongst multiple project paths. If
+        # the first pass deleted an object dir for a project path, then other
+        # repositories (project paths) of that same project may now be broken.
+        # Do a second pass to clean them up as well.
         if deleted_objdirs.is_set():
             parallel.RunTasksInProcessPool(RunCleanupCommands, dirs)
 
@@ -655,11 +659,13 @@ class RepoRepository(object):
             if jobs:
                 cmd += ["--jobs", str(jobs)]
             if not all_branches or self._depth is not None:
-                # Note that this option can break kernel checkouts. crbug.com/464536
+                # Note that this option can break kernel checkouts.
+                # crbug.com/464536
                 cmd.append("-c")
             if self.git_cache_dir is not None:
                 cmd.append("--cache-dir=%s" % self.git_cache_dir)
-            # Do the network half of the sync; retry as necessary to get the content.
+            # Do the network half of the sync; retry as necessary to get the
+            # content.
             try:
                 if not _IsLocalPath(self.manifest_repo_url):
                     fields = {"manifest_repo": self.manifest_repo_url}
@@ -697,10 +703,10 @@ class RepoRepository(object):
             if detach:
                 cmd.append("--detach")
 
-            # Do the local sync; note that there is a couple of corner cases where
-            # the new manifest cannot transition from the old checkout cleanly-
-            # primarily involving git submodules.  Thus we intercept, and do
-            # a forced wipe, then a retry.
+            # Do the local sync; note that there is a couple of corner cases
+            # where the new manifest cannot transition from the old checkout
+            # cleanly- primarily involving git submodules.  Thus we intercept,
+            # and do a forced wipe, then a retry.
             try:
                 cros_build_lib.run(cmd + ["-l"], cwd=self.directory)
             except cros_build_lib.RunCommandError:
@@ -721,8 +727,9 @@ class RepoRepository(object):
                 cros_build_lib.run(cmd + ["-l"], cwd=self.directory)
 
             # We do a second run to fix any new repositories created by repo to
-            # use relative object pathways.  Note that cros_sdk also triggers the
-            # same cleanup- we however kick it erring on the side of caution.
+            # use relative object pathways.  Note that cros_sdk also triggers
+            # the same cleanup- we however kick it erring on the side of
+            # caution.
             self._EnsureMirroring(True)
 
         except cros_build_lib.RunCommandError as e:
@@ -818,9 +825,10 @@ class RepoRepository(object):
                     logging.debug('current: "%s"', line1)
                     logging.debug('other  : "%s"', line2)
 
-                    # Ignore revision differences on the manifest line. The revision of
-                    # the manifest.git repo is uninteresting when determining if the
-                    # current manifest describes the same sources as the other manifest.
+                    # Ignore revision differences on the manifest line. The
+                    # revision of the manifest.git repo is uninteresting when
+                    # determining if the current manifest describes the same
+                    # sources as the other manifest.
                     if manifest_revision_pattern.search(line2):
                         logging.debug(
                             "Ignoring difference in manifest revision."

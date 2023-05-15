@@ -101,7 +101,8 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
         """Return normal options/build_config for |bot_id|"""
         build_config = self.site_config[bot_id]
 
-        # Use the cbuildbot parser to create properties and populate default values.
+        # Use the cbuildbot parser to create properties and populate default
+        # values.
         parser = cbuildbot._CreateParser()
         argv = (
             [

@@ -81,8 +81,8 @@ class FactoryBranchBuilder(generic_builders.Builder):
                 workspace_stages.WorkspaceUprevStage,
                 build_root=self._run.options.workspace,
             )
-            # If we were not given a specific buildspec to build and this is not a
-            # tryjob, create one.
+            # If we were not given a specific buildspec to build and this is not
+            # a tryjob, create one.
             if not self._run.options.debug:
                 self._RunStage(
                     workspace_stages.WorkspacePublishStage,

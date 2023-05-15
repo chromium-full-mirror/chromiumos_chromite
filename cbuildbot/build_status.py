@@ -86,17 +86,17 @@ class SlaveStatus(object):
         # Dict mapping config names of slaves not in self.completed_builds to
         # their new BuildbucketInfo. Everytime UpdateSlaveStatus is called,
         # new (current) status will be pulled from Buildbucket.
-        # TODO(jkop): The code uses 'is not None' checks to determine if it's using
-        # Buildbucket. Initialize this to a dict for simplicity when that's been
-        # refactored.
+        # TODO(jkop): The code uses 'is not None' checks to determine if it's
+        # using Buildbucket. Initialize this to a dict for simplicity when
+        # that's been refactored.
         self.new_buildbucket_info_dict = None
         # Dict mapping all slave config names to BuildbucketInfo
         self.all_buildbucket_info_dict = {}
         self.status_buildset_dict = {}
 
-        # Records history (per-tick) of self.completed_builds. Keep only the most
-        # recent 2 entries of history. Used only for metrics purposes, not used for
-        # any decision logic.
+        # Records history (per-tick) of self.completed_builds. Keep only the
+        # most recent 2 entries of history. Used only for metrics purposes, not
+        # used for any decision logic.
         self._completed_build_history = collections.deque([], 2)
 
         self.UpdateSlaveStatus()
@@ -160,9 +160,9 @@ class SlaveStatus(object):
             scheduled_buildbucket_info_dict = buildbucket_v2.GetBuildInfoDict(
                 self.metadata
             )
-            # It's possible that CQ-master has a list of important slaves configured
-            # but doesn't schedule any slaves as no CLs were picked up in SyncStage.
-            # These are set to include only important builds.
+            # It's possible that CQ-master has a list of important slaves
+            # configured but doesn't schedule any slaves as no CLs were picked
+            # up in SyncStage. These are set to include only important builds.
             self.all_builders = list(scheduled_buildbucket_info_dict)
             self.all_buildbucket_info_dict = builder_status_lib.SlaveBuilderStatus.GetAllSlaveBuildbucketInfo(
                 self.buildbucket_client, scheduled_buildbucket_info_dict
@@ -276,7 +276,8 @@ class SlaveStatus(object):
         )
 
         if self.new_buildbucket_info_dict is not None:
-            # current completed builds (not in self.completed_builds) from Buildbucket
+            # current completed builds (not in self.completed_builds) from
+            # Buildbucket
             current_completed_buildbucket = self.GetBuildbucketBuilds(
                 constants.BUILDBUCKET_BUILDER_STATUS_SUCCESS
             )
@@ -417,7 +418,8 @@ class SlaveStatus(object):
                 and self.scheduled_builds
             )
         else:
-            # Check that aside from the missing builders the rest have completed.
+            # Check that aside from the missing builders the rest have
+            # completed.
             other_builders_completed = len(self.missing_builds) + len(
                 self.completed_builds
             ) == len(self._GetExpectedBuilders())

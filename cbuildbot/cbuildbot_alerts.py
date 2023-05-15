@@ -39,8 +39,8 @@ def _PrintForBuildbot(handle, annotation_class, *args):
     if annotation_class == _annotations.SetEmailNotifyProperty:
         annotation = annotation_class(*args)
     else:
-        # Cast each argument, because we end up getting all sorts of objects from
-        # callers.
+        # Cast each argument, because we end up getting all sorts of objects
+        # from callers.
         str_args = [str(x) for x in args]
         annotation = annotation_class(*str_args)
     if _buildbot_markers_enabled:

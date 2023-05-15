@@ -267,10 +267,11 @@ class RunAttributes(object):
             # Register board/target as a known board/target.
             self._board_targets.add(board_target)
 
-            # For each board attribute that should be queue-able, create its queue
-            # now.  Queues are kept by the uniquified run attribute name.
+            # For each board attribute that should be queue-able, create its
+            # queue now.  Queues are kept by the uniquified run attribute name.
             for attr in RunAttributes.BOARD_ATTRS:
-                # Every attr in BOARD_ATTRS is in PARALLEL_ATTRS, by construction.
+                # Every attr in BOARD_ATTRS is in PARALLEL_ATTRS, by
+                # construction.
                 uniquified_attr = self._GetBoardAttrName(attr, board, target)
                 self._queues[uniquified_attr] = LockableQueue(self._manager)
 
@@ -403,7 +404,8 @@ class RunAttributes(object):
         queue = self._GetQueue(attr, strict=True)
 
         with queue.rlock:
-            # First empty the queue.  Any value already on the queue is now stale.
+            # First empty the queue.  Any value already on the queue is now
+            # stale.
             while True:
                 try:
                     queue.get(False)
@@ -476,14 +478,15 @@ class RunAttributes(object):
             value = queue.get(True, timeout)
             got_value = True
         except Queue.Empty:
-            # This means there is nothing on the queue.  Let this fall through to
-            # the locked code block to see if another process is in the process
-            # of re-queuing a value.  Any process doing that will have a lock.
+            # This means there is nothing on the queue.  Let this fall through
+            # to the locked code block to see if another process is in the
+            # process of re-queuing a value.  Any process doing that will have a
+            # lock.
             pass
 
-        # Now grab the queue lock and flush any other values that are on the queue.
-        # This should only happen if another process put a value in after our first
-        # queue.get above.  If so, accept the updated value.
+        # Now grab the queue lock and flush any other values that are on the
+        # queue. This should only happen if another process put a value in after
+        # our first queue.get above.  If so, accept the updated value.
         with queue.rlock:
             while True:
                 try:
@@ -610,8 +613,8 @@ class _BuilderRunBase(object):
         "buildnumber",  # The build number for this run.
         "buildroot",  # The build root path for this run.
         "manifest_branch",  # The manifest branch to build and test for this run.
-        # Some attributes are available as properties.  In particular, attributes
-        # that use self.config must be determined after __init__.
+        # Some attributes are available as properties.  In particular,
+        # attributes that use self.config must be determined after __init__.
         # self.bot_id      # Effective name of builder for this run.
     )
 
@@ -619,12 +622,13 @@ class _BuilderRunBase(object):
         self.site_config = site_config
         self.options = options
 
-        # Note that self.config is filled in dynamically by either of the classes
-        # that are actually instantiated: BuilderRun and ChildBuilderRun.  In other
-        # words, self.config can be counted on anywhere except in this __init__.
-        # The implication is that any plain attributes that are calculated from
-        # self.config contents must be provided as properties (or methods).
-        # See the _RealBuilderRun class and its __getattr__ method for details.
+        # Note that self.config is filled in dynamically by either of the
+        # classes that are actually instantiated: BuilderRun and
+        # ChildBuilderRun.  In other words, self.config can be counted on
+        # anywhere except in this __init__. The implication is that any plain
+        # attributes that are calculated from self.config contents must be
+        # provided as properties (or methods). See the _RealBuilderRun class and
+        # its __getattr__ method for details.
         self.config = None
 
         # Create the RunAttributes object for this BuilderRun and save
@@ -633,10 +637,11 @@ class _BuilderRunBase(object):
         self._ATTRS[id(attrs)] = attrs
         self._attrs_id = id(attrs)
 
-        # Fill in values for all pre-computed "run configs" now, which are frozen
-        # by this time.
+        # Fill in values for all pre-computed "run configs" now, which are
+        # frozen by this time.
 
-        # TODO(mtennant): Should this use os.path.abspath like builderstage does?
+        # TODO(mtennant): Should this use os.path.abspath like builderstage
+        # does?
         self.buildroot = self.options.buildroot
         self.buildnumber = self.options.buildnumber
         self.manifest_branch = self.options.branch
@@ -856,9 +861,9 @@ class _BuilderRunBase(object):
             return "arm64"
         elif "abi_arm_32" in arc_build_flags:
             return "arm"
-        # We should be throwing NoAndroidABIError exception here, but some boards
-        # rely on the default behavior that if there are no abi use flags set, then
-        # it's an arm board, so we return 'arm' instead.
+        # We should be throwing NoAndroidABIError exception here, but some
+        # boards rely on the default behavior that if there are no abi use flags
+        # set, then it's an arm board, so we return 'arm' instead.
         return "arm"
 
     def DetermineAndroidVariant(self, board):
@@ -889,9 +894,9 @@ class _BuilderRunBase(object):
                 elif "cheets_user" in use_flag or "cheets_sdk_user" in use_flag:
                     return "user"
 
-        # We iterated through all the flags and could not find user or userdebug.
-        # This should not be possible given that this code is only ran by
-        # builders, which will never use local images.
+        # We iterated through all the flags and could not find user or
+        # userdebug. This should not be possible given that this code is only
+        # ran by builders, which will never use local images.
         raise NoAndroidVariantError(
             "Android Variant cannot be deteremined for the package: %s"
             % android_package
@@ -1025,17 +1030,17 @@ class _RealBuilderRun(object):
         # In normal usage, the __init__ guarantees that self._run_base and
         # self._config will be present.  However, the unpickle process bypasses
         # __init__, and this object must be pickle-able.  That is why we access
-        # self._run_base and self._config through __getattribute__ here, otherwise
-        # unpickling results in infinite recursion.
-        # TODO(mtennant): Revisit this if pickling support is changed to go through
-        # the __init__ method, such as by supplying __reduce__ method.
+        # self._run_base and self._config through __getattribute__ here,
+        # otherwise unpickling results in infinite recursion.
+        # TODO(mtennant): Revisit this if pickling support is changed to go
+        # through the __init__ method, such as by supplying __reduce__ method.
         run_base = self.__getattribute__("_run_base")
         config = self.__getattribute__("_config")
 
         # TODO(akeshet): This logic seems to have a subtle flaky bug that only
-        # manifests itself when using unit tests with ParallelMock. As a workaround,
-        # we have simply eliminiated ParallelMock from the affected tests. See
-        # crbug.com/470907 for context.
+        # manifests itself when using unit tests with ParallelMock. As a
+        # workaround, we have simply eliminiated ParallelMock from the affected
+        # tests. See crbug.com/470907 for context.
         try:
             # run_base.config should always be None except when accessed through
             # this routine.  Override the value here, then undo later.
@@ -1043,7 +1048,8 @@ class _RealBuilderRun(object):
 
             result = getattr(run_base, attr)
             if isinstance(result, types.MethodType):
-                # Make sure run_base.config is also managed when the method is called.
+                # Make sure run_base.config is also managed when the method is
+                # called.
                 @functools.wraps(result)
                 def FuncWrapper(*args, **kwargs):
                     run_base.config = config
@@ -1052,13 +1058,14 @@ class _RealBuilderRun(object):
                     finally:
                         run_base.config = None
 
-                # TODO(mtennant): Find a way to make the following actually work.  It
-                # makes pickling more complicated, unfortunately.
-                # Cache this function wrapper to re-use next time without going through
-                # __getattr__ again.  This ensures that the same wrapper object is used
-                # each time, which is nice for identity and equality checks.  Subtle
-                # gotcha that we accept: if the function itself on run_base is replaced
-                # then this will continue to provide the behavior of the previous one.
+                # TODO(mtennant): Find a way to make the following actually
+                # work.  It makes pickling more complicated, unfortunately.
+                # Cache this function wrapper to re-use next time without going
+                # through __getattr__ again.  This ensures that the same wrapper
+                # object is used each time, which is nice for identity and
+                # equality checks.  Subtle gotcha that we accept: if the
+                # function itself on run_base is replaced then this will
+                # continue to provide the behavior of the previous one.
                 # setattr(self, attr, FuncWrapper)
 
                 return FuncWrapper
@@ -1075,8 +1082,8 @@ class _RealBuilderRun(object):
             List of ChildBuilderRun objects if self.config has child_configs.
             [] otherwise.
         """
-        # If there are child configs, construct a list of ChildBuilderRun objects
-        # for those child configs and return that.
+        # If there are child configs, construct a list of ChildBuilderRun
+        # objects for those child configs and return that.
         return [
             ChildBuilderRun(self, ix)
             for ix in range(len(self.config.child_configs))

@@ -175,8 +175,8 @@ def RunBuildScript(buildroot, cmd, chromite_cmd=False, **kwargs):
             logging.error("\n%s", ex)
 
             # Check whether a specific package failed. If so, wrap the exception
-            # appropriately. These failures are usually caused by a recent CL, so we
-            # don't ever treat these failures as flaky.
+            # appropriately. These failures are usually caused by a recent CL,
+            # so we don't ever treat these failures as flaky.
             if status_file is not None:
                 status_file.seek(0)
                 failed_packages = status_file.read().split()
@@ -325,8 +325,8 @@ def SetupBoard(
         cmd.append("--profile=%s" % profile)
 
     if not usepkg:
-        # TODO(crbug.com/922144): Uses the underscore variant of an argument, will
-        #  require updating tests when the arguments are cleaned up.
+        # TODO(crbug.com/922144): Uses the underscore variant of an argument,
+        # will require updating tests when the arguments are cleaned up.
         cmd.extend(LOCAL_BUILD_FLAGS)
 
     if force:
@@ -1153,9 +1153,9 @@ def RunHWTestSuite(
             if wait_for_results:
                 pass_hwtest = _HWTestWait(cmd, job_id, **swarming_args)
             if wait_for_results:
-                # Only dump the json output when tests don't pass, since the json
-                # output is used to decide whether we can do subsystem based partial
-                # submission.
+                # Only dump the json output when tests don't pass, since the
+                # json output is used to decide whether we can do subsystem
+                # based partial submission.
                 running_json_dump_flag = not pass_hwtest
                 if running_json_dump_flag:
                     json_dump_result = retry_util.RetryException(
@@ -1204,25 +1204,27 @@ def RunHWTestSuite(
                 result.GetValue("id"),
                 result.GetValue("created_ts"),
             )
-            # If running json_dump cmd, write the pass/fail subsys dict into console,
-            # otherwise, write the cmd output to the console.
+            # If running json_dump cmd, write the pass/fail subsys dict into
+            # console, otherwise, write the cmd output to the console.
             outputs = result.GetValue("outputs", "")
             if running_json_dump_flag:
                 s = "".join(outputs)
                 sys.stdout.write(s)
                 sys.stdout.write("\n")
                 try:
-                    # If we can't parse the JSON dump, subsystem based partial submission
-                    # will be skipped due to missing information about which individual
-                    # tests passed. This can happen for example when the JSON dump step
-                    # fails due to connectivity issues in which case we'll have no output
-                    # to parse. It's OK to just assume complete test failure in this case
-                    # though: since we don't know better anyways, we need to err on the
-                    # safe side and not submit any change. So we just log an error below
-                    # instead of raising an exception and allow the subsequent logic to
-                    # decide which failure condition to report. This is in the hope that
-                    # providing more information from the RunCommandError we encountered
-                    # will be useful in diagnosing the root cause of the failure.
+                    # If we can't parse the JSON dump, subsystem based partial
+                    # submission will be skipped due to missing information
+                    # about which individual tests passed. This can happen for
+                    # example when the JSON dump step fails due to connectivity
+                    # issues in which case we'll have no output to parse. It's
+                    # OK to just assume complete test failure in this case
+                    # though: since we don't know better anyways, we need to err
+                    # on the safe side and not submit any change. So we just log
+                    # an error below instead of raising an exception and allow
+                    # the subsequent logic to decide which failure condition to
+                    # report. This is in the hope that providing more
+                    # information from the RunCommandError we encountered will
+                    # be useful in diagnosing the root cause of the failure.
                     json_dump_result = _HWTestParseJSONDump(s)
                 except ValueError as err:
                     logging.error(
@@ -1648,8 +1650,9 @@ def _GetRunSuiteArgs(
 
     if timeout_mins is not None:
         args += ["--timeout_mins", str(timeout_mins)]
-        # The default for max_runtime_mins is one day. We increase this if longer
-        # timeouts are requested to avoid premature (and unexpected) aborts.
+        # The default for max_runtime_mins is one day. We increase this if
+        # longer timeouts are requested to avoid premature (and unexpected)
+        # aborts.
         if not max_runtime_mins and timeout_mins > 1440:
             args += ["--max_runtime_mins", str(timeout_mins)]
 
@@ -1840,8 +1843,8 @@ def _HWTestWait(cmd, job_id, **kwargs):
         pass_hwtest = True
     except cros_build_lib.RunCommandError as e:
         result = e.result
-        # Delay the lab-related exceptions, since those will be raised in the next
-        # json_dump cmd run.
+        # Delay the lab-related exceptions, since those will be raised in the
+        # next json_dump cmd run.
         if (
             not result.task_summary_json
             or not result.GetValue("outputs")
@@ -3044,9 +3047,9 @@ def BuildRecoveryImage(buildroot, board, image_dir, extra_env):
         extra_env: Flags to be added to the environment for the new process.
     """
     base_image = os.path.join(image_dir, constants.BASE_IMAGE_BIN)
-    # mod_image_for_recovery leaves behind some artifacts in the source directory
-    # that we don't care about. So, use a tempdir as the working directory.
-    # This tempdir needs to be at a chroot accessible path.
+    # mod_image_for_recovery leaves behind some artifacts in the source
+    # directory that we don't care about. So, use a tempdir as the working
+    # directory. This tempdir needs to be at a chroot accessible path.
     with osutils.TempDir(base_dir=image_dir) as tempdir:
         tempdir_base_image = os.path.join(tempdir, constants.BASE_IMAGE_BIN)
         tempdir_recovery_image = os.path.join(
@@ -3395,8 +3398,8 @@ def BuildCFTImages(chroot, sysroot, version):
             for file in files:
                 if result_file in file:
                     output_path = os.path.join(tempdir, file)
-                    # build-dockerimages.py will append the service name to outputfile
-                    # with an underscore.
+                    # build-dockerimages.py will append the service name to
+                    # outputfile with an underscore.
                     human_name = file.split("_")[-1]
 
                     result = test_pb2.TestServiceContainerBuildResult()
@@ -3579,8 +3582,8 @@ def BuildStandaloneArchive(archive_dir, image_dir, artifact_info):
         src_path = os.path.join(image_dir, artifact_info["paths"][0])
         tgt_path = os.path.join(archive_dir, artifact_info["paths"][0])
         if not os.path.exists(tgt_path):
-            # The image may have already been copied into place. If so, overwriting it
-            # can affect parallel processes.
+            # The image may have already been copied into place. If so,
+            # overwriting it can affect parallel processes.
             if os.path.isdir(src_path):
                 shutil.copytree(src_path, tgt_path)
             else:

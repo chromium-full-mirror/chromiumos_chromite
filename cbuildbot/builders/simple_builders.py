@@ -112,8 +112,8 @@ class SimpleBuilder(generic_builders.Builder):
                 failures_lib.CreateExceptInfo(e, traceback.format_exc())
             )
 
-        # Run stages serially to avoid issues encountered when running VMs (or the
-        # devserver) in parallel: https://crbug.com/779267
+        # Run stages serially to avoid issues encountered when running VMs (or
+        # the devserver) in parallel: https://crbug.com/779267
         if config.tast_vm_tests:
             try:
                 self._RunStage(
@@ -251,8 +251,8 @@ class SimpleBuilder(generic_builders.Builder):
                 afdo_use=config.afdo_use,
             )
 
-        # Run the debug symbols stage before the UnitTestStage to avoid generating
-        # debug symbols from the altered, test symbols.
+        # Run the debug symbols stage before the UnitTestStage to avoid
+        # generating debug symbols from the altered, test symbols.
         self._RunDebugSymbolStages(builder_run, board)
         # Run UnitTestStage & UploadTestArtifactsStage in a separate pass before
         # any of the other parallel stages to prevent races with the image
@@ -484,11 +484,10 @@ class DistributedBuilder(SimpleBuilder):
                 and completion_successful
                 and build_finished
             )
-            # CQ and Master Chrome PFQ no longer publish uprevs. For Master Chrome
-            # PFQ this is because this duty is being transitioned to the Chrome
-            # PUpr in the PCQ world. See http://go/pupr.
-            # There is no easy way to disable this in ChromeOS config,
-            # so hack the check here.
+            # CQ and Master Chrome PFQ no longer publish uprevs. For Master
+            # Chrome PFQ this is because this duty is being transitioned to the
+            # Chrome PUpr in the PCQ world. See http://go/pupr. There is no easy
+            # way to disable this in ChromeOS config, so hack the check here.
 
             self._RunStage(
                 completion_stages.PublishUprevChangesStage,

@@ -20,14 +20,15 @@ class ChrootSdkBuilder(simple_builders.SimpleBuilder):
 
     def RunStages(self):
         """Runs through build process."""
-        # Unlike normal CrOS builds, the SDK has no concept of pinned CrOS manifest
-        # or specific Chrome version.  Use a datestamp instead.
+        # Unlike normal CrOS builds, the SDK has no concept of pinned CrOS
+        # manifest or specific Chrome version.  Use a datestamp instead.
         version = datetime.datetime.now().strftime("%Y.%m.%d.%H%M%S")
         self._RunStage(build_stages.UprevStage, boards=[])
         self._RunStage(build_stages.InitSDKStage)
 
         # We don't need the Chrome source until SDKTestStage.  Syncing it should
-        # take less time than BuildSDKBoardStage, so lets run in parallel with it.
+        # take less time than BuildSDKBoardStage, so lets run in parallel with
+        # it.
         parallel_stages = [
             lambda: self._RunStage(chrome_stages.SyncChromeStage),
             lambda: self._RunStage(

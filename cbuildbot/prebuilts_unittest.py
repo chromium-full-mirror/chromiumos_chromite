@@ -197,14 +197,14 @@ class BinhostConfWriterTest(
             public_slave_boards: List of public slave boards.
             private_slave_boards: List of private slave boards.
         """
-        # TODO(mtennant): Add functionality in partial_mock to support more flexible
-        # asserting.  For example here, asserting that '--sync-host' appears in
-        # the command that did not include '--public'.
+        # TODO(mtennant): Add functionality in partial_mock to support more
+        # flexible asserting.  For example here, asserting that '--sync-host'
+        # appears in the command that did not include '--public'.
 
         # Some args are expected for any public run.
         if public_slave_boards:
-            # It would be nice to confirm that --private is not in command, but note
-            # that --sync-host should not appear in the --private command.
+            # It would be nice to confirm that --private is not in command, but
+            # note that --sync-host should not appear in the --private command.
             cmd = [self.cmd, "--sync-binhost-conf", "--sync-host"]
             self.assertCommandContains(cmd, expected=True)
 
@@ -215,8 +215,8 @@ class BinhostConfWriterTest(
 
         # Assert public slave boards are mentioned in public run.
         for board in public_slave_boards:
-            # This check does not actually confirm that this board was in the public
-            # run rather than the private run, unfortunately.
+            # This check does not actually confirm that this board was in the
+            # public run rather than the private run, unfortunately.
             cmd = [self.cmd, "--slave-board", board]
             self.assertCommandContains(cmd, expected=True)
 
@@ -225,7 +225,8 @@ class BinhostConfWriterTest(
             cmd = [self.cmd, "--slave-board", board, "--private"]
             self.assertCommandContains(cmd, expected=True)
 
-        # We expect --set-version so long as build config has manifest_version=True.
+        # We expect --set-version so long as build config has
+        # manifest_version=True.
         self.assertCommandContains(
             [self.cmd, "--set-version", self.VERSION],
             expected=self._run.config.manifest_version,

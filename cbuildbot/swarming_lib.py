@@ -132,8 +132,8 @@ def RunSwarmingCommand(
             result = None
             for iteration in itertools.count(0):
                 try:
-                    # Add a timeout limit of SILENCE_INTERVAL_MIN mins here to avoid
-                    # buildbot salency check.
+                    # Add a timeout limit of SILENCE_INTERVAL_MIN mins here to
+                    # avoid buildbot salency check.
                     with timeout_util.Timeout(SILENCE_INTERVAL_MIN * 60):
                         logging.info(
                             "Re-run swarming_cmd to avoid buildbot salency"
@@ -323,7 +323,8 @@ class SwarmingCommandResult(cros_build_lib.CompletedProcess):
             Value of the field.
         """
         if self.HasValidSummary():
-            # Hack for crbug.com/951373, will be changed after CL:1159239 is merged.
+            # Hack for crbug.com/951373, will be changed after CL:1159239 is
+            # merged.
             if (
                 field == "outputs"
                 and field not in self.task_summary_json.get("shards")[0]

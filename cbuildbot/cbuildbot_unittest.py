@@ -99,7 +99,8 @@ class RunBuildStagesTest(
         self.build_config["important"] = False
         self.buildstore = FakeBuildStore()
 
-        # Use the cbuildbot parser to create properties and populate default values.
+        # Use the cbuildbot parser to create properties and populate default
+        # values.
         self.parser = cbuildbot._CreateParser()
 
         argv = ["-r", self.buildroot, "--buildbot", "--debug", self.bot_id]
@@ -428,8 +429,8 @@ class FullInterfaceTest(cros_test_lib.MockTempDirTestCase):
         )
         osutils.SafeMakedirs(os.path.join(self.sourceroot, ".repo", "repo"))
 
-        # Stub out all relevant methods regardless of whether they are called in the
-        # specific test case.
+        # Stub out all relevant methods regardless of whether they are called in
+        # the specific test case.
         self.PatchObject(
             optparse.OptionParser, "error", side_effect=TestArgsparseError()
         )

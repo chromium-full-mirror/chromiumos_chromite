@@ -752,7 +752,8 @@ The suite job has another 2:39:39.789250 till timeout.
     def testRunHWTestSuiteMinimal(self):
         """Test RunHWTestSuite without optional arguments."""
         self.SetCmdResults()
-        # When run without optional arguments, wait and dump_json cmd will not run.
+        # When run without optional arguments, wait and dump_json cmd will not
+        # run.
         self.PatchJson([(self.JOB_ID_OUTPUT, False, None)])
 
         with self.OutputCapturer() as output:
@@ -1813,8 +1814,9 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
 
         expected_files = list(control_file_list)
 
-        # Touch Tast paths so they'll be included in the tar command. Skip creating
-        # the last file so we can verify that it's omitted from the tar command.
+        # Touch Tast paths so they'll be included in the tar command. Skip
+        # creating the last file so we can verify that it's omitted from the tar
+        # command.
         for p in commands.TAST_SSP_FILES[:-1]:
             path = os.path.join(self._buildroot, p)
             if not os.path.exists(os.path.dirname(path)):
@@ -1958,7 +1960,8 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
         returned_archive_name = commands.BuildFirmwareArchive(
             fw_test_root, board, fw_test_root
         )
-        # Verify we get a valid tarball returned whose name uses the default name.
+        # Verify we get a valid tarball returned whose name uses the default
+        # name.
         self.assertTrue(returned_archive_name is not None)
         self.assertEqual(returned_archive_name, constants.FIRMWARE_ARCHIVE_NAME)
 
@@ -2280,7 +2283,8 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
         log_files_root = os.path.join(
             self.tempdir, f"chroot/build/{self._TEST_BOARD}/tmp/portage/logs"
         )
-        # Generate a representative set of log files produced by a typical build.
+        # Generate a representative set of log files produced by a typical
+        # build.
         cros_test_lib.CreateOnDiskHierarchy(log_files_root, log_files)
         # Create an archive from the simulated logs directory
         tarball = os.path.join(
@@ -2313,7 +2317,8 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
         log_files_root = os.path.join(
             self.tempdir, f"{self._TEST_BOARD}/tmp/portage/wrong_dir_name"
         )
-        # Generate a representative set of log files produced by a typical build.
+        # Generate a representative set of log files produced by a typical
+        # build.
         cros_test_lib.CreateOnDiskHierarchy(log_files_root, log_files)
 
         # Create an archive from the simulated logs directory

@@ -121,10 +121,10 @@ class Builder(object):
             logging.error(
                 "BaseException in _RunParallelStages %s", ex, exc_info=True
             )
-            # If a stage threw an exception, it might not have correctly reported
-            # results (e.g. because it was killed before it could report the
-            # results.) In this case, attribute the exception to any stages that
-            # didn't report back correctly (if any).
+            # If a stage threw an exception, it might not have correctly
+            # reported results (e.g. because it was killed before it could
+            # report the results.) In this case, attribute the exception to any
+            # stages that didn't report back correctly (if any).
             for stage in stage_objs:
                 for name in stage.GetStageNames():
                     if not results_lib.Results.StageHasResults(name):
@@ -237,9 +237,9 @@ class Builder(object):
             args += ["--metadata_dump", metadata_file.name]
 
             # Re-run the command in the buildroot.
-            # Finally, be generous and give the invoked cbuildbot 30s to shutdown
-            # when something occurs.  It should exit quicker, but the sigterm may
-            # hit while the system is particularly busy.
+            # Finally, be generous and give the invoked cbuildbot 30s to
+            # shutdown when something occurs.  It should exit quicker, but the
+            # sigterm may hit while the system is particularly busy.
             return_obj = cros_build_lib.run(
                 args,
                 cwd=self._run.options.buildroot,
@@ -321,8 +321,9 @@ class Builder(object):
             self._RunSyncStage(sync_instance)
 
             if self._run.ShouldPatchAfterSync():
-                # Filter out patches to manifest, since PatchChangesStage can't handle
-                # them.  Manifest patches are patched in the BootstrapStage.
+                # Filter out patches to manifest, since PatchChangesStage can't
+                # handle them.  Manifest patches are patched in the
+                # BootstrapStage.
                 non_manifest_patches = self.patch_pool.FilterManifest(
                     negate=True
                 )
@@ -331,8 +332,9 @@ class Builder(object):
                         sync_stages.PatchChangesStage, non_manifest_patches
                     )
 
-            # Now that we have a fully synced & patched tree, we can let the builder
-            # extract version information from the sources for this particular build.
+            # Now that we have a fully synced & patched tree, we can let the
+            # builder extract version information from the sources for this
+            # particular build.
             self.SetVersionInfo()
             if self._run.ShouldReexecAfterSync():
                 print_report = False
@@ -353,8 +355,8 @@ class Builder(object):
             if results_lib.Results.BuildSucceededSoFar(
                 self.buildstore, buildbucket_id
             ):
-                # If the build is marked as successful, but threw exceptions, that's a
-                # problem. Print the traceback for debugging.
+                # If the build is marked as successful, but threw exceptions,
+                # that's a problem. Print the traceback for debugging.
                 if isinstance(ex, failures_lib.CompoundFailure):
                     print(str(ex))
 

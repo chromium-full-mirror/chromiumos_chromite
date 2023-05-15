@@ -182,8 +182,8 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         self.lkgm_path = os.path.join(self.manifest_dir, lkgm_path_rel)
         self.compare_versions_fn = _LKGMCandidateInfo.VersionCompare
         self.build_type = build_type
-        # Chrome PFQ and PFQ's exist at the same time and version separately so they
-        # must have separate subdirs in the manifest-versions repository.
+        # Chrome PFQ and PFQ's exist at the same time and version separately so
+        # they must have separate subdirs in the manifest-versions repository.
         if self.build_type == constants.TOOLCHAIN_TYPE:
             self.rel_working_dir = self.TOOLCHAIN_SUBDIR
         elif self.build_type == constants.FULL_TYPE:
@@ -292,20 +292,20 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         for attempt in range(0, retries + 1):
             try:
                 # Refresh manifest logic from manifest_versions repository.
-                # Note we don't need to do this on our first attempt as we needed to
-                # have done it to get the LKGM.
+                # Note we don't need to do this on our first attempt as we
+                # needed to have done it to get the LKGM.
                 if attempt != 0:
                     self.RefreshManifestCheckout()
                     self.InitializeManifestVariables(version_info)
 
-                # If we don't have any valid changes to test, make sure the checkout
-                # is at least different.
+                # If we don't have any valid changes to test, make sure the
+                # checkout is at least different.
                 if not self.force and self.HasCheckoutBeenBuilt():
                     return None
 
-                # Check whether the latest spec available in manifest-versions is
-                # newer than our current version number. If so, use it as the base
-                # version number. Otherwise, we default to 'rc1'.
+                # Check whether the latest spec available in manifest-versions
+                # is newer than our current version number. If so, use it as the
+                # base version number. Otherwise, we default to 'rc1'.
                 if self.latest:
                     latest = max(
                         self.latest,

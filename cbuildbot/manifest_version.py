@@ -161,8 +161,8 @@ def _PushGitChanges(git_repo, message, dry_run=False, push_to=None):
             Defaults to the tracking branch of the current branch.
     """
     if push_to is None:
-        # TODO(akeshet): Clean up git.GetTrackingBranch to always or never return a
-        # tuple.
+        # TODO(akeshet): Clean up git.GetTrackingBranch to always or never
+        # return a tuple.
         # pylint: disable=unpacking-non-sequence
         push_to = git.GetTrackingBranch(
             git_repo, for_checkout=False, for_push=True
@@ -567,8 +567,8 @@ class BuildSpecsManager(object):
             logging.info(
                 "Found previous successful build manifest: %s", latest_spec_file
             )
-            # We've built this checkout before if the manifest isn't different than
-            # the last one we've built.
+            # We've built this checkout before if the manifest isn't different
+            # than the last one we've built.
             to_return = not self.cros_source.IsManifestDifferent(
                 latest_spec_file
             )
@@ -577,7 +577,8 @@ class BuildSpecsManager(object):
             )
             return to_return
         else:
-            # We've never built this manifest before so this checkout is always new.
+            # We've never built this manifest before so this checkout is always
+            # new.
             logging.info("No successful build on this branch before")
             return False
 
@@ -623,8 +624,8 @@ class BuildSpecsManager(object):
                 publishing this manifest. If specified and non-negative,
                 build_id will be included in the commit message.
         """
-        # Note: This commit message is used by master.cfg for figuring out when to
-        #       trigger slave builders.
+        # Note: This commit message is used by master.cfg for figuring out when
+        # to trigger slave builders.
         commit_message = "Automatic: Start %s %s %s" % (
             self.build_names[0],
             self.branch,
@@ -795,9 +796,9 @@ class BuildSpecsManager(object):
                     )
                     return None
 
-                # If we're the master, always create a new build spec. Otherwise,
-                # only create a new build spec if we've already built the existing
-                # spec.
+                # If we're the master, always create a new build spec.
+                # Otherwise, only create a new build spec if we've already built
+                # the existing spec.
                 if self.master or not self.latest_unprocessed:
                     logging.info(
                         "Build is master or build latest unprocessed is None"

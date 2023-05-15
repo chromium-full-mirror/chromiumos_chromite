@@ -221,7 +221,8 @@ class BuilderRunTest(_BuilderRunTestCase):
                 run.GetArchive(), cbuildbot_run.archive_lib.Archive
             )
 
-            # Make sure methods behave normally, since BuilderRun messes with them.
+            # Make sure methods behave normally, since BuilderRun messes with
+            # them.
             meth1 = run.GetVersionInfo
             meth2 = run.GetVersionInfo
             self.assertEqual(meth1.__name__, meth2.__name__)
@@ -452,7 +453,8 @@ class ChildBuilderRunTest(_BuilderRunTestCase):
                 crun.GetArchive(), cbuildbot_run.archive_lib.Archive
             )
 
-            # Make sure methods behave normally, since BuilderRun messes with them.
+            # Make sure methods behave normally, since BuilderRun messes with
+            # them.
             meth1 = crun.GetVersionInfo
             meth2 = crun.GetVersionInfo
             self.assertEqual(meth1.__name__, meth2.__name__)
