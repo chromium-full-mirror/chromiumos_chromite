@@ -204,8 +204,8 @@ def FindSymbolFiles(tempdir, paths):
                 logging.info("processing files inside %s", gspath)
                 o = urllib.parse.urlparse(gspath)
                 key = ("%s%s" % (o.netloc, o.path)).split("/")
-                # The common cache will not be LRU, removing the need to hold a read
-                # lock on the cached gsutil.
+                # The common cache will not be LRU, removing the need to hold a
+                # read lock on the cached gsutil.
                 ref = tar_cache.Lookup(key)
                 try:
                     ref.SetDefault(gspath)
@@ -219,8 +219,8 @@ def FindSymbolFiles(tempdir, paths):
             for root, _, files in os.walk(p):
                 for f in files:
                     if f.endswith(".sym"):
-                        # If p is '/tmp/foo' and filename is '/tmp/foo/bar/bar.sym',
-                        # display_path = 'bar/bar.sym'
+                        # If p is '/tmp/foo' and filename is
+                        # '/tmp/foo/bar/bar.sym', display_path = 'bar/bar.sym'
                         filename = os.path.join(root, f)
                         yield SymbolFile(
                             display_path=filename[len(p) :].lstrip("/"),
@@ -474,8 +474,9 @@ def PerformSymbolsFileUpload(symbols, upload_url, api_key):
             time.sleep(SLEEP_DELAY)
             logging.info("Uploading symbol_file: %s", s.display_path)
             try:
-                # This command retries the upload multiple times with growing delays. We
-                # only consider the upload a failure if these retries fail.
+                # This command retries the upload multiple times with growing
+                # delays. We only consider the upload a failure if these retries
+                # fail.
                 def ShouldRetryUpload(exception):
                     if isinstance(
                         exception,
@@ -616,17 +617,17 @@ def UploadSymbols(
     retry_stats.SetupStats()
 
     # Note: This method looks like each step of processing is performed
-    # sequentially for all SymbolFiles, but instead each step is a generator that
-    # produces the next iteration only when it's read. This means that (except for
-    # some batching) each SymbolFile goes through all of these steps before the
-    # next one is processed at all.
+    # sequentially for all SymbolFiles, but instead each step is a generator
+    # that produces the next iteration only when it's read. This means that
+    # (except for some batching) each SymbolFile goes through all of these steps
+    # before the next one is processed at all.
 
     # This is used to hold striped
     with osutils.TempDir(prefix="upload_symbols.") as tempdir:
         symbols = FindSymbolFiles(tempdir, sym_paths)
 
-        # Sort all of our symbols so the largest ones (probably the most important)
-        # are processed first.
+        # Sort all of our symbols so the largest ones (probably the most
+        # important) are processed first.
         symbols = list(symbols)
         symbols.sort(key=lambda s: s.FileSize(), reverse=True)
 
@@ -818,6 +819,6 @@ def main(argv):
 
     if ret:
         logging.error("encountered %i problem(s)", ret)
-        # Since exit(status) gets masked, clamp it to 1 so we don't inadvertently
-        # return 0 in case we are a multiple of the mask.
+        # Since exit(status) gets masked, clamp it to 1 so we don't
+        # inadvertently return 0 in case we are a multiple of the mask.
         return 1

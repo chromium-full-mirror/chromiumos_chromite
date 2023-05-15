@@ -59,13 +59,14 @@ class CopybotDownstream:
         self.gerrit_helper = gerrit.GetGerritHelper(
             config_lib.GetSiteParams().EXTERNAL_REMOTE
         )
-        # Map of functions to be called when the project in the key is encountered.
+        # Map of functions to be called when the project in the key is
+        # encountered.
         #
-        #    List of tuples(function, list of arguments) where the format of the list
-        #        can vary across functions.
+        # List of tuples(function, list of arguments) where the format of the
+        # list can vary across functions.
         #
-        #    Functions should take a CL and perform any additional checks required by the project
-        #    prior to downstreaming.
+        # Functions should take a CL and perform any additional checks required
+        # by the project prior to downstreaming.
         #
         #    Args:
         #        gerrit CL dict for use in parsing

@@ -327,8 +327,8 @@ def _is_parent_autoserv(proc):
 def _is_autoserv(proc):
     """Return whether proc is an autoserv process."""
     # This relies on the autoserv script being run directly.  The script should
-    # be named autoserv exactly and start with a shebang that is /usr/bin/python,
-    # NOT /bin/env
+    # be named autoserv exactly and start with a shebang that is
+    # /usr/bin/python, NOT /bin/env
     return _is_process_name("autoserv", proc)
 
 

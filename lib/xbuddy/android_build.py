@@ -35,8 +35,8 @@ class AndroidBuildFetchError(Exception):
 class BuildAccessor(object):
     """Wrapper class to make Google API call to query Android build server."""
 
-    # Credential information is required to access Android builds. The values will
-    # be set when the devserver starts.
+    # Credential information is required to access Android builds. The values
+    # will be set when the devserver starts.
     credential_info = {}
 
     @classmethod

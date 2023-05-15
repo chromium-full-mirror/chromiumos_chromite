@@ -65,17 +65,17 @@ def main(argv):
     if opts.quick:
         logging.info("Skipping test namespacing due to --quickstart.")
     else:
-        # Namespacing is enabled by default because tests may break each other or
-        # interfere with parts of the running system if not isolated in a namespace.
-        # Disabling namespaces is not recommended for general use.
+        # Namespacing is enabled by default because tests may break each other
+        # or interfere with parts of the running system if not isolated in a
+        # namespace. Disabling namespaces is not recommended for general use.
         namespaces.ReExecuteWithNamespace(
             [sys.argv[0], "--no-precache"] + argv, network=opts.network
         )
 
     jobs = opts.jobs
     if jobs is None:
-        # Default to running in a single process under --quickstart. User args can
-        # still override this.
+        # Default to running in a single process under --quickstart. User args
+        # can still override this.
         jobs = 0 if opts.quick else os.cpu_count()
     pytest_args = ["-n", str(jobs)] + pytest_args
 

@@ -128,8 +128,8 @@ class TidyDiagnostic(NamedTuple):
     def normalize_paths_to(self, where: str) -> "TidyDiagnostic":
         """Creates a new TidyDiagnostic with all paths relative to |where|."""
         return self._replace(
-            # Use relpath because Path.relative_to requires that `self` is rooted
-            # at `where`.
+            # Use relpath because Path.relative_to requires that `self` is
+            # rooted at `where`.
             file_path=Path(os.path.relpath(self.file_path, where)),
             expansion_locs=tuple(
                 x._replace(file_path=Path(os.path.relpath(x.file_path, where)))
@@ -163,8 +163,8 @@ class LineOffsetMap:
     def __init__(self, newline_locations: Iterable[int]):
         line_starts = [x + 1 for x in newline_locations]
         # The |bisect| logic in |get_line_number|/|get_line_offset| gets a bit
-        # complicated around the first and last lines of a file. Adding boundaries
-        # here removes some complexity from those implementations.
+        # complicated around the first and last lines of a file. Adding
+        # boundaries here removes some complexity from those implementations.
         line_starts.append(0)
         line_starts.append(sys.maxsize)
         line_starts.sort()
@@ -223,9 +223,9 @@ def parse_tidy_fixes_file(
         if file_path in cached_line_offsets:
             return cached_line_offsets[file_path]
 
-        # Sometimes tidy will give us empty file names; they don't map to any file,
-        # and are generally issues it has with CFLAGS, etc. File offsets don't
-        # matter in those, so use an empty map.
+        # Sometimes tidy will give us empty file names; they don't map to any
+        # file, and are generally issues it has with CFLAGS, etc. File offsets
+        # don't matter in those, so use an empty map.
         offsets = LineOffsetMap(())
         if file_path:
             try:
@@ -264,8 +264,8 @@ def parse_tidy_fixes_file(
                 replacement_file_path = makeabs(replacement["FilePath"])
 
                 # FIXME(gbiv): This happens in practice with things like
-                # hicpp-member-init. Supporting it should be simple, but I'd like to
-                # get the basics running first.
+                # hicpp-member-init. Supporting it should be simple, but I'd
+                # like to get the basics running first.
                 if replacement_file_path != absolute_file_path:
                     logging.warning(
                         "Replacement %r wasn't in original file %r (diag: %r)",
@@ -387,7 +387,8 @@ Clang-tidy apparently crashed; dumping lots of invocation info:
             )
 
         yaml_file = json_file.with_suffix(".yaml")
-        # If there is no yaml file, clang-tidy was either killed or found no lints.
+        # If there is no yaml file, clang-tidy was either killed or found no
+        # lints.
         if not yaml_file.exists():
             if meta.exit_code:
                 raise RuntimeError(
@@ -576,8 +577,8 @@ def resolve_package_ebuilds(
             encoding="utf-8",
         ).stdout.strip()
 
-    # Resolving ebuilds takes time. If we get more than one (like when I'm tesing
-    # on 50 of them), parallelism speeds things up quite a bit.
+    # Resolving ebuilds takes time. If we get more than one (like when I'm
+    # tesing on 50 of them), parallelism speeds things up quite a bit.
     with multiprocessing.pool.ThreadPool() as pool:
         return pool.map(resolve_package, package_names)
 
@@ -607,9 +608,9 @@ def filter_tidy_lints(
         total_diags += 1
 
         if not diag.file_path:
-            # Things like |-DFOO=1 -DFOO=2| can trigger diagnostics ("oh no you're
-            # redefining |FOO| with a different value") in 'virtual' files; these
-            # receive no name in clang.
+            # Things like |-DFOO=1 -DFOO=2| can trigger diagnostics ("oh no
+            # you're redefining |FOO| with a different value") in 'virtual'
+            # files; these receive no name in clang.
             logging.info(
                 "Dropping diagnostic %r, since it has no associated file", diag
             )
@@ -694,8 +695,8 @@ def main(argv: List[str]) -> None:
     if git_repo_base:
         git_repo_base = Path(opts.git_repo_base)
         if not (git_repo_base / ".git").exists():
-            # This script doesn't strictly care if there's a .git dir there; more of
-            # a smoke check.
+            # This script doesn't strictly care if there's a .git dir there;
+            # more of a smoke check.
             parser.error(
                 f"Given git repo base ({git_repo_base}) has no .git dir"
             )

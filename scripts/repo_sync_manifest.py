@@ -192,8 +192,8 @@ def ResolveLocalManifestPath(options):
 
     elif options.buildspec:
         # Buildspec builds use a manifest file from manifest_versions. We do NOT
-        # use manifest_versions as the manifest git repo, because it's so large that
-        # sync time would be a major performance problem.
+        # use manifest_versions as the manifest git repo, because it's so large
+        # that sync time would be a major performance problem.
         manifest_versions_path = PrepareManifestVersions(options)
         return manifest_version.ResolveBuildspec(
             manifest_versions_path, options.buildspec
@@ -207,7 +207,8 @@ def ResolveLocalManifestPath(options):
         )
 
     elif options.branch:
-        # Branch checkouts use our normal manifest repos, not a local manifest file.
+        # Branch checkouts use our normal manifest repos, not a local manifest
+        # file.
         return None
 
     else:

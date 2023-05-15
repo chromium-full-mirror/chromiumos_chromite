@@ -42,7 +42,8 @@ class SecurityTestImageTest(cros_test_lib.MockTempDirTestCase):
             opts.image, os.path.join(self.tempdir, "other_image.bin")
         )
 
-        # Test the board is fetched and used when using the default image basename.
+        # Test the board is fetched and used when using the default image
+        # basename.
         self.PatchObject(
             image_lib,
             "GetLatestImageLink",

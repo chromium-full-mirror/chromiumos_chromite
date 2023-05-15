@@ -33,8 +33,8 @@ _VENV_MARKER = "INSIDE_CHROMITE_VENV"
 
 def main():
     if _IsInsideVenv(os.environ):
-        # Don't bleed the marker into children processes that might use the wrapper
-        # themselves to run inside of the virtualenv.
+        # Don't bleed the marker into children processes that might use the
+        # wrapper themselves to run inside of the virtualenv.
         os.environ.pop(_VENV_MARKER)
         wrapper3.DoMain()
     else:

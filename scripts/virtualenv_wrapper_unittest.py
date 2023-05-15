@@ -21,8 +21,8 @@ class VirtualEnvTest(cros_test_lib.TestCase):
 
     def testModuleIsFromVenv(self):
         """Test that we import |six| from the virtualenv."""
-        # Note: The |six| module is chosen somewhat arbitrarily, but it happens to
-        # be provided inside the chromite virtualenv.
+        # Note: The |six| module is chosen somewhat arbitrarily, but it happens
+        # to be provided inside the chromite virtualenv.
         six = __import__("six")
         req_path = os.path.dirname(os.path.realpath(six.__file__))
         self.assertIn("/.cache/cros_venv/", req_path)

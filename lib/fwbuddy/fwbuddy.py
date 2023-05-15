@@ -29,7 +29,8 @@ BUG_SUBMIT_URL = (
     "new?component=1094001&template=1670797"
 )
 
-# TODO(b/280096504) Add support for channel specific versions, like 'latest-canary'
+# TODO(b/280096504) Add support for channel specific versions, like
+# 'latest-canary'
 STABLE = "stable"
 STABLE_RO = "stable-ro"
 LATEST = "latest"
@@ -354,7 +355,8 @@ def generate_gspaths(fw_image: FwImage) -> List[str]:
     Returns:
         A list of all possible paths the archive may be.
     """
-    # TODO(b/280096504) Add support for boards with different firmware branch names
+    # TODO(b/280096504) Add support for boards with different firmware branch
+    # names
     gspaths = []
     schemas = (
         SIGNED_GSPATH_SCHEMAS

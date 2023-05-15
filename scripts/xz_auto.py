@@ -36,8 +36,8 @@ def ParsePixzArgs(argv):
         - An optional output file (only exists if the input file is present).
     """
     # Glancing at docs, the following opts are supported. -i and -o are ignored,
-    # since we assert in `main` that they're not present, but include parsing for
-    # them anyway.
+    # since we assert in `main` that they're not present, but include parsing
+    # for them anyway.
     flags, args = getopt.gnu_getopt(
         args=argv,
         shortopts="dlxi:o:0123456789p:tkch",
@@ -68,9 +68,9 @@ def Execvp(argv):
 
 def ExecCompressCommand(stdout, argv):
     """Execs compression command."""
-    # It appears that in order for pixz to do parallel decompression, compression
-    # needs to be done with pixz. xz itself is only capable of parallel
-    # compression.
+    # It appears that in order for pixz to do parallel decompression,
+    # compression needs to be done with pixz. xz itself is only capable of
+    # parallel compression.
     if not HasPixz():
         cmd = ["xz"]
 

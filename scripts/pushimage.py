@@ -86,8 +86,8 @@ class InputInsns(object):
         with open(self.GetInsnFile("DEFAULT"), encoding="utf-8") as fp:
             config.read_file(fp)
 
-        # What pushimage internally refers to as 'recovery', are the basic signing
-        # instructions in practice, and other types are stacked on top.
+        # What pushimage internally refers to as 'recovery', are the basic
+        # signing instructions in practice, and other types are stacked on top.
         if image_type is None:
             image_type = constants.IMAGE_TYPE_RECOVERY
         self.image_type = image_type
@@ -440,8 +440,8 @@ def PushImage(
         base_basename = _ImageNameBase(constants.IMAGE_TYPE_BASE)
         hwqual_tarball = "chromeos-hwqual-%s-%s.tar.bz2" % (board, versionrev)
 
-        # The following build artifacts, if present, are always copied regardless of
-        # requested signing types.
+        # The following build artifacts, if present, are always copied
+        # regardless of requested signing types.
         files_to_copy_only = (
             # (<src>, <dst>, <suffix>),
             ("image.zip", _ImageNameBase(), "zip"),
@@ -589,9 +589,9 @@ def PushImage(
             sect_general["type"] = image_type
 
             # In the default/automatic mode, only flag files for signing if the
-            # archives were actually uploaded in a previous stage. This additional
-            # check can be removed in future once |sign_types| becomes a required
-            # argument.
+            # archives were actually uploaded in a previous stage. This
+            # additional check can be removed in future once |sign_types|
+            # becomes a required argument.
             # TODO: Make |sign_types| a required argument.
             gs_artifact_path = os.path.join(dst_path, dst_archive)
             exists = False
@@ -626,8 +626,8 @@ def PushImage(
                 for keyset in keysets:
                     sect_insns["keyset"] = keyset
 
-                    # Generate the insn file for this artifact that the signer will use,
-                    # and flag it for signing.
+                    # Generate the insn file for this artifact that the signer
+                    # will use, and flag it for signing.
                     with cros_build_lib.UnbufferedNamedTemporaryFile(
                         prefix="pushimage.insns."
                     ) as insns_path:
@@ -770,9 +770,9 @@ def main(argv):
 
     force_keysets = {f"{TEST_KEYSET_PREFIX}-{x}" for x in opts.test_sign}
 
-    # If we aren't using mock or test or dry run mode, then let's prompt the user
-    # to make sure they actually want to do this.  It's rare that people want to
-    # run this directly and hit the release bucket.
+    # If we aren't using mock or test or dry run mode, then let's prompt the
+    # user to make sure they actually want to do this.  It's rare that people
+    # want to run this directly and hit the release bucket.
     if not (opts.mock or force_keysets or opts.dryrun) and not opts.yes:
         prolog = "\n".join(
             textwrap.wrap(

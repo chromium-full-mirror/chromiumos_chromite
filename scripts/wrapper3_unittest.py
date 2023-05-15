@@ -49,8 +49,8 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
             (self.chromite_dir / subfile).touch()
         self.wrapper = self.scripts_dir / WRAPPER.name
         # Copy over the wrapper.  We can't just symlink it because the code also
-        # walks & resolves symlinks on itself.  Try hardlink at first, but if the
-        # tempdir is on a diff mount, fallback to a copy.
+        # walks & resolves symlinks on itself.  Try hardlink at first, but if
+        # the tempdir is on a diff mount, fallback to a copy.
         try:
             if sys.version_info >= (3, 8):
                 self.wrapper.link_to(WRAPPER)

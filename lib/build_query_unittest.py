@@ -157,7 +157,8 @@ def fake_overlays(tmp_path):
         "chromite.lib.portage_util.FindOverlays",
         return_value=[str(x.path) for x in overlays],
     ):
-        # We just changed the overlays with our mock, we need to clear the cache.
+        # We just changed the overlays with our mock, we need to clear the
+        # cache.
         # pylint: disable=protected-access
         build_query._get_all_overlays_by_name.cache_clear()
         yield overlays
