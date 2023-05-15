@@ -179,7 +179,6 @@ export class CommentThread {
     vscodeCommentThread.gerritCommentThread = this; // Remember the comment thread
     vscodeCommentThread.canReply = this.canReply;
     const revisionNumber = this.revisionNumber;
-    // TODO(b:216048068): We should indicate resolved/unresolved with UI style.
     if (this.unresolved) {
       vscodeCommentThread.label = `Patchset ${revisionNumber} / Unresolved`;
       vscodeCommentThread.collapsibleState =
