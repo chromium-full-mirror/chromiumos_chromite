@@ -765,7 +765,7 @@ class UploadPrebuiltsStage(generic_stages.BoardSpecificBuilderStage):
 
     @classmethod
     def _AddOptionsForSlave(cls, slave_config, board):
-        """Private helper method to add upload_prebuilts args for a slave builder.
+        """Helper method to add upload_prebuilts args for a slave builder.
 
         Args:
             slave_config: The build config of a slave builder.

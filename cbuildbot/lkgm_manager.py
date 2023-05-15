@@ -215,7 +215,7 @@ class LKGMManager(manifest_version.BuildSpecsManager):
             dom_instance.writexml(f)
 
     def _AddAndroidVersionToManifest(self, manifest, android_version):
-        """Adds the Android element with version |android_version| to |manifest|.
+        """Adds Android element with version |android_version| to |manifest|.
 
         The manifest file should contain the Android version to build for
         PFQ slaves.

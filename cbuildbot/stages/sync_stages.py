@@ -70,9 +70,10 @@ class PatchChangesStage(generic_stages.BuilderStage):
 
         for conflict in duplicates:
             logging.error(
-                "Changes %s conflict with each other- they have same id %s., ".join(
-                    str(x) for x in conflict
-                ),
+                (
+                    "Changes %s conflict with each other-"
+                    " they have same id %s., "
+                ).join(str(x) for x in conflict),
                 conflict[0].id,
             )
 
@@ -106,7 +107,7 @@ class PatchChangesStage(generic_stages.BuilderStage):
 
     def PerformStage(self):
         class NoisyPatchSeries(patch_series.PatchSeries):
-            """Custom PatchSeries that adds links to buildbot logs for remote trys."""
+            """Custom PatchSeries - adds links to buildbot logs for remote trys."""
 
             def ApplyChange(self, change):
                 if isinstance(change, cros_patch.GerritPatch):
@@ -495,7 +496,7 @@ class ManifestVersionedSyncStage(SyncStage):
         )
 
     def _SetAndroidVersionIfApplicable(self, manifest):
-        """If 'android' is in |manifest|, write version to the BuilderRun object.
+        """If 'android' is in |manifest| write version to the BuilderRun object.
 
         Args:
             manifest: Path to the manifest.
@@ -522,7 +523,7 @@ class ManifestVersionedSyncStage(SyncStage):
             )
 
     def _SetChromeVersionIfApplicable(self, manifest):
-        """If 'chrome' is in |manifest|, write the version to the BuilderRun object.
+        """If 'chrome' is in |manifest|, write version to the BuilderRun object.
 
         Args:
             manifest: Path to the manifest.

@@ -307,7 +307,7 @@ class ImageTestStage(
             self.SendPerfValues(test_results_dir)
 
     def SendPerfValues(self, test_results_dir):
-        """Gather all perf values in |test_results_dir| and send them to chromeperf.
+        """Gather perf values in |test_results_dir| and send them to chromeperf.
 
         The uploading will be retried 3 times for each file.
 

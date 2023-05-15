@@ -188,7 +188,7 @@ class FwBuddy:
 
     # TODO(b/280096504) Implement
     def lookup_branch(self) -> str:
-        """Gets the firmware branch for the given board/model combination from DLM
+        """Gets firmware branch for the given board/model combination from DLM.
 
         Some firmware archives are stored underneath branches that do not match
         the name of their board. For those scenarios, we need to retrieve the

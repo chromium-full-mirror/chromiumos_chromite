@@ -667,7 +667,7 @@ class PatchSeries(object):
     def Apply(
         self, changes, frozen=True, honor_ordering=False, changes_filter=None
     ):
-        """Applies changes from pool into the build root specified by the manifest.
+        """Applies changes from pool into the manifest build root.
 
         This method resolves each given change down into a set of transactions-
         the change and its dependencies- that must go in, then tries to apply

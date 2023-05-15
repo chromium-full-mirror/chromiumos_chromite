@@ -211,7 +211,8 @@ class RunAttributes(object):
     # assumed to fit into this category.
     PARALLEL_ATTRS = BOARD_ATTRS | frozenset(
         (
-            "unittest_value",  # For unittests.  An example of a PARALLEL attribute
+            # For unittests.  An example of a PARALLEL attribute:
+            "unittest_value",
             # that is not also a BOARD attribute.
         )
     )
@@ -320,7 +321,7 @@ class RunAttributes(object):
         self.SetParallel(unique_attr, value)
 
     def HasBoardParallel(self, attr, board, target):
-        """Return True if board-specific parallel run attribute is known and set.
+        """Return True if board-specific parallel run attribute is known & set.
 
         Args:
             attr: Plain board run attribute name.
@@ -566,7 +567,7 @@ class BoardRunAttributes(object):
         )
 
     def SetParallelDefault(self, attr, default_value, *args, **kwargs):
-        """Set the value of parallel board attribute |attr| to |value|, if not set.
+        """Sets parallel board attribute |attr| to |value|, if not set.
 
         Relay to SetBoardParallelDefault on self._attrs, supplying board and
         target. See documentation on RunAttributes.SetBoardParallelDefault for
@@ -612,7 +613,7 @@ class _BuilderRunBase(object):
         # Some pre-computed run configuration values.
         "buildnumber",  # The build number for this run.
         "buildroot",  # The build root path for this run.
-        "manifest_branch",  # The manifest branch to build and test for this run.
+        "manifest_branch",  # The manifest branch to build & test for this run.
         # Some attributes are available as properties.  In particular,
         # attributes that use self.config must be determined after __init__.
         # self.bot_id      # Effective name of builder for this run.

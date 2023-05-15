@@ -566,7 +566,7 @@ class TestPathResolver(cros_test_lib.MockTestCase):
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
     def testOutsideChrootOutdir(self, _):
-        """Tests {To,From}Chroot() call from outside the chroot, with an out_dir."""
+        """Tests {To,From}Chroot() call from outside the chroot with an out_dir."""
         self.SetChrootPath(constants.SOURCE_ROOT)
         resolver = path_util.ChrootPathResolver()
 

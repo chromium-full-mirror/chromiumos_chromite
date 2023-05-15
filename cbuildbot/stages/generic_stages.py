@@ -351,7 +351,7 @@ class BuilderStage(object):
             self.buildstore.WaitBuildStage(self._build_stage_id)
 
     def _TranslateResultToCIDBStatus(self, result):
-        """Translates the different result_lib.Result results to builder statuses.
+        """Translates different result_lib.Result results to builder statuses.
 
         Args:
             result: Same as the result passed to results_lib.Result.Record()
@@ -454,7 +454,7 @@ class BuilderStage(object):
         )
 
     def GetBuildFailureMessageFromResults(self):
-        """Get message summarizing failures of this build from result_lib.Results.
+        """Get message summarizing build failures from result_lib.Results.
 
         Returns:
             An instance of build_failure_message.BuildFailureMessage.
@@ -664,7 +664,7 @@ class BuilderStage(object):
 
     @classmethod
     def _HandleExceptionAsWarning(cls, exc_info, retrying=False):
-        """Use instead of HandleStageException to treat an exception as a warning.
+        """Use over HandleStageException to treat an exception as a warning.
 
         This is used by the ForgivingBuilderStage's to treat any exceptions as
         warnings instead of stage failures.
@@ -1354,7 +1354,7 @@ class ArchivingStageMixin(object):
     def UploadMetadata(
         self, upload_queue=None, filename=constants.METADATA_JSON, export=False
     ):
-        """Create and upload JSON file of the builder run's metadata, and to cidb.
+        """Create & upload JSON file of the builder run's metadata, and to cidb.
 
         This uses the existing metadata stored in the builder run. The default
         metadata.json file should only be uploaded once, at the end of the run,

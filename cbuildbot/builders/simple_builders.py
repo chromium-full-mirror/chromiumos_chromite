@@ -418,7 +418,7 @@ class DistributedBuilder(SimpleBuilder):
         return self.sync_stage
 
     def GetCompletionInstance(self):
-        """Returns the completion_stage_class instance that was used for this build.
+        """Returns completion_stage_class instance that was used for this build.
 
         Returns:
             None if the completion_stage instance was not yet created (this

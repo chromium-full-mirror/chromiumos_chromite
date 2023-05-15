@@ -152,7 +152,12 @@ To install the debug symbols for all available packages, run:
         return os.path.exists("/mnt/host/source/chromite/")
 
     def IsLacros(self):
-        """The --attach option specifies the type of if you want to attach to browser, renderer or gpu-process. Prefixed with either lacros-, ash- you can specify which browser you want to attach to. Default is ash."""
+        """Whether the Lacros chrome binary is in use.
+
+        The --attach option specifies the type of if you want to attach to
+        browser, renderer or gpu-process. Prefixed with either lacros- or ash-.
+        You can specify which browser you want to attach to. Default is ash.
+        """
         return self.inf_cmd == self._LACROS_CHROME_REMOTE_BIN
 
     def SimpleChromeGdb(self):
@@ -432,8 +437,8 @@ To install the debug symbols for all available packages, run:
             return
 
         if self.remote_process_name:
-            # Look for a process with the specified name on the remote device; if
-            # found, get its pid. Strip off the lacros- or ash- part.
+            # Look for a process with the specified name on the remote device;
+            # if found, get its pid. Strip off the lacros- or ash- part.
             pname = self.remote_process_name.lstrip("lacros-").lstrip("ash-")
             if pname == "browser":
                 all_chrome_pids = set(device.GetRunningPids(self.inf_cmd))
@@ -718,7 +723,8 @@ def main(argv):
         default="",
         help="Name of existing process to which to attach, on"
         " remote device (remote debugging only)."
-        'Options are [browser, renderer, gpu-process] and can be prefixed with either "ash-" or "lacros-".',
+        "Options are [browser, renderer, gpu-process] and can be prefixed with"
+        ' either "ash-" or "lacros-".',
     )
     parser.add_argument(
         "--cgdb",

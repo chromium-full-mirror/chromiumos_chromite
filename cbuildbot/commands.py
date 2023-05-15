@@ -1882,7 +1882,7 @@ def _HWTestParseJSONDump(dump_output):
 
 
 def _HWTestDumpJson(cmd, job_id, **kwargs):
-    """Consume HWTest suite json output and return passed/failed subsystems dict.
+    """Consume HWTest suite json output; return passed/failed subsystems dict.
 
     Args:
         cmd: Proxied run_suite command.

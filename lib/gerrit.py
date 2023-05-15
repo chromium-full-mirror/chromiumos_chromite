@@ -211,7 +211,7 @@ class GerritHelper(object):
         )
 
     def GetRelatedChangesInfo(self, change_num):
-        """Returns a python dict that represents a gerrit API RelatedChangesInfo entity.
+        """Returns dict that represents a gerrit API RelatedChangesInfo entity.
 
         Args:
             change_num: A gerrit change number.

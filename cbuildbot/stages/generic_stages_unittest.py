@@ -226,7 +226,7 @@ class StageTestCase(
         return hw_tests[0]
 
     def assertRaisesStringifyable(self, exception, functor, *args, **kwargs):
-        """assertRaises replacement that also verifies exception is Stringifyable.
+        """assertRaises stand-in that also verifies exception is Stringifyable.
 
         This helper is intended to be used anywhere assertRaises can be used,
         but will also verify the exception raised can pass through
@@ -510,7 +510,7 @@ class BuilderStageTest(AbstractStageTestCase):
 
     @osutils.TempFileDecorator
     def testRunSkipsPreviouslyCompletedStage(self):
-        """Test that a stage that has run before is skipped, and marked as such."""
+        """Tests a stage that has run before is skipped, and marked as such."""
         handle_skip_mock = self.PatchObject(
             generic_stages.BuilderStage, "HandleSkip"
         )

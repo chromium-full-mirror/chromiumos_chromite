@@ -257,7 +257,7 @@ class SkylabHWLabCommandsTest(cros_test_lib.RunCommandTestCase):
             commands.RunSkylabHWTestSuite(build, suite, board)
 
     def testCreateSuite(self):
-        """Test that function call args are mapped correctly to commandline args."""
+        """Test function call args are mapped correctly to commandline args."""
         build = "foo-bar/R1234"
         suite = "foo-suite"
         board = "foo-board"
@@ -431,7 +431,7 @@ class SkylabHWLabCommandsTest(cros_test_lib.RunCommandTestCase):
         self.assertIn(board, str(error))
 
     def testCreateTestPlan(self):
-        """Test that function call args are mapped correctly to commandline args."""
+        """Test function call args are mapped correctly to commandline args."""
         test_plan = "{}"
         build = "foo-bar/R1234"
         board = "foo-board"
@@ -501,7 +501,7 @@ class HWLabCommandsTest(
 ):
     """Test commands related to HWLab tests that are runing via swarming proxy."""
 
-    # pylint: disable=protected-access
+    # pylint: disable=protected-access,line-too-long
     JOB_ID_OUTPUT = """
 Autotest instance: cautotest
 02-23-2015 [06:26:51] Submitted create_suite_job rpc
@@ -1189,6 +1189,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(["./build_packages"])
 
     def testGetFirmwareVersions(self):
+        # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
             stdout="""
 
@@ -1241,6 +1242,7 @@ c98ca54db130886142ad582a58e90ddc *./common.sh
 
     def testGetFirmwareVersionsMixedImage(self):
         """Verify that can extract the right version from a mixed RO+RW bundle."""
+        # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
             stdout="""
 
@@ -1304,6 +1306,7 @@ ae8cf9fca3165a1c1f12decfd910c4fe *./vpd
 
     def testGetAllFirmwareVersions(self):
         """Verify that all model firmware versions can be extracted"""
+        # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
             stdout="""
 
@@ -1887,7 +1890,7 @@ class BuildTarballTests(
         patch.assert_called_once_with(chroot, sysroot, self._tarball_dir)
 
     def testBuildTastTarballNoBundle(self):
-        """Tests the case when the Tast private bundles tarball is not generated."""
+        """Tests the case when Tast private bundles tarball is not generated."""
         self.PatchObject(
             artifacts_service, "BundleTastFiles", return_value=None
         )

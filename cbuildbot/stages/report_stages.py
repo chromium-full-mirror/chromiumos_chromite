@@ -619,7 +619,7 @@ class ReportStage(
         self._post_completion = False
 
     def _UpdateEmailNotify(self, builder_run, final_status):
-        """Update email_notify build property based on the builder's fail streak.
+        """Update email_notify build property based on the builder fail streak.
 
         Update the pass/fail streak counter for the builder. Update the build's
         email_notify property based on the new streak.
@@ -802,7 +802,7 @@ class ReportStage(
         )
 
     def _UploadBuildStagesTimeline(self, builder_run, buildbucket_id):
-        """Upload an HTML timeline for the build stages at remote archive location.
+        """Upload HTML timeline for the build stages at remote archive location.
 
         Args:
             builder_run: BuilderRun object for this run.

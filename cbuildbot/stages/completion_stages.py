@@ -214,6 +214,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         ):
             self._run.attrs.manifest_manager.PromoteCandidate()
             if sync_stages.MasterSlaveLKGMSyncStage.external_manager:
+                # pylint: disable-next=line-too-long
                 sync_stages.MasterSlaveLKGMSyncStage.external_manager.PromoteCandidate()
 
     def HandleFailure(self, failing, inflight, no_stat, self_destructed):
@@ -442,7 +443,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         experimental_statuses,
         self_destructed,
     ):
-        """Annotate the failing, inflight and no_stat builds with text and links.
+        """Annotate failing, inflight and no_stat builds with text and links.
 
         Add text and buildbot links to build dashboards for failing builds and
         in-flight builds. For master builds using Buildbucket schdeduler, add
@@ -524,7 +525,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         return self._experimental_build_statuses
 
     def GetFatal(self):
-        """Returns whether the build (and its important slaves) failed with fatal.
+        """Returns whether build (and its important slaves) failed with fatal.
 
         Cached results are populated during PerformStage, so this function
         should only be called after PerformStage has returned.
@@ -654,7 +655,7 @@ class UpdateChromeosLKGMStage(generic_stages.BuilderStage):
         commands.RunBuildScript(self._build_root, cmd, chromite_cmd=True)
 
     def _build_threshold_successful(self):
-        """Whether the percentage of successful child builders exceeds threshold"""
+        """Whether percentage of successful child builders exceeds threshold."""
         ids = self.GetScheduledSlaveBuildbucketIds()
         num_builds = 0
         num_failures = 0

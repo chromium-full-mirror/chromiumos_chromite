@@ -164,6 +164,7 @@ class SlaveStatus(object):
             # configured but doesn't schedule any slaves as no CLs were picked
             # up in SyncStage. These are set to include only important builds.
             self.all_builders = list(scheduled_buildbucket_info_dict)
+            # pylint: disable-next=line-too-long
             self.all_buildbucket_info_dict = builder_status_lib.SlaveBuilderStatus.GetAllSlaveBuildbucketInfo(
                 self.buildbucket_client, scheduled_buildbucket_info_dict
             )

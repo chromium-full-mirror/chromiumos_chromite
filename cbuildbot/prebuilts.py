@@ -309,7 +309,7 @@ class BinhostConfWriter(object):
 
     @staticmethod
     def _AddOptionsForSlave(slave_config):
-        """Private helper method to add upload_prebuilts args for a slave builder.
+        """Helper method to add upload_prebuilts args for a slave builder.
 
         Args:
             slave_config: The build config of a slave builder.

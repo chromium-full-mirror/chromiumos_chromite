@@ -47,11 +47,11 @@ class FilterManifestException(Exception):
 
 
 class StatusUpdateException(Exception):
-    """Exception gets thrown for failure to update the status"""
+    """Exception gets thrown for failure to update the status."""
 
 
 class GenerateBuildSpecException(Exception):
-    """Exception gets thrown for failure to Generate a buildspec for the build"""
+    """Exception gets thrown for failure to Generate a buildspec for the build."""
 
 
 class BuildSpecsValueError(Exception):
@@ -189,7 +189,7 @@ def _PushGitChanges(git_repo, message, dry_run=False, push_to=None):
 
 
 def CreateSymlink(src_file, dest_file):
-    """Creates a relative symlink from src to dest with optional removal of file.
+    """Creates relative symlink from src to dest with optional removal of file.
 
     More robust symlink creation that creates a relative symlink from src_file
     to dest_file.
@@ -749,7 +749,7 @@ class BuildSpecsManager(object):
         return None
 
     def BootstrapFromVersion(self, version):
-        """Initialize a manifest from a release version returning the path to it."""
+        """Initialize manifest from a release version returning the path to it."""
         # Only refresh the manifest checkout if needed.
         if not self.InitializeManifestVariables(version=version):
             self.RefreshManifestCheckout()

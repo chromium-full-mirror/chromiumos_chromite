@@ -258,7 +258,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.all_vm_test_stages, self.called_stages)
 
     def testBoardsForSimpleBuilderWithDUTOverride(self):
-        """Test the BoardsForSimpleBuilder function with a DUT board override."""
+        """Test BoardsForSimpleBuilder function with a DUT board override."""
         builder_run = self._initConfig("amd64-generic-full")
         builder_run.options.hwtest_dut_override = test_stages.HWTestDUTOverride(
             "bar-board", "bar-model", "bar-pool"
@@ -271,7 +271,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         )
 
     def testBoardsForSimpleBuilderWithoutDUTOverride(self):
-        """Test the BoardsForSimpleBuilder function withhut a DUT board override."""
+        """Test BoardsForSimpleBuilder function withhut a DUT board override."""
         builder_run = self._initConfig("amd64-generic-full")
         simple_builder = simple_builders.SimpleBuilder(
             builder_run, self.buildstore

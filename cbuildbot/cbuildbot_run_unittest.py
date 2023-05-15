@@ -475,7 +475,7 @@ class RunAttributesTest(_BuilderRunTestCase):
     BATTR = "breakpad_symbols_generated"
 
     def testRegisterBoardTarget(self):
-        """Test behavior of attributes before and after registering board target."""
+        """Test behavior of attributes before & after registering board target."""
         ra = self._NewRunAttributes()
 
         with self.assertRaises(AssertionError):

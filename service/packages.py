@@ -826,7 +826,7 @@ def uprev_borealis_dlc(_build_targets, _refs, chroot):
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc-nvidia")
 def uprev_borealis_dlc_nvidia(_build_targets, _refs, chroot):
-    """Updates shared borealis-dlc-nvidia ebuild - chromeos-base/borealis-dlc-nvidia.
+    """Updates shared chromeos-base/borealis-dlc-nvidia ebuild.
 
     See: uprev_versioned_package.
     """

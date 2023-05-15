@@ -70,7 +70,7 @@ class BuildAccessor(object):
 
     @classmethod
     def _VerifyBranch(cls, service_obj, branch, build_id, target):
-        """Verify the build with given id and target is for the specified branch.
+        """Verify build with given id and target is for the specified branch.
 
         Args:
             service_obj: A service object to be used to make API call to build
