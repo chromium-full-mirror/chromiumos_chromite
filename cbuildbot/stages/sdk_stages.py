@@ -104,9 +104,9 @@ class SDKBuildToolchainsStage(
             ignore_missing=True,
         )
 
-        # We need to run this as root because the tool creates hard links to root
-        # owned files and our bots enable security features which disallow that.
-        # Specifically, these features cause problems:
+        # We need to run this as root because the tool creates hard links to
+        # root owned files and our bots enable security features which disallow
+        # that. Specifically, these features cause problems:
         #  /proc/sys/kernel/yama/protected_nonaccess_hardlinks
         #  /proc/sys/fs/protected_hardlinks
         self.CrosSetupToolchains(
@@ -284,8 +284,8 @@ class SDKTestStage(generic_stages.BuilderStage):
         )
 
         # Inject the toolchain binpkgs from the previous sdk build.  On end user
-        # systems, they'd be fetched from the binpkg mirror, but we don't have one
-        # set up for this local build.
+        # systems, they'd be fetched from the binpkg mirror, but we don't have
+        # one set up for this local build.
         pkgdir = os.path.join("var", "lib", "portage", "pkgs")
         old_pkgdir = os.path.join(
             self._build_root, constants.DEFAULT_CHROOT_DIR, pkgdir

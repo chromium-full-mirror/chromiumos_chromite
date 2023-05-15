@@ -188,10 +188,11 @@ class BuilderStage(object):
         if useflags:
             self._portage_extra_env["USE"] = " ".join(useflags)
 
-        # TODO(crbug.com/947294): `separatedebug` needs to be disabled as it leads
-        #                         to CQ flakes.
+        # TODO(crbug.com/947294): `separatedebug` needs to be disabled as it
+        # leads to CQ flakes.
+
         # if self._run.config.separate_debug_symbols:
-        #   self._portage_extra_env['FEATURES'] = 'separatedebug'
+        #     self._portage_extra_env['FEATURES'] = 'separatedebug'
 
         # Note: BuildStartStage is a special case: Since it is created before we
         # have a valid |build_id|, it is not logged in cidb.
@@ -781,12 +782,13 @@ class BuilderStage(object):
                 self._StartBuildStageInCIDB()
                 self._PrintLoudly("Stage %s processed previously" % self.name)
                 self.HandleSkip()
-                # Success is stored in the results log for a stage that completed
-                # successfully in a previous run. But, we report the truth to CIDB.
+                # Success is stored in the results log for a stage that
+                # completed successfully in a previous run. But, we report the
+                # truth to CIDB.
                 result = results_lib.Results.SUCCESS
                 cidb_result = constants.BUILDER_STATUS_SKIPPED
-                # Copy over metadata from the previous record. instead of returning
-                # metadata about the current run.
+                # Copy over metadata from the previous record. instead of
+                # returning metadata about the current run.
                 board = previous_record.board
                 elapsed_time = float(previous_record.time)
                 return
@@ -798,7 +800,8 @@ class BuilderStage(object):
                     "Stage %s precondition failed while waiting to start."
                     % self.name
                 )
-                # If WaitUntilReady is false, mark stage as skipped in Results and CIDB
+                # If WaitUntilReady is false, mark stage as skipped in Results
+                # and CIDB
                 result = results_lib.Results.SKIPPED
                 return
 
@@ -812,8 +815,8 @@ class BuilderStage(object):
             start_time = time.time()
             sys.stdout.flush()
             sys.stderr.flush()
-            # TODO(davidjames): Verify that PerformStage always returns None. See
-            # crbug.com/264781
+            # TODO(davidjames): Verify that PerformStage always returns None.
+            # See crbug.com/264781
             self.PerformStage()
             result = results_lib.Results.SUCCESS
         except SystemExit as e:
@@ -865,9 +868,9 @@ class BuilderStage(object):
             try:
                 self.Finish()
             except Exception as e:
-                # Failures here are OUTSIDE of the stage and not handled well. Log and
-                # continue with the assumption that the ReportStage will re-upload this
-                # data or report a failure correctly.
+                # Failures here are OUTSIDE of the stage and not handled well.
+                # Log and continue with the assumption that the ReportStage will
+                # re-upload this data or report a failure correctly.
                 logging.warning("IGNORED: Finish failure: %s", e)
 
             self._PrintLoudly(
@@ -1031,8 +1034,8 @@ class BoardSpecificBuilderStage(BuilderStage):
 
         self.board_runattrs = builder_run.GetBoardRunAttrs(board)
 
-        # Add a board name suffix to differentiate between various boards (in case
-        # more than one board is built on a single builder.)
+        # Add a board name suffix to differentiate between various boards (in
+        # case more than one board is built on a single builder.)
         if len(builder_run.config.boards) > 1 or builder_run.config.grouped:
             suffix = self.UpdateSuffix(board, suffix)
 

@@ -66,12 +66,13 @@ class TastVMTestStageTest(
         # String test suite set in the TastVMTestConfig.
         self._exp_test_suite = None
 
-        # List of string test expressions expected to be passed to the tast command.
+        # List of string test expressions expected to be passed to the tast
+        # command.
         self._exp_test_exprs = []
 
-        # Array of dicts to be written to tast_test_stages.RESULTS_FILENAME as test
-        # results. Not written if None. If a string is specified, it will be written
-        # directly.
+        # Array of dicts to be written to tast_test_stages.RESULTS_FILENAME as
+        # test results. Not written if None. If a string is specified, it will
+        # be written directly.
         self._test_results_data = []
 
         # Integer exit code to be returned by _FakeRunCommand.
@@ -80,10 +81,11 @@ class TastVMTestStageTest(
         # Optional exception to be raised by UploadArtifact.
         self._artifact_exception = None
 
-        # Note that autospec=True instructs the mock library to verify that methods
-        # that are called on the mock object actually exist and are passed valid
-        # args. Without autospec=True, calls like mocked_object.nonexistent_method()
-        # will succeed and return new mock objects.
+        # Note that autospec=True instructs the mock library to verify that
+        # methods that are called on the mock object actually exist and are
+        # passed valid args. Without autospec=True, calls like
+        # mocked_object.nonexistent_method() will succeed and return new mock
+        # objects.
         self._test_root = os.path.join(
             self.build_root,
             constants.DEFAULT_CHROOT_DIR,
@@ -107,8 +109,8 @@ class TastVMTestStageTest(
         self.PatchObject(osutils, "RmDir", autospec=True)
         self.PatchObject(cgroups, "SimpleContainChildren", autospec=True)
 
-        # Define mocked functions that can only be created once we've created the
-        # stage in ConstructStage.
+        # Define mocked functions that can only be created once we've created
+        # the stage in ConstructStage.
         self._mock_upload_artifact = None
         self._mock_print_download_link = None
 
@@ -128,8 +130,8 @@ class TastVMTestStageTest(
         )
 
         # Mock out some of the methods that TastVMTestStage inherits from
-        # generic_stages. This is gross, but slightly less gross than mocking out
-        # everything called by generic_stages.
+        # generic_stages. This is gross, but slightly less gross than mocking
+        # out everything called by generic_stages.
         self._mock_upload_artifact = self.PatchObject(
             self._stage, "UploadArtifact", autospec=True
         )
@@ -144,7 +146,8 @@ class TastVMTestStageTest(
         """Fake implemenation of cros_build_lib.run."""
         # pylint: disable=unused-argument
         # Just check positional args and tricky flags. Checking all args is an
-        # exercise in verifying that we're capable of typing the same thing twice.
+        # exercise in verifying that we're capable of typing the same thing
+        # twice.
         self.assertEqual(cmd[0], "./cros_run_test")
 
         # test_exprs are at the end, if they exist.
@@ -152,8 +155,8 @@ class TastVMTestStageTest(
         if num_test_exprs:
             self.assertEqual(cmd[-num_test_exprs:], self._exp_test_exprs)
 
-        # The passed results dir should be relative to the chroot and should contain
-        # the test suite.
+        # The passed results dir should be relative to the chroot and should
+        # contain the test suite.
         results_dir = os.path.join(self._test_root, self._exp_test_suite)
         self.assertIn("--results-dir=" + results_dir, cmd)
 

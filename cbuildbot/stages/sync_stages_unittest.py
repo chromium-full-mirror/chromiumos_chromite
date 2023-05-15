@@ -74,8 +74,8 @@ class BootstrapStageTest(
         # Switch to the test branch.
         self.assertCommandContains(["git", "checkout", "ooga_booga"])
 
-        # Re-exec cbuildbot. We mostly only want to test the CL options Bootstrap
-        # changes.
+        # Re-exec cbuildbot. We mostly only want to test the CL options
+        # Bootstrap changes.
         #   '--sourceroot=%s'
         #   '--test-bootstrap'
         #   '--nobootstrap'

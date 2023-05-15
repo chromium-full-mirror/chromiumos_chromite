@@ -177,11 +177,11 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
 
     def _HandleStageException(self, exc_info):
         """Decide whether an exception should be treated as fatal."""
-        # Besides the master, the completion stages also run on slaves, to report
-        # their status back to the master. If the build failed, they throw an
-        # exception here. For slave builders, marking this stage 'red' would be
-        # redundant, since the build itself would already be red. In this case,
-        # report a warning instead.
+        # Besides the master, the completion stages also run on slaves, to
+        # report their status back to the master. If the build failed, they
+        # throw an exception here. For slave builders, marking this stage 'red'
+        # would be redundant, since the build itself would already be red. In
+        # this case, report a warning instead.
         # pylint: disable=protected-access
         exc_type = exc_info[0]
         if (
@@ -608,7 +608,8 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
         if self._run.manifest_branch in ("main", "master"):
             self.SendCanaryFailureAlert(failing, inflight, no_stat)
             # Note: We used to throttle the tree here. As of
-            # https://chromium-review.googlesource.com/#/c/325821/ we no longer do.
+            # https://chromium-review.googlesource.com/#/c/325821/ we no longer
+            # do.
 
     def _HandleStageException(self, exc_info):
         """Decide whether an exception should be treated as fatal."""
@@ -646,8 +647,8 @@ class UpdateChromeosLKGMStage(generic_stages.BuilderStage):
         ]
         if self._run.options.buildbucket_id:
             cmd += ["--buildbucket-id", self._run.options.buildbucket_id]
-        # Always do a dryrun for now so that we can check the output and ensure it
-        # is doing the correct thing.
+        # Always do a dryrun for now so that we can check the output and ensure
+        # it is doing the correct thing.
         if self._run.options.debug:
             cmd.append("--dryrun")
         commands.RunBuildScript(self._build_root, cmd, chromite_cmd=True)
@@ -823,20 +824,20 @@ class PublishUprevChangesStage(generic_stages.BuilderStage):
         assert self._run.config.master
         assert self._run.config.push_overlays
 
-        # If we're a commit queue, we should clean out our local changes, resync,
-        # and reapply our uprevs. This is necessary so that 1) we are sure to point
-        # at the remote SHA1s, not our local SHA1s; 2) we can avoid doing a
-        # rebase; 3) in the case of failure and staging_branch is None, we don't
-        # submit the changes that were committed locally.
+        # If we're a commit queue, we should clean out our local changes,
+        # resync, and reapply our uprevs. This is necessary so that 1) we are
+        # sure to point at the remote SHA1s, not our local SHA1s; 2) we can
+        # avoid doing a rebase; 3) in the case of failure and staging_branch is
+        # None, we don't submit the changes that were committed locally.
         #
         # If we're not a commit queue and the build succeeded, we can skip the
         # cleanup here. This is a cheap trick so that the Chrome PFQ pushes its
         # earlier uprev from the SyncChrome stage (it would be a bit tricky to
         # replicate the uprev here, so we'll leave it alone).
 
-        # If we're not a commit queue and staging_branch is not None, we can skip
-        # the cleanup here. When staging_branch is not None, we're going to push
-        # the local commits generated in AFDOUpdateEbuild stage to the
+        # If we're not a commit queue and staging_branch is not None, we can
+        # skip the cleanup here. When staging_branch is not None, we're going to
+        # push the local commits generated in AFDOUpdateEbuild stage to the
         # staging_branch, cleaning up repository here will wipe out the local
         # commits.
         if not self.success:

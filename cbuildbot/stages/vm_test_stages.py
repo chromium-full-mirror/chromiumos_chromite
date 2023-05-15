@@ -123,7 +123,8 @@ class VMTestStage(
         """
         results_path = GetTestResultsDir(self._build_root, test_results_dir)
 
-        # Skip archiving if results_path does not exist or is an empty directory.
+        # Skip archiving if results_path does not exist or is an empty
+        # directory.
         if self._NoTestResults(results_path):
             return
 
@@ -166,7 +167,8 @@ class VMTestStage(
         # consistently on all dashboards like wmatrix and goldeneye.
         results_path = GetTestResultsDir(self._build_root, test_results_dir)
 
-        # Skip reporting if results_path does not exist or is an empty directory.
+        # Skip reporting if results_path does not exist or is an empty
+        # directory.
         if self._NoTestResults(results_path):
             logging.info(
                 "Found no test results. Skipping upload to dashboards."
@@ -412,12 +414,14 @@ def ListTests(results_path, show_failed=True, show_passed=True):
                         # reasons), simply use the last component of file_path.
                         test_name = os.path.basename(file_path)
 
-                    # A test may have subtests. We don't want to list all subtests.
+                    # A test may have subtests. We don't want to list all
+                    # subtests.
                     if test_name not in processed_tests:
                         base_dirname = os.path.basename(results_path)
-                        # Get the relative path from the test_results directory. Note
-                        # that file_path is a chroot path, while results_path is a
-                        # non-chroot path, so we cannot use os.path.relpath directly.
+                        # Get the relative path from the test_results directory.
+                        # Note that file_path is a chroot path, while
+                        # results_path is a non-chroot path, so we cannot use
+                        # os.path.relpath directly.
                         rel_path = file_path.split(base_dirname)[1].lstrip(
                             os.path.sep
                         )

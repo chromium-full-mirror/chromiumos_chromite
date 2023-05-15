@@ -74,10 +74,10 @@ class CleanUpStage(generic_stages.BuilderStage):
         logging.info("Deleting chroot.")
         chroot = os.path.join(self._build_root, constants.DEFAULT_CHROOT_DIR)
         if os.path.exists(chroot):
-            # At this stage, it's not safe to run the cros_sdk inside the buildroot
-            # itself because we haven't sync'd yet, and the version of the chromite
-            # in there might be broken. Since we've already unmounted everything in
-            # there, we can just remove it using rm -rf.
+            # At this stage, it's not safe to run the cros_sdk inside the
+            # buildroot itself because we haven't sync'd yet, and the version of
+            # the chromite in there might be broken. Since we've already
+            # unmounted everything in there, we can just remove it using rm -rf.
             cros_sdk_lib.CleanupChrootMount(chroot, delete=True)
 
     def _DeleteArchivedTrybotImages(self):
@@ -348,10 +348,10 @@ class CleanUpStage(generic_stages.BuilderStage):
             except (KeyboardInterrupt, MemoryError, SystemExit):
                 raise
             except Exception as e:
-                # Either there is no repo there, or the manifest isn't usable.  If the
-                # directory exists, log the exception for debugging reasons.  Either
-                # way, the checkout needs to be wiped since it's in an unknown
-                # state.
+                # Either there is no repo there, or the manifest isn't usable.
+                # If the directory exists, log the exception for debugging
+                # reasons.  Either way, the checkout needs to be wiped since
+                # it's in an unknown state.
                 if os.path.exists(self._build_root):
                     logging.warning(
                         "ManifestCheckout at %s is unusable: %s",
@@ -582,8 +582,8 @@ class BuildPackagesStage(
             self._portage_extra_env["USE"] = " ".join(useflags)
 
     def VerifyChromeBinpkg(self, packages):
-        # Sanity check: If we didn't check out Chrome (and we're running on ToT),
-        # we should be building Chrome from a binary package.
+        # Sanity check: If we didn't check out Chrome (and we're running on
+        # ToT), we should be building Chrome from a binary package.
         if (
             not self._run.options.managed_chrome
             and self._run.manifest_branch in ("main", "master")
@@ -613,17 +613,17 @@ class BuildPackagesStage(
         self.board_runattrs.SetParallel("packages_under_test", packages)
 
     def _IsGomaEnabledOnlyForLogs(self):
-        # HACK: our ninja log uploading bits for Chromium are pretty closely tied
-        # to goma's logging bits. In latest-toolchain builds, these logs are
-        # useful, but actually using goma isn't, since it just does local
+        # HACK: our ninja log uploading bits for Chromium are pretty closely
+        # tied to goma's logging bits. In latest-toolchain builds, these logs
+        # are useful, but actually using goma isn't, since it just does local
         # fallbacks.
         return self._latest_toolchain
 
     def _ShouldEnableGoma(self):
         # Enable goma if 1) chrome actually needs to be built, or we want to use
-        # goma to build regular packages 2) not latest_toolchain (because toolchain
-        # prebuilt package may not be available for goma, crbug.com/728971) and
-        # 3) goma is available.
+        # goma to build regular packages 2) not latest_toolchain (because
+        # toolchain prebuilt package may not be available for goma,
+        # crbug.com/728971) and 3) goma is available.
         return (
             self._run.options.managed_chrome
             or self._run.config.build_all_with_goma
@@ -682,8 +682,8 @@ class BuildPackagesStage(
             chroot_args = chroot_args or []
             chroot_args += ["--cache-dir", self._run.options.cache_dir]
 
-        # Disable revdep logic on full and release builders. These builders never
-        # reuse sysroots, so the revdep logic only causes unnecessary
+        # Disable revdep logic on full and release builders. These builders
+        # never reuse sysroots, so the revdep logic only causes unnecessary
         # rebuilds in the SDK. The SDK rebuilds sometimes hit build critical
         # packages causing races & build failures.
         clean_build = (
@@ -736,7 +736,8 @@ class BuildPackagesStage(
             raise
 
         if self._update_metadata:
-            # Extract firmware version information from the newly created updater.
+            # Extract firmware version information from the newly created
+            # updater.
             fw_versions = commands.GetFirmwareVersions(
                 self._build_root, self._current_board
             )
@@ -776,7 +777,8 @@ class BuildPackagesStage(
                         main_ro = fw_versions.main
                         main_rw = fw_versions.main_rw or main_ro
 
-                        # Get the firmware key-id for the current board and model.
+                        # Get the firmware key-id for the current board and
+                        # model.
                         model_arg = "--model=" + model
                         key_id_list = commands.RunCrosConfigHost(
                             self._build_root,

@@ -38,7 +38,8 @@ class UnitTestStage(
     # under load (e.g. in canary groups).
     #
     # If the processes hang, parallel_emerge will print a status report after 60
-    # minutes, so we picked 120 minutes because it gives us a little buffer time.
+    # minutes, so we picked 120 minutes because it gives us a little buffer
+    # time.
     #
     # Increased to 2 hours because of b/187793223.
     UNIT_TEST_TIMEOUT = 2 * 60 * 60
@@ -542,8 +543,8 @@ class TestPlanStage(generic_stages.BoardSpecificBuilderStage):
             logging.info("Testing suites: %s", str(m.test_suites))
         parallel_stages = []
         for suite_config in builder_run.config.hw_tests:
-            # Even for blocking stages, all models can still be run in parallel since
-            # it will still block the next stage from executing.
+            # Even for blocking stages, all models can still be run in parallel
+            # since it will still block the next stage from executing.
             for model in models:
                 new_stage = self._GetHWTestStage(
                     builder_run, self.buildstore, board, model, suite_config
@@ -555,8 +556,8 @@ class TestPlanStage(generic_stages.BoardSpecificBuilderStage):
             # information on this behavior.
             # Expected behavior:
             #     1) Blocking suites are kicked off first, e.g. provision suite.
-            #     2) If it's unibuild, the blocking suites of all models are kicked
-            #        off in parallel first.
+            #     2) If it's unibuild, the blocking suites of all models are
+            #        kicked off in parallel first.
             if suite_config.blocking:
                 steps = [stage.Run for stage in parallel_stages]
                 logging.info("Launching %d tests", len(steps))

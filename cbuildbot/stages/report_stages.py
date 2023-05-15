@@ -232,11 +232,11 @@ class BuildStartStage(generic_stages.BuilderStage):
 
         WriteBasicMetadata(self._run)
 
-        # This is a heuristic value for |important|, since patches that get applied
-        # later in the build might change the config. We write it now anyway,
-        # because in case the build fails before Sync, it is better to have this
-        # heuristic value than None. In BuildReexecutionFinishedStage, we re-write
-        # the definitive value.
+        # This is a heuristic value for |important|, since patches that get
+        # applied later in the build might change the config. We write it now
+        # anyway, because in case the build fails before Sync, it is better to
+        # have this heuristic value than None. In BuildReexecutionFinishedStage,
+        # we re-write the definitive value.
         self._run.attrs.metadata.UpdateWithDict(
             {"important": self._run.config["important"]}
         )
@@ -244,9 +244,9 @@ class BuildStartStage(generic_stages.BuilderStage):
         d = self._run.attrs.metadata.GetDict()
 
         # BuildStartStage should only run once per build. But just in case it
-        # is somehow running a second time, we do not want to insert an additional
-        # database entry. Detect if a database entry has been inserted already
-        # and if so quit the stage.
+        # is somehow running a second time, we do not want to insert an
+        # additional database entry. Detect if a database entry has been
+        # inserted already and if so quit the stage.
         if "build_id" in d:
             logging.info(
                 "Already have build_id %s, not inserting an entry.",
@@ -337,8 +337,8 @@ class BuildStartStage(generic_stages.BuilderStage):
         if "build_id" in metadata_dict:
             db_type = cidb.CIDBConnectionFactory.GetCIDBConnectionType()
             if not "db_type" in metadata_dict:
-                # This will only execute while this CL is in the commit queue. After
-                # this CL lands, this block can be removed.
+                # This will only execute while this CL is in the commit queue.
+                # After this CL lands, this block can be removed.
                 self._run.attrs.metadata.UpdateWithDict({"db_type": db_type})
                 return
 
@@ -410,8 +410,8 @@ class BuildReexecutionFinishedStage(
 
     def _AbortPreviousHWTestSuites(self):
         """Abort any outstanding synchronous hwtest suites from this builder."""
-        # Only try to clean up previous HWTests if this is really running on one of
-        # our builders in a non-trybot build.
+        # Only try to clean up previous HWTests if this is really running on one
+        # of our builders in a non-trybot build.
         debug = (
             self._run.options.remote_trybot
             or (not self._run.options.buildbot)
@@ -564,8 +564,8 @@ class BuildReexecutionFinishedStage(
         build_identifier, db = self._run.GetCIDBHandle()
         build_id = build_identifier.cidb_id
         if db:
-            # TODO(akeshet): replace this with a GetValue call once crbug.com/406522
-            # is resolved
+            # TODO(akeshet): replace this with a GetValue call once
+            # crbug.com/406522 is resolved
             per_board_dict = self._run.attrs.metadata.GetDict()[
                 "board-metadata"
             ]
@@ -612,9 +612,9 @@ class ReportStage(
     def __init__(self, builder_run, buildstore, completion_instance, **kwargs):
         super().__init__(builder_run, buildstore, **kwargs)
 
-        # TODO(mtennant): All these should be retrieved from builder_run instead.
-        # Or, more correctly, the info currently retrieved from these stages should
-        # be stored and retrieved from builder_run instead.
+        # TODO(mtennant): All these should be retrieved from builder_run
+        # instead. Or, more correctly, the info currently retrieved from these
+        # stages should be stored and retrieved from builder_run instead.
         self._completion_instance = completion_instance
         self._post_completion = False
 
@@ -750,11 +750,11 @@ class ReportStage(
             artifacts_url = archive.download_url
 
         else:
-            # External builds must allow unauthenticated access to build artifacts.
-            # GS doesn't let unauthenticated users browse selected locations without
-            # being able to browse everything (which would expose secret stuff).
-            # So, we upload an index.html file and link to it instead of the
-            # directory.
+            # External builds must allow unauthenticated access to build
+            # artifacts. GS doesn't let unauthenticated users browse selected
+            # locations without being able to browse everything (which would
+            # expose secret stuff). So, we upload an index.html file and link to
+            # it instead of the directory.
             title = (
                 "Artifacts Index: %(board)s / %(version)s (%(config)s config)"
                 % {
@@ -772,8 +772,9 @@ class ReportStage(
             index = os.path.join(archive_path, "index.html")
 
             # TODO (sbasi) crbug.com/362776: Rework the way we do uploading to
-            # multiple buckets. Currently this can only be done in the Archive Stage
-            # therefore index.html will only end up in the normal Chrome OS bucket.
+            # multiple buckets. Currently this can only be done in the Archive
+            # Stage therefore index.html will only end up in the normal Chrome
+            # OS bucket.
             commands.GenerateHtmlIndex(
                 index,
                 files,
@@ -832,9 +833,9 @@ class ReportStage(
         stages = self.buildstore.GetBuildsStages(
             buildbucket_ids=[buildbucket_id]
         )
-        # Many stages are started in parallel after the build finishes. Stages are
-        # sorted by start_time first bceause it shows that progression most
-        # clearly. Sort by finish_time secondarily to display those paralllel
+        # Many stages are started in parallel after the build finishes. Stages
+        # are sorted by start_time first bceause it shows that progression most
+        # clearly. Sort by finish_time secondarily to display those parallel
         # stages cleanly.
         epoch = datetime.datetime.fromtimestamp(0)
         stages.sort(
@@ -892,9 +893,9 @@ class ReportStage(
         statuses = self.buildstore.GetSlaveStatuses(build_identifier)
         if not statuses:
             return None
-        # Slaves may be started at slightly different times, but what matters most
-        # is which slave is the bottleneck - namely, which slave finishes last.
-        # Therefore, sort primarily by finish_time.
+        # Slaves may be started at slightly different times, but what matters
+        # most is which slave is the bottleneck - namely, which slave finishes
+        # last. Therefore, sort primarily by finish_time.
         epoch = datetime.datetime.fromtimestamp(0)
         statuses.sort(
             key=lambda stage: (
@@ -1029,11 +1030,11 @@ class ReportStage(
                 )
 
             # Generate links to archived artifacts if there are any.  All the
-            # archived artifacts for one run/config are in one location, so the link
-            # is only specific to each run/config.  In theory multiple boards could
-            # share that archive, but in practice it is usually one board.  A
-            # run/config without a board will also usually not have artifacts to
-            # archive, but that restriction is not assumed here.
+            # archived artifacts for one run/config are in one location, so the
+            # link is only specific to each run/config.  In theory multiple
+            # boards could share that archive, but in practice it is usually one
+            # board.  A run/config without a board will also usually not have
+            # artifacts to archive, but that restriction is not assumed here.
             self._LinkArtifacts(builder_run)
 
             # Check if the builder_run is tied to any boards and if so get all
@@ -1093,8 +1094,8 @@ class ReportStage(
             src_root = self._run.options.workspace
 
         # Add tags for the arches and statuses of the build.
-        # arches requires crossdev which isn't available at the early part of the
-        # build.
+        # arches requires crossdev which isn't available at the early part of
+        # the build.
         arches = []
         for board in self._run.config["boards"]:
             toolchains = toolchain.GetToolchainsForBoard(
@@ -1163,17 +1164,18 @@ class ReportStage(
         if self.buildstore.AreClientsReady():
             status_for_db = final_status
 
-            # TODO(pprabhu): After BuildData and CBuildbotMetdata are merged, remove
-            # this extra temporary object creation.
-            # XXX:HACK We're creating a BuildData with an empty URL. Don't try to
-            # MarkGathered this object.
+            # TODO(pprabhu): After BuildData and CBuildbotMetadata are merged,
+            # remove this extra temporary object creation.
+            # XXX:HACK We're creating a BuildData with an empty URL. Don't try
+            # to MarkGathered this object.
             build_data = metadata_lib.BuildData(
                 "", self._run.attrs.metadata.GetDict()
             )
-            # TODO(akeshet): Find a clearer way to get the "primary upload url" for
-            # the metadata.json file. One alternative is _GetUploadUrls(...)[0].
-            # Today it seems that element 0 of its return list is the primary upload
-            # url, but there is no guarantee or unit test coverage of that.
+            # TODO(akeshet): Find a clearer way to get the "primary upload url"
+            # for the metadata.json file. One alternative is
+            # _GetUploadUrls(...)[0]. Today it seems that element 0 of its
+            # return list is the primary upload url, but there is no guarantee
+            # or unit test coverage of that.
             self.buildstore.FinishBuild(
                 build_id,
                 status=status_for_db,
@@ -1226,9 +1228,9 @@ class ReportStage(
     def _HandleStageException(self, exc_info):
         """Override and don't set status to FAIL but FORGIVEN instead."""
         if self._post_completion:
-            # If we've already reported the stage completion, treat exceptions as
-            # warnings so we keep reported success in-line with waterfall displayed
-            # results.
+            # If we've already reported the stage completion, treat exceptions
+            # as warnings so we keep reported success in-line with waterfall
+            # displayed results.
             return self._HandleExceptionAsWarning(exc_info)
 
         return super()._HandleStageException(exc_info)

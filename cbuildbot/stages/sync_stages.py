@@ -174,8 +174,8 @@ class BootstrapStage(PatchChangesStage):
         )
         self._ApplyPatchSeries(patches, patch_pool)
 
-        # Verify that the patched manifest loads properly. Propagate any errors as
-        # exceptions.
+        # Verify that the patched manifest loads properly. Propagate any errors
+        # as exceptions.
         manifest = os.path.join(checkout_dir, self._run.config.manifest)
         git.Manifest.Cached(manifest, manifest_include_dir=checkout_dir)
         return checkout_dir
@@ -240,9 +240,9 @@ class BootstrapStage(PatchChangesStage):
 
     def _PerformStageInTempDir(self):
         # The plan for the builders is to use master branch to bootstrap other
-        # branches. Now, if we wanted to test patches for both the bootstrap code
-        # (on master) and the branched chromite (say, R20), we need to filter the
-        # patches by branch.
+        # branches. Now, if we wanted to test patches for both the bootstrap
+        # code (on master) and the branched chromite (say, R20), we need to
+        # filter the patches by branch.
         filter_branch = self._run.manifest_branch
         if self._run.options.test_bootstrap:
             filter_branch = "master"
@@ -285,8 +285,8 @@ class BootstrapStage(PatchChangesStage):
             cmd = [a for a in cmd if a != "--test-bootstrap"]
         else:
             # If we've already done the desired number of bootstraps, disable
-            # bootstrapping for the next execution.  Also pass in the patched manifest
-            # repository.
+            # bootstrapping for the next execution.  Also pass in the patched
+            # manifest repository.
             extra_params.append("--nobootstrap")
             if self._run.config.internal:
                 manifest_pool = branch_pool.FilterIntManifest()
@@ -422,14 +422,15 @@ class ManifestVersionedSyncStage(SyncStage):
         self.repo = None
         self.manifest_manager = None
 
-        # If a builder pushes changes (even with dryrun mode), we need a writable
-        # repository. Otherwise, the push will be rejected by the server.
+        # If a builder pushes changes (even with dryrun mode), we need a
+        # writable repository. Otherwise, the push will be rejected by the
+        # server.
         self.manifest_repo = self._GetManifestVersionsRepoUrl()
 
         # 1. Our current logic for calculating whether to re-run a build assumes
         #    that if the build is green, then it doesn't need to be re-run. This
-        #    isn't true for canary masters, because the canary master ignores the
-        #    status of its slaves and is green even if they fail. So set
+        #    isn't true for canary masters, because the canary master ignores
+        #    the status of its slaves and is green even if they fail. So set
         #    force=True in this case.
         # 2. If we're running with --debug, we should always run through to
         #    completion, so as to ensure a complete test.

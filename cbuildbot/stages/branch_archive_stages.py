@@ -142,8 +142,9 @@ class WorkspaceArchiveBase(
             self._current_board,
         )
 
-        # Push build artifacts to gs://chromeos-releases for signing and release.
-        # This runs TOT pushimage against the build artifacts for the branch.
+        # Push build artifacts to gs://chromeos-releases for signing and
+        # release. This runs TOT pushimage against the build artifacts for the
+        # branch.
         commands.PushImages(
             board=self._current_board,
             archive_url=self.branch_archive_url,

@@ -143,8 +143,8 @@ class ArchiveStage(
                 ):
                     if os.path.exists(os.path.join(image_dir, image)):
                         artifacts.append({"input": [image], "output": image})
-            # We add the dlc folder (if exists) as artifact so we can copy all DLC
-            # artifacts as is.
+            # We add the dlc folder (if exists) as artifact so we can copy all
+            # DLC artifacts as is.
             if os.path.isdir(os.path.join(image_dir, "dlc")):
                 artifacts.append({"input": ["dlc"]})
 
@@ -298,16 +298,17 @@ class ArchiveStage(
 
         def ArchiveHWQual():
             """Build and archive the HWQual images."""
-            # TODO(petermayo): This logic needs to be exported from the BuildTargets
-            # stage rather than copied/re-evaluated here.
+            # TODO(petermayo): This logic needs to be exported from the
+            # BuildTargets stage rather than copied/re-evaluated here.
             # TODO(mtennant): Make this autotest_built concept into a run param.
             autotest_built = (
                 self._run.options.tests and config["upload_hw_test_artifacts"]
             )
 
             if config["hwqual"] and autotest_built:
-                # Build the full autotest tarball for hwqual image. We don't upload it,
-                # as it's fairly large and only needed by the hwqual tarball.
+                # Build the full autotest tarball for hwqual image. We don't
+                # upload it, as it's fairly large and only needed by the hwqual
+                # tarball.
                 logging.info("Archiving full autotest tarball locally ...")
                 logging.info("Running commands.BuildFullAutotestTarball")
                 tarball = commands.BuildFullAutotestTarball(
@@ -349,9 +350,9 @@ class ArchiveStage(
                 self._release_upload_queue.put([archive])
 
         def BuildAndArchiveAllImages():
-            # Generate the recovery image. To conserve loop devices, we try to only
-            # run one instance of build_image at a time. TODO(davidjames): Move the
-            # image generation out of the archive stage.
+            # Generate the recovery image. To conserve loop devices, we try to
+            # only run one instance of build_image at a time. TODO(davidjames):
+            # Move the image generation out of the archive stage.
             self.LoadArtifactsList(self._current_board, image_dir)
 
             # If there's no plan to run ArchiveHWQual, VMTest should start asap.
@@ -360,8 +361,8 @@ class ArchiveStage(
                     "autotest_tarball_generated", True
                 )
 
-            # For recovery image to be generated correctly, BuildRecoveryImage must
-            # run before BuildAndArchiveFactoryImages.
+            # For recovery image to be generated correctly, BuildRecoveryImage
+            # must run before BuildAndArchiveFactoryImages.
             if "recovery" in config.images:
                 base_image_path = os.path.join(
                     image_dir, constants.BASE_IMAGE_BIN
@@ -417,7 +418,8 @@ class ArchiveStage(
             self._upload_queue.put([constants.IMAGE_SCRIPTS_TAR])
 
         def PushImage():
-            # This helper script is only available on internal manifests currently.
+            # This helper script is only available on internal manifests
+            # currently.
             if not config["internal"]:
                 return
 
@@ -430,10 +432,9 @@ class ArchiveStage(
                 "test_artifacts_uploaded", pretty_name="test artifacts"
             )
 
-            # Now that all data has been generated, we can upload the final result to
-            # the image server.
-            # TODO: When we support branches fully, the friendly name of the branch
-            # needs to be used with PushImages
+            # Now that all data has been generated, we can upload the final
+            # result to the image server. TODO: When we support branches fully,
+            # the friendly name of the branch needs to be used with PushImages
             sign_types = []
             if config["sign_types"]:
                 sign_types = config["sign_types"]
@@ -471,9 +472,10 @@ class ArchiveStage(
             with self.ArtifactUploader(self._upload_queue, archive=False):
                 parallel.RunParallelSteps(steps)
 
-            # Make sure no stage posted to the release queue when it should have used
-            # the normal upload queue.  The release queue is processed in parallel and
-            # then ignored, so there shouldn't be any items left in here.
+            # Make sure no stage posted to the release queue when it should have
+            # used the normal upload queue.  The release queue is processed in
+            # parallel and then ignored, so there shouldn't be any items left in
+            # here.
             assert self._release_upload_queue.empty()
 
         if not self._run.config.afdo_generate_min:
@@ -586,10 +588,10 @@ class DebugSymbolsStage(
             buildroot, board, self._run.options.debug_forced
         )
 
-        # Generate breakpad symbols of Android binaries if we have a symbol archive.
-        # This archive is created by AndroidDebugSymbolsStage in Android PFQ.
-        # This must be done after GenerateBreakpadSymbols because it clobbers the
-        # output directory.
+        # Generate breakpad symbols of Android binaries if we have a symbol
+        # archive. This archive is created by AndroidDebugSymbolsStage in
+        # Android PFQ. This must be done after GenerateBreakpadSymbols because
+        # it clobbers the output directory.
         symbols_file = os.path.join(
             self.archive_path, constants.ANDROID_SYMBOLS_FILE
         )
@@ -967,8 +969,8 @@ class UploadTestArtifactsStage(
             steps.append(self.BuildFpmcuUnittestsTarball)
 
         parallel.RunParallelSteps(steps)
-        # If we encountered any exceptions with any of the steps, they should have
-        # set the attribute to False.
+        # If we encountered any exceptions with any of the steps, they should
+        # have set the attribute to False.
         self.board_runattrs.SetParallelDefault("test_artifacts_uploaded", True)
 
     def _HandleStageException(self, exc_info):
@@ -999,7 +1001,8 @@ class UploadCFTArtifactsStage(
             chroot = os.path.join(self._build_root, "chroot")
             # sysroot = /build/drallion
             sysroot = os.path.join("build", self._current_board)
-            # version = drallion-postsubmit.R105-14916.0.0-66732-8811281600896265665
+            # version =
+            #     drallion-postsubmit.R105-14916.0.0-66732-8811281600896265665
             logging.info("Found version config %s", self.build_config)
             version = self.version
 

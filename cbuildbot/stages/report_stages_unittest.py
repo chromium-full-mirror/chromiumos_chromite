@@ -199,8 +199,9 @@ class BuildStartStageTest(generic_stages_unittest.AbstractStageTestCase):
             cidb.CIDBConnectionFactory.GetCIDBConnectionType(),
             cidb.CONNECTION_TYPE_INV,
         )
-        # The above test has the side effect of invalidating CIDBConnectionFactory.
-        # Undo that side effect so other unit tests can run.
+        # The above test has the side effect of invalidating
+        # CIDBConnectionFactory. Undo that side effect so other unit tests can
+        # run.
         cidb.CIDBConnectionFactory.SetupMockCidb()
 
     def testHandleSkipWithNoDbType(self):
@@ -438,7 +439,8 @@ class ReportStageTest(AbstractReportStageTestCase):
     #                 notification_config_3,
     #             ]
     #         },
-    #         cmd_args=['-r', self.build_root, '--branch', 'master', self.BOT_ID])
+    #         cmd_args=['-r', self.build_root, '--branch', 'master',
+    #                   self.BOT_ID])
     #     self._SetupUpdateStreakCounter(counter_value=-2)
     #     self.RunStage()
     #     self.buildstore.UpdateLuciNotifyProperties.assert_called_once_with(

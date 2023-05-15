@@ -443,7 +443,8 @@ class HWTestPlanStageTest(cros_test_lib.MockTempDirTestCase):
         if models:
             build_config["models"] = models
 
-        # Use the cbuildbot parser to create properties and populate default values.
+        # Use the cbuildbot parser to create properties and populate default
+        # values.
         parser = cbuildbot._CreateParser()
         argv = (
             ["-r", self.buildroot, "--buildbot", "--debug", "--nochromesdk"]

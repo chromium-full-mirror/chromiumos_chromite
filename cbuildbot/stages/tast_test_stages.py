@@ -104,8 +104,8 @@ class TastVMTestStage(
     def PerformStage(self):
         """Performs the stage. Overridden from generic_stages.BuilderStage."""
 
-        # CreateTestRoot creates a results directory and returns its path relative
-        # to the chroot.
+        # CreateTestRoot creates a results directory and returns its path
+        # relative to the chroot.
         chroot_results_dir = commands.CreateTestRoot(self._build_root)
 
         try:
@@ -115,8 +115,9 @@ class TastVMTestStage(
                     self._run.config.tast_vm_tests, chroot_results_dir
                 )
             except Exception:
-                # sys.exc_info() returns (None, None, None) in the finally block, so we
-                # need to record the fact that we already have an error here.
+                # sys.exc_info() returns (None, None, None) in the finally
+                # block, so we need to record the fact that we already have an
+                # error here.
                 got_exception = True
                 raise
             finally:
@@ -139,8 +140,8 @@ class TastVMTestStage(
         Returns:
             String containing chroot suffixed by path.
         """
-        # When os.path.join encounters an absolute path, it throws away everything
-        # it's already seen.
+        # When os.path.join encounters an absolute path, it throws away
+        # everything it's already seen.
         return os.path.join(
             self._build_root, constants.DEFAULT_CHROOT_DIR, path.lstrip("/")
         )
@@ -162,8 +163,8 @@ class TastVMTestStage(
                     suite.suite_name,
                     " ".join(suite.test_exprs),
                 )
-                # We apparently always prefix reasons with spaces because timeout_util
-                # appends them directly to error messages.
+                # We apparently always prefix reasons with spaces because
+                # timeout_util appends them directly to error messages.
                 reason = " Reached TastVMTestStage test run timeout."
                 with timeout_util.Timeout(suite.timeout, reason_message=reason):
                     self._RunSuite(
@@ -246,8 +247,9 @@ class TastVMTestStage(
             abs_results_dir, os.path.join(self.archive_path, archive_base)
         )
 
-        # TODO(crbug.com/770562): Collect stack traces once the tast executable is
-        # symbolizing and collecting them (see VMTestStage._ArchiveTestResults).
+        # TODO(crbug.com/770562): Collect stack traces once the tast executable
+        # is symbolizing and collecting them (see
+        # VMTestStage._ArchiveTestResults).
 
         # Now archive the results to Cloud Storage.
         logging.info("Uploading artifacts to Cloud Storage...")
@@ -287,13 +289,14 @@ class TastVMTestStage(
                 abs_results_dir, suite_name, RESULTS_FILENAME
             )
 
-            # The results file contains an array with objects representing tests.
-            # Each object should contain the test name in a 'name' attribute and a
-            # list of errors in an 'error' attribute.
+            # The results file contains an array with objects representing
+            # tests. Each object should contain the test name in a 'name'
+            # attribute and a list of errors in an 'error' attribute.
             try:
                 with open(results_path, "r", encoding="utf-8") as f:
                     for test in json.load(f):
-                        # Report the test as failed if it didn't finish or had errors.
+                        # Report the test as failed if it didn't finish or had
+                        # errors.
                         if (
                             test[RESULTS_END_KEY] == ZERO_TIME
                             or test[RESULTS_ERRORS_KEY]
@@ -315,7 +318,8 @@ class TastVMTestStage(
                                 test_url, text_to_display=desc
                             )
 
-                            # Ignore the failure if the test was marked informational.
+                            # Ignore the failure if the test was marked
+                            # informational.
                             if not informational:
                                 num_failed += 1
             except Exception as e:

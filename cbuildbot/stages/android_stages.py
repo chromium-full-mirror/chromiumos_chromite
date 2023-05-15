@@ -62,9 +62,9 @@ class UprevAndroidStage(
 
         assert android_package
         assert android_build_branch
-        # |android_version| is usually set by MasterSlaveLKGMSyncStage, but we allow
-        # it to be unset to indicate uprev'ing to the latest version. In fact, it is
-        # not set in trybots.
+        # |android_version| is usually set by MasterSlaveLKGMSyncStage, but we
+        # allow it to be unset to indicate uprev'ing to the latest version. In
+        # fact, it is not set in trybots.
 
         logging.info("Android package: %s", android_package)
         logging.info("Android branch: %s", android_build_branch)
@@ -72,8 +72,8 @@ class UprevAndroidStage(
 
         if self._run.config.master and self._run.config.android_update_lkgb:
             # If android_update_lkgb is set, the master builder publishes a LKGB
-            # update instead of an ebuild uprev. The LKGB update will in turn trigger
-            # the PUpr generator to generate actual Android uprev CLs.
+            # update instead of an ebuild uprev. The LKGB update will in turn
+            # trigger the PUpr generator to generate actual Android uprev CLs.
             commands.MarkAndroidLKGB(
                 buildroot=self._build_root,
                 android_package=android_package,
@@ -91,8 +91,8 @@ class UprevAndroidStage(
             )
         except commands.AndroidIsPinnedUprevError as e:
             # If uprev failed due to a pin, record that failure (so that the
-            # build ultimately fails) but try again without the pin, to allow the
-            # slave to test the newer version anyway).
+            # build ultimately fails) but try again without the pin, to allow
+            # the slave to test the newer version anyway).
             android_atom_to_build = e.new_android_atom
             results_lib.Results.Record(self.name, e)
             cbuildbot_alerts.PrintBuildbotStepFailure()
@@ -205,10 +205,11 @@ class AndroidMetadataStage(
                 targets,
             ) = self._UpdateBoardDictsForAndroidBuildInfo()
 
-        # Unfortunately we can't inspect Android build info in slaves from masters,
-        # so metadata is usually unavailable on masters (e.g. master-release).
-        # An exception is builders uprev'ing Android; those info is available
-        # from configs and metadata. But note that version can be still unspecified.
+        # Unfortunately we can't inspect Android build info in slaves from
+        # masters, so metadata is usually unavailable on masters (e.g. master-
+        # release). An exception is builders uprev'ing Android; those info is
+        # available from configs and metadata. But note that version can be
+        # still unspecified.
         if self._android_rev:
             uprev_version = _GetAndroidVersionFromMetadata(
                 self._run.attrs.metadata
@@ -222,13 +223,13 @@ class AndroidMetadataStage(
             branches.add(uprev_branch)
 
             # If we uprev Android, branch/version must be consistent.
-            # TODO(b/152768977): Provide assertion that awares about ARCVM PFQ for
-            # union builds. In last case, there are 2 versions and branches.
-            # assert len(versions) <= 1, 'Multiple Android versions: %r' % versions
-            # assert len(branches) <= 1, 'Multiple Android branches: %r' % branches
+            # TODO(b/152768977): Provide assertion that awares about ARCVM PFQ
+            # for union builds. In last case, there are 2 versions and branches.
+            # assert len(versions) <= 1, 'Multiple versions: %r' % versions
+            # assert len(branches) <= 1, 'Multiple branches: %r' % branches
 
-        # If there is a unique one across all the boards, treat it as the version
-        # for the build.
+        # If there is a unique one across all the boards, treat it as the
+        # version for the build.
         # TODO(nya): Represent "N/A" and "Multiple" differently in metadata.
         def _Aggregate(v):
             if not v:

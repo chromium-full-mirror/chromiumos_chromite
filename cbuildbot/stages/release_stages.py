@@ -106,7 +106,7 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         self.signing_results = {}
 
         # Filled in via WaitUntilReady, Of the form:
-        #   {'channel': ['gs://instruction_uri1', 'gs://signer_instruction_uri2']}
+        # {'channel': ['gs://instruction_uri1', 'gs://signer_instruction_uri2']}
         self.instruction_urls_per_channel = None
 
     def _HandleStageException(self, exc_info):
@@ -144,7 +144,8 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         try:
             return json.loads(signer_txt)
         except ValueError:
-            # We should never see malformed Json, even for intermediate statuses.
+            # We should never see malformed Json, even for intermediate
+            # statuses.
             raise MalformedResultsException(signer_txt)
 
     def _SigningStatusFromJson(self, signer_json):
@@ -216,8 +217,8 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
                 results_completed = False
                 continue
 
-            # If we reach here, the channel has just been completed for the first
-            # time.
+            # If we reach here, the channel has just been completed for the
+            # first time.
 
             # If all results passed the channel was successfully signed.
             channel_success = True
@@ -323,7 +324,8 @@ class SigningStage(generic_stages.BoardSpecificBuilderStage):
         logging.info("GS errors are a normal part of the polling for results.")
         self._WaitForSigningResults(self.instruction_urls_per_channel)
 
-        # Notify stages blocked on us that images are for the given channel list.
+        # Notify stages blocked on us that images are for the given channel
+        # list.
         channels = list(self.instruction_urls_per_channel)
         self.board_runattrs.SetParallel("signed_images_ready", channels)
 
@@ -542,11 +544,13 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                         archive_build,
                         payload_test_configs,
                     ) = testdata
-                    # For unified builds, only test against the specified models.
+                    # For unified builds, only test against the specified
+                    # models.
                     if self._run.config.models:
                         au_models = []
                         for model in self._run.config.models:
-                            # 'au' is a test suite generated in ge_build_config.json
+                            # 'au' is a test suite generated in
+                            # ge_build_config.json
                             if model.test_suites and "au" in model.test_suites:
                                 au_models.append(model)
 
@@ -562,9 +566,9 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                                 for p in payload_test_configs
                                 if p not in fsi_configs
                             )
-                            # Schedule FSI's on every model even those not in the 'au' suite.
-                            # This ensures no FSI tests are missed from models being disabled
-                            # in the lab.
+                            # Schedule FSI's on every model even those not in
+                            # the 'au' suite. This ensures no FSI tests are
+                            # missed from models being disabled in the lab.
                             stages = self._ScheduleForApplicableModels(
                                 archive_board,
                                 archive_build,
@@ -572,7 +576,8 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                                 fsi_configs,
                                 suite_name,
                             )
-                            # Schedule the rest only on models in the 'au' suite.
+                            # Schedule the rest only on models in the 'au'
+                            # suite.
                             stages += self._ScheduleForApplicableModels(
                                 archive_board,
                                 archive_build,
@@ -618,9 +623,9 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                         ).Run()
 
             except paygen_build_lib.BuildLocked as e:
-                # These errors are normal if it's possible that another builder is
-                # processing the same build. (perhaps by a trybot generating payloads on
-                # request).
+                # These errors are normal if it's possible that another builder
+                # is processing the same build. (perhaps by a trybot generating
+                # payloads on request).
                 logging.info(
                     "PaygenBuild for %s skipped because: %s", self.channel, e
                 )
@@ -775,10 +780,10 @@ class PaygenTestStage(generic_stages.BoardSpecificBuilderStage):
         """Override and don't set status to FAIL but FORGIVEN instead."""
         exc_type, exc_value, _exc_tb = exc_info
 
-        # If the exception is a TestLabFailure that means we couldn't schedule the
-        # test. We don't fail the build for that. We do the CompoundFailure dance,
-        # because that's how we'll get failures from background processes returned
-        # to us.
+        # If the exception is a TestLabFailure that means we couldn't schedule
+        # the test. We don't fail the build for that. We do the CompoundFailure
+        # dance, because that's how we'll get failures from background processes
+        # returned to us.
         if issubclass(exc_type, failures_lib.TestLabFailure) or (
             issubclass(exc_type, failures_lib.CompoundFailure)
             and exc_value.MatchesFailureType(failures_lib.TestLabFailure)

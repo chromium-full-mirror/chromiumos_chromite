@@ -99,9 +99,9 @@ class SyncChromeStage(
                     chrome_version=self.chrome_version,
                 )
             except commands.ChromeIsPinnedUprevError as e:
-                # If uprev failed due to a chrome pin, record that failure (so that the
-                # build ultimately fails) but try again without the pin, to allow the
-                # slave to test the newer chrome anyway).
+                # If uprev failed due to a chrome pin, record that failure (so
+                # that the build ultimately fails) but try again without the
+                # pin, to allow the slave to test the newer chrome anyway).
                 chrome_atom_to_build = e.new_chrome_atom
                 if chrome_atom_to_build:
                     results_lib.Results.Record(self.name, e)
@@ -284,8 +284,8 @@ class TestSimpleChromeWorkflowStage(
 
     def _VerifySDKEnvironment(self):
         """Make sure the SDK environment is set up properly."""
-        # If the environment wasn't set up, then the output directory wouldn't be
-        # created after 'gn gen'.
+        # If the environment wasn't set up, then the output directory wouldn't
+        # be created after 'gn gen'.
         # TODO: Make this check actually look at the environment.
         if not os.path.exists(self.out_board_dir):
             raise AssertionError("%s not created!" % self.out_board_dir)
@@ -296,8 +296,8 @@ class TestSimpleChromeWorkflowStage(
         )
 
     def _ShouldEnableGoma(self):
-        # Enable goma if 1) Chrome actually needs to be built, 2) goma is available
-        # and 3) config says goma should be used to build Chrome.
+        # Enable goma if 1) Chrome actually needs to be built, 2) goma is
+        # available and 3) config says goma should be used to build Chrome.
         return (
             self._run.options.managed_chrome
             and self._run.options.goma_dir
@@ -403,7 +403,8 @@ class TestSimpleChromeWorkflowStage(
                 "--sdk-path",
                 self.archive_path,
             ]
-            # Do not automatically run 'gn gen', that will be done in _BuildChrome.
+            # Do not automatically run 'gn gen', that will be done in
+            # _BuildChrome.
             extra_args.extend(["--nogn-gen"])
             if self._ShouldEnableGoma():
                 # TODO(crbug.com/751010): Revisit to enable DepsCache for
@@ -453,10 +454,10 @@ class ChromeLKGMSyncStage(sync_stages.SyncStage):
         """Override: Gets the LKGM from the Chrome tree."""
         chrome_lkgm = commands.GetChromeLKGM(self._run.options.chrome_version)
 
-        # We need a full buildspecs manager here as we need an initialized manifest
-        # manager with paths to the spec.
-        # TODO(mtennant): Consider registering as manifest_manager run param, for
-        # consistency, but be careful that consumers do not get confused.
+        # We need a full buildspecs manager here as we need an initialized
+        # manifest manager with paths to the spec.
+        # TODO(mtennant): Consider registering as manifest_manager run param,
+        # for consistency, but be careful that consumers do not get confused.
         # Currently only the "manifest_manager" from ManifestVersionedSync (and
         # subclasses) is used later in the flow.
         manifest_manager = manifest_version.BuildSpecsManager(

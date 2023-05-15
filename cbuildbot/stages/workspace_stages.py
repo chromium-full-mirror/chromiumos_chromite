@@ -474,7 +474,8 @@ class WorkspaceInitSDKStage(WorkspaceStageBase):
             self._build_root, constants.DEFAULT_CHROOT_DIR
         )
 
-        # Worksapce chroots are always wiped by cleanup stage, no need to update.
+        # Worksapce chroots are always wiped by cleanup stage, no need to
+        # update.
         cmd = ["cros_sdk", "--create"] + ChrootArgs(self._run.options)
 
         commands.RunBuildScript(
@@ -698,7 +699,8 @@ class WorkspaceDebugSymbolsStage(
                 if self.AfterLimit(ANDROID_BREAKPAD):
                     raise
 
-                # For older branches, we only process them on a best effort basis.
+                # For older branches, we only process them on a best effort
+                # basis.
                 cbuildbot_alerts.PrintBuildbotStepWarnings()
                 logging.warning("Preparing Android symbols failed, ignoring..")
 
@@ -882,8 +884,8 @@ class WorkspaceDebugSymbolsStage(
         elif "abi_x86_32" in use_flags.get("sys-devel/arc-build", []):
             return "x86"
         else:
-            # ARM only supports 32-bit so it does not have abi_x86_{32,64} set. But it
-            # is also the last possible ABI, so returning by default.
+            # ARM only supports 32-bit so it does not have abi_x86_{32,64} set.
+            # But it is also the last possible ABI, so returning by default.
             return "arm"
 
     def DetermineAndroidVariant(self, package):
@@ -902,9 +904,9 @@ class WorkspaceDebugSymbolsStage(
                 elif "cheets_user" in use_flag or "cheets_sdk_user" in use_flag:
                     return "user"
 
-        # We iterated through all the flags and could not find user or userdebug.
-        # This should not be possible given that this code is only ran by
-        # builders, which will never use local images.
+        # We iterated through all the flags and could not find user or
+        # userdebug. This should not be possible given that this code is only
+        # ran by builders, which will never use local images.
         raise cbuildbot_run.NoAndroidVariantError(
             "Android Variant cannot be determined for the packge: %s" % package
         )

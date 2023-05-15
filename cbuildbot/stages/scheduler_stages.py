@@ -251,7 +251,8 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
                     )
                 )
             except buildbucket_v2.BuildbucketResponseException as e:
-                # Use 16-digit ts to be consistent with the created_ts from Buildbucket
+                # Use 16-digit ts to be consistent with the created_ts from
+                # Buildbucket
                 current_ts = int(round(time.time() * 1000000))
                 unscheduled_slave_builds.append(
                     (slave_config_name, None, current_ts)

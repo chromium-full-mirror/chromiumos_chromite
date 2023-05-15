@@ -144,7 +144,8 @@ class StageTestCase(
         """
         assert not bot_id or not cmd_args
 
-        # Use cbuildbot parser to create options object and populate default values.
+        # Use cbuildbot parser to create options object and populate default
+        # values.
         if not cmd_args:
             # Fill in default command args.
             cmd_args = [
@@ -265,8 +266,8 @@ class AbstractStageTestCase(StageTestCase):
     """
 
     def setUp(self):
-        # Value which will be populated as the stage runs, so that tests can examine
-        # it's state afterwards.
+        # Value which will be populated as the stage runs, so that tests can
+        # examine it's state afterwards.
         self.stage = None
 
     def ConstructStage(self):
@@ -287,8 +288,9 @@ class AbstractStageTestCase(StageTestCase):
             NotImplementedError: ConstructStage() was not implemented.
         """
 
-        # Stage construction is usually done as late as possible because the tests
-        # set up the build configuration and options used in constructing the stage.
+        # Stage construction is usually done as late as possible because the
+        # tests set up the build configuration and options used in constructing
+        # the stage.
         results_lib.Results.Clear()
         self.stage = self.ConstructStage(**kwargs)
         self.stage.Run()
@@ -700,7 +702,7 @@ class BoardSpecificBuilderStageTest(AbstractStageTestCase):
     #     if obj.config_name:
     #       if not obj.config_name in config._settings:
     #         self.fail(('cbuildbot_stages.%s.config_name "%s" is missing from '
-    #                    'cbuildbot_config._settings') % (attr, obj.config_name))
+    #                   'cbuildbot_config._settings') % (attr, obj.config_name))
 
     def testListOfPackagesToBuild(self):
         """Test the default list of packages to build."""
@@ -716,7 +718,8 @@ class BoardSpecificBuilderStageTest(AbstractStageTestCase):
         ]
         self.assertEqual(expected, packages)
 
-        # Test if an explicit list of packages is configured, only that list is set.
+        # Test if an explicit list of packages is configured, only that list is
+        # set.
         self._run.config.packages = ["pkgA", "pkgB"]
         packages = stage.GetListOfPackagesToBuild()
         self.assertEqual(["pkgA", "pkgB"], packages)

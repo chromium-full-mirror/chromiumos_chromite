@@ -184,7 +184,8 @@ class SigningStageTest(
 
             stage = self.ConstructStage()
 
-            # Ensure we find that we are ready if there are no channels to look for.
+            # Ensure we find that we are ready if there are no channels to look
+            # for.
             self.assertTrue(stage._CheckForResults(mock_gs_ctx, {}, notifier))
 
             # Ensure we didn't contact GS while checking for no channels.
@@ -456,8 +457,8 @@ class PaygenStageTest(
             with parallel_unittest.ParallelMock():
                 stage.PerformStage()
 
-            # Notice that we didn't put anything in _wait_for_channel_signing, but
-            # still got results right away.
+            # Notice that we didn't put anything in _wait_for_channel_signing,
+            # but still got results right away.
             runner.assert_has_calls(
                 [
                     mock.call(
@@ -506,8 +507,8 @@ class PaygenStageTest(
             stage._RunPaygenInProcess(
                 "foo", "foo-board", "foo-version", True, False, False
             )
-            # Ensure that PaygenTestStage is created and schedules the test suite
-            # with the correct arguments.
+            # Ensure that PaygenTestStage is created and schedules the test
+            # suite with the correct arguments.
             sched_tests.assert_called_once_with(
                 "foo-suite-name",
                 "foo-archive-board",
@@ -548,8 +549,8 @@ class PaygenStageTest(
             stage._RunPaygenInProcess(
                 "foo", "foo-board", "foo-version", True, False, False
             )
-            # Ensure that PaygenTestStage is created and schedules the test suite
-            # with the correct arguments.
+            # Ensure that PaygenTestStage is created and schedules the test
+            # suite with the correct arguments.
             sched_tests.assert_called_once_with(
                 "foo-suite-name",
                 "foo-archive-board",
@@ -567,7 +568,8 @@ class PaygenStageTest(
     def testRunPaygenInProcessComplex(self):
         """Test that _RunPaygenInProcess with arguments that are more unusual."""
         # Call the method under test.
-        # Use release tools channel naming, and a board name including a variant.
+        # Use release tools channel naming, and a board name including a
+        # variant.
         stage = self.ConstructStage()
         stage._RunPaygenInProcess(
             "foo-channel", "foo-board-variant", "foo-version", True, True, True
@@ -653,13 +655,14 @@ class PaygenStageTest(
 
     def testRunPaygenInParallelWithUnifiedBuild(self):
         # payload_config1 defines applicable_models as model1 and model3.
-        # model3 does not have au enabled but gets scheduled since it has type FSI.
-        # payload_config2 defines applicable_models as model2 and model3.
-        # model3 does not get scheduled since config2 has type OMAHA.
-        # payload_config3 has type OMAHA with no applicable models so doesn't get
-        # scheduled.
-        # payload_config4 has type N2N and which never have applicable_models but
-        # should get scheduled on all ['au'] models.
+        # model3 does not have au enabled but gets scheduled since it has type
+        # FSI.
+        # payload_config2 defines applicable_models as model2 and model3. model3
+        # does not get scheduled since config2 has type OMAHA.
+        # payload_config3 has type OMAHA with no applicable models so doesn't
+        # get scheduled.
+        # payload_config4 has type N2N and which never have applicable_models
+        # but should get scheduled on all ['au'] models.
         # payload_config5 has type STEPPING_STONE which also never has
         # applicable models but should get scheduled on all ['au'] models too.
         self._run.config.models = [
@@ -791,8 +794,8 @@ class PaygenTestStageTest(
             board=self._current_board,
             model=self._current_board,
             lab_board_name=self._current_board,
-            # The PaygenBuild stage will add the '-channel' suffix to the channel
-            # when converting to release tools naming.
+            # The PaygenBuild stage will add the '-channel' suffix to the
+            # channel when converting to release tools naming.
             channel="foochan-channel",
             build="foo-version",
             debug=True,
