@@ -10,7 +10,7 @@
   "repository": "https://chromium.googlesource.com/chromiumos/chromite/+/HEAD/ide_tooling",
   "license": "BSD-3-Clause",
   "engines": {
-    "vscode": "^1.63.0",
+    "vscode": "^1.75.1",
     "node": ">=14.0.0"
   },
   "icon": "media/cros-device.png",
