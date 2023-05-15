@@ -124,6 +124,8 @@ class ECSigner(signer.BaseSigner):
                         "rwsig",
                         "--prikey",
                         keyset.keys["key_ec_efs"].private,
+                        "--ecrw_out",
+                        ec_rw_bin,
                         ec_path,
                     ],
                     cwd=temp_dir,
