@@ -893,11 +893,6 @@ PORTAGE_BINHOST="$FULL_BINHOST"
                 "POSTSUBMIT", board, expanded_binhost_inheritance, source_root
             )
         )
-        config.extend(
-            self._ContinuousBinhostConfigs(
-                "CQ", board, expanded_binhost_inheritance, source_root
-            )
-        )
 
         return "\n".join(config)
 
