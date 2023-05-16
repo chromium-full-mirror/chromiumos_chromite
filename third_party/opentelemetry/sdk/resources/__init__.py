@@ -64,15 +64,15 @@ from json import dumps
 from os import environ
 from urllib import parse
 
-from opentelemetry.attributes import BoundedAttributes
-from opentelemetry.sdk.environment_variables import (
+from chromite.third_party.opentelemetry.attributes import BoundedAttributes
+from chromite.third_party.opentelemetry.sdk.environment_variables import (
     OTEL_EXPERIMENTAL_RESOURCE_DETECTORS,
     OTEL_RESOURCE_ATTRIBUTES,
     OTEL_SERVICE_NAME,
 )
-from opentelemetry.semconv.resource import ResourceAttributes
-from opentelemetry.util._importlib_metadata import entry_points, version
-from opentelemetry.util.types import AttributeValue
+from chromite.third_party.opentelemetry.semconv.resource import ResourceAttributes
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points, version
+from chromite.third_party.opentelemetry.util.types import AttributeValue
 
 LabelValue = AttributeValue
 Attributes = typing.Dict[str, LabelValue]

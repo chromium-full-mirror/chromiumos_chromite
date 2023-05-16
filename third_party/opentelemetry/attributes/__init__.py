@@ -19,7 +19,7 @@ from collections import OrderedDict
 from collections.abc import MutableMapping
 from typing import Optional, Sequence, Union
 
-from opentelemetry.util import types
+from chromite.third_party.opentelemetry.util import types
 
 # bytes are accepted as a user supplied value for attributes but
 # decoded to strings internally.

@@ -22,7 +22,7 @@ from math import inf
 from threading import Lock
 from typing import Generic, List, Optional, Sequence, TypeVar
 
-from opentelemetry.metrics import (
+from chromite.third_party.opentelemetry.metrics import (
     Asynchronous,
     Counter,
     Histogram,
@@ -33,30 +33,30 @@ from opentelemetry.metrics import (
     Synchronous,
     UpDownCounter,
 )
-from opentelemetry.sdk.metrics._internal.exponential_histogram.buckets import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exponential_histogram.buckets import (
     Buckets,
 )
-from opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.exponent_mapping import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.exponent_mapping import (
     ExponentMapping,
 )
-from opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.logarithm_mapping import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.logarithm_mapping import (
     LogarithmMapping,
 )
-from opentelemetry.sdk.metrics._internal.measurement import Measurement
-from opentelemetry.sdk.metrics._internal.point import Buckets as BucketsPoint
-from opentelemetry.sdk.metrics._internal.point import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.measurement import Measurement
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import Buckets as BucketsPoint
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import (
     ExponentialHistogramDataPoint,
     Gauge,
 )
-from opentelemetry.sdk.metrics._internal.point import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import (
     Histogram as HistogramPoint,
 )
-from opentelemetry.sdk.metrics._internal.point import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import (
     HistogramDataPoint,
     NumberDataPoint,
     Sum,
 )
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 _DataPointVarT = TypeVar("_DataPointVarT", NumberDataPoint, HistogramDataPoint)
 

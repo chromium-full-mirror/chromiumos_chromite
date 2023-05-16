@@ -23,20 +23,20 @@ from os import environ, linesep
 from time import time_ns
 from typing import IO, Callable, Deque, List, Optional, Sequence
 
-from opentelemetry.context import (
+from chromite.third_party.opentelemetry.context import (
     _SUPPRESS_INSTRUMENTATION_KEY,
     attach,
     detach,
     set_value,
 )
-from opentelemetry.sdk._logs import LogData, LogRecord, LogRecordProcessor
-from opentelemetry.sdk.environment_variables import (
+from chromite.third_party.opentelemetry.sdk._logs import LogData, LogRecord, LogRecordProcessor
+from chromite.third_party.opentelemetry.sdk.environment_variables import (
     OTEL_BLRP_EXPORT_TIMEOUT,
     OTEL_BLRP_MAX_EXPORT_BATCH_SIZE,
     OTEL_BLRP_MAX_QUEUE_SIZE,
     OTEL_BLRP_SCHEDULE_DELAY,
 )
-from opentelemetry.util._once import Once
+from chromite.third_party.opentelemetry.util._once import Once
 
 _DEFAULT_SCHEDULE_DELAY_MILLIS = 5000
 _DEFAULT_MAX_EXPORT_BATCH_SIZE = 512

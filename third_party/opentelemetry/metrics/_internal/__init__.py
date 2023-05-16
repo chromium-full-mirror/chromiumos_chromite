@@ -32,7 +32,7 @@ with the calling instrumentation name and the version of your package.
 
 The following code shows how to obtain a meter using the global :class:`.MeterProvider`::
 
-    from opentelemetry.metrics import get_meter
+    from chromite.third_party.opentelemetry.metrics import get_meter
 
     meter = get_meter("example-meter")
     counter = meter.create_counter("example-counter")
@@ -47,8 +47,8 @@ from os import environ
 from threading import Lock
 from typing import List, Optional, Sequence, Set, Tuple, Union, cast
 
-from opentelemetry.environment_variables import OTEL_PYTHON_METER_PROVIDER
-from opentelemetry.metrics._internal.instrument import (
+from chromite.third_party.opentelemetry.environment_variables import OTEL_PYTHON_METER_PROVIDER
+from chromite.third_party.opentelemetry.metrics._internal.instrument import (
     CallbackT,
     Counter,
     Histogram,
@@ -69,8 +69,8 @@ from opentelemetry.metrics._internal.instrument import (
     _ProxyObservableUpDownCounter,
     _ProxyUpDownCounter,
 )
-from opentelemetry.util._once import Once
-from opentelemetry.util._providers import _load_provider
+from chromite.third_party.opentelemetry.util._once import Once
+from chromite.third_party.opentelemetry.util._providers import _load_provider
 
 _logger = getLogger(__name__)
 
@@ -321,7 +321,7 @@ class Meter(ABC):
         callbacks, which each should return iterables of :class:`~opentelemetry.metrics.Observation`::
 
             def cpu_time_callback(states_to_include: set[str]) -> Iterable[Iterable[Observation]]:
-                # accept options sent in from OpenTelemetry
+                # accept options sent in from chromite.third_party.opentelemetry
                 options = yield
                 while True:
                     observations = []

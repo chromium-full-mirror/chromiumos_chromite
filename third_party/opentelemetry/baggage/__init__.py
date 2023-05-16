@@ -17,9 +17,9 @@ from re import compile
 from types import MappingProxyType
 from typing import Mapping, Optional
 
-from opentelemetry.context import create_key, get_value, set_value
-from opentelemetry.context.context import Context
-from opentelemetry.util.re import (
+from chromite.third_party.opentelemetry.context import create_key, get_value, set_value
+from chromite.third_party.opentelemetry.context.context import Context
+from chromite.third_party.opentelemetry.util.re import (
     _BAGGAGE_PROPERTY_FORMAT,
     _KEY_FORMAT,
     _VALUE_FORMAT,

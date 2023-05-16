@@ -5,8 +5,8 @@ import types as python_types
 import typing
 from collections import OrderedDict
 
-from opentelemetry.trace.status import Status, StatusCode
-from opentelemetry.util import types
+from chromite.third_party.opentelemetry.trace.status import Status, StatusCode
+from chromite.third_party.opentelemetry.util import types
 
 # The key MUST begin with a lowercase letter or a digit,
 # and can only contain lowercase letters (a-z), digits (0-9),

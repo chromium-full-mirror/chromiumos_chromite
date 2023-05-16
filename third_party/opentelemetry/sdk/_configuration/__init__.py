@@ -25,17 +25,17 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple, Type
 
 from typing_extensions import Literal
 
-from opentelemetry._logs import set_logger_provider
-from opentelemetry.environment_variables import (
+from chromite.third_party.opentelemetry._logs import set_logger_provider
+from chromite.third_party.opentelemetry.environment_variables import (
     OTEL_LOGS_EXPORTER,
     OTEL_METRICS_EXPORTER,
     OTEL_PYTHON_ID_GENERATOR,
     OTEL_TRACES_EXPORTER,
 )
-from opentelemetry.metrics import set_meter_provider
-from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, LogExporter
-from opentelemetry.sdk.environment_variables import (
+from chromite.third_party.opentelemetry.metrics import set_meter_provider
+from chromite.third_party.opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from chromite.third_party.opentelemetry.sdk._logs.export import BatchLogRecordProcessor, LogExporter
+from chromite.third_party.opentelemetry.sdk.environment_variables import (
     _OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED,
     OTEL_EXPORTER_OTLP_LOGS_PROTOCOL,
     OTEL_EXPORTER_OTLP_METRICS_PROTOCOL,
@@ -44,19 +44,19 @@ from opentelemetry.sdk.environment_variables import (
     OTEL_TRACES_SAMPLER,
     OTEL_TRACES_SAMPLER_ARG,
 )
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import (
+from chromite.third_party.opentelemetry.sdk.metrics import MeterProvider
+from chromite.third_party.opentelemetry.sdk.metrics.export import (
     MetricExporter,
     PeriodicExportingMetricReader,
 )
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, SpanExporter
-from opentelemetry.sdk.trace.id_generator import IdGenerator
-from opentelemetry.sdk.trace.sampling import Sampler
-from opentelemetry.semconv.resource import ResourceAttributes
-from opentelemetry.trace import set_tracer_provider
-from opentelemetry.util._importlib_metadata import entry_points
+from chromite.third_party.opentelemetry.sdk.resources import Resource
+from chromite.third_party.opentelemetry.sdk.trace import TracerProvider
+from chromite.third_party.opentelemetry.sdk.trace.export import BatchSpanProcessor, SpanExporter
+from chromite.third_party.opentelemetry.sdk.trace.id_generator import IdGenerator
+from chromite.third_party.opentelemetry.sdk.trace.sampling import Sampler
+from chromite.third_party.opentelemetry.semconv.resource import ResourceAttributes
+from chromite.third_party.opentelemetry.trace import set_tracer_provider
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 _EXPORTER_OTLP = "otlp"
 _EXPORTER_OTLP_PROTO_GRPC = "otlp_proto_grpc"

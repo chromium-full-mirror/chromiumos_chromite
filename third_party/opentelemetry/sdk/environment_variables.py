@@ -28,7 +28,7 @@ Additional details are available `in the specification
 
     $ OTEL_RESOURCE_ATTRIBUTES="service.name=shoppingcard,will_be_overridden=foo" python - <<EOF
     import pprint
-    from opentelemetry.sdk.resources import Resource
+    from chromite.third_party.opentelemetry.sdk.resources import Resource
     pprint.pprint(Resource.create({"will_be_overridden": "bar"}).attributes)
     EOF
     {'service.name': 'shoppingcard',

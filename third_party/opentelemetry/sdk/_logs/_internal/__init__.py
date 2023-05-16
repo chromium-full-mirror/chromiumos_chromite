@@ -22,26 +22,26 @@ import traceback
 from time import time_ns
 from typing import Any, Callable, Optional, Tuple, Union
 
-from opentelemetry._logs import Logger as APILogger
-from opentelemetry._logs import LoggerProvider as APILoggerProvider
-from opentelemetry._logs import LogRecord as APILogRecord
-from opentelemetry._logs import (
+from chromite.third_party.opentelemetry._logs import Logger as APILogger
+from chromite.third_party.opentelemetry._logs import LoggerProvider as APILoggerProvider
+from chromite.third_party.opentelemetry._logs import LogRecord as APILogRecord
+from chromite.third_party.opentelemetry._logs import (
     SeverityNumber,
     get_logger,
     get_logger_provider,
     std_to_otel,
 )
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.util import ns_to_iso_str
-from opentelemetry.sdk.util.instrumentation import InstrumentationScope
-from opentelemetry.semconv.trace import SpanAttributes
-from opentelemetry.trace import (
+from chromite.third_party.opentelemetry.sdk.resources import Resource
+from chromite.third_party.opentelemetry.sdk.util import ns_to_iso_str
+from chromite.third_party.opentelemetry.sdk.util.instrumentation import InstrumentationScope
+from chromite.third_party.opentelemetry.semconv.trace import SpanAttributes
+from chromite.third_party.opentelemetry.trace import (
     format_span_id,
     format_trace_id,
     get_current_span,
 )
-from opentelemetry.trace.span import TraceFlags
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry.trace.span import TraceFlags
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 _logger = logging.getLogger(__name__)
 

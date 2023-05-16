@@ -17,11 +17,11 @@ from re import split
 from typing import Iterable, List, Mapping, Optional, Set
 from urllib.parse import quote_plus, unquote_plus
 
-from opentelemetry.baggage import _is_valid_pair, get_all, set_baggage
-from opentelemetry.context import get_current
-from opentelemetry.context.context import Context
-from opentelemetry.propagators import textmap
-from opentelemetry.util.re import _DELIMITER_PATTERN
+from chromite.third_party.opentelemetry.baggage import _is_valid_pair, get_all, set_baggage
+from chromite.third_party.opentelemetry.context import get_current
+from chromite.third_party.opentelemetry.context.context import Context
+from chromite.third_party.opentelemetry.propagators import textmap
+from chromite.third_party.opentelemetry.util.re import _DELIMITER_PATTERN
 
 _logger = getLogger(__name__)
 

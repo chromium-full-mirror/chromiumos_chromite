@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from opentelemetry.sdk.metrics._internal.export import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.export import (
     AggregationTemporality,
     ConsoleMetricExporter,
     InMemoryMetricReader,
@@ -24,7 +24,7 @@ from opentelemetry.sdk.metrics._internal.export import (
 )
 
 # The point module is not in the export directory to avoid a circular import.
-from opentelemetry.sdk.metrics._internal.point import (  # noqa: F401
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import (  # noqa: F401
     Buckets,
     DataPointT,
     DataT,

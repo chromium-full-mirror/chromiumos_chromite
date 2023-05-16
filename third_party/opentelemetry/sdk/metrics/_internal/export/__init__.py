@@ -27,22 +27,22 @@ from typing_extensions import final
 
 # This kind of import is needed to avoid Sphinx errors.
 import opentelemetry.sdk.metrics._internal
-from opentelemetry.context import (
+from chromite.third_party.opentelemetry.context import (
     _SUPPRESS_INSTRUMENTATION_KEY,
     attach,
     detach,
     set_value,
 )
-from opentelemetry.sdk.environment_variables import (
+from chromite.third_party.opentelemetry.sdk.environment_variables import (
     OTEL_METRIC_EXPORT_INTERVAL,
     OTEL_METRIC_EXPORT_TIMEOUT,
 )
-from opentelemetry.sdk.metrics._internal.aggregation import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.aggregation import (
     AggregationTemporality,
     DefaultAggregation,
 )
-from opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
-from opentelemetry.sdk.metrics._internal.instrument import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
+from chromite.third_party.opentelemetry.sdk.metrics._internal.instrument import (
     Counter,
     Histogram,
     ObservableCounter,
@@ -56,8 +56,8 @@ from opentelemetry.sdk.metrics._internal.instrument import (
     _ObservableUpDownCounter,
     _UpDownCounter,
 )
-from opentelemetry.sdk.metrics._internal.point import MetricsData
-from opentelemetry.util._once import Once
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import MetricsData
+from chromite.third_party.opentelemetry.util._once import Once
 
 _logger = getLogger(__name__)
 

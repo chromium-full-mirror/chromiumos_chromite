@@ -30,7 +30,7 @@ handler that handles ``ZeroDivisionError``:
 
 .. code:: python
 
-    from opentelemetry.sdk.error_handler import ErrorHandler
+    from chromite.third_party.opentelemetry.sdk.error_handler import ErrorHandler
     from logging import getLogger
 
     logger = getLogger(__name__)
@@ -48,7 +48,7 @@ you want exceptions to be handled:
 
 .. code:: python
 
-    from opentelemetry.sdk.error_handler import GlobalErrorHandler
+    from chromite.third_party.opentelemetry.sdk.error_handler import GlobalErrorHandler
 
     with GlobalErrorHandler():
         1 / 0
@@ -62,7 +62,7 @@ exception to standard logging, the exception won't be raised any further.
 from abc import ABC, abstractmethod
 from logging import getLogger
 
-from opentelemetry.util._importlib_metadata import entry_points
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 logger = getLogger(__name__)
 

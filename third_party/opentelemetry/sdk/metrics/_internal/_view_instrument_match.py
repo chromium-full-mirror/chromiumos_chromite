@@ -18,17 +18,17 @@ from threading import Lock
 from time import time_ns
 from typing import Dict, List, Sequence
 
-from opentelemetry.metrics import Instrument
-from opentelemetry.sdk.metrics._internal.aggregation import (
+from chromite.third_party.opentelemetry.metrics import Instrument
+from chromite.third_party.opentelemetry.sdk.metrics._internal.aggregation import (
     Aggregation,
     DefaultAggregation,
     _Aggregation,
     _SumAggregation,
 )
-from opentelemetry.sdk.metrics._internal.export import AggregationTemporality
-from opentelemetry.sdk.metrics._internal.measurement import Measurement
-from opentelemetry.sdk.metrics._internal.point import DataPointT
-from opentelemetry.sdk.metrics._internal.view import View
+from chromite.third_party.opentelemetry.sdk.metrics._internal.export import AggregationTemporality
+from chromite.third_party.opentelemetry.sdk.metrics._internal.measurement import Measurement
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import DataPointT
+from chromite.third_party.opentelemetry.sdk.metrics._internal.view import View
 
 _logger = getLogger(__name__)
 

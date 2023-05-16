@@ -27,7 +27,7 @@ with the calling module name and the version of your package.
 
 The following code shows how to obtain a logger using the global :class:`.LoggerProvider`::
 
-    from opentelemetry._logs import get_logger
+    from chromite.third_party.opentelemetry._logs import get_logger
 
     logger = get_logger("example-logger")
 
@@ -39,12 +39,12 @@ from logging import getLogger
 from os import environ
 from typing import Any, Optional, cast
 
-from opentelemetry._logs.severity import SeverityNumber
-from opentelemetry.environment_variables import _OTEL_PYTHON_LOGGER_PROVIDER
-from opentelemetry.trace.span import TraceFlags
-from opentelemetry.util._once import Once
-from opentelemetry.util._providers import _load_provider
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry._logs.severity import SeverityNumber
+from chromite.third_party.opentelemetry.environment_variables import _OTEL_PYTHON_LOGGER_PROVIDER
+from chromite.third_party.opentelemetry.trace.span import TraceFlags
+from chromite.third_party.opentelemetry.util._once import Once
+from chromite.third_party.opentelemetry.util._providers import _load_provider
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 _logger = getLogger(__name__)
 

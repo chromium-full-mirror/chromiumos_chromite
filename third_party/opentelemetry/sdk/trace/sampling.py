@@ -40,13 +40,13 @@ To use a sampler, pass it into the tracer provider constructor. For example:
 
 .. code:: python
 
-    from opentelemetry import trace
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import (
+    from chromite.third_party.opentelemetry import trace
+    from chromite.third_party.opentelemetry.sdk.trace import TracerProvider
+    from chromite.third_party.opentelemetry.sdk.trace.export import (
         ConsoleSpanExporter,
         SimpleSpanProcessor,
     )
-    from opentelemetry.sdk.trace.sampling import TraceIdRatioBased
+    from chromite.third_party.opentelemetry.sdk.trace.sampling import TraceIdRatioBased
 
     # sample 1 in every 1000 traces
     sampler = TraceIdRatioBased(1/1000)
@@ -80,9 +80,9 @@ Prev example but with environment variables. Please make sure to set the env ``O
 
 .. code:: python
 
-    from opentelemetry import trace
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import (
+    from chromite.third_party.opentelemetry import trace
+    from chromite.third_party.opentelemetry.sdk.trace import TracerProvider
+    from chromite.third_party.opentelemetry.sdk.trace.export import (
         ConsoleSpanExporter,
         SimpleSpanProcessor,
     )
@@ -139,14 +139,14 @@ from types import MappingProxyType
 from typing import Optional, Sequence
 
 # pylint: disable=unused-import
-from opentelemetry.context import Context
-from opentelemetry.sdk.environment_variables import (
+from chromite.third_party.opentelemetry.context import Context
+from chromite.third_party.opentelemetry.sdk.environment_variables import (
     OTEL_TRACES_SAMPLER,
     OTEL_TRACES_SAMPLER_ARG,
 )
-from opentelemetry.trace import Link, SpanKind, get_current_span
-from opentelemetry.trace.span import TraceState
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry.trace import Link, SpanKind, get_current_span
+from chromite.third_party.opentelemetry.trace.span import TraceState
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 _logger = getLogger(__name__)
 

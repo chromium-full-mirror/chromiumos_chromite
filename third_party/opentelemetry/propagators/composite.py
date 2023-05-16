@@ -16,8 +16,8 @@ import typing
 
 from chromite.third_party.deprecated import deprecated
 
-from opentelemetry.context.context import Context
-from opentelemetry.propagators import textmap
+from chromite.third_party.opentelemetry.context.context import Context
+from chromite.third_party.opentelemetry.propagators import textmap
 
 logger = logging.getLogger(__name__)
 

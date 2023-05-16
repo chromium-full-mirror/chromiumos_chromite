@@ -15,8 +15,8 @@
 from dataclasses import dataclass
 from typing import Union
 
-from opentelemetry.metrics import Instrument
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry.metrics import Instrument
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 
 @dataclass(frozen=True)

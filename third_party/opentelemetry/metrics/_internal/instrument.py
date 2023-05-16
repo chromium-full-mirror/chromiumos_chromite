@@ -32,9 +32,9 @@ from typing import (
 )
 
 # pylint: disable=unused-import; needed for typing and sphinx
-from opentelemetry import metrics
-from opentelemetry.metrics._internal.observation import Observation
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry import metrics
+from chromite.third_party.opentelemetry.metrics._internal.observation import Observation
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 _logger = getLogger(__name__)
 

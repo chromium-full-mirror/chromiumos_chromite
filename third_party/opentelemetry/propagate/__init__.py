@@ -34,7 +34,7 @@ Example::
 
     import flask
     import requests
-    from opentelemetry import propagate
+    from chromite.third_party.opentelemetry import propagate
 
 
     PROPAGATOR = propagate.get_global_textmap()
@@ -72,10 +72,10 @@ from logging import getLogger
 from os import environ
 from typing import Optional
 
-from opentelemetry.context.context import Context
-from opentelemetry.environment_variables import OTEL_PROPAGATORS
-from opentelemetry.propagators import composite, textmap
-from opentelemetry.util._importlib_metadata import entry_points
+from chromite.third_party.opentelemetry.context.context import Context
+from chromite.third_party.opentelemetry.environment_variables import OTEL_PROPAGATORS
+from chromite.third_party.opentelemetry.propagators import composite, textmap
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 logger = getLogger(__name__)
 

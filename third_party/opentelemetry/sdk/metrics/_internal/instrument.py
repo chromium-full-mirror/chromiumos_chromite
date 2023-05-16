@@ -19,18 +19,18 @@ from typing import Dict, Generator, Iterable, List, Optional, Union
 
 # This kind of import is needed to avoid Sphinx errors.
 import opentelemetry.sdk.metrics
-from opentelemetry.metrics import CallbackT
-from opentelemetry.metrics import Counter as APICounter
-from opentelemetry.metrics import Histogram as APIHistogram
-from opentelemetry.metrics import ObservableCounter as APIObservableCounter
-from opentelemetry.metrics import ObservableGauge as APIObservableGauge
-from opentelemetry.metrics import (
+from chromite.third_party.opentelemetry.metrics import CallbackT
+from chromite.third_party.opentelemetry.metrics import Counter as APICounter
+from chromite.third_party.opentelemetry.metrics import Histogram as APIHistogram
+from chromite.third_party.opentelemetry.metrics import ObservableCounter as APIObservableCounter
+from chromite.third_party.opentelemetry.metrics import ObservableGauge as APIObservableGauge
+from chromite.third_party.opentelemetry.metrics import (
     ObservableUpDownCounter as APIObservableUpDownCounter,
 )
-from opentelemetry.metrics import UpDownCounter as APIUpDownCounter
-from opentelemetry.metrics._internal.instrument import CallbackOptions
-from opentelemetry.sdk.metrics._internal.measurement import Measurement
-from opentelemetry.sdk.util.instrumentation import InstrumentationScope
+from chromite.third_party.opentelemetry.metrics import UpDownCounter as APIUpDownCounter
+from chromite.third_party.opentelemetry.metrics._internal.instrument import CallbackOptions
+from chromite.third_party.opentelemetry.sdk.metrics._internal.measurement import Measurement
+from chromite.third_party.opentelemetry.sdk.util.instrumentation import InstrumentationScope
 
 _logger = getLogger(__name__)
 

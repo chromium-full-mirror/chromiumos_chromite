@@ -20,9 +20,9 @@ from os import environ
 from uuid import uuid4
 
 # pylint: disable=wrong-import-position
-from opentelemetry.context.context import Context, _RuntimeContext  # noqa
-from opentelemetry.environment_variables import OTEL_PYTHON_CONTEXT
-from opentelemetry.util._importlib_metadata import entry_points
+from chromite.third_party.opentelemetry.context.context import Context, _RuntimeContext  # noqa
+from chromite.third_party.opentelemetry.environment_variables import OTEL_PYTHON_CONTEXT
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 logger = logging.getLogger(__name__)
 _RUNTIME_CONTEXT = None  # type: typing.Optional[_RuntimeContext]

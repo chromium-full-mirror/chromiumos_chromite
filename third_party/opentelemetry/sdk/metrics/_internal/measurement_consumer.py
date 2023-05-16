@@ -23,13 +23,13 @@ from typing import Iterable, List, Mapping
 import opentelemetry.sdk.metrics
 import opentelemetry.sdk.metrics._internal.instrument
 import opentelemetry.sdk.metrics._internal.sdk_configuration
-from opentelemetry.metrics._internal.instrument import CallbackOptions
-from opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
-from opentelemetry.sdk.metrics._internal.measurement import Measurement
-from opentelemetry.sdk.metrics._internal.metric_reader_storage import (
+from chromite.third_party.opentelemetry.metrics._internal.instrument import CallbackOptions
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
+from chromite.third_party.opentelemetry.sdk.metrics._internal.measurement import Measurement
+from chromite.third_party.opentelemetry.sdk.metrics._internal.metric_reader_storage import (
     MetricReaderStorage,
 )
-from opentelemetry.sdk.metrics._internal.point import Metric
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import Metric
 
 
 class MeasurementConsumer(ABC):

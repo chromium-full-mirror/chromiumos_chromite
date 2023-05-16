@@ -20,19 +20,19 @@ from typing import Optional, Sequence
 
 # This kind of import is needed to avoid Sphinx errors.
 import opentelemetry.sdk.metrics
-from opentelemetry.metrics import Counter as APICounter
-from opentelemetry.metrics import Histogram as APIHistogram
-from opentelemetry.metrics import Meter as APIMeter
-from opentelemetry.metrics import MeterProvider as APIMeterProvider
-from opentelemetry.metrics import NoOpMeter
-from opentelemetry.metrics import ObservableCounter as APIObservableCounter
-from opentelemetry.metrics import ObservableGauge as APIObservableGauge
-from opentelemetry.metrics import (
+from chromite.third_party.opentelemetry.metrics import Counter as APICounter
+from chromite.third_party.opentelemetry.metrics import Histogram as APIHistogram
+from chromite.third_party.opentelemetry.metrics import Meter as APIMeter
+from chromite.third_party.opentelemetry.metrics import MeterProvider as APIMeterProvider
+from chromite.third_party.opentelemetry.metrics import NoOpMeter
+from chromite.third_party.opentelemetry.metrics import ObservableCounter as APIObservableCounter
+from chromite.third_party.opentelemetry.metrics import ObservableGauge as APIObservableGauge
+from chromite.third_party.opentelemetry.metrics import (
     ObservableUpDownCounter as APIObservableUpDownCounter,
 )
-from opentelemetry.metrics import UpDownCounter as APIUpDownCounter
-from opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
-from opentelemetry.sdk.metrics._internal.instrument import (
+from chromite.third_party.opentelemetry.metrics import UpDownCounter as APIUpDownCounter
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
+from chromite.third_party.opentelemetry.sdk.metrics._internal.instrument import (
     _Counter,
     _Histogram,
     _ObservableCounter,
@@ -40,16 +40,16 @@ from opentelemetry.sdk.metrics._internal.instrument import (
     _ObservableUpDownCounter,
     _UpDownCounter,
 )
-from opentelemetry.sdk.metrics._internal.measurement_consumer import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.measurement_consumer import (
     MeasurementConsumer,
     SynchronousMeasurementConsumer,
 )
-from opentelemetry.sdk.metrics._internal.sdk_configuration import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.sdk_configuration import (
     SdkConfiguration,
 )
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.util.instrumentation import InstrumentationScope
-from opentelemetry.util._once import Once
+from chromite.third_party.opentelemetry.sdk.resources import Resource
+from chromite.third_party.opentelemetry.sdk.util.instrumentation import InstrumentationScope
+from chromite.third_party.opentelemetry.util._once import Once
 
 _logger = getLogger(__name__)
 

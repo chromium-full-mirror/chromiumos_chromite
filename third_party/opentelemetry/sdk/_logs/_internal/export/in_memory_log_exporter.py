@@ -15,8 +15,8 @@
 import threading
 import typing
 
-from opentelemetry.sdk._logs import LogData
-from opentelemetry.sdk._logs.export import LogExporter, LogExportResult
+from chromite.third_party.opentelemetry.sdk._logs import LogData
+from chromite.third_party.opentelemetry.sdk._logs.export import LogExporter, LogExportResult
 
 
 class InMemoryLogExporter(LogExporter):

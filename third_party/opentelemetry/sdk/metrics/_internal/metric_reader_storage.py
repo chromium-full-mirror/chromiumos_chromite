@@ -17,16 +17,16 @@ from threading import RLock
 from time import time_ns
 from typing import Dict, List
 
-from opentelemetry.metrics import (
+from chromite.third_party.opentelemetry.metrics import (
     Asynchronous,
     Counter,
     Instrument,
     ObservableCounter,
 )
-from opentelemetry.sdk.metrics._internal._view_instrument_match import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal._view_instrument_match import (
     _ViewInstrumentMatch,
 )
-from opentelemetry.sdk.metrics._internal.aggregation import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.aggregation import (
     Aggregation,
     ExplicitBucketHistogramAggregation,
     _DropAggregation,
@@ -35,9 +35,9 @@ from opentelemetry.sdk.metrics._internal.aggregation import (
     _LastValueAggregation,
     _SumAggregation,
 )
-from opentelemetry.sdk.metrics._internal.export import AggregationTemporality
-from opentelemetry.sdk.metrics._internal.measurement import Measurement
-from opentelemetry.sdk.metrics._internal.point import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.export import AggregationTemporality
+from chromite.third_party.opentelemetry.sdk.metrics._internal.measurement import Measurement
+from chromite.third_party.opentelemetry.sdk.metrics._internal.point import (
     ExponentialHistogram,
     Gauge,
     Histogram,
@@ -47,11 +47,11 @@ from opentelemetry.sdk.metrics._internal.point import (
     ScopeMetrics,
     Sum,
 )
-from opentelemetry.sdk.metrics._internal.sdk_configuration import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.sdk_configuration import (
     SdkConfiguration,
 )
-from opentelemetry.sdk.metrics._internal.view import View
-from opentelemetry.sdk.util.instrumentation import InstrumentationScope
+from chromite.third_party.opentelemetry.sdk.metrics._internal.view import View
+from chromite.third_party.opentelemetry.sdk.util.instrumentation import InstrumentationScope
 
 _logger = getLogger(__name__)
 

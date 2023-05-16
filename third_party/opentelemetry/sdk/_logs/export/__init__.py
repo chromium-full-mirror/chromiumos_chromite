@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from opentelemetry.sdk._logs._internal.export import (
+from chromite.third_party.opentelemetry.sdk._logs._internal.export import (
     BatchLogRecordProcessor,
     ConsoleLogExporter,
     LogExporter,
@@ -21,7 +21,7 @@ from opentelemetry.sdk._logs._internal.export import (
 )
 
 # The point module is not in the export directory to avoid a circular import.
-from opentelemetry.sdk._logs._internal.export.in_memory_log_exporter import (
+from chromite.third_party.opentelemetry.sdk._logs._internal.export.in_memory_log_exporter import (
     InMemoryLogExporter,
 )
 

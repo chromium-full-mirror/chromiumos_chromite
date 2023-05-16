@@ -13,7 +13,7 @@
 # limitations under the License.
 from contextvars import ContextVar
 
-from opentelemetry.context.context import Context, _RuntimeContext
+from chromite.third_party.opentelemetry.context.context import Context, _RuntimeContext
 
 
 class ContextVarsRuntimeContext(_RuntimeContext):

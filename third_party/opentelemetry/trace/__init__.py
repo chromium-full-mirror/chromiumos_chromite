@@ -34,7 +34,7 @@ context. New spans are "attached" to the context in that they are
 created as children of the currently active span, and the newly-created span
 can optionally become the new active span::
 
-    from opentelemetry import trace
+    from chromite.third_party.opentelemetry import trace
 
     tracer = trace.get_tracer(__name__)
 
@@ -50,7 +50,7 @@ When creating a span that's "detached" from the context the active span doesn't
 change, and the caller is responsible for managing the span's lifetime::
 
     # Explicit parent span assignment is done via the Context
-    from opentelemetry.trace import set_span_in_context
+    from chromite.third_party.opentelemetry.trace import set_span_in_context
 
     context = set_span_in_context(parent)
     child = tracer.start_span("child", context=context)

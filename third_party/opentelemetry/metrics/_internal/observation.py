@@ -14,7 +14,7 @@
 
 from typing import Union
 
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 
 class Observation:

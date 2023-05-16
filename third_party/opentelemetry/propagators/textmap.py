@@ -15,7 +15,7 @@
 import abc
 import typing
 
-from opentelemetry.context.context import Context
+from chromite.third_party.opentelemetry.context.context import Context
 
 CarrierT = typing.TypeVar("CarrierT")
 CarrierValT = typing.Union[typing.List[str], str]

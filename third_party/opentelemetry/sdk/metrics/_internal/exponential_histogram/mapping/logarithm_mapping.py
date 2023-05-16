@@ -15,14 +15,14 @@
 from math import exp, floor, ldexp, log
 from threading import Lock
 
-from opentelemetry.sdk.metrics._internal.exponential_histogram.mapping import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exponential_histogram.mapping import (
     Mapping,
 )
-from opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.errors import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.errors import (
     MappingOverflowError,
     MappingUnderflowError,
 )
-from opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.ieee_754 import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exponential_histogram.mapping.ieee_754 import (
     MAX_NORMAL_EXPONENT,
     MIN_NORMAL_EXPONENT,
     MIN_NORMAL_VALUE,

@@ -22,7 +22,7 @@ from typing import (
     overload,
 )
 
-from opentelemetry.util.types import AttributesAsKey, AttributeValue
+from chromite.third_party.opentelemetry.util.types import AttributesAsKey, AttributeValue
 
 _T = TypeVar("_T")
 _KT = TypeVar("_KT")

@@ -20,9 +20,9 @@ from typing import Optional, Sequence, Union
 
 # This kind of import is needed to avoid Sphinx errors.
 import opentelemetry.sdk.metrics._internal
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.util.instrumentation import InstrumentationScope
-from opentelemetry.util.types import Attributes
+from chromite.third_party.opentelemetry.sdk.resources import Resource
+from chromite.third_party.opentelemetry.sdk.util.instrumentation import InstrumentationScope
+from chromite.third_party.opentelemetry.util.types import Attributes
 
 
 @dataclass(frozen=True)

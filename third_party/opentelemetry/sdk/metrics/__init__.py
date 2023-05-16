@@ -13,9 +13,9 @@
 # limitations under the License.
 
 
-from opentelemetry.sdk.metrics._internal import Meter, MeterProvider
-from opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
-from opentelemetry.sdk.metrics._internal.instrument import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal import Meter, MeterProvider
+from chromite.third_party.opentelemetry.sdk.metrics._internal.exceptions import MetricsTimeoutError
+from chromite.third_party.opentelemetry.sdk.metrics._internal.instrument import (
     Counter,
     Histogram,
     ObservableCounter,

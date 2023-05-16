@@ -20,8 +20,8 @@ from typing import Optional, Set, Type
 # FIXME import from typing when support for 3.7 is removed
 from typing_extensions import final
 
-from opentelemetry.metrics import Instrument
-from opentelemetry.sdk.metrics._internal.aggregation import (
+from chromite.third_party.opentelemetry.metrics import Instrument
+from chromite.third_party.opentelemetry.sdk.metrics._internal.aggregation import (
     Aggregation,
     DefaultAggregation,
 )

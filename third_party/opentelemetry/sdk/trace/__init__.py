@@ -41,11 +41,11 @@ from warnings import filterwarnings
 
 from deprecated import deprecated
 
-from opentelemetry import context as context_api
-from opentelemetry import trace as trace_api
-from opentelemetry.attributes import BoundedAttributes
-from opentelemetry.sdk import util
-from opentelemetry.sdk.environment_variables import (
+from chromite.third_party.opentelemetry import context as context_api
+from chromite.third_party.opentelemetry import trace as trace_api
+from chromite.third_party.opentelemetry.attributes import BoundedAttributes
+from chromite.third_party.opentelemetry.sdk import util
+from chromite.third_party.opentelemetry.sdk.environment_variables import (
     OTEL_ATTRIBUTE_COUNT_LIMIT,
     OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT,
     OTEL_EVENT_ATTRIBUTE_COUNT_LIMIT,
@@ -55,17 +55,17 @@ from opentelemetry.sdk.environment_variables import (
     OTEL_SPAN_EVENT_COUNT_LIMIT,
     OTEL_SPAN_LINK_COUNT_LIMIT,
 )
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import sampling
-from opentelemetry.sdk.trace.id_generator import IdGenerator, RandomIdGenerator
-from opentelemetry.sdk.util import BoundedList
-from opentelemetry.sdk.util.instrumentation import (
+from chromite.third_party.opentelemetry.sdk.resources import Resource
+from chromite.third_party.opentelemetry.sdk.trace import sampling
+from chromite.third_party.opentelemetry.sdk.trace.id_generator import IdGenerator, RandomIdGenerator
+from chromite.third_party.opentelemetry.sdk.util import BoundedList
+from chromite.third_party.opentelemetry.sdk.util.instrumentation import (
     InstrumentationInfo,
     InstrumentationScope,
 )
-from opentelemetry.trace import SpanContext
-from opentelemetry.trace.status import Status, StatusCode
-from opentelemetry.util import types
+from chromite.third_party.opentelemetry.trace import SpanContext
+from chromite.third_party.opentelemetry.trace.status import Status, StatusCode
+from chromite.third_party.opentelemetry.util import types
 
 logger = logging.getLogger(__name__)
 

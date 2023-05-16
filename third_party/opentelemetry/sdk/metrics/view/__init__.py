@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from opentelemetry.sdk.metrics._internal.aggregation import (
+from chromite.third_party.opentelemetry.sdk.metrics._internal.aggregation import (
     Aggregation,
     DefaultAggregation,
     DropAggregation,
@@ -21,7 +21,7 @@ from opentelemetry.sdk.metrics._internal.aggregation import (
     LastValueAggregation,
     SumAggregation,
 )
-from opentelemetry.sdk.metrics._internal.view import View
+from chromite.third_party.opentelemetry.sdk.metrics._internal.view import View
 
 __all__ = [
     "Aggregation",

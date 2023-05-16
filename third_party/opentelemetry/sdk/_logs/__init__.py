@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from opentelemetry.sdk._logs._internal import (
+from chromite.third_party.opentelemetry.sdk._logs._internal import (
     LogData,
     Logger,
     LoggerProvider,

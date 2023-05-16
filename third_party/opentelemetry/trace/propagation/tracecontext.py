@@ -15,11 +15,11 @@
 import re
 import typing
 
-from opentelemetry import trace
-from opentelemetry.context.context import Context
-from opentelemetry.propagators import textmap
-from opentelemetry.trace import format_span_id, format_trace_id
-from opentelemetry.trace.span import TraceState
+from chromite.third_party.opentelemetry import trace
+from chromite.third_party.opentelemetry.context.context import Context
+from chromite.third_party.opentelemetry.propagators import textmap
+from chromite.third_party.opentelemetry.trace import format_span_id, format_trace_id
+from chromite.third_party.opentelemetry.trace.span import TraceState
 
 
 class TraceContextTextMapPropagator(textmap.TextMapPropagator):

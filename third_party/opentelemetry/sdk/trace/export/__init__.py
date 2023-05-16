@@ -23,21 +23,21 @@ from os import environ, linesep
 from time import time_ns
 from typing import Optional
 
-from opentelemetry.context import (
+from chromite.third_party.opentelemetry.context import (
     _SUPPRESS_INSTRUMENTATION_KEY,
     Context,
     attach,
     detach,
     set_value,
 )
-from opentelemetry.sdk.environment_variables import (
+from chromite.third_party.opentelemetry.sdk.environment_variables import (
     OTEL_BSP_EXPORT_TIMEOUT,
     OTEL_BSP_MAX_EXPORT_BATCH_SIZE,
     OTEL_BSP_MAX_QUEUE_SIZE,
     OTEL_BSP_SCHEDULE_DELAY,
 )
-from opentelemetry.sdk.trace import ReadableSpan, Span, SpanProcessor
-from opentelemetry.util._once import Once
+from chromite.third_party.opentelemetry.sdk.trace import ReadableSpan, Span, SpanProcessor
+from chromite.third_party.opentelemetry.util._once import Once
 
 _DEFAULT_SCHEDULE_DELAY_MILLIS = 5000
 _DEFAULT_MAX_EXPORT_BATCH_SIZE = 512
