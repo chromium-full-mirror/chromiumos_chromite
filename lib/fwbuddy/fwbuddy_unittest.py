@@ -91,12 +91,27 @@ def test_generate_unsigned_gspaths(setup):
     )
 
     expected_gspaths = [
-        "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-firmware/R89-13606.459.0/firmware_from_source.tar.bz2",
-        "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
-        "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/firmware_from_source.tar.bz2",
+        (
+            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+            "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+        ),
+        (
+            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+            "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+        ),
+        (
+            "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/"
+            "firmware_from_source.tar.bz2"
+        ),
     ]
 
-    assert fwbuddy.generate_gspaths(fw_image).sort() == expected_gspaths.sort()
+    # This could be neater if https://github.com/pytest-dev/pytest/issues/10032
+    # is fixed.
+    result = fwbuddy.generate_gspaths(fw_image)
+    result.sort()
+    expected_gspaths.sort()
+
+    assert result == expected_gspaths
 
 
 def test_generate_signed_gspaths(setup):
@@ -112,10 +127,11 @@ def test_generate_signed_gspaths(setup):
     )
 
     expected_gspaths = [
-        "gs://chromeos-releases/canary-channel/dedede/13606.459.0/ChromeOS-firmware-R89-13606.459.0-dedede.tar.bz2"
+        "gs://chromeos-releases/canary-channel/dedede/13606.459.0/ChromeOS-"
+        "firmware-R89-13606.459.0-dedede.tar.bz2"
     ]
 
-    assert fwbuddy.generate_gspaths(fw_image).sort() == expected_gspaths.sort()
+    assert fwbuddy.generate_gspaths(fw_image) == expected_gspaths
 
 
 def test_determine_gspath(setup, monkeypatch):
