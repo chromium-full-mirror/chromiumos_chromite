@@ -62,7 +62,7 @@ exception to standard logging, the exception won't be raised any further.
 from abc import ABC, abstractmethod
 from logging import getLogger
 
-from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
+from importlib.metadata import entry_points
 
 logger = getLogger(__name__)
 
@@ -118,8 +118,8 @@ class GlobalErrorHandler:
 
         plugin_handled = False
 
-        error_handler_entry_points = entry_points(
-            group="opentelemetry_error_handler"
+        error_handler_entry_points = entry_points().get(
+            "opentelemetry_error_handler", list()
         )
 
         for error_handler_entry_point in error_handler_entry_points:

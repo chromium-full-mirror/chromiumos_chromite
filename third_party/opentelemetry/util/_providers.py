@@ -16,7 +16,7 @@ from logging import getLogger
 from os import environ
 from typing import TYPE_CHECKING, TypeVar, cast
 
-from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
+from importlib.metadata import entry_points
 
 if TYPE_CHECKING:
     from chromite.third_party.opentelemetry.metrics import MeterProvider
@@ -42,13 +42,13 @@ def _load_provider(
             Provider,
             next(  # type: ignore
                 iter(  # type: ignore
-                    entry_points(  # type: ignore
-                        group=f"opentelemetry_{provider}",
-                        name=provider_name,
+                     [x for x in entry_points().get(f"opentelemetry_{provider}", list())
+                      if x.name == provider_name]
                     )
-                )
             ).load()(),
         )
+    except StopIteration:
+        return TracerProvider()
     except Exception:  # pylint: disable=broad-except
         logger.exception("Failed to load configured provider %s", provider)
         raise

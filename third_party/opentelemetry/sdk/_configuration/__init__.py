@@ -56,7 +56,7 @@ from chromite.third_party.opentelemetry.sdk.trace.id_generator import IdGenerato
 from chromite.third_party.opentelemetry.sdk.trace.sampling import Sampler
 from chromite.third_party.opentelemetry.semconv.resource import ResourceAttributes
 from chromite.third_party.opentelemetry.trace import set_tracer_provider
-from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
+from importlib.metadata import entry_points
 
 _EXPORTER_OTLP = "otlp"
 _EXPORTER_OTLP_PROTO_GRPC = "otlp_proto_grpc"
@@ -100,9 +100,7 @@ def _import_config_components(
                     selected_component,
                     next(
                         iter(
-                            entry_points(
-                                group=entry_point_name, name=selected_component
-                            )
+                            [x for x in entry_points().get(entry_point_name, list()) if x.name == selected_component]
                         )
                     ).load(),
                 )
