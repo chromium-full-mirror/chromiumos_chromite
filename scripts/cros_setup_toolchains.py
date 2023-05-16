@@ -107,6 +107,7 @@ TARGET_COMPILER_RT_ENABLED = (
 CROSSDEV_COMPILER_RT_ARGS = ["--ex-pkg", "sys-libs/compiler-rt"]
 
 TARGET_LLVM_PKGS_ENABLED = (
+    "arm-none-eabi",
     "armv7m-cros-eabi",
     "armv7a-cros-linux-gnueabi",
     "armv7a-cros-linux-gnueabihf",
@@ -1536,6 +1537,20 @@ def main(argv):
         if options.include_boards
         else set()
     )
+
+    # pylint: disable=global-statement
+    # Disable installing libc++ for arm-none-eabi till new binary prebuilt
+    # package is available. TODO(b/281531340): Remove once done.
+    global TARGET_LLVM_PKGS_ENABLED
+    if options.usepkg:
+        TARGET_LLVM_PKGS_ENABLED = (
+            "armv7m-cros-eabi",
+            "armv7a-cros-linux-gnueabi",
+            "armv7a-cros-linux-gnueabihf",
+            "aarch64-cros-linux-gnu",
+            "i686-cros-linux-gnu",
+            "x86_64-cros-linux-gnu",
+        )
 
     if options.cfg_name:
         ShowConfig(options.cfg_name)
