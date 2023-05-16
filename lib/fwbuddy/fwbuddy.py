@@ -24,7 +24,10 @@ fwbuddy://<board>/<model>/<firmware-name>/<version>/<image-type>/<firmware-type>
         firmware-type: {serial, dev, etc} OPTIONAL
 """
 
-BUG_SUBMIT_URL = "https://issuetracker.google.com/issues/new?component=1094001&template=1670797"
+BUG_SUBMIT_URL = (
+    "https://issuetracker.google.com/issues/"
+    "new?component=1094001&template=1670797"
+)
 
 # TODO(b/280096504) Add support for channel specific versions, like 'latest-canary'
 STABLE = "stable"
@@ -62,15 +65,29 @@ AP_FIRMWARE_TYPES = [SERIAL, DEV, NET]
 # All known file path schemas that unsigned firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 UNSIGNED_GSPATH_SCHEMAS = [
-    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
-    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}",
-    f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
+        "B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
+        f"%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}"
+    ),
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
+        "B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
+        f"%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}"
+    ),
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-"
+        "%(major_version)s.%(minor_version)s."
+        f"%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}"
+    ),
 ]
 
 # All known file path schemas that signed firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 SIGNED_GSPATH_SCHEMAS = [
-    f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s.%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
+    f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s."
+    "%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-"
+    "%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
 ]
 
 # Example: R89-13606.459.0

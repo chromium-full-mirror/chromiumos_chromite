@@ -73,8 +73,8 @@ class GerritHelperNotAvailable(gerrit.GerritException):
     def __str__(self):
         return (
             "Needed a remote=%s gerrit_helper, but one isn't allowed by this "
-            "HelperPool instance."
-        ) % (self.remote,)
+            "HelperPool instance." % (self.remote,)
+        )
 
 
 def _PatchWrapException(functor):

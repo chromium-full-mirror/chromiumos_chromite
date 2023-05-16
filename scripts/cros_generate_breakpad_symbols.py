@@ -73,7 +73,10 @@ ALLOWLIST_NO_SYMBOL_FILE_VALIDATION = {
     # jacuzzi, scarlet, kukui, etc.
     "usr/bin/rma_reset",
     # Virtual dynamic shared object, not expected to have STACK records.
-    "opt/google/containers/android/ndk_translation/lib/arm/libndk_translation_vdso.so",
+    (
+        "opt/google/containers/android/ndk_translation/lib/arm/"
+        "libndk_translation_vdso.so"
+    ),
     # TODO(b/279665879): Figure out why this ndk_translation libraries is not
     # getting STACK records.
     "opt/google/containers/android/ndk_translation/lib/arm/libdexfile.so",
@@ -968,8 +971,10 @@ def main(argv):
         "file_list",
         nargs="*",
         default=None,
-        help="generate symbols for only these files "
-        "(e.g. /build/$BOARD/usr/bin/foo)",
+        help=(
+            "generate symbols for only these files "
+            "(e.g. /build/$BOARD/usr/bin/foo)"
+        ),
     )
 
     opts = parser.parse_args(argv)

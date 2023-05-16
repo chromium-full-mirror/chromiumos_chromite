@@ -160,10 +160,8 @@ class CopybotDownstream:
                         reviewer_found = True
                 if not reviewer_found:
                     warning_strings.append(
-                        (
-                            f"Found filepath({path}) which requires"
-                            f" downstreamer review fromdomain(s) {str(domains)}"
-                        )
+                        f"Found filepath({path}) which requires"
+                        f" downstreamer review fromdomain(s) {str(domains)}"
                     )
         return warning_strings
 

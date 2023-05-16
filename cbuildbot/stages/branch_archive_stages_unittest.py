@@ -394,37 +394,43 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
             [
                 mock.call(
                     "/factory.zip",
-                    "gs://chromeos-image-archive/board-factory-tryjob/R1-1.2.3-bNone",
+                    "gs://chromeos-image-archive/board-factory-tryjob/R1-1.2.3-"
+                    "bNone",
                     recursive=True,
                     parallel=True,
                 ),
                 mock.call(
                     "/factory.zip",
-                    "gs://chromeos-extra-archive/board-factory-tryjob/R1-1.2.3-bNone",
+                    "gs://chromeos-extra-archive/board-factory-tryjob/R1-1.2.3-"
+                    "bNone",
                     recursive=True,
                     parallel=True,
                 ),
                 mock.call(
                     "/tempdir/chromiumos_test_image.tar.xz",
-                    "gs://chromeos-image-archive/board-factory-tryjob/R1-1.2.3-bNone",
+                    "gs://chromeos-image-archive/board-factory-tryjob/R1-1.2.3-"
+                    "bNone",
                     recursive=True,
                     parallel=True,
                 ),
                 mock.call(
                     "/tempdir/chromiumos_test_image.tar.xz",
-                    "gs://chromeos-extra-archive/board-factory-tryjob/R1-1.2.3-bNone",
+                    "gs://chromeos-extra-archive/board-factory-tryjob/R1-1.2.3-"
+                    "bNone",
                     recursive=True,
                     parallel=True,
                 ),
                 mock.call(
                     "/tempdir/metadata.json",
-                    "gs://chromeos-image-archive/board-factory-tryjob/R1-1.2.3-bNone",
+                    "gs://chromeos-image-archive/board-factory-tryjob/R1-1.2.3-"
+                    "bNone",
                     recursive=True,
                     parallel=True,
                 ),
                 mock.call(
                     "/tempdir/metadata.json",
-                    "gs://chromeos-extra-archive/board-factory-tryjob/R1-1.2.3-bNone",
+                    "gs://chromeos-extra-archive/board-factory-tryjob/R1-1.2.3-"
+                    "bNone",
                     recursive=True,
                     parallel=True,
                 ),

@@ -254,7 +254,10 @@ class GnLintTests(LintTestCase):
                                                     "child": [
                                                         {
                                                             "type": "LITERAL",
-                                                            "value": '"//common-mk:pie"',
+                                                            "value": (
+                                                                '"//common-'
+                                                                'mk:pie"'
+                                                            ),
                                                         }
                                                     ],
                                                     "type": "LIST",
@@ -294,7 +297,9 @@ class GnLintTests(LintTestCase):
                                                     "child": [
                                                         {
                                                             "type": "LITERAL",
-                                                            "value": '":static_pie"',
+                                                            "value": (
+                                                                '":static_pie"'
+                                                            ),
                                                         }
                                                     ],
                                                     "type": "LIST",
@@ -353,7 +358,8 @@ class GnLintTests(LintTestCase):
                                                         {
                                                             "type": "LITERAL",
                                                             "value": (
-                                                                '"//common-mk:pic"'
+                                                                '"//common-'
+                                                                'mk:pic"'
                                                             ),
                                                         }
                                                     ],
@@ -374,7 +380,8 @@ class GnLintTests(LintTestCase):
                                                         {
                                                             "type": "LITERAL",
                                                             "value": (
-                                                                '"//common-mk:pie"'
+                                                                '"//common-'
+                                                                'mk:pie"'
                                                             ),
                                                         }
                                                     ],
@@ -414,7 +421,9 @@ class GnLintTests(LintTestCase):
                                                     "child": [
                                                         {
                                                             "type": "LITERAL",
-                                                            "value": '":static_pic"',
+                                                            "value": (
+                                                                '":static_pic"'
+                                                            ),
                                                         }
                                                     ],
                                                     "type": "LIST",

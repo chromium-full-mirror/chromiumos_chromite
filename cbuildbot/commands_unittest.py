@@ -1486,7 +1486,10 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             )
         self.assertCommandContains(
             [
-                "/buildroot/chromite/bin/cros_generate_android_breakpad_symbols",
+                (
+                    "/buildroot/chromite/bin/"
+                    "cros_generate_android_breakpad_symbols"
+                ),
                 "--symbols_file=symbols.zip",
                 "--breakpad_dir=/build/MyBoard/usr/lib/debug/breakpad",
             ]

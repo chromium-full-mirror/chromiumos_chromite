@@ -172,20 +172,16 @@ class BuildSpecFunctionsTest(cros_test_lib.MockTempDirTestCase):
             [
                 mock.call(
                     self.manifest_versions_int,
-                    (
-                        "https://chrome-internal.googlesource.com/chromeos/"
-                        "manifest-versions"
-                    ),
+                    "https://chrome-internal.googlesource.com/chromeos/"
+                    "manifest-versions",
                     "spec",
                     "int mani",
                     True,
                 ),
                 mock.call(
                     self.manifest_versions_ext,
-                    (
-                        "https://chromium.googlesource.com/chromiumos/"
-                        "manifest-versions"
-                    ),
+                    "https://chromium.googlesource.com/chromiumos/"
+                    "manifest-versions",
                     "spec",
                     "filtered mani",
                     True,
@@ -212,10 +208,8 @@ class BuildSpecFunctionsTest(cros_test_lib.MockTempDirTestCase):
             [
                 mock.call(
                     self.manifest_versions_int,
-                    (
-                        "https://chrome-internal.googlesource.com/chromeos/"
-                        "manifest-versions"
-                    ),
+                    "https://chrome-internal.googlesource.com/chromeos/"
+                    "manifest-versions",
                     "spec",
                     "int mani",
                     False,

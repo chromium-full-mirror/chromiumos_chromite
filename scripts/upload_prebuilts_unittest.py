@@ -764,16 +764,18 @@ LATEST_SDK_UPREV_TARGET=\"2000\""""
         """Make sure processing of board-specific overlay tarballs works."""
         to_tarballs = (
             (
-                "i686-pc-linux-gnu:"
-                "/some/path/built-sdk-overlay-toolchains-i686-pc-linux-gnu.tar.xz"
+                "i686-pc-linux-gnu:/some/path/built-sdk-overlay-toolchains-"
+                "i686-pc-linux-gnu.tar.xz"
             ),
             (
-                "armv7a-cros-linux-gnueabi-arm-none-eabi:"
-                "/some/path/built-sdk-overlay-toolchains-armv7a-cros-linux-gnueabi-"
-                "arm-none-eabi"
+                "armv7a-cros-linux-gnueabi-arm-none-eabi:/some/path/built-sdk-"
+                "overlay-toolchains-armv7a-cros-linux-gnueabi-arm-none-eabi"
             ),
         )
-        to_upload_path = "1994/04/cros-sdk-overlay-toolchains-%(toolchains)s-1994.04.02.tar.xz"
+        to_upload_path = (
+            "1994/04/cros-sdk-overlay-toolchains-%(toolchains)s-1994.04.02."
+            "tar.xz"
+        )
         self.testSdkUpload(
             to_tarballs=to_tarballs, to_upload_path=to_upload_path
         )

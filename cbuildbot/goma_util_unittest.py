@@ -99,7 +99,10 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
             [
                 (
                     "gs://chrome-goma-log/2017/04/26/stub-host-name",
-                    "compiler_proxy-subproc.host.log.INFO.20170426-120000.000000.gz",
+                    (
+                        "compiler_proxy-subproc.host.log.INFO.20170426-120000."
+                        "000000.gz"
+                    ),
                     ["x-goog-meta-builderinfo:" + expect_builderinfo],
                 ),
                 (
@@ -187,7 +190,10 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
             [
                 (
                     "gs://chrome-goma-log/2017/04/26/stub-host-name",
-                    "compiler_proxy-subproc.host.log.INFO.20170426-120000.000000.gz",
+                    (
+                        "compiler_proxy-subproc.host.log.INFO.20170426-120000."
+                        "000000.gz"
+                    ),
                     ["x-goog-meta-builderinfo:" + expect_builderinfo],
                 ),
                 (
@@ -255,7 +261,10 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
             [
                 (
                     "gs://chrome-goma-log/2017/08/21/stub-host-name",
-                    "compiler_proxy-subproc.host.log.INFO.20170821-120000.000000.gz",
+                    (
+                        "compiler_proxy-subproc.host.log.INFO.20170821-120000."
+                        "000000.gz"
+                    ),
                 ),
                 (
                     "gs://chrome-goma-log/2017/08/21/stub-host-name",

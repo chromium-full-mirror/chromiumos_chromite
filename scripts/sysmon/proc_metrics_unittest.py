@@ -60,7 +60,8 @@ class TestProcMetrics(cros_test_lib.TestCase):
 
     def setUp(self):
         patcher = mock.patch(
-            "chromite.third_party.infra_libs.ts_mon.common.interface.state.store",
+            "chromite.third_party.infra_libs.ts_mon.common.interface.state."
+            "store",
             autospec=True,
         )
         self.store = patcher.start()
@@ -128,9 +129,9 @@ class TestProcMetrics(cros_test_lib.TestCase):
                     name="python",
                     cmdline=[
                         (
-                            "/usr/local/google/home/chromeos-test/.cache/cros_venv"
-                            "/venv-2.7.6-5addca6cf590166d7b70e22a95bea4a0"
-                            "/bin/python"
+                            "/usr/local/google/home/chromeos-test/.cache/"
+                            "cros_venv/venv-2.7.6-"
+                            "5addca6cf590166d7b70e22a95bea4a0/bin/python"
                         ),
                         "-m",
                         "chromite.scripts.sysmon",
@@ -178,8 +179,10 @@ class TestProcMetrics(cros_test_lib.TestCase):
                     name="python3.8",
                     cmdline=[
                         "/usr/bin/python3.8",
-                        "/home/chromeos-test/skylab_bots/"
-                        "c6-r16-r17-h13.2757785382/swarming_bot.1.zip",
+                        (
+                            "/home/chromeos-test/skylab_bots/"
+                            "c6-r16-r17-h13.2757785382/swarming_bot.1.zip"
+                        ),
                         "start_bot",
                     ],
                 ),
@@ -191,8 +194,10 @@ class TestProcMetrics(cros_test_lib.TestCase):
                     name="python",
                     cmdline=[
                         "python",
-                        "/tmp/chromeos-cache/common/gsutil_4.57.tar.gz/"
-                        "gsutil/gsutil",
+                        (
+                            "/tmp/chromeos-cache/common/gsutil_4.57.tar.gz/"
+                            "gsutil/gsutil"
+                        ),
                         "-o",
                         "Boto:num_retries=10",
                         "cat",

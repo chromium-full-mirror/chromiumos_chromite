@@ -507,10 +507,22 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         self.setupMockRuntimeDataBuild(android_version)
 
         # Override few as existing.
-        path0 = "gs://r/android-package/ureadahead_pack_host_x86_64_houdini_user_100.tar"
-        path1 = "gs://r/android-package/ureadahead_pack_host_x86_64_ndk_user_100.tar"
-        path2 = "gs://r/android-package/ureadahead_pack_host_arm64_native_user_100.tar"
-        path3 = "gs://r/android-package/ureadahead_pack_host_x86_64_houdini_userdebug_100.tar"
+        path0 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_x86_64_houdini_user_100.tar"
+        )
+        path1 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_x86_64_ndk_user_100.tar"
+        )
+        path2 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_arm64_native_user_100.tar"
+        )
+        path3 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_x86_64_houdini_userdebug_100.tar"
+        )
         path4 = (
             "gs://r/android-package/packages_reference_arm_userdebug_100.tar"
         )
@@ -550,10 +562,22 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
             self.runtime_artifacts_bucket_url,
         )
 
-        expectation0 = "gs://r/android-package/ureadahead_pack_host_x86_64_houdini_user_${PV}.tar"
-        expectation1 = "gs://r/android-package/ureadahead_pack_host_x86_64_ndk_user_${PV}.tar"
-        expectation2 = "gs://r/android-package/ureadahead_pack_host_arm64_native_user_${PV}.tar"
-        expectation3 = "gs://r/android-package/ureadahead_pack_host_x86_64_houdini_userdebug_${PV}.tar"
+        expectation0 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_x86_64_houdini_user_${PV}.tar"
+        )
+        expectation1 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_x86_64_ndk_user_${PV}.tar"
+        )
+        expectation2 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_arm64_native_user_${PV}.tar"
+        )
+        expectation3 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_x86_64_houdini_userdebug_${PV}.tar"
+        )
         expectation4 = (
             "gs://r/android-package/packages_reference_arm_userdebug_${PV}.tar"
         )
@@ -583,8 +607,14 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         self.setupMockRuntimeDataBuild(android_version)
 
         # Invalid paths that should be ignored.
-        invalid_path1 = "gs://r/android-package/ureadahead_pack_host_arm64_houdini_user_100.tar"
-        invalid_path2 = "gs://r/android-package/ureadahead_pack_host_x86_64_native_user_100.tar"
+        invalid_path1 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_arm64_houdini_user_100.tar"
+        )
+        invalid_path2 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_x86_64_native_user_100.tar"
+        )
         invalid_path3 = (
             "gs://r/android-package/ureadahead_pack_host_arm64_ndk_user_100.tar"
         )

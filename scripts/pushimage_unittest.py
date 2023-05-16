@@ -235,16 +235,12 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         """Simple smoke test"""
         EXPECTED = {
             "canary": [
-                (
-                    "gs://chromeos-releases/canary-channel/test.board-hi/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
-                )
+                "gs://chromeos-releases/canary-channel/test.board-hi/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
             ],
             "dev": [
-                (
-                    "gs://chromeos-releases/dev-channel/test.board-hi/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
-                )
+                "gs://chromeos-releases/dev-channel/test.board-hi/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
             ],
         }
         with mock.patch.object(gs.GSContext, "Exists", return_value=True):
@@ -262,16 +258,12 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         """
         EXPECTED = {
             "canary": [
-                (
-                    "gs://chromeos-releases/canary-channel/test.board-hi/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
-                )
+                "gs://chromeos-releases/canary-channel/test.board-hi/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
             ],
             "dev": [
-                (
-                    "gs://chromeos-releases/dev-channel/test.board-hi/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
-                )
+                "gs://chromeos-releases/dev-channel/test.board-hi/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-test.board-hi.instructions"
             ],
         }
         with mock.patch.object(gs.GSContext, "Exists", return_value=True):
@@ -289,16 +281,12 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         """Runs a simple smoke test using a real board name."""
         EXPECTED = {
             "canary": [
-                (
-                    "gs://chromeos-releases/canary-channel/x86-alex/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-x86-alex.instructions"
-                )
+                "gs://chromeos-releases/canary-channel/x86-alex/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-x86-alex.instructions"
             ],
             "dev": [
-                (
-                    "gs://chromeos-releases/dev-channel/x86-alex/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-x86-alex.instructions"
-                )
+                "gs://chromeos-releases/dev-channel/x86-alex/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-x86-alex.instructions"
             ],
         }
         with mock.patch.object(gs.GSContext, "Exists", return_value=True):
@@ -327,16 +315,12 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         """Only sign the requested recovery type"""
         EXPECTED = {
             "canary": [
-                (
-                    "gs://chromeos-releases/canary-channel/test.board/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board.instructions"
-                )
+                "gs://chromeos-releases/canary-channel/test.board/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-test.board.instructions"
             ],
             "dev": [
-                (
-                    "gs://chromeos-releases/dev-channel/test.board/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board.instructions"
-                )
+                "gs://chromeos-releases/dev-channel/test.board/5126.0.0/"
+                "ChromeOS-recovery-R34-5126.0.0-test.board.instructions"
             ],
         }
 
@@ -352,16 +336,12 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         """Only sign the requested recovery type"""
         EXPECTED = {
             "canary": [
-                (
-                    "gs://chromeos-releases/canary-channel/test.board/5126.0.0/"
-                    "ChromeOS-base-R34-5126.0.0-test.board.instructions"
-                )
+                "gs://chromeos-releases/canary-channel/test.board/5126.0.0/"
+                "ChromeOS-base-R34-5126.0.0-test.board.instructions"
             ],
             "dev": [
-                (
-                    "gs://chromeos-releases/dev-channel/test.board/5126.0.0/"
-                    "ChromeOS-base-R34-5126.0.0-test.board.instructions"
-                )
+                "gs://chromeos-releases/dev-channel/test.board/5126.0.0/"
+                "ChromeOS-base-R34-5126.0.0-test.board.instructions"
             ],
         }
 
@@ -377,16 +357,12 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         """Only sign the requested type"""
         EXPECTED = {
             "canary": [
-                (
-                    "gs://chromeos-releases/canary-channel/board2/5126.0.0/"
-                    "ChromeOS-gsc_firmware-R34-5126.0.0-board2.instructions"
-                )
+                "gs://chromeos-releases/canary-channel/board2/5126.0.0/"
+                "ChromeOS-gsc_firmware-R34-5126.0.0-board2.instructions"
             ],
             "dev": [
-                (
-                    "gs://chromeos-releases/dev-channel/board2/5126.0.0/"
-                    "ChromeOS-gsc_firmware-R34-5126.0.0-board2.instructions"
-                )
+                "gs://chromeos-releases/dev-channel/board2/5126.0.0/"
+                "ChromeOS-gsc_firmware-R34-5126.0.0-board2.instructions"
             ],
         }
 
@@ -431,11 +407,13 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
                 ),
                 (
                     "gs://chromeos-releases/canary-channel/test.board/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-key2.instructions"
+                    "ChromeOS-recovery-R34-5126.0.0-test.board-key2."
+                    "instructions"
                 ),
                 (
                     "gs://chromeos-releases/canary-channel/test.board/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-key3.instructions"
+                    "ChromeOS-recovery-R34-5126.0.0-test.board-key3."
+                    "instructions"
                 ),
             ],
             "dev": [
@@ -445,11 +423,13 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
                 ),
                 (
                     "gs://chromeos-releases/dev-channel/test.board/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-key2.instructions"
+                    "ChromeOS-recovery-R34-5126.0.0-test.board-key2."
+                    "instructions"
                 ),
                 (
                     "gs://chromeos-releases/dev-channel/test.board/5126.0.0/"
-                    "ChromeOS-recovery-R34-5126.0.0-test.board-key3.instructions"
+                    "ChromeOS-recovery-R34-5126.0.0-test.board-key3."
+                    "instructions"
                 ),
             ],
         }
@@ -488,11 +468,13 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
                 ),
                 (
                     "gs://chromeos-releases/canary-channel/test.multi/1.0.0/"
-                    "ChromeOS-recovery-R1-1.0.0-test.multi-TwoKeyset.instructions"
+                    "ChromeOS-recovery-R1-1.0.0-test.multi-TwoKeyset."
+                    "instructions"
                 ),
                 (
                     "gs://chromeos-releases/canary-channel/test.multi/1.0.0/"
-                    "ChromeOS-recovery-R1-1.0.0-test.multi-ColdKeyset.instructions"
+                    "ChromeOS-recovery-R1-1.0.0-test.multi-ColdKeyset."
+                    "instructions"
                 ),
             ],
             "dev": [
@@ -502,11 +484,13 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
                 ),
                 (
                     "gs://chromeos-releases/dev-channel/test.multi/1.0.0/"
-                    "ChromeOS-recovery-R1-1.0.0-test.multi-TwoKeyset.instructions"
+                    "ChromeOS-recovery-R1-1.0.0-test.multi-TwoKeyset."
+                    "instructions"
                 ),
                 (
                     "gs://chromeos-releases/dev-channel/test.multi/1.0.0/"
-                    "ChromeOS-recovery-R1-1.0.0-test.multi-ColdKeyset.instructions"
+                    "ChromeOS-recovery-R1-1.0.0-test.multi-ColdKeyset."
+                    "instructions"
                 ),
             ],
         }

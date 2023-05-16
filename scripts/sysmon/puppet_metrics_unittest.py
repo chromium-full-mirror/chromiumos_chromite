@@ -121,7 +121,8 @@ class TestPuppetMetrics(cros_test_lib.TempDirTestCase):
 
     def setUp(self):
         patcher = mock.patch(
-            "chromite.third_party.infra_libs.ts_mon.common.interface.state.store",
+            "chromite.third_party.infra_libs.ts_mon.common.interface.state."
+            "store",
             autospec=True,
         )
         self.store = patcher.start()
