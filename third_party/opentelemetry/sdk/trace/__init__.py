@@ -39,7 +39,7 @@ from typing import (
 )
 from warnings import filterwarnings
 
-from deprecated import deprecated
+# from deprecated import deprecated
 
 from chromite.third_party.opentelemetry import context as context_api
 from chromite.third_party.opentelemetry import trace as trace_api
@@ -442,9 +442,9 @@ class ReadableSpan:
         return self._resource
 
     @property
-    @deprecated(
-        version="1.11.1", reason="You should use instrumentation_scope"
-    )
+    # @deprecated(
+    #     version="1.11.1", reason="You should use instrumentation_scope"
+    # )
     def instrumentation_info(self) -> InstrumentationInfo:
         return self._instrumentation_info
 

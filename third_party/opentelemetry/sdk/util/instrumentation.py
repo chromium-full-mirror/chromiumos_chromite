@@ -14,7 +14,7 @@
 from json import dumps
 from typing import Optional
 
-from deprecated import deprecated
+# from deprecated import deprecated
 
 
 class InstrumentationInfo:
@@ -26,7 +26,7 @@ class InstrumentationInfo:
 
     __slots__ = ("_name", "_version", "_schema_url")
 
-    @deprecated(version="1.11.1", reason="You should use InstrumentationScope")
+    # @deprecated(version="1.11.1", reason="You should use InstrumentationScope")
     def __init__(
         self,
         name: str,
