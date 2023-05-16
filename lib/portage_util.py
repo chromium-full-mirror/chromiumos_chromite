@@ -500,7 +500,10 @@ class EBuild(object):
                 continue
 
             varname, eq, _ = line.partition("=")
-            if not (eq == "=" and varname.strip() in variables):
+            if (
+                not (eq == "=" and varname.strip() in variables)
+                or "portage_util: no edit" in line
+            ):
                 # Don't write out the old value of the variable.
                 new_lines.append(line)
 

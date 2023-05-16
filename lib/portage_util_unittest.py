@@ -1129,6 +1129,24 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
         # Second run: it should pass normally.
         portage_util.EBuild.UpdateEBuild(ebuild, {"VAR": "b"})
 
+    def testUpdateEBuildSpacing(self):
+        """Verify UpdateEBuild does not edit marked variables."""
+        ebuild = os.path.join(self.tempdir, "test.ebuild")
+        content = (
+            "# Some data\n"
+            "VAR=a # portage_util: no edit\n"
+            "VAR=b\n"
+            "\tVAR=c\n"
+        )
+        expected_content = "# Some data\nVAR=d\nVAR=a # portage_util: no edit\n"
+        osutils.WriteFile(ebuild, content)
+        # Check that all VARs are removed except the one with no edit.
+        portage_util.EBuild.UpdateEBuild(ebuild, {"VAR": "d"})
+        self.assertEqual(expected_content, osutils.ReadFile(ebuild))
+        # And check idempotency.
+        portage_util.EBuild.UpdateEBuild(ebuild, {"VAR": "d"})
+        self.assertEqual(expected_content, osutils.ReadFile(ebuild))
+
 
 class ListOverlaysTest(cros_test_lib.TempDirTestCase):
     """Tests related to listing overlays."""
