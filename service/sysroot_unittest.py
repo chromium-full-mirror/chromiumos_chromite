@@ -11,7 +11,6 @@ import shutil
 from typing import Optional, Union
 from unittest import mock
 
-from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -482,29 +481,6 @@ class BuildPackagesRunConfigTest(
 
         self.assertNotIn("USE_GOMA", extra_env)
         self.assertNotIn("USE_REMOTEEXEC", extra_env)
-        self.assertNotIn("PORTAGE_BINHOST", extra_env)
-
-        # Test when package_indexes are specified.
-        pkg_indexes = [
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="A",
-                location="AAAA",
-            ),
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="B",
-                location="BBBB",
-            ),
-        ]
-        instance = sysroot.BuildPackagesRunConfig(package_indexes=pkg_indexes)
-
-        extra_env = instance.GetExtraEnv()
-
-        self.assertEqual(
-            extra_env.get("PORTAGE_BINHOST"),
-            " ".join([x.location for x in reversed(pkg_indexes)]),
-        )
 
         # Test when use_flags are specified.
         use_flags = ["flag1", "flag2"]

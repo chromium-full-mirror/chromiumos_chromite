@@ -219,7 +219,7 @@ class BuildPackagesRunConfig(object):
                 build is safe, but certain operations can be faster when we know
                 we are doing a fresh build.
             package_indexes: List of information about available prebuilts,
-                youngest first, or None.
+                youngest first, or None.  Deprecated.
             dryrun: Whether to do a dryrun and not actually build any packages.
             usepkgonly: Only use binary packages to bootstrap; abort if any are
                 missing.
@@ -298,11 +298,6 @@ class BuildPackagesRunConfig(object):
 
         if self.use_remoteexec:
             env["USE_REMOTEEXEC"] = "true"
-
-        if self.package_indexes:
-            env["PORTAGE_BINHOST"] = " ".join(
-                x.location for x in reversed(self.package_indexes)
-            )
 
         return env
 
