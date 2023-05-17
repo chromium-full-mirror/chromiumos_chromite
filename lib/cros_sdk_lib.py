@@ -193,12 +193,16 @@ def MountChrootPaths(path: Union[Path, str], out_dir: Path):
     # mounts in the parent mount namespace will propagate down (like unmounts).
     osutils.Mount(None, "/", None, osutils.MS_REC | osutils.MS_SLAVE)
 
-    # If the mount path is already mounted, make it private so we can make
-    # changes without it propagating back out.
-    for info in osutils.IterateMountPoints():
-        if info.destination == str(path):
-            osutils.Mount(None, path, None, osutils.MS_REC | osutils.MS_PRIVATE)
-            break
+    # Prepare for pivot_root(2). `man 2 pivot_root` says new_root must be a
+    # mount point.
+    # And make it private so we can make changes without it propagating back
+    # out.
+    osutils.Mount(
+        path,
+        path,
+        None,
+        osutils.MS_BIND | osutils.MS_REC | osutils.MS_PRIVATE,
+    )
 
     # The source checkout must be mounted first.  We'll be mounting paths into
     # the chroot, and that chroot lives inside SOURCE_ROOT, so if we did the
@@ -985,15 +989,6 @@ class ChrootEnteror:
     ) -> cros_build_lib.CompletedProcess:
         """Enter the chroot."""
         self._check_chroot()
-
-        # Prepare for pivot_root(2).
-        # `man 2 pivot_root` says new_root must be a mount point.
-        osutils.Mount(
-            self.chroot.path,
-            self.chroot.path,
-            None,
-            osutils.MS_BIND | osutils.MS_REC,
-        )
 
         if cmd is None:
             cmd = self.cmd
