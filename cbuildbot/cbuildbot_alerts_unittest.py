@@ -42,6 +42,7 @@ class CrosloggingTest(cros_test_lib.OutputTestCase):
         self.AssertLogContainsMsg(msg, lambda: logging.notice(msg), invert=True)
 
     def testPrintBuildbotFunctionsNoMarker(self):
+        # pylint: disable-next=line-too-long
         """PrintBuildbot* without markers should not be recognized by buildbot."""
         self.AssertLogContainsMsg(
             "@@@STEP_LINK@",

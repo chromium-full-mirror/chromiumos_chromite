@@ -35,7 +35,7 @@ class PathDomains(NamedTuple):
 
 
 class CopybotDownstream:
-    """Class for defining the functionality of the downstreaming review process."""
+    """Defines the functionality of the downstreaming review process."""
 
     def __init__(
         self,

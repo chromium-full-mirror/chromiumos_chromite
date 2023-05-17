@@ -1099,7 +1099,7 @@ class _RealBuilderRun(object):
         return self.GetChildren() or [self]
 
     def GetBuilderIds(self):
-        """Return a list of builder names for this config and the child configs."""
+        """Return a list of builder names for this, and child, configs."""
         bot_ids = [self.config.name]
         for config in self.config.child_configs:
             if config.name:

@@ -331,7 +331,7 @@ class ExceptionData:
     """Info about an exception that can be sent across processes."""
 
     def __init__(self):
-        """Builds an instance; only intended to be called from `except` blocks."""
+        """Builds instance; only intended to be called from `except` blocks."""
         self._str = traceback.format_exc()
 
     def __str__(self):
@@ -452,7 +452,7 @@ def generate_lints(board: str, ebuild_path: str) -> Path:
 def collect_lints(
     lint_tmpdir: Path, yaml_pool: multiprocessing.Pool
 ) -> Set[TidyDiagnostic]:
-    """Collects the lints for a given directory filled with linting artifacts."""
+    """Collects lints for a given directory filled with linting artifacts."""
     json_files = list(lint_tmpdir.glob("*.json"))
     pending_parses = yaml_pool.imap(parse_tidy_invocation, json_files)
 

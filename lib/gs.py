@@ -1064,7 +1064,10 @@ wheel: <
         return ErrorDetails(type="unknown", retriable=False)
 
     def CheckPathAccess(self, path: str):
-        """Check that the user can access a given gs path and prompts them to reauthenticate if not."""
+        """Check the user can access a given gs path.
+
+        Prompts them to reauthenticate if not.
+        """
         # Attempt to LS the path, prompting the user for
         # reauthentication if necessary.
         self._TestGSLs(path, stdout=True, stderr=False)
@@ -1075,7 +1078,8 @@ wheel: <
                 "Unable to access %s "
                 "Running `gcloud auth login` may resolve the problem. "
                 "For more information, see "
-                "https://chromium.googlesource.com/chromiumos/docs/+/HEAD/gsutil.md#setup",
+                "https://chromium.googlesource.com"
+                "/chromiumos/docs/+/HEAD/gsutil.md#setup",
                 path,
             )
             raise GSAuthenticationError(f"Unable to access path: {path}")

@@ -171,7 +171,7 @@ class PatchSeriesTestCase(
 
 
 class TestUploadedLocalPatch(PatchSeriesTestCase):
-    """Test the interaction between uploaded local git patches and PatchSeries."""
+    """Test interaction between uploaded local git patches and PatchSeries."""
 
     def testFetchChanges(self):
         """Test fetching uploaded local patches."""

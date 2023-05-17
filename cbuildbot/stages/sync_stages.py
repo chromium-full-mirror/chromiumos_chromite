@@ -33,7 +33,7 @@ from chromite.service import android
 
 
 class PatchChangesStage(generic_stages.BuilderStage):
-    """Stage that patches a set of Gerrit changes to the buildroot source tree."""
+    """Stage that patches Gerrit changes to the buildroot source tree."""
 
     category = constants.CI_INFRA_STAGE
 
@@ -107,7 +107,7 @@ class PatchChangesStage(generic_stages.BuilderStage):
 
     def PerformStage(self):
         class NoisyPatchSeries(patch_series.PatchSeries):
-            """Custom PatchSeries - adds links to buildbot logs for remote trys."""
+            """Custom PatchSeries: linkify buildbot logs for remote tries."""
 
             def ApplyChange(self, change):
                 if isinstance(change, cros_patch.GerritPatch):
@@ -438,14 +438,14 @@ class ManifestVersionedSyncStage(SyncStage):
         self._force = self._run.config.master or self._run.options.debug
 
     def HandleSkip(self):
-        """Initializes a manifest manager to the specified version if skipped."""
+        """Initializes manifest manager to the specified version if skipped."""
         super().HandleSkip()
         if self._run.options.force_version:
             self.Initialize()
             self.ForceVersion(self._run.options.force_version)
 
     def ForceVersion(self, version):
-        """Creates a manifest manager from given version and returns manifest."""
+        """Creates manifest manager from given version and returns manifest."""
         cbuildbot_alerts.PrintBuildbotStepText(version)
         return self.manifest_manager.BootstrapFromVersion(version)
 
@@ -467,7 +467,7 @@ class ManifestVersionedSyncStage(SyncStage):
         ) = manifest_manager
 
     def Initialize(self):
-        """Initializes a manager that manages manifests for associated stages."""
+        """Initializes a manager managing manifests for associated stages."""
 
         dry_run = self._run.options.debug or self._run.config.basic_builder
 

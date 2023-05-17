@@ -2147,7 +2147,7 @@ def MarkAndroidAsStable(
     boards=None,
     android_version=None,
 ):
-    """Returns the portage atom for the revved Android ebuild - see man emerge."""
+    """Returns portage atom for the revved Android ebuild - see man emerge."""
     input_msg = android_pb2.MarkStableRequest()
     input_msg.package_name = android_package
     input_msg.android_build_branch = android_build_branch
@@ -2208,7 +2208,7 @@ def MarkAndroidLKGB(buildroot, android_package, android_version):
 def MarkChromeAsStable(
     buildroot, tracking_branch, chrome_rev, boards, chrome_version=None
 ):
-    """Returns the portage atom for the revved chrome ebuild - see man emerge."""
+    """Returns portage atom for the revved chrome ebuild - see man emerge."""
     extra_env = None
     chroot_args = None
 

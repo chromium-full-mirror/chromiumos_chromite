@@ -177,7 +177,7 @@ class SigningStageTest(
             )
 
     def testCheckForResultsSuccessNoChannels(self):
-        """Test that _CheckForResults works when there is nothing to check for."""
+        """Test _CheckForResults works when there is nothing to check for."""
         with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             notifier = mock.Mock()
@@ -566,7 +566,7 @@ class PaygenStageTest(
             )
 
     def testRunPaygenInProcessComplex(self):
-        """Test that _RunPaygenInProcess with arguments that are more unusual."""
+        """Test _RunPaygenInProcess with arguments that are more unusual."""
         # Call the method under test.
         # Use release tools channel naming, and a board name including a
         # variant.

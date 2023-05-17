@@ -110,7 +110,7 @@ class VMTestStage(
             )
 
     def _NoTestResults(self, path):
-        """Returns True if |path| is not a directory or is an empty directory."""
+        """Whether |path| is not a directory or is an empty directory."""
         return not os.path.isdir(path) or not os.listdir(path)
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)

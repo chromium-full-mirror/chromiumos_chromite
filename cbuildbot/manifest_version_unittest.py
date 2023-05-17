@@ -190,7 +190,7 @@ class BuildSpecFunctionsTest(cros_test_lib.MockTempDirTestCase):
         )
 
     def testPopulateAndPublishBuildSpecIntOnly(self):
-        """Test PopulateAndPublishBuildSpec without external manifest versions."""
+        """Test PopulateAndPublishBuildSpec (no external manifest versions)."""
         commitMock = self.PatchObject(manifest_version, "_CommitAndPush")
 
         filter_out = os.path.join(self.tempdir, "filter_out")

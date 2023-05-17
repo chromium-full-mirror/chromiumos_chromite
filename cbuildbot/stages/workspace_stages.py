@@ -509,7 +509,7 @@ class WorkspaceUpdateSDKStage(WorkspaceStageBase):
 class WorkspaceSetupBoardStage(
     generic_stages.BoardSpecificBuilderStage, WorkspaceStageBase
 ):
-    """Stage that is responsible for building host pkgs and setting up a board."""
+    """Stage responsible for building host pkgs and setting up a board."""
 
     category = constants.CI_INFRA_STAGE
 

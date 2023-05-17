@@ -996,7 +996,7 @@ class UploadCFTArtifactsStage(
     category = constants.CI_INFRA_STAGE
 
     def BuildCFTArtifacts(self):
-        """Build & upload the CFT artifacts & upload the metadata defining them."""
+        """Build and upload CFT artifacts; upload the metadata defining them."""
         with osutils.TempDir(prefix="cbuildbot-cft") as tempdir:
             # Examples from CFT:
             # chroot = /b/s/w/ir/cache/cros_chroot/chroot

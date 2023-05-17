@@ -416,7 +416,7 @@ class CopyResultsDirTest(cros_test_lib.TempDirTestCase):
         self.assertExists(os.path.join(self.dest, empty_dir))
 
     def testDestAlreadyExists(self):
-        """Tests that OSError is raised if the destination dir already exists."""
+        """Tests OSError is raised if the destination dir already exists."""
         self._WriteSrcFile("myfile.txt", "foo")
         os.makedirs(self.dest)
         self.assertRaises(OSError, self._DoCopy)

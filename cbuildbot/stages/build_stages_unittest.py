@@ -133,7 +133,7 @@ class UpdateSDKTest(_RunAbstractStageTestCase):
         self._RunFull(dir_exists=False)
 
     def testFullBuildWithOverriddenProfile(self):
-        """Tests whether full builds add overridden profile flag when requested."""
+        """Whether full builds add overridden profile flag when requested."""
         self._PrepareFull(extra_cmd_args=["--profile", "smock"])
         self._RunFull(dir_exists=False)
 
@@ -205,7 +205,7 @@ class SetupBoardTest(_RunAbstractStageTestCase):
         self.assertCommandContains([self.setup_board, "--profile=foo"])
 
     def testFullBuildWithOverriddenProfile(self):
-        """Tests whether full builds add overridden profile flag when requested."""
+        """Tests if full builds add overridden profile flag when requested."""
         self._PrepareFull(extra_cmd_args=["--profile", "smock"])
         self._RunFull(dir_exists=False)
         self.assertCommandContains([self.setup_board, "--profile=smock"])

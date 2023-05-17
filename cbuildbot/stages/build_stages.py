@@ -488,7 +488,7 @@ class UpdateSDKStage(generic_stages.BuilderStage):
 
 
 class SetupBoardStage(generic_stages.BoardSpecificBuilderStage, InitSDKStage):
-    """Stage that is responsible for building host pkgs and setting up a board."""
+    """Stage responsible for building host pkgs and setting up a board."""
 
     option_name = "build"
     category = constants.CI_INFRA_STAGE

@@ -115,7 +115,7 @@ class SDKPackageStageTest(
         return sdk_stages.SDKPackageStage(self._run, self.buildstore)
 
     def testTarballCreation(self):
-        """Tests whether we package the tarball and correctly create a Manifest."""
+        """Tests if we package the tarball and correctly create a Manifest."""
         # We'll test this separately.
         self.PatchObject(sdk_stages.SDKPackageStage, "_SendPerfValues")
 

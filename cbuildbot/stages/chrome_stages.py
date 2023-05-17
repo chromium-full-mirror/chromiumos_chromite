@@ -64,7 +64,7 @@ class SyncChromeStage(
         super().HandleSkip()
 
     def _GetChromeVersionFromMetadata(self):
-        """Return the Chrome version from metadata; None if is does not exist."""
+        """Return Chrome version from metadata; None if is does not exist."""
         version_dict = self._run.attrs.metadata.GetDict().get("version")
         return None if not version_dict else version_dict.get("chrome")
 

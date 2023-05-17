@@ -320,7 +320,7 @@ class WorkspaceSyncStageTest(WorkspaceStageBase):
         )
 
     def SyncCallToPathNumbers(self, mock_call):
-        """Extract the patch_pool from a mock call, and convert to gerrit int."""
+        """Extract patch_pool from a mock call, and convert to gerrit int."""
         return [p.gerrit_number_str for p in mock_call[1]["patch_pool"]]
 
     def testBasic(self):

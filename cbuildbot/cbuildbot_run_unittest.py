@@ -475,7 +475,7 @@ class RunAttributesTest(_BuilderRunTestCase):
     BATTR = "breakpad_symbols_generated"
 
     def testRegisterBoardTarget(self):
-        """Test behavior of attributes before & after registering board target."""
+        """Test behavior of attributes before+after registering board target."""
         ra = self._NewRunAttributes()
 
         with self.assertRaises(AssertionError):
@@ -630,7 +630,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
             return self.bra.GetParallel(self.attr, timeout=self.timeout)
 
     class _CheckWaitForAttr(_WaitForAttr):
-        """Stage-like class to wait for then check attr on BoardRunAttributes."""
+        """Stage-like class to wait for and check attr on BoardRunAttributes."""
 
         def Run(self):
             value = self.GetParallel()
@@ -643,7 +643,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
             )
 
     class _TimeoutWaitForAttr(_WaitForAttr):
-        """Stage-like class to time-out waiting for attr on BoardRunAttributes."""
+        """Stage-like class to timeout wait for attr on BoardRunAttributes."""
 
         def Run(self):
             try:
@@ -690,7 +690,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
         self.assertEqual(self.VALUE, self.bra.GetParallel(self.BATTR))
 
     def testParallelSetGetManyGets(self):
-        """Set the parallel run attribute in one stage, access in many stages."""
+        """Set parallel run attribute in one stage, access in many stages."""
         stage_args = [
             (self._SetAttr, self.BATTR, self.VALUE, 8),
             (self._CheckWaitForAttr, self.BATTR, self.VALUE, 16),
@@ -702,7 +702,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
         self.assertEqual(self.VALUE, self.bra.GetParallel(self.BATTR))
 
     def testParallelSetGetManySets(self):
-        """Set the parallel run attribute in many stages, access in one stage."""
+        """Set parallel run attribute in many stages, access in one stage."""
         # Three "stages" set the value, with increasing delays.  The stage that
         # checks the value should get the first value set.
         stage_args = [

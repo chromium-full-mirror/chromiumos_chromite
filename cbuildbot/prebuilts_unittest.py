@@ -145,7 +145,7 @@ ca-t3/pk-g4-4.0.1-r333
         self.assertEqual(prebuilts._AddPackagesForPrebuilt(f), cmds)
 
     def testMissingDevInstallerFile(self):
-        """Test that we raise an exception when the installer file is missing."""
+        """Test that we raise an exception when installer file is missing."""
         self.assertRaises(
             prebuilts.PackageFileMissing,
             self.testDevInstallerPrebuilts,

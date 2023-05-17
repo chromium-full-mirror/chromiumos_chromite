@@ -241,7 +241,7 @@ class SkylabHWLabCommandsTest(cros_test_lib.RunCommandTestCase):
 
     @staticmethod
     def _fakeCreateJson(task_id, task_url):
-        """Return a fake json serialized suite report, in create-suite format."""
+        """Return fake json serialized suite report, in create-suite format."""
         report = {
             "task_id": task_id,
             "task_url": task_url,
@@ -249,7 +249,7 @@ class SkylabHWLabCommandsTest(cros_test_lib.RunCommandTestCase):
         return json.dumps(report)
 
     def testCreateSuiteNoPoolRaisesError(self):
-        """Attempting to create a suite without specifying a pool should raise."""
+        """Attempt to create a suite without specifying a pool should raise."""
         build = "foo-bar/R1234"
         suite = "foo-suite"
         board = "foo-board"
@@ -499,7 +499,7 @@ class HWLabCommandsTest(
     cros_test_lib.OutputTestCase,
     cros_test_lib.MockTempDirTestCase,
 ):
-    """Test commands related to HWLab tests that are runing via swarming proxy."""
+    """Test commands related to HWLab tests running via swarming proxy."""
 
     # pylint: disable=protected-access,line-too-long
     JOB_ID_OUTPUT = """
@@ -1055,7 +1055,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             self.assertCommandContains(["minidump_stackwalk"])
 
     def testUprevPackagesMin(self):
-        """See if we can generate the minimal cros_mark_as_stable commandline."""
+        """See if we can generate minimal cros_mark_as_stable commandline."""
         commands.UprevPackages(
             self._buildroot, [self._board], constants.PUBLIC_OVERLAYS
         )
@@ -1094,7 +1094,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
         )
 
     def testUprevPushMin(self):
-        """See if we can generate the minimal cros_mark_as_stable commandline."""
+        """See if we can generate minimal cros_mark_as_stable commandline."""
         commands.UprevPush(
             self._buildroot, overlay_type=constants.PUBLIC_OVERLAYS
         )
@@ -1241,7 +1241,7 @@ c98ca54db130886142ad582a58e90ddc *./common.sh
         self.assertEqual(result, versions)
 
     def testGetFirmwareVersionsMixedImage(self):
-        """Verify that can extract the right version from a mixed RO+RW bundle."""
+        """Test that can extract the right version from a mixed RO+RW bundle."""
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
             stdout="""
@@ -1456,7 +1456,7 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
         self.assertEqual(result, ["pyro", "reef", "snappy"])
 
     def testBuildMaximum(self):
-        """Base case where Build is called with all options (except extra_env)."""
+        """Base case: Build is called with all options (except extra_env)."""
         self.testBuild(default=True)
 
     def testBuildWithEnv(self):
@@ -1622,7 +1622,7 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             patcher.assert_called_with(site_params.EXTERNAL_GOB_HOST, url)
 
     def testChromeLKGM(self):
-        """Verifies that we can get the chrome lkgm without a chrome revision."""
+        """Verifies we can get the chrome lkgm without a chrome revision."""
         self._TestChromeLKGM(None)
 
     def testChromeLKGMWithRevision(self):
@@ -1773,7 +1773,7 @@ class BuildTarballTests(
         self._tarball_dir = self.tempdir
 
     def testBuildFullAutotestTarball(self):
-        """Tests that our call to generate the full autotest tarball is correct."""
+        """Tests our call to generate the full autotest tarball is correct."""
         with mock.patch.object(commands, "BuildTarball") as m:
             m.return_value.returncode = 0
             commands.BuildFullAutotestTarball(
@@ -1802,7 +1802,7 @@ class BuildTarballTests(
             )
 
     def testBuildAutotestControlFilesTarball(self):
-        """Tests that generating the autotest control files tarball is correct."""
+        """Tests generating the autotest control files tarball is correct."""
         control_file_list = [
             "autotest/client/site_tests/testA/control",
             "autotest/server/site_tests/testB/control",
@@ -1822,7 +1822,7 @@ class BuildTarballTests(
                 )
 
     def testBuildAutotestServerPackageTarball(self):
-        """Tests that generating the autotest server package tarball is correct."""
+        """Tests generating the autotest server package tarball is correct."""
         control_file_list = [
             "autotest/server/site_tests/testA/control",
             "autotest/server/site_tests/testB/control",
@@ -1970,7 +1970,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
     def testBuildFirmwareArchive(self):
-        """Verifies that the archiver creates a tarfile with the expected files."""
+        """Verifies the archiver creates a tarfile with the expected files."""
         # Set of files to tar up
         fw_files = (
             "dts/emeraldlake2.dts",
@@ -2146,7 +2146,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
             self.assertIn(">%s</a>" % f, html)
 
     def testGenerateHtmlIndexTupleDupe(self):
-        """Verifies GenerateHtmlIndex gives us something unique (input: tuple)"""
+        """Verifies GenerateHtmlIndex gives something unique (input: tuple)"""
         index = os.path.join(self.tempdir, "index.html")
         files = (
             "file1",
@@ -2158,7 +2158,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(html.count(">file1</a>"), 1)
 
     def testGenerateHtmlIndexTuplePretty(self):
-        """Verifies GenerateHtmlIndex gives us something pretty (input: tuple)"""
+        """Verifies GenerateHtmlIndex gives something pretty (input: tuple)"""
         index = os.path.join(self.tempdir, "index.html")
         files = (
             "..|up",

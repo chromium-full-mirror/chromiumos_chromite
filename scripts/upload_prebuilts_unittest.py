@@ -203,7 +203,7 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
         self.assertAllDuplicates([self.expected_pkgindex, self.dup])
 
     def testCanonicalUrl(self):
-        """If the URL is in a different format, we should still find duplicates."""
+        """If the URL is in a different format, should still find duplicates."""
         self.dup.header["URI"] = gs.PUBLIC_BASE_HTTPS_URL + "example"
         self.assertAllDuplicates([self.dup])
 
@@ -225,7 +225,7 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
         )
 
     def testSymbolsAvailable(self):
-        """If symbols are available remotely, re-use them and set DEBUG_SYMBOLS."""
+        """If symbols are available remotely: re-use them, set DEBUG_SYMBOLS."""
         self.dup.packages[0]["DEBUG_SYMBOLS"] = "yes"
 
         uploads = self.pkgindex.ResolveDuplicateUploads([self.dup])

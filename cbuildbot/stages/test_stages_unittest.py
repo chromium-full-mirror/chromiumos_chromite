@@ -63,7 +63,7 @@ class UnitTestStageTest(
         )
 
     def testFullTests(self):
-        """Tests if full unit and cros_au_test_harness tests are run correctly."""
+        """Tests full unit and cros_au_test_harness tests are run correctly."""
         makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
 
         board_runattrs = self._run.GetBoardRunAttrs(self._current_board)

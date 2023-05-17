@@ -655,7 +655,7 @@ class UpdateChromeosLKGMStage(generic_stages.BuilderStage):
         commands.RunBuildScript(self._build_root, cmd, chromite_cmd=True)
 
     def _build_threshold_successful(self):
-        """Whether percentage of successful child builders exceeds threshold."""
+        """True if percentage of successful child builders exceeds threshold."""
         ids = self.GetScheduledSlaveBuildbucketIds()
         num_builds = 0
         num_failures = 0

@@ -105,7 +105,7 @@ class TrybotPatchPool(object):
         return self.FilterFn(ExtManifestFilter, negate=negate)
 
     def FilterBranch(self, branch, negate=False):
-        """Return a patch pool with only patches based on a particular branch."""
+        """Return a patch pool with only patches from a particular branch."""
         return self.FilterFn(
             functools.partial(BranchFilter, branch), negate=negate
         )

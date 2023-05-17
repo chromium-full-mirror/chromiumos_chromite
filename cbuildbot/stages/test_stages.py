@@ -265,7 +265,7 @@ class SkylabHWTestStage(HWTestStage):
 class ASyncSkylabHWTestStage(
     SkylabHWTestStage, generic_stages.ForgivingBuilderStage
 ):
-    """Stage that fires and forgets skylab hw test suites to the Autotest lab."""
+    """Stage that fires and forgets skylab hw test suites to Autotest lab."""
 
     stage_name = "ASyncSkylabHWTest"
     category = constants.TEST_INFRA_STAGE

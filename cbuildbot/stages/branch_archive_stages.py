@@ -131,7 +131,7 @@ class WorkspaceArchiveBase(
                 gs_context.CopyInto(path, url, parallel=True, recursive=True)
 
     def PushBoardImage(self):
-        """Helper method to run push_image against the branch boards artifacts."""
+        """Helper to run push_image against the branch boards artifacts."""
         # This helper script is only available on internal manifests currently.
         if not self._run.config["internal"]:
             raise UnsafeBuildForPushImage(

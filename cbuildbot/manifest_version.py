@@ -51,7 +51,7 @@ class StatusUpdateException(Exception):
 
 
 class GenerateBuildSpecException(Exception):
-    """Exception gets thrown for failure to Generate a buildspec for the build."""
+    """Exception gets thrown for failure to Generate a buildspec for build."""
 
 
 class BuildSpecsValueError(Exception):
@@ -749,7 +749,7 @@ class BuildSpecsManager(object):
         return None
 
     def BootstrapFromVersion(self, version):
-        """Initialize manifest from a release version returning the path to it."""
+        """Initialize manifest from a release version, returning its path."""
         # Only refresh the manifest checkout if needed.
         if not self.InitializeManifestVariables(version=version):
             self.RefreshManifestCheckout()

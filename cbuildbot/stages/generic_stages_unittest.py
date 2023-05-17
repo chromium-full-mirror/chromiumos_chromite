@@ -535,7 +535,7 @@ class BuilderStageTest(AbstractStageTestCase):
         self.assertTrue(handle_skip_mock.called)
 
     def testHandleExceptionException(self):
-        """Verify exceptions in HandleException handlers are themselves handled."""
+        """Verify exceptions in HandleException handlers are also handled."""
 
         class TestError(Exception):
             """Unique test exception"""

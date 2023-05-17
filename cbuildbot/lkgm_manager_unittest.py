@@ -285,7 +285,7 @@ class LKGMManagerTest(cros_test_lib.MockTempDirTestCase):
         return exists_mock, link_mock
 
     def testAddChromeVersionToManifest(self):
-        """Tests whether we can write the chrome version to the manifest file."""
+        """Tests if we can write the chrome version to the manifest file."""
         self.manager = self._LKGMManager()
         with TemporaryManifest() as f:
             chrome_version = "35.0.1863.0"

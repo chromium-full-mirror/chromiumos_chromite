@@ -84,14 +84,14 @@ class VMTestStageTest(
         return stage
 
     def testQuickTests(self):
-        """Tests if quick unit and cros_au_test_harness tests are run correctly."""
+        """Tests quick unit and cros_au_test_harness tests are correct."""
         self._run.config["vm_tests"] = [
             config_lib.VMTestConfig(constants.SIMPLE_AU_TEST_TYPE)
         ]
         self.RunStage()
 
     def testFailedTest(self):
-        """Tests if quick unit and cros_au_test_harness tests are run correctly."""
+        """Tests quick unit and cros_au_test_harness tests are correct."""
         self.PatchObject(
             vm_test_stages.VMTestStage,
             "_RunTest",

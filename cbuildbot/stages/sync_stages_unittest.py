@@ -237,11 +237,11 @@ class MockPatch(mock.MagicMock):
             return flag_value == allowed
 
     def IsDraft(self):
-        """Return whether this patch is a draft patchset."""
+        """Whether this patch is a draft patchset."""
         return self.current_patch_set["draft"]
 
     def IsBeingMerged(self):
-        """Return whether this patch is merged or in the middle of being merged."""
+        """Whether this patch is merged or in the middle of being merged."""
         return self.status in ("SUBMITTED", "MERGED")
 
     def GetDiffStatus(self, _):

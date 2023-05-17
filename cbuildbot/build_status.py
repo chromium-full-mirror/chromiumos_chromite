@@ -145,7 +145,7 @@ class SlaveStatus(object):
         }
 
     def _SetStatusBuildsDict(self):
-        """Set status_buildset_dict by sorting the builds into their status set."""
+        """Set status_buildset_dict by sorting builds into their status set."""
         self.status_buildset_dict = {}
         for build, info in self.new_buildbucket_info_dict.items():
             if info.status is not None:
@@ -153,6 +153,7 @@ class SlaveStatus(object):
                 self.status_buildset_dict[info.status].add(build)
 
     def UpdateSlaveStatus(self):
+        # pylint: disable-next=line-too-long
         """Update slave statuses by querying CIDB and Buildbucket(if supported)."""
         logging.info("Updating slave status...")
 

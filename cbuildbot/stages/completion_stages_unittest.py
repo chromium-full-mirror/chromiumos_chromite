@@ -72,7 +72,7 @@ class ManifestVersionedSyncCompletionStageTest(
         get_msg_mock.assert_called_once_with()
 
     def testManifestVersionedSyncCompletedIncomplete(self):
-        """Tests basic ManifestVersionedSyncStageCompleted on incomplete build."""
+        """Basic ManifestVersionedSyncStageCompleted on incomplete build."""
         stage = completion_stages.ManifestVersionedSyncCompletionStage(
             self._run, self.buildstore, self.sync_stage, success=False
         )
@@ -194,7 +194,7 @@ class MasterSlaveSyncCompletionStageMockConfigTest(
         return test_config
 
     def testGetSlavesForMaster(self):
-        """Tests that we get the slaves for a fake unified master configuration."""
+        """Tests we get the slaves for a fake unified master configuration."""
         stage = self.ConstructStage()
         p = stage._GetSlaveConfigs()
         self.assertEqual(

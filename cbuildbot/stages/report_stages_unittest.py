@@ -505,7 +505,7 @@ class ReportStageTest(AbstractReportStageTestCase):
         )
 
     def testGetChildConfigsMetadataList(self):
-        """Test that GetChildConfigListMetadata generates child config metadata."""
+        """Test GetChildConfigListMetadata generates child config metadata."""
         child_configs = [
             {"name": "config1", "boards": ["board1"]},
             {"name": "config2", "boards": ["board2"]},
