@@ -19,7 +19,7 @@ fwbuddy://<board>/<model>/<firmware-name>/<version>/<image-type>/<firmware-type>
         board: {dedede, atlas, etc}
         model: {galnat360, drawcia, etc.}
         firmware-name: {galtic, dood, etc.}
-        version: {stable|stable-ro|latest|R99-123.456.0}
+        version: {stable|stable-ro|latest|R99-123.456.0|R*-123.456.0}
         image-type: {signed|unsigned}
         firmware-type: {serial, dev, etc} OPTIONAL
 """
@@ -78,7 +78,7 @@ RELEASE_STRING_REGEX_PATTERN = re.compile(r"[R|r](\d+|\*)-(\d+)\.(\d+)\.(\d+)")
 
 # Example: fwbuddy://dedede/galnat360/galtic/latest/signed/serial
 FWBUDDY_URI_REGEX_PATTERN = re.compile(
-    r"fwbuddy:\/\/(\w+)\/(\w+)\/(\w+)\/([\w\-\.]+)\/(\w+)\/?(\w+)?"
+    r"fwbuddy:\/\/(\w+)\/(\w+)\/(\w+)\/([\w\-\.\*]+)\/(\w+)\/?(\w+)?"
 )
 
 

@@ -67,6 +67,10 @@ def test_parse_release_string(setup):
         "99", "123", "456", "0"
     ) == fwbuddy.parse_release_string("r99-123.456.0")
 
+    assert fwbuddy.Release(
+        "*", "123", "456", "0"
+    ) == fwbuddy.parse_release_string("R*-123.456.0")
+
     with pytest.raises(fwbuddy.FwBuddyException):
         fwbuddy.parse_release_string("99-123.456.0")
     with pytest.raises(fwbuddy.FwBuddyException):
