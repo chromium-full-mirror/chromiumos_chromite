@@ -229,13 +229,11 @@ async function checkForGo(): Promise<boolean> {
   // Suggest the user install go.
   const choice = await vscode.window.showInformationMessage(
     '*** Linting Tast repos requires the Golang go command. Please install the "go" command (Go language) to a location listed in $PATH.',
-    'Go Installation'
+    'Troubleshoot'
   );
   if (choice) {
     void vscode.env.openExternal(
-      vscode.Uri.parse(
-        'http://go/go/codelabs/getting-started.md?cl=head#go-glinux-workstation'
-      )
+      vscode.Uri.parse('http://go/cros-ide-doc-go-not-found')
     );
   }
   return false;
