@@ -404,6 +404,25 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(len(lines), 1)
         self.assertTrue('PORTAGE_BINHOST="$FULL_BINHOST"' in lines)
 
+    def testCqBinhost(self):
+        content = 'CQ_BINHOST="gs://bar/bar"'
+        osutils.WriteFile(
+            self.external_cq_binhost_file_path, content, makedirs=True
+        )
+
+        config = self.sysroot.GenerateBinhostConf(
+            source_root=self.tempdir, use_cq_prebuilts=True
+        )
+        lines = self._removeCommentAndEmptyLines(config.splitlines())
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(lines[0], 'PORTAGE_BINHOST="$FULL_BINHOST"')
+        self.assertEqual(
+            lines[1], f"source {self.external_cq_binhost_file_path}"
+        )
+        self.assertEqual(
+            lines[2], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
+        )
+
     def testPostsubmitBinhost(self):
         content = 'POSTSUBMIT_BINHOST="gs://bar/bar"'
         osutils.WriteFile(
@@ -452,6 +471,53 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(
             lines[4], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $POSTSUBMIT_BINHOST"'
+        )
+
+    def testAllBinhostWithCqBinhosts(self):
+        content = 'CQ_BINHOST="gs://bar/bar"'
+        osutils.WriteFile(
+            self.external_cq_binhost_file_path, content, makedirs=True
+        )
+        osutils.WriteFile(
+            self.internal_cq_binhost_file_path, content, makedirs=True
+        )
+        content = 'POSTSUBMIT_BINHOST="gs://bar/bar"'
+        osutils.WriteFile(
+            self.external_postsubmit_binhost_file_path, content, makedirs=True
+        )
+        osutils.WriteFile(
+            self.internal_postsubmit_binhost_file_path, content, makedirs=True
+        )
+
+        config = self.sysroot.GenerateBinhostConf(
+            source_root=self.tempdir, use_cq_prebuilts=True
+        )
+        lines = self._removeCommentAndEmptyLines(config.splitlines())
+        self.assertEqual(len(lines), 9)
+        self.assertEqual(lines[0], 'PORTAGE_BINHOST="$FULL_BINHOST"')
+        self.assertEqual(
+            lines[1], f"source {self.external_postsubmit_binhost_file_path}"
+        )
+        self.assertEqual(
+            lines[2], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $POSTSUBMIT_BINHOST"'
+        )
+        self.assertEqual(
+            lines[3], f"source {self.internal_postsubmit_binhost_file_path}"
+        )
+        self.assertEqual(
+            lines[4], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $POSTSUBMIT_BINHOST"'
+        )
+        self.assertEqual(
+            lines[5], f"source {self.external_cq_binhost_file_path}"
+        )
+        self.assertEqual(
+            lines[6], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
+        )
+        self.assertEqual(
+            lines[7], f"source {self.internal_cq_binhost_file_path}"
+        )
+        self.assertEqual(
+            lines[8], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
         )
 
 

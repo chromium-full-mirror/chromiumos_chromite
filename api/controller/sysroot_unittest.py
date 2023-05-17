@@ -31,6 +31,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         profile=None,
         replace=False,
         current=False,
+        use_cq_prebuilts=False,
         package_indexes=None,
     ):
         """Helper to build and input proto instance."""
@@ -43,6 +44,8 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             proto.flags.replace = replace
         if current:
             proto.flags.chroot_current = current
+        if use_cq_prebuilts:
+            proto.flags.use_cq_prebuilts = use_cq_prebuilts
         if package_indexes:
             proto.package_indexes.extend(package_indexes)
 
@@ -126,11 +129,13 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         profile = None
         force = False
         upgrade_chroot = True
+        use_cq_prebuilts = False
         in_proto = self._InputProto(
             build_target=board,
             profile=profile,
             replace=force,
             current=not upgrade_chroot,
+            use_cq_prebuilts=use_cq_prebuilts,
         )
         out_proto = self._OutputProto()
         sysroot_controller.Create(in_proto, out_proto, self.api_config)
@@ -140,6 +145,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             force=force,
             upgrade_chroot=upgrade_chroot,
             package_indexes=[],
+            use_cq_prebuilts=use_cq_prebuilts,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
         )
         self.assertEqual(board, out_proto.sysroot.build_target.name)
@@ -151,6 +157,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         profile = "profile"
         force = True
         upgrade_chroot = False
+        use_cq_prebuilts = True
         package_indexes = [
             common_pb2.PackageIndexInfo(
                 snapshot_sha="SHA",
@@ -173,6 +180,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             profile=profile,
             replace=force,
             current=not upgrade_chroot,
+            use_cq_prebuilts=use_cq_prebuilts,
             package_indexes=package_indexes,
         )
         out_proto = self._OutputProto()
@@ -186,6 +194,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
                 for x in package_indexes
             ],
             upgrade_chroot=upgrade_chroot,
+            use_cq_prebuilts=use_cq_prebuilts,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
         )
         self.assertEqual(board, out_proto.sysroot.build_target.name)
@@ -602,6 +611,7 @@ class InstallPackagesTest(
         build_target=None,
         sysroot_path=None,
         build_source=False,
+        use_cq_prebuilts=False,
         goma_dir=None,
         goma_log_dir=None,
         goma_stats_file=None,
@@ -618,6 +628,8 @@ class InstallPackagesTest(
             instance.sysroot.path = sysroot_path
         if build_source:
             instance.flags.build_source = build_source
+        if use_cq_prebuilts:
+            instance.flags.use_cq_prebuilts = use_cq_prebuilts
         if goma_dir:
             instance.goma_config.goma_dir = goma_dir
         if goma_log_dir:

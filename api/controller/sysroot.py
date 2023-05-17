@@ -174,6 +174,7 @@ def Create(input_proto, output_proto, _config):
     """Create or replace a sysroot."""
     update_chroot = not input_proto.flags.chroot_current
     replace_sysroot = input_proto.flags.replace
+    use_cq_prebuilts = input_proto.flags.use_cq_prebuilts
 
     build_target = controller_util.ParseBuildTarget(
         input_proto.build_target, input_proto.profile
@@ -186,6 +187,7 @@ def Create(input_proto, output_proto, _config):
         force=replace_sysroot,
         upgrade_chroot=update_chroot,
         package_indexes=package_indexes,
+        use_cq_prebuilts=use_cq_prebuilts,
         backtrack=DEFAULT_BACKTRACK,
     )
 
