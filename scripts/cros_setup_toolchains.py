@@ -1411,7 +1411,10 @@ def CreatePackages(targets_wanted, output_dir, root="/"):
     ldpaths = lddtree.LoadLdpaths(root)
     targets = ExpandTargets(targets_wanted)
 
-    with osutils.TempDir(prefix="create-packages") as tempdir:
+    # b/282231712: Stash temporary path structure at |root|, so we have control
+    # over cross-device linking. The default base directory (/tmp) might be on
+    # a different filesystem/mount, so hard links won't work.
+    with osutils.TempDir(base_dir=root, prefix="create-packages") as tempdir:
         logging.debug("Using tempdir: %s", tempdir)
 
         # We have to split the root generation from the compression stages.
