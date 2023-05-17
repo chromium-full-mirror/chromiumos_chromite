@@ -502,7 +502,7 @@ def CreateChromePackageIndex(
         packages_path,
         chrome_packages,
         package_index_path,
-        ConvertGsUploadUri(gs_bucket),
+        gs_bucket,
         upload_path,
         sudo=True,
     )
