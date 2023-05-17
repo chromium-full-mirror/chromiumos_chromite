@@ -4,10 +4,10 @@
 
 """The tracing library that provides the Tracer."""
 
-from opentelemetry import trace as otel_trace_api
-from opentelemetry.sdk import resources as otel_resources
-from opentelemetry.sdk import trace as otel_trace
-from opentelemetry.sdk.trace import export as otel_export
+from chromite.third_party.opentelemetry import trace as otel_trace_api
+from chromite.third_party.opentelemetry.sdk import resources as otel_resources
+from chromite.third_party.opentelemetry.sdk import trace as otel_trace
+from chromite.third_party.opentelemetry.sdk.trace import export as otel_export
 
 from chromite.lib import chromite_config
 from chromite.lib import cros_build_lib

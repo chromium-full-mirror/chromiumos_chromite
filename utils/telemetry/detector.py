@@ -12,7 +12,7 @@ import platform
 import sys
 from typing import Sequence
 
-from opentelemetry.sdk import resources
+from chromite.third_party.opentelemetry.sdk import resources
 
 
 CPU_ARCHITECTURE = "cpu.architecture"

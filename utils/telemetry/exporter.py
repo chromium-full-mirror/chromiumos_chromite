@@ -13,11 +13,11 @@ import urllib.request
 from chromite.third_party.google.protobuf import json_format
 from chromite.third_party.google.protobuf import message as proto_msg
 from chromite.third_party.google.protobuf import struct_pb2
-from opentelemetry import trace as trace_api
-from opentelemetry.sdk import resources
-from opentelemetry.sdk import trace
-from opentelemetry.sdk.trace import export
-from opentelemetry.util import types
+from chromite.third_party.opentelemetry import trace as trace_api
+from chromite.third_party.opentelemetry.sdk import resources
+from chromite.third_party.opentelemetry.sdk import trace
+from chromite.third_party.opentelemetry.sdk.trace import export
+from chromite.third_party.opentelemetry.util import types
 
 # Required due to incomplete proto support in chromite. This proto usage is not
 # tied to the Build API, so delegating the proto handling to api/ does not make

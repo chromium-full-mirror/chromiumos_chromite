@@ -11,7 +11,7 @@ from pathlib import Path
 import platform
 import sys
 
-from opentelemetry.sdk import resources
+from chromite.third_party.opentelemetry.sdk import resources
 
 from chromite.utils.telemetry import detector
 

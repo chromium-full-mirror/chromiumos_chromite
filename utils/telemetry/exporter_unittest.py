@@ -9,8 +9,8 @@ import re
 import time
 import urllib.request
 
-from opentelemetry.sdk import trace
-from opentelemetry.sdk.trace import export
+from chromite.third_party.opentelemetry.sdk import trace
+from chromite.third_party.opentelemetry.sdk.trace import export
 
 from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
 from chromite.api.gen.chromite.telemetry import trace_span_pb2
