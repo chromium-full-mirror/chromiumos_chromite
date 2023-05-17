@@ -31,12 +31,12 @@ def mock_exists(path: os.PathLike, val: bool):
 def mock_read_text(path: os.PathLike, val: str):
     """Mock Path.read_text for specified path."""
 
-    read_text = Path.read_text
+    real_read_text = Path.read_text
 
     def _mock_read_text(*args, **kwargs):
         if args[0] == path:
             return val
-        return read_text(*args, **kwargs)
+        return real_read_text(*args, **kwargs)
 
     return _mock_read_text
 
