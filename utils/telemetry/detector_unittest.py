@@ -5,12 +5,13 @@
 """The tests for resource detector classes."""
 
 import getpass
+import logging
 import os
 from pathlib import Path
 import platform
+import sys
 
 from opentelemetry.sdk import resources
-import psutil
 
 from chromite.utils.telemetry import detector
 
@@ -43,19 +44,18 @@ def mock_read_text(path: os.PathLike, val: str):
 
 def test_process_info_capture():
     """Test that ProcessDetector captures correct process info."""
-    p = psutil.Process()
-    env_var = list(p.environ().keys())[0]
+    env_var = list(os.environ.keys())[0]
 
     d = detector.ProcessDetector(allowed_env=[env_var])
     attrs = d.detect().attributes
 
-    assert attrs[resources.PROCESS_PID] == p.pid
+    assert attrs[resources.PROCESS_PID] == os.getpid()
     assert attrs[detector.PROCESS_CWD] == os.getcwd()
-    assert attrs[resources.PROCESS_COMMAND] == p.cmdline()[0]
-    assert attrs[resources.PROCESS_COMMAND_ARGS] == tuple(p.cmdline()[1:])
-    assert attrs[resources.PROCESS_EXECUTABLE_NAME] == p.name()
-    assert attrs[resources.PROCESS_EXECUTABLE_PATH] == p.exe()
-    assert attrs[f"process.env.{env_var}"] == p.environ()[env_var]
+    assert attrs[resources.PROCESS_COMMAND] == sys.argv[0]
+    assert attrs[resources.PROCESS_COMMAND_ARGS] == tuple(sys.argv[1:])
+    assert attrs[resources.PROCESS_EXECUTABLE_NAME] == Path(sys.executable).name
+    assert attrs[resources.PROCESS_EXECUTABLE_PATH] == sys.executable
+    assert attrs[f"process.env.{env_var}"] == os.environ[env_var]
 
 
 def test_system_info_captured(monkeypatch):
@@ -72,15 +72,115 @@ def test_system_info_captured(monkeypatch):
     d = detector.SystemDetector()
     attrs = d.detect().attributes
 
-    assert attrs[detector.CPU_COUNT] == psutil.cpu_count()
+    assert attrs[detector.CPU_COUNT] == os.cpu_count()
     assert attrs[detector.HOST_TYPE] == "Google Compute Engine"
-    assert attrs[detector.MEMORY_TOTAL] == psutil.virtual_memory().total
-    assert attrs[detector.MEMORY_SWAP_TOTAL] == psutil.swap_memory().total
     assert attrs[detector.OS_NAME] == os.name
     assert attrs[resources.OS_TYPE] == platform.system()
     assert attrs[resources.OS_DESCRIPTION] == platform.platform()
     assert attrs[detector.CPU_ARCHITECTURE] == platform.machine()
     assert attrs[detector.CPU_NAME] == platform.processor()
+
+
+def test_memory_info_class(monkeypatch):
+    proc_meminfo_contents = """
+SwapTotal: 15 kB
+VmallocTotal: 25 kB
+MemTotal: 35 kB
+    """
+    monkeypatch.setattr(
+        Path, "exists", mock_exists(detector.PROC_MEMINFO_PATH, True)
+    )
+    monkeypatch.setattr(
+        Path,
+        "read_text",
+        mock_read_text(detector.PROC_MEMINFO_PATH, proc_meminfo_contents),
+    )
+
+    m = detector.MemoryInfo()
+    assert m.total_swap_memory == 15 * 1024
+    assert m.total_physical_ram == 35 * 1024
+    assert m.total_virtual_memory == 25 * 1024
+
+
+def test_memory_info_class_warns_on_unexpected_unit(monkeypatch, caplog):
+    proc_meminfo_contents = """
+SwapTotal: 15 mB
+VmallocTotal: 25 gB
+MemTotal: 35 tB
+    """
+    monkeypatch.setattr(
+        Path, "exists", mock_exists(detector.PROC_MEMINFO_PATH, True)
+    )
+    monkeypatch.setattr(
+        Path,
+        "read_text",
+        mock_read_text(detector.PROC_MEMINFO_PATH, proc_meminfo_contents),
+    )
+    caplog.set_level(logging.WARNING)
+
+    m = detector.MemoryInfo()
+    assert "Unit for memory consumption in /proc/meminfo" in caplog.text
+    # We do not attempt to correct unexpected units
+    assert m.total_swap_memory == 15 * 1024
+    assert m.total_physical_ram == 35 * 1024
+    assert m.total_virtual_memory == 25 * 1024
+
+
+def test_memory_info_class_no_units(monkeypatch):
+    proc_meminfo_contents = """
+SwapTotal: 15
+    """
+    monkeypatch.setattr(
+        Path, "exists", mock_exists(detector.PROC_MEMINFO_PATH, True)
+    )
+    monkeypatch.setattr(
+        Path,
+        "read_text",
+        mock_read_text(detector.PROC_MEMINFO_PATH, proc_meminfo_contents),
+    )
+
+    m = detector.MemoryInfo()
+    assert m.total_swap_memory == 15
+
+
+def test_memory_info_class_no_provided_value(monkeypatch, caplog):
+    proc_meminfo_contents = """
+SwapTotal:
+    """
+    monkeypatch.setattr(
+        Path, "exists", mock_exists(detector.PROC_MEMINFO_PATH, True)
+    )
+    monkeypatch.setattr(
+        Path,
+        "read_text",
+        mock_read_text(detector.PROC_MEMINFO_PATH, proc_meminfo_contents),
+    )
+    caplog.set_level(logging.WARNING)
+
+    detector.MemoryInfo()
+    assert "Unexpected /proc/meminfo entry with no label:number" in caplog.text
+
+
+def test_system_info_to_capture_memory_resources(monkeypatch):
+    proc_meminfo_contents = """
+SwapTotal: 15 kB
+VmallocTotal: 25 kB
+MemTotal: 35 kB
+    """
+    monkeypatch.setattr(
+        Path, "exists", mock_exists(detector.PROC_MEMINFO_PATH, True)
+    )
+    monkeypatch.setattr(
+        Path,
+        "read_text",
+        mock_read_text(detector.PROC_MEMINFO_PATH, proc_meminfo_contents),
+    )
+
+    d = detector.SystemDetector()
+    attrs = d.detect().attributes
+
+    assert attrs[detector.MEMORY_TOTAL] == 35 * 1024
+    assert attrs[detector.MEMORY_SWAP_TOTAL] == 15 * 1024
 
 
 def test_system_info_to_capture_host_type_bot(monkeypatch):
@@ -97,10 +197,8 @@ def test_system_info_to_capture_host_type_bot(monkeypatch):
     d = detector.SystemDetector()
     attrs = d.detect().attributes
 
-    assert attrs[detector.CPU_COUNT] == psutil.cpu_count()
+    assert attrs[detector.CPU_COUNT] == os.cpu_count()
     assert attrs[detector.HOST_TYPE] == "chromeos-bot"
-    assert attrs[detector.MEMORY_TOTAL] == psutil.virtual_memory().total
-    assert attrs[detector.MEMORY_SWAP_TOTAL] == psutil.swap_memory().total
     assert attrs[detector.OS_NAME] == os.name
     assert attrs[resources.OS_TYPE] == platform.system()
     assert attrs[resources.OS_DESCRIPTION] == platform.platform()
@@ -120,10 +218,8 @@ def test_system_info_to_capture_host_type_from_dmi(monkeypatch):
     d = detector.SystemDetector()
     attrs = d.detect().attributes
 
-    assert attrs[detector.CPU_COUNT] == psutil.cpu_count()
+    assert attrs[detector.CPU_COUNT] == os.cpu_count()
     assert attrs[detector.HOST_TYPE] == "SomeId"
-    assert attrs[detector.MEMORY_TOTAL] == psutil.virtual_memory().total
-    assert attrs[detector.MEMORY_SWAP_TOTAL] == psutil.swap_memory().total
     assert attrs[detector.OS_NAME] == os.name
     assert attrs[resources.OS_TYPE] == platform.system()
     assert attrs[resources.OS_DESCRIPTION] == platform.platform()
@@ -139,10 +235,8 @@ def test_system_info_to_capture_host_type_unknown(monkeypatch):
     d = detector.SystemDetector()
     attrs = d.detect().attributes
 
-    assert attrs[detector.CPU_COUNT] == psutil.cpu_count()
+    assert attrs[detector.CPU_COUNT] == os.cpu_count()
     assert attrs[detector.HOST_TYPE] == "UNKNOWN"
-    assert attrs[detector.MEMORY_TOTAL] == psutil.virtual_memory().total
-    assert attrs[detector.MEMORY_SWAP_TOTAL] == psutil.swap_memory().total
     assert attrs[detector.OS_NAME] == os.name
     assert attrs[resources.OS_TYPE] == platform.system()
     assert attrs[resources.OS_DESCRIPTION] == platform.platform()
