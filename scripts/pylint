@@ -80,10 +80,17 @@
 
 """Wrapper for stable version of pylint that we control."""
 
+from pathlib import Path
 import sys
 
 from pylint import lint
 
+
+THIS_FILE = Path(__file__).resolve()
+
+# Ensure pylint can find chromite.cli.cros.lint, assuming this script is running
+# from chromite/scripts/.
+sys.path.append(str(THIS_FILE.parents[2]))
 
 try:
     lint.Run(sys.argv[1:])
