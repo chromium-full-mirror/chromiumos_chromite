@@ -158,7 +158,6 @@
     hatch-arc-t-release
     hatch-release
     herobrine-angle-release
-    herobrine-release
     herobrine-userdebug-release
     jacuzzi-release
     jacuzzi64-release
@@ -624,11 +623,6 @@
   herobrine-angle-llvm-toolchain-tryjob
   herobrine-angle-payloads-tryjob
   herobrine-angle-release-tryjob
-  herobrine-full-tryjob
-  herobrine-llvm-next-toolchain-tryjob
-  herobrine-llvm-toolchain-tryjob
-  herobrine-payloads-tryjob
-  herobrine-release-tryjob
   herobrine-userdebug-full-tryjob
   herobrine-userdebug-llvm-next-toolchain-tryjob
   herobrine-userdebug-llvm-toolchain-tryjob
@@ -765,7 +759,6 @@
     hatch-arc-t-release-tryjob
     hatch-release-tryjob
     herobrine-angle-release-tryjob
-    herobrine-release-tryjob
     herobrine-userdebug-release-tryjob
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
