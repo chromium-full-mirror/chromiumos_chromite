@@ -193,7 +193,6 @@
     hatch-release
     herobrine-angle-release
     herobrine-kernelnext-release
-    herobrine-release
     herobrine-userdebug-release
     jacuzzi-kernelnext-release
     jacuzzi-release
@@ -835,16 +834,11 @@
   herobrine-angle-llvm-toolchain-tryjob
   herobrine-angle-payloads-tryjob
   herobrine-angle-release-tryjob
-  herobrine-full-tryjob
   herobrine-kernelnext-full-tryjob
   herobrine-kernelnext-llvm-next-toolchain-tryjob
   herobrine-kernelnext-llvm-toolchain-tryjob
   herobrine-kernelnext-payloads-tryjob
   herobrine-kernelnext-release-tryjob
-  herobrine-llvm-next-toolchain-tryjob
-  herobrine-llvm-toolchain-tryjob
-  herobrine-payloads-tryjob
-  herobrine-release-tryjob
   herobrine-userdebug-full-tryjob
   herobrine-userdebug-llvm-next-toolchain-tryjob
   herobrine-userdebug-llvm-toolchain-tryjob
@@ -1037,7 +1031,6 @@
     hatch-release-tryjob
     herobrine-angle-release-tryjob
     herobrine-kernelnext-release-tryjob
-    herobrine-release-tryjob
     herobrine-userdebug-release-tryjob
     jacuzzi-kernelnext-release-tryjob
     jacuzzi-release-tryjob
