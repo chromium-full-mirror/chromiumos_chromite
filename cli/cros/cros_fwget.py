@@ -4,8 +4,6 @@
 
 """A cros command used to retrieve firmware archives from Google Storage."""
 
-import logging
-
 from chromite.cli import command
 from chromite.lib.fwbuddy import fwbuddy
 
@@ -39,16 +37,33 @@ Examples:
             help="The fwbuddy URI that identifies the firmware archive.",
         )
         parser.add_argument(
-            "path",
+            "--path",
             type="dir_exists",
             help="The path to the local folder where the firmware archive will "
             "be extracted to.",
         )
+        parser.add_argument(
+            "--chip",
+            help="Limits the output to only include the specified chip, E.G. EC or AP",
+        )
 
     def Run(self):
         """Downloads the firmware archive and extract its contents to path"""
-        logging.notice(self.options.uri)
-        logging.notice(self.options.path)
+        # Exits early if chip is defined, but not supported
+        chip = (
+            fwbuddy.parse_chip(self.options.chip) if self.options.chip else None
+        )
+        path = (
+            self.options.path
+            if self.options.path
+            else fwbuddy.DEFAULT_EXPORTED_FIRMWARE_PATH
+        )
+
         f = fwbuddy.FwBuddy(uri=self.options.uri)
         f.download()
-        f.extract(self.options.path)
+
+        if chip:
+            f.extract()
+            f.export_firmware_image(chip, path)
+        else:
+            f.extract(path)

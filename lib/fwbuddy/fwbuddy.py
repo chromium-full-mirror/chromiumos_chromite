@@ -56,6 +56,9 @@ TMP_STORAGE_FOLDER = "/tmp/fwbuddy"
 # Where firmware archives are extracted to when a folder isn't specified.
 DEFAULT_EXTRACTED_ARCHIVE_PATH = f"{TMP_STORAGE_FOLDER}/archive"
 
+# Where firmware images are exported to when a folder isn't specified.
+DEFAULT_EXPORTED_FIRMWARE_PATH = f"{TMP_STORAGE_FOLDER}/exported"
+
 # Some AP Firmware Images are compiled with different flags to enable features
 # like additional logging. In the firmware archives, this images would show up
 # as image-galtic.serial.bin or image-galtic.dev.bin.
@@ -63,6 +66,12 @@ SERIAL = "serial"
 DEV = "dev"
 NET = "net"
 AP_FIRMWARE_TYPES = [SERIAL, DEV, NET]
+
+# The currently supported chip types.
+AP = "ap"
+EC = "ec"
+CHIP_TYPES = [AP, EC]
+
 # All known file path schemas that unsigned firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 UNSIGNED_GSPATH_SCHEMAS = [
@@ -90,6 +99,13 @@ SIGNED_GSPATH_SCHEMAS = [
     "%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-"
     "%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
 ]
+
+# Schemas used to generate the local file path for firmware images.
+AP_PATH_SCHEMA = "%(directory)s/image-%(firmware_name)s.bin"
+AP_PATH_SCHEMA_WITH_FIRMWARE_TYPE = (
+    "%(directory)s/image-%(firmware_name)s.%(firmware_type)s.bin"
+)
+EC_PATH_SCHEMA = "%(directory)s/%(firmware_name)s/ec.bin"
 
 # Example: R89-13606.459.0
 RELEASE_STRING_REGEX_PATTERN = re.compile(r"[R|r](\d+|\*)-(\d+)\.(\d+)\.(\d+)")
@@ -153,7 +169,13 @@ class FwBuddy:
         Args:
             uri: An fwbuddy URI used to identify a specific firmware archive.
         """
-        self.archive_path = ""
+
+        # These paths are not populated until after we've downloaded and
+        # extracted the contents of the firmware archive.
+        self.archive_path = None
+        self.ec_path = None
+        self.ap_path = None
+
         self.cleanup()
         self.setup()
         self.gs = gs.GSContext()
@@ -169,6 +191,7 @@ class FwBuddy:
     def setup(self) -> None:
         """Create the folder that will contain our tmp data."""
         os.makedirs(DEFAULT_EXTRACTED_ARCHIVE_PATH, exist_ok=True)
+        os.makedirs(DEFAULT_EXPORTED_FIRMWARE_PATH, exist_ok=True)
 
     def build_fw_image(self) -> FwImage:
         """Builds a new FwImage with information from the URI and DLM
@@ -183,7 +206,7 @@ class FwBuddy:
             release=self.determine_release(),
             branch=self.lookup_branch(),
             image_type=self.uri.image_type,
-            firmware_type=self.uri.firmware_type,
+            firmware_type=parse_firmware_type(self.uri.firmware_type),
         )
 
     # TODO(b/280096504) Implement
@@ -272,15 +295,81 @@ class FwBuddy:
 
         Args:
             directory: Where to extract the firmware contents.
+
+        Raises:
+            FwBuddyException: If extract contents fails.
         """
         logging.notice("Extracting firmware contents to: %s...", directory)
-        cros_build_lib.run(
+        result = cros_build_lib.run(
             ["tar", "-xf", self.archive_path, f"--directory={directory}"],
             capture_output=True,
             encoding="utf-8",
         )
+        if result.returncode == 1:
+            raise FwBuddyException(
+                f"Encountered a fatal error while extracting firmware archive contents: "
+                f"{result.stderr}"
+            )
         logging.notice(
             "Successfully extracted firmware contents to: %s", directory
+        )
+        ap_path_schema = (
+            AP_PATH_SCHEMA_WITH_FIRMWARE_TYPE
+            if self.fw_image.firmware_type
+            else AP_PATH_SCHEMA
+        )
+        self.ap_path = ap_path_schema % {
+            "directory": directory,
+            "firmware_name": self.fw_image.firmware_name,
+            "firmware_type": self.fw_image.firmware_type,
+        }
+        self.ec_path = EC_PATH_SCHEMA % {
+            "directory": directory,
+            "firmware_name": self.fw_image.firmware_name,
+        }
+
+    def export_firmware_image(self, chip: str, directory: str):
+        """Locates the firmware image for the chip and copies it to directory
+
+        Args:
+            chip: The firmware chip, E.G. AP or EC
+            directory: Where to copy the image to
+
+        Raises:
+            FwBuddyException: If firmware unexported or failed to copy image.
+        """
+        chip = parse_chip(chip)
+        if (self.ec_path is None and chip == EC) or (
+            self.ap_path is None and chip == AP
+        ):
+            raise FwBuddyException(
+                "Attempted to export firmware from an unextracted archive."
+                "Please first extract the firmware archive by running fwbuddy.extract"
+            )
+
+        firmware_image_path = self.ec_path if chip == EC else self.ap_path
+        image_name = firmware_image_path.split("/")[-1]
+
+        # Get the absolute path, expanding any user or system variables, like `~` to reference $HOME
+        directory = os.path.abspath(
+            os.path.expanduser(os.path.expandvars(directory))
+        )
+
+        result = cros_build_lib.run(
+            ["cp", firmware_image_path, directory],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        if result.returncode == 1:
+            raise FwBuddyException(
+                f"Encountered a fatal error while exporting the firmware image: "
+                f"{result.stderr}"
+            )
+        logging.notice(
+            "Exported the %s firmware image to %s/%s",
+            chip,
+            directory,
+            image_name,
         )
 
 
@@ -376,3 +465,47 @@ def generate_gspaths(fw_image: FwImage) -> List[str]:
         )
 
     return gspaths
+
+
+def parse_chip(chip: str):
+    """Checks if the chip is supported and returns a lowercase copy of it.
+
+    Args:
+        chip: The chip. E.G. AP or EC
+
+    Returns:
+        A lowercase copy of the chip
+
+    Raises:
+        FwBuddyException: If the chip is not supported
+    """
+    if chip is None:
+        return None
+    if chip.lower() in CHIP_TYPES:
+        return chip.lower()
+    raise FwBuddyException(
+        f"Unrecognized or unsupported chip type: "
+        f'"{chip}" Expected one of {CHIP_TYPES}'
+    )
+
+
+def parse_firmware_type(firmware_type: str):
+    """Checks if the firmware_type is supported and returns a lowercase copy of it.
+
+    Args:
+        firmware_type: The firmware_type. E.G. serial, dev, or net
+
+    Returns:
+        A lowercase copy of firmware_type
+
+    Raises:
+        FwBuddyException: If the frimware_type is not supported
+    """
+    if firmware_type is None:
+        return None
+    if firmware_type.lower() in AP_FIRMWARE_TYPES:
+        return firmware_type.lower()
+    raise FwBuddyException(
+        f"Unrecognized or unsupported firmware type: "
+        f'"{firmware_type}" Expected one of {AP_FIRMWARE_TYPES}'
+    )

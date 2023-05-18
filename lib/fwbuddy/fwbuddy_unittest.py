@@ -7,8 +7,13 @@
 # This is to prevent pylint from complaining about us including, but not
 # using the `setup` fixture.
 # pylint: disable=unused-argument
+
+
+from subprocess import CompletedProcess
+
 import pytest
 
+from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib.fwbuddy import fwbuddy
 
@@ -151,3 +156,76 @@ def test_download(setup):
     )
     f.download()
     assert f.archive_path == f"{fwbuddy.TMP_STORAGE_FOLDER}/path"
+
+
+def test_extract(setup, monkeypatch):
+    mock_response = CompletedProcess([], 0)
+    monkeypatch.setattr(
+        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
+    )
+    # Ap image path extraction with firmware_type
+    f = fwbuddy.FwBuddy(
+        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
+    )
+    f.extract("tmp")
+    assert f.ap_path == "tmp/image-galtic.serial.bin"
+
+    # AP and EC image path extraction
+    f = fwbuddy.FwBuddy(
+        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed"
+    )
+    f.extract("tmp")
+    assert f.ap_path == "tmp/image-galtic.bin"
+    assert f.ec_path == "tmp/galtic/ec.bin"
+
+    # Some error while extracting archive contents.
+    mock_response = CompletedProcess([], 1, stderr="some error")
+    monkeypatch.setattr(
+        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
+    )
+    with pytest.raises(fwbuddy.FwBuddyException):
+        f.extract()
+
+
+def test_export_firmware_image(setup, monkeypatch):
+    mock_response = CompletedProcess([], 0)
+    monkeypatch.setattr(
+        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
+    )
+    f = fwbuddy.FwBuddy(
+        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
+    )
+    # Unsupported chip
+    f.extract("tmp")
+    with pytest.raises(fwbuddy.FwBuddyException):
+        f.export_firmware_image("tmp", "JUNK_CHIP")
+
+    # Export without extraction
+    f.ec_path = None
+    with pytest.raises(fwbuddy.FwBuddyException):
+        f.export_firmware_image("tmp", "EC")
+
+    # Some failure while exporting
+    f.extract("tmp")
+    mock_response = CompletedProcess([], 1)
+    monkeypatch.setattr(
+        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
+    )
+    with pytest.raises(fwbuddy.FwBuddyException):
+        f.export_firmware_image("tmp", "EC")
+
+
+def test_parse_chip(setup):
+    assert "ec" == fwbuddy.parse_chip("EC")
+    assert "ap" == fwbuddy.parse_chip("ap")
+    assert None is fwbuddy.parse_chip(None)
+
+    with pytest.raises(fwbuddy.FwBuddyException):
+        fwbuddy.parse_chip("junk")
+
+
+def test_parse_firmware_type(setup):
+    assert "serial" == fwbuddy.parse_firmware_type("SERIAL")
+    assert None is fwbuddy.parse_firmware_type(None)
+    with pytest.raises(fwbuddy.FwBuddyException):
+        fwbuddy.parse_firmware_type("junk")
