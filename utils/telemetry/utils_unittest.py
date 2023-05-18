@@ -5,9 +5,26 @@
 """Test the config and anonymizer utils."""
 
 import getpass
+import platform
 import re
 
 from chromite.utils.telemetry import utils
+
+
+def test_google_host_to_return_true_for_valid_hosts(monkeypatch):
+    """Test that is_google_host returns true for valid host."""
+
+    monkeypatch.setattr(platform, "node", lambda: "something.else.google.com")
+
+    assert utils.is_google_host()
+
+
+def test_google_host_to_be_false_for_invalid_hosts(monkeypatch):
+    """Test that is_google_host returns true for invalid host."""
+
+    monkeypatch.setattr(platform, "node", lambda: "some.host.com")
+
+    assert not utils.is_google_host()
 
 
 def test_default_anonymizer_to_remove_username_from_path():

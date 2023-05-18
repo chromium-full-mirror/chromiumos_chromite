@@ -14,6 +14,7 @@ from chromite.lib import cros_build_lib
 from chromite.utils.telemetry import config
 from chromite.utils.telemetry import detector
 from chromite.utils.telemetry import exporter
+from chromite.utils.telemetry import utils
 
 
 NOTICE = """
@@ -26,6 +27,9 @@ collection at any time by setting the flag `trace.enabled = False` in
 
 def initialize():
     """Initialize opentelemetry library."""
+
+    if not utils.is_google_host():
+        return
 
     chromite_config.initialize()
     cfg = config.Config(chromite_config.TELEMETRY_CONFIG)

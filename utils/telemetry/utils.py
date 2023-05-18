@@ -5,8 +5,15 @@
 """Provides utility classes and functions."""
 
 import getpass
+import platform
 import re
 from typing import Optional, Pattern, Sequence, Tuple
+
+
+def is_google_host():
+    """Checks if the code is running on google host."""
+
+    return ".google" in platform.node()
 
 
 class Anonymizer:
