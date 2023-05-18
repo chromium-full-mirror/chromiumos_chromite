@@ -1,5 +1,6 @@
 {
-  "python.formatting.provider": "yapf",
+  "python.formatting.blackPath": "${workspaceFolder}/scripts/black",
+  "python.formatting.provider": "black",
   "python.linting.pylintEnabled": true,
   "python.linting.pylintPath": "${workspaceFolder}/scripts/pylint",
   "python.testing.cwd": "${workspaceFolder}",
