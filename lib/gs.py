@@ -738,20 +738,21 @@ wheel: <
         # The AUTHENTICATION_BUCKET is readable by any authenticated account.
         # If we can list its contents, we have valid authentication.
         cmd = ["ls", path]
-        kwargs.setdefault("capture_output", True)
+        kwargs.setdefault("stdout", True)
+        kwargs.setdefault("stderr", True)
         result = self.DoCommand(
             cmd,
             retries=0,
             debug_level=logging.DEBUG,
-            capture_output=True,
             check=False,
+            **kwargs,
         )
 
-        if result.returncode == 1 and not kwargs["capture_output"]:
+        if result.returncode == 1 and not kwargs["stderr"]:
             return False
 
         # Did we fail with an authentication error?
-        if kwargs["capture_output"] and any(
+        if kwargs["stderr"] and any(
             e in result.stderr for e in self.AUTHORIZATION_ERRORS
         ):
             logging.warning(
@@ -1066,8 +1067,7 @@ wheel: <
         """Check that the user can access a given gs path and prompts them to reauthenticate if not."""
         # Attempt to LS the path, prompting the user for
         # reauthentication if necessary.
-        self._TestGSLs(path, capture_output=False, stdout=True, stderr=False)
-
+        self._TestGSLs(path, stdout=True, stderr=False)
         # Attempt to LS the path again, but this time capture
         # the input so we can verify if we authenticated correctly.
         if not self._TestGSLs(path):
