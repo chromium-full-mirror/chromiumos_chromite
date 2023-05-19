@@ -17601,6 +17601,8 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"nivviks\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"pujjo\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"pujjoteen\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"uldren\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"uldren360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yaviks\",\n  \"test_suites\": []\n}"
@@ -17637,6 +17639,8 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"nivviks\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"pujjo\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"pujjoteen\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"uldren\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"uldren360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yaviks\",\n  \"test_suites\": []\n}"
