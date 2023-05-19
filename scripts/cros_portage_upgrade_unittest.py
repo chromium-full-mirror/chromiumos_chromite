@@ -493,8 +493,8 @@ class CpuTestBase(cros_test_lib.MockTempDirTestCase):
 
         vdb = os.path.join(var_lib_portage, "pkgs")
         for ebuild, custom_metadata in installed.items():
-            cpv = package_info.SplitCPV(ebuild)
-            vdb_pkg = os.path.join(vdb, cpv.cpf)
+            pkg_info = package_info.parse(ebuild)
+            vdb_pkg = os.path.join(vdb, pkg_info.cpvr)
             osutils.SafeMakedirs(vdb_pkg)
             metadata = DEFAULT_METADATA.copy()
             metadata.update(custom_metadata)
@@ -502,7 +502,7 @@ class CpuTestBase(cros_test_lib.MockTempDirTestCase):
                 osutils.WriteFile(os.path.join(vdb_pkg, key), value)
 
         for ebuild, custom_metadata in ebuilds.items():
-            cpv = package_info.SplitCPV(ebuild)
+            pkg_info = package_info.parse(ebuild)
             metadata = DEFAULT_METADATA.copy()
             metadata.update(custom_metadata)
             content = "EAPI=%s\n" % metadata.pop("EAPI")
@@ -510,9 +510,7 @@ class CpuTestBase(cros_test_lib.MockTempDirTestCase):
             osutils.WriteFile(
                 os.path.join(
                     self.upstream_tmp_repo,
-                    cpv.category,
-                    cpv.package,
-                    os.path.basename(cpv.cpf) + ".ebuild",
+                    pkg_info.relative_path,
                 ),
                 content,
                 makedirs=True,

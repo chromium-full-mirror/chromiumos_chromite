@@ -164,11 +164,11 @@ def GetPackageAPI(portage_root, package_cp):
 
     # Convert string match to package dblink.
     package_cpv = matching_packages[0]
-    package_split = package_info.SplitCPV(package_cpv)
+    package_split = package_info.parse(package_cpv)
     # pylint: disable=no-member
     package = portage.dblink(
         package_split.category,
-        package_split.pv,
+        package_split.pvr,
         settings=vartree.settings,
         vartree=vartree,
     )

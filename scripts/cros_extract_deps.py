@@ -73,13 +73,13 @@ def FlattenDepTree(deptree, pkgtable=None, parentcpv=None, get_cpe=False):
         pkgtable = {}
     for cpv, record in deptree.items():
         if cpv not in pkgtable:
-            split = package_info.SplitCPV(cpv)
+            pkg_info = package_info.parse(cpv)
             pkgtable[cpv] = {
                 "deps": [],
                 "rev_deps": [],
-                "name": split.package,
-                "category": split.category,
-                "version": "%s" % split.version,
+                "name": pkg_info.package,
+                "category": pkg_info.category,
+                "version": pkg_info.vr,
                 "full_name": cpv,
                 "cpes": [],
                 "action": record["action"],
@@ -87,7 +87,7 @@ def FlattenDepTree(deptree, pkgtable=None, parentcpv=None, get_cpe=False):
             if get_cpe:
                 pkgtable[cpv]["cpes"].extend(
                     GetCPEFromCPV(
-                        split.category, split.package, split.version_no_rev
+                        pkg_info.category, pkg_info.package, pkg_info.version
                     )
                 )
 

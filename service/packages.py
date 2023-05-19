@@ -1576,12 +1576,12 @@ def determine_android_version(board: str, package: str = None):
         package = determine_android_package(board)
     if not package:
         return None
-    cpv = package_info.SplitCPV(package)
+    cpv = package_info.parse(package)
     if not cpv:
         raise NoAndroidVersionError(
             "Android version could not be determined for %s" % board
         )
-    return cpv.version_no_rev
+    return cpv.version
 
 
 def determine_android_branch(board, package=None):
