@@ -280,16 +280,6 @@ def retrieve_package_log_paths(
         failed_pkg_data_msg.log_path.location = common_pb2.Path.INSIDE
 
 
-def PackageInfoToCPV(package_info_msg):
-    """Helper to translate a PackageInfo message into a CPV."""
-    if not package_info_msg or not package_info_msg.package_name:
-        return None
-
-    return package_info.SplitCPV(
-        PackageInfoToString(package_info_msg), strict=False
-    )
-
-
 def PackageInfoToString(package_info_msg):
     """Combine the components into the full package string."""
     # TODO: Use the lib.parser.package_info.PackageInfo class instead.

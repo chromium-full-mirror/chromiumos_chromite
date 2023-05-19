@@ -291,7 +291,7 @@ class BuildTargetUnitTestTest(
         )
 
         pkgs = ["foo/bar", "cat/pkg"]
-        blocklist = [package_info.SplitCPV(p, strict=False) for p in pkgs]
+        blocklist = [package_info.parse(p) for p in pkgs]
         input_msg = self._GetInput(
             board="board", empty_sysroot=True, blocklist=blocklist
         )

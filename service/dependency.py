@@ -152,7 +152,7 @@ def GetBuildDependency(
     if sysroot_path != sdk_sysroot:
         board_packages = []
         if packages:
-            board_packages.extend([cpv.cp for cpv in packages])
+            board_packages.extend([pkg.cp for pkg in packages])
         else:
             board_packages.extend(
                 [

@@ -7,7 +7,6 @@
 import os
 
 from chromite.api import api_config
-from chromite.api.controller import controller_util
 from chromite.api.controller import dependency
 from chromite.api.gen.chromite.api import depgraph_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
@@ -126,10 +125,7 @@ class BoardBuildDependencyTest(
             "GetBuildDependency",
             return_value=(self.json_deps, self.json_deps),
         )
-        pkg_mock = "package-CPV"
-        pkg_to_cpv = self.PatchObject(
-            controller_util, "PackageInfoToCPV", return_value=pkg_mock
-        )
+        pkg_atom = "chromeos-base/chromeos-chrome"
         package = common_pb2.PackageInfo(
             package_name="chromeos-chrome", category="chromeos-base"
         )
@@ -141,8 +137,7 @@ class BoardBuildDependencyTest(
             input_proto, self.response, self.api_config
         )
         self.assertEqual(self.response.dep_graph.build_target.name, "deathstar")
-        pkg_to_cpv.assert_called_once_with(package)
-        get_dep.assert_called_once_with("/build/target", "target", (pkg_mock,))
+        get_dep.assert_called_once_with("/build/target", "target", (pkg_atom,))
 
     def testValidateOnly(self):
         """Test that a validate only call does not execute any logic."""

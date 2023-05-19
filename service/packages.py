@@ -383,7 +383,7 @@ def uprev_overlays(
 
 
 def uprev_versioned_package(
-    package: package_info.CPV,
+    package: package_info.PackageInfo,
     build_targets: List["build_target_lib.BuildTarget"],
     refs: List[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",

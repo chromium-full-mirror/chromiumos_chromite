@@ -132,35 +132,6 @@ class ParseBuildTargetsTest(cros_test_lib.TestCase):
             controller_util.ParseBuildTargets(message.env.use_flags)
 
 
-class PackageInfoToCPVTest(cros_test_lib.TestCase):
-    """PackageInfoToCPV tests."""
-
-    def testAllFields(self):
-        """Quick check CPV fields."""
-        pi = common_pb2.PackageInfo()
-        pi.package_name = "pkg"
-        pi.category = "cat"
-        pi.version = "2.0.0"
-
-        cpv = controller_util.PackageInfoToCPV(pi)
-
-        self.assertEqual("pkg", cpv.package)
-        self.assertEqual("cat", cpv.category)
-        self.assertEqual("2.0.0", cpv.version)
-
-    def testNoPackageInfo(self):
-        """Test no package info given."""
-        self.assertIsNone(controller_util.PackageInfoToCPV(None))
-
-    def testNoPackageName(self):
-        """Test no package name given."""
-        pi = common_pb2.PackageInfo()
-        pi.category = "cat"
-        pi.version = "2.0.0"
-
-        self.assertIsNone(controller_util.PackageInfoToCPV(pi))
-
-
 class PackageInfoToStringTest(cros_test_lib.TestCase):
     """PackageInfoToString tests."""
 

@@ -513,16 +513,16 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         request = self._GetRequest(board="betty")
         # Add optional packages to the request.
-        cpv_package_list = []
+        package_list = []
         package = request.packages.add()
         package.package_name = "test"
         package.category = "chromeos-base"
         package.version = "0.0.1-r1"
-        cpv_package_list.append(controller_util.PackageInfoToCPV(package))
+        package_list.append(controller_util.deserialize_package_info(package))
         package = request.packages.add()
         package.package_name = "target-fuzzers"
         package.category = "virtual"
-        cpv_package_list.append(controller_util.PackageInfoToCPV(package))
+        package_list.append(controller_util.deserialize_package_info(package))
 
         packages_controller.GetTargetVersions(
             request, self.response, self.api_config
@@ -537,12 +537,8 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         # Verify call to packages.builds passes the package list.
         builds_mock.assert_has_calls(
             calls=[
-                mock.call(
-                    constants.CHROME_CP, mock.ANY, packages=cpv_package_list
-                ),
-                mock.call(
-                    constants.LACROS_CP, mock.ANY, packages=cpv_package_list
-                ),
+                mock.call(constants.CHROME_CP, mock.ANY, packages=package_list),
+                mock.call(constants.LACROS_CP, mock.ANY, packages=package_list),
             ]
         )
 
@@ -1035,7 +1031,7 @@ class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         patch.assert_called_once_with(
             constants.CHROME_CP,
             build_target_lib.BuildTarget("foo"),
-            [controller_util.PackageInfoToCPV(package)],
+            [controller_util.deserialize_package_info(package)],
         )
 
 

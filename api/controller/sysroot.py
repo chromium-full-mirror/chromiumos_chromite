@@ -335,7 +335,8 @@ def InstallPackages(input_proto, output_proto, _config):
     # Get the package atom for each specified package. The field is optional, so
     # error only when we cannot parse an atom for each of the given packages.
     packages = [
-        controller_util.PackageInfoToCPV(x).cp for x in input_proto.packages
+        controller_util.deserialize_package_info(x).atom
+        for x in input_proto.packages
     ]
 
     package_indexes = [

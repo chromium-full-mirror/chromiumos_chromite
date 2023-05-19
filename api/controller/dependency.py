@@ -81,7 +81,8 @@ def GetBuildDependencyGraph(
         sysroot_path = build_target_lib.get_default_sysroot_path(board or None)
 
     packages = tuple(
-        controller_util.PackageInfoToCPV(x) for x in input_proto.packages
+        controller_util.deserialize_package_info(x)
+        for x in input_proto.packages
     )
 
     json_map, sdk_json_map = dependency.GetBuildDependency(

@@ -94,17 +94,16 @@ def BuildTargetUnitTest(input_proto, output_proto, _config):
     was_built = not input_proto.flags.empty_sysroot
 
     # Packages to be tested.
-    packages_package_info = input_proto.packages
-    packages = []
-    for package_info_msg in packages_package_info:
-        cpv = controller_util.PackageInfoToCPV(package_info_msg)
-        packages.append(cpv.cp)
+    packages = [
+        controller_util.deserialize_package_info(x).atom
+        for x in input_proto.packages
+    ]
 
     # Skipped tests.
-    blocklisted_package_info = input_proto.package_blocklist
-    blocklist = []
-    for package_info_msg in blocklisted_package_info:
-        blocklist.append(controller_util.PackageInfoToString(package_info_msg))
+    blocklist = [
+        controller_util.deserialize_package_info(x).atom
+        for x in input_proto.package_blocklist
+    ]
 
     # Allow call to filter out non-cros_workon packages from the input packages.
     filter_only_cros_workon = input_proto.flags.filter_only_cros_workon

@@ -80,7 +80,7 @@ def UprevVersionedPackage(input_proto, output_proto, _config):
     """
     chroot = controller_util.ParseChroot(input_proto.chroot)
     build_targets = controller_util.ParseBuildTargets(input_proto.build_targets)
-    package = controller_util.PackageInfoToCPV(input_proto.package_info)
+    package = controller_util.deserialize_package_info(input_proto.package_info)
     refs = []
     for ref in input_proto.versions:
         refs.append(
@@ -183,7 +183,8 @@ def GetTargetVersions(input_proto, output_proto, _config):
     """Returns the target versions."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     package_list = [
-        controller_util.PackageInfoToCPV(x) for x in input_proto.packages or []
+        controller_util.deserialize_package_info(x)
+        for x in input_proto.packages
     ]
     target_versions = packages.get_target_versions(build_target, package_list)
 
@@ -301,10 +302,10 @@ def HasChromePrebuilt(input_proto, output_proto, _config):
 def HasPrebuilt(input_proto, output_proto, _config):
     """Checks if the most recent version of Chrome has a prebuilt."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
-    package = controller_util.PackageInfoToCPV(input_proto.package_info).cp
+    package = controller_util.deserialize_package_info(input_proto.package_info)
     useflags = "chrome_internal" if input_proto.chrome else None
     exists = packages.has_prebuilt(
-        package, build_target=build_target, useflags=useflags
+        package.atom, build_target=build_target, useflags=useflags
     )
 
     output_proto.has_prebuilt = exists
@@ -323,8 +324,11 @@ def _BuildsChromeSuccess(_input_proto, output_proto, _config):
 def BuildsChrome(input_proto, output_proto, _config):
     """Check if the board builds chrome."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
-    cpvs = [controller_util.PackageInfoToCPV(pi) for pi in input_proto.packages]
-    builds_chrome = packages.builds(constants.CHROME_CP, build_target, cpvs)
+    pkgs = [
+        controller_util.deserialize_package_info(x)
+        for x in input_proto.packages
+    ]
+    builds_chrome = packages.builds(constants.CHROME_CP, build_target, pkgs)
     output_proto.builds_chrome = builds_chrome
 
 
