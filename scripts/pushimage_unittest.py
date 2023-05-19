@@ -344,7 +344,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
             urls = pushimage.PushImage(
                 "/src", "test.board", "R34-5126.0.0", sign_types=["recovery"]
             )
-        self.assertEqual(self.gs_mock.call_count, 34)
+        self.assertEqual(self.gs_mock.call_count, 26)
         self.assertTrue(self.mark_mock.called)
         self.assertEqual(urls, EXPECTED)
 
@@ -369,7 +369,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
             urls = pushimage.PushImage(
                 "/src", "test.board", "R34-5126.0.0", sign_types=["base"]
             )
-        self.assertEqual(self.gs_mock.call_count, 36)
+        self.assertEqual(self.gs_mock.call_count, 28)
         self.assertTrue(self.mark_mock.called)
         self.assertEqual(urls, EXPECTED)
 
@@ -394,7 +394,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
             urls = pushimage.PushImage(
                 "/src", "board2", "R34-5126.0.0", sign_types=["gsc_firmware"]
             )
-        self.assertEqual(self.gs_mock.call_count, 34)
+        self.assertEqual(self.gs_mock.call_count, 28)
         self.assertTrue(self.mark_mock.called)
         self.assertEqual(urls, EXPECTED)
 
@@ -403,7 +403,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         urls = pushimage.PushImage(
             "/src", "test.board", "R34-5126.0.0", sign_types=["nononononono"]
         )
-        self.assertEqual(self.gs_mock.call_count, 32)
+        self.assertEqual(self.gs_mock.call_count, 24)
         self.assertFalse(self.mark_mock.called)
         self.assertEqual(urls, {})
 

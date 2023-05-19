@@ -478,6 +478,19 @@ def PushImage(
                 "tar.bz2",
                 constants.IMAGE_TYPE_FIRMWARE,
             ),
+        )
+
+        # The following build artifacts are copied and marked for signing, if
+        # they are present *and* if the image type is specified via
+        # |sign_types|.
+        files_to_maybe_copy_and_sign = (
+            # (<src>, <dst>, <suffix>, <signing type>),
+            (
+                constants.BASE_IMAGE_TAR,
+                base_basename,
+                "tar.xz",
+                constants.IMAGE_TYPE_BASE,
+            ),
             (
                 "firmware_from_source.tar.bz2",
                 hps_firmware_basename,
@@ -501,18 +514,6 @@ def PushImage(
                 gsc_firmware_basename,
                 "tar.bz2",
                 constants.IMAGE_TYPE_GSC_FIRMWARE,
-            ),
-        )
-
-        # The following build artifacts are copied and marked for signing, if
-        # they are present *and* if the image type is specified via |sign_types|.
-        files_to_maybe_copy_and_sign = (
-            # (<src>, <dst>, <suffix>, <signing type>),
-            (
-                constants.BASE_IMAGE_TAR,
-                base_basename,
-                "tar.xz",
-                constants.IMAGE_TYPE_BASE,
             ),
         )
 
