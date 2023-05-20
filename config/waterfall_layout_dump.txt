@@ -211,6 +211,7 @@
     nami-kernelnext-release
     nami-release
     nautilus-release
+    nissa-kernelnext-release
     nissa-pvs-release
     nissa-release
     nocturne-kernelnext-release
@@ -1049,6 +1050,7 @@
     nami-kernelnext-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
+    nissa-kernelnext-release-tryjob
     nissa-pvs-release-tryjob
     nissa-release-tryjob
     nocturne-kernelnext-release-tryjob
@@ -1128,6 +1130,7 @@
   nautilus-release-tryjob
   nissa-factory-nissa-15199.B-factorybranch-tryjob
   nissa-full-tryjob
+  nissa-kernelnext-release-tryjob
   nissa-llvm-next-toolchain-tryjob
   nissa-llvm-toolchain-tryjob
   nissa-payloads-tryjob
