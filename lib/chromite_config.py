@@ -30,7 +30,7 @@ GERRIT_CONFIG = DIR / "gerrit.cfg"
 
 AUTO_SET_GOV_CONFIG = DIR / "autosetgov"
 
-AUTO_COP_CONFIG = DIR / "autocop"
+AUTO_COP_CONFIG_OFF = DIR / "autocop-off"
 
 TELEMETRY_CONFIG = DIR / "telemetry.cfg"
 
