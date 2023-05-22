@@ -69,7 +69,6 @@ interface LintConfig {
   ignoreEmptyDiagnostics?: boolean | undefined;
 }
 
-const GNLINT_PATH = 'src/platform2/common-mk/gnlint.py';
 const TAST_RE = /^.*\/platform\/(tast-tests-private|tast-tests|tast).*/;
 const CROS_PATH = 'chromite/bin/cros';
 const CHECK_LIBCHROME_PATH =
@@ -131,15 +130,8 @@ const languageToLintConfigs = new Map<string, LintConfig[]>([
     'gn',
     [
       {
-        executable: async realpath => {
-          const chroot = commonUtil.findChroot(realpath);
-          if (chroot === undefined) {
-            return undefined;
-          }
-          const source = commonUtil.sourceDir(chroot);
-          return path.join(source, GNLINT_PATH);
-        },
-        arguments: (path: string) => [path],
+        executable: realpath => crosExeFor(realpath),
+        arguments: (path: string) => ['lint', path],
         parse: parseCrosLintGn,
         // gnlint.py needs to be run inside ChromiumOS source tree,
         // otherwise it complains about formatting.
@@ -446,8 +438,8 @@ export function parseLibchromeCheck(
 
 // Parse output from platform2/common-mk/gnlint.py on a GN file.
 export function parseCrosLintGn(
-  _stdout: string,
-  stderr: string,
+  stdout: string,
+  _stderr: string,
   document: vscode.TextDocument
 ): vscode.Diagnostic[] {
   // Only the errors that have location in the file are captured.
@@ -458,7 +450,7 @@ export function parseCrosLintGn(
   const lineRE = /ERROR: ([^ \n:]+):([0-9]+):([0-9]+): (.*)/gm;
   const diagnostics: vscode.Diagnostic[] = [];
   let match: RegExpExecArray | null;
-  while ((match = lineRE.exec(stderr)) !== null) {
+  while ((match = lineRE.exec(stdout)) !== null) {
     const file = match[1];
     const line = Number(match[2]);
     const startCol = Number(match[3]);
