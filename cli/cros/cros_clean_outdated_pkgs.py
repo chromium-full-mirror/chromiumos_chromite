@@ -41,6 +41,8 @@ SYSTEM_PACKAGES = {
     "dev-lang/python",
     "dev-libs/",
     "dev-vcs/",
+    "net-dns/c-ares",
+    "net-dns/libidn2",
     "net-misc/",
     "sys-apps/",
     "sys-devel/",
