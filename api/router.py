@@ -540,6 +540,7 @@ class Router(object):
                 result = cros_build_lib.run(
                     cmd,
                     enter_chroot=True,
+                    cwd=constants.SOURCE_ROOT,
                     chroot_args=chroot.get_enter_args(),
                     check=False,
                     extra_env=chroot.env,
