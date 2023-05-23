@@ -340,6 +340,47 @@ def MigrateStatePaths(chroot: chroot_lib.Chroot, lock: locking.FileLock):
     directory" structure, where stateful directories are all collected in
     out_path.
     """
+
+    def _move_path(src: Path, dst: Path):
+        # Move (and merge) contents from |src| to |dst|, similar to
+        # osutils.MoveDirContents(). We don't use osutils, because it doesn't
+        # reliably handle ownership metadata, due to behaviors within shutil as
+        # it falls back to copying. Rather than work around such
+        # inconsistencies (and implement root-only tests for it), we fall back
+        # to rsync.
+
+        # If destination exists, we might be resuming an operation. Just fall
+        # back to rsync.
+        if not (dst.exists() or dst.is_symlink()):
+            try:
+                src.rename(dst)
+                return
+            except OSError:
+                # Fall back to rsync.
+                pass
+
+        try:
+            cros_build_lib.sudo_run(
+                [
+                    "rsync",
+                    "-aHX",
+                    "--remove-source-files",
+                    src,
+                    f"{dst.parent}/",
+                ],
+            )
+        except cros_build_lib.RunCommandError as e:
+            if isinstance(e.exception, FileNotFoundError):
+                cros_build_lib.Die(
+                    "Could not find `rsync` command; you may need to run"
+                    " `sudo apt install rsync` or similar."
+                )
+            else:
+                raise e
+        # ignore_missing: "--remove-source-files" will only remove files, so
+        # we sometimes need to clean up leftover directories.
+        osutils.RmDir(src_entry, ignore_missing=True, sudo=True)
+
     for src_suffix, dst_suffix in _CHROOT_STATE_MIGRATIONS:
         # If the |src| directory is non-empty (aside from a README), migrate
         # its contents to |dst|.
@@ -368,7 +409,9 @@ def MigrateStatePaths(chroot: chroot_lib.Chroot, lock: locking.FileLock):
         )
 
         osutils.SafeMakedirsNonRoot(dst)
-        osutils.MoveDirContents(src, dst, allow_nonempty=True)
+        for src_entry in src.iterdir():
+            dst_entry = dst / src_entry.name
+            _move_path(src_entry, dst_entry)
         osutils.WriteFile(
             src / "README",
             """\

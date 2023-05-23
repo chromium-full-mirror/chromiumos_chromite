@@ -4,7 +4,9 @@
 
 """Test the cros_sdk_lib module."""
 
+import errno
 import os
+import stat
 
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
@@ -104,6 +106,9 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
         # TODO(b/265885353): fill map as we migrate state paths.
         self.state_path_map = ()
 
+    def _crossdevice_rename(self, src, dst):
+        raise OSError(errno.EXDEV, "fake cross-device rename failure")
+
     def testOldPathsExist(self):
         for src, dst in self.state_path_map:
             osutils.SafeMakedirsNonRoot(src / "foo")
@@ -137,6 +142,36 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             self.assertExists(dst / "foo")
             self.assertExists(dst / "foo" / "bar")
             self.assertExists(dst / "foo" / "baz")
+
+    def testCrossDevice(self):
+        """Verify we can migrate state across filesystem boundaries.
+
+        Check for retention of ownership, mode too, since we
+        need to exercise different logic when os.rename()
+        doesn't work.
+        """
+        # Mock os.rename() to fail, so we fall back to copying/rsyncing.
+        self.PatchObject(os, "rename", side_effect=self._crossdevice_rename)
+
+        for src, dst in self.state_path_map:
+            osutils.SafeMakedirsNonRoot(src / "foo")
+            (src / "foo" / "bar").touch()
+            (src / "foo" / "baz").touch(mode=0o400)
+            osutils.Chown(src / "foo" / "baz", user="root", group="root")
+            self.assertEqual(
+                stat.S_IMODE((src / "foo" / "baz").stat().st_mode), 0o400
+            )
+
+            cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
+
+            self.assertNotExists(src / "foo")
+            self.assertExists(dst / "foo")
+            self.assertExists(dst / "foo" / "bar")
+            self.assertExists(dst / "foo" / "baz")
+            st = (dst / "foo" / "baz").stat()
+            self.assertEqual(stat.S_IMODE(st.st_mode), 0o400)
+            self.assertEqual(st.st_uid, 0)
+            self.assertEqual(st.st_gid, 0)
 
 
 class TestGetChrootVersion(cros_test_lib.MockTestCase):
