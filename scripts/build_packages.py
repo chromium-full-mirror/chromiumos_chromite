@@ -440,6 +440,7 @@ def parse_args(
         upgrade_chroot=not opts.skip_chroot_upgrade,
         local_build=opts.reuse_pkgs_from_local_boards,
         expanded_binhost_inheritance=opts.expandedbinhosts,
+        use_cq_prebuilts=opts.usepkg,
         backtrack=opts.backtrack,
     )
     opts.build_run_config = sysroot.BuildPackagesRunConfig(

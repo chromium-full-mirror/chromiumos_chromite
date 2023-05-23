@@ -179,6 +179,7 @@ def _ParseArgs(args):
         init_board_pkgs=not opts.skip_board_pkg_init,
         local_build=opts.reuse_local,
         expanded_binhost_inheritance=opts.expanded_binhost_inheritance,
+        use_cq_prebuilts=opts.usepkg,
         backtrack=opts.backtrack,
     )
 
