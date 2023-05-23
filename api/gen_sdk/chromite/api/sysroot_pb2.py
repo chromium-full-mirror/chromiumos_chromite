@@ -16,7 +16,7 @@ from chromite.api.gen_sdk.chromiumos import common_pb2 as chromiumos_dot_common_
 from chromite.api.gen_sdk.chromiumos import metrics_pb2 as chromiumos_dot_metrics__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/sysroot.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\x1a\x18\x63hromiumos/metrics.proto\"F\n\x07Sysroot\x12\x0c\n\x04path\x18\x01 \x01(\t\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\"\x17\n\x07Profile\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xce\x02\n\x14SysrootCreateRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x37\n\x05\x66lags\x18\x02 \x01(\x0b\x32(.chromite.api.SysrootCreateRequest.Flags\x12&\n\x07profile\x18\x03 \x01(\x0b\x32\x15.chromite.api.Profile\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x35\n\x0fpackage_indexes\x18\x05 \x03(\x0b\x32\x1c.chromiumos.PackageIndexInfo\x1aK\n\x05\x46lags\x12\x16\n\x0e\x63hroot_current\x18\x01 \x01(\x08\x12\x0f\n\x07replace\x18\x02 \x01(\x08\x12\x19\n\x11toolchain_changed\x18\x03 \x01(\x08\"?\n\x15SysrootCreateResponse\x12&\n\x07sysroot\x18\x01 \x01(\x0b\x32\x15.chromite.api.Sysroot\"\xc9\x01\n\x1dSysrootGenerateArchiveRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12)\n\x08packages\x18\x03 \x03(\x0b\x32\x17.chromiumos.PackageInfo\x12*\n\ntarget_dir\x18\x04 \x01(\x0b\x32\x16.chromiumos.ResultPath\"K\n\x1eSysrootGenerateArchiveResponse\x12)\n\x0fsysroot_archive\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path\"\xdd\x01\n\x17InstallToolchainRequest\x12&\n\x07sysroot\x18\x01 \x01(\x0b\x32\x15.chromite.api.Sysroot\x12:\n\x05\x66lags\x18\x02 \x01(\x0b\x32+.chromite.api.InstallToolchainRequest.Flags\x12\"\n\x06\x63hroot\x18\x03 \x01(\x0b\x32\x12.chromiumos.Chroot\x1a:\n\x05\x46lags\x12\x16\n\x0e\x63ompile_source\x18\x01 \x01(\x08\x12\x19\n\x11toolchain_changed\x18\x02 \x01(\x08\"o\n\x18InstallToolchainResponse\x12<\n\x13\x66\x61iled_package_data\x18\x04 \x03(\x0b\x32\x1f.chromite.api.FailedPackageDataJ\x04\x08\x01\x10\x02R\x0f\x66\x61iled_packages\"\xa6\x04\n\x16InstallPackagesRequest\x12&\n\x07sysroot\x18\x01 \x01(\x0b\x32\x15.chromite.api.Sysroot\x12\x39\n\x05\x66lags\x18\x02 \x01(\x0b\x32*.chromite.api.InstallPackagesRequest.Flags\x12)\n\x08packages\x18\x03 \x03(\x0b\x32\x17.chromiumos.PackageInfo\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\x12&\n\tuse_flags\x18\x05 \x03(\x0b\x32\x13.chromiumos.UseFlag\x12+\n\x0bgoma_config\x18\x06 \x01(\x0b\x32\x16.chromiumos.GomaConfig\x12\x35\n\x0fpackage_indexes\x18\x07 \x03(\x0b\x32\x1c.chromiumos.PackageIndexInfo\x12\x37\n\x11remoteexec_config\x18\x08 \x01(\x0b\x32\x1c.chromiumos.RemoteexecConfig\x1a\x94\x01\n\x05\x46lags\x12\x16\n\x0e\x63ompile_source\x18\x01 \x01(\x08\x12\x10\n\x08use_goma\x18\x03 \x01(\x08\x12\x19\n\x11toolchain_changed\x18\x04 \x01(\x08\x12\x0e\n\x06\x64ryrun\x18\x05 \x01(\x08\x12\x0e\n\x06workon\x18\x07 \x01(\x08J\x04\x08\x02\x10\x03J\x04\x08\x06\x10\x07R\nevent_fileR\x0euse_remoteexec\"\xca\x01\n\x17InstallPackagesResponse\x12\'\n\x06\x65vents\x18\x02 \x03(\x0b\x32\x17.chromiumos.MetricEvent\x12\x31\n\x0egoma_artifacts\x18\x03 \x01(\x0b\x32\x19.chromiumos.GomaArtifacts\x12<\n\x13\x66\x61iled_package_data\x18\x04 \x03(\x0b\x32\x1f.chromite.api.FailedPackageDataJ\x04\x08\x01\x10\x02R\x0f\x66\x61iled_packages\"^\n\x11\x46\x61iledPackageData\x12%\n\x04name\x18\x01 \x01(\x0b\x32\x17.chromiumos.PackageInfo\x12\"\n\x08log_path\x18\x02 \x01(\x0b\x32\x10.chromiumos.Path\"\xb4\x01\n CreateSimpleChromeSysrootRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x11\n\tuse_flags\x18\x02 \x03(\t\x12*\n\ntarget_dir\x18\x03 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\"N\n!CreateSimpleChromeSysrootResponse\x12)\n\x0fsysroot_archive\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path2\xa3\x04\n\x0eSysrootService\x12Q\n\x06\x43reate\x12\".chromite.api.SysrootCreateRequest\x1a#.chromite.api.SysrootCreateResponse\x12l\n\x0fGenerateArchive\x12+.chromite.api.SysrootGenerateArchiveRequest\x1a,.chromite.api.SysrootGenerateArchiveResponse\x12\x61\n\x10InstallToolchain\x12%.chromite.api.InstallToolchainRequest\x1a&.chromite.api.InstallToolchainResponse\x12^\n\x0fInstallPackages\x12$.chromite.api.InstallPackagesRequest\x1a%.chromite.api.InstallPackagesResponse\x12|\n\x19\x43reateSimpleChromeSysroot\x12..chromite.api.CreateSimpleChromeSysrootRequest\x1a/.chromite.api.CreateSimpleChromeSysrootResponse\x1a\x0f\xc2\xed\x1a\x0b\n\x07sysroot\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/sysroot.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\x1a\x18\x63hromiumos/metrics.proto\"F\n\x07Sysroot\x12\x0c\n\x04path\x18\x01 \x01(\t\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\"\x17\n\x07Profile\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xe8\x02\n\x14SysrootCreateRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x37\n\x05\x66lags\x18\x02 \x01(\x0b\x32(.chromite.api.SysrootCreateRequest.Flags\x12&\n\x07profile\x18\x03 \x01(\x0b\x32\x15.chromite.api.Profile\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x35\n\x0fpackage_indexes\x18\x05 \x03(\x0b\x32\x1c.chromiumos.PackageIndexInfo\x1a\x65\n\x05\x46lags\x12\x16\n\x0e\x63hroot_current\x18\x01 \x01(\x08\x12\x0f\n\x07replace\x18\x02 \x01(\x08\x12\x19\n\x11toolchain_changed\x18\x03 \x01(\x08\x12\x18\n\x10use_cq_prebuilts\x18\x04 \x01(\x08\"?\n\x15SysrootCreateResponse\x12&\n\x07sysroot\x18\x01 \x01(\x0b\x32\x15.chromite.api.Sysroot\"\xc9\x01\n\x1dSysrootGenerateArchiveRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12)\n\x08packages\x18\x03 \x03(\x0b\x32\x17.chromiumos.PackageInfo\x12*\n\ntarget_dir\x18\x04 \x01(\x0b\x32\x16.chromiumos.ResultPath\"K\n\x1eSysrootGenerateArchiveResponse\x12)\n\x0fsysroot_archive\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path\"\xdd\x01\n\x17InstallToolchainRequest\x12&\n\x07sysroot\x18\x01 \x01(\x0b\x32\x15.chromite.api.Sysroot\x12:\n\x05\x66lags\x18\x02 \x01(\x0b\x32+.chromite.api.InstallToolchainRequest.Flags\x12\"\n\x06\x63hroot\x18\x03 \x01(\x0b\x32\x12.chromiumos.Chroot\x1a:\n\x05\x46lags\x12\x16\n\x0e\x63ompile_source\x18\x01 \x01(\x08\x12\x19\n\x11toolchain_changed\x18\x02 \x01(\x08\"o\n\x18InstallToolchainResponse\x12<\n\x13\x66\x61iled_package_data\x18\x04 \x03(\x0b\x32\x1f.chromite.api.FailedPackageDataJ\x04\x08\x01\x10\x02R\x0f\x66\x61iled_packages\"\xa6\x04\n\x16InstallPackagesRequest\x12&\n\x07sysroot\x18\x01 \x01(\x0b\x32\x15.chromite.api.Sysroot\x12\x39\n\x05\x66lags\x18\x02 \x01(\x0b\x32*.chromite.api.InstallPackagesRequest.Flags\x12)\n\x08packages\x18\x03 \x03(\x0b\x32\x17.chromiumos.PackageInfo\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\x12&\n\tuse_flags\x18\x05 \x03(\x0b\x32\x13.chromiumos.UseFlag\x12+\n\x0bgoma_config\x18\x06 \x01(\x0b\x32\x16.chromiumos.GomaConfig\x12\x35\n\x0fpackage_indexes\x18\x07 \x03(\x0b\x32\x1c.chromiumos.PackageIndexInfo\x12\x37\n\x11remoteexec_config\x18\x08 \x01(\x0b\x32\x1c.chromiumos.RemoteexecConfig\x1a\x94\x01\n\x05\x46lags\x12\x16\n\x0e\x63ompile_source\x18\x01 \x01(\x08\x12\x10\n\x08use_goma\x18\x03 \x01(\x08\x12\x19\n\x11toolchain_changed\x18\x04 \x01(\x08\x12\x0e\n\x06\x64ryrun\x18\x05 \x01(\x08\x12\x0e\n\x06workon\x18\x07 \x01(\x08J\x04\x08\x02\x10\x03J\x04\x08\x06\x10\x07R\nevent_fileR\x0euse_remoteexec\"\xca\x01\n\x17InstallPackagesResponse\x12\'\n\x06\x65vents\x18\x02 \x03(\x0b\x32\x17.chromiumos.MetricEvent\x12\x31\n\x0egoma_artifacts\x18\x03 \x01(\x0b\x32\x19.chromiumos.GomaArtifacts\x12<\n\x13\x66\x61iled_package_data\x18\x04 \x03(\x0b\x32\x1f.chromite.api.FailedPackageDataJ\x04\x08\x01\x10\x02R\x0f\x66\x61iled_packages\"^\n\x11\x46\x61iledPackageData\x12%\n\x04name\x18\x01 \x01(\x0b\x32\x17.chromiumos.PackageInfo\x12\"\n\x08log_path\x18\x02 \x01(\x0b\x32\x10.chromiumos.Path\"\xb4\x01\n CreateSimpleChromeSysrootRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x11\n\tuse_flags\x18\x02 \x03(\t\x12*\n\ntarget_dir\x18\x03 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12\"\n\x06\x63hroot\x18\x04 \x01(\x0b\x32\x12.chromiumos.Chroot\"N\n!CreateSimpleChromeSysrootResponse\x12)\n\x0fsysroot_archive\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path2\xa3\x04\n\x0eSysrootService\x12Q\n\x06\x43reate\x12\".chromite.api.SysrootCreateRequest\x1a#.chromite.api.SysrootCreateResponse\x12l\n\x0fGenerateArchive\x12+.chromite.api.SysrootGenerateArchiveRequest\x1a,.chromite.api.SysrootGenerateArchiveResponse\x12\x61\n\x10InstallToolchain\x12%.chromite.api.InstallToolchainRequest\x1a&.chromite.api.InstallToolchainResponse\x12^\n\x0fInstallPackages\x12$.chromite.api.InstallPackagesRequest\x1a%.chromite.api.InstallPackagesResponse\x12|\n\x19\x43reateSimpleChromeSysroot\x12..chromite.api.CreateSimpleChromeSysrootRequest\x1a/.chromite.api.CreateSimpleChromeSysrootResponse\x1a\x0f\xc2\xed\x1a\x0b\n\x07sysroot\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.sysroot_pb2', globals())
@@ -31,33 +31,33 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _PROFILE._serialized_start=197
   _PROFILE._serialized_end=220
   _SYSROOTCREATEREQUEST._serialized_start=223
-  _SYSROOTCREATEREQUEST._serialized_end=557
+  _SYSROOTCREATEREQUEST._serialized_end=583
   _SYSROOTCREATEREQUEST_FLAGS._serialized_start=482
-  _SYSROOTCREATEREQUEST_FLAGS._serialized_end=557
-  _SYSROOTCREATERESPONSE._serialized_start=559
-  _SYSROOTCREATERESPONSE._serialized_end=622
-  _SYSROOTGENERATEARCHIVEREQUEST._serialized_start=625
-  _SYSROOTGENERATEARCHIVEREQUEST._serialized_end=826
-  _SYSROOTGENERATEARCHIVERESPONSE._serialized_start=828
-  _SYSROOTGENERATEARCHIVERESPONSE._serialized_end=903
-  _INSTALLTOOLCHAINREQUEST._serialized_start=906
-  _INSTALLTOOLCHAINREQUEST._serialized_end=1127
-  _INSTALLTOOLCHAINREQUEST_FLAGS._serialized_start=1069
-  _INSTALLTOOLCHAINREQUEST_FLAGS._serialized_end=1127
-  _INSTALLTOOLCHAINRESPONSE._serialized_start=1129
-  _INSTALLTOOLCHAINRESPONSE._serialized_end=1240
-  _INSTALLPACKAGESREQUEST._serialized_start=1243
-  _INSTALLPACKAGESREQUEST._serialized_end=1793
-  _INSTALLPACKAGESREQUEST_FLAGS._serialized_start=1645
-  _INSTALLPACKAGESREQUEST_FLAGS._serialized_end=1793
-  _INSTALLPACKAGESRESPONSE._serialized_start=1796
-  _INSTALLPACKAGESRESPONSE._serialized_end=1998
-  _FAILEDPACKAGEDATA._serialized_start=2000
-  _FAILEDPACKAGEDATA._serialized_end=2094
-  _CREATESIMPLECHROMESYSROOTREQUEST._serialized_start=2097
-  _CREATESIMPLECHROMESYSROOTREQUEST._serialized_end=2277
-  _CREATESIMPLECHROMESYSROOTRESPONSE._serialized_start=2279
-  _CREATESIMPLECHROMESYSROOTRESPONSE._serialized_end=2357
-  _SYSROOTSERVICE._serialized_start=2360
-  _SYSROOTSERVICE._serialized_end=2907
+  _SYSROOTCREATEREQUEST_FLAGS._serialized_end=583
+  _SYSROOTCREATERESPONSE._serialized_start=585
+  _SYSROOTCREATERESPONSE._serialized_end=648
+  _SYSROOTGENERATEARCHIVEREQUEST._serialized_start=651
+  _SYSROOTGENERATEARCHIVEREQUEST._serialized_end=852
+  _SYSROOTGENERATEARCHIVERESPONSE._serialized_start=854
+  _SYSROOTGENERATEARCHIVERESPONSE._serialized_end=929
+  _INSTALLTOOLCHAINREQUEST._serialized_start=932
+  _INSTALLTOOLCHAINREQUEST._serialized_end=1153
+  _INSTALLTOOLCHAINREQUEST_FLAGS._serialized_start=1095
+  _INSTALLTOOLCHAINREQUEST_FLAGS._serialized_end=1153
+  _INSTALLTOOLCHAINRESPONSE._serialized_start=1155
+  _INSTALLTOOLCHAINRESPONSE._serialized_end=1266
+  _INSTALLPACKAGESREQUEST._serialized_start=1269
+  _INSTALLPACKAGESREQUEST._serialized_end=1819
+  _INSTALLPACKAGESREQUEST_FLAGS._serialized_start=1671
+  _INSTALLPACKAGESREQUEST_FLAGS._serialized_end=1819
+  _INSTALLPACKAGESRESPONSE._serialized_start=1822
+  _INSTALLPACKAGESRESPONSE._serialized_end=2024
+  _FAILEDPACKAGEDATA._serialized_start=2026
+  _FAILEDPACKAGEDATA._serialized_end=2120
+  _CREATESIMPLECHROMESYSROOTREQUEST._serialized_start=2123
+  _CREATESIMPLECHROMESYSROOTREQUEST._serialized_end=2303
+  _CREATESIMPLECHROMESYSROOTRESPONSE._serialized_start=2305
+  _CREATESIMPLECHROMESYSROOTRESPONSE._serialized_end=2383
+  _SYSROOTSERVICE._serialized_start=2386
+  _SYSROOTSERVICE._serialized_end=2933
 # @@protoc_insertion_point(module_scope)
