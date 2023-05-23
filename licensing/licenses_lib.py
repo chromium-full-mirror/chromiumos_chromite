@@ -105,15 +105,17 @@ LICENSE_NAMES_REGEX = [
     # (netifaces, unittest2)
 ]
 
-# Any license listed list here found in the ebuild will make the code look for
+# Any license listed here found in the ebuild will make the code look for
 # license files inside the package source code in order to get copyright
 # attribution from them.
 COPYRIGHT_ATTRIBUTION_LICENSES = {
     "BSD",  # requires distribution of copyright notice
     "BSD-2",  # so does BSD-2 https://opensource.org/licenses/BSD-2-Clause
+    "BSD-2-with-patent",
     "BSD-3",  # and BSD-3? https://opensource.org/licenses/BSD-3-Clause
     "BSD-4",  # and 4?
     "BSD-with-attribution",
+    "BSD-with-disclosure",
     "ISC",  # so does ISC https://opensource.org/licenses/ISC
     "MIT",
     "MIT-with-advertising",
@@ -874,7 +876,7 @@ def _GetLicenseDirectories(
         sysroot: A setup board sysroot to query.
         dir_set: Whether to fetch stock, custom, or both sets of directories.
             See the _(STOCK|CUSTOM|BOTH)_DIRS constants.
-        buildroot: (Typically) the root chromiumos path.
+        buildroot: The root chromiumos path.
 
     Returns:
         list - all matching "licenses" directories
