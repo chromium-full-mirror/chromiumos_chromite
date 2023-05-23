@@ -97,7 +97,7 @@ def test_generate_unsigned_gspaths(setup):
         model="",
         firmware_name="galtic",
         release=fwbuddy.parse_release_string("R89-13606.459.0"),
-        branch="",
+        branch="firmware-dedede-13606.B",
         image_type="unsigned",
         firmware_type="",
     )
@@ -115,6 +115,14 @@ def test_generate_unsigned_gspaths(setup):
             "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/"
             "firmware_from_source.tar.bz2"
         ),
+        (
+            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+            "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+        ),
+        (
+            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+            "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+        ),
     ]
 
     # This could be neater if https://github.com/pytest-dev/pytest/issues/10032
@@ -124,6 +132,35 @@ def test_generate_unsigned_gspaths(setup):
     expected_gspaths.sort()
 
     assert result == expected_gspaths
+
+
+def test_lookup_branch(setup, monkeypatch):
+    """Tests that we correctly parse the SQL output from the branch lookup"""
+    csv = "branch_name\nfirmware-icarus-12574.B\n"
+    mock_response = CompletedProcess([], 0, stdout=csv)
+    monkeypatch.setattr(
+        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
+    )
+    f = fwbuddy.FwBuddy(
+        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
+    )
+    assert f.lookup_branch() == "firmware-icarus-12574.B"
+
+
+def test_lookup_branch_fails(setup, monkeypatch):
+    """Tests that we return None when our dremel command fails to run"""
+
+    def raise_error():
+        raise cros_build_lib.RunCommandError("")
+
+    monkeypatch.setattr(
+        cros_build_lib, "run", lambda *_, **kwargs,: raise_error()
+    )
+    f = fwbuddy.FwBuddy(
+        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
+    )
+
+    assert f.lookup_branch() is None
 
 
 def test_generate_signed_gspaths(setup):

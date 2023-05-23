@@ -4,6 +4,8 @@
 
 """Main module for finding and retrieving firmware archives"""
 
+import csv
+import io
 import logging
 import os
 import re
@@ -178,10 +180,18 @@ def build_field_doc(field: str, indent: str, line_length: int) -> str:
 
 USAGE = build_usage_string()
 
-BUG_SUBMIT_URL = (
-    "https://issuetracker.google.com/issues/"
-    "new?component=1094001&template=1670797"
-)
+BUG_SUBMIT_URL = "https://issuetracker.google.com/issues/new?component=1094001&template=1670797"
+
+# Dremel query to DLM to get the firmware branch for a given board/model.
+# TODO(b/280096504): Replace queries to DLM with static file b/279808263
+QUERY_FIRMWARE_BRANCH = """
+SELECT
+  branch_name
+  FROM chromeos_build_release_data.firmware_quals
+  WHERE model_name = "%(model)s"
+  AND board_name = "%(board)s"
+  LIMIT 1;
+"""
 
 # If a user passes just "fwbuddy" as a URI then prompt the user for each field
 # one by one.
@@ -232,29 +242,18 @@ CHIP_TYPES = [AP, EC]
 # All known file path schemas that unsigned firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 UNSIGNED_GSPATH_SCHEMAS = [
-    (
-        f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
-        "B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
-        f"%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}"
-    ),
-    (
-        f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
-        "B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
-        f"%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}"
-    ),
-    (
-        f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-"
-        "%(major_version)s.%(minor_version)s."
-        f"%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}"
-    ),
+    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
+    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}",
+    f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
+    # Schemas that incorporate firmware branch directly.
+    f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
+    f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}",
 ]
 
 # All known file path schemas that signed firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 SIGNED_GSPATH_SCHEMAS = [
-    f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s."
-    "%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-"
-    "%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
+    f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s.%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
 ]
 
 # Schemas used to generate the local file path for firmware images.
@@ -332,17 +331,44 @@ class FwBuddy:
             firmware_type=parse_firmware_type(self.uri.firmware_type),
         )
 
-    # TODO(b/280096504) Implement
     def lookup_branch(self) -> str:
         """Gets firmware branch for the given board/model combination from DLM.
 
         Some firmware archives are stored underneath branches that do not match
         the name of their board. For those scenarios, we need to retrieve the
-        branch name as well and build our GS schemas using it.
+        branch name as well and populate our GS schemas using it.
 
         Returns:
-            The firmware branch
+            The firmware branch.
         """
+        query = QUERY_FIRMWARE_BRANCH % {
+            "board": self.uri.board,
+            "model": self.uri.model,
+        }
+        result = None
+        # TODO(b/279808263): Get rid of DLM queries entirely and replace with reads to Google Storage.
+        try:
+            result = cros_build_lib.run(
+                ["dremel", "--output", "csv"],
+                input=query,
+                capture_output=True,
+                encoding="utf-8",
+            )
+            fields = list(csv.reader(io.StringIO(result.stdout), delimiter=","))
+            if len(fields) == 2 and len(fields[1]) == 1:
+                return fields[1][0]
+        except cros_build_lib.RunCommandError as e:
+            # Log but do not act on gcert and dremel errors and attempt to
+            # continue so that people running this within chroot and partners
+            # can still use fwbuddy in a majority of situations.
+            logging.warning(e)
+
+        logging.warning(
+            "Unable to identify the firmware branch for %s "
+            "This may not be an issue, since the firmware branch is only "
+            "needed on rare occasions. Continuing on for the time being...",
+            self.uri,
+        )
         return None
 
     def determine_release(self) -> Release:
@@ -378,6 +404,7 @@ class FwBuddy:
         possible_gspaths = generate_gspaths(self.fw_image)
         for gspath in possible_gspaths:
             try:
+                logging.notice("Checking %s...", gspath)
                 self.gs.CheckPathAccess(gspath)
                 gspath = self.gs.LS(gspath)[0]
                 logging.notice(
@@ -594,8 +621,6 @@ def generate_gspaths(fw_image: FwImage) -> List[str]:
     Returns:
         A list of all possible paths the archive may be.
     """
-    # TODO(b/280096504) Add support for boards with different firmware branch
-    # names
     gspaths = []
     schemas = (
         SIGNED_GSPATH_SCHEMAS
@@ -611,6 +636,7 @@ def generate_gspaths(fw_image: FwImage) -> List[str]:
                 "major_version": fw_image.release.major_version,
                 "minor_version": fw_image.release.minor_version,
                 "patch_number": fw_image.release.patch_number,
+                "branch": fw_image.branch,
             }
         )
 
