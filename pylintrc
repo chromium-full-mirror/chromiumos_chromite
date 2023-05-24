@@ -167,7 +167,6 @@ disable=
     useless-object-inheritance,
     wrong-import-order,
 # Temporary disables to allow old style and new style to both pass linting.
-    line-too-long,
     docstring-section-indent,
 
 [REPORTS]
