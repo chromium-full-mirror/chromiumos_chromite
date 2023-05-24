@@ -19,6 +19,7 @@
     coral-factory-coral-10122.B-factorybranch
   factory-corsola-15196.B-buildspec
     corsola-factory-corsola-15196.B-factorybranch
+    staryu-factory-corsola-15196.B-factorybranch
   factory-dedede-13683.B-buildspec
     dedede-factory-dedede-13683.B-factorybranch
   factory-drallion-13080.B-buildspec
@@ -588,6 +589,7 @@
     coral-factory-coral-10122.B-factorybranch-tryjob
   factory-corsola-15196.B-buildspec-tryjob
     corsola-factory-corsola-15196.B-factorybranch-tryjob
+    staryu-factory-corsola-15196.B-factorybranch-tryjob
   factory-dedede-13683.B-buildspec-tryjob
     dedede-factory-dedede-13683.B-factorybranch-tryjob
   factory-drallion-13080.B-buildspec-tryjob
@@ -1295,6 +1297,7 @@
   soraka-llvm-toolchain-tryjob
   soraka-payloads-tryjob
   soraka-release-tryjob
+  staryu-factory-corsola-15196.B-factorybranch-tryjob
   staryu-full-tryjob
   staryu-llvm-next-toolchain-tryjob
   staryu-llvm-toolchain-tryjob

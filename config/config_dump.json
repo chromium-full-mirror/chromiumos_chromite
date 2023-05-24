@@ -8924,7 +8924,8 @@
     "display_label": "factory",
     "schedule": "with 168h interval",
     "slave_configs": [
-      "corsola-factory-corsola-15196.B-factorybranch"
+      "corsola-factory-corsola-15196.B-factorybranch",
+      "staryu-factory-corsola-15196.B-factorybranch"
     ],
     "workspace_branch": "factory-corsola-15196.B"
   },
@@ -8936,7 +8937,8 @@
     "display_label": "tryjob",
     "luci_builder": "Try",
     "slave_configs": [
-      "corsola-factory-corsola-15196.B-factorybranch-tryjob"
+      "corsola-factory-corsola-15196.B-factorybranch-tryjob",
+      "staryu-factory-corsola-15196.B-factorybranch-tryjob"
     ],
     "workspace_branch": "factory-corsola-15196.B"
   },
@@ -22435,6 +22437,26 @@
     "push_image": false,
     "suite_scheduling": false,
     "vm_tests_override": null
+  },
+  "staryu-factory-corsola-15196.B-factorybranch": {
+    "_template": "factorybranch",
+    "boards": [
+      "staryu"
+    ],
+    "workspace_branch": "factory-corsola-15196.B"
+  },
+  "staryu-factory-corsola-15196.B-factorybranch-tryjob": {
+    "_template": "factorybranch",
+    "boards": [
+      "staryu"
+    ],
+    "debug": true,
+    "display_label": "tryjob",
+    "hw_tests_override": null,
+    "luci_builder": "Try",
+    "push_image": false,
+    "suite_scheduling": false,
+    "workspace_branch": "factory-corsola-15196.B"
   },
   "staryu-full": {
     "_template": "full",
