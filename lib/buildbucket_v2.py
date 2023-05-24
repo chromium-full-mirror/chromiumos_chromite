@@ -278,30 +278,25 @@ def UpdateSelfCommonBuildProperties(
     UpdateSelfBuildPropertiesNonBlocking. All arguments are optional.
 
     Args:
-        critical: (Optional) |important| flag of the build.
-        cidb_id: (Optional) CIDB ID of the build.
-        chrome_version: (Optional) version of chrome of the build.
-            Eg "74.0.3687.0".
-        milestone_version: (Optional) milestone version of  of the build.
-            Eg "74".
-        platform_version: (Optional) platform version of the build.
-            Eg "11671.0.0".
-        full_version: (Optional) full version of the build.
-            Eg "R74-11671.0.0-b3416654".
-        toolchain_url: (Optional) toolchain_url of the build.
-        build_type: (Optional) One of ('full', 'canary', ...).
-        unibuild: (Optional) Boolean indicating whether build is unibuild.
-        suite_scheduling: (Optional)
-        killed_child_builds: (Optional) A list of Buildbucket IDs of child
+        critical: |important| flag of the build.
+        cidb_id: CIDB ID of the build.
+        chrome_version: version of chrome of the build. E.g., "74.0.3687.0".
+        milestone_version: milestone version of  of the build. E.g., "74".
+        platform_version: platform version of the build. E.g., "11671.0.0".
+        full_version: full version of the build. E.g., "R74-11671.0.0-b3416654".
+        toolchain_url: toolchain_url of the build.
+        build_type: One of ('full', 'canary', ...).
+        unibuild: Boolean indicating whether build is unibuild.
+        suite_scheduling:
+        killed_child_builds: A list of Buildbucket IDs of child
             builds that were killed by self-destructed orchestrator build.
-        board: (Optional) board of the build.
-        main_firmware_version: (Optional) main firmware version of the build.
-        ec_firmware_version: (Optional) ec_firmware version of the build.
-        metadata_url: (Optional) google storage url to metadata.json of the
-            build.
-        channels: (Optional) list of channels the build are configured for.
-            e.g. [beta,stable].
-        email_notify: (Optional) list of luci-notify email_notify values
+        board: board of the build.
+        main_firmware_version: main firmware version of the build.
+        ec_firmware_version: ec_firmware version of the build.
+        metadata_url: google storage url to metadata.json of the build.
+        channels: list of channels the build are configured for. E.g.,
+            [beta,stable].
+        email_notify: list of luci-notify email_notify values
             representing the recipients of failure alerts to for this builder.
     """
     if critical is not None:
@@ -949,15 +944,13 @@ class BuildbucketV2(object):
             num_results: Number of builds to search back. Set this to
                 CIDBConnection.NUM_RESULTS_NO_LIMIT to request no limit on the
                 number of results.
-            ignore_build_id: (Optional) Ignore a specific build. This is most
+            ignore_build_id: Ignore a specific build. This is most
                 useful to ignore the current build when querying recent past
                 builds from a build in flight.
-            start_date: (Optional, type: datetime.date) Get builds that occurred
-                on or after this date.
-            end_date: (Optional, type:datetime.date) Get builds that occurred on
-                or before this date.
-            branch: (Optional) Return only results for this branch.
-            start_build_id: (Optional) The oldest build for which data should
+            start_date: Get builds that occurred on or after this date.
+            end_date: Get builds that occurred on or before this date.
+            branch: Return only results for this branch.
+            start_build_id: The oldest build for which data should
                 be retrieved.
 
         Returns:

@@ -252,9 +252,9 @@ def CreateEmail(
     Args:
         subject: E-mail subject.
         recipients: List of e-mail recipients.
-        message: (optional) Message to put in the e-mail body.
-        attachment: (optional) text to attach.
-        extra_fields: (optional) A dictionary of additional message header
+        message: Message to put in the e-mail body.
+        attachment: text to attach.
+        extra_fields: A dictionary of additional message header
             fields to be added to the message. Custom field names should begin
             with the prefix 'X-'.
 
@@ -338,7 +338,7 @@ def SendEmailLog(
         inc_trace: Append a backtrace of the current stack.
         message: Message to put at the top of the e-mail body.
         log: List of lines (log data) to include in the notice.
-        extra_fields: (optional) A dictionary of additional message header
+        extra_fields: A dictionary of additional message header
             fields to be added to the message. Custom fields names should begin
             with the prefix 'X-'.
     """
@@ -413,9 +413,9 @@ def SendHealthAlert(builder_run, subject, body, extra_fields=None):
         builder_run: BuilderRun for the main cbuildbot run.
         subject: The subject of the health alert email.
         body: The body of the health alert email.
-        extra_fields: (optional) A dictionary of additional message header
-            fields to be added to the message. Custom field names should begin
-            with the prefix 'X-'.
+        extra_fields: A dictionary of additional message header fields to be
+            added to the message. Custom field names should begin with the
+            prefix 'X-'.
     """
     if builder_run.InEmailReportingEnvironment():
         server = GmailServer(

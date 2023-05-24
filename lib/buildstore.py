@@ -157,16 +157,13 @@ class BuildStore(object):
             build_number: buildbot build number.
             build_config: cbuildbot config of build
             bot_hostname: hostname of bot running the build
-            master_build_id: (Optional) primary key of master build to this
+            master_build_id: primary key of master build to this build.
+            timeout_seconds: If provided, total time allocated for this build. A
+                deadline is recorded in CIDB for the current build to end.
+            important: If provided, the |important| value for this build.
+            buildbucket_id: If provided, the |buildbucket_id| value for this
                 build.
-            timeout_seconds: (Optional) If provided, total time allocated for
-                this build. A deadline is recorded in CIDB for the current build
-                to end.
-            important: (Optional) If provided, the |important| value for this
-                build.
-            buildbucket_id: (Optional) If provided, the |buildbucket_id| value
-                for this build.
-            branch: (Optional) Manifest branch name of this build.
+            branch: Manifest branch name of this build.
 
         Returns:
             build_id: incremental primary ID of the build in CIDB.
@@ -275,18 +272,15 @@ class BuildStore(object):
         Args:
             build_config: config name of the build to get history.
             num_results: Number of builds to search back.
-            ignore_build_id: (Optional) Ignore a specific build. This is most
-                useful to ignore the current build when querying recent past
-                builds from a build in flight.
-            start_date: (Optional, type: datetime.date) Get builds that occurred
-                on or after this date.
-            end_date: (Optional, type:datetime.date) Get builds that occurred on
-                or before this date.
-            branch: (Optional) Return only results for this branch.
-            platform_version: (Optional) Return only results for this
-                platform_version.
-            starting_build_id: (Optional) The oldest build_id till which builds
-                should be retrieved.
+            ignore_build_id: Ignore a specific build. This is most useful to
+                ignore the current build when querying recent past builds from a
+                build in flight.
+            start_date: Get builds that occurred on or after this date.
+            end_date: Get builds that occurred on or before this date.
+            branch: Return only results for this branch.
+            platform_version: Return only results for this platform_version.
+            starting_build_id: The oldest build_id till which builds should be
+                retrieved.
 
         Returns:
             A sorted list of dicts containing up to |number| dictionaries for
@@ -331,8 +325,8 @@ class BuildStore(object):
         Args:
             build_id: primary key of the build in buildTable.
             name: Full name of build stage.
-            board: (Optional) board name, if this is a board-specific stage.
-            status: (Optional) stage status, one of
+            board: board name, if this is a board-specific stage.
+            status: stage status, one of
                 constants.BUILDER_ALL_STATUSES.
                 Default constants.BUILDER_STATUS_PLANNED.
 

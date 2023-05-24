@@ -1265,29 +1265,24 @@ GROUP BY b.build_config
             num_results: Number of builds to search back. Set this to
                 CIDBConnection.NUM_RESULTS_NO_LIMIT to request no limit on the
                 number of results.
-            ignore_build_id: (Optional) Ignore a specific build. This is most
-                useful to ignore the current build when querying recent past
-                builds from a build in flight.
-            start_date: (Optional, type: datetime.date) Get builds that occurred
-                on or after this date.
-            end_date: (Optional, type:datetime.date) Get builds that occurred on
-                or before this date.
-            branch: (Optional) Return only results for this branch.
-            milestone_version: (Optional) Return only results for this
-                milestone_version.
-            platform_version: (Optional) Return only results for this
-                platform_version.
-            starting_build_id: (Optional) The minimum build_id for which data
-                should be retrieved.
-            ending_build_id: (Optional) The maximum build_id for which data
-                should be retrieved.
-            waterfall: (Optional) The waterfall for which data should be
+            ignore_build_id: Ignore a specific build. This is most useful to
+                ignore the current build when querying recent past builds from a
+                build in flight.
+            start_date: Get builds that occurred on or after this date.
+            end_date: Get builds that occurred on or before this date.
+            branch: Return only results for this branch.
+            milestone_version: Return only results for this milestone_version.
+            platform_version: Return only results for this platform_version.
+            starting_build_id: The minimum build_id for which data should be
                 retrieved.
-            buildbot_generation: (Optional) The buildbot_generation for which
-                data should be retrieved.
-            final: (Optional) If True, only retrieve final (ie finished) builds.
-            reverse: (Optional) If True, retrieve builds in reversed order (old
-                ones first).
+            ending_build_id: The maximum build_id for which data should be
+                retrieved.
+            waterfall: The waterfall for which data should be retrieved.
+            buildbot_generation: The buildbot_generation for which data should
+                be retrieved.
+            final: If True, only retrieve final (ie finished) builds.
+            reverse: If True, retrieve builds in reversed order (old ones
+                first).
 
         Returns:
             A sorted list of dicts containing up to |number| dictionaries for
@@ -1340,14 +1335,12 @@ GROUP BY b.build_config
             num_results: Number of builds to search back. Set this to
                 CIDBConnection.NUM_RESULTS_NO_LIMIT to request no limit on the
                 number of results.
-            ignore_build_id: (Optional) Ignore a specific build. This is most
+            ignore_build_id: Ignore a specific build. This is most
                 useful to ignore the current build when querying recent past
                 builds from a build in flight.
-            start_date: (Optional, type: datetime.date) Get builds that occurred
-                on or after this date.
-            end_date: (Optional, type:datetime.date) Get builds that occurred on
-                or before this date.
-            branch: (Optional) Return only results for this branch.
+            start_date: Get builds that occurred on or after this date.
+            end_date: Get builds that occurred on or before this date.
+            branch: Return only results for this branch.
             milestone_version: Return only results for this milestone_version.
             platform_version: Return only results for this platform_version.
             starting_build_id: The minimum build_id for which data should be

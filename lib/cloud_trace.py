@@ -104,13 +104,13 @@ class Span(collections.abc.Mapping):
 
         Args:
             name: The name of the span
-            spanId: (optional) A 64-bit number as a string. If not provided, it
-                will be generated randomly with .GenerateSpanId().
-            labels: (optional) a dict<string, string> of key/values
-            traceId: (optional) A 32 hex digit string referring to the trace
-                containing this span. If not provided, a new trace will be
-                created with a random id.
-            parentSpanId: (optional) The spanId of the parent.
+            spanId: A 64-bit number as a string. If not provided, it will be
+                generated randomly with .GenerateSpanId().
+            labels: a dict<string, string> of key/values
+            traceId: A 32 hex digit string referring to the trace containing
+                this span. If not provided, a new trace will be created with a
+                random id.
+            parentSpanId: The spanId of the parent.
         """
         # Visible attributes
         self.name = name

@@ -43,7 +43,7 @@ def ReportStageFailure(exception, metrics_fields=None):
 
     Args:
         exception: The failure exception to report.
-        metrics_fields: (Optional) Fields for ts_mon metric.
+        metrics_fields: Fields for ts_mon metric.
     """
     _InsertFailureToMonarch(
         exception_category=failures_lib.GetExceptionCategory(type(exception)),
@@ -65,10 +65,9 @@ def _InsertFailureToMonarch(
     """Report a single stage failure to Mornach if needed.
 
     Args:
-        exception_category: (Optional) one of
-            constants.EXCEPTION_CATEGORY_ALL_CATEGORIES,
-        Default: 'unknown'.
-        metrics_fields: (Optional) Fields for ts_mon metric.
+        exception_category: one of constants.EXCEPTION_CATEGORY_ALL_CATEGORIES.
+            Defaults to 'unknown'.
+        metrics_fields: Fields for ts_mon metric.
     """
     if (
         metrics_fields is not None
@@ -291,7 +290,7 @@ class BuilderStage(object):
             stage_result: results_lib.Results.* object of this stage.
             status: The finish status of the build. Enum type
                 constants.BUILDER_COMPLETED_STATUSES
-            elapsed_time_seconds: (optional) Elapsed time in stage, in seconds.
+            elapsed_time_seconds: Elapsed time in stage, in seconds.
         """
         if (
             self._build_stage_id is not None

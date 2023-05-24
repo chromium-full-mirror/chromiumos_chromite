@@ -1313,15 +1313,15 @@ def _GetSkylabCreateSuiteArgs(
         suite: suite name to run
         board: board name to run suite for
         pool: pool to run the suite in
-        model: (optional) model name to run suite for
-        extra_dims: (optional) list of additional scheduling dimensions
-        priority: (optional) integer priority for the suite. Higher number is a
-            lower priority
-        timeout_mins: (optional) suite timeout
-        max_retries: (optional) max retries allowed across all child tasks
-        job_keyvals: (optional) dictionary of {'key': 'value'} keyvals to be
-            injected into all children of suite.
-        quota_account: (optional) quotascheduler account to use for child tasks
+        model: model name to run suite for
+        extra_dims: list of additional scheduling dimensions
+        priority: integer priority for the suite. Higher number is a lower
+            priority
+        timeout_mins: suite timeout
+        max_retries: max retries allowed across all child tasks
+        job_keyvals: dictionary of {'key': 'value'} keyvals to be injected into
+            all children of suite.
+        quota_account: quotascheduler account to use for child tasks
         upload_crashes: If set, upload crashes detected on DUT during tests to
             crash server.
 

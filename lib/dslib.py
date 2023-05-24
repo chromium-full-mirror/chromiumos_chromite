@@ -50,7 +50,7 @@ def ChunkedBatchWrite(entities, client, batch_size=_BATCH_CHUNK_SIZE):
     Args:
         entities: iterator of datastore entities to write.
         client: datastore.Client instance.
-        batch_size: (default: 500) Maximum number of entities per batch.
+        batch_size: Maximum number of entities per batch (default: 500).
     """
     for chunk in iter_utils.SplitToChunks(entities, batch_size):
         entities = list(chunk)

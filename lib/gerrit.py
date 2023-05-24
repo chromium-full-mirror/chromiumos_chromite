@@ -191,7 +191,7 @@ class GerritHelper(object):
 
         Args:
             change_num: A gerrit change number.
-            verbose: (optional) Whether to print more properties of the change
+            verbose: Whether to print more properties of the change
         """
         if verbose:
             o_params = (
@@ -461,7 +461,7 @@ class GerritHelper(object):
 
         Args:
             changes: A sequence of gerrit change numbers.
-            verbose: (optional) Whether to return more properties of the change.
+            verbose: Whether to return more properties of the change.
 
         Returns:
             A list of the raw output of GetChangeDetail.

@@ -42,7 +42,7 @@ def _ScheduleTimer(seconds, interval=0):
 
     Args:
         seconds: How long to wait before sending SIGALRM, in seconds.
-        interval: (Optional) interval schedule for the timer.
+        interval: Interval schedule for the timer.
     """
     # Min resolution of itimer. See man setitimer(2) for details.
     MIN_SECONDS = 0.000001
