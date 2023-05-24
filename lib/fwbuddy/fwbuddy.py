@@ -8,29 +8,186 @@ import logging
 import os
 import re
 import shutil
+from textwrap import wrap
 from typing import List, NamedTuple
 
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 
 
-USAGE = """
-fwbuddy://<board>/<model>/<firmware-name>/<version>/<image-type>/<firmware-type>
-        board: {dedede, atlas, etc}
-        model: {galnat360, drawcia, etc.}
-        firmware-name: {galtic, dood, etc.}
-        version: {stable|stable-ro|latest|R99-123.456.0|R*-123.456.0}
-        image-type: {signed|unsigned}
-        firmware-type: {serial, dev, etc} OPTIONAL
-"""
+class FwBuddyException(Exception):
+    """Exception class used by this module."""
+
+
+class Release(NamedTuple):
+    """Tuple representation of a firmware release. e.g. R89-13606.459.0"""
+
+    milestone: str
+    major_version: str
+    minor_version: str
+    patch_number: str
+
+
+class URI(NamedTuple):
+    """All fwbuddy parameters in tuple form"""
+
+    board: str
+    model: str
+    firmware_name: str
+    version: str
+    image_type: str
+    firmware_type: str
+
+
+class FieldDoc(NamedTuple):
+    """All of the information needed to generate URI field usage docs"""
+
+    description: str
+    examples: str
+    required: bool
+    strict: bool
+
+
+class FwImage(NamedTuple):
+    """All of the parameters that identify a unique firmware image"""
+
+    board: str
+    model: str
+    firmware_name: str
+    release: Release
+    branch: str
+    image_type: str
+    firmware_type: str
+
+
+FWBUDDY_URI_SCHEMA = "fwbuddy://<board>/<model>/<firmware-name>/<version>/<image-type>/<firmware-type>"
+FIELD_DOCS = {
+    "board": FieldDoc(
+        description=(
+            "A group of ChromeOS devices (models) that have similar hardware, "
+            "but may vary in minor ways (e.g. screen size). ChromeOS system "
+            "images are targeted to boards, and all models for a board need to "
+            "be able to run the image for their respective boards."
+        ),
+        examples="dedede, octopus, brya, etc.",
+        required=True,
+        strict=False,
+    ),
+    "model": FieldDoc(
+        description=(
+            "A model generally refers to a ChromeOS device that is "
+            "unique in the market. A model typically maintains the major "
+            "hardware components of its parent board but may vary in minor "
+            "elements of one or more of: physical design, OEM, or ODM"
+        ),
+        examples="galnat360, dood, redrix, etc.",
+        required=True,
+        strict=False,
+    ),
+    "firmware-name": FieldDoc(
+        description=(
+            "The name assigned to the firmware image used by a group of "
+            "similar models. For example, Galnat, Galnat360, Galith all use "
+            "the firmware image Galtic. In some situations, the firmware name "
+            "may be identical to the model name (E.G. Dood), but this is not a "
+            "guarantee. The firmware name for the device you're trying to "
+            "flash can be found by running "
+            "`chromeos-firmwareupdate --manifest` on it and looking for the "
+            "version number for your model. For example, the manifest file on "
+            "a Galnat360 indicates that the firmware version is "
+            "`Google_Galtic.13606.459.0`, implying the firmware name is Galtic."
+        ),
+        examples="galtic, dood, redrix, etc.",
+        required=True,
+        strict=False,
+    ),
+    "version": FieldDoc(
+        description=(
+            "The version of firmware you're looking for. This could "
+            "be either a pinned version or a specific release in the following "
+            "format: R<MILESTONE>-<MAJOR_VERSION>.<MINOR_VERSION>.<PATCH_NUMBER>. "
+            "If you don't know the milestone, you can replace it with a * and "
+            "fwbuddy should be able to still find the right version."
+        ),
+        examples="{R99-123.456.0|R*-123.456.0}",
+        required=True,
+        strict=True,
+    ),
+    "image-type": FieldDoc(
+        description=(
+            "Whether the device is signed with production keys or dev keys. "
+            "Signed firmware is what typically runs on consumer devices out in "
+            "the real world. Unsigned firmware is what runs on most lab and "
+            "test devices. If you're actively developing firmware for the "
+            "device you're trying to flash, you most likely want unsigned "
+            "firmware."
+        ),
+        examples="{signed|unsigned}",
+        required=True,
+        strict=True,
+    ),
+    "firmware-type": FieldDoc(
+        description=(
+            "Any additional qualifiers required to differentiate specific "
+            "firmware images. AP images for example can be built with the "
+            "`serial` flag, which is required to enable uart console logging."
+        ),
+        examples="{serial|dev|net}",
+        required=False,
+        strict=True,
+    ),
+}
+
+MAXIMUM_LINE_LENGTH = 80
+
+
+def build_usage_string() -> str:
+    """Builds documentation for fwbuddy
+
+    Returns:
+        A usage string describing all of the URI fields.
+    """
+    usage = FWBUDDY_URI_SCHEMA + "\n\n"
+    indent = "\t"
+    for field in FIELD_DOCS:
+        usage += build_field_doc(field, indent, MAXIMUM_LINE_LENGTH)
+    return usage
+
+
+def build_field_doc(field: str, indent: str, line_length: int) -> str:
+    """Builds the documentation for a single URI field
+
+    Args:
+        field: The URI field to build docs for
+        indent: How much to indent each line
+        line_length: The maximmum length of each line disregarding indent.
+
+    Returns:
+        The doc string for the given field.
+    """
+    required_state = "REQUIRED" if FIELD_DOCS[field].required else "OPTIONAL"
+    description_newline = "\n" + indent + "\t"
+    field_doc = f"{indent}{field} ({required_state}):\n"
+    field_doc += description_newline
+    field_doc += f"{description_newline.join(wrap(FIELD_DOCS[field].description, line_length))}\n\n"
+    field_doc += description_newline
+    field_doc += "One of: " if FIELD_DOCS[field].strict else "Examples: "
+    field_doc += f"{FIELD_DOCS[field].examples}\n\n"
+    return field_doc
+
+
+USAGE = build_usage_string()
 
 BUG_SUBMIT_URL = (
     "https://issuetracker.google.com/issues/"
     "new?component=1094001&template=1670797"
 )
 
-# TODO(b/280096504) Add support for channel specific versions, like
-# 'latest-canary'
+# If a user passes just "fwbuddy" as a URI then prompt the user for each field
+# one by one.
+INTERACTIVE_MODE = ["fwbuddy", "fwbuddy://"]
+
+# TODO(b/280096504) Add support for channel specific versions, like 'latest-canary'
 STABLE = "stable"
 STABLE_RO = "stable-ro"
 LATEST = "latest"
@@ -116,42 +273,6 @@ FWBUDDY_URI_REGEX_PATTERN = re.compile(
 )
 
 
-class FwBuddyException(Exception):
-    """Exception class used by this module."""
-
-
-class Release(NamedTuple):
-    """Tuple representation of a firmware release. e.g. R89-13606.459.0"""
-
-    milestone: str
-    major_version: str
-    minor_version: str
-    patch_number: str
-
-
-class URI(NamedTuple):
-    """All fwbuddy parameters in tuple form"""
-
-    board: str
-    model: str
-    firmware_name: str
-    version: str
-    image_type: str
-    firmware_type: str
-
-
-class FwImage(NamedTuple):
-    """All of the parameters that identify a unique firmware image"""
-
-    board: str
-    model: str
-    firmware_name: str
-    release: Release
-    branch: str
-    image_type: str
-    firmware_type: str
-
-
 class FwBuddy:
     """Class that manages firmware archive retrieval from Google Storage"""
 
@@ -176,6 +297,8 @@ class FwBuddy:
         self.ec_path = None
         self.ap_path = None
 
+        if uri in INTERACTIVE_MODE:
+            uri = self.get_uri_interactive()
         self.cleanup()
         self.setup()
         self.gs = gs.GSContext()
@@ -371,6 +494,33 @@ class FwBuddy:
             directory,
             image_name,
         )
+
+
+def get_uri_interactive():
+    """Prompts for each field of the fwbuddy uri individually
+
+    Returns:
+        The complete fwbuddy URI
+    """
+    print(
+        "You have enabled interactive mode. Prompting for each part of the"
+        " fwbuddy URI individually..."
+    )
+    uri = "fwbuddy://"
+    for field_name, field in FIELD_DOCS.items():
+        print(build_field_doc(field_name, "", MAXIMUM_LINE_LENGTH))
+        user_input = input(f"{field_name}: ")
+        while field.required and user_input == "":
+            print(
+                f"{field_name} is a required field. Please enter a {field_name}\n"
+            )
+            user_input = input(f"{field_name}: ")
+        if user_input != "":
+            uri += f"{user_input}/"
+
+        print(f"\nURI: {uri}\n")
+
+    return uri
 
 
 def parse_uri(uri: str) -> URI:

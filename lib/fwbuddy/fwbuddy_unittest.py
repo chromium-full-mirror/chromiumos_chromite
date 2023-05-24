@@ -9,6 +9,7 @@
 # pylint: disable=unused-argument
 
 
+import builtins
 from subprocess import CompletedProcess
 
 import pytest
@@ -25,6 +26,12 @@ def fixture_setup(monkeypatch):
     monkeypatch.setattr(gs.GSContext, "CheckPathAccess", lambda *_,: None)
     monkeypatch.setattr(fwbuddy.FwBuddy, "setup", lambda *_,: None)
     monkeypatch.setattr(fwbuddy.FwBuddy, "cleanup", lambda *_,: None)
+
+
+def test_usage_string(setup):
+    """Test that all of the URI fields are include in the usage doc."""
+    for field in fwbuddy.FIELD_DOCS:
+        assert field in fwbuddy.USAGE
 
 
 def test_parse_uri(setup):
@@ -229,3 +236,19 @@ def test_parse_firmware_type(setup):
     assert None is fwbuddy.parse_firmware_type(None)
     with pytest.raises(fwbuddy.FwBuddyException):
         fwbuddy.parse_firmware_type("junk")
+
+
+def test_get_uri_interactive(setup, monkeypatch):
+    """Test that we can build an fwbuddy URI correctly from an interactive prompt"""
+    num = 0
+
+    def increment_num():
+        nonlocal num
+        num += 1
+        return num
+
+    monkeypatch.setattr(
+        builtins, "input", lambda *args, **kwargs: f"{increment_num()}"
+    )
+
+    assert fwbuddy.get_uri_interactive() == "fwbuddy://1/2/3/4/5/6/"

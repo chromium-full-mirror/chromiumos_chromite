@@ -14,18 +14,35 @@ class FwgetCommand(command.CliCommand):
 
     EPILOG = f"""
 ATTENTION: fwget is still under heavy development and not to be relied on for
-anything serious. YOU HAVE BEEN WARNED. For questions/concerns/suggestions
-please create a bug at {fwbuddy.BUG_SUBMIT_URL}
+anything serious. THE API MAY CHANGE AT ANY POINT. YOU HAVE BEEN WARNED.
+For questions/concerns/suggestions please create a bug at {fwbuddy.BUG_SUBMIT_URL}
 
-Downloads and extracts the firmware archive identified by a given fwbuddy URI
+Downloads and extracts the firmware image(s) identified by a given fwbuddy URI
 to a local folder.
 
 {fwbuddy.USAGE}
 
 Examples:
-    cros fwget fwbuddy://dedede/galith/galtic/R89-13606.459.0/unsigned/serial ~/Downloads
-    cros fwget fwbuddy://dedede/galnat360/galtic/latest/signed ~/Downloads
-    cros fwget fwbuddy://octopus/dood/dood/stable/unsigned/dev ~/Downloads
+
+    Define an fwbuddy archive using interactive mode and extract its
+    contents to the downloads folder.
+
+        cros fwget fwbuddy:// --path=~/Downloads
+
+    Download and extract the entire contents of the unsigned version
+    R89-13606.459.0 Dedede firmware archive to a temporary directory.
+
+        cros fwget fwbuddy://dedede/galith/galtic/R89-13606.459.0/unsigned
+
+    Download and extract the unsigned EC binary for Galtic firmware
+    verision R89-13606.459.0 to the downloads folder.
+
+        cros fwget fwbuddy://dedede/galith/galtic/R89-13606.459.0/unsigned --chip=ec --path=~/Downloads
+
+    Download and extract the signed serial AP binary for Cozmo firmware
+    verision R79-12574.111.0 to the downloads folder.
+
+        cros fwget fwbuddy://jacuzzi/cozmo/cozmo/R79-12574.111.0/signed/serial --chip=ap --path=~/Downloads
 """
 
     @classmethod
@@ -34,7 +51,10 @@ Examples:
         super(FwgetCommand, cls).AddParser(parser)
         parser.add_argument(
             "uri",
-            help="The fwbuddy URI that identifies the firmware archive.",
+            help="The fwbuddy URI that identifies the firmware archive. "
+            "Input just the fwbuddy header 'fwbuddy://' to enable a user "
+            "friendly interactive mode that will guide you through "
+            "constructing an fwbuddy URI.",
         )
         parser.add_argument(
             "--path",
