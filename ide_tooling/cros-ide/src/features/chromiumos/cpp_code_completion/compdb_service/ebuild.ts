@@ -4,6 +4,7 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import {Atom} from '../../../../services/chromiumos';
 import * as services from '../../../../services';
 import * as commonUtil from '../../../../common/common_util';
@@ -95,13 +96,32 @@ export class Ebuild {
     ];
   }
 
-  private ebuild9999(): string {
-    return path.join(
-      MNT_HOST_SOURCE,
+  /**
+   * Returns the path to ebuild inside chroot which Portage would use if
+   * cros_workon was run for the package.
+   *
+   * TODO(oka): Currently the algorithm this function uses doesn't exactly match
+   * with Portage's algorithm. Use public Portage APIs to get what this function
+   * should return.
+   */
+  private ebuild9999(chromiumosRoot: string): string {
+    for (const overlay of [
       'src/third_party/chromiumos-overlay',
-      this.atom,
-      packageName(this.atom) + '-9999.ebuild'
-    );
+      'src/private-overlays/chromeos-partner-overlay',
+    ]) {
+      const relativePath = path.join(
+        overlay,
+        this.atom,
+        packageName(this.atom) + '-9999.ebuild'
+      );
+      const pathOutsideChroot = path.join(chromiumosRoot, relativePath);
+      const pathInsideChroot = path.join(MNT_HOST_SOURCE, relativePath);
+
+      if (fs.existsSync(pathOutsideChroot)) {
+        return pathInsideChroot;
+      }
+    }
+    throw new Error('ebuild not found');
   }
 
   /**
@@ -137,7 +157,7 @@ export class Ebuild {
       [
         'USE=' + this.useFlags.join(' '),
         this.ebuildExecutable(),
-        this.ebuild9999(),
+        this.ebuild9999(this.crosFs.source.root),
         'clean',
         'compile',
       ],

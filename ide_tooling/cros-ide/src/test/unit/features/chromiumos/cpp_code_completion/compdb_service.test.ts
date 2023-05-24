@@ -49,6 +49,10 @@ describe('Compdb service', () => {
     await fs.promises.mkdir(path.join(state.source, 'src/platform2/codelab'), {
       recursive: true,
     });
+    await testing.putFiles(state.source, {
+      'src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild':
+        '',
+    });
 
     const compdbService = new CompdbServiceImpl(state.output, {
       chroot: new cros.WrapFs(state.chroot),
@@ -99,6 +103,10 @@ describe('Compdb service', () => {
       '/dev/null',
       path.join(state.source, 'src/platform2/codelab/compile_commands.json')
     );
+    await testing.putFiles(state.source, {
+      'src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild':
+        '',
+    });
 
     const compdbService = new CompdbServiceImpl(state.output, {
       chroot: new cros.WrapFs(state.chroot),
