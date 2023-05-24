@@ -1063,10 +1063,16 @@ wheel: <
 
         return ErrorDetails(type="unknown", retriable=False)
 
-    def CheckPathAccess(self, path: str):
-        """Check the user can access a given gs path.
+    def CheckPathAccess(self, path: str) -> None:
+        """Check that the user can access a given gs path
 
-        Prompts them to reauthenticate if not.
+        Prompts the user to reauthenticate if not.
+
+        Args:
+            path: The gspath to check if we can access
+
+        Raises:
+            GsAuthenticationError: If we don't have access to the path.
         """
         # Attempt to LS the path, prompting the user for
         # reauthentication if necessary.

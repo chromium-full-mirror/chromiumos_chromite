@@ -2064,6 +2064,11 @@ detail=A nonempty x-goog-project-id header is required for this request."""
         )
         self.assertFalse(self.ctx._TestGSLs())
 
+    def testGSLsAuthorizationErrorNoStderrCapture(self):
+        """GS authorization error when not capturing stderr"""
+        self.gs_mock.AddCmdResult(self.auth_cmd, returncode=1, stderr="")
+        self.assertFalse(self.ctx._TestGSLs(stderr=False))
+
     def testGSLsError2(self):
         """GS authorization error 2."""
         self.gs_mock.AddCmdResult(
