@@ -191,9 +191,6 @@
     hatch-connectivitynext-release
     hatch-kernelnext-release
     hatch-release
-    herobrine-angle-release
-    herobrine-kernelnext-release
-    herobrine-userdebug-release
     jacuzzi-kernelnext-release
     jacuzzi-release
     jacuzzi64-release
@@ -237,7 +234,6 @@
     sarien-kernelnext-release
     sarien-release
     scarlet-release
-    senor-release
     skyrim-chausie-release
     skyrim-kernelnext-release
     skyrim-release
@@ -830,21 +826,6 @@
   hatch-llvm-toolchain-tryjob
   hatch-payloads-tryjob
   hatch-release-tryjob
-  herobrine-angle-full-tryjob
-  herobrine-angle-llvm-next-toolchain-tryjob
-  herobrine-angle-llvm-toolchain-tryjob
-  herobrine-angle-payloads-tryjob
-  herobrine-angle-release-tryjob
-  herobrine-kernelnext-full-tryjob
-  herobrine-kernelnext-llvm-next-toolchain-tryjob
-  herobrine-kernelnext-llvm-toolchain-tryjob
-  herobrine-kernelnext-payloads-tryjob
-  herobrine-kernelnext-release-tryjob
-  herobrine-userdebug-full-tryjob
-  herobrine-userdebug-llvm-next-toolchain-tryjob
-  herobrine-userdebug-llvm-toolchain-tryjob
-  herobrine-userdebug-payloads-tryjob
-  herobrine-userdebug-release-tryjob
   jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
   jacuzzi-factory-kukui-14374.B-factorybranch-tryjob
   jacuzzi-full-tryjob
@@ -1030,9 +1011,6 @@
     hatch-connectivitynext-release-tryjob
     hatch-kernelnext-release-tryjob
     hatch-release-tryjob
-    herobrine-angle-release-tryjob
-    herobrine-kernelnext-release-tryjob
-    herobrine-userdebug-release-tryjob
     jacuzzi-kernelnext-release-tryjob
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
@@ -1076,7 +1054,6 @@
     sarien-kernelnext-release-tryjob
     sarien-release-tryjob
     scarlet-release-tryjob
-    senor-release-tryjob
     skyrim-chausie-release-tryjob
     skyrim-kernelnext-release-tryjob
     skyrim-release-tryjob
@@ -1272,11 +1249,6 @@
   scarlet-llvm-toolchain-tryjob
   scarlet-payloads-tryjob
   scarlet-release-tryjob
-  senor-full-tryjob
-  senor-llvm-next-toolchain-tryjob
-  senor-llvm-toolchain-tryjob
-  senor-payloads-tryjob
-  senor-release-tryjob
   sentry-factory-glados-7828.B-factorybranch-tryjob
   skyrim-chausie-full-tryjob
   skyrim-chausie-llvm-next-toolchain-tryjob
