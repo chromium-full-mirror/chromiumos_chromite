@@ -123,6 +123,7 @@
     adlrvp-release
     ambassador-release
     asurada-connectivitynext-release
+    asurada-kernelnext-release
     asurada-release
     atlas-connectivitynext-release
     atlas-kernelnext-release
@@ -321,6 +322,7 @@
   asurada-connectivitynext-release-tryjob
   asurada-factory-asurada-13929.B-factorybranch-tryjob
   asurada-full-tryjob
+  asurada-kernelnext-release-tryjob
   asurada-llvm-next-toolchain-tryjob
   asurada-llvm-toolchain-tryjob
   asurada-payloads-tryjob
@@ -943,6 +945,7 @@
     adlrvp-release-tryjob
     ambassador-release-tryjob
     asurada-connectivitynext-release-tryjob
+    asurada-kernelnext-release-tryjob
     asurada-release-tryjob
     atlas-connectivitynext-release-tryjob
     atlas-kernelnext-release-tryjob
