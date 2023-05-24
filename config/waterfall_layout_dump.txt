@@ -158,8 +158,6 @@
     hana-release
     hatch-arc-t-release
     hatch-release
-    herobrine-angle-release
-    herobrine-userdebug-release
     jacuzzi-release
     jacuzzi64-release
     kalista-cfm-release
@@ -620,16 +618,6 @@
   hatch-llvm-toolchain-tryjob
   hatch-payloads-tryjob
   hatch-release-tryjob
-  herobrine-angle-full-tryjob
-  herobrine-angle-llvm-next-toolchain-tryjob
-  herobrine-angle-llvm-toolchain-tryjob
-  herobrine-angle-payloads-tryjob
-  herobrine-angle-release-tryjob
-  herobrine-userdebug-full-tryjob
-  herobrine-userdebug-llvm-next-toolchain-tryjob
-  herobrine-userdebug-llvm-toolchain-tryjob
-  herobrine-userdebug-payloads-tryjob
-  herobrine-userdebug-release-tryjob
   jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
   jacuzzi-factory-kukui-14374.B-factorybranch-tryjob
   jacuzzi-full-tryjob
@@ -761,8 +749,6 @@
     hana-release-tryjob
     hatch-arc-t-release-tryjob
     hatch-release-tryjob
-    herobrine-angle-release-tryjob
-    herobrine-userdebug-release-tryjob
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
     kalista-cfm-release-tryjob
