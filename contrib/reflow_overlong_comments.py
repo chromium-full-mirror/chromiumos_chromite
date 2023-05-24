@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -7,8 +6,6 @@
 
 import io
 from pathlib import Path
-import shutil
-import sys
 import textwrap
 from typing import List, Optional, Tuple
 
@@ -121,26 +118,20 @@ def reflow_comments(input_file: io.TextIOBase, output: io.TextIOBase) -> None:
         _write_comment(output, leading_whitespace, comment)
 
 
-def main(_: Optional[List[str]] = None) -> Optional[int]:
-    parser = commandline.ArgumentParser(description="Auto-format comments.")
+def main(argv: Optional[List[str]] = None) -> Optional[int]:
+    parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "input", nargs="+", help="input files", type=commandline.ExistingFile
     )
-    args = parser.parse_args()
-    inputs: List[Path] = args.input
+    opts = parser.parse_args(argv)
+    inputs: List[Path] = opts.input
 
     for input_file in inputs:
         input_file = input_file.resolve()
-        temp_file = _tmp_file_for(input_file)
+        temp_output_handle = io.StringIO()
 
-        with open(input_file, "r", encoding="utf-8") as input_file_handle:
-            with open(temp_file, "w", encoding="utf-8") as temp_file_handle:
-                reflow_comments(input_file_handle, temp_file_handle)
+        with input_file.open("r", encoding="utf-8") as input_file_handle:
+            reflow_comments(input_file_handle, temp_output_handle)
 
-        # `move` with Path is broken until 3.9 - bugs.python.org/issue32689.
-        shutil.move(str(temp_file), input_file)
+        input_file.write_text(temp_output_handle.getvalue(), encoding="utf-8")
     return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
