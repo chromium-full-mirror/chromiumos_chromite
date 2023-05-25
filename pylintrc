@@ -166,8 +166,6 @@ disable=
     ungrouped-imports,
     useless-object-inheritance,
     wrong-import-order,
-# Temporary disables to allow old style and new style to both pass linting.
-    docstring-section-indent,
 
 [REPORTS]
 
