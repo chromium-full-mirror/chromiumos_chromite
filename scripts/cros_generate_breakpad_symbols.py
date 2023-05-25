@@ -584,7 +584,7 @@ def GenerateBreakpadSymbol(
         num_errors = ctypes.c_int(0)
     debug_file_only = not os.path.exists(elf_file)
 
-    cmd_base = [dump_syms_cmd, "-v"]
+    cmd_base = [dump_syms_cmd, "-v", "-d", "-m"]
     if strip_cfi:
         cmd_base += ["-c"]
     # Some files will not be readable by non-root (e.g. set*id /bin/su).
