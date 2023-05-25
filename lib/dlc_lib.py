@@ -71,7 +71,7 @@ EXT4_TYPE = "ext4"
 USED_BY_USER = "user"
 USED_BY_SYSTEM = "system"
 
-_MAX_ID_NAME = 40
+_MAX_ID_NAME = 80
 
 _IMAGE_SIZE_NEARING_RATIO = 1.05
 _IMAGE_SIZE_GROWTH_RATIO = 1.2
@@ -1099,7 +1099,7 @@ def ValidateDlcIdentifier(name):
       - No underscore.
       - First character should be only alphanumeric.
       - Other characters can be alphanumeric and '-' (dash).
-      - Maximum length of 40 (_MAX_ID_NAME) characters.
+      - Maximum length (_MAX_ID_NAME) characters.
 
     For more info see:
     https://chromium.googlesource.com/chromiumos/platform2/+/HEAD/dlcservice/docs/developer.md#create-a-dlc-module

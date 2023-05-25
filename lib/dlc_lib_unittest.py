@@ -53,9 +53,12 @@ class UtilsTest(cros_test_lib.TempDirTestCase):
         """Tests dlc_lib.ValidateDlcIdentifier."""
         dlc_lib.ValidateDlcIdentifier("hello-world")
         dlc_lib.ValidateDlcIdentifier("hello-world2")
+        # Keep as previous max ID length.
         dlc_lib.ValidateDlcIdentifier(
             "this-string-has-length-40-exactly-now---"
         )
+        # Exactly 80 characters.
+        dlc_lib.ValidateDlcIdentifier("a" * 80)
 
         self.assertRaises(Exception, dlc_lib.ValidateDlcIdentifier, "")
         self.assertRaises(Exception, dlc_lib.ValidateDlcIdentifier, "-")
@@ -67,7 +70,7 @@ class UtilsTest(cros_test_lib.TempDirTestCase):
         self.assertRaises(
             Exception,
             dlc_lib.ValidateDlcIdentifier,
-            "this-string-has-length-greater-than-40-now",
+            "a" * 81,
         )
 
 
