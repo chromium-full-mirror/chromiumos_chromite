@@ -33,7 +33,7 @@ def ParseArgs(argv):
     """Parse arguments.
 
     Args:
-      argv: array of arguments passed to the script.
+        argv: array of arguments passed to the script.
     """
     parser = commandline.ArgumentParser(description=__doc__)
 
@@ -63,22 +63,28 @@ def ParseArgs(argv):
         dest="installed",
         default=True,
         action="store_false",
-        help="Test all testable packages, even if they are not "
-        "currently installed.",
+        help=(
+            "Test all testable packages, even if they are not "
+            "currently installed."
+        ),
     )
     parser.add_argument(
         "--package_file",
         type="path",
-        help="Path to a file containing the list of packages "
-        "that should be tested.",
+        help=(
+            "Path to a file containing the list of packages "
+            "that should be tested."
+        ),
     )
     parser.add_argument(
         "--packages", help="Space-separated list of packages to test."
     )
     parser.add_argument(
         "--skip-packages",
-        help="Space-separated list of packages to NOT test even "
-        "if they otherwise would have been tested.",
+        help=(
+            "Space-separated list of packages to NOT test even "
+            "if they otherwise would have been tested."
+        ),
     )
     parser.add_argument(
         "--nowithdebug",
@@ -90,10 +96,12 @@ def ParseArgs(argv):
         default=False,
         action="store_true",
         dest="empty_sysroot",
-        help="Set up dependencies and run unit tests for all "
-        "packages that could be installed on target board "
-        "without assuming that any packages have actually "
-        "been merged yet.",
+        help=(
+            "Set up dependencies and run unit tests for all "
+            "packages that could be installed on target board "
+            "without assuming that any packages have actually "
+            "been merged yet."
+        ),
     )
     parser.add_argument(
         "-j",
@@ -113,8 +121,10 @@ def ParseArgs(argv):
         "--filter-only-cros-workon",
         default=False,
         action="store_true",
-        help="If specified and packages are given, filters out non-cros_workon "
-        "packages.",
+        help=(
+            "If specified and packages are given, filters out non-cros_workon "
+            "packages."
+        ),
     )
 
     options = parser.parse_args(argv)

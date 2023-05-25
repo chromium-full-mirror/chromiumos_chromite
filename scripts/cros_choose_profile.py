@@ -85,11 +85,11 @@ def ChooseProfile(board, profile):
     """Make the link to choose the profile, print relevant warnings.
 
     Args:
-      board: Board - the board being used.
-      profile: Profile - the profile being used.
+        board: Board - the board being used.
+        profile: Profile - the profile being used.
 
     Raises:
-      OSError when the board's make_profile path exists and is not a link.
+        OSError when the board's make_profile path exists and is not a link.
     """
     if not os.path.isfile(os.path.join(profile.directory, "parent")):
         logging.warning(
@@ -213,7 +213,7 @@ class Board(object):
         if not board and not board_root:
             # Enforce preconditions.
             raise InvalidArgumentsError(
-                "Either board or board_root must be " "provided."
+                "Either board or board_root must be provided."
             )
         elif board:
             # The board and variant can be specified separately, or can both be
@@ -296,7 +296,7 @@ def GetParser():
     group.add_argument(
         "--filesystem-prefix",
         type="path",
-        help="Force filesystem accesses to be prefixed by the " "given path.",
+        help="Force filesystem accesses to be prefixed by the given path.",
     )
     return parser
 
@@ -329,7 +329,7 @@ def main(argv):
 
     if not os.path.exists(board.root):
         cros_build_lib.Die(
-            "The board has not been setup, please run setup_board " "first."
+            "The board has not been setup, please run setup_board first."
         )
 
     try:

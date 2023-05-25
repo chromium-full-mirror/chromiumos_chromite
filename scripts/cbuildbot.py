@@ -60,8 +60,8 @@ def _BackupPreviousLog(log_file, backup_limit=25):
     """Rename previous log.
 
     Args:
-      log_file: The absolute path to the previous log.
-      backup_limit: Maximum number of old logs to keep.
+        log_file: The absolute path to the previous log.
+        backup_limit: Maximum number of old logs to keep.
     """
     if os.path.exists(log_file):
         old_logs = sorted(
@@ -82,12 +82,12 @@ def _IsDistributedBuilder(options, chrome_rev, build_config):
     """Determines whether the builder should be a DistributedBuilder.
 
     Args:
-      options: options passed on the commandline.
-      chrome_rev: Chrome revision to build.
-      build_config: Builder configuration dictionary.
+        options: options passed on the commandline.
+        chrome_rev: Chrome revision to build.
+        build_config: Builder configuration dictionary.
 
     Returns:
-      True if the builder should be a distributed_builder
+        True if the builder should be a distributed_builder
     """
     if not options.buildbot:
         return False
@@ -249,18 +249,22 @@ def _CreateParser():
     parser.add_remote_option(
         "-b",
         "--branch",
-        help="The manifest branch to test.  The branch to "
-        "check the buildroot out to.",
+        help=(
+            "The manifest branch to test.  The branch to "
+            "check the buildroot out to."
+        ),
     )
     parser.add_option(
         "-r",
         "--buildroot",
         type="path",
         dest="buildroot",
-        help="Root directory where source is checked out to, and "
-        "where the build occurs. For external build configs, "
-        "defaults to 'trybot' directory at top level of your "
-        "repo-managed checkout.",
+        help=(
+            "Root directory where source is checked out to, and "
+            "where the build occurs. For external build configs, "
+            "defaults to 'trybot' directory at top level of your "
+            "repo-managed checkout."
+        ),
     )
     parser.add_option(
         "--workspace",
@@ -271,10 +275,13 @@ def _CreateParser():
     parser.add_option(
         "--bootstrap-dir",
         type="path",
-        help="Bootstrapping cbuildbot may involve checking out "
-        "multiple copies of chromite. All these checkouts "
-        "will be contained in the directory specified here. "
-        "Default:%s" % osutils.GetGlobalTempDir(),
+        help=(
+            "Bootstrapping cbuildbot may involve checking out "
+            "multiple copies of chromite. All these checkouts "
+            "will be contained in the directory specified here. "
+            "Default:%s"
+        )
+        % osutils.GetGlobalTempDir(),
     )
     parser.add_remote_option(
         "--android_rev",
@@ -304,14 +311,16 @@ def _CreateParser():
         "--goma_dir",
         type="path",
         api=constants.REEXEC_API_GOMA,
-        help="Specify a directory containing goma. When this is "
-        "set, GOMA is used to build Chrome.",
+        help=(
+            "Specify a directory containing goma. When this is "
+            "set, GOMA is used to build Chrome."
+        ),
     )
     parser.add_option(
         "--chromeos_goma_dir",
         type="path",
         api=constants.REEXEC_API_CHROMEOS_GOMA_DIR,
-        help="Specify a directory containing goma for " "build package.",
+        help="Specify a directory containing goma for build package.",
     )
     group = CustomGroup(parser, "Deprecated Options")
 
@@ -341,9 +350,11 @@ def _CreateParser():
         type="string",
         default=[],
         metavar="'Id1 *int_Id2...IdN'",
-        help="Space-separated list of short-form Gerrit "
-        "Change-Id's or change numbers to patch. "
-        "Please prepend '*' to internal Change-Id's",
+        help=(
+            "Space-separated list of short-form Gerrit "
+            "Change-Id's or change numbers to patch. "
+            "Please prepend '*' to internal Change-Id's"
+        ),
     )
 
     parser.add_argument_group(group)
@@ -364,20 +375,24 @@ def _CreateParser():
         type="string",
         action="split_extend",
         default=None,
-        help="Space-separated list of key:val Swarming bot "
-        "dimensions to run each builders SkylabHWTest "
-        "stages against (this overrides the configured "
-        "DUT dimensions for each test). Requires at least "
-        '"label-board", "label-model", and "label-pool".',
+        help=(
+            "Space-separated list of key:val Swarming bot "
+            "dimensions to run each builders SkylabHWTest "
+            "stages against (this overrides the configured "
+            "DUT dimensions for each test). Requires at least "
+            '"label-board", "label-model", and "label-pool".'
+        ),
     )
     group.add_remote_option(
         "--channel",
         action="split_extend",
         dest="channels",
         default=[],
-        help="Specify a channel for a payloads trybot. Can "
-        "be specified multiple times. No valid for "
-        "non-payloads configs.",
+        help=(
+            "Specify a channel for a payloads trybot. Can "
+            "be specified multiple times. No valid for "
+            "non-payloads configs."
+        ),
     )
 
     parser.add_argument_group(group)
@@ -396,21 +411,25 @@ def _CreateParser():
         "--bootstrap-args",
         action="append",
         default=[],
-        help="Args passed directly to the bootstrap re-exec "
-        "to skip verification by the bootstrap code",
+        help=(
+            "Args passed directly to the bootstrap re-exec "
+            "to skip verification by the bootstrap code"
+        ),
     )
     group.add_remote_option(
         "--buildbot",
         action="store_true",
         dest="buildbot",
         default=False,
-        help="This is running on a buildbot. "
-        "This can be used to make a build operate "
-        "like an official builder, e.g. generate "
-        "new version numbers and archive official "
-        "artifacts and such. This should only be "
-        "used if you are confident in what you are "
-        "doing, as it will make automated commits.",
+        help=(
+            "This is running on a buildbot. "
+            "This can be used to make a build operate "
+            "like an official builder, e.g. generate "
+            "new version numbers and archive official "
+            "artifacts and such. This should only be "
+            "used if you are confident in what you are "
+            "doing, as it will make automated commits."
+        ),
     )
     parser.add_remote_option(
         "--repo-cache",
@@ -423,9 +442,11 @@ def _CreateParser():
         action="store_false",
         dest="enable_buildbot_tags",
         default=True,
-        help="Suppress buildbot specific tags from log "
-        "output. This is used to hide recursive "
-        "cbuilbot runs on the waterfall.",
+        help=(
+            "Suppress buildbot specific tags from log "
+            "output. This is used to hide recursive "
+            "cbuilbot runs on the waterfall."
+        ),
     )
     group.add_remote_option(
         "--buildnumber", type="int", default=0, help="build number"
@@ -443,9 +464,11 @@ def _CreateParser():
         type="string",
         dest="chrome_version",
         callback=_CheckChromeVersionOption,
-        help="Used with SPEC logic to force a particular "
-        "git revision of chrome rather than the "
-        "latest.",
+        help=(
+            "Used with SPEC logic to force a particular "
+            "git revision of chrome rather than the "
+            "latest."
+        ),
     )
     group.add_remote_option(
         "--clobber",
@@ -493,7 +516,7 @@ def _CreateParser():
         action="store_false",
         dest="bootstrap",
         default=True,
-        help="Don't checkout and run from a standalone " "chromite repo.",
+        help="Don't checkout and run from a standalone chromite repo.",
     )
     group.add_remote_option(
         "--nobuild",
@@ -521,8 +544,10 @@ def _CreateParser():
         action="store_false",
         dest="chrome_sdk",
         default=True,
-        help="Don't run the ChromeSDK stage which builds "
-        "Chrome outside of the chroot.",
+        help=(
+            "Don't run the ChromeSDK stage which builds "
+            "Chrome outside of the chroot."
+        ),
     )
     group.add_remote_option(
         "--noprebuilts",
@@ -536,9 +561,11 @@ def _CreateParser():
         action="store_false",
         dest="postsync_patch",
         default=True,
-        help="Don't run PatchChanges stage.  This does not "
-        "disable patching in of chromite patches "
-        "during BootstrapStage.",
+        help=(
+            "Don't run PatchChanges stage.  This does not "
+            "disable patching in of chromite patches "
+            "during BootstrapStage."
+        ),
     )
     group.add_remote_option(
         "--nopaygen",
@@ -572,38 +599,42 @@ def _CreateParser():
         action="store_false",
         dest="tests",
         default=True,
-        help="Override values from buildconfig, run no "
-        "tests, and build no autotest and artifacts.",
+        help=(
+            "Override values from buildconfig, run no "
+            "tests, and build no autotest and artifacts."
+        ),
     )
     group.add_remote_option(
         "--novmtests",
         action="store_false",
         dest="vmtests",
         default=True,
-        help="Override values from buildconfig, run no " "vmtests.",
+        help="Override values from buildconfig, run no vmtests.",
     )
     group.add_remote_option(
         "--noimagetests",
         action="store_false",
         dest="image_test",
         default=True,
-        help="Override values from buildconfig and run no " "image tests.",
+        help="Override values from buildconfig and run no image tests.",
     )
     group.add_remote_option(
         "--nouprev",
         action="store_false",
         dest="uprev",
         default=True,
-        help="Override values from buildconfig and never " "uprev.",
+        help="Override values from buildconfig and never uprev.",
     )
     group.add_option(
         "--reference-repo",
-        help="Reuse git data stored in an existing repo "
-        "checkout. This can drastically reduce the network "
-        "time spent setting up the trybot checkout.  By "
-        "default, if this option isn't given but cbuildbot "
-        "is invoked from a repo checkout, cbuildbot will "
-        "use the repo root.",
+        help=(
+            "Reuse git data stored in an existing repo "
+            "checkout. This can drastically reduce the network "
+            "time spent setting up the trybot checkout.  By "
+            "default, if this option isn't given but cbuildbot "
+            "is invoked from a repo checkout, cbuildbot will "
+            "use the repo root."
+        ),
     )
     group.add_option(
         "--resume",
@@ -615,39 +646,47 @@ def _CreateParser():
         "--timeout",
         type="int",
         default=0,
-        help="Specify the maximum amount of time this job "
-        "can run for, at which point the build will be "
-        "aborted.  If set to zero, then there is no "
-        "timeout.",
+        help=(
+            "Specify the maximum amount of time this job "
+            "can run for, at which point the build will be "
+            "aborted.  If set to zero, then there is no "
+            "timeout."
+        ),
     )
     group.add_remote_option(
         "--version",
         dest="force_version",
-        help="Used with manifest logic.  Forces use of this "
-        "version rather than create or get latest. "
-        "Examples: 4815.0.0-rc1, 4815.1.2",
+        help=(
+            "Used with manifest logic.  Forces use of this "
+            "version rather than create or get latest. "
+            "Examples: 4815.0.0-rc1, 4815.1.2"
+        ),
     )
     group.add_remote_option(
         "--git-cache-dir",
         type="path",
         api=constants.REEXEC_API_GIT_CACHE_DIR,
-        help="Specify the cache directory to store the "
-        "project caches populated by the git-cache "
-        "tool. Bootstrap the projects based on the git "
-        "cache files instead of fetching them directly "
-        "from the GoB servers.",
+        help=(
+            "Specify the cache directory to store the "
+            "project caches populated by the git-cache "
+            "tool. Bootstrap the projects based on the git "
+            "cache files instead of fetching them directly "
+            "from the GoB servers."
+        ),
     )
     group.add_remote_option(
         "--chrome-preload-dir",
         type="path",
         api=constants.REEXEC_API_CHROME_PRELOAD_DIR,
-        help="Specify a preloaded chrome source cache "
-        "directory populated by the git-cache tool. "
-        "Bootstrap chrome based on the cached files "
-        "instead of fetching them directly from the GoB "
-        "servers. When both this argument and "
-        "--git-cache-dir are provided this value will "
-        "be preferred for the chrome source cache.",
+        help=(
+            "Specify a preloaded chrome source cache "
+            "directory populated by the git-cache tool. "
+            "Bootstrap chrome based on the cached files "
+            "instead of fetching them directly from the GoB "
+            "servers. When both this argument and "
+            "--git-cache-dir are provided this value will "
+            "be preferred for the chrome source cache."
+        ),
     )
     group.add_remote_option(
         "--source_cache",
@@ -667,15 +706,17 @@ def _CreateParser():
         action="split_extend",
         dest="cbb_build_packages",
         default=[],
-        help="Specify an explicit list of packages to build "
-        "for integration with Findit.",
+        help=(
+            "Specify an explicit list of packages to build "
+            "for integration with Findit."
+        ),
     )
     group.add_remote_option(
         "--cbb_snapshot_revision",
         type="string",
         dest="cbb_snapshot_revision",
         default=None,
-        help="Snapshot manifest revision to sync to " "for building.",
+        help="Snapshot manifest revision to sync to for building.",
     )
     group.add_remote_option(
         "--no-publish-prebuilt-confs",
@@ -700,17 +741,21 @@ def _CreateParser():
     group.add_remote_option(
         "--archive-base",
         type="gs_path",
-        help="Base GS URL (gs://<bucket_name>/<path>) to "
-        "upload archive artifacts to",
+        help=(
+            "Base GS URL (gs://<bucket_name>/<path>) to "
+            "upload archive artifacts to"
+        ),
     )
     group.add_remote_option(
         "--cq-gerrit-query",
         dest="cq_gerrit_override",
-        help="If given, this gerrit query will be used to find what patches to "
-        "test, rather than the normal 'CommitQueue>=1 AND Verified=1 AND "
-        "CodeReview=2' query it defaults to.  Use with care- note "
-        "additionally this setting only has an effect if the buildbot "
-        "target is a cq target, and we're in buildbot mode.",
+        help=(
+            "If given, this gerrit query will be used to find what patches to "
+            "test, rather than the normal 'CommitQueue>=1 AND Verified=1 AND "
+            "CodeReview=2' query it defaults to.  Use with care- note "
+            "additionally this setting only has an effect if the buildbot "
+            "target is a cq target, and we're in buildbot mode."
+        ),
     )
     group.add_option(
         "--pass-through",
@@ -724,8 +769,10 @@ def _CreateParser():
         action="store_true",
         dest="output_api_version",
         default=False,
-        help="Used for handling forwards/backwards compatibility "
-        "with --resume and --bootstrap",
+        help=(
+            "Used for handling forwards/backwards compatibility "
+            "with --resume and --bootstrap"
+        ),
     )
     group.add_option(
         "--remote-trybot",
@@ -736,15 +783,18 @@ def _CreateParser():
     group.add_option(
         "--buildbucket-id",
         api=constants.REEXEC_API_GOMA,  # Approximate.
-        help="The unique ID in buildbucket of current build "
-        "generated by buildbucket.",
+        help=(
+            "The unique ID in buildbucket of current build "
+            "generated by buildbucket."
+        ),
     )
     group.add_remote_option(
         "--remote-patches",
         action="split_extend",
         default=[],
-        help="Patches uploaded by the trybot client when "
-        "run using the -p option",
+        help=(
+            "Patches uploaded by the trybot client when run using the -p option"
+        ),
     )
     # Note the default here needs to be hardcoded to 3; that is the last version
     # that lacked this functionality.
@@ -759,48 +809,58 @@ def _CreateParser():
         "--test-bootstrap",
         action="store_true",
         default=False,
-        help="Causes cbuildbot to bootstrap itself twice, "
-        "in the sequence A->B->C: A(unpatched) patches "
-        "and bootstraps B; B patches and bootstraps C",
+        help=(
+            "Causes cbuildbot to bootstrap itself twice, "
+            "in the sequence A->B->C: A(unpatched) patches "
+            "and bootstraps B; B patches and bootstraps C"
+        ),
     )
     group.add_remote_option(
         "--validation_pool",
-        help="Path to a pickled validation pool. Intended "
-        "for use only with the commit queue.",
+        help=(
+            "Path to a pickled validation pool. Intended "
+            "for use only with the commit queue."
+        ),
     )
     group.add_remote_option(
         "--metadata_dump",
-        help="Path to a json dumped metadata file. This "
-        "will be used as the initial metadata.",
+        help=(
+            "Path to a json dumped metadata file. This "
+            "will be used as the initial metadata."
+        ),
     )
     group.add_remote_option(
         "--master-build-id",
         type="int",
         api=constants.REEXEC_API_MASTER_BUILD_ID,
-        help="cidb build id of the master build to this " "slave build.",
+        help="cidb build id of the master build to this slave build.",
     )
     group.add_remote_option(
         "--master-buildbucket-id",
         api=constants.REEXEC_API_MASTER_BUILDBUCKET_ID,
-        help="buildbucket id of the master build to this " "slave build.",
+        help="buildbucket id of the master build to this slave build.",
     )
     # TODO(nxia): crbug.com/778838
     # cbuildbot doesn't use pickle files anymore, remove this.
     group.add_remote_option(
         "--mock-slave-status",
         metavar="MOCK_SLAVE_STATUS_PICKLE_FILE",
-        help="Override the result of the _FetchSlaveStatuses "
-        "method of MasterSlaveSyncCompletionStage, by "
-        "specifying a file with a pickle of the result "
-        "to be returned.",
+        help=(
+            "Override the result of the _FetchSlaveStatuses "
+            "method of MasterSlaveSyncCompletionStage, by "
+            "specifying a file with a pickle of the result "
+            "to be returned."
+        ),
     )
     group.add_option(
         "--previous-build-state",
         type="string",
         default="",
         api=constants.REEXEC_API_PREVIOUS_BUILD_STATE,
-        help="A base64-encoded BuildSummary object describing the "
-        "previous build run on the same build machine.",
+        help=(
+            "A base64-encoded BuildSummary object describing the "
+            "previous build run on the same build machine."
+        ),
     )
 
     parser.add_argument_group(group)
@@ -819,8 +879,10 @@ def _CreateParser():
         action="store_false",
         dest="tee",
         default=True,
-        help="Disable logging and internal tee process.  Primarily "
-        "used for debugging cbuildbot itself.",
+        help=(
+            "Disable logging and internal tee process.  Primarily "
+            "used for debugging cbuildbot itself."
+        ),
     )
     return parser
 
@@ -833,7 +895,7 @@ def _FinishParsing(options):
     _PostParseCheck().
 
     Args:
-      options: The options object returned by optparse
+        options: The options object returned by optparse
     """
     # Populate options.pass_through_args.
     accepted, _ = commandline.FilteringParser.FilterArgs(
@@ -931,9 +993,9 @@ def _PostParseCheck(parser, options, site_config):
     """Perform some usage validation after we've parsed the arguments
 
     Args:
-      parser: Option parser that was used to parse arguments.
-      options: The options returned by optparse.
-      site_config: config_lib.SiteConfig containing all config info.
+        parser: Option parser that was used to parse arguments.
+        options: The options returned by optparse.
+        site_config: config_lib.SiteConfig containing all config info.
     """
 
     if not options.branch:
@@ -967,8 +1029,8 @@ def _PostParseCheck(parser, options, site_config):
 
     if not options.channels and is_payloads_build:
         cros_build_lib.Die(
-            "payload configs (%s) require --channel to do anything"
-            " useful." % options.build_config_name
+            "payload configs (%s) require --channel to do anything useful."
+            % options.build_config_name
         )
 
     # If the build config explicitly forces the debug flag, set the debug flag
@@ -1044,8 +1106,8 @@ def _SetupConnections(options, build_config):
     """Set up CIDB connections using the appropriate Setup call.
 
     Args:
-      options: Command line options structure.
-      build_config: Config object for this build.
+        options: Command line options structure.
+        build_config: Config object for this build.
     """
     # Outline:
     # 1) Based on options and build_config, decide whether we are a production
@@ -1093,9 +1155,9 @@ class _ObjectMethodPatcher(object):
         """Constructor.
 
         Args:
-          target: object to patch.
-          attr: method name of the object to patch.
-          return_value: the return value when calling target.attr
+            target: object to patch.
+            attr: method name of the object to patch.
+            return_value: the return value when calling target.attr
         """
         self.target = target
         self.attr = attr
@@ -1174,7 +1236,7 @@ def main(argv):
             parser.error(
                 "Option --buildbot/--remote-trybot requires the following "
                 "binaries which couldn't be found in $PATH: %s"
-                % (", ".join(missing))
+                % ", ".join(missing)
             )
 
     if options.reference_repo:

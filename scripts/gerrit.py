@@ -206,11 +206,11 @@ def GetGerrit(opts, cl=None):
     """Auto pick the right gerrit instance based on the |cl|
 
     Args:
-      opts: The general options object.
-      cl: A CL taking one of the forms: 1234 *1234 chromium:1234
+        opts: The general options object.
+        cl: A CL taking one of the forms: 1234 *1234 chromium:1234
 
     Returns:
-      A tuple of a gerrit object and a sanitized CL #.
+        A tuple of a gerrit object and a sanitized CL #.
     """
     gob = opts.gob
     if cl is not None:
@@ -386,8 +386,7 @@ class _ActionSearchQuery(UserAction):
         parser.add_argument(
             "--sort",
             default="number",
-            help='Key to sort on (number, project); use "unsorted" '
-            "to disable",
+            help='Key to sort on (number, project); use "unsorted" to disable',
         )
         parser.add_argument(
             "-b", "--branch", help="Limit output to the specific branch"
@@ -461,14 +460,15 @@ def _BreadthFirstSearch(to_visit, children, visited_key=lambda x: x):
     """Runs breadth first search starting from the nodes in |to_visit|
 
     Args:
-      to_visit: the starting nodes
-      children: a function which takes a node and returns the adjacent nodes
-      visited_key: a function for deduplicating node visits. Defaults to the
-        identity function (lambda x: x)
+        to_visit: the starting nodes
+        children: a function which takes a node and returns the adjacent nodes
+        visited_key: a function for deduplicating node visits. Defaults to the
+            identity function (lambda x: x)
 
     Returns:
-      A list of nodes which are reachable from any node in |to_visit| by calling
-      |children| any number of times.
+        A list of nodes which are reachable from any node in |to_visit| by
+        calling
+        |children| any number of times.
     """
     to_visit = list(to_visit)
     seen = set(visited_key(x) for x in to_visit)
@@ -1297,8 +1297,8 @@ def _GetActions():
     """Get all the possible actions we support.
 
     Returns:
-      An ordered dictionary mapping the user subcommand (e.g. "foo") to the
-      function that implements that command (e.g. UserActFoo).
+        An ordered dictionary mapping the user subcommand (e.g. "foo") to the
+        function that implements that command (e.g. UserActFoo).
     """
     VALID_NAME = re.compile(r"^[a-z][a-z-]*[a-z]$")
 
@@ -1417,7 +1417,7 @@ Actions:
         "-g",
         "--gob",
         default=site_params.EXTERNAL_GOB_INSTANCE,
-        help=("Gerrit (on borg) instance to query " "(default: %(default)s)"),
+        help="Gerrit (on borg) instance to query (default: %(default)s)",
     )
 
     group = parser.add_argument_group("CL options")

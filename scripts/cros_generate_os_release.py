@@ -15,9 +15,9 @@ def GenerateOsRelease(root, default_params=None):
     """Adds contents of /etc/os-release.d into /etc/os-release
 
     Args:
-      root: path to the root directory where os-release should be genereated.
-      default_params: a dict of os-release parameters that should be added
-        if not already set.
+        root: path to the root directory where os-release should be generated.
+        default_params: a dict of os-release parameters that should be added if
+            not already set.
     """
     os_release_path = os.path.join(root, "etc", "os-release")
     os_released_path = os.path.join(root, "etc", "os-release.d")

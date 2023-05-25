@@ -20,8 +20,8 @@ class SleepLoop(object):
         """Initialize instance.
 
         Args:
-          callback: Function to call on each loop.
-          interval: Time between loops in seconds.
+            callback: Function to call on each loop.
+            interval: Time between loops in seconds.
         """
         self._callback = callback
         self._interval = interval

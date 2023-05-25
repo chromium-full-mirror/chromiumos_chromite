@@ -113,7 +113,7 @@ def _ReadBatch(file_batch):
     """Read each line in a list of files as json.
 
     Args:
-      file_batch: A list of file paths to read.
+        file_batch: A list of file paths to read.
     """
     for f in file_batch:
         with open(f, encoding="utf-8") as fp:
@@ -125,7 +125,7 @@ def _CleanupBatch(files):
     """Remove each file in a list of files, warning if they don't exist.
 
     Args:
-      files: A list of file paths to remove.
+        files: A list of file paths to remove.
     """
     for path in files:
         try:
@@ -144,9 +144,9 @@ def _MapIgnoringErrors(f, sequence, exception_type=Exception):
     """Maps a function over a stream ignoring exceptions.
 
     Args:
-      f: A function to call.
-      sequence: An iterable to map over, forgiving exceptions
-      exception_type: The specific exception to forgive.
+        f: A function to call.
+        sequence: An iterable to map over, forgiving exceptions
+        exception_type: The specific exception to forgive.
     """
     for item in sequence:
         try:
@@ -159,14 +159,14 @@ def _ImpatientlyRebatched(batch_sequence, ideal_size, patience):
     """Makes large batches from a stream of batches, with a maximum patience.
 
     Args:
-      batch_sequence: An iterable of batches to create larger batches from.
-      ideal_size: An ideal minimum number of entries per batch.
-      patience: A maximum number of seconds to wait before sending a batch.
+        batch_sequence: An iterable of batches to create larger batches from.
+        ideal_size: An ideal minimum number of entries per batch.
+        patience: A maximum number of seconds to wait before sending a batch.
 
     Yields:
-      Lists of entries from |stream| whose len() is at least |batch_size|.
-      If |patience| seconds elapse before the |batch_size| is reached,
-      the incomplete batch is yielded as-is (possibly empty).
+        Lists of entries from |stream| whose len() is at least |batch_size|.
+        If |patience| seconds elapse before the |batch_size| is reached,
+        the incomplete batch is yielded as-is (possibly empty).
     """
     # TODO(phobbs) this is probably easier to accomplish with rxpy.
     finished = False
@@ -194,8 +194,8 @@ def _GroupBy(iterable, key):
     """Groups an unsorted iterable by a key.
 
     Args:
-      iterable: An unsorted iterable to group.
-      key: A key to group by.
+        iterable: An unsorted iterable to group.
+        key: A key to group by.
     """
     items = sorted(iterable, key=key)
     for k, group in itertools.groupby(items, key=key):
@@ -206,9 +206,9 @@ def _BatchAndSendSpans(project_id, client, batch_sequence):
     """Batches and sends spans to the cloud trace API.
 
     Args:
-      project_id: The Google Cloud project id
-      client: The google python api client
-      batch_sequence: An iterable of Span batches represented as JSON objects.
+        project_id: The Google Cloud project id
+        client: The google python api client
+        batch_sequence: An iterable of Span batches represented as JSON objects.
     """
     batch_size_metric = metrics.CumulativeDistribution(
         _BATCH_SIZE_METRIC,
@@ -239,7 +239,7 @@ def _ReadAndDeletePreexisting(log_dir):
     """Reads pre-existing log files in |log_dir| and cleans them up.
 
     Args:
-      log_dir: The directory to read from.
+        log_dir: The directory to read from.
     """
     preexisting_files = [
         os.path.join(log_dir, f) for f in os.listdir(SPAN_LOG_DIR)
@@ -256,10 +256,10 @@ def _RecordDurationMetric(batches):
     """Records a span duration metric for each span.
 
     Args:
-      batches: A sequence of span batches (lists)
+        batches: A sequence of span batches (lists)
 
     Yields:
-      Re-yields the same batches
+        Re-yields the same batches
     """
     m = metrics.CumulativeSecondsDistribution(
         _SPAN_DURATION_METRIC,
@@ -289,11 +289,11 @@ def _ParseDatetime(date_str):
     """Parses a RFC 3339 datetime string into a datetime object.
 
     Args:
-      date_str: A date string in RFC 3339 format (such as the .startTime or
-          .endTime field of a Span.)
+        date_str: A date string in RFC 3339 format (such as the .startTime or
+            .endTime field of a Span.)
 
     Returns:
-      A datetime object at the same timestamp as the date_str.
+        A datetime object at the same timestamp as the date_str.
     """
     time_pb = timestamp_pb2.Timestamp()
     time_pb.FromJsonString(date_str)
@@ -304,8 +304,8 @@ def _WatchAndSendSpans(project_id, client):
     """Watches a directory and sends batches of spans.
 
     Args:
-      project_id: The Google Cloud project id
-      client: The google python api client
+        project_id: The Google Cloud project id
+        client: The google python api client
     """
     with _DirWatcher(SPAN_LOG_DIR) as watcher:
         preexisting_lines = _ReadAndDeletePreexisting(SPAN_LOG_DIR)
@@ -332,7 +332,7 @@ def _MakeCreds(creds_path):
     """Creates a GoogleCredentials object with the trace.append scope.
 
     Args:
-      creds_path: Path to the credentials file to use.
+        creds_path: Path to the credentials file to use.
     """
     return GoogleCredentials.from_stream(
         os.path.expanduser(creds_path)

@@ -24,10 +24,10 @@ def GetOptions(cmd_name=None):
     """Returns the parser to use for commandline parsing.
 
     Args:
-      cmd_name: The subcommand to import & add.
+        cmd_name: The subcommand to import & add.
 
     Returns:
-      A commandline.ArgumentParser object.
+        A commandline.ArgumentParser object.
     """
     parser = commandline.ArgumentParser(
         caching=True, default_log_level="notice"

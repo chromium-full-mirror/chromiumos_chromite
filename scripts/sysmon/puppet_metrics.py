@@ -20,21 +20,26 @@ LAST_RUN_FILE = "/var/lib/cros_puppet/state/last_run_summary.yaml"
 
 _config_version_metric = metrics.GaugeMetric(
     "puppet/version/config",
-    description="The version of the puppet configuration."
-    "  By default this is the time that the configuration was parsed",
+    description=(
+        "The version of the puppet configuration."
+        "  By default this is the time that the configuration was parsed"
+    ),
 )
 _puppet_version_metric = metrics.StringMetric(
     "puppet/version/puppet", description="Version of puppet client installed."
 )
 _events_metric = metrics.GaugeMetric(
     "puppet/events",
-    description="Number of changes the puppet client made to the system in its"
-    " last run, by success or failure",
+    description=(
+        "Number of changes the puppet client made to the system in its"
+        " last run, by success or failure"
+    ),
 )
 _resources_metric = metrics.GaugeMetric(
     "puppet/resources",
-    description="Number of resources known by the puppet client in its last"
-    " run",
+    description=(
+        "Number of resources known by the puppet client in its last run"
+    ),
 )
 _times_metric = metrics.FloatMetric(
     "puppet/times",
@@ -52,7 +57,7 @@ class _PuppetRunSummary(object):
         """Instantiate instance.
 
         Args:
-          f: file object to read summary from
+            f: file object to read summary from
         """
         self._data = yaml.safe_load(f)
 

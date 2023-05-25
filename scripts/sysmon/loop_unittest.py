@@ -25,8 +25,8 @@ class _MockTime(object):
         """Instantiate instance.
 
         Args:
-          sleep_delta: Modify sleep time by this many seconds.
-                       But sleep will always be at least 1.
+            sleep_delta: Modify sleep time by this many seconds. But sleep will
+                always be at least 1.
         """
         self.current_time = 0
         self._sleep_delta = sleep_delta

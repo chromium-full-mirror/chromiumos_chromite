@@ -16,7 +16,7 @@ def ParseArgs(argv):
     """Parse arguments.
 
     Args:
-      argv: array of arguments passed to the script.
+        argv: array of arguments passed to the script.
     """
     parser = commandline.ArgumentParser(description=__doc__)
     parser.set_defaults(out_file=None)
@@ -36,8 +36,10 @@ def ParseArgs(argv):
     config.add_argument(
         "--out-file",
         dest="out_file",
-        help="File to write into. If not specified, the "
-        "configuration will be printed to stdout.",
+        help=(
+            "File to write into. If not specified, the "
+            "configuration will be printed to stdout."
+        ),
     )
     config.add_argument("--sysroot", help="Path to the sysroot.", required=True)
     config.set_defaults(command="generate-config")
@@ -47,9 +49,11 @@ def ParseArgs(argv):
     makeconf.add_argument(
         "--out-file",
         dest="out_file",
-        help="File to write the configuration into. If not "
-        "specified, the configuration will be printed to "
-        "stdout.",
+        help=(
+            "File to write the configuration into. If not "
+            "specified, the configuration will be printed to "
+            "stdout."
+        ),
     )
     makeconf.add_argument(
         "--accepted-licenses", help="List of accepted licenses."
@@ -61,9 +65,11 @@ def ParseArgs(argv):
     binhost.add_argument(
         "--out-file",
         dest="out_file",
-        help="File to write the configuration into. If not "
-        "specified, the configuration will be printed to "
-        "stdout.",
+        help=(
+            "File to write the configuration into. If not "
+            "specified, the configuration will be printed to "
+            "stdout."
+        ),
     )
     binhost.add_argument(
         "--local-only",

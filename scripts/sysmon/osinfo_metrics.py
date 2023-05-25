@@ -50,7 +50,7 @@ def _get_osinfo():
     """Get OS name and version.
 
     Returns:
-      OSInfo instance
+        OSInfo instance
     """
     os_name = platform.system()
     if os_name == "Linux":

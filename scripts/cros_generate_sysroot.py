@@ -50,7 +50,7 @@ def ParseCommandLine(argv):
     parser.add_argument(
         "--out-file",
         default=DEFAULT_NAME,
-        help="The name to give to the tarball. " "Defaults to %(default)s.",
+        help="The name to give to the tarball. Defaults to %(default)s.",
     )
     options = parser.parse_args(argv)
 
@@ -70,8 +70,8 @@ class GenerateSysroot(object):
         """Initialize
 
         Args:
-          sysroot: Path to sysroot.
-          options: Parsed options.
+            sysroot: Path to sysroot.
+            options: Parsed options.
         """
         self.sysroot = sysroot
         self.options = options

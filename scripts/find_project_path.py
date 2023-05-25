@@ -18,7 +18,7 @@ def get_parser():
     """Creates the argparse parser.
 
     Returns:
-      commandline.ArgumentParser: The argument parser.
+        commandline.ArgumentParser: The argument parser.
     """
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(

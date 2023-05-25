@@ -21,7 +21,7 @@ def GetParser():
         "--sysroot",
         type="path",
         metavar="DIR",
-        help="The root path to the board's build root, e.g. " "/build/eve",
+        help="The root path to the board's build root, e.g. /build/eve",
     )
     # TODO(andrewlassalle): Remove src-dir in the future(2021?) if nobody uses
     #  it.
@@ -29,23 +29,27 @@ def GetParser():
         "--src-dir",
         type="path",
         metavar="SRC_DIR_PATH",
-        help="Override the default Root directory path that contains all DLC "
-        "files to be packed.",
+        help=(
+            "Override the default Root directory path that contains all DLC "
+            "files to be packed."
+        ),
     )
     parser.add_argument(
         "--install-root-dir",
         type="path",
         metavar="DIR",
-        help="If building a specific DLC, it is the root path to"
-        " install DLC images (%s) and metadata (%s). Otherwise it"
-        " is the target directory where the Chrome OS images gets"
-        " dropped in build_image, e.g. "
-        "src/build/images/<board>/latest."
+        help=(
+            "If building a specific DLC, it is the root path to"
+            " install DLC images (%s) and metadata (%s). Otherwise it"
+            " is the target directory where the Chrome OS images gets"
+            " dropped in build_image, e.g. "
+            "src/build/images/<board>/latest."
+        )
         % (dlc_lib.DLC_BUILD_DIR, dlc_lib.DLC_META_DIR),
     )
 
     one_dlc = parser.add_argument_group(
-        "Arguments required for building only " "one DLC"
+        "Arguments required for building only one DLC"
     )
     one_dlc.add_argument(
         "--rootfs",
@@ -63,16 +67,20 @@ def GetParser():
         "--pre-allocated-blocks",
         type=int,
         metavar="PREALLOCATEDBLOCKS",
-        help="Number of blocks (block size is 4k) that need to"
-        "be pre-allocated on device.",
+        help=(
+            "Number of blocks (block size is 4k) that need to"
+            "be pre-allocated on device."
+        ),
     )
     one_dlc.add_argument("--version", metavar="VERSION", help="DLC Version.")
     one_dlc.add_argument("--id", metavar="ID", help="DLC ID (unique per DLC).")
     one_dlc.add_argument(
         "--package",
         metavar="PACKAGE",
-        help="The package ID that is unique within a DLC, One"
-        " DLC cannot have duplicate package IDs.",
+        help=(
+            "The package ID that is unique within a DLC, One"
+            " DLC cannot have duplicate package IDs."
+        ),
     )
     one_dlc.add_argument(
         "--name", metavar="NAME", help="A human-readable name for the DLC."
@@ -115,17 +123,21 @@ def GetParser():
         "--used-by",
         default=dlc_lib.USED_BY_SYSTEM,
         choices=(dlc_lib.USED_BY_USER, dlc_lib.USED_BY_SYSTEM),
-        help="Defines how this DLC will be used so dlcservice can take proper "
-        'actions based on the type of usage. For example, if "user" is passed, '
-        "dlcservice does ref counting when DLC is installed/uninstalled. For "
-        '"system", there will be no such provisions.',
+        help=(
+            "Defines how this DLC will be used so dlcservice can take proper"
+            ' actions based on the type of usage. For example, if "user" is'
+            " passed, dlcservice does ref counting when DLC is installed/"
+            'uninstalled. For "system", there will be no such provisions.'
+        ),
     )
     one_dlc.add_argument(
         "--days-to-purge",
         type=int,
         default=0,
-        help="Defines the number of days before purging a DLC after it has "
-        "been uninstalled.",
+        help=(
+            "Defines the number of days before purging a DLC after it has "
+            "been uninstalled."
+        ),
     )
     one_dlc.add_argument(
         "--mount-file-required",
@@ -155,8 +167,10 @@ def GetParser():
         "--build-package",
         default=False,
         action="store_true",
-        help="Flag to indicate if the script is executed during the "
-        "build_packages phase.",
+        help=(
+            "Flag to indicate if the script is executed during the "
+            "build_packages phase."
+        ),
     )
     one_dlc.add_argument(
         "--powerwash-safe",
@@ -171,10 +185,10 @@ def ValidateArguments(parser, opts, req_flags, invalid_flags):
     """Validates the correctness of the passed arguments.
 
     Args:
-      parser: Arguments parser.
-      opts: Parsed arguments.
-      req_flags: all the required flags.
-      invalid_flags: all the flags that are not allowed.
+        parser: Arguments parser.
+        opts: Parsed arguments.
+        req_flags: all the required flags.
+        invalid_flags: all the flags that are not allowed.
     """
     # Make sure if the intention is to build one DLC, all the required arguments
     # are passed and none of the invalid ones are passed. This will ensure the

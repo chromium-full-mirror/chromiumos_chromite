@@ -168,9 +168,9 @@ def Dumper(flag, infile, outfile):
     """Run objdump on an input file.
 
     Args:
-      flag: Flag to pass objdump (e.g. '-d').
-      infile: Input file to process.
-      outfile: Output file to write to.
+        flag: Flag to pass objdump (e.g. '-d').
+        infile: Input file to process.
+        outfile: Output file to write to.
     """
     result = cros_build_lib.run(
         [CompilerTool("objdump"), flag, infile], stdout=outfile, **kwargs
@@ -183,10 +183,10 @@ def CompilerTool(tool):
     """Returns the cross-compiler tool filename.
 
     Args:
-      tool: Tool name to return, e.g. 'size'.
+        tool: Tool name to return, e.g. 'size'.
 
     Returns:
-      Filename of requested tool.
+        Filename of requested tool.
     """
     return "%s%s" % (compiler, tool)
 
@@ -195,10 +195,10 @@ def ParseCmdline(argv):
     """Parse all command line options.
 
     Args:
-      argv: Arguments to parse.
+        argv: Arguments to parse.
 
     Returns:
-      The parsed options object
+        The parsed options object
     """
     parser = commandline.ArgumentParser(
         description=__doc__, default_log_level="notice"
@@ -307,10 +307,10 @@ def SetupBuild(options):
     passing to the U-Boot Makefile.
 
     Args:
-      options: Command line options
+        options: Command line options
 
     Returns:
-      Base flags to use for U-Boot, as a list.
+        Base flags to use for U-Boot, as a list.
     """
     # pylint: disable=global-statement
     global arch, board, compiler, outdir, uboard
@@ -468,10 +468,10 @@ def RunBuild(options, base, target, queue):
     """Run the U-Boot build.
 
     Args:
-      options: Command line options.
-      base: Base U-Boot flags.
-      target: Target to build.
-      queue: A parallel queue to add jobs to.
+        options: Command line options.
+        base: Base U-Boot flags.
+        target: Target to build.
+        queue: A parallel queue to add jobs to.
     """
     logging.info("U-Boot build flags: %s", " ".join(base))
 
@@ -554,7 +554,7 @@ def main(argv):
     """Main function for script to build firmware.
 
     Args:
-      argv: Program arguments.
+        argv: Program arguments.
     """
     options = ParseCmdline(argv)
     base = SetupBuild(options)

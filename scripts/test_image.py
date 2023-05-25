@@ -54,11 +54,11 @@ def FindImage(image_path):
     """Return the path to the image file.
 
     Args:
-      image_path: A path to the image file, or a directory containing the base
-        image.
+        image_path: A path to the image file, or a directory containing the base
+            image.
 
     Returns:
-      ImageFileAndMountScripts containing absolute paths to the image,
+        ImageFileAndMountScripts containing absolute paths to the image,
         the mount and umount invocation commands
     """
 

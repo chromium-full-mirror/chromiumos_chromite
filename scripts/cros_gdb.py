@@ -322,7 +322,7 @@ To install the debug symbols for all available packages, run:
             if self.cgdb:
                 if osutils.Which("cgdb") is None:
                     raise GdbMissingDebuggerError(
-                        "Cannot find cgdb.  Please install " "cgdb first."
+                        "Cannot find cgdb.  Please install cgdb first."
                     )
 
     def RemoveSysrootPrefix(self, path):
@@ -337,7 +337,7 @@ To install the debug symbols for all available packages, run:
         """Return details about the non-root account we want to use.
 
         Returns:
-          A tuple of (username, uid, gid, home).
+            A tuple of (username, uid, gid, home).
         """
         return (
             os.environ.get("SUDO_USER", "nobody"),
@@ -479,8 +479,8 @@ To install the debug symbols for all available packages, run:
                 self.inf_cmd = res.stdout.rstrip("\n")
         except cros_build_lib.RunCommandError:
             raise GdbCannotFindRemoteProcessError(
-                "Unable to find name of process "
-                "with pid %s on %s" % (self.pid, self.remote)
+                "Unable to find name of process with pid %s on %s"
+                % (self.pid, self.remote)
             )
 
     def GetCrossGdb(self):
@@ -490,7 +490,7 @@ To install the debug symbols for all available packages, run:
         cross_gdb = tc[0] + "-gdb"
         if not osutils.Which(cross_gdb):
             raise GdbMissingDebuggerError(
-                "Cannot find %s; do you need to run " "setup_board?" % cross_gdb
+                "Cannot find %s; do you need to run setup_board?" % cross_gdb
             )
         return cross_gdb
 
@@ -679,8 +679,10 @@ def main(argv):
         "--gdb-args",
         action="append",
         default=[],
-        help="Arguments to gdb itself.  If multiple arguments are"
-        " passed, each argument needs a separate '-g' flag.",
+        help=(
+            "Arguments to gdb itself.  If multiple arguments are"
+            " passed, each argument needs a separate '-g' flag."
+        ),
     )
     # TODO(build): Delete by Jan 2024.
     parser.add_argument(
@@ -693,15 +695,19 @@ def main(argv):
         "--remote",
         default=None,
         type=commandline.DeviceParser(commandline.DEVICE_SCHEME_SSH),
-        help="Remote device on which to run the binary. Use"
-        ' "--remote=localhost:9222" to debug in a ChromeOS image in an'
-        " already running local virtual machine.",
+        help=(
+            "Remote device on which to run the binary. Use"
+            ' "--remote=localhost:9222" to debug in a ChromeOS image in an'
+            " already running local virtual machine."
+        ),
     )
     parser.add_argument(
         "--pid",
         default="",
-        help="Process ID of the (already) running process on the"
-        " remote device to which to attach.",
+        help=(
+            "Process ID of the (already) running process on the"
+            " remote device to which to attach."
+        ),
     )
     # TODO(build): Delete in Jan 2024.
     parser.add_argument(
@@ -721,32 +727,39 @@ def main(argv):
         "--attach",
         dest="attach_name",
         default="",
-        help="Name of existing process to which to attach, on"
-        " remote device (remote debugging only)."
-        "Options are [browser, renderer, gpu-process] and can be prefixed with"
-        ' either "ash-" or "lacros-".',
+        help=(
+            "Name of existing process to which to attach, on remote device"
+            " (remote debugging only).Options are [browser, renderer, gpu-"
+            'process] and can be prefixed with either "ash-" or "lacros-".'
+        ),
     )
     parser.add_argument(
         "--cgdb",
         default=False,
         action="store_true",
-        help="Use cgdb curses interface rather than plain gdb."
-        "This option is only valid for remote debugging.",
+        help=(
+            "Use cgdb curses interface rather than plain gdb."
+            "This option is only valid for remote debugging."
+        ),
     )
     parser.add_argument(
         "inf_args",
         nargs=argparse.REMAINDER,
-        help="Arguments for gdb to pass to the program being"
-        " debugged. These are positional and must come at the end"
-        " of the command line.  This will not work if attaching"
-        " to an already running program.",
+        help=(
+            "Arguments for gdb to pass to the program being"
+            " debugged. These are positional and must come at the end"
+            " of the command line.  This will not work if attaching"
+            " to an already running program."
+        ),
     )
     parser.add_argument(
         "--binary",
         default="",
-        help="full path to the binary being debugged."
-        " This is only useful for simple chrome."
-        " An example is --binary /home/out_falco/chrome.",
+        help=(
+            "full path to the binary being debugged."
+            " This is only useful for simple chrome."
+            " An example is --binary /home/out_falco/chrome."
+        ),
     )
 
     options = parser.parse_args(argv)

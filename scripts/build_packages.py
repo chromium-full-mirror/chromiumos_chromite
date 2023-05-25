@@ -56,12 +56,13 @@ def build_shell_bool_style_args(
     --noarg_A in case 2.
 
     Args:
-      parser: The parser to update.
-      name: The input argument name. This will be used as 'dest' variable name.
-      default_val: The default value to assign.
-      help_str: The help string for the input argument.
-      deprecation_note: A deprecation note to use.
-      alternate_name: Alternate argument to be used after deprecation.
+        parser: The parser to update.
+        name: The input argument name. This will be used as 'dest' variable
+            name.
+        default_val: The default value to assign.
+        help_str: The help string for the input argument.
+        deprecation_note: A deprecation note to use.
+        alternate_name: Alternate argument to be used after deprecation.
     """
     arg = f"--{name}"
     shell_narg = f"--no{name}"
@@ -116,7 +117,7 @@ def get_parser() -> commandline.ArgumentParser:
     """Creates the cmdline argparser, populates the options and description.
 
     Returns:
-      Argument parser.
+        Argument parser.
     """
     deprecation_note = "Argument will be removed July, 2022. Use %s instead."
     parser = commandline.ArgumentParser(description=__doc__)
@@ -324,8 +325,7 @@ def get_parser() -> commandline.ArgumentParser:
         "--jobs",
         type=int,
         default=os.cpu_count(),
-        help="Number of packages to build in parallel. "
-        "(Default: %(default)s)",
+        help="Number of packages to build in parallel. (Default: %(default)s)",
     )
     build_shell_bool_style_args(
         group,
@@ -417,12 +417,12 @@ def parse_args(
     """Parse and validate CLI arguments.
 
     Args:
-      argv: Arguments passed via CLI.
+        argv: Arguments passed via CLI.
 
     Returns:
-      Tuple having the below two,
-      Argument Parser
-      Validated argument namespace.
+        Tuple having the below two,
+        Argument Parser
+        Validated argument namespace.
     """
     parser = get_parser()
     opts = parser.parse_args(argv)

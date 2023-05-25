@@ -515,9 +515,9 @@ class Upgrader(object):
         that all dependencies for these package versions are satisfied.
 
         Returns:
-          Tuple with two elements:
-          [0] True if |cpvlist| can be emerged.
-          [1] Output from the emerge command.
+            Tuple with two elements:
+            [0] True if |cpvlist| can be emerged.
+            [1] Output from the emerge command.
         """
         envvars = self._GenPortageEnvvars(self._curr_arch, unstable_ok=False)
         emerge = self._GetBoardCmd(self.EMERGE_CMD)
@@ -798,7 +798,7 @@ class Upgrader(object):
         """Upgrades package in |upstream_cpv| to the version in |upstream_cpv|.
 
         Returns:
-          The upstream_cpv if the package was upgraded, None otherwise.
+            The upstream_cpv if the package was upgraded, None otherwise.
         """
         oper.Notice("Copying %s from upstream." % upstream_cpv)
 
@@ -876,7 +876,7 @@ class Upgrader(object):
         is identical to the upstream version.
 
         Returns:
-          True if the copy was done.
+            True if the copy was done.
         """
         eclass_subpath = os.path.join("eclass", eclass)
         upstream_path = os.path.join(self._upstream, eclass_subpath)
@@ -961,8 +961,9 @@ class Upgrader(object):
             utable.UpgradeTable.STATE_UNKNOWN: " no package found upstream!",
             utable.UpgradeTable.STATE_LOCAL_ONLY: " (exists locally only)",
             utable.UpgradeTable.STATE_NEEDS_UPGRADE: " -> %s" % upstream_cpv,
-            utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED: " <-> %s"
-            % upstream_cpv,
+            utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED: (
+                " <-> %s" % upstream_cpv
+            ),
             utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_DUPLICATED: (
                 " (locally duplicated) <-> %s" % upstream_cpv
             ),
@@ -1250,7 +1251,7 @@ class Upgrader(object):
                 for masked_cpv in masked_cpvs:
                     self._GiveMaskedError(masked_cpv, output)
                 raise RuntimeError(
-                    "\nOne or more upgraded packages are masked " "(see above)."
+                    "\nOne or more upgraded packages are masked (see above)."
                 )
 
         if ok:
@@ -1347,8 +1348,7 @@ class Upgrader(object):
 
             if err_msgs:
                 raise RuntimeError(
-                    "%s\n"
-                    "Add to upgrade targets or reset staged changes."
+                    "%s\nAdd to upgrade targets or reset staged changes."
                     % "\n".join(err_msgs)
                 )
 
@@ -2132,7 +2132,7 @@ def _CreateParser():
         "--upstream",
         type="path",
         default=Upgrader.UPSTREAM_TMP_REPO,
-        help="Latest upstream repo location " "[default: %(default)s]",
+        help="Latest upstream repo location [default: %(default)s]",
     )
     parser.add_argument(
         "--unstable-ok",
@@ -2175,8 +2175,7 @@ def main(argv):
     if options.upgrade_deep and options.upgrade:
         parser.print_usage()
         oper.Die(
-            "The --upgrade and --upgrade-deep options "
-            "are mutually exclusive."
+            "The --upgrade and --upgrade-deep options are mutually exclusive."
         )
 
     # The --force option only makes sense with --upgrade or --upgrade-deep.

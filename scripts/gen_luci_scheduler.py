@@ -71,10 +71,10 @@ def genSchedulerJob(build_config):
     """Generate the luci scheduler job for a given build config.
 
     Args:
-      build_config: config_lib.BuildConfig.
+        build_config: config_lib.BuildConfig.
 
     Returns:
-      Multiline string to include in the luci scheduler configuration.
+        Multiline string to include in the luci scheduler configuration.
     """
     job_name = buildJobName(build_config)
     if "schedule_branch" in build_config:
@@ -131,15 +131,15 @@ def genSchedulerTrigger(trigger_name, repo, refs, path_regexps, builds):
     """Generate the luci scheduler job for a given build config.
 
     Args:
-      trigger_name: Name of the trigger as a string.
-      repo: Gitiles URL git git repository.
-      refs: Iterable of git refs to check. May use regular expressions.
-      path_regexps: Iterable of path regular expressions of files to trigger on
-          or falsy to trigger on everything.
-      builds: Iterable of build config names to trigger.
+        trigger_name: Name of the trigger as a string.
+        repo: Gitiles URL git git repository.
+        refs: Iterable of git refs to check. May use regular expressions.
+        path_regexps: Iterable of path regular expressions of files to trigger
+            on or falsey to trigger on everything.
+        builds: Iterable of build config names to trigger.
 
     Returns:
-      Multiline string to include in the luci scheduler configuration.
+        Multiline string to include in the luci scheduler configuration.
     """
     template = """
 trigger {
@@ -173,11 +173,11 @@ def genLuciSchedulerConfig(site_config, branch_config):
     """Generate a luciSchedulerConfig as a string.
 
     Args:
-      site_config: A config_lib.SiteConfig instance.
-      branch_config: A list of BuildConfig instances to schedule.
+        site_config: A config_lib.SiteConfig instance.
+        branch_config: A list of BuildConfig instances to schedule.
 
     Returns:
-      The complete scheduler configuration contents as a string.
+        The complete scheduler configuration contents as a string.
     """
     # Trigger collection is used to collect together trigger information, so
     # we can reuse the same trigger for multiple builds as needed.

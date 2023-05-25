@@ -57,8 +57,8 @@ class _TimedCallback(object):
         """Initialize instance.
 
         Args:
-          callback: function to call
-          interval: Number of seconds between allowed calls
+            callback: function to call
+            interval: Number of seconds between allowed calls
         """
         self._callback = callback
         self._interval = interval

@@ -135,9 +135,9 @@ def LaunchOne(dryrun, builder, properties):
     """Launch one build.
 
     Args:
-      dryrun: If true, just echo what would be done.
-      builder: builder to use.
-      properties: json properties to use.
+        dryrun: If true, just echo what would be done.
+        builder: builder to use.
+        properties: json properties to use.
     """
     json_prop = json.dumps(properties)
     cmd = ["bb", "add", "-p", "@/dev/stdin", builder]
