@@ -18,8 +18,8 @@ def Copy(src_path, dest_path):
     Automatically create the directory for dest_path, if necessary.
 
     Args:
-      src_path: Path to local file to copy from.
-      dest_path: Path to local file to copy to.
+        src_path: Path to local file to copy from.
+        dest_path: Path to local file to copy to.
     """
     dest_dir = os.path.dirname(dest_path)
     if dest_dir and not os.path.isdir(dest_dir):
@@ -32,11 +32,11 @@ def ReadBlock(file_obj, size=1024):
     """Generator function to Read and return a specificed number of bytes.
 
     Args:
-      file_obj: The file object to read data from
-      size: The size in bytes to read in at a time.
+        file_obj: The file object to read data from
+        size: The size in bytes to read in at a time.
 
     Yields:
-      The block of data that was read.
+        The block of data that was read.
     """
     while True:
         data = file_obj.read(size)
@@ -50,10 +50,10 @@ def ShaSums(file_path):
     """Calculate the SHA1 and SHA256 checksum of a file.
 
     Args:
-      file_path: The full path to the file.
+        file_path: The full path to the file.
 
     Returns:
-      A tuple of base64 encoded sha1 and sha256 hashes.
+        A tuple of base64 encoded sha1 and sha256 hashes.
     """
     sha1 = hashlib.sha1()
     sha256 = hashlib.sha256()
@@ -73,12 +73,12 @@ def CopyFileSegment(in_file, in_mode, in_len, out_file, out_mode, in_seek=0):
     """Simulates a `dd` operation with seeks.
 
     Args:
-      in_file: The input file
-      in_mode: The mode to open the input file
-      in_len: The length to copy
-      out_file: The output file
-      out_mode: The mode to open the output file
-      in_seek: How many bytes to seek from the |in_file|
+        in_file: The input file
+        in_mode: The mode to open the input file
+        in_len: The length to copy
+        out_file: The output file
+        out_mode: The mode to open the output file
+        in_seek: How many bytes to seek from the |in_file|
     """
     if "b" not in in_mode:
         raise ValueError('in_mode must contain "b"')

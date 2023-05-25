@@ -365,7 +365,7 @@ class LoopbackPartitions(object):
             part: A PartitionInfo object.
 
         Returns:
-          (mount_point, symlink) tuple.
+            (mount_point, symlink) tuple.
         """
         dest_number = os.path.join(self.destination, "dir-%d" % part.number)
         dest_label = os.path.join(self.destination, "dir-%s" % part.name)
@@ -995,7 +995,7 @@ def GetImagesToBuild(image_types: List[str]) -> Set[str]:
 
     Raises:
         ValueError: if an invalid image type is given as input or if factory
-            shim image is requested along with any other image type.
+        shim image is requested along with any other image type.
     """
     image_names = set()
 

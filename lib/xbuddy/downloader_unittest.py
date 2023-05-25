@@ -53,9 +53,9 @@ class DownloaderTest(cros_test_lib.TestCase):
         """Helper to verify test_suites are downloaded correctly.
 
         Args:
-          downloader_instance: Downloader object to test with.
-          bg_mock: background download method mock.
-          serial_mock: serial download method mock.
+            downloader_instance: Downloader object to test with.
+            bg_mock: background download method mock.
+            serial_mock: serial download method mock.
         """
         factory = build_artifact.ChromeOSArtifactFactory(
             downloader_instance.GetBuildDir(),
@@ -139,11 +139,11 @@ class DownloaderTest(cros_test_lib.TestCase):
         Create empty files in the download directory.
 
         Args:
-          remote_name: Remote name of the file to fetch.
-          local_path: Local path to the folder to store fetched file.
+            remote_name: Remote name of the file to fetch.
+            local_path: Local path to the folder to store fetched file.
 
         Returns:
-          The path to fetched file.
+            The path to fetched file.
         """
         for d in self.downloaded:
             osutils.Touch(d, makedirs=True)

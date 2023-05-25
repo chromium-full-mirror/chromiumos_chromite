@@ -151,9 +151,15 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
             "AOSP_GOB_URL": gi.git_url,
             "AOSP_GERRIT_URL": gi.gerrit_url,
             "MANIFEST_URL": "%s/%s"
-            % (gi.git_url, site_params.MANIFEST_PROJECT),
+            % (
+                gi.git_url,
+                site_params.MANIFEST_PROJECT,
+            ),
             "MANIFEST_INT_URL": "%s/%s"
-            % (gi.git_url, site_params.MANIFEST_INT_PROJECT),
+            % (
+                gi.git_url,
+                site_params.MANIFEST_INT_PROJECT,
+            ),
             "GIT_REMOTES": {
                 site_params.EXTERNAL_REMOTE: gi.gerrit_url,
                 site_params.INTERNAL_REMOTE: gi.gerrit_url,
@@ -251,15 +257,15 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         """Create a commit in the given git checkout.
 
         Args:
-          clone_path: The directory on disk of the git clone.
-          filename: The name of the file to write. Optional.
-          msg: The commit message. Optional.
-          text: The text to append to the file. Optional.
-          amend: Whether to amend an existing patch. If set, we will amend the
-            HEAD commit in the checkout and upload that patch.
+            clone_path: The directory on disk of the git clone.
+            filename: The name of the file to write. Optional.
+            msg: The commit message. Optional.
+            text: The text to append to the file. Optional.
+            amend: Whether to amend an existing patch. If set, we will amend the
+                HEAD commit in the checkout and upload that patch.
 
         Returns:
-          (sha1, changeid) of the new commit.
+            (sha1, changeid) of the new commit.
         """
         if not filename:
             filename = "test-file.txt"
@@ -283,12 +289,12 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         """Create a commit in the given git checkout.
 
         Args:
-          clone_path: The directory on disk of the git clone.
-          filename: The name of the file to write. Optional.
-          msg: The commit message. Optional.
-          text: The text to append to the file. Optional.
-          amend: Whether to amend an existing patch. If set, we will amend the
-            HEAD commit in the checkout and upload that patch.
+            clone_path: The directory on disk of the git clone.
+            filename: The name of the file to write. Optional.
+            msg: The commit message. Optional.
+            text: The text to append to the file. Optional.
+            amend: Whether to amend an existing patch. If set, we will amend the
+                HEAD commit in the checkout and upload that patch.
         """
         clone_path = os.path.join(self.tempdir, clone_path)
         return self._CreateCommit(clone_path, filename, msg, text, amend)
@@ -391,13 +397,13 @@ class GerritHelperTest(GerritTestCase):
         """Create a patch in the given git checkout and upload it to gerrit.
 
         Args:
-          clone_path: The directory on disk of the git clone.
-          project: The associated project.
-          remote: The remote to upload changes to.
-          **kwargs: Additional keyword arguments to pass to createCommit.
+            clone_path: The directory on disk of the git clone.
+            project: The associated project.
+            remote: The remote to upload changes to.
+            **kwargs: Additional keyword arguments to pass to createCommit.
 
         Returns:
-          A GerritPatch object.
+            A GerritPatch object.
         """
         (revision, changeid) = self.createCommit(clone_path, **kwargs)
         helper = self._GetHelper()

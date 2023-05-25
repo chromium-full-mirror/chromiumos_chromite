@@ -280,12 +280,12 @@ class Qemu(object):
         """Get the string used to pass to the kernel for registering the format
 
         Args:
-          arch: The architecture to get the register string
-          name: The name to use for registering
-          interp: The name for the interpreter
+            arch: The architecture to get the register string
+            name: The name to use for registering
+            interp: The name for the interpreter
 
         Returns:
-          A string ready to pass to the register file
+            A string ready to pass to the register file
         """
         magic, mask = cls._MAGIC_MASK[arch]
 

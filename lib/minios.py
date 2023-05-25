@@ -55,22 +55,22 @@ def CreateMiniOsKernelImage(
     And puts it in the work directory.
 
     Args:
-      jobs: The number of packages to build in parallel.
-      board: The board to build the kernel for.
-      version: The chromeos version string.
-      work_dir: The directory for keeping intermediary files.
-      keys_dir: The path to kernel keys directories.
-      public_key: Filename to the public key whose private part signed the
-                  keyblock.
-      private_key: Filename to the private key whose public part is baked into
-                   the keyblock.
-      keyblock: Filename to the kernel keyblock.
-      serial: Serial port for the kernel console (e.g. printks).
-      build_kernel: Build a new kernel from source.
-      developer_mode: Add developer mode flags to the kernel image.
+        jobs: The number of packages to build in parallel.
+        board: The board to build the kernel for.
+        version: The chromeos version string.
+        work_dir: The directory for keeping intermediary files.
+        keys_dir: The path to kernel keys directories.
+        public_key: Filename to the public key whose private part signed the
+            keyblock.
+        private_key: Filename to the private key whose public part is baked into
+            the keyblock.
+        keyblock: Filename to the kernel keyblock.
+        serial: Serial port for the kernel console (e.g. printks).
+        build_kernel: Build a new kernel from source.
+        developer_mode: Add developer mode flags to the kernel image.
 
     Returns:
-      The path to the generated kernel image.
+        The path to the generated kernel image.
     """
     install_root = os.path.join(
         (build_target_lib.get_default_sysroot_path(board)), "factory-root"
@@ -110,8 +110,8 @@ def InsertMiniOsKernelImage(image: str, kernel: str):
     of the miniOS kernel to fit into.
 
     Args:
-      image: The path to the Chromium OS image.
-      kernel: The path to the kernel image.
+        image: The path to the Chromium OS image.
+        kernel: The path to the kernel image.
     """
     with image_lib.LoopbackPartitions(image) as devs:
         for part_name in (constants.PART_MINIOS_A, constants.PART_MINIOS_B):

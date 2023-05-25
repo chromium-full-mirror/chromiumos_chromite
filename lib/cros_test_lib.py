@@ -112,12 +112,12 @@ def _VerifyDirectoryIterables(
     Paths in |existing| and |expected| will be compared for exact match.
 
     Args:
-      existing: An iterable containing paths that exist.
-      expected: An iterable of paths that are expected.
+        existing: An iterable containing paths that exist.
+        expected: An iterable of paths that are expected.
 
     Raises:
-      AssertionError when there is any divergence between |existing| and
-      |expected|.
+        AssertionError when there is any divergence between |existing| and
+        |expected|.
     """
 
     def FormatPaths(paths):
@@ -143,12 +143,12 @@ def VerifyOnDiskHierarchy(base_path, dir_struct):
     """Verify that an on-disk directory tree exactly matches a given structure.
 
     Args:
-      base_path: See CreateOnDiskHierarchy()
-      dir_struct: See CreateOnDiskHierarchy()
+        base_path: See CreateOnDiskHierarchy()
+        dir_struct: See CreateOnDiskHierarchy()
 
     Raises:
-      AssertionError when there is any divergence between the on-disk
-      structure and the structure specified by 'dir_struct'.
+        AssertionError when there is any divergence between the on-disk
+        structure and the structure specified by 'dir_struct'.
     """
     # Make sure the arg ends with a / if it's a dir to more reliably assert.
     existing = [
@@ -163,12 +163,12 @@ def VerifyTarball(tarball, dir_struct):
     """Compare the contents of a tarball against a directory structure.
 
     Args:
-      tarball: Path to the tarball.
-      dir_struct: See CreateOnDiskHierarchy()
+        tarball: Path to the tarball.
+        dir_struct: See CreateOnDiskHierarchy()
 
     Raises:
-      AssertionError when there is any divergence between the tarball and the
-      structure specified by 'dir_struct'.
+        AssertionError when there is any divergence between the tarball and the
+        structure specified by 'dir_struct'.
     """
     result = cros_build_lib.run(
         ["tar", "-tf", tarball], capture_output=True, encoding="utf-8"
@@ -343,11 +343,11 @@ class TruthTable(object):
         """Construct a TruthTable from given inputs.
 
         Args:
-          inputs: Iterable of input lines, each expressed as a tuple of bools.
-            Each tuple must have the same length.
-          input_result: The output intended for each specified input.  For
-            truth tables that mostly output True it is more concise to specify
-            the false inputs and then set input_result to False.
+            inputs: Iterable of input lines, each expressed as a tuple of bools.
+                Each tuple must have the same length.
+            input_result: The output intended for each specified input.  For
+                truth tables that mostly output True it is more concise to
+                specify the false inputs and then set input_result to False.
         """
         # At least one input required.
         if not inputs:
@@ -381,10 +381,11 @@ class TruthTable(object):
         """Get the input line at the given input index.
 
         Args:
-          inputs_index: Following must hold: 0 <= inputs_index < self.num_lines.
+            inputs_index: Following must hold: 0 <= inputs_index <
+                self.num_lines.
 
         Returns:
-          Tuple of bools representing one line of inputs.
+            Tuple of bools representing one line of inputs.
         """
         if 0 <= inputs_index < self.num_lines:
             line_values = []
@@ -406,10 +407,10 @@ class TruthTable(object):
         """Get the boolean output for the given inputs.
 
         Args:
-          inputs: Tuple of bools, length must be equal to self.dimension.
+            inputs: Tuple of bools, length must be equal to self.dimension.
 
         Returns:
-          bool value representing truth table output for given inputs.
+            bool value representing truth table output for given inputs.
         """
         if not isinstance(inputs, tuple):
             raise TypeError("Truth table inputs must be specified as a tuple.")
@@ -607,22 +608,22 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
         """Like assertRaises, just with checking of the exception.
 
         Args:
-          exception: The expected exception type to intecept.
-          functor: The function to invoke.
-          *args: Positional args to pass to the function.
-          **kwargs: Optional args to pass to the function.  Note we pull
-            exact_kls, msg, and check_attrs from these kwargs.
-          exact_kls: If given, the exception raise must be *exactly* that class
-            type; derivatives are a failure.
-          check_attrs: If given, a mapping of attribute -> value to assert on
-            the resultant exception.  Thus if you wanted to catch a ENOENT, you
-            would do:
-              assertRaises2(EnvironmentError, func, args,
-                            check_attrs={'errno': errno.ENOENT})
-          ex_msg: A substring that should be in the stringified exception.
-          msg: The error message to be displayed if the exception isn't raised.
-            If not given, a suitable one is defaulted to.
-          returns: The exception object.
+            exception: The expected exception type to intecept.
+            functor: The function to invoke.
+            *args: Positional args to pass to the function.
+            **kwargs: Optional args to pass to the function.  Note we pull
+                exact_kls, msg, and check_attrs from these kwargs.
+            exact_kls: If given, the exception raise must be *exactly* that
+                class type; derivatives are a failure.
+            check_attrs: If given, a mapping of attribute -> value to assert on
+                the resultant exception.  Thus if you wanted to catch a ENOENT,
+                you would do:
+                    assertRaises2(EnvironmentError, func, args,
+                                  check_attrs={'errno': errno.ENOENT})
+            ex_msg: A substring that should be in the stringified exception.
+            msg: The error message to be displayed if the exception isn't
+                raised. If not given, a suitable one is defaulted to.
+            returns: The exception object.
         """
         exact_kls = kwargs.pop("exact_kls", None)
         check_attrs = kwargs.pop("check_attrs", {})
@@ -721,11 +722,11 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
         """Get a string describing the difference between two sequences.
 
         Args:
-          seq1: First sequence to compare.
-          seq2: Second sequence to compare.
+            seq1: First sequence to compare.
+            seq2: Second sequence to compare.
 
         Returns:
-          A string that describes how the two sequences differ.
+            A string that describes how the two sequences differ.
         """
         try:
             self.assertSequenceEqual(seq1, seq2)
@@ -868,8 +869,7 @@ class OutputTestCase(TestCase):
             _method.description = "line matching regexp %r" % line_re.pattern
         else:
             raise RuntimeError(
-                "Nonsensical usage of _GenCheckMsgFunc: "
-                "no prefix_re or line_re"
+                "Nonsensical usage of _GenCheckMsgFunc: no prefix_re or line_re"
             )
 
         return _method
@@ -1058,7 +1058,7 @@ class OutputTestCase(TestCase):
         self.assertEqual(
             exit_code,
             0,
-            msg=("Expected system exit code 0, but caught %d" % exit_code),
+            msg="Expected system exit code 0, but caught %d" % exit_code,
         )
 
     def AssertFuncSystemExitNonZero(self, func, *args, **kwargs):
@@ -1075,9 +1075,7 @@ class OutputTestCase(TestCase):
         self.assertNotEqual(
             exit_code,
             0,
-            msg=(
-                "Expected non-zero system exit code, but caught %d" % exit_code
-            ),
+            msg="Expected non-zero system exit code, but caught %d" % exit_code,
         )
 
     def AssertRaisesAndReturn(self, error, func, *args, **kwargs):
@@ -1113,8 +1111,8 @@ class TempDirTestCase(TestCase):
         creating any instances.
 
         Returns:
-          Path to a temporary directory that contains all future temporary
-          directories created by instances of this class.
+            Path to a temporary directory that contains all future temporary
+            directories created by instances of this class.
         """
         cls.DELETE = False
         cls._NO_DELETE_TEMPDIR_OBJ = osutils.TempDir(
@@ -1165,7 +1163,7 @@ class TempDirTestCase(TestCase):
         """Read a given file from the temp directory.
 
         Args:
-          path: The path relative to the temp directory to read.
+            path: The path relative to the temp directory to read.
         """
         return osutils.ReadFile(os.path.join(self.tempdir, path))
 
@@ -1173,9 +1171,9 @@ class TempDirTestCase(TestCase):
         """Write the given content to the temp directory
 
         Args:
-          path: The path relative to the temp directory to write to.
-          content: Content to write. May be either an iterable, or a string.
-          **kwargs: Additional args to pass to osutils.WriteFile.
+            path: The path relative to the temp directory to write to.
+            content: Content to write. May be either an iterable, or a string.
+            **kwargs: Additional args to pass to osutils.WriteFile.
         """
         osutils.WriteFile(os.path.join(self.tempdir, path), content, **kwargs)
 
@@ -1187,8 +1185,8 @@ class FakeSDKCache(object):
         """Creates a fake SDK Cache.
 
         Args:
-          cache_dir: The top level cache directory to use.
-          sdk_version: The SDK Version.
+            cache_dir: The top level cache directory to use.
+            sdk_version: The SDK Version.
         """
         self.cache_dir = cache_dir
         # Sets the SDK Version.
@@ -1206,11 +1204,11 @@ class FakeSDKCache(object):
         """Creates the Cache Reference.
 
         Args:
-          board: The board to use.
-          key: The key of the item in the tarball cache.
+            board: The board to use.
+            key: The key of the item in the tarball cache.
 
         Returns:
-          Path to the cache directory.
+            Path to the cache directory.
         """
         # Adds the cache path at the key.
         return self.symlink_cache.Lookup((board, self.sdk_version, key)).path
@@ -1483,8 +1481,10 @@ class TestProgram(unittest.TestProgram):
             default=True,
             action="store_false",
             dest="wipe",
-            help="Do not wipe the temporary working directory "
-            "(default is to always wipe)",
+            help=(
+                "Do not wipe the temporary working directory "
+                "(default is to always wipe)"
+            ),
         )
         parser.add_argument(
             "-u",
@@ -1510,8 +1510,10 @@ class TestProgram(unittest.TestProgram):
         group.add_argument(
             "--ignore-dir",
             default="",
-            help="Ignore modules/packages in the specified dirs "
-            "(comma delimited)",
+            help=(
+                "Ignore modules/packages in the specified dirs "
+                "(comma delimited)"
+            ),
         )
         group.add_argument(
             "--no-ignore-system",

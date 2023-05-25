@@ -29,8 +29,8 @@ class DeviceTester(cros_test_lib.RunCommandTestCase):
         """Creates a device.
 
         Args:
-          device_name: Name of the device.
-          should_start_vm: If True, then created device should be a VM.
+            device_name: Name of the device.
+            should_start_vm: If True, then created device should be a VM.
         """
         created_device = device.Device.Create(
             vm.VM.GetParser().parse_args(

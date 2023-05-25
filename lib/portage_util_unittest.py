@@ -669,9 +669,10 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
         """Creates a mock environment to run RevWorkOnEBuild.
 
         Args:
-          ebuild_content: The content of the ebuild that will be revved.
-          rev: Tell _RunGit whether this is attempt an attempt to rev an ebuild.
-          multi: Whether there are multiple projects to uprev.
+            ebuild_content: The content of the ebuild that will be revved.
+            rev: Tell _RunGit whether this is attempt an attempt to rev an
+                ebuild.
+            multi: Whether there are multiple projects to uprev.
         """
 
         def _GetTreeId(path):
@@ -1636,7 +1637,7 @@ class PortageDBTest(cros_test_lib.TempDirTestCase):
             "1390848093",
         ),
         ("sym", "/lib64/libe2p.so.2", "->", "libe2p.so.2.3", "1390850489"),
-        ("foo"),
+        "foo",
     ]
 
     def setUp(self):

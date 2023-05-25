@@ -38,8 +38,8 @@ class CBuildbotMetadata(object):
         """Constructor for CBuildbotMetadata.
 
         Args:
-            metadata_dict: Optional dictionary containing initial metadata,
-                as returned by loading metadata from json.
+            metadata_dict: Optional dictionary containing initial metadata, as
+                returned by loading metadata from json.
             multiprocess_manager: Optional multiprocess.Manager instance. If
                 supplied, the metadata instance will use multiprocess containers
                 so that its state is correctly synced across processes.
@@ -66,11 +66,11 @@ class CBuildbotMetadata(object):
         """Construct a CBuildbotMetadata from a json representation.
 
         Args:
-          json_string: A string json representation of a CBuildbotMetadata
-                       dictionary.
+            json_string: A string json representation of a CBuildbotMetadata
+                dictionary.
 
         Returns:
-          A CbuildbotMetadata instance.
+            A CbuildbotMetadata instance.
         """
         return CBuildbotMetadata(json.loads(json_string))
 
@@ -376,9 +376,9 @@ class BuildData(object):
         # version (version 0) will be considered "newer".
         self.gathered_url = metadata_url + ".gathered"
         self.gathered_dict = {
-            self.SHEETS_VER_KEY: -1
-            if sheets_version is None
-            else sheets_version,
+            self.SHEETS_VER_KEY: (
+                -1 if sheets_version is None else sheets_version
+            ),
         }
 
     def __getitem__(self, key):

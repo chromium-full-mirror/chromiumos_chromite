@@ -535,10 +535,10 @@ def UpdateAndSubmitKeyValueFile(
     """Update a key/value file, commit it, and submit the change.
 
     Args:
-      filename: file to modify that is in a git repo already
-      data: A dict of key/values to update in |filename|
-      report: Dict in which to collect information to report to the user.
-      dryrun: If True, do not actually commit the change.
+        filename: file to modify that is in a git repo already
+        data: A dict of key/values to update in |filename|
+        report: Dict in which to collect information to report to the user.
+        dryrun: If True, do not actually commit the change.
     """
     if report is None:
         report = {}

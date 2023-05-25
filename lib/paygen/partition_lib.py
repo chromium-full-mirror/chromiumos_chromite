@@ -24,9 +24,9 @@ def ExtractPartition(filename, partition, out_part):
     """Extracts partition from an image file.
 
     Args:
-      filename: The image file.
-      partition: The partition name. e.g. ROOT or KERNEL.
-      out_part: The output partition file.
+        filename: The image file.
+        partition: The partition name. e.g. ROOT or KERNEL.
+        out_part: The output partition file.
     """
     parts = image_lib.GetImageDiskPartitionInfo(filename)
     part_info = [p for p in parts if p.name == partition][0]
@@ -43,7 +43,7 @@ def Ext2FileSystemSize(ext2_file):
     """Return the size of an ext2 filesystem in bytes.
 
     Args:
-      ext2_file: The path to the ext2 file.
+        ext2_file: The path to the ext2 file.
     """
     # dumpe2fs is normally installed in /sbin but doesn't require root.
     dump = cros_build_lib.dbg_run(
@@ -69,8 +69,8 @@ def PatchKernel(image, kern_file):
     """Patches a kernel with vblock from a stateful partition.
 
     Args:
-      image: The stateful partition image.
-      kern_file: The kernel file.
+        image: The stateful partition image.
+        kern_file: The kernel file.
     """
 
     with tempfile.NamedTemporaryFile(
@@ -91,8 +91,8 @@ def ExtractKernel(image, kern_out):
     """Extracts the kernel from the given image.
 
     Args:
-      image: The image containing the kernel partition.
-      kern_out: The output kernel file.
+        image: The image containing the kernel partition.
+        kern_out: The output kernel file.
     """
     ExtractPartition(image, constants.PART_KERN_B, kern_out)
     if not any(osutils.ReadFile(kern_out, "rb", size=65536)):
@@ -105,9 +105,9 @@ def ExtractRoot(image, root_out, truncate=True):
     """Extract the rootfs partition from a gpt image.
 
     Args:
-      image: The input image file.
-      root_out: The output root partition file.
-      truncate: If true, truncate the partition to the file system size.
+        image: The input image file.
+        root_out: The output root partition file.
+        truncate: If true, truncate the partition to the file system size.
     """
     ExtractPartition(image, constants.PART_ROOT_A, root_out)
 
@@ -156,10 +156,10 @@ def LookupImageType(image):
     """Returns the image type given the path to an image.
 
     Args:
-      image: The path to a GPT or Squashfs Image.
+        image: The path to a GPT or Squashfs Image.
 
     Returns:
-      The type of the image. None if it cannot detect the image type.
+        The type of the image. None if it cannot detect the image type.
     """
     if IsGptImage(image):
         return CROS_IMAGE
@@ -173,10 +173,10 @@ def HasMiniOSPartitions(image):
     """Returns true if the image has miniOS partitions.
 
     Args:
-      image: The path to the GPT image.
+        image: The path to the GPT image.
 
     Returns:
-      True if the image has miniOS partitions.
+        True if the image has miniOS partitions.
     """
     try:
         disk = cgpt.Disk.FromImage(image)

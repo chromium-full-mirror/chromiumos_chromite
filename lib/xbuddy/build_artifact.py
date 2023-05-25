@@ -329,8 +329,8 @@ class Artifact(object, metaclass=ArtifactMeta):
 
         Raises:
             ArtifactDownloadError: If the artifact fails to download from Google
-                Storage for any reason or that the regexp defined by name is not
-                specific enough.
+            Storage for any reason or that the regexp defined by name is not
+            specific enough.
         """
         if not self._process_lock:
             self._process_lock = _build_artifact_locks.lock(
@@ -416,8 +416,8 @@ class MultiArtifact(Artifact):
         """Takes Artifact args.
 
         Args:
-          *args: See Artifact documentation.
-          **kwargs: See Artifact documentation.
+            *args: See Artifact documentation.
+            **kwargs: See Artifact documentation.
         """
         super().__init__(*args, **kwargs)
         self.single_name = False
@@ -441,11 +441,12 @@ class BundledArtifact(Artifact):
         """Takes Artifact args with some additional ones.
 
         Args:
-          *args: See Artifact documentation.
-          **kwargs: See Artifact documentation.
-            files_to_extract: A list of files to extract. If set to None,
-                extract all files.
-            exclude: A list of files to exclude. If None, no files are excluded.
+            *args: See Artifact documentation.
+            **kwargs: See Artifact documentation.
+                files_to_extract: A list of files to extract. If set to None,
+                    extract all files.
+                exclude: A list of files to exclude. If None, no files are
+                    excluded.
         """
         self._files_to_extract = kwargs.pop("files_to_extract", None)
         self._exclude = kwargs.pop("exclude", None)
@@ -950,8 +951,8 @@ class BaseArtifactFactory(object):
 
         Raises:
             KeyError: if an optional artifact doesn't exist in
-                ARTIFACT_IMPLEMENTATION_MAP yet defined in
-                artifact_info.REQUESTED_TO_OPTIONAL_MAP.
+            ARTIFACT_IMPLEMENTATION_MAP yet defined in
+            artifact_info.REQUESTED_TO_OPTIONAL_MAP.
         """
         optional_names = set()
         for (

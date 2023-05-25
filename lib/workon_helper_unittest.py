@@ -48,11 +48,11 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """Makes fake ebuilds with minimal real content.
 
         Args:
-          overlay: overlay to put this ebuild in.
-          atom: 'category/package' string in the familiar portage sense.
-          version: version suffix for the ebuild (e.g. '9999').
-          is_workon: True iff this should be a workon-able package
-              (i.e. inherits cros-workon).
+            overlay: overlay to put this ebuild in.
+            atom: 'category/package' string in the familiar portage sense.
+            version: version suffix for the ebuild (e.g. '9999').
+            is_workon: True iff this should be a workon-able package (i.e.
+                inherits cros-workon).
         """
         category, package = atom.split("/", 1)
         ebuild_path = os.path.join(
@@ -74,10 +74,10 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """Mocked out version of portage_util.FindOverlays().
 
         Args:
-          sysroot: path to sysroot.
+            sysroot: path to sysroot.
 
         Returns:
-          List of paths to overlays.
+            List of paths to overlays.
         """
         if sysroot == "/":
             return [os.path.join(self._overlay_root, HOST_OVERLAY_DIR)]
@@ -87,14 +87,14 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """Mocked out version of portage_util.FindEbuildForPackage().
 
         Args:
-          package: complete atom string.
-          _board: ignored, see documentation in portage_util.  We intentionally
-              create atoms with different names for hosts/boards so that we can
-              ignore this distinction here.
-          _kwargs: ignored, see documentation in portage_util.
+            package: complete atom string.
+            _board: ignored, see documentation in portage_util.  We
+                intentionally create atoms with different names for hosts/boards
+                so that we can ignore this distinction here.
+            _kwargs: ignored, see documentation in portage_util.
 
         Returns:
-          An ebuild if we have previously created this atom.
+            An ebuild if we have previously created this atom.
         """
         return self._valid_atoms.get(package, None)
 
@@ -173,7 +173,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """Creates and returns a WorkonHelper object.
 
         Args:
-          host: If True, create the WorkonHelper for the host.
+            host: If True, create the WorkonHelper for the host.
         """
         if host:
             overlay = os.path.join(self._overlay_root, HOST_OVERLAY_DIR)
@@ -198,8 +198,8 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """Assert that the workon/mask files mention the given atoms.
 
         Args:
-          atoms: list of atom strings (e.g. ['sys-apps/dbus', 'foo-cat/bar']).
-          system: string system to consider (either 'host' or a board name).
+            atoms: list of atom strings (e.g. ['sys-apps/dbus', 'foo-cat/bar']).
+            system: string system to consider (either 'host' or a board name).
         """
         workon_path = workon_helper.GetWorkonPath(
             source_root=self._mock_srcdir, sub_path=system

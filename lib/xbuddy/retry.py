@@ -27,13 +27,13 @@ def retry(ExceptionToCheck, timeout_min=1.0, delay_sec=3, denylist=None):
       http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
 
     Args:
-      ExceptionToCheck: the exception to check.  May be a tuple of exceptions to
-                        check.
-      timeout_min: timeout in minutes until giving up.
-      delay_sec: pre-jittered delay between retries in seconds.  Actual delays
-                 will be centered around this value, ranging up to 50% off this
-                 midpoint.
-      denylist: a list of exceptions that will be raised without retrying
+        ExceptionToCheck: the exception to check.  May be a tuple of exceptions
+            to check.
+        timeout_min: timeout in minutes until giving up.
+        delay_sec: pre-jittered delay between retries in seconds.  Actual delays
+            will be centered around this value, ranging up to 50% off this
+            midpoint.
+        denylist: a list of exceptions that will be raised without retrying
     """
 
     def deco_retry(func):

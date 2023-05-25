@@ -105,7 +105,7 @@ def rpc(req: Request) -> dict:
     This API is low level. Most users should use Client class instead.
 
     Args:
-      req: a pRPC request.
+        req: a pRPC request.
 
     Returns the response message if the RPC status code is OK.
     Otherwise raises an Error.
@@ -188,12 +188,12 @@ class Client(object):
         """Initializes a new pRPC Client.
 
         Args:
-          hostname: hostname of the pRPC server, e.g. "app.example.com".
-            Must not contain a schema.
-          service_description: a service description object from a generated
-            _prpc_pb2.py file.
-          insecure: True if the client must use HTTP, as opposed to HTTPS.
-            Useful for local servers.
+            hostname: hostname of the pRPC server, e.g. "app.example.com". Must
+                not contain a schema.
+            service_description: a service description object from a generated
+                _prpc_pb2.py file.
+            insecure: True if the client must use HTTP, as opposed to HTTPS.
+                Useful for local servers.
         """
         self._hostname = hostname
         self._insecure = insecure

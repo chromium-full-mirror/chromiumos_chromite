@@ -168,10 +168,10 @@ class PackageInstallError(Error, cros_build_lib.RunCommandError):
         """Init method.
 
         Args:
-          msg: The message.
-          result: The command result.
-          exception: An origin exception.
-          packages: The list of failed packages.
+            msg: The message.
+            result: The command result.
+            exception: An origin exception.
+            packages: The list of failed packages.
         """
         super().__init__(msg, result, exception)
         self.failed_packages = packages
@@ -217,10 +217,10 @@ class ToolchainInstallError(PackageInstallError):
         """Init method.
 
         Args:
-          msg: The message.
-          result: The command result.
-          exception: An origin exception.
-          tc_info: The list of failed toolchain packages.
+            msg: The message.
+            result: The command result.
+            exception: An origin exception.
+            tc_info: The list of failed toolchain packages.
         """
         super().__init__(msg, result, exception, packages=tc_info)
 
@@ -235,9 +235,9 @@ def _CreateWrapper(wrapper_path: str, template: str, **kwargs: Any) -> None:
     """Creates a wrapper from a given template.
 
     Args:
-      wrapper_path: path to the wrapper.
-      template: wrapper template.
-      **kwargs: fields to be set in the template.
+        wrapper_path: path to the wrapper.
+        template: wrapper template.
+        **kwargs: fields to be set in the template.
     """
     osutils.WriteFile(
         wrapper_path, template.format(**kwargs), makedirs=True, sudo=True
@@ -251,7 +251,7 @@ def _NotEmpty(filepath: str) -> bool:
     """Returns True if |filepath| is not empty.
 
     Args:
-      filepath: path to a file.
+        filepath: path to a file.
     """
     return os.path.exists(filepath) and osutils.ReadFile(filepath).strip()
 
@@ -260,7 +260,7 @@ def _DictToKeyValue(dictionary: Dict) -> str:
     """Formats dictionary in to a key=value string.
 
     Args:
-      dictionary: a python dictionary.
+        dictionary: a python dictionary.
     """
     output = []
     for key in sorted(dictionary.keys()):
@@ -316,11 +316,11 @@ class Sysroot(object):
         """Check if the sysroot exists.
 
         Args:
-          chroot: Optionally check if the sysroot exists inside the specified
-            chroot.
+            chroot: Optionally check if the sysroot exists inside the specified
+                chroot.
 
         Returns:
-          True if the sysroot exists.
+            True if the sysroot exists.
         """
         if chroot:
             return chroot.has_path(self.path)
@@ -333,10 +333,10 @@ class Sysroot(object):
         Pass args as if calling os.path.join().
 
         Args:
-          *args: path components to join.
+            *args: path components to join.
 
         Returns:
-          The path within the sysroot.
+            The path within the sysroot.
         """
         return os.path.join(self.path, *args)
 
@@ -344,8 +344,8 @@ class Sysroot(object):
         """Returns the value of a standard field.
 
         Args:
-          field: Field from the standard configuration file to get.
-            One of STANDARD_FIELD_* from above.
+            field: Field from the standard configuration file to get.
+                One of STANDARD_FIELD_* from above.
         """
         # We want to source from within the config's directory as the config
         # itself may source other scripts using a relative path.
@@ -361,7 +361,7 @@ class Sysroot(object):
         methods or the bash helper in common.sh.
 
         Args:
-          field: name of the field.
+            field: name of the field.
         """
         if not os.path.exists(self._cache_file):
             return None
@@ -380,8 +380,8 @@ class Sysroot(object):
         methods or the bash helper in common.sh.
 
         Args:
-          field: name of the field.
-          value: value to set. If |value| is None, the field is unset.
+            field: name of the field.
+            value: value to set. If |value| is None, the field is unset.
         """
         # TODO(bsimonnet): add support for values with quotes and newlines.
         # crbug.com/476764.
@@ -505,8 +505,8 @@ class Sysroot(object):
 
         Args:
             build_target_only: Only fetch the overlays more relevant to the
-               build target. By default, fetch all overlays available to the
-               sysroot.
+                build target. By default, fetch all overlays available to the
+                sysroot.
             relative: Get the overlay paths relative to the source root rather
                 than as absolute paths.
         """
@@ -526,9 +526,9 @@ class Sysroot(object):
         """Returns the path to the wrapper for |command|.
 
         Args:
-          command: command to wrap.
-          friendly_name: suffix to add to the command name. If None, the wrapper
-            will be created in the sysroot.
+            command: command to wrap.
+            friendly_name: suffix to add to the command name. If None, the
+                wrapper will be created in the sysroot.
         """
         if friendly_name:
             return os.path.join(
@@ -680,7 +680,7 @@ class Sysroot(object):
         """Make sure the sysroot has the make.conf.board_setup file.
 
         Args:
-          board: The name of the board being setup in the sysroot.
+            board: The name of the board being setup in the sysroot.
         """
         self.WriteConfig(self.GenerateBoardSetupConfig(board))
 
@@ -707,17 +707,17 @@ class Sysroot(object):
         """Create common config settings for boards and bricks.
 
         Args:
-          toolchains: ToolchainList object to use.
-          board_overlays: List of board overlays.
-          portdir_overlays: List of portage overlays.
-          header: Header comment string; must start with #.
-          **kwargs: Additional configuration values to set.
+            toolchains: ToolchainList object to use.
+            board_overlays: List of board overlays.
+            portdir_overlays: List of portage overlays.
+            header: Header comment string; must start with #.
+            **kwargs: Additional configuration values to set.
 
         Returns:
-          Configuration string.
+            Configuration string.
 
         Raises:
-          ConfigurationError: Could not generate a valid configuration.
+            ConfigurationError: Could not generate a valid configuration.
         """
         config = {}
 
@@ -744,7 +744,7 @@ class Sysroot(object):
         """Generates the setup configuration for a given board.
 
         Args:
-          board: board name to use to generate the configuration.
+            board: board name to use to generate the configuration.
         """
         toolchains = toolchain.GetToolchainsForBoard(board)
 
@@ -770,7 +770,7 @@ class Sysroot(object):
         """Writes the configuration.
 
         Args:
-          config: configuration to use.
+            config: configuration to use.
         """
         osutils.WriteFile(
             self._config_file_write, config, makedirs=True, sudo=True
@@ -780,10 +780,10 @@ class Sysroot(object):
         """Generates the board specific make.conf.
 
         Args:
-          accepted_licenses: Licenses accepted by portage.
+            accepted_licenses: Licenses accepted by portage.
 
         Returns:
-          The make.conf file as a python string.
+            The make.conf file as a python string.
         """
         config = [
             """# AUTO-GENERATED FILE. DO NOT EDIT.
@@ -849,7 +849,7 @@ class Sysroot(object):
             source_root: Root directory for the source files.
 
         Returns:
-          The config contents.
+            The config contents.
         """
         board = self.GetStandardField(STANDARD_FIELD_BOARD_USE)
         if local_only:
@@ -1026,9 +1026,9 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
         implicitly needed (gcc-libs, linux-headers).
 
         Args:
-          board: The name of the board.
-          local_init: Whether to use local packages to bootstrap the implicit
-            dependencies.
+            board: The name of the board.
+            local_init: Whether to use local packages to bootstrap the implicit
+                dependencies.
         """
         try:
             toolchain.InstallToolchain(self)
@@ -1090,7 +1090,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
         temp directory and then deletes the tempdir with a background task.
 
         Args:
-          background: Whether to run the delete as a background operation.
+            background: Whether to run the delete as a background operation.
         """
         rm = ["rm", "-rf", "--one-file-system", "--"]
         if background:
@@ -1164,10 +1164,10 @@ def get_sdk_provided_packages(
     Convenience wrapper for the Sysroot method.
 
     Args:
-      sysroot_path: The sysroot to use when finding SDK packages.
+        sysroot_path: The sysroot to use when finding SDK packages.
 
     Returns:
-      The provided packages.
+        The provided packages.
     """
     sysroot = Sysroot(sysroot_path)
     return sysroot.get_sdk_provided_packages()

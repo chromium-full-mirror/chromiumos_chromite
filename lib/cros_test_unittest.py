@@ -31,10 +31,10 @@ class CrOSTesterBase(cros_test_lib.RunCommandTempDirTestCase):
         """Builds a CrOSTest suitable for testing.
 
         Args:
-          opts: Cmd-line args to cros_test used to build a CrOSTest.
+            opts: Cmd-line args to cros_test used to build a CrOSTest.
 
         Returns:
-          An instance of cros_test.CrOSTest.
+            An instance of cros_test.CrOSTest.
         """
         opts = cros_test.ParseCommandLine(opts if opts else [])
         opts.enable_kvm = True
@@ -374,8 +374,10 @@ class CrOSTesterMiscTests(CrOSTesterBase):
         self.assertCommandContains(
             [
                 "python",
-                "/usr/local/telemetry/src/third_party/catapult/"
-                "telemetry/bin/run_tests",
+                (
+                    "/usr/local/telemetry/src/third_party/catapult/"
+                    "telemetry/bin/run_tests"
+                ),
                 "--browser=system",
                 "testAddResults",
             ]
@@ -389,8 +391,10 @@ class CrOSTesterMiscTests(CrOSTesterBase):
         self.assertCommandContains(
             [
                 "python",
-                "/usr/local/telemetry/src/third_party/catapult/"
-                "telemetry/bin/run_tests",
+                (
+                    "/usr/local/telemetry/src/third_party/catapult/"
+                    "telemetry/bin/run_tests"
+                ),
                 "--browser=system-guest",
                 "testAddResults",
             ]
@@ -455,8 +459,8 @@ class CrOSTesterMiscTests(CrOSTesterBase):
         self.assertCommandContains(["mkdir", "-p"], expected=False)
         self.assertCommandContains(
             [
-                "cd %s && /usr/local/autotest/bin/"
-                "vm_sanity.py" % self._tester.cwd
+                "cd %s && /usr/local/autotest/bin/vm_sanity.py"
+                % self._tester.cwd
             ],
             expected=False,
         )
@@ -722,9 +726,9 @@ class CrOSTesterChromeTest(CrOSTesterBase):
         """Sets configurations necessary for running a chrome test.
 
         Args:
-          test_exe: The name of the chrome test.
-          test_label: The label of the chrome test.
-          test_args: A list of arguments of the particular chrome test.
+            test_exe: The name of the chrome test.
+            test_label: The label of the chrome test.
+            test_args: A list of arguments of the particular chrome test.
         """
         self._tester.args = [test_exe] + test_args if test_args else [test_exe]
         self._tester.chrome_test = True
@@ -780,10 +784,10 @@ class CrOSTesterChromeTest(CrOSTesterBase):
         """Checks to see that chrome test commands ran properly.
 
         Args:
-          test_exe: The name of the chrome test.
-          test_label: The label of the chrome test.
-          build_dir: The directory where chrome is built.
-          test_args: Chrome test arguments.
+            test_exe: The name of the chrome test.
+            test_label: The label of the chrome test.
+            build_dir: The directory where chrome is built.
+            test_args: Chrome test arguments.
         """
         # Ensure chrome is being built.
         self.assertCommandContains(["autoninja", "-C", build_dir, test_exe])
@@ -821,8 +825,8 @@ class CrOSTesterChromeTest(CrOSTesterBase):
                 "9222",
                 "chronos@localhost",
                 "--",
-                "cd /usr/local/chrome_test && "
-                "out_amd64-generic/Release/%s %s" % (test_exe, args),
+                "cd /usr/local/chrome_test && out_amd64-generic/Release/%s %s"
+                % (test_exe, args),
             ]
         )
 
@@ -887,8 +891,8 @@ class CrOSTesterParser(CrOSTesterBase):
         """Checks that parser error is raised.
 
         Args:
-          args: List of commandline arguments.
-          error_msg: Error message to check for.
+            args: List of commandline arguments.
+            error_msg: Error message to check for.
         """
         # Recreate args as a list if it is given as a string.
         if isinstance(args, str):
@@ -1049,8 +1053,9 @@ class CrOSTesterParser(CrOSTesterBase):
 
         self.CheckParserError(
             ["--deploy-lacros", "--deploy", "--build-dir", build_dir],
-            "Script will deploy both Ash and Lacros but can not find "
-            "Lacros at " + build_dir + "/lacros_clang",
+            "Script will deploy both Ash and Lacros but can not find Lacros at "
+            + build_dir
+            + "/lacros_clang",
         )
 
         self.CheckParserError(

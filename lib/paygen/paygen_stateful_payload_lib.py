@@ -20,12 +20,12 @@ def GenerateStatefulPayload(image_path, output):
     """Generates a stateful update payload given a full path to an image.
 
     Args:
-      image_path: Full path to the image.
-      output: Can be either the path to the directory to leave the resulting
-        payload or a file descriptor to write the payload into.
+        image_path: Full path to the image.
+        output: Can be either the path to the directory to leave the resulting
+            payload or a file descriptor to write the payload into.
 
     Returns:
-      str: The full path to the generated file.
+        str: The full path to the generated file.
     """
     logging.info("Generating stateful update file.")
 

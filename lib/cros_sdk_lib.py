@@ -82,10 +82,11 @@ def GetChrootVersion(chroot):
     """Extract the version of the chroot.
 
     Args:
-      chroot: Full path to the chroot to examine.
+        chroot: Full path to the chroot to examine.
 
     Returns:
-      The version of the chroot dir, or None if the version is missing/invalid.
+        The version of the chroot dir, or None if the version is
+        missing/invalid.
     """
     if chroot:
         ver_path = os.path.join(chroot, CHROOT_VERSION_FILE.lstrip(os.sep))
@@ -129,10 +130,10 @@ def IsChrootDirValid(chroot_path):
     """Check the permissions and owner on a chroot directory.
 
     Args:
-      chroot_path: The path to a chroot.
+        chroot_path: The path to a chroot.
 
     Returns:
-      bool - False iff there are incorrect values on an existing directory.
+        bool - False iff there are incorrect values on an existing directory.
     """
     if not os.path.exists(chroot_path):
         # No directory == no incorrect values.
@@ -163,10 +164,10 @@ def IsChrootReady(chroot):
     value, the chroot is ready for use.
 
     Args:
-      chroot: Full path to the chroot to examine.
+        chroot: Full path to the chroot to examine.
 
     Returns:
-      True iff the chroot contains a valid version.
+        True iff the chroot contains a valid version.
     """
     version = GetChrootVersion(chroot)
     return version is not None and version > 0
@@ -265,11 +266,11 @@ def GetFileSystemDebug(path: str, run_ps: bool = True) -> FileSystemDebugInfo:
     still running.
 
     Args:
-      path: Full path for directory we want information on.
-      run_ps: When true, show processes running.
+        path: Full path for directory we want information on.
+        run_ps: When true, show processes running.
 
     Returns:
-      FileSystemDebugInfo with debug info.
+        FileSystemDebugInfo with debug info.
     """
     cmd_kwargs = {
         "check": False,
@@ -509,11 +510,11 @@ class ChrootUpdater(object):
         """Get all (update file, version) pairs that have not been run.
 
         Returns:
-          list of (/path/to/hook/file, version) pairs in order.
+            list of (/path/to/hook/file, version) pairs in order.
 
         Raises:
-          ChrootDeprecatedError when one or more required update files have been
-              deprecated.
+            ChrootDeprecatedError when one or more required update files have
+            been deprecated.
         """
         hooks = self._GetHookFilesByVersion()
 
@@ -537,10 +538,11 @@ class ChrootUpdater(object):
         """Find and store the hooks by their version number.
 
         Returns:
-          dict - {version: /path/to/hook/file} mapping.
+            dict - {version: /path/to/hook/file} mapping.
 
         Raises:
-          VersionHasMultipleHooksError when multiple hooks exist for a version.
+            VersionHasMultipleHooksError when multiple hooks exist for a
+            version.
         """
         if self._hook_files:
             return self._hook_files
@@ -669,9 +671,9 @@ class ChrootCreator:
         uid.
 
         Args:
-          user: The username to create.
-          uid: The new account's userid.
-          gid: The new account's groupid.
+            user: The username to create.
+            uid: The new account's userid.
+            gid: The new account's groupid.
         """
         if not user:
             user = os.getenv("SUDO_USER")
@@ -720,10 +722,10 @@ class ChrootCreator:
         gid.
 
         Args:
-          user: The username to add to groups.
-          groups: The account's supplemental groups.
-          group: The account's primary group (to be created).
-          gid: The primary group's gid.
+            user: The username to add to groups.
+            groups: The account's supplemental groups.
+            group: The account's primary group (to be created).
+            gid: The primary group's gid.
         """
         if not user:
             user = os.getenv("SUDO_USER")
@@ -886,10 +888,10 @@ $ cros_sdk --delete%s
         """Create the chroot.
 
         Args:
-          user: The user account to use (e.g. for testing).
-          uid: The user id to use (e.g. for testing).
-          group: The group account to use (e.g. for testing).
-          gid: The group id to use (e.g. for testing).
+            user: The user account to use (e.g. for testing).
+            uid: The user id to use (e.g. for testing).
+            group: The group account to use (e.g. for testing).
+            gid: The group id to use (e.g. for testing).
         """
         logging.notice("Creating chroot. This may take a few minutes...")
 
@@ -959,10 +961,10 @@ class ChrootEnteror:
         """Initialize.
 
         Args:
-          chroot: Where the new chroot will be created.
-          chrome_root_mount: Where to mount |chrome_root| inside the chroot.
-          cmd: Program to run inside the chroot.
-          cwd: Directory to change to before running |additional_args|.
+            chroot: Where the new chroot will be created.
+            chrome_root_mount: Where to mount |chrome_root| inside the chroot.
+            cmd: Program to run inside the chroot.
+            cwd: Directory to change to before running |additional_args|.
         """
         self.chroot = chroot
         self.chrome_root_mount = chrome_root_mount

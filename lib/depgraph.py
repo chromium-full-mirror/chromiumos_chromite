@@ -84,10 +84,10 @@ class DepGraphGenerator(object):
         to emerge.
 
         Args:
-          argv: arguments list
+            argv: arguments list
 
         Returns:
-          Arguments that don't belong to parallel_emerge
+            Arguments that don't belong to parallel_emerge
         """
         emerge_args = []
         for arg in argv:
@@ -304,10 +304,10 @@ class DepGraphGenerator(object):
         """Check if the given package cpf has a prebuilt.
 
         Args:
-          pkg_cpf: The fully qualified category/package-version-revision.
+            pkg_cpf: The fully qualified category/package-version-revision.
 
         Returns:
-          bool: True if there is a prebuilt available, False otherwise.
+            bool: True if there is a prebuilt available, False otherwise.
         """
         if not self.package_db:
             self.GenDependencyTree()
@@ -461,8 +461,8 @@ class DepGraphGenerator(object):
         """Print the deps we have seen in the emerge output.
 
         Args:
-          deps: Dependency tree structure.
-          depth: Allows printing the tree recursively, with indentation.
+            deps: Dependency tree structure.
+            depth: Allows printing the tree recursively, with indentation.
         """
         for entry in sorted(deps):
             action = deps[entry]["action"]
@@ -473,12 +473,12 @@ class DepGraphGenerator(object):
         """Generate a doubly linked dependency graph.
 
         Args:
-          deps_tree: Dependency tree structure.
-          deps_info: More details on the dependencies.
+            deps_tree: Dependency tree structure.
+            deps_info: More details on the dependencies.
 
         Returns:
-          Deps graph in the form of a dict of packages, with each package
-          specifying a "needs" list and "provides" list.
+            Deps graph in the form of a dict of packages, with each package
+            specifying a "needs" list and "provides" list.
         """
         emerge = self.emerge
 
@@ -592,9 +592,9 @@ class DepGraphGenerator(object):
             """Find cycles in the dependency tree.
 
             Returns:
-              A dict mapping cyclic packages to a dict of the deps that cause
-              cycles. For each dep that causes cycles, it returns an example
-              traversal of the graph that shows the cycle.
+                A dict mapping cyclic packages to a dict of the deps that cause
+                cycles. For each dep that causes cycles, it returns an example
+                traversal of the graph that shows the cycle.
             """
 
             def FindCyclesAtNode(pkg, cycles, unresolved, resolved):
@@ -724,8 +724,8 @@ class DepGraphGenerator(object):
             Assumes that graph is acyclic.
 
             Args:
-              pkg: Package identifier.
-              seen: Nodes that have been visited so far.
+                pkg: Package identifier.
+                seen: Nodes that have been visited so far.
             """
             if pkg in seen:
                 return
@@ -754,7 +754,7 @@ class DepGraphGenerator(object):
         It's useful for understanding what parallel_emerge is doing.
 
         Args:
-          deps_map: The dependency graph.
+            deps_map: The dependency graph.
         """
 
         def InstallPlanAtNode(target, deps_map):

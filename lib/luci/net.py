@@ -79,23 +79,23 @@ def request(
     Retries the request on transient errors for up to |max_attempts| times.
 
     Args:
-      url: url to send the request to.
-      method: HTTP method to use, e.g. GET, POST, PUT.
-      payload: raw data to put in the request body.
-      params: dict with query GET parameters (i.e. ?key=value&key=value).
-      headers: additional request headers.
-      include_auth: Whether to include an OAuth2 access token.
-      delegation_token: delegation token returned by auth.delegate.
-      deadline: deadline for a single attempt (10 sec by default).
-      max_attempts: how many times to retry on errors (4 times by default).
+        url: url to send the request to.
+        method: HTTP method to use, e.g. GET, POST, PUT.
+        payload: raw data to put in the request body.
+        params: dict with query GET parameters (i.e. ?key=value&key=value).
+        headers: additional request headers.
+        include_auth: Whether to include an OAuth2 access token.
+        delegation_token: delegation token returned by auth.delegate.
+        deadline: deadline for a single attempt (10 sec by default).
+        max_attempts: how many times to retry on errors (4 times by default).
 
     Returns:
-      Buffer with raw response.
+        Buffer with raw response.
 
     Raises:
-      NotFoundError on 404 response.
-      AuthError on 401 or 403 response.
-      Error on any other non-transient error.
+        NotFoundError on 404 response.
+        AuthError on 401 or 403 response.
+        Error on any other non-transient error.
     """
     protocols = ("http://", "https://")
     assert url.startswith(protocols) and "?" not in url, url

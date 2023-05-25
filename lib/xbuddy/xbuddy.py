@@ -267,10 +267,10 @@ class XBuddy:
         shadow config from shadow_xbuddy_config.ini
 
         Returns:
-          The merged configuration.
+            The merged configuration.
 
         Raises:
-          XBuddyException if the config file is missing.
+            XBuddyException if the config file is missing.
         """
         devserver_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
         config_file = os.path.join(devserver_dir, CONFIG_FILE)
@@ -414,11 +414,11 @@ class XBuddy:
         """Does a directory listing of the given gs path.
 
         Args:
-          path: directory location on google storage to check.
-          list_subdirectory: whether to only list subdirectory for |path|.
+            path: directory location on google storage to check.
+            list_subdirectory: whether to only list subdirectory for |path|.
 
         Returns:
-          A list of paths that matched |path|.
+            A list of paths that matched |path|.
         """
         if list_subdirectory:
             return self._ctx.DoCommand(
@@ -440,12 +440,13 @@ class XBuddy:
         names.
 
         Args:
-          path: directory location on google storage to check.
-          list_subdirectory: whether to only list subdirectory for |path|.
-          with_release: whether versions include a release milestone (e.g. R12).
+            path: directory location on google storage to check.
+            list_subdirectory: whether to only list subdirectory for |path|.
+            with_release: whether versions include a release milestone (e.g.
+                R12).
 
         Returns:
-          The most recent version number found.
+            The most recent version number found.
         """
         list_result = self._LS(path, list_subdirectory=list_subdirectory)
         dir_names = [os.path.basename(p.rstrip("/")) for p in list_result]
@@ -537,7 +538,7 @@ class XBuddy:
 
         Raises:
             XBuddyException: If we failed to resolve the version to a valid
-                build_id.
+            build_id.
         """
         build_id_as_is = devserver_constants.IMAGE_DIR % {
             "board": board,
@@ -686,7 +687,7 @@ class XBuddy:
 
         Raises:
             XBuddyException: if neither test nor dev image was found in latest
-                built directory.
+            built directory.
         """
         latest_local_dir = image_lib.GetLatestImageLink(board)
         if not latest_local_dir or not os.path.exists(latest_local_dir):
@@ -743,7 +744,8 @@ class XBuddy:
         """Returns the currently cached builds and their last access timestamp.
 
         Returns:
-          list of tuples that matches xBuddy build/version to timestamps in long
+            list of tuples that matches xBuddy build/version to timestamps in
+            long
         """
         # Update currently cached builds.
         build_dict = {}
@@ -766,12 +768,12 @@ class XBuddy:
         """Download the artifacts from the given gs_url.
 
         Returns:
-          A list containing lists of downloaded files for each artifact.
-          e.g.: artifacts = ['a', 'b'] -> return [['f1', 'f2'], ['f3']]
+            A list containing lists of downloaded files for each artifact.
+            e.g.: artifacts = ['a', 'b'] -> return [['f1', 'f2'], ['f3']]
 
         Raises:
-          build_artifact.ArtifactDownloadError: If we failed to download the
-                                                artifact.
+            build_artifact.ArtifactDownloadError: If we failed to download the
+            artifact.
         """
         with XBuddy._staging_thread_count_lock:
             XBuddy._staging_thread_count += 1
@@ -831,17 +833,17 @@ class XBuddy:
         """Translate the GS URL to be able to find signed images.
 
         Args:
-          build_id: Path to the image or update directory on the devserver or
-            in Google Storage. e.g. 'x86-generic/R26-4000.0.0'
-          channel: The channel for the image. If none, it tries to guess it in
-            order of stability.
+            build_id: Path to the image or update directory on the devserver or
+                in Google Storage. e.g. 'x86-generic/R26-4000.0.0'
+            channel: The channel for the image. If none, it tries to guess it in
+                order of stability.
 
         Returns:
-          The GS URL for the directory where the signed image can be found.
+            The GS URL for the directory where the signed image can be found.
 
         Raises:
-          build_artifact.ArtifactDownloadError: If we failed to download the
-                                                artifact.
+            build_artifact.ArtifactDownloadError: If we failed to download the
+            artifact.
         """
         match = re.match(r"^([^/]+?)(?:-release)?/R\d+-(.*)$", build_id)
 
@@ -878,20 +880,20 @@ class XBuddy:
         """Check if the artifact is available locally. Download from GS if not.
 
         Args:
-          build_id: Path to the image or update directory on the devserver or
-            in Google Storage. e.g. 'x86-generic/R26-4000.0.0'
-          image_type: Image type to download. Look at aliases at top of file for
-            options.
-          image_dir: Google Storage image archive to search in if requesting a
-            remote artifact. If none uses the default bucket.
-          channel: The channel for the image. If none, it tries to guess it in
-            order of stability.
+            build_id: Path to the image or update directory on the devserver or
+                in Google Storage. e.g. 'x86-generic/R26-4000.0.0'
+            image_type: Image type to download. Look at aliases at top of file
+                for options.
+            image_dir: Google Storage image archive to search in if requesting a
+                remote artifact. If none uses the default bucket.
+            channel: The channel for the image. If none, it tries to guess it in
+                order of stability.
 
         Returns:
-          The list of files downloaded for the given image_type.
+            The list of files downloaded for the given image_type.
 
         Raises:
-          build_artifact.ArtifactDownloadError: If we failed to download the
+            build_artifact.ArtifactDownloadError: If we failed to download the
             artifact.
         """
         artifact = GS_ALIAS_TO_ARTIFACT[image_type]
@@ -1017,26 +1019,27 @@ class XBuddy:
         Equivalent to the Get call, minus downloading and updating timestamps,
 
         Args:
-          path_list: [board, version, alias] as split from the xbuddy call url.
-          board: Board whos artifacts we are looking for. If None, use the board
-            XBuddy was initialized to use.
-          version: Version whose artifacts we are looking for. If None, use the
-            version XBuddy was initialized with, or LATEST.
-          image_dir: image directory to check in Google Storage. If none,
-            the default bucket is used.
+            path_list: [board, version, alias] as split from the xbuddy call
+                url.
+            board: Board whose artifacts we are looking for. If None, use the
+                board XBuddy was initialized to use.
+            version: Version whose artifacts we are looking for. If None, use
+                the version XBuddy was initialized with, or LATEST.
+            image_dir: image directory to check in Google Storage. If none, the
+                default bucket is used.
 
         Returns:
-          build_id: Path to the image or update directory on the devserver.
-            e.g. 'x86-generic/R26-4000.0.0'
-            The returned path is always the path to the directory within
-            static_dir, so it is always the build_id of the image.
-          file_name: The file name of the artifact. Can take any of the file
-            values in devserver_constants.
-            e.g. 'chromiumos_test_image.bin' or 'update.gz' if the path list
-            specified 'test' or 'full_payload' artifacts, respectively.
+            build_id: Path to the image or update directory on the devserver.
+                e.g. 'x86-generic/R26-4000.0.0'
+                The returned path is always the path to the directory within
+                static_dir, so it is always the build_id of the image.
+            file_name: The file name of the artifact. Can take any of the file
+                values in devserver_constants.
+                e.g. 'chromiumos_test_image.bin' or 'update.gz' if the path list
+                specified 'test' or 'full_payload' artifacts, respectively.
 
         Raises:
-          XBuddyException: if the path couldn't be translated
+            XBuddyException: if the path couldn't be translated
         """
         self._SyncRegistryWithBuildImages()
         return self._GetArtifact(
@@ -1055,24 +1058,25 @@ class XBuddy:
         Please see devserver.py:xbuddy for full documentation.
 
         Args:
-          path_list: [board, version, alias] as split from the xbuddy call url.
-          image_dir: image directory to check in Google Storage. If none,
-            the default bucket is used.
+            path_list: [board, version, alias] as split from the xbuddy call
+                url.
+            image_dir: image directory to check in Google Storage. If none, the
+                default bucket is used.
 
         Returns:
-          build_id: Path to the image or update directory on the devserver.
-            e.g. 'x86-generic/R26-4000.0.0'
-            The returned path is always the path to the directory within
-            static_dir, so it is always the build_id of the image.
-          file_name: The file name of the artifact. Can take any of the file
-            values in devserver_constants.
-            e.g. 'chromiumos_test_image.bin' or 'update.gz' if the path list
-            specified 'test' or 'full_payload' artifacts, respectively.
+            build_id: Path to the image or update directory on the devserver.
+                e.g. 'x86-generic/R26-4000.0.0'
+                The returned path is always the path to the directory within
+                static_dir, so it is always the build_id of the image.
+            file_name: The file name of the artifact. Can take any of the file
+                values in devserver_constants.
+                e.g. 'chromiumos_test_image.bin' or 'update.gz' if the path list
+                specified 'test' or 'full_payload' artifacts, respectively.
 
         Raises:
-          XBuddyException: if the path could not be translated
-          build_artifact.ArtifactDownloadError: if we failed to download the
-                                                artifact.
+            XBuddyException: if the path could not be translated
+            build_artifact.ArtifactDownloadError: if we failed to download the
+                artifact.
         """
         self._SyncRegistryWithBuildImages()
         build_id, file_name = self._GetArtifact(path_list, image_dir=image_dir)
@@ -1094,15 +1098,15 @@ def InterpretPath(
     """Split and return the pieces of an xBuddy path name
 
     Args:
-      path: the path xBuddy Get was called with.
-      default_board: board to use in case board isn't in path.
-      default_version: Version to use in case version isn't in path.
+        path: the path xBuddy Get was called with.
+        default_board: board to use in case board isn't in path.
+        default_version: Version to use in case version isn't in path.
 
     Returns:
-      tuple of (image_type, board, version, whether the path is local)
+        tuple of (image_type, board, version, whether the path is local)
 
     Raises:
-      XBuddyException: if the path can't be resolved into valid components
+        XBuddyException: if the path can't be resolved into valid components
     """
     if path.lower().startswith("xbuddy://"):
         path = path[9:]
@@ -1152,7 +1156,7 @@ def InterpretPath(
         )
 
     logging.debug(
-        "Get artifact '%s' with board %s and version %s'. " "Locally? %s",
+        "Get artifact '%s' with board %s and version %s'. Locally? %s",
         image_type,
         board,
         version,
@@ -1204,7 +1208,7 @@ def parse(path: str, strict: bool = False) -> XBuddyComponents:
 
     Raises:
         XBuddyInvalidSchemeException if the scheme is not xbuddy, or is missing
-            when strict checking is enforced.
+        when strict checking is enforced.
     """
     parsed = urllib.parse.urlparse(path)
 

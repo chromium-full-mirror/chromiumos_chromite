@@ -45,10 +45,10 @@ def IsProcessAlive(pid):
     """Detect whether a process is alive.
 
     Args:
-      pid: The process id.
+        pid: The process id.
 
     Returns:
-      True if the process is still alive. False otherwise.
+        True if the process is still alive. False otherwise.
     """
     path = "/proc/%s/stat" % pid
     if not os.path.exists(path):
@@ -64,7 +64,7 @@ def GetAllTrackStatusFileByTime():
     """Return all track status files existing in TRACK_LOG_FILE_PATH.
 
     Returns:
-      A track status file list ordered by created time reversely.
+        A track status file list ordered by created time reversely.
     """
     return sorted(
         glob.glob(_TRACK_LOG_FILE_PATH % ("*", "*")),
@@ -82,10 +82,10 @@ def ParsePidFromTrackLogFileName(track_log_filename):
     This func is used to parse pid from a given track log file.
 
     Args:
-      track_log_filename: the filename of the track log to be parsed.
+        track_log_filename: the filename of the track log to be parsed.
 
     Returns:
-      the parsed pid (int).
+        the parsed pid (int).
     """
     match = re.match(_TRACK_LOG_FILE_NAME_PATTERN, track_log_filename)
     try:
@@ -105,7 +105,7 @@ def GetAllRunningAUProcess():
     as the same as a previous AU process'.
 
     Returns:
-      A list of background AU processes' pids.
+        A list of background AU processes' pids.
     """
     pids = []
     now = datetime.datetime.now()

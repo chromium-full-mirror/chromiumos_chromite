@@ -39,7 +39,7 @@ class FakeCIDBConnection(object):
         """Sets a fake time to be retrieved by GetTime.
 
         Args:
-          fake_time: datetime.datetime object.
+            fake_time: datetime.datetime object.
         """
         self.fake_time = fake_time
 
@@ -129,11 +129,11 @@ class FakeCIDBConnection(object):
         """See cidb.UpdateMetadata.
 
         Args:
-          build_id: The build to update.
-          metadata: A cbuildbot metadata object. Or, a dictionary (note: using
-                    a dictionary is not supported by the base cidb API, but
-                    is provided for this fake class for ease of use in test
-                    set-up code).
+            build_id: The build to update.
+            metadata: A cbuildbot metadata object. Or, a dictionary (note: using
+                a dictionary is not supported by the base cidb API, but is
+                provided for this fake class for ease of use in test set-up
+                code).
         """
         d = metadata if isinstance(metadata, dict) else metadata.GetDict()
         versions = d.get("version") or {}
@@ -183,14 +183,14 @@ class FakeCIDBConnection(object):
         """Insert a build message.
 
         Args:
-          build_id: primary key of build recording this message.
-          message_type: Optional str name of message type.
-          message_subtype: Optional str name of message subtype.
-          message_value: Optional value of message.
-          board: Optional str name of the board.
+            build_id: primary key of build recording this message.
+            message_type: Optional str name of message type.
+            message_subtype: Optional str name of message subtype.
+            message_value: Optional value of message.
+            board: Optional str name of the board.
 
         Returns:
-          The build message id (string).
+            The build message id (string).
         """
         if message_type:
             message_type = message_type[:240]
@@ -428,10 +428,10 @@ class FakeCIDBConnection(object):
         """Gets the failure entries for all listed build_ids.
 
         Args:
-          build_ids: list of build ids of the builds to fetch failures for.
+            build_ids: list of build ids of the builds to fetch failures for.
 
         Returns:
-          A list of failure_message_lib.StageFailure instances.
+            A list of failure_message_lib.StageFailure instances.
         """
         stage_failures = []
         for build_id in build_ids:

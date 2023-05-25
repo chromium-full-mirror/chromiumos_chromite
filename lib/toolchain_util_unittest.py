@@ -420,21 +420,27 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
             ("R76-3866.0-1570000000.gcov.xz", 2.3),  # Latest
             # Orderfiles
             (
-                "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
-                "benchmark-78.0.3893.0-r1.orderfile.xz",
+                (
+                    "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
+                    "benchmark-78.0.3893.0-r1.orderfile.xz"
+                ),
                 1.2,
             ),
             # Latest on 78.
             (
-                "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
-                "benchmark-78.0.3850.0-r1.orderfile.xz",
+                (
+                    "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
+                    "benchmark-78.0.3850.0-r1.orderfile.xz"
+                ),
                 2.2,
             ),
             # This artifact includes 78 but comes from the next milestone,
             # which is reflected in benchmark-79.
             (
-                "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
-                "benchmark-79.0.3900.0-r1.orderfile.xz",
+                (
+                    "chromeos-chrome-orderfile-field-78-3877.0-1567418235-"
+                    "benchmark-79.0.3900.0-r1.orderfile.xz"
+                ),
                 3.2,
             ),
         ]
@@ -764,7 +770,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ]
         expected_ls = [
             mock.call(
-                "gs://image-archive/path/" "chromeos-chrome-amd64-*.debug.bz2"
+                "gs://image-archive/path/chromeos-chrome-amd64-*.debug.bz2"
             ),
             mock.call(
                 "gs://path/to/perfdata/"
@@ -801,7 +807,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ]
         expected_ls = [
             mock.call(
-                "gs://image-archive/path/" "chromeos-chrome-arm-*.debug.bz2"
+                "gs://image-archive/path/chromeos-chrome-arm-*.debug.bz2"
             ),
             mock.call(
                 "gs://path/to/perfdata/"
@@ -1846,14 +1852,14 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         If no output files are expected, we assert that no tarballs are created.
 
         Args:
-          artifact_path: the path to touch |input_files| in.
-          tarball_name: the expected name of the tarball we will produce.
-          input_files: a list of files to |touch| relative to |artifact_path|.
-          expected_output_files: a list of files that should be present in the
-            tarball.
+            artifact_path: the path to touch |input_files| in.
+            tarball_name: the expected name of the tarball we will produce.
+            input_files: a list of files to |touch| relative to |artifact_path|.
+            expected_output_files: a list of files that should be present in the
+                tarball.
 
         Returns:
-          Nothing.
+            Nothing.
         """
         with mock.patch.object(
             cros_build_lib, "CreateTarball"

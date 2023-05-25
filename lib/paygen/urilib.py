@@ -73,16 +73,16 @@ def ExtractProtocol(uri):
     """Take a URI and return the protocol it is using, if any.
 
     Examples:
-      'gs://some/path' ==> 'gs'
-      'file:///some/path' ==> 'file'
-      '/some/path' ==> None
-      '/cns/some/colossus/path' ==> None
+        'gs://some/path' ==> 'gs'
+        'file:///some/path' ==> 'file'
+        '/some/path' ==> None
+        '/cns/some/colossus/path' ==> None
 
     Args:
-      uri: The URI to get protocol from.
+        uri: The URI to get protocol from.
 
     Returns:
-      Protocol string that is found, or None.
+        Protocol string that is found, or None.
     """
     match = EXTRACT_PROTOCOL_RE.search(uri)
     if match:
@@ -98,10 +98,10 @@ def GetUriType(uri):
     on URI protocols, with Colossus and local files as exceptions.
 
     Args:
-      uri: The URI to consider
+        uri: The URI to consider
 
     Returns:
-      The URI type.
+        The URI type.
     """
     protocol = ExtractProtocol(uri)
     if protocol:
@@ -124,11 +124,11 @@ def URLRetrieve(src_url, dest_path):
     """Download file from given URL to given local file path.
 
     Args:
-      src_url: URL to download from.
-      dest_path: Path to download to.
+        src_url: URL to download from.
+        dest_path: Path to download to.
 
     Raises:
-      MissingURLError if URL cannot be downloaded.
+        MissingURLError if URL cannot be downloaded.
     """
     opener = URLopener()
 
@@ -156,11 +156,11 @@ def Copy(src_uri, dest_uri):
     """Copy one uri to another.
 
     Args:
-      src_uri: URI to copy from.
-      dest_uri: Path to copy to.
+        src_uri: URI to copy from.
+        dest_uri: Path to copy to.
 
     Raises:
-      NotSupportedBetweenTypes if Cmp cannot be done between the two
+        NotSupportedBetweenTypes if Cmp cannot be done between the two
         URIs provided.
     """
     uri_type1 = GetUriType(src_uri)
@@ -187,10 +187,10 @@ def GetPathExcludingProtocol(uri):
     """Get the path of the given URI excluding the protocol and its separator.
 
     Args:
-      uri: The uri to extract the base name, e.g.:
-           gs://foo/directory/file.bin -> /foo/directory/file.bin
-           file:///foo/directory/file.bin -> /foo/directory/file.bin
-             /foo/directory/file.bin -> /foo/directory/file.bin
+        uri: The uri to extract the base name, e.g.:
+        gs://foo/directory/file.bin -> /foo/directory/file.bin
+        file:///foo/directory/file.bin -> /foo/directory/file.bin
+            /foo/directory/file.bin -> /foo/directory/file.bin
     """
     protocol = ExtractProtocol(uri)
     if protocol is None:

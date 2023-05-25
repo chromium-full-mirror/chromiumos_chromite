@@ -23,12 +23,12 @@ def generate_full_control_file(test, env, orig_control_code):
     """Returns the parameterized control file for the test config.
 
     Args:
-      test: the test config object (TestConfig)
-      env: the test environment parameters (TestEnv or None)
-      orig_control_code: string containing the template control code
+        test: the test config object (TestConfig)
+        env: the test environment parameters (TestEnv or None)
+        orig_control_code: string containing the template control code
 
     Returns:
-      Parameterized control file based on args (string)
+        Parameterized control file based on args (string)
     """
     orig_name = get_test_name()
     code_lines = orig_control_code.splitlines()
@@ -46,13 +46,13 @@ def dump_autotest_control_file(test, env, control_code, directory):
     """Creates control file for test and returns the path to created file.
 
     Args:
-      test: the test config object (TestConfig)
-      env: the test environment parameters (TestEnv)
-      control_code: string containing the template control code
-      directory: the directory to dump the control file to
+        test: the test config object (TestConfig)
+        env: the test environment parameters (TestEnv)
+        control_code: string containing the template control code
+        directory: the directory to dump the control file to
 
     Returns:
-      Path to the newly dumped control file
+        Path to the newly dumped control file
     """
     if not os.path.exists(directory):
         os.makedirs(directory)

@@ -41,15 +41,15 @@ def _IsWorkonEbuild(include_chrome, ebuild_path, ebuild_contents=None):
     overlay.
 
     Args:
-      include_chrome: True iff we should include Chrome and chromium-source
-          packages.
-      ebuild_path: path an ebuild in question.
-      ebuild_contents: None, or the contents of the ebuild at |ebuild_path|.
-          If None, _IsWorkonEbuild will read the contents of the ebuild when
-          necessary.
+        include_chrome: True iff we should include Chrome and chromium-source
+            packages.
+        ebuild_path: path an ebuild in question.
+        ebuild_contents: None, or the contents of the ebuild at |ebuild_path|.
+            If None, _IsWorkonEbuild will read the contents of the ebuild when
+            necessary.
 
     Returns:
-      True iff the ebuild can be used with cros_workon.
+        True iff the ebuild can be used with cros_workon.
     """
     # TODO(rcui): remove special casing of chromeos-chrome here when we make it
     # inherit from cros-workon / chromium-source class (chromium-os:19259).
@@ -79,12 +79,12 @@ def _GetLinesFromFile(path, line_prefix, line_suffix):
     Discards duplicate lines.
 
     Args:
-      path: path to file.
-      line_prefix: prefix of line to look for and strip if found.
-      line_suffix: suffix of line to look for and strip if found.
+        path: path to file.
+        line_prefix: prefix of line to look for and strip if found.
+        line_suffix: suffix of line to look for and strip if found.
 
     Returns:
-      A list of filtered lines from the file at |path|.
+        A list of filtered lines from the file at |path|.
     """
     if not os.path.exists(path):
         return set()
@@ -104,10 +104,10 @@ def _WriteLinesToFile(path, lines, line_prefix, line_suffix):
     """Write a set of lines to a file, adding prefixes, suffixes and newlines.
 
     Args:
-      path: path to file.
-      lines: iterable of lines to write.
-      line_prefix: string to prefix each line with.
-      line_suffix: string to append to each line before a newline.
+        path: path to file.
+        lines: iterable of lines to write.
+        line_prefix: string to prefix each line with.
+        line_suffix: string to append to each line before a newline.
     """
     contents = "".join(
         ["%s%s%s\n" % (line_prefix, line, line_suffix) for line in lines]
@@ -122,11 +122,11 @@ def GetWorkonPath(source_root=constants.CHROOT_SOURCE_ROOT, sub_path=None):
     """Get the path to files related to packages we're working locally on.
 
     Args:
-      source_root: path to source root inside chroot.
-      sub_path: optional path to file relative to the workon root directory.
+        source_root: path to source root inside chroot.
+        sub_path: optional path to file relative to the workon root directory.
 
     Returns:
-      path to the workon root directory or file within the root directory.
+        path to the workon root directory or file within the root directory.
     """
     ret = os.path.join(source_root, ".config/cros_workon")
     if sub_path:
@@ -143,11 +143,11 @@ def _FilterWorkonOnlyEbuilds(ebuilds):
     """Filter a list of ebuild paths to only with those no stable version.
 
     Args:
-      ebuilds: list of string paths to ebuild files
-          (e.g. ['/prefix/sys-app/app/app-9999.ebuild'])
+        ebuilds: list of string paths to ebuild files (e.g.
+            ['/prefix/sys-app/app/app-9999.ebuild'])
 
     Returns:
-      list of ebuild paths meeting this criterion.
+        list of ebuild paths meeting this criterion.
     """
     result = []
     for ebuild_path in ebuilds:
@@ -167,11 +167,11 @@ def ListAllWorkedOnAtoms(src_root=constants.CHROOT_SOURCE_ROOT):
     """Get a list of all atoms we're currently working on.
 
     Args:
-      src_root: path to source root inside chroot.
+        src_root: path to source root inside chroot.
 
     Returns:
-      Dictionary of atoms marked as worked on (e.g. ['chromeos-base/shill']) for
-      each system.
+        Dictionary of atoms marked as worked on (e.g. ['chromeos-base/shill'])
+        for each system.
     """
     workon_dir = GetWorkonPath(source_root=src_root)
     if not os.path.isdir(workon_dir):
@@ -211,10 +211,9 @@ class WorkonHelper(object):
 
         Args:
             sysroot: path to sysroot to work on packages within.
-            friendly_name: friendly name of the system
-                (e.g. 'host', <board name>, or a brick friendly name).
-                Defaults to 'host' if sysroot is '/' or the last component of
-                the sysroot path.
+            friendly_name: friendly name of the system (e.g. 'host', <board
+                name>, or a brick friendly name). Defaults to 'host' if sysroot
+                is '/' or the last component of the sysroot path.
             verbose: boolean True iff we should print a lot more command output.
                 This is intended for debugging, and you should never cause a
                 script to depend on behavior enabled by this flag.
@@ -303,7 +302,7 @@ class WorkonHelper(object):
         as the two files mention the same atom list.
 
         Args:
-          atoms: Atoms to unmask.
+            atoms: Atoms to unmask.
         """
         _WriteLinesToFile(self.workon_file_path, atoms, "=", "-9999")
         _WriteLinesToFile(self.masked_file_path, atoms, "<", "-9999")
@@ -337,10 +336,10 @@ class WorkonHelper(object):
         """Maps a list of CP atoms to a list of corresponding -9999 ebuilds.
 
         Args:
-          atoms: iterable of portage atoms (e.g. ['sys-apps/dbus']).
+            atoms: iterable of portage atoms (e.g. ['sys-apps/dbus']).
 
         Returns:
-          list of ebuilds corresponding to those atoms.
+            list of ebuilds corresponding to those atoms.
         """
         atoms_to_ebuilds = {atom: None for atom in atoms}
 
@@ -368,11 +367,11 @@ class WorkonHelper(object):
         picks an arbitrary one and prints a warning.
 
         Args:
-          package_fragment: Package source path or name fragment.
-          find_stale: if True, allow stale (missing) worked on package.
+            package_fragment: Package source path or name fragment.
+            find_stale: if True, allow stale (missing) worked on package.
 
         Returns:
-          string canonical atom name (e.g. 'sys-apps/dbus')
+            string canonical atom name (e.g. 'sys-apps/dbus')
         """
         # Attempt to not hit portage if at all possible for speed.
         if package_fragment in self._GetWorkedOnAtoms():
@@ -476,11 +475,13 @@ class WorkonHelper(object):
         """Transforms a list of package name fragments into a list of CP atoms.
 
         Args:
-          package_fragments: list of package source paths and/or name fragments.
-          find_stale: if True, allow stale (missing) worked on package.
+            package_fragments: list of package source paths and/or name
+                fragments.
+            find_stale: if True, allow stale (missing) worked on package.
 
         Returns:
-          list of canonical portage atoms corresponding to the given fragments.
+            list of canonical portage atoms corresponding to the given
+            fragments.
         """
         if not package_fragments:
             raise WorkonError("No packages specified")
@@ -537,7 +538,7 @@ class WorkonHelper(object):
         except ValueError as e:
             logging.error(e)
             raise WorkonError(
-                f"Current path not in the source root: "
+                "Current path not in the source root: "
                 f"{path} not in {constants.SOURCE_ROOT}"
             )
 
@@ -567,10 +568,10 @@ class WorkonHelper(object):
         """Find an ebuild for a given atom (accepting even masked ebuilds).
 
         Args:
-          package: package string.
+            package: package string.
 
         Returns:
-          path to ebuild for given package.
+            path to ebuild for given package.
         """
         return portage_util.FindEbuildForPackage(
             package,
@@ -627,12 +628,12 @@ class WorkonHelper(object):
         """Get a list of atoms currently marked as being locally compiled.
 
         Args:
-          filter_workon: True iff the list should be filtered to only those
-              atoms without a stable version (i.e. the -9999 ebuild is the
-              only ebuild).
+            filter_workon: True iff the list should be filtered to only those
+                atoms without a stable version (i.e. the -9999 ebuild is the
+                only ebuild).
 
         Returns:
-          list of canonical portage atoms.
+            list of canonical portage atoms.
         """
         atoms = self._GetWorkedOnAtoms()
 
@@ -650,7 +651,7 @@ class WorkonHelper(object):
         will need to `repo sync` to pull down repositories added in this way.
 
         Args:
-          atoms: iterable of atoms to ensure are in the manifest.
+            atoms: iterable of atoms to ensure are in the manifest.
         """
         manifest = git.ManifestCheckout.Cached(self._src_root)
 
@@ -697,13 +698,13 @@ class WorkonHelper(object):
         for the system in question.
 
         Args:
-          use_all: If true, return a list of all atoms we could possibly work on
-              for the system in question.
-          use_workon_only: If true, return a list of all atoms we could possibly
-              work on that have no stable ebuild.
+            use_all: If true, return a list of all atoms we could possibly work
+                on for the system in question.
+            use_workon_only: If true, return a list of all atoms we could
+                possibly work on that have no stable ebuild.
 
         Returns:
-          a list of atoms (e.g. ['chromeos-base/shill', 'sys-apps/dbus']).
+            a list of atoms (e.g. ['chromeos-base/shill', 'sys-apps/dbus']).
         """
         if use_workon_only or use_all:
             ebuilds = self._GetWorkonEbuilds(filter_workon=use_workon_only)
@@ -947,8 +948,8 @@ class WorkonScope:
         """Construct an instance.
 
         Args:
-          build_target: The build target (board) being built.
-          pkgs: The workon packages to be used in the context manager dunder
+            build_target: The build target (board) being built.
+            pkgs: The workon packages to be used in the context manager dunder
                 methods.
         """
         self.helper = WorkonHelper(build_target.root, build_target.name)
@@ -962,7 +963,7 @@ class WorkonScope:
         """Commence context manager tasks for starting and stopping packages.
 
         Returns:
-          The initialized WorkonScope context manager.
+            The initialized WorkonScope context manager.
         """
         self.start(self.pkgs)
         after_workon = self.helper.ListAtoms()
@@ -976,15 +977,15 @@ class WorkonScope:
         """Clean up context manager tasks for starting and stopping packages.
 
         Args:
-          exc_type: The exception type passed when the runtime context raises an
-            exception.
-          exc_val: The exception value raised by the runtime context.
-          tb: The exception traceback raised by the runtime context.
+            exc_type: The exception type passed when the runtime context raises
+                an exception.
+            exc_val: The exception value raised by the runtime context.
+            tb: The exception traceback raised by the runtime context.
 
         Raises:
-          Any exception raised in the runtime context will be raised here after
-          cleanup. Beyond that, all WorkonHelper methods are expected to be safe
-          operations.
+            Any exception raised in the runtime context will be raised here
+            after cleanup. Beyond that, all WorkonHelper methods are expected to
+            be safe operations.
         """
         # Reset the environment.
         logging.notice("Restoring cros_workon status.")

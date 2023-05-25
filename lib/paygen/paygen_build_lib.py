@@ -131,8 +131,8 @@ def _LogList(title, obj_list):
       ...
 
     Args:
-      title: Title string for the list.
-      obj_list: List of objects to convert to string and log, one per line.
+        title: Title string for the list.
+        obj_list: List of objects to convert to string and log, one per line.
     """
     logging.info("%s:", title)
 
@@ -158,10 +158,10 @@ def _FilterForMp(artifacts):
     This returns all images with key names of the form "mp", "mp-v3", etc.
 
     Args:
-      artifacts: The list of artifacts to filter.
+        artifacts: The list of artifacts to filter.
 
     Returns:
-      List of MP images.
+        List of MP images.
     """
     return [i for i in _FilterForImages(artifacts) if "mp" in i.key.split("-")]
 
@@ -173,10 +173,10 @@ def _FilterForPremp(artifacts):
     "mp-vX". This filter returns everything that is "premp".
 
     Args:
-      artifacts: The list of artifacts to filter.
+        artifacts: The list of artifacts to filter.
 
     Returns:
-      List of PreMP images.
+        List of PreMP images.
     """
     return [
         i for i in _FilterForImages(artifacts) if "premp" in i.key.split("-")
@@ -190,10 +190,10 @@ def _FilterForBasic(artifacts):
     filter out NPO and other duplicate channels that may exist in older builds.
 
     Args:
-      artifacts: The list of artifacts to filter.
+        artifacts: The list of artifacts to filter.
 
     Returns:
-      List of basic images.
+        List of basic images.
     """
     return [i for i in _FilterForImages(artifacts) if i.image_channel is None]
 
@@ -237,11 +237,12 @@ def DefaultPayloadUri(payload, random_str=None):
     payload, pass in a random_str of '*'.
 
     Args:
-      payload: gspaths.Payload instance.
-      random_str: A hook to force a specific random_str. None means generate it.
+        payload: gspaths.Payload instance.
+        random_str: A hook to force a specific random_str. None means generate
+            it.
 
     Returns:
-      Default URI for the payload.
+        Default URI for the payload.
     """
     src_version = None
     if payload.src_image:
@@ -296,8 +297,9 @@ def _FillInPayloadUri(payload, random_str=None):
     """Fill in default output URI for a payload if missing.
 
     Args:
-      payload: gspaths.Payload instance.
-      random_str: A hook to force a specific random_str. None means generate it.
+        payload: gspaths.Payload instance.
+        random_str: A hook to force a specific random_str. None means generate
+            it.
     """
     if not payload.uri:
         payload.uri = DefaultPayloadUri(payload, random_str)
@@ -311,10 +313,10 @@ def _FilterNonPayloadUris(payload_uris):
     .metadata-signature extensions.
 
     Args:
-      payload_uris: a list of GS URIs (potentially) corresponding to payloads
+        payload_uris: a list of GS URIs (potentially) corresponding to payloads
 
     Returns:
-      A filtered list of URIs.
+        A filtered list of URIs.
     """
     return [
         uri
@@ -332,7 +334,7 @@ def _GetJson(uri):
       uri: The URI of a JSON file at the given GS URI.
 
     Returns:
-      Valid JSON retrieved from given uri.
+        Valid JSON retrieved from given uri.
     """
     downloaded_json = gs.GSContext().Cat(uri)
     return json.loads(downloaded_json)
@@ -500,10 +502,10 @@ class PaygenBuild(object):
         """Find the URI of the lock file associated with this build.
 
         Args:
-          flag: Should be a member of gspaths.ChromeosReleases.FLAGS
+            flag: Should be a member of gspaths.ChromeosReleases.FLAGS
 
         Returns:
-          Returns a google storage path to the build flag requested.
+            Returns a google storage path to the build flag requested.
         """
         return gspaths.ChromeosReleases.BuildPayloadsFlagUri(self._build, flag)
 
@@ -570,12 +572,12 @@ class PaygenBuild(object):
           mp basic build.
 
         Args:
-          build: The build the images are from.
-          images: The images discovered associated with the build.
+            build: The build the images are from.
+            images: The images discovered associated with the build.
 
         Raises:
-          BuildCorrupt: Raised if unexpected images are found.
-          ImageMissing: Raised if expected images are missing.
+            BuildCorrupt: Raised if unexpected images are found.
+            ImageMissing: Raised if expected images are missing.
         """
         premp_basic = _FilterForBasic(_FilterForPremp(images))
         mp_basic = _FilterForBasic(_FilterForMp(images))
@@ -603,11 +605,11 @@ class PaygenBuild(object):
           |dlc_id|/|dlc_package|/dlc.img
 
         Args:
-          build: The build the images are from.
-          images: The DLC images discovered associated with the build.
+            build: The build the images are from.
+            images: The DLC images discovered associated with the build.
 
         Raises:
-          BuildCorrupt: Raised if unexpected images are found.
+            BuildCorrupt: Raised if unexpected images are found.
         """
         for image in images:
             if image.dlc_image != gspaths.ChromeosReleases.DLCImageName():
@@ -618,11 +620,11 @@ class PaygenBuild(object):
         """Validate that we got the expected MiniOS images for a build.
 
         Args:
-          build: The build the images are from.
-          images: The MiniOS images discovered associated with the build.
+            build: The build the images are from.
+            images: The MiniOS images discovered associated with the build.
 
         Raises:
-          BuildCorrupt: Raised if unexpected images are found.
+            BuildCorrupt: Raised if unexpected images are found.
         """
         if any(not x.minios for x in images):
             raise BuildCorrupt(
@@ -759,13 +761,13 @@ class PaygenBuild(object):
         """Return a list of DLC image archives associated with a given build.
 
         Args:
-          build: The build to find images for.
+            build: The build to find images for.
 
         Returns:
-          A gspaths.Image instance.
+            A gspaths.Image instance.
 
         Raises:
-          BuildCorrupt: Raised if unexpected images are found.
+            BuildCorrupt: Raised if unexpected images are found.
         """
         search_uri = gspaths.ChromeosReleases.DLCImagesUri(build)
         image_uris = []
@@ -831,11 +833,11 @@ class PaygenBuild(object):
         """Find the MiniOS deltas to generate between two builds.
 
         Args:
-          source_images: All MiniOS images associated with the source build.
-          images: All MiniOS images associated with the target build.
+            source_images: All MiniOS images associated with the source build.
+            images: All MiniOS images associated with the target build.
 
         Returns:
-          A list of gspaths.Payload objects.
+            A list of gspaths.Payload objects.
         """
         results = []
 
@@ -868,11 +870,11 @@ class PaygenBuild(object):
         One DLC (a unique DLC ID) has at most one source image/target image.
 
         Args:
-          source_images: All DLC images associated with the source build.
-          images: All DLC images associated with the target build.
+            source_images: All DLC images associated with the source build.
+            images: All DLC images associated with the target build.
 
         Returns:
-          A list of gspaths.Payload objects.
+            A list of gspaths.Payload objects.
         """
         results = []
 
@@ -1115,10 +1117,10 @@ class PaygenBuild(object):
         """Whether to sign the image.
 
         Args:
-          image: an image object.
+            image: an image object.
 
         Returns:
-          True if to sign the image, false if not to sign the image.
+            True if to sign the image, false if not to sign the image.
         """
         return (
             gspaths.IsImage(image)
@@ -1132,10 +1134,10 @@ class PaygenBuild(object):
         It will keep going, even if there is a failure.
 
         Args:
-          payloads: gspath.Payload objects defining the payloads to generate.
+            payloads: gspath.Payload objects defining the payloads to generate.
 
         Raises:
-          Any arbitrary exception raised by CreateAndUploadPayload.
+            Any arbitrary exception raised by CreateAndUploadPayload.
         """
         payloads_args = [
             (payload, self._ShouldSign(payload.tgt_image), True)
@@ -1164,11 +1166,11 @@ class PaygenBuild(object):
         multiple tests in a single run.
 
         Args:
-          channel: Channel to look in for payload.
-          version: A build version whose payloads to look for.
+            channel: Channel to look in for payload.
+            version: A build version whose payloads to look for.
 
         Returns:
-          A (possibly empty) list of payload URIs.
+            A (possibly empty) list of payload URIs.
         """
         assert channel
         assert version
@@ -1205,11 +1207,11 @@ class PaygenBuild(object):
         """Generate paygen test config for a given payload test.
 
         Args:
-          payload_test: A PayloadTest object.
-          suite_name: A string suite name.
+            payload_test: A PayloadTest object.
+            suite_name: A string suite name.
 
         Returns:
-          A test_params.TestConfig object.
+            A test_params.TestConfig object.
         """
         # Figure out the source version for the test.
         payload = payload_test.payload
@@ -1284,11 +1286,11 @@ class PaygenBuild(object):
         """Emit an Autotest control file for a given payload test config.
 
         Args:
-          payload_test_config: A test_params.TestConfig object.
-          control_dump_dir: A string path to dump the new control file.
+            payload_test_config: A test_params.TestConfig object.
+            control_dump_dir: A string path to dump the new control file.
 
         Returns:
-          a string control file path.
+            a string control file path.
         """
         control_code = osutils.ReadFile(test_control.get_control_file_name())
         control_file = test_control.dump_autotest_control_file(
@@ -1412,7 +1414,7 @@ class PaygenBuild(object):
         process this build.
 
         Raises:
-          BuildLocked: If the build is locked by another server or process.
+            BuildLocked: If the build is locked by another server or process.
         """
         lock_uri = self._GetFlagURI(gspaths.ChromeosReleases.LOCK)
         suite_name = None
@@ -1506,10 +1508,10 @@ def ValidateBoardConfig(board):
     """Validate that we have config values for the specified |board|.
 
     Args:
-      board: Name of board to check in release namespace.
+        board: Name of board to check in release namespace.
 
     Raises:
-      BoardNotConfigured if the board is unknown.
+        BoardNotConfigured if the board is unknown.
     """
     if not PaygenBuild.GetPaygenJson(board):
         raise BoardNotConfigured(board)
@@ -1521,12 +1523,12 @@ def ScheduleAutotestTests(
     """Run the appropriate command to schedule the Autotests we have prepped.
 
     Args:
-      suite_name: The name of the test suite.
-      board: A string representing the name of the archive board.
-      model: The model that will be tested against.
-      build: A string representing the name of the archive build.
-      payload_test_configs: A list of test_params.TestConfig objects to be
-        scheduled with.
+        suite_name: The name of the test suite.
+        board: A string representing the name of the archive board.
+        model: The model that will be tested against.
+        build: A string representing the name of the archive build.
+        payload_test_configs: A list of test_params.TestConfig objects to be
+            scheduled with.
     """
     test_plan = _TestPlan(
         payload_test_configs=payload_test_configs,
@@ -1567,12 +1569,12 @@ def _TestPlan(payload_test_configs, suite_name=None, build=None):
     """Construct a TestPlan proto for the given payload tests.
 
     Args:
-      payload_test_configs: A list of test_params.TestConfig objects.
-      suite_name: The name of the test suite.
-      build: A string representing the name of the archive build.
+        payload_test_configs: A list of test_params.TestConfig objects.
+        suite_name: The name of the test suite.
+        build: A string representing the name of the archive build.
 
     Returns:
-      A JSON-encoded string containing a TestPlan proto.
+        A JSON-encoded string containing a TestPlan proto.
     """
     autotest_invocations = []
     test_name = test_control.get_test_name()

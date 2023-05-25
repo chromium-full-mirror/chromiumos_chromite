@@ -41,7 +41,7 @@ def UpdateConfig(configs):
     """Updates the cherrypy config.
 
     Args:
-      configs: A dictionary with all cherrypy configs.
+        configs: A dictionary with all cherrypy configs.
     """
     if cherrypy:
         cherrypy.config.update(configs)

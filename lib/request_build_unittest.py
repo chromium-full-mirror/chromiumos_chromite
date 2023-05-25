@@ -265,10 +265,10 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
         """Verify the contents of a push to the TEST buildbucket instance.
 
         Args:
-          buildbucket_id: Id to verify.
-          expected_bucket: Bucket the push was supposed to go to as a string.
-          expected_tags: List of buildbucket tags.
-          expected_properties: List of buildbucket properties.
+            buildbucket_id: Id to verify.
+            expected_bucket: Bucket the push was supposed to go to as a string.
+            expected_tags: List of buildbucket tags.
+            expected_properties: List of buildbucket properties.
         """
         client = buildbucket_v2.BuildbucketV2(test_env=True)
         request = client.GetBuild(buildbucket_id)

@@ -57,14 +57,14 @@ def ParseSHA1(text, error_ok=True):
     """Checks if |text| conforms to the SHA1 format and parses it.
 
     Args:
-      text: The string to check.
-      error_ok: If set, do not raise an exception if |text| is not a
-        valid SHA1.
+        text: The string to check.
+        error_ok: If set, do not raise an exception if |text| is not a valid
+            SHA1.
 
     Returns:
-      If |text| is a valid SHA1, returns |text|.  Otherwise,
-      returns None when |error_ok| is set and raises an exception when
-      |error_ok| is False.
+        If |text| is a valid SHA1, returns |text|.  Otherwise,
+        returns None when |error_ok| is set and raises an exception when
+        |error_ok| is False.
     """
     valid = git.IsSHA1(text)
     if not error_ok and not valid:
@@ -77,14 +77,14 @@ def ParseGerritNumber(text, error_ok=True):
     """Checks if |text| conforms to the Gerrit number format and parses it.
 
     Args:
-      text: The string to check.
-      error_ok: If set, do not raise an exception if |text| is not a
-        valid Gerrit number.
+        text: The string to check.
+        error_ok: If set, do not raise an exception if |text| is not a valid
+            Gerrit number.
 
     Returns:
-      If |text| is a valid Gerrit number, returns |text|.  Otherwise,
-      returns None when |error_ok| is set and raises an exception when
-      |error_ok| is False.
+        If |text| is a valid Gerrit number, returns |text|.  Otherwise,
+        returns None when |error_ok| is set and raises an exception when
+        |error_ok| is False.
     """
     valid = text.isdigit() and len(text) <= _MAXIMUM_GERRIT_NUMBER_LENGTH
     if not error_ok and not valid:
@@ -100,14 +100,14 @@ def ParseChangeID(text, error_ok=True):
       I47ea30385af60ae4cc2acc5d1a283a46423bc6e1
 
     Args:
-      text: The string to check.
-      error_ok: If set, do not raise an exception if |text| is not a
-        valid change-ID.
+        text: The string to check.
+        error_ok: If set, do not raise an exception if |text| is not a valid
+            change-ID.
 
     Returns:
-      If |text| is a valid change-ID, returns |text|.  Otherwise,
-      returns None when |error_ok| is set and raises an exception when
-      |error_ok| is False.
+        If |text| is a valid change-ID, returns |text|.  Otherwise,
+        returns None when |error_ok| is set and raises an exception when
+        |error_ok| is False.
     """
     valid = (
         text.startswith(_GERRIT_CHANGE_ID_PREFIX)
@@ -133,14 +133,14 @@ def ParseFullChangeID(text, error_ok=True):
       chromiumos/chromite~master~I47ea30385af60ae4cc2acc5d1a283a46423bc6e1
 
     Args:
-      text: The string to check.
-      error_ok: If set, do not raise an exception if |text| is not a
-        valid full change-ID.
+        text: The string to check.
+        error_ok: If set, do not raise an exception if |text| is not a valid
+            full change-ID.
 
     Returns:
-      If |text| is a valid full change-ID, returns (project, branch,
-      change_id).  Otherwise, returns None when |error_ok| is set and
-      raises an exception when |error_ok| is False.
+        If |text| is a valid full change-ID, returns (project, branch,
+        change_id).  Otherwise, returns None when |error_ok| is set and
+        raises an exception when |error_ok| is False.
     """
     fields = text.split("~")
     if not len(fields) == 3:
@@ -222,13 +222,11 @@ class ApplyPatchException(PatchException):
     def ShortExplanation(self):
         s = "conflicted with %s" % (self._StringifyInflight(),)
         if self.trivial:
-            s += (
-                " because file content merging is disabled for this " "project."
-            )
+            s += " because file content merging is disabled for this project."
         else:
             s += "."
         if self.files:
-            s += "\n\nThe conflicting files are amongst:\n\n" "%s" % (
+            s += "\n\nThe conflicting files are amongst:\n\n%s" % (
                 self._StringifyFilenames(),
             )
         if self.msg:
@@ -295,9 +293,9 @@ class DependencyError(PatchException):
         """Initialize the error object.
 
         Args:
-          patch: The GitRepoPatch instance that this exception concerns.
-          error: A PatchException object that can be stringified to describe
-            the error.
+            patch: The GitRepoPatch instance that this exception concerns.
+            error: A PatchException object that can be stringified to describe
+                the error.
         """
         PatchException.__init__(self, patch)
         self.inflight = error.inflight
@@ -383,9 +381,9 @@ def MakeChangeId(unusable=False):
     """Create a random Change-Id.
 
     Args:
-      unusable: If set to True, return a Change-Id like string that gerrit
-        will explicitly fail on.  This is primarily used for internal ids,
-        as a fallback when a Change-Id could not be parsed.
+        unusable: If set to True, return a Change-Id like string that gerrit
+            will explicitly fail on.  This is primarily used for internal ids,
+            as a fallback when a Change-Id could not be parsed.
     """
     s = "%x" % (random.randint(0, 2**160),)
     s = s.rjust(_GERRIT_CHANGE_ID_LENGTH, "0")
@@ -414,8 +412,8 @@ class PatchCache(object):
         """Inject a change w/ a list of keys. Generally you want Inject instead.
 
         Args:
-          keys: A list of keys to update.
-          change: The change to update the keys to.
+            keys: A list of keys to update.
+            change: The change to update the keys to.
         """
         for key in keys:
             self._dict[str(key)] = change
@@ -458,10 +456,10 @@ def StripPrefix(text):
     """Strips the leading host moniker for change names.
 
     Args:
-      text: text to examine.
+        text: text to examine.
 
     Returns:
-      A tuple of the corresponding remote and the stripped text.
+        A tuple of the corresponding remote and the stripped text.
     """
     site_params = config_lib.GetSiteParams()
     remote = site_params.EXTERNAL_REMOTE
@@ -484,11 +482,11 @@ def AddPrefix(patch, text):
     Examines patch.remote and adds the prefix to text if applicable.
 
     Args:
-      patch: A PatchQuery object to examine.
-      text: The text to add prefix to.
+        patch: A PatchQuery object to examine.
+        text: The text to add prefix to.
 
     Returns:
-      |text| with an added prefix.
+        |text| with an added prefix.
     """
     return "%s%s" % (
         config_lib.GetSiteParams().CHANGE_PREFIX[patch.remote],
@@ -510,14 +508,14 @@ def ParsePatchDep(
     information of the dependency.
 
     Args:
-      text: The text to parse.
-      no_change_id: Do not allow change-ID.
-      no_sha1: Do not allow SHA1.
-      no_full_change_id: Do not allow full change-ID.
-      no_gerrit_number: Do not allow gerrit_number.
+        text: The text to parse.
+        no_change_id: Do not allow change-ID.
+        no_sha1: Do not allow SHA1.
+        no_full_change_id: Do not allow full change-ID.
+        no_gerrit_number: Do not allow gerrit_number.
 
     Returns:
-      A PatchQuery object.
+        A PatchQuery object.
     """
     original_text = text
     if not text:
@@ -585,15 +583,14 @@ def GetOptionLinesFromCommitMessage(commit_message, option_re):
     """Finds lines in |commit_message| that start with |option_re|.
 
     Args:
-      commit_message: (str) Text of the commit message.
-      option_re: (str) regular expression to match the key identifying this
-                 option. Additionally, any whitespace surrounding the option
-                 is ignored.
+        commit_message: Text of the commit message.
+        option_re: regular expression to match the key identifying this option.
+            Additionally, any whitespace surrounding the option is ignored.
 
     Returns:
-      list of line values that matched the option (with the option stripped
-      out) if at least 1 line matched the option (even if it provided no
-      valuse). None if no lines of the message matched the option.
+        list of line values that matched the option (with the option stripped
+        out) if at least 1 line matched the option (even if it provided no
+        values). None if no lines of the message matched the option.
     """
     option_lines = []
     matched = False
@@ -866,9 +863,8 @@ class GitRepoPatch(PatchQuery):
             ref: The refspec to pull from the git repo.
             tracking_branch: See PatchQuery for documentation.
             remote: See PatchQuery for documentation.
-            sha1: The sha1 of the commit, if known. This *must* be accurate.
-                Can be None if not yet known- in which case Fetch will update
-                it.
+            sha1: The sha1 of the commit, if known. This *must* be accurate. Can
+                be None if not yet known- in which case Fetch will update it.
             change_id: See PatchQuery for documentation.
         """
         super().__init__(
@@ -916,13 +912,13 @@ class GitRepoPatch(PatchQuery):
         """Get the Git footers of the specified commit message.
 
         Args:
-          msg: A commit message
+            msg: A commit message
 
         Returns:
-          The parsed footers from the commit message.  Footers are
-          lines of the form 'key: value' and are at the end of the commit
-          message in a separate paragraph.  We return a list of pairs like
-          ('key', 'value').
+            The parsed footers from the commit message.  Footers are
+            lines of the form 'key: value' and are at the end of the commit
+            message in a separate paragraph.  We return a list of pairs like
+            ('key', 'value').
         """
         footers = []
         data = re.split(r"\n{2,}", msg.rstrip("\n"))[-1]
@@ -936,10 +932,10 @@ class GitRepoPatch(PatchQuery):
         """Ensure that commit messages have a change ID.
 
         Args:
-          msg: The commit message.
+            msg: The commit message.
 
         Returns:
-          The modified commit message with necessary Gerrit footers.
+            The modified commit message with necessary Gerrit footers.
         """
         if not msg:
             msg = "<no commit message provided>"
@@ -968,12 +964,12 @@ class GitRepoPatch(PatchQuery):
         """Returns info about a commit object in the local repository.
 
         Args:
-          rev: The commit to find information about
-          git_repo: The path of the local git repository.
+            rev: The commit to find information about
+            git_repo: The path of the local git repository.
 
         Returns:
-          A 6-tuple of (sha1, tree_hash, commit subject, commit message,
-          committer email, committer name).
+            A 6-tuple of (sha1, tree_hash, commit subject, commit message,
+            committer email, committer name).
         """
         fmt = "format:%H%x00%T%x00%s%x00%B%x00%ce%x00%cn"
         try:
@@ -1001,7 +997,7 @@ class GitRepoPatch(PatchQuery):
                 and uses "FETCH_HEAD".
 
         Returns:
-          The sha1 of the commit.
+            The sha1 of the commit.
         """
         sha1 = sha1 or "FETCH_HEAD"
         sha1, tree_hash, subject, msg, email, name = self._PullData(
@@ -1033,10 +1029,10 @@ class GitRepoPatch(PatchQuery):
         """Whether this patch has already exists locally in `git_repo`
 
         Args:
-          git_repo: The git repository to fetch this patch into.
+            git_repo: The git repository to fetch this patch into.
 
         Returns:
-          If it exists, the sha1 of this patch in `git_repo`.
+            If it exists, the sha1 of this patch in `git_repo`.
         """
         git_repo = os.path.normpath(git_repo)
         if git_repo in self._is_fetched:
@@ -1065,10 +1061,10 @@ class GitRepoPatch(PatchQuery):
         repository, this will skip the actual fetch operation (it's unneeded).
 
         Args:
-          git_repo: The git repository to fetch this patch into.
+            git_repo: The git repository to fetch this patch into.
 
         Returns:
-          The sha1 of the patch.
+            The sha1 of the patch.
         """
         sha1 = self.HasBeenFetched(git_repo)
 
@@ -1090,11 +1086,12 @@ class GitRepoPatch(PatchQuery):
         minimum level is fairly messy from an API perspective.
 
         Args:
-          git_repo: Git repository to operate upon.
+            git_repo: Git repository to operate upon.
 
         Returns:
-          A dictionary of path -> modification_type tuples.  See
-          `git log --help`, specifically the --diff-filter section for details.
+            A dictionary of path -> modification_type tuples.  See
+            `git log --help`, specifically the --diff-filter section for
+            details.
         """
 
         self.Fetch(git_repo)
@@ -1135,13 +1132,13 @@ class GitRepoPatch(PatchQuery):
         actually do anything.
 
         Args:
-          git_repo: The git repository to operate upon.
-          trivial: [ignored]
-          inflight: [ignored]
-          leave_dirty: [ignored]
+            git_repo: The git repository to operate upon.
+            trivial: [ignored]
+            inflight: [ignored]
+            leave_dirty: [ignored]
 
         Raises:
-          A ApplyPatchException if the request couldn't be handled.
+            A ApplyPatchException if the request couldn't be handled.
         """
         cmd = ["merge", self.sha1]
 
@@ -1175,7 +1172,7 @@ class GitRepoPatch(PatchQuery):
                 behind.
 
         Raises:
-          A ApplyPatchException if the request couldn't be handled.
+            A ApplyPatchException if the request couldn't be handled.
         """
         # Note the --ff; we do *not* want the sha1 to change unless it
         # has to.
@@ -1260,10 +1257,10 @@ class GitRepoPatch(PatchQuery):
         The git repo does not need to be part of a repo checkout.
 
         Args:
-          git_repo: The git repository to operate upon.
-          revision: Revision to attach the tracking branch to.
-          upstream: The branch to base the patch on.
-          trivial: Only allow trivial merges when applying change.
+            git_repo: The git repository to operate upon.
+            revision: Revision to attach the tracking branch to.
+            upstream: The branch to base the patch on.
+            trivial: Only allow trivial merges when applying change.
         """
 
         self.Fetch(git_repo)
@@ -1342,12 +1339,12 @@ class GitRepoPatch(PatchQuery):
         """If this patch is a merge commit, validate that it meets restrictions.
 
         Args:
-          git_repo: The git repo to work in.
-          upstream: Current sha1 of upstream branch.
-          parents: List (length 2) of the two parents of this patch.
+            git_repo: The git repo to work in.
+            upstream: Current sha1 of upstream branch.
+            parents: List (length 2) of the two parents of this patch.
 
         Raises:
-          ForbiddenMerge if the merge does not meet criteria.
+            ForbiddenMerge if the merge does not meet criteria.
         """
         # We do not support patches with a history like this:
         #
@@ -1410,7 +1407,7 @@ class GitRepoPatch(PatchQuery):
             trivial: Only allow trivial merges when applying change.
 
         Raises:
-          ApplyPatchException: If the patch failed to apply.
+            ApplyPatchException: If the patch failed to apply.
         """
         for checkout in self.GetCheckouts(manifest):
             revision = checkout.get("revision")
@@ -1529,12 +1526,12 @@ class GitRepoPatch(PatchQuery):
         """Return a list of the |files| that are missing in |tree_revision|.
 
         Args:
-          git_repo: Git repository to work in.
-          tree_revision: Revision of the tree to use.
-          files: Files to look for.
+            git_repo: Git repository to work in.
+            tree_revision: Revision of the tree to use.
+            files: Files to look for.
 
         Returns:
-          A list of the |files| that are missing in |tree_revision|.
+            A list of the |files| that are missing in |tree_revision|.
         """
         if not files:
             return []
@@ -1555,12 +1552,12 @@ class GitRepoPatch(PatchQuery):
         """Get the ProjectCheckout(s) associated with this patch.
 
         Args:
-          manifest: A ManifestCheckout object.
-          strict: If the change refers to a project/branch that is not in the
-            manifest, raise a ChangeNotInManifest error.
+            manifest: A ManifestCheckout object.
+            strict: If the change refers to a project/branch that is not in the
+                manifest, raise a ChangeNotInManifest error.
 
         Returns:
-          A list of the ProjectCheckout(s) for the patch, which may be empty.
+            A list of the ProjectCheckout(s) for the patch, which may be empty.
         """
         checkouts = manifest.FindCheckouts(self.project, self.tracking_branch)
         if strict and not checkouts:
@@ -1571,13 +1568,13 @@ class GitRepoPatch(PatchQuery):
         """Get the ProjectCheckout associated with this patch.
 
         Args:
-          manifest: A ManifestCheckout object.
-          strict: If the change refers to a project/branch that is not in the
-            manifest, raise a ChangeNotInManifest error.
+            manifest: A ManifestCheckout object.
+            strict: If the change refers to a project/branch that is not in the
+                manifest, raise a ChangeNotInManifest error.
 
         Raises:
-          ChangeMatchesMultipleCheckouts if there are multiple checkouts that
-          match this change.
+            ChangeMatchesMultipleCheckouts if there are multiple checkouts that
+            match this change.
         """
         checkouts = self.GetCheckouts(manifest, strict=strict)
         if len(checkouts) != 1:
@@ -1714,7 +1711,7 @@ class LocalPatch(GitRepoPatch):
         upload that to refs/tryjobs/*.
 
         Returns:
-          The sha1 of the new commit object.
+            The sha1 of the new commit object.
         """
         hash_fields = [("tree_hash", "%T"), ("parent_hash", "%P")]
         transfer_fields = [
@@ -1788,15 +1785,15 @@ class LocalPatch(GitRepoPatch):
         """Upload the patch to a remote git branch.
 
         Args:
-          push_url: Which url to push to.
-          remote_ref: The ref on the remote host to push to.
-          carbon_copy: Use a carbon_copy of the local commit.
-          dryrun: Do the git push with --dry-run
-          reviewers: Iterable of reviewers to add.
-          cc: Iterable of people to add to cc.
+            push_url: Which url to push to.
+            remote_ref: The ref on the remote host to push to.
+            carbon_copy: Use a carbon_copy of the local commit.
+            dryrun: Do the git push with --dry-run
+            reviewers: Iterable of reviewers to add.
+            cc: Iterable of people to add to cc.
 
         Returns:
-          A list of gerrit URLs found in the output
+            A list of gerrit URLs found in the output
         """
         if carbon_copy:
             ref_to_upload = self._GetCarbonCopy()
@@ -1863,14 +1860,14 @@ class UploadedLocalPatch(GitRepoPatch):
         """Initializes an UploadedLocalPatch instance.
 
         Args:
-          project_url: See GitRepoPatch for documentation.
-          project: See GitRepoPatch for documentation.
-          ref: See GitRepoPatch for documentation.
-          tracking_branch: See GitRepoPatch for documentation.
-          original_branch: The tracking branch of the local patch.
-          original_sha1: The sha1 of the local commit.
-          remote: See GitRepoPatch for documentation.
-          carbon_copy_sha1: The alternative commit hash to use.
+            project_url: See GitRepoPatch for documentation.
+            project: See GitRepoPatch for documentation.
+            ref: See GitRepoPatch for documentation.
+            tracking_branch: See GitRepoPatch for documentation.
+            original_branch: The tracking branch of the local patch.
+            original_sha1: The sha1 of the local commit.
+            remote: See GitRepoPatch for documentation.
+            carbon_copy_sha1: The alternative commit hash to use.
         """
         GitRepoPatch.__init__(
             self,
@@ -1967,7 +1964,7 @@ class GerritFetchOnlyPatch(GitRepoPatch):
         """Get a GerritFetchOnlyPatch instance from a dict.
 
         Args:
-          attr_dict: A dictionary with the keys given in ALL_ATTRS.
+            attr_dict: A dictionary with the keys given in ALL_ATTRS.
         """
         return GerritFetchOnlyPatch(
             attr_dict[ATTR_PROJECT_URL],
@@ -2028,7 +2025,7 @@ class GerritFetchOnlyPatch(GitRepoPatch):
         """Get a dictionary of attribute used for manifest.
 
         Returns:
-          A dictionary with the keys given in ALL_ATTRS.
+            A dictionary with the keys given in ALL_ATTRS.
         """
         attr_dict = {
             ATTR_REMOTE: self.remote,
@@ -2270,12 +2267,12 @@ class GerritPatch(GerritFetchOnlyPatch):
         """Get the content of a file from the change on Gerrit.
 
         Args:
-          path: Path of the file in the repo to retrieve.
-          revision: The specific revision of the change. Defaults to the latest
-              revision.
+            path: Path of the file in the repo to retrieve.
+            revision: The specific revision of the change. Defaults to the
+                latest revision.
 
         Returns:
-          Contents of the file.
+            Contents of the file.
         """
         gerrit_host = config_lib.GetSiteParams().GERRIT_HOSTS[self.remote]
         return gob_util.GetFileContentsFromGerrit(
@@ -2477,11 +2474,11 @@ def FooterForApproval(approval, footers):
     """Return a commit-message footer for a given approver.
 
     Args:
-      approval: A dict containing the information about an approver
-      footers: A sequence of existing footers in the commit message.
+        approval: A dict containing the information about an approver
+        footers: A sequence of existing footers in the commit message.
 
     Returns:
-      A 'footer', which is a tuple (tag, id).
+        A 'footer', which is a tuple (tag, id).
     """
     if int(approval.get("value", 0)) <= 0:
         # Negative votes aren't counted.
@@ -2521,12 +2518,12 @@ def GeneratePatchesFromRepo(
     """Create a list of LocalPatch objects from a repo on disk.
 
     Args:
-      git_repo: The path to the repo.
-      project: The name of the associated project.
-      tracking_branch: The remote tracking branch we want to test against.
-      branch: The name of our local branch, where we will look for patches.
-      remote: The name of the remote to use. E.g. 'cros'
-      allow_empty: Whether to allow the case where no patches were specified.
+        git_repo: The path to the repo.
+        project: The name of the associated project.
+        tracking_branch: The remote tracking branch we want to test against.
+        branch: The name of our local branch, where we will look for patches.
+        remote: The name of the remote to use. E.g. 'cros'
+        allow_empty: Whether to allow the case where no patches were specified.
     """
 
     result = git.RunGit(
@@ -2563,11 +2560,11 @@ def _CheckLocalPatches(manifest, local_patches):
     We should references by directory instead.
 
     Args:
-      manifest: The manifest object for the checkout in question.
-      local_patches: List of patches to check in project:branch format.
+        manifest: The manifest object for the checkout in question.
+        local_patches: List of patches to check in project:branch format.
 
     Returns:
-      A list of patches that have been verified, in project:branch format.
+        A list of patches that have been verified, in project:branch format.
     """
     verified_patches = []
     for patch in local_patches:
@@ -2615,8 +2612,8 @@ def PrepareLocalPatches(manifest, patches):
     """Finish validation of parameters, and save patches to a temp folder.
 
     Args:
-      manifest: The manifest object for the checkout in question.
-      patches: A list of user-specified patches, in project[:branch] form.
+        manifest: The manifest object for the checkout in question.
+        patches: A list of user-specified patches, in project[:branch] form.
     """
     patch_info = []
     for patch in _CheckLocalPatches(manifest, patches):
@@ -2646,7 +2643,7 @@ def PrepareRemotePatches(patches):
         patches: A list of --remote-patches strings that the user specified on
             the commandline.  Patch strings are colon-delimited. Patches come in
             the format:
-               <project>:<original_branch>:<ref>:<tracking_branch>:<tag>.
+                <project>:<original_branch>:<ref>:<tracking_branch>:<tag>.
             A description of each element:
                 project: The manifest project name that the patch is for.
                 original_branch: The name of the development branch that the
@@ -2698,9 +2695,9 @@ def GetChangesAsString(changes, prefix="", delimiter=" "):
     """Gets a human readable string listing |changes| in CL:1234 form.
 
     Args:
-      changes: A list of GerritPatch objects.
-      prefix: Prefix to use.
-      delimiter: Delimiter to use. Defaults to a space.
+        changes: A list of GerritPatch objects.
+        prefix: Prefix to use.
+        delimiter: Delimiter to use. Defaults to a space.
     """
     formatted_changes = [
         "%s%s" % (prefix, AddPrefix(x, x.gerrit_number)) for x in changes

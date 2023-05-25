@@ -99,9 +99,9 @@ class PaygenSigner(object):
         """Initializer.
 
         Args:
-          work_dir: A working directory inside the chroot.
-          private_key: The private keys to sign the payload with.
-          payload_build: The build defined for the payload.
+            work_dir: A working directory inside the chroot.
+            private_key: The private keys to sign the payload with.
+            payload_build: The build defined for the payload.
         """
         self.public_key = None
 
@@ -289,7 +289,7 @@ class PaygenPayload(object):
         """Helper for deciding what cache directory to use.
 
         Returns:
-          Returns a directory suitable for use with a DownloadCache.
+            Returns a directory suitable for use with a DownloadCache.
         """
         return os.path.join(path_util.GetCacheDir(), "paygen_cache")
 
@@ -309,10 +309,10 @@ class PaygenPayload(object):
             """Returns the parameters of a single DLC image.
 
             Args:
-              image: The input image.
+                image: The input image.
 
             Returns:
-              Same values as _GetDlcImageParams()
+                Same values as _GetDlcImageParams()
             """
             mount_point = os.path.join(self.work_dir, "mount-point")
             osutils.MountDir(image, mount_point, mount_opts=("ro",))
@@ -435,7 +435,7 @@ class PaygenPayload(object):
 
         Raises:
             NoMiniOSPartitionException: If a miniOS payload is requested when
-                either the source or target image has no miniOS payload.
+            either the source or target image has no miniOS payload.
         """
         if self.payload.minios:
             try:
@@ -470,10 +470,10 @@ class PaygenPayload(object):
         """Checks whether the given image has a miniOS partition.
 
         Args:
-          image_file: Local path to the image file.
+            image_file: Local path to the image file.
 
         Raises:
-          MiniOSException: One of several miniOS errors.
+            MiniOSException: One of several miniOS errors.
         """
         disk = cgpt.Disk.FromImage(image_file)
         try:
@@ -752,7 +752,7 @@ class PaygenPayload(object):
         This file is used in update engine's major version 2.
 
         Args:
-          run_postinst: Whether the updater should run postinst or not.
+            run_postinst: Whether the updater should run postinst or not.
         """
         # In major version 2 we need to explicitly mark the postinst on the root
         # partition to run.
@@ -802,7 +802,7 @@ class PaygenPayload(object):
         Works from an unsigned update payload.
 
         Returns:
-          Tuple of (payload_hash, metadata_hash) as bytes.
+            Tuple of (payload_hash, metadata_hash) as bytes.
         """
         logging.info("Calculating hashes on %s.", self.payload_file)
 
@@ -835,11 +835,11 @@ class PaygenPayload(object):
         required.
 
         Args:
-          hashes: List of hashes (as bytes) to be signed.
+            hashes: List of hashes (as bytes) to be signed.
 
         Returns:
-          List of lists which contain each signed hash (as bytes).
-          [[hash_1_sig_1, hash_1_sig_2], [hash_2_sig_1, hash_2_sig_2]]
+            List of lists which contain each signed hash (as bytes).
+            [[hash_1_sig_1, hash_1_sig_2], [hash_2_sig_1, hash_2_sig_2]]
         """
         keysets = self.PAYLOAD_SIGNATURE_KEYSETS
         logging.info("Signing payload hashes with %s.", ", ".join(keysets))
@@ -890,10 +890,10 @@ class PaygenPayload(object):
         """Write each signature into a temp file in the chroot.
 
         Args:
-          signatures: A list of signatures as bytes to write into file.
+            signatures: A list of signatures as bytes to write into file.
 
         Returns:
-          The list of files in the chroot with the same order as signatures.
+            The list of files in the chroot with the same order as signatures.
         """
         file_paths = []
         for signature in signatures:
@@ -913,8 +913,8 @@ class PaygenPayload(object):
         """Put payload and metadata signatures into the payload we sign.
 
         Args:
-          payload_signatures: List of signatures as bytes for the payload.
-          metadata_signatures: List of signatures as bytes for the metadata.
+            payload_signatures: List of signatures as bytes for the payload.
+            metadata_signatures: List of signatures as bytes for the metadata.
         """
         logging.info(
             "Inserting payload and metadata signatures into %s.",
@@ -948,7 +948,7 @@ class PaygenPayload(object):
         signature at this time.
 
         Args:
-          signatures: A list of metadata signatures in binary string format.
+            signatures: A list of metadata signatures in binary string format.
         """
         if len(signatures) != 1:
             self._GenerateSignerResultsError(
@@ -1048,7 +1048,7 @@ class PaygenPayload(object):
         """Generate the payload description json file.
 
         Args:
-          metadata_signatures: A list of signatures in binary string format.
+            metadata_signatures: A list of signatures in binary string format.
         """
         # Decide if we use the signed or unsigned payload file.
         payload_file = self.payload_file
@@ -1087,7 +1087,7 @@ class PaygenPayload(object):
         to simplify unittest mocks.
 
         Args:
-          log: The delta logs as a single string.
+            log: The delta logs as a single string.
         """
         try:
             osutils.WriteFile(self.log_file, log, mode="a")
@@ -1102,7 +1102,7 @@ class PaygenPayload(object):
         """Wrap all the steps for signing an existing payload.
 
         Returns:
-          List of payload signatures, List of metadata signatures.
+            List of payload signatures, List of metadata signatures.
         """
         # Create hashes to sign or even if signing not needed.
         # TODO(ahassani): In practice we don't need to generate hashes if we are
@@ -1138,7 +1138,7 @@ class PaygenPayload(object):
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
-                reason.
+            reason.
         """
 
         logging.info(
@@ -1217,7 +1217,7 @@ class PaygenPayload(object):
         """Checks the integrity of the generated payload.
 
         Raises:
-          PayloadVerificationError when the payload fails to verify.
+            PayloadVerificationError when the payload fails to verify.
         """
         if self.signer:
             payload_file_name = self.signed_payload_file
@@ -1310,7 +1310,7 @@ class PaygenPayload(object):
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
-                reason.
+            reason.
         """
         self._SetupNewFileNames()
         try:
@@ -1346,7 +1346,7 @@ class PaygenPayload(object):
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
-                reason.
+            reason.
         """
         logging.info("* Starting payload generation")
         start_time = datetime.datetime.now()

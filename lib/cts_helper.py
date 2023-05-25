@@ -40,11 +40,11 @@ def getXMLGZFiles(test_name, test_folder):
     """Get CTS/GTS XML file in gz format within test_folder.
 
     Args:
-      test_name: name of the test.
-      test_folder: path to test folder.
+        test_name: name of the test.
+        test_folder: path to test folder.
 
     Returns:
-      A list of xml.gz files or []
+        A list of xml.gz files or []
     """
     if not isCtsTest(test_name):
         return []
@@ -71,11 +71,11 @@ def getApfeFiles(test_name, test_folder):
     """Get CTS/GTS Apfe file within test_folder.
 
     Args:
-      test_name: name of the test.
-      test_folder: path to test folder.
+        test_name: name of the test.
+        test_folder: path to test folder.
 
     Returns:
-      A list of APFE files or []
+        A list of APFE files or []
     """
     if not isCtsTest(test_name):
         return []
@@ -93,10 +93,10 @@ def _is_test_collector(package):
     """Returns true if the test run is just to collect list of CTS tests.
 
     Args:
-      package: Autotest package name. e.g. cheets_CTS_N.CtsGraphicsTestCase
+        package: Autotest package name. e.g. cheets_CTS_N.CtsGraphicsTestCase
 
     Returns:
-      Bool flag indicating a test package is CTS list generator or not.
+        Bool flag indicating a test package is CTS list generator or not.
     """
     return TEST_LIST_COLLECTOR in package
 
@@ -107,13 +107,13 @@ def uploadFiles(
     """Upload CTS/GTS tests result to gs buckets.
 
     Args:
-      dir_entry: path to the test folder.
-      build: build name such as samus-release, or kevin-release.
-      apfe_id: id number used for apfe upload, typically we use autotest parent
-               job id.
-      job_id: id number, such as autotest_job_id or builder_id.
-      package: CTS package name.
-      uploader: upload function to upload to gs
+        dir_entry: path to the test folder.
+        build: build name such as samus-release, or kevin-release.
+        apfe_id: id number used for apfe upload, typically we use autotest
+            parent job id.
+        job_id: id number, such as autotest_job_id or builder_id.
+        package: CTS package name.
+        uploader: upload function to upload to gs
     """
     xml_files = getXMLGZFiles(package, dir_entry)
     logging.info("Uploading CTS/GTS xml files: %s", xml_files)

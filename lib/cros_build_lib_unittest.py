@@ -497,8 +497,8 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         CompletedProcess objects.
 
         Args:
-          expected: a CompletedProcess object, expected result.
-          actual: a CompletedProcess object, actual result.
+            expected: a CompletedProcess object, expected result.
+            actual: a CompletedProcess object, actual result.
         """
         self.assertEqual(expected.args, actual.args)
         self.assertEqual(expected.stderr, actual.stderr)
@@ -510,12 +510,12 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         """Factor out common setup logic for testing run().
 
         Args:
-          cmd: a string or an array of strings that will be passed to run.
-          real_cmd: the real command we expect run to call (might be
-              modified to have enter_chroot).
-          sp_kv: key-value pairs passed to subprocess.Popen().
-          rc_kv: key-value pairs passed to run().
-          sudo: use sudo_run() rather than run().
+            cmd: a string or an array of strings that will be passed to run.
+            real_cmd: the real command we expect run to call (might be modified
+                to have enter_chroot).
+            sp_kv: key-value pairs passed to subprocess.Popen().
+            rc_kv: key-value pairs passed to run().
+            sudo: use sudo_run() rather than run().
         """
         if sp_kv is None:
             sp_kv = {}
@@ -584,7 +584,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         params to run().
 
         Args:
-          ignore_sigint: If True, we'll tell run to ignore sigint.
+            ignore_sigint: If True, we'll tell run to ignore sigint.
         """
         self.proc_mock.returncode = 0
         cmd_list = ["foo", "bar", "roger"]
@@ -613,7 +613,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         params to run().
 
         Args:
-          ignore_sigint: If True, we'll tell run to ignore sigint.
+            ignore_sigint: If True, we'll tell run to ignore sigint.
         """
         cmd = "test cmd"
         self.proc_mock.returncode = 1
@@ -639,7 +639,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         params to run().
 
         Args:
-          ignore_sigint: If True, we'll tell run to ignore sigint.
+            ignore_sigint: If True, we'll tell run to ignore sigint.
         """
         cmd = ["test", "cmd"]
         self.proc_mock.communicate = mock.MagicMock(side_effect=ValueError)

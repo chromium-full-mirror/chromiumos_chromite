@@ -139,10 +139,10 @@ def TimestampToDatetime(input_time):
     """Converts seconds in google.protobuf.Timestamp to readable format.
 
     Args:
-      input_time: google.protobuf.Timestamp instance.
+        input_time: google.protobuf.Timestamp instance.
 
     Returns:
-      datetime.datetime instance corresponding to input_time.
+        datetime.datetime instance corresponding to input_time.
     """
     if input_time and input_time.seconds != 0:
         return datetime.fromtimestamp(input_time.seconds)
@@ -154,12 +154,12 @@ def DatetimeToTimestamp(input_date, end_of_day=False):
     """Converts datetime.date object to Timestamp instance.
 
     Args:
-      input_date: datetime.date instance to be converted.
-      end_of_day: Boolean indicating whether the Timestamp correponds to the
-          end of the date in input_date.
+        input_date: datetime.date instance to be converted.
+        end_of_day: Boolean indicating whether the Timestamp corresponds to the
+            end of the date in input_date.
 
     Returns:
-      A Timestamp instance corresponding to the specific date.
+        A Timestamp instance corresponding to the specific date.
     """
     assert isinstance(input_date, date)
     if end_of_day:

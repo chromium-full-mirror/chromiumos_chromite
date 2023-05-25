@@ -61,8 +61,8 @@ def IsChildProcess(pid, name=None):
     """Return True if pid is a child of the current process.
 
     Args:
-      pid: Child pid to search for in current process's pstree.
-      name: Name of the child process.
+        pid: Child pid to search for in current process's pstree.
+        name: Name of the child process.
 
     Note:
       This function is not fool proof. If the process tree contains wierd names,
@@ -106,9 +106,9 @@ def AllocateFile(
     os.truncate() API instead.
 
     Args:
-      path: Path to allocate the file.
-      size: The length, in bytes, of the desired file.
-      makedirs: If True, create missing leading directories in the path.
+        path: Path to allocate the file.
+        size: The length, in bytes, of the desired file.
+        makedirs: If True, create missing leading directories in the path.
     """
     path = Path(path)
     if makedirs:
@@ -296,10 +296,10 @@ def Touch(
     """Simulate unix touch. Create if doesn't exist and update its timestamp.
 
     Args:
-      path: File name of the file to touch (creating if not present).
-      makedirs: If True, create missing leading directories in the path.
-      mode: The access permissions to set.  In the style of chmod.  Defaults to
-            using the umask.
+        path: File name of the file to touch (creating if not present).
+        makedirs: If True, create missing leading directories in the path.
+        mode: The access permissions to set.  In the style of chmod.  Defaults
+            to using the umask.
     """
     path = Path(path)
     if makedirs:
@@ -325,10 +325,10 @@ def Chmod(path: Union[Path, str], mode: int, sudo: bool = False):
     """Helper for changing file modes even if we have to elevate to root.
 
     Args:
-      path: File/directory to chmod.
-      mode: The permissions (e.g. 0o644) to change the file mode to.  String
-          permissions (e.g. a+r) are *not* supported.
-      sudo: If True, chmod the permissions as root.
+        path: File/directory to chmod.
+        mode: The permissions (e.g. 0o644) to change the file mode to.  String
+            permissions (e.g. a+r) are *not* supported.
+        sudo: If True, chmod the permissions as root.
     """
     # Try to chmod the file directly ourselves.  If we have access, no need to
     # elevate via sudo.  Faster this way in general.
@@ -357,10 +357,10 @@ def Chown(
     a new owner is provided.
 
     Args:
-      path: File/directory to chown.
-      user: User to chown the file to. Defaults to current user.
-      group: Group to assign the file to.
-      recursive: Also chown child files/directories recursively.
+        path: File/directory to chown.
+        user: User to chown the file to. Defaults to current user.
+        group: Group to assign the file to.
+        recursive: Also chown child files/directories recursively.
     """
     if user is None:
         user = GetNonRootUser() or ""
@@ -386,7 +386,9 @@ def ReadFile(
     seek: Optional[int] = None,
     sudo: Optional[bool] = False,
 ) -> Union[bytes, str]:
-    """Read a given file on disk.  Primarily useful for one off small files.
+    """Read a given file on disk.
+
+    Primarily useful for one off small files.
 
     The defaults are geared towards reading UTF-8 encoded text.
 
@@ -406,8 +408,8 @@ def ReadFile(
         sudo: If True, read the file as root.
 
     Returns:
-      The content of the file, either as bytes or a string (with the specified
-      encoding).
+        The content of the file, either as bytes or a string (with the specified
+        encoding).
     """
     if mode not in ("r", "rb"):
         raise ValueError('mode may only be "r" or "rb", not %r' % (mode,))
@@ -455,10 +457,10 @@ def MD5HashFile(path: Union[str, os.PathLike]) -> str:
     """Calculate the md5 hash of a given file path.
 
     Args:
-      path: The path of the file to hash.
+        path: The path of the file to hash.
 
     Returns:
-      The hex digest of the md5 hash of the file.
+        The hex digest of the md5 hash of the file.
     """
     contents = Path(path).read_bytes()
     return hashlib.md5(contents).hexdigest()
@@ -473,9 +475,9 @@ def SafeSymlink(
     atomic.
 
     Args:
-      source: source path.
-      dest: destination path.
-      sudo: If True, create the link as root.
+        source: source path.
+        dest: destination path.
+        sudo: If True, create the link as root.
     """
     if sudo and IsNonRootUser():
         cros_build_lib.sudo_run(
@@ -490,7 +492,7 @@ def SafeUnlink(path: Union[Path, str], sudo: bool = False):
     """Unlink a file from disk, ignoring if it doesn't exist.
 
     Returns:
-      True if the file existed and was removed, False if it didn't exist.
+        True if the file existed and was removed, False if it didn't exist.
     """
     try:
         os.unlink(path)
@@ -518,21 +520,21 @@ def SafeUnlink(path: Union[Path, str], sudo: bool = False):
 
 
 def SafeMakedirs(path, mode=0o775, sudo=False, user="root"):
-    """Make parent directories if needed.  Ignore if existing.
+    """Make parent directories if needed. Ignore if existing.
 
     Args:
-      path: The path to create.  Intermediate directories will be created as
+        path: The path to create.  Intermediate directories will be created as
             needed. This can be either a |Path| or |str|.
-      mode: The access permissions in the style of chmod.
-      sudo: If True, create it via sudo, thus root owned.
-      user: If |sudo| is True, run sudo as |user|.
+        mode: The access permissions in the style of chmod.
+        sudo: If True, create it via sudo, thus root owned.
+        user: If |sudo| is True, run sudo as |user|.
 
     Returns:
-      True if the directory had to be created, False if otherwise.
+        True if the directory had to be created, False if otherwise.
 
     Raises:
-      EnvironmentError: If the makedir failed.
-      RunCommandError: If using run and the command failed for any reason.
+        EnvironmentError: If the makedir failed.
+        RunCommandError: If using run and the command failed for any reason.
     """
     if sudo and not (IsRootUser() and user == "root"):
         if os.path.isdir(path):
@@ -769,15 +771,15 @@ def MoveDirContents(
     Both should exist.
 
     Args:
-      from_dir: The directory whose contents should be moved. Must exist.
-      to_dir: The directory to which contents should be moved. Must exist.
-      remove_from_dir: Remove the from directory after the contents are moved.
-      allow_nonempty: If True, do not die when to_dir is nonempty.
+        from_dir: The directory whose contents should be moved. Must exist.
+        to_dir: The directory to which contents should be moved. Must exist.
+        remove_from_dir: Remove the from directory after the contents are moved.
+        allow_nonempty: If True, do not die when to_dir is nonempty.
 
     Raises:
-      BadPathsException: if the source / target directories don't exist, or if
+        BadPathsException: if the source / target directories don't exist, or if
         target directory is non-empty when allow_nonempty is False.
-      OSError: on esoteric permission errors.
+        OSError: on esoteric permission errors.
     """
     from_dir = Path(from_dir).resolve()
     to_dir = Path(to_dir).resolve()
@@ -791,9 +793,9 @@ def RmDir(path, ignore_missing=False, sudo=False):
     """Recursively remove a directory.
 
     Args:
-      path: Path of directory to remove. Either a |Path| or |str|.
-      ignore_missing: Do not error when path does not exist.
-      sudo: Remove directories as root.
+        path: Path of directory to remove. Either a |Path| or |str|.
+        ignore_missing: Do not error when path does not exist.
+        sudo: Remove directories as root.
     """
     # Using `sudo` is a bit expensive, so try to delete everything natively
     # first.
@@ -830,16 +832,17 @@ def EmptyDir(path, ignore_missing=False, sudo=False, exclude=()):
     """Remove all files inside a directory, including subdirs.
 
     Args:
-      path: Path of directory to empty.
-      ignore_missing: Do not error when path does not exist.
-      sudo: Remove directories as root.
-      exclude: Iterable of file names to exclude from the cleanup. They should
-               exactly match the file or directory name in path.
-               e.g. ['foo', 'bar']
+        path: Path of directory to empty.
+        ignore_missing: Do not error when path does not exist.
+        sudo: Remove directories as root.
+        exclude: Iterable of file names to exclude from the cleanup. They should
+            exactly match the file or directory name in path. e.g. ['foo',
+            'bar']
 
     Raises:
-      EmptyDirNonExistentException: if ignore_missing false, and dir is missing.
-      OSError: If the directory is not user writable.
+        EmptyDirNonExistentException: if ignore_missing false, and dir is
+            missing.
+        OSError: If the directory is not user writable.
     """
     path = ExpandPath(path)
     exclude = set(exclude)
@@ -871,13 +874,14 @@ def Which(
     """Return the absolute path to the specified binary.
 
     Args:
-      binary: The binary to look for.
-      path: Search path. Defaults to os.environ['PATH'].
-      mode: File mode to check on the binary.
-      root: Path to automatically prefix to every element of |path|.
+        binary: The binary to look for.
+        path: Search path. Defaults to os.environ['PATH'].
+        mode: File mode to check on the binary.
+        root: Path to automatically prefix to every element of |path|.
 
     Returns:
-      The full path to |binary| if found (with the right mode). Otherwise, None.
+        The full path to |binary| if found (with the right mode). Otherwise,
+        None.
     """
     if path is None:
         path = os.environ.get("PATH", "")
@@ -903,11 +907,11 @@ def FindMissingBinaries(needed_tools: List[str]) -> List[str]:
     outside the chroot.
 
     Args:
-      needed_tools: an array of string specified binaries to look for.
+        needed_tools: an array of string specified binaries to look for.
 
     Returns:
-      If all tools are found, returns the empty list. Otherwise, returns the
-      list of missing tools.
+        If all tools are found, returns the empty list. Otherwise, returns the
+        list of missing tools.
     """
     return [binary for binary in needed_tools if Which(binary) is None]
 
@@ -924,12 +928,12 @@ def IteratePaths(end_path):
     """Generator that iterates down to |end_path| from root /.
 
     Args:
-      end_path: The destination. If this is a relative path, it will be resolved
-          to absolute path. In all cases, it will be normalized.
+        end_path: The destination. If this is a relative path, it will be
+            resolved to absolute path. In all cases, it will be normalized.
 
     Yields:
-      All the paths gradually constructed from / to |end_path|. For example:
-      IteratePaths("/this/path") yields "/", "/this", and "/this/path".
+        All the paths gradually constructed from / to |end_path|. For example:
+        IteratePaths("/this/path") yields "/", "/this", and "/this/path".
     """
     return reversed(list(IteratePathParents(end_path)))
 
@@ -942,7 +946,7 @@ def IteratePathParents(start_path: Union[str, os.PathLike]) -> Iterator[Path]:
 
     Yields:
         The passed-in path, along with its parents.  i.e.,
-            IteratePathParents('/usr/local')
+        IteratePathParents('/usr/local')
         would yield '/usr/local', '/usr', and '/'.
     """
     path = Path(start_path).resolve()
@@ -975,17 +979,18 @@ def FindInPathParents(
     '/usr/local/google'.
 
     Args:
-      path_to_find: The relative path to look for.
-      start_path: The path to start the search from.  If |start_path| is a
-        directory, it will be included in the directories that are searched.
-      test_func: The function to use to verify the relative path.  Defaults to
-        os.path.exists.  The function will be passed one argument - the target
-        path to test.  A True return value will cause AscendingLookup to return
-        the target.
-      end_path: The path to stop searching.
+        path_to_find: The relative path to look for.
+        start_path: The path to start the search from.  If |start_path| is a
+            directory, it will be included in the directories that are searched.
+        test_func: The function to use to verify the relative path.  Defaults to
+            os.path.exists.  The function will be passed one argument - the
+            target path to test.  A True return value will cause AscendingLookup
+            to return the target.
+        end_path: The path to stop searching.
 
     Returns:
-      The path, if found, with the same type as |start_path|.  Otherwise, None.
+        The path, if found, with the same type as |start_path|.  Otherwise,
+        None.
     """
     if end_path is not None:
         end_path = Path(end_path).resolve()
@@ -1004,18 +1009,18 @@ def SetGlobalTempDir(tempdir_value, tempdir_env=None):
     """Set the global temp directory to the specified |tempdir_value|
 
     Args:
-      tempdir_value: The new location for the global temp directory.
-      tempdir_env: Optional. A list of key/value pairs to set in the
-        environment. If not provided, set all global tempdir environment
-        variables to point at |tempdir_value|.
+        tempdir_value: The new location for the global temp directory.
+        tempdir_env: Optional. A list of key/value pairs to set in the
+            environment. If not provided, set all global tempdir environment
+            variables to point at |tempdir_value|.
 
     Returns:
-      Returns (old_tempdir_value, old_tempdir_env).
+        Returns (old_tempdir_value, old_tempdir_env).
 
-      old_tempdir_value: The old value of the global temp directory.
-      old_tempdir_env: A list of the key/value pairs that control the tempdir
-        environment and were set prior to this function. If the environment
-        variable was not set, it is recorded as None.
+        old_tempdir_value: The old value of the global temp directory.
+        old_tempdir_env: A list of the key/value pairs that control the tempdir
+            environment and were set prior to this function. If the environment
+            variable was not set, it is recorded as None.
     """
     # pylint: disable=protected-access
     with tempfile._once_lock:
@@ -1244,17 +1249,17 @@ def Mount(
     """Call the mount(2) func; see the man page for details.
 
     Args:
-      source: The source mount path (for bind mounts or block devices), or a
-          human readable description string (for pseudo filesystems).
-      target: The target path to mount over.  It may be a dir or file, but it
-          must exist already.
-      fstype: The filesystem type (e.g. "ext4" or "tmpfs"), or None if a bind
-          mount.
-      flags: Various MS_* flags.
-      data: Additional mount options parsed by the kernel filesystem driver.
-          Not to be confused with the MS_* flags -- NB the `mount` program will
-          convert some of these to MS_* flags for you e.g. "bind"->MS_BIND, but
-          this function does not.
+        source: The source mount path (for bind mounts or block devices), or a
+            human readable description string (for pseudo filesystems).
+        target: The target path to mount over.  It may be a dir or file, but it
+            must exist already.
+        fstype: The filesystem type (e.g. "ext4" or "tmpfs"), or None if a bind
+            mount.
+        flags: Various MS_* flags.
+        data: Additional mount options parsed by the kernel filesystem driver.
+            Not to be confused with the MS_* flags -- NB the `mount` program
+            will convert some of these to MS_* flags for you e.g.
+            "bind"->MS_BIND, but this function does not.
     """
     libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
 
@@ -1310,14 +1315,14 @@ def MountDir(
     """Mount |src_path| at |dst_path|
 
     Args:
-      src_path: Source of the new mount.
-      dst_path: Where to mount things.
-      fs_type: Specify the filesystem type to use.  Defaults to autodetect.
-      sudo: Run through sudo.
-      makedirs: Create |dst_path| if it doesn't exist.
-      mount_opts: List of options to pass to `mount`.
-      skip_mtab: Whether to write new entries to /etc/mtab.
-      **kwargs: Pass all other args to run.
+        src_path: Source of the new mount.
+        dst_path: Where to mount things.
+        fs_type: Specify the filesystem type to use.  Defaults to autodetect.
+        sudo: Run through sudo.
+        makedirs: Create |dst_path| if it doesn't exist.
+        mount_opts: List of options to pass to `mount`.
+        skip_mtab: Whether to write new entries to /etc/mtab.
+        **kwargs: Pass all other args to run.
     """
     if sudo:
         runcmd = cros_build_lib.sudo_run
@@ -1347,11 +1352,11 @@ def MountTmpfsDir(
     """Mount a tmpfs at |path|
 
     Args:
-      path: Directory to mount the tmpfs.
-      name: Friendly name to include in mount output.
-      size: Size of the temp fs.
-      mount_opts: List of options to pass to `mount`.
-      **kwargs: Pass all other args to MountDir.
+        path: Directory to mount the tmpfs.
+        name: Friendly name to include in mount output.
+        size: Size of the temp fs.
+        mount_opts: List of options to pass to `mount`.
+        **kwargs: Pass all other args to MountDir.
     """
     mount_opts = list(mount_opts) + ["size=%s" % size]
     MountDir(name, path, fs_type="tmpfs", mount_opts=mount_opts, **kwargs)
@@ -1361,11 +1366,11 @@ def UmountDir(path, lazy=True, sudo=True, cleanup=True):
     """Unmount a previously mounted temp fs mount.
 
     Args:
-      path: Directory to unmount.
-      lazy: Whether to do a lazy unmount.
-      sudo: Run through sudo.
-      cleanup: Whether to delete the |path| after unmounting.
-               Note: Does not work when |lazy| is set.
+        path: Directory to unmount.
+        lazy: Whether to do a lazy unmount.
+        sudo: Run through sudo.
+        cleanup: Whether to delete the |path| after unmounting.
+        Note: Does not work when |lazy| is set.
     """
     if sudo:
         runcmd = cros_build_lib.sudo_run
@@ -1416,8 +1421,8 @@ def UmountTree(
     Args:
         path: Directory to unmount.
         lazy: Whether to do a lazy unmount.
-        cleanup: Whether to delete the |path| after unmounting.
-            Note: Does not work when |lazy| is set.
+        cleanup: Whether to delete the |path| after unmounting. Note: Does not
+            work when |lazy| is set.
     """
     # Scrape it from /proc/mounts since it's easily accessible;
     # additionally, unmount in reverse order of what's listed there
@@ -1451,16 +1456,16 @@ def SourceEnvironment(script, allowlist, ifs=",", env=None, multiline=False):
     be sent to /dev/null, so just echoing is OK.
 
     Args:
-      script: The shell script to 'source'.
-      allowlist: An iterable of environment variables to retrieve values for.
-      ifs: When showing arrays, what separator to use.
-      env: A dict of the initial env to pass down.  You can also pass it None
-           (to clear the env) or True (to preserve the current env).
-      multiline: Allow a variable to span multiple lines.
+        script: The shell script to 'source'.
+        allowlist: An iterable of environment variables to retrieve values for.
+        ifs: When showing arrays, what separator to use.
+        env: A dict of the initial env to pass down.  You can also pass it None
+            (to clear the env) or True (to preserve the current env).
+        multiline: Allow a variable to span multiple lines.
 
     Returns:
-      A dictionary containing the values of the allowlisted environment
-      variables that are set.
+        A dictionary containing the values of the allowlisted environment
+        variables that are set.
     """
     dump_script = ['source "%s" >/dev/null' % script, 'IFS="%s"' % ifs]
     for var in allowlist:
@@ -1492,12 +1497,12 @@ def ListBlockDevices(device_path=None, in_bytes=False):
     """Lists all block devices.
 
     Args:
-      device_path: device path (e.g. /dev/sdc).
-      in_bytes: whether to display size in bytes.
+        device_path: device path (e.g. /dev/sdc).
+        in_bytes: whether to display size in bytes.
 
     Returns:
-      A list of BlockDevice items with attributes 'NAME', 'RM', 'TYPE',
-      'SIZE', 'HOTPLUG' (RM stands for removable).
+        A list of BlockDevice items with attributes 'NAME', 'RM', 'TYPE',
+        'SIZE', 'HOTPLUG' (RM stands for removable).
     """
     keys = ["NAME", "RM", "TYPE", "SIZE", "HOTPLUG"]
     BlockDevice = collections.namedtuple("BlockDevice", keys)
@@ -1530,11 +1535,11 @@ def GetDeviceInfo(device, keyword="model"):
       expanded when searching.
 
     Args:
-      device: Device name (e.g. 'sdc').
-      keyword: The filename to look for (e.g. product, model).
+        device: Device name (e.g. 'sdc').
+        keyword: The filename to look for (e.g. product, model).
 
     Returns:
-      The content of the |keyword| file.
+        The content of the |keyword| file.
     """
     device_path = os.path.join("/sys", "block", device)
     if not os.path.isdir(device_path):
@@ -1555,11 +1560,11 @@ def GetDeviceSize(device_path, in_bytes=False):
     """Returns the size of |device|.
 
     Args:
-      device_path: Device path (e.g. '/dev/sdc').
-      in_bytes: If set True, returns the size in bytes.
+        device_path: Device path (e.g. '/dev/sdc').
+        in_bytes: If set True, returns the size in bytes.
 
     Returns:
-      Size of the device in human readable format unless |in_bytes| is set.
+        Size of the device in human readable format unless |in_bytes| is set.
     """
     devices = ListBlockDevices(device_path=device_path, in_bytes=in_bytes)
     for d in devices:
@@ -1578,14 +1583,14 @@ def StatFilesInDirectory(path, recursive=False, to_string=False):
     """Stat files in the directory |path|.
 
     Args:
-      path: Path to the target directory.
-      recursive: Whether to recurisvely list all files in |path|.
-      to_string: Whether to return a string containing the metadata of the
-        files.
+        path: Path to the target directory.
+        recursive: Whether to recursively list all files in |path|.
+        to_string: Whether to return a string containing the metadata of the
+            files.
 
     Returns:
-      If |to_string| is False, returns a list of FileInfo objects. Otherwise,
-      returns a string of metadata of the files.
+        If |to_string| is False, returns a list of FileInfo objects. Otherwise,
+        returns a string of metadata of the files.
     """
     path = ExpandPath(path)
 
@@ -1630,12 +1635,12 @@ def OpenContext(
     """Context manager to open & close |path| and return the OS file descriptor.
 
     Args:
-      path: The path to open.
-      flags: The O_* flags to use.
-      mode: The permission bits to use (when creating a file).
+        path: The path to open.
+        flags: The O_* flags to use.
+        mode: The permission bits to use (when creating a file).
 
     Yields:
-      The open OS file descriptor.
+        The open OS file descriptor.
     """
     fd = None
     try:
@@ -1651,10 +1656,10 @@ def ChdirContext(target_dir: Union[Path, str]) -> int:
     """A context manager to chdir() into |target_dir| and back out on exit.
 
     Args:
-      target_dir: A target directory to chdir into.
+        target_dir: A target directory to chdir into.
 
     Yields:
-      File descriptor to old working directory.
+        File descriptor to old working directory.
     """
     with OpenContext(".", flags=os.O_RDONLY | os.O_PATH | os.O_CLOEXEC) as fd:
         try:
@@ -1672,7 +1677,7 @@ def ChrootContext(target_dir: Union[Path, str]) -> int:
     (e.g. root).
 
     Args:
-      target_dir: A target directory to chdir into.
+        target_dir: A target directory to chdir into.
     """
     # Order here is important, and use of handles & . avoids races.
     # First chdir to the new path and save a handle to the old one.  The open
@@ -1814,11 +1819,11 @@ def IterateMountPoints(proc_file="/proc/mounts"):
     """Iterate over all mounts as reported by "/proc/mounts".
 
     Args:
-      proc_file: A path to a file whose content is similar to /proc/mounts.
-        Default to "/proc/mounts" itself.
+        proc_file: A path to a file whose content is similar to /proc/mounts.
+            Default to "/proc/mounts" itself.
 
     Returns:
-      A generator that yields MountInfo objects.
+        A generator that yields MountInfo objects.
     """
     with open(proc_file, encoding="utf-8") as f:
         for line in f:
@@ -1857,12 +1862,12 @@ def ResolveSymlinkInRoot(
       relative_symlink will be resolved to ROOT-A/a/relative/path
 
     Args:
-      file_name: A path to the file.
-      root: A path to the root directory.
+        file_name: A path to the file.
+        root: A path to the root directory.
 
     Returns:
-      |file_name| if |file_name| is not a symlink. Otherwise, the ultimate path
-      that |file_name| points to, with links resolved relative to |root|.
+        |file_name| if |file_name| is not a symlink. Otherwise, the ultimate
+        path that |file_name| points to, with links resolved relative to |root|.
     """
     count = 0
     while os.path.islink(file_name):
@@ -1886,11 +1891,11 @@ def ResolveSymlink(
     symlinks to an alternative root, and normalizes the path before returning.
 
     Args:
-      file_name: The symlink.
+        file_name: The symlink.
 
     Returns:
-      str - |file_name| if |file_name| is not a symlink. Otherwise, the ultimate
-      path that |file_name| points to.
+        str - |file_name| if |file_name| is not a symlink. Otherwise, the
+        ultimate path that |file_name| points to.
     """
     ret = os.path.realpath(ResolveSymlinkInRoot(file_name, None))
     return ret if isinstance(file_name, str) else Path(ret)
@@ -1915,11 +1920,11 @@ def UmaskContext(mask: int) -> int:
     """Context manager for changing umask.
 
     Args:
-      mask: The new umask setting to apply.  Should be an octal number.
+        mask: The new umask setting to apply.  Should be an octal number.
 
     Yields:
-      The old umask setting in case it's useful.  It will still be restored
-      automatically by this context manager.
+        The old umask setting in case it's useful.  It will still be restored
+        automatically by this context manager.
     """
     try:
         old = os.umask(mask)
