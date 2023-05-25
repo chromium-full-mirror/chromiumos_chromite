@@ -9,7 +9,7 @@ import logging
 import os
 from pathlib import Path
 import tempfile
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import List, NamedTuple, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import binpkg
 from chromite.lib import config_lib
@@ -598,31 +598,46 @@ def GetPrebuiltsForPackages(
     return upload_targets_list
 
 
+class SnapshotShas(NamedTuple):
+    """External and internal snapshot SHAs for the lookup service."""
+
+    external: List[Optional[str]]
+    internal: List[Optional[str]]
+
+
 def lookup_binhosts() -> List[Optional[str]]:
     """Call Cloud Functions to lookup BINHOSTs."""
     # TODO(b/270985155): Implement the lookup logic.
-    return _get_snapshot_shas()
+    site_params = config_lib.GetSiteParams()
+    snapshot_shas = SnapshotShas([], [])
+
+    # Get the repo.
+    try:
+        repo = repo_util.Repository.MustFind(constants.SOURCE_ROOT)
+    except repo_util.NotInRepoError as e:
+        logging.error("Unable to determine a repo directory: %s", e)
+        return snapshot_shas
+
+    # Determine the checkout types.
+    manifest = repo.Manifest()
+    external = manifest.HasRemote(site_params.EXTERNAL_REMOTE)
+    internal = manifest.HasRemote(site_params.INTERNAL_REMOTE)
+
+    # Get the snapshot SHAs for each checkout type.
+    snapshot_shas.external.extend(_get_snapshot_shas(site_params, not external))
+    snapshot_shas.internal.extend(_get_snapshot_shas(site_params, internal))
+
+    return snapshot_shas
 
 
-def _get_snapshot_shas() -> List[Optional[str]]:
+def _get_snapshot_shas(
+    site_params: "config_lib.AttrDict", internal: bool
+) -> List[Optional[str]]:
     """Get the last n=_MAX_BINHOSTS snapshot SHAs using git log.
 
     We're intentionally swallowing errors related to determining the snapshot
     SHAs since the lookup service will contain logic for these error cases.
     """
-    site_params = config_lib.GetSiteParams()
-
-    # Get the repo directory.
-    try:
-        repo_dir = repo_util.Repository.MustFind(constants.SOURCE_ROOT)
-    except repo_util.NotInRepoError as e:
-        logging.error("Unable to determine a repo directory: %s", e)
-        return []
-
-    # Determine if checkout is public or internal.
-    internal = repo_dir.Manifest().HasRemote(site_params.INTERNAL_REMOTE)
-
-    # Get the last n (_MAX_BINHOSTS) snapshot SHAs.
     manifest_type = "manifest-internal" if internal else "manifest"
     manifest_dir = os.path.join(constants.SOURCE_ROOT, manifest_type)
     remote_name = (
@@ -636,5 +651,5 @@ def _get_snapshot_shas() -> List[Optional[str]]:
             rev=f"{remote_name}/snapshot",
         ).splitlines()
     except cros_build_lib.RunCommandError as e:
-        logging.error(e)
+        logging.warning(e)
         return []

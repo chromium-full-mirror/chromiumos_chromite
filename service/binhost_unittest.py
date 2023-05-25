@@ -665,8 +665,10 @@ class LookupBinhostsTest(
 
     def testInternalSuccess(self):
         """Test basic internal success case."""
-        self.git_log_mock.return_value = (
-            "internal-snapshot-sha1\ninternal-snapshot-sha2"
+        self.has_remote_mock.side_effect = (False, True)
+        self.git_log_mock.side_effect = (
+            "",
+            "internal-snapshot-sha1\ninternal-snapshot-sha2",
         )
 
         result = binhost.lookup_binhosts()
@@ -678,15 +680,18 @@ class LookupBinhostsTest(
             rev="cros-internal/snapshot",
         )
         self.assertEqual(
-            ["internal-snapshot-sha1", "internal-snapshot-sha2"], result
+            ["internal-snapshot-sha1", "internal-snapshot-sha2"],
+            result.internal,
         )
+        self.assertEqual([], result.external)
 
     def testExternalSuccess(self):
         """Test basic external success case."""
-        self.git_log_mock.return_value = (
-            "external-snapshot-sha1\nexternal-snapshot-sha2"
+        self.has_remote_mock.side_effect = (True, False)
+        self.git_log_mock.side_effect = (
+            "external-snapshot-sha1\nexternal-snapshot-sha2",
+            "",
         )
-        self.has_remote_mock.return_value = False
 
         result = binhost.lookup_binhosts()
 
@@ -697,8 +702,10 @@ class LookupBinhostsTest(
             rev="cros/snapshot",
         )
         self.assertEqual(
-            ["external-snapshot-sha1", "external-snapshot-sha2"], result
+            ["external-snapshot-sha1", "external-snapshot-sha2"],
+            result.external,
         )
+        self.assertEqual([], result.internal)
 
     def testGetSnapshotShasRepoError(self):
         """Test repo error when getting snapshot SHAs."""
@@ -708,7 +715,8 @@ class LookupBinhostsTest(
             result = binhost.lookup_binhosts()
 
             self.AssertLogsContain(logs, "Unable to determine a repo directory")
-            self.assertEqual([], result)
+            self.assertEqual([], result.external)
+            self.assertEqual([], result.internal)
 
     def testGetSnapshotShasGitError(self):
         """Test git error when getting snapshot SHAs."""
@@ -720,7 +728,8 @@ class LookupBinhostsTest(
             result = binhost.lookup_binhosts()
 
             self.AssertLogsContain(logs, "Run Command Error.")
-            self.assertEqual([], result)
+            self.assertEqual([], result.external)
+            self.assertEqual([], result.internal)
 
 
 @pytest.mark.parametrize(
