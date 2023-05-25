@@ -4,7 +4,9 @@
 
 """Manage various ~/.config/chromite/ configuration files."""
 
+import getpass
 from pathlib import Path
+import tempfile
 
 
 # Respect the various XDG settings if the xdg module is available.  Otherwise
@@ -16,6 +18,10 @@ try:
 except ImportError:
     XDG_CONFIG_HOME = Path("~/.config").expanduser()
 
+if getpass.getuser() == "chrome-bot":
+    # chrome-bot gets permission denied for /home/chrome-bot/.config/chromite.
+    # pylint: disable=consider-using-with
+    XDG_CONFIG_HOME = Path(tempfile.TemporaryDirectory().name)
 
 DIR = XDG_CONFIG_HOME / "chromite"
 
