@@ -462,21 +462,37 @@ def SafeSymlink(
 ):
     """Create a symlink at |dest| pointing to |source|.
 
-    This will override the |dest| if the symlink exists. This operation is not
-    atomic.
+    This is done atomically by creating the symlink at a temporary file in the
+    same directory, and renaming that symlink.
 
     Args:
         source: source path.
         dest: destination path.
         sudo: If True, create the link as root.
     """
+    dest = Path(dest)
     if sudo and IsNonRootUser():
         cros_build_lib.sudo_run(
             ["ln", "-sfT", str(source), str(dest)], print_cmd=False, stderr=True
         )
     else:
-        SafeUnlink(dest)
-        os.symlink(source, dest)
+        while True:
+            tmp_dest = dest.with_name(
+                f".tmp-{dest.name}-{cros_build_lib.GetRandomString()}"
+            )
+            try:
+                tmp_dest.symlink_to(source)
+                break
+            except FileExistsError:
+                # 1 in 2**96 chance this happens.
+                # self.buy_lottery_ticket()
+                continue
+        try:
+            tmp_dest.rename(dest)
+        except OSError:
+            # If the rename failed, try to clean up our litter.
+            tmp_dest.unlink(missing_ok=True)
+            raise
 
 
 def SafeUnlink(path: Union[Path, str], sudo: bool = False):
