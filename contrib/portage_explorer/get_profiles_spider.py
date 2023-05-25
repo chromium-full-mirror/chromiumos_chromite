@@ -20,7 +20,7 @@ def execute(output: spiderlib.SpiderOutput):
     profile if it exists, else the public overlay's base profile.
 
     Args:
-      output: SpiderOutput representing the final output from all the spiders.
+        output: SpiderOutput representing the final output from all the spiders.
     """
     board_profiles = {}
     for overlay in output.overlays:

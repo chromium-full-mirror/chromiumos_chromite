@@ -72,8 +72,8 @@ class KeyringData(object):
         """Write the config
 
         Args:
-          filename: path to file.
-          config: keyset dictionary.
+            filename: path to file.
+            config: keyset dictionary.
         """
         content = yaml.dump(config, default_flow_style=False)
         osutils.WriteFile(filename, content)
@@ -82,11 +82,11 @@ class KeyringData(object):
         """Import a Keyset.
 
         Args:
-          setname: Friendly setname (e.g., sarien-mp-v3)
-          directory: Directory where keyset is stored. (e.g., SarienMPKeys-v3)
+            setname: Friendly setname (e.g., sarien-mp-v3)
+            directory: Directory where keyset is stored. (e.g., SarienMPKeys-v3)
 
         Returns:
-          True if all files were processed.
+            True if all files were processed.
         """
         config_file = os.path.join(self.configs, "%s.yaml" % setname)
         if os.path.exists(config_file):
@@ -150,10 +150,10 @@ def ParseSignerConfig(prod_path):
     """Return the parsed signer config.
 
     Args:
-      prod_path: Path to production checkout.  Typically '/cros'.
+        prod_path: Path to production checkout.  Typically '/cros'.
 
     Returns:
-      Parsed signer config.
+        Parsed signer config.
     """
     config = configparser.ConfigParser()
     config_path = os.path.join(prod_path, "signer/configs/cros_common.config")
@@ -168,10 +168,10 @@ def DiscoverKeysets(keysets_dir):
     """Discover keysets.
 
     Args:
-      keysets_dir: directory where the keysets live.  Typically /cros/keys.
+        keysets_dir: directory where the keysets live.  Typically /cros/keys.
 
     Returns:
-      A sorted list of (setname: directory) tuples.
+        A sorted list of (setname: directory) tuples.
     """
     _, dirs, _ = next(os.walk(keysets_dir))
     ret = {}

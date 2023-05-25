@@ -21,11 +21,11 @@ def get_board_name(overlay_path: str) -> str:
     """Parse overlay path with regex to find board name.
 
     Args:
-      regex: Regex to match the board name from the path.
-      overlay_path: Path to the overlay.
+        regex: Regex to match the board name from the path.
+        overlay_path: Path to the overlay.
 
     Returns:
-      The board name as a string.
+        The board name as a string.
     """
     board = BOARD_NAME_RE.search(overlay_path)
     if board:
@@ -39,7 +39,7 @@ def execute(output: spiderlib.SpiderOutput):
     """Get the board names from all the overlay paths and add to the output.
 
     Args:
-      output: SpiderOutput representing the final output from all the spiders.
+        output: SpiderOutput representing the final output from all the spiders.
     """
     overlays = portage_util.FindOverlays("both")
     boards = set()

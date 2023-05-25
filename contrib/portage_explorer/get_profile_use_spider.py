@@ -17,7 +17,7 @@ def execute(output: spiderlib.SpiderOutput):
     Get the use flags from a profile's make.defaults and sort them by name.
 
     Args:
-      output: SpiderOutput representing the final output from all the spiders.
+        output: SpiderOutput representing the final output from all the spiders.
     """
     for overlay in output.overlays:
         for profile in overlay.profiles:
@@ -27,7 +27,7 @@ def execute(output: spiderlib.SpiderOutput):
             if make_defaults_path.exists():
                 command = (
                     f"source {cros_build_lib.ShellQuote(make_defaults_path)};"
-                    f"echo ${{USE}}"
+                    "echo ${USE}"
                 )
                 source_use = cros_build_lib.dbg_run(
                     command, shell=True, capture_output=True, encoding="utf-8"

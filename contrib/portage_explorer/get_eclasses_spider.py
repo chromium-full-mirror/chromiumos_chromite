@@ -14,7 +14,7 @@ def execute(output: spiderlib.SpiderOutput):
     """Get all eclasses sorted by eclass name.
 
     Args:
-      output: SpiderOutput representing the final output from all the spiders.
+        output: SpiderOutput representing the final output from all the spiders.
     """
     for overlay in output.overlays:
         eclass_folder = Path(constants.SOURCE_ROOT) / overlay.path / "eclass"

@@ -46,7 +46,7 @@ class HWTestList(object):
         """Returns a default list of HWTestConfigs for a build.
 
         Args:
-          *kwargs: overrides for the configs
+            *kwargs: overrides for the configs
         """
         return [
             config_lib.HWTestConfig(
@@ -108,7 +108,7 @@ class HWTestList(object):
         """Get a default list of config_lib.HWTestConfig's for a canary build.
 
         Args:
-          *kwargs: overrides for the configs
+            *kwargs: overrides for the configs
         """
         # Set minimum_duts default to 4, which means that lab will check the
         # number of available duts to meet the minimum requirement before
@@ -298,7 +298,7 @@ def InsertHwTestsOverrideDefaults(build):
     Also updates child builds.
 
     Args:
-      build: BuildConfig instance to modify in place.
+        build: BuildConfig instance to modify in place.
     """
     for child in build["child_configs"]:
         InsertHwTestsOverrideDefaults(child)
@@ -327,10 +327,11 @@ def EnsureVmTestsOnVmTestBoards(site_config, boards_dict, _gs_build_config):
     """Make sure VMTests are only enabled on boards that support them.
 
     Args:
-      site_config: config_lib.SiteConfig containing builds to have their
-                   waterfall values updated.
-      boards_dict: A dict mapping board types to board name collections.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig containing builds to have their
+            waterfall values updated.
+        boards_dict: A dict mapping board types to board name collections.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     for c in site_config.values():
         if set(c["boards"]).intersection(set(boards_dict["no_vmtest_boards"])):
@@ -348,8 +349,8 @@ def ApplyCustomOverrides(site_config):
     after every other bit of processing, so it always has the final say.
 
     Args:
-      site_config: config_lib.SiteConfig containing builds to have their
-                   waterfall values updated.
+        site_config: config_lib.SiteConfig containing builds to have their
+            waterfall values updated.
     """
     overwritten_configs = {
         "guado_labstation-release": {
@@ -396,8 +397,8 @@ def PostsubmitBuilders(site_config):
     """Create all postsubmit test configs.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
     """
     for config in site_config.values():
         if config.name.endswith("postsubmit"):
@@ -411,9 +412,10 @@ def GeneralTemplates(site_config, ge_build_config):
     """Apply test config to general templates
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     hw_test_list = HWTestList(ge_build_config)
 
@@ -551,10 +553,11 @@ def ApplyConfig(site_config, boards_dict, ge_build_config):
     """Apply test specific config to site_config
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
-      boards_dict: A dict mapping board types to board name collections.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
+        boards_dict: A dict mapping board types to board name collections.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
 
     # Insert default HwTests for tryjobs.

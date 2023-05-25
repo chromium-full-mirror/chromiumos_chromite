@@ -19,7 +19,7 @@ def execute():
     """Calls the spiders which will fill out the output.
 
     Returns:
-      SpiderOutput containing all the data collected from all the spiders.
+        SpiderOutput containing all the data collected from all the spiders.
     """
     output = spiderlib.SpiderOutput()
     get_boards_spider.execute(output)

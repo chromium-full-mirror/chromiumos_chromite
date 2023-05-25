@@ -39,11 +39,11 @@ def add_images(required_images):
     Used similarly to append_useflags.
 
     Args:
-      required_images: A list of image names that need to be present in the
-                       final build config.
+        required_images: A list of image names that need to be present in the
+            final build config.
 
     Returns:
-      A callable suitable for use with BuildConfig.apply.
+        A callable suitable for use with BuildConfig.apply.
     """
     required_images = set(required_images)
 
@@ -67,11 +67,11 @@ def remove_images(unsupported_images):
     Used similarly to append_useflags.
 
     Args:
-      unsupported_images: A list of image names that should not be present
-                          in the final build config.
+        unsupported_images: A list of image names that should not be present in
+            the final build config.
 
     Returns:
-      A callable suitable for use with BuildConfig.apply.
+        A callable suitable for use with BuildConfig.apply.
     """
     unsupported = set(unsupported_images)
 
@@ -87,13 +87,14 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     """Get board type to board names dict.
 
     Args:
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
 
     Returns:
-      A dict mapping board types to board name collections.
-      The dict contains board types including distinct_board_sets,
-      all_release_boards, all_full_boards, all_boards, internal_boards,
-      and no_vmtest_boards.
+        A dict mapping board types to board name collections.
+        The dict contains board types including distinct_board_sets,
+        all_release_boards, all_full_boards, all_boards, internal_boards,
+        and no_vmtest_boards.
     """
     ge_arch_board_dict = config_lib.GetArchBoardDict(ge_build_config)
 
@@ -160,7 +161,7 @@ def DefaultSettings():
     """Create the default build config values for this site.
 
     Returns:
-      dict: of default config_lib.BuildConfig values to use for this site.
+        dict: of default config_lib.BuildConfig values to use for this site.
     """
     # Site specific adjustments for default BuildConfig values.
     defaults = config_lib.DefaultSettings()
@@ -177,8 +178,9 @@ def GeneralTemplates(site_config):
     """Defines templates that are shared between categories of builders.
 
     Args:
-      site_config: A SiteConfig object to add the templates too.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: A SiteConfig object to add the templates too.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     # Config parameters for builders that do not run tests on the builder.
     site_config.AddTemplate(
@@ -203,8 +205,10 @@ def GeneralTemplates(site_config):
         git_sync=True,
         description="Full Builds",
         image_test=True,
-        doc="https://dev.chromium.org/chromium-os/build/builder-overview#"
-        "TOC-Continuous",
+        doc=(
+            "https://dev.chromium.org/chromium-os/build/builder-overview#"
+            "TOC-Continuous"
+        ),
     )
 
     # Incremental builders are intended to test the developer workflow.
@@ -218,8 +222,10 @@ def GeneralTemplates(site_config):
         uprev=False,
         overlays=constants.PUBLIC_OVERLAYS,
         description="Incremental Builds",
-        doc="https://dev.chromium.org/chromium-os/build/builder-overview#"
-        "TOC-Continuous",
+        doc=(
+            "https://dev.chromium.org/chromium-os/build/builder-overview#"
+            "TOC-Continuous"
+        ),
     )
 
     site_config.AddTemplate(
@@ -363,8 +369,10 @@ def GeneralTemplates(site_config):
         uprev=True,
         overlays=constants.BOTH_OVERLAYS,
         push_overlays=constants.BOTH_OVERLAYS,
-        doc="https://dev.chromium.org/chromium-os/build/builder-overview#"
-        "TOC-Chrome-PFQ",
+        doc=(
+            "https://dev.chromium.org/chromium-os/build/builder-overview#"
+            "TOC-Chrome-PFQ"
+        ),
     )
 
     # Internal incremental builders don't use official chrome because we want
@@ -412,8 +420,9 @@ def GeneralTemplates(site_config):
         run_build_configs_export=True,
         binhost_bucket="gs://chromeos-dev-installer",
         binhost_key="RELEASE_BINHOST",
-        binhost_base_url="https://commondatastorage.googleapis.com/"
-        "chromeos-dev-installer",
+        binhost_base_url=(
+            "https://commondatastorage.googleapis.com/chromeos-dev-installer"
+        ),
         dev_installer_prebuilts=True,
         git_sync=False,
         vm_tests=[],
@@ -424,8 +433,10 @@ def GeneralTemplates(site_config):
         description="Release Builds (canary) (internal)",
         chrome_sdk=True,
         image_test=True,
-        doc="https://dev.chromium.org/chromium-os/build/builder-overview#"
-        "TOC-Canaries",
+        doc=(
+            "https://dev.chromium.org/chromium-os/build/builder-overview#"
+            "TOC-Canaries"
+        ),
     )
 
     site_config.AddTemplate(
@@ -598,8 +609,10 @@ def GeneralTemplates(site_config):
         chrome_sdk=False,
         vm_tests=[],
         vm_tests_override=None,
-        doc="https://dev.chromium.org/chromium-os/build/builder-overview#"
-        "TOC-ASAN",
+        doc=(
+            "https://dev.chromium.org/chromium-os/build/builder-overview#"
+            "TOC-ASAN"
+        ),
     )
 
     site_config.AddTemplate(
@@ -611,8 +624,10 @@ def GeneralTemplates(site_config):
         chrome_sdk=False,
         vm_tests=[],
         vm_tests_override=None,
-        doc="https://dev.chromium.org/chromium-os/build/builder-overview#"
-        "TOC-ASAN",
+        doc=(
+            "https://dev.chromium.org/chromium-os/build/builder-overview#"
+            "TOC-ASAN"
+        ),
     )
 
 
@@ -688,14 +703,14 @@ def UpdateBoardConfigs(board_configs, boards, *args, **kwargs):
     """Update "board_configs" for selected chromeos_boards.
 
     Args:
-      board_configs: Dict in CreateBoardConfigs format to filter from.
-      boards: Iterable of boards to update in the dict.
-      *args: List of templates to apply.
-      **kwargs: Individual keys to update.
+        board_configs: Dict in CreateBoardConfigs format to filter from.
+        boards: Iterable of boards to update in the dict.
+        *args: List of templates to apply.
+        **kwargs: Individual keys to update.
 
     Returns:
-      Copy of board_configs dict with boards boards update with templates
-      and values applied.
+        Copy of board_configs dict with boards boards update with templates
+        and values applied.
     """
     result = board_configs.copy()
     for b in boards:
@@ -708,10 +723,11 @@ def ToolchainBuilders(site_config, boards_dict, ge_build_config):
     """Define templates used for toolchain builders.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
-      boards_dict: A dict mapping board types to board name collections.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
+        boards_dict: A dict mapping board types to board name collections.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     board_configs = CreateInternalBoardConfigs(
         site_config, boards_dict, ge_build_config
@@ -789,9 +805,11 @@ def ToolchainBuilders(site_config, boards_dict, ge_build_config):
         "llvm_tot_toolchain",
         site_config.templates.llvm_toolchain,
         useflags=config_lib.append_useflags(["llvm-tot"]),
-        description="Full release builds with a near-top-of-tree LLVM. Since "
-        "this uses internal sources, it should only be used with LLVM "
-        "revisions that have been reviewed manually somehow",
+        description=(
+            "Full release builds with a near-top-of-tree LLVM. Since "
+            "this uses internal sources, it should only be used with LLVM "
+            "revisions that have been reviewed manually somehow"
+        ),
     )
 
     #
@@ -839,10 +857,11 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
     """Create all full builders.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
-      boards_dict: A dict mapping board types to board name collections.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
+        boards_dict: A dict mapping board types to board name collections.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     active_builders = _frozen_ge_set(
         ge_build_config,
@@ -935,10 +954,11 @@ def InformationalBuilders(site_config, boards_dict, ge_build_config):
     is not directly used for anything other than reporting success or failure.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
-      boards_dict: A dict mapping board types to board name collections.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
+        boards_dict: A dict mapping board types to board name collections.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     internal_board_configs = CreateInternalBoardConfigs(
         site_config, boards_dict, ge_build_config
@@ -1066,10 +1086,11 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
     """Create all factory build configs.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
-      boards_dict: A dict mapping board types to board name collections.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
+        boards_dict: A dict mapping board types to board name collections.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     # pylint: disable=unused-variable
     # Intervals:
@@ -1224,10 +1245,11 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     """Create all release builders.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
-      boards_dict: A dict mapping board types to board name collections.
-      ge_build_config: Dictionary containing the decoded GE configuration file.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
+        boards_dict: A dict mapping board types to board name collections.
+        ge_build_config: Dictionary containing the decoded GE configuration
+            file.
     """
     board_configs = CreateInternalBoardConfigs(
         site_config, boards_dict, ge_build_config
@@ -1323,7 +1345,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         """Get skylab settings for release builder.
 
         Args:
-          board_name: A string board name.
+            board_name: A string board name.
 
         Returns:
             A dict mapping suite types to booleans indicating whether this suite
@@ -1559,8 +1581,8 @@ def AddNotificationConfigs(site_config):
     overwrite notification_config values set elsewhere.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding
-                    NotificationConfigs.
+        site_config: config_lib.SiteConfig to be modified by adding
+            NotificationConfigs.
     """
 
     # Notifiers is a map of builder config names to a list of NotificationConfig
@@ -1640,8 +1662,8 @@ def ApplyCustomOverrides(site_config):
     after every other bit of processing, so it always has the final say.
 
     Args:
-      site_config: config_lib.SiteConfig containing builds to have their
-                   waterfall values updated.
+        site_config: config_lib.SiteConfig containing builds to have their
+            waterfall values updated.
     """
 
     overwritten_configs = {
@@ -2085,8 +2107,8 @@ def SpecialtyBuilders(site_config):
     """Add a variety of specialized builders or tryjobs.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
     """
     site_config.AddWithoutTemplate(
         "success-build",
@@ -2138,8 +2160,10 @@ def SpecialtyBuilders(site_config):
         prebuilts=constants.PUBLIC,
         build_timeout=18 * 60 * 60,
         description="Build the SDK and all the cross-compilers",
-        doc="https://dev.chromium.org/chromium-os/build/builder-overview#"
-        "TOC-Continuous",
+        doc=(
+            "https://dev.chromium.org/chromium-os/build/builder-overview#"
+            "TOC-Continuous"
+        ),
         schedule="with 30m interval",
     )
 
@@ -2186,7 +2210,7 @@ def SpecialtyBuilders(site_config):
         site_config.templates.no_vmtest_builder,
         site_config.templates.infra_builder,
         display_label=config_lib.DISPLAY_LABEL_UTILITY,
-        description=("Deploy changes to luci_scheduler.cfg."),
+        description="Deploy changes to luci_scheduler.cfg.",
         build_type=constants.GENERIC_TYPE,
         boards=[],
         builder_class_name="config_builders.LuciSchedulerBuilder",
@@ -2198,8 +2222,10 @@ def SpecialtyBuilders(site_config):
                 ["config/luci-scheduler.cfg"],
             ],
             [
-                "https://chrome-internal.googlesource.com/chromeos/infra/"
-                "config",
+                (
+                    "https://chrome-internal.googlesource.com/chromeos/infra/"
+                    "config"
+                ),
                 ["refs/heads/main"],
                 ["generated/luci-scheduler.cfg"],
             ],
@@ -2268,8 +2294,8 @@ def TryjobMirrors(site_config):
     existing config is already a tryjob config.
 
     Args:
-      site_config: config_lib.SiteConfig to be modified by adding templates
-                   and configs.
+        site_config: config_lib.SiteConfig to be modified by adding templates
+            and configs.
     """
     tryjob_configs = {}
 
@@ -2355,7 +2381,7 @@ def BranchScheduleConfig():
     effect. See gen_luci_scheduler --help for details.
 
     Returns:
-      List of config_lib.BuildConfig instances.
+        List of config_lib.BuildConfig instances.
     """
     # https://github.com/luci/luci-go/blob/HEAD/scheduler/appengine/messages/config.proto
     #
@@ -2527,7 +2553,7 @@ def GetConfig():
     """Create the Site configuration for all ChromeOS builds.
 
     Returns:
-      A config_lib.SiteConfig.
+        A config_lib.SiteConfig.
     """
     defaults = DefaultSettings()
 

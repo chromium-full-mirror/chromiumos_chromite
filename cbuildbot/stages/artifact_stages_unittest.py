@@ -136,11 +136,11 @@ class UploadPrebuiltsStageTest(
         """Verify that the prebuilts are uploaded for the specified bot.
 
         Args:
-          bot_id: Bot to upload prebuilts for.
-          count: Number of assert checks that should be performed.
-          board_map: Map from slave boards to whether the bot is public.
-          public_args: List of extra arguments for public boards.
-          private_args: List of extra arguments for private boards.
+            bot_id: Bot to upload prebuilts for.
+            count: Number of assert checks that should be performed.
+            board_map: Map from slave boards to whether the bot is public.
+            public_args: List of extra arguments for public boards.
+            private_args: List of extra arguments for private boards.
         """
         self._Prepare(bot_id)
         self.RunStage()
@@ -607,5 +607,5 @@ class GenerateSysrootStageTest(
         )
         self.PatchObject(stage._upload_queue, "put", autospec=True)
         stage._GenerateSysroot()
-        sysroot_tarball = "sysroot_%s.tar.xz" % ("virtual_target-os")
+        sysroot_tarball = "sysroot_%s.tar.xz" % "virtual_target-os"
         stage._upload_queue.put.assert_called_with([sysroot_tarball])

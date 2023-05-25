@@ -81,7 +81,7 @@ def parse(contents: str) -> Dict[str, str]:
         contents: The file contents of a make.defaults file.
 
     Returns:
-         A dictionary, mapping variable names to their values.
+        A dictionary, mapping variable names to their values.
     """
     variables = {}
 

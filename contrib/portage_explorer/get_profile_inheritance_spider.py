@@ -18,7 +18,7 @@ def execute(output: spiderlib.SpiderOutput):
     profiles inherit in that order.
 
     Args:
-      output: SpiderOutput representing the final output from all the spiders.
+        output: SpiderOutput representing the final output from all the spiders.
     """
     for overlay in output.overlays:
         for profile in overlay.profiles:

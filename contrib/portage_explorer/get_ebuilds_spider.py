@@ -19,7 +19,7 @@ def execute(output: spiderlib.SpiderOutput):
     module to find the category, PN, version, and revision for the ebuild.
 
     Args:
-      output: SpiderOutput representing the final output from all the spiders.
+        output: SpiderOutput representing the final output from all the spiders.
     """
     for overlay in output.overlays:
         overlay_ebuilds = []

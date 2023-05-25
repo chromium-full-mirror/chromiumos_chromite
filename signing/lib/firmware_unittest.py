@@ -105,8 +105,8 @@ def MockECSigner(rc, ec_ro=True):
     """Add EC Signing Mocks to |rc|.
 
     Args:
-      rc: RunCommandMock that cmds are added to
-      ec_ro: Treat EC as RO in fmap
+        rc: RunCommandMock that cmds are added to
+        ec_ro: Treat EC as RO in fmap
     """
     rc.AddCmdResult(partial_mock.ListRegex("futility sign --type rwsig .*"))
     rc.AddCmdResult(partial_mock.ListRegex("openssl dgst -sha256 -binary .*"))

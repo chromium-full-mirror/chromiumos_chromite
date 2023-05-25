@@ -527,8 +527,8 @@ def MirrorArtifacts(
         android_build_branch: The Android build branch.
         arc_bucket_url: URL of the target ARC build gs bucket
         package_dir: Path to the Android portage package.
-        version: A string. The Android build id number to check.
-            If not passed, detect latest good build version.
+        version: A string. The Android build id number to check. If not passed,
+            detect latest good build version.
 
     Returns:
         Mirrored version.
@@ -581,7 +581,7 @@ def LKGB(
 
     Args:
         build_id: The last known good Android build ID.
-        runtime_artifacts_pin: (Optional) The runtime artifacts pin, if present.
+        runtime_artifacts_pin: The runtime artifacts pin, if present.
 
     Returns:
         The constructed LKGB object.
@@ -658,16 +658,17 @@ def FindDataCollectorArtifacts(
     particular version.
 
     Args:
-      android_package: android package name. Used as folder to locate the cache.
-      android_version: The \d+ build id of Android.
-      version_reference: which version to use as a reference. Could be '${PV}'
-          in case version of data collector artifacts matches the Android
-          version or direct version in case of override.
-      runtime_artifacts_bucket_url: root of runtime artifacts
+        android_package: android package name. Used as folder to locate the
+            cache.
+        android_version: The \d+ build id of Android.
+        version_reference: which version to use as a reference. Could be '${PV}'
+            in case version of data collector artifacts matches the Android
+            version or direct version in case of override.
+        runtime_artifacts_bucket_url: root of runtime artifacts
 
     Returns:
-      dictionary with filled ebuild variables. This dictionary is empty in case
-      no artifacts are found.
+        dictionary with filled ebuild variables. This dictionary is empty in
+        case no artifacts are found.
     """
     gs_context = gs.GSContext()
     variables = {}

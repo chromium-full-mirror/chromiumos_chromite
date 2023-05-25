@@ -132,9 +132,9 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
         """Check FindFullConfigsForBoard has expected results.
 
         Args:
-          board: Argument to pass to FindFullConfigsForBoard.
-          external_expected: Expected config name (singular) to be found.
-          internal_expected: Expected config name (singular) to be found.
+            board: Argument to pass to FindFullConfigsForBoard.
+            external_expected: Expected config name (singular) to be found.
+            internal_expected: Expected config name (singular) to be found.
         """
 
         def check_expected(l, expected):
@@ -325,7 +325,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
         """Test helper for finding all slave builds.
 
         Returns:
-          Set of slave build config names.
+            Set of slave build config names.
         """
         all_slaves = set()
         for config in self.site_config.values():
@@ -338,7 +338,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
         """Get boards dict.
 
         Returns:
-          A dict mapping a board type to a collections of board names.
+            A dict mapping a board type to a collections of board names.
         """
         ge_build_config = config_lib.LoadGEBuildConfigFromFile()
         return chromeos_config.GetBoardTypeToBoardsDict(ge_build_config)
@@ -577,8 +577,8 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 self.assertIn(
                     "test",
                     config.images,
-                    "Build %s must create a test image "
-                    "to enable hwqual" % build_name,
+                    "Build %s must create a test image to enable hwqual"
+                    % build_name,
                 )
 
     def testBuildType(self):
@@ -884,11 +884,11 @@ class CBuildBotTest(ChromeosConfigTestBase):
         """Given a config_name, see if it has a suffix in config_types.
 
         Args:
-          config_name: Name of config to compare.
-          config_types: A tuple/list of config suffixes.
+            config_name: Name of config to compare.
+            config_types: A tuple/list of config suffixes.
 
         Returns:
-          True, if the config has a suffix matching one of the types.
+            True, if the config has a suffix matching one of the types.
         """
         for config_type in config_types:
             if (
@@ -965,8 +965,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 self.assertIn(
                     config.payload_image,
                     config.images,
-                    "%s builds payloads from %s, which is not in images "
-                    "list %s"
+                    "%s builds payloads from %s, which is not in images list %s"
                     % (build_name, config.payload_image, config.images),
                 )
 
@@ -1063,7 +1062,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
             cls = builders.GetBuilderClass(builder_class_name)
             self.assertTrue(
                 issubclass(cls, generic_builders.Builder),
-                msg=("config %s has a broken builder_class_name" % build_name),
+                msg="config %s has a broken builder_class_name" % build_name,
             )
 
     def testDistinctBoardSets(self):

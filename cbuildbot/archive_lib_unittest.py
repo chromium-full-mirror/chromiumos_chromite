@@ -66,11 +66,11 @@ def _NewBuilderRun(options=None, config=None):
     """Create a BuilderRun objection from options and config values.
 
     Args:
-      options: Specify options or default to DEFAULT_OPTIONS.
-      config: Specify build config or default to DEFAULT_CONFIG.
+        options: Specify options or default to DEFAULT_OPTIONS.
+        config: Specify build config or default to DEFAULT_CONFIG.
 
     Returns:
-      BuilderRun object.
+        BuilderRun object.
     """
     manager = parallel_unittest.FakeMultiprocessManager()
     options = options or DEFAULT_OPTIONS

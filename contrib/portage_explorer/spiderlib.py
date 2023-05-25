@@ -4,10 +4,10 @@
 
 """Common dataclasses used between spiders.
 
-  The dataclasses should be similar to those from portage_explorer.proto. Use
-  the actual objects to represent the relationships (except for profile
-  inheritance where ids should be used) instead of ids for ease of access and
-  organization.
+The dataclasses should be similar to those from portage_explorer.proto. Use
+the actual objects to represent the relationships (except for profile
+inheritance where ids should be used) instead of ids for ease of access and
+organization.
 """
 
 import dataclasses
@@ -141,8 +141,8 @@ class SpiderOutput:
     the RunSpiders endpoint for the PortageExplorerService.
 
     Attributes:
-      build_targets: List of build targets. Default value is an empty list.
-      overlays: List of overlays. Default value is an empty list.
+        build_targets: List of build targets. Default value is an empty list.
+        overlays: List of overlays. Default value is an empty list.
     """
 
     build_targets: List[BuildTarget] = dataclasses.field(default_factory=list)

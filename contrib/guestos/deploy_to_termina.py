@@ -37,19 +37,19 @@ def get_deployment_plan(board: str, packages: List[str]) -> List[FileSet]:
     """Figures out which files get deployed where for a set of inputs.
 
     Examples:
-      get_deployment_plan('tatl', 'true', 'tremplin') inside the chroot will
-      return [FileSet('/build/tatl', 'vm_rootfs', '/usr/bin/tremplin')] meaning
-      that /build/tatl/usr/bin/tremplin should be copied to /usr/bin/tremplin
-      inside vm_rootfs.img
+        get_deployment_plan('tatl', 'true', 'tremplin') inside the chroot will
+        return [FileSet('/build/tatl', 'vm_rootfs', '/usr/bin/tremplin')]
+        meaning that /build/tatl/usr/bin/tremplin should be copied to
+        /usr/bin/tremplin inside vm_rootfs.img
 
     Args:
-      board: The board to fetch packages for.
-      packages: A list of packages (as understood by equery)
+        board: The board to fetch packages for.
+        packages: A list of packages (as understood by equery)
 
     Returns:
-      A list of FileSets which describe the source root, destination image, and
-      a list of file paths which should be copied (relative to the source root)
-      to that location within the destination image.
+        A list of FileSets which describe the source root, destination image,
+        and a list of file paths which should be copied (relative to the source
+        root) to that location within the destination image.
     """
     # TODO(crbug/1222489): We should validate user input. At the moment
     # ambiguous packages deploy files from every package (fine), an unmatched

@@ -64,11 +64,11 @@ def _GuessMimeType(magic_obj, file_name):
     File extension is favored over file content to reduce noise.
 
     Args:
-      magic_obj: A loaded magic instance.
-      file_name: A path to the file.
+        magic_obj: A loaded magic instance.
+        file_name: A path to the file.
 
     Returns:
-      A mime type of |file_name|.
+        A mime type of |file_name|.
     """
     mime_type, _ = mimetypes.guess_type(file_name)
     if not mime_type:
@@ -717,10 +717,10 @@ class UserGroupTest(image_test_lib.ImageTestCase):
         """Load the given passwd/group file.
 
         Args:
-          path: Path to the file.
+            path: Path to the file.
 
         Returns:
-          A dict of passwd/group entries indexed by account name.
+            A dict of passwd/group entries indexed by account name.
         """
         d = {}
         for line in osutils.ReadFile(path).splitlines():
