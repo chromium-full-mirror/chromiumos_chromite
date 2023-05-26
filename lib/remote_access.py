@@ -1002,7 +1002,6 @@ class RemoteDevice(object):
         )
         return result.returncode == 0
 
-    @memoize.MemoizedSingleCall
     def HasRsync(self):
         """Checks if rsync exists on the device."""
         return self.HasProgramInPath("rsync")
@@ -1011,7 +1010,7 @@ class RemoteDevice(object):
     def HasGigabitEthernet(self):
         """Checks if the device has a gigabit ethernet port.
 
-        The function checkes the device's first ethernet interface (eth0).
+        The function checks the device's first ethernet interface (eth0).
         """
         result = self.agent.RemoteSh(
             ["ethtool", "eth0"], check=False, capture_output=True
@@ -1669,6 +1668,15 @@ class ChromiumOSDevice(RemoteDevice):
         """Clears the TPM owner flag."""
         logging.info("Clearing TPM owner.")
         self.run(["crossystem", "clear_tpm_owner_request=1"])
+
+    def BootstrapDevTools(self):
+        """Installs basic dev tools, including Portage (emerge command).
+
+        This also invalidates HasProgramInPath cache because some programs may
+        become available after the installation.
+        """
+        self.run(["dev_install", "--reinstall", "--only_bootstrap", "--yes"])
+        self.device.HasProgramInPath.cache_clear()
 
     def run(self, cmd, **kwargs):
         """Executes a shell command on the device.

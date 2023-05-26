@@ -412,10 +412,16 @@ class DeployChrome(object):
         # CopyToDevice will fall back to scp if rsync is corrupted on stateful.
         # This does not work for deploy.
         if not self.device.HasRsync():
-            raise DeployFailure(
-                "rsync is not found on the device.\n"
-                "Run dev_install on the device to get rsync installed."
-            )
+            # This assumes that rsync is part of the bootstrap package. In the
+            # future, this might change and we'll have to install it separately.
+            if not cros_build_lib.BooleanPrompt(
+                "Run dev_install on the device to install rsync?", True
+            ):
+                raise DeployFailure("rsync is not found on the device.")
+            self.device.BootstrapDevTools()
+            if not self.device.HasRsync():
+                raise DeployFailure("Failed to install rsync")
+
         self.device.CopyToDevice(
             "%s/" % os.path.abspath(self.staging_dir),
             self.options.target_dir,
