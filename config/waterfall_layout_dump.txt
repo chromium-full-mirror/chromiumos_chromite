@@ -126,6 +126,7 @@
     asurada-connectivitynext-release
     asurada-kernelnext-release
     asurada-release
+    asurada64-release
     atlas-connectivitynext-release
     atlas-kernelnext-release
     atlas-release
@@ -328,6 +329,7 @@
   asurada-llvm-toolchain-tryjob
   asurada-payloads-tryjob
   asurada-release-tryjob
+  asurada64-release-tryjob
   atlas-connectivitynext-full-tryjob
   atlas-connectivitynext-llvm-next-toolchain-tryjob
   atlas-connectivitynext-llvm-toolchain-tryjob
@@ -949,6 +951,7 @@
     asurada-connectivitynext-release-tryjob
     asurada-kernelnext-release-tryjob
     asurada-release-tryjob
+    asurada64-release-tryjob
     atlas-connectivitynext-release-tryjob
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
