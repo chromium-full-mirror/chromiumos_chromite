@@ -535,9 +535,14 @@ class _CommonPrepareBundle(object):
                 category = "sys-kernel"
 
         # The stable ebuild path has at least one '.' in the version.
-        paths = glob.glob(
-            os.path.join(_CHROMIUMOS_OVERLAY, category, package, "*-*.*.ebuild")
+        glob_path_str = os.path.join(
+            _CHROMIUMOS_OVERLAY,
+            category,
+            package,
+            "*-*.*.ebuild",
         )
+        paths = glob.glob(glob_path_str)
+        logging.info("Glob path %s yielded: %s", glob_path_str, paths)
         if len(paths) == 1:
             PV = os.path.splitext(os.path.split(paths[0])[1])[0]
             info = _EbuildInfo(
