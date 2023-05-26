@@ -167,7 +167,7 @@ class CleanOutdatedCommand(command.CliCommand):
         )
         logging.debug("Outdated packages in %s: %s", location, outdated_CPs)
 
-        return outdated_CPs
+        return list(set(outdated_CPs))
 
     def find_slot_conflicted_packages(
         self,
@@ -353,7 +353,7 @@ class CleanOutdatedCommand(command.CliCommand):
                 )
                 conflicted_pkgs.append(pkg.package_info.cpf)
 
-        return conflicted_pkgs
+        return list(set(conflicted_pkgs))
 
     def filter_packages_to_purge(
         self, board: Optional[str], pkgs: Set[str]
