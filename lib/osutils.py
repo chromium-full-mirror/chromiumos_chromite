@@ -347,34 +347,25 @@ def Chmod(path: Union[Path, str], mode: int, sudo: bool = False):
 
 def Chown(
     path: Union[Path, str],
-    user: Optional[Union[str, int]] = None,
+    user: Union[str, int],
     group: Optional[Union[str, int]] = None,
     recursive: bool = False,
 ):
-    """Simple sudo chown path to the user.
-
-    Defaults to user running command. Does nothing if run as root user unless
-    a new owner is provided.
+    """Simple sudo chown path to a user.
 
     Args:
         path: File/directory to chown.
-        user: User to chown the file to. Defaults to current user.
+        user: User to chown the file to.
         group: Group to assign the file to.
         recursive: Also chown child files/directories recursively.
     """
-    if user is None:
-        user = GetNonRootUser() or ""
-    else:
-        user = str(user)
-
     group = "" if group is None else str(group)
 
-    if user or group:
-        cmd = ["chown"]
-        if recursive:
-            cmd += ["-R"]
-        cmd += ["%s:%s" % (user, group), str(path)]
-        cros_build_lib.sudo_run(cmd, print_cmd=False, stderr=True, stdout=True)
+    cmd = ["chown"]
+    if recursive:
+        cmd += ["-R"]
+    cmd += ["%s:%s" % (user, group), str(path)]
+    cros_build_lib.sudo_run(cmd, print_cmd=False, stderr=True, stdout=True)
 
 
 def ReadFile(

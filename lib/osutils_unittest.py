@@ -549,24 +549,11 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertEqual(user, User(filename))
         self.assertEqual(group, Group(filename))
 
-        # Change only the group.
-        osutils.Chown(filename, group=new_group)
-        self.assertEqual(user, User(filename))
-        self.assertEqual(new_group, Group(filename))
-
-        # Chown with no arguments.
-        osutils.Chown(filename, user=new_user, group=new_group)
-        self.assertEqual(new_user, User(filename))
-        self.assertEqual(new_group, Group(filename))
-        osutils.Chown(filename)
-        self.assertEqual(user, User(filename))
-        self.assertEqual(group, Group(filename))
-
         # With Path object.
         osutils.Chown(Path(filename), user=new_user, group=new_group)
         self.assertEqual(new_user, User(filename))
         self.assertEqual(new_group, Group(filename))
-        osutils.Chown(Path(filename))
+        osutils.Chown(Path(filename), user=user, group=group)
         self.assertEqual(user, User(filename))
         self.assertEqual(group, Group(filename))
 
