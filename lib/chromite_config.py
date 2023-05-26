@@ -21,7 +21,7 @@ except ImportError:
 if getpass.getuser() == "chrome-bot":
     # chrome-bot gets permission denied for /home/chrome-bot/.config/chromite.
     # pylint: disable=consider-using-with
-    XDG_CONFIG_HOME = Path(tempfile.TemporaryDirectory().name)
+    XDG_CONFIG_HOME = Path(tempfile.gettempdir()) / ".config"
 
 DIR = XDG_CONFIG_HOME / "chromite"
 
