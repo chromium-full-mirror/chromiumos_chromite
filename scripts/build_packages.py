@@ -2,17 +2,15 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""build_packages updates the set of binary packages needed by Chrome OS.
+"""build_packages updates the set of binary packages needed by ChromiumOS.
 
 The build_packages process cross compiles all packages that have been
 updated into the given sysroot and builds binary packages as a side-effect.
 The output packages will be used by the build_image script to create a
-bootable Chrome OS image.
+bootable ChromiumOS image.
 
-If packages are specified in cli, only build those specific packages and any
-dependencies they might need.
-
-For the fastest builds, use --nowithautotest --noworkon.
+If packages are specified in the command line, only build those specific
+packages and any dependencies they might need.
 """
 
 import argparse
