@@ -6,7 +6,6 @@
 
 from __future__ import division
 
-import hashlib
 import itertools
 import os
 from pathlib import Path
@@ -35,13 +34,6 @@ _MD5CACHE_VARS = (
 
 # We don't know the md5sum for eclasses we don't have, so use a garbage value.
 _FAKE_MD5 = "deadbeef" * 4
-
-
-def _md5(path: Path):
-    """Helper to md5sum a file, for the md5-cache files."""
-    digest = hashlib.md5()
-    digest.update(path.read_bytes())
-    return digest.hexdigest()
 
 
 def _dict_to_conf(dictionary):
@@ -191,7 +183,7 @@ class Overlay(object):
             elif var in extra_conf:
                 md5cache_vars[var] = extra_conf[var]
 
-        md5cache_vars["_md5_"] = _md5(ebuild_path)
+        md5cache_vars["_md5_"] = osutils.MD5HashFile(ebuild_path)
         md5cache_vars["_eclasses_"] = "\t".join(
             f"{x}\t{_FAKE_MD5}" for x in pkg.inherit
         )
