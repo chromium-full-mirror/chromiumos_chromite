@@ -475,13 +475,13 @@ class CleanOutdatedCommand(command.CliCommand):
             self.control_automatic(self.options.auto)
             return
 
-        # Require qmerge from app-portage/portage-utils version >= 0.95.
+        # Require qmerge from app-portage/portage-utils version >= 0.96.
         self.ensure_pkg_min_version(
             portage_util.PortageDB(
                 build_target_lib.get_default_sysroot_path(None)
             ),
             "app-portage/portage-utils",
-            "0.95",
+            "0.96",
         )
 
         if self.options.host:
