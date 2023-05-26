@@ -25,6 +25,7 @@ class VersionHookTestCase(cros_test_lib.TempDirTestCase):
 
     def setUp(self):
         # Build set of expected scripts.
+        self.ExpectRootOwnedFiles()
         D = cros_test_lib.Directory
         filesystem = (
             D(
@@ -44,7 +45,7 @@ class VersionHookTestCase(cros_test_lib.TempDirTestCase):
         self.version_file = os.path.join(
             self.chroot_path, cros_sdk_lib.CHROOT_VERSION_FILE.lstrip(os.sep)
         )
-        osutils.WriteFile(self.version_file, "0", makedirs=True)
+        osutils.WriteFile(self.version_file, "0", makedirs=True, sudo=True)
         self.hooks_dir = os.path.join(self.tempdir, "hooks")
 
         self.earliest_version = 8
@@ -193,21 +194,27 @@ class TestChrootVersionValid(VersionHookTestCase):
 
     def testLowerVersionValid(self):
         """Lower versions are considered valid."""
-        osutils.WriteFile(self.version_file, str(self.latest_version - 1))
+        osutils.WriteFile(
+            self.version_file, str(self.latest_version - 1), sudo=True
+        )
         self.assertTrue(
             cros_sdk_lib.IsChrootVersionValid(self.chroot_path, self.hooks_dir)
         )
 
     def testLatestVersionValid(self):
         """Test latest version."""
-        osutils.WriteFile(self.version_file, str(self.latest_version))
+        osutils.WriteFile(
+            self.version_file, str(self.latest_version), sudo=True
+        )
         self.assertTrue(
             cros_sdk_lib.IsChrootVersionValid(self.chroot_path, self.hooks_dir)
         )
 
     def testInvalidVersion(self):
         """Test version higher than latest."""
-        osutils.WriteFile(self.version_file, str(self.latest_version + 1))
+        osutils.WriteFile(
+            self.version_file, str(self.latest_version + 1), sudo=True
+        )
         self.assertFalse(
             cros_sdk_lib.IsChrootVersionValid(self.chroot_path, self.hooks_dir)
         )
@@ -293,9 +300,6 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
     """ChrootUpdater tests."""
 
     def setUp(self):
-        # Avoid sudo password prompt for config writing.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
-
         self.chroot = cros_sdk_lib.ChrootUpdater(
             version_file=self.version_file, hooks_dir=self.hooks_dir
         )
@@ -314,18 +318,18 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
         # does not affect our view after we've already read it. This shouldn't
         # generally be a problem since run_chroot_version_hooks should be the
         # only process writing to it.
-        osutils.WriteFile(self.version_file, "10")
+        osutils.WriteFile(self.version_file, "10", sudo=True)
         self.assertEqual(5, self.chroot.GetVersion())
 
     def testInvalidVersion(self):
         """Test invalid version file contents."""
-        osutils.WriteFile(self.version_file, "invalid")
+        osutils.WriteFile(self.version_file, "invalid", sudo=True)
         with self.assertRaises(cros_sdk_lib.InvalidChrootVersionError):
             self.chroot.GetVersion()
 
     def testMissingFileVersion(self):
         """Test missing version file."""
-        osutils.SafeUnlink(self.version_file)
+        osutils.SafeUnlink(self.version_file, sudo=True)
         with self.assertRaises(cros_sdk_lib.UninitializedChrootError):
             self.chroot.GetVersion()
 

@@ -528,7 +528,12 @@ class ChrootUpdater(object):
         """Set and store the chroot version."""
         self._version = version
         osutils.WriteFile(self._version_file, str(version), sudo=True)
-        osutils.Chown(self._version_file)
+
+        # TODO(2023-11-01): Owner by default should be root, but older chroots
+        # used to set this to the user.  Force this to be root to keep all
+        # chroots in a consistent state.  We can drop this after we stop caring
+        # about chroots that are too old.
+        osutils.Chown(self._version_file, user="root")
 
     def IsInitialized(self):
         """Initialized Check."""
