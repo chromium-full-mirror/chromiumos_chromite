@@ -16,6 +16,7 @@ import pwd
 import re
 import stat
 import sys
+import tempfile
 import time
 from unittest import mock
 
@@ -826,13 +827,13 @@ class TempDirTests(cros_test_lib.TestCase):
     def testSkipCleanupGlobal(self):
         """Test that we reset global tempdir as expected even with skip."""
         with osutils.TempDir(prefix=self.PREFIX, set_global=True) as tempdir:
-            tempdir_before = osutils.GetGlobalTempDir()
+            tempdir_before = tempfile.gettempdir()
             tempdir_obj = osutils.TempDir(
                 prefix=self.PREFIX, set_global=True, delete=False
             )
-            tempdir_inside = osutils.GetGlobalTempDir()
+            tempdir_inside = tempfile.gettempdir()
             tempdir_obj.Cleanup()
-            tempdir_after = osutils.GetGlobalTempDir()
+            tempdir_after = tempfile.gettempdir()
 
         # We shouldn't leak the outer directory.
         self.assertNotExists(tempdir)

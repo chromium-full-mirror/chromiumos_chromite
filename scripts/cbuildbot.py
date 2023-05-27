@@ -16,6 +16,7 @@ import optparse  # pylint: disable=deprecated-module
 import os
 import pickle
 import sys
+import tempfile
 
 from chromite.cbuildbot import builders
 from chromite.cbuildbot import cbuildbot_alerts
@@ -279,9 +280,8 @@ def _CreateParser():
             "Bootstrapping cbuildbot may involve checking out "
             "multiple copies of chromite. All these checkouts "
             "will be contained in the directory specified here. "
-            "Default:%s"
-        )
-        % osutils.GetGlobalTempDir(),
+            f"(Default: {tempfile.gettempdir()})"
+        ),
     )
     parser.add_remote_option(
         "--android_rev",

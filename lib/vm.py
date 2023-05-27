@@ -14,6 +14,7 @@ import os
 import re
 import shutil
 import socket
+import tempfile
 import time
 
 from chromite.cli.cros import cros_chrome_sdk
@@ -201,7 +202,7 @@ class VM(device.Device):
         self.vm_dir = opts.vm_dir
         if not self.vm_dir:
             self.vm_dir = os.path.join(
-                osutils.GetGlobalTempDir(), "cros_vm_%d" % self.ssh_port
+                tempfile.gettempdir(), f"cros_vm_{self.ssh_port}"
             )
         self._CreateVMDir()
 

@@ -1008,6 +1008,13 @@ def FindInPathParents(
 def SetGlobalTempDir(tempdir_value, tempdir_env=None):
     """Set the global temp directory to the specified |tempdir_value|
 
+    Using this API is preferred over setting tempfile.tempdir directly because
+    this takes care of setting up environment variables so external programs
+    (e.g. subprocess.run & cros_build_lib.run) also access this tempdir.
+
+    Conversely, tempfile.gettempdir() should be used to get the current value
+    since SetGlobalTempDir takes care of updating the right value.
+
     Args:
         tempdir_value: The new location for the global temp directory.
         tempdir_env: Optional. A list of key/value pairs to set in the
@@ -1024,7 +1031,8 @@ def SetGlobalTempDir(tempdir_value, tempdir_env=None):
     """
     # pylint: disable=protected-access
     with tempfile._once_lock:
-        old_tempdir_value = GetGlobalTempDir()
+        # Use internal API because tempfile.gettempdir() might grab the lock.
+        old_tempdir_value = tempfile._get_default_tempdir()
         old_tempdir_env = tuple(
             (x, os.environ.get(x)) for x in _TEMPDIR_ENV_VARS
         )
@@ -1048,15 +1056,6 @@ def SetGlobalTempDir(tempdir_value, tempdir_env=None):
         tempfile.tempdir = tempdir_value
 
     return (old_tempdir_value, old_tempdir_env)
-
-
-def GetGlobalTempDir():
-    """Get the path to the current global tempdir.
-
-    The global tempdir path can be modified through calls to SetGlobalTempDir.
-    """
-    # pylint: disable=protected-access
-    return tempfile._get_default_tempdir()
 
 
 def _TempDirSetup(self, prefix="tmp", set_global=False, base_dir=None):
@@ -1746,7 +1745,7 @@ class MountOverlayContext(object):
         stashed_e_overlay_str = None
 
         # We must ensure that upperdir and workdir are on the same filesystem.
-        if _SameFileSystem(self._upper_dir, GetGlobalTempDir()):
+        if _SameFileSystem(self._upper_dir, tempfile.gettempdir()):
             _TempDirSetup(self)
         elif _SameFileSystem(self._upper_dir, os.path.dirname(self._upper_dir)):
             _TempDirSetup(self, base_dir=os.path.dirname(self._upper_dir))
