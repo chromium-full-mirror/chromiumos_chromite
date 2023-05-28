@@ -130,6 +130,7 @@
     atlas-connectivitynext-release
     atlas-kernelnext-release
     atlas-release
+    atlas-signingnext-release
     aurora-borealis-release
     betty-arc-r-release
     betty-arc-t-release
@@ -348,6 +349,7 @@
   atlas-payloads-tryjob
   atlas-release-basic-tryjob
   atlas-release-tryjob
+  atlas-signingnext-release-tryjob
   aurora-borealis-full-tryjob
   aurora-borealis-llvm-next-toolchain-tryjob
   aurora-borealis-llvm-toolchain-tryjob
@@ -955,6 +957,7 @@
     atlas-connectivitynext-release-tryjob
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
+    atlas-signingnext-release-tryjob
     aurora-borealis-release-tryjob
     betty-arc-r-release-tryjob
     betty-arc-t-release-tryjob
