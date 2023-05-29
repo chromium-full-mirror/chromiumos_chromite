@@ -21,8 +21,6 @@
     "Testing"
   ],
   "activationEvents": [
-    "onCommand:cros-ide.chrome.Build",
-    "onCommand:cros-ide.chrome.iBuild",
     "onCommand:workbench.action.tasks.runTask",
     "onLanguage:cpp",
     "onLanguage:go",

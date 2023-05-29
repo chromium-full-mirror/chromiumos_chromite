@@ -41,7 +41,7 @@ const deployToDut = (
   statusManager.setTask(taskName, {
     status: TaskStatus.RUNNING,
     command: {
-      command: 'cros-ide.chrome.Build',
+      command: 'cros-ide.chrome.build',
       title: taskName,
     },
   });
@@ -87,7 +87,7 @@ const deployToDut = (
     statusManager.setTask(taskName, {
       status: TaskStatus.OK,
       command: {
-        command: 'cros-ide.chrome.Build',
+        command: 'cros-ide.chrome.build',
         title: taskName,
       },
     });
@@ -114,7 +114,7 @@ const buildChromeDir = (
   statusManager.setTask(taskName, {
     status: TaskStatus.RUNNING,
     command: {
-      command: 'cros-ide.chrome.Build',
+      command: 'cros-ide.chrome.build',
       title: taskName,
     },
   });
@@ -162,7 +162,7 @@ const buildChromeDir = (
       statusManager.setTask(taskName, {
         status: TaskStatus.OK,
         command: {
-          command: 'cros-ide.chrome.Build',
+          command: 'cros-ide.chrome.build',
           title: taskName,
         },
       });
@@ -179,7 +179,7 @@ const buildChromeDir = (
       statusManager.setTask(taskName, {
         status: TaskStatus.ERROR,
         command: {
-          command: 'cros-ide.chrome.Build',
+          command: 'cros-ide.chrome.build',
           title: taskName,
         },
       });
@@ -191,7 +191,7 @@ const buildChromeDir = (
  *
  * Currently guarded via underdevelopment.chromiumBuild flag.
  * Provides 2 functions:
- *  cros-ide.chrome.Build: Builds + deploys Ash+Lacros to a DUT
+ *  cros-ide.chrome.build: Builds + deploys Ash+Lacros to a DUT
  *  cros-ide.chrome.watchBuild: Builds + deploys Ash+Lacros to a DUT and re-runs on every save.
  *
  * Works when in a Chromium (rather than ChromeOS) checkout, requires appropriate out* directories
@@ -204,14 +204,14 @@ export function activate(
   statusManager.setTask('Ash build', {
     status: TaskStatus.OK,
     command: {
-      command: 'cros-ide.chrome.Build',
+      command: 'cros-ide.chrome.build',
       title: 'Ash build',
     },
   });
   statusManager.setTask('Lacros build', {
     status: TaskStatus.OK,
     command: {
-      command: 'cros-ide.chrome.Build',
+      command: 'cros-ide.chrome.build',
       title: 'Lacros build',
     },
   });
@@ -219,14 +219,14 @@ export function activate(
   statusManager.setTask('Ash deploy', {
     status: TaskStatus.OK,
     command: {
-      command: 'cros-ide.chrome.Build',
+      command: 'cros-ide.chrome.build',
       title: 'Ash deploy',
     },
   });
   statusManager.setTask('Lacros deploy', {
     status: TaskStatus.OK,
     command: {
-      command: 'cros-ide.chrome.Build',
+      command: 'cros-ide.chrome.build',
       title: 'Lacros deploy',
     },
   });
