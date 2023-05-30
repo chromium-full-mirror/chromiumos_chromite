@@ -35,6 +35,7 @@ class ProcessDetector(resources.ResourceDetector):
     """ResourceDetector to capture information about the process."""
 
     def __init__(self, allowed_env: Sequence[str] = None):
+        super().__init__()
         self._allowed_env = allowed_env or ["USE"]
 
     def detect(self) -> resources.Resource:
