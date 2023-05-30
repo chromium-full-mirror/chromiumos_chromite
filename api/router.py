@@ -472,6 +472,12 @@ class Router(object):
         if not chroot.exists():
             raise InvalidSdkError("Chroot does not exist.")
 
+        # This may be redundant with other SDK setup flows, but we need this
+        # tmp directory to exist (including across chromite updates, where the
+        # path may move) before we can write our proto messages (e.g., for
+        # SdkService/Update) to it below.
+        osutils.SafeMakedirsNonRoot(chroot.tmp, mode=0o777)
+
         # Use a ExitStack to avoid the deep nesting this many context managers
         # introduces.
         with contextlib.ExitStack() as stack:
