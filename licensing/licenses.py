@@ -21,7 +21,7 @@ Recommended build:
   export BOARD=x86-alex
   sudo rm -rf /build/$BOARD
   cd ~/chromiumos/src/scripts
-  # If you wonder why we need to build Chromium OS just to run
+  # If you wonder why we need to build ChromiumOS just to run
   # `emerge -p -v virtual/target-os` on it, we don't.
   # However, later we run ebuild unpack, and this will apply patches and run
   # configure. Configure will fail due to aclocal macros missing in
