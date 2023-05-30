@@ -75,11 +75,13 @@ def WrapMultiprocessing(callback, *args, **kwargs):
     Returns:
         The return value of the callback function with the specified args
     """
-    # Use a short directory in /tmp. Do not use /tmp directly to keep these
+    # Use a short directory in /tmp due to the UNIX socket name limit
+    # (see b/249124285 for an example of long path to $TMPDIR).
+    # Do not use /tmp directly to keep these
     # temporary files together and because certain environments do not like too
-    # many top-level paths in /tmp (see crbug.com/945523).
-    # Make it mode 1777 to mirror /tmp, so that we don't have failures when root
-    # calls parallel first, and some other user calls it later.
+    # many files in /tmp (see crbug.com/945523).
+    # Make it mode 1777 to mirror /tmp, so that we don't have failures when
+    # root calls parallel first, and some other user calls it later.
     tmp_dir = "/tmp/chromite.parallel.%d" % os.geteuid()
     osutils.SafeMakedirs(tmp_dir, mode=0o1777)
     old_tempdir_value, old_tempdir_env = osutils.SetGlobalTempDir(tmp_dir)
