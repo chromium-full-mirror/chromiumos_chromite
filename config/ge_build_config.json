@@ -1614,6 +1614,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1623,6 +1624,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1632,6 +1634,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1641,6 +1644,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1650,6 +1654,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1659,6 +1664,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1668,6 +1674,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1677,6 +1684,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1686,6 +1694,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1695,6 +1704,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1704,6 +1714,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1732,6 +1743,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1741,6 +1753,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1759,6 +1772,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
