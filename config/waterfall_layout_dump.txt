@@ -13,6 +13,7 @@
   factory-brya-15231.B-buildspec
     brask-factory-brya-15231.B-factorybranch
     brya-factory-brya-15231.B-factorybranch
+    constitution-factory-brya-15231.B-factorybranch
   factory-cherry-14455.B-buildspec
     cherry-factory-cherry-14455.B-factorybranch
   factory-coral-10122.B-buildspec
@@ -467,6 +468,7 @@
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
   config-updater-tryjob
+  constitution-factory-brya-15231.B-factorybranch-tryjob
   constitution-full-tryjob
   constitution-llvm-next-toolchain-tryjob
   constitution-llvm-toolchain-tryjob
@@ -586,6 +588,7 @@
   factory-brya-15231.B-buildspec-tryjob
     brask-factory-brya-15231.B-factorybranch-tryjob
     brya-factory-brya-15231.B-factorybranch-tryjob
+    constitution-factory-brya-15231.B-factorybranch-tryjob
   factory-cherry-14455.B-buildspec-tryjob
     cherry-factory-cherry-14455.B-factorybranch-tryjob
   factory-coral-10122.B-buildspec-tryjob
