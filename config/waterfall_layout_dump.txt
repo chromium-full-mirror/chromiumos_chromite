@@ -249,7 +249,6 @@
     strongbad-kernelnext-release
     strongbad-release
     strongbad-userdebug-release
-    strongbad64-release
     tael-release
     tatl-release
     trogdor-arc-r-release
@@ -1076,7 +1075,6 @@
     strongbad-kernelnext-release-tryjob
     strongbad-release-tryjob
     strongbad-userdebug-release-tryjob
-    strongbad64-release-tryjob
     tael-release-tryjob
     tatl-release-tryjob
     trogdor-arc-r-release-tryjob
@@ -1327,11 +1325,6 @@
   strongbad-userdebug-llvm-toolchain-tryjob
   strongbad-userdebug-payloads-tryjob
   strongbad-userdebug-release-tryjob
-  strongbad64-full-tryjob
-  strongbad64-llvm-next-toolchain-tryjob
-  strongbad64-llvm-toolchain-tryjob
-  strongbad64-payloads-tryjob
-  strongbad64-release-tryjob
   success-build
   sync-test-cbuildbot-tryjob
   tael-full-tryjob
