@@ -592,6 +592,14 @@ class CrOSTest(object):
                 ignore_failures=True,
             )
 
+    def _AuthorizeKeys(self):
+        """Authorize the test ssh keys with chronos."""
+        # With "nosymfollow" mount option present in /home/chronos/user/,
+        # "-L" is required and it will copy symbolic links as real files.
+        self._device.run(
+            ["cp", "-L", "-r", "/root/.ssh/", "/home/chronos/user/"]
+        )
+
     def _RunDeviceCmd(self):
         """Run a command on the device.
 
@@ -629,12 +637,7 @@ class CrOSTest(object):
             self._device.run(["mkdir", "-p", cwd])
 
         if self.as_chronos:
-            # This authorizes the test ssh keys with chronos.
-            # With "nosymfollow" mount option present in /home/chronos/user/,
-            # "-L" is required and it will copy symbolic links as real files.
-            self._device.run(
-                ["cp", "-L", "-r", "/root/.ssh/", "/home/chronos/user/"]
-            )
+            self._AuthorizeKeys()
             if files:
                 # The trailing ':' after the user also changes the group to the
                 # user's primary group.
@@ -675,6 +678,9 @@ class CrOSTest(object):
                 "int32:0",
             ]
         )
+
+        # Authorize ssh keys for user chronos.
+        self._AuthorizeKeys()
 
         # Run test.
         chrome_src_dir = os.path.dirname(os.path.dirname(self.build_dir))
