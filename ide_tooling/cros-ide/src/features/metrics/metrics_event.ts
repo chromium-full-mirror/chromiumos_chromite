@@ -75,8 +75,15 @@ interface UAEventDeprecated extends EventBase {
   value?: number;
 }
 
+interface CodesearchSearchSelectionEvent extends EventBase {
+  category: 'interactive';
+  group: 'codesearch';
+  name: 'codesearch_search_selection';
+  selected_text: string;
+}
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
-export type Event = UAEventDeprecated;
+export type Event = UAEventDeprecated | CodesearchSearchSelectionEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.

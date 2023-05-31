@@ -48,6 +48,7 @@ async function openCurrentFile(textEditor: vscode.TextEditor) {
     metrics.send({
       category: 'interactive',
       group: 'codesearch',
+      name: 'codesearch_open_current_file',
       description: 'open current file',
     });
   }
@@ -60,6 +61,7 @@ async function copyCurrentFile(textEditor: vscode.TextEditor) {
     metrics.send({
       category: 'interactive',
       group: 'codesearch',
+      name: 'codesearch_copy_current_file',
       description: 'copy current file',
     });
   }
@@ -114,6 +116,7 @@ async function getCurrentFile(
     metrics.send({
       category: 'error',
       group: 'codesearch',
+      name: 'codesearch_generate_cs_path_failed',
       description: 'generate_cs_path failed',
     });
     return;
@@ -145,7 +148,8 @@ function searchSelection(textEditor: vscode.TextEditor) {
     category: 'interactive',
     group: 'codesearch',
     description: 'search selection',
-    label: selectedText,
+    name: 'codesearch_search_selection',
+    selected_text: selectedText,
   });
 }
 
