@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as dateFns from 'date-fns';
-import {Device, IDeviceRepository} from './device_repository';
+import {OwnedDeviceRepository} from './device_repository';
 
 // TODO(joelbecker): import normally once tsconfig esModuleInterop=true doesn't break a lot of
 // other things.
@@ -63,14 +63,14 @@ export async function isLabAccessConfigured(
  * Returns the hosts found in the ssh config file that do not exist in the given device
  * repository.
  */
-export async function readUnaddedSshHosts<TDevice extends Device>(
-  deviceRepository: IDeviceRepository<TDevice>,
+export async function readUnaddedSshHosts(
+  deviceRepository: OwnedDeviceRepository,
   configPath: string = defaultConfigPath
 ): Promise<string[]> {
   const sshHosts = await readConfiguredSshHosts(configPath);
-  const knownHosts = (await deviceRepository.getDevices()).map(
-    device => device.hostname
-  );
+  const knownHosts = deviceRepository
+    .getDevices()
+    .map(device => device.hostname);
   const knownHostSet = new Set(knownHosts);
   return sshHosts.filter(hostname => !knownHostSet.has(hostname));
 }

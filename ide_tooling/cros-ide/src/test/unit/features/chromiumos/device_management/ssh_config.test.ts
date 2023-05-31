@@ -6,7 +6,8 @@ import * as fs from 'fs';
 import * as mockFs from 'mock-fs';
 import 'jasmine';
 import * as sshConfig from '../../../../../features/device_management/ssh_config';
-import {FakeDeviceRepository} from './fake_device_repository';
+import {DeviceCategory} from '../../../../../features/device_management/device_repository';
+import {FakeOwnedDeviceRepository} from './fake_device_repository';
 
 const TEST_CONFIG_FILE = `
 # Comments are ignored
@@ -64,9 +65,9 @@ describe('SSH config parser', () => {
 
   describe('readUnaddedSshHosts', () => {
     it('returns hosts from the config that do not exist in the repository', async () => {
-      const deviceRepository = new FakeDeviceRepository([
-        {hostname: 'dut2'},
-        {hostname: 'dut4'},
+      const deviceRepository = FakeOwnedDeviceRepository.create([
+        {hostname: 'dut2', category: DeviceCategory.OWNED},
+        {hostname: 'dut4', category: DeviceCategory.OWNED},
       ]);
 
       const result = await sshConfig.readUnaddedSshHosts(

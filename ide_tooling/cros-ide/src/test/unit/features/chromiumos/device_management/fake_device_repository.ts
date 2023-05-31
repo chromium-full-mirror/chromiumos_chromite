@@ -3,14 +3,20 @@
 // found in the LICENSE file.
 
 import {
-  Device,
-  IDeviceRepository,
+  OwnedDevice,
+  OwnedDeviceRepository,
 } from '../../../../../features/device_management/device_repository';
 
-export class FakeDeviceRepository implements IDeviceRepository<Device> {
-  constructor(readonly devices: Device[]) {}
+export class FakeOwnedDeviceRepository
+  implements Pick<OwnedDeviceRepository, 'getDevices'>
+{
+  static create(devices: OwnedDevice[]): OwnedDeviceRepository {
+    return new this(devices) as unknown as OwnedDeviceRepository;
+  }
 
-  getDevices(): Promise<Device[]> {
-    return Promise.resolve(this.devices);
+  private constructor(readonly devices: OwnedDevice[]) {}
+
+  getDevices(): OwnedDevice[] {
+    return this.devices;
   }
 }

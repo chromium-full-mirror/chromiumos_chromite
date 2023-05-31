@@ -26,14 +26,14 @@ describe('Owned device repository', () => {
 
   it('handles configuration updates', async () => {
     // getDevices initially returns an empty list.
-    expect(await state.ownedDeviceRepository.getDevices()).toEqual([]);
+    expect(state.ownedDeviceRepository.getDevices()).toEqual([]);
 
     // Add two devices.
     await state.ownedDeviceRepository.addDevice('localhost:1111');
     await state.ownedDeviceRepository.addDevice('localhost:2222');
 
     // getDevices returns two devices.
-    expect(await state.ownedDeviceRepository.getDevices()).toEqual([
+    expect(state.ownedDeviceRepository.getDevices()).toEqual([
       {
         category: repository.DeviceCategory.OWNED,
         hostname: 'localhost:1111',
@@ -48,7 +48,7 @@ describe('Owned device repository', () => {
     await state.ownedDeviceRepository.removeDevice('localhost:1111');
 
     // getDevices returns one device.
-    expect(await state.ownedDeviceRepository.getDevices()).toEqual([
+    expect(state.ownedDeviceRepository.getDevices()).toEqual([
       {
         category: repository.DeviceCategory.OWNED,
         hostname: 'localhost:2222',

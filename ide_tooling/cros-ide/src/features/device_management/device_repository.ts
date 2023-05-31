@@ -32,17 +32,11 @@ export interface LeasedDevice extends Device {
   readonly deadline: Date | undefined;
 }
 
-export interface IDeviceRepository<TDevice> {
-  getDevices(): Promise<TDevice[]>;
-}
-
 /**
  * Maintains a list of owned devices available for the device management feature.
  * The list is backed by a user setting.
  */
-export class OwnedDeviceRepository
-  implements IDeviceRepository<OwnedDevice>, vscode.Disposable
-{
+export class OwnedDeviceRepository implements vscode.Disposable {
   private readonly onDidChangeEmitter = new vscode.EventEmitter<void>();
   private readonly configMutex = new commonUtil.Mutex<void>();
 
@@ -64,14 +58,12 @@ export class OwnedDeviceRepository
     vscode.Disposable.from(...this.subscriptions).dispose();
   }
 
-  getDevices(): Promise<OwnedDevice[]> {
+  getDevices(): OwnedDevice[] {
     const hostnames = this.getHostnames();
-    return Promise.resolve(
-      hostnames.map(hostname => ({
-        category: DeviceCategory.OWNED,
-        hostname,
-      }))
-    );
+    return hostnames.map(hostname => ({
+      category: DeviceCategory.OWNED,
+      hostname,
+    }));
   }
 
   async addDevice(hostname: string): Promise<void> {
@@ -109,9 +101,7 @@ export class OwnedDeviceRepository
  * Maintains a list of leased devices available for the device management feature.
  * The list is backed by the crosfleet command.
  */
-export class LeasedDeviceRepository
-  implements IDeviceRepository<LeasedDevice>, vscode.Disposable
-{
+export class LeasedDeviceRepository implements vscode.Disposable {
   private readonly onDidChangeEmitter = new vscode.EventEmitter<void>();
   readonly onDidChange = this.onDidChangeEmitter.event;
 
@@ -224,9 +214,7 @@ export class LeasedDeviceRepository
  * Provides a merged view of OwnedDeviceRepository and LeasedDeviceRepository.
  * It is still possible to access child device repositories via read-only fields.
  */
-export class DeviceRepository
-  implements IDeviceRepository<OwnedDevice | LeasedDevice>
-{
+export class DeviceRepository {
   private readonly onDidChangeEmitter = new vscode.EventEmitter<void>();
   readonly onDidChange = this.onDidChangeEmitter.event;
 
