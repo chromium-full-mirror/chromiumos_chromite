@@ -52,10 +52,16 @@ interface EventBase {
   //   "select target board"
   //   "device: connect to device via VNC"
   description: string;
+}
+
+// More events that extend EventBase with custom dimensions and values should be
+// added below.
+interface UAEventDeprecated extends EventBase {
   // Label is an optional string that describes the operation.
   label?: string;
   // Value is an optional number that describes the operation.
   value?: number;
 }
 
-export type Event = EventBase;
+// Add new Event interfaces to UAEventDeprecated (joint by or |).
+export type Event = UAEventDeprecated;

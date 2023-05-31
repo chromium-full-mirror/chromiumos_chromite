@@ -165,13 +165,24 @@ export class Analytics {
       ec: event.category,
       ea: `${event.group}: ${event.description}`,
     });
-    if (event.category !== 'error' && event.label !== undefined) {
-      data.el = event.label;
-    }
-    if (event.category !== 'error' && event.value !== undefined) {
-      data.ev = event.value;
+
+    // The unused variables are needed for object destruction of event and match customFields.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {category, group, name, description, ...customFields} = event;
+
+    // Temporary. Convert all extra fields (i.e. future custom dimensions and
+    // metrics) to event label (string) or event value (number).
+    if (event.category !== 'error') {
+      for (const value of Object.values(customFields)) {
+        if (typeof value === 'string') {
+          data.el = value;
+        } else if (typeof value === 'number') {
+          data.ev = value;
+        }
+      }
     }
     queries.push(queryString.stringify(data));
+
     return queries.join('\n');
   }
 
