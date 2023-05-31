@@ -190,7 +190,6 @@
     snappy-release
     soraka-release
     strongbad-release
-    strongbad64-release
     tael-release
     tatl-release
     trogdor-release
@@ -779,7 +778,6 @@
     snappy-release-tryjob
     soraka-release-tryjob
     strongbad-release-tryjob
-    strongbad64-release-tryjob
     tael-release-tryjob
     tatl-release-tryjob
     trogdor-release-tryjob
@@ -960,11 +958,6 @@
   strongbad-llvm-toolchain-tryjob
   strongbad-payloads-tryjob
   strongbad-release-tryjob
-  strongbad64-full-tryjob
-  strongbad64-llvm-next-toolchain-tryjob
-  strongbad64-llvm-toolchain-tryjob
-  strongbad64-payloads-tryjob
-  strongbad64-release-tryjob
   success-build
   sync-test-cbuildbot-tryjob
   tael-full-tryjob
