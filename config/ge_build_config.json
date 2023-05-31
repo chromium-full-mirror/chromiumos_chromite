@@ -1301,6 +1301,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -1310,6 +1311,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7243,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4004,6 +4006,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4013,6 +4016,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4022,6 +4026,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4041,6 +4046,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4059,6 +4065,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4068,6 +4075,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4077,6 +4085,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4086,6 +4095,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -4095,6 +4105,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
           "is_active": true,
+          "stable_target_milestone": 113,
           "is_experimental": false
         },
         {
@@ -7787,74 +7798,6 @@
       ],
       "rubik_target_milestone": 107,
       "stable_target_milestone": 91
-    },
-    {
-      "name": "strongbad64",
-      "reference_board_name": "strongbad64",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "strongbad64",
-          "name": "coachz",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7250,
-          "is_active": true,
-          "stable_target_milestone": 112,
-          "is_experimental": false
-        },
-        {
-          "board_name": "strongbad64",
-          "name": "homestar",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7250,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "strongbad64",
-          "name": "mrbland",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7250,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "strongbad64",
-          "name": "quackingstick",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7250,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "strongbad64",
-          "name": "wormdingler",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7250,
-          "is_active": true,
-          "is_experimental": false
-        }
-      ],
-      "rubik_target_milestone": 108,
-      "stable_target_milestone": 112
     },
     {
       "name": "trogdor",
