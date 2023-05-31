@@ -11,12 +11,14 @@ import re
 from chromite.utils.telemetry import utils
 
 
-def test_google_host_to_return_true_for_valid_hosts(monkeypatch):
+def test_google_host_to_be_true_for_valid_hosts(monkeypatch):
     """Test that is_google_host returns true for valid host."""
 
-    monkeypatch.setattr(platform, "node", lambda: "something.else.google.com")
+    for suffix in utils.ALLOWED_HOSTNAME_SUFFIX:
+        # pylint: disable=cell-var-from-loop
+        monkeypatch.setattr(platform, "node", lambda: f"something{suffix}")
 
-    assert utils.is_google_host()
+        assert utils.is_google_host()
 
 
 def test_google_host_to_be_false_for_invalid_hosts(monkeypatch):
