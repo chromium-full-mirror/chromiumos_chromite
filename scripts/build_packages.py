@@ -20,11 +20,14 @@ from typing import List, Optional, Tuple
 import urllib.error
 import urllib.request
 
+from chromite.third_party.opentelemetry import trace
+
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
 from chromite.service import sysroot
+from chromite.utils import telemetry
 from chromite.utils import timer
 
 
@@ -471,11 +474,28 @@ def parse_args(
     return parser, opts
 
 
+tracer = trace.get_tracer(__name__)
+
+
+def set_up_telemetry(debug: bool):
+    telemetry.initialize()
+    if debug:
+        telemetry.export_to_console()
+
+
 @timer.timed("Elapsed time (build_packages)")
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     commandline.RunInsideChroot()
     parser, opts = parse_args(argv)
 
+    set_up_telemetry(opts.debug)
+    build_packages(parser, opts)
+
+
+@tracer.start_as_current_span("scripts.build_packages.build_packages")
+def build_packages(
+    parser: commandline.ArgumentParser, opts: commandline.ArgumentNamespace
+):
     # If the opts.board is not set, then it means user hasn't specified a
     # default board in 'src/scripts/.default_board' and didn't specify it as
     # input argument.
