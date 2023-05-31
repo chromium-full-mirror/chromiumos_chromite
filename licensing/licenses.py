@@ -81,21 +81,32 @@ from chromite.lib import cros_build_lib
 from chromite.licensing import licenses_lib
 
 
-def LoadPackageInfo(sysroot, all_packages, generateMissing, packages):
+def LoadPackageInfo(
+    sysroot, all_packages, generateMissing, packages, placeholder
+):
     """Do the work when we're not called as a hook."""
     logging.info("Processing sysroot %s", sysroot)
 
     detect_packages = not packages
     if detect_packages:
         # If no packages were specified, we look up the full list.
-        packages = licenses_lib.ListInstalledPackages(sysroot, all_packages)
+        if placeholder:
+            # A random set of names to generate the placeholder file.
+            packages = [
+                "sys-libs/placeholder-1-r3",
+                "chromeos-base/placeheld-1.0",
+            ]
+        else:
+            packages = licenses_lib.ListInstalledPackages(sysroot, all_packages)
 
     assert packages, f"{sysroot}: could not find any packages"
 
     logging.debug(
         "Initial Package list to work through:\n%s", "\n".join(sorted(packages))
     )
-    licensing = licenses_lib.Licensing(sysroot, packages, generateMissing)
+    licensing = licenses_lib.Licensing(
+        sysroot, packages, generateMissing, placeholder=placeholder
+    )
 
     licensing.LoadPackageInfo()
     logging.debug(
@@ -125,6 +136,11 @@ def get_parser() -> commandline.ArgumentParser:
         "--sysroot",
         type="path",
         help="which sysroot to run on (e.g. /build/eve)",
+    )
+    group.add_argument(
+        "--placeholder",
+        action="store_true",
+        help="Generate a placeholder file (for testing).",
     )
 
     parser.add_argument(
@@ -198,7 +214,11 @@ def main(args):
             )
 
     licensing = LoadPackageInfo(
-        sysroot, opts.all_packages, opts.gen_licenses, opts.packages
+        sysroot,
+        opts.all_packages,
+        opts.gen_licenses,
+        opts.packages,
+        placeholder=opts.placeholder,
     )
 
     if opts.output:

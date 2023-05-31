@@ -200,6 +200,25 @@ _CUSTOM_DIRS = "custom"
 _STOCK_DIRS = "stock"
 _BOTH_DIRS = "both"
 
+# Banner shown when generating a placeholder credits.
+_PLACEHOLDER_BANNER = """
+<div style="border: dashed; margin: 1em; padding: 1em;">
+<p style="font-weight: bold;">Placeholder Credits Page</p>
+<p>
+See <a href="https://dev.chromium.org/chromium-os/licensing/licensing-for-chromiumos-developers">Licensing for ChromiumOS Developers</a> and
+<a href="https://dev.chromium.org/chromium-os/licensing/licensing-for-chromiumos-package-owners">Licensing for ChromiumOS Package Owners</a>
+for more details on the credits system.
+</p>
+<p>
+If you need to change styles, fonts, layout, etc of the
+<a href="chrome://os-credits">chrome://os-credits</a> page, edit
+<a href="https://chromium.googlesource.com/chromiumos/chromite/+/HEAD/licensing/about_credits.tmpl">chromite/licensing/about_credits.tmpl</a>.
+The template is used to generate a device-dependent about_os_credits.html
+when a CrOS image is built.
+</p>
+</div>
+"""
+
 
 # This is called directly by src/repohooks/pre-upload.py
 def GetLicenseTypesFromEbuild(
@@ -1024,7 +1043,13 @@ def _CheckForKnownBadLicenses(cpf, licenses):
 class Licensing(object):
     """Do the actual work of extracting licensing info and outputting html."""
 
-    def __init__(self, sysroot, package_fullnames, gen_licenses):
+    def __init__(
+        self,
+        sysroot,
+        package_fullnames,
+        gen_licenses,
+        placeholder: bool = False,
+    ):
         self.sysroot = sysroot
         # List of stock and custom licenses referenced in ebuilds. Used to
         # print a report. Dict value says which packages use that license.
@@ -1033,6 +1058,9 @@ class Licensing(object):
         # Licenses are supposed to be generated at package build time and be
         # ready for us, but in case they're not, they can be generated.
         self.gen_licenses = gen_licenses
+
+        # Generate placeholder values instead of inspecting real data.
+        self.placeholder = placeholder
 
         self.entry_template = None
 
@@ -1084,6 +1112,12 @@ class Licensing(object):
 
             if pkg.skip:
                 logging.debug("Package %s is in skip list", package_name)
+                continue
+
+            if self.placeholder:
+                pkg.license_names = ["Placeholder-License"]
+                pkg.license_text_scanned = ["Custom placeholder license text"]
+                pkg.homepages = ["https://dev.chromium.org/"]
                 continue
 
             # Other skipped packages get dumped with incomplete info and the
@@ -1152,6 +1186,7 @@ class Licensing(object):
         sysroot=None,
         overlay_path=None,
         buildroot=constants.SOURCE_ROOT,
+        placeholder: bool = False,
     ):
         """Says if a license is stock Gentoo, custom, tainted, or doesn't exist.
 
@@ -1166,6 +1201,7 @@ class Licensing(object):
             sysroot: A setup board sysroot to query.
             overlay_path: Which overlay directory to use as the search base
             buildroot: source root
+            placeholder: Whether to generate a stub placeholder page.
 
         Returns:
             str - license type
@@ -1175,6 +1211,9 @@ class Licensing(object):
         """
         if license_name == TAINTED:
             return TAINTED
+
+        if placeholder:
+            return "Placeholder Stock"
 
         # Check the stock licenses first since those may appear in the generated
         # list of overlay directories for a board
@@ -1223,9 +1262,16 @@ after fixing the license."""
 
     @staticmethod
     def ReadSharedLicense(
-        license_name, board=None, sysroot=None, buildroot=constants.SOURCE_ROOT
+        license_name,
+        board=None,
+        sysroot=None,
+        buildroot=constants.SOURCE_ROOT,
+        placeholder: bool = False,
     ):
         """Read and return stock or cust license file specified in an ebuild."""
+        if placeholder:
+            return "Placeholder license text"
+
         directories = _GetLicenseDirectories(
             board=board,
             sysroot=sysroot,
@@ -1276,7 +1322,9 @@ after fixing the license."""
         for sln in pkg.license_names:
             # Says whether it's a stock gentoo or custom license.
             try:
-                license_type = self.FindLicenseType(sln, sysroot=self.sysroot)
+                license_type = self.FindLicenseType(
+                    sln, sysroot=self.sysroot, placeholder=self.placeholder
+                )
             except Exception as e:
                 logging.error(
                     "Failed to find the type of %s license, used by %s "
@@ -1350,8 +1398,12 @@ after fixing the license."""
                     sln,
                     pkg_fullnamerev,
                 )
-                license_type = self.FindLicenseType(sln, sysroot=self.sysroot)
-                license_txt = self.ReadSharedLicense(sln, sysroot=self.sysroot)
+                license_type = self.FindLicenseType(
+                    sln, sysroot=self.sysroot, placeholder=self.placeholder
+                )
+                license_txt = self.ReadSharedLicense(
+                    sln, sysroot=self.sysroot, placeholder=self.placeholder
+                )
                 single_license = "%s License %s:\n\n%s" % (
                     license_type,
                     sln,
@@ -1407,10 +1459,16 @@ after fixing the license."""
             env = {
                 "license_name": license_name,
                 "license": html.escape(
-                    self.ReadSharedLicense(license_name, sysroot=self.sysroot)
+                    self.ReadSharedLicense(
+                        license_name,
+                        sysroot=self.sysroot,
+                        placeholder=self.placeholder,
+                    )
                 ),
                 "license_type": self.FindLicenseType(
-                    license_name, sysroot=self.sysroot
+                    license_name,
+                    sysroot=self.sysroot,
+                    placeholder=self.placeholder,
                 ),
                 "license_packages": " ".join(
                     self.LicensedPackages(license_name)
@@ -1442,6 +1500,7 @@ after fixing the license."""
             "tainted_warning_if_any": tainted_warning,
             "entries": "\n".join(sorted_license_txt),
             "licenses": "\n".join(licenses_txt),
+            "placeholder": _PLACEHOLDER_BANNER if self.placeholder else "",
         }
         contents = self.EvaluateTemplate(file_template, env).encode("utf-8")
         if not compress_output:
