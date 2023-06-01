@@ -4197,7 +4197,6 @@
     "boards": [
       "brya-arc-t"
     ],
-    "important": false,
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"anahera\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"banshee\",\n  \"test_suites\": []\n}",
@@ -13335,7 +13334,6 @@
     "boards": [
       "hatch-arc-t"
     ],
-    "important": false,
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hatch\",\n  \"name\": \"akemi\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"hatch\",\n  \"name\": \"dragonair\",\n  \"test_suites\": []\n}",
@@ -17418,7 +17416,10 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"uldren360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu360\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yaviks\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yavijo\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yaviks\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yavilla\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yavilly\",\n  \"test_suites\": []\n}"
     ]
   },
   "nissa-pvs-release-tryjob": {
@@ -17456,7 +17457,10 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"uldren360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"xivu360\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yaviks\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yavijo\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yaviks\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yavilla\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa-pvs\",\n  \"name\": \"yavilly\",\n  \"test_suites\": []\n}"
     ],
     "paygen": false,
     "push_image": false,
@@ -17487,7 +17491,10 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"uldren360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"xivu\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"xivu360\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yaviks\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yavijo\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yaviks\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yavilla\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yavilly\",\n  \"test_suites\": []\n}"
     ],
     "sign_types": [
       "recovery",
@@ -17532,7 +17539,10 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"uldren360\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"xivu\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"xivu360\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yaviks\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yavijo\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yaviks\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yavilla\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"nissa\",\n  \"name\": \"yavilly\",\n  \"test_suites\": []\n}"
     ],
     "paygen": false,
     "push_image": false,
