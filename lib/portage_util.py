@@ -119,7 +119,7 @@ class SourceDirectoryDoesNotExistError(Error, FileNotFoundError):
 
 
 @functools.lru_cache(maxsize=None)
-def _GetKnownOverlays(buildroot):
+def _GetKnownOverlays(buildroot: Union[str, os.PathLike]) -> Dict[str, Dict]:
     """Return the list of overlays for a buildroot irrespective of board.
 
     Find all the overlays for a buildroot and cache the result since finding the
@@ -166,7 +166,10 @@ def _GetKnownOverlays(buildroot):
 
 
 @functools.lru_cache(maxsize=None)
-def _ListOverlays(board=None, buildroot=constants.SOURCE_ROOT):
+def _ListOverlays(
+    board: Optional[str] = None,
+    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+) -> List:
     """Return the list of overlays to use for a given buildbot.
 
     Always returns all overlays in parent -> child order, and does not
@@ -187,7 +190,7 @@ def _ListOverlays(board=None, buildroot=constants.SOURCE_ROOT):
     ret = []
     seen = set()
 
-    def _AddRepo(repo, optional=False):
+    def _AddRepo(repo: str, optional: bool = False) -> bool:
         """Recursively add |repo|'s masters from |overlays| to |ret|.
 
         Args:
@@ -233,7 +236,11 @@ def _ListOverlays(board=None, buildroot=constants.SOURCE_ROOT):
     return ret
 
 
-def FindOverlays(overlay_type, board=None, buildroot=constants.SOURCE_ROOT):
+def FindOverlays(
+    overlay_type: str,
+    board: Optional[str] = None,
+    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+) -> List:
     """Return the list of overlays to use for a given buildbot.
 
     The returned list of overlays will be in parent -> child order.
@@ -281,11 +288,11 @@ def FindOverlaysForBoards(overlay_type: str, boards: List[str]) -> List[str]:
 
 
 def FindOverlayFile(
-    filename,
-    overlay_type=constants.BOTH_OVERLAYS,
-    board=None,
-    buildroot=constants.SOURCE_ROOT,
-):
+    filename: str,
+    overlay_type: str = constants.BOTH_OVERLAYS,
+    board: Optional[str] = None,
+    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+) -> Optional[str]:
     """Attempt to find a file in the overlay directories.
 
     Searches through this board's overlays for the specified file. The
@@ -311,11 +318,11 @@ def FindOverlayFile(
 
 
 def ReadOverlayFile(
-    filename,
-    overlay_type=constants.BOTH_OVERLAYS,
-    board=None,
-    buildroot=constants.SOURCE_ROOT,
-):
+    filename: str,
+    overlay_type: str = constants.BOTH_OVERLAYS,
+    board: Optional[str] = None,
+    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+) -> Optional[str]:
     """Attempt to open a file in the overlay directories.
 
     Searches through this board's overlays for the specified file. The
@@ -340,7 +347,7 @@ def ReadOverlayFile(
 
 
 @functools.lru_cache(maxsize=None)
-def GetOverlayName(overlay):
+def GetOverlayName(overlay: str) -> Optional[str]:
     """Get the self-declared repo name for the |overlay| path."""
     try:
         return key_value_store.LoadFile(
@@ -445,12 +452,17 @@ class EBuild(object):
         result = git.RunGit(cwd, command, print_cmd=cls.VERBOSE, **kwargs)
         return None if result is None else result.stdout
 
-    def IsSticky(self):
+    def IsSticky(self) -> bool:
         """Returns True if the ebuild is sticky."""
         return self.is_stable and self.current_revision == 0
 
     @classmethod
-    def UpdateEBuild(cls, ebuild_path, variables, make_stable=True):
+    def UpdateEBuild(
+        cls,
+        ebuild_path: Union[str, os.PathLike],
+        variables: Dict,
+        make_stable: bool = True,
+    ) -> None:
         """Static function that updates WORKON information in the ebuild.
 
         Args:
@@ -488,10 +500,10 @@ class EBuild(object):
     @classmethod
     def MarkAsStable(
         cls,
-        unstable_ebuild_path,
-        new_stable_ebuild_path,
-        variables,
-        make_stable=True,
+        unstable_ebuild_path: Union[str, os.PathLike],
+        new_stable_ebuild_path: Union[str, os.PathLike],
+        variables: Dict,
+        make_stable: bool = True,
     ):
         """Static function that creates a revved stable ebuild.
 
@@ -511,7 +523,7 @@ class EBuild(object):
         EBuild.UpdateEBuild(new_stable_ebuild_path, variables, make_stable)
 
     @classmethod
-    def CommitChange(cls, message, overlay):
+    def CommitChange(cls, message: str, overlay: Union[str, os.PathLike]):
         """Commits current changes in git locally with given commit message.
 
         Args:
@@ -660,7 +672,7 @@ class EBuild(object):
         ) = EBuild.Classify(path)
 
     @staticmethod
-    def _GetAutotestTestsFromSettings(settings):
+    def _GetAutotestTestsFromSettings(settings) -> List[str]:
         """Return a list of test names, when given a settings dictionary.
 
         Args:
@@ -680,7 +692,7 @@ class EBuild(object):
         return test_list
 
     @staticmethod
-    def GetAutotestSubdirsToRev(ebuild_path, srcdir):
+    def GetAutotestSubdirsToRev(ebuild_path, srcdir) -> List[str]:
         """Return list of subdirs to be watched while deciding whether to uprev.
 
         This logic is specific to autotest related ebuilds, that derive from the
@@ -725,7 +737,7 @@ class EBuild(object):
         return results
 
     @staticmethod
-    def GetCrosWorkonVars(ebuild_path, pkg_name):
+    def GetCrosWorkonVars(ebuild_path: Union[str, os.PathLike], pkg_name: str):
         """Return the finalized values of CROS_WORKON vars in an ebuild script.
 
         Args:
@@ -739,7 +751,10 @@ class EBuild(object):
         return EBuild._FinalizeCrosWorkonVars(cros_workon_vars, ebuild_path)
 
     @staticmethod
-    def _ReadCrosWorkonVars(ebuild_path, pkg_name):
+    def _ReadCrosWorkonVars(
+        ebuild_path: Union[str, os.PathLike],
+        pkg_name: str,
+    ):
         """Return the raw values of CROS_WORKON vars in an ebuild script.
 
         Args:
@@ -817,7 +832,10 @@ class EBuild(object):
         )
 
     @staticmethod
-    def _FinalizeCrosWorkonVars(cros_workon_vars, ebuild_path):
+    def _FinalizeCrosWorkonVars(
+        cros_workon_vars: Tuple,
+        ebuild_path: Union[str, os.PathLike],
+    ):
         """Finalize CrosWorkonVars tuple.
 
         It is allowed to set different number of entries in CROS_WORKON array
@@ -1676,7 +1694,7 @@ class InstalledPackage(object):
         return result
 
 
-def BestEBuild(ebuilds):
+def BestEBuild(ebuilds: Iterable[EBuild]) -> Optional[EBuild]:
     """Returns the newest EBuild from a list of EBuild objects."""
     from portage.versions import vercmp  # pylint: disable=import-error
 
@@ -1689,7 +1707,11 @@ def BestEBuild(ebuilds):
     return winner
 
 
-def _FindUprevCandidates(files, allow_manual_uprev, subdir_support):
+def _FindUprevCandidates(
+    files: Iterable[Union[str, os.PathLike]],
+    allow_manual_uprev: bool,
+    subdir_support: bool,
+):
     """Return the uprev candidate ebuild from a specified list of files.
 
     Usually an uprev candidate is a the stable ebuild in a cros_workon
