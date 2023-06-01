@@ -39,6 +39,7 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
     )
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self._Prepare()
         self.PatchObject(repository, "CloneWorkingRepo")
         self.PatchObject(gs, "GSContext")
@@ -100,6 +101,7 @@ class UpdateConfigStageTest(generic_stages_unittest.AbstractStageTestCase):
     """Tests for UpdateConfigStage."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self._Prepare()
         self.PatchObject(config_stages.UpdateConfigStage, "_DownloadTemplate")
         self.PatchObject(config_stages.UpdateConfigStage, "_CheckoutBranch")

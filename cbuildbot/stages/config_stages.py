@@ -57,7 +57,7 @@ def GetProjectWorkDir(project):
     """
     project_work_dir = GetProjectTmpDir(project)
 
-    return path_util.FromChrootPath(project_work_dir)
+    return path_util.FromChrootPath(os.path.join(os.path.sep, project_work_dir))
 
 
 def GetProjectRepoDir(project, project_url, clean_old_dir=False):
