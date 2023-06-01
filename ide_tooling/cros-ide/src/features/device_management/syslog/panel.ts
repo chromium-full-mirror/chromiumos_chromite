@@ -11,6 +11,7 @@ import * as commonUtil from '../../../common/common_util';
 import * as sshUtil from '../ssh_util';
 import * as metrics from '../../metrics/metrics';
 import {ReactPanel} from '../../../services/react_panel';
+import {SshIdentity} from '../ssh_identity';
 import {
   parseSyslogLine,
   SyslogViewBackendMessage,
@@ -49,7 +50,8 @@ export class SyslogPanel extends ReactPanel<SyslogViewContext> {
     private readonly hostname: string,
     private readonly remoteSyslogPath: string,
     extensionUri: vscode.Uri,
-    private readonly output: vscode.OutputChannel
+    private readonly output: vscode.OutputChannel,
+    private readonly sshIdentity: SshIdentity
   ) {
     super(
       'syslog_view',
@@ -97,7 +99,7 @@ export class SyslogPanel extends ReactPanel<SyslogViewContext> {
     const tailCommand = `${shutil.escapeArray(
       sshUtil.buildSshCommand(
         this.hostname,
-        this.extensionUri,
+        this.sshIdentity,
         undefined,
         `tail -F -n +1 ${this.remoteSyslogPath}`
       )

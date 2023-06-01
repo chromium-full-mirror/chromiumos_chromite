@@ -10,6 +10,7 @@ import * as provider from '../device_tree_data_provider';
 import * as sshConfig from '../ssh_config';
 import * as ssh from '../ssh_session';
 import * as vnc from '../vnc_session';
+import {SshIdentity} from '../ssh_identity';
 
 /**
  * Contains various values commonly available to commands.
@@ -22,6 +23,7 @@ export interface CommandContext {
   readonly vncSessions: Map<string, vnc.VncSession>;
   readonly sshSessions: Map<string, ssh.SshSession>;
   readonly abandonedDevices: abandonedDevices.AbandonedDevices;
+  readonly sshIdentity: SshIdentity;
 }
 
 export async function promptNewHostname(

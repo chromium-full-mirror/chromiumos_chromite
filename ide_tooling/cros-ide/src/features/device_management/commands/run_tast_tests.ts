@@ -105,7 +105,7 @@ export async function runTastTests(
 
     const newSession = await ssh.SshSession.create(
       hostname,
-      context.extensionContext,
+      context.sshIdentity,
       context.output,
       port
     );

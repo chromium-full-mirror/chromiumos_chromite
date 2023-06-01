@@ -5,12 +5,20 @@
 import 'jasmine';
 import * as vscode from 'vscode';
 import * as sshUtil from '../../../../../features/device_management/ssh_util';
+import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
+import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
+import * as testing from '../../../../testing';
 
 describe('SSH utility', () => {
+  testing.installVscodeDouble();
+
   it('computes SSH arguments for host without port number', () => {
     const args = sshUtil.buildSshCommand(
       'somehost',
-      vscode.Uri.parse('file:///path/to/extension'),
+      new SshIdentity(
+        vscode.Uri.parse('file:///path/to/extension'),
+        new ChromiumosServiceModule()
+      ),
       ['-o', 'SomeOption=on'],
       'true'
     );
@@ -32,7 +40,10 @@ describe('SSH utility', () => {
   it('computes SSH arguments for host with port number', () => {
     const args = sshUtil.buildSshCommand(
       'somehost:12345',
-      vscode.Uri.parse('file:///path/to/extension'),
+      new SshIdentity(
+        vscode.Uri.parse('file:///path/to/extension'),
+        new ChromiumosServiceModule()
+      ),
       ['-o', 'SomeOption=on'],
       'true'
     );

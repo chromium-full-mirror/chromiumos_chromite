@@ -8,6 +8,8 @@ import * as vnc from '../../../../../features/device_management/vnc_session';
 import * as webviewShared from '../../../../../features/device_management/webview_shared';
 import * as testing from '../../../../testing';
 import * as extensionTesting from '../../../extension_testing';
+import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
+import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
 import {FakeSshServer} from './fake_ssh_server';
 import {FakeVncServer} from './fake_vnc_server';
 
@@ -55,7 +57,8 @@ describe('VNC session', () => {
     const session = await vnc.VncSession.create(
       `localhost:${sshServer.listenPort}`,
       api.context,
-      state.output
+      state.output,
+      new SshIdentity(api.context.extensionUri, new ChromiumosServiceModule())
     );
     state.subscriptions.push(session);
 
@@ -86,6 +89,7 @@ describe('VNC session', () => {
       `localhost:${sshServer.listenPort}`,
       api.context,
       state.output,
+      new SshIdentity(api.context.extensionUri, new ChromiumosServiceModule()),
       vnc.ProxyProtocol.MESSAGE_PASSING // force message passing protocol
     );
     state.subscriptions.push(session);

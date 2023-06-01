@@ -37,7 +37,8 @@ export async function connectToDeviceForScreen(
   const newSession = await vnc.VncSession.create(
     hostname,
     context.extensionContext,
-    context.output
+    context.output,
+    context.sshIdentity
   );
   newSession.onDidDispose(() => {
     context.vncSessions.delete(hostname);

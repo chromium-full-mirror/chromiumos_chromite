@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import * as commonUtil from '../../common/common_util';
 import * as sshUtil from './ssh_util';
+import {SshIdentity} from './ssh_identity';
 
 export interface LsbRelease {
   board: string;
@@ -17,14 +18,14 @@ export interface LsbRelease {
 export class DeviceClient {
   constructor(
     private readonly hostname: string,
-    private readonly extensionUri: vscode.Uri,
+    private readonly sshIdentity: SshIdentity,
     private readonly logger: vscode.OutputChannel
   ) {}
 
   async readLsbRelease(): Promise<LsbRelease> {
     const args = sshUtil.buildSshCommand(
       this.hostname,
-      this.extensionUri,
+      this.sshIdentity,
       [],
       'cat /etc/lsb-release'
     );

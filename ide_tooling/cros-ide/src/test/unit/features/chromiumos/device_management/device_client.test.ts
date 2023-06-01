@@ -5,15 +5,19 @@
 import * as vscode from 'vscode';
 import * as deviceClient from '../../../../../features/device_management/device_client';
 import * as testing from '../../../../testing';
+import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
+import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
 import {FakeSshServer} from './fake_ssh_server';
 
 describe('Device client', () => {
+  testing.installVscodeDouble();
+
   const state = testing.cleanState(async () => {
     const server = new FakeSshServer();
     await server.listen();
     const client = new deviceClient.DeviceClient(
       `localhost:${server.listenPort}`,
-      testing.getExtensionUri(),
+      new SshIdentity(testing.getExtensionUri(), new ChromiumosServiceModule()),
       vscode.window.createOutputChannel('void')
     );
     return {server, client};

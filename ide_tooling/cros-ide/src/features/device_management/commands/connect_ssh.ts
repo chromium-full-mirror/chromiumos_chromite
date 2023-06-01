@@ -32,9 +32,7 @@ export async function connectToDeviceForShell(
   const terminal = vscode.window.createTerminal(hostname);
   terminal.sendText(
     'exec ' +
-      shutil.escapeArray(
-        sshUtil.buildSshCommand(hostname, context.extensionContext.extensionUri)
-      )
+      shutil.escapeArray(sshUtil.buildSshCommand(hostname, context.sshIdentity))
   );
   terminal.show();
 }

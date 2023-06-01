@@ -12,6 +12,7 @@ import * as netUtil from '../../common/net_util';
 import * as sshUtil from './ssh_util';
 import * as webviewShared from './webview_shared';
 import {replaceAll} from './html_util';
+import {SshIdentity} from './ssh_identity';
 
 /**
  * Represents a protocol used between the WebView and localhost.
@@ -67,6 +68,7 @@ export class VncSession {
     hostname: string,
     context: vscode.ExtensionContext,
     output: vscode.OutputChannel,
+    sshIdentity: SshIdentity,
     proxyProtocol?: ProxyProtocol
   ): Promise<VncSession> {
     const forwardPort = await netUtil.findUnusedPort();
@@ -75,7 +77,8 @@ export class VncSession {
       context,
       output,
       proxyProtocol,
-      forwardPort
+      forwardPort,
+      sshIdentity
     );
   }
 
@@ -84,7 +87,8 @@ export class VncSession {
     private readonly context: vscode.ExtensionContext,
     output: vscode.OutputChannel,
     proxyProtocol: ProxyProtocol | undefined,
-    forwardPort: number
+    forwardPort: number,
+    sshIdentity: SshIdentity
   ) {
     this.panel = VncSession.createWebview(hostname);
     switch (proxyProtocol ?? detectProxyProtocol()) {
@@ -111,7 +115,7 @@ export class VncSession {
       this.panel.webview,
       output,
       this.canceller.token,
-      context
+      sshIdentity
     );
 
     // Dispose the session when the panel is closed.
@@ -204,14 +208,14 @@ async function startAndWaitVncServer(
   webview: vscode.Webview,
   output: vscode.OutputChannel,
   token: vscode.CancellationToken,
-  context: vscode.ExtensionContext
+  sshIdentity: SshIdentity
 ): Promise<void> {
   const serverStopped = startVncServer(
     hostname,
     forwardPort,
     output,
     token,
-    context
+    sshIdentity
   );
   const serverStarted = waitVncServer(forwardPort, token);
   const webViewReady = waitWebViewReady(webview);
@@ -257,12 +261,12 @@ async function startVncServer(
   forwardPort: number,
   output: vscode.OutputChannel,
   token: vscode.CancellationToken,
-  context: vscode.ExtensionContext
+  sshIdentity: SshIdentity
 ): Promise<void> {
   const KMSVNC_PORT = 5900;
   const args = sshUtil.buildSshCommand(
     hostname,
-    context.extensionUri,
+    sshIdentity,
     ['-L', `${forwardPort}:localhost:${KMSVNC_PORT}`],
     `fuser -k ${KMSVNC_PORT}/tcp; kmsvnc`
   );

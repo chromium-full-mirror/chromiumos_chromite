@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {SshIdentity} from './ssh_identity';
 
 /**
  * Returns the path to the testing_rsa file bundled in the extension.
@@ -18,20 +19,19 @@ export function getTestingRsaPath(extensionUri: vscode.Uri): string {
  * Constructs a command line to run SSH for a host.
  *
  * @param host hostname, which can be in the format of 'hostname' or 'hostname:port'
- * @param extensionUri extension's installation path
  * @param extraOptions additional SSH options for your command
  * @param cmd remote command to execute
  * @returns a command line
  */
 export function buildSshCommand(
   host: string,
-  extensionUri: vscode.Uri,
+  sshIdentity: SshIdentity,
   extraOptions: string[] = [],
   cmd?: string
 ): string[] {
   const [hostname, portname] = host.split(':');
 
-  const args = ['ssh', '-i', getTestingRsaPath(extensionUri)];
+  const args = ['ssh', ...sshIdentity.filePaths.flatMap(x => ['-i', x])];
   args.push(
     '-o',
     'StrictHostKeyChecking=no',

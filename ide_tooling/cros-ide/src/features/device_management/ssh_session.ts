@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import * as commonUtil from '../../common/common_util';
 import * as netUtil from '../../common/net_util';
 import * as sshUtil from './ssh_util';
+import {SshIdentity} from './ssh_identity';
 
 /**
  * Represents an active SSH session of a device. It can be used to manage SSH sessions
@@ -26,7 +27,7 @@ export class SshSession {
 
   static async create(
     hostname: string,
-    context: vscode.ExtensionContext,
+    sshIdentity: SshIdentity,
     output: vscode.OutputChannel,
     forwardPort: number
   ): Promise<SshSession> {
@@ -37,7 +38,7 @@ export class SshSession {
       forwardPort,
       output,
       newSession.canceller.token,
-      context
+      sshIdentity
     );
     return newSession;
   }
@@ -62,14 +63,14 @@ export class SshSession {
  */
 export async function withSshTunnel<T>(
   hostname: string,
-  context: vscode.ExtensionContext,
+  sshIdentity: SshIdentity,
   output: vscode.OutputChannel,
   action: (forwardedPort: number) => Promise<T>
 ): Promise<T> {
   const forwardPort = await netUtil.findUnusedPort();
   const sshSession = await SshSession.create(
     hostname,
-    context,
+    sshIdentity,
     output,
     forwardPort
   );
@@ -86,14 +87,14 @@ async function startSshConnection(
   forwardPort: number,
   output: vscode.OutputChannel,
   token: vscode.CancellationToken,
-  context: vscode.ExtensionContext
+  sshIdentity: SshIdentity
 ): Promise<void> {
   const startTunnelAndWait = createTunnelAndWait(
     hostname,
     forwardPort,
     output,
     token,
-    context
+    sshIdentity
   );
   const checkTunnelIsUp = waitSshServer(forwardPort, token);
 
@@ -114,10 +115,10 @@ async function createTunnelAndWait(
   forwardPort: number,
   output: vscode.OutputChannel,
   token: vscode.CancellationToken,
-  context: vscode.ExtensionContext
+  sshIdentity: SshIdentity
 ) {
   const SSH_PORT = 22;
-  const args = sshUtil.buildSshCommand(hostname, context.extensionUri, [
+  const args = sshUtil.buildSshCommand(hostname, sshIdentity, [
     '-L',
     `${forwardPort}:localhost:${SSH_PORT}`,
   ]);

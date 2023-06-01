@@ -100,6 +100,7 @@ export async function openSystemLogViewer(
     hostname,
     remoteSyslogPath,
     context.extensionContext.extensionUri,
-    context.output
+    context.output,
+    context.sshIdentity
   );
 }

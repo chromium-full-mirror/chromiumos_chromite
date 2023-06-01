@@ -10,6 +10,7 @@ import * as repository from '../device_repository';
 import * as provider from '../device_tree_data_provider';
 import * as ssh from '../ssh_session';
 import * as vnc from '../vnc_session';
+import {SshIdentity} from '../ssh_identity';
 import {CommandContext} from './common';
 import {connectToDeviceForShell} from './connect_ssh';
 import {connectToDeviceForScreen} from './connect_vnc';
@@ -39,6 +40,11 @@ export function registerCommands(
   const vncSessions = new Map<string, vnc.VncSession>();
   const sshSessions = new Map<string, ssh.SshSession>();
 
+  const sshIdentity = new SshIdentity(
+    extensionContext.extensionUri,
+    chromiumosServices
+  );
+
   const context: CommandContext = {
     extensionContext,
     output,
@@ -47,6 +53,7 @@ export function registerCommands(
     vncSessions,
     sshSessions,
     abandonedDevices,
+    sshIdentity,
   };
 
   return vscode.Disposable.from(
