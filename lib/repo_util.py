@@ -9,6 +9,7 @@ import contextlib
 import logging
 import os
 import re
+from typing import Generator, Iterable, List, Optional, Union
 
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -44,7 +45,7 @@ class ProjectNotFoundError(Error):
 class Repository(object):
     """Repository represents an initialized repo repository."""
 
-    def __init__(self, root):
+    def __init__(self, root: Union[str, os.PathLike]) -> None:
         """Initialize Repository.
 
         Args:
@@ -59,7 +60,7 @@ class Repository(object):
         self._manifests_dir = os.path.join(self._repo_dir, "manifests")
         self._ValidateRepoDir()
 
-    def _ValidateRepoDir(self):
+    def _ValidateRepoDir(self) -> None:
         """Validate that the repo dir exists."""
         if not os.path.isdir(self._repo_dir):
             raise NotInRepoError("no .repo dir in %r" % self.root)
@@ -67,16 +68,16 @@ class Repository(object):
     @classmethod
     def Initialize(
         cls,
-        root,
-        manifest_url,
-        manifest_branch=None,
-        manifest_name=None,
-        mirror=False,
-        reference=None,
-        depth=None,
-        groups=None,
-        repo_url=None,
-        repo_branch=None,
+        root: Union[str, os.PathLike],
+        manifest_url: str,
+        manifest_branch: Optional[str] = None,
+        manifest_name: Optional[str] = None,
+        mirror: bool = False,
+        reference: Optional[str] = None,
+        depth: Optional[str] = None,
+        groups: Optional[str] = None,
+        repo_url: Optional[str] = None,
+        repo_branch: Optional[str] = None,
     ):
         """Initialize and return a new Repository with `repo init`.
 
@@ -129,7 +130,7 @@ class Repository(object):
         return cls(root)
 
     @classmethod
-    def Find(cls, path):
+    def Find(cls, path: Union[str, os.PathLike]):
         """Searches for a repo directory and returns a Repository if found.
 
         Args:
@@ -141,7 +142,7 @@ class Repository(object):
         return cls(repo_root)
 
     @classmethod
-    def MustFind(cls, path):
+    def MustFind(cls, path: Union[str, os.PathLike]):
         """Searches for a repo directory and returns a Repository if found.
 
         Args:
@@ -155,7 +156,12 @@ class Repository(object):
             raise NotInRepoError("no repo found from %r" % (path,))
         return repo
 
-    def _Run(self, repo_cmd, cwd=None, capture_output=False):
+    def _Run(
+        self,
+        repo_cmd: List[str],
+        cwd: Optional[Union[str, os.PathLike]] = None,
+        capture_output: bool = False,
+    ) -> cros_build_lib.CompletedProcess:
         """Wrapper for `repo`.
 
         Args:
@@ -197,13 +203,13 @@ class Repository(object):
 
     def Sync(
         self,
-        projects=None,
-        local_only=False,
-        current_branch=False,
-        jobs=None,
-        manifest_path=None,
-        cwd=None,
-    ):
+        projects: Optional[Iterable[str]] = None,
+        local_only: bool = False,
+        current_branch: bool = False,
+        jobs: Optional[int] = None,
+        manifest_path: Optional[Union[str, os.PathLike]] = None,
+        cwd: Optional[Union[str, os.PathLike]] = None,
+    ) -> None:
         """Run `repo sync`.
 
         Args:
@@ -233,7 +239,12 @@ class Repository(object):
 
         self._Run(["sync"] + args, cwd=cwd)
 
-    def StartBranch(self, name, projects=None, cwd=None):
+    def StartBranch(
+        self,
+        name: str,
+        projects: Optional[Iterable[str]] = None,
+        cwd: Optional[Union[str, os.PathLike]] = None,
+    ) -> None:
         """Run `repo start`.
 
         Args:
@@ -252,7 +263,11 @@ class Repository(object):
             projects = _ListArg(projects)
         self._Run(["start", name] + projects, cwd=cwd)
 
-    def List(self, projects=None, cwd=None):
+    def List(
+        self,
+        projects: Optional[List[str]] = None,
+        cwd: Optional[Union[str, os.PathLike]] = None,
+    ) -> List[ProjectInfo]:
         """Run `repo list` to get a list of ProjectInfos for synced projects.
 
         Note that this may produce a different list than Manifest().Projects()
@@ -284,7 +299,7 @@ class Repository(object):
             infos.append(ProjectInfo(name=name, path=path))
         return infos
 
-    def Manifest(self, revision_locked=False):
+    def Manifest(self, revision_locked: bool = False) -> repo_manifest.Manifest:
         """Run `repo manifest` and return a repo_manifest.Manifest.
 
         Args:
@@ -302,7 +317,7 @@ class Repository(object):
         result = self._Run(cmd, capture_output=True)
         return repo_manifest.Manifest.FromString(result.stdout)
 
-    def Copy(self, dest_root):
+    def Copy(self, dest_root: Union[str, os.PathLike]):
         """Efficiently `cp` the .repo directory, using hardlinks if possible.
 
         Args:
@@ -375,7 +390,7 @@ class Repository(object):
             return Repository(dest_root)
 
 
-def _ListArg(arg):
+def _ListArg(arg: Optional[Iterable]) -> List:
     """Return a new list from arg.
 
     Args:
@@ -393,7 +408,9 @@ def _ListArg(arg):
 
 
 @contextlib.contextmanager
-def _RmDirOnError(path, msg=None):
+def _RmDirOnError(
+    path: Union[str, os.PathLike], msg: Optional[str] = None
+) -> Generator:
     """Context that will RmDir(path) if its block throws an exception."""
     try:
         yield
