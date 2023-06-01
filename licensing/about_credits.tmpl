@@ -13,26 +13,6 @@
 <link rel="stylesheet" href="chrome://credits/credits.css">
 <script>
 //<![CDATA[
-function toggle(o) {
-  var licence = o.nextSibling;
-
-  while (licence.className != 'licence') {
-    if (!licence) return false;
-    licence = licence.nextSibling;
-  }
-  return toggleblock(licence, o);
-}
-
-function toggleblock(licence, o) {
-  if (licence.style && licence.style.display == 'block') {
-    licence.style.display = 'none';
-    o.innerHTML = 'show license';
-  } else {
-    licence.style.display = 'block';
-    o.innerHTML = 'hide license';
-  }
-  return false;
-}
 //]]>
 </script>
 </head>
