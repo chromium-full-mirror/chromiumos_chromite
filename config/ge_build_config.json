@@ -110,7 +110,7 @@
           "arch": "X86_INTERNAL"
         }
       ],
-      "rubik_target_milestone": 103,
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 101
     },
     {
@@ -124,7 +124,7 @@
           "arch": "UNKNOWN"
         }
       ],
-      "rubik_target_milestone": 106,
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 106
     },
     {
@@ -849,7 +849,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 459,
           "is_active": true,
-          "stable_target_milestone": 100,
+          "stable_target_milestone": 115,
           "is_experimental": false
         },
         {
@@ -4998,7 +4998,7 @@
             "bvt-perbuild",
             "bvt-tast-informational"
           ],
-          "cq_test_enabled": false,
+          "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true,
@@ -5219,6 +5219,15 @@
         },
         {
           "board_name": "nissa",
+          "name": "yavijo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7206,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa",
           "name": "yaviks",
           "test_suites": [
             "sanity",
@@ -5237,9 +5246,221 @@
           "is_active": true,
           "stable_target_milestone": 111,
           "is_experimental": false
+        },
+        {
+          "board_name": "nissa",
+          "name": "yavilla",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7206,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa",
+          "name": "yavilly",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7206,
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 106,
+      "stable_target_milestone": 108
+    },
+    {
+      "name": "nissa-pvs",
+      "reference_board_name": "nissa-pvs",
+      "arch": "UNKNOWN",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "nissa-pvs",
+          "name": "craask",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "craaskbowl",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "craaskino",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "craaskvin",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "craasneto",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "joxer",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "joxero",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "nereid",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "nirwen",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "nivviks",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "pujjo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "pujjoteen",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "uldren",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "uldren360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "xivu",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "xivu360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "yavijo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "stable_target_milestone": 108,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "yaviks",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "yavilla",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "stable_target_milestone": 108,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "yavilly",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "stable_target_milestone": 108,
+          "is_experimental": false
+        }
+      ],
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 108
     },
     {
@@ -7266,6 +7487,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7218,
           "is_active": true,
+          "stable_target_milestone": 112,
           "is_experimental": false
         },
         {
@@ -7376,7 +7598,6 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "stable_target_milestone": 112,
           "is_experimental": false
         },
         {
