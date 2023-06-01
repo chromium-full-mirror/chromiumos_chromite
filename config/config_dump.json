@@ -8904,7 +8904,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "with 168h interval",
     "slave_configs": [
       "brask-factory-brya-14517.B-factorybranch",
       "brya-factory-brya-14517.B-factorybranch"
@@ -8928,7 +8928,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "brya-factory-brya-14909.124.B-factorybranch"
     ],
