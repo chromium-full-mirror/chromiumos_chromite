@@ -131,6 +131,23 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         self.assertFalse(options.dostrip)
         self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
 
+    def testLacrosWithLacrosOnly(self):
+        """Test lacros invocation with skip restarting ui."""
+        argv = [
+            "--lacros",
+            "--build-dir",
+            "/path/to/nowhere",
+            "--device",
+            "monkey",
+            "--board",
+            "atlas",
+            "--skip-restart-ui",
+        ]
+        options = _ParseCommandLine(argv)
+        self.assertTrue(options.lacros)
+        self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
+        self.assertTrue(options.skip_restart_ui)
+
     def assertParseError(self, argv):
         with self.OutputCapturer():
             self.assertRaises2(
@@ -828,30 +845,16 @@ class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
         self.deploy._CheckDeviceFreeSpace = mock.Mock()
         self.deploy._KillAshChromeIfNeeded = mock.Mock()
 
-    def testConfNotModified(self):
-        """When the conf file is not modified we don't restart chrome ."""
+    def testLacros(self):
+        """When no flag is set, Ash should be restarted."""
         self.prepareDeploy()
-        self.deploy.Perform()
-        self.deploy._KillAshChromeIfNeeded.assert_not_called()
-        self.assertFalse(self._ran_start_command)
-
-    def testConfModified(self):
-        """When the conf file is modified we restart chrome."""
-        self.prepareDeploy()
-
-        # We intentionally add '\n' to MODIFIED_CONF_FILE to simulate echo
-        # adding a newline when invoked in the shell.
-        self.rc.AddCmdResult(
-            partial_mock.In(deploy_chrome.ENABLE_LACROS_VIA_CONF_COMMAND),
-            stdout=deploy_chrome.MODIFIED_CONF_FILE + "\n",
-        )
 
         self.deploy.Perform()
         self.deploy._KillAshChromeIfNeeded.assert_called()
         self.assertTrue(self._ran_start_command)
 
-    def testSkipModifyingConf(self):
-        """SKip modifying the config file when the argument is specified."""
+    def testSkipRestartUi(self):
+        """When skip_restart_ui is enabled, Ash should not be restarted."""
         self.prepareDeploy(
             _ParseCommandLine(
                 [
@@ -861,14 +864,9 @@ class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
                     "/path/to/nowhere",
                     "--device",
                     "monkey",
-                    "--skip-modifying-config-file",
+                    "--skip-restart-ui",
                 ]
             )
-        )
-
-        self.rc.AddCmdResult(
-            partial_mock.In(deploy_chrome.ENABLE_LACROS_VIA_CONF_COMMAND),
-            stdout=deploy_chrome.MODIFIED_CONF_FILE + "\n",
         )
 
         self.deploy.Perform()

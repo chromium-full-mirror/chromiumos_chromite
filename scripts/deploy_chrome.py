@@ -640,16 +640,20 @@ class DeployChrome(object):
             self._PrepareStagingDir,
         ]
 
-        restart_ui = True
+        restart_ui = not self.options.skip_restart_ui
         if self.options.lacros:
-            # If this is a lacros build, we only want to restart ash-chrome if
-            # needed.
-            restart_ui = False
             steps.append(self._KillLacrosChrome)
             if self.options.reset_lacros:
                 steps.append(self._ResetLacrosChrome)
+            config_modified = False
             if self.options.modify_config_file:
-                restart_ui = self._ModifyConfigFileIfNeededForLacros()
+                config_modified = self._ModifyConfigFileIfNeededForLacros()
+            if config_modified and not restart_ui:
+                logging.warning(
+                    "Config file modified but skipping restart_ui "
+                    "due to option --skip-restart-ui. Config file "
+                    "update is not reflected."
+                )
 
         if restart_ui:
             steps.append(self._KillAshChromeIfNeeded)
@@ -856,6 +860,14 @@ def _CreateParser():
         action="store_true",
         default=False,
         help="Reset Lacros by deleting Lacros user data dir if it exists.",
+    )
+    group.add_argument(
+        "--skip-restart-ui",
+        action="store_true",
+        default=False,
+        help="Skip restarting ash-chrome on deploying lacros-chrome. Note "
+        "that this flag may cause ETXTBSY error on rsync, and also won't "
+        "reflect the /etc/chrome_dev.conf file updates as it won't restart.",
     )
     group.add_argument(
         "--skip-enabling-lacros-support",
