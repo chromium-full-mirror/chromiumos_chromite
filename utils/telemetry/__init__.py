@@ -31,6 +31,12 @@ You can disable this notice by setting `root.notice_countdown = 0` in the config
 def initialize():
     """Initialize opentelemetry library."""
 
+    # TODO(b/266131531): remove when ready for launch.
+    # To test locally, revert the associated commit or manually remove this
+    # line.
+    return
+    # pylint: disable=unreachable
+
     if not utils.is_google_host():
         return
 
@@ -64,6 +70,12 @@ def initialize():
 
 def export_to_console():
     """Add a span exporter to print spans to console."""
+
+    # TODO(b/266131531): remove when ready for launch.
+    # To test locally, revert the associated commit or manually remove this
+    # line.
+    return
+    # pylint: disable=unreachable
 
     cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
 
