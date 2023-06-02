@@ -14,10 +14,11 @@ import itertools
 import logging
 import os
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, NamedTuple, Optional
 
 from chromite.cli import command
 from chromite.format import formatters
+from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
@@ -146,6 +147,17 @@ def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
     return map_to_return
 
 
+class DispatcherResult(NamedTuple):
+    """Result of running a format command.
+
+    Includes the process exit code and, if the file was and remains
+    misformatted, the path of the file (for messaging for the --check mode).
+    """
+
+    process_return: int
+    misformatted_file: Path  # None if file is now formatted.
+
+
 def _Dispatcher(
     inplace: bool,
     _debug: bool,
@@ -154,7 +166,7 @@ def _Dispatcher(
     commit: Optional[str],
     tool: Callable,
     path: Path,
-) -> int:
+) -> DispatcherResult:
     """Call |tool| on |path| and take care of coalescing exit codes."""
     if commit:
         old_data = git.RunGit(None, ["show", f"{commit}:{path}"]).stdout
@@ -163,21 +175,21 @@ def _Dispatcher(
             old_data = osutils.ReadFile(path)
         except FileNotFoundError:
             logging.error("%s: file does not exist", path)
-            return 1
+            return DispatcherResult(1, None)
         except UnicodeDecodeError:
             logging.error("%s: file is not UTF-8 compatible", path)
-            return 1
+            return DispatcherResult(1, None)
     try:
         new_data = tool(old_data, path=path)
     except formatters.ParseError as e:
         logging.error("%s: parsing error: %s", e.args[0], e.__cause__)
-        return 1
+        return DispatcherResult(1, None)
     if new_data == old_data:
-        return 0
+        return DispatcherResult(0, None)
 
     if dryrun:
         logging.warning("%s: needs formatting", path)
-        return 1
+        return DispatcherResult(1, path)
     elif diff:
         path = str(path).lstrip("/")
         print(
@@ -193,14 +205,14 @@ def _Dispatcher(
                 )
             )
         )
-        return 1
+        return DispatcherResult(1, path)
     elif inplace:
         logging.debug("Updating %s", path)
         osutils.WriteFile(path, new_data)
-        return 0
+        return DispatcherResult(0, None)
     else:
         print(new_data, end="")
-        return 1
+        return DispatcherResult(1, None)
 
 
 @command.command_decorator("format")
@@ -333,14 +345,29 @@ Supported file names: %s
         tasks = []
         for tool, files in tool_map.items():
             tasks.extend([tool, x] for x in files)
+
+        misformatted_files = []
         if not tasks:
             logging.warning("No files support formatting.")
             ret = 0
         elif len(tasks) == 1:
             tool, files = next(iter(tool_map.items()))
-            ret = dispatcher(tool, files[0])
+            ret, misformatted_file = dispatcher(tool, files[0])
+            if misformatted_file:
+                misformatted_files = [str(misformatted_file)]
         else:
             # Run the tool in parallel on the files.
-            ret = sum(parallel.RunTasksInProcessPool(dispatcher, tasks))
+            for task_ret, task_file in parallel.RunTasksInProcessPool(
+                dispatcher, tasks
+            ):
+                ret = task_ret or 0
+                if task_file:
+                    misformatted_files.append(str(task_file))
+
+        if misformatted_files:
+            logging.notice(
+                "You can fix formatting errors by running:\n  cros format %s",
+                cros_build_lib.CmdToStr(misformatted_files),
+            )
 
         return 1 if ret else 0
