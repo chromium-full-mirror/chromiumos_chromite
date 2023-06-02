@@ -21,41 +21,41 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
         cfg = config.Config(path)
 
         self.assertFileContents(
-            path, "[root]\nnotice_count = 10\n\n[trace]\nenabled = True\n\n"
+            path, "[root]\nnotice_countdown = 10\n\n[trace]\nenabled = True\n\n"
         )
         self.assertTrue(cfg.trace_config.enabled)
-        self.assertEqual(10, cfg.root_config.notice_count)
+        self.assertEqual(10, cfg.root_config.notice_countdown)
 
     def test_load_config_file(self):
         """Test Config to load config file."""
 
         path = "telemetry.cfg"
         self.WriteTempFile(
-            path, "[root]\nnotice_count = 3\n\n[trace]\nenabled = True\n\n"
+            path, "[root]\nnotice_countdown = 3\n\n[trace]\nenabled = True\n\n"
         )
 
         path = self.tempdir / path
         cfg = config.Config(path)
 
         self.assertTrue(cfg.trace_config.enabled)
-        self.assertEqual(3, cfg.root_config.notice_count)
+        self.assertEqual(3, cfg.root_config.notice_countdown)
 
     def test_flush_config_file_with_updates(self):
         """Test Config to write the config changes to file."""
 
         path = self.tempdir / "telemetry.cfg"
         self.WriteTempFile(
-            path, "[root]\nnotice_count = 7\n\n[trace]\nenabled = True\n\n"
+            path, "[root]\nnotice_countdown = 7\n\n[trace]\nenabled = True\n\n"
         )
 
         cfg = config.Config(path)
 
         cfg.trace_config.update(enabled=False)
-        cfg.root_config.update(notice_count=9)
+        cfg.root_config.update(notice_countdown=9)
         cfg.flush()
 
         self.assertFileContents(
-            path, "[root]\nnotice_count = 9\n\n[trace]\nenabled = False\n\n"
+            path, "[root]\nnotice_countdown = 9\n\n[trace]\nenabled = False\n\n"
         )
 
 
@@ -92,22 +92,22 @@ def test_default_root_config():
     cfg[config.ROOT_SECTION_KEY] = {}
     root_config = config.RootConfig(cfg)
 
-    assert root_config.notice_count == 10
+    assert root_config.notice_countdown == 10
 
 
 def test_root_config_update():
     """Test RootConfig to update values."""
     cfg = configparser.ConfigParser()
-    cfg[config.ROOT_SECTION_KEY] = {config.NOTICE_COUNT_KEY: True}
+    cfg[config.ROOT_SECTION_KEY] = {config.NOTICE_COUNTDOWN_KEY: True}
     root_config = config.RootConfig(cfg)
-    root_config.update(notice_count=8)
-    assert root_config.notice_count == 8
+    root_config.update(notice_countdown=8)
+    assert root_config.notice_countdown == 8
 
 
 def test_root_config():
     """Test RootConfig to instantiate from passed dict."""
     cfg = configparser.ConfigParser()
-    cfg[config.ROOT_SECTION_KEY] = {config.NOTICE_COUNT_KEY: 9}
+    cfg[config.ROOT_SECTION_KEY] = {config.NOTICE_COUNTDOWN_KEY: 9}
     root_config = config.RootConfig(cfg)
 
-    assert root_config.notice_count == 9
+    assert root_config.notice_countdown == 9

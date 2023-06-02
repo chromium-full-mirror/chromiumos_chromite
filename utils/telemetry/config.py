@@ -9,11 +9,11 @@ import os
 
 
 ROOT_SECTION_KEY = "root"
-NOTICE_COUNT_KEY = "notice_count"
+NOTICE_COUNTDOWN_KEY = "notice_countdown"
 ENABLED_KEY = "enabled"
 TRACE_SECTION_KEY = "trace"
 DEFAULT_CONFIG = {
-    ROOT_SECTION_KEY: {NOTICE_COUNT_KEY: 10},
+    ROOT_SECTION_KEY: {NOTICE_COUNTDOWN_KEY: 10},
     TRACE_SECTION_KEY: {ENABLED_KEY: True},
 }
 
@@ -25,6 +25,7 @@ class TraceConfig:
         self._config = config
 
     def update(self, enabled: bool):
+        """Update the config."""
         self._config.set(TRACE_SECTION_KEY, ENABLED_KEY, str(enabled))
 
     @property
@@ -40,14 +41,17 @@ class RootConfig:
     def __init__(self, config):
         self._config = config
 
-    def update(self, notice_count: int):
-        self._config.set(ROOT_SECTION_KEY, NOTICE_COUNT_KEY, str(notice_count))
+    def update(self, notice_countdown: int):
+        """Update the config."""
+        self._config.set(
+            ROOT_SECTION_KEY, NOTICE_COUNTDOWN_KEY, str(notice_countdown)
+        )
 
     @property
-    def notice_count(self) -> int:
-        """Value for root.notice_count property in telemetry.cfg."""
+    def notice_countdown(self) -> int:
+        """Value for root.notice_countdown property in telemetry.cfg."""
 
-        return self._config[ROOT_SECTION_KEY].getint(NOTICE_COUNT_KEY, 10)
+        return self._config[ROOT_SECTION_KEY].getint(NOTICE_COUNTDOWN_KEY, 10)
 
 
 class Config:

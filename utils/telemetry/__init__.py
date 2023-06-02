@@ -22,7 +22,10 @@ To help improve the quality of this product, we collect de-identified usage data
 and stacktraces when crashes are encountered. You may choose to opt out of this
 collection at any time by setting the flag `trace.enabled = False` in
 
-                ~/.config/chromite/telemetry.cfg"""
+                ~/.config/chromite/telemetry.cfg
+
+You can disable this notice by setting `root.notice_countdown = 0` in the config.
+"""
 
 
 def initialize():
@@ -34,10 +37,13 @@ def initialize():
     chromite_config.initialize()
     cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
 
-    if cfg.trace_config.enabled and cfg.root_config.notice_count > 0:
+    if cfg.trace_config.enabled and cfg.root_config.notice_countdown > 0:
         print(NOTICE)
-        cfg.root_config.update(notice_count=cfg.root_config.notice_count - 1)
+        cfg.root_config.update(
+            notice_countdown=cfg.root_config.notice_countdown - 1
+        )
         cfg.flush()
+        return
 
     if cfg.trace_config.enabled:
         resource = otel_resources.get_aggregated_resources(
