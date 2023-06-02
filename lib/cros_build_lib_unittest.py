@@ -146,6 +146,27 @@ class CmdToStrTest(cros_test_lib.TestCase):
         self._testData(cros_build_lib.CmdToStr, tests)
 
 
+class TestCalledProcessError(cros_test_lib.TestCase):
+    """Test CalledProcessError API."""
+
+    def testOutputStdout(self):
+        """Make sure .output is removed and .stdout works."""
+        e = cros_build_lib.CalledProcessError(
+            0, ["true"], stdout="STDOUT", stderr="STDERR"
+        )
+        with self.assertRaises(AttributeError):
+            assert e.output is None
+        assert e.stdout == "STDOUT"
+        assert e.stderr == "STDERR"
+
+        e.stdout = "STDout"
+        e.stderr = "STDerr"
+        with self.assertRaises(AttributeError):
+            assert e.output is None
+        assert e.stdout == "STDout"
+        assert e.stderr == "STDerr"
+
+
 class TestRunCommandNoMock(cros_test_lib.TestCase):
     """Class that tests run by not mocking subprocess.Popen"""
 

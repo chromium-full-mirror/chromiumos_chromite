@@ -263,10 +263,20 @@ class CalledProcessError(subprocess.CalledProcessError):
         # The parent class will set |output|, so delete it. If Python ever drops
         # this output/stdout compat logic, we can drop this to match.
         del self.output
-        self.stdout = stdout
+        self._stdout = stdout
 
         self.msg = msg
         self.exception = exception
+
+    @property
+    def stdout(self):
+        """Override parent's usage of .output"""
+        return self._stdout
+
+    @stdout.setter
+    def stdout(self, value):
+        """Override parent's usage of .output"""
+        self._stdout = value
 
     @property
     def cmdstr(self):
