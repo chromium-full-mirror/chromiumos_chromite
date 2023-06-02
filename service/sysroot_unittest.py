@@ -530,8 +530,6 @@ class BuildPackagesRunConfigTest(
 
         packages = instance.GetForceLocalBuildPackages(test_sysroot)
 
-        self.assertIn("chromeos-base/chromeos-ssh-testkeys", packages)
-
         # Test when there are cros_workon packages and reverse dependencies
         # but skipping base install packages and their reverse dependencies.
         instance = sysroot.BuildPackagesRunConfig(incremental_build=False)

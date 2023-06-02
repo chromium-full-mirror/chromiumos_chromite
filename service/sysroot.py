@@ -359,14 +359,6 @@ class BuildPackagesRunConfig(object):
         packages = self.GetPackages()
         metrics_prefix = "service.sysroot.GetForceLocalBuildPackages"
 
-        if "virtual/target-os-test" in packages:
-            # chromeos-ssh-testkeys may generate ssh keys if the right USE flag
-            # is set. We force rebuilding this package from source every time,
-            # so that consecutive builds don't share ssh keys.
-            force_local_build_packages.add(
-                "chromeos-base/chromeos-ssh-testkeys"
-            )
-
         cros_workon_packages = None
         if self.workon:
             cros_workon_packages = _GetCrosWorkonPackages(sysroot_path)
