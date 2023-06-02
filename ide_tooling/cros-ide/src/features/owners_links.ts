@@ -55,7 +55,7 @@ export class OwnersLink extends vscode.DocumentLink {
 }
 
 // See this document for a detailed description of the OWNERS file format:
-// https://gerrit.googlesource.com/plugins/code-owners/+/refs/heads/master/resources/Documentation/backend-find-owners.md#syntax
+// https://chromium-review.googlesource.com/plugins/code-owners/Documentation/backend-find-owners.html#syntax
 //
 // We support two types of links: `include` and `file` links.
 // 1. The `include` keyword can only appear at the start of a line. It is followed by whitespace (no
