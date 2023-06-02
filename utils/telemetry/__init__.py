@@ -4,13 +4,13 @@
 
 """The tracing library that provides the Tracer."""
 
+import os
+
 from chromite.third_party.opentelemetry import trace as otel_trace_api
 from chromite.third_party.opentelemetry.sdk import resources as otel_resources
 from chromite.third_party.opentelemetry.sdk import trace as otel_trace
 from chromite.third_party.opentelemetry.sdk.trace import export as otel_export
 
-from chromite.lib import chromite_config
-from chromite.lib import cros_build_lib
 from chromite.utils.telemetry import config
 from chromite.utils.telemetry import detector
 from chromite.utils.telemetry import exporter
@@ -20,15 +20,16 @@ from chromite.utils.telemetry import utils
 NOTICE = """
 To help improve the quality of this product, we collect de-identified usage data
 and stacktraces when crashes are encountered. You may choose to opt out of this
-collection at any time by setting the flag `trace.enabled = False` in
+collection at any time by setting the flag `enabled = False` under [trace] section
+in
 
                 ~/.config/chromite/telemetry.cfg
 
-You can disable this notice by setting `root.notice_countdown = 0` in the config.
+The tracing will be auto enabled after the notice has been displayed for 10 times.
 """
 
 
-def initialize():
+def initialize(config_file: os.PathLike):
     """Initialize opentelemetry library."""
 
     # TODO(b/266131531): remove when ready for launch.
@@ -40,16 +41,19 @@ def initialize():
     if not utils.is_google_host():
         return
 
-    chromite_config.initialize()
-    cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
+    cfg = config.Config(config_file)
 
-    if cfg.trace_config.enabled and cfg.root_config.notice_countdown > 0:
-        print(NOTICE)
-        cfg.root_config.update(
-            notice_countdown=cfg.root_config.notice_countdown - 1
-        )
-        cfg.flush()
-        return
+    if not cfg.trace_config.hasEnabled():
+        if cfg.root_config.notice_countdown > 0:
+            print(NOTICE)
+            cfg.root_config.update(
+                notice_countdown=cfg.root_config.notice_countdown - 1
+            )
+            cfg.flush()
+            return
+        else:
+            cfg.trace_config.update(enabled=True, reason="AUTO")
+            cfg.flush()
 
     if cfg.trace_config.enabled:
         resource = otel_resources.get_aggregated_resources(
@@ -68,7 +72,7 @@ def initialize():
         )
 
 
-def export_to_console():
+def export_to_console(config_file: os.PathLike):
     """Add a span exporter to print spans to console."""
 
     # TODO(b/266131531): remove when ready for launch.
@@ -77,7 +81,7 @@ def export_to_console():
     return
     # pylint: disable=unreachable
 
-    cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
+    cfg = config.Config(config_file)
 
     if cfg.trace_config.enabled:
         otel_trace_api.get_tracer_provider().add_span_processor(

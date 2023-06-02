@@ -21,7 +21,7 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
         cfg = config.Config(path)
 
         self.assertFileContents(
-            path, "[root]\nnotice_countdown = 10\n\n[trace]\nenabled = True\n\n"
+            path, "[root]\nnotice_countdown = 10\n\n[trace]\n\n"
         )
         self.assertTrue(cfg.trace_config.enabled)
         self.assertEqual(10, cfg.root_config.notice_countdown)
@@ -50,12 +50,24 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
 
         cfg = config.Config(path)
 
-        cfg.trace_config.update(enabled=False)
+        cfg.trace_config.update(enabled=False, reason="AUTO")
         cfg.root_config.update(notice_countdown=9)
         cfg.flush()
 
         self.assertFileContents(
-            path, "[root]\nnotice_countdown = 9\n\n[trace]\nenabled = False\n\n"
+            path,
+            "\n".join(
+                [
+                    "[root]",
+                    "notice_countdown = 9",
+                    "",
+                    "[trace]",
+                    "enabled = False",
+                    "enabled_reason = AUTO",
+                    "",
+                    "",
+                ]
+            ),
         )
 
 
@@ -65,7 +77,7 @@ def test_default_trace_config():
     cfg[config.TRACE_SECTION_KEY] = {}
     trace_config = config.TraceConfig(cfg)
 
-    assert trace_config.enabled
+    assert not trace_config.hasEnabled()
 
 
 def test_trace_config_update():
@@ -73,8 +85,9 @@ def test_trace_config_update():
     cfg = configparser.ConfigParser()
     cfg[config.TRACE_SECTION_KEY] = {config.ENABLED_KEY: True}
     trace_config = config.TraceConfig(cfg)
-    trace_config.update(enabled=False)
+    trace_config.update(enabled=False, reason="AUTO")
     assert not trace_config.enabled
+    assert trace_config.enabled_reason == "AUTO"
 
 
 def test_trace_config():
@@ -84,6 +97,8 @@ def test_trace_config():
     trace_config = config.TraceConfig(cfg)
 
     assert trace_config.enabled
+    assert trace_config.hasEnabled()
+    assert trace_config.enabled_reason == "USER"
 
 
 def test_default_root_config():

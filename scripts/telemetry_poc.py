@@ -10,11 +10,9 @@ from typing import List, Optional
 
 from chromite.third_party.opentelemetry import trace
 
+from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.utils import telemetry
-
-
-telemetry.initialize()
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -48,8 +46,11 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
 
+    chromite_config.initialize()
+    telemetry.initialize(chromite_config.TELEMETRY_CONFIG)
+
     if opts.debug:
-        telemetry.export_to_console()
+        telemetry.export_to_console(chromite_config.TELEMETRY_CONFIG)
 
     with tracer.start_as_current_span("test") as span:
         time.sleep(opts.time / 2)

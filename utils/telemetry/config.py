@@ -6,15 +6,17 @@
 
 import configparser
 import os
+from typing import Literal
 
 
 ROOT_SECTION_KEY = "root"
 NOTICE_COUNTDOWN_KEY = "notice_countdown"
 ENABLED_KEY = "enabled"
+ENABLED_REASON_KEY = "enabled_reason"
 TRACE_SECTION_KEY = "trace"
 DEFAULT_CONFIG = {
     ROOT_SECTION_KEY: {NOTICE_COUNTDOWN_KEY: 10},
-    TRACE_SECTION_KEY: {ENABLED_KEY: True},
+    TRACE_SECTION_KEY: {},
 }
 
 
@@ -24,15 +26,27 @@ class TraceConfig:
     def __init__(self, config):
         self._config = config
 
-    def update(self, enabled: bool):
+    def update(self, enabled: bool, reason: Literal["AUTO", "USER"]):
         """Update the config."""
         self._config.set(TRACE_SECTION_KEY, ENABLED_KEY, str(enabled))
+        self._config.set(TRACE_SECTION_KEY, ENABLED_REASON_KEY, reason)
+
+    def hasEnabled(self) -> bool:
+        """Checks if the enabled property exists in config."""
+
+        return ENABLED_KEY in self._config[TRACE_SECTION_KEY]
 
     @property
     def enabled(self) -> bool:
         """Value of trace.enabled property in telemetry.cfg."""
 
         return self._config[TRACE_SECTION_KEY].getboolean(ENABLED_KEY, True)
+
+    @property
+    def enabled_reason(self) -> Literal["AUTO", "USER"]:
+        """Value of trace.enabled_reason property in telemetry.cfg."""
+
+        return self._config[TRACE_SECTION_KEY].get(ENABLED_REASON_KEY, "USER")
 
 
 class RootConfig:

@@ -23,6 +23,7 @@ import urllib.request
 from chromite.third_party.opentelemetry import trace
 
 from chromite.lib import build_target_lib
+from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
@@ -478,9 +479,10 @@ tracer = trace.get_tracer(__name__)
 
 
 def set_up_telemetry(debug: bool):
-    telemetry.initialize()
+    chromite_config.initialize()
+    telemetry.initialize(chromite_config.TELEMETRY_CONFIG)
     if debug:
-        telemetry.export_to_console()
+        telemetry.export_to_console(chromite_config.TELEMETRY_CONFIG)
 
 
 @timer.timed("Elapsed time (build_packages)")
