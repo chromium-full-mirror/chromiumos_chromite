@@ -5103,6 +5103,15 @@
         },
         {
           "board_name": "dedede-pvs",
+          "name": "taranza",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7267,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "dedede-pvs",
           "name": "waddledee",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
