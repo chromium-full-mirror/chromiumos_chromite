@@ -62,7 +62,11 @@ class FwImage(NamedTuple):
     firmware_type: str
 
 
-FWBUDDY_URI_SCHEMA = "fwbuddy://<board>/<model>/<firmware-name>/<version>/<image-type>/<firmware-type>"
+FWBUDDY_URI_SCHEMA = (
+    "fwbuddy://<board>/<model>/<firmware-name>/<version>/<image-type>/"
+    "<firmware-type>"
+)
+
 FIELD_DOCS = {
     "board": FieldDoc(
         description=(
@@ -105,11 +109,11 @@ FIELD_DOCS = {
     ),
     "version": FieldDoc(
         description=(
-            "The version of firmware you're looking for. This could "
-            "be either a pinned version or a specific release in the following "
-            "format: R<MILESTONE>-<MAJOR_VERSION>.<MINOR_VERSION>.<PATCH_NUMBER>. "
-            "If you don't know the milestone, you can replace it with a * and "
-            "fwbuddy should be able to still find the right version."
+            "The version of firmware you're looking for. This could be either a"
+            " pinned version or a specific release in the following format:"
+            " R<MILESTONE>-<MAJOR_VERSION>.<MINOR_VERSION>.<PATCH_NUMBER>. If"
+            " you don't know the milestone, you can replace it with a * and"
+            " fwbuddy should be able to still find the right version."
         ),
         examples="{R99-123.456.0|R*-123.456.0}",
         required=True,
@@ -171,7 +175,10 @@ def build_field_doc(field: str, indent: str, line_length: int) -> str:
     description_newline = "\n" + indent + "\t"
     field_doc = f"{indent}{field} ({required_state}):\n"
     field_doc += description_newline
-    field_doc += f"{description_newline.join(wrap(FIELD_DOCS[field].description, line_length))}\n\n"
+    description = description_newline.join(
+        wrap(FIELD_DOCS[field].description, line_length)
+    )
+    field_doc += f"{description}\n\n"
     field_doc += description_newline
     field_doc += "One of: " if FIELD_DOCS[field].strict else "Examples: "
     field_doc += f"{FIELD_DOCS[field].examples}\n\n"
@@ -180,8 +187,10 @@ def build_field_doc(field: str, indent: str, line_length: int) -> str:
 
 USAGE = build_usage_string()
 
-BUG_SUBMIT_URL = "https://issuetracker.google.com/issues/new?component=1094001&template=1670797"
-
+BUG_SUBMIT_URL = (
+    "https://issuetracker.google.com/issues/new?component="
+    "1094001&template=1670797"
+)
 # Dremel query to DLM to get the firmware branch for a given board/model.
 # TODO(b/280096504): Replace queries to DLM with static file b/279808263
 QUERY_FIRMWARE_BRANCH = """
@@ -197,7 +206,7 @@ SELECT
 # one by one.
 INTERACTIVE_MODE = ["fwbuddy", "fwbuddy://"]
 
-# TODO(b/280096504) Add support for channel specific versions, like 'latest-canary'
+# TODO(b/280096504) Add support for channel specific versions.
 STABLE = "stable"
 STABLE_RO = "stable-ro"
 LATEST = "latest"
@@ -242,18 +251,43 @@ CHIP_TYPES = [AP, EC]
 # All known file path schemas that unsigned firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 UNSIGNED_GSPATH_SCHEMAS = [
-    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
-    f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s.B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}",
-    f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
+        f"B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
+        f"%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}"
+    ),
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
+        f"B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
+        f"%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}"
+    ),
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-"
+        f"%(major_version)s.%(minor_version)s.%(patch_number)s/"
+        f"{UNSIGNED_ARCHIVE_NAME}"
+    ),
     # Schemas that incorporate firmware branch directly.
-    f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}",
-    f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}",
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-"
+        f"%(major_version)s.%(minor_version)s.%(patch_number)s/"
+        f"{UNSIGNED_ARCHIVE_NAME}"
+    ),
+    (
+        f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-"
+        f"%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/"
+        f"{UNSIGNED_ARCHIVE_NAME}"
+    ),
 ]
 
 # All known file path schemas that signed firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
 SIGNED_GSPATH_SCHEMAS = [
-    f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s.%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-%(major_version)s.%(minor_version)s.%(patch_number)s-%(board)s.tar.bz2"
+    (
+        f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s."
+        f"%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-"
+        f"%(major_version)s.%(minor_version)s.%(patch_number)s-"
+        f"%(board)s.tar.bz2"
+    )
 ]
 
 # Schemas used to generate the local file path for firmware images.
@@ -346,7 +380,7 @@ class FwBuddy:
             "model": self.uri.model,
         }
         result = None
-        # TODO(b/279808263): Get rid of DLM queries entirely and replace with reads to Google Storage.
+        # TODO(b/279808263): Replace with reads to Google Storage.
         try:
             result = cros_build_lib.run(
                 ["dremel", "--output", "csv"],
@@ -364,9 +398,11 @@ class FwBuddy:
             logging.warning(e)
 
         logging.warning(
-            "Unable to identify the firmware branch for %s "
-            "This may not be an issue, since the firmware branch is only "
-            "needed on rare occasions. Continuing on for the time being...",
+            (
+                "Unable to identify the firmware branch for %s "
+                "This may not be an issue, since the firmware branch is only "
+                "needed on rare occasions. Continuing on for the time being..."
+            ),
             self.uri,
         )
         return None
@@ -424,8 +460,10 @@ class FwBuddy:
     def download(self) -> None:
         """Downloads the firmware archive from Google Storage to tmp"""
         logging.notice(
-            "Downloading firmware archive from: %s "
-            "This may take a few minutes...",
+            (
+                "Downloading firmware archive from: %s "
+                "This may take a few minutes..."
+            ),
             self.gspath,
         )
         self.gs.CheckPathAccess(self.gspath)
@@ -457,8 +495,8 @@ class FwBuddy:
         )
         if result.returncode == 1:
             raise FwBuddyException(
-                f"Encountered a fatal error while extracting firmware archive contents: "
-                f"{result.stderr}"
+                "Encountered a fatal error while extracting firmware archive"
+                f" contents: {result.stderr}"
             )
         logging.notice(
             "Successfully extracted firmware contents to: %s", directory
@@ -493,14 +531,16 @@ class FwBuddy:
             self.ap_path is None and chip == AP
         ):
             raise FwBuddyException(
-                "Attempted to export firmware from an unextracted archive."
-                "Please first extract the firmware archive by running fwbuddy.extract"
+                "Attempted to export firmware from an unextracted"
+                " archive.Please first extract the firmware archive by running"
+                " fwbuddy.extract"
             )
 
         firmware_image_path = self.ec_path if chip == EC else self.ap_path
         image_name = firmware_image_path.split("/")[-1]
 
-        # Get the absolute path, expanding any user or system variables, like `~` to reference $HOME
+        # Get the absolute path, expanding any user or system
+        # variables, like `~` to reference $HOME
         directory = os.path.abspath(
             os.path.expanduser(os.path.expandvars(directory))
         )
@@ -512,8 +552,8 @@ class FwBuddy:
         )
         if result.returncode == 1:
             raise FwBuddyException(
-                f"Encountered a fatal error while exporting the firmware image: "
-                f"{result.stderr}"
+                "Encountered a fatal error while exporting the firmware image:"
+                f" {result.stderr}"
             )
         logging.notice(
             "Exported the %s firmware image to %s/%s",
@@ -539,7 +579,8 @@ def get_uri_interactive():
         user_input = input(f"{field_name}: ")
         while field.required and user_input == "":
             print(
-                f"{field_name} is a required field. Please enter a {field_name}\n"
+                f"{field_name} is a required field. Please enter a"
+                f" {field_name}\n"
             )
             user_input = input(f"{field_name}: ")
         if user_input != "":
@@ -660,13 +701,13 @@ def parse_chip(chip: str):
     if chip.lower() in CHIP_TYPES:
         return chip.lower()
     raise FwBuddyException(
-        f"Unrecognized or unsupported chip type: "
+        "Unrecognized or unsupported chip type: "
         f'"{chip}" Expected one of {CHIP_TYPES}'
     )
 
 
 def parse_firmware_type(firmware_type: str):
-    """Checks if the firmware_type is supported and returns a lowercase copy of it.
+    """Checks if the firmware_type is supported and returns a lowercase copy
 
     Args:
         firmware_type: The firmware_type. E.G. serial, dev, or net
@@ -682,6 +723,6 @@ def parse_firmware_type(firmware_type: str):
     if firmware_type.lower() in AP_FIRMWARE_TYPES:
         return firmware_type.lower()
     raise FwBuddyException(
-        f"Unrecognized or unsupported firmware type: "
+        "Unrecognized or unsupported firmware type: "
         f'"{firmware_type}" Expected one of {AP_FIRMWARE_TYPES}'
     )

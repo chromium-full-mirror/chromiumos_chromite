@@ -64,7 +64,10 @@ Examples:
         )
         parser.add_argument(
             "--chip",
-            help="Limits the output to only include the specified chip, E.G. EC or AP",
+            help=(
+                "Limits the output to only include the specified chip, "
+                "e.g. EC or AP"
+            ),
         )
 
     def Run(self):

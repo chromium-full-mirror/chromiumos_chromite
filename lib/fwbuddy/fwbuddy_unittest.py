@@ -276,7 +276,7 @@ def test_parse_firmware_type(setup):
 
 
 def test_get_uri_interactive(setup, monkeypatch):
-    """Test that we can build an fwbuddy URI correctly from an interactive prompt"""
+    """Test that we can build an fwbuddy URI from an interactive prompt."""
     num = 0
 
     def increment_num():
