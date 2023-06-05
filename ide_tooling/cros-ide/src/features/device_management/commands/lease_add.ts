@@ -41,6 +41,8 @@ export async function addLease(context: CommandContext): Promise<void> {
 
   const filter = await vscode.window.showQuickPick(FILTERS, {
     title: 'Lease a Device: Filter by...',
+    placeHolder:
+      'Select the filtering method (e.g. "Board Name") and press Enter',
   });
   if (!filter) {
     return;
