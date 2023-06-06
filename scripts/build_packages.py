@@ -408,6 +408,14 @@ def get_parser() -> commandline.ArgumentParser:
         deprecation_note,
     )
 
+    build_shell_bool_style_args(
+        group,
+        "bazel",
+        False,
+        "Use Bazel to build packages.",
+        deprecation_note,
+    )
+
     parser.add_argument("packages", nargs="*", help="Packages to build.")
     return parser
 
@@ -468,6 +476,7 @@ def parse_args(
         test_image=opts.withtest,
         debug_version=opts.withdebug,
         backtrack=opts.backtrack,
+        bazel=opts.bazel,
     )
     opts.Freeze()
     return parser, opts

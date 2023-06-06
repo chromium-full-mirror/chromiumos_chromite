@@ -321,6 +321,9 @@ def InstallPackages(input_proto, output_proto, _config):
     # Allow cros workon packages to build from the unstable ebuilds.
     workon = input_proto.flags.workon
 
+    # Use Bazel to build packages.
+    bazel = input_proto.flags.bazel
+
     if not target_sysroot.IsToolchainInstalled():
         cros_build_lib.Die("Toolchain must first be installed.")
 
@@ -340,6 +343,7 @@ def InstallPackages(input_proto, output_proto, _config):
         dryrun=dryrun,
         backtrack=DEFAULT_BACKTRACK,
         workon=workon,
+        bazel=bazel,
     )
 
     try:
