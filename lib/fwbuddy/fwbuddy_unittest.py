@@ -19,6 +19,11 @@ from chromite.lib import gs
 from chromite.lib.fwbuddy import fwbuddy
 
 
+GENERIC_VALID_URI = (
+    "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
+)
+
+
 @pytest.fixture(name="setup")
 def fixture_setup(monkeypatch):
     monkeypatch.setattr(gs.GSContext, "LS", lambda *_,: ["some/path"])
@@ -36,9 +41,7 @@ def test_usage_string(setup):
 
 def test_parse_uri(setup):
     """Tests that we can properly convert a uri string into a URI object"""
-    assert fwbuddy.parse_uri(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-    ) == fwbuddy.URI(
+    assert fwbuddy.parse_uri(GENERIC_VALID_URI) == fwbuddy.URI(
         board="dedede",
         model="galnat360",
         firmware_name="galtic",
@@ -141,9 +144,7 @@ def test_lookup_branch(setup, monkeypatch):
     monkeypatch.setattr(
         cros_build_lib, "run", lambda *_, **kwargs,: mock_response
     )
-    f = fwbuddy.FwBuddy(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-    )
+    f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     assert f.lookup_branch() == "firmware-icarus-12574.B"
 
 
@@ -156,9 +157,7 @@ def test_lookup_branch_fails(setup, monkeypatch):
     monkeypatch.setattr(
         cros_build_lib, "run", lambda *_, **kwargs,: raise_error()
     )
-    f = fwbuddy.FwBuddy(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-    )
+    f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
 
     assert f.lookup_branch() is None
 
@@ -184,9 +183,7 @@ def test_generate_signed_gspaths(setup):
 
 
 def test_determine_gspath(setup, monkeypatch):
-    f = fwbuddy.FwBuddy(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-    )
+    f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     assert f.determine_gspath() == "some/path"
 
     monkeypatch.setattr(fwbuddy, "generate_gspaths", lambda *_,: [])
@@ -195,9 +192,7 @@ def test_determine_gspath(setup, monkeypatch):
 
 
 def test_download(setup):
-    f = fwbuddy.FwBuddy(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-    )
+    f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     f.download()
     assert f.archive_path == f"{fwbuddy.TMP_STORAGE_FOLDER}/path"
 
@@ -208,9 +203,7 @@ def test_extract(setup, monkeypatch):
         cros_build_lib, "run", lambda *_, **kwargs,: mock_response
     )
     # Ap image path extraction with firmware_type
-    f = fwbuddy.FwBuddy(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-    )
+    f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     f.extract("tmp")
     assert f.ap_path == "tmp/image-galtic.serial.bin"
 
@@ -236,9 +229,7 @@ def test_export_firmware_image(setup, monkeypatch):
     monkeypatch.setattr(
         cros_build_lib, "run", lambda *_, **kwargs,: mock_response
     )
-    f = fwbuddy.FwBuddy(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-    )
+    f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     # Unsupported chip
     f.extract("tmp")
     with pytest.raises(fwbuddy.FwBuddyException):
@@ -289,3 +280,15 @@ def test_get_uri_interactive(setup, monkeypatch):
     )
 
     assert fwbuddy.get_uri_interactive() == "fwbuddy://1/2/3/4/5/6/"
+
+
+def test_interactive_mode(setup, monkeypatch):
+    """Test that we can trigger interactive mode"""
+    mock_input = GENERIC_VALID_URI
+    monkeypatch.setattr(
+        fwbuddy,
+        "get_uri_interactive",
+        lambda *args, **kwargs: f"{mock_input}",
+    )
+    f = fwbuddy.FwBuddy("fwbuddy://")
+    assert f.fw_image.board == "dedede"

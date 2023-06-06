@@ -331,7 +331,7 @@ class FwBuddy:
         self.ap_path = None
 
         if uri in INTERACTIVE_MODE:
-            uri = self.get_uri_interactive()
+            uri = get_uri_interactive()
         self.cleanup()
         self.setup()
         self.gs = gs.GSContext()
