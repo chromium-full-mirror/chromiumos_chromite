@@ -209,6 +209,7 @@ class BuildPackagesRunConfig(object):
         test_image: bool = True,
         debug_version: bool = True,
         backtrack: int = BACKTRACK_DEFAULT,
+        bazel: bool = False,
     ):
         """Init method.
 
@@ -250,6 +251,7 @@ class BuildPackagesRunConfig(object):
             debug_version: Build debug versions of Chromium-OS-specific
                 packages.
             backtrack: emerge --backtrack value.
+            bazel: Whether to use Bazel to build packages.
         """
         self.usepkg = usepkg
         self.install_debug_symbols = install_debug_symbols
@@ -277,6 +279,7 @@ class BuildPackagesRunConfig(object):
         self.test_image = test_image
         self.debug_version = debug_version
         self.backtrack = backtrack
+        self.bazel = bazel
 
     def GetUseFlags(self) -> Optional[str]:
         """Get the use flags as a single string."""
@@ -920,11 +923,27 @@ def BuildPackages(
             logging.info("Merging board packages now.")
             try:
                 with metrics_lib.timer(f"{metrics_prefix}.emerge"):
-                    cros_build_lib.sudo_run(
-                        emerge_cmd + emerge_flags + run_configs.GetPackages(),
-                        preserve_env=True,
-                        extra_env=extra_env,
-                    )
+                    if run_configs.bazel:
+                        packages = run_configs.GetPackages()
+                        cros_build_lib.run(
+                            ["bazel", "build"]
+                            + [
+                                f"@portage//{package}:package_set"
+                                for package in packages
+                            ]
+                        )
+                        for package in packages:
+                            cros_build_lib.run(
+                                ["bazel", "run", f"@portage//{package}:install"]
+                            )
+                    else:
+                        cros_build_lib.sudo_run(
+                            emerge_cmd
+                            + emerge_flags
+                            + run_configs.GetPackages(),
+                            preserve_env=True,
+                            extra_env=extra_env,
+                        )
                 logging.info("Builds complete.")
             except cros_build_lib.RunCommandError as e:
                 failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)

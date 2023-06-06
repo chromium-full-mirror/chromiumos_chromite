@@ -668,6 +668,7 @@ class InstallPackagesTest(
         goma_counterz_file=None,
         package_indexes=None,
         packages=None,
+        bazel=False,
     ):
         """Helper to build an input proto instance."""
         instance = sysroot_pb2.InstallPackagesRequest()
@@ -695,6 +696,8 @@ class InstallPackagesTest(
                 pkg_info = package_info.parse(pkg)
                 pkg_info_msg = instance.packages.add()
                 controller_util.serialize_package_info(pkg_info, pkg_info_msg)
+        if bazel:
+            instance.flags.bazel = bazel
         return instance
 
     def _OutputProto(self):
@@ -915,6 +918,7 @@ class InstallPackagesTest(
             dryrun=False,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
             workon=False,
+            bazel=False,
         )
 
     def testSuccessWithGomaLogs(self):
