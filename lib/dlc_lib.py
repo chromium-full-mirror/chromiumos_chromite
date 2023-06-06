@@ -82,14 +82,14 @@ _IMAGE_SIZE_NEARING_RATIO = 1.05
 _IMAGE_SIZE_GROWTH_RATIO = 1.2
 
 
-def HashFile(file_path):
+def HashFile(file_path: str) -> str:
     """Calculate the sha256 hash of a file.
 
     Args:
-        file_path: (str) path to the file.
+        file_path: Path to the file.
 
     Returns:
-        [str]: The sha256 hash of the file.
+        The sha256 hash of the file.
     """
     sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -200,15 +200,15 @@ class EbuildParams(object):
                 logging.error(err_msg)
                 raise Exception(err_msg)
 
-    def StoreDlcParameters(self, install_root_dir, sudo):
+    def StoreDlcParameters(self, install_root_dir: str, sudo: bool):
         """Store DLC parameters defined in the ebuild.
 
         Store DLC parameters defined in the ebuild in a temporary file so they
         can be retrieved in the build_image phase.
 
         Args:
-            install_root_dir: (str) The path to the root installation directory.
-            sudo: (bool) Use sudo to write the file.
+            install_root_dir: The path to the root installation directory.
+            sudo: Use sudo to write the file.
         """
         ebuild_params_path = EbuildParams.GetParamsPath(
             install_root_dir,
@@ -224,14 +224,16 @@ class EbuildParams(object):
         )
 
     @staticmethod
-    def GetParamsPath(install_root_dir, dlc_id, dlc_package, scaled):
+    def GetParamsPath(
+        install_root_dir: str, dlc_id: str, dlc_package: str, scaled: bool
+    ) -> str:
         """Get the path to the file storing the ebuild parameters.
 
         Args:
-            install_root_dir: (str) The path to the root installation directory.
-            dlc_id: (str) DLC ID.
-            dlc_package: (str) DLC package.
-            scaled: (bool) Scaled DLC option.
+            install_root_dir: The path to the root installation directory.
+            dlc_id: DLC ID.
+            dlc_package: DLC package.
+            scaled: Scaled DLC option.
 
         Returns:
             [str]: Path to |EBUILD_PARAMETERS|.
@@ -245,17 +247,19 @@ class EbuildParams(object):
         )
 
     @classmethod
-    def LoadEbuildParams(cls, sysroot, dlc_id, dlc_package, scaled):
+    def LoadEbuildParams(
+        cls, sysroot: str, dlc_id: str, dlc_package: str, scaled: bool
+    ) -> bool:
         """Read the stored ebuild parameters file and return a class instance.
 
         Args:
-            dlc_id: (str) DLC ID.
-            dlc_package: (str) DLC package.
-            sysroot: (str) The path to the build root directory.
-            scaled: (bool) Scaled DLC option.
+            dlc_id: DLC ID.
+            dlc_package: DLC package.
+            sysroot: The path to the build root directory.
+            scaled: Scaled DLC option.
 
         Returns:
-            [bool] : True if |ebuild_params_path| exists, False otherwise.
+            True if |ebuild_params_path| exists, False otherwise.
         """
         path = cls.GetParamsPath(sysroot, dlc_id, dlc_package, scaled)
         if not os.path.exists(path):
@@ -501,14 +505,20 @@ class DlcGenerator(object):
     # The DLC root path inside the DLC module.
     _DLC_ROOT_DIR = "root"
 
-    def __init__(self, ebuild_params, sysroot, board, src_dir=None):
+    def __init__(
+        self,
+        ebuild_params: EbuildParams,
+        sysroot: str,
+        board: str,
+        src_dir: str = None,
+    ):
         """Object initializer.
 
         Args:
-            sysroot: (str) The path to the build root directory.
-            ebuild_params: (EbuildParams) Ebuild variables.
-            board: (str) The target board we are building for.
-            src_dir: (str) Optional path to the DLC source root directory. When
+            sysroot: The path to the build root directory.
+            ebuild_params: Ebuild variables.
+            board: The target board we are building for.
+            src_dir: Optional path to the DLC source root directory. When
                 None, the default directory in |DLC_BUILD_DIR| is used.
         """
         # Use a temporary directory to avoid having to use sudo every time we
@@ -565,11 +575,11 @@ class DlcGenerator(object):
         )
         cros_build_lib.sudo_run(["cp", "-dR", src, dst])
 
-    def SquashOwnerships(self, path):
-        """Squash the owernships & permissions for files.
+    def SquashOwnerships(self, path: str):
+        """Squash the ownerships & permissions for files.
 
         Args:
-            path: (str) path that contains all files to be processed.
+            path: The path that contains all files to be processed.
         """
         cros_build_lib.sudo_run(["chown", "-R", "0:0", path])
         cros_build_lib.sudo_run(
@@ -657,11 +667,11 @@ class DlcGenerator(object):
             # directory. Now we need to remove it manually.
             osutils.RmDir(squashfs_root, sudo=True)
 
-    def SetupDlcImageFiles(self, dlc_dir):
+    def SetupDlcImageFiles(self, dlc_dir: str):
         """Prepares the directory dlc_dir with all the files a DLC needs.
 
         Args:
-            dlc_dir: (str) The path to where to setup files inside the DLC.
+            dlc_dir: The path to where to setup files inside the DLC.
         """
         dlc_root_dir = os.path.join(dlc_dir, self._DLC_ROOT_DIR)
         osutils.SafeMakedirs(dlc_root_dir)
@@ -671,13 +681,13 @@ class DlcGenerator(object):
         self.CollectExtraResources(dlc_dir)
         self.SquashOwnerships(dlc_dir)
 
-    def PrepareLsbRelease(self, dlc_dir):
+    def PrepareLsbRelease(self, dlc_dir: str):
         """Prepare the file /etc/lsb-release in the DLC module.
 
         This file is used dropping some identification parameters for the DLC.
 
         Args:
-            dlc_dir: (str) The path to the mounted point during image creation.
+            dlc_dir: The path to the mounted point during image creation.
         """
         app_id = None
         platform_lsb_rel_path = os.path.join(self.sysroot, LSB_RELEASE)
@@ -715,11 +725,11 @@ class DlcGenerator(object):
         content = "".join("%s=%s\n" % (k, v) for k, v in fields)
         osutils.WriteFile(lsb_release, content)
 
-    def AddLicensingFile(self, dlc_dir):
+    def AddLicensingFile(self, dlc_dir: str):
         """Add the licensing file for this DLC.
 
         Args:
-            dlc_dir: (str) The path to the mounted point during image creation.
+            dlc_dir: The path to the mounted point during image creation.
         """
         if not self.ebuild_params.fullnamerev:
             return
@@ -741,13 +751,13 @@ class DlcGenerator(object):
                 "LICENSE text is empty. Skipping LICENSE file creation."
             )
 
-    def CollectExtraResources(self, dlc_dir):
+    def CollectExtraResources(self, dlc_dir: str):
         """Collect the extra resources needed by the DLC module.
 
         Look at the documentation around _EXTRA_RESOURCES.
 
         Args:
-            dlc_dir: (str) The path to the mounted point during image creation.
+            dlc_dir: The path to the mounted point during image creation.
         """
         for r in _EXTRA_RESOURCES:
             source_path = os.path.join(self.sysroot, r)
@@ -818,16 +828,18 @@ class DlcGenerator(object):
         """Given the image bytes, get the least amount of blocks required."""
         return int(math.ceil(image_bytes / self._BLOCK_SIZE))
 
-    def GetImageloaderJsonContent(self, image_hash, table_hash, blocks):
+    def GetImageloaderJsonContent(
+        self, image_hash: str, table_hash: str, blocks: int
+    ) -> str:
         """Return the content of imageloader.json file.
 
         Args:
-            image_hash: (str) sha256 hash of the DLC image.
-            table_hash: (str) sha256 hash of the DLC table file.
-            blocks: (int) number of blocks in the DLC image.
+            image_hash: The sha256 hash of the DLC image.
+            table_hash: The sha256 hash of the DLC table file.
+            blocks: The number of blocks in the DLC image.
 
         Returns:
-            [str]: content of imageloader.json file.
+            The content of imageloader.json file.
         """
         return {
             "fs-type": self.ebuild_params.fs_type,
@@ -1027,15 +1039,15 @@ def IsLoadPinVerityDigestAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
 
 
 def InstallDlcImages(
-    sysroot,
-    board,
-    dlc_id=None,
-    install_root_dir=None,
-    preload=False,
-    factory_install=False,
-    rootfs=None,
-    stateful=None,
-    src_dir=None,
+    sysroot: str,
+    board: str,
+    dlc_id: str = None,
+    install_root_dir: str = None,
+    preload: bool = False,
+    factory_install: bool = False,
+    rootfs: str = None,
+    stateful: str = None,
+    src_dir: str = None,
 ):
     """Copies all DLC image files into the images directory.
 
@@ -1046,16 +1058,16 @@ def InstallDlcImages(
     Args:
         sysroot: Path to directory containing DLC images, e.g /build/<board>.
         board: The target board we are building for.
-        dlc_id: (str) DLC ID. If None, all the DLCs will be installed.
+        dlc_id: The DLC ID. If None, all the DLCs will be installed.
         install_root_dir: Path to DLC output directory, e.g.
             src/build/images/<board>/<version>. If None, the image will be
             generated but will not be copied to a destination.
         preload: When true, only copies DLC(s) if built with DLC_PRELOAD=true.
         factory_install: When true, copies DLC(s) built with
             DLC_FACTORY_INSTALL=true.
-        rootfs: (str) Path to the platform rootfs.
-        stateful: (str) Path to the platform stateful.
-        src_dir: (str) Path to the DLC source root directory.
+        rootfs: Path to the platform rootfs.
+        stateful: Path to the platform stateful.
+        src_dir: Path to the DLC source root directory.
     """
     build_dir = os.path.join(sysroot, DLC_BUILD_DIR)
     build_dir_scaled = os.path.join(sysroot, DLC_BUILD_DIR_SCALED)
