@@ -13,7 +13,7 @@ import * as netUtil from '../../common/net_util';
 import {TeeOutputChannel} from '../../common/tee_output_channel';
 import {
   DiagnosedError,
-  DiagnosticButton,
+  createShowLogsButton,
   diagnoseSshError,
   showErrorMessageWithButtons,
 } from './diagnostic';
@@ -512,14 +512,4 @@ function detectProxyProtocol(): ProxyProtocol {
   }
   // In other cases, fall back to the message passing protocol.
   return ProxyProtocol.MESSAGE_PASSING;
-}
-
-// Creates a button to open output logs.
-function createShowLogsButton(output: vscode.OutputChannel): DiagnosticButton {
-  return {
-    name: 'Show logs',
-    async action() {
-      output.show();
-    },
-  };
 }

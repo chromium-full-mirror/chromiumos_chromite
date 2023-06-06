@@ -9,6 +9,18 @@ export type DiagnosticButton = {
   action(): Promise<void>;
 };
 
+// Creates a button to open output logs.
+export function createShowLogsButton(
+  output: vscode.OutputChannel
+): DiagnosticButton {
+  return {
+    name: 'Show logs',
+    async action() {
+      output.show();
+    },
+  };
+}
+
 export function showErrorMessageWithButtons(
   message: string,
   buttons: DiagnosticButton[]
