@@ -23,15 +23,21 @@ COREBOOT_DOWNSTREAMER_REVIEW_PATHS = [
 ]
 
 COREBOOT_DOMAIN_RESTRICTED_PATHS = [
-    ["src/soc/amd", ["@amd.com", "@amd.corp-partner.google.com"]],
-    ["src/soc/intel", ["@intel.com", "@intel.corp-partner.google.com"]],
+    [
+        "src/soc/amd",
+        ["@amd.com", "@amd.corp-partner.google.com", "@google.com"],
+    ],
+    [
+        "src/soc/intel",
+        ["@intel.com", "@intel.corp-partner.google.com", "@google.com"],
+    ],
     [
         "src/soc/mediatek",
-        ["@mediatek.com", "@mediatek.corp-partner.google.com"],
+        ["@mediatek.com", "@mediatek.corp-partner.google.com", "@google.com"],
     ],
     [
         "src/soc/qualcomm",
-        ["@qualcomm.com", "@qualcomm.corp-partner.google.com"],
+        ["@qualcomm.com", "@qualcomm.corp-partner.google.com", "@google.com"],
     ],
     ["src/mainboard/google", ["@google.com"]],
 ]

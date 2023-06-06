@@ -25,6 +25,12 @@ from chromite.lib import gerrit
 # for dependencies from the platform/ec repo.
 MAX_GERRIT_CHANGES = 225
 REVIEWER_KEY_TEXT = "Original-Reviewed-by"
+AUTHOR_KEY_TEXT = "Original-Signed-off-by"
+
+CONTRIBUTOR_FILTERS = {
+    "authors": AUTHOR_KEY_TEXT,
+    "reviewers": REVIEWER_KEY_TEXT,
+}
 
 
 class PathDomains(NamedTuple):
@@ -103,9 +109,8 @@ class CopybotDownstream:
         """
         return []
 
-    @staticmethod
     def project_passed_downstreamer_review_paths_check(
-        cl: Dict, paths: List[str]
+        self, cl: Dict, paths: List[str]
     ) -> List[str]:
         """Check paths that require further downstreamer review.
 
@@ -128,9 +133,50 @@ class CopybotDownstream:
                 )
         return warning_strings
 
-    @staticmethod
+    def _extract_footer_value(self, commit_line: str, key: str) -> str:
+        """Extract a footer value from a commit line.
+
+        Examples:
+            commit_line: "Original-Reviewed-by:sundar@google.com"
+            key: "Original-Reviewed-by"
+            returns: "sundar@google.com"
+
+            commit_line: "Original-Signed-off-by:sundar@google.com"
+            key: "Original-Signed-off-by"
+            returns: "sundar@google.com"
+        """
+        m = re.fullmatch(f"{key}:(.*)", commit_line)
+        if not m:
+            return ""
+        return m.group(1).strip()
+
+    def _get_contributors_from_commit_msg(
+        self, message: List[str], filters: Dict
+    ) -> Dict:
+        """Extract contributor values from a commit message
+
+        Args:
+            message: List of strings representing a commit message where
+                one line is one member of the list.
+            filters: Dict of filters to be applied for contributor types.
+
+        Returns:
+            Dict
+                key: contributor type
+                value : List[str] Contributor
+        """
+        contributors = defaultdict(list)
+        for line in message.splitlines():
+            for contributor_type in filters:
+                contributor_text = self._extract_footer_value(
+                    line, filters[contributor_type]
+                )
+                if contributor_text:
+                    contributors[contributor_type].append(contributor_text)
+        return contributors
+
     def project_passed_domain_restricted_paths_check(
-        cl: Dict, paths_domains: List[PathDomains]
+        self, cl: Dict, paths_domains: List[PathDomains]
     ) -> List[str]:
         """Check paths that require further downstreamer review.
 
@@ -149,25 +195,32 @@ class CopybotDownstream:
         """
         warning_strings = []
         revision = cl["revisions"][cl["current_revision"]]
-        reviewers = []
-        for line in revision["commit"]["message"].splitlines():
-            if line.startswith(REVIEWER_KEY_TEXT):
-                reviewers.append(line[(len(REVIEWER_KEY_TEXT) + 1) :])
+        contributors = self._get_contributors_from_commit_msg(
+            revision["commit"]["message"], CONTRIBUTOR_FILTERS
+        )
+
         for path, domains in paths_domains:
-            if any(path in s for s in revision["files"]):
-                reviewer_found = False
-                for domain in domains:
-                    if any(domain in s for s in reviewers):
-                        reviewer_found = True
-                if not reviewer_found:
-                    warning_strings.append(
-                        f"Found filepath({path}) which requires"
-                        f" downstreamer review fromdomain(s) {str(domains)}"
-                    )
+            if not any(path in rev_file for rev_file in revision["files"]):
+                continue
+            domain_review_found = any(
+                (domain in author or domain in reviewer)
+                for reviewer in contributors["reviewers"]
+                for author in contributors["authors"]
+                for domain in domains
+            )
+            if not domain_review_found:
+                warning_strings.append(
+                    f"Found modification in filepath({path}) which requires"
+                    f" downstreamer review from domain(s) {domains}"
+                )
+            elif len(contributors["authors"]) > 1:
+                warning_strings.append(
+                    f"Found CL with multiple authors, the final author may not"
+                    f" satisfy domain checks {contributors['authors']}"
+                )
         return warning_strings
 
-    @staticmethod
-    def check_commit_message(cl: Dict, args: List[str]) -> List[str]:
+    def check_commit_message(self, cl: Dict, args: List[str]) -> List[str]:
         """Check commit message for keywords.
 
         * Throw warning if keywords found in commit message.
@@ -192,8 +245,7 @@ class CopybotDownstream:
                 warning_strings.append(f"Found {printable_term} in change!")
         return warning_strings
 
-    @staticmethod
-    def check_hashtags(cl: Dict, args: List[str]) -> List[str]:
+    def check_hashtags(self, cl: Dict, args: List[str]) -> List[str]:
         """Check hashtags for keywords.
 
         * Throw warning if keywords found in hashtags..
