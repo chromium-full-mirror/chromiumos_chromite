@@ -114,7 +114,7 @@ class CrosFormat implements vscode.DocumentFormattingEditProvider {
       metrics.send({
         category: 'background',
         group: 'format',
-        action: 'cros format',
+        description: 'cros format',
       });
       const wholeFileRange = new vscode.Range(
         document.positionAt(0),

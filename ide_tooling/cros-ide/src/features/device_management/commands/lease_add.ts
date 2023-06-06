@@ -36,7 +36,7 @@ export async function addLease(context: CommandContext): Promise<void> {
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'add lease',
+    description: 'add lease',
   });
 
   const filter = await vscode.window.showQuickPick(FILTERS, {

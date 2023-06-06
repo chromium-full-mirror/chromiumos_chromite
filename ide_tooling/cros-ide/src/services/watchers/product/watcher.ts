@@ -126,7 +126,7 @@ export class ProductWatcher implements vscode.Disposable {
       metrics.send({
         category: 'background',
         group: 'misc',
-        action: `multiple ${this.product} candidates (product watcher)`,
+        description: `multiple ${this.product} candidates (product watcher)`,
       });
     }
 

@@ -80,7 +80,7 @@ export function activate(
       metrics.send({
         category: 'interactive',
         group: 'gerrit',
-        action: 'focus comments panel',
+        description: 'focus comments panel',
       });
     })
   );
@@ -116,7 +116,7 @@ export function activate(
         metrics.send({
           category: 'interactive',
           group: 'gerrit',
-          action: 'collapse all comment threads',
+          description: 'collapse all comment threads',
         });
       }
     ),
@@ -390,7 +390,7 @@ class Gerrit implements vscode.Disposable {
         metrics.send({
           category: 'background',
           group: 'gerrit',
-          action: 'update comments',
+          description: 'update comments',
           value: threadsToDisplay.length,
         });
       }

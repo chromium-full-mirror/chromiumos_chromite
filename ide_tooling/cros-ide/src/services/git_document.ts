@@ -62,7 +62,7 @@ export class GitDocumentProvider implements vscode.TextDocumentContentProvider {
     metrics.send({
       category: 'interactive',
       group: 'virtualdocument',
-      action: 'open git document',
+      description: 'open git document',
       label: uri.fragment,
     });
 

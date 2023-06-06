@@ -116,7 +116,7 @@ describe('Cros format', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'background',
       group: 'format',
-      action: 'cros format',
+      description: 'cros format',
     });
   });
 

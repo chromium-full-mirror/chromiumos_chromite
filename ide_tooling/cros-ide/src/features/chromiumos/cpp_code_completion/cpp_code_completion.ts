@@ -48,7 +48,7 @@ export class CppCodeCompletion implements vscode.Disposable {
       metrics.send({
         category: 'interactive',
         group: 'idestatus',
-        action: 'show cpp log',
+        description: 'show cpp log',
       });
     }),
     vscode.window.onDidChangeActiveTextEditor(async editor => {
@@ -152,7 +152,7 @@ export class CppCodeCompletion implements vscode.Disposable {
         metrics.send({
           category: 'background',
           group: 'cppxrefs',
-          action,
+          description: action,
         });
         // TODO(oka): Make the operation cancellable.
         await generator.generate(document, canceller.token);

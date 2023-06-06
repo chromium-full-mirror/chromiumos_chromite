@@ -107,7 +107,7 @@ export function activate(
           metrics.send({
             category: 'interactive',
             group: 'chromium.outputDirectories',
-            action: 'edit args.gn',
+            description: 'edit args.gn',
           });
         }
       }
@@ -123,7 +123,7 @@ export function activate(
         metrics.send({
           category: 'interactive',
           group: 'chromium.outputDirectories',
-          action: 'refresh',
+          description: 'refresh',
         });
       }
     )
@@ -176,7 +176,7 @@ export function activate(
         metrics.send({
           category: 'interactive',
           group: 'chromium.outputDirectories',
-          action: 'change output directory',
+          description: 'change output directory',
         });
       }
     )
@@ -498,7 +498,7 @@ export class OutputDirectoriesDataProvider
     metrics.send({
       category: 'background',
       group: 'chromium.outputDirectories',
-      action: 'number of output directories',
+      description: 'number of output directories',
       value: nodes.length,
     });
 

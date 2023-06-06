@@ -59,7 +59,7 @@ export class Platform2 implements CompdbGenerator {
       metrics.send({
         category: 'background',
         group: 'cppxrefs',
-        action: 'interact with platform2 files supporting xrefs',
+        description: 'interact with platform2 files supporting xrefs',
       });
     }
 

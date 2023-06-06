@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
         metrics.send({
           category: 'interactive',
           group: 'misc',
-          action: command,
+          description: command,
         });
       })
     );

@@ -14,7 +14,7 @@ export async function connectToDeviceForScreen(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'connect to device with VNC',
+    description: 'connect to device with VNC',
   });
 
   const hostname = await promptKnownHostnameIfNeeded(

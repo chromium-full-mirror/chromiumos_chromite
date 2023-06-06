@@ -30,7 +30,7 @@ export async function flashPrebuiltImage(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'flash prebuilt image',
+    description: 'flash prebuilt image',
   });
 
   const source = chrootService.source;

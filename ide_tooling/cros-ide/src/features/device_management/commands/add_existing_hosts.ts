@@ -23,7 +23,7 @@ async function addExistingHosts(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'add existing hosts',
+    description: 'add existing hosts',
   });
 
   const hostnames = sshConfig.readUnaddedSshHosts(

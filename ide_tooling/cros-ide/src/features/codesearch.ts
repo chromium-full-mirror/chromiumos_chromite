@@ -48,7 +48,7 @@ async function openCurrentFile(textEditor: vscode.TextEditor) {
     metrics.send({
       category: 'interactive',
       group: 'codesearch',
-      action: 'open current file',
+      description: 'open current file',
     });
   }
 }
@@ -60,7 +60,7 @@ async function copyCurrentFile(textEditor: vscode.TextEditor) {
     metrics.send({
       category: 'interactive',
       group: 'codesearch',
-      action: 'copy current file',
+      description: 'copy current file',
     });
   }
 }
@@ -144,7 +144,7 @@ function searchSelection(textEditor: vscode.TextEditor) {
   metrics.send({
     category: 'interactive',
     group: 'codesearch',
-    action: 'search selection',
+    description: 'search selection',
     label: selectedText,
   });
 }

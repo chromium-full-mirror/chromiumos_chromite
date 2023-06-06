@@ -15,7 +15,7 @@ export async function deleteDevice(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'delete device',
+    description: 'delete device',
   });
 
   const hostname = await promptKnownHostnameIfNeeded(

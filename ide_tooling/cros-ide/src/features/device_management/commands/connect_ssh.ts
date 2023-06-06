@@ -16,7 +16,7 @@ export async function connectToDeviceForShell(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'connect to device with SSH',
+    description: 'connect to device with SSH',
   });
 
   const hostname = await promptKnownHostnameIfNeeded(

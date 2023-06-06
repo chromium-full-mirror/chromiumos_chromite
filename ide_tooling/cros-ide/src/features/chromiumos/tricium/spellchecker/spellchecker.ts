@@ -223,7 +223,7 @@ class Spellchecker {
       metrics.send({
         category: 'background',
         group: 'spellchecker',
-        action: 'diagnostics',
+        description: 'diagnostics',
         value: diagnostics.length,
       });
     }

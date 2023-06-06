@@ -139,7 +139,7 @@ class Recommender implements vscode.Disposable {
       metrics.send({
         category: 'background',
         group: 'misc',
-        action: 'show suggestion',
+        description: 'show suggestion',
         label: this.recommendation.extensionId,
       });
       if (choice === YES) {
@@ -154,7 +154,7 @@ class Recommender implements vscode.Disposable {
         metrics.send({
           category: 'interactive',
           group: 'misc',
-          action: 'install suggested',
+          description: 'install suggested',
           label: this.recommendation.extensionId,
         });
       }

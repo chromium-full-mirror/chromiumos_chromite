@@ -158,7 +158,7 @@ describe('Gerrit', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'background',
       group: 'gerrit',
-      action: 'update comments',
+      description: 'update comments',
       value: 1,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);
@@ -257,7 +257,7 @@ describe('Gerrit', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'background',
       group: 'gerrit',
-      action: 'update comments',
+      description: 'update comments',
       value: 1,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);
@@ -397,7 +397,7 @@ describe('Gerrit', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'background',
       group: 'gerrit',
-      action: 'update comments',
+      description: 'update comments',
       value: 4,
     });
   });
@@ -802,7 +802,7 @@ describe('Gerrit', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'background',
       group: 'gerrit',
-      action: 'update comments',
+      description: 'update comments',
       value: 2,
     });
   });
@@ -997,7 +997,7 @@ describe('Gerrit', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'background',
       group: 'gerrit',
-      action: 'update comments',
+      description: 'update comments',
       value: 1,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);
@@ -1116,7 +1116,7 @@ describe('Gerrit', () => {
     expect(metrics.send).toHaveBeenCalledWith({
       category: 'background',
       group: 'gerrit',
-      action: 'update comments',
+      description: 'update comments',
       value: 2,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);

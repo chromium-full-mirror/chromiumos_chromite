@@ -9,7 +9,7 @@ export async function crosfleetLogin(context: CommandContext): Promise<void> {
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'log in to crosfleet',
+    description: 'log in to crosfleet',
   });
 
   await context.crosfleetRunner.login();

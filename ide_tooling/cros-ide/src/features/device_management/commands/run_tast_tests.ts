@@ -45,7 +45,7 @@ export async function runTastTests(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'run Tast tests',
+    description: 'run Tast tests',
   });
 
   // Get the test to run from file path and function name.

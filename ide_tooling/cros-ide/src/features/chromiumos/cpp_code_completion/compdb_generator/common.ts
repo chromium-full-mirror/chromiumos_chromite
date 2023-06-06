@@ -13,7 +13,7 @@ export function throwForNoChroot(fileName: string): never {
   metrics.send({
     category: 'background',
     group: 'misc',
-    action: 'cpp xrefs generation without chroot',
+    description: 'cpp xrefs generation without chroot',
   });
 
   // platform2 user may prefer subdirectories

@@ -14,7 +14,7 @@ export async function copyHostname(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'copy hostname',
+    description: 'copy hostname',
   });
 
   await vscode.env.clipboard.writeText(item.hostname);

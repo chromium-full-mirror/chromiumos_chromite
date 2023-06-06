@@ -49,7 +49,7 @@ export class Runner {
     metrics.send({
       category: 'interactive',
       group: 'debugging',
-      action:
+      description:
         this.request.profile?.kind === vscode.TestRunProfileKind.Run
           ? 'run platform2 gtests'
           : 'debug platform2 gtests',

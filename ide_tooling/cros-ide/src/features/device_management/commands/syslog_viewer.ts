@@ -81,7 +81,7 @@ export async function openSystemLogViewer(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'open system log viewer',
+    description: 'open system log viewer',
   });
 
   const hostname = await promptKnownHostnameIfNeeded(

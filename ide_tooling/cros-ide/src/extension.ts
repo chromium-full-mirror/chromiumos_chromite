@@ -100,7 +100,7 @@ async function postMetricsActivate(
       metrics.send({
         category: 'interactive',
         group: 'idestatus',
-        action: 'show ui actions log',
+        description: 'show ui actions log',
       });
     })
   );
@@ -145,7 +145,7 @@ async function postMetricsActivate(
     metrics.send({
       category: 'background',
       group: 'misc',
-      action: 'gerrit enablement',
+      description: 'gerrit enablement',
       label: String(config.gerrit.enabled.get()),
     });
   }
@@ -153,14 +153,14 @@ async function postMetricsActivate(
   metrics.send({
     category: 'background',
     group: 'misc',
-    action: 'activate',
+    description: 'activate',
   });
 
   const age = await metricsConfig.getUserIdAgeInDays();
   metrics.send({
     category: 'background',
     group: 'misc',
-    action: 'user ID age',
+    description: 'user ID age',
     label: age.toString(),
   });
 

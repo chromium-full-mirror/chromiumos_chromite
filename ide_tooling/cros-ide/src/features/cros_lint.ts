@@ -305,7 +305,7 @@ async function updateDiagnostics(
       metrics.send({
         category: 'background',
         group: 'lint',
-        action: 'skip',
+        description: 'skip',
         label: document.languageId,
       });
       return;
@@ -374,7 +374,7 @@ async function updateDiagnostics(
     metrics.send({
       category: 'background',
       group: 'lint',
-      action: 'update',
+      description: 'update',
       label: document.languageId,
       value: diagnosticsCollection.length,
     });

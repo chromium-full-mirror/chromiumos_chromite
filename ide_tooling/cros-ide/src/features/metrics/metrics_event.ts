@@ -51,25 +51,11 @@ interface EventBase {
   // Examples:
   //   "select target board"
   //   "device: connect to device via VNC"
-  // TODO(b/281925148): description will become a required field. Value is same as the action (for
-  // interactive or background events) or description (error events) field sent to UA API.
-  description?: string;
-  action?: string; // Deprecated. Use description.
+  description: string;
   // Label is an optional string that describes the operation.
   label?: string;
   // Value is an optional number that describes the operation.
   value?: number;
 }
 
-// TODO(b/281925148): temporary measure before all action fields are renamed to description.
-type EventWithDescription = {
-  description: string;
-};
-// TODO(b/281925148): Temporary measure for migrating events to use description instead of action.
-// Eventually EventBase would contain `description` as a required field.
-type EventWithActionDeprecated = {
-  action: string;
-};
-
-export type Event = EventBase &
-  (EventWithDescription | EventWithActionDeprecated);
+export type Event = EventBase;

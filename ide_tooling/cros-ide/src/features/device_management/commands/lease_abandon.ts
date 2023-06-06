@@ -14,7 +14,7 @@ export async function abandonLease(
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'abandon lease',
+    description: 'abandon lease',
   });
 
   const hostname = await promptKnownHostnameIfNeeded(

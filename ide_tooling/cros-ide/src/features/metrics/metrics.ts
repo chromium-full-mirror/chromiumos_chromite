@@ -146,12 +146,10 @@ export class Analytics {
 
     const queries: string[] = [];
 
-    const description = event.description ?? event.action;
-
     if (event.category === 'error') {
       const data = Object.assign(baseData(), {
         t: 'exception',
-        exd: `${event.group}: ${description}`,
+        exd: `${event.group}: ${event.description}`,
       });
       queries.push(queryString.stringify(data));
     }
@@ -165,7 +163,7 @@ export class Analytics {
     Object.assign(data, {
       t: 'event',
       ec: event.category,
-      ea: `${event.group}: ${description}`,
+      ea: `${event.group}: ${event.description}`,
     });
     if (event.category !== 'error' && event.label !== undefined) {
       data.el = event.label;

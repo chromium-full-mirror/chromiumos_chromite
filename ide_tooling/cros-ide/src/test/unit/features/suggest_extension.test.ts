@@ -66,13 +66,13 @@ describe('Suggest extension module', () => {
     expect(metrics.send).toHaveBeenCalledWith({
       category: 'background',
       group: 'misc',
-      action: 'show suggestion',
+      description: 'show suggestion',
       label: 'foo',
     });
     expect(metrics.send).toHaveBeenCalledWith({
       category: 'interactive',
       group: 'misc',
-      action: 'install suggested',
+      description: 'install suggested',
       label: 'foo',
     });
   });

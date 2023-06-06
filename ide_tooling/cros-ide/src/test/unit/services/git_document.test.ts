@@ -31,7 +31,7 @@ describe('Git document provider', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'interactive',
       group: 'virtualdocument',
-      action: 'open git document',
+      description: 'open git document',
       label: 'spellchecker',
     });
   });
@@ -52,7 +52,7 @@ describe('Git document provider', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'interactive',
       group: 'virtualdocument',
-      action: 'open git document',
+      description: 'open git document',
       label: 'gerrit',
     });
   });

@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext): StatusManager {
       metrics.send({
         category: 'interactive',
         group: 'idestatus',
-        action: 'show ide status',
+        description: 'show ide status',
       });
     }),
     vscode.commands.registerCommand(
@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext): StatusManager {
         metrics.send({
           category: 'interactive',
           group: 'idestatus',
-          action: 'show log for ' + taskName,
+          description: 'show log for ' + taskName,
           label: TaskStatus[taskStatus], // string representation of the enum
         });
       }

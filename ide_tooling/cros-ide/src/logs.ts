@@ -42,7 +42,7 @@ function createLoggingBundle(
       metrics.send({
         category: 'interactive',
         group: 'idestatus',
-        action: 'show linter log',
+        description: 'show linter log',
       });
     })
   );

@@ -110,7 +110,7 @@ class BoardsPackages {
     metrics.send({
       category: 'interactive',
       group: 'package',
-      action: 'cros_workon start',
+      description: 'cros_workon start',
       label: `${board.name}: ${pkgName}`,
     });
     await this.crosWorkon(board.name, 'start', pkgName);
@@ -120,7 +120,7 @@ class BoardsPackages {
     metrics.send({
       category: 'interactive',
       group: 'package',
-      action: 'cros_workon stop',
+      description: 'cros_workon stop',
       label: `${pkg.board.name}: ${pkg.name}`,
     });
     await this.crosWorkon(pkg.board.name, 'stop', pkg.name);
@@ -175,7 +175,7 @@ class BoardsPackages {
     metrics.send({
       category: 'interactive',
       group: 'package',
-      action: 'open ebuild',
+      description: 'open ebuild',
     });
   }
 }

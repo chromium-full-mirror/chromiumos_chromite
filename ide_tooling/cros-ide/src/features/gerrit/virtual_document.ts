@@ -37,7 +37,7 @@ export class GerritDocumentProvider
     metrics.send({
       category: 'interactive',
       group: 'virtualdocument',
-      action: 'open gerrit document',
+      description: 'open gerrit document',
       // For consistency with git_document, which also send a label.
       label: 'gerrit patchset level',
     });

@@ -49,7 +49,7 @@ export class Coverage {
           metrics.send({
             category: 'interactive',
             group: 'coverage',
-            action: 'generate coverage',
+            description: 'generate coverage',
             label: `${pkg.board}:${pkg.name}`,
           });
         }
@@ -61,7 +61,7 @@ export class Coverage {
           metrics.send({
             category: 'interactive',
             group: 'coverage',
-            action: 'show coverage',
+            description: 'show coverage',
             label: `${pkg.board}:${pkg.name}`,
           });
         }
@@ -141,7 +141,7 @@ export class Coverage {
       metrics.send({
         category: 'background',
         group: 'coverage',
-        action: 'coverage shown',
+        description: 'coverage shown',
         // TODO(b:214322618): send how many lines are marked
       });
     }

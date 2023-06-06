@@ -124,7 +124,7 @@ export class SyslogPanel extends ReactPanel<SyslogViewContext> {
         metrics.send({
           category: 'interactive',
           group: 'device',
-          action: 'copy in syslog viewer',
+          description: 'copy in syslog viewer',
         });
         await vscode.env.clipboard.writeText(msg.text);
         void vscode.window.showInformationMessage(

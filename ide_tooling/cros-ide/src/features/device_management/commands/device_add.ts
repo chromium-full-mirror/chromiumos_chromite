@@ -9,7 +9,7 @@ export async function addDevice(context: CommandContext): Promise<void> {
   metrics.send({
     category: 'interactive',
     group: 'device',
-    action: 'add device',
+    description: 'add device',
   });
 
   const hostname = await promptNewHostname(
