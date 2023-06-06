@@ -23,7 +23,6 @@ import urllib.request
 from chromite.third_party.opentelemetry import trace
 
 from chromite.lib import build_target_lib
-from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
@@ -478,19 +477,11 @@ def parse_args(
 tracer = trace.get_tracer(__name__)
 
 
-def set_up_telemetry(debug: bool):
-    chromite_config.initialize()
-    telemetry.initialize(chromite_config.TELEMETRY_CONFIG)
-    if debug:
-        telemetry.export_to_console(chromite_config.TELEMETRY_CONFIG)
-
-
 @timer.timed("Elapsed time (build_packages)")
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     commandline.RunInsideChroot()
     parser, opts = parse_args(argv)
 
-    set_up_telemetry(opts.debug)
     build_packages(parser, opts)
 
 

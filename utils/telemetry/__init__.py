@@ -29,61 +29,58 @@ The tracing will be auto enabled after the notice has been displayed for 10 time
 """
 
 
-def initialize(config_file: os.PathLike):
-    """Initialize opentelemetry library."""
+def initialize(config_file: os.PathLike, debug: bool = False):
+    """Initialize opentelemetry library.
 
-    # TODO(b/266131531): remove when ready for launch.
-    # To test locally, revert the associated commit or manually remove this
-    # line.
-    return
-    # pylint: disable=unreachable
+    The function initialized the opentelemetry library for trace collection. It
+    collects the resource information, initializes the TraceProvider and based
+    on enrollment and host enables or disables publishing of traces.
 
-    if not utils.is_google_host():
-        return
+    Examples:
+        from chromite.lib import chromite_config
+
+        opts = parse_args(argv)
+        chromite_config.initialize()
+        telemetry.initialize(chromite_config.TELEMETRY_CONFIG, opts.debug)
+
+    Args:
+        config_file: The path to the telemetry cfg to load for initializing
+        the telemetry.
+        debug: Indicates if the traces should be exported to console.
+    """
+
+    resource = otel_resources.get_aggregated_resources(
+        [
+            otel_resources.ProcessResourceDetector(),
+            otel_resources.OTELResourceDetector(),
+            detector.ProcessDetector(),
+            detector.SystemDetector(),
+        ]
+    )
+    otel_trace_api.set_tracer_provider(
+        otel_trace.TracerProvider(resource=resource)
+    )
 
     cfg = config.Config(config_file)
+    is_google_host = utils.is_google_host()
 
-    if not cfg.trace_config.hasEnabled():
-        if cfg.root_config.notice_countdown > 0:
+    if is_google_host and not cfg.trace_config.has_enabled():
+        if cfg.root_config.notice_countdown > -1:
             print(NOTICE)
             cfg.root_config.update(
                 notice_countdown=cfg.root_config.notice_countdown - 1
             )
             cfg.flush()
-            return
         else:
             cfg.trace_config.update(enabled=True, reason="AUTO")
             cfg.flush()
 
-    if cfg.trace_config.enabled:
-        resource = otel_resources.get_aggregated_resources(
-            [
-                otel_resources.ProcessResourceDetector(),
-                otel_resources.OTELResourceDetector(),
-                detector.ProcessDetector(),
-                detector.SystemDetector(),
-            ]
-        )
-        otel_trace_api.set_tracer_provider(
-            otel_trace.TracerProvider(resource=resource)
-        )
+    if cfg.trace_config.enabled and is_google_host:
         otel_trace_api.get_tracer_provider().add_span_processor(
             otel_export.BatchSpanProcessor(exporter.ClearcutSpanExporter())
         )
 
-
-def export_to_console(config_file: os.PathLike):
-    """Add a span exporter to print spans to console."""
-
-    # TODO(b/266131531): remove when ready for launch.
-    # To test locally, revert the associated commit or manually remove this
-    # line.
-    return
-    # pylint: disable=unreachable
-
-    cfg = config.Config(config_file)
-
-    if cfg.trace_config.enabled:
+    if debug:
         otel_trace_api.get_tracer_provider().add_span_processor(
             otel_export.BatchSpanProcessor(otel_export.ConsoleSpanExporter())
         )

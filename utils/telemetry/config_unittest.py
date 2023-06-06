@@ -23,7 +23,9 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
         self.assertFileContents(
             path, "[root]\nnotice_countdown = 10\n\n[trace]\n\n"
         )
-        self.assertTrue(cfg.trace_config.enabled)
+        self.assertFalse(cfg.trace_config.enabled)
+        self.assertFalse(cfg.trace_config.has_enabled())
+        self.assertEqual("AUTO", cfg.trace_config.enabled_reason)
         self.assertEqual(10, cfg.root_config.notice_countdown)
 
     def test_load_config_file(self):
@@ -77,7 +79,7 @@ def test_default_trace_config():
     cfg[config.TRACE_SECTION_KEY] = {}
     trace_config = config.TraceConfig(cfg)
 
-    assert not trace_config.hasEnabled()
+    assert not trace_config.has_enabled()
 
 
 def test_trace_config_update():
@@ -97,8 +99,8 @@ def test_trace_config():
     trace_config = config.TraceConfig(cfg)
 
     assert trace_config.enabled
-    assert trace_config.hasEnabled()
-    assert trace_config.enabled_reason == "USER"
+    assert trace_config.has_enabled()
+    assert trace_config.enabled_reason == "AUTO"
 
 
 def test_default_root_config():

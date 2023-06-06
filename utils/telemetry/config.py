@@ -31,7 +31,7 @@ class TraceConfig:
         self._config.set(TRACE_SECTION_KEY, ENABLED_KEY, str(enabled))
         self._config.set(TRACE_SECTION_KEY, ENABLED_REASON_KEY, reason)
 
-    def hasEnabled(self) -> bool:
+    def has_enabled(self) -> bool:
         """Checks if the enabled property exists in config."""
 
         return ENABLED_KEY in self._config[TRACE_SECTION_KEY]
@@ -40,13 +40,13 @@ class TraceConfig:
     def enabled(self) -> bool:
         """Value of trace.enabled property in telemetry.cfg."""
 
-        return self._config[TRACE_SECTION_KEY].getboolean(ENABLED_KEY, True)
+        return self._config[TRACE_SECTION_KEY].getboolean(ENABLED_KEY, False)
 
     @property
     def enabled_reason(self) -> Literal["AUTO", "USER"]:
         """Value of trace.enabled_reason property in telemetry.cfg."""
 
-        return self._config[TRACE_SECTION_KEY].get(ENABLED_REASON_KEY, "USER")
+        return self._config[TRACE_SECTION_KEY].get(ENABLED_REASON_KEY, "AUTO")
 
 
 class RootConfig:
