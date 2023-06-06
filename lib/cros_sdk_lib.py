@@ -13,7 +13,7 @@ from pathlib import Path
 import pwd
 import resource
 import shutil
-from typing import List, Optional, Union
+from typing import List, Optional, Set, Union
 
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -735,8 +735,11 @@ class ChrootCreator:
         """
         if not user:
             user = os.getenv("SUDO_USER")
+            assert user is not None
         if uid is None:
-            uid = int(os.getenv("SUDO_UID"))
+            uid_str = os.getenv("SUDO_UID")
+            assert uid_str is not None
+            uid = int(uid_str)
         if gid is None:
             gid = pwd.getpwnam(user).pw_gid
 
@@ -758,13 +761,13 @@ class ChrootCreator:
         lines.insert(0, line)
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-        home = self.chroot_path / home[1:]
-        self.init_user_home(home, uid, gid)
+        home_path = self.chroot_path / home[1:]
+        self.init_user_home(home_path, uid, gid)
 
     def init_group(
         self,
         user: Optional[str] = None,
-        groups: Optional[List[str]] = None,
+        groups: Optional[Set[str]] = None,
         group: Optional[str] = None,
         gid: Optional[int] = None,
     ):
@@ -787,6 +790,7 @@ class ChrootCreator:
         """
         if not user:
             user = os.getenv("SUDO_USER")
+            assert user is not None
         if groups is None:
             groups = self.DEFGROUPS
         if gid is None:
@@ -853,7 +857,7 @@ class ChrootCreator:
                 mode=0o755, parents=True, exist_ok=True
             )
 
-    def init_etc(self, user: str = None):
+    def init_etc(self, user: Optional[str] = None):
         """Setup the /etc paths."""
         if user is None:
             user = os.getenv("SUDO_USER")
@@ -938,10 +942,10 @@ $ cros_sdk --delete%s
     @metrics_lib.timed("cros_sdk_lib.ChrootCreator.run")
     def run(
         self,
-        user: str = None,
-        uid: int = None,
-        group: str = None,
-        gid: int = None,
+        user: Optional[str] = None,
+        uid: Optional[int] = None,
+        group: Optional[str] = None,
+        gid: Optional[int] = None,
     ):
         """Create the chroot.
 
@@ -1029,7 +1033,7 @@ class ChrootEnteror:
         self.cmd = cmd
 
         if cwd and not cwd.is_absolute():
-            cwd = path_util.ToChrootPath(cwd)
+            cwd = Path(path_util.ToChrootPath(cwd))
         self.cwd = cwd
 
     def _check_chroot(self) -> None:
@@ -1053,12 +1057,12 @@ class ChrootEnteror:
             for_shell=True
         )
         if self.chrome_root_mount:
-            wrapper += ["--chrome_root_mount", self.chrome_root_mount]
+            wrapper += ["--chrome_root_mount", str(self.chrome_root_mount)]
         if cwd:
-            wrapper += ["--working_dir", cwd]
+            wrapper += ["--working_dir", str(cwd)]
 
         if cmd:
-            wrapper += ["--"] + self.cmd
+            wrapper += ["--"] + cmd
 
         return cros_build_lib.dbg_run(wrapper, check=False)
 
