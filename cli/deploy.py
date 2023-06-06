@@ -67,6 +67,7 @@ class CpvInfo(NamedTuple):
     slot: str
     rdep_raw: str
     build_time: int
+    root: str
     use: str
 
 
@@ -143,6 +144,7 @@ class _InstallPackageScanner:
             "cpv",
             "build_time",
             "rdeps_raw",
+            "root",
             "use",
             "rdeps",
             "rev_rdeps",
@@ -153,12 +155,14 @@ class _InstallPackageScanner:
             cpv: package_info.CPV,
             build_time: int,
             rdeps_raw: str,
+            root: str,
             use: str,
             rdeps: set = None,
             rev_rdeps: set = None,
         ):
             self.cpv = cpv
             self.build_time = build_time
+            self.root = root
             self.rdeps_raw = rdeps_raw
             self.use = use
             self.rdeps = set() if rdeps is None else rdeps
@@ -179,9 +183,9 @@ trees = portage.create_trees(target_root=target_root, config_root='/')
 vartree = trees[target_root]['vartree']
 pkg_info = []
 for cpv in vartree.dbapi.cpv_all():
-  slot, rdep_raw, build_time, use = vartree.dbapi.aux_get(
-      cpv, ('SLOT', 'RDEPEND', 'BUILD_TIME', 'USE'))
-  pkg_info.append((cpv, slot, rdep_raw, build_time, use))
+  slot, rdep_raw, build_time, root, use = vartree.dbapi.aux_get(
+      cpv, ('SLOT', 'RDEPEND', 'BUILD_TIME', 'ROOT', 'USE'))
+  pkg_info.append((cpv, slot, rdep_raw, build_time, root, use))
 
 print(json.dumps(pkg_info))
 """
@@ -388,7 +392,7 @@ print(json.dumps(pkg_info))
         """
         db = {}
         logging.debug("Populating package DB...")
-        for cpv, slot, rdeps_raw, build_time, use in cpv_info:
+        for cpv, slot, rdeps_raw, build_time, root, use in cpv_info:
             cp = self._GetCP(cpv)
             cp_slots = db.setdefault(cp, {})
             if slot in cp_slots:
@@ -397,13 +401,14 @@ print(json.dumps(pkg_info))
                     % self._AtomStr(cp, slot)
                 )
             logging.debug(
-                " %s -> %s, built %s, raw rdeps: %s",
+                " %s -> %s, built %s, root %s, raw rdeps: %s",
                 self._AtomStr(cp, slot),
                 cpv,
                 build_time,
+                root,
                 rdeps_raw,
             )
-            cp_slots[slot] = self.PkgInfo(cpv, build_time, rdeps_raw, use)
+            cp_slots[slot] = self.PkgInfo(cpv, build_time, rdeps_raw, root, use)
 
         avail_db = db
         if installed_db is None:
@@ -523,10 +528,12 @@ print(json.dumps(pkg_info))
         bintree = trees[build_root]["bintree"]
         binpkgs_info = []
         for cpv in bintree.dbapi.cpv_all():
-            slot, rdep_raw, build_time, use = bintree.dbapi.aux_get(
-                cpv, ["SLOT", "RDEPEND", "BUILD_TIME", "USE"]
+            slot, rdep_raw, build_time, root, use = bintree.dbapi.aux_get(
+                cpv, ["SLOT", "RDEPEND", "BUILD_TIME", "ROOT", "USE"]
             )
-            binpkgs_info.append(CpvInfo(cpv, slot, rdep_raw, build_time, use))
+            binpkgs_info.append(
+                CpvInfo(cpv, slot, rdep_raw, build_time, root, use)
+            )
 
         try:
             self.binpkgs_db = self._BuildDB(
@@ -640,7 +647,7 @@ print(json.dumps(pkg_info))
 
     def _NeedsInstall(
         self, cpv: str, slot: str, build_time: int, optional: bool
-    ) -> Tuple[bool, bool, bool]:
+    ) -> Tuple[bool, bool, bool, str]:
         """Returns whether a package needs to be installed on the target.
 
         Args:
@@ -650,17 +657,18 @@ print(json.dumps(pkg_info))
             optional: Whether package is optional on the target.
 
         Returns:
-            A tuple (install, update, use_mismatch) indicating whether to
+            A tuple (install, update, use_mismatch, root) indicating whether to
             |install| the package, whether it is an |update| to an existing
-            package, and whether the package's USE flags mismatch the existing
-            package.
+            package, whether the package's USE flags mismatch the existing
+            package, and if installing/updating the package, the root location
+            or None otherwise.
 
         Raises:
             ValueError: if slot is not provided.
         """
         # If not checking installed packages, always install.
         if not self.target_db:
-            return True, False, False
+            return True, False, False, None
 
         cp = self._GetCP(cpv)
         target_pkg_info = self.target_db.get(cp, {}).get(slot)
@@ -714,7 +722,7 @@ print(json.dumps(pkg_info))
                         target_pkg_info.use,
                         binpkg_pkg_info.use,
                     )
-                return True, True, use_mismatch
+                return True, True, use_mismatch, target_pkg_info.root
 
             logging.debug(
                 "Not updating %s: already up-to-date (%s, built %s)",
@@ -722,18 +730,18 @@ print(json.dumps(pkg_info))
                 target_pkg_info.cpv,
                 target_pkg_info.build_time,
             )
-            return False, False, False
+            return False, False, False, None
 
         if optional:
             logging.debug(
                 "Not installing %s: missing on target but optional", cp
             )
-            return False, False, False
+            return False, False, False, None
 
         logging.debug(
             "Installing %s: missing on target and non-optional (%s)", cp, cpv
         )
-        return True, False, False
+        return True, False, False, None
 
     def _ProcessDeps(self, deps: List[str], reverse: bool) -> None:
         """Enqueues dependencies for processing.
@@ -824,13 +832,13 @@ print(json.dumps(pkg_info))
                 num_processed += 1
                 logging.debug(" Checking %s...", pkg_info.cpv)
 
-                install, update, use_mismatch = self._NeedsInstall(
+                install, update, use_mismatch, pkg_root = self._NeedsInstall(
                     pkg_info.cpv, slot, pkg_info.build_time, optional
                 )
                 if not install:
                     continue
 
-                installs[cp] = (pkg_info.cpv, slot, listed, update)
+                installs[cp] = (pkg_info.cpv, slot, listed, update, pkg_root)
                 warnings_shown |= use_mismatch
 
                 # Add forward and backward runtime dependencies to queue.
@@ -869,7 +877,7 @@ print(json.dumps(pkg_info))
 
         def SortFrom(cp: str) -> None:
             """Traverses deps recursively, emitting nodes in reverse order."""
-            cpv, slot, _, _ = installs[cp]
+            cpv, slot = installs[cp][0:2]
             if cpv in curr_path:
                 raise ValueError(
                     "Dependencies contain a cycle: %s -> %s"
@@ -899,6 +907,10 @@ print(json.dumps(pkg_info))
             )
         self._EnqDep((cp, slot), True, False)
 
+    def _GetPkgRoot(self, cpv: str, installs: List[str]) -> str:
+        cp = self._GetCP(cpv)
+        return installs[cp][-1]
+
     def _EnqInstalledPkgs(self) -> None:
         """Enqueues all available binary packages that are already installed."""
         for cp, cp_slots in self.binpkgs_db.items():
@@ -916,7 +928,7 @@ print(json.dumps(pkg_info))
         update: bool,
         process_rdeps: bool,
         process_rev_rdeps: bool,
-    ) -> Tuple[List[str], List[str], int, Dict[str, str], bool]:
+    ) -> Tuple[List[str], List[str], int, Dict[str, str], Dict[str, str], bool]:
         """Computes the list of packages that need to be installed on a target.
 
         Args:
@@ -948,11 +960,8 @@ print(json.dumps(pkg_info))
                 "Must check installed packages when processing deps"
             )
 
-        if update:
-            logging.info("Initializing target intalled packages database...")
-            self._InitTargetVarDB(
-                device, root, process_rdeps, process_rev_rdeps
-            )
+        logging.info("Initializing target intalled packages database...")
+        self._InitTargetVarDB(device, root, process_rdeps, process_rev_rdeps)
 
         logging.info("Initializing binary packages database...")
         self._InitBinpkgDB(process_rdeps)
@@ -977,7 +986,7 @@ print(json.dumps(pkg_info))
 
         num_updates = 0
         listed_installs = []
-        for cpv, _, listed, isupdate in installs.values():
+        for cpv, _, listed, isupdate, _ in installs.values():
             if listed:
                 listed_installs.append(cpv)
             if isupdate:
@@ -994,34 +1003,36 @@ print(json.dumps(pkg_info))
         sorted_installs = self._SortInstalls(installs)
 
         install_attrs = {}
+        pkg_root = {}
         for pkg in sorted_installs:
             pkg_path = os.path.join(root, portage_util.VDB_PATH, pkg)
             dlc_id, dlc_package = _GetDLCInfo(device, pkg_path, from_dut=True)
             install_attrs[pkg] = {}
             if dlc_id and dlc_package:
                 install_attrs[pkg][_DLC_ID] = dlc_id
+            pkg_default_root = self._GetPkgRoot(pkg, installs)
+            pkg_root[pkg] = pkg_default_root if pkg_default_root else root
 
         return (
             sorted_installs,
             listed_installs,
             num_updates,
             install_attrs,
+            pkg_root,
             warnings_shown,
         )
 
 
 def _Emerge(
     device: remote_access.RemoteDevice,
-    pkg_paths: List[str],
-    root: str,
+    pkg_paths: Dict[str, str],
     extra_args: List[str] = None,
 ) -> str:
     """Copies |pkg_paths| to |device| and emerges them.
 
     Args:
         device: A ChromiumOSDevice object.
-        pkg_paths: Local paths to binary packages.
-        root: Package installation root path.
+        pkg_paths: Map of package pkg:root for packages to be emerged.
         extra_args: Extra arguments to pass to emerge.
 
     Raises:
@@ -1084,12 +1095,19 @@ def _Emerge(
     # --ignore-built-slot-operator-deps because we don't rebuild everything. It
     # can cause errors, but that's expected with cros deploy since it's just a
     # best effort to prevent developers avoid rebuilding an image every time.
+    root_set = set(pkg_paths.values())
+    root_target = next(iter(root_set))
+    if len(root_set) > 1:
+        logging.warning(
+            "There are multiple roots targets. Using %s", root_target
+        )
+
     cmd = [
         "emerge",
         "--usepkg",
         "--ignore-built-slot-operator-deps=y",
         "--root",
-        root,
+        root_target,
     ] + [os.path.join(pkgroot, *x.split("/")[-2:]) for x in pkg_paths]
     if extra_args:
         cmd.append(extra_args)
@@ -1170,17 +1188,21 @@ def _RestoreSELinuxContext(
 
 
 def _GetPackagesByCPV(
-    cpvs: List[package_info.CPV], strip: bool, sysroot: str
-) -> List[str]:
+    cpvs: List[package_info.CPV],
+    strip: bool,
+    sysroot: str,
+    pkg_root: Dict[str, str],
+) -> Dict[str, str]:
     """Returns paths to binary packages corresponding to |cpvs|.
 
     Args:
         cpvs: List of CPV components given by package_info.SplitCPV().
         strip: True to run strip_package.
         sysroot: Sysroot path.
+        pkg_root: Map of pkg:root where packages should be installed.
 
     Returns:
-        List of paths corresponding to |cpvs|.
+        Map of path:root corresponding to |cpvs|.
 
     Raises:
         DeployError: If a package is missing.
@@ -1203,7 +1225,7 @@ def _GetPackagesByCPV(
             )
             raise
 
-    paths = []
+    paths = {}
     for cpv in cpvs:
         path = portage_util.GetBinaryPackagePath(
             cpv.category,
@@ -1214,24 +1236,27 @@ def _GetPackagesByCPV(
         )
         if not path:
             raise DeployError("Missing package %s." % cpv)
-        paths.append(path)
+        paths[path] = pkg_root[cpv.cpf]
 
     return paths
 
 
-def _GetPackagesPaths(pkgs: List[str], strip: bool, sysroot: str) -> List[str]:
+def _GetPackagesPaths(
+    pkgs: List[str], strip: bool, sysroot: str, pkg_root: Dict[str, str]
+) -> Dict[str, str]:
     """Returns paths to binary |pkgs|.
 
     Args:
         pkgs: List of package CPVs string.
         strip: Whether or not to run strip_package for CPV packages.
         sysroot: The sysroot path.
+        pkg_root: Map of pkg:root where the package should be installed.
 
     Returns:
-        List of paths corresponding to |pkgs|.
+        Map of path:root corresponding to |pkgs|.
     """
     cpvs = [package_info.SplitCPV(p) for p in pkgs]
-    return _GetPackagesByCPV(cpvs, strip, sysroot)
+    return _GetPackagesByCPV(cpvs, strip, sysroot, pkg_root)
 
 
 def _Unmerge(
@@ -1290,7 +1315,7 @@ def _EmergePackages(
     device: remote_access.RemoteDevice,
     strip: bool,
     sysroot: str,
-    root: str,
+    pkg_root: Dict[str, str],
     board: str,
     emerge_args: List[str],
 ) -> None:
@@ -1305,13 +1330,13 @@ def _EmergePackages(
     dlc_deployed = False
     # This message is read by BrilloDeployOperation.
     logging.info("Preparing local packages for transfer.")
-    pkg_paths = _GetPackagesPaths(pkgs, strip, sysroot)
+    pkg_paths = _GetPackagesPaths(pkgs, strip, sysroot, pkg_root)
     # Install all the packages in one pass so inter-package blockers work.
-    _Emerge(device, pkg_paths, root, extra_args=emerge_args)
+    _Emerge(device, pkg_paths, extra_args=emerge_args)
     logging.info("Updating SELinux settings & DLC images.")
-    for pkg_path in pkg_paths:
+    for pkg_path, pkg_install_root in pkg_paths.items():
         if device.IsSELinuxAvailable():
-            _RestoreSELinuxContext(device, pkg_path, root)
+            _RestoreSELinuxContext(device, pkg_path, pkg_install_root)
 
         dlc_id, dlc_package = _GetDLCInfo(device, pkg_path, from_dut=False)
         if dlc_id and dlc_package:
@@ -1634,7 +1659,7 @@ def Deploy(
         deep: Install dependencies also. Implies |update|.
         deep_rev: Install reverse dependencies. Implies |deep|.
         clean_binpkg: Clean outdated binary packages.
-        root: Package installation root path.
+        root: Package installation root path. Ignored if ROOT is present.
         strip: Run strip_package to filter out preset paths in the package.
         emerge_args: Extra arguments to pass to emerge.
         ssh_private_key: Path to an SSH private key file; None to use test keys.
@@ -1709,6 +1734,7 @@ def Deploy(
                 listed,
                 num_updates,
                 pkgs_attrs,
+                pkg_root,
                 warnings_shown,
             ) = pkg_scanner.Run(device, root, packages, update, deep, deep_rev)
             if emerge:
@@ -1740,7 +1766,11 @@ def Deploy(
             logging.notice("These are the packages to %s:", action_str)
             for i, pkg in enumerate(pkgs):
                 logging.notice(
-                    "%s %d) %s", "*" if pkg in listed else " ", i + 1, pkg
+                    "%s %d) %s (root=%s)",
+                    "*" if pkg in listed else " ",
+                    i + 1,
+                    pkg,
+                    pkg_root[pkg],
                 )
 
             if dry_run or not _ConfirmDeploy(num_updates):
@@ -1761,7 +1791,7 @@ def Deploy(
                     device,
                     strip,
                     sysroot,
-                    root,
+                    pkg_root,
                     board,
                     emerge_args,
                 )
