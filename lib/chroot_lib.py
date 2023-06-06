@@ -9,6 +9,7 @@ functionality that can eventually be centralized here.
 """
 
 import os
+from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import constants
@@ -35,7 +36,7 @@ class Chroot(object):
     def __init__(
         self,
         path: Optional[Union[str, os.PathLike]] = None,
-        out_path: Optional[os.PathLike] = None,
+        out_path: Optional[Path] = None,
         cache_dir: Optional[str] = None,
         chrome_root: Optional[str] = None,
         env: Optional[Dict[str, str]] = None,
@@ -90,7 +91,7 @@ class Chroot(object):
         return self._path
 
     @property
-    def out_path(self) -> os.PathLike:
+    def out_path(self) -> Path:
         return self._out_path
 
     def exists(self) -> bool:
