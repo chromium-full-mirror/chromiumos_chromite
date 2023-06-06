@@ -7,12 +7,20 @@ import * as net from 'net';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as ws from 'ws';
+import {MemoryOutputChannel} from '../../common/memory_output_channel';
 import * as commonUtil from '../../common/common_util';
 import * as netUtil from '../../common/net_util';
-import * as sshUtil from './ssh_util';
-import * as webviewShared from './webview_shared';
+import {TeeOutputChannel} from '../../common/tee_output_channel';
+import {
+  DiagnosedError,
+  DiagnosticButton,
+  diagnoseSshError,
+  showErrorMessageWithButtons,
+} from './diagnostic';
 import {replaceAll} from './html_util';
 import {SshIdentity} from './ssh_identity';
+import * as sshUtil from './ssh_util';
+import * as webviewShared from './webview_shared';
 
 /**
  * Represents a protocol used between the WebView and localhost.
@@ -224,7 +232,10 @@ async function startAndWaitVncServer(
   try {
     await Promise.race([serverStarted, serverStopped]);
   } catch (err: unknown) {
-    showErrorMessageWithLogButton(`VNC server failed: ${err}`, output);
+    const buttons = err instanceof DiagnosedError ? [...err.buttons] : [];
+    buttons.push(createShowLogsButton(output));
+
+    showErrorMessageWithButtons(`VNC server failed: ${err}`, buttons);
     return;
   }
 
@@ -247,7 +258,10 @@ async function startAndWaitVncServer(
   try {
     await serverStopped;
   } catch (err: unknown) {
-    showErrorMessageWithLogButton(`VNC server failed: ${err}`, output);
+    const buttons = err instanceof DiagnosedError ? [...err.buttons] : [];
+    buttons.push(createShowLogsButton(output));
+
+    showErrorMessageWithButtons(`VNC server failed: ${err}`, buttons);
   }
 }
 
@@ -255,6 +269,8 @@ async function startAndWaitVncServer(
  * Starts the VNC server on a remote device via SSH.
  * The returned promise rejects if it fails to start the VNC server or the server exits
  * unexpectedly. It resolves only if it is cancelled via CancellationToken.
+ *
+ * It throws DiagnosedError if SSH command fails.
  */
 async function startVncServer(
   hostname: string,
@@ -270,8 +286,11 @@ async function startVncServer(
     ['-L', `${forwardPort}:localhost:${KMSVNC_PORT}`],
     `fuser -k ${KMSVNC_PORT}/tcp; kmsvnc`
   );
+
+  const memoryOutput = new MemoryOutputChannel();
+
   const result = await commonUtil.exec(args[0], args.slice(1), {
-    logger: output,
+    logger: new TeeOutputChannel(memoryOutput, output),
     logStdout: true,
     cancellationToken: token,
   });
@@ -279,7 +298,7 @@ async function startVncServer(
     return;
   }
   if (result instanceof Error) {
-    throw result;
+    throw diagnoseSshError(result, memoryOutput.output);
   }
   throw new Error('VNC server stopped unexpectedly');
 }
@@ -495,16 +514,12 @@ function detectProxyProtocol(): ProxyProtocol {
   return ProxyProtocol.MESSAGE_PASSING;
 }
 
-// Shows an error message with a button to open output logs.
-function showErrorMessageWithLogButton(
-  message: string,
-  output: vscode.OutputChannel
-): void {
-  void (async () => {
-    const button = 'Show logs';
-    const choice = await vscode.window.showErrorMessage(message, button);
-    if (choice === button) {
+// Creates a button to open output logs.
+function createShowLogsButton(output: vscode.OutputChannel): DiagnosticButton {
+  return {
+    name: 'Show logs',
+    async action() {
       output.show();
-    }
-  })();
+    },
+  };
 }
