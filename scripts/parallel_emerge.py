@@ -19,7 +19,6 @@ import os
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
-from chromite.lib import constants
 from chromite.lib import cros_build_lib
 
 
@@ -156,10 +155,6 @@ def main(argv):
     # semantics of chromite logging CLI args.
     if "-v" in argv or "--verbose" in argv:
         emerge_args.append("--verbose")
-
-    emerge_args.append(
-        f"--rebuild-exclude={' '.join(constants.ALL_CHROME_PACKAGES)}"
-    )
 
     cmd = ["emerge"] + emerge_args
     cmd_str = cros_build_lib.CmdToStr(cmd)

@@ -372,7 +372,7 @@ class CleanOutdatedCommand(command.CliCommand):
                     pkgs_before - pkgs_after,
                 )
 
-        if not self.options.chrome_packages:
+        if self.options.keep_chrome_packages:
             # Filter out Chrome packages, if asked, for both SDK and DUT.
             pkgs_before = len(pkgs)
             for chrome_pkg in constants.ALL_CHROME_PACKAGES:
@@ -599,11 +599,11 @@ class CleanOutdatedCommand(command.CliCommand):
         """,
         )
         parser.add_argument(
-            "--chrome-packages",
+            "--keep-chrome-packages",
             default=False,
             action="store_true",
             help="""
-        Purges chrome packages, if necessary.
+        Forbids purging of chrome packages.
         """,
         )
         parser.add_argument(
