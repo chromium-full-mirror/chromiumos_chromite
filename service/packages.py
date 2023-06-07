@@ -844,6 +844,26 @@ def uprev_borealis_dlc_nvidia(_build_targets, _refs, chroot):
     return uprev_lib.uprev_ebuild_from_pin(package_path, version_no_rev, chroot)
 
 
+@uprevs_versioned_package("chromeos-base/borealis-dlc-chroot")
+def uprev_borealis_dlc_chroot(_build_targets, _refs, chroot):
+    """Updates shared borealis-dlc-chroot ebuild - chromeos-base/borealis-dlc-chroot.
+
+    See: uprev_versioned_package.
+    """
+    package_path = os.path.join(
+        "src",
+        "private-overlays",
+        "chromeos-partner-overlay",
+        "chromeos-base",
+        "borealis-dlc-chroot",
+    )
+
+    version_pin_src_path = _get_version_pin_src_path(package_path)
+    version_no_rev = osutils.ReadFile(version_pin_src_path).strip()
+
+    return uprev_lib.uprev_ebuild_from_pin(package_path, version_no_rev, chroot)
+
+
 def _get_version_pin_src_path(package_path):
     """Returns the path to the VERSION-PIN file for the given package."""
     return os.path.join(constants.SOURCE_ROOT, package_path, "VERSION-PIN")
