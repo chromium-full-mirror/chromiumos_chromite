@@ -733,16 +733,6 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         """Binaries in /usr/local should call _DumpAllowingBasicFallback()"""
         self._testBinaryIsInLocalFallback("usr/local", "minidump_stackwalk")
 
-    def testOptGoogleCrosContainersLibSkip(self):
-        """Binaries in /opt/google/cros-containers/lib as well.
-
-        Binaries in /opt/google/cros-containers/lib should call
-        _DumpAllowingBasicFallback()
-        """
-        self._testBinaryIsInLocalFallback(
-            "opt/google/cros-containers/lib", "libc.so.6"
-        )
-
 
 class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
     """Tests ValidateSymbolFile"""
