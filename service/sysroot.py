@@ -856,6 +856,10 @@ def BuildPackages(
     metrics_prefix = "service.sysroot.BuildPackages"
 
     if not chromite_config.AUTO_COP_CONFIG_OFF.is_file():
+        logging.debug(
+            "clean-outdated-pkgs config does not exist: %s",
+            chromite_config.AUTO_COP_CONFIG_OFF,
+        )
         cop_command = [
             "cros",
             "clean-outdated-pkgs",

@@ -455,6 +455,7 @@ class CleanOutdatedCommand(command.CliCommand):
         # use a presence/absence of a file to control.
         if enable_automation:
             osutils.SafeUnlink(chromite_config.AUTO_COP_CONFIG_OFF)
+            logging.debug("Clearing %s", chromite_config.AUTO_COP_CONFIG_OFF)
             logging.notice(
                 "From now on, clean-outdated-pkgs will be run "
                 "automatically during update_chroot and build_packages."
@@ -462,6 +463,7 @@ class CleanOutdatedCommand(command.CliCommand):
         else:
             chromite_config.initialize()
             chromite_config.AUTO_COP_CONFIG_OFF.touch()
+            logging.debug("Creating %s", chromite_config.AUTO_COP_CONFIG_OFF)
             logging.notice(
                 "From now on, clean-outdated-pkgs will NOT be run "
                 "automatically during update_chroot and build_packages."
