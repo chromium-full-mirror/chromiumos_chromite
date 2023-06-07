@@ -1676,7 +1676,7 @@ class ChromiumOSDevice(RemoteDevice):
         become available after the installation.
         """
         self.run(["dev_install", "--reinstall", "--only_bootstrap", "--yes"])
-        self.device.HasProgramInPath.cache_clear()
+        self.HasProgramInPath.cache_clear()
 
     def run(self, cmd, **kwargs):
         """Executes a shell command on the device.
