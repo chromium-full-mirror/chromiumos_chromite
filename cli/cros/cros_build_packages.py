@@ -25,11 +25,13 @@ from chromite.third_party.opentelemetry.trace import status
 
 from chromite.cli import command
 from chromite.lib import build_target_lib
+from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
 from chromite.service import sysroot
+from chromite.utils import telemetry
 from chromite.utils import timer
 
 
@@ -496,6 +498,11 @@ class BuildPackagesCommand(command.CliCommand):
     @timer.timed("Elapsed time (cros build-packages)")
     def Run(self):
         commandline.RunInsideChroot()
+
+        chromite_config.initialize()
+        telemetry.initialize(
+            chromite_config.TELEMETRY_CONFIG, debug=self.options.debug
+        )
         build_packages(self.options)
 
 
