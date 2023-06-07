@@ -70,12 +70,6 @@
   "auth-failure.conf": [
     "rm \"$tmp_log\""
   ],
-  "authpolicyd.conf": [
-    "chown -R authpolicyd:authpolicyd \"${AUTHPOLICY_LIB_DIR}\"",
-    "chown -R authpolicyd:authpolicyd \"${AUTHPOLICY_RUN_DIR}\"",
-    "mkdir -m 0700 -p \"${AUTHPOLICY_RUN_DIR}\"",
-    "mkdir -m 0710 -p \"${AUTHPOLICY_LIB_DIR}\""
-  ],
   "avahi.conf": [
     "mkdir -p /run/avahi-daemon"
   ],

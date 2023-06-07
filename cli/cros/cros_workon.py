@@ -51,17 +51,17 @@ Actions:
 Examples:
   There is some support for automatically locating ebuilds. The following two
   commands are equivalent.
-    cros workon start chromeos-base/authpolicy --build-target eve
-    cros workon start authpolicy -b eve
+    cros workon start chromeos-base/attestation --build-target eve
+    cros workon start attestation -b eve
 
   Start working on a package (always build from source):
-    cros workon start authpolicy -b eve
+    cros workon start attestation -b eve
 
   Stop working on a package (use last known good version):
-    cros workon stop authpolicy -b eve
+    cros workon stop attestation -b eve
 
   Start and stop also support resolving paths:
-    cd ~/chromiumos/src/platform2/authpolicy
+    cd ~/chromiumos/src/platform2/attestation
     cros workon start . -b eve
     cros workon stop . -b eve
 
@@ -70,10 +70,10 @@ Examples:
 
   Due to argparse limitations, the positional arguments must be together.
   The following two commands are equivalent:
-    cros workon stop authpolicy -b eve
-    cros workon -b eve stop authpolicy
+    cros workon stop attestation -b eve
+    cros workon -b eve stop attestation
   However, currently the following will not parse correctly:
-    cros workon stop -b eve authpolicy
+    cros workon stop -b eve attestation
 """
 
     @classmethod

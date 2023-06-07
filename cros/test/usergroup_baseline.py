@@ -224,11 +224,6 @@ GROUP_BASELINE = dict(
             gid=253,
             users={"root", "attestation", "tpm_manager"},
         ),
-        GroupEntry(
-            group="authpolicyd",
-            gid=254,
-            users={"authpolicyd", "authpolicyd-exec"},
-        ),
         GroupEntry(group="scanner", gid=255, users={_SCANNER_DAEMON}),
         GroupEntry(
             group="uinput", gid=258, users={"bluetooth", "volume", "biod"}
@@ -256,7 +251,6 @@ GROUP_BASELINE = dict(
             gid=303,
             users={
                 "attestation",
-                "authpolicyd",
                 "chronos",
                 "hardware_verifier",
                 "secagentd",
