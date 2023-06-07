@@ -8,6 +8,7 @@ import logging
 import os
 import tempfile
 import textwrap
+import time
 from typing import List, NamedTuple
 
 from chromite.lib import commandline
@@ -26,6 +27,10 @@ class FileSet(NamedTuple):
 
 
 TOOLS_PREFIX = "/opt/google/cros-containers"
+DLC_IMAGES = {
+    "termina-dlc": ("vm_rootfs", "vm_tools"),
+    "termina-tools-dlc": ("vm_tools",),
+}
 
 
 def is_in_tools_images(path: str) -> bool:
@@ -91,74 +96,78 @@ def get_deployment_plan(board: str, packages: List[str]) -> List[FileSet]:
 
 
 def deploy_into_remote_dlc(
-    device: commandline.Device, transfers: List[FileSet], restart_services: bool
+    remote: remote_access.ChromiumOSDeviceHandler,
+    transfers: List[FileSet],
+    dlc_id: str,
 ):
     """Copies the specified files into a DLC image on hostname."""
-    with remote_access.ChromiumOSDeviceHandler(
-        hostname=device.hostname, port=device.port, username=device.username
-    ) as remote:
-        logging.notice("Unpacking DLC")
-        remote_dir = remote.work_dir
-        command = "restart vm_concierge " if restart_services else ""
-        # We unpack the dlc disk image, add an extra 200M of empty space to each
-        # inner image to fit whatever we're about to copy over, then mount the
-        # images. Run the entire thing inside set -e so a failure of any step
-        # causes the entire command to fail, which then turns into an exception.
-        command += textwrap.dedent(
-            f"""
-        (set -e
-          cd {remote_dir}
-          dlctool --unpack --id termina-dlc dlc
-          mkdir vm_rootfs vm_tools
-          for path in dlc/root/vm_tools.img dlc/root/vm_rootfs.img; do
-            truncate -s +200M $path
-            e2fsck -yf $path
-            resize2fs $path
-            mount $path $(basename $path .img)
-          done)"""
-        )
-        remote.run(command, shell=True, capture_output=False)
+    logging.notice("Unpacking DLC")
+    remote_dir = remote.work_dir
+    # We unpack the dlc disk image, add an extra 200M of empty space to each
+    # inner image to fit whatever we're about to copy over, then mount the
+    # images. Run the entire thing inside set -e so a failure of any step
+    # causes the entire command to fail, which then turns into an exception.
+    imgs = [f"dlc/root/{img}.img" for img in DLC_IMAGES[dlc_id]]
+    command = textwrap.dedent(
+        f"""
+    (set -e
+      cd {remote_dir}
+      dlctool --unpack --id {dlc_id} dlc
+      for path in {" ".join(imgs)}; do
+        mkdir $(basename $path .img)
+        truncate -s +200M $path
+        e2fsck -yf $path
+        resize2fs $path
+        mount $path $(basename $path .img)
+      done)"""
+    )
+    remote.run(command, shell=True, capture_output=False)
 
-        logging.notice("Transferring files")
-        for transfer in transfers:
-            if not transfer.files:
-                # If we don't have any files don't call rsync
-                continue
-            logging.info(
-                "Deploying the following files to the %s image: %s",
-                transfer.destination_image,
-                ", ".join(transfer.files),
+    logging.notice("Transferring files")
+    for transfer in transfers:
+        if not transfer.files:
+            # If we don't have any files don't call rsync
+            continue
+        if transfer.destination_image not in DLC_IMAGES[dlc_id]:
+            # The image isn't part of the current DLC
+            continue
+        logging.info(
+            "Deploying the following files to the %s image: %s",
+            transfer.destination_image,
+            ", ".join(transfer.files),
+        )
+        with tempfile.TemporaryDirectory() as d:
+            files_file = os.path.join(d, "files.txt")
+            osutils.WriteFile(files_file, "\n".join(transfer.files))
+            remote.CopyToDevice(
+                transfer.source_root,
+                f"{remote_dir}/{transfer.destination_image}",
+                mode="rsync",
+                files_from=files_file,
+                inplace=True,
             )
-            with tempfile.TemporaryDirectory() as d:
-                files_file = os.path.join(d, "files.txt")
-                osutils.WriteFile(files_file, "\n".join(transfer.files))
-                remote.CopyToDevice(
-                    transfer.source_root,
-                    f"{remote_dir}/{transfer.destination_image}",
-                    mode="rsync",
-                    files_from=files_file,
-                    inplace=True,
-                )
 
-        logging.notice("Repacking DLC")
-        # Unmount the inner images, shrink them back to minimum size (so we
-        # don't constantly grow the image by 200M every time we run) then repack
-        # the DLC image. Run the entire thing inside set -e so a failure of any
-        # step causes the entire command to fail, which then turns into an
-        # exception.
-        command = textwrap.dedent(
-            f"""
-        (set -e
-          cd {remote_dir}
-          umount vm_rootfs vm_tools
-          for path in dlc/root/vm_tools.img dlc/root/vm_rootfs.img; do
-            e2fsck -yf $path
-            resize2fs -M $path
-          done
-          dlctool --id termina-dlc dlc $(
-            grep -qm1 compress $(which dlctool) && echo --nocompress))"""
-        )
-        remote.run(command, shell=True, capture_output=False)
+    logging.notice("Repacking DLC")
+    # Unmount the inner images, shrink them back to minimum size (so we
+    # don't constantly grow the image by 200M every time we run) then repack
+    # the DLC image. Run the entire thing inside set -e so a failure of any
+    # step causes the entire command to fail, which then turns into an
+    # exception.
+    command = textwrap.dedent(
+        f"""
+    (set -e
+      cd {remote_dir}
+      for path in {" ".join(imgs)}; do
+        umount $(basename $path .img)
+        rm -rf $(basename $path .img)
+        e2fsck -yf $path
+        resize2fs -M $path
+      done
+      dlctool --id {dlc_id} dlc $(
+        grep -qm1 compress $(which dlctool) && echo --nocompress)
+      rm -rf dlc)"""
+    )
+    remote.run(command, shell=True, capture_output=False)
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -185,6 +194,13 @@ def get_parser() -> commandline.ArgumentParser:
         action="store_true",
         help="Restart affected services. Will shut down all running VMs",
     )
+    parser.add_argument(
+        "--dlc-ids",
+        default=["termina-dlc"],
+        nargs="+",
+        choices=["termina-dlc", "termina-tools-dlc"],
+        help="DLCs to deploy packages for",
+    )
     return parser
 
 
@@ -194,7 +210,19 @@ def main(argv: List[str]):
 
     logging.notice("Getting package files")
     files = get_deployment_plan(opts.board, opts.packages)
-    deploy_into_remote_dlc(opts.device, files, opts.restart_services)
+
+    with remote_access.ChromiumOSDeviceHandler(
+        hostname=opts.device.hostname,
+        port=opts.device.port,
+        username=opts.device.username,
+    ) as remote:
+        if opts.restart_services:
+            remote.run("restart vm_concierge", shell=True, capture_output=False)
+        for i, dlc_id in enumerate(opts.dlc_ids):
+            deploy_into_remote_dlc(remote, files, dlc_id)
+            if i < len(opts.dlc_ids) - 1:
+                time.sleep(1)  # dlcservice may not be ready yet
+
     if not opts.restart_services:
         logging.notice(
             "Changes deployed. You must reboot before your changes take effect"
