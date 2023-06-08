@@ -9,6 +9,10 @@ import * as vscode from 'vscode';
 import * as services from '../../../services';
 import * as metrics from '../../metrics/metrics';
 // TODO(oka): Move ebuild under src/services/chromiumos.
+import {
+  parsePlatform2EbuildOrThrow,
+  platform2TestWorkingDirectory,
+} from '../../../common/chromiumos/portage/platform2';
 import * as ebuild from '../cpp_code_completion/compdb_service/ebuild';
 import {GtestCase} from './gtest_case';
 import {GtestWorkspace} from './gtest_workspace';
@@ -63,10 +67,12 @@ export class Runner {
 
     // Run tests per package.
     for (const [atom, tests] of atomToTests.entries()) {
+      const ebuildInstance = this.createEbuild(atom);
+
       // Compile the package for unit test executables.
       let buildDir: string;
       try {
-        buildDir = await this.compileOrThrow(atom);
+        buildDir = await this.compileOrThrow(ebuildInstance);
       } catch (e) {
         const message = new vscode.TestMessage((e as Error).message);
         for (const test of tests) {
@@ -83,6 +89,20 @@ export class Runner {
           testNameToInfo.set(name, t);
         }
       }
+
+      // Computes the working directory to run the tests.
+      const ebuildFilepathInChroot = await ebuildInstance.ebuild9999();
+      const ebuildFilepathOutsideChroot = path.join(
+        this.chrootService.source.root,
+        ebuildFilepathInChroot.substring('/mnt/host/source/'.length)
+      );
+      const platform2Package = await parsePlatform2EbuildOrThrow(
+        ebuildFilepathOutsideChroot
+      );
+      const workingDir = platform2TestWorkingDirectory(
+        this.board,
+        platform2Package
+      );
 
       // Run the tests with reporting the results.
       for (const test of tests) {
@@ -103,9 +123,9 @@ export class Runner {
         let error: Error | undefined;
         try {
           if (this.request.profile?.kind === vscode.TestRunProfileKind.Run) {
-            await this.runTestOrThrow(gtestInfo.executable, test);
+            await this.runTestOrThrow(gtestInfo.executable, test, workingDir);
           } else {
-            await this.debugTestOrThrow(gtestInfo, test);
+            await this.debugTestOrThrow(gtestInfo, test, workingDir);
           }
         } catch (e) {
           error = e as Error;
@@ -164,11 +184,7 @@ export class Runner {
     return atomToTests;
   }
 
-  /**
-   * Compiles the tests for the package, and returns the build directory
-   * (absolute path from chroot), under which gtest executables are located.
-   */
-  private async compileOrThrow(atom: string): Promise<string> {
+  private createEbuild(atom: string): ebuild.Ebuild {
     // HACK: We don't need compdb (compilation database) here, but still pass
     // the compilation_database flag, because internally the Ebuild class
     // hard-codes the filename of compdb and use it as a marker to find the
@@ -182,7 +198,7 @@ export class Runner {
     // TODO(b:254145837): Update the Ebuild implementation to use other well-known file
     // name rather than compdb to find the build directory, and remove the
     // compilation_database flag here.
-    const ebuildInstance = new ebuild.Ebuild(
+    return new ebuild.Ebuild(
       this.board,
       atom,
       this.output,
@@ -190,10 +206,17 @@ export class Runner {
       ['compilation_database', 'test'],
       this.cancellation
     );
+  }
+
+  /**
+   * Compiles the tests for the package, and returns the build directory
+   * (absolute path from chroot), under which gtest executables are located.
+   */
+  private async compileOrThrow(ebuildInstance: ebuild.Ebuild): Promise<string> {
     // generate() throws on failure.
     const compilationDatabase = await ebuildInstance.generate();
     if (!compilationDatabase) {
-      throw new Error(`failed to compile ${atom}`);
+      throw new Error(`failed to compile ${ebuildInstance.atom}`);
     }
     return path.dirname(compilationDatabase);
   }
@@ -309,7 +332,11 @@ export class Runner {
     return parseTestList(result.stdout);
   }
 
-  private async runTestOrThrow(executableInChroot: string, test: GtestCase) {
+  private async runTestOrThrow(
+    executableInChroot: string,
+    test: GtestCase,
+    workingDir: string
+  ) {
     let message = '';
     const result = await this.chrootService.exec(
       PLATFORM2_TEST_PY,
@@ -330,6 +357,7 @@ export class Runner {
           },
         },
         logStdout: true,
+        crosSdkWorkingDir: workingDir,
       }
     );
     if (result instanceof Error) {
@@ -340,7 +368,11 @@ export class Runner {
     }
   }
 
-  private async debugTestOrThrow(gtestInfo: GTestInfo, test: GtestCase) {
+  private async debugTestOrThrow(
+    gtestInfo: GTestInfo,
+    test: GtestCase,
+    workingDir: string
+  ) {
     if (!vscode.extensions.getExtension(DEBUG_EXTENSION_ID)) {
       void (async () => {
         const INSTALL = 'Install';
@@ -393,6 +425,7 @@ export class Runner {
         logger: this.output,
         logStdout: true,
         cancellationToken: this.cancellation,
+        crosSdkWorkingDir: workingDir,
       }
     );
 

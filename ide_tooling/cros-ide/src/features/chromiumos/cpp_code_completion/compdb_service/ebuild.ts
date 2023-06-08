@@ -14,7 +14,7 @@ import {CompdbError, CompdbErrorKind} from './error';
 export class Ebuild {
   constructor(
     private readonly board: Board,
-    private readonly atom: Atom,
+    readonly atom: Atom,
     private readonly output: Pick<
       vscode.OutputChannel,
       'append' | 'appendLine'
@@ -98,7 +98,7 @@ export class Ebuild {
    * Returns the path to ebuild inside chroot which Portage would use if
    * cros_workon was run for the package.
    */
-  private async ebuild9999(): Promise<string> {
+  async ebuild9999(): Promise<string> {
     // TODO(oka): Update the type of this.atom to EbuildBaseAtom.
     const pkg = {
       category: this.atom.split('/')[0],
