@@ -847,7 +847,10 @@ def BuildPackages(
     cros_build_lib.AssertNonRootUser()
     metrics_prefix = "service.sysroot.BuildPackages"
 
-    if not chromite_config.AUTO_COP_CONFIG_OFF.is_file():
+    if (
+        not chromite_config.AUTO_COP_CONFIG_OFF.is_file()
+        and os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0"
+    ):
         logging.debug(
             "clean-outdated-pkgs config does not exist: %s",
             chromite_config.AUTO_COP_CONFIG_OFF,
