@@ -46,6 +46,15 @@ describe('Compdb service', () => {
         }
       )
     );
+    fakes.installChrootCommandHandler(
+      fakeExec,
+      state.source,
+      'equery-amd64-generic',
+      testing.exactMatch(['w', 'chromeos-base/codelab'], async () => {
+        return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-0.0.1-r360.ebuild';
+      })
+    );
+
     await fs.promises.mkdir(path.join(state.source, 'src/platform2/codelab'), {
       recursive: true,
     });
@@ -93,6 +102,14 @@ describe('Compdb service', () => {
           return '';
         }
       )
+    );
+    fakes.installChrootCommandHandler(
+      fakeExec,
+      state.source,
+      'equery-amd64-generic',
+      testing.exactMatch(['w', 'chromeos-base/codelab'], async () => {
+        return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-0.0.1-r360.ebuild';
+      })
     );
 
     await fs.promises.mkdir(path.join(state.source, 'src/platform2/codelab'), {

@@ -6,16 +6,16 @@ import * as path from 'path';
 
 export type ParsedPackageName = {
   // Package's category, e.g. chromeos-base
-  category: string;
+  readonly category: string;
   // Package name, e.g. missive
-  name: string;
+  readonly name: string;
 };
 
 export type EbuildPackage = ParsedPackageName & {
   // Package version (excluding revision, if any), e.g. 9999
-  version: string;
+  readonly version: string;
   // Package revision (if any), e.g. r123
-  revision?: string;
+  readonly revision?: string;
 };
 
 type EbuildDefinedVariables = Readonly<{
@@ -77,4 +77,77 @@ function portageDefinedVariables(board: string | undefined) {
     portageTmpdir,
     sysroot,
   } as const;
+}
+
+/**
+ * Represents a parsed ebuild filepath.
+ */
+export class ParsedEbuildFilepath {
+  /** Parses the ebuild filepath. It throws on parse failure. */
+  static parseOrThrow(filepath: string): ParsedEbuildFilepath {
+    const sections = filepath.split('/');
+
+    const filename = sections.pop();
+    const name = sections.pop();
+    const category = sections.pop();
+
+    if (!filename || !name || !category) {
+      throw new Error(
+        `Invalid ebuild filepath ${filepath}: category not found`
+      );
+    }
+
+    const prefix = sections.join('/');
+
+    const b = this.parseFilenameOrThrow(filename);
+    if (name !== b.name) {
+      throw new Error(
+        `Invalid ebuild filepath ${filepath}: package name in directory (${name}) and filename (${b.name}) mismatch`
+      );
+    }
+
+    return new ParsedEbuildFilepath(prefix, {
+      category,
+      name,
+      version: b.version,
+      revision: b.revision,
+    });
+  }
+
+  /**
+   * Parses ebuild filename.
+   *
+   * Reference: https://devmanual.gentoo.org/ebuild-writing/file-format/index.html
+   */
+  private static parseFilenameOrThrow(filename: string) {
+    const regex = /^(.+?)-([^-]+)(?:-(r\d+))?\.ebuild$/;
+
+    const m = regex.exec(filename);
+    if (!m) {
+      throw new Error(`Invalid ebuild filename: ${filename}`);
+    }
+    const name = m[1];
+    const version = m[2];
+    const revision = m[3] ?? undefined;
+
+    return {name, version, revision};
+  }
+
+  /**
+   * @param prefix The prefix part, e.g. /path/to/chromiumos-overlay for
+   * /path/to/chromiumos-overlay/chromeos-base/codelab/codelab-0.0.1-r360.ebuild .
+   */
+  constructor(readonly prefix: string, readonly pkg: EbuildPackage) {}
+
+  toString(): string {
+    const pkg = this.pkg;
+
+    let filename = `${pkg.name}-${pkg.version}`;
+    if (pkg.revision) {
+      filename += `-${pkg.revision}`;
+    }
+    filename += '.ebuild';
+
+    return path.join(this.prefix, pkg.category, pkg.name, filename);
+  }
 }

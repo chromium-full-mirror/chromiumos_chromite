@@ -4,14 +4,12 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import {Atom} from '../../../../services/chromiumos';
-import * as services from '../../../../services';
+import {buildGet9999EbuildCommand} from '../../../../common/chromiumos/portage/equery';
 import * as commonUtil from '../../../../common/common_util';
-import {MNT_HOST_SOURCE} from '../constants';
+import * as services from '../../../../services';
+import {Atom} from '../../../../services/chromiumos';
 import {Board, HOST} from './board';
 import {CompdbError, CompdbErrorKind} from './error';
-import {packageName} from './util';
 
 export class Ebuild {
   constructor(
@@ -99,29 +97,33 @@ export class Ebuild {
   /**
    * Returns the path to ebuild inside chroot which Portage would use if
    * cros_workon was run for the package.
-   *
-   * TODO(oka): Currently the algorithm this function uses doesn't exactly match
-   * with Portage's algorithm. Use public Portage APIs to get what this function
-   * should return.
    */
-  private ebuild9999(chromiumosRoot: string): string {
-    for (const overlay of [
-      'src/third_party/chromiumos-overlay',
-      'src/private-overlays/chromeos-partner-overlay',
-    ]) {
-      const relativePath = path.join(
-        overlay,
-        this.atom,
-        packageName(this.atom) + '-9999.ebuild'
-      );
-      const pathOutsideChroot = path.join(chromiumosRoot, relativePath);
-      const pathInsideChroot = path.join(MNT_HOST_SOURCE, relativePath);
+  private async ebuild9999(): Promise<string> {
+    // TODO(oka): Update the type of this.atom to EbuildBaseAtom.
+    const pkg = {
+      category: this.atom.split('/')[0],
+      name: this.atom.split('/')[1],
+    };
 
-      if (fs.existsSync(pathOutsideChroot)) {
-        return pathInsideChroot;
+    const args = buildGet9999EbuildCommand(this.board, pkg);
+
+    const result = await services.chromiumos.execInChroot(
+      this.crosFs.source.root,
+      args[0],
+      args.slice(1),
+      {
+        logger: this.output,
+        logStdout: true,
+        cancellationToken: this.cancellation,
+        sudoReason: 'to get ebuild filepath',
       }
+    );
+
+    if (result instanceof Error) {
+      throw result;
     }
-    throw new Error('ebuild not found');
+
+    return result.stdout.trim();
   }
 
   /**
@@ -157,7 +159,7 @@ export class Ebuild {
       [
         'USE=' + this.useFlags.join(' '),
         this.ebuildExecutable(),
-        this.ebuild9999(this.crosFs.source.root),
+        await this.ebuild9999(),
         'clean',
         'compile',
       ],
