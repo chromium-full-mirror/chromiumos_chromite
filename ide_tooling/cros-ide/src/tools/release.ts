@@ -161,9 +161,11 @@ const MONTH_NAMES = [
 ];
 
 async function updateChangelogForRelease(version: semver.SemVer) {
-  const changeLog = (
-    await fs.promises.readFile('./CHANGELOG.md', 'utf8')
-  ).split('\n');
+  const changeLogFile = './CHANGELOG.md';
+
+  const changeLog = (await fs.promises.readFile(changeLogFile, 'utf8')).split(
+    '\n'
+  );
 
   const header = changeLog.slice(0, 2);
   const body = changeLog.slice(2);
@@ -176,9 +178,13 @@ async function updateChangelogForRelease(version: semver.SemVer) {
 - FIXME: fill in the update
 `;
 
+  console.log(
+    `*** Please manually update ${changeLogFile} before submitting the change. ***`
+  );
+
   const updatedText = [...header, insertion, ...body].join('\n');
 
-  await fs.promises.writeFile('./CHANGELOG.md', updatedText, 'utf8');
+  await fs.promises.writeFile(changeLogFile, updatedText, 'utf8');
 }
 
 async function updateVersionAndCommit(preRelease: boolean) {
