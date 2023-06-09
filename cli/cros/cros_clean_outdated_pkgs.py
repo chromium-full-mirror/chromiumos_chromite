@@ -52,6 +52,8 @@ SYSTEM_PACKAGES = {
 }
 # pylint: disable=protected-access
 
+PORTAGE_UTILS_VERSION = "0.96"
+
 
 class OverlayPathFinder:
     """Finds an overlay of specific repository."""
@@ -450,6 +452,16 @@ class CleanOutdatedCommand(command.CliCommand):
             min_version,
         )
 
+    def ensure_portage_utils_version(self, ver: str):
+        """Ensure portage-utils version |ver| is installed."""
+        self.ensure_pkg_min_version(
+            portage_util.PortageDB(
+                build_target_lib.get_default_sysroot_path(None)
+            ),
+            "app-portage/portage-utils",
+            ver,
+        )
+
     def control_automatic(self, enable_automation: bool) -> None:
         # Since this config will be used by a shell and a python script,
         # use a presence/absence of a file to control.
@@ -477,14 +489,8 @@ class CleanOutdatedCommand(command.CliCommand):
             self.control_automatic(self.options.auto)
             return
 
-        # Require qmerge from app-portage/portage-utils version >= 0.96.
-        self.ensure_pkg_min_version(
-            portage_util.PortageDB(
-                build_target_lib.get_default_sysroot_path(None)
-            ),
-            "app-portage/portage-utils",
-            "0.96",
-        )
+        # Require qmerge from app-portage/portage-utils of min version.
+        self.ensure_portage_utils_version(PORTAGE_UTILS_VERSION)
 
         if self.options.host:
             root_path = build_target_lib.get_default_sysroot_path(None)
@@ -496,6 +502,8 @@ class CleanOutdatedCommand(command.CliCommand):
             outdated_pkgs = self.filter_packages_to_purge(None, outdated_pkgs)
             if outdated_pkgs:
                 self.purge_packages(board=None, pkgs=outdated_pkgs)
+                # Reinstall portage-utils in case it was removed.
+                self.ensure_portage_utils_version(PORTAGE_UTILS_VERSION)
 
             if outdated_pkgs or self.options.force_slot_fix:
                 logging.notice("Looking for unsatisfiable packages.")
@@ -511,6 +519,8 @@ class CleanOutdatedCommand(command.CliCommand):
                         len(slot_conflict_pkgs),
                     )
                     self.purge_packages(board=None, pkgs=slot_conflict_pkgs)
+                    # Reinstall portage-utils in case it was removed.
+                    self.ensure_portage_utils_version(PORTAGE_UTILS_VERSION)
 
         if self.options.board:
             root_path = build_target_lib.get_default_sysroot_path(
