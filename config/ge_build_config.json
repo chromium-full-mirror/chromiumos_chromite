@@ -1362,55 +1362,6 @@
       "stable_target_milestone": 98
     },
     {
-      "name": "cherry64",
-      "reference_board_name": "cherry64",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "cherry64",
-          "name": "cherry",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7216,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "cherry64",
-          "name": "dojo",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7216,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "cherry64",
-          "name": "tomato",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7216,
-          "is_active": true,
-          "is_experimental": false
-        }
-      ],
-      "rubik_target_milestone": 103,
-      "stable_target_milestone": 98
-    },
-    {
       "name": "coral",
       "reference_board_name": "coral",
       "arch": "X86_INTERNAL",
