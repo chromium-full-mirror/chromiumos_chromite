@@ -153,7 +153,6 @@
     bubs-release
     caroline-ndktranslation-release
     cherry-release
-    cherry64-release
     constitution-release
     coral-release
     corsola-kernelnext-release
@@ -460,11 +459,6 @@
   cherry-llvm-toolchain-tryjob
   cherry-payloads-tryjob
   cherry-release-tryjob
-  cherry64-full-tryjob
-  cherry64-llvm-next-toolchain-tryjob
-  cherry64-llvm-toolchain-tryjob
-  cherry64-payloads-tryjob
-  cherry64-release-tryjob
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
   config-updater-tryjob
@@ -981,7 +975,6 @@
     bubs-release-tryjob
     caroline-ndktranslation-release-tryjob
     cherry-release-tryjob
-    cherry64-release-tryjob
     constitution-release-tryjob
     coral-release-tryjob
     corsola-kernelnext-release-tryjob
