@@ -38,8 +38,9 @@ export class GerritDocumentProvider
       category: 'interactive',
       group: 'virtualdocument',
       description: 'open gerrit document',
-      // For consistency with git_document, which also send a label.
-      label: 'gerrit patchset level',
+      name: 'virtualdocument_open_document',
+      // For consistency with git_document, which also send |document|.
+      document: 'gerrit patchset level',
     });
     return `Patchset level comments on Change-Id: ${uri.query}`;
   }

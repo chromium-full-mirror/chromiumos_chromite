@@ -81,6 +81,7 @@ export function activate(
         category: 'interactive',
         group: 'gerrit',
         description: 'focus comments panel',
+        name: 'gerrit_focus_comments_panel',
       });
     })
   );
@@ -117,6 +118,7 @@ export function activate(
           category: 'interactive',
           group: 'gerrit',
           description: 'collapse all comment threads',
+          name: 'gerrit_collapse_all_comment_threads',
         });
       }
     ),
@@ -391,7 +393,8 @@ class Gerrit implements vscode.Disposable {
           category: 'background',
           group: 'gerrit',
           description: 'update comments',
-          value: threadsToDisplay.length,
+          name: 'gerrit_update_comments',
+          displayed_threads_count: threadsToDisplay.length,
         });
       }
       this.sink.clearErrorStatus();

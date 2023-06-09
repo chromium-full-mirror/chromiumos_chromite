@@ -67,6 +67,7 @@ export class Sink implements vscode.Disposable {
         category: 'error',
         group: 'gerrit',
         description: m.metrics,
+        name: 'gerrit_show_error',
       });
     }
   }

@@ -63,7 +63,8 @@ export class GitDocumentProvider implements vscode.TextDocumentContentProvider {
       category: 'interactive',
       group: 'virtualdocument',
       description: 'open git document',
-      label: uri.fragment,
+      name: 'virtualdocument_open_document',
+      document: uri.fragment,
     });
 
     if (file === COMMIT_MESSAGE) {

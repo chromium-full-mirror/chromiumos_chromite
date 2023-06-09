@@ -43,6 +43,7 @@ describe('Sink', () => {
       category: 'error',
       group: 'gerrit',
       description: 'simple message',
+      name: 'gerrit_show_error',
     });
     expect(state.statusManager.setStatus).toHaveBeenCalledOnceWith(
       'Gerrit',
@@ -62,6 +63,7 @@ describe('Sink', () => {
       category: 'error',
       group: 'gerrit',
       description: 'metrics message',
+      name: 'gerrit_show_error',
     });
     expect(state.statusManager.setStatus).toHaveBeenCalledOnceWith(
       'Gerrit',
@@ -82,6 +84,7 @@ describe('Sink', () => {
       category: 'error',
       group: 'gerrit',
       description: 'metrics message',
+      name: 'gerrit_show_error',
     });
     expect(state.statusManager.setStatus).not.toHaveBeenCalled();
   });

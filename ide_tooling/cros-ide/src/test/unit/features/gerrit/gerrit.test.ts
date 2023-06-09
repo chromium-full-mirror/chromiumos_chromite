@@ -159,7 +159,8 @@ describe('Gerrit', () => {
       category: 'background',
       group: 'gerrit',
       description: 'update comments',
-      value: 1,
+      name: 'gerrit_update_comments',
+      displayed_threads_count: 1,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);
   });
@@ -258,7 +259,8 @@ describe('Gerrit', () => {
       category: 'background',
       group: 'gerrit',
       description: 'update comments',
-      value: 1,
+      name: 'gerrit_update_comments',
+      displayed_threads_count: 1,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);
   });
@@ -398,7 +400,8 @@ describe('Gerrit', () => {
       category: 'background',
       group: 'gerrit',
       description: 'update comments',
-      value: 4,
+      name: 'gerrit_update_comments',
+      displayed_threads_count: 4,
     });
   });
 
@@ -803,7 +806,8 @@ describe('Gerrit', () => {
       category: 'background',
       group: 'gerrit',
       description: 'update comments',
-      value: 2,
+      name: 'gerrit_update_comments',
+      displayed_threads_count: 2,
     });
   });
 
@@ -998,7 +1002,8 @@ describe('Gerrit', () => {
       category: 'background',
       group: 'gerrit',
       description: 'update comments',
-      value: 1,
+      name: 'gerrit_update_comments',
+      displayed_threads_count: 1,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);
   });
@@ -1112,12 +1117,14 @@ describe('Gerrit', () => {
       category: 'error',
       group: 'gerrit',
       description: '(warning) commit not available locally',
+      name: 'gerrit_show_error',
     });
     expect(metrics.send).toHaveBeenCalledWith({
       category: 'background',
       group: 'gerrit',
       description: 'update comments',
-      value: 2,
+      name: 'gerrit_update_comments',
+      displayed_threads_count: 2,
     });
     expect(state.statusManager.getStatus('Gerrit')).toEqual(TaskStatus.OK);
   });
@@ -1170,6 +1177,7 @@ describe('Gerrit', () => {
       description:
         'Failed to show Gerrit changes (top-level): ' +
         'Error: ${USER} saw a test error while editing /home/${USER}/hello/world.php',
+      name: 'gerrit_show_error',
     });
 
     internalError = undefined;

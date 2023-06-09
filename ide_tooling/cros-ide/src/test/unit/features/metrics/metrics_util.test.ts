@@ -79,10 +79,10 @@ describe('Metrics util: construct GA4 request body from Event', () => {
       metricsUtil.eventToRequestBodyGA4(
         {
           category: 'interactive',
-          group: 'codesearch',
-          name: 'codesearch_search_selection',
+          group: 'virtualdocument',
+          name: 'virtualdocument_open_document',
           description: 'test event',
-          label: 'mock label',
+          document: 'mock label',
         },
         'mock git repo',
         'mock_client_id',
@@ -90,27 +90,26 @@ describe('Metrics util: construct GA4 request body from Event', () => {
         'mock vscode version',
         '0.12.0'
       ),
-      '{"client_id":"mock_client_id","events":[{"name":"codesearch_search_selection","params":{"git_repo":"mock git repo","os":"Linux","vscode_name":"mock vscode name","vscode_version":"mock vscode version","extension_version":"0.12.0","label":"mock label"}}]}'
+      '{"client_id":"mock_client_id","events":[{"name":"virtualdocument_open_document","params":{"git_repo":"mock git repo","os":"Linux","vscode_name":"mock vscode name","vscode_version":"mock vscode version","extension_version":"0.12.0","document":"mock label"}}]}'
     );
   });
-  // Add again when event type with value is migrated.
-  // it('Event with value', async () => {
-  //   assert.strictEqual(
-  //     metricsUtil.eventToRequestBodyGA4(
-  //       {
-  //         category: 'background',
-  //         group: 'misc',
-  //         name: 'misc_foo_test_event',
-  //         description: 'test event',
-  //         value: 10,
-  //       },
-  //       'mock git repo',
-  //       'mock_client_id',
-  //       'mock vscode name',
-  //       'mock vscode version',
-  //       '0.12.0'
-  //     ),
-  //     '{"client_id":"mock_client_id","events":[{"name":"misc_foo_test_event","params":{"git_repo":"mock git repo","os":"Linux","vscode_name":"mock vscode name","vscode_version":"mock vscode version","extension_version":"0.12.0","value":10}}]}'
-  //   );
-  // });
+  it('Event with value', async () => {
+    assert.strictEqual(
+      metricsUtil.eventToRequestBodyGA4(
+        {
+          category: 'background',
+          group: 'gerrit',
+          name: 'gerrit_update_comments',
+          description: 'test event',
+          displayed_threads_count: 10,
+        },
+        'mock git repo',
+        'mock_client_id',
+        'mock vscode name',
+        'mock vscode version',
+        '0.12.0'
+      ),
+      '{"client_id":"mock_client_id","events":[{"name":"gerrit_update_comments","params":{"git_repo":"mock git repo","os":"Linux","vscode_name":"mock vscode name","vscode_version":"mock vscode version","extension_version":"0.12.0","displayed_threads_count":10}}]}'
+    );
+  });
 });

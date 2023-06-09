@@ -32,7 +32,8 @@ describe('Git document provider', () => {
       category: 'interactive',
       group: 'virtualdocument',
       description: 'open git document',
-      label: 'spellchecker',
+      name: 'virtualdocument_open_document',
+      document: 'spellchecker',
     });
   });
 
@@ -53,7 +54,8 @@ describe('Git document provider', () => {
       category: 'interactive',
       group: 'virtualdocument',
       description: 'open git document',
-      label: 'gerrit',
+      name: 'virtualdocument_open_document',
+      document: 'gerrit',
     });
   });
 

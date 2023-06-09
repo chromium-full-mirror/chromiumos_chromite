@@ -120,13 +120,43 @@ interface DeviceManagementEvent extends GA4EventBase {
     | 'device_management_syslog_viewer_open';
 }
 
+interface GerritErrorEvent extends GA4EventBase {
+  category: 'error';
+  group: 'gerrit';
+  name: 'gerrit_show_error';
+}
+
+interface GerritInteractiveEvent extends GA4EventBase {
+  category: 'interactive';
+  group: 'gerrit';
+  name: 'gerrit_focus_comments_panel' | 'gerrit_collapse_all_comment_threads';
+}
+
+interface GerritUpdateCommentsEvent extends GA4EventBase {
+  category: 'background';
+  group: 'gerrit';
+  name: 'gerrit_update_comments';
+  displayed_threads_count: number;
+}
+
+interface VirtualdocumentOpenDocumentEvent extends GA4EventBase {
+  category: 'interactive';
+  group: 'virtualdocument';
+  name: 'virtualdocument_open_document';
+  document: string;
+}
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
   | DeviceManagementEvent
   | CodesearchErrorEvent
   | CodesearchInteractiveEvent
-  | CodesearchSearchSelectionEvent;
+  | CodesearchSearchSelectionEvent
+  | GerritInteractiveEvent
+  | GerritErrorEvent
+  | GerritUpdateCommentsEvent
+  | VirtualdocumentOpenDocumentEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.
