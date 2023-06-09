@@ -135,7 +135,6 @@
     cave-release
     chell-release
     cherry-release
-    cherry64-release
     coral-release
     corsola-release
     dedede-release
@@ -340,11 +339,6 @@
   cherry-llvm-toolchain-tryjob
   cherry-payloads-tryjob
   cherry-release-tryjob
-  cherry64-full-tryjob
-  cherry64-llvm-next-toolchain-tryjob
-  cherry64-llvm-toolchain-tryjob
-  cherry64-payloads-tryjob
-  cherry64-release-tryjob
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
   config-updater-tryjob
@@ -724,7 +718,6 @@
     cave-release-tryjob
     chell-release-tryjob
     cherry-release-tryjob
-    cherry64-release-tryjob
     coral-release-tryjob
     corsola-release-tryjob
     dedede-release-tryjob
