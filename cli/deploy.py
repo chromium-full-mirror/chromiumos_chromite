@@ -1416,12 +1416,14 @@ def _DeployDLCImage(
         src_dlc_dir = os.path.join(
             sysroot,
             dlc_lib.DLC_BUILD_DIR,
+            ".",
             dlc_id,
         )
         if not os.path.exists(src_dlc_dir):
             src_dlc_dir = os.path.join(
                 sysroot,
                 dlc_lib.DLC_BUILD_DIR_SCALED,
+                ".",
                 dlc_id,
             )
 
@@ -1434,41 +1436,10 @@ def _DeployDLCImage(
             check=False,
         )
 
-        logging.notice("Deploy the DLC image for %s", dlc_id)
-        dlc_img_path_src = os.path.join(
-            src_dlc_dir,
-            dlc_package,
-            dlc_lib.DLC_IMAGE,
-        )
-
-        dlc_img_path = os.path.join(_DLC_INSTALL_ROOT, dlc_id, dlc_package)
-        dlc_img_path_a = os.path.join(dlc_img_path, "dlc_a")
-        dlc_img_path_b = os.path.join(dlc_img_path, "dlc_b")
-        # Create directories for DLC images.
-        device.mkdir([dlc_img_path_a, dlc_img_path_b])
-        # Copy images to the destination directories.
-        device.CopyToDevice(
-            dlc_img_path_src,
-            os.path.join(dlc_img_path_a, dlc_lib.DLC_IMAGE),
-            mode="rsync",
-        )
-        device.run(
-            [
-                "cp",
-                os.path.join(dlc_img_path_a, dlc_lib.DLC_IMAGE),
-                os.path.join(dlc_img_path_b, dlc_lib.DLC_IMAGE),
-            ]
-        )
-
-        # Set the proper perms and ownership so dlcservice can access the image.
-        device.run(["chmod", "-R", "u+rwX,go+rX,go-w", _DLC_INSTALL_ROOT])
-        device.run(["chown", "-R", "dlcservice:dlcservice", _DLC_INSTALL_ROOT])
-
         # Copy metadata to device.
         # TODO(b/290961240): To be removed once the transition to compressed
         # metadata is complete.
         dest_meta_dir = Path("/") / dlc_lib.DLC_META_DIR / dlc_id / dlc_package
-        device.mkdir(dest_meta_dir)
         src_meta_dir = os.path.join(
             src_dlc_dir,
             dlc_package,
@@ -1480,7 +1451,71 @@ def _DeployDLCImage(
             mode="rsync",
             recursive=True,
             remote_sudo=True,
+            mkpath=True,
         )
+
+        logging.notice("Deploy the DLC image for %s", dlc_id)
+        dlc_img_path_src = os.path.join(
+            src_dlc_dir,
+            dlc_package,
+            dlc_lib.DLC_IMAGE,
+        )
+
+        # Copy the image to the deploy directory on device and let
+        # dlcservice load it to the DLC slots.
+        dlc_deploy_dir = os.path.join(
+            constants.STATEFUL_DIR, dlc_lib.DLC_DEPLOY_DIR
+        )
+        device.CopyToDevice(
+            dlc_img_path_src,
+            dlc_deploy_dir,
+            mode="rsync",
+            chmod="u+rwX,go+rX,go-w",
+            chown="dlcservice:dlcservice",
+            relative=True,
+        )
+        # Stop and start dlcservice to reload the metadata and to make sure the
+        # dlcservice is running.
+        device.run(["stop", "dlcservice"], check=False)
+        device.run(["start", "dlcservice"])
+        try:
+            device.run(["dlcservice_util", "--deploy", f"--id={dlc_id}"])
+        except cros_build_lib.RunCommandError as e:
+            # Keep this as a fallback, so that non-LVM DLC deploy still works on
+            # previous builds that not yet have `--deploy` option in
+            # dlcservice_util.
+            # TODO(b/277155797): Drop the fallback after M118 reaches stable.
+            logging.warning(
+                "The device is unable to handle deploying DLC=%s due to %s, "
+                "setting up the DLC slots from the host side.",
+                dlc_id,
+                e,
+            )
+            dlc_deployed_img = os.path.join(
+                dlc_deploy_dir, dlc_id, dlc_package, dlc_lib.DLC_IMAGE
+            )
+            dlc_img_path_dest = [
+                os.path.join(_DLC_INSTALL_ROOT, dlc_id, dlc_package, slot)
+                for slot in ("dlc_a", "dlc_b")
+            ]
+            # Create directories for DLC images.
+            device.mkdir(dlc_img_path_dest)
+            # Copy images to the destination directories.
+            for dest in dlc_img_path_dest:
+                device.run(
+                    [
+                        "cp",
+                        dlc_deployed_img,
+                        os.path.join(dest, dlc_lib.DLC_IMAGE),
+                    ]
+                )
+
+            # Set the proper perms and ownership so dlcservice can access the
+            # image.
+            device.run(["chmod", "-R", "u+rwX,go+rX,go-w", _DLC_INSTALL_ROOT])
+            device.run(
+                ["chown", "-R", "dlcservice:dlcservice", _DLC_INSTALL_ROOT]
+            )
 
         # TODO(kimjae): Make this generic so it recomputes all the DLCs + copies
         #   over a fresh list of dm-verity digests instead of appending and

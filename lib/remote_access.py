@@ -643,6 +643,10 @@ class RemoteAccess:
         remote_sudo: bool = False,
         compress: bool = True,
         files_from: Optional[Union[str, os.PathLike]] = None,
+        chmod: str = None,
+        chown: str = None,
+        relative: bool = False,
+        mkpath: bool = False,
         **kwargs,
     ):
         """Rsync a path to the remote device.
@@ -665,6 +669,12 @@ class RemoteAccess:
             compress: If set, compress file data during the transfer.
             files_from: Read paths from this file (plus some other changes to
                 behaviour per rsync's --files-from).
+            chmod: Change file permission on remote device.
+            chown: Change file owner and group on remote device. The user/group
+                are resolved on the remote device.
+            relative: If set, pass relative path to rsync (rsync's --relative
+                option).
+            mkpath: If set, creates all the missing path on remote device.
             **kwargs: See cros_build_lib.run documentation.
         """
         kwargs.setdefault("debug_level", self.debug_level)
@@ -699,6 +709,15 @@ class RemoteAccess:
         if compress:
             rsync_cmd.append("--compress")
         logging.info("Using rsync compression: %s", compress)
+
+        if chmod:
+            rsync_cmd.append(f"--chmod={chmod}")
+        if chmod:
+            rsync_cmd.extend(["--owner", "--group", f"--chown={chown}"])
+        if relative:
+            rsync_cmd.append("--relative")
+        if mkpath:
+            rsync_cmd.append("--mkpath")
 
         if to_local:
             rsync_cmd += [

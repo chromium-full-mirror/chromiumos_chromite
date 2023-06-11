@@ -59,6 +59,7 @@ class ChromiumOSDeviceFake:
         self.selinux_available = False
         self.copy_store = None
         self.cat_file_output = ""
+        self.cmd_disallowed = []
 
     def MountRootfsReadWrite(self):
         return True
@@ -73,7 +74,10 @@ class ChromiumOSDeviceFake:
         return None
 
     def run(self, cmd, **_kwargs):
-        self.cmds.append(cmd)
+        if cmd in self.cmd_disallowed:
+            raise cros_build_lib.RunCommandError("Command disallowed")
+        else:
+            self.cmds.append(cmd)
 
     def CopyToDevice(self, _src, _dest, _mode="rsync", **_kwargs):
         if os.path.exists(_src):
@@ -527,12 +531,37 @@ class TestDeploy(
         self.package_scanner.return_value = PackageScannerFake(
             packages, {"some/foodlc-1.0": {}, "some/bardlc-2.0": {}}, cpvs
         )
+        dlc_id = "foo_id"
         self.PatchObject(
-            deploy, "_GetDLCInfo", return_value=("foo_id", "foo_package")
+            deploy, "_GetDLCInfo", return_value=(dlc_id, "foo_package")
         )
 
         deploy.Deploy(None, ["package"], force=True, clean_binpkg=False)
         # Check that dlcservice is restarted (DLC modules are deployed).
+        self.assertTrue(
+            ["dlcservice_util", "--deploy", f"--id={dlc_id}"]
+            in self.device.device.cmds
+        )
+        self.assertTrue(["restart", "dlcservice"] in self.device.device.cmds)
+
+    def testDeployEmergeDLCFallback(self):
+        """Test that deploy._Emerge installs images for DLC packages."""
+        packages = ["some/foodlc-1.0", "some/bardlc-2.0"]
+        cpvs = ["some/foodlc-1.0", "some/bardlc-2.0"]
+        self.package_scanner.return_value = PackageScannerFake(
+            packages, {"some/foodlc-1.0": {}, "some/bardlc-2.0": {}}, cpvs
+        )
+        dlc_id = "foo_id"
+        self.PatchObject(
+            deploy, "_GetDLCInfo", return_value=(dlc_id, "foo_package")
+        )
+        deploy_cmd = ["dlcservice_util", "--deploy", f"--id={dlc_id}"]
+        # Fails to run the dlcservice_util command to trigger fallback.
+        self.device.device.cmd_disallowed.append(deploy_cmd)
+
+        deploy.Deploy(None, ["package"], force=True, clean_binpkg=False)
+        # Check that dlcservice is restarted (DLC modules are deployed).
+        self.assertFalse(deploy_cmd in self.device.device.cmds)
         self.assertTrue(["restart", "dlcservice"] in self.device.device.cmds)
 
     def testDeployDLCLoadPinMissingDeviceDigests(self):

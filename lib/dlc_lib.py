@@ -40,6 +40,7 @@ DLC_BUILD_DIR = "build/rootfs/dlc"
 DLC_BUILD_DIR_SCALED = "build/rootfs/dlc-scaled"
 DLC_BUILD_DIR_ARTIFACTS_META = "build/rootfs/dlc-meta"
 DLC_FACTORY_INSTALL_DIR = "unencrypted/dlc-factory-images"
+DLC_DEPLOY_DIR = "unencrypted/dlc-deployed-images/"
 DLC_DIR = "dlc"
 DLC_DIR_SCALED = "dlc-scaled"
 DLC_GID = 20118
