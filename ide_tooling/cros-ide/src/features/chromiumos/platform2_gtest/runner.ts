@@ -90,19 +90,15 @@ export class Runner {
         }
       }
 
-      // Computes the working directory to run the tests.
-      const ebuildFilepathInChroot = await ebuildInstance.ebuild9999();
-      const ebuildFilepathOutsideChroot = path.join(
-        this.chrootService.source.root,
-        ebuildFilepathInChroot.substring('/mnt/host/source/'.length)
-      );
-      const platform2Package = await parsePlatform2EbuildOrThrow(
-        ebuildFilepathOutsideChroot
-      );
-      const workingDir = platform2TestWorkingDirectory(
-        this.board,
-        platform2Package
-      );
+      let workingDir = '/tmp';
+      try {
+        workingDir = await this.getWorkingDirectoryOrThrow(ebuildInstance);
+      } catch (e: unknown) {
+        // TODO(oka): Send metrics here after migration to GA4 finishes.
+        void vscode.window.showWarningMessage(
+          `Failed to compute the directory to run tests: ${e}; using ${workingDir} as a fallback`
+        );
+      }
 
       // Run the tests with reporting the results.
       for (const test of tests) {
@@ -147,6 +143,30 @@ export class Runner {
         }
       }
     }
+  }
+
+  /** Computes the working directory to run the tests. */
+  private async getWorkingDirectoryOrThrow(ebuildInstance: ebuild.Ebuild) {
+    const ebuildFilepathInChroot = await ebuildInstance.ebuild9999();
+    const ebuildFilepathOutsideChroot = path.join(
+      this.chrootService.source.root,
+      ebuildFilepathInChroot.substring('/mnt/host/source/'.length)
+    );
+
+    let platform2Package;
+    try {
+      platform2Package = await parsePlatform2EbuildOrThrow(
+        ebuildFilepathOutsideChroot
+      );
+    } catch (e: unknown) {
+      throw new Error(`parsing ${ebuildFilepathOutsideChroot} failed: ${e}`);
+    }
+
+    const workingDir = platform2TestWorkingDirectory(
+      this.board,
+      platform2Package
+    );
+    return workingDir;
   }
 
   /**
