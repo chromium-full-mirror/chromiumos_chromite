@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(
       (event: vscode.ConfigurationChangeEvent) => {
-        if (event.affectsConfiguration('cros-ide.platformEC')) {
+        if (event.affectsConfiguration('chromiumide.platformEC')) {
           updateText(statusBarItem);
         }
       }

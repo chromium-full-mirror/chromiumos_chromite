@@ -31,6 +31,9 @@ async function migrateConfiguration(): Promise<void> {
     config.codeSearch.openWithRevision,
     config.gerrit.enabled,
     config.ownersFiles.links,
+    config.platformEc.board,
+    config.platformEc.mode,
+    config.platformEc.build,
   ];
 
   let shouldMigrate = false;

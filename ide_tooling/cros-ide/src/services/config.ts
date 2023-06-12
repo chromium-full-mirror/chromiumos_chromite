@@ -156,9 +156,12 @@ export const paths = {
 };
 
 export const platformEc = {
-  board: new ConfigValue<string>('platformEC.board'),
-  mode: new ConfigValue<'RO' | 'RW'>('platformEC.mode'),
-  build: new ConfigValue<'Makefile' | 'Zephyr'>('platformEC.build'),
+  board: new ConfigValue<string>('platformEC.board', CHROMIUMIDE_PREFIX),
+  mode: new ConfigValue<'RO' | 'RW'>('platformEC.mode', CHROMIUMIDE_PREFIX),
+  build: new ConfigValue<'Makefile' | 'Zephyr'>(
+    'platformEC.build',
+    CHROMIUMIDE_PREFIX
+  ),
 };
 
 // https://github.com/golang/vscode-go/blob/master/docs/settings.md#detailed-list

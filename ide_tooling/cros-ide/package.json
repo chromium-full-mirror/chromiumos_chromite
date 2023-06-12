@@ -685,11 +685,11 @@
           "description": "Make references to other OWNERS files clickable.",
           "default": true
         },
-        "cros-ide.platformEC.board": {
+        "chromiumide.platformEC.board": {
           "type": "string",
           "description": "EC target, for example, bloonchipper."
         },
-        "cros-ide.platformEC.mode": {
+        "chromiumide.platformEC.mode": {
           "type": "string",
           "enum": [
             "RW",
@@ -698,7 +698,7 @@
           "description": "Firmware mode.",
           "default": "RW"
         },
-        "cros-ide.platformEC.build": {
+        "chromiumide.platformEC.build": {
           "type": "string",
           "enum": [
             "Makefile",
