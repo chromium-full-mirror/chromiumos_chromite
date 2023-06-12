@@ -364,6 +364,7 @@ def ReadOverlayFile(
     return osutils.ReadFile(file_found)
 
 
+@functools.lru_cache(maxsize=None)
 def GetOverlayName(overlay):
     """Get the self-declared repo name for the |overlay| path."""
     try:
