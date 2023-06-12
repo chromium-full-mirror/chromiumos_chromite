@@ -18,7 +18,6 @@ export async function migrate(): Promise<void> {
 }
 
 async function migrateConfiguration(): Promise<void> {
-  // TODO(oka): Migrate all the properties with cros-ide prefix.
   const configs: config.ConfigValue<unknown>[] = [
     config.board,
     config.boardsAndPackages.showWelcomeMessage,

@@ -7,9 +7,11 @@
 
 import * as vscode from 'vscode';
 
+// Old prefix before ChromiumIDE rebranding. We should keep it for migration.
+const OLD_CROS_IDE_PREFIX = 'cros-ide';
+
 // Prefixes to be added to all config sections.
 // The Go extension, which the user can have, requires a different prefix.
-const CROS_IDE_PREFIX = 'cros-ide';
 const CHROMIUMIDE_PREFIX = 'chromiumide';
 const GO_PREFIX = 'go';
 
@@ -19,7 +21,7 @@ const GO_PREFIX = 'go';
 class ConfigValue<T> {
   constructor(
     private readonly section: string,
-    private readonly prefix: string,
+    private readonly prefix = CHROMIUMIDE_PREFIX,
     private readonly configurationTarget = vscode.ConfigurationTarget.Global
   ) {}
 
@@ -36,7 +38,7 @@ class ConfigValue<T> {
     return value;
   }
 
-  inspectOldConfig(prefix = CROS_IDE_PREFIX):
+  inspectOldConfig(prefix = OLD_CROS_IDE_PREFIX):
     | {
         globalValue?: T;
         workspaceValue?: T;
@@ -76,7 +78,7 @@ class ConfigValue<T> {
   async updateOldConfig(
     value: T | undefined,
     target = this.configurationTarget,
-    prefix = CROS_IDE_PREFIX
+    prefix = OLD_CROS_IDE_PREFIX
   ): Promise<void> {
     await vscode.workspace
       .getConfiguration(prefix)
@@ -86,117 +88,69 @@ class ConfigValue<T> {
 
 export type {ConfigValue};
 
-export const board = new ConfigValue<string>('board', CHROMIUMIDE_PREFIX);
+export const board = new ConfigValue<string>('board');
 
 export const boardsAndPackages = {
   showWelcomeMessage: new ConfigValue<boolean>(
-    'boardsAndPackages.showWelcomeMessage',
-    CHROMIUMIDE_PREFIX
+    'boardsAndPackages.showWelcomeMessage'
   ),
 };
 
 export const boilerplate = {
-  enabled: new ConfigValue<boolean>('boilerplate.enabled', CHROMIUMIDE_PREFIX),
-  guessNamespace: new ConfigValue<boolean>(
-    'boilerplate.guessNamespace',
-    CHROMIUMIDE_PREFIX
-  ),
+  enabled: new ConfigValue<boolean>('boilerplate.enabled'),
+  guessNamespace: new ConfigValue<boolean>('boilerplate.guessNamespace'),
 };
 
 export const codeSearch = {
   // TODO: Consider aligning the setting name.
-  instance: new ConfigValue<'public' | 'internal' | 'gitiles'>(
-    'codeSearch',
-    CHROMIUMIDE_PREFIX
-  ),
+  instance: new ConfigValue<'public' | 'internal' | 'gitiles'>('codeSearch'),
   // TODO: Consider aligning the setting name.
-  openWithRevision: new ConfigValue<boolean>(
-    'codeSearchHash',
-    CHROMIUMIDE_PREFIX
-  ),
+  openWithRevision: new ConfigValue<boolean>('codeSearchHash'),
 };
 
 export const gerrit = {
-  enabled: new ConfigValue<boolean>('gerrit.enabled', CHROMIUMIDE_PREFIX),
+  enabled: new ConfigValue<boolean>('gerrit.enabled'),
 };
 
 export const underDevelopment = {
-  chromiumBuild: new ConfigValue<boolean>(
-    'underDevelopment.chromiumBuild',
-    CHROMIUMIDE_PREFIX
-  ),
-  crosFormat: new ConfigValue<boolean>(
-    'underDevelopment.crosFormat',
-    CHROMIUMIDE_PREFIX
-  ),
+  chromiumBuild: new ConfigValue<boolean>('underDevelopment.chromiumBuild'),
+  crosFormat: new ConfigValue<boolean>('underDevelopment.crosFormat'),
   deviceManagement: new ConfigValue<boolean>(
-    'underDevelopment.deviceManagement',
-    CHROMIUMIDE_PREFIX
+    'underDevelopment.deviceManagement'
   ),
-  gerrit: new ConfigValue<boolean>(
-    'underDevelopment.gerrit',
-    CHROMIUMIDE_PREFIX
-  ),
+  gerrit: new ConfigValue<boolean>('underDevelopment.gerrit'),
   platform2GtestDebugging: new ConfigValue<boolean>(
-    'underDevelopment.platform2GtestDebugging',
-    CHROMIUMIDE_PREFIX
+    'underDevelopment.platform2GtestDebugging'
   ),
-  platformEc: new ConfigValue<boolean>(
-    'underDevelopment.platformEC',
-    CHROMIUMIDE_PREFIX
-  ),
-  relatedFiles: new ConfigValue<boolean>(
-    'underDevelopment.relatedFiles',
-    CHROMIUMIDE_PREFIX
-  ),
-  systemLogViewer: new ConfigValue<boolean>(
-    'underDevelopment.systemLogViewer',
-    CHROMIUMIDE_PREFIX
-  ),
-  tast: new ConfigValue<boolean>('underDevelopment.tast', CHROMIUMIDE_PREFIX),
-  testCoverage: new ConfigValue<boolean>(
-    'underDevelopment.testCoverage',
-    CHROMIUMIDE_PREFIX
-  ),
-  metricsGA4: new ConfigValue<boolean>(
-    'underDevelopment.metricsGA4',
-    CHROMIUMIDE_PREFIX
-  ),
+  platformEc: new ConfigValue<boolean>('underDevelopment.platformEC'),
+  relatedFiles: new ConfigValue<boolean>('underDevelopment.relatedFiles'),
+  systemLogViewer: new ConfigValue<boolean>('underDevelopment.systemLogViewer'),
+  tast: new ConfigValue<boolean>('underDevelopment.tast'),
+  testCoverage: new ConfigValue<boolean>('underDevelopment.testCoverage'),
+  metricsGA4: new ConfigValue<boolean>('underDevelopment.metricsGA4'),
 };
 
 export const deviceManagement = {
-  devices: new ConfigValue<string[]>(
-    'deviceManagement.devices',
-    CHROMIUMIDE_PREFIX
-  ),
+  devices: new ConfigValue<string[]>('deviceManagement.devices'),
 };
 
 export const metrics = {
-  collectMetrics: new ConfigValue<boolean>(
-    'metrics.collectMetrics',
-    CHROMIUMIDE_PREFIX
-  ),
-  showMessage: new ConfigValue<boolean>(
-    'metrics.showMessage',
-    CHROMIUMIDE_PREFIX
-  ),
+  collectMetrics: new ConfigValue<boolean>('metrics.collectMetrics'),
+  showMessage: new ConfigValue<boolean>('metrics.showMessage'),
 };
 
 export const ownersFiles = {
-  links: new ConfigValue<boolean>('ownersFiles.links', CHROMIUMIDE_PREFIX),
+  links: new ConfigValue<boolean>('ownersFiles.links'),
 };
 
 export const paths = {
-  depotTools: new ConfigValue<string>('paths.depotTools', CHROMIUMIDE_PREFIX),
+  depotTools: new ConfigValue<string>('paths.depotTools'),
 };
 
 export const platformEc = {
-  board: new ConfigValue<string>('platformEC.board', CHROMIUMIDE_PREFIX),
-  mode: new ConfigValue<'RO' | 'RW'>('platformEC.mode', CHROMIUMIDE_PREFIX),
-  build: new ConfigValue<'Makefile' | 'Zephyr'>(
-    'platformEC.build',
-    CHROMIUMIDE_PREFIX
-  ),
+  board: new ConfigValue<string>('platformEC.board'),
+  mode: new ConfigValue<'RO' | 'RW'>('platformEC.mode'),
+  build: new ConfigValue<'Makefile' | 'Zephyr'>('platformEC.build'),
 };
 
 // https://github.com/golang/vscode-go/blob/master/docs/settings.md#detailed-list
@@ -210,27 +164,17 @@ export const goExtension = {
 };
 
 export const chrome = {
-  ashBuildDir: new ConfigValue<string>(
-    'chrome.ashBuildDir',
-    CHROMIUMIDE_PREFIX
-  ),
-  dutName: new ConfigValue<string>('chrome.dutName', CHROMIUMIDE_PREFIX),
-  outputDirectories: new ConfigValue<boolean>(
-    'chrome.outputDirectories',
-    CHROMIUMIDE_PREFIX
-  ),
+  ashBuildDir: new ConfigValue<string>('chrome.ashBuildDir'),
+  dutName: new ConfigValue<string>('chrome.dutName'),
+  outputDirectories: new ConfigValue<boolean>('chrome.outputDirectories'),
 };
 
-export const spellchecker = new ConfigValue<boolean>(
-  'spellchecker',
-  CHROMIUMIDE_PREFIX
-);
+export const spellchecker = new ConfigValue<boolean>('spellchecker');
 
 export const testCoverage = {
-  enabled: new ConfigValue<boolean>('testCoverage.enabled', CHROMIUMIDE_PREFIX),
+  enabled: new ConfigValue<boolean>('testCoverage.enabled'),
 };
 
 export const TEST_ONLY = {
-  CROS_IDE_PREFIX,
   CHROMIUMIDE_PREFIX,
 };

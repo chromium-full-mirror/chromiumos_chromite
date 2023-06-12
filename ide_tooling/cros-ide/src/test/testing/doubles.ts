@@ -364,10 +364,8 @@ export function installFakeConfigs(
   const subscriptions: vscode.Disposable[] = [];
 
   beforeEach(() => {
-    for (const prefix of [
-      config.TEST_ONLY.CHROMIUMIDE_PREFIX,
-      config.TEST_ONLY.CROS_IDE_PREFIX,
-    ]) {
+    // Prepare fake config for the old prefix as well for testing migrator.
+    for (const prefix of [config.TEST_ONLY.CHROMIUMIDE_PREFIX, 'cros-ide']) {
       const fakeConfig = new fakes.FakeWorkspaceConfiguration(
         path.join(__dirname, '../../../package.json'),
         prefix
