@@ -22,6 +22,8 @@ async function migrateConfiguration(): Promise<void> {
   const configs: config.ConfigValue<unknown>[] = [
     config.board,
     config.boardsAndPackages.showWelcomeMessage,
+    config.boilerplate.enabled,
+    config.boilerplate.guessNamespace,
   ];
 
   let shouldMigrate = false;

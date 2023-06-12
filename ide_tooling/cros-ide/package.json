@@ -630,12 +630,12 @@
           "description": "Show a description of the view and a button to go to the actual content.",
           "default": true
         },
-        "cros-ide.boilerplate.enabled": {
+        "chromiumide.boilerplate.enabled": {
           "type": "boolean",
           "description": "Insert file boilerplate when creating new files. Only works in supported projects (Chromium & ChromiumOS).",
           "default": true
         },
-        "cros-ide.boilerplate.guessNamespace": {
+        "chromiumide.boilerplate.guessNamespace": {
           "type": "boolean",
           "description": "Guess the namespace based on other files in the same folder when inserting boilerplate (currently only works for Chromium).",
           "default": false

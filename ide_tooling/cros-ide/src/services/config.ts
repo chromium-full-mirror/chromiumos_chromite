@@ -96,8 +96,11 @@ export const boardsAndPackages = {
 };
 
 export const boilerplate = {
-  enabled: new ConfigValue<boolean>('boilerplate.enabled'),
-  guessNamespace: new ConfigValue<boolean>('boilerplate.guessNamespace'),
+  enabled: new ConfigValue<boolean>('boilerplate.enabled', CHROMIUMIDE_PREFIX),
+  guessNamespace: new ConfigValue<boolean>(
+    'boilerplate.guessNamespace',
+    CHROMIUMIDE_PREFIX
+  ),
 };
 
 export const codeSearch = {
