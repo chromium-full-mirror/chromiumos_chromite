@@ -27,6 +27,8 @@ async function migrateConfiguration(): Promise<void> {
     config.chrome.ashBuildDir,
     config.chrome.dutName,
     config.chrome.outputDirectories,
+    config.codeSearch.instance,
+    config.codeSearch.openWithRevision,
   ];
 
   let shouldMigrate = false;

@@ -660,7 +660,7 @@
           "description": "Enable view for Chromium output directories in the Explorer sidebar",
           "default": true
         },
-        "cros-ide.codeSearch": {
+        "chromiumide.codeSearch": {
           "type": "string",
           "enum": [
             "public",
@@ -670,7 +670,7 @@
           "description": "Code Search instance to open files in",
           "default": "public"
         },
-        "cros-ide.codeSearchHash": {
+        "chromiumide.codeSearchHash": {
           "type": "boolean",
           "description": "Link to the hash of the current revision instead of TOT",
           "default": false

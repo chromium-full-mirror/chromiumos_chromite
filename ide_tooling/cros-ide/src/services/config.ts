@@ -105,9 +105,15 @@ export const boilerplate = {
 
 export const codeSearch = {
   // TODO: Consider aligning the setting name.
-  instance: new ConfigValue<'public' | 'internal' | 'gitiles'>('codeSearch'),
+  instance: new ConfigValue<'public' | 'internal' | 'gitiles'>(
+    'codeSearch',
+    CHROMIUMIDE_PREFIX
+  ),
   // TODO: Consider aligning the setting name.
-  openWithRevision: new ConfigValue<boolean>('codeSearchHash'),
+  openWithRevision: new ConfigValue<boolean>(
+    'codeSearchHash',
+    CHROMIUMIDE_PREFIX
+  ),
 };
 
 export const cppCodeCompletion = {
