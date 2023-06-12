@@ -29,6 +29,7 @@ async function migrateConfiguration(): Promise<void> {
     config.chrome.outputDirectories,
     config.codeSearch.instance,
     config.codeSearch.openWithRevision,
+    config.gerrit.enabled,
   ];
 
   let shouldMigrate = false;

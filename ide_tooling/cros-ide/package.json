@@ -210,35 +210,35 @@
         "category": "CrOS",
         "title": "Collapse All Comment Threads",
         "icon": "$(collapse-all)",
-        "enablement": "config.cros-ide.gerrit.enabled"
+        "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
         "command": "cros-ide.gerrit.browseCommentThread",
         "category": "CrOS",
         "title": "Open in Gerrit",
         "icon": "$(link)",
-        "enablement": "config.cros-ide.gerrit.enabled"
+        "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
         "command": "cros-ide.gerrit.browseCommentThreadAuthor",
         "category": "CrOS",
         "title": "Open Author's Dashboard in Gerrit",
         "icon": "$(account)",
-        "enablement": "config.cros-ide.gerrit.enabled"
+        "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
         "command": "cros-ide.gerrit.browseComment",
         "category": "CrOS",
         "title": "Open in Gerrit",
         "icon": "$(link)",
-        "enablement": "config.cros-ide.gerrit.enabled"
+        "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
         "command": "cros-ide.gerrit.browseCommentAuthor",
         "category": "CrOS",
         "title": "Open Author's Dashboard in Gerrit",
         "icon": "$(account)",
-        "enablement": "config.cros-ide.gerrit.enabled"
+        "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
         "command": "cros-ide.gerrit.reply",
@@ -675,7 +675,7 @@
           "description": "Link to the hash of the current revision instead of TOT",
           "default": false
         },
-        "cros-ide.gerrit.enabled": {
+        "chromiumide.gerrit.enabled": {
           "type": "boolean",
           "markdownDescription": "Enable Gerrit comments.",
           "default": true

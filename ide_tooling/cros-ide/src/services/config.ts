@@ -117,7 +117,7 @@ export const codeSearch = {
 };
 
 export const gerrit = {
-  enabled: new ConfigValue<boolean>('gerrit.enabled'),
+  enabled: new ConfigValue<boolean>('gerrit.enabled', CHROMIUMIDE_PREFIX),
 };
 
 export const underDevelopment = {
