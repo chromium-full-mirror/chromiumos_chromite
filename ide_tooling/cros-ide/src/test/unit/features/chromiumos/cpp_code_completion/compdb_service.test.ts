@@ -23,8 +23,7 @@ describe('Compdb service', () => {
     return {chroot, source, output};
   });
 
-  // TODO(oka): Enable it.
-  xit('generates compilation database', async () => {
+  it('generates compilation database', async () => {
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
@@ -50,10 +49,18 @@ describe('Compdb service', () => {
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
-      'equery-amd64-generic',
-      testing.exactMatch(['w', 'chromeos-base/codelab'], async () => {
-        return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-0.0.1-r360.ebuild';
-      })
+      'env',
+      testing.exactMatch(
+        [
+          'ACCEPT_KEYWORDS=~*',
+          'equery-amd64-generic',
+          'which',
+          '=chromeos-base/codelab-9999',
+        ],
+        async () => {
+          return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild';
+        }
+      )
     );
 
     await fs.promises.mkdir(path.join(state.source, 'src/platform2/codelab'), {
@@ -81,8 +88,7 @@ describe('Compdb service', () => {
     ).toBe('[]');
   });
 
-  // TODO(oka): Enable it.
-  xit('can update symlink to readonly file', async () => {
+  it('can update symlink to readonly file', async () => {
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
@@ -108,10 +114,18 @@ describe('Compdb service', () => {
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
-      'equery-amd64-generic',
-      testing.exactMatch(['w', 'chromeos-base/codelab'], async () => {
-        return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-0.0.1-r360.ebuild';
-      })
+      'env',
+      testing.exactMatch(
+        [
+          'ACCEPT_KEYWORDS=~*',
+          'equery-amd64-generic',
+          'which',
+          '=chromeos-base/codelab-9999',
+        ],
+        async () => {
+          return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild';
+        }
+      )
     );
 
     await fs.promises.mkdir(path.join(state.source, 'src/platform2/codelab'), {
