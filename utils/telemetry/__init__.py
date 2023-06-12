@@ -5,6 +5,7 @@
 """The tracing library that provides the Tracer."""
 
 import os
+from typing import Optional
 
 from chromite.third_party.opentelemetry import trace as otel_trace_api
 from chromite.third_party.opentelemetry.sdk import resources as otel_resources
@@ -29,7 +30,9 @@ The tracing will be auto enabled after the notice has been displayed for 10 time
 """
 
 
-def initialize(config_file: os.PathLike, debug: bool = False):
+def initialize(
+    config_file: os.PathLike, debug: bool = False, enable: Optional[bool] = None
+):
     """Initialize opentelemetry library.
 
     The function initialized the opentelemetry library for trace collection. It
@@ -47,6 +50,7 @@ def initialize(config_file: os.PathLike, debug: bool = False):
         config_file: The path to the telemetry cfg to load for initializing
         the telemetry.
         debug: Indicates if the traces should be exported to console.
+        enable: Indicates if the traces should be enabled.
     """
 
     resource = otel_resources.get_aggregated_resources(
@@ -61,26 +65,31 @@ def initialize(config_file: os.PathLike, debug: bool = False):
         otel_trace.TracerProvider(resource=resource)
     )
 
-    cfg = config.Config(config_file)
-    is_google_host = utils.is_google_host()
+    if debug:
+        otel_trace_api.get_tracer_provider().add_span_processor(
+            otel_export.BatchSpanProcessor(otel_export.ConsoleSpanExporter())
+        )
 
-    if is_google_host and not cfg.trace_config.has_enabled():
+    if not utils.is_google_host():
+        return
+
+    cfg = config.Config(config_file)
+    if enable is not None:
+        cfg.trace_config.update(enabled=enable, reason="USER")
+        cfg.flush()
+
+    if not cfg.trace_config.has_enabled():
         if cfg.root_config.notice_countdown > -1:
             print(NOTICE)
             cfg.root_config.update(
                 notice_countdown=cfg.root_config.notice_countdown - 1
             )
-            cfg.flush()
         else:
             cfg.trace_config.update(enabled=True, reason="AUTO")
-            cfg.flush()
 
-    if cfg.trace_config.enabled and is_google_host:
+        cfg.flush()
+
+    if cfg.trace_config.enabled:
         otel_trace_api.get_tracer_provider().add_span_processor(
             otel_export.BatchSpanProcessor(exporter.ClearcutSpanExporter())
-        )
-
-    if debug:
-        otel_trace_api.get_tracer_provider().add_span_processor(
-            otel_export.BatchSpanProcessor(otel_export.ConsoleSpanExporter())
         )

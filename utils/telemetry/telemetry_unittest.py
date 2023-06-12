@@ -182,3 +182,60 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
     assert not cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "USER"
+
+
+def test_initialize_to_enable_telemetry_based_on_optin(
+    capsys, monkeypatch, tmp_path
+):
+    """Test initialize enable telemetry based on optin."""
+
+    processors = []
+    monkeypatch.setattr(utils, "is_google_host", lambda: True)
+    monkeypatch.setattr(
+        trace_sdk.TracerProvider,
+        "add_span_processor",
+        _spy_add_span_processor(processors),
+    )
+
+    config_file = tmp_path / "telemetry.cfg"
+    cfg = config.Config(config_file)
+    cfg.trace_config.update(enabled=False, reason="AUTO")
+    cfg.flush()
+
+    telemetry.initialize(config_file, enable=True)
+
+    cfg = config.Config(config_file)
+    assert len(processors) == 1
+    assert (
+        processors[0].span_exporter.__class__ == exporter.ClearcutSpanExporter
+    )
+    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert cfg.trace_config.enabled
+    assert cfg.trace_config.enabled_reason == "USER"
+
+
+def test_initialize_to_disable_telemetry_based_on_optin(
+    capsys, monkeypatch, tmp_path
+):
+    """Test initialize disable telemetry based on optin."""
+
+    processors = []
+    monkeypatch.setattr(utils, "is_google_host", lambda: True)
+    monkeypatch.setattr(
+        trace_sdk.TracerProvider,
+        "add_span_processor",
+        _spy_add_span_processor(processors),
+    )
+
+    config_file = tmp_path / "telemetry.cfg"
+    cfg = config.Config(config_file)
+    cfg.trace_config.update(enabled=True, reason="AUTO")
+    cfg.flush()
+
+    telemetry.initialize(config_file, enable=False)
+
+    cfg = config.Config(config_file)
+    assert len(processors) == 0
+    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert not cfg.trace_config.enabled
+    assert cfg.trace_config.enabled_reason == "USER"
