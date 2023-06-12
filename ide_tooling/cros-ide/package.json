@@ -184,7 +184,7 @@
         "command": "cros-ide.coverage.generate",
         "category": "CrOS",
         "title": "Generate Coverage Data",
-        "enablement": "config.cros-ide.testCoverage.enabled"
+        "enablement": "config.chromiumide.testCoverage.enabled"
       },
       {
         "command": "cros-ide.coverage.showReport",
@@ -556,7 +556,7 @@
         },
         {
           "command": "cros-ide.coverage.generate",
-          "when": "view == boards-packages && viewItem == package && config.cros-ide.testCoverage.enabled"
+          "when": "view == boards-packages && viewItem == package && config.chromiumide.testCoverage.enabled"
         },
         {
           "command": "cros-ide.coverage.showReport",
@@ -712,7 +712,7 @@
           "description": "Enable Tricium spellchecker. Requires a reload to take effect.",
           "default": true
         },
-        "cros-ide.testCoverage.enabled": {
+        "chromiumide.testCoverage.enabled": {
           "type": "boolean",
           "markdownDescription": "Show Code Coverage ([go/cros-ide-doc-boards-pkgs#code-coverage](http://go/cros-ide-doc-boards-pkgs#code-coverage)). Requires a reload to take effect.",
           "default": true

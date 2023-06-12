@@ -35,6 +35,7 @@ async function migrateConfiguration(): Promise<void> {
     config.platformEc.mode,
     config.platformEc.build,
     config.spellchecker,
+    config.testCoverage.enabled,
   ];
 
   let shouldMigrate = false;
