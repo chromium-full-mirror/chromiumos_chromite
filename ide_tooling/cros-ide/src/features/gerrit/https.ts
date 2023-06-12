@@ -22,7 +22,7 @@ export async function getOrThrow(
           resolve(undefined);
         }
         if (res.statusCode !== 200) {
-          reject(new Error(`status code: ${res.statusCode}`));
+          reject(new Error(`GET ${url}: status code: ${res.statusCode}`));
         }
         const body: Uint8Array[] = [];
         res.on('data', data => body.push(data));
