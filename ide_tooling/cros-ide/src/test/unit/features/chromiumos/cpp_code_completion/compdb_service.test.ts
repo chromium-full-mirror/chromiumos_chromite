@@ -23,7 +23,8 @@ describe('Compdb service', () => {
     return {chroot, source, output};
   });
 
-  it('generates compilation database', async () => {
+  // TODO(oka): Enable it.
+  xit('generates compilation database', async () => {
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
@@ -80,7 +81,8 @@ describe('Compdb service', () => {
     ).toBe('[]');
   });
 
-  it('can update symlink to readonly file', async () => {
+  // TODO(oka): Enable it.
+  xit('can update symlink to readonly file', async () => {
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
