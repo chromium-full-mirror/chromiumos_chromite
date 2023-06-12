@@ -780,12 +780,12 @@
             "type": "string"
           }
         },
-        "cros-ide.metrics.collectMetrics": {
+        "chromiumide.metrics.collectMetrics": {
           "type": "boolean",
           "description": "Enable pseudonymous metrics collection. Randomly generated unique user ID resets automatically every 180 days. You can also reset it anytime by running the command in the Command Palette.",
           "default": false
         },
-        "cros-ide.metrics.showMessage": {
+        "chromiumide.metrics.showMessage": {
           "type": "boolean",
           "description": "Show information on metrics collection.",
           "default": true

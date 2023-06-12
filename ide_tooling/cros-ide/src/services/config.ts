@@ -172,8 +172,14 @@ export const deviceManagement = {
 };
 
 export const metrics = {
-  collectMetrics: new ConfigValue<boolean>('metrics.collectMetrics'),
-  showMessage: new ConfigValue<boolean>('metrics.showMessage'),
+  collectMetrics: new ConfigValue<boolean>(
+    'metrics.collectMetrics',
+    CHROMIUMIDE_PREFIX
+  ),
+  showMessage: new ConfigValue<boolean>(
+    'metrics.showMessage',
+    CHROMIUMIDE_PREFIX
+  ),
 };
 
 export const ownersFiles = {
