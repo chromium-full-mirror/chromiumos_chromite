@@ -21,13 +21,14 @@ import urllib.error
 import urllib.request
 
 from chromite.third_party.opentelemetry import trace
+from chromite.third_party.opentelemetry.trace import status
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
+from chromite.lib import workon_helper
 from chromite.service import sysroot
-from chromite.utils import telemetry
 from chromite.utils import timer
 
 
@@ -489,15 +490,34 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 def build_packages(
     parser: commandline.ArgumentParser, opts: commandline.ArgumentNamespace
 ):
+    span = trace.get_current_span()
+
     # If the opts.board is not set, then it means user hasn't specified a
     # default board in 'src/scripts/.default_board' and didn't specify it as
     # input argument.
     if not opts.board:
+        span.add_event(
+            "exception",
+            attributes={
+                "exception.type": "ArgumentMissingError",
+                "exception.message": "--board is required",
+            },
+        )
+        span.set_status(status.StatusCode.ERROR)
         parser.error("--board is required")
 
     build_target = build_target_lib.BuildTarget(
         opts.board, build_root=opts.sysroot
     )
+    span.set_attributes(
+        {
+            "board": build_target.name,
+            "workon_packages": workon_helper.WorkonHelper(
+                build_target.root
+            ).ListAtoms(),
+        }
+    )
+
     board_root = sysroot_lib.Sysroot(build_target.root)
 
     try:
@@ -519,4 +539,10 @@ def build_packages(
                 logging.notice("Tree Status: %s", request.read().decode())
         except urllib.error.HTTPError:
             pass
+        span.record_exception(e)
+        span.set_status(status.StatusCode.ERROR, str(e))
         cros_build_lib.Die(e)
+    except KeyboardInterrupt as e:
+        span.record_exception(e)
+        span.set_status(status.StatusCode.OK)
+        raise
