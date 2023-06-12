@@ -680,7 +680,7 @@
           "markdownDescription": "Enable Gerrit comments.",
           "default": true
         },
-        "cros-ide.ownersFiles.links": {
+        "chromiumide.ownersFiles.links": {
           "type": "boolean",
           "description": "Make references to other OWNERS files clickable.",
           "default": true

@@ -148,7 +148,7 @@ export const metrics = {
 };
 
 export const ownersFiles = {
-  links: new ConfigValue<boolean>('ownersFiles.links'),
+  links: new ConfigValue<boolean>('ownersFiles.links', CHROMIUMIDE_PREFIX),
 };
 
 export const paths = {
