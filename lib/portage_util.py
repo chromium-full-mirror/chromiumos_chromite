@@ -118,14 +118,6 @@ class SourceDirectoryDoesNotExistError(Error, FileNotFoundError):
     """Error when at least one of an ebuild's sources does not exist."""
 
 
-def GetOverlayRoot(path):
-    """Get the overlay root folder for |path|.
-
-    For traditional portage overlays, the root folder is |path|.
-    """
-    return path
-
-
 @functools.lru_cache(maxsize=None)
 def _GetKnownOverlays(buildroot):
     """Return the list of overlays for a buildroot irrespective of board.
@@ -162,15 +154,13 @@ def _GetKnownOverlays(buildroot):
 
             try:
                 masters = key_value_store.LoadFile(
-                    os.path.join(
-                        GetOverlayRoot(overlay), "metadata", "layout.conf"
-                    )
+                    os.path.join(overlay, "metadata", "layout.conf")
                 )["masters"].split()
             except (KeyError, IOError):
                 masters = []
             overlays[name] = {
                 "masters": masters,
-                "path": GetOverlayRoot(overlay),
+                "path": overlay,
             }
     return overlays
 
@@ -369,7 +359,7 @@ def GetOverlayName(overlay):
     """Get the self-declared repo name for the |overlay| path."""
     try:
         return key_value_store.LoadFile(
-            os.path.join(GetOverlayRoot(overlay), "metadata", "layout.conf")
+            os.path.join(overlay, "metadata", "layout.conf")
         )["repo-name"]
     except (KeyError, IOError):
         # Not all layout.conf files have a repo-name, so don't make a fuss.
@@ -1920,7 +1910,7 @@ def RegenCache(
         return None
 
     layout = key_value_store.LoadFile(
-        os.path.join(GetOverlayRoot(overlay), "metadata", "layout.conf"),
+        os.path.join(overlay, "metadata", "layout.conf"),
         ignore_missing=True,
     )
     if layout.get("cache-format") != "md5-dict":
