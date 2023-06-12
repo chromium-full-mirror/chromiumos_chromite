@@ -10,6 +10,7 @@ import * as metrics from '../metrics/metrics';
 import * as boilerplate from '../boilerplate';
 import * as chromiumBuild from './chromium_build';
 import * as outputDirectories from './output_directories';
+import * as format from './format';
 
 /**
  * Extension context value provided to this class. We omit subscriptions here
@@ -77,6 +78,22 @@ export class Chromium implements vscode.Disposable {
         this.root
       );
     }
+
+    this.featureName = 'chromiumContextKeys';
+    // This can be used in `when` clauses in `package.json`. It is okay to never reset it back to
+    // an empty array, even when the user removes the Chromium folder from their workspace,
+    // because the fact that Chromium is located in these directories probably doesn't change.
+    await vscode.commands.executeCommand(
+      'setContext',
+      'cros-ide.chromium.src-uris',
+      [
+        vscode.Uri.file(path.join(this.root, 'src')),
+        vscode.Uri.file(path.join(this.root, 'src-internal')),
+      ]
+    );
+
+    this.featureName = 'chromiumFormat';
+    format.activate(ephemeralContext, this.root);
   }
 }
 

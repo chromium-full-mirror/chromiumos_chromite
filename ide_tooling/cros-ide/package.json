@@ -298,6 +298,12 @@
         "title": "Refresh output directories",
         "icon": "$(refresh)",
         "category": "Chromium"
+      },
+      {
+        "command": "cros-ide.chromium.gitcl.format",
+        "title": "git cl format",
+        "icon": "$(whitespace)",
+        "category": "Chromium"
       }
     ],
     "viewsContainers": {
@@ -392,6 +398,13 @@
           "command": "cros-ide.deviceManagement.runTastTests",
           "when": "resourcePath =~ //src/platform/tast-tests[^/]*/src/chromiumos/tast/(local|remote)/bundles/[^/]+/[^/]+/[^/]+.go$/",
           "group": "navigation"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "cros-ide.chromium.gitcl.format",
+          "when": "scmProvider == git && scmProviderRootUri in cros-ide.chromium.src-uris",
+          "group": "navigation@-3"
         }
       ],
       "view/title": [
