@@ -126,17 +126,14 @@ export class Platform2 implements CompdbGenerator {
             `Failed to generate cross reference; try removing the file ${error.details.cache} and reload the IDE`
           );
         case CompdbErrorKind.RunEbuild: {
-          const buildPackages = `build_packages --board=${board}`;
           throw new ErrorDetails(
             error.details.kind,
-            `Failed to generate cross reference; try running "${buildPackages}" in chroot and reload the IDE`,
+            'Failed to generate cross reference; see go/cros-ide-doc-compdb-failure for troubleshooting',
             {
-              label: 'Open document',
+              label: 'Open',
               action: () => {
                 void vscode.env.openExternal(
-                  vscode.Uri.parse(
-                    'https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md#build-the-packages-for-your-board'
-                  )
+                  vscode.Uri.parse('http://go/cros-ide-doc-compdb-failure')
                 );
               },
             }
