@@ -707,7 +707,7 @@
           "description": "Build system.",
           "default": "Makefile"
         },
-        "cros-ide.spellchecker": {
+        "chromiumide.spellchecker": {
           "type": "boolean",
           "description": "Enable Tricium spellchecker. Requires a reload to take effect.",
           "default": true

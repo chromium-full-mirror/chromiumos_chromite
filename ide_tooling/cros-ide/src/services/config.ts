@@ -186,7 +186,10 @@ export const chrome = {
   ),
 };
 
-export const spellchecker = new ConfigValue<boolean>('spellchecker');
+export const spellchecker = new ConfigValue<boolean>(
+  'spellchecker',
+  CHROMIUMIDE_PREFIX
+);
 
 export const testCoverage = {
   enabled: new ConfigValue<boolean>('testCoverage.enabled'),

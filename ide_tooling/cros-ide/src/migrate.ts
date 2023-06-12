@@ -34,6 +34,7 @@ async function migrateConfiguration(): Promise<void> {
     config.platformEc.board,
     config.platformEc.mode,
     config.platformEc.build,
+    config.spellchecker,
   ];
 
   let shouldMigrate = false;
