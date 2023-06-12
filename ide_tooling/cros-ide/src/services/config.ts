@@ -116,12 +116,6 @@ export const codeSearch = {
   ),
 };
 
-export const cppCodeCompletion = {
-  useHardcodedMapping: new ConfigValue<boolean>(
-    'cppCodeCompletion.useHardcodedMapping'
-  ),
-};
-
 export const gerrit = {
   enabled: new ConfigValue<boolean>('gerrit.enabled'),
 };
