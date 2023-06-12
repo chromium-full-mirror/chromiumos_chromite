@@ -310,21 +310,6 @@ def FindOverlayFile(
     return None
 
 
-def FindSysrootOverlays(sysroot):
-    """Ask portage for a list of overlays installed in a given sysroot.
-
-    Returns overlays in lowest to highest priority.  Note that this list
-    is only partially ordered.
-
-    Args:
-        sysroot: The root directory being inspected.
-
-    Returns:
-        list of overlays used in sysroot.
-    """
-    return PortageqEnvvar("PORTDIR_OVERLAY", board=os.path.basename(sysroot))
-
-
 def ReadOverlayFile(
     filename,
     overlay_type=constants.BOTH_OVERLAYS,

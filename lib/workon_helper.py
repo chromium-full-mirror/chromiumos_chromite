@@ -281,17 +281,9 @@ class WorkonHelper(object):
         if self._cached_overlays is None:
             sysroot = sysroot_lib.Sysroot(self._sysroot)
             portdir_overlay = sysroot.GetStandardField("PORTDIR_OVERLAY")
-            if portdir_overlay:
-                self._cached_overlays = [
-                    x.strip() for x in portdir_overlay.splitlines()
-                ]
-            else:
-                # This command is exceptionally slow, and we don't expect the
-                # list of overlays to change during the lifetime of
-                # WorkonHelper.
-                self._cached_overlays = portage_util.FindSysrootOverlays(
-                    self._sysroot
-                )
+            self._cached_overlays = [
+                x.strip() for x in portdir_overlay.splitlines()
+            ]
 
         return self._cached_overlays
 
