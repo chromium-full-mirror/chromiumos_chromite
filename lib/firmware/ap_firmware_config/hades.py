@@ -43,7 +43,6 @@ def get_config(servo: servo_lib.Servo) -> servo_lib.ServoConfig:
     dut_control_off.append(["ec_uart_cmd:gpioset PG_PP3300_S5_OD 1"])
 
     if servo.is_micro:
-        dut_control_on.append(["ap_flash_select:off"])
         # Supply power to PP3300_BIOS (via PP3300_SERVO_PCH_SPI).
         dut_control_on.append(["spi2_vref:pp3300"])
         dut_control_off.append(["spi2_vref:off"])
