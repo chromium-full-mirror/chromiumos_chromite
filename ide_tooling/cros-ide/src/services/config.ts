@@ -172,9 +172,15 @@ export const goExtension = {
 };
 
 export const chrome = {
-  ashBuildDir: new ConfigValue<string>('chrome.ashBuildDir'),
-  dutName: new ConfigValue<string>('chrome.dutName'),
-  outputDirectories: new ConfigValue<boolean>('chrome.outputDirectories'),
+  ashBuildDir: new ConfigValue<string>(
+    'chrome.ashBuildDir',
+    CHROMIUMIDE_PREFIX
+  ),
+  dutName: new ConfigValue<string>('chrome.dutName', CHROMIUMIDE_PREFIX),
+  outputDirectories: new ConfigValue<boolean>(
+    'chrome.outputDirectories',
+    CHROMIUMIDE_PREFIX
+  ),
 };
 
 export const spellchecker = new ConfigValue<boolean>('spellchecker');

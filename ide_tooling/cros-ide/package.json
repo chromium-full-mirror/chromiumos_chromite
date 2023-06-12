@@ -339,7 +339,7 @@
         {
           "id": "cros-ide.chromium.outputDirectories",
           "name": "Chromium: Output Directories",
-          "when": "config.cros-ide.chrome.outputDirectories"
+          "when": "config.chromiumide.chrome.outputDirectories"
         }
       ]
     },
@@ -640,22 +640,22 @@
           "description": "Guess the namespace based on other files in the same folder when inserting boilerplate (currently only works for Chromium).",
           "default": false
         },
-        "cros-ide.chrome.ashBuildDir": {
+        "chromiumide.chrome.ashBuildDir": {
           "type": "string",
           "description": "Build directory for ash-chrome build.",
           "default": "out/Default"
         },
-        "cros-ide.chrome.dutBoard": {
+        "chromiumide.chrome.dutBoard": {
           "type": "string",
           "description": "Type of board for the DUT",
           "default": "nocturne"
         },
-        "cros-ide.chrome.dutName": {
+        "chromiumide.chrome.dutName": {
           "type": "string",
           "description": "Name to use for SSH to DUT for deploy chrome",
           "default": "DUT"
         },
-        "cros-ide.chrome.outputDirectories": {
+        "chromiumide.chrome.outputDirectories": {
           "type": "boolean",
           "description": "Enable view for Chromium output directories in the Explorer sidebar",
           "default": true

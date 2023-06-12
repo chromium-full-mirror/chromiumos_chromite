@@ -24,6 +24,9 @@ async function migrateConfiguration(): Promise<void> {
     config.boardsAndPackages.showWelcomeMessage,
     config.boilerplate.enabled,
     config.boilerplate.guessNamespace,
+    config.chrome.ashBuildDir,
+    config.chrome.dutName,
+    config.chrome.outputDirectories,
   ];
 
   let shouldMigrate = false;
