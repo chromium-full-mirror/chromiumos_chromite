@@ -50,6 +50,7 @@ async function migrateConfiguration(): Promise<void> {
     config.deviceManagement.devices,
     config.metrics.collectMetrics,
     config.metrics.showMessage,
+    config.paths.depotTools,
   ];
 
   let shouldMigrate = false;

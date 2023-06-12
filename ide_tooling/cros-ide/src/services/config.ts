@@ -187,7 +187,7 @@ export const ownersFiles = {
 };
 
 export const paths = {
-  depotTools: new ConfigValue<string>('paths.depotTools'),
+  depotTools: new ConfigValue<string>('paths.depotTools', CHROMIUMIDE_PREFIX),
 };
 
 export const platformEc = {
