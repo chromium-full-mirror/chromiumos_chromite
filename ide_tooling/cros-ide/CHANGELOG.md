@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.14.0 (June 2023)
+## 0.14.1 (June 2023)
 
 - Bump the minimum VSCode version to 1.75.1.
 - Rebrand to ChromiumIDE.
@@ -10,6 +10,7 @@
   - Stop repeatedly running failed compilation command
   - Improve error messages on SSH connection failure
   - Use partner testing rsa if available
+  - Correct the working directory for running gtest
 
 ## 0.12.0 (April 2023)
 
