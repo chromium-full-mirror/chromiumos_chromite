@@ -447,7 +447,7 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="crosvm",
             gid=299,
-            users={"crosvm", "shadercached"},
+            users={"crosvm", "shadercached", "spaced"},
         ),
         GroupEntry(group="mei-access", gid=427, users={"healthd_psr"}),
     )
