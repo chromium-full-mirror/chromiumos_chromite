@@ -43,12 +43,13 @@ from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
 
 
-tracer = trace.get_tracer(__name__)
-
 if TYPE_CHECKING:
     from chromite.lib import binpkg
     from chromite.lib import build_target_lib
     from chromite.lib import chroot_lib
+
+
+tracer = trace.get_tracer(__name__)
 
 # TODO(xcl): Revisit/remove this after the Lacros launch if no longer needed
 _CHROME_PACKAGES = ("chromeos-base/chromeos-chrome", "chromeos-base/chrome-icu")
