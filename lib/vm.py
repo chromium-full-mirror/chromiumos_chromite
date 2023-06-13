@@ -743,13 +743,13 @@ class VM(device.Device):
             self._WaitForProcs()
 
     @staticmethod
-    def GetParser():
+    def GetParser(parser=None):
         """Parse a list of args.
 
         Returns:
             commandline.ArgumentParser
         """
-        parser = device.Device.GetParser()
+        parser = device.Device.GetParser(parser)
         parser.add_argument(
             "--start", action="store_true", default=False, help="Start the VM."
         )

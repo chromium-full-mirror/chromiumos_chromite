@@ -127,16 +127,15 @@ class Device(object):
         return Device(opts)
 
     @staticmethod
-    def GetParser():
+    def GetParser(parser=None):
         """Parse a list of args.
-
-        Args:
-            argv: list of command line arguments.
 
         Returns:
             List of parsed opts.
         """
-        parser = commandline.ArgumentParser(description=__doc__, dryrun=True)
+        parser = parser or commandline.ArgumentParser(
+            description=__doc__, dryrun=True
+        )
         parser.add_argument(
             "-d",
             "--device",
