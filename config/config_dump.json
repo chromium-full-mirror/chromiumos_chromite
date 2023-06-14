@@ -10820,7 +10820,6 @@
     "hw_tests": [],
     "hw_tests_disabled_bug": "b/239660108",
     "hw_tests_override": [],
-    "important": false,
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"geralt\",\n  \"name\": \"geralt\",\n  \"test_suites\": []\n}"
     ],
