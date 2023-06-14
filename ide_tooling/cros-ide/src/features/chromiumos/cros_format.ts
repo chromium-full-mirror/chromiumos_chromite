@@ -95,6 +95,7 @@ class CrosFormat implements vscode.DocumentFormattingEditProvider {
       metrics.send({
         category: 'error',
         group: 'format',
+        name: 'cros_format_call_error',
         description: 'call to cros format failed',
       });
       return undefined;
@@ -114,6 +115,7 @@ class CrosFormat implements vscode.DocumentFormattingEditProvider {
       metrics.send({
         category: 'background',
         group: 'format',
+        name: 'cros_format',
         description: 'cros format',
       });
       const wholeFileRange = new vscode.Range(
@@ -130,6 +132,7 @@ class CrosFormat implements vscode.DocumentFormattingEditProvider {
       metrics.send({
         category: 'error',
         group: 'format',
+        name: 'cros_format_return_error',
         description: 'cros format returned error',
       });
       return undefined;

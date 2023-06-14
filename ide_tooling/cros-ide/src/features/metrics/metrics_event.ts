@@ -239,6 +239,17 @@ interface ActivateChromiumosEvent extends GA4EventBase {
   name: 'activate_chromiumos_error';
 }
 
+type CrosFormatEvent = GA4EventBase & {group: 'format'} & (
+    | {
+        category: 'error';
+        name: 'cros_format_call_error' | 'cros_format_return_error';
+      }
+    | {
+        category: 'background';
+        name: 'cros_format';
+      }
+  );
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
@@ -260,6 +271,7 @@ export type Event =
   | chromiumOutputDirectoriesInteractiveEvent
   | ExtensionSuggestedEvent
   | ExtensionInstalledEvent
+  | CrosFormatEvent
   | PackageCrosWorkonEvent
   | PackageOpenEbuildEvent;
 

@@ -48,6 +48,7 @@ describe('Cros format', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'error',
       group: 'format',
+      name: 'cros_format_call_error',
       description: 'call to cros format failed',
     });
   });
@@ -71,6 +72,7 @@ describe('Cros format', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'error',
       group: 'format',
+      name: 'cros_format_return_error',
       description: 'cros format returned error',
     });
   });
@@ -116,6 +118,7 @@ describe('Cros format', () => {
     expect(metrics.send).toHaveBeenCalledOnceWith({
       category: 'background',
       group: 'format',
+      name: 'cros_format',
       description: 'cros format',
     });
   });
