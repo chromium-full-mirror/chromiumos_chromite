@@ -192,12 +192,15 @@ export class Analytics {
 
     // The unused variables are needed for object destruction of event and match customFields.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {category, group, name, description, ...customFields} = event;
+    const {category, group, description, ...customFields} = event;
 
     // Temporary. Convert all extra fields (i.e. future custom dimensions and
     // metrics) to event label (string) or event value (number).
-    if (event.category !== 'error') {
-      for (const value of Object.values(customFields)) {
+    if (category !== 'error') {
+      for (const [key, value] of Object.entries(customFields)) {
+        if (key === 'name') {
+          continue;
+        }
         if (typeof value === 'string') {
           data.el = value;
         } else if (typeof value === 'number') {

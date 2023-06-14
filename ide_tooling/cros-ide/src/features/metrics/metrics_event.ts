@@ -40,16 +40,6 @@ interface EventBase {
   category: Category;
   // Describes the feature group this event belongs to.
   group: FeatureGroup;
-  // Name of event to be sent to GA4.
-  // TODO(b/281925148): name would be a required field with checks to ensure it satisfies GA4
-  // limitations
-  //   1. contains alphanumerical characters or underscore '_' only,
-  //   2. starts with an alphabet,
-  //   3. has at most 40 characters
-  // see
-  // https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#limitations
-  // Unused until switching to GA4.
-  name?: string;
   // Describes an operation the extension has just run.
   // You can optional add a prefix with a colon to group actions in the same feature set.
   // Examples:
@@ -68,21 +58,49 @@ interface EventBase {
 // see
 // https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#limitations
 
-interface UAEventDeprecated extends EventBase {
+export interface UAEventDeprecated extends EventBase {
   // Label is an optional string that describes the operation.
   label?: string;
   // Value is an optional number that describes the operation.
   value?: number;
 }
 
-interface CodesearchSearchSelectionEvent extends EventBase {
+// Temporary class to ensure new GA4 Event types have name and are catalogued in this file (avoid
+// implicitly using UAEventDeprecated type).
+export interface GA4EventBase extends EventBase {
+  // Name of event to be sent to GA4.
+  // TODO(b/281925148): name would be a required field with checks to ensure it satisfies GA4
+  // limitations
+  //   1. contains alphanumerical characters or underscore '_' only,
+  //   2. starts with an alphabet,
+  //   3. has at most 40 characters
+  // see
+  // https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#limitations
+  // Unused until switching to GA4.
+  name: string;
+}
+
+interface CodesearchErrorEvent extends GA4EventBase {
+  category: 'error';
+  group: 'codesearch';
+  name: 'codesearch_generate_cs_path_failed';
+}
+
+interface CodesearchInteractiveEvent extends GA4EventBase {
   category: 'interactive';
   group: 'codesearch';
+  name:
+    | 'codesearch_open_current_file'
+    | 'codesearch_copy_current_file'
+    | 'codesearch_search_selection';
+}
+
+interface CodesearchSearchSelectionEvent extends CodesearchInteractiveEvent {
   name: 'codesearch_search_selection';
   selected_text: string;
 }
 
-interface DeviceManagementEvent extends EventBase {
+interface DeviceManagementEvent extends GA4EventBase {
   category: 'interactive';
   group: 'device';
   name:
@@ -105,8 +123,10 @@ interface DeviceManagementEvent extends EventBase {
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
-  | CodesearchSearchSelectionEvent
-  | DeviceManagementEvent;
+  | DeviceManagementEvent
+  | CodesearchErrorEvent
+  | CodesearchInteractiveEvent
+  | CodesearchSearchSelectionEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.

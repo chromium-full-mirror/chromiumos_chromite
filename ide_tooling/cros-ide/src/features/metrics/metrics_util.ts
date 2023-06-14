@@ -81,9 +81,11 @@ export function eventToRequestBodyGA4(
   vscodeVersion: string,
   extensionVersion: string | undefined,
 ): string {
+  const eventGA4 = event as metricsEvent.GA4EventBase;
+
   // The unused variables are needed for object destruction of event and match customFields.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {category, group, name, description, ...customFields} = event;
+  const {category, group, name, description, ...customFields} = eventGA4;
 
   // TODO(b/281925148): eventually name should be passed directly as value for event_name.
   // Temporary measure only before all callsites provide name (and Event.name becomes a required
