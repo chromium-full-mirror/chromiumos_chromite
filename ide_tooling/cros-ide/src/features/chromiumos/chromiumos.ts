@@ -63,6 +63,7 @@ export class Chromiumos implements vscode.Disposable {
         metrics.send({
           category: 'error',
           group: 'misc',
+          name: 'activate_chromiumos_error',
           description: `failed to activte ${this.featureName}`,
         });
       }

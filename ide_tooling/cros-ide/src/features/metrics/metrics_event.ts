@@ -233,12 +233,19 @@ interface PackageOpenEbuildEvent extends GA4EventBase {
   name: 'package_open_ebuild';
 }
 
+interface ActivateChromiumosEvent extends GA4EventBase {
+  category: 'error';
+  group: 'misc';
+  name: 'activate_chromiumos_error';
+}
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
   | DeviceManagementEvent
   | CodesearchErrorEvent
   | CodesearchInteractiveEvent
+  | ActivateChromiumosEvent
   | CodesearchSearchSelectionEvent
   | GerritInteractiveEvent
   | GerritErrorEvent
