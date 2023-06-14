@@ -31,6 +31,7 @@ from typing import Optional, Tuple
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
 from chromite.lib import binpkg
+from chromite.lib import chroot_lib
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -57,10 +58,8 @@ _SLEEP_TIME = 60
 _BINPKG_TTL = 60 * 60 * 24 * 365
 
 _HOST_PACKAGES_PATH = "var/lib/portage/pkgs"
-_CATEGORIES_PATH = "chroot/etc/portage/categories"
-_PYM_PATH = "chroot/usr/lib/portage/pym"
 _HOST_ARCH = "amd64"
-_BOARD_PATH = "chroot/build/%(board)s"
+_BOARD_PATH = "build/%(board)s"
 _REL_BOARD_PATH = "board/%(target)s/%(version)s"
 _REL_HOST_PATH = "host/%(host_arch)s/%(target)s/%(version)s"
 # Private overlays to look at for builds to filter
@@ -318,6 +317,7 @@ class PrebuiltUploader(object):
         version,
         report,
         chroot=None,
+        out_dir=None,
     ):
         """Constructor for prebuilt uploader object.
 
@@ -345,7 +345,8 @@ class PrebuiltUploader(object):
                 path, which identifies the version number of the uploaded
                 prebuilts.
             report: Dict in which to collect information to report to the user.
-            chroot: Path to the chroot containing the prebuilts.
+            chroot: Path to the chroot.
+            out_dir: Path to the SDK output directory for the chroot.
         """
         self._upload_location = upload_location
         self._acl = acl
@@ -361,9 +362,13 @@ class PrebuiltUploader(object):
         self._slave_targets = slave_targets
         self._version = version
         self._report = report
-        self._chroot = chroot or os.path.join(
+        chroot_path = chroot or os.path.join(
             build_path, constants.DEFAULT_CHROOT_DIR
         )
+        out_path = Path(
+            out_dir or os.path.join(build_path, constants.DEFAULT_OUT_DIR)
+        )
+        self._chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
         self._gs_context = gs.GSContext(
             retries=_RETRIES, sleep=_SLEEP_TIME, dry_run=self._dryrun
         )
@@ -645,7 +650,7 @@ LATEST_SDK_UPREV_TARGET=\"{latest_sdk_uprev_target}\""""
 
             if self._target == target and not self._skip_upload:
                 # Upload prebuilts.
-                package_path = os.path.join(self._chroot, _HOST_PACKAGES_PATH)
+                package_path = self._chroot.full_path(_HOST_PACKAGES_PATH)
                 self._UploadPrebuilt(package_path, packages_url_suffix)
 
             # Record URL where prebuilts were uploaded.
@@ -708,8 +713,8 @@ LATEST_SDK_UPREV_TARGET=\"{latest_sdk_uprev_target}\""""
         """
         updated_binhosts = set()
         for target in self._GetTargets():
-            board_path = os.path.join(
-                self._build_path, _BOARD_PATH % {"board": target.board_variant}
+            board_path = self._chroot.full_path(
+                _BOARD_PATH % {"board": target.board_variant}
             )
             package_path = os.path.join(board_path, "packages")
             url_suffix = _REL_BOARD_PATH % {
@@ -898,6 +903,11 @@ def ParseOptions(argv) -> Tuple[argparse.Namespace, Optional[BuildTarget]]:
         "--chroot",
         help="Path where the chroot is located. "
         "(Default: {build_path}/chroot)",
+    )
+    parser.add_argument(
+        "--out-dir",
+        help="Path where the SDK output directory is located. "
+        "(Default: {build_path}/out)",
     )
     parser.add_argument(
         "--output",
@@ -1134,7 +1144,8 @@ def main(argv):
         options.slave_targets,
         version,
         report,
-        options.chroot,
+        chroot=options.chroot,
+        out_dir=options.out_dir,
     )
 
     if options.sync_host:

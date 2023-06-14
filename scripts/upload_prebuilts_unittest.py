@@ -7,16 +7,19 @@
 import copy
 import multiprocessing
 import os
+from pathlib import Path
 from typing import List
 from unittest import mock
 
 import pytest
 
 from chromite.lib import binpkg
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel_unittest
+from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.scripts import upload_prebuilts as prebuilt
 
@@ -400,18 +403,24 @@ class TestSyncPrebuilts(cros_test_lib.MockTestCase):
         self.upload_mock = self.PatchObject(
             prebuilt.PrebuiltUploader, "_UploadPrebuilt", return_value=True
         )
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
-    def _testSyncHostPrebuilts(self, chroot):
+    def _testSyncHostPrebuilts(self, chroot, out_dir):
         board = "x86-foo"
         target = prebuilt.BuildTarget(board, "aura")
         slave_targets = [prebuilt.BuildTarget("x86-bar", "aura")]
         report = {}
         if chroot is None:
-            package_path = os.path.join(
-                self.build_path, "chroot", prebuilt._HOST_PACKAGES_PATH
+            package_path = path_util.FromChrootPath(
+                os.path.join(os.path.sep, prebuilt._HOST_PACKAGES_PATH),
+                source_path=self.build_path,
             )
         else:
-            package_path = os.path.join(chroot, prebuilt._HOST_PACKAGES_PATH)
+            package_path = path_util.FromChrootPath(
+                os.path.join(os.path.sep, prebuilt._HOST_PACKAGES_PATH),
+                chroot_path=chroot,
+                out_path=out_dir,
+            )
         url_suffix = prebuilt._REL_HOST_PATH % {
             "version": self.version,
             "host_arch": prebuilt._HOST_ARCH,
@@ -439,6 +448,7 @@ class TestSyncPrebuilts(cros_test_lib.MockTestCase):
             self.version,
             report,
             chroot=chroot,
+            out_dir=out_dir,
         )
         uploader.SyncHostPrebuilts(self.key, True, True)
         self.assertEqual(
@@ -458,17 +468,18 @@ class TestSyncPrebuilts(cros_test_lib.MockTestCase):
         )
 
     def testSyncHostPrebuilts(self):
-        self._testSyncHostPrebuilts(chroot=None)
+        self._testSyncHostPrebuilts(chroot=None, out_dir=None)
 
     def testSyncHostPrebuiltsWithChroot(self):
-        self._testSyncHostPrebuilts("/test/chroot")
+        self._testSyncHostPrebuilts(Path("/test/chroot"), Path("/test/out"))
 
     def testSyncBoardPrebuilts(self):
         board = "x86-foo"
         target = prebuilt.BuildTarget(board, "aura")
         slave_targets = [prebuilt.BuildTarget("x86-bar", "aura")]
-        board_path = os.path.join(
-            self.build_path, prebuilt._BOARD_PATH % {"board": board}
+        board_path = path_util.FromChrootPath(
+            os.path.join(os.path.sep, prebuilt._BOARD_PATH % {"board": board}),
+            source_path=self.build_path,
         )
         package_path = os.path.join(board_path, "packages")
         url_suffix = prebuilt._REL_BOARD_PATH % {
@@ -574,6 +585,7 @@ class TestMain(cros_test_lib.MockTestCase):
         target = prebuilt.BuildTarget(options.board, options.profile)
         options.build_path = "/trunk"
         options.chroot = None
+        options.out_dir = None
         options.dryrun = False
         options.private = True
         options.packages = []
@@ -632,7 +644,8 @@ class TestMain(cros_test_lib.MockTestCase):
             options.slave_targets,
             mock.ANY,
             {},
-            None,
+            chroot=None,
+            out_dir=None,
         )
         board_mock.assert_called_once_with(
             options.key,
