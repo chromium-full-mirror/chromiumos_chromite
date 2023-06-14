@@ -37,7 +37,7 @@ class BuildImageTest(
         self.PatchObject(
             osutils.TempDir, "__enter__", return_value=self.tempdir
         )
-        self.PatchObject(portage_util, "GetBoardUseFlags", return_value="")
+        self.PatchObject(portage_util, "GetBoardUseFlags", return_value=[])
         self.PatchObject(
             chromeos_version,
             "VersionInfo",

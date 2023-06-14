@@ -747,7 +747,7 @@ class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
 
     def setUp(self):
         self.use_flag_mock = self.PatchObject(
-            portage_util, "GetBoardUseFlags", return_value=""
+            portage_util, "GetBoardUseFlags", return_value=[]
         )
 
     def testStandardImage(self):
@@ -771,7 +771,7 @@ class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
             self.assertDictEqual(envar, expected_envvar)
 
         # Validate scenario with systemd in USE flag
-        self.use_flag_mock.return_value = "cros_debug systemd"
+        self.use_flag_mock.return_value = ["cros_debug", "systemd"]
         expected_envvar["INSTALL_MASK"] = "\n".join(install_mask.DEFAULT)
         for image in image_to_test:
             envar = image_lib.GetBuildImageEnvvars(set([image]), "test_board")
@@ -795,7 +795,7 @@ class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
         self.assertDictEqual(envar, expected_envvar)
 
         # Validate scenario with systemd in USE flag
-        self.use_flag_mock.return_value = "cros_debug systemd"
+        self.use_flag_mock.return_value = ["cros_debug", "systemd"]
         expected_envvar["INSTALL_MASK"] = "\n".join(install_mask.FACTORY_SHIM)
         envar.clear()
         envar = image_lib.GetBuildImageEnvvars(

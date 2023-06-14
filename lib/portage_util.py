@@ -26,6 +26,7 @@ from typing import (
     Union,
 )
 
+from chromite.lib import build_query
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -2653,9 +2654,14 @@ def GetBinaryPackagePath(c, p, v, sysroot="/", packages_dir=None):
     return path
 
 
-def GetBoardUseFlags(board, chroot=None):
+def GetBoardUseFlags(board: str) -> List[str]:
     """Returns a list of USE flags in effect for a board."""
-    return PortageqEnvvar("USE", board=board, chroot=chroot).split()
+    return sorted(
+        build_query.Query(build_query.Board)
+        .filter(lambda x: x.name == board)
+        .one()
+        .use_flags
+    )
 
 
 def _EmergeBoard(
