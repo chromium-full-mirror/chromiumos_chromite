@@ -257,6 +257,22 @@ interface TargetBoardEvent extends GA4EventBase {
   board: string;
 }
 
+type CoverageEvent = GA4EventBase &
+  (
+    | {
+        category: 'interactive';
+        group: 'coverage';
+        name: 'coverage_generate' | 'coverage_show';
+        board: string;
+        package: string;
+      }
+    | {
+        category: 'background';
+        group: 'coverage';
+        name: 'coverage_show_background';
+      }
+  );
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
@@ -278,6 +294,7 @@ export type Event =
   | chromiumOutputDirectoriesInteractiveEvent
   | ExtensionSuggestedEvent
   | ExtensionInstalledEvent
+  | CoverageEvent
   | CrosFormatEvent
   | PackageCrosWorkonEvent
   | PackageOpenEbuildEvent
