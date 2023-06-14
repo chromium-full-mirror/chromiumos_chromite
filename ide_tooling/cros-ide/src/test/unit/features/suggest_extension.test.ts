@@ -67,13 +67,15 @@ describe('Suggest extension module', () => {
       category: 'background',
       group: 'misc',
       description: 'show suggestion',
-      label: 'foo',
+      name: 'misc_suggested_extension',
+      extension: 'foo',
     });
     expect(metrics.send).toHaveBeenCalledWith({
       category: 'interactive',
       group: 'misc',
       description: 'install suggested',
-      label: 'foo',
+      name: 'misc_installed_suggested_extension',
+      extension: 'foo',
     });
   });
 

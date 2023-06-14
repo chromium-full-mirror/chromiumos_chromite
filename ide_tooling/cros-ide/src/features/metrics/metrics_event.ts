@@ -169,6 +169,20 @@ interface LintSkipEvent extends LintBackgroundEvent {
   language_id: string;
 }
 
+interface ExtensionSuggestedEvent extends GA4EventBase {
+  category: 'background';
+  group: 'misc';
+  name: 'misc_suggested_extension';
+  extension: string;
+}
+
+interface ExtensionInstalledEvent extends GA4EventBase {
+  category: 'interactive';
+  group: 'misc';
+  name: 'misc_installed_suggested_extension';
+  extension: string;
+}
+
 interface MiscErrorEvent extends GA4EventBase {
   category: 'error';
   group: 'misc';
@@ -223,7 +237,9 @@ export type Event =
   | ActivateChromiumFeatureError
   | chromiumOutputDirectoriesBackgroundEvent
   | chromiumOutputDirectoriesErrorEvent
-  | chromiumOutputDirectoriesInteractiveEvent;
+  | chromiumOutputDirectoriesInteractiveEvent
+  | ExtensionSuggestedEvent
+  | ExtensionInstalledEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.

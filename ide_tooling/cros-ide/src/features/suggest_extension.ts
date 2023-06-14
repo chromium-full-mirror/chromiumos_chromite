@@ -140,7 +140,8 @@ class Recommender implements vscode.Disposable {
         category: 'background',
         group: 'misc',
         description: 'show suggestion',
-        label: this.recommendation.extensionId,
+        name: 'misc_suggested_extension',
+        extension: this.recommendation.extensionId,
       });
       if (choice === YES) {
         await vscode.commands.executeCommand(
@@ -155,7 +156,8 @@ class Recommender implements vscode.Disposable {
           category: 'interactive',
           group: 'misc',
           description: 'install suggested',
-          label: this.recommendation.extensionId,
+          name: 'misc_installed_suggested_extension',
+          extension: this.recommendation.extensionId,
         });
       }
     })();
