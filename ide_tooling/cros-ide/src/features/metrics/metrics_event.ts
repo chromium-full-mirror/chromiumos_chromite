@@ -325,6 +325,21 @@ interface TastEvent extends GA4EventBase {
   name: 'tast_setup_dev_environment';
 }
 
+type SpellcheckerEvent = GA4EventBase &
+  (
+    | {
+        category: 'error';
+        group: 'spellchecker';
+        name: 'spellchecker_error';
+      }
+    | {
+        category: 'background';
+        group: 'spellchecker';
+        name: 'spellchecker_diagnostics';
+        diagnostics_count: number;
+      }
+  );
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
@@ -354,7 +369,8 @@ export type Event =
   | CppCodeCompletionEvent
   | DebuggingEvent
   | PlatformEcEvent
-  | TastEvent;
+  | TastEvent
+  | SpellcheckerEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.

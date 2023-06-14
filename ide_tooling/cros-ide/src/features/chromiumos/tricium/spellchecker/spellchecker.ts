@@ -187,6 +187,7 @@ class Spellchecker {
       metrics.send({
         category: 'error',
         group: 'spellchecker',
+        name: 'spellchecker_error',
         description: `Spellchecker failed: ${results}`,
       });
       return;
@@ -219,8 +220,9 @@ class Spellchecker {
       metrics.send({
         category: 'background',
         group: 'spellchecker',
+        name: 'spellchecker_diagnostics',
         description: 'diagnostics',
-        value: diagnostics.length,
+        diagnostics_count: diagnostics.length,
       });
     }
     this.diagnosticCollection.set(uri, diagnostics);
