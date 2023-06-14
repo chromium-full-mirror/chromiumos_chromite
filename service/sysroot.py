@@ -174,7 +174,7 @@ class SetupBoardRunConfig(object):
             args += ["--jobs", str(self.jobs)]
 
         if not self.update_toolchain:
-            args += ["--skip_toolchain_update"]
+            args += ["--skip-toolchain-update"]
 
         return args
 

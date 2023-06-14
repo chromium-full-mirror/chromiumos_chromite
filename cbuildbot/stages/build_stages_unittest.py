@@ -235,7 +235,7 @@ class SetupBoardTest(_RunAbstractStageTestCase):
         self._RunBin(dir_exists=True)
 
     def testSDKBuild(self):
-        """Tests whether we use --skip_chroot_upgrade for SDK builds."""
+        """Tests whether we use --skip-chroot-upgrade for SDK builds."""
         extra_config = {"build_type": constants.CHROOT_BUILDER_TYPE}
         self._PrepareFull(extra_config=extra_config)
         self._Run(dir_exists=False)

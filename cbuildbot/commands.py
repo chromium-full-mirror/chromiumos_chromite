@@ -377,7 +377,7 @@ def LegacySetupBoard(
     # isn't the speediest thing, so let callers skip this step when they
     # know the system is up-to-date already.
     if not chroot_upgrade:
-        cmd.append("--skip_chroot_upgrade")
+        cmd.append("--skip-chroot-upgrade")
 
     if profile:
         cmd.append("--profile=%s" % profile)
@@ -679,7 +679,7 @@ def LegacyBuild(
         cmd.append("--nowithautotest")
 
     if skip_chroot_upgrade:
-        cmd.append("--skip_chroot_upgrade")
+        cmd.append("--skip-chroot-upgrade")
 
     if not usepkg:
         cmd.extend(LOCAL_BUILD_FLAGS)
