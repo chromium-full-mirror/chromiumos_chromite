@@ -54,8 +54,9 @@ export function activate(
         metrics.send({
           category: 'interactive',
           group: 'misc',
+          name: 'select_target_board',
           description: 'select target board',
-          label: board,
+          board: board,
         });
       }
     })

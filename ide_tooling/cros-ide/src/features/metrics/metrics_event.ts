@@ -250,6 +250,13 @@ type CrosFormatEvent = GA4EventBase & {group: 'format'} & (
       }
   );
 
+interface TargetBoardEvent extends GA4EventBase {
+  category: 'interactive';
+  group: 'misc';
+  name: 'select_target_board';
+  board: string;
+}
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
@@ -273,7 +280,8 @@ export type Event =
   | ExtensionInstalledEvent
   | CrosFormatEvent
   | PackageCrosWorkonEvent
-  | PackageOpenEbuildEvent;
+  | PackageOpenEbuildEvent
+  | TargetBoardEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.
