@@ -313,6 +313,12 @@ interface DebuggingEvent extends GA4EventBase {
   tests_count: number;
 }
 
+interface PlatformEcEvent extends GA4EventBase {
+  category: 'interactive';
+  group: 'idestatus';
+  name: 'platform_ec_show_log';
+}
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
@@ -340,7 +346,8 @@ export type Event =
   | PackageOpenEbuildEvent
   | TargetBoardEvent
   | CppCodeCompletionEvent
-  | DebuggingEvent;
+  | DebuggingEvent
+  | PlatformEcEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.

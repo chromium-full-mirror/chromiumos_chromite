@@ -31,6 +31,7 @@ export function activate(
       metrics.send({
         category: 'interactive',
         group: 'idestatus',
+        name: 'platform_ec_show_log',
         description: 'show platform ec log',
       });
     })
