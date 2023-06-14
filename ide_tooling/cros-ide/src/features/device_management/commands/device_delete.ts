@@ -15,6 +15,7 @@ export async function deleteDevice(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_delete_device',
     description: 'delete device',
   });
 

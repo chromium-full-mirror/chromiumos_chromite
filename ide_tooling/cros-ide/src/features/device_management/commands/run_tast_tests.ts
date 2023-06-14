@@ -45,6 +45,7 @@ export async function runTastTests(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_run_tast_tests',
     description: 'run Tast tests',
   });
 

@@ -14,6 +14,7 @@ export async function copyHostname(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_copy_hostname',
     description: 'copy hostname',
   });
 

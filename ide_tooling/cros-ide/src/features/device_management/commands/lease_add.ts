@@ -36,6 +36,7 @@ export async function addLease(context: CommandContext): Promise<void> {
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_add_lease',
     description: 'add lease',
   });
 

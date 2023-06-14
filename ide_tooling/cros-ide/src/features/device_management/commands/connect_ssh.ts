@@ -24,6 +24,7 @@ export async function connectToDeviceForShell(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_connect_to_device_ssh',
     description: 'connect to device with SSH',
   });
 

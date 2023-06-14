@@ -14,6 +14,7 @@ export async function connectToDeviceForScreen(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_connect_to_device_vnc',
     description: 'connect to device with VNC',
   });
 

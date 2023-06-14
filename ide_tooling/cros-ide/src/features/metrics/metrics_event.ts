@@ -82,8 +82,31 @@ interface CodesearchSearchSelectionEvent extends EventBase {
   selected_text: string;
 }
 
+interface DeviceManagementEvent extends EventBase {
+  category: 'interactive';
+  group: 'device';
+  name:
+    | 'device_management_abandon_lease'
+    | 'device_management_add_device'
+    | 'device_management_add_existing_hosts'
+    | 'device_management_add_lease'
+    | 'device_management_connect_to_device_ssh'
+    | 'device_management_connect_to_device_vnc'
+    | 'device_management_copy_hostname'
+    | 'device_management_delete_device'
+    | 'device_management_flash_prebuilt_image'
+    | 'device_management_log_in_to_crosfleet'
+    | 'device_management_refresh_leases'
+    | 'device_management_run_tast_tests'
+    | 'device_management_syslog_viewer_copy'
+    | 'device_management_syslog_viewer_open';
+}
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
-export type Event = UAEventDeprecated | CodesearchSearchSelectionEvent;
+export type Event =
+  | UAEventDeprecated
+  | CodesearchSearchSelectionEvent
+  | DeviceManagementEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.

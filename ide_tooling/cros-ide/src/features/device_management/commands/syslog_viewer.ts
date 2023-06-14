@@ -81,6 +81,7 @@ export async function openSystemLogViewer(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_syslog_viewer_open',
     description: 'open system log viewer',
   });
 

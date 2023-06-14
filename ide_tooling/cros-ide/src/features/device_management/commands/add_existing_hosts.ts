@@ -23,6 +23,7 @@ async function addExistingHosts(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_add_existing_hosts',
     description: 'add existing hosts',
   });
 

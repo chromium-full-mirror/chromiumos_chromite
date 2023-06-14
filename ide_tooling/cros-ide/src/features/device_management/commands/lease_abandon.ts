@@ -14,6 +14,7 @@ export async function abandonLease(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_abandon_lease',
     description: 'abandon lease',
   });
 

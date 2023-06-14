@@ -30,6 +30,7 @@ export async function flashPrebuiltImage(
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_flash_prebuilt_image',
     description: 'flash prebuilt image',
   });
 

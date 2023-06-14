@@ -9,6 +9,7 @@ export async function refreshLeases(context: CommandContext): Promise<void> {
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_refresh_leases',
     description: 'refresh leases',
   });
 

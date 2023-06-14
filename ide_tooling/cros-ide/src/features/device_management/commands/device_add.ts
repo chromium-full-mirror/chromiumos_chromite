@@ -9,6 +9,7 @@ export async function addDevice(context: CommandContext): Promise<void> {
   metrics.send({
     category: 'interactive',
     group: 'device',
+    name: 'device_management_add_device',
     description: 'add device',
   });
 
