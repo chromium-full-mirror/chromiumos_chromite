@@ -387,6 +387,7 @@ class DlcMetadata(object):
                 min_id = d_id
 
         self.FlushCompressed(min_id)
+        logging.info("Created metadata for %d DLCs", len(dlc_list))
 
     def FlushCompressed(self, file_id: str):
         """Write the compressed metadata buffer to a file and reset the state.
@@ -408,7 +409,7 @@ class DlcMetadata(object):
                 mode="wb",
                 sudo=self._sudo,
             )
-        self._compressed = bytearray()
+        self._compressed.clear()
 
     def LoadSrcMetadata(self, src_dir: str) -> dict:
         """Read manifest and table from the source directory and make metadata.
@@ -1326,8 +1327,11 @@ def InstallDlcImages(
                         "skipped."
                     )
 
-    if rootfs:
-        logging.debug("Creating compressed DLC metadata.")
+    # Skip creating compressed metadata when installing a single DLC (e.g. for
+    # `cros deploy`).
+    # TODO(yuanpengni): Deploy compressed metadata.
+    if rootfs and not dlc_id:
+        logging.info("Creating compressed DLC metadata.")
         dlc_all = []
         for scaled in (False, True):
             dlc_build_dir = build_dir_scaled if scaled else build_dir
