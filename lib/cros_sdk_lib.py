@@ -692,7 +692,7 @@ class ChrootCreator:
                 "Skipping SDK and toolchain update. "
                 "Chroot is not guaranteed to work."
             )
-            cmd.append("--skip_chroot_upgrade")
+            cmd.append("--skip-chroot-upgrade")
 
         try:
             cros_build_lib.dbg_run(cmd)
