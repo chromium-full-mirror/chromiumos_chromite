@@ -2799,6 +2799,9 @@ def HasPrebuilt(atom, board=None, extra_env=None):
     if board:
         cmd += ["--build-target", board]
 
+    if logging.getLogger().isEnabledFor(logging.DEBUG):
+        cmd += ["--debug"]
+
     with osutils.TempDir() as tempdir:
         output_file = os.path.join(tempdir, "has_prebuilt.json")
         cmd += ["--output", output_file]
