@@ -1495,23 +1495,26 @@ ADD
     expect(threads[2].contextValue).toMatch(/<unresolved>/);
 
     // Reply to unresolved comment.
-    await vscodeSpy.commands.executeCommand('cros-ide.gerrit.reply', {
+    await vscodeSpy.commands.executeCommand('chromiumide.gerrit.reply', {
       thread: threads[0],
       text: 'still unresolved',
     });
     // Unresolve comment.
     await vscodeSpy.commands.executeCommand(
-      'cros-ide.gerrit.replyAndUnresolve',
+      'chromiumide.gerrit.replyAndUnresolve',
       {
         thread: threads[1],
         text: 'unresolve',
       }
     );
     // Resolve comment.
-    await vscodeSpy.commands.executeCommand('cros-ide.gerrit.replyAndResolve', {
-      thread: threads[2],
-      text: 'resolve',
-    });
+    await vscodeSpy.commands.executeCommand(
+      'chromiumide.gerrit.replyAndResolve',
+      {
+        thread: threads[2],
+        text: 'resolve',
+      }
+    );
 
     // Receive event for each draft update.
     await completeShowChangeEvents.read();

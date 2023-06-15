@@ -193,67 +193,67 @@
         "enablement": "config.chromiumide.underDevelopment.testCoverage"
       },
       {
-        "command": "cros-ide.gerrit.internal.testAuth",
+        "command": "chromiumide.gerrit.internal.testAuth",
         "category": "CrOS",
         "title": "[Internal] Test Gerrit Auth",
         "icon": "$(bug)",
         "enablement": "config.chromiumide.underDevelopment.gerrit"
       },
       {
-        "command": "cros-ide.gerrit.refreshComments",
+        "command": "chromiumide.gerrit.refreshComments",
         "category": "CrOS",
         "title": "Refresh Comments",
         "icon": "$(refresh)"
       },
       {
-        "command": "cros-ide.gerrit.collapseAllCommentThreads",
+        "command": "chromiumide.gerrit.collapseAllCommentThreads",
         "category": "CrOS",
         "title": "Collapse All Comment Threads",
         "icon": "$(collapse-all)",
         "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
-        "command": "cros-ide.gerrit.browseCommentThread",
+        "command": "chromiumide.gerrit.browseCommentThread",
         "category": "CrOS",
         "title": "Open in Gerrit",
         "icon": "$(link)",
         "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
-        "command": "cros-ide.gerrit.browseCommentThreadAuthor",
+        "command": "chromiumide.gerrit.browseCommentThreadAuthor",
         "category": "CrOS",
         "title": "Open Author's Dashboard in Gerrit",
         "icon": "$(account)",
         "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
-        "command": "cros-ide.gerrit.browseComment",
+        "command": "chromiumide.gerrit.browseComment",
         "category": "CrOS",
         "title": "Open in Gerrit",
         "icon": "$(link)",
         "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
-        "command": "cros-ide.gerrit.browseCommentAuthor",
+        "command": "chromiumide.gerrit.browseCommentAuthor",
         "category": "CrOS",
         "title": "Open Author's Dashboard in Gerrit",
         "icon": "$(account)",
         "enablement": "config.chromiumide.gerrit.enabled"
       },
       {
-        "command": "cros-ide.gerrit.reply",
+        "command": "chromiumide.gerrit.reply",
         "category": "CrOS",
         "title": "Save draft",
         "enablement": "!commentIsEmpty"
       },
       {
-        "command": "cros-ide.gerrit.replyAndResolve",
+        "command": "chromiumide.gerrit.replyAndResolve",
         "category": "CrOS",
         "title": "Save and Resolve",
         "enablement": "!commentIsEmpty"
       },
       {
-        "command": "cros-ide.gerrit.replyAndUnresolve",
+        "command": "chromiumide.gerrit.replyAndUnresolve",
         "category": "CrOS",
         "title": "Save and Unresolve",
         "enablement": "!commentIsEmpty"
@@ -346,44 +346,44 @@
     "menus": {
       "comments/commentThread/title": [
         {
-          "command": "cros-ide.gerrit.browseCommentThread",
+          "command": "chromiumide.gerrit.browseCommentThread",
           "group": "inline@1",
           "when": "commentThread =~ /<public>/"
         },
         {
-          "command": "cros-ide.gerrit.browseCommentThreadAuthor",
+          "command": "chromiumide.gerrit.browseCommentThreadAuthor",
           "group": "inline@2"
         },
         {
-          "command": "cros-ide.gerrit.collapseAllCommentThreads",
+          "command": "chromiumide.gerrit.collapseAllCommentThreads",
           "group": "inline@3"
         }
       ],
       "comments/commentThread/context": [
         {
-          "command": "cros-ide.gerrit.reply",
+          "command": "chromiumide.gerrit.reply",
           "group": "inline@a",
           "when": "commentController == cros-ide-gerrit"
         },
         {
-          "command": "cros-ide.gerrit.replyAndResolve",
+          "command": "chromiumide.gerrit.replyAndResolve",
           "group": "inline@b",
           "when": "commentController == cros-ide-gerrit && commentThread =~ /<unresolved>/"
         },
         {
-          "command": "cros-ide.gerrit.replyAndUnresolve",
+          "command": "chromiumide.gerrit.replyAndUnresolve",
           "group": "inline@b",
           "when": "commentController == cros-ide-gerrit && commentThread =~ /<resolved>/"
         }
       ],
       "comments/comment/title": [
         {
-          "command": "cros-ide.gerrit.browseComment",
+          "command": "chromiumide.gerrit.browseComment",
           "group": "inline@1",
           "when": "comment =~ /<public>/"
         },
         {
-          "command": "cros-ide.gerrit.browseCommentAuthor",
+          "command": "chromiumide.gerrit.browseCommentAuthor",
           "group": "inline@2"
         }
       ],
@@ -419,7 +419,7 @@
           "group": "navigation"
         },
         {
-          "command": "cros-ide.gerrit.refreshComments",
+          "command": "chromiumide.gerrit.refreshComments",
           "when": "view == workbench.panel.comments",
           "group": "navigation"
         },
@@ -589,15 +589,15 @@
           "when": "false"
         },
         {
-          "command": "cros-ide.gerrit.reply",
+          "command": "chromiumide.gerrit.reply",
           "when": "false"
         },
         {
-          "command": "cros-ide.gerrit.replyAndResolve",
+          "command": "chromiumide.gerrit.replyAndResolve",
           "when": "false"
         },
         {
-          "command": "cros-ide.gerrit.replyAndUnresolve",
+          "command": "chromiumide.gerrit.replyAndUnresolve",
           "when": "false"
         },
         {
