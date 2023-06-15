@@ -386,7 +386,7 @@ class BuildTestServiceContainers(
 
     def setUp(self):
         self.request = test_pb2.BuildTestServiceContainersRequest(
-            chroot={"path": "/path/to/chroot"},
+            chroot={"path": "/path/to/chroot", "out_path": "/path/to/out"},
             build_target={"name": "build_target"},
             version="R93-14033.0.0",
         )

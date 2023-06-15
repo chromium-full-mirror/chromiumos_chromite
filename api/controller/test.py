@@ -213,8 +213,7 @@ def _ValidDockerLabelKey(key):
 
 @faux.success(_BuildTestServiceContainersResponse)
 @faux.error(_BuildTestServiceContainersFailedResponse)
-@validate.require("build_target.name")
-@validate.require("chroot.path")
+@validate.require("build_target.name", "chroot.path", "chroot.out_path")
 @validate.check_constraint("tags", _ValidDockerTag)
 @validate.check_constraint("labels", _ValidDockerLabelKey)
 @validate.validation_complete
@@ -242,7 +241,13 @@ def BuildTestServiceContainers(
         # Note that we use an output file instead of stdout to avoid any issues
         # with maintaining stdout hygiene.  Stdout and stderr are combined to
         # form the error log in response to any errors.
-        cmd = [build_script, chroot.path, sysroot.path]
+        cmd = [
+            build_script,
+            chroot.path,
+            sysroot.path,
+            "--out-dir",
+            chroot.out_path,
+        ]
 
         if input_proto.HasField("repository"):
             cmd += ["--host", input_proto.repository.hostname]
