@@ -23,7 +23,7 @@ async function main(commitHash: string | undefined) {
 
   if (commonUtil.isInsideChroot()) {
     throw new Error(
-      'Cannot test cros-ide inside chroot; please run repo ' +
+      'Cannot test chromiumide inside chroot; please run repo ' +
         'upload outside chroot'
     );
   }

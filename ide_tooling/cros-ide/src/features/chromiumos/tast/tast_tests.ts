@@ -146,7 +146,7 @@ export class TastTests implements vscode.Disposable {
 
     const ADD = `Add ${foldersToAdd.map(x => path.basename(x)).join(', ')}`;
     const choice = await vscode.window.showErrorMessage(
-      'cros-ide: tast-tests support expects tast and tast-tests to be opend as workspace folders',
+      'chromiumide: tast-tests support expects tast and tast-tests to be opend as workspace folders',
       ADD
     );
     if (choice === ADD) {
@@ -225,7 +225,7 @@ export class TastTests implements vscode.Disposable {
 
     const Update = 'Update';
     const choice = await vscode.window.showErrorMessage(
-      'cros-ide: go.gopath is not properly set to provide code completion and navigation; update the workspace config?',
+      'chromiumide: go.gopath is not properly set to provide code completion and navigation; update the workspace config?',
       Update
     );
     if (choice === Update) {
@@ -274,7 +274,7 @@ async function checkGolangExtensionInstalled(): Promise<boolean> {
 
   const INSTALL = 'Install';
   const choice = await vscode.window.showErrorMessage(
-    'cros-ide: Go extension is needed to enable Tast support',
+    'chromiumide: Go extension is needed to enable Tast support',
     INSTALL
   );
   if (choice === INSTALL) {
