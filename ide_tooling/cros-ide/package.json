@@ -264,27 +264,27 @@
         "enablement": "config.chromiumide.underDevelopment.relatedFiles"
       },
       {
-        "command": "cros-ide.showHelpForBoardsPackages",
+        "command": "chromiumide.showHelpForBoardsPackages",
         "title": "Show Help",
         "icon": "$(question)"
       },
       {
-        "command": "cros-ide.showHelpForDevices",
+        "command": "chromiumide.showHelpForDevices",
         "title": "Show Help",
         "icon": "$(question)"
       },
       {
-        "command": "cros-ide.showHelpForGerrit",
+        "command": "chromiumide.showHelpForGerrit",
         "title": "ChromiumIDE Help",
         "icon": "$(question)"
       },
       {
-        "command": "cros-ide.showHelpForIdeStatus",
+        "command": "chromiumide.showHelpForIdeStatus",
         "title": "Show Help",
         "icon": "$(question)"
       },
       {
-        "command": "cros-ide.showHelpForLint",
+        "command": "chromiumide.showHelpForLint",
         "title": "ChromiumIDE Help",
         "icon": "$(question)"
       },
@@ -424,27 +424,27 @@
           "group": "navigation"
         },
         {
-          "command": "cros-ide.showHelpForBoardsPackages",
+          "command": "chromiumide.showHelpForBoardsPackages",
           "when": "view == boards-packages",
           "group": "navigation"
         },
         {
-          "command": "cros-ide.showHelpForDevices",
+          "command": "chromiumide.showHelpForDevices",
           "when": "view == devices",
           "group": "navigation"
         },
         {
-          "command": "cros-ide.showHelpForGerrit",
+          "command": "chromiumide.showHelpForGerrit",
           "when": "view == workbench.panel.comments",
           "group": "navigation"
         },
         {
-          "command": "cros-ide.showHelpForIdeStatus",
+          "command": "chromiumide.showHelpForIdeStatus",
           "when": "view == cros-ide-status",
           "group": "navigation"
         },
         {
-          "command": "cros-ide.showHelpForLint",
+          "command": "chromiumide.showHelpForLint",
           "when": "view == workbench.panel.markers.view",
           "group": "navigation"
         },

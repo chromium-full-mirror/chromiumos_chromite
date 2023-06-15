@@ -8,23 +8,23 @@ import * as metrics from '../features/metrics/metrics';
 export function activate(context: vscode.ExtensionContext) {
   const commandLink: [string, vscode.Uri][] = [
     [
-      'cros-ide.showHelpForBoardsPackages',
+      'chromiumide.showHelpForBoardsPackages',
       vscode.Uri.parse('http://go/cros-ide-doc-boards-pkgs'),
     ],
     [
-      'cros-ide.showHelpForDevices',
+      'chromiumide.showHelpForDevices',
       vscode.Uri.parse('http://go/cros-ide-doc-device-management'),
     ],
     [
-      'cros-ide.showHelpForIdeStatus',
+      'chromiumide.showHelpForIdeStatus',
       vscode.Uri.parse('http://go/cros-ide-doc-ide-status'),
     ],
     [
-      'cros-ide.showHelpForGerrit',
+      'chromiumide.showHelpForGerrit',
       vscode.Uri.parse('http://go/cros-ide-doc-gerrit'),
     ],
     [
-      'cros-ide.showHelpForLint',
+      'chromiumide.showHelpForLint',
       vscode.Uri.parse('http://go/cros-ide-doc-linting'),
     ],
   ];
