@@ -5,7 +5,7 @@
 """SDK chroot operations."""
 
 import os
-from typing import Dict, Union
+from typing import Dict, TYPE_CHECKING, Union
 
 from chromite.api import controller
 from chromite.api import faux
@@ -14,6 +14,11 @@ from chromite.api.controller import controller_util
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_build_lib
 from chromite.service import sdk
+
+
+if TYPE_CHECKING:
+    from chromite.api import api_config
+    from chromite.api.gen.chromite.api import sdk_pb2
 
 
 def _ChrootVersionResponse(_input_proto, output_proto, _config):
@@ -39,8 +44,8 @@ def _BuildSdkTarballResponse(_input_proto, output_proto, _config):
 @validate.require("chroot")
 @validate.validation_complete
 def BuildSdkTarball(
-    input_proto: "BuildSdkTarballRequest",
-    output_proto: "BuildSdkTarballResponse",
+    input_proto: "sdk_pb2.BuildSdkTarballRequest",
+    output_proto: "sdk_pb2.BuildSdkTarballResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     chroot = controller_util.ParseChroot(input_proto.chroot)
@@ -60,8 +65,8 @@ def _CreateManifestFromSdkResponse(_input_proto, output_proto, _config):
 @validate.require("dest_dir")
 @validate.validation_complete
 def CreateManifestFromSdk(
-    input_proto: "CreateManifestFromSdkRequest",
-    output_proto: "CreateManifestFromSdkResponse",
+    input_proto: "sdk_pb2.CreateManifestFromSdkRequest",
+    output_proto: "sdk_pb2.CreateManifestFromSdkResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Create a manifest file showing the ebuilds in an SDK."""
@@ -90,8 +95,8 @@ def CreateManifestFromSdk(
 @faux.success(_ChrootVersionResponse)
 @faux.empty_error
 def Create(
-    input_proto: "CreateRequest",
-    output_proto: "CreateResponse",
+    input_proto: "sdk_pb2.CreateRequest",
+    output_proto: "sdk_pb2.CreateResponse",
     config: "api_config.ApiConfig",
 ) -> Union[int, None]:
     """Chroot creation, includes support for replacing an existing chroot.
@@ -139,8 +144,8 @@ def Create(
 @validate.require_each("toolchain_targets", ["name"])
 @validate.validation_complete
 def Update(
-    input_proto: "UpdateRequest",
-    output_proto: "UpdateResponse",
+    input_proto: "sdk_pb2.UpdateRequest",
+    output_proto: "sdk_pb2.UpdateResponse",
     _config: "api_config.ApiConfig",
 ):
     """Update the chroot.
@@ -273,8 +278,8 @@ def BuildPrebuilts(input_proto, _output_proto, _config):
 )
 @validate.validation_complete
 def CreateBinhostCLs(
-    input_proto: "CreateBinhostCLsRequest",
-    output_proto: "CreateBinhostCLsResponse",
+    input_proto: "sdk_pb2.CreateBinhostCLsRequest",
+    output_proto: "sdk_pb2.CreateBinhostCLsResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Create CLs to update the binhost to point at uploaded prebuilts."""
