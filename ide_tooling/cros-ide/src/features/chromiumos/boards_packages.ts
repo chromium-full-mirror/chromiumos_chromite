@@ -17,22 +17,22 @@ export async function activate(
   const boardsPackages = new BoardsPackages(chrootService);
 
   subscriptions.push(
-    vscode.commands.registerCommand('cros-ide.crosWorkonStart', board =>
+    vscode.commands.registerCommand('chromiumide.crosWorkonStart', board =>
       boardsPackages.crosWorkonStart(board)
     ),
-    vscode.commands.registerCommand('cros-ide.crosWorkonStop', board =>
+    vscode.commands.registerCommand('chromiumide.crosWorkonStop', board =>
       boardsPackages.crosWorkonStop(board)
     ),
-    vscode.commands.registerCommand('cros-ide.openEbuild', board =>
+    vscode.commands.registerCommand('chromiumide.openEbuild', board =>
       boardsPackages.openEbuild(board)
     ),
 
-    vscode.commands.registerCommand('cros-ide.refreshBoardsPackages', () =>
+    vscode.commands.registerCommand('chromiumide.refreshBoardsPackages', () =>
       boardPackageProvider.refresh()
     ),
 
     vscode.commands.registerCommand(
-      'cros-ide.setDefaultBoard',
+      'chromiumide.setDefaultBoard',
       (board: Board) => {
         if (board) {
           void config.board.update(board.name);
@@ -41,7 +41,7 @@ export async function activate(
     ),
 
     vscode.commands.registerCommand(
-      'cros-ide.dismissBoardsPkgsWelcome',
+      'chromiumide.dismissBoardsPkgsWelcome',
       async () => {
         await config.boardsAndPackages.showWelcomeMessage.update(false);
         boardPackageProvider.refresh();
@@ -92,7 +92,9 @@ class BoardsPackages {
     source.watchSync(crosWorkonDir, (_eventType, fileName) => {
       // Multiple files can be changed. This restrictions limits the number of refreshes to one.
       if (boards.includes(fileName) || fileName === VIRTUAL_BOARDS_HOST) {
-        void vscode.commands.executeCommand('cros-ide.refreshBoardsPackages');
+        void vscode.commands.executeCommand(
+          'chromiumide.refreshBoardsPackages'
+        );
       }
     });
   }

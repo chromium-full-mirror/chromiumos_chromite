@@ -21,7 +21,7 @@ export function activate(
   const boardStatusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );
-  boardStatusBarItem.command = 'cros-ide.selectBoard';
+  boardStatusBarItem.command = 'chromiumide.selectBoard';
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(
@@ -35,7 +35,7 @@ export function activate(
   updateBoardStatus(boardStatusBarItem);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('cros-ide.selectBoard', async () => {
+    vscode.commands.registerCommand('chromiumide.selectBoard', async () => {
       const board = await ideUtil.selectAndUpdateTargetBoard(
         chrootService.chroot,
         {
