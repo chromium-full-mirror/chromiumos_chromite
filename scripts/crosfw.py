@@ -343,6 +343,15 @@ def SetupBuild(options):
         board_format = PRE_KBUILD
     else:
         board_format = PRE_KCONFIG
+
+    # Create the boards.cfg file if missing.
+    if not os.path.exists("board.cfg"):
+        cros_build_lib.run(["buildman", "-R"], **kwargs)
+
+        # Buildman puts it in the directory above, so move it.
+        # https://source.denx.de/u-boot/u-boot/-/issues/17
+        os.rename("../boards.cfg", "boards.cfg")
+
     with open("boards.cfg", encoding="utf-8") as f:
         for line in f:
             if "genboardscfg" in line:
