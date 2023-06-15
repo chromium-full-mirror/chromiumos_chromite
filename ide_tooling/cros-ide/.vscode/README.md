@@ -1,1 +1,1 @@
-Shared configs for cros-ide developers.
+Shared configs for ChromiumIDE developers.
