@@ -440,7 +440,7 @@ class PaygenPayload(object):
         if self.payload.minios:
             try:
                 self._CheckEitherImageIsMissingMiniOSPayload()
-            except Error as e:
+            except (Error, cgpt.Error) as e:
                 logging.warning(
                     "Caught exception checking whether images have miniOS "
                     "parts: %s",
