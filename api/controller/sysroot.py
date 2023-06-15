@@ -117,6 +117,7 @@ def GetArtifacts(
     """
 
     def _BundleBreakpadSymbols(chroot, sysroot_class, build_target, output_dir):
+        # pylint: disable=line-too-long
         ignore_breakpad_symbol_generation_expected_files = [
             common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.Name(
                 x
@@ -127,6 +128,7 @@ def GetArtifacts(
             and x
             in common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.values()
         ]
+        # pylint: enable=line-too-long
 
         ignore_breakpad_symbol_generation_expected_files = [
             x[len("EXPECTED_FILE_") :]
