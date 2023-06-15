@@ -43,7 +43,7 @@ export class Coverage {
   activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.commands.registerCommand(
-        'cros-ide.coverage.generate',
+        'chromiumide.coverage.generate',
         (pkg: Package) => {
           void this.generateCoverage(pkg);
           metrics.send({
@@ -55,7 +55,7 @@ export class Coverage {
         }
       ),
       vscode.commands.registerCommand(
-        'cros-ide.coverage.showReport',
+        'chromiumide.coverage.showReport',
         (pkg: Package) => {
           void this.showReport(pkg);
           metrics.send({

@@ -181,13 +181,13 @@
         "title": "Generate a new random user ID for metrics collection"
       },
       {
-        "command": "cros-ide.coverage.generate",
+        "command": "chromiumide.coverage.generate",
         "category": "CrOS",
         "title": "Generate Coverage Data",
         "enablement": "config.chromiumide.testCoverage.enabled"
       },
       {
-        "command": "cros-ide.coverage.showReport",
+        "command": "chromiumide.coverage.showReport",
         "category": "CrOS",
         "title": "Show Coverage Report",
         "enablement": "config.chromiumide.underDevelopment.testCoverage"
@@ -555,11 +555,11 @@
           "when": "view == boards-packages && viewItem == board"
         },
         {
-          "command": "cros-ide.coverage.generate",
+          "command": "chromiumide.coverage.generate",
           "when": "view == boards-packages && viewItem == package && config.chromiumide.testCoverage.enabled"
         },
         {
-          "command": "cros-ide.coverage.showReport",
+          "command": "chromiumide.coverage.showReport",
           "when": "view == boards-packages && viewItem == package && config.chromiumide.underDevelopment.testCoverage"
         },
         {
