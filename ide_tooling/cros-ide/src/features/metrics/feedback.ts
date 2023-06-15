@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand('cros-ide.fileIdeBug', () => {
+    vscode.commands.registerCommand('chromiumide.fileIdeBug', () => {
       void vscode.env.openExternal(
         vscode.Uri.parse('http://go/cros-ide-new-bug')
       );
@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.StatusBarAlignment.Right,
     5
   );
-  feedbackStatusBarItem.command = 'cros-ide.fileIdeBug';
+  feedbackStatusBarItem.command = 'chromiumide.fileIdeBug';
   feedbackStatusBarItem.text = '$(feedback) Feedback';
   feedbackStatusBarItem.tooltip = 'File a ChromiumIDE bug on Buganizer';
   feedbackStatusBarItem.show();

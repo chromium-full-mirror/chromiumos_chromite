@@ -171,12 +171,12 @@
         "title": "Set as Default Board"
       },
       {
-        "command": "cros-ide.fileIdeBug",
+        "command": "chromiumide.fileIdeBug",
         "category": "CrOS",
         "title": "File a bug on Buganizer"
       },
       {
-        "command": "cros-ide.resetUserID",
+        "command": "chromiumide.resetUserID",
         "category": "CrOS",
         "title": "Generate a new random user ID for metrics collection"
       },

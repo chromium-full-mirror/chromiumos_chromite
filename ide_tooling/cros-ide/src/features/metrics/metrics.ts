@@ -63,7 +63,7 @@ export async function activate(
   }
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('cros-ide.resetUserID', async () => {
+    vscode.commands.registerCommand('chromiumide.resetUserID', async () => {
       await metricsConfig.generateValidUserId();
     })
   );
