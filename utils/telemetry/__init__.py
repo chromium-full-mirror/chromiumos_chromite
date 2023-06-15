@@ -30,6 +30,11 @@ The tracing will be auto enabled after the notice has been displayed for 10 time
 """
 
 
+_DEFAULT_RESOURCE = otel_resources.Resource.create(
+    {otel_resources.SERVICE_NAME: "chromite"}
+)
+
+
 def initialize(
     config_file: os.PathLike, debug: bool = False, enable: Optional[bool] = None
 ):
@@ -53,7 +58,7 @@ def initialize(
         enable: Indicates if the traces should be enabled.
     """
 
-    resource = otel_resources.get_aggregated_resources(
+    detected_resource = otel_resources.get_aggregated_resources(
         [
             otel_resources.ProcessResourceDetector(),
             otel_resources.OTELResourceDetector(),
@@ -61,6 +66,8 @@ def initialize(
             detector.SystemDetector(),
         ]
     )
+
+    resource = detected_resource.merge(_DEFAULT_RESOURCE)
     otel_trace_api.set_tracer_provider(
         otel_trace.TracerProvider(resource=resource)
     )
