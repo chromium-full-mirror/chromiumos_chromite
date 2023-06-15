@@ -117,7 +117,7 @@ describe('Related files', () => {
     );
     await resolveLense(lense);
     expect(lense.command).toEqual({
-      command: 'cros-ide.relatedFiles.create',
+      command: 'chromiumide.relatedFiles.create',
       title: 'Add unit test',
       arguments: [uri],
     });

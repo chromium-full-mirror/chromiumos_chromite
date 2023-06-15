@@ -259,7 +259,7 @@
         "enablement": "!commentIsEmpty"
       },
       {
-        "command": "cros-ide.relatedFiles.create",
+        "command": "chromiumide.relatedFiles.create",
         "title": "Create related file",
         "enablement": "config.chromiumide.underDevelopment.relatedFiles"
       },
@@ -601,7 +601,7 @@
           "when": "false"
         },
         {
-          "command": "cros-ide.relatedFiles.create",
+          "command": "chromiumide.relatedFiles.create",
           "when": "false"
         }
       ]

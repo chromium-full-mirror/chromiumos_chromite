@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      'cros-ide.relatedFiles.create',
+      'chromiumide.relatedFiles.create',
       async (uri: unknown) => {
         if (!(uri instanceof vscode.Uri)) {
           return;
@@ -108,7 +108,7 @@ class RelatedFilesProvider
     }
 
     codeLens.command = {
-      command: 'cros-ide.relatedFiles.create',
+      command: 'chromiumide.relatedFiles.create',
       title: `Add ${codeLens.title}`,
       arguments: [codeLens.uri],
     };
