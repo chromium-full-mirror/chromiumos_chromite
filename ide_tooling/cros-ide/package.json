@@ -337,7 +337,7 @@
       ],
       "explorer": [
         {
-          "id": "cros-ide.chromium.outputDirectories",
+          "id": "chromiumide.chromium.outputDirectories",
           "name": "Chromium: Output Directories",
           "when": "config.chromiumide.chrome.outputDirectories"
         }
@@ -450,7 +450,7 @@
         },
         {
           "command": "chromiumide.chromium.outputDirectories.refresh",
-          "when": "view == cros-ide.chromium.outputDirectories",
+          "when": "view == chromiumide.chromium.outputDirectories",
           "group": "navigation"
         }
       ],
@@ -564,11 +564,11 @@
         },
         {
           "command": "chromiumide.chromium.outputDirectories.editArgs",
-          "when": "view == cros-ide.chromium.outputDirectories"
+          "when": "view == chromiumide.chromium.outputDirectories"
         },
         {
           "command": "chromiumide.chromium.outputDirectories.setCurrentLink",
-          "when": "view == cros-ide.chromium.outputDirectories && viewItem == directory"
+          "when": "view == chromiumide.chromium.outputDirectories && viewItem == directory"
         }
       ],
       "commandPalette": [

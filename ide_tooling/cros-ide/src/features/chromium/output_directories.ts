@@ -67,7 +67,7 @@ export function activate(
     srcPath
   );
   const treeView = vscode.window.createTreeView(
-    'cros-ide.chromium.outputDirectories',
+    'chromiumide.chromium.outputDirectories',
     {treeDataProvider, showCollapseAll: false}
   );
   context.subscriptions.push(treeView);
