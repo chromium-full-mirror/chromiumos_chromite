@@ -26,7 +26,7 @@ export class ChrootService implements vscode.Disposable {
     if (setContext) {
       void vscode.commands.executeCommand(
         'setContext',
-        'cros-ide.chrootPath',
+        'chromiumide.chrootPath',
         this.chrootPath
       );
     }
@@ -36,7 +36,7 @@ export class ChrootService implements vscode.Disposable {
     if (this.setContext) {
       void vscode.commands.executeCommand(
         'setContext',
-        'cros-ide.chrootPath',
+        'chromiumide.chrootPath',
         undefined
       );
     }
@@ -45,7 +45,7 @@ export class ChrootService implements vscode.Disposable {
   /**
    * Creates the service or returns undefined with showing an error if chroot is
    * not found under the given chromiumos root. Specify setContext = true to set
-   * `cros-ide.chrootPath` context for the custom `when` clauses in boards and
+   * `chromiumide.chrootPath` context for the custom `when` clauses in boards and
    * packages view etc.
    *
    * TODO(oka): remove setContext. This parameter exists for unit tests where

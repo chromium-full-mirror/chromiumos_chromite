@@ -125,7 +125,7 @@
         "category": "CrOS",
         "title": "Refresh Boards and Packages",
         "icon": "$(refresh)",
-        "enablement": "cros-ide.chrootPath"
+        "enablement": "chromiumide.chrootPath"
       },
       {
         "command": "chromiumide.codeSearchOpenCurrentFile",
@@ -615,7 +615,7 @@
       {
         "view": "boards-packages",
         "contents": "You have not yet opened a folder with ChromeOS sources (for example, platform2).\n[Open Folder](command:vscode.openFolder)\nChromiumIDE uses source location to detect the chroot and show [initialized boards](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md#Select-a-board).",
-        "when": "!config.chromiumide.boardsAndPackages.showWelcomeMessage && !cros-ide.chrootPath"
+        "when": "!config.chromiumide.boardsAndPackages.showWelcomeMessage && !chromiumide.chrootPath"
       }
     ],
     "configuration": {
