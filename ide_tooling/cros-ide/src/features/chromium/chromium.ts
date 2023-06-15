@@ -88,7 +88,7 @@ export class Chromium implements vscode.Disposable {
     // because the fact that Chromium is located in these directories probably doesn't change.
     await vscode.commands.executeCommand(
       'setContext',
-      'cros-ide.chromium.src-uris',
+      'chromiumide.chromium.src-uris',
       [
         vscode.Uri.file(path.join(this.root, 'src')),
         vscode.Uri.file(path.join(this.root, 'src-internal')),

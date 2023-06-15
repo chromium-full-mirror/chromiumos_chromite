@@ -408,7 +408,7 @@
       "scm/title": [
         {
           "command": "chromiumide.chromium.gitcl.format",
-          "when": "scmProvider == git && scmProviderRootUri in cros-ide.chromium.src-uris",
+          "when": "scmProvider == git && scmProviderRootUri in chromiumide.chromium.src-uris",
           "group": "navigation@-3"
         }
       ],
