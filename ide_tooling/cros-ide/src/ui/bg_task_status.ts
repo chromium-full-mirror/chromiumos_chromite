@@ -15,7 +15,7 @@ const STATUS_TREE_ITEM_CLICKED = 'cros-ide.status-tree-item-clicked';
 
 /**
  * Manages UI elements showing task status: two status bar items, which are created here,
- * and `cros-ide-status` view, which is defined in `package.json`.
+ * and `chromiumide-status` view, which is defined in `package.json`.
  *
  * @returns `StatusManager` which allows other packages to create tasks with a status.
  */
@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext): StatusManager {
   const showIdeStatusCommand = 'cros-ide.showIdeStatus';
   context.subscriptions.push(
     vscode.commands.registerCommand(showIdeStatusCommand, () => {
-      void vscode.commands.executeCommand('cros-ide-status.focus');
+      void vscode.commands.executeCommand('chromiumide-status.focus');
       metrics.send({
         category: 'interactive',
         group: 'idestatus',
@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext): StatusManager {
   const progressItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );
-  progressItem.command = 'cros-ide-status.focus';
+  progressItem.command = 'chromiumide-status.focus';
 
   context.subscriptions.push(statusBarItem, progressItem);
 
@@ -71,7 +71,7 @@ export function activate(context: vscode.ExtensionContext): StatusManager {
   const statusTreeData = new StatusTreeData();
   statusManager.onChange(statusTreeData.refresh.bind(statusTreeData));
   context.subscriptions.push(
-    vscode.window.registerTreeDataProvider('cros-ide-status', statusTreeData)
+    vscode.window.registerTreeDataProvider('chromiumide-status', statusTreeData)
   );
 
   return statusManager;

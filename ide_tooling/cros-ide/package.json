@@ -331,7 +331,7 @@
           "name": "Boards and Packages"
         },
         {
-          "id": "cros-ide-status",
+          "id": "chromiumide-status",
           "name": "IDE Status"
         }
       ],
@@ -440,7 +440,7 @@
         },
         {
           "command": "chromiumide.showHelpForIdeStatus",
-          "when": "view == cros-ide-status",
+          "when": "view == chromiumide-status",
           "group": "navigation"
         },
         {
