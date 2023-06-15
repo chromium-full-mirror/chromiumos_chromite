@@ -6,20 +6,13 @@
 
 import logging
 
-from chromite.lib import vm
+from chromite.scripts import cros
 
 
 def main(argv):
-    opts = vm.VM.GetParser().parse_args(argv)
-    opts.Freeze()
-
-    try:
-        vm.VM(opts).Run()
-        return 0
-    except vm.VMError as e:
-        logging.error("%s", e)
-        if opts.debug:
-            raise
-
-        logging.error("(Re-run with --debug for more details.)")
-        return 1
+    # TODO(2024-07-01): Delete this script.
+    logging.notice(
+        "`cros_vm` is deprecated in favor of `cros vm`, and will be removed on "
+        "July 1, 2024. Please update your scripts and begin using that instead."
+    )
+    cros.main(["vm", *argv])
