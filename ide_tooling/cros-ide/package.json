@@ -261,7 +261,7 @@
       {
         "command": "cros-ide.relatedFiles.create",
         "title": "Create related file",
-        "enablement": "config.cros-ide.underDevelopment.relatedFiles"
+        "enablement": "config.chromiumide.underDevelopment.relatedFiles"
       },
       {
         "command": "cros-ide.showHelpForBoardsPackages",
