@@ -111,7 +111,7 @@ GROUP_BASELINE = dict((e.group, e) for e in (
                                              'dlm', 'rtanalytics', 'crosvm',
                                              'cfm-monitor', 'runtime_probe',
                                              'smdisplay', 'cdm-oemcrypto',
-                                             'cros_healthd'}),
+                                             'cros_healthd', 'fwupd'}),
     GroupEntry(group='cdrw', gid=80, users={'cros-disks'}),
     GroupEntry(group='usb', gid=85, users={'mtp', 'brltty', 'dlm', 'modem',
                                            'fwupd'}),
