@@ -346,7 +346,7 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="camera",
             gid=20042,
-            users={"arc-camera", "cfm-firmware-updaters"},
+            users={"arc-camera", "cfm-firmware-updaters", "fwupd"},
         ),
         GroupEntry(
             group="debugfs-access",
