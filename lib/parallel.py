@@ -856,9 +856,9 @@ def BackgroundTaskRunner(task, *args, **kwargs):
     onexit = kwargs.pop("onexit", None)
     halt_on_error = kwargs.pop("halt_on_error", False)
 
-    with cros_build_lib.ContextManagerStack() as stack:
+    with contextlib.ExitStack() as stack:
         if queue is None:
-            manager = stack.Add(Manager)
+            manager = stack.enter_context(Manager())
             queue = manager.Queue()
 
         if not processes:
