@@ -181,6 +181,7 @@ GROUP_BASELINE = dict(
                 "cdm-oemcrypto",
                 "cros_healthd",
                 "nvpd",
+                "fwupd",
             },
         ),
         GroupEntry(group="cdrw", gid=80, users={"cros-disks"}),
