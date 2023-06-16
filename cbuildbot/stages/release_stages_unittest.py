@@ -9,7 +9,6 @@ from unittest import mock
 from chromite.cbuildbot import cbuildbot_unittest
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.cbuildbot.stages import release_stages
-from chromite.cbuildbot.stages.generic_stages_unittest import patch
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import failures_lib
@@ -75,7 +74,9 @@ class SigningStageTest(
         """Test that _WaitForSigningResults works when signing works."""
         results = ["chan1_uri1.json", "chan1_uri2.json", "chan2_uri1.json"]
 
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.return_value = self.SIGNER_RESULT
             notifier = mock.Mock()
@@ -94,7 +95,9 @@ class SigningStageTest(
         """Test that _WaitForSigningResults works when signing works."""
         results = ["chan1_uri1.json", "chan1_uri2.json", "chan2_uri1.json"]
 
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.return_value = self.SIGNER_RESULT
 
@@ -106,7 +109,9 @@ class SigningStageTest(
 
     def testWaitForSigningResultsSuccessNothingSigned(self):
         """Test _WaitForSigningResults when there are no signed images."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.return_value = self.SIGNER_RESULT
             notifier = mock.Mock()
@@ -119,7 +124,9 @@ class SigningStageTest(
 
     def testWaitForSigningResultsFailure(self):
         """Test _WaitForSigningResults when the signers report an error."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.return_value = """
           { "status": { "status": "failed" }, "board": "link",
@@ -144,7 +151,9 @@ class SigningStageTest(
 
     def testWaitForSigningResultsTimeout(self):
         """Test that _WaitForSigningResults reports timeouts correctly."""
-        with patch(release_stages.timeout_util, "WaitForSuccess") as mock_wait:
+        with mock.patch.object(
+            release_stages.timeout_util, "WaitForSuccess", autospec=True
+        ) as mock_wait:
             mock_wait.side_effect = timeout_util.TimeoutError
             notifier = mock.Mock()
 
@@ -161,7 +170,9 @@ class SigningStageTest(
 
     def testCheckForResultsSuccess(self):
         """Test that _CheckForResults works when signing works."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.return_value = self.SIGNER_RESULT
             notifier = mock.Mock()
@@ -178,7 +189,9 @@ class SigningStageTest(
 
     def testCheckForResultsSuccessNoChannels(self):
         """Test _CheckForResults works when there is nothing to check for."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             notifier = mock.Mock()
 
@@ -201,7 +214,9 @@ class SigningStageTest(
             else:
                 raise release_stages.gs.GSNoSuchKey()
 
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.side_effect = catChan2Success
             notifier = mock.Mock()
@@ -231,7 +246,9 @@ class SigningStageTest(
 
     def testCheckForResultsUnexpectedJson(self):
         """Verify _CheckForResults handles unexpected Json values."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.return_value = "{}"
             notifier = mock.Mock()
@@ -247,7 +264,9 @@ class SigningStageTest(
 
     def testCheckForResultsMalformedJson(self):
         """Verify _CheckForResults handles unexpected Json values."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.return_value = "{"
             notifier = mock.Mock()
@@ -263,7 +282,9 @@ class SigningStageTest(
 
     def testCheckForResultsNoResult(self):
         """Verify _CheckForResults handles missing signer results."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.side_effect = release_stages.gs.GSNoSuchKey
             notifier = mock.Mock()
@@ -279,7 +300,9 @@ class SigningStageTest(
 
     def testCheckForResultsFailed(self):
         """Verify _CheckForResults handles missing signer results."""
-        with patch(release_stages.gs, "GSContext") as mock_gs_ctx_init:
+        with mock.patch.object(
+            release_stages.gs, "GSContext", autospec=True
+        ) as mock_gs_ctx_init:
             mock_gs_ctx = mock_gs_ctx_init.return_value
             mock_gs_ctx.Cat.side_effect = release_stages.gs.GSNoSuchKey
             notifier = mock.Mock()
@@ -397,7 +420,9 @@ class PaygenStageTest(
 
     def testPerformStageSuccess(self):
         """Test that PaygenStage works when signing works."""
-        with patch(release_stages.PaygenStage, "_RunPaygenInProcess") as runner:
+        with mock.patch.object(
+            release_stages.PaygenStage, "_RunPaygenInProcess", autospec=True
+        ) as runner:
             channels = ["stable", "beta"]
             stage = self.ConstructStage(channels=channels)
 
@@ -439,7 +464,9 @@ class PaygenStageTest(
 
     def testPerformStageNoChannels(self):
         """Test that PaygenStage works when signing works."""
-        with patch(release_stages.PaygenStage, "_RunPaygenInProcess") as runner:
+        with mock.patch.object(
+            release_stages.PaygenStage, "_RunPaygenInProcess", autospec=True
+        ) as runner:
             stage = self.ConstructStage(channels=[])
 
             with parallel_unittest.ParallelMock():
@@ -450,7 +477,9 @@ class PaygenStageTest(
 
     def testPerformStageTrybot(self):
         """Test the PerformStage alternate behavior for trybot runs."""
-        with patch(release_stages.PaygenStage, "_RunPaygenInProcess") as runner:
+        with mock.patch.object(
+            release_stages.PaygenStage, "_RunPaygenInProcess", autospec=True
+        ) as runner:
             # The stage is constructed differently for trybots, so don't use
             # ConstructStage.
             stage = self.ConstructStage(channels=["foo", "bar"])
@@ -502,7 +531,9 @@ class PaygenStageTest(
         # Have to patch and verify that the PaygenTestStage is created.
         stage = self.ConstructStage()
 
-        with patch(paygen_build_lib, "ScheduleAutotestTests") as sched_tests:
+        with mock.patch.object(
+            paygen_build_lib, "ScheduleAutotestTests", autospec=True
+        ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
                 "foo", "foo-board", "foo-version", True, False, False
@@ -544,7 +575,9 @@ class PaygenStageTest(
         # Have to patch and verify that the PaygenTestStage is created.
         stage = self.ConstructStage()
 
-        with patch(paygen_build_lib, "ScheduleAutotestTests") as sched_tests:
+        with mock.patch.object(
+            paygen_build_lib, "ScheduleAutotestTests", autospec=True
+        ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
                 "foo", "foo-board", "foo-version", True, False, False
@@ -599,7 +632,9 @@ class PaygenStageTest(
         # Have to patch and verify that the PaygenTestStage is created.
         stage = self.ConstructStage()
 
-        with patch(paygen_build_lib, "ScheduleAutotestTests") as sched_tests:
+        with mock.patch.object(
+            paygen_build_lib, "ScheduleAutotestTests", autospec=True
+        ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
                 "foo", "foo-board", "foo-version", True, False, False
@@ -632,7 +667,9 @@ class PaygenStageTest(
         # Have to patch and verify that the PaygenTestStage is created.
         stage = self.ConstructStage()
 
-        with patch(paygen_build_lib, "ScheduleAutotestTests") as sched_tests:
+        with mock.patch.object(
+            paygen_build_lib, "ScheduleAutotestTests", autospec=True
+        ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
                 "foo", "foo-board", "foo-version", True, False, False
@@ -674,7 +711,9 @@ class PaygenStageTest(
         # Have to patch and verify that the PaygenTestStage is created.
         stage = self.ConstructStage()
 
-        with patch(parallel, "RunParallelSteps") as parallel_tests:
+        with mock.patch.object(
+            parallel, "RunParallelSteps", autospec=True
+        ) as parallel_tests:
             stage._RunPaygenInProcess(
                 "foo", "foo-board", "foo-version", True, False, False
             )
@@ -810,12 +849,16 @@ class PaygenTestStageTest(
 
     def testPerformStageTestLabFail(self):
         """Test that exception from RunHWTestSuite are properly handled."""
-        with patch(paygen_build_lib, "ScheduleAutotestTests") as sched_tests:
+        with mock.patch.object(
+            paygen_build_lib, "ScheduleAutotestTests", autospec=True
+        ) as sched_tests:
             sched_tests.side_effect = failures_lib.TestLabFailure
 
             stage = self.ConstructStage()
 
-            with patch(stage, "_HandleExceptionAsWarning") as warning_handler:
+            with mock.patch.object(
+                stage, "_HandleExceptionAsWarning", autospec=True
+            ) as warning_handler:
                 warning_handler.return_value = (
                     results_lib.Results.FORGIVEN,
                     "description",

@@ -7,6 +7,7 @@
 import contextlib
 import os
 from pathlib import Path
+from unittest import mock
 
 from chromite.third_party.infra_libs.buildbucket.proto import (
     build_pb2,
@@ -17,8 +18,6 @@ from chromite.cbuildbot import cbuildbot_unittest
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import build_stages
 from chromite.cbuildbot.stages import generic_stages_unittest
-from chromite.cbuildbot.stages.generic_stages_unittest import patch
-from chromite.cbuildbot.stages.generic_stages_unittest import patches
 from chromite.lib import build_summary
 from chromite.lib import buildbucket_v2
 from chromite.lib import cidb
@@ -47,7 +46,9 @@ class _RunAbstractStageTestCase(
 
     def _Run(self, dir_exists):
         """Helper for running the build."""
-        with patch(os.path, "isdir", return_value=dir_exists):
+        with mock.patch.object(
+            os.path, "isdir", autospec=True, return_value=dir_exists
+        ):
             self.RunStage()
 
     def ConstructStage(self):
@@ -629,7 +630,7 @@ class BuildImageStageMock(partial_mock.PartialMock):
     ATTRS = ("_BuildImages",)
 
     def _BuildImages(self, *args, **kwargs):
-        with patches(patch(os, "symlink")):
+        with mock.patch.object(os, "symlink", autospec=True):
             self.backup["_BuildImages"](*args, **kwargs)
 
 

@@ -4,7 +4,6 @@
 
 """Unittests for generic stages."""
 
-import contextlib
 import copy
 import os
 import sys
@@ -295,24 +294,6 @@ class AbstractStageTestCase(StageTestCase):
         self.stage = self.ConstructStage(**kwargs)
         self.stage.Run()
         self.assertTrue(results_lib.Results.BuildSucceededSoFar())
-
-
-def patch(*args, **kwargs):
-    """Convenience wrapper for mock.patch.object.
-
-    Sets autospec=True by default.
-    """
-    kwargs.setdefault("autospec", True)
-    return mock.patch.object(*args, **kwargs)
-
-
-@contextlib.contextmanager
-def patches(*args):
-    """Context manager for a list of patch objects."""
-    with cros_build_lib.ContextManagerStack() as stack:
-        for arg in args:
-            stack.Add(lambda ret=arg: ret)
-        yield
 
 
 class BuilderStageTest(AbstractStageTestCase):
@@ -760,8 +741,12 @@ class ArchivingStageMixinMock(partial_mock.PartialMock):
     ATTRS = ("UploadArtifact",)
 
     def UploadArtifact(self, *args, **kwargs):
-        with patch(commands, "ArchiveFile", return_value="foo.txt"):
-            with patch(commands, "UploadArchivedFile"):
+        with mock.patch.object(
+            commands, "ArchiveFile", autospec=True, return_value="foo.txt"
+        ):
+            with mock.patch.object(
+                commands, "UploadArchivedFile", autospec=True
+            ):
                 self.backup["UploadArtifact"](*args, **kwargs)
 
 

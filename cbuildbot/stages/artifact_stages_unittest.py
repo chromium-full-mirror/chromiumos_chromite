@@ -14,8 +14,6 @@ from chromite.cbuildbot import prebuilts
 from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import build_stages_unittest
 from chromite.cbuildbot.stages import generic_stages_unittest
-from chromite.cbuildbot.stages.generic_stages_unittest import patch
-from chromite.cbuildbot.stages.generic_stages_unittest import patches
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -477,14 +475,18 @@ class UploadTestArtifactsStageMock(
     )
 
     def BuildAutotestTarballs(self, *args, **kwargs):
-        with patches(
-            patch(commands, "BuildTarball"),
-            patch(commands, "FindFilesWithPattern", return_value=["foo.txt"]),
+        with mock.patch.object(
+            commands, "BuildTarball", autospec=True
+        ), mock.patch.object(
+            commands,
+            "FindFilesWithPattern",
+            autospec=True,
+            return_value=["foo.txt"],
         ):
             self.backup["BuildAutotestTarballs"](*args, **kwargs)
 
     def BuildTastTarball(self, *args, **kwargs):
-        with patch(commands, "BuildTarball"):
+        with mock.patch.object(commands, "BuildTarball", autospec=True):
             self.backup["BuildTastTarball"](*args, **kwargs)
 
 
@@ -547,8 +549,12 @@ class ArchivingMock(partial_mock.PartialMock):
     ATTRS = ("UploadArtifact",)
 
     def UploadArtifact(self, *args, **kwargs):
-        with patch(commands, "ArchiveFile", return_value="foo.txt"):
-            with patch(commands, "UploadArchivedFile"):
+        with mock.patch.object(
+            commands, "ArchiveFile", autospec=True, return_value="foo.txt"
+        ):
+            with mock.patch.object(
+                commands, "UploadArchivedFile", autospec=True
+            ):
                 self.backup["UploadArtifact"](*args, **kwargs)
 
 
