@@ -401,7 +401,7 @@
       "editor/title": [
         {
           "command": "chromiumide.deviceManagement.runTastTests",
-          "when": "resourcePath =~ //src/platform/tast-tests[^/]*/src/chromiumos/tast/(local|remote)/bundles/[^/]+/[^/]+/[^/]+.go$/",
+          "when": "resourcePath =~ /\\/src\\/platform\\/tast-tests[^\\/]*\\/(cros|src\\/(chromiumos\\/tast|go\\.chromium\\.org\\/tast-tests\\/cros))\\/(local|remote)\\/bundles\\/[^\\/]+\\/[^\\/]+\\/[^\\/]+.go$/",
           "group": "navigation"
         }
       ],
