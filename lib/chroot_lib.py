@@ -103,9 +103,9 @@ class Chroot(object):
         """Get the chroot's tmp dir."""
         return self.full_path("/tmp")
 
-    def tempdir(self) -> osutils.TempDir:
+    def tempdir(self, delete=True) -> osutils.TempDir:
         """Get a TempDir in the chroot's tmp dir."""
-        return osutils.TempDir(base_dir=self.tmp)
+        return osutils.TempDir(base_dir=self.tmp, delete=delete)
 
     def chroot_path(self, path: Union[str, os.PathLike]) -> str:
         """Turn an absolute path into a chroot relative path."""

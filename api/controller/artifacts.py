@@ -275,6 +275,7 @@ def BundleTestUpdatePayloads(
     """Generate minimal update payloads for the build target for testing."""
     target = input_proto.build_target.name
     output_dir = input_proto.output_dir
+    chroot = controller_util.ParseChroot(input_proto.chroot)
     build_root = constants.SOURCE_ROOT
 
     # Use the first available image to create the update payload.
@@ -301,7 +302,7 @@ def BundleTestUpdatePayloads(
         )
     image = valid_images[0]
 
-    payloads = artifacts.BundleTestUpdatePayloads(image, output_dir)
+    payloads = artifacts.BundleTestUpdatePayloads(chroot, image, output_dir)
     for payload in payloads:
         output_proto.artifacts.add().path = payload
 

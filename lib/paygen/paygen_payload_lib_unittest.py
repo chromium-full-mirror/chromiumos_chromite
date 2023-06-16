@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 from unittest import mock
 
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -180,6 +181,7 @@ class PaygenSignerTest(PaygenLibTest):
     def testSetupOfficialSigner(self):
         """Tests that official signer is being setup properly."""
         signer = paygen_payload_lib.PaygenSigner(
+            chroot=chroot_lib.Chroot(),
             work_dir="/foo",
             private_key="foo-private-key",
             payload_build=self.full_payload.build,
@@ -205,7 +207,10 @@ class PaygenSignerTest(PaygenLibTest):
         build = self.new_build
         build.bucket = "foo-bucket"
         signer = paygen_payload_lib.PaygenSigner(
-            work_dir="/foo", private_key=None, payload_build=None
+            chroot=chroot_lib.Chroot(),
+            work_dir="/foo",
+            private_key=None,
+            payload_build=None,
         )
 
         self.assertIsInstance(
@@ -223,6 +228,7 @@ class PaygenSignerTest(PaygenLibTest):
         build = self.new_build
         build.bucket = "foo-bucket"
         signer = paygen_payload_lib.PaygenSigner(
+            chroot=chroot_lib.Chroot(),
             work_dir="/foo",
             private_key="some-foo-private-key",
             payload_build=None,
@@ -256,6 +262,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             signer_mock.public_key = None
 
         gen = paygen_payload_lib.PaygenPayload(
+            chroot=chroot_lib.Chroot(),
             payload=payload,
             work_dir=work_dir,
             signer=signer_mock,
@@ -353,6 +360,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             expected_cmd,
             stdout=True,
             enter_chroot=True,
+            chroot_args=mock.ANY,
             stderr=subprocess.STDOUT,
         )
 
@@ -373,6 +381,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             expected_cmd,
             stdout=True,
             enter_chroot=True,
+            chroot_args=mock.ANY,
             stderr=subprocess.STDOUT,
         )
 
