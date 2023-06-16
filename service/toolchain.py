@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
-from typing import Dict, Iterable, List, NamedTuple, Set, Text, Tuple
+from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Text, Tuple
 
 from chromite.lib import chroot_util
 from chromite.lib import cros_build_lib
@@ -111,6 +111,7 @@ class BuildLinter:
     GOLINT_LINT_PATTERN = re.compile(
         r"(?P<file_path>[^\s]+\.go):(?P<line>\d+):\d+:\s+(?P<message>.*)"
     )
+    SYSROOT_BOARD_PATH = re.compile(r"/build/(?P<board>[^/]+)")
     # FIXME(b/195056381): default git-repo should be replaced with logic in
     # build_linters recipe to detect the repo path for applied patches. As of
     # 2021/5/1 only platform2 is supported so this value works temporarily.
@@ -741,6 +742,12 @@ class BuildLinter:
         # Remove duplicates from different packages having the same source repo
         return set(repo_paths)
 
+    def get_board(self) -> Optional[Text]:
+        """Get the board name from the sysroot, or return None for host."""
+        if match := BuildLinter.SYSROOT_BOARD_PATH.match():
+            return match.group("board")
+        return None
+
     def is_package_platform2(self, package_atom: Text) -> bool:
         """Returns whether or not a package is part of platform2.
 
@@ -749,8 +756,14 @@ class BuildLinter:
         """
         cros_build_lib.AssertInsideChroot()
 
-        ebuild = portage_util.FindEbuildForPackage(package_atom, self.sysroot)
-        cmd = ["ebuild", ebuild, "info"]
+        ebuild_command = "ebuild"
+        if board := self.get_board():
+            ebuild_command += f"-{board}"
+        ebuild_file = portage_util.FindEbuildForPackage(
+            package_atom, self.sysroot
+        )
+
+        cmd = [ebuild_command, ebuild_file, "info"]
         output = cros_build_lib.run(
             cmd, stdout=subprocess.PIPE, encoding="utf-8"
         ).stdout
