@@ -934,7 +934,11 @@ class _CommonPrepareBundle(object):
                 "manifest",
                 "--force",
             ]
-            cros_build_lib.run(cmd, enter_chroot=True)
+            cros_build_lib.run(
+                cmd,
+                enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
+            )
 
         return CPV
 
@@ -1064,7 +1068,12 @@ class _CommonPrepareBundle(object):
         # Here only because this was copied from afdo.py
         if use_extbinary:
             merge_command.append("--extbinary")
-        cros_build_lib.run(merge_command, enter_chroot=True, print_cmd=True)
+        cros_build_lib.run(
+            merge_command,
+            enter_chroot=True,
+            chroot_args=self.chroot.get_enter_args(),
+            print_cmd=True,
+        )
 
     def _ProcessAFDOProfile(
         self,
@@ -1107,7 +1116,12 @@ class _CommonPrepareBundle(object):
             "-output",
             self.chroot.chroot_path(input_to_text_temp),
         ]
-        cros_build_lib.run(cmd_to_text, enter_chroot=True, print_cmd=True)
+        cros_build_lib.run(
+            cmd_to_text,
+            enter_chroot=True,
+            chroot_args=self.chroot.get_enter_args(),
+            print_cmd=True,
+        )
 
         current_input_file = input_to_text_temp
         if redact:
@@ -1119,6 +1133,7 @@ class _CommonPrepareBundle(object):
                     input=f,
                     stdout=redacted_temp,
                     enter_chroot=True,
+                    chroot_args=self.chroot.get_enter_args(),
                     print_cmd=True,
                 )
             current_input_file = redacted_temp
@@ -1133,6 +1148,7 @@ class _CommonPrepareBundle(object):
                     "--output=" + self.chroot.chroot_path(removed_temp),
                 ],
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
             current_input_file = removed_temp
@@ -1150,6 +1166,7 @@ class _CommonPrepareBundle(object):
                     "--number=" + str(reduce_functions),
                 ],
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
             current_input_file = reduced_tmp
@@ -1164,7 +1181,12 @@ class _CommonPrepareBundle(object):
             # Using `extbinary` profiles saves us hundreds of MB of RAM per
             # compilation, since it allows profiles to be lazily loaded.
             cmd_to_binary.append("--extbinary")
-        cros_build_lib.run(cmd_to_binary, enter_chroot=True, print_cmd=True)
+        cros_build_lib.run(
+            cmd_to_binary,
+            enter_chroot=True,
+            chroot_args=self.chroot.get_enter_args(),
+            print_cmd=True,
+        )
 
         profile_size = os.path.getsize(output_path)
         logging.info(
@@ -1559,11 +1581,13 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
                     bin_compressed,
                 ],
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
             cros_build_lib.run(
                 ["bzip2", "-d", bin_compressed],
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
 
@@ -1586,6 +1610,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             cros_build_lib.run(
                 ["bzip2", "-d", perf_compressed],
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         return ret
@@ -1886,6 +1911,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 cmd,
                 stdout=result_out_chroot,
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
             )
         except cros_build_lib.RunCommandError:
             raise BundleArtifactsHandlerError(
@@ -1934,6 +1960,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             cros_build_lib.run(
                 cmd,
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 check=True,
                 capture_output=True,
             )
@@ -2003,7 +2030,12 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 "--logs-dir",
                 os.path.join("/tmp/clang-tidy-logs", self.build_target),
             ]
-            cros_build_lib.run(cmd, cwd=self.chroot.path, enter_chroot=True)
+            cros_build_lib.run(
+                cmd,
+                cwd=self.chroot.path,
+                enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
+            )
             artifact_path = os.path.join(self.output_dir, clang_tidy_tarball)
             shutil.copy2(
                 os.path.join(tempdir, clang_tidy_tarball), artifact_path
@@ -2049,6 +2081,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             cros_build_lib.sudo_run(
                 ["clang", "--version"],
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 stdout=True,
                 encoding="utf-8",
             )
@@ -2094,6 +2127,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 ],
                 cwd=tempdir,
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
             )
             artifact = os.path.join(self.output_dir, "%s.tar.xz" % basename)
             cros_build_lib.CreateTarball(
@@ -2125,6 +2159,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 ["bzip2", "-c", debug_bin_inside],
                 stdout=f,
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         return [bin_path]
@@ -2162,6 +2197,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 "--sample_threshold_frac=0",
             ],
             enter_chroot=True,
+            chroot_args=self.chroot.get_enter_args(),
             print_cmd=True,
         )
         profile_size = os.path.getsize(self.chroot.full_path(afdo_path_inside))
@@ -2189,6 +2225,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 ["bzip2", "-c", afdo_path_inside],
                 stdout=f,
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         files.append(afdo_path)
@@ -2226,6 +2263,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 ["bzip2", "-c", merged_profile_inside],
                 stdout=f,
                 enter_chroot=True,
+                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         files.append(merged_profile_compressed)
