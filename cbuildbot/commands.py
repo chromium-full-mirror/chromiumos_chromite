@@ -3940,6 +3940,7 @@ def CreateTestRoot(build_root):
 
 
 def GeneratePayloads(
+    buildroot,
     target_image_path,
     archive_dir,
     full=False,
@@ -3950,6 +3951,7 @@ def GeneratePayloads(
     """Generates the payloads for hw testing.
 
     Args:
+        buildroot: Path to the build root directory.
         target_image_path: The path to the image to generate payloads to.
         archive_dir: Where to store payloads we generated.
         full: Generate full payloads.
@@ -3958,6 +3960,10 @@ def GeneratePayloads(
         dlc: Generate sample-dlc payloads.
     """
     artifacts_service.GenerateTestPayloads(
+        chroot_lib.Chroot(
+            path=os.path.join(buildroot, "chroot"),
+            out_path=buildroot / constants.DEFAULT_OUT_DIR,
+        ),
         target_image_path,
         archive_dir,
         full=full,

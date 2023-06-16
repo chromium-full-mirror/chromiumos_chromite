@@ -10,8 +10,6 @@ from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import osutils
-from chromite.lib import path_util
 
 
 pytestmark = cros_test_lib.pytestmark_inside_only
@@ -87,32 +85,6 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
             )
             self.assertEqual(bool(jobs), "--jobs=%d" % jobs in cmd)
             self.assertEqual(debug_output, "--show-output" in cmd)
-
-    def testTempDirInChroot(self):
-        """Tests the correctness of TempDirInChroot."""
-        rm_check_dir = ""
-        with chroot_util.TempDirInChroot() as tempdir:
-            rm_check_dir = tempdir
-            self.assertExists(tempdir)
-            chroot_tempdir = path_util.FromChrootPath("/tmp")
-            self.assertNotEqual(chroot_tempdir, tempdir)
-            self.assertStartsWith(tempdir, chroot_tempdir)
-        self.assertNotExists(rm_check_dir)
-
-    def testTempDirInChrootWithBaseDir(self):
-        """Tests the correctness of TempDirInChroot with a passed prefix."""
-        rm_check_dir = ""
-        chroot_tempdir = path_util.FromChrootPath("/tmp/some-prefix")
-        osutils.SafeMakedirs(chroot_tempdir)
-        with chroot_util.TempDirInChroot(
-            base_dir="/tmp/some-prefix"
-        ) as tempdir:
-            rm_check_dir = tempdir
-            self.assertExists(tempdir)
-            self.assertNotEqual(chroot_tempdir, tempdir)
-            self.assertStartsWith(tempdir, chroot_tempdir)
-        self.assertNotExists(rm_check_dir)
-        osutils.RmDir(chroot_tempdir)
 
     def testRunUnittests(self):
         """Tests running unit tests invoking emerge with provided flags"""

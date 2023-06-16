@@ -923,7 +923,9 @@ class UploadTestArtifactsStage(
             with self.ArtifactUploader() as queue:
                 image_path = os.path.join(self.GetImageDirSymlink(), image_name)
                 logging.info("Running commands.GeneratePayloads")
-                commands.GeneratePayloads(image_path, tempdir, **kwargs)
+                commands.GeneratePayloads(
+                    self._build_root, image_path, tempdir, **kwargs
+                )
                 for payload in os.listdir(tempdir):
                     queue.put([os.path.join(tempdir, payload)])
 

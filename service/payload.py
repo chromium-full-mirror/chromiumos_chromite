@@ -10,7 +10,7 @@ from typing import Dict, Optional, Tuple, Union
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
-from chromite.lib import chroot_util
+from chromite.lib import chroot_lib
 from chromite.lib.paygen import gspaths
 from chromite.lib.paygen import paygen_build_lib
 from chromite.lib.paygen import paygen_payload_lib
@@ -33,6 +33,7 @@ class PayloadConfig(object):
 
     def __init__(
         self,
+        chroot: chroot_lib.Chroot,
         tgt_image: Optional[
             Union[
                 payload_pb2.UnsignedImage,
@@ -56,6 +57,7 @@ class PayloadConfig(object):
         """Init method, sets up all the paths and configuration.
 
         Args:
+            chroot: Chroot to work with.
             tgt_image: Proto for destination image.
             src_image: Proto for source image.
             dest_bucket: Destination bucket to place the final artifacts in.
@@ -67,6 +69,7 @@ class PayloadConfig(object):
 
         # Set when we call GeneratePayload on this object.
         self.paygen = None
+        self.chroot = chroot
         self.tgt_image = tgt_image
         self.src_image = src_image
         self.dest_bucket = dest_bucket
@@ -134,11 +137,14 @@ class PayloadConfig(object):
         # testing it's likely we want the artifact anyway, and in production
         # this is ran on single shot bots in the context of an overlayfs and
         # will get cleaned up anyway.
-        with chroot_util.TempDirInChroot(delete=False) as temp_dir:
+        with self.chroot.tempdir(delete=False) as temp_dir:
             signer = paygen_payload_lib.PaygenSigner(
-                work_dir=temp_dir, payload_build=self.payload.build
+                chroot=self.chroot,
+                work_dir=temp_dir,
+                payload_build=self.payload.build,
             )
             self.paygen = paygen_payload_lib.PaygenPayload(
+                self.chroot,
                 self.payload,
                 temp_dir,
                 signer=signer,
