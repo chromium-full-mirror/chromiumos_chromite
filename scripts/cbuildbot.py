@@ -8,6 +8,7 @@ Used by Chromium OS buildbot configuration for all Chromium OS builds including
 full and pre-flight-queue builds.
 """
 
+import contextlib
 import distutils.version  # pylint: disable=import-error,no-name-in-module
 import glob
 import json
@@ -1261,7 +1262,7 @@ def main(argv):
         osutils.SafeMakedirs(options.log_dir)
         _BackupPreviousLog(log_file)
 
-    with cros_build_lib.ContextManagerStack() as stack:
+    with contextlib.ExitStack() as stack:
         # Preserve chromite; we might be running from there!
         options.preserve_paths = set(["chromite"])
         if log_file is not None:
@@ -1270,26 +1271,26 @@ def main(argv):
             # deadlock because the Tee process only exits when its pipe is
             # closed, and the critical section accidentally holds on to that
             # file handle.
-            stack.Add(tee.Tee, log_file)
+            stack.enter_context(tee.Tee(log_file))
             options.preserve_paths.add(_DEFAULT_LOG_DIR)
 
-        critical_section = stack.Add(cleanup.EnforcedCleanupSection)
-        stack.Add(sudo.SudoKeepAlive)
+        critical_section = stack.enter_context(cleanup.EnforcedCleanupSection())
+        stack.enter_context(sudo.SudoKeepAlive())
 
         if not options.resume:
             # If we're in resume mode, use our parents tempdir rather than
             # nesting another layer.
-            stack.Add(osutils.TempDir, prefix="cbb", set_global=True)
+            stack.enter_context(osutils.TempDir(prefix="cbb", set_global=True))
             logging.debug("Cbuildbot tempdir is %r.", os.environ.get("TMP"))
 
         if options.cgroups:
-            stack.Add(cgroups.SimpleContainChildren, "cbuildbot")
+            stack.enter_context(cgroups.SimpleContainChildren("cbuildbot"))
 
         # Mark everything between EnforcedCleanupSection and here as having to
         # be rolled back via the contextmanager cleanup handlers.  This
         # ensures that sudo bits cannot outlive cbuildbot, that anything
         # cgroups would kill gets killed, etc.
-        stack.Add(critical_section.ForkWatchdog)
+        stack.enter_context(critical_section.ForkWatchdog())
 
         if options.mock_slave_status is not None:
             with open(options.mock_slave_status, "rb") as f:
@@ -1298,14 +1299,15 @@ def main(argv):
                     mock_statuses[key] = builder_status_lib.BuilderStatus(
                         **value
                     )
-            stack.Add(
-                _ObjectMethodPatcher,
-                completion_stages.MasterSlaveSyncCompletionStage,
-                "_FetchSlaveStatuses",
-                return_value=mock_statuses,
+            stack.enter_context(
+                _ObjectMethodPatcher(
+                    completion_stages.MasterSlaveSyncCompletionStage,
+                    "_FetchSlaveStatuses",
+                    return_value=mock_statuses,
+                )
             )
 
-        stack.Add(_SetupConnections, options, build_config)
+        stack.enter_context(_SetupConnections(options, build_config))
         retry_stats.SetupStats()
 
         timeout_display_message = (
@@ -1316,10 +1318,11 @@ def main(argv):
         )
 
         if options.timeout > 0:
-            stack.Add(
-                timeout_util.FatalTimeout,
-                options.timeout,
-                timeout_display_message,
+            stack.enter_context(
+                timeout_util.FatalTimeout(
+                    options.timeout,
+                    timeout_display_message,
+                )
             )
         try:
             _RunBuildStagesWrapper(options, site_config, build_config)
