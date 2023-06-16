@@ -571,7 +571,10 @@ def CreateBinhostCLs(
         # Note: dryrun=True prevents the change from being automatically
         # submitted. We only want to create the change, not submit it.
         binpkg.UpdateAndSubmitKeyValueFile(
-            constants.SDK_VERSION_FILE, sdk_settings, report=report, dryrun=True
+            constants.SDK_VERSION_FILE_FULL_PATH,
+            sdk_settings,
+            report=report,
+            dryrun=True,
         )
         return report["created_cls"]
 

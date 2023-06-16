@@ -154,7 +154,10 @@ class CreateBinhostCLsTest(cros_test_lib.RunCommandTestCase):
             side_effect=fake_run,
         )
 
-        def mock_rev(_filename, _data, report=None, *_args, **_kwargs):
+        def mock_rev(filename, _data, report=None, *_args, **_kwargs):
+            # binpkg.UpdateAndSubmitKeyValueFile() wants the filename to
+            # be an absolute path, so fail if it isn't.
+            self.assertTrue(os.path.isabs(filename))
             if report is None:
                 return
             report.setdefault("created_cls", []).append("sdk_version/18")
