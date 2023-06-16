@@ -544,21 +544,19 @@ def UpdateAndSubmitKeyValueFile(
         report = {}
     prebuilt_branch = "prebuilt_branch"
     cwd = os.path.abspath(os.path.dirname(filename))
+    basename = os.path.basename(filename)
     remote_name = git.RunGit(cwd, ["remote"]).stdout.strip()
     gerrit_helper = gerrit.GetGerritHelper(remote_name)
     remote_url = git.RunGit(
         cwd, ["config", "--get", f"remote.{remote_name}.url"]
     ).stdout.strip()
-    description = "%s: updating %s" % (
-        os.path.basename(filename),
-        ", ".join(data.keys()),
-    )
+    description = "%s: updating %s" % (basename, ", ".join(data.keys()))
     # UpdateKeyInLocalFile will print out the keys/values for us.
     print("Revving git file %s" % filename)
     git.CreatePushBranch(prebuilt_branch, cwd)
     for key, value in data.items():
         key_value_store.UpdateKeyInLocalFile(filename, key, value)
-    git.RunGit(cwd, ["add", filename])
+    git.RunGit(cwd, ["add", basename])
     git.RunGit(cwd, ["commit", "-m", description])
 
     tracking_info = git.GetTrackingBranch(
