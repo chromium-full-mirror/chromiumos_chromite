@@ -29,12 +29,27 @@ class TelemetryCommand(command.CliCommand):
             help="Disable telemetry collection.",
             action="store_true",
         )
+        opts.add_argument(
+            "--show",
+            help="Show telemetry related information.",
+            action="store_true",
+        )
 
     def _UpdateTelemetry(self, enable: bool):
         chromite_config.initialize()
         cfg = telemetry.config.Config(chromite_config.TELEMETRY_CONFIG)
         cfg.trace_config.update(enabled=enable, reason="USER")
         cfg.flush()
+
+    def _ShowTelemetry(self):
+        chromite_config.initialize()
+        cfg = telemetry.config.Config(chromite_config.TELEMETRY_CONFIG)
+
+        if cfg.trace_config.has_enabled():
+            print(f"enabled = {cfg.trace_config.enabled}")
+            print(f"enabled_reason = {cfg.trace_config.enabled_reason}")
+        else:
+            print(f"notice_countdown = {cfg.root_config.notice_countdown}")
 
     def Run(self):
         """Run cros telemetry."""
@@ -46,3 +61,6 @@ class TelemetryCommand(command.CliCommand):
         if self.options.disable:
             self._UpdateTelemetry(enable=False)
             logging.notice("Telemetry disabled successfully.")
+
+        if self.options.show:
+            self._ShowTelemetry()
