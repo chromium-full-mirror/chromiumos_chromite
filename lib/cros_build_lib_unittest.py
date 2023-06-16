@@ -8,8 +8,6 @@ import builtins
 import contextlib
 import datetime
 import difflib
-import functools
-import itertools
 import logging
 import os
 from pathlib import Path
@@ -1169,54 +1167,6 @@ class TestInput(cros_test_lib.MockOutputTestCase):
 
         # Verify we showed the correct number of times.
         self.assertEqual(cnt[0], 5)
-
-
-class TestContextManagerStack(cros_test_lib.TestCase):
-    """Test the ContextManagerStack class."""
-
-    def test(self):
-        invoked = []
-        counter = functools.partial(next, itertools.count())
-
-        def _mk_kls(has_exception=None, exception_kls=None, suppress=False):
-            class foon(object):
-                """Simple context manager which runs checks on __exit__."""
-
-                # TODO(b/236161656): Fix.
-                # pylint: disable-next=assignment-from-no-return
-                marker = counter()
-
-                def __enter__(self):
-                    return self
-
-                # pylint: disable=no-self-argument,bad-context-manager
-                def __exit__(obj_self, exc_type, exc, traceback):
-                    invoked.append(obj_self.marker)
-                    if has_exception is not None:
-                        self.assertTrue(
-                            all(
-                                x is not None
-                                for x in (exc_type, exc, traceback)
-                            )
-                        )
-                        self.assertTrue(exc_type == has_exception)
-                    if exception_kls:
-                        raise exception_kls()
-                    if suppress:
-                        return True
-
-            return foon
-
-        with cros_build_lib.ContextManagerStack() as stack:
-            # Note... these tests are in reverse, since the exception
-            # winds its way up the stack.
-            stack.Add(_mk_kls())
-            stack.Add(_mk_kls(ValueError, suppress=True))
-            stack.Add(_mk_kls(IndexError, exception_kls=ValueError))
-            stack.Add(_mk_kls(IndexError))
-            stack.Add(_mk_kls(exception_kls=IndexError))
-            stack.Add(_mk_kls())
-        self.assertEqual(invoked, list(range(5, -1, -1)))
 
 
 class Test_iflatten_instance(cros_test_lib.TestCase):

@@ -1003,7 +1003,7 @@ class SDKFetcher(object):
                 ctx_version = CUSTOM_VERSION
             yield self.SDKContext(ctx_version, target_tc, key_map)
         finally:
-            # TODO(rcui): Move to using cros_build_lib.ContextManagerStack()
+            # TODO(rcui): Move to using contextlib.ExitStack().
             memoize.SafeRun(ref.Release for ref in key_map.values())
 
 
