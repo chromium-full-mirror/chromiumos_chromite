@@ -128,7 +128,6 @@
     bob-release
     brask-labstation-release
     brask-release
-    brya-arc-t-release
     brya-release
     bubs-release
     cherry-release
@@ -152,7 +151,6 @@
     hades-release
     hana-arc64-release
     hana-release
-    hatch-arc-t-release
     hatch-release
     jacuzzi-release
     jacuzzi64-release
@@ -288,11 +286,6 @@
   brask-llvm-toolchain-tryjob
   brask-payloads-tryjob
   brask-release-tryjob
-  brya-arc-t-full-tryjob
-  brya-arc-t-llvm-next-toolchain-tryjob
-  brya-arc-t-llvm-toolchain-tryjob
-  brya-arc-t-payloads-tryjob
-  brya-arc-t-release-tryjob
   brya-factory-brya-14517.B-factorybranch-tryjob
   brya-factory-brya-14909.124.B-factorybranch-tryjob
   brya-factory-brya-15231.B-factorybranch-tryjob
@@ -582,11 +575,6 @@
   hana-llvm-toolchain-tryjob
   hana-payloads-tryjob
   hana-release-tryjob
-  hatch-arc-t-full-tryjob
-  hatch-arc-t-llvm-next-toolchain-tryjob
-  hatch-arc-t-llvm-toolchain-tryjob
-  hatch-arc-t-payloads-tryjob
-  hatch-arc-t-release-tryjob
   hatch-factory-hatch-12692.B-factorybranch-tryjob
   hatch-full-tryjob
   hatch-llvm-next-toolchain-tryjob
@@ -689,7 +677,6 @@
     bob-release-tryjob
     brask-labstation-release-tryjob
     brask-release-tryjob
-    brya-arc-t-release-tryjob
     brya-release-tryjob
     bubs-release-tryjob
     cherry-release-tryjob
@@ -713,7 +700,6 @@
     hades-release-tryjob
     hana-arc64-release-tryjob
     hana-release-tryjob
-    hatch-arc-t-release-tryjob
     hatch-release-tryjob
     jacuzzi-release-tryjob
     jacuzzi64-release-tryjob
