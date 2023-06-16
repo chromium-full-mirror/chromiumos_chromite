@@ -20,13 +20,13 @@ from chromite.utils.telemetry import utils
 
 NOTICE = """
 To help improve the quality of this product, we collect de-identified usage data
-and stacktraces when crashes are encountered. You may choose to opt out of this
-collection at any time by setting the flag `enabled = False` under [trace] section
-in
+and stacktraces (when crashes are encountered). You may choose to opt out of this
+collection at any time by running the following command
 
-                ~/.config/chromite/telemetry.cfg
+                cros telemetry --disable
 
-The tracing will be auto enabled after the notice has been displayed for 10 times.
+In order to opt-in, please run `cros telemetry --enable`. The telemetry will be
+automatically enabled after the notice has been displayed for 10 times.
 """
 
 
