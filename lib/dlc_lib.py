@@ -204,7 +204,7 @@ class EbuildParams(object):
         """Store DLC parameters defined in the ebuild.
 
         Store DLC parameters defined in the ebuild in a temporary file so they
-        can be retrieved in the build_image phase.
+        can be retrieved in the `cros build-image` phase.
 
         Args:
             install_root_dir: The path to the root installation directory.

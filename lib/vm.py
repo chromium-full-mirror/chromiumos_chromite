@@ -97,7 +97,7 @@ def CreateVMImage(image=None, board=None, updatable=True, dest_dir=None):
             # image_to_vm.sh default, for clarity.
             cmd.extend(["--disk_layout", "usb_updatable"])
         else:
-            # build_image default.
+            # `cros build-image` default.
             cmd.extend(["--disk_layout", "usb"])
 
         if board:

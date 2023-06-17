@@ -912,7 +912,7 @@ def DefaultSettings():
         # specified, we'll fallback to legacy probing behavior until everyone
         # has been converted (see the scripts/cbuildbot.py file for details).
         builder_class_name=None,
-        # List of images we want to build -- see build_image for more details.
+        # List of images we want to build -- see `cros build-image --help`.
         images=["test"],
         # Whether to convert the image into a guest VM image.
         guest_vm_image=False,
@@ -1000,7 +1000,7 @@ def DefaultSettings():
         child_configs=[],
         # Whether this config belongs to a config group.
         grouped=False,
-        # layout of build_image resulting image. See
+        # Layout of the resulting image. See
         # scripts/build_library/legacy_disk_layout.json or
         # overlay-<board>/scripts/disk_layout.json for possible values.
         disk_layout=None,

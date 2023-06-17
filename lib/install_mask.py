@@ -4,8 +4,8 @@
 
 """Install mask used to filter files when installing binpkg into sysroot."""
 
-# Install mask for portage ebuilds.  Used by build_image and strip_package.
-# Mask for base, dev, and test images (build_image, build_image --test).
+# Install mask for portage ebuilds.  Used by `cros build-image` and
+# strip_package.  Mask for base, dev, and test images.
 DEFAULT = {
     "*.a",
     "*.c",
@@ -70,7 +70,7 @@ DEFAULT = {
     "test_*.ko",
 }
 
-# Mask for factory install shim (build_image factory_install).
+# Mask for factory install shim (`cros build-image factory_install`).
 FACTORY_SHIM = DEFAULT.union(
     {
         "/opt/google/chrome",

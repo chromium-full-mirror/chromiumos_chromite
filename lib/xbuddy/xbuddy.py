@@ -674,7 +674,7 @@ class XBuddy:
             )
 
     def _GetLatestLocalVersion(self, board: str) -> str:
-        """Get the version of the latest image built for board by build_image
+        """Get the version of the latest image built by `cros build-image`.
 
         Updates the symlink reference within the xBuddy static dir to point to
         the real image dir in the local /build/images directory.
@@ -692,14 +692,15 @@ class XBuddy:
         latest_local_dir = image_lib.GetLatestImageLink(board)
         if not latest_local_dir or not os.path.exists(latest_local_dir):
             raise XBuddyException(
-                "No builds found for %s. Did you run build_image?" % board
+                f"No builds found for {board}. Did you run "
+                f"`cros build-image --board {board}`?"
             )
 
         # Assume that the version number is the name of the directory.
         return os.path.basename(os.path.realpath(latest_local_dir))
 
     def _SyncRegistryWithBuildImages(self) -> None:
-        """Crawl images_dir for build_ids of images generated from build_image.
+        """Crawl images_dir for build_ids of images from `cros build-image`.
 
         This will find images and symlink them in xBuddy's static dir so that
         xBuddy's cache can serve them.

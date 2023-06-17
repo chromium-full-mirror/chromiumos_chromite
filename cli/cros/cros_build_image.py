@@ -373,8 +373,8 @@ class BuildImageCommand(command.CliCommand):
             default=True,
             dest="eclean",
             deprecated=(
-                "eclean is being removed from build_images. Argument will be "
-                "removed January, 2023."
+                "eclean is being removed from `cros build-image`.  Argument "
+                "will be removed January 2023."
             ),
             help=argparse.SUPPRESS,
         )
@@ -383,8 +383,8 @@ class BuildImageCommand(command.CliCommand):
             action="store_false",
             dest="eclean",
             deprecated=(
-                "eclean is being removed from build_images. Argument will be "
-                "removed January, 2023."
+                "eclean is being removed from `cros build-image`.  Argument "
+                "will be removed January 2023."
             ),
             help=argparse.SUPPRESS,
         )
@@ -393,8 +393,8 @@ class BuildImageCommand(command.CliCommand):
             action="store_false",
             dest="eclean",
             deprecated=(
-                "eclean is being removed from build_images. Argument will be "
-                "removed January, 2023."
+                "eclean is being removed from `cros build-image`.  Argument "
+                "will be removed January 2023."
             ),
             help=argparse.SUPPRESS,
         )

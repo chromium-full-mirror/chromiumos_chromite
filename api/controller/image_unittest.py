@@ -385,7 +385,7 @@ class RecoveryImageTest(
     def _CreateMockBuildResult(
         self, image_types: List[int]
     ) -> Optional[image_service.BuildResult]:
-        """Helper to create Mock build_image results.
+        """Helper to create Mock `cros build-image` results.
 
         Args:
             image_types: A list of image types for which the mock BuildResult

@@ -166,7 +166,7 @@ def main(argv):
     router = router_lib.GetRouter()
     opts = _ParseArgs(argv, router)
 
-    # For build_image, make sure we run with network disabled to prevent
+    # For `cros build-image`, make sure we run with network disabled to prevent
     # leakage.
     if (
         cros_build_lib.IsInsideChroot()

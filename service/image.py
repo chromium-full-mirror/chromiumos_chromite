@@ -67,7 +67,7 @@ class BuildConfig(NamedTuple):
         enable_rootfs_verification: Whether the rootfs verification is enabled.
         replace: Whether to replace existing output if any exists.
         version: The version string to use for the image.
-        build_attempt: The build_attempt number to pass to build_image.
+        build_attempt: The build_attempt number to pass to `cros build-image`.
         symlink: Symlink name (defaults to "latest").
         output_dir_suffix: String to append to the image build directory.
         adjust_partition: Adjustments to apply to partition table

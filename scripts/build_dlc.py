@@ -42,7 +42,7 @@ def GetParser():
             "If building a specific DLC, it is the root path to"
             " install DLC images (%s) and metadata (%s). Otherwise it"
             " is the target directory where the Chrome OS images gets"
-            " dropped in build_image, e.g. "
+            " dropped in `cros build-image`, e.g. "
             "src/build/images/<board>/latest."
         )
         % (dlc_lib.DLC_BUILD_DIR, dlc_lib.DLC_META_DIR),
@@ -203,7 +203,7 @@ def ValidateArguments(parser, opts, req_flags, invalid_flags):
             parser.error(
                 "If the intention is to build only one DLC, all the flags"
                 "%s should be passed in the `cros build-packages` phase, not "
-                "in the build_image phase." % invalid_flags
+                "in the `cros build-image` phase." % invalid_flags
             )
 
     if opts.fs_type == dlc_lib.EXT4_TYPE:

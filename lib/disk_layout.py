@@ -1750,7 +1750,7 @@ class DiskLayout(object):
         rather than just calculating the value so that it can be tweaked
         explicitly along with others in squeezing the image onto flash. But
         we check it so that users have an easy method for determining what's
-        acceptable--just try out a new value and do ./build_image.
+        acceptable--just try out a new value and do `cros build-image`.
 
         Args:
             partitions: The partition to validate.

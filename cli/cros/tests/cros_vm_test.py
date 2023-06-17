@@ -5,11 +5,10 @@
 """Integration VM test for cros commands.
 
 To run this command, first build a test image. e.g.
-(host)$ cros_sdk
-(sdk)$ ./build_packages --board=betty
-(sdk)$ ./build_image --board=betty test
-(sdk)$ cd ../../chromite/cli/cros/tests/
-(sdk)$ ./cros_vm_test --board=betty --image_path \
+$ cros build-packages --board=betty
+$ cros build-image --board=betty test
+$ cd chromite/cli/cros/tests/
+$ ./cros_vm_test --board=betty --image_path \
 ~/chromiumos/src/build/images/betty/latest/chromiumos_test_image.bin
 """
 

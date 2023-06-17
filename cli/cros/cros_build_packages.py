@@ -6,8 +6,8 @@
 
 The build-packages process cross compiles all packages that have been
 updated into the given sysroot and builds binary packages as a side-effect.
-The output packages will be used by the build_image script to create a
-bootable ChromiumOS image.
+The output packages will be used by `cros build-image` to create a bootable
+ChromiumOS image.
 
 If packages are specified in the command line, only build those specific
 packages and any dependencies they might need.

@@ -863,7 +863,7 @@ IMAGE_TYPE_TEST = "test"
 IMAGE_TYPE_RECOVERY = "recovery"
 # This is the image type used by legacy CBB configs.
 IMAGE_TYPE_FACTORY = "factory"
-# This is the image type mapping to the factory image type in build_image.
+# This is the image type for the factory image type in `cros build-image`.
 IMAGE_TYPE_FACTORY_SHIM = "factory_install"
 IMAGE_TYPE_FIRMWARE = "firmware"
 # Firmware for cros hps device src/platform/hps-firmware2.
