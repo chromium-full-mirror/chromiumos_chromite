@@ -1529,7 +1529,7 @@ def ListInstalledPackages(sysroot, all_packages=False):
         # The following returns all packages that were part of the build tree
         # (many get built or used during the build, but do not get shipped).
         # Note that it also contains packages that are in the build as
-        # defined by build_packages but not part of the image we ship.
+        # defined by cros build-packages but not part of the image we ship.
         equery_cmd = cros_build_lib.GetSysrootToolPath(sysroot, "equery")
         args = [equery_cmd, "list", "*"]
         packages = cros_build_lib.run(
@@ -1539,7 +1539,7 @@ def ListInstalledPackages(sysroot, all_packages=False):
         # The following returns all packages that were part of the build tree
         # (many get built or used during the build, but do not get shipped).
         # Note that it also contains packages that are in the build as
-        # defined by build_packages but not part of the image we ship.
+        # defined by cros build-packages but not part of the image we ship.
         emerge_cmd = cros_build_lib.GetSysrootToolPath(sysroot, "emerge")
         args = [
             emerge_cmd,

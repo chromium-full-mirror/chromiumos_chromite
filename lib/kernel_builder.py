@@ -122,8 +122,8 @@ class Builder:
 
         # Verify all dependencies of the kernel are installed. This should be a
         # no-op, but it's good to check in case a developer didn't run
-        # build_packages.  We need the `expand_virtual` call to work around a
-        # bug in portage where it only installs the virtual pkg.
+        # `cros build-packages`.  We need the `expand_virtual` call to work
+        # around a bug in portage where it only installs the virtual pkg.
         logging.info("Verifying dependencies of the kernel.")
         try:
             kernel = cros_build_lib.run(

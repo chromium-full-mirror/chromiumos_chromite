@@ -95,7 +95,7 @@ def ChooseProfile(board, profile):
         logging.warning(
             "Portage profile directory %s has no 'parent' file. "
             "This likely means your profile directory is invalid and "
-            "build_packages will fail.",
+            "`cros build-packages` will fail.",
             profile.directory,
         )
 
@@ -119,7 +119,7 @@ def ChooseProfile(board, profile):
         msg = (
             "You are switching profiles for a board that is already setup. "
             "This can cause trouble for Portage. If you experience problems "
-            "with build_packages you may need to run:\n"
+            "with `cros build-packages` you may need to run:\n"
             "\t'setup_board --board %(board)s --force --profile %(profile)s'\n"
             "\nAlternatively, you can correct the dependency graph by using "
             "'emerge-%(board)s -c' or 'emerge-%(board)s -C <ebuild>'."

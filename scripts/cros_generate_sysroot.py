@@ -4,7 +4,7 @@
 
 """Generates a sysroot tarball for building a specific package.
 
-Meant for use after setup_board and build_packages have been run.
+Meant for use after cros build-packases has been ran.
 """
 
 import os

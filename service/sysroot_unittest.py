@@ -475,7 +475,7 @@ class BuildPackagesRunConfigTest(
     """Tests for the BuildPackagesRunConfig."""
 
     def testGetBuildPackagesExtraEnv(self):
-        """Test the build_packages extra env."""
+        """Test the `cros build-packages` extra env."""
         # Test the default config.
         instance = sysroot.BuildPackagesRunConfig()
 

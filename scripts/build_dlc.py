@@ -169,7 +169,7 @@ def GetParser():
         action="store_true",
         help=(
             "Flag to indicate if the script is executed during the "
-            "build_packages phase."
+            "`cros build-packages` phase."
         ),
     )
     one_dlc.add_argument(
@@ -202,8 +202,8 @@ def ValidateArguments(parser, opts, req_flags, invalid_flags):
         if any(vars(opts)[x] is not None for x in invalid_flags):
             parser.error(
                 "If the intention is to build only one DLC, all the flags"
-                "%s should be passed in the build_packages phase, not in "
-                "the build_image phase." % invalid_flags
+                "%s should be passed in the `cros build-packages` phase, not "
+                "in the build_image phase." % invalid_flags
             )
 
     if opts.fs_type == dlc_lib.EXT4_TYPE:

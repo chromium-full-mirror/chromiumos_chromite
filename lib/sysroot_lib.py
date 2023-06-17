@@ -151,10 +151,9 @@ class Error(Exception):
     """Module base error class."""
 
 
-# This error is meant to be used with build_packages. The script has not yet
-# been ported to chromite but the error is already useful for the script wrapper
-# implementation. This exists here so the setup_board (ToolchainInstallError)
-# and build_packages errors exist in a common, sensible location.
+# This error is meant to be used with `cros build-packages`.  This exists here
+# so the setup_board (ToolchainInstallError) and `cros build-packages` errors
+# exist in a common, sensible location.
 class PackageInstallError(Error, cros_build_lib.RunCommandError):
     """An error installing packages."""
 

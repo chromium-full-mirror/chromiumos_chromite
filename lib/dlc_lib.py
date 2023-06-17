@@ -1126,8 +1126,8 @@ def InstallDlcImages(
                     scaled=scaled,
                 )
                 # Because portage sandboxes every ebuild package during
-                # build_packages phase, we cannot delete the old image during
-                # that phase, but we can use the existence of the file
+                # `cros build-packages` phase, we cannot delete the old image
+                # during that phase, but we can use the existence of the file
                 # |EBUILD_PARAMETERS| to know if the image has to be generated
                 # or not.
                 if not params:

@@ -27,8 +27,8 @@ Recommended build:
   # configure. Configure will fail due to aclocal macros missing in
   # /build/x86-alex/usr/share/aclocal (those are generated during build).
   # This will take about 10mn on a Z620.
-  build_packages --board=$BOARD --no-withautotest --no-withtest --no-withdev \
-                   --no-withfactory
+  cros build-packages --board=$BOARD --no-withautotest --no-withtest \
+                   --no-withdev --no-withfactory
   cd ~/chromiumos/chromite/licensing
   # This removes left over packages from an earlier build that could cause
   # conflicts.
@@ -65,8 +65,8 @@ Note that you'll want to use --generate-licenses to force regeneration of the
 licensing bits from a package source you may have just modified but not rebuilt.
 
 If you want to check licensing against all ChromeOS packages, you should
-run `build_packages --board=$BOARD` to build everything and then run this script
-with --all-packages.
+run `cros build-packages --board=$BOARD` to build everything and then run this
+script with --all-packages.
 
 By default, when no package is specified, this script processes all
 packages for $BOARD.

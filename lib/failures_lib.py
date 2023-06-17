@@ -318,7 +318,7 @@ class BuildScriptFailure(StepFailure):
     It is intended to provide a shorter summary of what command failed,
     for usage in failure messages from the Commit Queue, so as to ensure
     that developers aren't spammed with giant error messages when common
-    commands (e.g. build_packages) fail.
+    commands (e.g. cros build-packages) fail.
     """
 
     EXCEPTION_CATEGORY = constants.EXCEPTION_CATEGORY_BUILD
