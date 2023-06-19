@@ -775,6 +775,7 @@ def uprev_parallels_desktop(_build_targets, _refs, chroot):
 
     # Update the VM image used for testing.
     test_image_path = (
+        "src/platform/tast-tests-private/"
         "src/go.chromium.org/tast-tests-private/crosint/"
         "local/bundles/crosint/pita/data/"
         "pluginvm_image.zip.external"
