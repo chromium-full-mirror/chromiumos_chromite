@@ -9493,6 +9493,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true,
+          "stable_target_milestone": 108,
           "is_experimental": false
         },
         {
@@ -9523,6 +9524,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true,
+          "stable_target_milestone": 108,
           "is_experimental": false
         },
         {
@@ -9532,6 +9534,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true,
+          "stable_target_milestone": 108,
           "is_experimental": false
         }
       ],
@@ -9860,7 +9863,6 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "stable_target_milestone": 108,
           "is_experimental": false
         },
         {
@@ -9879,7 +9881,6 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "stable_target_milestone": 108,
           "is_experimental": false
         },
         {
@@ -9889,12 +9890,10 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "stable_target_milestone": 108,
           "is_experimental": false
         }
       ],
-      "rubik_target_milestone": 108,
-      "stable_target_milestone": 108
+      "rubik_target_milestone": 108
     },
     {
       "name": "nocturne",
