@@ -4,8 +4,8 @@
 
 import * as fs from 'fs';
 import {
-  ParsedEbuildFilepath,
   EbuildPackage,
+  ParsedEbuildFilepath,
   ebuildDefinedVariables,
 } from './ebuild';
 import {EbuildValue, parseEbuildOrThrow} from './parse';
@@ -17,6 +17,8 @@ export type Platform2Package = EbuildPackage & {
   crosWorkonDestdir: string | string[];
   // CROS_WORKON_OUTOFTREE_BUILD
   crosWorkonOutoftreeBuild?: string;
+  // CROS_WORKON_LOCALNAME
+  crosWorkonLocalname: string[];
 };
 
 /**
@@ -27,7 +29,38 @@ export function platform2TestWorkingDirectory(
   board: string | undefined,
   pkg: Platform2Package
 ): string {
-  let {s} = ebuildDefinedVariables(board, pkg);
+  if (pkg.version !== '9999') {
+    throw new Error(
+      `failed getting test working directory: version must be 9999, but was ${pkg.version}`
+    );
+  }
+
+  const vars = ebuildDefinedVariables(board, pkg);
+
+  let s = vars.s;
+
+  // Emulates cros-workon_src_unpack.
+  if (pkg.crosWorkonOutoftreeBuild !== '1') {
+    // Don't modify S.
+  } else {
+    // Given CROS_WORKON_OUTOFTREE_BUILD is 1, the project_count computed in
+    // array_vars_autocomplete must be 1. Emulates get_paths under the
+    // assumption.
+
+    // No ebuilds set CROS_WORKON_SRCROOT, so assume the initial value for
+    // pathbase to be CHROOT_SOURCE_ROOT.
+    let pathbase = '/mnt/host/source';
+    if (vars.category === 'chromeos-base' || vars.category === 'brillo-base') {
+      pathbase += '/src';
+    } else {
+      pathbase += '/src/third_party';
+    }
+    // Omit the if-statement for CROS_WORKON_SRCPATH here, because no ebuilds set
+    // the variable.
+    const path = `${pathbase}/${pkg.crosWorkonLocalname[0]}`;
+
+    s = path;
+  }
 
   // Emulates platform_src_unpack
   if (
@@ -89,10 +122,21 @@ export async function parsePlatform2EbuildOrThrow(
     }
   }
 
+  let crosWorkonLocalname = [pkg.name];
+  {
+    const v = mapping.get('CROS_WORKON_LOCALNAME');
+    if (v?.kind === 'string') {
+      crosWorkonLocalname = [v.value];
+    } else if (v?.kind === 'array') {
+      crosWorkonLocalname = v.value;
+    }
+  }
+
   return {
     ...pkg,
     platformSubdir,
     crosWorkonDestdir,
     crosWorkonOutoftreeBuild,
+    crosWorkonLocalname,
   };
 }
