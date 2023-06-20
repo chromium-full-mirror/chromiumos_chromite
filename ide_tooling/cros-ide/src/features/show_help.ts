@@ -37,6 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
           category: 'interactive',
           group: 'misc',
           description: command,
+          name: 'show_help',
         });
       })
     );

@@ -352,6 +352,12 @@ interface CipdEvent extends GA4EventBase {
   name: 'cipd_init_failed' | 'cipd_install_failed';
 }
 
+interface MiscInteractiveEvent extends GA4EventBase {
+  category: 'interactive';
+  group: 'misc';
+  name: 'show_help';
+}
+
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | UAEventDeprecated
@@ -383,7 +389,8 @@ export type Event =
   | TastEvent
   | SpellcheckerEvent
   | IdeStatusEvent
-  | CipdEvent;
+  | CipdEvent
+  | MiscInteractiveEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.
