@@ -220,6 +220,31 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
         no_pkg_results = bl_no_pkg._fetch_from_linting_artifacts("linter1")
         self.assertDictEqual(expected_no_pkg_results, no_pkg_results)
 
+    def testGetBoard(self):
+        test_data = {
+            toolchain.BuildLinter([], "/build/atlas"): "atlas",
+            toolchain.BuildLinter([], "/build/foo"): "foo",
+            toolchain.BuildLinter([], "/build/spam"): "spam",
+            toolchain.BuildLinter([], "/"): None,
+            toolchain.BuildLinter([], "/not_build/spam"): None,
+        }
+        for test_bl, expected in test_data.items():
+            actual = test_bl.get_board()
+            self.assertEqual(expected, actual)
+
+    def testGetEbuildCommand(self):
+        test_data = {
+            toolchain.BuildLinter([], "/build/atlas"): "ebuild-atlas",
+            toolchain.BuildLinter([], "/build/foo"): "ebuild-foo",
+            toolchain.BuildLinter([], "/build/spam"): "ebuild-spam",
+            toolchain.BuildLinter([], "/"): "ebuild",
+            toolchain.BuildLinter([], "/not_build/spam"): "ebuild",
+        }
+
+        for test_bl, expected in test_data.items():
+            actual = test_bl.get_ebuild_command()
+            self.assertEqual(expected, actual)
+
     def testGetPackageForArtifactDir(self):
         bl = toolchain.BuildLinter([], "")
 

@@ -744,9 +744,16 @@ class BuildLinter:
 
     def get_board(self) -> Optional[Text]:
         """Get the board name from the sysroot, or return None for host."""
-        if match := BuildLinter.SYSROOT_BOARD_PATH.match():
+        if match := BuildLinter.SYSROOT_BOARD_PATH.match(self.sysroot):
             return match.group("board")
         return None
+
+    def get_ebuild_command(self):
+        """Get the board's `ebuild-$board` command, or `ebuild` for host."""
+        ebuild_command = "ebuild"
+        if board := self.get_board():
+            ebuild_command += f"-{board}"
+        return ebuild_command
 
     def is_package_platform2(self, package_atom: Text) -> bool:
         """Returns whether or not a package is part of platform2.
@@ -756,9 +763,7 @@ class BuildLinter:
         """
         cros_build_lib.AssertInsideChroot()
 
-        ebuild_command = "ebuild"
-        if board := self.get_board():
-            ebuild_command += f"-{board}"
+        ebuild_command = self.get_ebuild_command()
         ebuild_file = portage_util.FindEbuildForPackage(
             package_atom, self.sysroot
         )
