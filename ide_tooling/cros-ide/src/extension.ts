@@ -62,6 +62,7 @@ export async function activate(
       category: 'error',
       group: 'misc',
       description: `activate failed: ${err}`,
+      name: 'extension_activation_failed',
     });
     throw err;
   }
@@ -105,6 +106,7 @@ async function postMetricsActivate(
         category: 'interactive',
         group: 'idestatus',
         description: 'show ui actions log',
+        name: 'show_ui_actions_log',
       });
     })
   );
@@ -158,6 +160,7 @@ async function postMetricsActivate(
     category: 'background',
     group: 'misc',
     description: 'activate',
+    name: 'extension_activated',
   });
 
   const age = await metricsConfig.getUserIdAgeInDays();
@@ -165,7 +168,8 @@ async function postMetricsActivate(
     category: 'background',
     group: 'misc',
     description: 'user ID age',
-    label: age.toString(),
+    name: 'get_user_id_age',
+    age: age,
   });
 
   return {

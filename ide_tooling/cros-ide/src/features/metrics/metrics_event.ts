@@ -338,7 +338,8 @@ type IdeStatusEvent = GA4EventBase & {
           | 'idestatus_show_ide_status'
           | 'idestatus_show_linter_log'
           | 'cppxrefs_show_cpp_log'
-          | 'platform_ec_show_log';
+          | 'platform_ec_show_log'
+          | 'show_ui_actions_log';
       }
     | {
         name: 'idestatus_show_task_log';
@@ -357,6 +358,24 @@ interface MiscInteractiveEvent extends GA4EventBase {
   group: 'misc';
   name: 'show_help';
 }
+
+type ChromiumIdeExtensionEvent = GA4EventBase & {
+  group: 'misc';
+} & (
+    | {
+        category: 'error';
+        name: 'extension_activation_failed';
+      }
+    | {
+        category: 'background';
+        name: 'extension_activated';
+      }
+    | {
+        category: 'background';
+        name: 'get_user_id_age';
+        age: number;
+      }
+  );
 
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
@@ -390,7 +409,8 @@ export type Event =
   | SpellcheckerEvent
   | IdeStatusEvent
   | CipdEvent
-  | MiscInteractiveEvent;
+  | MiscInteractiveEvent
+  | ChromiumIdeExtensionEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.
