@@ -253,20 +253,6 @@
       "stable_target_milestone": 101
     },
     {
-      "name": "reven-arc-t",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "UNKNOWN"
-        }
-      ],
-      "rubik_target_milestone": 108,
-      "stable_target_milestone": 116
-    },
-    {
       "name": "reven-kernelnext",
       "configs": [
         {
