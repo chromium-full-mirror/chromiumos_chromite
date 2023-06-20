@@ -59,24 +59,132 @@ interface EventBase {
   name: string;
 }
 
-interface CodesearchErrorEvent extends EventBase {
+interface ActivateChromiumosEvent extends EventBase {
   category: 'error';
-  group: 'codesearch';
-  name: 'codesearch_generate_cs_path_failed';
+  group: 'misc';
+  name: 'activate_chromiumos_error';
 }
 
-interface CodesearchInteractiveEvent extends EventBase {
+type ChromiumIdeExtensionEvent = EventBase & {
+  group: 'misc';
+} & (
+    | {
+        category: 'background';
+        name: 'extension_activated';
+      }
+    | {
+        category: 'background';
+        name: 'get_user_id_age';
+        age: number;
+      }
+    | {
+        category: 'error';
+        name: 'extension_activation_failed';
+      }
+  );
+
+type ChromiumOutputDirectoriesEvent = EventBase & {
+  group: 'chromium.outputDirectories';
+} & (
+    | {
+        category: 'background';
+        name: 'chromium_outputDirectories_built_node_cache';
+        output_directories_count: number;
+      }
+    | {
+        category: 'error';
+        name:
+          | 'chromium_outputDirectories_invalid_directory_name'
+          | 'chromium_outputDirectories_not_a_symlink'
+          | 'chromium_outputDirectories_race_condition_at_rebuild'
+          | 'chromium_outputDirectories_symlink_not_linked';
+      }
+    | {
+        category: 'interactive';
+        name:
+          | 'chromium_outputDirectories_change_output_directory'
+          | 'chromium_outputDirectories_edit_args_gn'
+          | 'chromium_outputDirectories_refresh';
+      }
+  );
+
+interface CipdEvent extends EventBase {
+  category: 'error';
+  group: 'cipd';
+  name: 'cipd_init_failed' | 'cipd_install_failed';
+}
+
+type CodesearchEvent = EventBase & {
+  group: 'codesearch';
+} & (
+    | {
+        category: 'error';
+        name: 'codesearch_generate_cs_path_failed';
+      }
+    | {
+        category: 'interactive';
+        name: 'codesearch_copy_current_file' | 'codesearch_open_current_file';
+      }
+    | {
+        category: 'interactive';
+        name: 'codesearch_search_selection';
+        selected_text: string;
+      }
+  );
+
+type CoverageEvent = EventBase &
+  (
+    | {
+        category: 'background';
+        group: 'coverage';
+        name: 'coverage_show_background';
+      }
+    | {
+        category: 'interactive';
+        group: 'coverage';
+        name: 'coverage_generate' | 'coverage_show';
+        board: string;
+        package: string;
+      }
+  );
+
+type CppCodeCompletionEvent = EventBase & {
+  group: 'cppxrefs';
+} & (
+    | {
+        category: 'background';
+        name: 'cppxrefs_generate_compdb';
+        action: string;
+      }
+    | {
+        category: 'background';
+        name: 'cppxrefs_interact_with_platform2_cpp' | 'cppxrefs_no_chroot';
+      }
+    | {
+        category: 'error';
+        group: 'cppxrefs';
+        name: 'cppxrefs_generate_compdb_error';
+        error: string;
+      }
+  );
+
+type CrosFormatEvent = EventBase & {group: 'format'} & (
+    | {
+        category: 'background';
+        name: 'cros_format';
+      }
+    | {
+        category: 'error';
+        name: 'cros_format_call_error' | 'cros_format_return_error';
+      }
+  );
+
+interface DebuggingEvent extends EventBase {
   category: 'interactive';
-  group: 'codesearch';
-  name:
-    | 'codesearch_open_current_file'
-    | 'codesearch_copy_current_file'
-    | 'codesearch_search_selection';
-}
-
-interface CodesearchSearchSelectionEvent extends CodesearchInteractiveEvent {
-  name: 'codesearch_search_selection';
-  selected_text: string;
+  group: 'debugging';
+  name: 'debugging_debug_gtest' | 'debugging_run_gtest';
+  package_names: string;
+  tests_count: number;
 }
 
 interface DeviceManagementEvent extends EventBase {
@@ -98,6 +206,21 @@ interface DeviceManagementEvent extends EventBase {
     | 'device_management_syslog_viewer_copy'
     | 'device_management_syslog_viewer_open';
 }
+
+type ExtensionSuggestionEvent = EventBase & {
+  group: 'misc';
+} & (
+    | {
+        category: 'background';
+        name: 'misc_suggested_extension';
+        extension: string;
+      }
+    | {
+        category: 'interactive';
+        name: 'misc_installed_suggested_extension';
+        extension: string;
+      }
+  );
 
 type GerritEvent = EventBase & {
   group: 'gerrit';
@@ -124,48 +247,43 @@ type GerritEvent = EventBase & {
       }
   );
 
-interface VirtualdocumentOpenDocumentEvent extends EventBase {
+type IdeStatusEvent = EventBase & {
   category: 'interactive';
-  group: 'virtualdocument';
-  name: 'virtualdocument_open_document';
-  document: string;
-}
+  group: 'idestatus';
+} & (
+    | {
+        name:
+          | 'cppxrefs_show_cpp_log'
+          | 'idestatus_show_ide_status'
+          | 'idestatus_show_linter_log'
+          | 'platform_ec_show_log'
+          | 'show_ui_actions_log';
+      }
+    | {
+        name: 'idestatus_show_task_log';
+        task_status: string;
+      }
+  );
 
-interface LintErrorEvent extends EventBase {
-  category: 'error';
+type LintEvent = EventBase & {
   group: 'lint';
-  name: 'lint_update_diagnostic_error' | 'lint_missing_diagnostics';
-}
-
-interface LintBackgroundEvent extends EventBase {
-  category: 'background';
-  group: 'lint';
-}
-
-interface LintUpdateEvent extends LintBackgroundEvent {
-  name: 'lint_update';
-  language_id: string;
-  length: number;
-}
-
-interface LintSkipEvent extends LintBackgroundEvent {
-  name: 'lint_skip';
-  language_id: string;
-}
-
-interface ExtensionSuggestedEvent extends EventBase {
-  category: 'background';
-  group: 'misc';
-  name: 'misc_suggested_extension';
-  extension: string;
-}
-
-interface ExtensionInstalledEvent extends EventBase {
-  category: 'interactive';
-  group: 'misc';
-  name: 'misc_installed_suggested_extension';
-  extension: string;
-}
+} & (
+    | {
+        category: 'background';
+        name: 'lint_skip';
+        language_id: string;
+      }
+    | {
+        category: 'background';
+        name: 'lint_update';
+        language_id: string;
+        length: number;
+      }
+    | {
+        category: 'error';
+        name: 'lint_update_diagnostic_error' | 'lint_missing_diagnostics';
+      }
+  );
 
 type MiscEvent = EventBase & {
   group: 'misc';
@@ -175,41 +293,21 @@ type MiscEvent = EventBase & {
         name: 'product_watcher_multiple_products';
       }
     | {
-        category: 'interactive';
-        group: 'misc';
-        name: 'show_help';
-      }
-    | {
         category: 'error';
         name: 'misc_error_active_chromium_feature';
         feature: string;
       }
+    | {
+        category: 'interactive';
+        group: 'misc';
+        name: 'show_help';
+      }
   );
 
-interface chromiumOutputDirectoriesBackgroundEvent extends EventBase {
-  category: 'background';
-  group: 'chromium.outputDirectories';
-  name: 'chromium_outputDirectories_built_node_cache';
-  output_directories_count: number;
-}
-
-interface chromiumOutputDirectoriesErrorEvent extends EventBase {
-  category: 'error';
-  group: 'chromium.outputDirectories';
-  name:
-    | 'chromium_outputDirectories_not_a_symlink'
-    | 'chromium_outputDirectories_symlink_not_linked'
-    | 'chromium_outputDirectories_invalid_directory_name'
-    | 'chromium_outputDirectories_race_condition_at_rebuild';
-}
-
-interface chromiumOutputDirectoriesInteractiveEvent extends EventBase {
+interface OwnersEvent extends EventBase {
   category: 'interactive';
-  group: 'chromium.outputDirectories';
-  name:
-    | 'chromium_outputDirectories_edit_args_gn'
-    | 'chromium_outputDirectories_refresh'
-    | 'chromium_outputDirectories_change_output_directory';
+  group: 'owners';
+  name: 'owners_clicked_file_or_link';
 }
 
 interface PackageCrosWorkonEvent extends EventBase {
@@ -226,20 +324,18 @@ interface PackageOpenEbuildEvent extends EventBase {
   name: 'package_open_ebuild';
 }
 
-interface ActivateChromiumosEvent extends EventBase {
-  category: 'error';
-  group: 'misc';
-  name: 'activate_chromiumos_error';
-}
-
-type CrosFormatEvent = EventBase & {group: 'format'} & (
-    | {
-        category: 'error';
-        name: 'cros_format_call_error' | 'cros_format_return_error';
-      }
+type SpellcheckerEvent = EventBase &
+  (
     | {
         category: 'background';
-        name: 'cros_format';
+        group: 'spellchecker';
+        name: 'spellchecker_diagnostics';
+        diagnostics_count: number;
+      }
+    | {
+        category: 'error';
+        group: 'spellchecker';
+        name: 'spellchecker_error';
       }
   );
 
@@ -250,156 +346,43 @@ interface TargetBoardEvent extends EventBase {
   board: string;
 }
 
-type CoverageEvent = EventBase &
-  (
-    | {
-        category: 'interactive';
-        group: 'coverage';
-        name: 'coverage_generate' | 'coverage_show';
-        board: string;
-        package: string;
-      }
-    | {
-        category: 'background';
-        group: 'coverage';
-        name: 'coverage_show_background';
-      }
-  );
-
-type CppCodeCompletionEvent = EventBase &
-  (
-    | {
-        category: 'background';
-        group: 'cppxrefs';
-        name: 'cppxrefs_generate_compdb';
-        action: string;
-      }
-    | {
-        category: 'background';
-        group: 'cppxrefs';
-        name: 'cppxrefs_interact_with_platform2_cpp';
-      }
-    | {
-        category: 'error';
-        group: 'cppxrefs';
-        name: 'cppxrefs_generate_compdb_error';
-        error: string;
-      }
-    | {
-        category: 'background';
-        group: 'cppxrefs';
-        name: 'cppxrefs_no_chroot';
-      }
-  );
-
-interface DebuggingEvent extends EventBase {
-  category: 'interactive';
-  group: 'debugging';
-  name: 'debugging_run_gtest' | 'debugging_debug_gtest';
-  package_names: string;
-  tests_count: number;
-}
-
 interface TastEvent extends EventBase {
   category: 'interactive';
   group: 'tast';
   name: 'tast_setup_dev_environment';
 }
 
-type SpellcheckerEvent = EventBase &
-  (
-    | {
-        category: 'error';
-        group: 'spellchecker';
-        name: 'spellchecker_error';
-      }
-    | {
-        category: 'background';
-        group: 'spellchecker';
-        name: 'spellchecker_diagnostics';
-        diagnostics_count: number;
-      }
-  );
-
-type IdeStatusEvent = EventBase & {
+interface VirtualdocumentOpenDocumentEvent extends EventBase {
   category: 'interactive';
-  group: 'idestatus';
-} & (
-    | {
-        name:
-          | 'idestatus_show_ide_status'
-          | 'idestatus_show_linter_log'
-          | 'cppxrefs_show_cpp_log'
-          | 'platform_ec_show_log'
-          | 'show_ui_actions_log';
-      }
-    | {
-        name: 'idestatus_show_task_log';
-        task_status: string;
-      }
-  );
-
-interface CipdEvent extends EventBase {
-  category: 'error';
-  group: 'cipd';
-  name: 'cipd_init_failed' | 'cipd_install_failed';
-}
-
-type ChromiumIdeExtensionEvent = EventBase & {
-  group: 'misc';
-} & (
-    | {
-        category: 'error';
-        name: 'extension_activation_failed';
-      }
-    | {
-        category: 'background';
-        name: 'extension_activated';
-      }
-    | {
-        category: 'background';
-        name: 'get_user_id_age';
-        age: number;
-      }
-  );
-
-interface OwnersEvent extends EventBase {
-  category: 'interactive';
-  group: 'owners';
-  name: 'owners_clicked_file_or_link';
+  group: 'virtualdocument';
+  name: 'virtualdocument_open_document';
+  document: string;
 }
 
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
-  | DeviceManagementEvent
-  | CodesearchErrorEvent
-  | CodesearchInteractiveEvent
   | ActivateChromiumosEvent
-  | CodesearchSearchSelectionEvent
-  | GerritEvent
-  | VirtualdocumentOpenDocumentEvent
-  | LintErrorEvent
-  | LintSkipEvent
-  | LintUpdateEvent
-  | chromiumOutputDirectoriesBackgroundEvent
-  | chromiumOutputDirectoriesErrorEvent
-  | chromiumOutputDirectoriesInteractiveEvent
-  | ExtensionSuggestedEvent
-  | ExtensionInstalledEvent
+  | ChromiumIdeExtensionEvent
+  | ChromiumOutputDirectoriesEvent
+  | CipdEvent
+  | CodesearchEvent
   | CoverageEvent
+  | CppCodeCompletionEvent
   | CrosFormatEvent
+  | DebuggingEvent
+  | DeviceManagementEvent
+  | ExtensionSuggestionEvent
+  | GerritEvent
+  | IdeStatusEvent
+  | LintEvent
+  | MiscEvent
+  | OwnersEvent
   | PackageCrosWorkonEvent
   | PackageOpenEbuildEvent
-  | TargetBoardEvent
-  | CppCodeCompletionEvent
-  | DebuggingEvent
-  | TastEvent
   | SpellcheckerEvent
-  | IdeStatusEvent
-  | CipdEvent
-  | MiscEvent
-  | ChromiumIdeExtensionEvent
-  | OwnersEvent;
+  | TargetBoardEvent
+  | TastEvent
+  | VirtualdocumentOpenDocumentEvent;
 
 /**
  * Manipulate given string to make sure it satisfies constraints imposed by GA4.
