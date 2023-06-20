@@ -100,8 +100,17 @@ class ClearcutSpanExporter(export.SpanExporter):
     def _translate_attributes(
         self, data: types.Attributes
     ) -> struct_pb2.Struct:
+        patch = {}
+        for k, v in data.items():
+            if isinstance(v, tuple):
+                v = list(v)
+            patch[k] = v
+
         struct = struct_pb2.Struct()
-        struct.update(data)
+        try:
+            struct.update(patch)
+        except Exception as e:
+            logging.debug("Set attribute failed: %s", e)
         return struct
 
     def _translate_span_attributes(
