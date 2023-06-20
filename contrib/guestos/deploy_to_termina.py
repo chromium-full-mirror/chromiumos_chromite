@@ -217,7 +217,11 @@ def main(argv: List[str]):
         username=opts.device.username,
     ) as remote:
         if opts.restart_services:
-            remote.run("restart vm_concierge", shell=True, capture_output=False)
+            remote.run(
+                "stop vm_concierge && start vm_concierge",
+                shell=True,
+                capture_output=False,
+            )
         for i, dlc_id in enumerate(opts.dlc_ids):
             deploy_into_remote_dlc(remote, files, dlc_id)
             if i < len(opts.dlc_ids) - 1:
