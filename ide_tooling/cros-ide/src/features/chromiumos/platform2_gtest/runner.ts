@@ -367,8 +367,7 @@ export class Runner extends AbstractRunner {
         `--board=${this.board}`,
         executableInChroot,
         '--',
-        // The *s are need for value-parameterized tests defined with TEST_P.
-        `--gtest_filter=*${test.testName}*`,
+        `--gtest_filter=${test.getGtestFilter()}`,
       ],
       {
         sudoReason: 'to run test',
@@ -441,7 +440,7 @@ export class Runner extends AbstractRunner {
         '/bin/bash',
         '--',
         '-c',
-        `gdbserver :${port} ${pathInSysroot} --gtest_filter=*${test.testName}*`,
+        `gdbserver :${port} ${pathInSysroot} --gtest_filter=${test.getGtestFilter()}`,
       ],
       {
         sudoReason: 'to run test under gdbserver',

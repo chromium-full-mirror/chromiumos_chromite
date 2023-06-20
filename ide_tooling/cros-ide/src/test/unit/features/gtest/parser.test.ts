@@ -24,6 +24,7 @@ describe('gtest parser', () => {
         ),
         suite: 'foo',
         name: 'bar',
+        isParametrized: false,
       },
       {
         range: new vscode.Range(
@@ -32,6 +33,7 @@ describe('gtest parser', () => {
         ),
         suite: 'A_b',
         name: 'c',
+        isParametrized: false,
       },
     ]);
   });
@@ -55,6 +57,7 @@ describe('gtest parser', () => {
         ),
         suite: 'foo',
         name: 'bar',
+        isParametrized: false,
       },
       {
         range: new vscode.Range(
@@ -63,6 +66,7 @@ describe('gtest parser', () => {
         ),
         suite: 'multiple',
         name: 'lines',
+        isParametrized: true,
       },
     ]);
   });

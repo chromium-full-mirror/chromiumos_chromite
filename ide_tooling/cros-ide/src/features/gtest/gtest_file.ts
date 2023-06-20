@@ -29,14 +29,15 @@ export class GtestFile implements vscode.Disposable {
     );
     this.controller.items.add(this.item);
 
-    for (const {range, suite, name} of instances) {
+    for (const {range, suite, name, isParametrized} of instances) {
       const testCase = new GtestCase(
         this.controller,
         this.item,
         uri,
         range,
         suite,
-        name
+        name,
+        isParametrized
       );
       this.cases.push(testCase);
     }

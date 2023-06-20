@@ -20,7 +20,8 @@ export class GtestCase implements vscode.Disposable {
     readonly uri: vscode.Uri,
     range: vscode.Range,
     private readonly suite: string,
-    private readonly name: string
+    private readonly name: string,
+    private readonly isParametrized: boolean
   ) {
     const id = `${uri}/${this.testName}`;
     this.item = controller.createTestItem(id, this.testName, uri);
@@ -28,7 +29,16 @@ export class GtestCase implements vscode.Disposable {
     this.parent.children.add(this.item);
   }
 
-  get testName() {
+  get testName(): string {
     return `${this.suite}.${this.name}`;
+  }
+
+  getGtestFilter(): string {
+    if (this.isParametrized) {
+      // Parametrized tests may or may not have a prefix.
+      return `*/${this.testName}/*:${this.testName}/*`;
+    } else {
+      return this.testName;
+    }
   }
 }

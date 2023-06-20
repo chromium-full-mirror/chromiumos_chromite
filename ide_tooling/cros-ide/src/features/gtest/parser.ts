@@ -8,6 +8,7 @@ export type TestInstance = {
   range: vscode.Range; // 0-based
   suite: string;
   name: string;
+  isParametrized: boolean;
 };
 
 /**
@@ -18,7 +19,8 @@ export function parse(content: string): TestInstance[] {
 
   // Match with strings like "TEST(foo, bar)".
   // https://google.github.io/googletest/reference/testing.html
-  const re = /^[^\S\n]*TEST(?:_F|_P)?\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/gm;
+  const re =
+    /^[^\S\n]*TEST(?<parametrized>_F|_P)?\s*\(\s*(?<suite>\w+)\s*,\s*(?<name>\w+)\s*\)/gm;
   let m;
 
   let index = 0;
@@ -47,8 +49,9 @@ export function parse(content: string): TestInstance[] {
 
     res.push({
       range,
-      suite: m[1],
-      name: m[2],
+      suite: m.groups!.suite,
+      name: m.groups!.name,
+      isParametrized: m.groups!.parametrized === '_P',
     });
   }
 
