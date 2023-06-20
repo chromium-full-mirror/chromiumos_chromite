@@ -180,3 +180,32 @@ def test_export_to_http_api_throttle(monkeypatch):
     # The mock_open_times list is a proxy for observing this behavior directly.
     assert len(mock_open_times) == 2
     assert (mock_open_times[1] - mock_open_times[0]).total_seconds() > 1
+
+
+def test_export_to_drop_spans_if_wait_more_than_threshold(monkeypatch):
+    """Test ClearcutSpanExporter to drop span if wait is more than threshold."""
+    mock_open_times = []
+
+    # pylint: disable=unused-argument
+    def mock_urlopen(request, timeout=0):
+        nonlocal mock_open_times
+        mock_open_times.append(datetime.datetime.now())
+        resp = clientanalytics_pb2.LogResponse()
+        resp.next_request_wait_millis = 900000
+        body = resp.SerializeToString()
+        return MockResponse(200, body)
+
+    monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen)
+
+    span = tracer.start_span("name")
+    span.end()
+
+    e = exporter.ClearcutSpanExporter()
+
+    assert e.export([span])
+    assert e.export([span])
+
+    # We've called export() on the same exporter instance twice, so we expect
+    # the following things to be true:
+    #   1. The request.urlopen() function has been called exactly once
+    assert len(mock_open_times) == 1

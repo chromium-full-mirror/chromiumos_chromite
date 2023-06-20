@@ -30,8 +30,9 @@ from chromite.utils.telemetry import utils
 
 
 _DEFAULT_ENDPOINT = "https://play.googleapis.com/log"
-_DEFAULT_TIMEOUT = 5
+_DEFAULT_TIMEOUT = 15
 _DEFAULT_FLUSH_TIMEOUT = 30000
+_DEAULT_MAX_WAIT_SECS = 60
 # Preallocated in Clearcut proto to Build.
 _LOG_SOURCE = 2044
 # Preallocated in Clearcut proto to Python clients.
@@ -62,6 +63,7 @@ class ClearcutSpanExporter(export.SpanExporter):
         self,
         endpoint: str = _DEFAULT_ENDPOINT,
         timeout: int = _DEFAULT_TIMEOUT,
+        max_wait_secs: int = _DEAULT_MAX_WAIT_SECS,
         prefilter: Optional[
             Callable[[trace_span_pb2.TraceSpan], trace_span_pb2.TraceSpan]
         ] = None,
@@ -71,6 +73,7 @@ class ClearcutSpanExporter(export.SpanExporter):
         self._prefilter = prefilter or AnonymizingFilter(utils.Anonymizer())
         self._log_source = _LOG_SOURCE
         self._next_request_dt = datetime.datetime.now()
+        self._max_wait_secs = max_wait_secs
 
     def export(
         self, spans: Sequence[trace.ReadableSpan]
@@ -280,6 +283,17 @@ class ClearcutSpanExporter(export.SpanExporter):
         while True:
             wait_delta = self._next_request_dt - datetime.datetime.now()
             wait_time = wait_delta.total_seconds()
+
+            # TODO(anujjamwal): Fix this logic.
+            # Drop the packets if wait time is more than threshold.
+            if wait_time > self._max_wait_secs:
+                logging.warning(
+                    "dropping %d spans for large wait: %d",
+                    len(spans),
+                    wait_time,
+                )
+                return True
+
             if wait_time > 0:
                 time.sleep(wait_time)
                 continue
