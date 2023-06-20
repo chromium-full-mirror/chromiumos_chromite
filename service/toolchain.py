@@ -35,6 +35,8 @@ class ToolchainServiceError(Exception):
 class NotChrootError(ToolchainServiceError):
     """An error raised when linting endpoints are invoked outside the chroot."""
 
+class InvalidSysrootError(ToolchainServiceError):
+    """An error raised when the given sysroot is invalid or does not exist."""
 
 class ParsingError(ToolchainServiceError):
     """An error raised when parsing lint files in an unexpected format."""
@@ -122,6 +124,7 @@ class BuildLinter:
         packages: List[package_info.PackageInfo],
         sysroot: Text,
         differential: bool = False,
+        validate: bool = True
     ):
         self.packages: List[package_info.PackageInfo] = packages
         self.sysroot: Text = sysroot
@@ -131,6 +134,17 @@ class BuildLinter:
 
         if not cros_build_lib.IsInsideChroot():
             raise NotChrootError()
+
+        if validate:
+            self.validate_sysroot()
+
+    def validate_sysroot(self):
+        """Assert that the sysroot provided is valid.
+
+        This is done by verifying <sysroot>/etc/make.conf.board_setup exists.
+        """
+        if not Path(self.sysroot, "etc", "make.conf.board_setup").exists():
+            raise InvalidSysrootError()
 
     def emerge_with_linting(
         self,

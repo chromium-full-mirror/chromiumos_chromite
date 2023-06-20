@@ -30,7 +30,7 @@ class MockBuildLinter(toolchain.BuildLinter):
     """Mocked version of Build Linters class."""
 
     def __init__(self, tempdir: Text, packages: List[Text] = None):
-        super().__init__([], "")
+        super().__init__([], "", validate=False)
         self.tempdir = tempdir
         self.packages = [] if packages is None else packages
         self.package_atoms = packages
@@ -65,6 +65,32 @@ class MockBuildLinter(toolchain.BuildLinter):
 
 class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
     """Unit tests for Build Linter Class."""
+
+    def testValidateSysroot(self):
+        real_sysroots = ["", "build/foo"]
+        fake_sysroots = ["hello/world", "build/bin"]
+        nonexistents = ["this_does_not_exist"]
+
+        for sysroot in real_sysroots + fake_sysroots:
+            full_sysroot = f"{self.tempdir}/{sysroot}"
+            os.makedirs(f"{full_sysroot}/etc", exist_ok=True)
+
+        for sysroot in real_sysroots:
+            # Make etc/make.conf.board_setup and try to create a BuildLinter.
+            full_sysroot = f"{self.tempdir}/{sysroot}"
+            Path(f"{full_sysroot}/etc/make.conf.board_setup").touch()
+            try:
+                toolchain.BuildLinter([], full_sysroot, validate=True)
+            except toolchain.InvalidSysrootError:
+                self.fail(
+                    f"Sysroot '{sysroot}' incorectly determined to be invalid"
+                )
+
+        for sysroot in fake_sysroots + nonexistents:
+            # Don't make etc/make.conf.board_setup but try making a BuildLinter.
+            full_sysroot = f"{self.tempdir}/{sysroot}"
+            with self.assertRaises(toolchain.InvalidSysrootError):
+                toolchain.BuildLinter([], full_sysroot, validate=True)
 
     def checkArtifacts(
         self,
@@ -142,9 +168,10 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                 package_info.parse("category2/package3"),
             ],
             self.tempdir,
+            validate=False,
         )
 
-        bl_no_pkg = toolchain.BuildLinter([], self.tempdir)
+        bl_no_pkg = toolchain.BuildLinter([], self.tempdir, validate=False)
 
         relevant_cases = [
             "category1/package1/linting-output/linter1/a.out",
@@ -222,11 +249,11 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
     def testGetBoard(self):
         test_data = {
-            toolchain.BuildLinter([], "/build/atlas"): "atlas",
-            toolchain.BuildLinter([], "/build/foo"): "foo",
-            toolchain.BuildLinter([], "/build/spam"): "spam",
-            toolchain.BuildLinter([], "/"): None,
-            toolchain.BuildLinter([], "/not_build/spam"): None,
+            toolchain.BuildLinter([], "/build/atlas", validate=False): "atlas",
+            toolchain.BuildLinter([], "/build/foo", validate=False): "foo",
+            toolchain.BuildLinter([], "/build/spam", validate=False): "spam",
+            toolchain.BuildLinter([], "/", validate=False): None,
+            toolchain.BuildLinter([], "/not_build/spam", validate=False): None,
         }
         for test_bl, expected in test_data.items():
             actual = test_bl.get_board()
@@ -234,11 +261,19 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
     def testGetEbuildCommand(self):
         test_data = {
-            toolchain.BuildLinter([], "/build/atlas"): "ebuild-atlas",
-            toolchain.BuildLinter([], "/build/foo"): "ebuild-foo",
-            toolchain.BuildLinter([], "/build/spam"): "ebuild-spam",
-            toolchain.BuildLinter([], "/"): "ebuild",
-            toolchain.BuildLinter([], "/not_build/spam"): "ebuild",
+            toolchain.BuildLinter(
+                [], "/build/atlas", validate=False
+            ): "ebuild-atlas",
+            toolchain.BuildLinter(
+                [], "/build/foo", validate=False
+            ): "ebuild-foo",
+            toolchain.BuildLinter(
+                [], "/build/spam", validate=False
+            ): "ebuild-spam",
+            toolchain.BuildLinter([], "/", validate=False): "ebuild",
+            toolchain.BuildLinter(
+                [], "/not_build/spam", validate=False
+            ): "ebuild",
         }
 
         for test_bl, expected in test_data.items():
@@ -246,7 +281,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(expected, actual)
 
     def testGetPackageForArtifactDir(self):
-        bl = toolchain.BuildLinter([], "")
+        bl = toolchain.BuildLinter([], "", validate=False)
 
         test_cases = [
             ("category1", "package1", "linter1", "category1/package1"),
