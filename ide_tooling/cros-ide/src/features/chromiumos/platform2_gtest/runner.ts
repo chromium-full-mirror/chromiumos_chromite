@@ -14,8 +14,9 @@ import {
   platform2TestWorkingDirectory,
 } from '../../../common/chromiumos/portage/platform2';
 import * as ebuild from '../cpp_code_completion/compdb_service/ebuild';
-import {GtestCase} from './gtest_case';
-import {GtestWorkspace} from './gtest_workspace';
+import {GtestCase} from '../../gtest/gtest_case';
+import {GtestWorkspace} from '../../gtest/gtest_workspace';
+import {AbstractRunner} from '../../gtest/abstract_runner';
 
 const PLATFORM2_TEST_PY =
   '/mnt/host/source/src/platform2/common-mk/platform2_test.py';
@@ -26,28 +27,24 @@ const DEBUG_EXTENSION_ID = 'webfreak.debug';
  * Runs gtest cases according to the given request. If debugging is requested,
  * it runs the test under gdbserver, and attaches debugger to it.
  */
-export class Runner {
+export class Runner extends AbstractRunner {
   constructor(
     private readonly chrootService: services.chromiumos.ChrootService,
-    private readonly request: vscode.TestRunRequest,
-    private readonly cancellation: vscode.CancellationToken,
-    private readonly testRun: vscode.TestRun,
+    request: vscode.TestRunRequest,
+    cancellation: vscode.CancellationToken,
+    testRun: vscode.TestRun,
     private readonly board: string,
-    private readonly gtestWorkspace: GtestWorkspace
-  ) {}
+    gtestWorkspace: GtestWorkspace
+  ) {
+    super(request, cancellation, testRun, gtestWorkspace);
+  }
 
   private readonly platform2 = path.join(
     this.chrootService.source.root,
     'src/platform2'
   );
 
-  private readonly output = {
-    append: (x: string) => this.testRun.appendOutput(x.replace(/\n/g, '\r\n')),
-    appendLine: (x: string) =>
-      this.testRun.appendOutput((x + '\n').replace(/\n/g, '\r\n')),
-  };
-
-  async run() {
+  protected override async doRun() {
     const atomToTests = await this.atomToTests();
 
     const name =

@@ -21,6 +21,12 @@ export class TestControllerSingleton implements vscode.Disposable {
 
   private controller?: vscode.TestController;
 
+  /**
+   * @param id Identifier for the `vscode.TestController`, must be globally unique.
+   * @param label A human-readable label for the `vscode.TestController`.
+   */
+  constructor(private readonly id: string, private readonly label: string) {}
+
   dispose() {
     this.controller?.dispose();
     this.onDidCreateEmitter.dispose();
@@ -31,10 +37,7 @@ export class TestControllerSingleton implements vscode.Disposable {
    */
   getOrCreate(): vscode.TestController {
     if (!this.controller) {
-      this.controller = vscode.tests.createTestController(
-        'chromiumide.platform2Gtest',
-        'platform2 gtest'
-      );
+      this.controller = vscode.tests.createTestController(this.id, this.label);
       this.onDidCreateEmitter.fire(this.controller);
     }
     return this.controller;

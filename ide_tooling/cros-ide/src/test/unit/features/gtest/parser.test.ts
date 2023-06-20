@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import * as parser from '../../../../../features/chromiumos/platform2_gtest/parser';
+import * as parser from '../../../../features/gtest/parser';
 
-describe('platform2 gtest parser', () => {
+describe('gtest parser', () => {
   it('parses gtest cases', async () => {
     const content = [
       //             v 14

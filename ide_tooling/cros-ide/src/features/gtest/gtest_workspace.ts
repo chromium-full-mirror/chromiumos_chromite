@@ -4,12 +4,11 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
-import {Config} from './config';
 import {GtestCase} from './gtest_case';
 import {GtestFile} from './gtest_file';
 
 /**
- * Manages platform2 unit test files using gtest found in the workspace.
+ * Manages unit test files using gtest found in the workspace.
  */
 export class GtestWorkspace implements vscode.Disposable {
   private readonly uriToGtestFile = new Map<string, GtestFile>();
@@ -23,7 +22,14 @@ export class GtestWorkspace implements vscode.Disposable {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 
-  constructor(private readonly cfg: Config) {
+  /**
+   * @param getOrCreateController A function that returns a `vscode.TestController` when invoked.
+   * @param rootDir Only tests in files under this directory are parsed for tests.
+   */
+  constructor(
+    private readonly getOrCreateController: () => vscode.TestController,
+    private readonly rootDir: string
+  ) {
     // TODO(oka): Observe change of visible text editors instead of text
     // documents, which are opened on file hovers for example.
     this.subscriptions.push(
@@ -68,7 +74,7 @@ export class GtestWorkspace implements vscode.Disposable {
     const content = document.getText();
 
     const gtestFile = GtestFile.createIfHasTest(
-      this.cfg,
+      this.getOrCreateController,
       document.uri,
       content
     );
@@ -82,7 +88,7 @@ export class GtestWorkspace implements vscode.Disposable {
   private shouldHandle(e: vscode.TextDocument) {
     return (
       e.uri.scheme === 'file' &&
-      !path.relative(this.cfg.platform2, e.fileName).startsWith('..') &&
+      !path.relative(this.rootDir, e.fileName).startsWith('..') &&
       e.fileName.match(/_(unit)?test.(cc|cpp)$/)
     );
   }

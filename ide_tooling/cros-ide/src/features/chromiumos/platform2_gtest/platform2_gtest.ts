@@ -5,9 +5,9 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as services from '../../../services';
+import {TestControllerSingleton} from '../../gtest/test_controller_singleton';
 import {Config} from './config';
 import {RunProfile} from './run_profile';
-import {TestControllerSingleton} from './test_controller_singleton';
 
 export class Platform2Gtest implements vscode.Disposable {
   constructor(
@@ -18,7 +18,10 @@ export class Platform2Gtest implements vscode.Disposable {
   private readonly cfg: Config = {
     platform2: path.join(this.chromiumosRoot, 'src/platform2'),
     chrootService: this.chrootService,
-    testControllerRepository: new TestControllerSingleton(),
+    testControllerRepository: new TestControllerSingleton(
+      'chromiumide.platform2Gtest',
+      'platform2 gtest'
+    ),
   };
 
   private readonly subscriptions: vscode.Disposable[] = [

@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import {Config} from './config';
 import {GtestCase} from './gtest_case';
 import * as parser from './parser';
 
@@ -11,20 +10,17 @@ import * as parser from './parser';
  * Represents a unit test file containing at least one gtest test case.
  */
 export class GtestFile implements vscode.Disposable {
-  private readonly controller: vscode.TestController;
   private readonly cases: GtestCase[] = [];
   private readonly item: vscode.TestItem;
 
   private constructor(
-    cfg: Config,
+    private readonly controller: vscode.TestController,
     uri: vscode.Uri,
     instances: parser.TestInstance[]
   ) {
     if (instances.length === 0) {
       throw new Error('Internal error: instances must not be empty');
     }
-
-    this.controller = cfg.testControllerRepository.getOrCreate();
 
     this.item = this.controller.createTestItem(
       uri.toString(),
@@ -34,13 +30,20 @@ export class GtestFile implements vscode.Disposable {
     this.controller.items.add(this.item);
 
     for (const {range, suite, name} of instances) {
-      const testCase = new GtestCase(cfg, this.item, uri, range, suite, name);
+      const testCase = new GtestCase(
+        this.controller,
+        this.item,
+        uri,
+        range,
+        suite,
+        name
+      );
       this.cases.push(testCase);
     }
   }
 
   static createIfHasTest(
-    cfg: Config,
+    getOrCreateController: () => vscode.TestController,
     uri: vscode.Uri,
     content: string
   ): GtestFile | undefined {
@@ -48,7 +51,7 @@ export class GtestFile implements vscode.Disposable {
     if (testInstances.length === 0) {
       return undefined;
     }
-    return new GtestFile(cfg, uri, testInstances);
+    return new GtestFile(getOrCreateController(), uri, testInstances);
   }
 
   dispose() {

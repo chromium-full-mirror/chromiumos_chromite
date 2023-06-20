@@ -4,8 +4,8 @@
 
 import * as vscode from 'vscode';
 import * as ideUtil from '../../../ide_util';
+import {GtestWorkspace} from '../../gtest/gtest_workspace';
 import {Config} from './config';
-import {GtestWorkspace} from './gtest_workspace';
 import {Runner} from './runner';
 
 /**
@@ -14,7 +14,10 @@ import {Runner} from './runner';
 export class RunProfile implements vscode.Disposable {
   constructor(private readonly cfg: Config) {}
 
-  private readonly gtestWorkspace = new GtestWorkspace(this.cfg);
+  private readonly gtestWorkspace = new GtestWorkspace(
+    () => this.cfg.testControllerRepository.getOrCreate(),
+    this.cfg.platform2
+  );
 
   private readonly subscriptions: vscode.Disposable[] = [
     this.gtestWorkspace,
@@ -62,9 +65,6 @@ export class RunProfile implements vscode.Disposable {
     }
 
     const run = controller.createTestRun(request);
-
-    await vscode.commands.executeCommand('testing.showMostRecentOutput');
-
     const runner = new Runner(
       this.cfg.chrootService,
       request,
@@ -74,7 +74,5 @@ export class RunProfile implements vscode.Disposable {
       this.gtestWorkspace
     );
     await runner.run();
-
-    run.end();
   }
 }
