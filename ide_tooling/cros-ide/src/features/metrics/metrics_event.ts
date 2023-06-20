@@ -393,7 +393,7 @@ interface OwnersEvent extends GA4EventBase {
 
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
-  | UAEventDeprecated
+  // | UAEventDeprecated
   | DeviceManagementEvent
   | CodesearchErrorEvent
   | CodesearchInteractiveEvent

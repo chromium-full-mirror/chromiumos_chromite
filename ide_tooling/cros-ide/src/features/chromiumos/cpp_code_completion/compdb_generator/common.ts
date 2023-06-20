@@ -12,7 +12,7 @@ export function throwForNoChroot(fileName: string): never {
   // to be sent if the user does not act on the message.
   metrics.send({
     category: 'background',
-    group: 'misc',
+    group: 'cppxrefs',
     name: 'cppxrefs_no_chroot',
     description: 'cpp xrefs generation without chroot',
   });
