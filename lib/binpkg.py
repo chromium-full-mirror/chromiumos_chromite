@@ -14,9 +14,10 @@ import logging
 import math
 import operator
 import os
+from pathlib import Path
 import tempfile
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 import urllib.error
 import urllib.request
 
@@ -527,7 +528,7 @@ def FetchTarballs(binhost_urls, pkgdir):
 
 
 def UpdateAndSubmitKeyValueFile(
-    filename: str,
+    filename: Union[str, os.PathLike],
     data: Dict[str, str],
     report: Optional[Dict[str, Any]] = None,
     dryrun: bool = False,
@@ -542,28 +543,27 @@ def UpdateAndSubmitKeyValueFile(
     """
     if report is None:
         report = {}
+    kvfile = Path(filename).absolute()
     prebuilt_branch = "prebuilt_branch"
-    cwd = os.path.abspath(os.path.dirname(filename))
-    basename = os.path.basename(filename)
-    remote_name = git.RunGit(cwd, ["remote"]).stdout.strip()
+    remote_name = git.RunGit(kvfile.parent, ["remote"]).stdout.strip()
     gerrit_helper = gerrit.GetGerritHelper(remote_name)
     remote_url = git.RunGit(
-        cwd, ["config", "--get", f"remote.{remote_name}.url"]
+        kvfile.parent, ["config", "--get", f"remote.{remote_name}.url"]
     ).stdout.strip()
-    description = "%s: updating %s" % (basename, ", ".join(data.keys()))
+    description = "%s: updating %s" % (kvfile.name, ", ".join(data.keys()))
     # UpdateKeyInLocalFile will print out the keys/values for us.
-    print("Revving git file %s" % filename)
-    git.CreatePushBranch(prebuilt_branch, cwd)
+    print("Revving git file %s" % kvfile)
+    git.CreatePushBranch(prebuilt_branch, kvfile.parent)
     for key, value in data.items():
-        key_value_store.UpdateKeyInLocalFile(filename, key, value)
-    git.RunGit(cwd, ["add", basename])
-    git.RunGit(cwd, ["commit", "-m", description])
+        key_value_store.UpdateKeyInLocalFile(kvfile, key, value)
+    git.RunGit(kvfile.parent, ["add", kvfile.name])
+    git.RunGit(kvfile.parent, ["commit", "-m", description])
 
     tracking_info = git.GetTrackingBranch(
-        cwd, prebuilt_branch, for_push=True, for_checkout=False
+        kvfile.parent, prebuilt_branch, for_push=True, for_checkout=False
     )
     gpatch = gerrit_helper.CreateGerritPatch(
-        cwd, remote_url, ref=tracking_info.ref, notify="NONE"
+        kvfile.parent, remote_url, ref=tracking_info.ref, notify="NONE"
     )
     report.setdefault("created_cls", []).append(gpatch.PatchLink())
     gerrit_helper.SetReview(
