@@ -20,7 +20,7 @@ export function parse(content: string): TestInstance[] {
   // Match with strings like "TEST(foo, bar)".
   // https://google.github.io/googletest/reference/testing.html
   const re =
-    /^[^\S\n]*TEST(?<parametrized>_F|_P)?\s*\(\s*(?<suite>\w+)\s*,\s*(?<name>\w+)\s*\)/gm;
+    /^[^\S\n]*(?:TYPED_)?(?:IN_PROC_BROWSER_)?TEST(?<parametrized>_F|_P)?\s*\(\s*(?<suite>\w+)\s*,\s*(?<name>\w+)\s*\)/gm;
   let m;
 
   let index = 0;

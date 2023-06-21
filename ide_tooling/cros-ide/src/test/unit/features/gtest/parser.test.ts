@@ -70,4 +70,44 @@ describe('gtest parser', () => {
       },
     ]);
   });
+
+  it('parses Chromium browser tests and typed tests', async () => {
+    const content = [
+      //                               v 32
+      'IN_PROC_BROWSER_TEST_F(foo, bar) {}',
+      //                       v 24
+      'TYPED_TEST(hello, world) {}',
+      //                                        v 41
+      'TYPED_IN_PROC_BROWSER_TEST_P(suite, name) {}',
+    ].join('\n');
+    expect(parser.parse(content)).toEqual([
+      {
+        range: new vscode.Range(
+          new vscode.Position(0, 0),
+          new vscode.Position(0, 32)
+        ),
+        suite: 'foo',
+        name: 'bar',
+        isParametrized: false,
+      },
+      {
+        range: new vscode.Range(
+          new vscode.Position(1, 0),
+          new vscode.Position(1, 24)
+        ),
+        suite: 'hello',
+        name: 'world',
+        isParametrized: false,
+      },
+      {
+        range: new vscode.Range(
+          new vscode.Position(2, 0),
+          new vscode.Position(2, 41)
+        ),
+        suite: 'suite',
+        name: 'name',
+        isParametrized: true,
+      },
+    ]);
+  });
 });
