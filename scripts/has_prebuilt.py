@@ -103,7 +103,6 @@ def main(argv):
             "--quiet",
             # Don't actually install it :).
             "--pretend",
-            "--with-bdeps=y",
         ]
         if board:
             args.append("--board=%s" % board)
