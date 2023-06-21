@@ -76,15 +76,12 @@ def main(argv):
     results = {}
     bests = {}
     for cpv in opts.packages:
+        query = cpv.cpvr or cpv.atom
         try:
-            bests[cpv.atom] = portage_util.PortageqBestVisible(
-                cpv.atom, board=board
-            )
-            logging.debug(
-                "Resolved %s best visible to %s", cpv.atom, bests[cpv.atom]
-            )
+            bests[query] = portage_util.PortageqBestVisible(query, board=board)
+            logging.debug("Resolved %s best visible to %s", query, bests[query])
         except portage_util.NoVisiblePackageError:
-            results[cpv.atom] = False
+            results[query] = False
 
     if bests:
         args = [
