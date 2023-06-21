@@ -97,7 +97,7 @@ def main(argv):
     #   q: quiet (simplifies output)
     #   p: pretend (don't actually install it)
     if bests:
-        args = ["-guDNqp", "--with-bdeps=y", "--color=n"]
+        args = ["-guDNqp", "--with-bdeps=y"]
         if board:
             args.append("--board=%s" % board)
         args.extend("=%s" % best.cpvr for best in bests.values())

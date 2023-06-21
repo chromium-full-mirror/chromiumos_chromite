@@ -125,9 +125,11 @@ class DepGraphGenerator(object):
 
     def Initialize(self, args):
         """Initializer. Parses arguments and sets up portage state."""
+        # We never want to see color output as it confuses parsing.
+        emerge_args = ["--color=n"]
 
         # Parse and strip out args that are just intended for parallel_emerge.
-        emerge_args = self.ParseParallelEmergeArgs(args)
+        emerge_args += self.ParseParallelEmergeArgs(args)
 
         if self.sysroot and self.board:
             cros_build_lib.Die("--sysroot and --board are incompatible.")
