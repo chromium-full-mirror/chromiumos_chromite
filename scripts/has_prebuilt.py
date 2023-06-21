@@ -86,18 +86,25 @@ def main(argv):
         except portage_util.NoVisiblePackageError:
             results[cpv.atom] = False
 
-    # Emerge args:
-    #   g: use binpkgs (needed to find if we have one)
-    #   u: update packages to the latest version (want updates to invalidate
-    #       binpkgs)
-    #   D: deep -- consider full tree rather that just immediate deps
-    #     (changes in dependencies and transitive deps can invalidate a binpkg)
-    #   N: Packages with changed use flags should be considered
-    #     (changes in dependencies and transitive deps can invalidate a binpkg)
-    #   q: quiet (simplifies output)
-    #   p: pretend (don't actually install it)
     if bests:
-        args = ["-guDNqp", "--with-bdeps=y"]
+        args = [
+            # Fetch remote binpkg databases.
+            "--getbinpkg",
+            # Update packages to the latest version (we want updates to
+            # invalidate installed packages).
+            "--update",
+            # Consider full tree rather than just immediate deps (changes in
+            # dependencies and transitive deps can invalidate a binpkg).
+            "--deep",
+            # Packages with changed USE flags should be considered (changes in
+            # dependencies and transitive deps can invalidate a binpkg).
+            "--newuse",
+            # Simplifies output.
+            "--quiet",
+            # Don't actually install it :).
+            "--pretend",
+            "--with-bdeps=y",
+        ]
         if board:
             args.append("--board=%s" % board)
         args.extend("=%s" % best.cpvr for best in bests.values())
