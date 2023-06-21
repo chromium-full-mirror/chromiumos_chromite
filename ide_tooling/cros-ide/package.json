@@ -660,6 +660,16 @@
           "description": "Enable view for Chromium output directories in the Explorer sidebar",
           "default": true
         },
+        "chromiumide.chrome.gtest.enabled": {
+          "type": "boolean",
+          "description": "Enable Chromium gtest runner in the Testing sidebar",
+          "default": true
+        },
+        "chromiumide.chrome.gtest.botMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Control whether tests should be run in parallel and be retried once on failure. This uses the `--test-launcher-bot-mode` flag."
+        },
         "chromiumide.codeSearch": {
           "type": "string",
           "enum": [

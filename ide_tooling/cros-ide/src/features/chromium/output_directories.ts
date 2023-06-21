@@ -11,7 +11,7 @@ import * as bgTaskStatus from '../../ui/bg_task_status';
 import * as common_util from '../../common/common_util';
 import * as metrics from '../../features/metrics/metrics';
 
-const CURRENT_LINK_NAME = `out${path.sep}current_link`;
+export const CURRENT_LINK_NAME = `out${path.sep}current_link`;
 const STATUS_BAR_TASK_ID = 'Chromium Output Directories';
 
 /**

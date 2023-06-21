@@ -13,6 +13,7 @@ type Category =
 
 // Exhaustive list of feature groups.
 type FeatureGroup =
+  | 'chromium.gtest'
   | 'chromium.outputDirectories'
   | 'codesearch'
   | 'coverage'
@@ -82,6 +83,20 @@ type ChromiumIdeExtensionEvent = EventBase & {
         name: 'extension_activation_failed';
       }
   );
+
+interface ChromiumGtestEvent extends EventBase {
+  group: 'chromium.gtest';
+  category: 'error';
+  name:
+    | 'chromium_gtest_no_test_cases_found'
+    | 'chromium_gtest_calculate_test_targets_failed'
+    | 'chromium_gtest_build_test_targets_failed'
+    | 'chromium_gtest_extract_tests_from_target'
+    | 'chromium_gtest_test_target_has_no_matching_test_cases'
+    | 'chromium_gtest_test_run_failed'
+    | 'chromium_gtest_parse_test_results_failed'
+    | 'chromium_gtest_test_item_for_test_result_failed';
+}
 
 type ChromiumOutputDirectoriesEvent = EventBase & {
   group: 'chromium.outputDirectories';
@@ -362,6 +377,7 @@ interface VirtualdocumentOpenDocumentEvent extends EventBase {
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | ActivateChromiumosEvent
+  | ChromiumGtestEvent
   | ChromiumIdeExtensionEvent
   | ChromiumOutputDirectoriesEvent
   | CipdEvent

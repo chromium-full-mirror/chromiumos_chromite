@@ -162,10 +162,16 @@ export const goExtension = {
   toolsGopath: new ConfigValue<string>('toolsGopath', GO_PREFIX),
 };
 
+const chromeGtest = {
+  enabled: new ConfigValue<boolean>('chrome.gtest.enabled'),
+  botMode: new ConfigValue<boolean>('chrome.gtest.botMode'),
+};
+
 export const chrome = {
   ashBuildDir: new ConfigValue<string>('chrome.ashBuildDir'),
   dutName: new ConfigValue<string>('chrome.dutName'),
   outputDirectories: new ConfigValue<boolean>('chrome.outputDirectories'),
+  gtest: chromeGtest,
 };
 
 export const spellchecker = new ConfigValue<boolean>('spellchecker');

@@ -12,6 +12,7 @@ import * as chromiumBuild from './chromium_build';
 import * as outputDirectories from './output_directories';
 import * as format from './format';
 import * as relatedFiles from './related_files';
+import * as gtest from './gtest';
 
 /**
  * Extension context value provided to this class. We omit subscriptions here
@@ -102,6 +103,13 @@ export class Chromium implements vscode.Disposable {
     if (config.underDevelopment.relatedFiles.get()) {
       this.featureName = 'relatedFiles';
       relatedFiles.activate(ephemeralContext);
+    }
+
+    if (config.chrome.gtest.enabled.get()) {
+      this.featureName = 'chromiumGtest';
+      this.subscriptions.push(
+        new gtest.ChromiumGtest(path.join(this.root, 'src'))
+      );
     }
   }
 }
