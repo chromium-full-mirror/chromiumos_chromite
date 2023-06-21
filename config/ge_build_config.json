@@ -859,37 +859,6 @@
       "rubik_target_milestone": 103
     },
     {
-      "name": "bob",
-      "reference_board_name": "bob",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "bob",
-          "name": "bob",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 292,
-          "is_active": true,
-          "is_experimental": false
-        }
-      ],
-      "rubik_target_milestone": 107,
-      "stable_target_milestone": 59
-    },
-    {
       "name": "brask",
       "reference_board_name": "brask",
       "arch": "X86_INTERNAL",
@@ -8390,37 +8359,6 @@
       "stable_target_milestone": 78
     },
     {
-      "name": "kevin",
-      "reference_board_name": "kevin",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "kevin",
-          "name": "kevin",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 273,
-          "is_active": true,
-          "is_experimental": false
-        }
-      ],
-      "rubik_target_milestone": 107,
-      "stable_target_milestone": 55
-    },
-    {
       "name": "kevin-userdebug",
       "reference_board_name": "kevin-userdebug",
       "arch": "ARM_INTERNAL",
@@ -12932,68 +12870,6 @@
       ],
       "rubik_target_milestone": 103,
       "stable_target_milestone": 78
-    },
-    {
-      "name": "scarlet",
-      "reference_board_name": "scarlet",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "scarlet",
-          "name": "dru",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 297,
-          "is_active": true,
-          "stable_target_milestone": 65,
-          "is_experimental": false
-        },
-        {
-          "board_name": "scarlet",
-          "name": "druwl",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 297,
-          "is_active": true,
-          "stable_target_milestone": 65,
-          "is_experimental": false
-        },
-        {
-          "board_name": "scarlet",
-          "name": "dumo",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 297,
-          "is_active": true,
-          "stable_target_milestone": 65,
-          "is_experimental": false
-        }
-      ],
-      "rubik_target_milestone": 106,
-      "stable_target_milestone": 65
     },
     {
       "name": "skyrim",

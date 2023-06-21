@@ -139,7 +139,6 @@
     betty-kernelnext-release
     betty-pi-arc-release
     betty-release
-    bob-release
     brask-labstation-release
     brask-release
     brya-arc-t-release
@@ -200,7 +199,6 @@
     jacuzzi64-release
     kalista-cfm-release
     kalista-release
-    kevin-release
     kevin-userdebug-release
     kevin64-release
     kukui-arc-r-release
@@ -237,7 +235,6 @@
     sand-release
     sarien-kernelnext-release
     sarien-release
-    scarlet-release
     skyrim-chausie-release
     skyrim-kernelnext-release
     skyrim-release
@@ -394,11 +391,6 @@
   betty-pi-arc-release-tryjob
   betty-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
-  bob-full-tryjob
-  bob-llvm-next-toolchain-tryjob
-  bob-llvm-toolchain-tryjob
-  bob-payloads-tryjob
-  bob-release-tryjob
   brask-factory-brya-14517.B-factorybranch-tryjob
   brask-factory-brya-15231.B-factorybranch-tryjob
   brask-full-tryjob
@@ -865,12 +857,7 @@
   kalista-release-tryjob
   keeby-factory-keeby-14162.B-factorybranch-tryjob
   kevin-factory-gru-8652.B-factorybranch-tryjob
-  kevin-full-tryjob
-  kevin-llvm-next-toolchain-tryjob
-  kevin-llvm-toolchain-tryjob
   kevin-llvm-tot-toolchain-tryjob
-  kevin-payloads-tryjob
-  kevin-release-tryjob
   kevin-userdebug-full-tryjob
   kevin-userdebug-llvm-next-toolchain-tryjob
   kevin-userdebug-llvm-toolchain-tryjob
@@ -932,7 +919,6 @@
     eve-full-tryjob
     hana-full-tryjob
     jacuzzi-full-tryjob
-    kevin-full-tryjob
     kevin64-full-tryjob
     octopus-full-tryjob
     tael-full-tryjob
@@ -961,7 +947,6 @@
     betty-kernelnext-release-tryjob
     betty-pi-arc-release-tryjob
     betty-release-tryjob
-    bob-release-tryjob
     brask-labstation-release-tryjob
     brask-release-tryjob
     brya-arc-t-release-tryjob
@@ -1022,7 +1007,6 @@
     jacuzzi64-release-tryjob
     kalista-cfm-release-tryjob
     kalista-release-tryjob
-    kevin-release-tryjob
     kevin-userdebug-release-tryjob
     kevin64-release-tryjob
     kukui-arc-r-release-tryjob
@@ -1059,7 +1043,6 @@
     sand-release-tryjob
     sarien-kernelnext-release-tryjob
     sarien-release-tryjob
-    scarlet-release-tryjob
     skyrim-chausie-release-tryjob
     skyrim-kernelnext-release-tryjob
     skyrim-release-tryjob
@@ -1249,11 +1232,6 @@
   sarien-payloads-tryjob
   sarien-release-tryjob
   scarlet-factory-scarlet-10211.B-factorybranch-tryjob
-  scarlet-full-tryjob
-  scarlet-llvm-next-toolchain-tryjob
-  scarlet-llvm-toolchain-tryjob
-  scarlet-payloads-tryjob
-  scarlet-release-tryjob
   sentry-factory-glados-7828.B-factorybranch-tryjob
   skyrim-chausie-full-tryjob
   skyrim-chausie-llvm-next-toolchain-tryjob
