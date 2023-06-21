@@ -100,6 +100,7 @@ def main(argv):
             "--quiet",
             # Don't actually install it :).
             "--pretend",
+            "--selective=n",
         ]
         if board:
             args.append("--board=%s" % board)
