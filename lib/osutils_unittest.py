@@ -69,21 +69,21 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         """Verify we can write data to a file, and then read it back."""
         filename = os.path.join(self.tempdir, "foo")
         data = "alsdkfjasldkfjaskdlfjasdf"
-        self.assertEqual(osutils.WriteFile(filename, data), None)
+        self.assertIsNone(osutils.WriteFile(filename, data))
         self.assertEqual(osutils.ReadFile(filename), data)
 
     def testReadWritePath(self):
         """Verify we can write data to a Path, and then read it back."""
         filename = self.tempdir / "foo"
         data = "alsdkfjasldkfjaskdlfjasdf"
-        self.assertEqual(osutils.WriteFile(filename, data), None)
+        self.assertIsNone(osutils.WriteFile(filename, data))
         self.assertEqual(osutils.ReadFile(filename), data)
 
     def testReadBinary(self):
         """Verify we can read data as binary."""
         filename = os.path.join(self.tempdir, "foo")
         data = b"alsdkfjasldkfjaskdlfjasdf"
-        self.assertEqual(osutils.WriteFile(filename, data, mode="wb"), None)
+        self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
         self.assertEqual(osutils.ReadFile(filename, mode="rb"), data)
 
     def testReadSize(self):
@@ -123,15 +123,29 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         """Verify that we can write an iterable of strings."""
         filename = os.path.join(self.tempdir, "foo")
         data = ["a", "cd", "ef"]
-        self.assertEqual(osutils.WriteFile(filename, data), None)
+        self.assertIsNone(osutils.WriteFile(filename, data))
         self.assertEqual(osutils.ReadFile(filename), "".join(data))
 
     def testWriteFileBytesIter(self):
         """Verify that we can write an iterable of bytes."""
         filename = os.path.join(self.tempdir, "foo")
         data = [b"ab", b"cd", b"ef"]
-        self.assertEqual(osutils.WriteFile(filename, data, mode="wb"), None)
+        self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
         self.assertEqual(osutils.ReadFile(filename, mode="rb"), b"".join(data))
+
+    def testReadBytes(self):
+        """Verify we can read data as binary via ReadBytes."""
+        filename = os.path.join(self.tempdir, "foo")
+        data = b"0123456789"
+        self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
+        self.assertEqual(osutils.ReadBytes(filename, 7 - 3, 3), b"3456")
+
+    def testReadText(self):
+        """Verify we can read data as text via ReadText."""
+        filename = os.path.join(self.tempdir, "foo")
+        data = b"0123456789"
+        self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
+        self.assertEqual(osutils.ReadText(filename, 7 - 3, 3), "3456")
 
     def testReadSudo(self):
         """Verify we can read data as root (in a world-readable dir)."""
@@ -974,14 +988,14 @@ class FindInPathParentsTest(cros_test_lib.TempDirTestCase):
         found = osutils.FindInPathParents(
             "does.not/exist", os.path.join(self.tempdir, self.START_PATH)
         )
-        self.assertEqual(found, None)
+        self.assertIsNone(found)
 
     def testNotFoundPath(self):
         """Target is not found."""
         found = osutils.FindInPathParents(
             "does.not/exist", self.tempdir / self.START_PATH
         )
-        self.assertEqual(found, None)
+        self.assertIsNone(found)
 
 
 class SourceEnvironmentTest(cros_test_lib.TempDirTestCase):

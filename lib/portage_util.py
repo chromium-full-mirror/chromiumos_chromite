@@ -137,7 +137,7 @@ def _GetKnownOverlays(buildroot: Union[str, os.PathLike]) -> Dict[str, Dict]:
         "src/private-overlays",
         "src/third_party",
     )
-    overlays = {}
+    overlays: Dict[str, Dict] = {}
     for path in paths:
         path = os.path.join(buildroot, path, "*")
         for overlay in sorted(glob.glob(path)):
@@ -168,7 +168,7 @@ def _GetKnownOverlays(buildroot: Union[str, os.PathLike]) -> Dict[str, Dict]:
 @functools.lru_cache(maxsize=None)
 def _ListOverlays(
     board: Optional[str] = None,
-    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+    buildroot: str = constants.SOURCE_ROOT,
 ) -> List:
     """Return the list of overlays to use for a given buildbot.
 
@@ -239,7 +239,7 @@ def _ListOverlays(
 def FindOverlays(
     overlay_type: str,
     board: Optional[str] = None,
-    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+    buildroot: str = constants.SOURCE_ROOT,
 ) -> List:
     """Return the list of overlays to use for a given buildbot.
 
@@ -291,7 +291,7 @@ def FindOverlayFile(
     filename: str,
     overlay_type: str = constants.BOTH_OVERLAYS,
     board: Optional[str] = None,
-    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+    buildroot: str = constants.SOURCE_ROOT,
 ) -> Optional[str]:
     """Attempt to find a file in the overlay directories.
 
@@ -321,7 +321,7 @@ def ReadOverlayFile(
     filename: str,
     overlay_type: str = constants.BOTH_OVERLAYS,
     board: Optional[str] = None,
-    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+    buildroot: str = constants.SOURCE_ROOT,
 ) -> Optional[str]:
     """Attempt to open a file in the overlay directories.
 
@@ -343,7 +343,7 @@ def ReadOverlayFile(
     file_found = FindOverlayFile(filename, overlay_type, board, buildroot)
     if file_found is None:
         return None
-    return osutils.ReadFile(file_found)
+    return osutils.ReadText(file_found)
 
 
 @functools.lru_cache(maxsize=None)
@@ -459,7 +459,7 @@ class EBuild(object):
     @classmethod
     def UpdateEBuild(
         cls,
-        ebuild_path: Union[str, os.PathLike],
+        ebuild_path: str,
         variables: Dict,
         make_stable: bool = True,
     ) -> None:
@@ -471,7 +471,7 @@ class EBuild(object):
             make_stable: Actually make the ebuild stable.
         """
         written = False
-        old_lines = osutils.ReadFile(ebuild_path).splitlines()
+        old_lines = osutils.ReadText(ebuild_path).splitlines()
         new_lines = []
         for line in old_lines:
             # Always add variables at the top of the ebuild, before the first
@@ -500,8 +500,8 @@ class EBuild(object):
     @classmethod
     def MarkAsStable(
         cls,
-        unstable_ebuild_path: Union[str, os.PathLike],
-        new_stable_ebuild_path: Union[str, os.PathLike],
+        unstable_ebuild_path: str,
+        new_stable_ebuild_path: str,
         variables: Dict,
         make_stable: bool = True,
     ):
@@ -683,7 +683,7 @@ class EBuild(object):
         """
         # We do a bit of string wrangling to extract directory names from test
         # names. First, get rid of special characters.
-        test_list = []
+        test_list: List[str] = []
         raw_tests_str = settings["IUSE_TESTS"]
         if not raw_tests_str:
             return test_list
@@ -706,7 +706,7 @@ class EBuild(object):
         Returns:
             A list of strings mentioning directory paths.
         """
-        results = []
+        results: List[str] = []
         test_vars = ("IUSE_TESTS",)
 
         if not ebuild_path or not srcdir:
@@ -754,7 +754,7 @@ class EBuild(object):
     def _ReadCrosWorkonVars(
         ebuild_path: Union[str, os.PathLike],
         pkg_name: str,
-    ):
+    ) -> CrosWorkonVars:
         """Return the raw values of CROS_WORKON vars in an ebuild script.
 
         Args:
@@ -833,7 +833,7 @@ class EBuild(object):
 
     @staticmethod
     def _FinalizeCrosWorkonVars(
-        cros_workon_vars: Tuple,
+        cros_workon_vars: CrosWorkonVars,
         ebuild_path: Union[str, os.PathLike],
     ):
         """Finalize CrosWorkonVars tuple.
@@ -1436,7 +1436,7 @@ class EBuild(object):
     @classmethod
     def _LoadEBuildForComparison(cls, ebuild_path):
         """Loads an ebuild file dropping CROS_WORKON_COMMIT line."""
-        lines = osutils.ReadFile(ebuild_path).splitlines()
+        lines = osutils.ReadText(ebuild_path).splitlines()
         return "\n".join(
             line
             for line in lines
@@ -1616,7 +1616,7 @@ class InstalledPackage(object):
         """
         if field_name not in self._fields:
             try:
-                value = osutils.ReadFile(
+                value = osutils.ReadText(
                     os.path.join(self.pkgdir, field_name)
                 ).strip()
             except IOError as e:
@@ -1694,9 +1694,10 @@ class InstalledPackage(object):
         return result
 
 
-def BestEBuild(ebuilds: Iterable[EBuild]) -> Optional[EBuild]:
+def BestEBuild(ebuilds: List[EBuild]) -> Optional[EBuild]:
     """Returns the newest EBuild from a list of EBuild objects."""
-    from portage.versions import vercmp  # pylint: disable=import-error
+    # pylint: disable-next=import-error
+    from portage.versions import vercmp  # type: ignore
 
     if not ebuilds:
         return None
@@ -1708,7 +1709,7 @@ def BestEBuild(ebuilds: Iterable[EBuild]) -> Optional[EBuild]:
 
 
 def _FindUprevCandidates(
-    files: Iterable[Union[str, os.PathLike]],
+    files: Iterable[str],
     allow_manual_uprev: bool,
     subdir_support: bool,
 ):
@@ -2766,7 +2767,7 @@ def PackagesWithTest(sysroot, packages, require_workon: bool = False):
     return pkg_with_test
 
 
-def ParseDieHookStatusFile(metrics_dir: str) -> List[package_info.CPV]:
+def ParseDieHookStatusFile(metrics_dir: str) -> List[package_info.PackageInfo]:
     """Parse the status file generated by the failed packages die_hook
 
     Args:
@@ -2815,7 +2816,7 @@ def HasPrebuilt(atom, board=None, extra_env=None):
             )
             return False
 
-        raw = osutils.ReadFile(output_file)
+        raw = osutils.ReadText(output_file)
         logging.debug("Raw result: %s", raw)
         prebuilts = json.loads(raw)
 

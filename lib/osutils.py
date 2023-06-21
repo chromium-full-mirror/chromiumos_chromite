@@ -368,6 +368,36 @@ def Chown(
     cros_build_lib.sudo_run(cmd, print_cmd=False, stderr=True, stdout=True)
 
 
+def ReadText(
+    path: Union[Path, str],
+    size: Optional[int] = None,
+    seek: Optional[int] = None,
+    sudo: Optional[bool] = False,
+) -> str:
+    """Read a given file on disk as text.
+
+    See ReadFile.
+    """
+    text = ReadFile(path, "r", "utf-8", "strict", size, seek, sudo)
+    assert isinstance(text, str)
+    return text
+
+
+def ReadBytes(
+    path: Union[Path, str],
+    size: Optional[int] = None,
+    seek: Optional[int] = None,
+    sudo: Optional[bool] = False,
+) -> bytes:
+    """Read a given file on disk as bytes.
+
+    See ReadFile.
+    """
+    data = ReadFile(path, "rb", size=size, seek=seek, sudo=sudo)
+    assert isinstance(data, bytes)
+    return data
+
+
 def ReadFile(
     path: Union[Path, str],
     mode: str = "r",
