@@ -73,14 +73,18 @@ def main(argv):
     cros_build_lib.AssertInsideChroot()
 
     board = opts.build_target_name
+    results = {}
     bests = {}
     for cpv in opts.packages:
-        bests[cpv.atom] = portage_util.PortageqBestVisible(
-            cpv.atom, board=board
-        )
-        logging.debug(
-            "Resolved %s best visible to %s", cpv.atom, bests[cpv.atom]
-        )
+        try:
+            bests[cpv.atom] = portage_util.PortageqBestVisible(
+                cpv.atom, board=board
+            )
+            logging.debug(
+                "Resolved %s best visible to %s", cpv.atom, bests[cpv.atom]
+            )
+        except portage_util.NoVisiblePackageError:
+            results[cpv.atom] = False
 
     # Emerge args:
     #   g: use binpkgs (needed to find if we have one)
@@ -92,19 +96,19 @@ def main(argv):
     #     (changes in dependencies and transitive deps can invalidate a binpkg)
     #   q: quiet (simplifies output)
     #   p: pretend (don't actually install it)
-    args = ["-guDNqp", "--with-bdeps=y", "--color=n"]
-    if board:
-        args.append("--board=%s" % board)
-    args.extend("=%s" % best.cpvr for best in bests.values())
+    if bests:
+        args = ["-guDNqp", "--with-bdeps=y", "--color=n"]
+        if board:
+            args.append("--board=%s" % board)
+        args.extend("=%s" % best.cpvr for best in bests.values())
 
-    logging.debug(
-        "Initializing depgraph with: %s", cros_build_lib.CmdToStr(args)
-    )
-    generator = depgraph.DepGraphGenerator()
-    generator.Initialize(args)
+        generator = depgraph.DepGraphGenerator()
+        logging.debug(
+            "Initializing depgraph with: %s", cros_build_lib.CmdToStr(args)
+        )
+        generator.Initialize(args)
 
-    results = {}
-    for atom, best in bests.items():
-        results[atom] = generator.HasPrebuilt(best.cpvr)
+        for atom, best in bests.items():
+            results[atom] = generator.HasPrebuilt(best.cpvr)
 
     osutils.WriteFile(opts.output, json.dumps(results))
