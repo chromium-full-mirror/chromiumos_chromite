@@ -473,6 +473,7 @@ _COPY_PATHS_LACROS = (
     Path("swiftshader/", optional=True),
     Path("crashpad_handler", exe=True, optional=True),
     Path("chrome_crashpad_handler", exe=True, optional=True),
+    Path("resources/accessibility/", optional=True),
     # Text file containing a seed for the lacros_variations_tast_tests target.
     # This is not a lacros build artifact, just some variable test data that
     # will be used by a Tast test that is too large to pass on the command
