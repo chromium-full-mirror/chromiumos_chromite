@@ -101,6 +101,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from typing import Any, Dict, List
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -114,13 +115,6 @@ board = None
 compiler = None
 default_board = None
 in_chroot = True
-
-kwargs = {
-    "print_cmd": False,
-    "check": False,
-    "encoding": "utf-8",
-}
-
 outdir = ""
 
 # If you have multiple boards connected on different servo ports, put lines
@@ -164,6 +158,22 @@ if os.path.exists(rc_file):
         exec(compile(fp.read(), rc_file, "exec"))
 
 
+def run(cmd: List[str], **kwargs: Dict[Any, Any]):
+    """Run a command with the common settings.
+
+    Args:
+        cmd: Command + arguments to run.
+        **kwargs: keyword arguments to pass on to cros_build_lib.run().
+
+    Returns:
+        A CompletedProcess object.
+    """
+    kwargs.setdefault("print_cmd", False)
+    kwargs.setdefault("check", False)
+    kwargs.setdefault("encoding", "utf-8")
+    return cros_build_lib.run(cmd, **kwargs)
+
+
 def Dumper(flag, infile, outfile):
     """Run objdump on an input file.
 
@@ -172,9 +182,7 @@ def Dumper(flag, infile, outfile):
         infile: Input file to process.
         outfile: Output file to write to.
     """
-    result = cros_build_lib.run(
-        [CompilerTool("objdump"), flag, infile], stdout=outfile, **kwargs
-    )
+    result = run([CompilerTool("objdump"), flag, infile], stdout=outfile)
     if result.returncode:
         sys.exit()
 
@@ -346,7 +354,7 @@ def SetupBuild(options):
 
     # Create the boards.cfg file if missing.
     if not os.path.exists("board.cfg"):
-        cros_build_lib.run(["buildman", "-R"], **kwargs)
+        run(["buildman", "-R"])
 
         # Buildman puts it in the directory above, so move it.
         # https://source.denx.de/u-boot/u-boot/-/issues/17
@@ -386,10 +394,9 @@ def SetupBuild(options):
         elif arch == "aarch64":
             compiler = "aarch64-cros-linux-gnu-"
     else:
-        result = cros_build_lib.run(
+        result = run(
             ["buildman", "-A", "--boards", options.board],
             capture_output=True,
-            **kwargs,
         )
         compiler = result.stdout.strip()
         if not compiler:
@@ -487,7 +494,7 @@ def RunBuild(options, base, target, queue):
     if options.force_distclean:
         options.force_reconfig = True
         # Ignore any error from this, some older U-Boots fail on this.
-        cros_build_lib.run(base + ["distclean"], capture_output=True, **kwargs)
+        run(base + ["distclean"], capture_output=True)
 
     if not options.force_reconfig:
         options.force_reconfig = CheckConfigChange()
@@ -499,9 +506,7 @@ def RunBuild(options, base, target, queue):
         else:
             mtarget = "config"
         cmd = base + ["%s_%s" % (uboard, mtarget)]
-        result = cros_build_lib.run(
-            cmd, stdout=True, stderr=subprocess.STDOUT, **kwargs
-        )
+        result = run(cmd, stdout=True, stderr=subprocess.STDOUT)
         if (
             result.returncode
             or logging.getLogger().getEffectiveLevel() <= logging.DEBUG
@@ -513,12 +518,7 @@ def RunBuild(options, base, target, queue):
 
     # Do the actual build.
     if options.build:
-        result = cros_build_lib.run(
-            base + [target],
-            input="",
-            capture_output=True,
-            **kwargs,
-        )
+        result = run(base + [target], input="", capture_output=True)
         if (
             result.returncode
             or logging.getLogger().getEffectiveLevel() <= logging.INFO
@@ -541,7 +541,7 @@ def RunBuild(options, base, target, queue):
     if spl:
         files += spl
     if options.size:
-        result = cros_build_lib.run([CompilerTool("size")] + files, **kwargs)
+        result = run([CompilerTool("size")] + files)
         if result.returncode:
             sys.exit()
 
