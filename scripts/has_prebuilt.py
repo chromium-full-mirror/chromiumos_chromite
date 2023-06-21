@@ -9,6 +9,7 @@ package atoms to a boolean for whether a prebuilt exists.
 """
 
 import json
+import logging
 import os
 
 from chromite.lib import commandline
@@ -77,6 +78,9 @@ def main(argv):
         bests[cpv.atom] = portage_util.PortageqBestVisible(
             cpv.atom, board=board
         )
+        logging.debug(
+            "Resolved %s best visible to %s", cpv.atom, bests[cpv.atom]
+        )
 
     # Emerge args:
     #   g: use binpkgs (needed to find if we have one)
@@ -93,6 +97,9 @@ def main(argv):
         args.append("--board=%s" % board)
     args.extend("=%s" % best.cpvr for best in bests.values())
 
+    logging.debug(
+        "Initializing depgraph with: %s", cros_build_lib.CmdToStr(args)
+    )
     generator = depgraph.DepGraphGenerator()
     generator.Initialize(args)
 

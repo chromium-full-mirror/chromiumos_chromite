@@ -267,6 +267,11 @@ class DepGraphGenerator(object):
 
         # Ask portage to build a dependency graph. with the options we specified
         # above.
+        logging.debug(
+            "Creating depgraph for %s with emerge options %s",
+            packages,
+            emerge_opts,
+        )
         params = create_depgraph_params(emerge_opts, emerge.action)
         success, depgraph, favorites = backtrack_depgraph(
             emerge.settings,
@@ -307,6 +312,7 @@ class DepGraphGenerator(object):
             self.GenDependencyTree()
 
         package = self.package_db.get(pkg_cpf)
+        logging.debug("Checking if %s has a prebuilt: %s", pkg_cpf, package)
         if package:
             return package.type_name == "binary"
 
