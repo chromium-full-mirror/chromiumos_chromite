@@ -770,7 +770,7 @@
         "chromiumide.underDevelopment.metricsGA4": {
           "type": "boolean",
           "description": "Send metrics to GA4 instead of UA",
-          "default": false
+          "default": true
         },
         "chromiumide.deviceManagement.devices": {
           "type": "array",
