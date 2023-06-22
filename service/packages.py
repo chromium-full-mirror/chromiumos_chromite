@@ -850,7 +850,7 @@ def uprev_borealis_dlc_nvidia(_build_targets, _refs, chroot):
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc-chroot")
 def uprev_borealis_dlc_chroot(_build_targets, _refs, chroot):
-    """Updates shared borealis-dlc-chroot ebuild - chromeos-base/borealis-dlc-chroot.
+    """Updates shared chromeos-base/borealis-dlc-chroot ebuild.
 
     See: uprev_versioned_package.
     """
@@ -1395,6 +1395,15 @@ def needs_chrome_source(
     """
     cros_build_lib.AssertInsideChroot()
 
+    # Find latest chrome PackageInfo.
+    try:
+        chrome_pi = portage_util.PortageqBestVisible(
+            constants.CHROME_CP, board=build_target.name
+        )
+        chrome_cpvr = chrome_pi.cpvr
+    except (portage_util.NoVisiblePackageError, package_info.ParseTypeError):
+        chrome_cpvr = constants.CHROME_CP
+
     # Check if it builds chrome and/or a follower package.
     graph = depgraph.get_sysroot_dependency_graph(build_target.root, packages)
     builds_chrome = constants.CHROME_CP in graph
@@ -1413,7 +1422,7 @@ def needs_chrome_source(
     pkgs_needing_prebuilts = []
     if compile_source:
         # Need everything.
-        pkgs_needing_prebuilts.append(constants.CHROME_CP)
+        pkgs_needing_prebuilts.append(chrome_cpvr)
         pkgs_needing_prebuilts.extend(
             [pkg for pkg, builds_pkg in builds_follower.items() if builds_pkg]
         )
@@ -1421,12 +1430,12 @@ def needs_chrome_source(
         # Check chrome itself.
         if builds_chrome:
             has_chrome_prebuilt = has_prebuilt(
-                constants.CHROME_CP,
+                chrome_cpvr,
                 build_target=build_target,
                 useflags=useflags,
             )
             if not has_chrome_prebuilt:
-                pkgs_needing_prebuilts.append(constants.CHROME_CP)
+                pkgs_needing_prebuilts.append(chrome_cpvr)
         # Check follower packages.
         for pkg, builds_pkg in builds_follower.items():
             if not builds_pkg:
