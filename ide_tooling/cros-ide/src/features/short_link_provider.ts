@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
  * as well as ldaps in todos, which link to the teams page.
  */
 export class ShortLinkProvider implements vscode.DocumentLinkProvider {
-  public provideDocumentLinks(
+  provideDocumentLinks(
     document: vscode.TextDocument,
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.DocumentLink[]> {

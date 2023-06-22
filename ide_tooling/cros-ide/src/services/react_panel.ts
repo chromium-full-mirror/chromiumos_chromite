@@ -92,7 +92,7 @@ export abstract class ReactPanel<TInitialData> {
    */
   protected abstract handleWebviewMessage(_message: unknown): void;
 
-  public dispose() {
+  dispose() {
     this.panel.dispose();
     this.disposables.forEach(d => d.dispose());
   }

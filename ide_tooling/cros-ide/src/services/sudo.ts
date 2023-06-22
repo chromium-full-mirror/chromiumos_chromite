@@ -66,7 +66,7 @@ export async function execSudo(
  * VSCode show a password prompt and send an entered password to the socket.
  */
 class AskpassServer {
-  public attempts = 0;
+  attempts = 0;
 
   private constructor(
     private readonly options: SudoExecOptions,

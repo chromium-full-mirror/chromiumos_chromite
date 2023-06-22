@@ -23,7 +23,7 @@ const defaultInstallDir = path.join(os.homedir(), '.cache/cros-ide/cipd');
 export class CipdRepository {
   private readonly cipdMutex = new commonUtil.Mutex();
 
-  constructor(public readonly installDir = defaultInstallDir) {}
+  constructor(readonly installDir = defaultInstallDir) {}
 
   private async ensurePackage(
     packageName: string,

@@ -27,7 +27,7 @@ export class DeviceItem extends vscode.TreeItem {
 export class OwnedDeviceItem extends DeviceItem {
   readonly contextValue = 'device-owned';
 
-  constructor(public readonly device: repository.OwnedDevice) {
+  constructor(readonly device: repository.OwnedDevice) {
     super(device);
   }
 }
@@ -35,7 +35,7 @@ export class OwnedDeviceItem extends DeviceItem {
 export class LeasedDeviceItem extends DeviceItem {
   readonly contextValue = 'device-leased';
 
-  constructor(public readonly device: repository.LeasedDevice) {
+  constructor(readonly device: repository.LeasedDevice) {
     super(device);
     this.description = `${device.board ?? '???'}/${device.model ?? '???'}`;
     const now = new Date();
@@ -49,7 +49,7 @@ export class LeasedDeviceItem extends DeviceItem {
 export class CategoryItem extends vscode.TreeItem {
   readonly kind = ItemKind.CATEGORY;
 
-  constructor(public readonly category: repository.DeviceCategory) {
+  constructor(readonly category: repository.DeviceCategory) {
     super(
       category === repository.DeviceCategory.OWNED
         ? 'My Devices'

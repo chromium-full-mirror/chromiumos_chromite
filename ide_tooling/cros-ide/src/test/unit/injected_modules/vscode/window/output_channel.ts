@@ -8,7 +8,7 @@ import type * as vscode from 'vscode'; // import types only
 // We copy it here because the injected vscode module cannot import
 // other packages (b/237621808).
 class VoidOutputChannel implements vscode.OutputChannel {
-  constructor(public readonly name: string) {}
+  constructor(readonly name: string) {}
 
   append(): void {}
   appendLine(): void {}

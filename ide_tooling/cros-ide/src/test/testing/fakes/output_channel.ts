@@ -8,7 +8,7 @@ import * as vscode from 'vscode'; // import types only
  * An OutputChannel that discards logs.
  */
 export class VoidOutputChannel implements vscode.LogOutputChannel {
-  constructor(public readonly name = 'void') {}
+  constructor(readonly name = 'void') {}
 
   logLevel = vscode.LogLevel.Info;
   onDidChangeLogLevel = new vscode.EventEmitter<vscode.LogLevel>().event;
@@ -32,7 +32,7 @@ export class VoidOutputChannel implements vscode.LogOutputChannel {
  * An OutputChannel that sends logs to console.
  */
 export class ConsoleOutputChannel implements vscode.OutputChannel {
-  constructor(public readonly name = 'console') {}
+  constructor(readonly name = 'console') {}
 
   append(value: string): void {
     process.stdout.write(value);

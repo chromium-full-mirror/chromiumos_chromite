@@ -33,6 +33,15 @@ module.exports = {
       },
     ],
 
+    // Disallow the unneeded public modifiers, as per the Google TypeScript
+    // style guide.
+    '@typescript-eslint/explicit-member-accessibility': [
+      'error',
+      {
+        accessibility: 'no-public',
+      },
+    ],
+
     'import/first': 'error',
     'import/order': 'error',
 

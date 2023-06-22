@@ -78,7 +78,7 @@ export async function promptKnownHostnameIfNeeded(
 }
 
 class SimplePickItem implements vscode.QuickPickItem {
-  constructor(public readonly label: string) {}
+  constructor(readonly label: string) {}
 }
 
 interface InputBoxWithSuggestionsOptions {

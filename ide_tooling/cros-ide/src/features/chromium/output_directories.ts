@@ -191,11 +191,11 @@ export function activate(
 // Represents the base of a node in the output directory view.
 abstract class BaseNode {
   // Used as the context value for this node, which can be used in `when` clauses of menus.
-  public abstract readonly treeNodeContextValue: string;
+  abstract readonly treeNodeContextValue: string;
 
   // The name of the output directory must always consist of two parts, like `out/Default`, or
   // `out_hatch/Debug`.
-  constructor(public readonly name: string) {
+  constructor(readonly name: string) {
     assert(name.split(path.sep).length === 2);
   }
 
@@ -211,7 +211,7 @@ type GnArgs = {
 
 // A `DirNode` represents an output directory.
 export class DirNode extends BaseNode {
-  public readonly treeNodeContextValue = 'directory';
+  readonly treeNodeContextValue = 'directory';
 
   /**
    * @param name The name of the directory, e.g., `out/Default`
@@ -319,14 +319,14 @@ export class DirNode extends BaseNode {
 
 // A `LinkNode` represents a link to an output directory.
 export class LinkNode extends BaseNode {
-  public readonly treeNodeContextValue = 'link';
+  readonly treeNodeContextValue = 'link';
 
   /**
    * @param name The name of the link, e.g., `out/current_link`.
    * @param targetOutName The name of the output directory the link points to (e.g.,
    * `out_hatch/Default`), or `null`, if the link does not point to a valid output directory.
    */
-  constructor(name: string, public readonly targetOutName: string | null) {
+  constructor(name: string, readonly targetOutName: string | null) {
     super(name);
   }
 
@@ -378,7 +378,7 @@ export class OutputDirectoriesDataProvider
     private readonly srcPath: string
   ) {}
 
-  public getNodeCacheForTesting(): Readonly<NodeCache | null> {
+  getNodeCacheForTesting(): Readonly<NodeCache | null> {
     return this.nodeCache;
   }
 

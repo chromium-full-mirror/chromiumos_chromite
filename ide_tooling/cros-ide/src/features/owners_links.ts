@@ -18,14 +18,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 export class OwnersLink extends vscode.DocumentLink {
   constructor(
-    public readonly relativeOrAbsolutePath: string,
-    public readonly documentUri: vscode.Uri,
+    readonly relativeOrAbsolutePath: string,
+    readonly documentUri: vscode.Uri,
     range: vscode.Range
   ) {
     super(range);
   }
 
-  public resolve() {
+  resolve() {
     metrics.send({
       category: 'interactive',
       group: 'owners',

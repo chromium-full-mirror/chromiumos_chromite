@@ -37,9 +37,7 @@ export class BoilerplateInserter implements vscode.Disposable {
    * @param generator The boilerplate generator to add
    * @returns A disposable to remove the generator from the list
    */
-  public addBoilerplateGenerator(
-    generator: BoilerplateGenerator
-  ): vscode.Disposable {
+  addBoilerplateGenerator(generator: BoilerplateGenerator): vscode.Disposable {
     this.boilerplateGenerators.add(generator);
     return new vscode.Disposable(() =>
       this.boilerplateGenerators.delete(generator)
@@ -90,7 +88,7 @@ export abstract class BoilerplateGenerator {
    * Returns whether or not this generator supports boilerplate generation for the given document.
    * This method should be overwritten in subclasses to restrict generators to certain directories.
    */
-  public supportsDocument(document: vscode.TextDocument): boolean {
+  supportsDocument(document: vscode.TextDocument): boolean {
     // The license header may already exist.
     if (document.lineCount > this.getCopyrightLines().length) {
       return false;
@@ -105,9 +103,7 @@ export abstract class BoilerplateGenerator {
    */
   protected abstract getCopyrightLines(): string[];
 
-  public async getBoilerplate(
-    document: vscode.TextDocument
-  ): Promise<string | null> {
+  async getBoilerplate(document: vscode.TextDocument): Promise<string | null> {
     const copyrightHeader = this.getCopyrightHeader(document);
     if (copyrightHeader === null) {
       return null;
@@ -186,7 +182,7 @@ export class ChromiumOSBoilerplateGenerator extends BoilerplateGenerator {
     super();
   }
 
-  public override supportsDocument(document: vscode.TextDocument): boolean {
+  override supportsDocument(document: vscode.TextDocument): boolean {
     return (
       super.supportsDocument(document) &&
       this.isSubPath(this.chromiumosRoot, document.fileName)
@@ -217,7 +213,7 @@ export class ChromiumBoilerplateGenerator extends BoilerplateGenerator {
     super();
   }
 
-  public override supportsDocument(document: vscode.TextDocument): boolean {
+  override supportsDocument(document: vscode.TextDocument): boolean {
     return (
       super.supportsDocument(document) &&
       this.isSubPath(this.chromiumSrc, document.fileName)
@@ -232,7 +228,7 @@ export class ChromiumBoilerplateGenerator extends BoilerplateGenerator {
     ];
   }
 
-  public override async getBoilerplate(
+  override async getBoilerplate(
     document: vscode.TextDocument
   ): Promise<string | null> {
     const copyrightHeader = this.getCopyrightHeader(document);
