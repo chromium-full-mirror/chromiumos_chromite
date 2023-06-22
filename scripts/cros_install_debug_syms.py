@@ -45,7 +45,7 @@ DEBUG_SYMS_EXT = ".debug.tbz2"
 CACHE_VERSION = "1"
 
 
-class DebugSymbolsInstaller(object):
+class DebugSymbolsInstaller:
     """Container for environment objects, needed for multiprocessing."""
 
     def __init__(self, vartree, gs_context, sysroot, stdout_to_null):

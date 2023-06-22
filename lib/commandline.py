@@ -225,7 +225,7 @@ class Device(NamedTuple):
     serial_number: Optional[str] = None
 
 
-class DeviceParser(object):
+class DeviceParser:
     """Parses devices as an argparse argument type.
 
     In addition to parsing user input, this class will also ensure that only
@@ -622,7 +622,7 @@ _DEPRECATE_ACTIONS = [
 ] + list(VALID_ACTIONS)
 
 
-class _DeprecatedAction(object):
+class _DeprecatedAction:
     """Base functionality to allow adding warnings for deprecated arguments.
 
     To add a deprecated warning, simply include a deprecated=message argument
@@ -739,7 +739,7 @@ class ChromiteStreamHandler(logging.StreamHandler):
     """A stream handler for logging."""
 
 
-class BaseParser(object):
+class BaseParser:
     """Base parser class that includes the logic to add logging controls."""
 
     DEFAULT_LOG_LEVELS = (

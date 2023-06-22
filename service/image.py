@@ -157,7 +157,7 @@ def GetBuildImageCommand(
     return cmd
 
 
-class BuildResult(object):
+class BuildResult:
     """Class to record and report build image results."""
 
     def __init__(self, image_types: List[str]):

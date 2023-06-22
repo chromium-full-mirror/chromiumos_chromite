@@ -412,7 +412,7 @@ EBuildClassifyAttributes = collections.namedtuple(
 )
 
 
-class EBuild(object):
+class EBuild:
     """Wrapper class for information about an ebuild."""
 
     VERBOSE = False
@@ -1459,7 +1459,7 @@ class PortageDBError(Error):
     """Generic PortageDB error."""
 
 
-class PortageDB(object):
+class PortageDB:
     """Wrapper class to access the portage database located in var/db/pkg."""
 
     _ebuilds: Dict[str, "InstalledPackage"]
@@ -1538,7 +1538,7 @@ class PortageDB(object):
         return packages
 
 
-class InstalledPackage(object):
+class InstalledPackage:
     """Wrapper class for information about an installed package.
 
     This class accesses the information provided by var/db/pkg for an installed

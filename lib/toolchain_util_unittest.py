@@ -618,7 +618,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             new=self.benchmark_gs_location,
         )
 
-        class mock_datetime(object):
+        class mock_datetime:
             """Class for mocking datetime.datetime."""
 
             @staticmethod
@@ -1392,7 +1392,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             return_value=base64.encodebytes(self.release_afdo_name.encode()),
         )
 
-        class mock_datetime(object):
+        class mock_datetime:
             """Class for mocking datetime.datetime."""
 
             @staticmethod

@@ -57,7 +57,7 @@ def GetParser():
     return parser
 
 
-class _DirWatcher(object):
+class _DirWatcher:
     """Watches a directory with inotify, and parses JSON blobs.
 
     Any time a file in the watched directory is modified, it reads it

@@ -40,7 +40,7 @@ CROS_AUTHORED_FILES = {"OWNERS", "README.md"}
 # pylint: disable=attribute-defined-outside-init
 
 
-class PInfo(object):
+class PInfo:
     """Class to accumulate package info during upgrade process.
 
     This class is basically a formalized dictionary.
@@ -91,7 +91,7 @@ class PInfo(object):
         return not self == other
 
 
-class Upgrader(object):
+class Upgrader:
     """A class to perform various tasks related to updating Portage packages."""
 
     PORTAGE_GIT_URL = "%s/external/github.com/gentoo/gentoo.git" % (

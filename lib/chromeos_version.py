@@ -25,7 +25,7 @@ class VersionUpdateException(Exception):
     """Exception gets thrown for failing to update the version file"""
 
 
-class VersionInfo(object):
+class VersionInfo:
     """Class to encapsulate the Chrome OS version info scheme.
 
     You can instantiate this class in three ways.

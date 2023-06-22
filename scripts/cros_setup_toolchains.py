@@ -122,7 +122,7 @@ LLVM_PKGS_TABLE = {
 }
 
 
-class Crossdev(object):
+class Crossdev:
     """Class for interacting with crossdev and caching its output."""
 
     _CACHE_FILE = os.path.join(CROSSDEV_OVERLAY, ".configured.json")

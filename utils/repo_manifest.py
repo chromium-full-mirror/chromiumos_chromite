@@ -19,7 +19,7 @@ class UnsupportedFeature(Error):
     """The manifest data uses features that are not supported by this code."""
 
 
-class Manifest(object):
+class Manifest:
     """Manifest represents the contents of a repo manifest XML file."""
 
     # https://chromium.googlesource.com/external/repo/+/HEAD/docs/manifest-format.md
@@ -197,7 +197,7 @@ class Manifest(object):
         return projects[0]
 
 
-class _ManifestElement(object):
+class _ManifestElement:
     """Subclasses of _ManifestElement wrap Manifest child XML elements."""
 
     ATTRS = ()

@@ -31,7 +31,7 @@ class QueryNotSpecific(GerritException):
     """Thrown when a query needs to identify one CL, but matched multiple."""
 
 
-class GerritHelper(object):
+class GerritHelper:
     """Helper class to manage interaction with the gerrit-on-borg service."""
 
     # Maximum number of results to return per query.

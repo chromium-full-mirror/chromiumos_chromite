@@ -15,7 +15,7 @@ import logging
 import sys
 
 
-class loggingConfig(object):
+class loggingConfig:
     """Configuration for auto-update logging."""
 
     LOGGING_FORMAT = (

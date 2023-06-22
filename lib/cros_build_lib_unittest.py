@@ -128,7 +128,7 @@ class CmdToStrTest(cros_test_lib.TestCase):
         """Test objects passed to ShellQuote."""
         self.assertEqual("/", cros_build_lib.ShellQuote(Path("/")))
         self.assertEqual("None", cros_build_lib.ShellQuote(None))
-        self.assertNotEqual("", cros_build_lib.ShellQuote(object))
+        self.assertNotEqual("", cros_build_lib.ShellQuote)
 
     def testCmdToStr(self):
         # Dict of expected output strings to input lists.
@@ -463,7 +463,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         # but it's kind of hard to mess up that, so we won't bother.
         yield
 
-        class RejectSigIgn(object):
+        class RejectSigIgn:
             """Make sure the signal action is not SIG_IGN."""
 
             def __eq__(self, other):

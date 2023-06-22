@@ -28,7 +28,7 @@ _GOMA_NINJA_LOG_URL_TEMPLATE = (
 
 # Note: Public for testing purpose. In real use, please think about using
 # Goma.UploadLogs() instead.
-class GomaLogUploader(object):
+class GomaLogUploader:
     """Manages to upload goma log files."""
 
     # The Google Cloud Storage bucket to store logs related to goma.

@@ -243,7 +243,7 @@ class ErrorDetails(NamedTuple):
     exception: Optional[GSContextException] = None
 
 
-class GSCounter(object):
+class GSCounter:
     """A counter class for Google Storage."""
 
     def __init__(self, ctx, path):
@@ -337,7 +337,7 @@ class GSCounter(object):
         return self.AtomicCounterOperation(-1, lambda x: x - 1 if x < 0 else -1)
 
 
-class GSContext(object):
+class GSContext:
     """A class to wrap common google storage operations."""
 
     # Error messages that indicate an invalid BOTO config.

@@ -1135,7 +1135,7 @@ def _TempDirTearDown(self, force_sudo, delete=True):
         SetGlobalTempDir(orig_tempdir_value, self._orig_tempdir_env)
 
 
-class TempDir(object):
+class TempDir:
     """Object that creates a temporary directory.
 
     This object can either be used as a context manager or just as a simple
@@ -1748,7 +1748,7 @@ def _SameFileSystem(path1, path2):
         return False
 
 
-class MountOverlayContext(object):
+class MountOverlayContext:
     """A context manager for mounting an OverlayFS directory.
 
     An overlay filesystem will be mounted at |mount_dir|, and will be unmounted

@@ -13,7 +13,7 @@ import time
 logger = logging.getLogger(__name__)
 
 
-class SleepLoop(object):
+class SleepLoop:
     """Sleep loop."""
 
     def __init__(self, callback, interval=60):

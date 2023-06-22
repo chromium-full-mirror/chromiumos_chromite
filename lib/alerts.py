@@ -32,7 +32,7 @@ from chromite.lib import constants
 from chromite.lib import retry_util
 
 
-class MailServer(object):
+class MailServer:
     """Base class for servers."""
 
     def Send(self, message):

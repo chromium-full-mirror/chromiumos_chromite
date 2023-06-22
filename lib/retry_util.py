@@ -37,7 +37,7 @@ def _CreateExceptionRetryHandler(exception):
     return lambda exc: isinstance(exc, exception)
 
 
-class _RetryDelayStrategy(object):
+class _RetryDelayStrategy:
     """The strategy of the delay between each retry attempts.
 
     Please see WithRetry class document for details.
@@ -80,7 +80,7 @@ class _RetryDelayStrategy(object):
             time.sleep(total)
 
 
-class WithRetry(object):
+class WithRetry:
     """Decorator to handle retry on exception.
 
     Examples:

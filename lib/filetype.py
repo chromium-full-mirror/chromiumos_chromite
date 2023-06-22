@@ -36,7 +36,7 @@ from chromite.utils.parser import shebang
 FILE_BUFFER_SIZE = 32 * 1024
 
 
-class FileTypeDecoder(object):
+class FileTypeDecoder:
     """Class to help decode the type of a file.
 
     This class implements a single GetType() method that decodes the type of a

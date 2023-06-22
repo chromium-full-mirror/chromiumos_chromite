@@ -20,7 +20,7 @@ from chromite.lib import timeout_util
 gob_util.TRY_LIMIT = 1
 
 
-class FakeHTTPResponse(object):
+class FakeHTTPResponse:
     """Enough of a HTTPResponse for FetchUrl.
 
     See https://docs.python.org/3/library/http.client.html#httpresponse-objects

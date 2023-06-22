@@ -1135,7 +1135,7 @@ def _SetupConnections(options, build_config):
     return context
 
 
-class _MockMethodWithReturnValue(object):
+class _MockMethodWithReturnValue:
     """A method mocker which just returns the specific value."""
 
     def __init__(self, return_value):
@@ -1145,7 +1145,7 @@ class _MockMethodWithReturnValue(object):
         return self.return_value
 
 
-class _ObjectMethodPatcher(object):
+class _ObjectMethodPatcher:
     """A simplified mock.object.patch.
 
     It is a context manager that patches an object's method with specified

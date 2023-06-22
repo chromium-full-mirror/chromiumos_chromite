@@ -51,7 +51,7 @@ def ParseCommandLine(argv):
     return options
 
 
-class GenerateTidyWarnings(object):
+class GenerateTidyWarnings:
     """Wrapper for generation functionality."""
 
     def __init__(self, warnings_dir, options):

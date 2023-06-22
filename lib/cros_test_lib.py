@@ -59,7 +59,7 @@ except (ImportError, AttributeError):
 Directory = collections.namedtuple("Directory", ["name", "contents"])
 
 
-class GlobalTestConfig(object):
+class GlobalTestConfig:
     """Global configuration for tests."""
 
     UPDATE_GENERATED_FILES = False
@@ -289,7 +289,7 @@ class StackedSetup(type):
             raise exc_info[1].with_traceback(exc_info[2])
 
 
-class TruthTable(object):
+class TruthTable:
     """Class to represent a boolean truth table, useful in unit tests.
 
     If you find yourself testing the behavior of some function that should
@@ -319,7 +319,7 @@ class TruthTable(object):
         self.assertEqual(result, truth_table.GetOutput(inputs))
     """
 
-    class TruthTableInputIterator(object):
+    class TruthTableInputIterator:
         """Class to support iteration over inputs of a TruthTable."""
 
         def __init__(self, truth_table):
@@ -467,7 +467,7 @@ class LogFilter(logging.Filter):
         return False
 
 
-class LoggingCapturer(object):
+class LoggingCapturer:
     """Captures all messages emitted by the logging module."""
 
     def __init__(self, logger_name="", log_level=logging.DEBUG):
@@ -1178,7 +1178,7 @@ class TempDirTestCase(TestCase):
         osutils.WriteFile(os.path.join(self.tempdir, path), content, **kwargs)
 
 
-class FakeSDKCache(object):
+class FakeSDKCache:
     """Creates a fake SDK Cache."""
 
     def __init__(self, cache_dir, sdk_version="12225.0.0"):
@@ -1359,7 +1359,7 @@ class ListTestLoader(unittest.TestLoader):
     suiteClass = ListTestSuite
 
 
-class ListTestRunner(object):
+class ListTestRunner:
     """Stub test runner to list all possible tests"""
 
     def run(self, test):

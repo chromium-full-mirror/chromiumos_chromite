@@ -462,7 +462,7 @@ def InitLatestVersion(version_file=None, hooks_dir=None):
             chroot.SetVersion(chroot.latest_version)
 
 
-class ChrootUpdater(object):
+class ChrootUpdater:
     """Chroot version and update related functionality."""
 
     def __init__(self, version_file=None, hooks_dir=None):

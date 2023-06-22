@@ -134,7 +134,7 @@ def ChooseProfile(board, profile):
         board.profile_override = profile.override
 
 
-class Profile(object):
+class Profile:
     """Simple data container class for the profile data."""
 
     def __init__(self, name, directory, override):
@@ -183,7 +183,7 @@ def _GetProfile(opts, board):
     return Profile(profile, profile_directory, override)
 
 
-class Board(object):
+class Board:
     """Manage the board arguments and configs."""
 
     # Files located on the board.

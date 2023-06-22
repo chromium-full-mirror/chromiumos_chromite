@@ -278,7 +278,7 @@ def _GetChrootMakeConfUserPath() -> str:
     return "/%s" % _MAKE_CONF_USER
 
 
-class Profile(object):
+class Profile:
     """Class that encapsulates the profile name for a sysroot."""
 
     def __init__(self, name: str = ""):
@@ -292,7 +292,7 @@ class Profile(object):
         return self.name == other.name
 
 
-class Sysroot(object):
+class Sysroot:
     """Class that encapsulate the interaction with sysroots."""
 
     def __init__(self, path: Union[Path, str]):

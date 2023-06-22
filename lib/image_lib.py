@@ -62,7 +62,7 @@ def _DumpPartitionInfo() -> None:
     )
 
 
-class LoopbackPartitions(object):
+class LoopbackPartitions:
     """Loopback mount a file and provide access to its partitions.
 
     This class can be used as a context manager with the "with" statement, or
@@ -776,7 +776,7 @@ def BuildImagePath(board: str, image: str):
     return image
 
 
-class SecurityTestConfig(object):
+class SecurityTestConfig:
     """Hold configurations and do related setup."""
 
     _VBOOT_SRC = os.path.join(

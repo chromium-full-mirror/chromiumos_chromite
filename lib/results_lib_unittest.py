@@ -141,7 +141,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         cidb.CIDBConnectionFactory.SetupMockCidb(self.db)
 
         # Create a class to hold
-        class Options(object):
+        class Options:
             """Stub class to hold option values."""
 
         options = Options()

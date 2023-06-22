@@ -10,7 +10,7 @@ from chromite.lib.paygen import test_control
 _DEFAULT_AU_SUITE_NAME = "au"
 
 
-class TestConfig(object):
+class TestConfig:
     """A single test configuration.
 
     Stores and generates arguments for running autotest_EndToEndTest.

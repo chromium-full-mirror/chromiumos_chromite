@@ -63,7 +63,7 @@ def ParseELFWithArgs(args):
     return args[1], elf
 
 
-class DepTracker(object):
+class DepTracker:
     """Tracks dependencies and file information in a root directory.
 
     This class computes dependencies and other information related to the files

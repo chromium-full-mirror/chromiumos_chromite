@@ -92,7 +92,7 @@ class ArtifactMeta(type):
         return str(cls)
 
 
-class Artifact(object, metaclass=ArtifactMeta):
+class Artifact(metaclass=ArtifactMeta):
     """Wrapper around an artifact to download using a fetcher.
 
     The purpose of this class is to download objects from Google Storage
@@ -864,7 +864,7 @@ _AddAndroidArtifact(
 )
 
 
-class BaseArtifactFactory(object):
+class BaseArtifactFactory:
     """A factory class that generates build artifacts from artifact names."""
 
     def __init__(

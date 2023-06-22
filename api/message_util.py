@@ -81,7 +81,7 @@ def get_message_handler(path, msg_format):
         raise UnknownHandlerError("Unknown format type.")
 
 
-class Serializer(object):
+class Serializer:
     """Base (and null) serializer class."""
 
     def deserialize(self, data: str, message: "google.protobuf.Message"):
@@ -151,7 +151,7 @@ class JsonSerializer(Serializer):
         )
 
 
-class MessageHandler(object):
+class MessageHandler:
     """Class to handle message (de)serialization to and from files.
 
     The class is fairly tightly coupled to the build api, but we currently have

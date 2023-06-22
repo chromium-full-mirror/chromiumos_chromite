@@ -30,7 +30,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         """Class setup to run system polling quickly in semaphore tests."""
         utils.MemoryConsumptionSemaphore.SYSTEM_POLLING_INTERVAL_SECONDS = 0
 
-    class MockClock(object):
+    class MockClock:
         """Mock clock that is manually incremented."""
 
         def __call__(self):

@@ -121,7 +121,7 @@ class NonClassTests(cros_test_lib.MockTestCase):
         self.assertRaises(AssertionError, self._TestPushChange, bad_cls=True)
 
 
-class EbuildMock(object):
+class EbuildMock:
     """Mock portage_util.Ebuild."""
 
     def __init__(self, path, new_package=True):

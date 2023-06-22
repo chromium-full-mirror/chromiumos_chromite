@@ -365,7 +365,7 @@ def GenerateAndPublishOfficialBuildSpec(
     return build_spec_path
 
 
-class BuildSpecsManager(object):
+class BuildSpecsManager:
     """A Class to manage buildspecs and their states."""
 
     SLEEP_TIMEOUT = 1 * 60

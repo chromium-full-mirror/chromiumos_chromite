@@ -11,10 +11,10 @@ from chromite.utils import attrs_freezer
 class FrozenAttributesTest(cros_test_lib.TestCase):
     """Tests FrozenAttributesMixin functionality."""
 
-    class StubClass(object):
+    class StubClass:
         """Any class that does not override __setattr__."""
 
-    class SetattrClass(object):
+    class SetattrClass:
         """Class that does override __setattr__."""
 
         SETATTR_OFFSET = 10

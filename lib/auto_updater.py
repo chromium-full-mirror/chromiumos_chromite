@@ -99,7 +99,7 @@ class RebootVerificationError(ChromiumOSUpdateError):
     """Raised for failing to reboot errors."""
 
 
-class BaseUpdater(object):
+class BaseUpdater:
     """The base updater class."""
 
     def __init__(self, device, payload_dir):

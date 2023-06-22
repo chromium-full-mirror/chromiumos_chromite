@@ -15,7 +15,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import results_lib
 
 
-class _StubLock(object):
+class _StubLock:
     """A Stub clone of RLock that does nothing."""
 
     def acquire(self, blocking=1):
@@ -31,7 +31,7 @@ class _StubLock(object):
         pass
 
 
-class CBuildbotMetadata(object):
+class CBuildbotMetadata:
     """Class for recording metadata about a run."""
 
     def __init__(self, metadata_dict=None, multiprocess_manager=None):
@@ -356,7 +356,7 @@ NICE_DATETIME_FORMAT = NICE_DATE_FORMAT + " " + NICE_TIME_FORMAT
 
 # TODO(akeshet): Delete this class once last remaining hackish caller in
 # ReportStage is updated.
-class BuildData(object):
+class BuildData:
     """Mostly obsolete helper class for interacting with build metadata."""
 
     __slots__ = (

@@ -27,7 +27,7 @@ from chromite.lib.xbuddy import xbuddy
 _ADDITIONAL_LACROS_SUBDIR = "lacros_clang"
 
 
-class CrOSTest(object):
+class CrOSTest:
     """Class for running Chrome OS tests."""
 
     def __init__(self, opts):

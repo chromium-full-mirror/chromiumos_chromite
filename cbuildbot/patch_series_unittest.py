@@ -18,7 +18,7 @@ from chromite.lib import patch as cros_patch
 from chromite.lib import patch_unittest
 
 
-class MockManifest(object):
+class MockManifest:
     """Helper class for Mocking Manifest objects."""
 
     def __init__(self, path, **kwargs):
@@ -41,9 +41,9 @@ class FakePatch(partial_mock.PartialMock):
     """Mocks out dependency and fetch methods of GitRepoPatch.
 
     Examples:
-      set FakePatch.parents and .build_roots per patch, and set
-      FakePatch.assertEqual to your TestCase's assertEqual method.  The behavior
-      of GerritDependencies, and Fetch` depends on the patch id.
+        set FakePatch.parents and .build_roots per patch, and set
+        FakePatch.assertEqual to your TestCase's assertEqual method.  The
+        behavior of GerritDependencies, and Fetch` depends on the patch id.
     """
 
     TARGET = "chromite.lib.patch.GitRepoPatch"

@@ -235,7 +235,7 @@ def Combinations(n: int, k: int) -> int:
     return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
 
 
-class DiskLayout(object):
+class DiskLayout:
     """Class that is used to parse, get and modify disk_layout.json file."""
 
     def __init__(

@@ -949,7 +949,7 @@ class StaticFunctionsTest(cros_test_lib.MockTestCase):
         get_build_function = self.PatchObject(client, "GetBuild")
         bbv2.GetBuild("some-id")
 
-        class DisableAuthFn(object):
+        class DisableAuthFn:
             """An object that can be compared to a function"""
 
             def __eq__(self, fn):

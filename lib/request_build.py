@@ -46,7 +46,7 @@ def ChildBuildSet(parent_buildbucket_id):
     return "cros/parent_buildbucket_id/%s" % parent_buildbucket_id
 
 
-class RequestBuild(object):
+class RequestBuild:
     """Request a builder via buildbucket."""
 
     # Buildbucket_put response must contain 'buildbucket_bucket:bucket]',

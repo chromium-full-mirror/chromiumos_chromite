@@ -13,7 +13,7 @@ class Error(Exception):
     """Base module error class."""
 
 
-class BuildTarget(object):
+class BuildTarget:
     """Class to handle the build target information."""
 
     def __init__(

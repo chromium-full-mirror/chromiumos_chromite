@@ -58,7 +58,7 @@ def collect_proc_info():
     collector.collect()
 
 
-class _ProcessMetricsCollector(object):
+class _ProcessMetricsCollector:
     """Class for collecting process metrics."""
 
     # We need to store some per process metrics of last run in order to
@@ -193,7 +193,7 @@ class _ProcessMetricsCollector(object):
         self._other_metric.flush()
 
 
-class _ProcessMetric(object):
+class _ProcessMetric:
     """Class for gathering process metrics."""
 
     def __init__(self, process_name, test_func=lambda proc: True):
@@ -276,7 +276,7 @@ class _ProcessMetric(object):
         self._io_counters = _IOCounters()
 
 
-class _CPUTimes(object):
+class _CPUTimes:
     """A container for CPU times metrics."""
 
     def __init__(self, v=None):
@@ -430,7 +430,7 @@ def _is_cmd_with_subcmd(cmd, subcmd, proc):
     return proc.name() == cmd and len(cmdline) > 1 and cmdline[1] == subcmd
 
 
-class _CPUTimes(object):
+class _CPUTimes:
     """A container for CPU times metrics."""
 
     def __init__(self, v=None):
@@ -473,7 +473,7 @@ class _CPUTimes(object):
         }
 
 
-class _IOCounters(object):
+class _IOCounters:
     """A container for I/O counter metrics."""
 
     def __init__(self, v=None):

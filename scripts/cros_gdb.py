@@ -74,7 +74,7 @@ class GdbSimpleChromeBinaryError(GdbException):
     """None or multiple chrome binaries are under out_${board} dir."""
 
 
-class BoardSpecificGdb(object):
+class BoardSpecificGdb:
     """Framework for running gdb."""
 
     _BIND_MOUNT_PATHS = ("dev", "dev/pts", "proc", "mnt/host/source", "sys")

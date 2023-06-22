@@ -42,7 +42,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import git
 
 
-class CodeSearch(object):
+class CodeSearch:
     """format returns a url to the code specified"""
 
     @classmethod

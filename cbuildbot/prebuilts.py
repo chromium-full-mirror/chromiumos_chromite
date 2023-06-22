@@ -270,7 +270,7 @@ def _UploadPrebuilts(buildroot, board, extra_args):
     commands.RunBuildScript(buildroot, cmd, chromite_cmd=True)
 
 
-class BinhostConfWriter(object):
+class BinhostConfWriter:
     """Writes *BINHOST.conf commits on master, on behalf of slaves."""
 
     # TODO(mtennant): This class represents logic spun out from

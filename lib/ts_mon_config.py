@@ -117,7 +117,7 @@ def SetupTsMonGlobalState(
         common_metric_fields: Dictionary containing the metric fields that will
             be added to all metrics.
         debug_file: If non-none, send metrics to this path instead of to PubSub.
-        task_num: (Default 0) The task_num target field of the metrics to emit.
+        task_num: The task_num target field of the metrics to emit. Default 0.
     """
     if not config:
         return TrivialContextManager()
@@ -304,7 +304,7 @@ def _SetupAndConsumeMessages(message_q, options):
     return MetricConsumer(message_q).Consume()
 
 
-class MetricConsumer(object):
+class MetricConsumer:
     """Configures ts_mon and gets metrics from a message queue.
 
     This class is meant to be used in a subprocess. It configures itself

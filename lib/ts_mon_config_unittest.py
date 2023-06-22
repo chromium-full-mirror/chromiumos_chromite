@@ -162,7 +162,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
         """Tests that the _SetupAndConsumeMessages loop catches exceptions."""
         q = Queue.Queue()
 
-        class RaisesException(object):
+        class RaisesException:
             """Class to raise an exception"""
 
             def raiseException(self, *_args, **_kwargs):

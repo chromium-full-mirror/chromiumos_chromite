@@ -54,7 +54,7 @@ def GetUploadACL(config):
     return "public-read"
 
 
-class Archive(object):
+class Archive:
     """Class to represent the archive for one builder run.
 
     An Archive object is a read-only object with attributes and methods useful

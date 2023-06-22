@@ -55,7 +55,7 @@ def WriteLock(f):
     return new_f
 
 
-class CacheReference(object):
+class CacheReference:
     """Encapsulates operations on a cache key reference.
 
     CacheReferences are returned by the DiskCache.Lookup() function.  They are
@@ -190,7 +190,7 @@ class CacheReference(object):
             self._ReadLock()
 
 
-class DiskCache(object):
+class DiskCache:
     """Locked file system cache keyed by tuples.
 
     Key entries can be files or directories.  Access to the cache is provided

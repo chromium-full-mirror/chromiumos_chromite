@@ -392,7 +392,7 @@ def MakeChangeId(unusable=False):
     return "%s%s" % (_GERRIT_CHANGE_ID_PREFIX, s)
 
 
-class PatchCache(object):
+class PatchCache:
     """Dict-like object used for tracking a group of patches.
 
     This is usable both for existence checks against given string
@@ -644,7 +644,7 @@ def GetPaladinDeps(commit_message):
     return dependencies
 
 
-class PatchQuery(object):
+class PatchQuery:
     """Store information about a patch.
 
     This stores information about a patch used to query Gerrit and/or

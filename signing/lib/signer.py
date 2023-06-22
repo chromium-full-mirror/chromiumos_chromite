@@ -38,7 +38,7 @@ class SignerOutputTemplateError(Exception):
     """Raise when there is an issue with filling a signer output template"""
 
 
-class SignerInstructionConfig(object):
+class SignerInstructionConfig:
     """Signer Configuration based on ini file.
 
     See Signer Documentation - Instruction File Format:
@@ -197,7 +197,7 @@ class SignerInstructionConfig(object):
         )
 
 
-class BaseSigner(object):
+class BaseSigner:
     """Base Signer object."""
 
     # Override the following lists to enforce key requirements

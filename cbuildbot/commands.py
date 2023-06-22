@@ -3994,7 +3994,7 @@ def SyncChrome(
     )
 
 
-class ChromeSDK(object):
+class ChromeSDK:
     """Wrapper for the 'cros chrome-sdk' command."""
 
     DEFAULT_GOMA_JOBS = "80"

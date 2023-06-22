@@ -47,7 +47,7 @@ class NoFilesError(Error):
     """When there are no files to archive."""
 
 
-class BuildTargetUnitTestResult(object):
+class BuildTargetUnitTestResult:
     """Result value object."""
 
     def __init__(

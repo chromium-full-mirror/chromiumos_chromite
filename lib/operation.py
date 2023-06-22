@@ -36,11 +36,11 @@ STDERR_FILE = "stderr"
 _TerminalSize = collections.namedtuple("_TerminalSize", ("lines", "columns"))
 
 
-class _BackgroundTaskComplete(object):
+class _BackgroundTaskComplete:
     """Sentinel object to indicate that the background task is complete."""
 
 
-class ProgressBarOperation(object):
+class ProgressBarOperation:
     """Wrapper around long running functions to show progress.
 
     This class is intended to capture the output of a long running function,
@@ -307,7 +307,7 @@ class ParallelEmergeOperation(ProgressBarOperation):
 # TODO(sjg): Handle stdin wait in quite mode, rather than silently stalling
 
 
-class Operation(object):
+class Operation:
     """Class which controls stdio and progress of an operation in progress.
 
     This class is created to handle stdio for a running subprocess. It filters

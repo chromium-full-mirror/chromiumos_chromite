@@ -298,7 +298,7 @@ def SymlinkFile(target, link):
         os.rename(link_name, link)
 
 
-class LockDict(object):
+class LockDict:
     """A dictionary of locks.
 
     This class provides a thread-safe store of threading.Lock objects, which can

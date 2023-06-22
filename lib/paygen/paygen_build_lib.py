@@ -406,7 +406,7 @@ class PayloadTest(utils.RestrictedAttrDict):
         )
 
 
-class PaygenBuild(object):
+class PaygenBuild:
     """This class is responsible for generating the payloads for a given build.
 
     It operates across a single build at a time, and is responsible for locking

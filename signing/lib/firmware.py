@@ -300,7 +300,7 @@ class ShellballRepackError(ShellballError):
     """Raised when repacking fails."""
 
 
-class Shellball(object):
+class Shellball:
     """Firmware shellball image created from pack_firmware.
 
     Can be called as a Context Manager which will extract itself to a temp

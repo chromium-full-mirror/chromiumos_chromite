@@ -70,7 +70,7 @@ def test_command_decorator(command_name):
     return Decorator
 
 
-class CommandVMTest(object):
+class CommandVMTest:
     """Base class for CLI command VM tests.
 
     This class provides the abstract interface for testing CLI commands on a VM.

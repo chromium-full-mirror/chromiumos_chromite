@@ -8,7 +8,7 @@ from chromite.third_party.google.protobuf import json_format
 from chromite.third_party.google.protobuf import text_format
 
 
-class Encoding(object):
+class Encoding:
     """Encoding enum-ish class."""
 
     BINARY = (0, "application/prpc; encoding=binary")

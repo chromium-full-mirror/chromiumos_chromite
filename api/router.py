@@ -93,7 +93,7 @@ class MethodNotFoundError(Error):
     """The method's implementation cannot be found in the controller."""
 
 
-class Router(object):
+class Router:
     """Encapsulates the request dispatching logic."""
 
     REEXEC_INPUT_FILE = "input_proto"

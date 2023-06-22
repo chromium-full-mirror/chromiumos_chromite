@@ -110,7 +110,7 @@ def GetValueInJsonFile(json_path: str, key: str, default_value=None):
         return json.load(fd).get(key, default_value)
 
 
-class EbuildParams(object):
+class EbuildParams:
     """Object to store and retrieve DLC ebuild parameters.
 
     Attributes:
@@ -275,7 +275,7 @@ class EbuildParams(object):
 # TODO(yuanpengni): Create a utility to use the metadata library from dlcservice
 # so that the implementation of DLC metadata creation and on-device modification
 # is in sync.
-class DlcMetadata(object):
+class DlcMetadata:
     """The class to create and read DLC metadata.
 
     The DLC metadata consists of metadata files. The metadata file contains
@@ -490,7 +490,7 @@ class DlcMetadata(object):
         ]
 
 
-class DlcGenerator(object):
+class DlcGenerator:
     """Object to generate DLC artifacts."""
 
     # Block size for the DLC image.

@@ -39,7 +39,7 @@ def BranchFilter(branch, patch):
     return patch.tracking_branch == branch
 
 
-class TrybotPatchPool(object):
+class TrybotPatchPool:
     """Represents patches specified by the user to test."""
 
     def __init__(self, gerrit_patches=(), local_patches=(), remote_patches=()):

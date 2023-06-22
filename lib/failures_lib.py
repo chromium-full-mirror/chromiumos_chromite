@@ -254,7 +254,7 @@ class ExitEarlyException(Exception):
 EXCEPTIONS_TO_EXCLUDE = (ExitEarlyException,)
 
 
-class SetFailureType(object):
+class SetFailureType:
     """A wrapper to re-raise the exception as the pre-set type."""
 
     def __init__(

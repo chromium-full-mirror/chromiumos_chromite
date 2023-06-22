@@ -109,7 +109,7 @@ def ClearBuildRoot(buildroot, preserve_paths=()):
     osutils.SafeMakedirs(buildroot)
 
 
-class RepoRepository(object):
+class RepoRepository:
     """A Class that encapsulates a repo repository."""
 
     def __init__(

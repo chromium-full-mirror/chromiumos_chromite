@@ -12,7 +12,7 @@ from chromite.lib import cros_build_lib
 from chromite.utils import file_util
 
 
-class Table(object):
+class Table:
     """Class to represent column headers and rows of data."""
 
     __slots__ = (

@@ -102,7 +102,7 @@ class UpdateChrootError(Error):
     """Error occurred when running update chroot."""
 
 
-class SetupBoardRunConfig(object):
+class SetupBoardRunConfig:
     """Value object for full setup board run configurations."""
 
     def __init__(
@@ -179,7 +179,7 @@ class SetupBoardRunConfig(object):
         return args
 
 
-class BuildPackagesRunConfig(object):
+class BuildPackagesRunConfig:
     """Value object to hold build packages run configs."""
 
     def __init__(

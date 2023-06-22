@@ -24,7 +24,7 @@ class Error(Exception):
     """Base exception class of StatefulUpdater errors."""
 
 
-class StatefulUpdater(object):
+class StatefulUpdater:
     """The module for updating the stateful partition."""
 
     UPDATE_TYPE_STANDARD = "standard"

@@ -28,7 +28,7 @@ from chromite.lib import sysroot_lib
 from chromite.service import artifacts as artifacts_svc
 
 
-class BundleRequestMixin(object):
+class BundleRequestMixin:
     """Mixin to provide bundle request methods."""
 
     def EmptyRequest(self):

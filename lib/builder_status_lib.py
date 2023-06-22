@@ -86,7 +86,7 @@ def GetSlavesAbortedBySelfDestructedMaster(master_build_identifier, buildstore):
     return set(b["build_config"] for b in build_statuses)
 
 
-class BuilderStatus(object):
+class BuilderStatus:
     """Object representing the status of a build."""
 
     def __init__(self, status, message, dashboard_url=None):
@@ -169,7 +169,7 @@ class BuilderStatus(object):
         )
 
 
-class BuilderStatusManager(object):
+class BuilderStatusManager:
     """Operations to manage BuilderStatus."""
 
     @classmethod
@@ -259,7 +259,7 @@ class BuilderStatusManager(object):
         )
 
 
-class SlaveBuilderStatus(object):
+class SlaveBuilderStatus:
     """Operations to manage slave BuilderStatus.
 
     This class fetches slave statuses and slave failures from Buildbucket and
@@ -622,7 +622,7 @@ class SlaveBuilderStatus(object):
         return all_cidb_status_dict
 
 
-class BuilderStatusesFetcher(object):
+class BuilderStatusesFetcher:
     """Class to fetch BuilderStatus of a build and its slave builds(if any)."""
 
     def __init__(

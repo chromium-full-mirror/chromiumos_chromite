@@ -233,7 +233,7 @@ def SignUefiBinaries(image, rootfs_dir, keyset, vboot_path=None):
     logging.info("Signed UEFI binaries.")
 
 
-class CalculateRootfsHash(object):
+class CalculateRootfsHash:
     """Hash info, and other facts about it, suitable for comparison or copying.
 
     Instantiating this class causes it to calculate a new DmConfig and

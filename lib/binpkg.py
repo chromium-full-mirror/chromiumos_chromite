@@ -39,7 +39,7 @@ HTTP_NOT_FOUND_CODES = (404, 410)
 _Package = collections.namedtuple("_Package", ["mtime", "uri", "debug_symbols"])
 
 
-class PackageIndex(object):
+class PackageIndex:
     """A parser for the Portage Packages index file.
 
     The Portage Packages index file serves to keep track of what packages are
@@ -334,7 +334,7 @@ class PackageIndex(object):
             self.modified = False
 
 
-class PackageIndexInfo(object):
+class PackageIndexInfo:
     """A parser for PackageIndex metadata.
 
     Attributes:

@@ -47,7 +47,7 @@ class NextAction(enum.Enum):
     RESET = enum.auto()
 
 
-class BuildPackagesProcessor(object):
+class BuildPackagesProcessor:
     """Manages the state of the status summary and its output."""
 
     _EMERGING = (

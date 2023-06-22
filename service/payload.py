@@ -28,7 +28,7 @@ class ImageMismatchError(Error):
     """An error raised when src and tgt aren't compatible."""
 
 
-class PayloadConfig(object):
+class PayloadConfig:
     """Value object to hold the GeneratePayload configuration options."""
 
     def __init__(

@@ -144,7 +144,7 @@ class FlashError(Exception):
     """Thrown when there is an unrecoverable error during flash."""
 
 
-class USBImager(object):
+class USBImager:
     """Copy image to the target removable device."""
 
     def __init__(self, device, board, image, version, debug=False, yes=False):

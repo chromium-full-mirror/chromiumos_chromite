@@ -270,7 +270,7 @@ def RemoveKnownHost(host, known_hosts_path=KNOWN_HOSTS_PATH):
         shutil.copy2(temp_file, known_hosts_path)
 
 
-class PortForwardSpec(object):
+class PortForwardSpec:
     """Represent the information required to define an SSH tunnel."""
 
     def __init__(
@@ -304,7 +304,7 @@ class PortForwardSpec(object):
         )
 
 
-class RemoteAccess(object):
+class RemoteAccess:
     """Provides access to a remote test machine."""
 
     DEFAULT_USERNAME = ROOT_ACCOUNT
@@ -819,7 +819,7 @@ class RemoteAccess(object):
         )
 
 
-class RemoteDeviceHandler(object):
+class RemoteDeviceHandler:
     """A wrapper of RemoteDevice."""
 
     def __init__(self, *args, **kwargs):
@@ -835,7 +835,7 @@ class RemoteDeviceHandler(object):
         self.device.Cleanup()
 
 
-class ChromiumOSDeviceHandler(object):
+class ChromiumOSDeviceHandler:
     """A wrapper of ChromiumOSDevice."""
 
     def __init__(self, *args, **kwargs):
@@ -851,7 +851,7 @@ class ChromiumOSDeviceHandler(object):
         self.device.Cleanup()
 
 
-class RemoteDevice(object):
+class RemoteDevice:
     """Handling basic SSH communication with a remote device."""
 
     DEFAULT_BASE_DIR = "/tmp/remote-access"

@@ -130,7 +130,7 @@ def IsTarball(path):
     return parts[-1] in ("tbz2", "tbz", "tgz", "txz")
 
 
-class SymbolFile(object):
+class SymbolFile:
     """This class represents the state of a symbol file during processing.
 
     Attributes:

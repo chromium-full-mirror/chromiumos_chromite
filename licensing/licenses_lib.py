@@ -301,7 +301,7 @@ class PackageCorrectnessError(Exception):
     """
 
 
-class PackageInfo(object):
+class PackageInfo:
     """Package specific information, mostly about licenses."""
 
     def __init__(self, sysroot, fullnamerev):
@@ -1040,7 +1040,7 @@ def _CheckForKnownBadLicenses(cpf, licenses):
             )
 
 
-class Licensing(object):
+class Licensing:
     """Do the actual work of extracting licensing info and outputting html."""
 
     def __init__(

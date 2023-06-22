@@ -20,7 +20,7 @@ BUILD_START_TIMEOUT_MIN = 60
 # TODO(nxia): Rename this module to slave_status, since this module is for
 # a master build which has slave builds and there is builder_status_lib for
 # managing the status of an indivudual build.
-class SlaveStatus(object):
+class SlaveStatus:
     """Keep track of statuses of all slaves from CIDB and Buildbucket(optional).
 
     For the master build scheduling slave builds through Buildbucket, it will

@@ -69,7 +69,7 @@ def AssertSiteIndependentParameters(site_config):
     return all(x in site_params for x in site_independent_params)
 
 
-class _CustomObject(object):
+class _CustomObject:
     """Simple object. For testing deepcopy."""
 
     def __init__(self, x):
@@ -79,7 +79,7 @@ class _CustomObject(object):
         return self.x == other.x
 
 
-class _CustomObjectWithSlots(object):
+class _CustomObjectWithSlots:
     """Simple object with slots. For testing deepcopy."""
 
     __slots__ = ["x"]

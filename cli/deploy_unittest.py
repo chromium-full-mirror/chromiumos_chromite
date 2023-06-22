@@ -44,7 +44,7 @@ DLC_LOADPIN_DIGEST = (
 )
 
 
-class ChromiumOSDeviceFake(object):
+class ChromiumOSDeviceFake:
     """Fake for device."""
 
     def __init__(self):
@@ -80,10 +80,10 @@ class ChromiumOSDeviceFake(object):
         return self.cat_file_output
 
 
-class ChromiumOSDeviceHandlerFake(object):
+class ChromiumOSDeviceHandlerFake:
     """Fake for chromite.lib.remote_access.ChomiumOSDeviceHandler."""
 
-    class RemoteAccessFake(object):
+    class RemoteAccessFake:
         """Fake for chromite.lib.remote_access.RemoteAccess."""
 
         def __init__(self):
@@ -119,7 +119,7 @@ class BrilloDeployOperationFake(deploy.BrilloDeployOperation):
         self._queue.put("advance")
 
 
-class DbApiFake(object):
+class DbApiFake:
     """Fake for Portage dbapi."""
 
     def __init__(self, pkgs):
@@ -140,7 +140,7 @@ class DbApiFake(object):
         return [pkg_info[key] for key in keys]
 
 
-class PackageScannerFake(object):
+class PackageScannerFake:
     """Fake for PackageScanner."""
 
     def __init__(self, packages, pkgs_attrs, packages_cpvs=None):
@@ -161,7 +161,7 @@ class PackageScannerFake(object):
         )
 
 
-class PortageTreeFake(object):
+class PortageTreeFake:
     """Fake for Portage tree."""
 
     def __init__(self, dbapi):

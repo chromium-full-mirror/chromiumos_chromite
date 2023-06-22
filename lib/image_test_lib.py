@@ -23,7 +23,7 @@ def IsPerfFile(file_name):
     return file_name.endswith(PERF_EXTENSION)
 
 
-class _BoardAndDirectoryMixin(object):
+class _BoardAndDirectoryMixin:
     """A mixin to hold image test's specific info."""
 
     _board = None

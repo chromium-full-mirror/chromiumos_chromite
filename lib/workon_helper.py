@@ -194,7 +194,7 @@ def ListAllWorkedOnAtoms(src_root=constants.CHROOT_SOURCE_ROOT):
     return system_to_atoms
 
 
-class WorkonHelper(object):
+class WorkonHelper:
     """Delegate that knows how to mark packages as being worked on locally.
 
     This class assumes that we're executing in the build root.

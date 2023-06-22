@@ -135,7 +135,7 @@ DeviceInfo = collections.namedtuple(
 )
 
 
-class DeployChrome(object):
+class DeployChrome:
     """Wraps the core deployment functionality."""
 
     def __init__(self, options, tempdir, staging_dir):

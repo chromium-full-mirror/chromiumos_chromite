@@ -12,7 +12,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 
 
-class Remoteexec(object):
+class Remoteexec:
     """Interface to use remoteexec on bots."""
 
     def __init__(

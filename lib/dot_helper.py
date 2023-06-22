@@ -8,7 +8,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 
 
-class Subgraph(object):
+class Subgraph:
     """A subgraph in dot. Contains nodes, arcs, and other subgraphs."""
 
     _valid_ranks = {"source", "sink", "same", "min", "max", None}

@@ -48,7 +48,7 @@ GCONV_SYMBOLS = (
 )
 
 
-class GconvModules(object):
+class GconvModules:
     """Class to manipulate the gconv/gconv-modules file and referenced modules.
 
     This class parses the contents of the gconv-modules file installed by glibc

@@ -600,7 +600,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
     # Any valid board-specific attribute will work here.
     BATTR = "breakpad_symbols_generated"
 
-    class _SetAttr(object):
+    class _SetAttr:
         """Stage-like class to set attr on a BoardRunAttributes obj."""
 
         def __init__(self, bra, attr, value, delay=1):
@@ -614,7 +614,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
                 time.sleep(self.delay)
             self.bra.SetParallel(self.attr, self.value)
 
-    class _WaitForAttr(object):
+    class _WaitForAttr:
         """Stage-like class to wait for attr on BoardRunAttributes obj."""
 
         def __init__(self, bra, attr, expected_value, timeout=10):

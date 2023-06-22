@@ -12,7 +12,7 @@ class ObjectFactoryIllegalOperation(Exception):
 _NO_SINGLETON_INSTANCE = object()
 
 
-class ObjectFactory(object):
+class ObjectFactory:
     """Abstract object factory, used for injection of external dependencies.
 
     A call to Setup(...) is necessary before a call to GetInstance().

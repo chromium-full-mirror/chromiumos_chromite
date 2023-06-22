@@ -38,7 +38,7 @@ from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
 
 
-class ModificationTimeMonitor(object):
+class ModificationTimeMonitor:
     """Base class for monitoring last modification time of paths.
 
     This takes a list of (keys, path) pairs and finds the latest mtime of an
@@ -84,7 +84,7 @@ class ModificationTimeMonitor(object):
             return mtimes
 
 
-class WorkonPackageInfo(object):
+class WorkonPackageInfo:
     """Class for getting information about workon packages.
 
     Attributes:

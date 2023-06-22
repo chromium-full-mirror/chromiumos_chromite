@@ -30,7 +30,7 @@ class ChrootError(Error):
     """An exception raised when something went wrong with a chroot object."""
 
 
-class Chroot(object):
+class Chroot:
     """Chroot class."""
 
     def __init__(

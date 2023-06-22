@@ -16,7 +16,7 @@ DEFAULT_PACKAGE_BUILD_FAILURE_EXTRA_INFO = (
 )
 
 
-class StageFailureHelper(object):
+class StageFailureHelper:
     """Helper method to create StageFailure instances for test."""
 
     @classmethod
@@ -120,7 +120,7 @@ class StageFailureTests(cros_test_lib.TestCase):
         )
 
 
-class FailureMessageHelper(object):
+class FailureMessageHelper:
     """Helper class to help create stage failure message instances for test."""
 
     @classmethod

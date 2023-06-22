@@ -110,7 +110,7 @@ class UnsupportedServoVersionError(Error):
     """Unsupported servo version error (e.g. some servos do not support CCD)."""
 
 
-class Servo(object):
+class Servo:
     """Data class for servos."""
 
     def __init__(self, servo_type, serial):

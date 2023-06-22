@@ -30,7 +30,7 @@ class VersionOverflowError(SignerKeyError):
     """Raise if incrementing a version would overflow 16 bits"""
 
 
-class KeyPair(object):
+class KeyPair:
     """Container for a key's files.
 
     A KeyPair contains the information about a particular public/private pair of
@@ -182,7 +182,7 @@ class KeyPair(object):
             raise SignerKeyError("Unable to get sha1sum for %s" % self.public)
 
 
-class KeyVersions(object):
+class KeyVersions:
     """Manage key.versions file
 
     Attributes:
@@ -288,7 +288,7 @@ class KeyVersions(object):
         self.saved = True
 
 
-class Keyset(object):
+class Keyset:
     """Store signer keys and keyblocks (think keychain).
 
     A Keyset is the collection of KeyPairs needed to work with a specific Build

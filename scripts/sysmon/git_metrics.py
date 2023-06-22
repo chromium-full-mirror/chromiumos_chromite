@@ -16,7 +16,7 @@ from chromite.lib import metrics
 logger = logging.getLogger(__name__)
 
 
-class _GitRepo(object):
+class _GitRepo:
     """Helper class for running git commands."""
 
     def __init__(self, gitdir):
@@ -56,7 +56,7 @@ class _GitRepo(object):
         return added_total, deleted_total
 
 
-class _GitMetricCollector(object):
+class _GitMetricCollector:
     """Class for collecting metrics about a git repository.
 
     The constructor takes the arguments: `gitdir`, `metric_path`.

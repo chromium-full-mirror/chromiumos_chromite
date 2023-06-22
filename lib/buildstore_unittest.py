@@ -71,7 +71,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
     def testInitializeClientsWithCIDBSetup(self):
         """Tests InitializeClients with mock CIDB."""
 
-        class StubCIDBConnection(object):
+        class StubCIDBConnection:
             """Stub class representing CIDBConnection."""
 
         # With CIDB setup, cidb_conn is populated.

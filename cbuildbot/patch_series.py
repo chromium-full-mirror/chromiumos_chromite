@@ -127,7 +127,7 @@ def _FetchChangesForRepo(fetched_changes, by_repo, repo):
         fetched_changes[change.id] = change
 
 
-class HelperPool(object):
+class HelperPool:
     """Pool of allowed GerritHelpers to be used by CQ/PatchSeries."""
 
     def __init__(self, cros_internal=None, cros=None):
@@ -193,7 +193,7 @@ class HelperPool(object):
                 yield helper
 
 
-class _ManifestShim(object):
+class _ManifestShim:
     """A fake manifest that only contains a single repository.
 
     This fake manifest is used to allow us to filter out patches for
@@ -228,7 +228,7 @@ class _ManifestShim(object):
         return [self.checkout]
 
 
-class PatchSeries(object):
+class PatchSeries:
     """Class representing a set of patches applied to a repo checkout."""
 
     def __init__(

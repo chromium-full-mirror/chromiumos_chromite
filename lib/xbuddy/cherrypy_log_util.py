@@ -15,7 +15,7 @@ except ImportError:
     cherrypy = None
 
 
-class Loggable(object):
+class Loggable:
     """Provides a log method, with automatic log tag generation."""
 
     _CAMELCASE_RE = re.compile("(?<=.)([A-Z])")

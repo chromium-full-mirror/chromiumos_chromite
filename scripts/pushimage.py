@@ -64,7 +64,7 @@ class MissingBoardInstructions(Exception):
         )
 
 
-class InputInsns(object):
+class InputInsns:
     """Object to hold settings for a signable board.
 
     Note: The format of the instruction file pushimage outputs (and the signer
@@ -328,9 +328,9 @@ def PushImage(
         dest_bucket: Bucket to push results to.
 
     Returns:
-      A dictionary that maps 'channel' -> ['gs://signer_instruction_uri1',
-                                           'gs://signer_instruction_uri2',
-                                           ...]
+        A dictionary that maps 'channel' -> ['gs://signer_instruction_uri1',
+                                            'gs://signer_instruction_uri2',
+                                            ...]
     """
     # Whether we hit an unknown error.  If so, we'll throw an error, but only
     # at the end (so that we still upload as many files as possible).

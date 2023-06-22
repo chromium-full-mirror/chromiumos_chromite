@@ -16,7 +16,7 @@ import tempfile
 from chromite.lib import osutils
 
 
-class Qemu(object):
+class Qemu:
     """Framework for running tests via qemu"""
 
     # The binfmt register format looks like:

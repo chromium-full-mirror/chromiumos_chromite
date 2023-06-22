@@ -74,7 +74,7 @@ _PREBUILT_MAKE_CONF = {
 }
 
 
-class BuildTarget(object):
+class BuildTarget:
     """A board/variant/profile tuple."""
 
     def __init__(self, board_variant, profile=None):
@@ -298,7 +298,7 @@ def _GrabAllRemotePackageIndexes(binhost_urls):
     return pkg_indexes
 
 
-class PrebuiltUploader(object):
+class PrebuiltUploader:
     """Synchronize host and board prebuilts."""
 
     def __init__(

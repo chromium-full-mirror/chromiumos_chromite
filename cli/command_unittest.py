@@ -47,7 +47,7 @@ class TestCommandTest(cros_test_lib.MockTestCase):
         try:
             # pylint: disable=unused-variable
             @command.command_decorator("bad")
-            class BadTestCommand(object):
+            class BadTestCommand:
                 """A command that wasn't implemented correctly."""
 
         except command.InvalidCommandError:

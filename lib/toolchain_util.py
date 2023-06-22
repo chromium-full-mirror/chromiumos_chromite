@@ -27,7 +27,7 @@ from chromite.lib.parser import package_info
 from chromite.utils import pformat
 
 
-class PrepareForBuildReturn(object):
+class PrepareForBuildReturn:
     """Return values for PrepareForBuild call."""
 
     UNSPECIFIED = 0
@@ -474,7 +474,7 @@ def _WarnDetectiveAboutKernelProfileExpiration(
 _EbuildInfo = collections.namedtuple("_EbuildInfo", ["path", "CPV"])
 
 
-class _CommonPrepareBundle(object):
+class _CommonPrepareBundle:
     """Information about Ebuild files we care about."""
 
     def __init__(
@@ -2551,7 +2551,7 @@ def BundleArtifacts(
     ).Bundle()
 
 
-class GetUpdatedFilesHandler(object):
+class GetUpdatedFilesHandler:
     """Find all changed files in the checkout and create a commit message."""
 
     @staticmethod

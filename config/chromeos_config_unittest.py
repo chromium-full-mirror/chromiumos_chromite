@@ -214,7 +214,7 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
             AtMostNumConfigs(b, "internal", internal, 1)
 
 
-class UnifiedBuildConfigTestCase(object):
+class UnifiedBuildConfigTestCase:
     """Base test class that builds a fake unibuild config model."""
 
     def setUp(self):

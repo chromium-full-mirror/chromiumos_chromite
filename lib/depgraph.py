@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 PackageCollection = Union[Collection[str], Collection[package_info.PackageInfo]]
 
 
-class DepGraphGenerator(object):
+class DepGraphGenerator:
     """Grab dependency information about packages from portage.
 
     Typical usage:
@@ -788,7 +788,7 @@ class DepGraphGenerator(object):
         self.emerge.depgraph.display(install_plan)
 
 
-class EmergeData(object):
+class EmergeData:
     """This simple struct holds various emerge variables.
 
     This struct helps us easily pass emerge variables around as a unit.

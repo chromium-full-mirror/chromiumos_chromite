@@ -180,7 +180,7 @@ class Span(collections.abc.Mapping):
         return ((key, self[key]) for key in self.keys())
 
 
-class SpanStack(object):
+class SpanStack:
     """A stack of Span contexts."""
 
     CLOUD_TRACE_CONTEXT_ENV = "CLOUD_TRACE_CONTEXT"

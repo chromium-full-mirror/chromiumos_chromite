@@ -11,7 +11,7 @@ from chromite.lib import constants
 from chromite.utils import pformat
 
 
-class BuildSummary(object):
+class BuildSummary:
     """Summarizes a build state without any external references.
 
     This is basically a dictionary that can convert itself back and forth from

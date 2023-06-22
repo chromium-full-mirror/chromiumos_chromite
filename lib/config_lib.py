@@ -351,7 +351,7 @@ class BuildConfig(AttrDict):
         self.slave_configs.sort()
 
 
-class VMTestConfig(object):
+class VMTestConfig:
     """Config object for virtual machine tests suites.
 
     Attributes:
@@ -391,7 +391,7 @@ class VMTestConfig(object):
         return self.__dict__ == other.__dict__
 
 
-class GCETestConfig(object):
+class GCETestConfig:
     """Config object for GCE tests suites.
 
     Attributes:
@@ -421,7 +421,7 @@ class GCETestConfig(object):
         return self.__dict__ == other.__dict__
 
 
-class TastVMTestConfig(object):
+class TastVMTestConfig:
     """Config object for a Tast virtual-machine-based test suite.
 
     Attributes:
@@ -449,7 +449,7 @@ class TastVMTestConfig(object):
         return self.__dict__ == other.__dict__
 
 
-class MoblabVMTestConfig(object):
+class MoblabVMTestConfig:
     """Config object for moblab tests suites.
 
     Attributes:
@@ -469,7 +469,7 @@ class MoblabVMTestConfig(object):
         return self.__dict__ == other.__dict__
 
 
-class ModelTestConfig(object):
+class ModelTestConfig:
     """Model specific config that controls which test suites are executed.
 
     Attributes:
@@ -491,7 +491,7 @@ class ModelTestConfig(object):
         return self.__dict__ == other.__dict__
 
 
-class HWTestConfig(object):
+class HWTestConfig:
     """Config object for hardware tests suites.
 
     Attributes:
@@ -649,7 +649,7 @@ class HWTestConfig(object):
         return self.__dict__ == other.__dict__
 
 
-class NotificationConfig(object):
+class NotificationConfig:
     """Config object for defining notification settings.
 
     Attributes:
@@ -1725,7 +1725,7 @@ def GetUnifiedBuildConfigAllBuilds(ge_build_config):
     return ge_build_config.get("reference_board_unified_builds", [])
 
 
-class BoardGroup(object):
+class BoardGroup:
     """Class holds leader_boards and follower_boards for grouped boards"""
 
     def __init__(self):

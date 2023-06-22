@@ -89,7 +89,7 @@ class PylintrcConfigTest(cros_test_lib.TempDirTestCase):
         self.assertEqual("FOO", cfg.option_value("foo"))
 
 
-class TestNode(object):
+class TestNode:
     """Object good enough to stand in for lint funcs"""
 
     Args = collections.namedtuple(
@@ -137,7 +137,7 @@ class TestNode(object):
         return self._display_type
 
 
-class StatStub(object):
+class StatStub:
     """Stub object to stand in for stat checks."""
 
     def __init__(self, size=0, mode=0o644):

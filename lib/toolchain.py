@@ -188,7 +188,7 @@ def InstallToolchain(sysroot, toolchain=None, force=False, configure=True):
         installer.Install(sysroot, board_chost=toolchain)
 
 
-class ToolchainInstaller(object):
+class ToolchainInstaller:
     """Sysroot toolchain installer.
 
     This class installs the toolchain into the given sysroots.
@@ -411,7 +411,7 @@ class ToolchainInstaller(object):
             osutils.WriteFile(pkg_provided, content, makedirs=True, sudo=True)
 
 
-class ToolchainInfo(object):
+class ToolchainInfo:
     """Class to manage some of the toolchain related information."""
 
     # Package reference names.

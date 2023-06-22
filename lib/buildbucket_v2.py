@@ -447,7 +447,7 @@ def GetBotId(build):
     return bot_id
 
 
-class BuildbucketV2(object):
+class BuildbucketV2:
     """Connection to Buildbucket V2 database."""
 
     def __init__(

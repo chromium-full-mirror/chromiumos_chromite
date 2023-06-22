@@ -115,7 +115,7 @@ class BrilloDeployOperation(operation.ProgressBarOperation):
         self.ProgressBar(self._completed / self._total)
 
 
-class _InstallPackageScanner(object):
+class _InstallPackageScanner:
     """Finds packages that need to be installed on a target device.
 
     Scans the sysroot bintree, beginning with a user-provided list of packages,
@@ -135,7 +135,7 @@ class _InstallPackageScanner(object):
     class BintreeError(Exception):
         """An error in the processing of the source binpkgs tree."""
 
-    class PkgInfo(object):
+    class PkgInfo:
         """A record containing package information."""
 
         __slots__ = (

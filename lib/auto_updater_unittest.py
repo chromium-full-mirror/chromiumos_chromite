@@ -372,7 +372,7 @@ class ChromiumOSUpdaterRunTest(ChromiumOSUpdaterBaseTest):
         the transfer_class argument.
         """
 
-        class NotATransferSubclass(object):
+        class NotATransferSubclass:
             """Stub class for testing ChromiumOSUpdater.CreateTransferObject."""
 
         with remote_access.ChromiumOSDeviceHandler(

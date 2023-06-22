@@ -42,7 +42,7 @@ class LockNotAcquired(Exception):
     """Raised when the lock is already held by another process."""
 
 
-class Lock(object):
+class Lock:
     """This class manages a google storage file as a form of lock.
 
     This class can be used in conjunction with a "with" clause to ensure

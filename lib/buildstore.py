@@ -22,7 +22,7 @@ class BuildStoreException(Exception):
     """General exception class for this module."""
 
 
-class BuildIdentifier(object):
+class BuildIdentifier:
     """The class maintains all the IDs corresponding to a build."""
 
     def __init__(self, cidb_id=None, buildbucket_id=None):
@@ -36,7 +36,7 @@ class BuildIdentifier(object):
         self.buildbucket_id = buildbucket_id
 
 
-class BuildStore(object):
+class BuildStore:
     """BuildStore class to handle all DB calls."""
 
     NUM_RESULTS_NO_LIMIT = 1000
@@ -676,7 +676,7 @@ class BuildStore(object):
 
 
 # pylint: disable=unused-argument
-class FakeBuildStore(object):
+class FakeBuildStore:
     """Fake BuildStore class to be used only in unittests."""
 
     def __init__(self, fake_cidb_conn=None):

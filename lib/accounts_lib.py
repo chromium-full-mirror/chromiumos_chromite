@@ -50,7 +50,7 @@ Group = collections.namedtuple(
 )
 
 
-class AccountDatabase(object):
+class AccountDatabase:
     """Parses, validates, and combines account databases from overlays."""
 
     def __init__(self):

@@ -15,7 +15,7 @@ class UnknownCallTypeEnumValue(Error):
     """Thrown when the call type enum value in proto is not configured here."""
 
 
-class ApiConfig(object):
+class ApiConfig:
     """API Config class."""
 
     # Call type constants.
@@ -133,7 +133,7 @@ def build_config_from_proto(
     )
 
 
-class ApiConfigMixin(object):
+class ApiConfigMixin:
     """Mixin to add an API Config factory properties.
 
     This is meant to be used for tests to make these configs more uniform across

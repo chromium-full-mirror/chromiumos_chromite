@@ -45,7 +45,7 @@ class DuplicatePackageError(Error):
     """Error indicating that duplicate packages were found in a summary.log"""
 
 
-class SummaryLog(object):
+class SummaryLog:
     """Parsed contents of a summary.log file"""
 
     def __init__(self, log_contents):
@@ -76,7 +76,7 @@ class SummaryLog(object):
         return _parse_summary_log_from_lines_iterator(string.splitlines(True))
 
 
-class PackageLog(object):
+class PackageLog:
     """Parsed contents of a single package's entry from a summary.log"""
 
     def __init__(self, cpv, log_mapping):

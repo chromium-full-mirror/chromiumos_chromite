@@ -46,7 +46,7 @@ _ESCAPED_GREETING = "hello world\\x80"
 _SKIP_FLAKY_TESTS = True
 
 
-class FakeMultiprocessManager(object):
+class FakeMultiprocessManager:
     """A fake implementation of the multiprocess manager.
 
     This is only intended for use with ParallelMock.

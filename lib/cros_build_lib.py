@@ -1658,7 +1658,7 @@ def BooleanShellValue(sval, default, msg=None):
 
 
 # Suppress whacked complaints about abstract class being unused.
-class PrimaryPidContextManager(object):
+class PrimaryPidContextManager:
     """Allow context managers to restrict their exit to within the same PID."""
 
     # In certain cases we actually want this ran outside

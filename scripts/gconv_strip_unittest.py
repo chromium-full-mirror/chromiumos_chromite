@@ -59,7 +59,7 @@ module charset_foo   charset_A     USED_MODULE
         )
         self.PatchObject(gconv_strip.lddtree, "ParseELF", return_value={})
 
-        class _StubStat(object):
+        class _StubStat:
             """Fake for lstat."""
 
             st_size = 0

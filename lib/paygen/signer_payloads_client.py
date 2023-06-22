@@ -30,7 +30,7 @@ DELAY_CHECKING_FOR_SIGNER_RESULTS_SECONDS = 10
 SIGNER_PRIORITY = 45
 
 
-class SignerPayloadsClientGoogleStorage(object):
+class SignerPayloadsClientGoogleStorage:
     """Implements the Google Storage signer interface for payloads."""
 
     def __init__(

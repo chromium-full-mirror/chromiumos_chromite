@@ -19,7 +19,7 @@ class DeviceError(Exception):
     """Exception for Device failures."""
 
 
-class Device(object):
+class Device:
     """Class for managing a test device."""
 
     SSH_CONNECT_TIMEOUT = 30

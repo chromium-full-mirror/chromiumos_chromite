@@ -127,7 +127,7 @@ class NoAndroidVersionError(Exception):
     """For when Android version cannot be determined."""
 
 
-class LockableQueue(object):
+class LockableQueue:
     """Multiprocessing queue with associated recursive lock.
 
     Objects of this class function just like a regular multiprocessing Queue,
@@ -149,7 +149,7 @@ class LockableQueue(object):
         return getattr(self._queue, attr)
 
 
-class RunAttributes(object):
+class RunAttributes:
     """Hold all run attributes for a particular builder run.
 
     There are two supported flavors of run attributes: REGULAR attributes are
@@ -509,7 +509,7 @@ class RunAttributes(object):
                     raise AttrTimeoutError(attr)
 
 
-class BoardRunAttributes(object):
+class BoardRunAttributes:
     """Convenience class for accessing board-specific run attributes.
 
     Board-specific run attributes (actually board/target-specific) are saved in
@@ -590,7 +590,7 @@ class BoardRunAttributes(object):
 
 # TODO(mtennant): Consider renaming this _BuilderRunState, then renaming
 # _RealBuilderRun to _BuilderRunBase.
-class _BuilderRunBase(object):
+class _BuilderRunBase:
     """Class to represent one run of a builder.
 
     This class should never be instantiated directly, but instead be
@@ -993,7 +993,7 @@ class _BuilderRunBase(object):
         return pkg_info.version.partition("_")[0]
 
 
-class _RealBuilderRun(object):
+class _RealBuilderRun:
     """Base BuilderRun class that manages self.config access.
 
     For any builder run, sometimes the build config is the top-level config and

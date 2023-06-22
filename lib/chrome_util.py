@@ -56,7 +56,7 @@ def ProcessVersionFile(src_dir):
     return _NameValueListToDict(version_contents)
 
 
-class Conditions(object):
+class Conditions:
     """Functions that return conditions used to construct Path objects.
 
     Condition functions returned by the public methods have signature
@@ -113,7 +113,7 @@ class GnIsolateMapFileError(failures_lib.StepFailure):
     """Failed to parse gn isolate map file."""
 
 
-class Copier(object):
+class Copier:
     """File/directory copier.
 
     Provides destination stripping and permission setting functionality.
@@ -264,7 +264,7 @@ class Copier(object):
         return copied_paths
 
 
-class Path(object):
+class Path:
     """Represents an artifact to be copied from build dir to staging dir."""
 
     DEFAULT_IGNORELIST = (r"(^|.*/)\.git($|/.*)",)

@@ -34,7 +34,7 @@ def _PredicateSplit(func, iterable):
     return trues, falses
 
 
-class Comparator(object):
+class Comparator:
     """Base class for all comparators."""
 
     def Match(self, arg):
@@ -242,7 +242,7 @@ def DictContains(small, big):
     return True
 
 
-class MockedCallResults(object):
+class MockedCallResults:
     """Implements internal result specification for partial mocks.
 
     Used with the PartialMock class.
@@ -401,7 +401,7 @@ class MockedCallResults(object):
         return result
 
 
-class PartialMock(object):
+class PartialMock:
     """Provides functionality for partially mocking out a function or method.
 
     Partial mocking is useful in cases where the side effects of a function or
@@ -417,7 +417,7 @@ class PartialMock(object):
 
     Examples:
         # Defined in chromite/lib/foo.py.
-        class SomeClass(object):
+        class SomeClass:
             def print(self, msg):
                 ...
             def write(self, fd, msg):

@@ -100,7 +100,7 @@ def _UpdateMetadataValue(metadata, key, value):
         )
 
 
-class GceContext(object):
+class GceContext:
     """A convenient wrapper around the GCE Python API."""
 
     # These constants are made public so that users can customize as they need.

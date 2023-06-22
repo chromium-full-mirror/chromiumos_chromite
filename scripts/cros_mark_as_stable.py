@@ -209,7 +209,7 @@ def PushChange(
     )
 
 
-class GitBranch(object):
+class GitBranch:
     """Wrapper class for a git branch."""
 
     def __init__(self, branch_name, tracking_branch, cwd):

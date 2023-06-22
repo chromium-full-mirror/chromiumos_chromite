@@ -29,7 +29,7 @@ CheckoutInfo = collections.namedtuple(
 )
 
 
-class ChrootPathResolver(object):
+class ChrootPathResolver:
     """Perform path resolution to/from the chroot.
 
     Attributes:

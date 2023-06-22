@@ -26,7 +26,7 @@ from chromite.scripts.sysmon import system_metrics
 logger = logging.getLogger(__name__)
 
 
-class _MetricCollector(object):
+class _MetricCollector:
     """Metric collector class."""
 
     def __init__(self):
@@ -50,7 +50,7 @@ class _MetricCollector(object):
         metrics.Flush()
 
 
-class _TimedCallback(object):
+class _TimedCallback:
     """Limits callback to one call in a given interval."""
 
     def __init__(self, callback, interval):

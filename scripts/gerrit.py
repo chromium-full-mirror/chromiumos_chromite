@@ -61,7 +61,7 @@ class Config:
         return action
 
 
-class UserAction(object):
+class UserAction:
     """Base class for all custom user actions."""
 
     # The name of the command the user types in.

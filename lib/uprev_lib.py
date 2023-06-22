@@ -258,7 +258,7 @@ class Outcome(enum.Enum):
     NEW_EBUILD_CREATED = enum.auto()
 
 
-class UprevResult(object):
+class UprevResult:
     """The result of a package uprev attempt.
 
     This object is truthy if files were altered by the uprev and falsey if no
@@ -323,7 +323,7 @@ class UprevResult(object):
         return self.revision_bump or self.same_version_exists
 
 
-class UprevChromeManager(object):
+class UprevChromeManager:
     """Class to handle uprevving chrome and its related packages."""
 
     def __init__(
@@ -514,7 +514,7 @@ class UprevChromeManager(object):
         )
 
 
-class UprevOverlayManager(object):
+class UprevOverlayManager:
     """Class to handle the uprev process for a set of overlays.
 
     This handles the standard uprev process that covers most packages. There are
@@ -815,7 +815,7 @@ UprevVersionedPackageModifications = collections.namedtuple(
 )
 
 
-class UprevVersionedPackageResult(object):
+class UprevVersionedPackageResult:
     """Data object for uprev_versioned_package."""
 
     def __init__(self):

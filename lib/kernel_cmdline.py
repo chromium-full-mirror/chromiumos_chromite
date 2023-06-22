@@ -8,7 +8,7 @@ import collections
 import re
 
 
-class KernelArg(object):
+class KernelArg:
     """Stores a arg(=value).
 
     Valid KernelArgs are: 'arg', 'arg=', and 'arg=value'.
@@ -334,7 +334,7 @@ class KernelArgList(
         return separator.join(str(x) for x in self._data)
 
 
-class CommandLine(object):
+class CommandLine:
     """Make parsing the kernel command line easier.
 
     Attributes:
@@ -419,7 +419,7 @@ class CommandLine(object):
         self.SetKernelParameter("dm", str(dm_config))
 
 
-class DmConfig(object):
+class DmConfig:
     """Parse the dm= parameter.
 
     Attributes:
@@ -467,7 +467,7 @@ class DmConfig(object):
         )
 
 
-class DmDevice(object):
+class DmDevice:
     """A single device in the dm= kernel parameter.
 
     Attributes:
@@ -553,7 +553,7 @@ class DmDevice(object):
                 self.rows[idx].args[key] = KernelArg(key, value)
 
 
-class DmLine(object):
+class DmLine:
     """A single line from the dmsetup config for a device.
 
     Attributes:

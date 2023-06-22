@@ -14,7 +14,7 @@ from chromite.lib import git
 from chromite.lib import osutils
 
 
-class LocalManifest(object):
+class LocalManifest:
     """Abstraction for manipulating the local manifest."""
 
     @classmethod

@@ -276,7 +276,7 @@ class Payload(utils.RestrictedAttrDict):
             )
 
 
-class ChromeosReleases(object):
+class ChromeosReleases:
     """Name space class for static methods for URIs in chromeos-releases."""
 
     BUCKET = "chromeos-releases"
@@ -1042,7 +1042,7 @@ class ChromeosReleases(object):
         return None
 
 
-class ChromeosImageArchive(object):
+class ChromeosImageArchive:
     """Namespace class for static methods for URIs in chromeos-image-archive."""
 
     BUCKET = "chromeos-image-archive"

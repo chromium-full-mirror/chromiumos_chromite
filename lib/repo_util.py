@@ -42,7 +42,7 @@ class ProjectNotFoundError(Error):
     """A repo operation was attempted on a project that wasn't found."""
 
 
-class Repository(object):
+class Repository:
     """Repository represents an initialized repo repository."""
 
     def __init__(self, root: Union[str, os.PathLike]) -> None:

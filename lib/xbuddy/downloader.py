@@ -49,7 +49,7 @@ class DownloaderException(Exception):
         )
 
 
-class Downloader(object):
+class Downloader:
     """Downloader of images to the devsever.
 
     This is the base class for different types of downloaders, including

@@ -804,7 +804,7 @@ def RunParallelSteps(
             return [queue.get_nowait() for queue in queues]
 
 
-class _AllTasksComplete(object):
+class _AllTasksComplete:
     """Sentinel object to indicate that all tasks are complete."""
 
 

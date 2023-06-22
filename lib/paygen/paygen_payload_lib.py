@@ -92,7 +92,7 @@ class MiniOSPatritionMismatchException(MiniOSException):
         return payload_pb2.GenerationResponse.MINIOS_COUNT_MISMATCH
 
 
-class PaygenSigner(object):
+class PaygenSigner:
     """Class to manager the payload signer."""
 
     def __init__(
@@ -163,7 +163,7 @@ class PaygenSigner(object):
         return self._signer.GetHashSignatures(*args, **kwargs)
 
 
-class PaygenPayload(object):
+class PaygenPayload:
     """Class to manage the process of generating and signing a payload."""
 
     # 250 GB of cache.

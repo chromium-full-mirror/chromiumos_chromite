@@ -86,7 +86,7 @@ RUNS_DEFAULT_VALUE = 0
 MAX_TOTAL_TIME_DEFAULT_VALUE = 30
 
 
-class BuildType(object):
+class BuildType:
     """Class to hold the different kinds of build types."""
 
     ASAN = "asan"
@@ -99,7 +99,7 @@ class BuildType(object):
     CHOICES = (ASAN, MSAN, UBSAN, COVERAGE)
 
 
-class SysrootPath(object):
+class SysrootPath:
     """Class for representing a path that is in the sysroot.
 
     Useful for dealing with paths that we must interact with when chrooted into
@@ -814,7 +814,7 @@ def CleanUpSysroot():
     osutils.RmDir(GetSysrootPath(SCRIPT_STORAGE_PATH), ignore_missing=True)
 
 
-class ToolManager(object):
+class ToolManager:
     """Class that installs or uninstalls fuzzing tools to/from the sysroot.
 
     Install and Uninstall methods are idempotent. Both are safe to call at any
@@ -857,7 +857,7 @@ class ToolManager(object):
         return [LlvmBinary(x) for x in self.LLVM_BINARY_NAMES]
 
 
-class LlvmBinary(object):
+class LlvmBinary:
     """Class for representing installing/uninstalling an LLVM binary in sysroot.
 
     Install and Uninstall methods are idempotent. Both are safe to call at any
@@ -925,7 +925,7 @@ class LlvmBinary(object):
         osutils.SafeSymlink(link_path, self.binary_chroot_dest_path, sudo=True)
 
 
-class DeviceManager(object):
+class DeviceManager:
     """Class that creates or removes devices from /dev in sysroot.
 
     SetUp and CleanUp methods are idempotent. Both are safe to call at any
@@ -978,7 +978,7 @@ class DeviceManager(object):
         sudo_run(command)
 
 
-class ProcManager(object):
+class ProcManager:
     """Class that mounts or unmounts /proc in sysroot.
 
     Mount and Unmount are idempotent. Both are safe to call at any point.

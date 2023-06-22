@@ -257,7 +257,7 @@ class TestUploadPrebuilt(cros_test_lib.MockTempDirTestCase):
     """Tests for the _UploadPrebuilt function."""
 
     def setUp(self):
-        class MockTemporaryFile(object):
+        class MockTemporaryFile:
             """Mock out the temporary file logic."""
 
             def __init__(self, name):

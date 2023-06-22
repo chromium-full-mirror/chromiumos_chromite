@@ -9,7 +9,7 @@ import itertools
 import json
 
 
-class Annotation(object):
+class Annotation:
     """Formatted annotation for buildbot."""
 
     def __init__(self, name, args):

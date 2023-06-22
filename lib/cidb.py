@@ -125,7 +125,7 @@ SqlConnectionRetryArgs = collections.namedtuple(
 )
 
 
-class SchemaVersionedMySQLConnection(object):
+class SchemaVersionedMySQLConnection:
     """Connection to a database that is aware of its schema version."""
 
     SCHEMA_VERSION_TABLE_NAME = "schemaVersionTable"

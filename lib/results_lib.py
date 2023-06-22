@@ -38,7 +38,7 @@ def LoadCheckpoint(buildroot):
         Results.RestoreCompletedStages(load_file)
 
 
-class RecordedTraceback(object):
+class RecordedTraceback:
     """This class represents a traceback recorded in the list of results."""
 
     def __init__(self, failed_stage, failed_prefix, exception, traceback):
@@ -61,7 +61,7 @@ _result_fields = ["name", "result", "description", "prefix", "board", "time"]
 Result = collections.namedtuple("Result", _result_fields)
 
 
-class _Results(object):
+class _Results:
     """Static class that collects the results of our BuildStages as they run."""
 
     SUCCESS = "Stage was successful"

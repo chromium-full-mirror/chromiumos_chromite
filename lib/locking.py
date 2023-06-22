@@ -333,7 +333,7 @@ class ProcessLock(_Lock):
             return os.dup(f.fileno())
 
 
-class PortableLinkLock(object):
+class PortableLinkLock:
     """A more primitive lock that relies on the atomicity of creating hardlinks.
 
     Use this lock if you need to be compatible with shadow utils like groupadd
@@ -387,7 +387,7 @@ class PortableLinkLock(object):
             osutils.SafeUnlink(self._path)
 
 
-class PipeLock(object):
+class PipeLock:
     """A simple one-way lock based on pipe().
 
     This is used when code is calling os.fork() directly and needs to

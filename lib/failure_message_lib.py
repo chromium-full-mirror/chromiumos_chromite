@@ -123,7 +123,7 @@ class StageFailure(_StageFailure):
         )
 
 
-class StageFailureMessage(object):
+class StageFailureMessage:
     """Message class contains information of a general stage failure.
 
     Failed stages report stage failures to CIDB failureTable (see more details
@@ -325,7 +325,7 @@ class CompoundFailureMessage(StageFailureMessage):
         )
 
 
-class FailureMessageManager(object):
+class FailureMessageManager:
     """Manager class to create a failure message or reconstruct messages."""
 
     @classmethod

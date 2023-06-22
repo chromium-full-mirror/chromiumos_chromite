@@ -15,7 +15,7 @@ from chromite.lib import cros_test_lib
 from chromite.scripts.sysmon import loop
 
 
-class _MockTime(object):
+class _MockTime:
     """Mock time and sleep.
 
     Provides mock behavior for time.time() and time.sleep()

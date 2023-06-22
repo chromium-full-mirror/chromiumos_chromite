@@ -115,7 +115,7 @@ def command_decorator(name):
     return inner_decorator
 
 
-class CliCommand(object):
+class CliCommand:
     """All CLI commands must derive from this class.
 
     This class provides the abstract interface for all CLI commands. When

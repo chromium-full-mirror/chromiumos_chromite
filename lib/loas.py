@@ -23,7 +23,7 @@ class LoasError(Exception):
     """Raised when a LOAS error occurs"""
 
 
-class Loas(object):
+class Loas:
     """Class for holding all the various LOAS cruft."""
 
     def __init__(self, user, email_notify, email_server=None):

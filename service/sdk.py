@@ -56,7 +56,7 @@ class UnmountError(Error):
         )
 
 
-class CreateArguments(object):
+class CreateArguments:
     """Value object to handle the chroot creation arguments."""
 
     def __init__(
@@ -115,7 +115,7 @@ class CreateArguments(object):
         return args
 
 
-class UpdateArguments(object):
+class UpdateArguments:
     """Value object to handle the update arguments."""
 
     def __init__(

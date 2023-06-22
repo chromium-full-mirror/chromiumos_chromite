@@ -30,7 +30,7 @@ Partition = collections.namedtuple(
 )
 
 
-class Disk(object):
+class Disk:
     """GPT disk image manager.
 
     Attributes:

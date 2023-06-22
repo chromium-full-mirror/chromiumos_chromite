@@ -12,7 +12,7 @@ import unittest
 __version__ = "1.0"
 
 
-class AutoStubMixIn(object):
+class AutoStubMixIn:
     """Automatically restores stubbed functions on unit test teardDown.
 
     It's an extremely lightweight mocking class that doesn't require bookeeping.
@@ -36,7 +36,7 @@ class AutoStubMixIn(object):
                     setattr(obj, member, previous_value)
 
 
-class SimpleMock(object):
+class SimpleMock:
     """Really simple manual class mock."""
 
     def __init__(self, unit_test):

@@ -13,7 +13,7 @@ from chromite.lib import path_util
 from chromite.utils import matching
 
 
-class AutotestTarballBuilder(object):
+class AutotestTarballBuilder:
     """Builds autotest tarballs for testing."""
 
     # Archive file names.

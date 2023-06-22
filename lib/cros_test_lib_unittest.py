@@ -171,7 +171,7 @@ class MockTestCaseTest(cros_test_lib.TestCase):
         def testIt(self):
             pass
 
-    class Mockable(object):
+    class Mockable:
         """Helper test class intended for having values mocked out."""
 
         TO_BE_MOCKED = 0

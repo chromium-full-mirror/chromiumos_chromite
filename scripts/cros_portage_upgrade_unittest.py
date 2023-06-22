@@ -333,7 +333,7 @@ def _GenDepsGraphVerifier(pkgs):
     return lambda deps_graph: _VerifyDepsGraph(deps_graph, pkgs)
 
 
-class ManifestLine(object):
+class ManifestLine:
     """Class to represent a Manifest line."""
 
     __slots__ = (

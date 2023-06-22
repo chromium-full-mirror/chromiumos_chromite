@@ -171,7 +171,7 @@ def ReadMinorVersion(sysroot: str):
     return None
 
 
-class MemoryConsumptionSemaphore(object):
+class MemoryConsumptionSemaphore:
     """Semaphore that tries to acquire only if there is enough memory available.
 
     Watch the free memory of the host in order to not oversubscribe. Also,

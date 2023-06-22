@@ -156,7 +156,7 @@ def parse(cpv: Union[str, Path, CPV, "PackageInfo"]):
     )
 
 
-class PackageInfo(object):
+class PackageInfo:
     """Read-only class to hold and format commonly used package information."""
 
     def __init__(

@@ -7,7 +7,7 @@
 from chromite.lib import failure_message_lib
 
 
-class BuildFailureMessage(object):
+class BuildFailureMessage:
     """Message indicating that changes failed to be validated.
 
     A failure message for a failed build, which is used to triage failures and

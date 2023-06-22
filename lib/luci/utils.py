@@ -263,7 +263,7 @@ def timestamp_to_datetime(value):
 ### Cache
 
 
-class _Cache(object):
+class _Cache:
     """Holds state of a cache for cache_with_expiration and cache decorators.
 
     May call func more than once.

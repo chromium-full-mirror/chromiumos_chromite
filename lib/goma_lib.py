@@ -43,7 +43,7 @@ class SpecifiedFileMissingError(Exception):
 
 
 # TODO(crbug.com/1035114) Refactor.
-class Goma(object):
+class Goma:
     """Interface to use goma on bots."""
 
     # Default environment variables to use goma.
@@ -334,7 +334,7 @@ class Goma(object):
         return uploader.Upload()
 
 
-class LogsArchiver(object):
+class LogsArchiver:
     """Manages archiving goma log files.
 
     The LogsArchiver was migrated from GomaLogUploader in

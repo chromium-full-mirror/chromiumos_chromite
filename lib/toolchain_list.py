@@ -24,7 +24,7 @@ class MismatchedToolchainConfigsError(Exception):
     """We have no defined resolution for conflicting toolchain configs."""
 
 
-class ToolchainList(object):
+class ToolchainList:
     """Represents a list of toolchains."""
 
     def __init__(self, overlays):

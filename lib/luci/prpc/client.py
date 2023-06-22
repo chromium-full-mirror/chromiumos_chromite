@@ -168,7 +168,7 @@ def include_auth():
     )
 
 
-class Client(object):
+class Client:
     """A client of a pRPC service.
 
     For each RPC method, a client has an instance method. For example, for an

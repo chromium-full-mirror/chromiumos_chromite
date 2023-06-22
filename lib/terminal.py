@@ -13,7 +13,7 @@ import sys
 from chromite.lib import cros_build_lib
 
 
-class Color(object):
+class Color:
     """Conditionally wraps text in ANSI color escape sequences."""
 
     BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)

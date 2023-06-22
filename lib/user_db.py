@@ -43,7 +43,7 @@ def GroupToEntry(group):
     )
 
 
-class UserDB(object):
+class UserDB:
     """An object that understands the users and groups installed on a system."""
 
     # Number of times to attempt to acquire the write lock on a database.

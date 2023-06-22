@@ -32,7 +32,7 @@ class AndroidBuildFetchError(Exception):
     """Exception to raise when failed to make calls to Android build server."""
 
 
-class BuildAccessor(object):
+class BuildAccessor:
     """Wrapper class to make Google API call to query Android build server."""
 
     # Credential information is required to access Android builds. The values

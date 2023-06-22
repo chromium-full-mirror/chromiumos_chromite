@@ -60,7 +60,7 @@ def _FlushingProcessClosed():
     )
 
 
-class ProxyMetric(object):
+class ProxyMetric:
     """Redirects any method calls to the message queue."""
 
     def __init__(self, metric, metric_args, metric_kwargs):
@@ -126,7 +126,7 @@ def _Indirect(fn):
     return AddToQueueIfPresent
 
 
-class MockMetric(object):
+class MockMetric:
     """Mock metric object, to be returned if ts_mon is not set up."""
 
     def _mock_method(self, *args, **kwargs):
@@ -149,7 +149,7 @@ def _ImportSafe(fn):
     return wrapper
 
 
-class FieldSpecAdapter(object):
+class FieldSpecAdapter:
     """Infers the types of fields values to work around field_spec requirement.
 
     See: https://chromium-review.googlesource.com/c/432120/ for the change
@@ -829,7 +829,7 @@ def Presence(name, fields=None, description=None, field_spec=_MISSING):
         b.set(False, fields=fields)
 
 
-class RuntimeBreakdownTimer(object):
+class RuntimeBreakdownTimer:
     """Record the time of an operation and the breakdown into sub-steps.
 
     Examples:

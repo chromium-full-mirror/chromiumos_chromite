@@ -61,7 +61,7 @@ def _dict_to_md5cache(dictionary):
     return "".join(f"{key}={value}\n" for key, value in dictionary.items())
 
 
-class Overlay(object):
+class Overlay:
     """Portage overlay object, responsible for all writes to its directory."""
 
     HIERARCHY_NAMES = (
@@ -252,7 +252,7 @@ class Overlay(object):
             )
 
 
-class Sysroot(object):
+class Sysroot:
     """Sysroot object representing a functional Portage directory."""
 
     # These PORTDIR_OVERLAY entries are necessary for any Portage operations to
@@ -340,7 +340,7 @@ class Sysroot(object):
         return cros_build_lib.run(cmd, extra_env=extra_env, **kwargs)
 
 
-class Profile(object):
+class Profile:
     """Portage profile, lives in an overlay."""
 
     def __init__(
@@ -361,7 +361,7 @@ class Profile(object):
         self.use_force = tuple(use_force)
 
 
-class Package(object):
+class Package:
     """Portage package, lives in an overlay."""
 
     inherit: Tuple[str]

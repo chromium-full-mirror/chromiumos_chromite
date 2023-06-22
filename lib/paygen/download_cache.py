@@ -41,7 +41,7 @@ def _DefaultFetchFunc(uri, cache_file):
     urilib.Copy(uri, cache_file)
 
 
-class DownloadCache(object):
+class DownloadCache:
     """This class downloads files into a local directory upon request.
 
     This classes uses locking to make this safe across processes, and

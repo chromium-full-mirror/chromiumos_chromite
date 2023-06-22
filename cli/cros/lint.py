@@ -38,7 +38,7 @@ from chromite.utils import memoize
 # pylint: disable=too-few-public-methods
 
 
-class DocStringSectionDetails(object):
+class DocStringSectionDetails:
     """Object to hold details about a docstring section.
 
     e.g. This holds the Args: or Returns: data.
@@ -132,7 +132,7 @@ class EncodingChecker(pylint.checkers.BaseChecker):
     __implements__ = pylint.interfaces.IAstroidChecker
 
     # pylint: disable=class-missing-docstring,multiple-statements
-    class _MessageR9150(object):
+    class _MessageR9150:
         pass
 
     # pylint: enable=class-missing-docstring,multiple-statements
@@ -266,61 +266,61 @@ class DocStringChecker(pylint.checkers.BaseChecker):
     __implements__ = pylint.interfaces.IAstroidChecker
 
     # pylint: disable=class-missing-docstring,multiple-statements
-    class _MessageCP001(object):
+    class _MessageCP001:
         pass
 
-    class _MessageCP002(object):
+    class _MessageCP002:
         pass
 
-    class _MessageCP003(object):
+    class _MessageCP003:
         pass
 
-    class _MessageCP004(object):
+    class _MessageCP004:
         pass
 
-    class _MessageCP005(object):
+    class _MessageCP005:
         pass
 
-    class _MessageCP006(object):
+    class _MessageCP006:
         pass
 
-    class _MessageCP007(object):
+    class _MessageCP007:
         pass
 
-    class _MessageCP008(object):
+    class _MessageCP008:
         pass
 
-    class _MessageCP009(object):
+    class _MessageCP009:
         pass
 
-    class _MessageCP010(object):
+    class _MessageCP010:
         pass
 
-    class _MessageCP011(object):
+    class _MessageCP011:
         pass
 
-    class _MessageCP012(object):
+    class _MessageCP012:
         pass
 
-    class _MessageCP013(object):
+    class _MessageCP013:
         pass
 
-    class _MessageCP014(object):
+    class _MessageCP014:
         pass
 
-    class _MessageCP015(object):
+    class _MessageCP015:
         pass
 
-    class _MessageCP016(object):
+    class _MessageCP016:
         pass
 
-    class _MessageCP017(object):
+    class _MessageCP017:
         pass
 
-    class _MessageCP018(object):
+    class _MessageCP018:
         pass
 
-    class _MessageCP019(object):
+    class _MessageCP019:
         pass
 
     # pylint: enable=class-missing-docstring,multiple-statements
@@ -970,22 +970,22 @@ class SourceChecker(pylint.checkers.BaseChecker):
     __implements__ = pylint.interfaces.IAstroidChecker
 
     # pylint: disable=class-missing-docstring,multiple-statements
-    class _MessageR9200(object):
+    class _MessageR9200:
         pass
 
-    class _MessageR9201(object):
+    class _MessageR9201:
         pass
 
-    class _MessageR9202(object):
+    class _MessageR9202:
         pass
 
-    class _MessageR9203(object):
+    class _MessageR9203:
         pass
 
-    class _MessageR9205(object):
+    class _MessageR9205:
         pass
 
-    class _MessageR9206(object):
+    class _MessageR9206:
         pass
 
     # pylint: enable=class-missing-docstring,multiple-statements
@@ -1114,7 +1114,7 @@ class CommentChecker(pylint.checkers.BaseTokenChecker):
     __implements__ = pylint.interfaces.ITokenChecker
 
     # pylint: disable=class-missing-docstring,multiple-statements
-    class _MessageR9250(object):
+    class _MessageR9250:
         pass
 
     # pylint: enable=class-missing-docstring,multiple-statements
@@ -1158,7 +1158,7 @@ class FormatStringChecker(pylint.checkers.BaseChecker):
     __implements__ = pylint.interfaces.IAstroidChecker
 
     # pylint: disable=class-missing-docstring,multiple-statements
-    class _MessageR9100(object):
+    class _MessageR9100:
         pass
 
     # pylint: enable=class-missing-docstring,multiple-statements

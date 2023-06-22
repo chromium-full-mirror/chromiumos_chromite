@@ -14,7 +14,7 @@ import sys
 import tempfile
 
 
-class _FdCapturer(object):
+class _FdCapturer:
     """Helper class to capture output at the file descriptor level.
 
     This is meant to be used with sys.stdout or sys.stderr. By capturing
@@ -119,7 +119,7 @@ class _FdCapturer(object):
         self._captured = ""
 
 
-class OutputCapturer(object):
+class OutputCapturer:
     """Class for capturing stdout/stderr output.
 
     Class is designed as a 'ContextManager'.

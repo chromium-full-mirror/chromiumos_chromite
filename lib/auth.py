@@ -225,7 +225,7 @@ def GitCreds(service_account_json=None):
     raise AccessTokenError("Unable to fetch git credential.")
 
 
-class AuthorizedHttp(object):
+class AuthorizedHttp:
     """Authorized http instance"""
 
     def __init__(self, get_access_token, http, **kwargs):

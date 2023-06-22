@@ -14,7 +14,7 @@ from typing import Any, Callable, Optional
 from chromite.utils import pformat
 
 
-class Timer(object):
+class Timer:
     """Simple timer class to make timing blocks of code easy.
 
     It does not have the features of timeit, but can be added anywhere, e.g. to

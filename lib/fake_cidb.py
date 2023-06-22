@@ -11,7 +11,7 @@ from chromite.lib import constants
 from chromite.lib import failure_message_lib
 
 
-class FakeCIDBConnection(object):
+class FakeCIDBConnection:
     """Fake connection to a Continuous Integration database.
 
     This class is a partial re-implementation of CIDBConnection, using

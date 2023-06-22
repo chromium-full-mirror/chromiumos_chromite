@@ -25,7 +25,7 @@ MANIFEST = git.ManifestCheckout.Cached(constants.SOURCE_ROOT)
 # pylint: disable=protected-access
 
 
-class _Package(object):
+class _Package:
     """Package helper class."""
 
     def __init__(self, package):

@@ -78,7 +78,7 @@ def EnsureInitialized(functor):
     return f
 
 
-class Cgroup(object):
+class Cgroup:
 
     """Class representing a group in cgroups hierarchy.
 

@@ -78,7 +78,7 @@ def _InsertFailureToMonarch(
         counter.increment(fields=metrics_fields)
 
 
-class BuilderStage(object):
+class BuilderStage:
     """Parent class for stages to be performed by a builder."""
 
     # Used to remove 'Stage' suffix of stage class when generating stage name.
@@ -889,7 +889,7 @@ class ForgivingBuilderStage(BuilderStage):
         return self._HandleExceptionAsWarning(exc_info)
 
 
-class RetryStage(object):
+class RetryStage:
     """Retry a given stage multiple times to see if it passes."""
 
     category = constants.UNCATEGORIZED_STAGE
@@ -954,7 +954,7 @@ class RetryStage(object):
         )
 
 
-class RepeatStage(object):
+class RepeatStage:
     """Run a given stage multiple times to see if it fails."""
 
     category = constants.UNCATEGORIZED_STAGE
@@ -1117,7 +1117,7 @@ class BoardSpecificBuilderStage(BuilderStage):
         )
 
 
-class ArchivingStageMixin(object):
+class ArchivingStageMixin:
     """Stage with utilities for uploading artifacts.
 
     This provides functionality for doing archiving.  All it needs is access

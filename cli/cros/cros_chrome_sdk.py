@@ -93,7 +93,7 @@ class MissingSDK(Exception):
         Exception.__init__(self, msg)
 
 
-class SDKFetcher(object):
+class SDKFetcher:
     """Functionality for fetching an SDK environment.
 
     For the version of ChromeOS specified, the class downloads and caches

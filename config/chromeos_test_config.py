@@ -28,7 +28,7 @@ vmtest_boards = frozenset(
 )
 
 
-class HWTestList(object):
+class HWTestList:
     """Container for methods to generate HWTest lists."""
 
     def __init__(self, ge_build_config):

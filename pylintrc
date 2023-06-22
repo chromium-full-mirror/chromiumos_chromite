@@ -121,8 +121,6 @@ enable=
 # TODO: Re-enable redefined-variable-type.
 # TODO: Re-enable inconsistent-return-statements.
 # TODO: Re-enable keyword-arg-before-vararg once we're on Python 3-only.
-# TODO: Re-enable useless-object-inheritance once we're on Python 3-only and
-#       we update the style guide.
 # TODO: Re-enable import-outside-toplevel.
 # TODO: Re-enable try-except-raise.
 # TODO(b/236161656): Re-enable consider-using-f-string.
@@ -164,7 +162,6 @@ disable=
     too-many-statements,
     try-except-raise,
     ungrouped-imports,
-    useless-object-inheritance,
     wrong-import-order,
 
 [REPORTS]

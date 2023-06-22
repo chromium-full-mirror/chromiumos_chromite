@@ -31,7 +31,7 @@ class InvalidResultPathError(Error):
     """Result path is invalid."""
 
 
-class ChrootHandler(object):
+class ChrootHandler:
     """Translate a Chroot message to chroot enter arguments and env."""
 
     def __init__(self, clear_field):
@@ -106,7 +106,7 @@ def handle_remoteexec(message: protobuf_message.Message):
     return None
 
 
-class PathHandler(object):
+class PathHandler:
     """Handles copying a file or directory into or out of the chroot."""
 
     INSIDE = common_pb2.Path.INSIDE
@@ -210,7 +210,7 @@ class PathHandler(object):
             self.field.CopyFrom(self._original_message)
 
 
-class SyncedDirHandler(object):
+class SyncedDirHandler:
     """Handler for syncing directories across the chroot boundary."""
 
     def __init__(

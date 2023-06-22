@@ -1569,7 +1569,7 @@ class TestFormatting(cros_test_lib.TestCase):
         )
 
 
-class MockPatchFactory(object):
+class MockPatchFactory:
     """Helper class to create patches or series of them, for unit tests."""
 
     def __init__(self, patch_mock=None):

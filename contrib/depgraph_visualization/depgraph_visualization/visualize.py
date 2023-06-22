@@ -13,7 +13,7 @@ from typing import Dict, Iterator, List, Set, Tuple
 import matplotlib.pyplot as plt  # pylint: disable=import-error
 
 
-class PackageNode(object):
+class PackageNode:
     """Helper struct for the DepVisualizer class.
 
     This struct makes it easier to traverse a directed graph while
@@ -41,7 +41,7 @@ class PackageNode(object):
         yield from self.rvs_dependencies
 
 
-class DepVisualizer(object):
+class DepVisualizer:
     """Process dependency information into visualizable data.
 
     Examples:

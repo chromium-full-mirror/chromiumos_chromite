@@ -29,7 +29,7 @@ class KeyimportError(Error):
     """Key Import Errors."""
 
 
-class KeyringData(object):
+class KeyringData:
     """A collection of keyset information."""
 
     def __init__(self, prod_dir, base_dir, options, signer_config):

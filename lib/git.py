@@ -299,7 +299,7 @@ class ProjectCheckout(dict):
         return self["local_path"] if absolute else self["path"]
 
 
-class Manifest(object):
+class Manifest:
     """SAX handler that parses the manifest document.
 
     Attributes:

@@ -27,7 +27,7 @@ from chromite.lib import results_lib
 from chromite.lib.buildstore import BuildStore
 
 
-class Builder(object):
+class Builder:
     """Parent class for all builder types.
 
     This class functions as an abstract parent class for various build types.

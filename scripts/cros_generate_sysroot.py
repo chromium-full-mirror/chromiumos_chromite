@@ -61,7 +61,7 @@ def ParseCommandLine(argv):
     return options
 
 
-class GenerateSysroot(object):
+class GenerateSysroot:
     """Wrapper for generation functionality."""
 
     PARALLEL_EMERGE = constants.CHROMITE_BIN_DIR / "parallel_emerge"

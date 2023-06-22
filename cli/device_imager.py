@@ -58,7 +58,7 @@ class Partition(enum.Enum):
     MINIOS = 2
 
 
-class DeviceImager(object):
+class DeviceImager:
     """A class to flash a Chromium OS device.
 
     This utility uses parallelism as much as possible to achieve its goal as
@@ -529,7 +529,7 @@ class GsFileCopier(ReaderBase):
             self._CloseSource()
 
 
-class PartitionUpdaterBase(object):
+class PartitionUpdaterBase:
     """A base abstract class to use for installing an image into a partition.
 
     Sub-classes should implement the abstract methods to provide the core
