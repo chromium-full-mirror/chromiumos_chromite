@@ -1852,6 +1852,7 @@
       ],
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
+      "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE"
     },
     {
@@ -2896,6 +2897,7 @@
         }
       ],
       "rubik_target_milestone": 108,
+      "board_variant": "kernelnext",
       "build_cadence": "DAILY_CADENCE"
     },
     {
@@ -5310,8 +5312,9 @@
           "is_experimental": false
         }
       ],
-      "rubik_target_milestone": 103,
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 120,
+      "board_variant": "kernelnext",
       "build_cadence": "DAILY_CADENCE"
     },
     {
@@ -7398,6 +7401,7 @@
       ],
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
+      "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE"
     },
     {
