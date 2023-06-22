@@ -309,16 +309,6 @@ def GeneralTemplates(site_config):
         rootfs_verification=False,
     )
 
-    site_config.AddTemplate(
-        "beaglebone",
-        site_config.templates.brillo,
-        image_test=False,
-        rootfs_verification=False,
-        paygen=False,
-        signer_tests=False,
-        images=remove_images(["dev", "test", "recovery", "factory_install"]),
-    )
-
     # This adds Chrome branding.
     site_config.AddTemplate(
         "official_chrome",
@@ -662,8 +652,6 @@ def CreateBoardConfigs(site_config, boards_dict, ge_build_config):
             board_config.apply(hwqual=False)
         if board in chromeos_boards.base_layout_boards:
             board_config.apply(disk_layout="base")
-        if board in chromeos_boards.beaglebone_boards:
-            board_config.apply(site_config.templates.beaglebone)
         if board in chromeos_boards.builder_incompatible_binaries_boards:
             board_config.apply(unittests=False)
 
@@ -1659,18 +1647,6 @@ def ApplyCustomOverrides(site_config):
             "hw_tests": [],
             "hw_tests_override": [],
             "hw_tests_disabled_bug": "https://crbug.com/1000717",
-        },
-        # The board does not exist in the lab. See crbug.com/1003981
-        "beaglebone_servo-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1003981",
-        },
-        # No hw tests for beaglebone, expresso (crbug.com/1011171).
-        "beaglebone-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1011171",
         },
         "expresso-release": {
             "hw_tests": [],

@@ -338,7 +338,7 @@ class PaygenStageTest(
     """Test the PaygenStage Stage."""
 
     # We use a variant board to make sure the '_' is translated to '-'.
-    BOT_ID = "beaglebone_servo-release"
+    BOT_ID = "guado_labstation-release"
     RELEASE_TAG = "0.0.1"
 
     def setUp(self):
@@ -435,7 +435,7 @@ class PaygenStageTest(
             # Verify that we validate with the board name in release name space.
             self.assertEqual(
                 self.validateMock.call_args_list,
-                [mock.call("beaglebone-servo")],
+                [mock.call("guado-labstation")],
             )
 
             # Verify that we queue up work.
@@ -444,7 +444,7 @@ class PaygenStageTest(
                     mock.call(
                         stage,
                         "stable",
-                        "beaglebone-servo",
+                        "guado-labstation",
                         "0.0.1",
                         False,
                         False,
@@ -453,7 +453,7 @@ class PaygenStageTest(
                     mock.call(
                         stage,
                         "beta",
-                        "beaglebone-servo",
+                        "guado-labstation",
                         "0.0.1",
                         False,
                         False,
@@ -493,7 +493,7 @@ class PaygenStageTest(
                     mock.call(
                         stage,
                         "foo",
-                        "beaglebone-servo",
+                        "guado-labstation",
                         "0.0.1",
                         False,
                         False,
@@ -502,7 +502,7 @@ class PaygenStageTest(
                     mock.call(
                         stage,
                         "bar",
-                        "beaglebone-servo",
+                        "guado-labstation",
                         "0.0.1",
                         False,
                         False,
@@ -784,7 +784,7 @@ class PaygenBuildStageTest(
     """Test the PaygenBuild stage."""
 
     # We use a variant board to make sure the '_' is translated to '-'.
-    BOT_ID = "beaglebone_servo-release"
+    BOT_ID = "guado_labstation-release"
     RELEASE_TAG = "0.0.1"
 
     def setUp(self):
@@ -817,7 +817,7 @@ class PaygenTestStageTest(
     """Test the PaygenTestStage stage."""
 
     # We use a variant board to make sure the '_' is translated to '-'.
-    BOT_ID = "beaglebone_servo-release"
+    BOT_ID = "guado_labstation-release"
     RELEASE_TAG = "0.0.1"
 
     def setUp(self):
@@ -845,7 +845,7 @@ class PaygenTestStageTest(
     def testStageName(self):
         """See if the stage name is correctly formed."""
         stage = self.ConstructStage()
-        self.assertEqual(stage.name, "PaygenTestFoochan [beaglebone_servo]")
+        self.assertEqual(stage.name, "PaygenTestFoochan [guado_labstation]")
 
     def testPerformStageTestLabFail(self):
         """Test that exception from RunHWTestSuite are properly handled."""

@@ -21,8 +21,6 @@
 arm_internal_release_boards = frozenset(
     [
         "arkham",
-        "beaglebone",
-        "beaglebone_servo",
         "gale",
         "hana",
         "littlejoe",
@@ -77,13 +75,6 @@ brillo_boards = frozenset(
         "gale",
         "mistral",
         "whirlwind",
-    ]
-)
-
-beaglebone_boards = frozenset(
-    [
-        "beaglebone",
-        "beaglebone_servo",
     ]
 )
 
@@ -148,7 +139,6 @@ noimagetest_boards = (
 
 nohwqual_boards = (
     termina_boards
-    | beaglebone_boards
     | wshwos_boards
     | dustbuster_boards
     | reven_boards

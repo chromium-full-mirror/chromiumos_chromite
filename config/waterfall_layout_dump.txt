@@ -353,14 +353,6 @@
   aurora-borealis-llvm-toolchain-tryjob
   aurora-borealis-payloads-tryjob
   aurora-borealis-release-tryjob
-  beaglebone-full-tryjob
-  beaglebone-llvm-next-toolchain-tryjob
-  beaglebone-llvm-toolchain-tryjob
-  beaglebone-release-tryjob
-  beaglebone_servo-full-tryjob
-  beaglebone_servo-llvm-next-toolchain-tryjob
-  beaglebone_servo-llvm-toolchain-tryjob
-  beaglebone_servo-release-tryjob
   betty-arc-r-full-tryjob
   betty-arc-r-llvm-next-toolchain-tryjob
   betty-arc-r-llvm-toolchain-tryjob
