@@ -558,6 +558,7 @@ class GerritHelper(object):
         notify="ALL",
         reviewers=None,
         cc=None,
+        remove_reviewers=None,
         ready=None,
         wip=None,
         dryrun=False,
@@ -571,6 +572,8 @@ class GerritHelper(object):
             notify: A string, parameter controlling gerrit's email generation.
             reviewers: List of people to add as reviewers.
             cc: List of people to add to CC.
+            remove_reviewers: List of people to remove (reviewers or CC).
+                NB: This is one option due to Gerrit limitations.
             ready: Mark CL as ready.
             wip: Mark CL as work-in-progress.
             dryrun: If True, don't actually update the review.
@@ -592,6 +595,11 @@ class GerritHelper(object):
                 logging.info("Would have add %s as reviewers", reviewers)
             if cc:
                 logging.info("Would have add %s to CC", cc)
+            if remove_reviewers:
+                logging.info(
+                    "Would have removed %s as reviewer & from CC",
+                    remove_reviewers,
+                )
             if ready:
                 logging.info("Would mark it as ready")
             elif wip:
@@ -605,6 +613,7 @@ class GerritHelper(object):
             notify=notify,
             reviewers=reviewers,
             cc=cc,
+            remove_reviewers=remove_reviewers,
             ready=ready,
             wip=wip,
         )

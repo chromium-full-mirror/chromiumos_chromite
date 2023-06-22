@@ -1079,6 +1079,10 @@ class ActionCherryPick(UserAction):
 class ActionReview(_ActionSimpleParallelCLs):
     """Review CLs with multiple settings
 
+    The reviewers & cc options can remove people by prepending '~'.  Note: If
+    you want to move someone (reviewer->CC or CC->reviewer), you don't have to
+    remove them first, you only need to specify the final state.
+
     The label option supports extended/multiple syntax for easy use. The --label
     option may be specified multiple times (as settings are merges), and
     multiple labels are allowed in a single argument.  Each label has the form:
@@ -1164,24 +1168,50 @@ class ActionReview(_ActionSimpleParallelCLs):
             "--re",
             action="append",
             default=[],
-            help="Add reviewers",
+            help="Reviewers to add/remove",
         )
         parser.add_argument(
-            "--cc", action="append", default=[], help="Add people to CC"
+            "--cc",
+            action="append",
+            default=[],
+            help="People to add/remove in CC",
         )
         _ActionSimpleParallelCLs.init_subparser(parser)
 
     @staticmethod
     def _process_one(helper, cl, opts):
         """Use |helper| to process the single |cl|."""
+        add_reviewers, remove_reviewers = process_add_remove_lists(
+            opts.reviewers, f"^{constants.EMAIL_REGEX}$"
+        )
+        add_cc, remove_cc = process_add_remove_lists(
+            opts.cc, f"^{constants.EMAIL_REGEX}$"
+        )
+
+        # Gerrit allows people to only be in one state: CC or Reviewer.  If a
+        # person is in CC and you want to move them to reviewer, you can't
+        # remove them from CC and add to reviewer, you have to change their
+        # state.  Help users who do `--cc ~u@c --re u@c` by filtering out all
+        # the remove requests if there is an add request too.  This doesn't
+        # quite respect all the possible CLI option orders, but it's probably
+        # good enough for now in practice.  For example, mixing of CC & reviewer
+        # and adds & removes gets complicated.
+        for add in add_cc:
+            if add in remove_reviewers:
+                remove_reviewers.remove(add)
+        for add in add_reviewers:
+            if add in remove_cc:
+                remove_cc.remove(add)
+
         helper.SetReview(
             cl,
             msg=opts.msg,
             labels=opts.labels,
             dryrun=opts.dryrun,
             notify=opts.notify,
-            reviewers=opts.reviewers,
-            cc=opts.cc,
+            reviewers=add_reviewers,
+            cc=add_cc,
+            remove_reviewers=remove_reviewers | remove_cc,
             ready=opts.ready,
             wip=opts.wip,
         )

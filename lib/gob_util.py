@@ -929,6 +929,7 @@ def SetReview(
     notify=None,
     reviewers=None,
     cc=None,
+    remove_reviewers=None,
     ready=None,
     wip=None,
 ):
@@ -950,6 +951,10 @@ def SetReview(
         body["reviewers"].extend({"reviewer": x} for x in reviewers)
     if cc:
         body["reviewers"].extend({"reviewer": x, "state": "CC"} for x in cc)
+    if remove_reviewers:
+        body["reviewers"].extend(
+            {"reviewer": x, "state": "REMOVED"} for x in remove_reviewers
+        )
     if ready is not None:
         body["ready"] = ready
     if wip is not None:
