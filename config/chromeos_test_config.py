@@ -530,11 +530,6 @@ def GeneralTemplates(site_config, ge_build_config):
     )
     # END Release
 
-    site_config.templates.test_ap.apply(
-        site_config.templates.no_vmtest_builder,
-        site_config.templates.default_hw_tests_override,
-    )
-
     # BEGIN Termina
     site_config.templates.termina.apply(
         site_config.templates.no_vmtest_builder,

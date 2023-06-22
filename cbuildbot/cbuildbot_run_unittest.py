@@ -154,7 +154,7 @@ class BuilderRunPickleTest(_BuilderRunTestCase):
     """Make sure BuilderRun objects can be pickled."""
 
     def setUp(self):
-        self.real_config = config_lib.GetConfig()["test-ap-group"]
+        self.real_config = config_lib.GetConfig()["success-build"]
         self.PatchObject(
             cbuildbot_run._BuilderRunBase,
             "GetVersion",
@@ -196,9 +196,6 @@ class BuilderRunPickleTest(_BuilderRunTestCase):
 
     def testPickleBuilderRun(self):
         self._TestPickle(self._NewBuilderRun(config=self.real_config))
-
-    def testPickleChildBuilderRun(self):
-        self._TestPickle(self._NewChildBuilderRun(0, config=self.real_config))
 
 
 class BuilderRunTest(_BuilderRunTestCase):

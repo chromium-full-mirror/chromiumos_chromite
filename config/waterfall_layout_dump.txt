@@ -714,7 +714,6 @@
   gale-llvm-toolchain-tryjob
   gale-payloads-tryjob
   gale-release-tryjob
-  gale-test-ap-tryjob
   geralt-full-tryjob
   geralt-llvm-next-toolchain-tryjob
   geralt-llvm-toolchain-tryjob
@@ -1314,7 +1313,6 @@
   tatl-llvm-next-toolchain-tryjob
   tatl-llvm-toolchain-tryjob
   tatl-release-tryjob
-  test-ap-group-tryjob
   trogdor-arc-r-full-tryjob
   trogdor-arc-r-llvm-next-toolchain-tryjob
   trogdor-arc-r-llvm-toolchain-tryjob
@@ -1395,7 +1393,6 @@
   whirlwind-llvm-toolchain-tryjob
   whirlwind-payloads-tryjob
   whirlwind-release-tryjob
-  whirlwind-test-ap-tryjob
   wristpin-full-tryjob
   wristpin-llvm-next-toolchain-tryjob
   wristpin-llvm-toolchain-tryjob

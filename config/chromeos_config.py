@@ -385,18 +385,6 @@ def GeneralTemplates(site_config):
         description="Incremental Builds (internal)",
     )
 
-    # A test-ap image is just a test image with a special profile enabled.
-    # Note that each board enabled for test-ap use has to have the testbed-ap
-    # profile linked to from its private overlay.
-    site_config.AddTemplate(
-        "test_ap",
-        site_config.templates.internal,
-        display_label=config_lib.DISPLAY_LABEL_UTILITY,
-        build_type=constants.INCREMENTAL_TYPE,
-        description="WiFi AP images used in testing",
-        profile="testbed-ap",
-    )
-
     site_config.AddTemplate(
         "release_common",
         site_config.templates.full,
@@ -2230,19 +2218,6 @@ def SpecialtyBuilders(site_config):
                 ["generated/luci-scheduler.cfg"],
             ],
         ],
-    )
-
-    site_config.AddGroup(
-        "test-ap-group",
-        site_config.Add(
-            "whirlwind-test-ap",
-            site_config.templates.test_ap,
-            boards=["whirlwind"],
-        ),
-        site_config.Add(
-            "gale-test-ap", site_config.templates.test_ap, boards=["gale"]
-        ),
-        description="Create images used to power access points in WiFi lab.",
     )
 
     # *-pre-flight-branch builders are in chromeos_release waterfall.
