@@ -66,7 +66,7 @@ def test_otel_span_translation(monkeypatch):
     span = tracer.start_span("name")
     span.end()
 
-    e = exporter.ClearcutSpanExporter()
+    e = exporter.ClearcutSpanExporter(max_queue_size=1)
 
     assert e.export([span]) == export.SpanExportResult.SUCCESS
     req, _ = requests[0]
@@ -109,7 +109,7 @@ def test_otel_span_translation_with_anonymization(monkeypatch):
 
     anonymizer = utils.Anonymizer([(re.escape("user4321"), "<user>")])
     f = exporter.AnonymizingFilter(anonymizer)
-    e = exporter.ClearcutSpanExporter(prefilter=f)
+    e = exporter.ClearcutSpanExporter(prefilter=f, max_queue_size=1)
 
     assert e.export([span]) == export.SpanExportResult.SUCCESS
     req, _ = requests[0]
@@ -141,7 +141,9 @@ def test_export_to_http_api(monkeypatch):
     span.end()
     endpoint = "http://domain.com/path"
 
-    e = exporter.ClearcutSpanExporter(endpoint=endpoint, timeout=7)
+    e = exporter.ClearcutSpanExporter(
+        endpoint=endpoint, timeout=7, max_queue_size=1
+    )
 
     assert e.export([span])
     req, timeout = requests[0]
@@ -167,7 +169,7 @@ def test_export_to_http_api_throttle(monkeypatch):
     span = tracer.start_span("name")
     span.end()
 
-    e = exporter.ClearcutSpanExporter()
+    e = exporter.ClearcutSpanExporter(max_queue_size=1)
 
     assert e.export([span])
     assert e.export([span])
@@ -200,7 +202,7 @@ def test_export_to_drop_spans_if_wait_more_than_threshold(monkeypatch):
     span = tracer.start_span("name")
     span.end()
 
-    e = exporter.ClearcutSpanExporter()
+    e = exporter.ClearcutSpanExporter(max_queue_size=1)
 
     assert e.export([span])
     assert e.export([span])
@@ -209,3 +211,55 @@ def test_export_to_drop_spans_if_wait_more_than_threshold(monkeypatch):
     # the following things to be true:
     #   1. The request.urlopen() function has been called exactly once
     assert len(mock_open_times) == 1
+
+
+def test_flush_to_clear_export_queue_to_http_api(monkeypatch):
+    """Test ClearcutSpanExporter to export spans on flush."""
+    requests = []
+
+    def mock_urlopen(request, timeout=0):
+        requests.append((request, timeout))
+        resp = clientanalytics_pb2.LogResponse()
+        resp.next_request_wait_millis = 1
+        body = resp.SerializeToString()
+        return MockResponse(200, body)
+
+    monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen)
+
+    span = tracer.start_span("name")
+    span.end()
+
+    e = exporter.ClearcutSpanExporter(max_queue_size=3)
+
+    assert e.export([span])
+    assert e.export([span])
+    assert len(requests) == 0
+
+    assert e.force_flush()
+    assert len(requests) == 1
+
+
+def test_shutdown_to_clear_export_queue_to_http_api(monkeypatch):
+    """Test ClearcutSpanExporter to export spans on shutdown."""
+    requests = []
+
+    def mock_urlopen(request, timeout=0):
+        requests.append((request, timeout))
+        resp = clientanalytics_pb2.LogResponse()
+        resp.next_request_wait_millis = 1
+        body = resp.SerializeToString()
+        return MockResponse(200, body)
+
+    monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen)
+
+    span = tracer.start_span("name")
+    span.end()
+
+    e = exporter.ClearcutSpanExporter(max_queue_size=3)
+
+    assert e.export([span])
+    assert e.export([span])
+    assert len(requests) == 0
+
+    e.shutdown()
+    assert len(requests) == 1

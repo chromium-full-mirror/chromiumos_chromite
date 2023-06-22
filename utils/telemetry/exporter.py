@@ -31,12 +31,13 @@ from chromite.utils.telemetry import utils
 
 _DEFAULT_ENDPOINT = "https://play.googleapis.com/log"
 _DEFAULT_TIMEOUT = 15
-_DEFAULT_FLUSH_TIMEOUT = 30000
+_DEFAULT_FLUSH_TIMEOUT_MILLIS = 30000
 _DEAULT_MAX_WAIT_SECS = 60
 # Preallocated in Clearcut proto to Build.
 _LOG_SOURCE = 2044
 # Preallocated in Clearcut proto to Python clients.
 _CLIENT_TYPE = 33
+_DEFAULT_MAX_QUEUE_SIZE = 1000
 
 
 class AnonymizingFilter:
@@ -64,6 +65,7 @@ class ClearcutSpanExporter(export.SpanExporter):
         endpoint: str = _DEFAULT_ENDPOINT,
         timeout: int = _DEFAULT_TIMEOUT,
         max_wait_secs: int = _DEAULT_MAX_WAIT_SECS,
+        max_queue_size: int = _DEFAULT_MAX_QUEUE_SIZE,
         prefilter: Optional[
             Callable[[trace_span_pb2.TraceSpan], trace_span_pb2.TraceSpan]
         ] = None,
@@ -74,21 +76,33 @@ class ClearcutSpanExporter(export.SpanExporter):
         self._log_source = _LOG_SOURCE
         self._next_request_dt = datetime.datetime.now()
         self._max_wait_secs = max_wait_secs
+        self._queue = []
+        self._max_queue_size = max_queue_size
 
     def export(
         self, spans: Sequence[trace.ReadableSpan]
     ) -> export.SpanExportResult:
-        translated_spans = [self._translate_span(s) for s in spans]
-        if self._export(translated_spans):
-            return export.SpanExportResult.SUCCESS
+        spans = [self._prefilter(self._translate_span(s)) for s in spans]
+        self._queue.extend(spans)
 
-        return export.SpanExportResult.FAILURE
+        if len(self._queue) >= self._max_queue_size:
+            return (
+                export.SpanExportResult.SUCCESS
+                if self._export_batch()
+                else export.SpanExportResult.FAILURE
+            )
+
+        return export.SpanExportResult.SUCCESS
 
     def shutdown(self) -> None:
-        pass
+        self.force_flush()
 
-    def force_flush(self, timeout_millis: int = 30000) -> bool:
-        _ = timeout_millis
+    def force_flush(
+        self, timeout_millis: int = _DEFAULT_FLUSH_TIMEOUT_MILLIS
+    ) -> bool:
+        if self._queue:
+            return self._export_batch(timeout=timeout_millis / 1000)
+
         return True
 
     def _translate_context(
@@ -278,8 +292,12 @@ class ClearcutSpanExporter(export.SpanExporter):
 
         return span
 
-    def _export(self, spans: Sequence[trace_span_pb2.TraceSpan]) -> bool:
+    def _export_batch(self, timeout: Optional[int] = None) -> bool:
         """Export the spans to clearcut via http api."""
+
+        spans = self._queue[: self._max_queue_size]
+        self._queue = self._queue[self._max_queue_size :]
+
         while True:
             wait_delta = self._next_request_dt - datetime.datetime.now()
             wait_time = wait_delta.total_seconds()
@@ -308,7 +326,9 @@ class ClearcutSpanExporter(export.SpanExporter):
             logresponse = clientanalytics_pb2.LogResponse()
 
             try:
-                with urllib.request.urlopen(req, timeout=self._timeout) as f:
+                with urllib.request.urlopen(
+                    req, timeout=timeout or self._timeout
+                ) as f:
                     logresponse.ParseFromString(f.read())
             except urllib.error.URLError as e:
                 logging.warning(e)
@@ -333,7 +353,6 @@ class ClearcutSpanExporter(export.SpanExporter):
         for span in spans:
             log_event = log_request.log_event.add()
             log_event.event_time_ms = int(time.time() * 1000)
-            filtered_span = self._prefilter(span)
-            log_event.source_extension = filtered_span.SerializeToString()
+            log_event.source_extension = span.SerializeToString()
 
         return log_request
