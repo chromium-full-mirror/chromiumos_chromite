@@ -1547,89 +1547,6 @@ def PayloadBuilders(site_config, boards_dict):
             )
 
 
-def AddNotificationConfigs(site_config):
-    """Add NotificationConfigs to specific builders.
-
-    Set the notification_config property of specific builders enabling
-    notifications through luci-notify.
-
-    notification_config values should only be set through this method as it will
-    overwrite notification_config values set elsewhere.
-
-    Args:
-        site_config: config_lib.SiteConfig to be modified by adding
-            NotificationConfigs.
-    """
-
-    # Notifiers is a map of builder config names to a list of NotificationConfig
-    # objects. Example:
-    # notifiers = {
-    #     'sample-release': [
-    #         config_lib.NotificationConfig(email='test1@google.com'),
-    #         config_lib.NotificationConfig(email='test2@google.com')
-    #     ],
-    #     'test-release': [
-    #         config_lib.NotificationConfig(email='test1@chromium.org')
-    #     ],
-    # }
-    notifiers = {
-        "amd64-generic-fwupd-upstream": [
-            config_lib.NotificationConfig(
-                email="chromeos-fwupd@google.com",
-                template="legacy_informational",
-            ),
-        ],
-        "dedede-release": [
-            config_lib.NotificationConfig(
-                email="dedede-release-builder-alerts@google.com", threshold=2
-            ),
-        ],
-        "hatch-borealis-release": [
-            config_lib.NotificationConfig(
-                email="borealis-release-builder-alerts@google.com", threshold=2
-            ),
-        ],
-        "puff-borealis-release": [
-            config_lib.NotificationConfig(
-                email="borealis-release-builder-alerts@google.com", threshold=2
-            ),
-        ],
-        "swanky-release": [
-            config_lib.NotificationConfig(email="navil+spam@chromium.org"),
-        ],
-        "volteer-borealis-release": [
-            config_lib.NotificationConfig(
-                email="borealis-release-builder-alerts@google.com", threshold=2
-            ),
-        ],
-        "zork-borealis-release": [
-            config_lib.NotificationConfig(
-                email="borealis-release-builder-alerts@google.com", threshold=2
-            ),
-        ],
-        "tatl-release": [
-            config_lib.NotificationConfig(
-                email="clumptini+release-builder-alerts@google.com"
-            ),
-        ],
-        "tael-release": [
-            config_lib.NotificationConfig(
-                email="clumptini+release-builder-alerts@google.com"
-            ),
-        ],
-    }
-
-    for config_name, notification_configs in notifiers.items():
-        if config_name in site_config:
-            site_config[config_name].apply(
-                **{"notification_configs": notification_configs}
-            )
-        else:
-            logging.warning(
-                "ignoring notifier for missing config %s", config_name
-            )
-
-
 def ApplyCustomOverrides(site_config):
     """Method with to override specific flags for specific builders.
 
@@ -2544,8 +2461,6 @@ def GetConfig():
     FactoryBuilders(site_config, boards_dict, ge_build_config)
 
     FullBuilders(site_config, boards_dict, ge_build_config)
-
-    AddNotificationConfigs(site_config)
 
     ApplyCustomOverrides(site_config)
 

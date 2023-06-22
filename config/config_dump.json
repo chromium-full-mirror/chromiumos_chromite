@@ -1166,9 +1166,6 @@
       "test"
     ],
     "luci_builder": "Informational",
-    "notification_configs": [
-      "{\n  \"email\": \"chromeos-fwupd@google.com\",\n  \"template\": \"legacy_informational\",\n  \"threshold\": 1\n}"
-    ],
     "profile": "fwupd-upstream",
     "tast_vm_tests": [
       "{\n  \"suite_name\": \"tast_vm_fwupd\",\n  \"test_exprs\": [\n    \"(\\\"group:mainline\\\" && !informational && \\\"dep:fwupd\\\")\"\n  ],\n  \"timeout\": 3600\n}"
@@ -6370,9 +6367,6 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede\",\n  \"name\": \"taranza\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede\",\n  \"name\": \"waddledee\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede\",\n  \"name\": \"waddledoo\",\n  \"test_suites\": []\n}"
-    ],
-    "notification_configs": [
-      "{\n  \"email\": \"dedede-release-builder-alerts@google.com\",\n  \"template\": \"legacy_release\",\n  \"threshold\": 2\n}"
     ],
     "sign_types": [
       "recovery",
@@ -22587,9 +22581,6 @@
       "base",
       "test"
     ],
-    "notification_configs": [
-      "{\n  \"email\": \"clumptini+release-builder-alerts@google.com\",\n  \"template\": \"legacy_release\",\n  \"threshold\": 1\n}"
-    ],
     "packages": [
       "virtual/target-os",
       "virtual/target-os-dev",
@@ -22861,9 +22852,6 @@
     "images": [
       "base",
       "test"
-    ],
-    "notification_configs": [
-      "{\n  \"email\": \"clumptini+release-builder-alerts@google.com\",\n  \"template\": \"legacy_release\",\n  \"threshold\": 1\n}"
     ],
     "packages": [
       "virtual/target-os",
