@@ -290,16 +290,9 @@
   ambassador-llvm-toolchain-tryjob
   ambassador-payloads-tryjob
   ambassador-release-tryjob
-  amd64-generic-asan-tryjob
-  amd64-generic-coverage-fuzzer-tryjob
   amd64-generic-full-tryjob
-  amd64-generic-fuzzer-tryjob
-  amd64-generic-fwupd-upstream-tryjob
   amd64-generic-llvm-next-toolchain-tryjob
   amd64-generic-llvm-toolchain-tryjob
-  amd64-generic-msan-fuzzer-tryjob
-  amd64-generic-ubsan-fuzzer-tryjob
-  amd64-generic-ubsan-tryjob
   amd64-generic-vm-full-tryjob
   arkham-full-tryjob
   arkham-llvm-next-toolchain-tryjob
@@ -368,7 +361,6 @@
   betty-arc-u-llvm-toolchain-tryjob
   betty-arc-u-payloads-tryjob
   betty-arc-u-release-tryjob
-  betty-asan-tryjob
   betty-full-tryjob
   betty-kernelnext-full-tryjob
   betty-kernelnext-llvm-next-toolchain-tryjob

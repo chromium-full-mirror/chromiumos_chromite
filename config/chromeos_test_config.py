@@ -459,18 +459,6 @@ def GeneralTemplates(site_config, ge_build_config):
         image_test=True,
     )
 
-    site_config.templates.fuzzer.apply(
-        site_config.templates.default_hw_tests_override,
-        site_config.templates.no_hwtest_builder,
-        image_test=True,
-    )
-
-    # BEGIN asan
-    site_config.templates.asan.apply(
-        site_config.templates.default_hw_tests_override,
-    )
-    # END asan
-
     # BEGIN Factory
     site_config.templates.factory.apply(
         # site_config.templates.default_hw_tests_override,
@@ -536,12 +524,6 @@ def GeneralTemplates(site_config, ge_build_config):
         site_config.templates.no_hwtest_builder,
     )
     # END Termina
-
-    # BEGIN Ubsan
-    site_config.templates.ubsan.apply(
-        site_config.templates.default_hw_tests_override,
-    )
-    # END Ubsan
 
 
 def ApplyConfig(site_config, boards_dict, ge_build_config):

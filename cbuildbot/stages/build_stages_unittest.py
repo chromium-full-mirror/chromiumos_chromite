@@ -689,7 +689,7 @@ class BuildImageStageTest(BuildPackagesStageTest):
 class CleanUpStageTest(generic_stages_unittest.StageTestCase):
     """Test CleanUpStage."""
 
-    BOT_ID = "amd64-generic-asan"
+    BOT_ID = "amd64-generic-full"
 
     def setUp(self):
         self.fake_db = fake_cidb.FakeCIDBConnection()
@@ -782,28 +782,6 @@ class CleanUpStageTest(generic_stages_unittest.StageTestCase):
 
         stage = self.ConstructStage()
         self.assertFalse(stage.CanReuseChroot())
-
-    def testChrootReuseAllPassed(self):
-        master_id = self.fake_db.InsertBuild(
-            "test_builder",
-            123,
-            "test_config",
-            "test_hostname",
-            status=constants.BUILDER_STATUS_PASSED,
-            buildbucket_id="2178",
-        )
-        self.PatchObject(
-            build_stages.CleanUpStage,
-            "_GetPreviousBuildStatus",
-            return_value=build_summary.BuildSummary(
-                build_number=314,
-                master_build_id=master_id,
-                status=constants.BUILDER_STATUS_PASSED,
-            ),
-        )
-
-        stage = self.ConstructStage()
-        self.assertTrue(stage.CanReuseChroot())
 
 
 class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):

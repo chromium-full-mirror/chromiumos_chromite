@@ -323,24 +323,6 @@ def GeneralTemplates(site_config):
     )
 
     site_config.AddTemplate(
-        "fuzzer",
-        site_config.templates.internal,
-        site_config.templates.informational,
-        profile="fuzzer",
-        chrome_sdk=False,
-        sync_chrome=True,
-        usepkg_build_packages=False,
-        # Run fuzzer builder specific stages.
-        builder_class_name="fuzzer_builders.FuzzerBuilder",
-        # Need larger rootfs since fuzzing also enables asan.
-        disk_layout="2gb-rootfs",
-        gs_path="gs://chromeos-fuzzing-artifacts/libfuzzer-asan-buganizer",
-        images=[],
-        image_test=None,
-        packages=["virtual/target-fuzzers"],
-    )
-
-    site_config.AddTemplate(
         "pre_flight_branch",
         site_config.templates.internal,
         site_config.templates.official_chrome,
@@ -566,46 +548,6 @@ def GeneralTemplates(site_config):
         "vm",
         site_config.templates.full,
         profile="vm-optimized",
-    )
-
-    site_config.AddTemplate(
-        "asan",
-        site_config.templates.full,
-        site_config.templates.tast_vm_asan_tests,
-        profile="asan",
-        # TODO(crbug.com/1080416): Investigate why rootfs verification fails and
-        #   re-enable it. It used to work till late 2019.
-        rootfs_verification=False,
-        # THESE IMAGES CAN DAMAGE THE LAB and cannot be used for hardware
-        # testing.
-        disk_layout="16gb-rootfs",
-        # TODO(deymo): ASan builders generate bigger files, in particular a
-        #   bigger Chrome binary, that update_engine can't handle in delta
-        #   payloads due to memory limits. Remove the following lines once
-        #   crbug.com/329248 is fixed.
-        images=["base", "test"],
-        chrome_sdk=False,
-        vm_tests=[],
-        vm_tests_override=None,
-        doc=(
-            "https://dev.chromium.org/chromium-os/build/builder-overview#"
-            "TOC-ASAN"
-        ),
-    )
-
-    site_config.AddTemplate(
-        "ubsan",
-        profile="ubsan",
-        # Need larger rootfs for ubsan builds.
-        disk_layout="16gb-rootfs",
-        images=["base", "test"],
-        chrome_sdk=False,
-        vm_tests=[],
-        vm_tests_override=None,
-        doc=(
-            "https://dev.chromium.org/chromium-os/build/builder-overview#"
-            "TOC-ASAN"
-        ),
     )
 
 
@@ -921,141 +863,6 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
     )
 
     master_config.AddSlave(vm_config)
-
-
-def InformationalBuilders(site_config, boards_dict, ge_build_config):
-    """Create all informational builders.
-
-    We have a number of informational builders that are built, but whose output
-    is not directly used for anything other than reporting success or failure.
-
-    Args:
-        site_config: config_lib.SiteConfig to be modified by adding templates
-            and configs.
-        boards_dict: A dict mapping board types to board name collections.
-        ge_build_config: Dictionary containing the decoded GE configuration
-            file.
-    """
-    internal_board_configs = CreateInternalBoardConfigs(
-        site_config, boards_dict, ge_build_config
-    )
-
-    _chrome_boards = frozenset(
-        board
-        for board, config in internal_board_configs.items()
-        if config.get("sync_chrome", True)
-    )
-
-    site_config.Add(
-        "amd64-generic-asan",
-        site_config.templates.asan,
-        site_config.templates.incremental,
-        site_config.templates.no_hwtest_builder,
-        site_config.templates.build_external_chrome,
-        site_config.templates.informational,
-        boards=["amd64-generic"],
-        description="Build with Address Sanitizer (Clang)",
-        board_replace=True,
-    )
-
-    site_config.Add(
-        "betty-asan",
-        site_config.templates.asan,
-        site_config.templates.incremental,
-        site_config.templates.no_hwtest_builder,
-        site_config.templates.internal,
-        site_config.templates.informational,
-        boards=["betty"],
-        description="Build with Address Sanitizer (Clang)",
-        # Once every day. 3 PM UTC is 7 AM PST (no daylight savings).
-        # Currently disabled, to schedule uncomment the next line.
-        # schedule='0 15 * * *',
-        board_replace=True,
-        vm_tests=[],
-    )
-
-    site_config.Add(
-        "amd64-generic-fuzzer",
-        site_config.templates.fuzzer,
-        boards=["amd64-generic"],
-        description="Build for fuzzing testing",
-        # THESE IMAGES CAN DAMAGE THE LAB and cannot be used for hardware
-        # testing.
-        disk_layout="4gb-rootfs",
-        image_test=None,
-        board_replace=True,
-    )
-
-    site_config.Add(
-        "amd64-generic-coverage-fuzzer",
-        site_config.templates.fuzzer,
-        boards=["amd64-generic"],
-        profile="coverage-fuzzer",
-        description="Build for fuzzing coverage testing",
-        gs_path="gs://chromeos-fuzzing-artifacts/libfuzzer-coverage-buganizer",
-        disk_layout="4gb-rootfs",
-        image_test=None,
-        board_replace=True,
-    )
-
-    site_config.Add(
-        "amd64-generic-msan-fuzzer",
-        site_config.templates.fuzzer,
-        boards=["amd64-generic"],
-        profile="msan-fuzzer",
-        description="Build for msan fuzzing testing",
-        gs_path="gs://chromeos-fuzzing-artifacts/libfuzzer-msan-buganizer",
-        disk_layout="4gb-rootfs",
-        image_test=None,
-        board_replace=True,
-    )
-
-    site_config.Add(
-        "amd64-generic-ubsan",
-        site_config.templates.ubsan,
-        site_config.templates.incremental,
-        site_config.templates.no_hwtest_builder,
-        site_config.templates.informational,
-        boards=["amd64-generic"],
-        description="Build with Undefined Behavior Sanitizer (Clang)",
-        # THESE IMAGES CAN DAMAGE THE LAB and cannot be used for hardware
-        # testing.
-        disk_layout="16gb-rootfs",
-        board_replace=True,
-        vm_tests=[],
-    )
-
-    site_config.Add(
-        "amd64-generic-ubsan-fuzzer",
-        site_config.templates.fuzzer,
-        boards=["amd64-generic"],
-        profile="ubsan-fuzzer",
-        description="Build for fuzzing testing",
-        gs_path="gs://chromeos-fuzzing-artifacts/libfuzzer-ubsan-buganizer",
-        disk_layout="4gb-rootfs",
-        image_test=None,
-        board_replace=True,
-    )
-
-    site_config.Add(
-        "amd64-generic-fwupd-upstream",
-        site_config.templates.full,
-        site_config.templates.informational,
-        boards=["amd64-generic"],
-        profile="fwupd-upstream",
-        chrome_sdk=False,
-        description="Build with Upstream fwupd",
-        disk_layout="4gb-rootfs",
-        board_replace=True,
-        images=["base", "test"],
-        vm_tests=[],
-        tast_vm_tests=[
-            config_lib.TastVMTestConfig(
-                "tast_vm_fwupd",
-                ['("group:mainline" && !informational && "dep:fwupd")'],
-            )
-        ],
-    )
 
 
 def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
@@ -2455,8 +2262,6 @@ def GetConfig():
     PayloadBuilders(site_config, boards_dict)
 
     SpecialtyBuilders(site_config)
-
-    InformationalBuilders(site_config, boards_dict, ge_build_config)
 
     FactoryBuilders(site_config, boards_dict, ge_build_config)
 
