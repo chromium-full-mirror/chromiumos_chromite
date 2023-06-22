@@ -9,7 +9,8 @@
           "experimental": false,
           "leader_board": true,
           "board_group": "vm builds",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 107,
@@ -23,7 +24,9 @@
           "experimental": false,
           "leader_board": true,
           "board_group": "vm builds",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "board_variant": "pi-arc",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 108,
@@ -37,7 +40,8 @@
           "experimental": false,
           "leader_board": true,
           "board_group": "",
-          "arch": "ARM_INTERNAL"
+          "arch": "ARM_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 106,
@@ -51,7 +55,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "slippy",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 108,
@@ -65,7 +70,9 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "",
-          "arch": "UNKNOWN"
+          "arch": "UNKNOWN",
+          "board_variant": "labstation",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 105,
@@ -79,7 +86,8 @@
           "experimental": false,
           "leader_board": true,
           "board_group": "vm builds",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 107,
@@ -93,7 +101,9 @@
           "experimental": false,
           "leader_board": true,
           "board_group": "vm builds",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "board_variant": "arc64",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 107,
@@ -107,7 +117,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 108,
@@ -121,7 +132,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "",
-          "arch": "UNKNOWN"
+          "arch": "UNKNOWN",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 108,
@@ -135,7 +147,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 103,
@@ -149,7 +162,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "guest vm builds",
-          "arch": "ARM_INTERNAL"
+          "arch": "ARM_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 107,
@@ -163,7 +177,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "guest vm builds",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 107,
@@ -177,7 +192,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "pineview",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 108,
@@ -191,7 +207,8 @@
           "experimental": false,
           "leader_board": false,
           "board_group": "pineview",
-          "arch": "X86_INTERNAL"
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
         }
       ],
       "rubik_target_milestone": 108,
@@ -245,7 +262,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 88
+      "stable_target_milestone": 88,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "asurada",
@@ -298,7 +316,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 91
+      "stable_target_milestone": 91,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "atlas",
@@ -329,7 +348,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 75
+      "stable_target_milestone": 75,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "atlas-kernelnext",
@@ -360,7 +380,9 @@
         }
       ],
       "rubik_target_milestone": 102,
-      "stable_target_milestone": 101
+      "stable_target_milestone": 101,
+      "board_variant": "kernelnext",
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "bob",
@@ -391,7 +413,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 59
+      "stable_target_milestone": 59,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "brask",
@@ -559,7 +582,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 105
+      "stable_target_milestone": 105,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "brask-labstation",
@@ -643,7 +667,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 114
+      "stable_target_milestone": 114,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "brya",
@@ -1070,7 +1095,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 100
+      "stable_target_milestone": 100,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "cherry",
@@ -1132,7 +1158,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 98
+      "stable_target_milestone": 98,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "coral",
@@ -1465,7 +1492,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 64
+      "stable_target_milestone": 64,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "corsola",
@@ -1621,7 +1649,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 108
+      "stable_target_milestone": 108,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "dedede",
@@ -2563,7 +2592,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 87
+      "stable_target_milestone": 87,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "draco",
@@ -2592,7 +2622,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 104
+      "stable_target_milestone": 104,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "drallion",
@@ -2665,7 +2696,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 83
+      "stable_target_milestone": 83,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "elm",
@@ -2696,7 +2728,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 52
+      "stable_target_milestone": 52,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "endeavour",
@@ -2716,7 +2749,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 80
+      "stable_target_milestone": 80,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "eve",
@@ -2747,7 +2781,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 61
+      "stable_target_milestone": 61,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "excelsior",
@@ -2767,7 +2802,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 80
+      "stable_target_milestone": 80,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "fizz",
@@ -2852,7 +2888,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 65
+      "stable_target_milestone": 65,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "fizz-cfm",
@@ -2908,7 +2945,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 76
+      "stable_target_milestone": 76,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "fizz-labstation",
@@ -2928,7 +2966,9 @@
         }
       ],
       "rubik_target_milestone": 103,
-      "stable_target_milestone": 86
+      "stable_target_milestone": 86,
+      "board_variant": "labstation",
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "fizz-moblab",
@@ -2955,7 +2995,8 @@
         }
       ],
       "rubik_target_milestone": 103,
-      "stable_target_milestone": 66
+      "stable_target_milestone": 66,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "geralt",
@@ -2976,7 +3017,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 105
+      "stable_target_milestone": 105,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "grunt",
@@ -3211,7 +3253,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 71
+      "stable_target_milestone": 71,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "guybrush",
@@ -3282,7 +3325,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 100
+      "stable_target_milestone": 100,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "hana",
@@ -3376,7 +3420,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 56
+      "stable_target_milestone": 56,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "hana-arc64",
@@ -3459,7 +3504,9 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 89
+      "stable_target_milestone": 89,
+      "board_variant": "arc64",
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "hatch",
@@ -3676,7 +3723,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 78
+      "stable_target_milestone": 78,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "jacuzzi",
@@ -3957,7 +4005,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 81
+      "stable_target_milestone": 81,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "jacuzzi64",
@@ -4112,7 +4161,8 @@
         }
       ],
       "rubik_target_milestone": 103,
-      "stable_target_milestone": 102
+      "stable_target_milestone": 102,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "kalista",
@@ -4144,7 +4194,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 73
+      "stable_target_milestone": 73,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "kalista-cfm",
@@ -4164,7 +4215,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 78
+      "stable_target_milestone": 78,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "kevin",
@@ -4195,7 +4247,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 55
+      "stable_target_milestone": 55,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "kukui",
@@ -4290,7 +4343,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 79
+      "stable_target_milestone": 79,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "nami",
@@ -4467,7 +4521,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 68
+      "stable_target_milestone": 68,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "nautilus",
@@ -4519,7 +4574,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 66
+      "stable_target_milestone": 66,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "nissa",
@@ -4856,7 +4912,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 108
+      "stable_target_milestone": 108,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "nocturne",
@@ -4887,7 +4944,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 71
+      "stable_target_milestone": 71,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "octopus",
@@ -5624,7 +5682,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 71
+      "stable_target_milestone": 71,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "octopus-kernelnext",
@@ -6300,7 +6359,9 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 110
+      "stable_target_milestone": 110,
+      "board_variant": "kernelnext",
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "puff",
@@ -6467,7 +6528,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 85
+      "stable_target_milestone": 85,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "puff-moblab",
@@ -6496,7 +6558,8 @@
         }
       ],
       "rubik_target_milestone": 103,
-      "stable_target_milestone": 88
+      "stable_target_milestone": 88,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "pyro",
@@ -6527,7 +6590,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 57
+      "stable_target_milestone": 57,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "rammus",
@@ -6579,7 +6643,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 72
+      "stable_target_milestone": 72,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "reef",
@@ -6632,7 +6697,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 57
+      "stable_target_milestone": 57,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "sand",
@@ -6663,7 +6729,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 60
+      "stable_target_milestone": 60,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "sarien",
@@ -6735,7 +6802,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 75
+      "stable_target_milestone": 75,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "sarien-kernelnext",
@@ -6804,7 +6872,9 @@
         }
       ],
       "rubik_target_milestone": 103,
-      "stable_target_milestone": 78
+      "stable_target_milestone": 78,
+      "board_variant": "kernelnext",
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "scarlet",
@@ -6866,7 +6936,8 @@
         }
       ],
       "rubik_target_milestone": 106,
-      "stable_target_milestone": 65
+      "stable_target_milestone": 65,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "skyrim",
@@ -6977,7 +7048,8 @@
         }
       ],
       "rubik_target_milestone": 103,
-      "stable_target_milestone": 112
+      "stable_target_milestone": 112,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "skyrim-kernelnext",
@@ -7061,7 +7133,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 112
+      "stable_target_milestone": 112,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "snappy",
@@ -7110,7 +7183,8 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 57
+      "stable_target_milestone": 57,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "snappy-kernelnext",
@@ -7159,7 +7233,9 @@
         }
       ],
       "rubik_target_milestone": 103,
-      "stable_target_milestone": 57
+      "stable_target_milestone": 57,
+      "board_variant": "kernelnext",
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "soraka",
@@ -7191,7 +7267,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 65
+      "stable_target_milestone": 65,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "strongbad",
@@ -7307,7 +7384,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 91
+      "stable_target_milestone": 91,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "trogdor",
@@ -7442,7 +7520,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 88
+      "stable_target_milestone": 88,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "volteer",
@@ -7836,7 +7915,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 87
+      "stable_target_milestone": 87,
+      "build_cadence": "DAILY_CADENCE"
     },
     {
       "name": "zork",
@@ -8096,7 +8176,8 @@
         }
       ],
       "rubik_target_milestone": 107,
-      "stable_target_milestone": 86
+      "stable_target_milestone": 86,
+      "build_cadence": "DAILY_CADENCE"
     }
   ]
 }
