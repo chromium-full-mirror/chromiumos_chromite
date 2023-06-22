@@ -44,6 +44,7 @@ DATA_PROCESS_ADD_REMOVE_LISTS = (
     (["a", "~a"], set(), {"a"}),
     (["~a", "a"], {"a"}, set()),
     (["a", "b", "c", "~d"], {"a", "b", "c"}, {"d"}),
+    (["-a", "a"], {"a"}, set()),
 )
 
 

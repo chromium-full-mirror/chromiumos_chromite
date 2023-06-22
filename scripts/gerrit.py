@@ -210,12 +210,13 @@ def process_add_remove_lists(
     Invalid items will cause the program to exit with an error message.
 
     Args:
-        items: Items that begin with "~" mean "remove" while others are "add".
+        items: Items that begin with "~" or "-" mean "remove" while others are
+            "add".
         validate: A regular expression to validate each item.
 
     Returns:
         A tuple of sets: all the items to add and all the items to remove.
-        NB: The leading "~" will automatically be stripped.
+        NB: The leading "~" & "-" will automatically be stripped.
     """
     validator = re.compile(validate) if validate else None
 
@@ -226,7 +227,7 @@ def process_add_remove_lists(
             continue
 
         remove = False
-        if item[0] == "~":
+        if item[0] in ("~", "-"):
             remove = True
             item = item[1:]
 
@@ -1079,9 +1080,9 @@ class ActionCherryPick(UserAction):
 class ActionReview(_ActionSimpleParallelCLs):
     """Review CLs with multiple settings
 
-    The reviewers & cc options can remove people by prepending '~'.  Note: If
-    you want to move someone (reviewer->CC or CC->reviewer), you don't have to
-    remove them first, you only need to specify the final state.
+    The reviewers & cc options can remove people by prepending '~' or '-'.
+    Note: If you want to move someone (reviewer->CC or CC->reviewer), you don't
+    have to remove them first, you only need to specify the final state.
 
     The label option supports extended/multiple syntax for easy use. The --label
     option may be specified multiple times (as settings are merges), and
