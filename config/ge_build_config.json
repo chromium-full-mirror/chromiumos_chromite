@@ -1322,6 +1322,7 @@
       ],
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
+      "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE"
     },
     {
@@ -4111,6 +4112,7 @@
       ],
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
+      "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE"
     },
     {
