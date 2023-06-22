@@ -428,7 +428,6 @@
   caroline-ndktranslation-payloads-tryjob
   caroline-ndktranslation-release-tryjob
   cave-factory-glados-7828.B-factorybranch-tryjob
-  chell-chrome-no-afdo-uprev-pre-flight-branch-tryjob
   chell-factory-glados-7657.B-factorybranch-tryjob
   chell-factory-glados-7828.B-factorybranch-tryjob
   cherry-factory-cherry-14455.B-factorybranch-tryjob

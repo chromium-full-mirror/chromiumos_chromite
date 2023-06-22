@@ -380,31 +380,6 @@
       "upload_hw_test_artifacts": false,
       "vm_tests": []
     },
-    "pre_flight_branch": {
-      "_template": "pre_flight_branch",
-      "branch": true,
-      "build_timeout": 1200,
-      "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Chrome-PFQ",
-      "hw_tests_override": [],
-      "internal": true,
-      "luci_builder": "PFQ",
-      "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
-      "manifest_version": true,
-      "master": true,
-      "overlays": "both",
-      "push_overlays": "both",
-      "slave_configs": [],
-      "unittests": false,
-      "useflags": [
-        "chrome_internal"
-      ],
-      "vm_tests": [],
-      "vm_tests_override": [
-        "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": \"smoke\",\n  \"test_type\": \"vm_suite\",\n  \"timeout\": 5400,\n  \"use_ctest\": false,\n  \"warn_only\": false\n}",
-        "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": null,\n  \"test_type\": \"pfq_suite\",\n  \"timeout\": 5400,\n  \"use_ctest\": true,\n  \"warn_only\": false\n}",
-        "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": null,\n  \"test_type\": \"cros_vm_test\",\n  \"timeout\": 5400,\n  \"use_ctest\": true,\n  \"warn_only\": false\n}"
-      ]
-    },
     "release": {
       "_template": "release",
       "archive_build_debug": true,
@@ -4695,34 +4670,6 @@
     "push_image": false,
     "suite_scheduling": false,
     "workspace_branch": "factory-glados-7828.B"
-  },
-  "chell-chrome-no-afdo-uprev-pre-flight-branch": {
-    "_template": "pre_flight_branch",
-    "afdo_update_kernel_ebuild": true,
-    "archive_build_debug": true,
-    "boards": [
-      "chell"
-    ],
-    "chrome_rev": "stable_release",
-    "display_label": "chrome_pfq",
-    "sync_chrome": true,
-    "vm_tests_override": null
-  },
-  "chell-chrome-no-afdo-uprev-pre-flight-branch-tryjob": {
-    "_template": "pre_flight_branch",
-    "afdo_update_kernel_ebuild": true,
-    "archive_build_debug": true,
-    "boards": [
-      "chell"
-    ],
-    "chrome_rev": "stable_release",
-    "debug": true,
-    "debug_cidb": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "sync_chrome": true,
-    "vm_tests_override": null
   },
   "chell-factory-glados-7657.B-factorybranch": {
     "_template": "factorybranch",

@@ -1920,23 +1920,6 @@ def SpecialtyBuilders(site_config):
         ],
     )
 
-    # *-pre-flight-branch builders are in chromeos_release waterfall.
-    # *-no-afdo-uprev builder skips uprevving Chrome AFDO profiles in the PFQ
-    # builder, as we have separate builders to do so.
-    site_config.Add(
-        "chell-chrome-no-afdo-uprev-pre-flight-branch",
-        site_config.templates.pre_flight_branch,
-        display_label=config_lib.DISPLAY_LABEL_CHROME_PFQ,
-        boards=["chell"],
-        afdo_use=True,
-        afdo_update_kernel_ebuild=True,
-        sync_chrome=True,
-        chrome_rev=constants.CHROME_REV_STICKY,
-        prebuilts=False,
-        archive_build_debug=True,
-        vm_tests_override=None,
-    )
-
     # Loonix release builders; no signed images nor testing
     # Associated with Rapid releases, triggered from Rapid.
     for board in frozenset.union(
