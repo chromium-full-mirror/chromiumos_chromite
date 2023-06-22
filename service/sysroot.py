@@ -492,6 +492,7 @@ class BuildPackagesRunConfig(object):
         return flags
 
 
+@tracer.start_as_current_span("service.sysroot.SetupBoard")
 def SetupBoard(
     target: "build_target_lib.BuildTarget",
     accept_licenses: Optional[str] = None,
@@ -524,6 +525,7 @@ def SetupBoard(
     InstallToolchain(target, sysroot, run_configs)
 
 
+@tracer.start_as_current_span("service.sysroot.Create")
 def Create(
     target: "build_target_lib.BuildTarget",
     run_configs: SetupBoardRunConfig,
@@ -564,8 +566,12 @@ def Create(
             target.name,
         ]
         update_chroot += run_configs.GetUpdateChrootArgs()
+
         try:
-            cros_build_lib.run(update_chroot)
+            with tracer.start_as_current_span(
+                "service.sysroot.Create.update_chroot"
+            ):
+                cros_build_lib.run(update_chroot)
         except cros_build_lib.RunCommandError:
             raise UpdateChrootError(
                 "Error occurred while updating the chroot. "
@@ -794,6 +800,7 @@ def CreateChromeEbuildEnv(
     return result_path
 
 
+@tracer.start_as_current_span("service.sysroot.InstallToolchain")
 def InstallToolchain(
     target: "build_target_lib.BuildTarget",
     sysroot: sysroot_lib.Sysroot,
