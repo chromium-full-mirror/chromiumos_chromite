@@ -20,20 +20,12 @@
 
 arm_internal_release_boards = frozenset(
     [
-        "arkham",
-        "gale",
         "hana",
         "littlejoe",
-        "nyan_big",
-        "nyan_blaze",
         "tael",
-        "veyron_mighty",
-        "veyron_minnie",
-        "veyron_speedy",
         "viking",
         "viking-arm64",
         "viking-poc2",
-        "whirlwind",
     ]
 )
 
@@ -41,14 +33,11 @@ arm_external_boards = frozenset(
     [
         "arm-generic",
         "arm64-generic",
-        "arm64-llvmpipe",
     ]
 )
 
 x86_internal_release_boards = frozenset(
     [
-        "deltaur",
-        "falco_li",
         "glados",
         "guado_labstation",
         "guybrush",
@@ -69,14 +58,7 @@ x86_external_boards = frozenset(
 )
 
 # Board can appear in 1 or more of the following sets.
-brillo_boards = frozenset(
-    [
-        "arkham",
-        "gale",
-        "mistral",
-        "whirlwind",
-    ]
-)
+brillo_boards = frozenset([])
 
 dustbuster_boards = frozenset(
     [

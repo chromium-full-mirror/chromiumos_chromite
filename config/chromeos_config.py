@@ -1438,33 +1438,6 @@ def ApplyCustomOverrides(site_config):
             "hw_tests_override": [],
             "hw_tests_disabled_bug": "https://crbug.com/1092947",
         },
-        # No hw_tests for arkham, whirlwind, gale, mistral.  See b/140317527.
-        "arkham-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://b/140317527",
-        },
-        "whirlwind-release": {
-            "dev_installer_prebuilts": True,
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://b/140317527",
-            "paygen_skip_testing": True,
-        },
-        "gale-release": {
-            "dev_installer_prebuilts": True,
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://b/140317527",
-            "paygen_skip_testing": True,
-        },
-        "mistral-release": {
-            "dev_installer_prebuilts": True,
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://b/140317527",
-            "paygen_skip_testing": True,
-        },
         # TODO(yshaul): find out if hwqual needs to go as well
         # TODO(yshaul): fix apply method to merge base and test
         "guado_labstation-release": {
@@ -1713,7 +1686,7 @@ def ApplyCustomOverrides(site_config):
     # Some boards in toolchain builder are not using the same configuration as
     # release builders. Configure it here since it's easier, for both
     # llvm-toolchain and llvm-next-toolchain builders.
-    for board in ["fizz-moblab", "gale", "mistral", "whirlwind"]:
+    for board in ["fizz-moblab"]:
         if board == "fizz-moblab":
             overwritten_configs[board + "-llvm-toolchain"] = {
                 "enable_skylab_hw_tests": False,

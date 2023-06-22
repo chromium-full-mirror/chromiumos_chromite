@@ -291,19 +291,12 @@
   amd64-generic-llvm-next-toolchain-tryjob
   amd64-generic-llvm-toolchain-tryjob
   amd64-generic-vm-full-tryjob
-  arkham-full-tryjob
-  arkham-llvm-next-toolchain-tryjob
-  arkham-llvm-toolchain-tryjob
-  arkham-release-tryjob
   arm-generic-full-tryjob
   arm-generic-llvm-next-toolchain-tryjob
   arm-generic-llvm-toolchain-tryjob
   arm64-generic-full-tryjob
   arm64-generic-llvm-next-toolchain-tryjob
   arm64-generic-llvm-toolchain-tryjob
-  arm64-llvmpipe-full-tryjob
-  arm64-llvmpipe-llvm-next-toolchain-tryjob
-  arm64-llvmpipe-llvm-toolchain-tryjob
   asuka-factory-glados-7828.B-factorybranch-tryjob
   asurada-connectivitynext-full-tryjob
   asurada-connectivitynext-llvm-next-toolchain-tryjob
@@ -440,10 +433,6 @@
   dedede-llvm-toolchain-tryjob
   dedede-pvs-release-tryjob
   dedede-release-tryjob
-  deltaur-full-tryjob
-  deltaur-llvm-next-toolchain-tryjob
-  deltaur-llvm-toolchain-tryjob
-  deltaur-release-tryjob
   draco-full-tryjob
   draco-llvm-next-toolchain-tryjob
   draco-llvm-toolchain-tryjob
@@ -622,10 +611,6 @@
   factory-zork-13700.B-buildspec-tryjob
     zork-factory-zork-13700.B-factorybranch-tryjob
   fail-build
-  falco_li-full-tryjob
-  falco_li-llvm-next-toolchain-tryjob
-  falco_li-llvm-toolchain-tryjob
-  falco_li-release-tryjob
   fizz-cfm-full-tryjob
   fizz-cfm-llvm-next-toolchain-tryjob
   fizz-cfm-llvm-toolchain-tryjob
@@ -644,10 +629,6 @@
   fizz-moblab-release-tryjob
   fizz-release-tryjob
   gale-factory-gale-8743.19.B-factorybranch-tryjob
-  gale-full-tryjob
-  gale-llvm-next-toolchain-tryjob
-  gale-llvm-toolchain-tryjob
-  gale-release-tryjob
   geralt-full-tryjob
   geralt-llvm-next-toolchain-tryjob
   geralt-llvm-toolchain-tryjob
@@ -1018,14 +999,6 @@
   novato-llvm-next-toolchain-tryjob
   novato-llvm-toolchain-tryjob
   novato-release-tryjob
-  nyan_big-full-tryjob
-  nyan_big-llvm-next-toolchain-tryjob
-  nyan_big-llvm-toolchain-tryjob
-  nyan_big-release-tryjob
-  nyan_blaze-full-tryjob
-  nyan_blaze-llvm-next-toolchain-tryjob
-  nyan_blaze-llvm-toolchain-tryjob
-  nyan_blaze-release-tryjob
   octopus-arc-r-full-tryjob
   octopus-arc-r-llvm-next-toolchain-tryjob
   octopus-arc-r-llvm-toolchain-tryjob
@@ -1202,18 +1175,6 @@
   trogdor-zephyr-llvm-next-toolchain-tryjob
   trogdor-zephyr-llvm-toolchain-tryjob
   trogdor-zephyr-release-tryjob
-  veyron_mighty-full-tryjob
-  veyron_mighty-llvm-next-toolchain-tryjob
-  veyron_mighty-llvm-toolchain-tryjob
-  veyron_mighty-release-tryjob
-  veyron_minnie-full-tryjob
-  veyron_minnie-llvm-next-toolchain-tryjob
-  veyron_minnie-llvm-toolchain-tryjob
-  veyron_minnie-release-tryjob
-  veyron_speedy-full-tryjob
-  veyron_speedy-llvm-next-toolchain-tryjob
-  veyron_speedy-llvm-toolchain-tryjob
-  veyron_speedy-release-tryjob
   viking-arm64-full-tryjob
   viking-arm64-llvm-next-toolchain-tryjob
   viking-arm64-llvm-toolchain-tryjob
@@ -1239,10 +1200,6 @@
   volteer-llvm-toolchain-tryjob
   volteer-release-tryjob
   volteer-scudo-release-tryjob
-  whirlwind-full-tryjob
-  whirlwind-llvm-next-toolchain-tryjob
-  whirlwind-llvm-toolchain-tryjob
-  whirlwind-release-tryjob
   wristpin-full-tryjob
   wristpin-llvm-next-toolchain-tryjob
   wristpin-llvm-toolchain-tryjob
