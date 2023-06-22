@@ -724,7 +724,7 @@ def GenerateTestPayloads(
     if delta:
         steps.append(_do_delta)
         steps.append(_do_delta_minios)
-    if dlc and "dlc" in portage_util.GetBoardUseFlags(board):
+    if dlc and "dlc" in portage_util.GetBoardUseFlags(board, chroot=chroot):
         if full:
             steps.append(_do_full_dlc)
         if delta:
