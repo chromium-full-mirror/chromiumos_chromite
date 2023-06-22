@@ -194,16 +194,13 @@ Unit tests must clean up after themselves and in particular must not leak child
 processes after running. There is no guaranteed order in which tests are run or
 that tests are even run in the same process.
 
-### Pre-CQ
-
-Once you mark your CL as Commit-Queue +1 on the
-[Chromium Gerrit](https://chromium-review.googlesource.com), the PreCQ will pick
-up your change and fire few preset config runs as a precursor to CQ.
-
 ### Commit Queue
 
-This is the final step in getting your change pushed. CQ is the most
-comprehensive of all tests. Once a CL is verified by CQ, it is merged into the codebase.
+Once you mark your CL as Commit-Queue +1 (dry run) or +2 (full run) on the
+[Chromium Gerrit](https://chromium-review.googlesource.com), the CQ will pick
+up your change and run a comprehensive set of tests. Once a CL is verified by
+CQ, it is merged into the codebase. A dry run runs the same tests as a full
+run, but doesn't submit the CL when complete.
 
 ## How does ChromeOS build work?
 
