@@ -93,14 +93,15 @@ _KILL_LACROS_CHROME_CMD = "pkill -f %(lacros_dir)s/chrome"
 _RESET_LACROS_CHROME_CMD = "rm -rf /home/chronos/user/lacros"
 MODIFIED_CONF_FILE = f"modified {_CONF_FILE}"
 
-# This command checks if "--enable-features=LacrosSupport" is present in
+# This command checks if
+# "--enable-features=LacrosOnly,LacrosPrimary,LacrosSupport" is present in
 # /etc/chrome_dev.conf. If it is not, then it is added.
 # TODO(https://crbug.com/1112493): Automated scripts are currently not allowed
 # to modify chrome_dev.conf. Either revisit this policy or find another
 # mechanism to pass configuration to ash-chrome.
 ENABLE_LACROS_VIA_CONF_COMMAND = f"""
-    if ! grep -q "^--enable-features=LacrosSupport$" {_CONF_FILE}; then
-    echo "--enable-features=LacrosSupport" >> {_CONF_FILE};
+    if ! grep -q "^--enable-features=LacrosOnly,LacrosPrimary,LacrosSupport$" {_CONF_FILE}; then
+    echo "--enable-features=LacrosOnly,LacrosPrimary,LacrosSupport" >> {_CONF_FILE};
     echo {MODIFIED_CONF_FILE};
     fi
 """
