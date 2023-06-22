@@ -24,6 +24,7 @@ import shlex
 import signal
 import subprocess
 import sys
+from typing import List, Optional, Set, Tuple
 
 from chromite.lib import chromite_config
 from chromite.lib import commandline
@@ -199,6 +200,49 @@ def limits(cls):
             # We also do this so we can format integers.
             lims[k] = max(lims.get(k, 0), len("%s" % cl[k]))
     return lims
+
+
+def process_add_remove_lists(
+    items: List[str], validate: Optional[str] = None
+) -> Tuple[Set[str], Set[str]]:
+    """Split |items| into "add" and "remove" lists.
+
+    Invalid items will cause the program to exit with an error message.
+
+    Args:
+        items: Items that begin with "~" mean "remove" while others are "add".
+        validate: A regular expression to validate each item.
+
+    Returns:
+        A tuple of sets: all the items to add and all the items to remove.
+        NB: The leading "~" will automatically be stripped.
+    """
+    validator = re.compile(validate) if validate else None
+
+    add_list, remove_list, invalid_list = set(), set(), set()
+    for item in items:
+        if not item:
+            invalid_list.add(item)
+            continue
+
+        remove = False
+        if item[0] == "~":
+            remove = True
+            item = item[1:]
+
+        if validator and not validator.match(item):
+            invalid_list.add(item)
+        elif remove:
+            remove_list.add(item)
+            add_list.discard(item)
+        else:
+            add_list.add(item)
+            remove_list.discard(item)
+
+    if invalid_list:
+        cros_build_lib.Die("Invalid arguments: %s", ", ".join(invalid_list))
+
+    return (add_list, remove_list)
 
 
 # TODO: This func really needs to be merged into the core gerrit logic.
@@ -782,22 +826,9 @@ class ActionReviewers(UserAction):
     @staticmethod
     def __call__(opts):
         """Implement the action."""
-        # Allow for optional leading '~'.
-        email_validator = re.compile(r"^[~]?%s$" % constants.EMAIL_REGEX)
-        add_list, remove_list, invalid_list = [], [], []
-
-        for email in opts.reviewers:
-            if not email_validator.match(email):
-                invalid_list.append(email)
-            elif email[0] == "~":
-                remove_list.append(email[1:])
-            else:
-                add_list.append(email)
-
-        if invalid_list:
-            cros_build_lib.Die(
-                "Invalid email address(es): %s" % ", ".join(invalid_list)
-            )
+        add_list, remove_list = process_add_remove_lists(
+            opts.reviewers, f"^{constants.EMAIL_REGEX}$"
+        )
 
         if add_list or remove_list:
             helper, cl = GetGerrit(opts, opts.cl)
@@ -836,22 +867,9 @@ class ActionAttentionSet(UserAction):
     @staticmethod
     def __call__(opts):
         """Implement the action."""
-        # Allow for optional leading '~'.
-        email_validator = re.compile(r"^[~]?%s$" % constants.EMAIL_REGEX)
-        add_list, remove_list, invalid_list = [], [], []
-
-        for email in opts.users:
-            if not email_validator.match(email):
-                invalid_list.append(email)
-            elif email[0] == "~":
-                remove_list.append(email[1:])
-            else:
-                add_list.append(email)
-
-        if invalid_list:
-            cros_build_lib.Die(
-                "Invalid email address(es): %s" % ", ".join(invalid_list)
-            )
+        add_list, remove_list = process_add_remove_lists(
+            opts.users, f"^{constants.EMAIL_REGEX}$"
+        )
 
         if add_list or remove_list:
             helper, cl = GetGerrit(opts, opts.cl)
@@ -937,13 +955,7 @@ class ActionSethashtags(UserAction):
     @staticmethod
     def __call__(opts):
         """Implement the action."""
-        add = []
-        remove = []
-        for hashtag in opts.hashtags:
-            if hashtag.startswith("~"):
-                remove.append(hashtag[1:])
-            else:
-                add.append(hashtag)
+        add, remove = process_add_remove_lists(opts.hashtags)
         helper, cl = GetGerrit(opts, opts.cl)
         helper.SetHashtags(cl, add, remove, dryrun=opts.dryrun)
 

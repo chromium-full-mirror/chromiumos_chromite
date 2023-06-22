@@ -34,3 +34,52 @@ def test_main_usage():
         assert excinfo.value.code == 0
 
     gerrit.main(["help-all"])
+
+
+DATA_PROCESS_ADD_REMOVE_LISTS = (
+    # No inputs means no outputs.
+    ([], set(), set()),
+    (["a"], {"a"}, set()),
+    (["~a"], set(), {"a"}),
+    (["a", "~a"], set(), {"a"}),
+    (["~a", "a"], {"a"}, set()),
+    (["a", "b", "c", "~d"], {"a", "b", "c"}, {"d"}),
+)
+
+
+@pytest.mark.parametrize(
+    "items, exp_add, exp_remove", DATA_PROCESS_ADD_REMOVE_LISTS
+)
+def test_process_add_remove_lists(items, exp_add, exp_remove):
+    """Test process_add_remove_lists behavior."""
+    add, remove = gerrit.process_add_remove_lists(items)
+    assert add == exp_add and remove == exp_remove
+
+
+DATA_PROCESS_ADD_REMOVE_LISTS_VALIDATE = (
+    # No inputs means no outputs.
+    ([], set(), set()),
+    (["u@d"], {"u@d"}, set()),
+    (["~u@d"], set(), {"u@d"}),
+)
+
+
+@pytest.mark.parametrize(
+    "items, exp_add, exp_remove", DATA_PROCESS_ADD_REMOVE_LISTS_VALIDATE
+)
+def test_process_add_remove_lists_validate(items, exp_add, exp_remove):
+    """Test process_add_remove_lists behavior with a validator."""
+    add, remove = gerrit.process_add_remove_lists(items, validate=r"^.@.$")
+    assert add == exp_add and remove == exp_remove
+
+
+def test_process_add_remove_lists_invalid():
+    """Test validation errors."""
+    with pytest.raises(SystemExit) as excinfo:
+        gerrit.process_add_remove_lists(["a"], validate=r"^.@.$")
+    assert excinfo.value.code != 0
+
+    # Never accept the empty string.
+    with pytest.raises(SystemExit) as excinfo:
+        gerrit.process_add_remove_lists([""])
+    assert excinfo.value.code != 0
