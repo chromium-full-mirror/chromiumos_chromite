@@ -508,13 +508,10 @@ def CreateChromeRoot(
         return files
 
 
-def BundleTestUpdatePayloads(
-    chroot: "chroot_lib.Chroot", image_path: str, output_dir: str
-) -> List[str]:
+def BundleTestUpdatePayloads(image_path: str, output_dir: str) -> List[str]:
     """Generate the test update payloads.
 
     Args:
-        chroot: Chroot we're operating with.
         image_path: The full path to an image file.
         output_dir: The path where the payloads should be generated.
 
@@ -522,13 +519,7 @@ def BundleTestUpdatePayloads(
         The list of generated payloads.
     """
     payloads = GenerateTestPayloads(
-        chroot,
-        image_path,
-        output_dir,
-        full=True,
-        stateful=True,
-        delta=True,
-        dlc=True,
+        image_path, output_dir, full=True, stateful=True, delta=True, dlc=True
     )
     payloads.extend(GenerateQuickProvisionPayloads(image_path, output_dir))
 
@@ -545,7 +536,6 @@ def ExtendBinPaths(cros_payload_path: str) -> List[str]:
 
 
 def GenerateTestPayloads(
-    chroot: "chroot_lib.Chroot",
     target_image_path: str,
     archive_dir: str,
     full: bool = False,
@@ -556,7 +546,6 @@ def GenerateTestPayloads(
     """Generates the payloads for hw testing.
 
     Args:
-        chroot: The chroot to be used.
         target_image_path: The path to the image to generate payloads to.
         archive_dir: Where to store payloads we generated.
         full: Generate full payloads.
@@ -594,7 +583,7 @@ def GenerateTestPayloads(
         cros_name = "_".join([cros_prefix, os_version, board, "full", suffix])
         cros_payload_path = os.path.join(archive_dir, cros_name)
         if paygen_payload_lib.GenerateUpdatePayload(
-            chroot, target_image_path, cros_payload_path
+            target_image_path, cros_payload_path
         ):
             generated.extend(ExtendBinPaths(cros_payload_path))
         else:
@@ -610,7 +599,7 @@ def GenerateTestPayloads(
         )
         minios_payload_path = os.path.join(archive_dir, minios_name)
         if paygen_payload_lib.GenerateUpdatePayload(
-            chroot, target_image_path, minios_payload_path, minios=True
+            target_image_path, minios_payload_path, minios=True
         ):
             generated.extend(ExtendBinPaths(minios_payload_path))
         else:
@@ -627,10 +616,7 @@ def GenerateTestPayloads(
         )
         cros_payload_path = os.path.join(archive_dir, cros_name)
         if paygen_payload_lib.GenerateUpdatePayload(
-            chroot,
-            target_image_path,
-            cros_payload_path,
-            src_image=target_image_path,
+            target_image_path, cros_payload_path, src_image=target_image_path
         ):
             generated.extend(ExtendBinPaths(cros_payload_path))
         else:
@@ -647,7 +633,6 @@ def GenerateTestPayloads(
         )
         minios_payload_path = os.path.join(archive_dir, minios_name)
         if paygen_payload_lib.GenerateUpdatePayload(
-            chroot,
             target_image_path,
             minios_payload_path,
             src_image=target_image_path,
@@ -677,7 +662,7 @@ def GenerateTestPayloads(
         )
         payload_path = os.path.join(archive_dir, name)
         if paygen_payload_lib.GenerateUpdatePayload(
-            chroot, sample_dlc_image, payload_path
+            sample_dlc_image, payload_path
         ):
             generated.extend(ExtendBinPaths(payload_path))
         else:
@@ -703,7 +688,7 @@ def GenerateTestPayloads(
         )
         payload_path = os.path.join(archive_dir, name)
         if paygen_payload_lib.GenerateUpdatePayload(
-            chroot, sample_dlc_image, payload_path, src_image=sample_dlc_image
+            sample_dlc_image, payload_path, src_image=sample_dlc_image
         ):
             generated.extend(ExtendBinPaths(payload_path))
         else:

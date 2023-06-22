@@ -9,7 +9,6 @@ from typing import Dict, Tuple, TYPE_CHECKING
 from chromite.api import controller
 from chromite.api import faux
 from chromite.api import validate
-from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.lib import cros_build_lib
 from chromite.lib.paygen import paygen_payload_lib
@@ -98,13 +97,10 @@ def GeneratePayload(
     # Find the value of bucket or default to 'chromeos-releases'.
     destination_bucket = input_proto.bucket or "chromeos-releases"
 
-    chroot = controller_util.ParseChroot(input_proto.chroot)
-
     # There's a potential that some paygen_lib library might raise here, but
     # since we're still involved in config we'll keep it before the
     # validate_only.
     payload_config = payload.PayloadConfig(
-        chroot,
         tgt_image,
         src_image,
         destination_bucket,

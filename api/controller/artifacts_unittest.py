@@ -611,7 +611,7 @@ class BundleTestUpdatePayloadsTest(
 
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
 
-        def MockPayloads(_, image_path, archive_dir):
+        def MockPayloads(image_path, archive_dir):
             osutils.WriteFile(
                 os.path.join(archive_dir, "payload1.bin"), image_path
             )

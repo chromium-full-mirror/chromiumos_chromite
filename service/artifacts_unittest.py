@@ -521,9 +521,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             parallel, "RunParallelSteps", lambda x, **kwargs: [a() for a in x]
         )
-        self.chroot = chroot_lib.Chroot(
-            self.tempdir / "chroot", out_path=self.tempdir / "out"
-        )
 
     def testExtendBuildPaths(self):
         """Verifies that ExtendBuildPaths adds the correct elements."""
@@ -543,7 +540,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
 
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True
+            self.target_image, self.tempdir, full=True
         )
 
         cros_payload_path = os.path.join(
@@ -561,13 +558,8 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         paygen_mock.assert_has_calls(
             [
-                mock.call(self.chroot, self.target_image, cros_payload_path),
-                mock.call(
-                    self.chroot,
-                    self.target_image,
-                    minios_payload_path,
-                    minios=True,
-                ),
+                mock.call(self.target_image, cros_payload_path),
+                mock.call(self.target_image, minios_payload_path, minios=True),
             ]
         )
 
@@ -581,7 +573,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
         )
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True
+            self.target_image, self.tempdir, full=True
         )
 
         cros_payload_path = os.path.join(
@@ -595,13 +587,8 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(generated, artifacts.ExtendBinPaths(cros_payload_path))
         paygen_mock.assert_has_calls(
             [
-                mock.call(self.chroot, self.target_image, cros_payload_path),
-                mock.call(
-                    self.chroot,
-                    self.target_image,
-                    minios_payload_path,
-                    minios=True,
-                ),
+                mock.call(self.target_image, cros_payload_path),
+                mock.call(self.target_image, minios_payload_path, minios=True),
             ]
         )
 
@@ -615,7 +602,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
         )
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True
+            self.target_image, self.tempdir, full=True
         )
 
         cros_payload_path = os.path.join(
@@ -629,13 +616,8 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(generated, [])
         paygen_mock.assert_has_calls(
             [
-                mock.call(self.chroot, self.target_image, cros_payload_path),
-                mock.call(
-                    self.chroot,
-                    self.target_image,
-                    minios_payload_path,
-                    minios=True,
-                ),
+                mock.call(self.target_image, cros_payload_path),
+                mock.call(self.target_image, minios_payload_path, minios=True),
             ]
         )
 
@@ -649,7 +631,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
         )
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True
+            self.target_image, self.tempdir, delta=True
         )
         cros_payload_path = os.path.join(
             self.tempdir,
@@ -669,13 +651,11 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         paygen_mock.assert_has_calls(
             [
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     cros_payload_path,
                     src_image=self.target_image,
                 ),
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     minios_payload_path,
                     src_image=self.target_image,
@@ -694,7 +674,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
         )
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True
+            self.target_image, self.tempdir, delta=True
         )
 
         cros_payload_path = os.path.join(
@@ -711,13 +691,11 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         paygen_mock.assert_has_calls(
             [
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     cros_payload_path,
                     src_image=self.target_image,
                 ),
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     minios_payload_path,
                     src_image=self.target_image,
@@ -736,7 +714,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
         )
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True
+            self.target_image, self.tempdir, delta=True
         )
 
         cros_payload_path = os.path.join(
@@ -753,13 +731,11 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         paygen_mock.assert_has_calls(
             [
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     cros_payload_path,
                     src_image=self.target_image,
                 ),
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     minios_payload_path,
                     src_image=self.target_image,
@@ -780,7 +756,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True, dlc=True
+            self.target_image, self.tempdir, full=True, dlc=True
         )
 
         cros_payload = os.path.join(
@@ -806,11 +782,9 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         paygen_mock.assert_has_calls(
             [
-                mock.call(self.chroot, self.target_image, cros_payload),
-                mock.call(
-                    self.chroot, self.target_image, minios_payload, minios=True
-                ),
-                mock.call(self.chroot, self.sample_dlc_image, dlc_payload),
+                mock.call(self.target_image, cros_payload),
+                mock.call(self.target_image, minios_payload, minios=True),
+                mock.call(self.sample_dlc_image, dlc_payload),
             ]
         )
 
@@ -826,7 +800,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True, dlc=True
+            self.target_image, self.tempdir, full=True, dlc=True
         )
 
         cros_payload = os.path.join(
@@ -852,11 +826,9 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
         paygen_mock.assert_has_calls(
             [
-                mock.call(self.chroot, self.target_image, cros_payload),
-                mock.call(
-                    self.chroot, self.target_image, minios_payload, minios=True
-                ),
-                mock.call(self.chroot, self.sample_dlc_image, dlc_payload),
+                mock.call(self.target_image, cros_payload),
+                mock.call(self.target_image, minios_payload, minios=True),
+                mock.call(self.sample_dlc_image, dlc_payload),
             ]
         )
 
@@ -872,7 +844,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True, dlc=True
+            self.target_image, self.tempdir, delta=True, dlc=True
         )
 
         cros_payload = os.path.join(
@@ -905,20 +877,15 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         paygen_mock.assert_has_calls(
             [
                 mock.call(
-                    self.chroot,
-                    self.target_image,
-                    cros_payload,
-                    src_image=self.target_image,
+                    self.target_image, cros_payload, src_image=self.target_image
                 ),
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     minios_payload,
                     src_image=self.target_image,
                     minios=True,
                 ),
                 mock.call(
-                    self.chroot,
                     self.sample_dlc_image,
                     dlc_payload,
                     src_image=self.sample_dlc_image,
@@ -938,7 +905,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
         generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True, dlc=True
+            self.target_image, self.tempdir, delta=True, dlc=True
         )
 
         cros_payload = os.path.join(
@@ -971,20 +938,15 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         paygen_mock.assert_has_calls(
             [
                 mock.call(
-                    self.chroot,
-                    self.target_image,
-                    cros_payload,
-                    src_image=self.target_image,
+                    self.target_image, cros_payload, src_image=self.target_image
                 ),
                 mock.call(
-                    self.chroot,
                     self.target_image,
                     minios_payload,
                     src_image=self.target_image,
                     minios=True,
                 ),
                 mock.call(
-                    self.chroot,
                     self.sample_dlc_image,
                     dlc_payload,
                     src_image=self.sample_dlc_image,
@@ -998,7 +960,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             paygen_stateful_payload_lib, "GenerateStatefulPayload"
         )
         artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, stateful=True
+            self.target_image, self.tempdir, stateful=True
         )
         paygen_mock.assert_called_once_with(self.target_image, self.tempdir)
 

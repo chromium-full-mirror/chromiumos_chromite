@@ -4,6 +4,7 @@
 
 """Utilities for updating and building in the chroot environment."""
 
+import contextlib
 import logging
 import os
 
@@ -227,6 +228,27 @@ def RunUnittests(
     command += list(packages)
 
     cros_build_lib.sudo_run(command, extra_env=env)
+
+
+@contextlib.contextmanager
+def TempDirInChroot(**kwargs):
+    """A context to create and use a tempdir inside the chroot.
+
+    Args:
+        prefix: See tempfile.mkdtemp documentation.
+        base_dir: The directory to place the temporary directory in the chroot.
+        set_global: See osutils.TempDir documentation.
+        delete: See osutils.TempDir documentation.
+        sudo_rm: See osutils.TempDir documentation.
+
+    Yields:
+        A host path (not chroot path) to a tempdir inside the chroot. This
+        tempdir is cleaned up when exiting the context.
+    """
+    base_dir = kwargs.pop("base_dir", "/tmp")
+    kwargs["base_dir"] = path_util.FromChrootPath(base_dir)
+    tempdir = osutils.TempDir(**kwargs)
+    yield tempdir.tempdir
 
 
 def CreateMakeConfUser():

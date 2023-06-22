@@ -10,7 +10,7 @@ import shutil
 import tempfile
 from unittest import mock
 
-from chromite.lib import chroot_lib
+from chromite.lib import chroot_util
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
@@ -59,7 +59,6 @@ class SignerPayloadsClientGoogleStorageTest(
         """Test helper method to create a client with standard arguments."""
 
         client = signer_payloads_client.SignerPayloadsClientGoogleStorage(
-            chroot=chroot_lib.Chroot(),
             build=gspaths.Build(
                 channel="foo-channel",
                 board="foo-board",
@@ -91,9 +90,7 @@ class SignerPayloadsClientGoogleStorageTest(
         self.assertIsNotNone(client._work_dir)
 
         client = signer_payloads_client.SignerPayloadsClientGoogleStorage(
-            chroot=chroot_lib.Chroot(),
-            build=gspaths.Build(),
-            work_dir="/foo-dir",
+            build=gspaths.Build(), work_dir="/foo-dir"
         )
         self.assertEqual(client._work_dir, "/foo-dir")
 
@@ -373,8 +370,7 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
         # This is in the real production chromeos-releases, but the listed
         # build has never, and will never exist.
         self.client = signer_payloads_client.SignerPayloadsClientGoogleStorage(
-            chroot=chroot_lib.Chroot(),
-            build=gspaths.Build(
+            gspaths.Build(
                 channel="test-channel",
                 board="crostools-client",
                 version="Rxx-Ryy",
@@ -530,21 +526,18 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
             ctx.Remove(clean_uri, ignore_missing=True)
 
 
-class UnofficialPayloadSignerTest(cros_test_lib.TempDirTestCase):
+class UnofficialPayloadSignerTest(cros_test_lib.TestCase):
     """Test suit for testing unofficial local payload signer."""
 
     def setUp(self):
         # UnofficialSignerPayloadsClient need a temporary directory inside
         # chroot so cros_test_lib.TempDirTestCase will not work if we run this
         # unittest outside the chroot.
-        chroot = chroot_lib.Chroot()
-        with chroot.tempdir(delete=False) as dir_in_chroot:
+        with chroot_util.TempDirInChroot(delete=False) as dir_in_chroot:
             self._temp_dir = dir_in_chroot
 
         self._client = signer_payloads_client.UnofficialSignerPayloadsClient(
-            chroot=chroot,
-            private_key=remote_access.TEST_PRIVATE_KEY,
-            work_dir=self._temp_dir,
+            private_key=remote_access.TEST_PRIVATE_KEY, work_dir=self._temp_dir
         )
 
     def cleanUp(self):

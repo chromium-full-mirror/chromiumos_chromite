@@ -6,9 +6,9 @@
 
 import collections
 
-from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
+from chromite.lib import path_util
 
 
 # MiniOS partition type GUID
@@ -43,9 +43,7 @@ class Disk(object):
         self.partitions = partitions or collections.OrderedDict()
 
     @classmethod
-    def FromImage(
-        cls, image_file, chroot: chroot_lib.Chroot = chroot_lib.Chroot()
-    ):
+    def FromImage(cls, image_file):
         """Returns new Disk initialized from given |image_file|.
 
         Raises:
@@ -55,11 +53,10 @@ class Disk(object):
         # If 'cgpt' binary doesn't exist in path, try within chroot.
         enter_chroot = osutils.Which("cpgt") is None
         if enter_chroot:
-            image_file = chroot.chroot_path(image_file)
+            image_file = path_util.ToChrootPath(image_file)
         cmd_result = cros_build_lib.run(
             ["cgpt", "show", "-n", image_file],
             enter_chroot=enter_chroot,
-            chroot_args=chroot.get_enter_args(),
             capture_output=True,
             encoding="utf-8",
         )

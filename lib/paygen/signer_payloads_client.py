@@ -13,11 +13,12 @@ import tempfile
 import threading
 import time
 
-from chromite.lib import chroot_lib
+from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib.paygen import filelib
 from chromite.lib.paygen import gslock
 from chromite.lib.paygen import gspaths
@@ -33,24 +34,21 @@ SIGNER_PRIORITY = 45
 class SignerPayloadsClientGoogleStorage(object):
     """Implements the Google Storage signer interface for payloads."""
 
-    def __init__(
-        self, chroot: chroot_lib.Chroot, build, work_dir, unique=None, ctx=None
-    ):
+    def __init__(self, build, work_dir=None, unique=None, ctx=None):
         """This identifies the build and payload that need signatures.
 
         Args:
-            chroot: Chroot to work with.
             build: An instance of gspaths.Build that defines the build.
             work_dir: A directory inside the chroot to be used for temporarily
                 manipulating files. The directory should be cleaned by the
-                caller.
+                caller. If it is not passed, a temporary directory will be
+                created.
             unique: Force known 'unique' id. Mostly for unittests.
             ctx: GS Context to use for GS operations.
         """
-        self._chroot = chroot
         self._build = build
         self._ctx = ctx if ctx is not None else gs.GSContext()
-        self._work_dir = work_dir
+        self._work_dir = work_dir or chroot_util.TempDirInChroot()
 
         build_signing_uri = gspaths.ChromeosReleases.BuildPayloadsSigningUri(
             self._build
@@ -409,7 +407,7 @@ versionrev = %(version)s
 class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
     """This class is a payload signer for local and test buckets."""
 
-    def __init__(self, chroot: chroot_lib.Chroot, private_key, work_dir=None):
+    def __init__(self, private_key, work_dir=None):
         """A signer that signs an update payload with a given key.
 
         For example there is no test key that can be picked up by
@@ -422,7 +420,6 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
         (or at least part of it) tested constantly.
 
         Args:
-            chroot: Chroot to work with.
             private_key: A 2048 bits private key in PEM format for signing.
             work_dir: A directory inside the chroot to be used for temporarily
                 manipulating files. The directory should be cleaned by the
@@ -434,7 +431,7 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
 
         self._private_key = private_key
 
-        super().__init__(chroot, gspaths.Build(), work_dir)
+        super().__init__(gspaths.Build(), work_dir)
 
     def ExtractPublicKey(self, public_key):
         """Extracts the public key from the private key.
@@ -476,7 +473,7 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
             )
             osutils.WriteFile(hash_file, h, mode="wb")
 
-            sign_script = self._chroot.chroot_path(
+            sign_script = path_util.ToChrootPath(
                 os.path.join(
                     constants.SOURCE_ROOT,
                     "src/platform/vboot_reference/scripts/image_signing/",
@@ -488,12 +485,11 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
                 [
                     sign_script,
                     "update_payload",
-                    self._chroot.chroot_path(hash_file),
-                    self._chroot.chroot_path(self._work_dir),
-                    self._chroot.chroot_path(signature_file),
+                    path_util.ToChrootPath(hash_file),
+                    path_util.ToChrootPath(self._work_dir),
+                    path_util.ToChrootPath(signature_file),
                 ],
                 enter_chroot=True,
-                chroot_args=self._chroot.get_enter_args(),
             )
 
             signatures.append([osutils.ReadFile(signature_file, mode="rb")])

@@ -6,16 +6,13 @@
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
-from chromite.lib import chroot_lib
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import osutils
 from chromite.lib.paygen import gspaths
 from chromite.lib.paygen import paygen_payload_lib
 from chromite.service import payload
 
 
-class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
+class PayloadServiceTest(cros_test_lib.MockTestCase):
     """Unsigned payload generation tests."""
 
     def setUp(self):
@@ -40,12 +37,6 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
             build_target=common_pb2.BuildTarget(name="cave"),
         )
 
-        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
-        self.chroot = chroot_lib.Chroot(
-            path=self.tempdir / "chroot", out_path=self.tempdir / "out"
-        )
-        osutils.SafeMakedirs(self.chroot.tmp)
-
     def testUnsigned(self):
         """Test the happy path on unsigned images."""
 
@@ -58,7 +49,6 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         payload_config = payload.PayloadConfig(
-            self.chroot,
             tgt_image=tgt_image,
             src_image=src_image,
             dest_bucket="test",
@@ -80,7 +70,6 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         payload_config = payload.PayloadConfig(
-            self.chroot,
             tgt_image=tgt_image,
             src_image=src_image,
             dest_bucket="test",
@@ -101,7 +90,6 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         payload_config = payload.PayloadConfig(
-            self.chroot,
             tgt_image=tgt_image,
             src_image=None,
             dest_bucket="test",
@@ -123,7 +111,6 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         payload_config = payload.PayloadConfig(
-            self.chroot,
             tgt_image=tgt_image,
             src_image=src_image,
             dest_bucket="test",
@@ -147,7 +134,6 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         payload_config = payload.PayloadConfig(
-            self.chroot,
             tgt_image=tgt_image,
             src_image=src_image,
             dest_bucket="test",

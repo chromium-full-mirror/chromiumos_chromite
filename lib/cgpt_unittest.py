@@ -4,8 +4,6 @@
 
 """Test chromite.lib.cgpt"""
 
-from unittest import mock
-
 from chromite.lib import cgpt
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -92,7 +90,6 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
         self.assertCommandCalled(
             ["cgpt", "show", "-n", "foo"],
             enter_chroot=False,
-            chroot_args=mock.ANY,
             capture_output=True,
             encoding="utf-8",
         )
@@ -126,7 +123,6 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
         self.assertCommandCalled(
             ["cgpt", "show", "-n", "foo"],
             enter_chroot=True,
-            chroot_args=mock.ANY,
             capture_output=True,
             encoding="utf-8",
         )

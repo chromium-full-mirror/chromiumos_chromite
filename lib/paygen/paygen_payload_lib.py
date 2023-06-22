@@ -18,7 +18,7 @@ import time
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.lib import cgpt
-from chromite.lib import chroot_lib
+from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dlc_lib
@@ -95,24 +95,16 @@ class MiniOSPatritionMismatchException(MiniOSException):
 class PaygenSigner(object):
     """Class to manager the payload signer."""
 
-    def __init__(
-        self,
-        chroot: chroot_lib.Chroot,
-        work_dir,
-        private_key=None,
-        payload_build=None,
-    ):
+    def __init__(self, work_dir, private_key=None, payload_build=None):
         """Initializer.
 
         Args:
-            chroot: Chroot to work with.
             work_dir: A working directory inside the chroot.
             private_key: The private keys to sign the payload with.
             payload_build: The build defined for the payload.
         """
         self.public_key = None
 
-        self._chroot = chroot
         self._work_dir = work_dir
         self._private_key = private_key
         self._payload_build = payload_build
@@ -130,7 +122,7 @@ class PaygenSigner(object):
             # Using the official buckets, so sign it with official signers.
             self._signer = (
                 signer_payloads_client.SignerPayloadsClientGoogleStorage(
-                    self._chroot, self._payload_build, self._work_dir
+                    self._payload_build, self._work_dir
                 )
             )
             # We set the private key to None, so we don't accidentally use a
@@ -150,7 +142,7 @@ class PaygenSigner(object):
                 )
             self._signer = (
                 signer_payloads_client.UnofficialSignerPayloadsClient(
-                    self._chroot, self._private_key, self._work_dir
+                    self._private_key, self._work_dir
                 )
             )
 
@@ -186,7 +178,6 @@ class PaygenPayload(object):
 
     def __init__(
         self,
-        chroot: chroot_lib.Chroot,
         payload,
         work_dir,
         signer=None,
@@ -198,7 +189,6 @@ class PaygenPayload(object):
         """Init for PaygenPayload.
 
         Args:
-            chroot: Chroot to work with.
             payload: An instance of gspaths.Payload describing the payload to
                 generate.
             work_dir: A working directory inside the chroot to put temporary
@@ -216,7 +206,6 @@ class PaygenPayload(object):
             static: Static local file and upload URI names otherwise random
                 string is added into the file/URI names.
         """
-        self.chroot = chroot
         self.payload = payload
         self.work_dir = work_dir
         self._verify = verify
@@ -486,7 +475,7 @@ class PaygenPayload(object):
         Raises:
             MiniOSException: One of several miniOS errors.
         """
-        disk = cgpt.Disk.FromImage(image_file, chroot=self.chroot)
+        disk = cgpt.Disk.FromImage(image_file)
         try:
             parts = disk.GetPartitionByTypeGuid(cgpt.MINIOS_TYPE_GUID)
             # These are hard enforcements on miniOS partitions now to avoid
@@ -626,7 +615,6 @@ class PaygenPayload(object):
                     cmd,
                     stdout=True,
                     enter_chroot=True,
-                    chroot_args=self.chroot.get_enter_args(),
                     stderr=subprocess.STDOUT,
                 )
                 response_queue.append(result)
@@ -781,24 +769,24 @@ class PaygenPayload(object):
         cmd = [
             "delta_generator",
             "--major_version=2",
-            "--out_file=" + self.chroot.chroot_path(self.payload_file),
+            "--out_file=" + path_util.ToChrootPath(self.payload_file),
             # Target image args: (The order of partitions are important.)
             "--partition_names=" + ":".join(self.partition_names),
             "--new_partitions="
-            + ":".join(self.chroot.chroot_path(x) for x in self.tgt_partitions),
+            + ":".join(path_util.ToChrootPath(x) for x in self.tgt_partitions),
         ]
 
         if os.path.exists(self._postinst_config_file):
             cmd += [
                 "--new_postinstall_config_file="
-                + self.chroot.chroot_path(self._postinst_config_file)
+                + path_util.ToChrootPath(self._postinst_config_file)
             ]
 
         if self.payload.src_image:
             cmd += [
                 "--old_partitions="
                 + ":".join(
-                    self.chroot.chroot_path(x) for x in self.src_partitions
+                    path_util.ToChrootPath(x) for x in self.src_partitions
                 )
             ]
 
@@ -820,12 +808,11 @@ class PaygenPayload(object):
 
         cmd = [
             "delta_generator",
-            "--in_file=" + self.chroot.chroot_path(self.payload_file),
+            "--in_file=" + path_util.ToChrootPath(self.payload_file),
             "--signature_size=" + ":".join(self._signature_sizes),
-            "--out_hash_file="
-            + self.chroot.chroot_path(self.payload_hash_file),
+            "--out_hash_file=" + path_util.ToChrootPath(self.payload_hash_file),
             "--out_metadata_hash_file="
-            + self.chroot.chroot_path(self.metadata_hash_file),
+            + path_util.ToChrootPath(self.metadata_hash_file),
         ]
 
         self._RunGeneratorCmd(cmd)
@@ -916,7 +903,7 @@ class PaygenPayload(object):
                 dir=self.work_dir, delete=False
             ).name
             osutils.WriteFile(path, signature, mode="wb")
-            file_paths.append(self.chroot.chroot_path(path))
+            file_paths.append(path_util.ToChrootPath(path))
 
         return file_paths
 
@@ -943,13 +930,13 @@ class PaygenPayload(object):
 
         cmd = [
             "delta_generator",
-            "--in_file=" + self.chroot.chroot_path(self.payload_file),
+            "--in_file=" + path_util.ToChrootPath(self.payload_file),
             "--signature_size=" + ":".join(self._signature_sizes),
             "--payload_signature_file="
             + ":".join(payload_signature_file_names),
             "--metadata_signature_file="
             + ":".join(metadata_signature_file_names),
-            "--out_file=" + self.chroot.chroot_path(self.signed_payload_file),
+            "--out_file=" + path_util.ToChrootPath(self.signed_payload_file),
         ]
 
         self._RunGeneratorCmd(cmd)
@@ -1000,7 +987,7 @@ class PaygenPayload(object):
             payload.json file.
         """
         try:
-            payload_path = self.chroot.chroot_path(payload_path)
+            payload_path = path_util.ToChrootPath(payload_path)
         except ValueError:
             # Copy the payload inside the chroot and try with that path instead.
             logging.info(
@@ -1009,13 +996,13 @@ class PaygenPayload(object):
             )
             copied_payload = os.path.join(self.work_dir, "copied-payload.bin")
             shutil.copyfile(payload_path, copied_payload)
-            payload_path = self.chroot.chroot_path(copied_payload)
+            payload_path = path_util.ToChrootPath(copied_payload)
 
         props_file = os.path.join(self.work_dir, "properties.json")
         cmd = [
             "delta_generator",
             "--in_file=" + payload_path,
-            "--properties_file=" + self.chroot.chroot_path(props_file),
+            "--properties_file=" + path_util.ToChrootPath(props_file),
             "--properties_format=json",
         ]
         self._RunGeneratorCmd(cmd)
@@ -1250,7 +1237,7 @@ class PaygenPayload(object):
         # to source and target partitions.
         cmd = [
             "check_update_payload",
-            self.chroot.chroot_path(payload_file_name),
+            path_util.ToChrootPath(payload_file_name),
             "--check",
             "--type",
             "delta" if is_delta else "full",
@@ -1260,22 +1247,22 @@ class PaygenPayload(object):
         ]
         cmd.extend(self.partition_names)
         cmd += ["--dst_part_paths"]
-        cmd.extend(self.chroot.chroot_path(x) for x in self.tgt_partitions)
+        cmd.extend(path_util.ToChrootPath(x) for x in self.tgt_partitions)
         if metadata_sig_file_name:
             cmd += [
                 "--meta-sig",
-                self.chroot.chroot_path(metadata_sig_file_name),
+                path_util.ToChrootPath(metadata_sig_file_name),
             ]
 
         cmd += ["--metadata-size", str(self.metadata_size)]
 
         if is_delta:
             cmd += ["--src_part_paths"]
-            cmd.extend(self.chroot.chroot_path(x) for x in self.src_partitions)
+            cmd.extend(path_util.ToChrootPath(x) for x in self.src_partitions)
 
         # We signed it with the private key, now verify it with the public key.
         if self.signer and self.signer.public_key:
-            cmd += ["--key", self.chroot.chroot_path(self.signer.public_key)]
+            cmd += ["--key", path_util.ToChrootPath(self.signer.public_key)]
 
         self._RunGeneratorCmd(cmd)
 
@@ -1397,23 +1384,17 @@ def CreateAndUploadPayload(payload, sign=True, verify=True):
     """
     # We need to create a temp directory inside the chroot so be able to access
     # from both inside and outside the chroot.
-    chroot = chroot_lib.Chroot()
-    with chroot.tempdir() as work_dir:
+    with chroot_util.TempDirInChroot() as work_dir:
         signer = PaygenSigner(
-            chroot=chroot,
-            work_dir=work_dir,
-            payload_build=payload.build if sign else None,
+            work_dir=work_dir, payload_build=payload.build if sign else None
         )
         try:
-            PaygenPayload(
-                chroot, payload, work_dir, signer=signer, verify=verify
-            ).Run()
+            PaygenPayload(payload, work_dir, signer=signer, verify=verify).Run()
         except PayloadGenerationSkippedException:
             pass
 
 
 def GenerateUpdatePayload(
-    chroot: chroot_lib.Chroot,
     tgt_image,
     payload,
     src_image=None,
@@ -1425,7 +1406,6 @@ def GenerateUpdatePayload(
     """Generates output payload and verifies its integrity if needed.
 
     Args:
-        chroot: Chroot to operate with.
         tgt_image: The path (or uri) to the image.
         payload: The path (or uri) to the output payload
         src_image: The path (or uri) to the source image. If passed, a delta
@@ -1450,17 +1430,13 @@ def GenerateUpdatePayload(
     payload = gspaths.Payload(
         tgt_image=tgt_image, src_image=src_image, uri=payload, minios=minios
     )
-    with chroot.tempdir() as temp_dir:
+    with chroot_util.TempDirInChroot() as temp_dir:
         work_dir = work_dir if work_dir is not None else temp_dir
         signer = None
         # Sign if a private key is passed in.
         if private_key is not None:
-            signer = PaygenSigner(
-                chroot=chroot, work_dir=work_dir, private_key=private_key
-            )
-        paygen = PaygenPayload(
-            chroot, payload, work_dir, signer=signer, verify=check
-        )
+            signer = PaygenSigner(work_dir=work_dir, private_key=private_key)
+        paygen = PaygenPayload(payload, work_dir, signer=signer, verify=check)
         try:
             paygen.Run()
         except PayloadGenerationSkippedException:
@@ -1481,8 +1457,7 @@ def GenerateUpdatePayloadPropertiesFile(payload, output=None):
     if not output:
         output = payload + ".json"
 
-    chroot = chroot_lib.Chroot()
-    with chroot.tempdir() as work_dir:
-        paygen = PaygenPayload(chroot, None, work_dir)
+    with chroot_util.TempDirInChroot() as work_dir:
+        paygen = PaygenPayload(None, work_dir)
         properties_map = paygen.GetPayloadPropertiesMap(payload)
         pformat.json(properties_map, fp=output, compact=True)
