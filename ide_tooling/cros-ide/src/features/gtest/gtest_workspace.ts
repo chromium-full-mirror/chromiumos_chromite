@@ -94,14 +94,13 @@ export class GtestWorkspace implements vscode.Disposable {
   }
 
   /**
-   * Executes f on all the test cases matching the request.
+   * Returns a generator over all test cases matching the request.
    */
-  async forEachMatching(
-    request: vscode.TestRunRequest,
-    f: (testCase: GtestCase) => Thenable<void>
-  ) {
+  *matchingTestCases(
+    request: vscode.TestRunRequest
+  ): Generator<GtestCase, void, void> {
     for (const testFile of this.uriToGtestFile.values()) {
-      await testFile.forEachMatching(request, f);
+      yield* testFile.matchingTestCases(request);
     }
   }
 }

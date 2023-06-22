@@ -189,14 +189,16 @@ export class Runner extends AbstractRunner {
       services.chromiumos.PackageName,
       GtestCase[]
     >();
-    await this.gtestWorkspace.forEachMatching(this.request, async testCase => {
+    for (const testCase of this.gtestWorkspace.matchingTestCases(
+      this.request
+    )) {
       const packageInfo = await packages.fromFilepath(testCase.uri.fsPath);
       if (!packageInfo) {
         this.output.append(
           `Skip ${testCase.testName}: found no package info for ${testCase.uri.fsPath}\n`
         );
         this.testRun.skipped(testCase.item);
-        return;
+        continue;
       }
       this.testRun.enqueued(testCase.item);
 
@@ -206,7 +208,7 @@ export class Runner extends AbstractRunner {
       } else {
         packageToTests.set(packageInfo.name, [testCase]);
       }
-    });
+    }
 
     return packageToTests;
   }

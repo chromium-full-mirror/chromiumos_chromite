@@ -69,12 +69,11 @@ export class GtestFile implements vscode.Disposable {
   }
 
   /**
-   * Executes f on all the test cases matching the request.
+   * Returns a generator over all test cases matching the request.
    */
-  async forEachMatching(
-    request: vscode.TestRunRequest,
-    f: (testCase: GtestCase) => Thenable<void>
-  ) {
+  *matchingTestCases(
+    request: vscode.TestRunRequest
+  ): Generator<GtestCase, void, void> {
     if (request.exclude?.includes(this.item)) {
       return;
     }
@@ -92,7 +91,7 @@ export class GtestFile implements vscode.Disposable {
       if (request.exclude?.includes(testCase.item)) {
         continue;
       }
-      await f(testCase);
+      yield testCase;
     }
   }
 }

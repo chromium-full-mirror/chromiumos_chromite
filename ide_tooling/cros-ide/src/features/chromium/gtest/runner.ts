@@ -39,11 +39,10 @@ export class Runner extends AbstractRunner {
    * TODO(cmfcmf): Ideally, we should also support the user wanting to run/not run parametrized sub
    * tests.
    */
-  private async getTestCasesToRun() {
-    const testCases: GtestCase[] = [];
-    await this.gtestWorkspace.forEachMatching(this.request, async testCase => {
-      testCases.push(testCase);
-    });
+  private getTestCasesToRun() {
+    const testCases: GtestCase[] = Array.from(
+      this.gtestWorkspace.matchingTestCases(this.request)
+    );
 
     return testCases;
   }
@@ -214,10 +213,7 @@ export class Runner extends AbstractRunner {
   }
 
   protected override async doRun() {
-    const testCases = await this.getTestCasesToRun();
-    if (this.cancellation.isCancellationRequested) {
-      return;
-    }
+    const testCases = this.getTestCasesToRun();
     if (testCases.length === 0) {
       this.output.appendLine('No tests found to run.');
       metrics.send({
