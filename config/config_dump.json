@@ -363,22 +363,6 @@
       "usepkg_build_packages": false,
       "vm_tests": []
     },
-    "payloads": {
-      "_template": "payloads",
-      "build_type": "payloads",
-      "builder_class_name": "release_builders.GeneratePayloadsBuilder",
-      "description": "Regenerate release payloads.",
-      "display_label": "tryjob",
-      "hw_tests_override": [],
-      "internal": true,
-      "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
-      "manifest_version": true,
-      "overlays": "both",
-      "paygen": true,
-      "unittests": false,
-      "upload_hw_test_artifacts": false,
-      "vm_tests": []
-    },
     "release": {
       "_template": "release",
       "archive_build_debug": true,
@@ -579,21 +563,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "adlnrvp-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "adlnrvp"
-    ]
-  },
-  "adlnrvp-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "adlnrvp"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "adlnrvp-release": {
     "_template": "release",
     "boards": [
@@ -699,21 +668,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "adlrvp-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "adlrvp"
-    ]
-  },
-  "adlrvp-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "adlrvp"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -848,21 +802,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "ambassador-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "ambassador"
-    ]
-  },
-  "ambassador-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "ambassador"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -1098,21 +1037,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "sync_chrome": false
-  },
-  "arkham-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "arkham"
-    ]
-  },
-  "arkham-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "arkham"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "arkham-release": {
     "_template": "release",
@@ -1468,21 +1392,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "asurada-connectivitynext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "asurada-connectivitynext"
-    ]
-  },
-  "asurada-connectivitynext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "asurada-connectivitynext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "asurada-connectivitynext-release": {
     "_template": "release",
     "boards": [
@@ -1653,21 +1562,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "asurada-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "asurada"
-    ]
-  },
-  "asurada-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "asurada"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "asurada-release": {
     "_template": "release",
     "boards": [
@@ -1812,21 +1706,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "atlas-connectivitynext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "atlas-connectivitynext"
-    ]
-  },
-  "atlas-connectivitynext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "atlas-connectivitynext"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -1993,21 +1872,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "atlas-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "atlas-kernelnext"
-    ]
-  },
-  "atlas-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "atlas-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "atlas-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -2096,21 +1960,6 @@
     "push_image": false,
     "suite_scheduling": false,
     "workspace_branch": "master"
-  },
-  "atlas-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "atlas"
-    ]
-  },
-  "atlas-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "atlas"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "atlas-release": {
     "_template": "release",
@@ -2276,21 +2125,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "aurora-borealis-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "aurora-borealis"
-    ]
-  },
-  "aurora-borealis-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "aurora-borealis"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "aurora-borealis-release": {
     "_template": "release",
     "boards": [
@@ -2415,21 +2249,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "betty-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "betty-arc-r"
-    ]
-  },
-  "betty-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "betty-arc-r"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "betty-arc-r-release": {
     "_template": "release",
     "boards": [
@@ -2524,21 +2343,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "betty-arc-t-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "betty-arc-t"
-    ]
-  },
-  "betty-arc-t-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "betty-arc-t"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -2637,21 +2441,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "betty-arc-u-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "betty-arc-u"
-    ]
-  },
-  "betty-arc-u-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "betty-arc-u"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -2786,21 +2575,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "betty-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "betty-kernelnext"
-    ]
-  },
-  "betty-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "betty-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "betty-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -2869,21 +2643,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "betty-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "betty"
-    ]
-  },
-  "betty-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "betty"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "betty-pi-arc-full": {
     "_template": "full",
     "boards": [
@@ -2948,21 +2707,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "betty-pi-arc-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "betty-pi-arc"
-    ]
-  },
-  "betty-pi-arc-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "betty-pi-arc"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -3207,21 +2951,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "brask-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "brask"
-    ]
-  },
-  "brask-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "brask"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "brask-release": {
     "_template": "release",
     "boards": [
@@ -3342,21 +3071,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "brya-arc-t-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "brya-arc-t"
-    ]
-  },
-  "brya-arc-t-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "brya-arc-t"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -3760,21 +3474,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "brya-hibernate-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "brya-hibernate"
-    ]
-  },
-  "brya-hibernate-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "brya-hibernate"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "brya-hibernate-release": {
     "_template": "release",
     "boards": [
@@ -3939,21 +3638,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "brya-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "brya-kernelnext"
-    ]
-  },
-  "brya-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "brya-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "brya-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -4058,21 +3742,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "brya-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "brya"
-    ]
-  },
-  "brya-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "brya"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -4305,21 +3974,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "brya-zephyr-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "brya-zephyr"
-    ]
-  },
-  "brya-zephyr-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "brya-zephyr"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "brya-zephyr-release": {
     "_template": "release",
     "boards": [
@@ -4429,21 +4083,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "bubs-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "bubs"
-    ]
-  },
-  "bubs-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "bubs"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -4583,21 +4222,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "caroline-ndktranslation-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "caroline-ndktranslation"
-    ]
-  },
-  "caroline-ndktranslation-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "caroline-ndktranslation"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -4836,21 +4460,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "cherry-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "cherry"
-    ]
-  },
-  "cherry-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "cherry"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -5141,21 +4750,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "constitution-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "constitution"
-    ]
-  },
-  "constitution-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "constitution"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "constitution-release": {
     "_template": "release",
     "boards": [
@@ -5301,21 +4895,6 @@
     "push_image": false,
     "suite_scheduling": false,
     "workspace_branch": "master"
-  },
-  "coral-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "coral"
-    ]
-  },
-  "coral-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "coral"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "coral-release": {
     "_template": "release",
@@ -5513,21 +5092,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "corsola-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "corsola-kernelnext"
-    ]
-  },
-  "corsola-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "corsola-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "corsola-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -5608,21 +5172,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "corsola-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "corsola"
-    ]
-  },
-  "corsola-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "corsola"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -5770,21 +5319,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "dedede-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "dedede"
-    ]
-  },
-  "dedede-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "dedede"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -6117,21 +5651,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "deltaur-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "deltaur"
-    ]
-  },
-  "deltaur-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "deltaur"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "deltaur-release": {
     "_template": "release",
     "boards": [
@@ -6228,21 +5747,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "draco-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "draco"
-    ]
-  },
-  "draco-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "draco"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -6439,21 +5943,6 @@
     "suite_scheduling": false,
     "workspace_branch": "master"
   },
-  "drallion-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "drallion"
-    ]
-  },
-  "drallion-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "drallion"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "drallion-release": {
     "_template": "release",
     "boards": [
@@ -6573,21 +6062,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "elm-arc64-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "elm-arc64"
-    ]
-  },
-  "elm-arc64-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "elm-arc64"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "elm-arc64-release": {
     "_template": "release",
     "boards": [
@@ -6691,21 +6165,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "elm-connectivitynext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "elm-connectivitynext"
-    ]
-  },
-  "elm-connectivitynext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "elm-connectivitynext"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -6872,21 +6331,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "elm-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "elm-kernelnext"
-    ]
-  },
-  "elm-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "elm-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "elm-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -6953,21 +6397,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "elm-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "elm"
-    ]
-  },
-  "elm-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "elm"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -7096,21 +6525,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "endeavour-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "endeavour"
-    ]
-  },
-  "endeavour-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "endeavour"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "endeavour-release": {
     "_template": "release",
     "boards": [
@@ -7216,21 +6630,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "eve-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "eve-arc-r"
-    ]
-  },
-  "eve-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "eve-arc-r"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "eve-arc-r-release": {
     "_template": "release",
     "boards": [
@@ -7330,21 +6729,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "eve-arm64-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "eve-arm64"
-    ]
-  },
-  "eve-arm64-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "eve-arm64"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -7512,21 +6896,6 @@
     "suite_scheduling": false,
     "workspace_branch": "master"
   },
-  "eve-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "eve"
-    ]
-  },
-  "eve-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "eve"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "eve-release": {
     "_template": "release",
     "boards": [
@@ -7655,21 +7024,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "eve-userdebug-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "eve-userdebug"
-    ]
-  },
-  "eve-userdebug-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "eve-userdebug"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "eve-userdebug-release": {
     "_template": "release",
     "boards": [
@@ -7789,21 +7143,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "excelsior-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "excelsior"
-    ]
-  },
-  "excelsior-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "excelsior"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -9022,21 +8361,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "falco_li-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "falco_li"
-    ]
-  },
-  "falco_li-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "falco_li"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "falco_li-release": {
     "_template": "release",
     "boards": [
@@ -9133,21 +8457,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "fizz-cfm-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "fizz-cfm"
-    ]
-  },
-  "fizz-cfm-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "fizz-cfm"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -9349,21 +8658,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "fizz-labstation-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "fizz-labstation"
-    ]
-  },
-  "fizz-labstation-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "fizz-labstation"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "fizz-labstation-release": {
     "_template": "release",
     "boards": [
@@ -9552,21 +8846,6 @@
     "image_test": false,
     "luci_builder": "Try"
   },
-  "fizz-moblab-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "fizz-moblab"
-    ]
-  },
-  "fizz-moblab-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "fizz-moblab"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "fizz-moblab-release": {
     "_template": "release",
     "boards": [
@@ -9614,21 +8893,6 @@
     "signer_tests": false,
     "suite_scheduling": false,
     "vm_tests_override": null
-  },
-  "fizz-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "fizz"
-    ]
-  },
-  "fizz-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "fizz"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "fizz-release": {
     "_template": "release",
@@ -9793,21 +9057,6 @@
     "luci_builder": "Try",
     "sync_chrome": false
   },
-  "gale-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "gale"
-    ]
-  },
-  "gale-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "gale"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "gale-release": {
     "_template": "release",
     "boards": [
@@ -9906,21 +9155,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "geralt-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "geralt"
-    ]
-  },
-  "geralt-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "geralt"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -10113,21 +9347,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "glados-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "glados"
-    ]
-  },
-  "glados-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "glados"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "glados-release": {
     "_template": "release",
     "boards": [
@@ -10224,21 +9443,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "goroh-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "goroh"
-    ]
-  },
-  "goroh-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "goroh"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -10369,21 +9573,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "unittests": false
-  },
-  "grunt-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "grunt-arc-r"
-    ]
-  },
-  "grunt-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "grunt-arc-r"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "grunt-arc-r-release": {
     "_template": "release",
@@ -10592,21 +9781,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "grunt-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "grunt-kernelnext"
-    ]
-  },
-  "grunt-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "grunt-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "grunt-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -10701,21 +9875,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "unittests": false
-  },
-  "grunt-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "grunt"
-    ]
-  },
-  "grunt-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "grunt"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "grunt-release": {
     "_template": "release",
@@ -10897,21 +10056,6 @@
     "image_test": false,
     "luci_builder": "Try"
   },
-  "guado-macrophage-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "guado-macrophage"
-    ]
-  },
-  "guado-macrophage-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "guado-macrophage"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "guado-macrophage-release": {
     "_template": "release",
     "boards": [
@@ -11039,21 +10183,6 @@
     "factory": false,
     "factory_install_netboot": false,
     "factory_toolkit": false,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "guado_labstation-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "guado_labstation"
-    ]
-  },
-  "guado_labstation-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "guado_labstation"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -11238,21 +10367,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "guybrush-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "guybrush-kernelnext"
-    ]
-  },
-  "guybrush-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "guybrush-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "guybrush-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -11333,21 +10447,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "unittests": false
-  },
-  "guybrush-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "guybrush"
-    ]
-  },
-  "guybrush-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "guybrush"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "guybrush-release": {
     "_template": "release",
@@ -11470,21 +10569,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "hades-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hades"
-    ]
-  },
-  "hades-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hades"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "hades-release": {
     "_template": "release",
     "boards": [
@@ -11587,21 +10671,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "hana-arc64-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hana-arc64"
-    ]
-  },
-  "hana-arc64-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hana-arc64"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -11784,21 +10853,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "hana-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hana-kernelnext"
-    ]
-  },
-  "hana-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hana-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "hana-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -11879,21 +10933,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "hana-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hana"
-    ]
-  },
-  "hana-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hana"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -12013,21 +11052,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "hatch-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-arc-r"
-    ]
-  },
-  "hatch-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-arc-r"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -12157,21 +11181,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "hatch-arc-r-userdebug-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-arc-r-userdebug"
-    ]
-  },
-  "hatch-arc-r-userdebug-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-arc-r-userdebug"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "hatch-arc-r-userdebug-release": {
     "_template": "release",
     "boards": [
@@ -12295,21 +11304,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "hatch-arc-t-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-arc-t"
-    ]
-  },
-  "hatch-arc-t-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-arc-t"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -12439,21 +11433,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "hatch-connectivitynext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-connectivitynext"
-    ]
-  },
-  "hatch-connectivitynext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-connectivitynext"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -12644,21 +11623,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "hatch-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-kernelnext"
-    ]
-  },
-  "hatch-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hatch-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "hatch-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -12745,21 +11709,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "hatch-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "hatch"
-    ]
-  },
-  "hatch-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "hatch"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -12977,21 +11926,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "jacuzzi-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "jacuzzi-kernelnext"
-    ]
-  },
-  "jacuzzi-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "jacuzzi-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "jacuzzi-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -13088,21 +12022,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "jacuzzi-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "jacuzzi"
-    ]
-  },
-  "jacuzzi-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "jacuzzi"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -13247,21 +12166,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "jacuzzi64-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "jacuzzi64"
-    ]
-  },
-  "jacuzzi64-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "jacuzzi64"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "jacuzzi64-release": {
     "_template": "release",
     "boards": [
@@ -13398,21 +12302,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "jecht-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "jecht"
-    ]
-  },
-  "jecht-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "jecht"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "jecht-release": {
     "_template": "release",
     "boards": [
@@ -13509,21 +12398,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "kalista-cfm-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "kalista-cfm"
-    ]
-  },
-  "kalista-cfm-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "kalista-cfm"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -13649,21 +12523,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "kalista-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "kalista"
-    ]
-  },
-  "kalista-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "kalista"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -13828,21 +12687,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "kevin-userdebug-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "kevin-userdebug"
-    ]
-  },
-  "kevin-userdebug-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "kevin-userdebug"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "kevin-userdebug-release": {
     "_template": "release",
     "boards": [
@@ -13955,21 +12799,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "kevin64-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "kevin64"
-    ]
-  },
-  "kevin64-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "kevin64"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "kevin64-release": {
     "_template": "release",
     "boards": [
@@ -14073,21 +12902,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "kukui-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "kukui-arc-r"
-    ]
-  },
-  "kukui-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "kukui-arc-r"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -14282,21 +13096,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "kukui-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "kukui-kernelnext"
-    ]
-  },
-  "kukui-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "kukui-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "kukui-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -14371,21 +13170,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "kukui-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "kukui"
-    ]
-  },
-  "kukui-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "kukui"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -14818,21 +13602,6 @@
     "luci_builder": "Try",
     "unittests": false
   },
-  "majolica-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "majolica"
-    ]
-  },
-  "majolica-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "majolica"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "majolica-release": {
     "_template": "release",
     "boards": [
@@ -14940,21 +13709,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "unittests": false
-  },
-  "mancomb-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "mancomb"
-    ]
-  },
-  "mancomb-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "mancomb"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "mancomb-release": {
     "_template": "release",
@@ -15596,21 +14350,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "myst-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "myst"
-    ]
-  },
-  "myst-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "myst"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "myst-release": {
     "_template": "release",
     "boards": [
@@ -15768,21 +14507,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "nami-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nami-kernelnext"
-    ]
-  },
-  "nami-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nami-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "nami-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -15865,21 +14589,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "nami-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nami"
-    ]
-  },
-  "nami-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nami"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -16073,21 +14782,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "nautilus-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nautilus"
-    ]
-  },
-  "nautilus-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nautilus"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -16289,21 +14983,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "nissa-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nissa"
-    ]
-  },
-  "nissa-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nissa"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -16593,21 +15272,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "nocturne-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nocturne-kernelnext"
-    ]
-  },
-  "nocturne-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nocturne-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "nocturne-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -16674,21 +15338,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "nocturne-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nocturne"
-    ]
-  },
-  "nocturne-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nocturne"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -16807,21 +15456,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "novato-arc64-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "novato-arc64"
-    ]
-  },
-  "novato-arc64-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "novato-arc64"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "novato-arc64-release": {
     "_template": "release",
     "boards": [
@@ -16911,21 +15545,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "novato-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "novato"
-    ]
-  },
-  "novato-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "novato"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -17029,21 +15648,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "nyan_big-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nyan_big"
-    ]
-  },
-  "nyan_big-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nyan_big"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "nyan_big-release": {
     "_template": "release",
     "boards": [
@@ -17143,21 +15747,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "nyan_blaze-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "nyan_blaze"
-    ]
-  },
-  "nyan_blaze-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "nyan_blaze"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "nyan_blaze-release": {
     "_template": "release",
     "boards": [
@@ -17254,21 +15843,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "octopus-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "octopus-arc-r"
-    ]
-  },
-  "octopus-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "octopus-arc-r"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -17653,21 +16227,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "octopus-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "octopus-kernelnext"
-    ]
-  },
-  "octopus-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "octopus-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "octopus-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -17824,21 +16383,6 @@
     "push_image": false,
     "suite_scheduling": false,
     "workspace_branch": "master"
-  },
-  "octopus-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "octopus"
-    ]
-  },
-  "octopus-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "octopus"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "octopus-release": {
     "_template": "release",
@@ -18017,21 +16561,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "ovis-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "ovis"
-    ]
-  },
-  "ovis-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "ovis"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "ovis-release": {
     "_template": "release",
     "boards": [
@@ -18135,21 +16664,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "poppy-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "poppy"
-    ]
-  },
-  "poppy-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "poppy"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -18441,21 +16955,6 @@
     "image_test": false,
     "luci_builder": "Try"
   },
-  "puff-moblab-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "puff-moblab"
-    ]
-  },
-  "puff-moblab-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "puff-moblab"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "puff-moblab-release": {
     "_template": "release",
     "boards": [
@@ -18505,21 +17004,6 @@
     "signer_tests": false,
     "suite_scheduling": false,
     "vm_tests_override": null
-  },
-  "puff-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "puff"
-    ]
-  },
-  "puff-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "puff"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "puff-release": {
     "_template": "release",
@@ -18668,21 +17152,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "pyro-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "pyro"
-    ]
-  },
-  "pyro-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "pyro"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "pyro-release": {
     "_template": "release",
     "boards": [
@@ -18785,21 +17254,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "rammus-arc-r-userdebug-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "rammus-arc-r-userdebug"
-    ]
-  },
-  "rammus-arc-r-userdebug-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "rammus-arc-r-userdebug"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -18951,21 +17405,6 @@
     "suite_scheduling": false,
     "workspace_branch": "master"
   },
-  "rammus-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "rammus"
-    ]
-  },
-  "rammus-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "rammus"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "rammus-release": {
     "_template": "release",
     "boards": [
@@ -19090,21 +17529,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "reef-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "reef"
-    ]
-  },
-  "reef-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "reef"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -19242,21 +17666,6 @@
     "factory": false,
     "factory_install_netboot": false,
     "factory_toolkit": false,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "reven-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "reven"
-    ]
-  },
-  "reven-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "reven"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -19401,21 +17810,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "reven-vmtest-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "reven-vmtest"
-    ]
-  },
-  "reven-vmtest-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "reven-vmtest"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "reven-vmtest-release": {
     "_template": "release",
     "boards": [
@@ -19533,21 +17927,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "rex-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "rex"
-    ]
-  },
-  "rex-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "rex"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -19679,21 +18058,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "sand-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "sand"
-    ]
-  },
-  "sand-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "sand"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -19859,21 +18223,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "sarien-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "sarien-kernelnext"
-    ]
-  },
-  "sarien-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "sarien-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "sarien-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -19968,21 +18317,6 @@
     "push_image": false,
     "suite_scheduling": false,
     "workspace_branch": "master"
-  },
-  "sarien-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "sarien"
-    ]
-  },
-  "sarien-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "sarien"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "sarien-release": {
     "_template": "release",
@@ -20168,21 +18502,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "unittests": false
-  },
-  "skyrim-chausie-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "skyrim-chausie"
-    ]
-  },
-  "skyrim-chausie-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "skyrim-chausie"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "skyrim-chausie-release": {
     "_template": "release",
@@ -20371,21 +18690,6 @@
     "luci_builder": "Try",
     "unittests": false
   },
-  "skyrim-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "skyrim-kernelnext"
-    ]
-  },
-  "skyrim-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "skyrim-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "skyrim-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -20474,21 +18778,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "unittests": false
-  },
-  "skyrim-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "skyrim"
-    ]
-  },
-  "skyrim-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "skyrim"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "skyrim-release": {
     "_template": "release",
@@ -20940,21 +19229,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "snappy-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "snappy-kernelnext"
-    ]
-  },
-  "snappy-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "snappy-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "snappy-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -21025,21 +19299,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "snappy-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "snappy"
-    ]
-  },
-  "snappy-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "snappy"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -21209,21 +19468,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "soraka-libcamera-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "soraka-libcamera"
-    ]
-  },
-  "soraka-libcamera-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "soraka-libcamera"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "soraka-libcamera-release": {
     "_template": "release",
     "boards": [
@@ -21290,21 +19534,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "soraka-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "soraka"
-    ]
-  },
-  "soraka-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "soraka"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -21430,21 +19659,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "staryu-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "staryu"
-    ]
-  },
-  "staryu-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "staryu"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -21650,21 +19864,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "strongbad-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "strongbad-kernelnext"
-    ]
-  },
-  "strongbad-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "strongbad-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "strongbad-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -21739,21 +19938,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "strongbad-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "strongbad"
-    ]
-  },
-  "strongbad-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "strongbad"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -21875,21 +20059,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "strongbad-userdebug-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "strongbad-userdebug"
-    ]
-  },
-  "strongbad-userdebug-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "strongbad-userdebug"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -22577,21 +20746,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "trogdor-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-arc-r"
-    ]
-  },
-  "trogdor-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-arc-r"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "trogdor-arc-r-release": {
     "_template": "release",
     "boards": [
@@ -22707,21 +20861,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "trogdor-connectivitynext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-connectivitynext"
-    ]
-  },
-  "trogdor-connectivitynext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-connectivitynext"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -22940,21 +21079,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "trogdor-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-kernelnext"
-    ]
-  },
-  "trogdor-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "trogdor-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -23033,21 +21157,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "trogdor-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor"
-    ]
-  },
-  "trogdor-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -23176,21 +21285,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "trogdor-userdebug-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-userdebug"
-    ]
-  },
-  "trogdor-userdebug-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-userdebug"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "trogdor-userdebug-release": {
     "_template": "release",
     "boards": [
@@ -23309,21 +21403,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "trogdor-zephyr-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-zephyr"
-    ]
-  },
-  "trogdor-zephyr-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "trogdor-zephyr"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "trogdor-zephyr-release": {
     "_template": "release",
     "boards": [
@@ -23432,21 +21511,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "veyron_mighty-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "veyron_mighty"
-    ]
-  },
-  "veyron_mighty-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "veyron_mighty"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "veyron_mighty-release": {
     "_template": "release",
     "boards": [
@@ -23546,21 +21610,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "veyron_minnie-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "veyron_minnie"
-    ]
-  },
-  "veyron_minnie-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "veyron_minnie"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "veyron_minnie-release": {
     "_template": "release",
     "boards": [
@@ -23657,21 +21706,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "veyron_speedy-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "veyron_speedy"
-    ]
-  },
-  "veyron_speedy-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "veyron_speedy"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -24482,21 +22516,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "volteer-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "volteer-kernelnext"
-    ]
-  },
-  "volteer-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "volteer-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "volteer-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -24609,21 +22628,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "volteer-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "volteer"
-    ]
-  },
-  "volteer-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "volteer"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -24877,21 +22881,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "sync_chrome": false
-  },
-  "whirlwind-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "whirlwind"
-    ]
-  },
-  "whirlwind-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "whirlwind"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "whirlwind-release": {
     "_template": "release",
@@ -25225,21 +23214,6 @@
     "luci_builder": "Try",
     "unittests": false
   },
-  "zork-arc-r-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "zork-arc-r"
-    ]
-  },
-  "zork-arc-r-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "zork-arc-r"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "zork-arc-r-release": {
     "_template": "release",
     "boards": [
@@ -25371,21 +23345,6 @@
     ],
     "debug": true,
     "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
-  "zork-connectivitynext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "zork-connectivitynext"
-    ]
-  },
-  "zork-connectivitynext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "zork-connectivitynext"
-    ],
-    "debug": true,
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
@@ -25604,21 +23563,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try"
   },
-  "zork-kernelnext-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "zork-kernelnext"
-    ]
-  },
-  "zork-kernelnext-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "zork-kernelnext"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
-  },
   "zork-kernelnext-release": {
     "_template": "release",
     "boards": [
@@ -25717,21 +23661,6 @@
     "hw_tests_override": null,
     "luci_builder": "Try",
     "unittests": false
-  },
-  "zork-payloads": {
-    "_template": "payloads",
-    "boards": [
-      "zork"
-    ]
-  },
-  "zork-payloads-tryjob": {
-    "_template": "payloads",
-    "boards": [
-      "zork"
-    ],
-    "debug": true,
-    "hw_tests_override": null,
-    "luci_builder": "Try"
   },
   "zork-release": {
     "_template": "release",

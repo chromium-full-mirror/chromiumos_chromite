@@ -1338,22 +1338,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     AddReleaseBasicMirrors()
 
 
-def PayloadBuilders(site_config, boards_dict):
-    """Create <board>-payloads configs for all payload generating boards.
-
-    We create a config named 'board-payloads' for every board which has a
-    config with 'paygen' True. The idea is that we have a build that generates
-    payloads, we need to have a tryjob to re-attempt them on failure.
-    """
-    for board in boards_dict["all_release_boards"]:
-        if site_config["%s-release" % board].paygen:
-            site_config.Add(
-                "%s-payloads" % board,
-                site_config.templates.payloads,
-                boards=[board],
-            )
-
-
 def ApplyCustomOverrides(site_config):
     """Method with to override specific flags for specific builders.
 
@@ -2241,8 +2225,6 @@ def GetConfig():
     ToolchainBuilders(site_config, boards_dict, ge_build_config)
 
     ReleaseBuilders(site_config, boards_dict, ge_build_config)
-
-    PayloadBuilders(site_config, boards_dict)
 
     SpecialtyBuilders(site_config)
 
