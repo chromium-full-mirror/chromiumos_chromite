@@ -881,17 +881,6 @@ class BuilderStage(object):
             sys.stderr.flush()
 
 
-class NonHaltingBuilderStage(BuilderStage):
-    """Build stage that fails a build but finishes the other steps."""
-
-    def Run(self):
-        try:
-            super().Run()
-        except failures_lib.StepFailure:
-            name = self.__class__.__name__
-            logging.error("Ignoring StepFailure in %s", name)
-
-
 class ForgivingBuilderStage(BuilderStage):
     """Build stage that turns a build step red but not a build."""
 
