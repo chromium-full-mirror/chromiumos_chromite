@@ -100,7 +100,7 @@ class ExceptionsTest(cros_test_lib.TestCase):
 
 # TODO(mtennant): Turn this into a PartialMock.
 class _BuilderRunTestCase(cros_test_lib.MockTestCase):
-    """Provide methods for creating BuilderRun or ChildBuilderRun."""
+    """Provide methods for creating BuilderRun."""
 
     def setUp(self):
         self._manager = parallel.Manager()
@@ -134,20 +134,6 @@ class _BuilderRunTestCase(cros_test_lib.MockTestCase):
         return cbuildbot_run.BuilderRun(
             options, site_config, config, self._manager
         )
-
-    def _NewChildBuilderRun(self, child_index, options=None, config=None):
-        """Create a ChildBuilderRun objection from options and config values.
-
-        Args:
-            child_index: Index of child config to use within config.
-            options: Specify options or default to DEFAULT_OPTIONS.
-            config: Specify build config or default to DEFAULT_CONFIG.
-
-        Returns:
-            ChildBuilderRun object.
-        """
-        run = self._NewBuilderRun(options, config)
-        return cbuildbot_run.ChildBuilderRun(run, child_index)
 
 
 class BuilderRunPickleTest(_BuilderRunTestCase):
@@ -427,38 +413,6 @@ class GetVersionTest(_BuilderRunTestCase):
         result = self._TestGetVersionReleaseTag(None)
         expected_result = "R%s-%s-b%s" % (DEFAULT_CHROME_BRANCH, "VS", 0)
         self.assertEqual(result, expected_result)
-
-
-class ChildBuilderRunTest(_BuilderRunTestCase):
-    """Test the ChildBuilderRun class"""
-
-    def testInit(self):
-        with mock.patch.object(
-            cbuildbot_run._BuilderRunBase, "GetVersion"
-        ) as m:
-            m.return_value = DEFAULT_VERSION
-
-            crun = self._NewChildBuilderRun(0)
-            self.assertEqual(DEFAULT_BUILDROOT, crun.buildroot)
-            self.assertEqual(DEFAULT_BUILDNUMBER, crun.buildnumber)
-            self.assertEqual(DEFAULT_BRANCH, crun.manifest_branch)
-            self.assertEqual(DEFAULT_OPTIONS, crun.options)
-            self.assertEqual(DEFAULT_CONFIG.child_configs[0], crun.config)
-            self.assertEqual("foo", crun.config.name)
-            self.assertIsInstance(crun.attrs, cbuildbot_run.RunAttributes)
-            self.assertIsInstance(
-                crun.GetArchive(), cbuildbot_run.archive_lib.Archive
-            )
-
-            # Make sure methods behave normally, since BuilderRun messes with
-            # them.
-            meth1 = crun.GetVersionInfo
-            meth2 = crun.GetVersionInfo
-            self.assertEqual(meth1.__name__, meth2.__name__)
-
-            # We actually do not support identity and equality checks right now.
-            self.assertNotEqual(meth1, meth2)
-            self.assertIsNot(meth1, meth2)
 
 
 class RunAttributesTest(_BuilderRunTestCase):

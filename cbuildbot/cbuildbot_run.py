@@ -4,20 +4,14 @@
 
 """Provide a class for collecting info on one builder run.
 
-There are two public classes, BuilderRun and ChildBuilderRun, that serve
-this function.  The first is for most situations, the second is for "child"
-configs within a builder config that has entries in "child_configs".
-
 Almost all functionality is within the common _BuilderRunBase class.  The
-only thing the BuilderRun and ChildBuilderRun classes are responsible for
-is overriding the self.config value in the _BuilderRunBase object whenever
-it is accessed.
+only thing the BuilderRun class is responsible for is overriding the self.config
+value in the _BuilderRunBase object whenever it is accessed.
 
-It is important to note that for one overall run, there will be one
-BuilderRun object and zero or more ChildBuilderRun objects, but they
-will all share the same _BuilderRunBase *object*.  This means, for example,
-that run attributes (e.g. self.attrs.release_tag) are shared between them
-all, as intended.
+It is important to note that for one overall run, there will be one BuilderRun
+object, but they will all share the same _BuilderRunBase *object*.  This means,
+for example, that run attributes (e.g. self.attrs.release_tag) are shared
+between them all, as intended.
 """
 
 import functools
@@ -623,13 +617,12 @@ class _BuilderRunBase:
         self.site_config = site_config
         self.options = options
 
-        # Note that self.config is filled in dynamically by either of the
-        # classes that are actually instantiated: BuilderRun and
-        # ChildBuilderRun.  In other words, self.config can be counted on
-        # anywhere except in this __init__. The implication is that any plain
-        # attributes that are calculated from self.config contents must be
-        # provided as properties (or methods). See the _RealBuilderRun class and
-        # its __getattr__ method for details.
+        # Note that self.config is filled in dynamically by BuilderRun.
+        # In other words, self.config can be counted on anywhere except in this
+        # __init__. The implication is that any plain attributes that are
+        # calculated from self.config contents must be provided as properties
+        # (or methods). See the _RealBuilderRun class and its __getattr__ method
+        # for details.
         self.config = None
 
         # Create the RunAttributes object for this BuilderRun and save
@@ -1093,22 +1086,3 @@ class BuilderRun(_RealBuilderRun):
         """
         run_base = _BuilderRunBase(site_config, options, multiprocess_manager)
         super().__init__(run_base, build_config)
-
-
-class ChildBuilderRun(_RealBuilderRun):
-    """A BuilderRun for a "child" build config."""
-
-    def __init__(self, builder_run, child_index):
-        """Initialize.
-
-        Args:
-            builder_run: BuilderRun for the parent (main) cbuildbot run. Extract
-                the _BuilderRunBase from it to make sure the same base is used
-                for both the main cbuildbot run and any child runs.
-            child_index: The child index of this child run, used to index into
-                the main run's config.child_configs.
-        """
-        # pylint: disable=protected-access
-        run_base = builder_run._run_base
-        config = builder_run.config.child_configs[child_index]
-        super().__init__(run_base, config)
