@@ -230,6 +230,8 @@ async function runSelectedTests(
   target: string,
   testNames: string[]
 ): Promise<void | Error> {
+  context.output.show();
+
   // Show a progress notification as this is a long operation.
   return vscode.window.withProgress(
     {
