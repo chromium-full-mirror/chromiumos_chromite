@@ -463,7 +463,7 @@ class ChromeLKGMSyncStage(sync_stages.SyncStage):
         manifest_manager = manifest_version.BuildSpecsManager(
             source_repo=self.repo,
             manifest_repo=self._GetManifestVersionsRepoUrl(),
-            build_names=self._run.GetBuilderIds(),
+            build_names=[self._run.config.name],
             incr_type="build",
             force=False,
             branch=self._run.manifest_branch,

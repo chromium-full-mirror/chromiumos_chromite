@@ -1076,14 +1076,6 @@ class _RealBuilderRun:
         finally:
             run_base.config = None
 
-    def GetBuilderIds(self):
-        """Return a list of builder names for this, and child, configs."""
-        bot_ids = [self.config.name]
-        for config in self.config.child_configs:
-            if config.name:
-                bot_ids.append(config.name)
-        return bot_ids
-
 
 class BuilderRun(_RealBuilderRun):
     """A standard BuilderRun for a top-level build config."""
