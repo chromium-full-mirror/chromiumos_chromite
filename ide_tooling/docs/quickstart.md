@@ -1,13 +1,13 @@
-# CrOS IDE quickstart (go/cros-ide-quickstart)
+# ChromiumIDE quickstart (go/chromiumide-quickstart)
 
-CrOS IDE is a VSCode Extension for ChromiumOS development. It is a new project
-and we currently support only internal developers at Google.
+ChromiumIDE (formerly known as CrOS IDE) is a VSCode Extension for Chromium and
+ChromiumOS development. We currently support only internal developers at Google.
 
-## Prerequisites
+## Prerequisites (ChromiumOS)
 
-You need a ChromiumOS chroot. If you are a new member and don't have it, please
-follow the [ChromiumOS Developer Guide] and set up your development environment,
-so you can [enter the chroot via cros_sdk].
+For developing ChromiumOS, you need a ChromiumOS chroot. If you are a new member
+and don't have it, please follow the [ChromiumOS Developer Guide] and set up
+your development environment, so you can [enter the chroot via cros_sdk].
 
 In this document, we assume ChromiumOS source code is in `~/chromiumos`.
 
@@ -44,7 +44,7 @@ Install [VSCode from the Software Center] or
 
 ### ChromeOS
 
-CrOS IDE supports only platform-specific VSCode, which is not available for
+ChromiumIDE supports only platform-specific VSCode, which is not available for
 ChromeOS. There are two workarounds:
 
 -   Check out [go/cros-ide-on-chromebooks] to learn more about [Code Server],
@@ -68,18 +68,18 @@ machine, and open your working directory under `~/chromiumos/`.
 
 ## 3. Install the extension
 
-Open *View &rarr; Extensions* in VSCode (Ctrl+Shift+X), search [CrOS IDE] and
+Open *View &rarr; Extensions* in VSCode (Ctrl+Shift+X), search [ChromiumIDE] and
 install it.
 
-[cros ide]: https://marketplace.visualstudio.com/items?itemName=Google.cros-ide
+[chromiumide]: https://marketplace.visualstudio.com/items?itemName=Google.cros-ide
 
 ## 4. Open a folder
 
-Finally, open a folder with sources to let CrOS IDE detect the chroot. Select
+Finally, open a folder with sources to let ChromiumIDE detect the chroot. Select
 *File &rarr; Open Folder...*, choose, for example, `~/chromiumos/src/platform2`,
 and you are good to go.
 
-# Using CrOS IDE
+# Using ChromiumIDE
 
 Check out **[go/cros-ide-features]** to learn more about features, known issues,
 and useful tips.
@@ -101,14 +101,14 @@ Implementation, and so on.
 
 ### [Device Management]
 
-CrOS IDE provides a view to manage your test devices. With the built-in VNC
+ChromiumIDE provides a view to manage your test devices. With the built-in VNC
 client, you can control a device remotely.
 
 [Device Management]: http://go/cros-ide-doc-device-management
 
 ### [Linter Integration]
 
-CrOS IDE exposes lint errors found by `cros lint` and similar tools in C++,
+ChromiumIDE exposes lint errors found by `cros lint` and similar tools in C++,
 Python, shell, and GN files. We run linters every time a file is saved, and mark
 errors with squiggly lines in the editor and show them in the *Problems* box and
 on mouse hover. This feature brings to your attention errors which block `repo
@@ -118,7 +118,7 @@ upload`.
 
 ### [Boards and Packages]
 
-CrOS IDE shows which packages you are working on and lets you run `cros_workon
+ChromiumIDE shows which packages you are working on and lets you run `cros_workon
 start/stop` directly from the UI. Access it by clicking on *CrOS Development*
 [activity bar] (Chrome icon). Use +/– buttons to start and stop working on packages.
 
