@@ -802,13 +802,6 @@ def DefaultSettings():
         signer_tests=False,
         # Runs unittests for packages.
         unittests=True,
-        # Generates AFDO data. Will capture a profile of chrome using a hwtest
-        # to run a predetermined set of benchmarks.
-        # FIXME(tcwang): Keep this config during transition to async AFDO
-        afdo_generate=False,
-        # Generates AFDO data asynchronously. Will capture a profile of chrome
-        # using a hwtest to run a predetermined set of benchmarks.
-        afdo_generate_async=False,
         # Verify and publish kernel profiles.
         kernel_afdo_verify=False,
         # Verify and publish chrome profiles.
@@ -820,10 +813,6 @@ def DefaultSettings():
         # orderfile and build Chrome. Upload the orderfile to vetted bucket
         # as a result.
         orderfile_verify=False,
-        # Generates AFDO data, builds the minimum amount of artifacts and
-        # assumes a non-distributed builder (i.e.: the whole process in a single
-        # builder).
-        afdo_generate_min=False,
         # Update the Chrome ebuild with the AFDO profile info.
         afdo_update_chrome_ebuild=False,
         # Update the kernel ebuild with the AFDO profile info.

@@ -562,7 +562,6 @@ class BuildPackagesStage(
         buildstore,
         board,
         suffix=None,
-        afdo_generate_min=False,
         afdo_use=False,
         update_metadata=False,
         record_packages_under_test=True,
@@ -573,10 +572,8 @@ class BuildPackagesStage(
         super().__init__(
             builder_run, buildstore, board, suffix=suffix, **kwargs
         )
-        self._afdo_generate_min = afdo_generate_min
         self._update_metadata = update_metadata
         self._record_packages_under_test = record_packages_under_test
-        assert not afdo_generate_min or not afdo_use
 
         useflags = self._portage_extra_env.get("USE", "").split()
         if not afdo_use:
@@ -816,18 +813,13 @@ class BuildImageStage(BuildPackagesStage):
 
     def _BuildImages(self):
         # We only build base, dev, and test images from this stage.
-        if self._afdo_generate_min:
-            images_can_build = set(["test"])
-        else:
-            images_can_build = set(["base", "dev", "test"])
+        images_can_build = set(["base", "dev", "test"])
         images_to_build = set(self._run.config.images).intersection(
             images_can_build
         )
 
         version = self._run.attrs.release_tag
         disk_layout = self._run.config.disk_layout
-        if self._afdo_generate_min and version:
-            version = "%s-afdo-generate" % version
 
         rootfs_verification = self._run.config.rootfs_verification
         builder_path = "/".join([self._bot_id, self.version])

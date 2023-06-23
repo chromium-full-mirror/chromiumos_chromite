@@ -179,9 +179,6 @@ class SimpleBuilder(generic_builders.Builder):
         # kill it once we migrate its uses to BuilderRun so that none of the
         # stages below need it as an argument.
         archive_stage = self.archive_stages[BoardConfig(board, config.name)]
-        if config.afdo_generate_min:
-            self._RunParallelStages([archive_stage])
-            return
 
         # paygen can't complete without push_image.
         assert not config.paygen or config.push_image
@@ -333,9 +330,7 @@ class SimpleBuilder(generic_builders.Builder):
             for builder_run, board in tasks:
                 # Run BuildPackages in the foreground.
                 kwargs = {"builder_run": builder_run}
-                if builder_run.config.afdo_generate_min:
-                    kwargs["afdo_generate_min"] = True
-                elif builder_run.config.afdo_use:
+                if builder_run.config.afdo_use:
                     kwargs["afdo_use"] = True
 
                 self._RunStage(

@@ -480,8 +480,7 @@ class ArchiveStage(
             # here.
             assert self._release_upload_queue.empty()
 
-        if not self._run.config.afdo_generate_min:
-            BuildAndArchiveArtifacts()
+        BuildAndArchiveArtifacts()
         self.board_runattrs.SetParallel("autotest_tarball_generated", True)
 
     def HandleSkip(self):

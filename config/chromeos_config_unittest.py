@@ -899,15 +899,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
 
         return False
 
-    def testCantBeBothTypesOfAFDO(self):
-        """Using afdo_generate and afdo_use together doesn't work."""
-        for config in self.site_config.values():
-            self.assertFalse(config["afdo_use"] and config["afdo_generate"])
-            self.assertFalse(config["afdo_use"] and config["afdo_generate_min"])
-            self.assertFalse(
-                config["afdo_generate"] and config["afdo_generate_min"]
-            )
-
     def testValidPrebuilts(self):
         """Verify all builders have valid prebuilt values."""
         for build_name, config in self.site_config.items():
