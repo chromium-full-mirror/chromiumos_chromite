@@ -323,7 +323,8 @@ def CleanupChrootMount(chroot=None, buildroot=None, delete=False):
         chroot = os.path.join(buildroot, constants.DEFAULT_CHROOT_DIR)
 
     try:
-        osutils.UmountTree(chroot)
+        with metrics_lib.timer("cros_sdk_lib.CleanupChrootMount.UmountTree"):
+            osutils.UmountTree(chroot)
     except cros_build_lib.RunCommandError as e:
         # TODO(lamontjones): Dump some information to help find the process
         #   still inside the chroot, causing crbug.com/923432.  In the end, this
