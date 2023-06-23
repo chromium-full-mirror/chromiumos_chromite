@@ -490,7 +490,7 @@ def BuildSdkTarball(chroot: "chroot_lib.Chroot") -> Path:
     Returns:
         The path at which the SDK tarball has been created.
     """
-    sdk_path = Path(chroot.path) / "build/amd64-host"
+    sdk_path = Path(chroot.full_path("build/amd64-host"))
     return sdk_builder_lib.BuildSdkTarball(sdk_path)
 
 

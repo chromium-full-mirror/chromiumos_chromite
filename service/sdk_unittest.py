@@ -27,10 +27,11 @@ class BuildSdkTarballTest(cros_test_lib.MockTestCase):
 
     def testSuccess(self):
         builder_lib = self.PatchObject(sdk_builder_lib, "BuildSdkTarball")
-        sdk.BuildSdkTarball(
-            chroot_lib.Chroot("/test/chroot", out_path="/test/out")
+        chroot = chroot_lib.Chroot("/test/chroot", out_path="/test/out")
+        sdk.BuildSdkTarball(chroot)
+        builder_lib.assert_called_with(
+            Path(chroot.full_path("/build/amd64-host"))
         )
-        builder_lib.assert_called_with(Path("/test/chroot/build/amd64-host"))
 
 
 class CreateManifestFromSdkTest(cros_test_lib.MockTempDirTestCase):
