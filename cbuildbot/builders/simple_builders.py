@@ -213,7 +213,7 @@ class SimpleBuilder(generic_builders.Builder):
                 build_stages.BuildImageStage,
                 board,
                 builder_run=builder_run,
-                afdo_use=config.afdo_use,
+                afdo_use=True,
             )
 
         # Run the debug symbols stage before the UnitTestStage to avoid
@@ -294,15 +294,12 @@ class SimpleBuilder(generic_builders.Builder):
         with parallel.BackgroundTaskRunner(task_runner) as queue:
             for builder_run, board in tasks:
                 # Run BuildPackages in the foreground.
-                kwargs = {"builder_run": builder_run}
-                if builder_run.config.afdo_use:
-                    kwargs["afdo_use"] = True
-
                 self._RunStage(
                     build_stages.BuildPackagesStage,
                     board,
                     update_metadata=True,
-                    **kwargs,
+                    builder_run=builder_run,
+                    afdo_use=True,
                 )
 
                 # Kick off our background stages.

@@ -806,29 +806,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "Unexpected group builder found: %s" % build_name,
                 )
 
-    def testAFDOSameInChildConfigs(self):
-        """Verify that 'afdo_use' is the same for all children in a group."""
-        msg = (
-            "Child config %s for %s should have same value for afdo_use "
-            "as other children"
-        )
-        for build_name, config in self.site_config.items():
-            if build_name.endswith("-group"):
-                prev_value = None
-                self.assertTrue(
-                    config.child_configs,
-                    "Config %s should have child configs" % build_name,
-                )
-                for child_config in config.child_configs:
-                    if prev_value is None:
-                        prev_value = child_config.afdo_use
-                    else:
-                        self.assertEqual(
-                            child_config.afdo_use,
-                            prev_value,
-                            msg % (child_config.name, build_name),
-                        )
-
     def testNoGrandChildConfigs(self):
         """Verify that no child configs have a child config."""
         for build_name, config in self.site_config.items():

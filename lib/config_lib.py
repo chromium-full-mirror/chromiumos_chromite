@@ -762,9 +762,6 @@ def DefaultSettings():
         unittests=True,
         # Update the kernel ebuild with the AFDO profile info.
         afdo_update_kernel_ebuild=False,
-        # Uses AFDO data. The Chrome build will be optimized using the AFDO
-        # profile information found in Chrome's source tree.
-        afdo_use=True,
         # A list of VMTestConfig objects to run by default.
         vm_tests=[
             VMTestConfig(constants.VM_SUITE_TEST_TYPE, test_suite="smoke"),

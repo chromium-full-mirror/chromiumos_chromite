@@ -2,7 +2,6 @@
   "_default": {
     "_template": null,
     "afdo_update_kernel_ebuild": false,
-    "afdo_use": true,
     "android_package": null,
     "archive": true,
     "archive_build_debug": false,
