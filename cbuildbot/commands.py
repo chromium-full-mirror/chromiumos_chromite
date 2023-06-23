@@ -519,40 +519,6 @@ def VerifyBinpkg(buildroot, board, pkg, packages, extra_env=None):
         raise MissingBinpkg(msg)
 
 
-def RunLocalTryjob(buildroot, build_config, args=None, target_buildroot=None):
-    """Run a local tryjob.
-
-    Setting --git-cache-dir (probably to self._run.options.git_cache_dir) can
-    have a huge impact on performance.
-
-    This function will use cbuildbot_launch of the current checkout, which
-    whatever patches are applied, but cbuildbot from the requested build.
-
-    Args:
-        buildroot: The buildroot of the current build.
-        build_config: The name of the build config to build.
-        args: List of strings giving additional command line arguments.
-        target_buildroot: Buildroot for the tryjob. None for a tmpdir.
-    """
-    with osutils.TempDir() as tempdir:
-        if not target_buildroot:
-            target_buildroot = tempdir
-
-        cmd = [
-            "cros",
-            "tryjob",
-            "--local",
-            "--yes",
-            "--buildroot",
-            target_buildroot,
-            build_config,
-        ]
-        if args:
-            cmd.extend(args)
-
-        RunBuildScript(buildroot, cmd, chromite_cmd=True)
-
-
 # pylint: disable=unused-argument
 def Build(
     buildroot,
