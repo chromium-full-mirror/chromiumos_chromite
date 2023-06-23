@@ -23,7 +23,6 @@ from typing import Dict
 
 from chromite.third_party.google.protobuf import json_format
 
-from chromite.api.gen.chromite.api import android_pb2
 from chromite.api.gen.chromite.api import test_pb2
 from chromite.api.gen.chromiumos.build.api import container_metadata_pb2
 from chromite.api.gen.chromiumos.build.api.container_metadata_pb2 import (
@@ -2067,25 +2066,6 @@ def ArchiveFile(file_to_archive, archive_dir):
     return filename
 
 
-class AndroidIsPinnedUprevError(failures_lib.InfrastructureFailure):
-    """Raised when we try to uprev while Android is pinned."""
-
-    def __init__(self, new_android_atom):
-        """Initialize a AndroidIsPinnedUprevError.
-
-        Args:
-            new_android_atom: The Android atom that we failed to uprev to, due
-                to Android being pinned.
-        """
-        assert new_android_atom
-        msg = (
-            "Failed up uprev to Android version %s as Android was pinned."
-            % new_android_atom
-        )
-        super().__init__(msg)
-        self.new_android_atom = new_android_atom
-
-
 class ChromeIsPinnedUprevError(failures_lib.InfrastructureFailure):
     """Raised when we try to uprev while chrome is pinned."""
 
@@ -2102,71 +2082,6 @@ class ChromeIsPinnedUprevError(failures_lib.InfrastructureFailure):
         )
         super().__init__(msg)
         self.new_chrome_atom = new_chrome_atom
-
-
-def MarkAndroidAsStable(
-    buildroot,
-    android_package,
-    android_build_branch,
-    boards=None,
-    android_version=None,
-):
-    """Returns portage atom for the revved Android ebuild - see man emerge."""
-    input_msg = android_pb2.MarkStableRequest()
-    input_msg.package_name = android_package
-    input_msg.android_build_branch = android_build_branch
-    if android_version:
-        input_msg.android_version = android_version
-    if boards:
-        for board in boards:
-            input_msg.build_targets.add().name = board
-
-    result = CallBuildApiWithInputProto(
-        buildroot,
-        "chromite.api.AndroidService/MarkStable",
-        json_format.MessageToDict(input_msg),
-    )
-
-    if result["status"] == android_pb2.MARK_STABLE_STATUS_EARLY_EXIT:
-        # Early exit (nothing to uprev).
-        return None
-
-    # The result comes back with camelCase names rather than the underscore
-    # separated names we use for the response objects. For now, adding support
-    # for both just in case. Will need to fix that so we can use response
-    # objects in the long term.
-    atom = result.get("androidAtom") or result.get("android_atom")
-    if not atom:
-        logging.info("Found nothing to rev.")
-        return None
-
-    category = atom["category"]
-    package = atom.get("packageName") or atom.get("package_name")
-    version = atom["version"]
-    android_atom = "%s/%s-%s" % (category, package, version)
-
-    if result["status"] == android_pb2.MARK_STABLE_STATUS_PINNED:
-        # Failed to emerge the new package, probably pinned.
-        raise AndroidIsPinnedUprevError(android_atom)
-
-    return android_atom
-
-
-def MarkAndroidLKGB(buildroot, android_package, android_version):
-    """Marks the given Android version as LKGB.
-
-    This is to implement Phase 2 migration of go/android-uprev-recipes. The
-    Android PFQ calls this function to update the LKGB file instead of
-    committing uprevs directly.
-    """
-    cmd = [
-        "cros_mark_android_as_stable",
-        "--update_lkgb",
-        "--android_package=%s" % android_package,
-        "--force_version=%s" % android_version,
-    ]
-
-    RunBuildScript(buildroot, cmd, chromite_cmd=True)
 
 
 def MarkChromeAsStable(

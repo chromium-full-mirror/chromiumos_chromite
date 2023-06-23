@@ -134,7 +134,7 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.uprev.assert_not_called()
 
     def testCallsCommandCorrectly(self):
-        """Test that commands.MarkAndroidAsStable is called correctly."""
+        """Test that packages.uprev_android is called correctly."""
         self.uprev.return_value = packages.UprevAndroidResult(
             revved=True, android_atom="cat/android-1.2.3"
         )

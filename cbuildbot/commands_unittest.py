@@ -2477,53 +2477,6 @@ class VerifyAFDOArtifactsTests(cros_test_lib.RunCommandTempDirTestCase):
         self.assertTrue(ret)
 
 
-class MarkAndroidAsStableTest(cros_test_lib.RunCommandTempDirTestCase):
-    """MarkAndroidAsStable tests."""
-
-    def testSuccess(self):
-        """Test input and success handling."""
-        # Raw arguments for the function.
-        buildroot = "/buildroot"
-        android_package = "android/android-1.0-r1"
-        android_build_branch = "refs/build"
-        boards = ["foo", "bar"]
-        android_version = "1.0"
-
-        # Write out the mock response.
-        response_package = {
-            "category": "android",
-            "package_name": "android",
-            "version": "1.0-r2",
-        }
-
-        call_patch = self.PatchObject(
-            commands,
-            "CallBuildApiWithInputProto",
-            return_value={"status": 1, "android_atom": response_package},
-        )
-
-        new_atom = commands.MarkAndroidAsStable(
-            buildroot,
-            android_package,
-            android_build_branch,
-            boards=boards,
-            android_version=android_version,
-        )
-
-        # Make sure the atom is rebuilt correctly from the package info.
-        self.assertEqual("android/android-1.0-r2", new_atom)
-
-        expected_input = {
-            "packageName": android_package,
-            "androidBuildBranch": android_build_branch,
-            "androidVersion": android_version,
-            "buildTargets": [{"name": "foo"}, {"name": "bar"}],
-        }
-        call_patch.assert_called_with(
-            buildroot, "chromite.api.AndroidService/MarkStable", expected_input
-        )
-
-
 class MarkChromeAsStableTest(cros_test_lib.RunCommandTempDirTestCase):
     """MarkChromeAsStable tests."""
 
