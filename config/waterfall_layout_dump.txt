@@ -257,6 +257,7 @@
     trogdor-zephyr-release
     volteer-kernelnext-release
     volteer-release
+    volteer-scudo-release
     zork-arc-r-release
     zork-connectivitynext-release
     zork-kernelnext-release
@@ -1066,6 +1067,7 @@
     trogdor-zephyr-release-tryjob
     volteer-kernelnext-release-tryjob
     volteer-release-tryjob
+    volteer-scudo-release-tryjob
     zork-arc-r-release-tryjob
     zork-connectivitynext-release-tryjob
     zork-kernelnext-release-tryjob
@@ -1387,6 +1389,7 @@
   volteer-llvm-toolchain-tryjob
   volteer-payloads-tryjob
   volteer-release-tryjob
+  volteer-scudo-release-tryjob
   whirlwind-full-tryjob
   whirlwind-llvm-next-toolchain-tryjob
   whirlwind-llvm-toolchain-tryjob
