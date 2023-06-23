@@ -504,30 +504,6 @@ class ReportStageTest(AbstractReportStageTestCase):
             generic_stages_unittest.DEFAULT_BUILD_NUMBER,
         )
 
-    def testGetChildConfigsMetadataList(self):
-        """Test GetChildConfigListMetadata generates child config metadata."""
-        child_configs = [
-            {"name": "config1", "boards": ["board1"]},
-            {"name": "config2", "boards": ["board2"]},
-        ]
-        config_status_map = {"config1": True, "config2": False}
-        expected = [
-            {
-                "name": "config1",
-                "boards": ["board1"],
-                "status": constants.BUILDER_STATUS_PASSED,
-            },
-            {
-                "name": "config2",
-                "boards": ["board2"],
-                "status": constants.BUILDER_STATUS_FAILED,
-            },
-        ]
-        child_config_list = report_stages.GetChildConfigListMetadata(
-            child_configs, config_status_map
-        )
-        self.assertEqual(expected, child_config_list)
-
     def testPerformStage(self):
         """Test PerformStage."""
         mock_sd = self.PatchObject(metrics, "CumulativeSecondsDistribution")

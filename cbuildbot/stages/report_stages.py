@@ -137,38 +137,6 @@ def WriteTagMetadata(builder_run):
     )
 
 
-def GetChildConfigListMetadata(child_configs, config_status_map):
-    """Creates a list for the child configs metadata.
-
-    This creates a list of child config dictionaries from the given child
-    configs, optionally adding the final status if the success map is
-    specified.
-
-    Args:
-        child_configs: The list of child configs for this build.
-        config_status_map: The map of config name to final build status.
-
-    Returns:
-        List of child config dictionaries, with optional final status
-    """
-    child_config_list = []
-    for c in child_configs:
-        pass_fail_status = None
-        if config_status_map:
-            if config_status_map[c["name"]]:
-                pass_fail_status = constants.BUILDER_STATUS_PASSED
-            else:
-                pass_fail_status = constants.BUILDER_STATUS_FAILED
-        child_config_list.append(
-            {
-                "name": c["name"],
-                "boards": c["boards"],
-                "status": pass_fail_status,
-            }
-        )
-    return child_config_list
-
-
 def _UploadAndLinkGomaLogIfNecessary(
     stage_name, cbb_config_name, goma_dir, goma_tmp_dir
 ):
@@ -469,13 +437,6 @@ class BuildReexecutionFinishedStage(
             "config['important']=%s" % config["important"]
         )
 
-        # Flat list of all child config boards. Since child configs
-        # are not allowed to have children, it is not necessary to search
-        # deeper than one generation.
-        child_configs = GetChildConfigListMetadata(
-            child_configs=config["child_configs"], config_status_map=None
-        )
-
         sdk_verinfo = key_value_store.LoadFile(
             os.path.join(build_root, constants.SDK_VERSION_FILE),
             ignore_missing=True,
@@ -496,7 +457,7 @@ class BuildReexecutionFinishedStage(
             # Version of the metadata format.
             "metadata-version": "2",
             "boards": config["boards"],
-            "child-configs": child_configs,
+            "child-configs": [],
             "build_type": config["build_type"],
             "important": config["important"],
             # Data for the toolchain used.
@@ -532,7 +493,7 @@ class BuildReexecutionFinishedStage(
 
         tags = {
             "boards": config["boards"],
-            "child_config_names": [cc["name"] for cc in child_configs],
+            "child_config_names": [],
             "build_type": config["build_type"],
             "important": config["important"],
             # Data for the toolchain used.
@@ -552,10 +513,6 @@ class BuildReexecutionFinishedStage(
         # metadata subdict.
         for b in config["boards"]:
             self._run.attrs.metadata.UpdateBoardDictWithDict(b, {})
-
-        for cc in child_configs:
-            for b in cc["boards"]:
-                self._run.attrs.metadata.UpdateBoardDictWithDict(b, {})
 
         # Upload build metadata (and write it to database if necessary)
         self.UploadMetadata(filename=constants.PARTIAL_METADATA_JSON)
@@ -966,13 +923,6 @@ class ReportStage(
             )
         )
 
-        child_configs_list = GetChildConfigListMetadata(
-            child_configs=config["child_configs"],
-            config_status_map=completion_stages.GetBuilderSuccessMap(
-                self._run, final_status
-            ),
-        )
-
         return metadata_lib.CBuildbotMetadata.GetReportMetadataDict(
             builder_run,
             get_statuses_from_slaves,
@@ -980,7 +930,6 @@ class ReportStage(
             stage,
             final_status,
             completion_instance,
-            child_configs_list,
         )
 
     def ArchiveResults(self, final_status):
