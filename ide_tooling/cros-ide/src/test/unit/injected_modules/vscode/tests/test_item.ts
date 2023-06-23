@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import type * as vscode from 'vscode';
 import {TestItemCollection} from './test_item_collecion';
+import type * as vscode from 'vscode';
 
 export class TestItem implements vscode.TestItem {
   constructor(

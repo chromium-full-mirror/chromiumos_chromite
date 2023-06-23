@@ -5,9 +5,9 @@
 import * as path from 'path';
 import * as mockFs from 'mock-fs';
 import mock = require('mock-fs');
-import {VoidOutputChannel} from './../../testing/fakes/output_channel';
 import {CnsFileCache} from './../../../common/cns_file_cache';
 import * as commonUtil from './../../../common/common_util';
+import {VoidOutputChannel} from './../../testing/fakes/output_channel';
 
 describe('CnsFileCache', () => {
   const FAKE_CACHE_DIR = '/cache';

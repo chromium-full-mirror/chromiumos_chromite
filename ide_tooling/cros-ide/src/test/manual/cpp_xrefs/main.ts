@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import * as commander from 'commander';
+import * as all from './all';
 import * as clangd from './clangd';
 import * as compdb from './compdb';
-import * as all from './all';
 import {installFakes} from './fakes';
 
 async function main() {

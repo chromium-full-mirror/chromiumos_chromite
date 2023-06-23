@@ -6,7 +6,6 @@ import {TextEncoder} from 'util';
 import * as vscode from 'vscode';
 import * as boilerplate from '../../../features/boilerplate';
 import * as config from '../../../services/config';
-
 import {
   cleanState,
   installVscodeDouble,

@@ -4,9 +4,9 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as testing from '../../../../testing';
-import * as services from '../../../../../services';
 import {TastTests} from '../../../../../features/chromiumos/tast/tast_tests';
+import * as services from '../../../../../services';
+import * as testing from '../../../../testing';
 import {FakeTextDocument} from '../../../../testing/fakes/text_document';
 
 function workspaceFolder(fsPath: string): vscode.WorkspaceFolder {

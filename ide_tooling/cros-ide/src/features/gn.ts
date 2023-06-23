@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
-import * as bgTaskStatus from '../ui/bg_task_status';
-import {TaskStatus} from '../ui/bg_task_status';
 import * as commonUtil from '../common/common_util';
 import * as logs from '../logs';
+import * as bgTaskStatus from '../ui/bg_task_status';
+import {TaskStatus} from '../ui/bg_task_status';
 
 // The gn executable file path in chroot.
 const GN_PATH = '/usr/bin/gn';

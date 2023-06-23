@@ -4,9 +4,9 @@
 
 import 'jasmine';
 import * as vscode from 'vscode';
+import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
 import * as sshUtil from '../../../../../features/device_management/ssh_util';
 import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
-import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
 import * as testing from '../../../../testing';
 
 describe('SSH utility', () => {

@@ -8,9 +8,9 @@ import * as crosfleet from '../crosfleet';
 import * as repository from '../device_repository';
 import * as provider from '../device_tree_data_provider';
 import * as sshConfig from '../ssh_config';
+import {SshIdentity} from '../ssh_identity';
 import * as ssh from '../ssh_session';
 import * as vnc from '../vnc_session';
-import {SshIdentity} from '../ssh_identity';
 
 /**
  * Contains various values commonly available to commands.

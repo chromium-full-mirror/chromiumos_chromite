@@ -6,18 +6,18 @@ import * as fs from 'fs';
 import * as net from 'net';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as services from '../../../services';
-import * as metrics from '../../metrics/metrics';
-// TODO(oka): Move ebuild under src/services/chromiumos.
 import {
   parsePlatform2EbuildOrThrow,
   platform2TestWorkingDirectory,
 } from '../../../common/chromiumos/portage/platform2';
-import * as ebuild from '../cpp_code_completion/compdb_service/ebuild';
-import {GtestCase} from '../../gtest/gtest_case';
-import {GtestWorkspace} from '../../gtest/gtest_workspace';
+import * as services from '../../../services';
 import {AbstractRunner} from '../../gtest/abstract_runner';
+import {GtestCase} from '../../gtest/gtest_case';
 import * as gtestTestListParser from '../../gtest/gtest_test_list_parser';
+import {GtestWorkspace} from '../../gtest/gtest_workspace';
+import * as metrics from '../../metrics/metrics';
+// TODO(oka): Move ebuild under src/services/chromiumos.
+import * as ebuild from '../cpp_code_completion/compdb_service/ebuild';
 
 const PLATFORM2_TEST_PY =
   '/mnt/host/source/src/platform2/common-mk/platform2_test.py';

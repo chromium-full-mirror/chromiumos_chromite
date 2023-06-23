@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import * as testing from '../../../testing';
 import {
   checkCommitExists,
   readGitLog,
   TEST_ONLY,
 } from '../../../../features/gerrit/git';
 import {Sink} from '../../../../features/gerrit/sink';
+import * as testing from '../../../testing';
 import {FakeStatusManager} from '../../../testing/fakes';
 
 const {parseGitLog} = TEST_ONLY;

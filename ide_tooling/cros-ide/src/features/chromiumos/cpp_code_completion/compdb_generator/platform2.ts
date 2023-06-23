@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import * as commonUtil from '../../../../common/common_util';
 import {getOrSelectTargetBoard, NoBoardError} from '../../../../ide_util';
 import * as services from '../../../../services';
+import {Atom, Packages} from '../../../../services/chromiumos';
 import * as metrics from '../../../metrics/metrics';
 import {
   CompdbError,
@@ -15,7 +16,6 @@ import {
   CompdbServiceImpl,
   destination,
 } from '../compdb_service';
-import {Atom, Packages} from '../../../../services/chromiumos';
 import {CompdbGenerator, ErrorDetails} from '.';
 
 type GenerationState = 'generating' | 'generated' | 'failed';

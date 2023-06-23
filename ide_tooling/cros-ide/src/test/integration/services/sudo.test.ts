@@ -5,9 +5,9 @@
 import * as childProcess from 'child_process';
 import * as util from 'util';
 import * as commonUtil from '../../../common/common_util';
-import * as doubles from '../../testing/doubles';
-import * as testing from '../../testing';
 import * as sudo from '../../../services/sudo';
+import * as testing from '../../testing';
+import * as doubles from '../../testing/doubles';
 
 // Password accepted by the simulated sudo command.
 const SUDO_PASSWORD = 'my_secret_password';

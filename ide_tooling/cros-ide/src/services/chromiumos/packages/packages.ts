@@ -4,8 +4,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import {findChroot, sourceDir} from '../../../common/common_util';
 import * as services from '../..';
+import {findChroot, sourceDir} from '../../../common/common_util';
 import {generate} from './mapping';
 import {SourceDir, PackageInfo} from './types';
 

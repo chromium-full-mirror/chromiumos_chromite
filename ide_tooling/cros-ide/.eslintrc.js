@@ -43,7 +43,17 @@ module.exports = {
     ],
 
     'import/first': 'error',
-    'import/order': 'error',
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'external', 'parent', 'sibling', 'index', 'type'],
+        'newlines-between': 'never',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
 
     'no-restricted-syntax': [
       'error',

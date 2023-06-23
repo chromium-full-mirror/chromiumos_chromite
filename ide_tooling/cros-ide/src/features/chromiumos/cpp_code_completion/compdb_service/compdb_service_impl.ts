@@ -8,12 +8,12 @@ import * as vscode from 'vscode';
 import * as uuid from 'uuid';
 import * as services from '../../../../services';
 import {PackageInfo} from '../../../../services/chromiumos';
+import {checkCompilationDatabase} from './compdb_checker';
 import {CompdbService} from './compdb_service';
+import {CompilationDatabase} from './compilation_database_type';
 import {Ebuild} from './ebuild';
 import {CompdbError, CompdbErrorKind} from './error';
 import {destination} from './util';
-import {CompilationDatabase} from './compilation_database_type';
-import {checkCompilationDatabase} from './compdb_checker';
 
 export class CompdbServiceImpl implements CompdbService {
   constructor(

@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import * as metrics from '../../metrics/metrics';
+import * as commonUtil from '../../../common/common_util';
+import * as services from '../../../services';
 import * as bgTaskStatus from '../../../ui/bg_task_status';
 import {TaskStatus} from '../../../ui/bg_task_status';
-import * as services from '../../../services';
-import * as commonUtil from '../../../common/common_util';
+import * as metrics from '../../metrics/metrics';
 import * as compdbGenerator from './compdb_generator';
 import {CLANGD_EXTENSION, SHOW_LOG_COMMAND} from './constants';
 

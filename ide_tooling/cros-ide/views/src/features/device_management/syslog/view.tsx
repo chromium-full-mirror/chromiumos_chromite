@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import {ArrowDownward, ContentCopy} from '@mui/icons-material';
 import {
   Checkbox,
   Fab,
@@ -19,7 +20,6 @@ import {
   Zoom,
 } from '@mui/material';
 import {createTheme, SxProps, ThemeProvider} from '@mui/material/styles';
-import {ArrowDownward, ContentCopy} from '@mui/icons-material';
 import {
   forwardRef,
   useCallback,
@@ -36,7 +36,6 @@ import {
   TableVirtuosoHandle,
   TableVirtuosoProps,
 } from 'react-virtuoso';
-import * as ReactPanelHelper from '../../../react/common/react_panel_helper';
 import {
   SyslogViewContext,
   SyslogEntry,
@@ -45,6 +44,7 @@ import {
   SyslogViewFrontendMessage,
   stringifySyslogEntries,
 } from '../../../../../src/features/device_management/syslog/model';
+import * as ReactPanelHelper from '../../../react/common/react_panel_helper';
 import * as viewModel from './viewmodel';
 import {
   initialTextFilter,

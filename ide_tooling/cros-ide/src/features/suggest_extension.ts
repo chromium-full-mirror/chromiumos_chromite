@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import * as ideUtil from '../ide_util';
 import * as metrics from '../features/metrics/metrics';
+import * as ideUtil from '../ide_util';
 
 export function activate(context: vscode.ExtensionContext): void {
   const recommendations: Recommendation[] = [

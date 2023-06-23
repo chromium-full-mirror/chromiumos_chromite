@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import type * as vscode from 'vscode'; // import types only
 import {URI, Utils} from 'vscode-uri';
+import type * as vscode from 'vscode'; // import types only
 
 export class Uri implements vscode.Uri {
   private constructor(private readonly uri: URI) {}

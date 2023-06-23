@@ -4,10 +4,10 @@
 
 import * as path from 'path';
 import * as dateFns from 'date-fns';
+import * as testing from '..';
 import * as cipd from '../../../common/cipd';
 import * as commonUtil from '../../../common/common_util';
 import * as crosfleet from '../../../features/device_management/crosfleet';
-import * as testing from '..';
 
 export class FakeCrosfleet {
   private loggedIn = true;

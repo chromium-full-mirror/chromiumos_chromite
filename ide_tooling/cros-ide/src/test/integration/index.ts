@@ -4,7 +4,6 @@
 
 import * as path from 'path';
 import * as glob from 'glob';
-
 const Jasmine = require('jasmine');
 
 export function run(): Promise<void> {

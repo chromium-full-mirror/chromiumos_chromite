@@ -4,9 +4,9 @@
 
 import * as vscode from 'vscode';
 import * as commonUtil from '../../common/common_util';
+import * as metrics from '../../features/metrics/metrics';
 import * as ideUtil from '../../ide_util';
 import {StatusManager, TaskStatus} from '../../ui/bg_task_status';
-import * as metrics from '../../features/metrics/metrics';
 
 // Task name in the status manager.
 const FORMATTER = 'Formatter';

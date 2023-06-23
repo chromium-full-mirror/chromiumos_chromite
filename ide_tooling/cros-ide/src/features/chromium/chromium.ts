@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as vscode from 'vscode';
 import * as path from 'path';
-import * as bgTaskStatus from '../../ui/bg_task_status';
+import * as vscode from 'vscode';
 import * as config from '../../services/config';
-import * as metrics from '../metrics/metrics';
+import * as bgTaskStatus from '../../ui/bg_task_status';
 import * as boilerplate from '../boilerplate';
+import * as metrics from '../metrics/metrics';
 import * as chromiumBuild from './chromium_build';
-import * as outputDirectories from './output_directories';
 import * as format from './format';
-import * as relatedFiles from './related_files';
 import * as gtest from './gtest';
+import * as outputDirectories from './output_directories';
+import * as relatedFiles from './related_files';
 
 /**
  * Extension context value provided to this class. We omit subscriptions here

@@ -4,8 +4,8 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
-import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
 import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
+import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
 import * as testing from '../../../../testing';
 
 describe('SSH identity', () => {

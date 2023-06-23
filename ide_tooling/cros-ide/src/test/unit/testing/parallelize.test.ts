@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as parallelize from '../../testing/parallelize';
 import * as testing from '../../testing';
+import * as parallelize from '../../testing/parallelize';
 
 function fulfilled<T>(x: T): PromiseSettledResult<T> {
   return {

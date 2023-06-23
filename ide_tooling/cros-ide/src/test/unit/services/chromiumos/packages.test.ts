@@ -4,8 +4,8 @@
 
 import * as assert from 'assert';
 import * as path from 'path';
-import {Packages} from '../../../../services/chromiumos';
 import * as services from '../../../../services';
+import {Packages} from '../../../../services/chromiumos';
 import * as testing from '../../../testing';
 
 describe('Packages', () => {

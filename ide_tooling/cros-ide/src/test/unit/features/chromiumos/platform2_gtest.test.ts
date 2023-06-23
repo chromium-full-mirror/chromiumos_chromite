@@ -5,8 +5,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import {Platform2Gtest} from '../../../../features/chromiumos/platform2_gtest';
-import * as testing from '../../../testing';
 import * as services from '../../../../services';
+import * as testing from '../../../testing';
 
 function textDocument(fileName: string, content: string): vscode.TextDocument {
   return {

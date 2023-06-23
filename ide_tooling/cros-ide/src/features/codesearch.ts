@@ -4,8 +4,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commonUtil from '../common/common_util';
-import * as config from '../services/config';
 import * as ideUtil from '../ide_util';
+import * as config from '../services/config';
 import * as metrics from './metrics/metrics';
 
 export function activate(context: vscode.ExtensionContext) {

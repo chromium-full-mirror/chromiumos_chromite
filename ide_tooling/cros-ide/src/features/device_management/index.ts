@@ -11,12 +11,12 @@ import * as cipd from '../../common/cipd';
 import * as services from '../../services';
 import * as bgTaskStatus from '../../ui/bg_task_status';
 import {TaskStatus} from '../../ui/bg_task_status';
+import * as abandonedDevices from './abandoned_devices';
 import * as commands from './commands';
 import * as crosfleet from './crosfleet';
 import * as repository from './device_repository';
 import * as provider from './device_tree_data_provider';
 import * as sshUtil from './ssh_util';
-import * as abandonedDevices from './abandoned_devices';
 
 export function activate(
   context: vscode.ExtensionContext,

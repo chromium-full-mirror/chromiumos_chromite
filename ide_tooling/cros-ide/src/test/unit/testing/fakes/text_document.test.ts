@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode'; // from //third_party/vscode/src/vs:vscode
-
 import {FakeTextDocument} from '../../../testing/fakes';
 
 describe('FakeTextDocument', () => {

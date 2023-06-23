@@ -4,8 +4,8 @@
 
 import * as vscode from 'vscode';
 import * as commonUtil from '../../common/common_util';
-import * as sshUtil from './ssh_util';
 import {SshIdentity} from './ssh_identity';
+import * as sshUtil from './ssh_util';
 
 export interface LsbRelease {
   board: string;

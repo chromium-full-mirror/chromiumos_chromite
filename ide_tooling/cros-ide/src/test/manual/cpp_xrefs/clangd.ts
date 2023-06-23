@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import * as fs from 'fs';
-import type * as vscode from 'vscode';
 import * as commander from 'commander';
 import * as commonUtil from '../../../common/common_util';
+import type * as vscode from 'vscode';
 
 export function installCommand(program: commander.Command) {
   program

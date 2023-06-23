@@ -9,12 +9,12 @@ import * as util from 'util';
 import * as vscode from 'vscode';
 import * as commander from 'commander';
 import * as glob from 'glob';
+import {CompilationDatabase} from '../../../features/chromiumos/cpp_code_completion/compdb_service/compilation_database_type';
 import * as services from '../../../services';
 import * as testing from '../../testing';
-import {CompilationDatabase} from '../../../features/chromiumos/cpp_code_completion/compdb_service/compilation_database_type';
 import * as clangd from './clangd';
-import * as compdb from './compdb';
 import {chrootServiceInstance, packagesInstance} from './common';
+import * as compdb from './compdb';
 
 const SKIP_PACKAGES = new Set([
   // TODO(oka): Following packages don't compile on betty because of unmet requirements.

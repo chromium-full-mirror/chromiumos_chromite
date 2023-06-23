@@ -6,9 +6,9 @@ import * as vscode from 'vscode';
 import * as dateFns from 'date-fns';
 import * as cipd from '../../common/cipd';
 import * as commonUtil from '../../common/common_util';
+import {UnexpectedCommandBehaviorError} from '../../common/common_util';
 import * as outputParsing from '../../common/output_parsing';
 import * as shutil from '../../common/shutil';
-import {UnexpectedCommandBehaviorError} from '../../common/common_util';
 
 /**
  * Represents a leased device.

@@ -4,11 +4,11 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as metrics from '../../../features/metrics/metrics';
 import * as services from '../../../services';
 import * as config from '../../../services/config';
-import * as metrics from '../../../features/metrics/metrics';
-import {TestCase} from './test_case';
 import {LazyTestController} from './lazy_test_controller';
+import {TestCase} from './test_case';
 
 /**
  * Provides tast-tests support.

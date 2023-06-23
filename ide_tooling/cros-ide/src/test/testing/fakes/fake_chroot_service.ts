@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import {ChrootExecOptions, CrosFs} from '../../../services/chromiumos/chroot';
 import * as commonUtil from '../../../common/common_util';
 import {WrapFs} from '../../../common/cros';
+import {ChrootExecOptions, CrosFs} from '../../../services/chromiumos/chroot';
 
 /**
  * Easy-to-create fake ChrootService implementation for testing/spying.

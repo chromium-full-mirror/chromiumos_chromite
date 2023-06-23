@@ -7,7 +7,6 @@ import * as os from 'os';
 import * as path from 'path';
 import * as dateFns from 'date-fns';
 import {OwnedDeviceRepository} from './device_repository';
-
 // TODO(joelbecker): import normally once tsconfig esModuleInterop=true doesn't break a lot of
 // other things.
 const SSHConfig = require('ssh-config');

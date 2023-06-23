@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import * as parser from './parser';
 import {LazyTestController} from './lazy_test_controller';
+import * as parser from './parser';
 
 export class TestCase implements vscode.Disposable {
   readonly item: vscode.TestItem;

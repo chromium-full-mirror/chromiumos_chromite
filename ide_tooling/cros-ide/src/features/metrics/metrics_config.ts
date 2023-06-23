@@ -5,8 +5,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import * as uuid from 'uuid';
 import * as dateFns from 'date-fns';
+import * as uuid from 'uuid';
 
 // Number of ms in one day.
 const oneDayInMs = 24 * 60 * 60 * 1000;

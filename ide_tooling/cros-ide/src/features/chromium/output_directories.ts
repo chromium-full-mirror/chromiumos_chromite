@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as vscode from 'vscode';
 import * as assert from 'assert';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import type {Stats} from 'fs';
-import * as bgTaskStatus from '../../ui/bg_task_status';
+import * as vscode from 'vscode';
 import * as common_util from '../../common/common_util';
 import * as metrics from '../../features/metrics/metrics';
+import * as bgTaskStatus from '../../ui/bg_task_status';
+import type {Stats} from 'fs';
 
 export const CURRENT_LINK_NAME = `out${path.sep}current_link`;
 const STATUS_BAR_TASK_ID = 'Chromium Output Directories';

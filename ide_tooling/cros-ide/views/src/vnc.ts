@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import {Base64} from 'js-base64';
 import RFB, {DataChannel} from '@novnc/novnc/core/rfb';
+import {Base64} from 'js-base64';
 import * as webviewShared from '../../src/features/device_management/webview_shared';
 
 const vscode = acquireVsCodeApi<never>();

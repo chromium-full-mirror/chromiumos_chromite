@@ -4,9 +4,9 @@
 
 import * as vscode from 'vscode';
 import * as deviceClient from '../../../../../features/device_management/device_client';
-import * as testing from '../../../../testing';
-import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
 import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
+import {ChromiumosServiceModule} from '../../../../../services/chromiumos';
+import * as testing from '../../../../testing';
 import {FakeSshServer} from './fake_ssh_server';
 
 describe('Device client', () => {

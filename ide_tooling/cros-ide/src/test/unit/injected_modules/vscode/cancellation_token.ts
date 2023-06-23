@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import type * as vscode from 'vscode'; // import types only
 import {EventEmitter} from './event';
+import type * as vscode from 'vscode'; // import types only
 
 class CancellationTokenCore {
   isCancellationRequested = false;

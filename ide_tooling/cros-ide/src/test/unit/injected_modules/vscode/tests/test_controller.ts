@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import type * as vscode from 'vscode';
 import {TestItem} from './test_item';
 import {TestItemCollection} from './test_item_collecion';
 import {TestRun} from './test_run';
 import {TestRunProfile} from './test_run_profile';
+import type * as vscode from 'vscode';
 
 export function createTestController(
   id: string,

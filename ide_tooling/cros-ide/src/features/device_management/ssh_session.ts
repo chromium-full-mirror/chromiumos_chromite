@@ -6,8 +6,8 @@ import * as net from 'net';
 import * as vscode from 'vscode';
 import * as commonUtil from '../../common/common_util';
 import * as netUtil from '../../common/net_util';
-import * as sshUtil from './ssh_util';
 import {SshIdentity} from './ssh_identity';
+import * as sshUtil from './ssh_util';
 
 /**
  * Represents an active SSH session of a device. It can be used to manage SSH sessions

@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as vscode from 'vscode';
 import * as assert from 'assert';
-import {FakeCancellationToken} from '../../testing/fakes';
+import * as vscode from 'vscode';
 import * as commonUtil from '../../../common/common_util';
-import * as extensionTesting from '../extension_testing';
 import * as ownersLinkProvider from '../../../features/owners_links';
+import {FakeCancellationToken} from '../../testing/fakes';
+import * as extensionTesting from '../extension_testing';
 
 // Create a `vscode.TextDocument` from text and run `OwnersLinkProvider` on it.
 async function getLinks(text: string) {

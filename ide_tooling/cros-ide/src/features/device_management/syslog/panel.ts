@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import * as shutil from '../../../common/shutil';
+import * as vscode from 'vscode';
 import * as commonUtil from '../../../common/common_util';
-import * as sshUtil from '../ssh_util';
-import * as metrics from '../../metrics/metrics';
+import * as shutil from '../../../common/shutil';
 import {ReactPanel} from '../../../services/react_panel';
+import * as metrics from '../../metrics/metrics';
 import {SshIdentity} from '../ssh_identity';
+import * as sshUtil from '../ssh_util';
 import {
   parseSyslogLine,
   SyslogViewBackendMessage,

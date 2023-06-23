@@ -4,8 +4,8 @@
 
 import * as vscode from 'vscode';
 import * as dateFns from 'date-fns';
-import * as config from '../../services/config';
 import * as commonUtil from '../../common/common_util';
+import * as config from '../../services/config';
 import * as abandonedDevices from './abandoned_devices';
 import * as crosfleet from './crosfleet';
 

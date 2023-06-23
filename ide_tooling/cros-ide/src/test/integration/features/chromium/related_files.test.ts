@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as vscode from 'vscode';
 import * as path from 'path';
+import * as vscode from 'vscode';
+import * as relatedFiles from '../../../../features/chromium/related_files';
+import * as testing from '../../../testing';
 import {FakeCancellationToken} from '../../../testing/fakes';
 import * as extensionTesting from '../../extension_testing';
-import * as testing from '../../../testing';
-import * as relatedFiles from '../../../../features/chromium/related_files';
 
 // Uses `RelatedFilesProvider` to resolve a `RelatedFileCodeLens`.
 async function resolveLense(

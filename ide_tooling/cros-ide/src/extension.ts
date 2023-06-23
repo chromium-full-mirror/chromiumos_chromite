@@ -12,16 +12,17 @@ import * as sourceMapSupport from 'source-map-support';
 import * as cipd from './common/cipd';
 import * as commonUtil from './common/common_util';
 import * as features from './features';
-import * as ownersLinks from './features/owners_links';
+import * as boilerplate from './features/boilerplate';
 import * as codesearch from './features/codesearch';
-import * as deviceManagement from './features/device_management';
 import * as crosLint from './features/cros_lint';
+import * as deviceManagement from './features/device_management';
 import * as gerrit from './features/gerrit';
 import * as gn from './features/gn';
 import * as hints from './features/hints';
 import * as feedback from './features/metrics/feedback';
 import * as metrics from './features/metrics/metrics';
 import * as metricsConfig from './features/metrics/metrics_config';
+import * as ownersLinks from './features/owners_links';
 import * as shortLinkProvider from './features/short_link_provider';
 import * as showHelp from './features/show_help';
 import * as suggestExtension from './features/suggest_extension';
@@ -33,7 +34,6 @@ import * as services from './services';
 import * as config from './services/config';
 import * as gitDocument from './services/git_document';
 import * as bgTaskStatus from './ui/bg_task_status';
-import * as boilerplate from './features/boilerplate';
 import {TaskStatus} from './ui/bg_task_status';
 
 // Install source map if it's available so that error stacktraces show TS

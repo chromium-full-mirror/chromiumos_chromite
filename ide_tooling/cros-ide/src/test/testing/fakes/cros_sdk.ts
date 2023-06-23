@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import * as path from 'path';
-import * as testing from '../../testing';
 import * as commonUtil from '../../../common/common_util';
+import * as testing from '../../testing';
 
 /**
  * Installs a fake handler for the command invoked inside chroot.

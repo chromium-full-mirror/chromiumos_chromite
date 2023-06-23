@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
+import * as path from 'path';
 import * as vscode from 'vscode';
-import * as metrics from '../../metrics/metrics';
-import {GtestCase} from '../../gtest/gtest_case';
-import {GtestWorkspace} from '../../gtest/gtest_workspace';
-import {AbstractRunner} from '../../gtest/abstract_runner';
 import * as commonUtil from '../../../common/common_util';
-import * as outputDirectories from '../output_directories';
 import * as config from '../../../services/config';
+import {AbstractRunner} from '../../gtest/abstract_runner';
+import {GtestCase} from '../../gtest/gtest_case';
 import * as gtestTestListParser from '../../gtest/gtest_test_list_parser';
+import {GtestWorkspace} from '../../gtest/gtest_workspace';
+import * as metrics from '../../metrics/metrics';
+import * as outputDirectories from '../output_directories';
 import * as testLauncherSummaryParser from './test_launcher_summary_parser';
 
 /**

@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import * as metrics from '../../../features/metrics/metrics';
 import * as gitDocument from '../../../services/git_document';
 import * as testing from '../../testing';
-import * as metrics from '../../../features/metrics/metrics';
 
 describe('Git document provider', () => {
   const tempDir = testing.tempDir();
