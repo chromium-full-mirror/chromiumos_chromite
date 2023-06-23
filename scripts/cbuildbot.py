@@ -285,15 +285,6 @@ def _CreateParser():
         ),
     )
     parser.add_remote_option(
-        "--android_rev",
-        type="choice",
-        choices=constants.VALID_ANDROID_REVISIONS,
-        help=(
-            "Revision of Android to use, of type [%s]"
-            % "|".join(constants.VALID_ANDROID_REVISIONS)
-        ),
-    )
-    parser.add_remote_option(
         "--chrome_rev",
         type="choice",
         choices=constants.VALID_CHROME_REVISIONS,

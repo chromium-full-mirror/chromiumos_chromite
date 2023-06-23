@@ -161,8 +161,6 @@ class BuilderStage:
 
         # Determine correct android_rev.
         self._android_rev = self._run.config.android_rev
-        if self._run.options.android_rev:
-            self._android_rev = self._run.options.android_rev
 
         # Determine correct chrome_rev.
         self._chrome_rev = self._run.config.chrome_rev
