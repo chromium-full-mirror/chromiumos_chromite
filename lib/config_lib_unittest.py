@@ -356,11 +356,9 @@ class SiteConfigTest(cros_test_lib.TestCase):
         site_config.AddTemplate("unused", value="unused")
         site_config.AddTemplate("callable", value=self._callable)
 
-        default = site_config.Add("default")
+        site_config.Add("default")
 
-        default_with_override = site_config.Add(
-            "default_with_override", value="override"
-        )
+        site_config.Add("default_with_override", value="override")
 
         site_config.AddWithoutTemplate(
             "default_with_mixin", site_config.templates.mixin
@@ -419,8 +417,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
                 config_lib.TastVMTestConfig("tast_vm_suite", ["(!disabled)"])
             ],
         )
-
-        site_config.AddGroup("parent", default, default_with_override)
 
         self.site_config = site_config
 
@@ -503,11 +499,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
                     )
                 ],
             },
-            "parent": {
-                "_template": None,
-                "name": "parent",
-                "value": "default",
-            },
         }
 
         # Make sure our expected build configs exist.
@@ -521,30 +512,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
             self.assertGreaterEqual(
                 self.site_config[name].items(), expected[name].items(), name
             )
-
-        # Special handling for child configs.
-
-        children = self.site_config["parent"].child_configs
-        self.assertEqual(len(children), 2)
-        self.assertGreaterEqual(
-            children[0].items(),
-            {
-                "_template": None,
-                "name": "default",
-                "value": "default",
-                "grouped": True,
-            }.items(),
-        )
-
-        self.assertGreaterEqual(
-            children[1].items(),
-            {
-                "_template": None,
-                "name": "default_with_override",
-                "value": "override",
-                "grouped": True,
-            }.items(),
-        )
 
     def testAddErrors(self):
         """Test the SiteConfig.Add behavior."""

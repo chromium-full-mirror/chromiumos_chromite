@@ -1455,23 +1455,6 @@ class SiteConfig(dict):
         """Add config containing only explicitly listed values (no defaults)."""
         self.Add(name, None, *args, **kwargs)
 
-    def AddGroup(self, name, *args, **kwargs):
-        """Create a new group of build configurations.
-
-        Args:
-            name: The name to label this configuration; this is what cbuildbot
-                would see.
-            *args: Configurations to build in this group. The first config in
-                the group is considered the primary configuration and is used
-                for syncing and creating the chroot.
-            **kwargs: Override values to use for the parent config.
-
-        Returns:
-            A new BuildConfig instance.
-        """
-        child_configs = [x.deepcopy().apply(grouped=True) for x in args]
-        return self.Add(name, args[0], child_configs=child_configs, **kwargs)
-
     def AddForBoards(
         self, suffix, boards, per_board=None, template=None, *args, **kwargs
     ):
