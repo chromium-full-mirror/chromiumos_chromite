@@ -136,8 +136,8 @@ class LockableQueue(object):
     the calling code.
 
     Examples:
-      with queue.rlock:
-        ... process the queue in some way.
+        with queue.rlock:
+            ... process the queue in some way.
     """
 
     def __init__(self, manager):
@@ -1076,27 +1076,15 @@ class _RealBuilderRun(object):
         finally:
             run_base.config = None
 
-    def GetChildren(self):
-        """Get ChildBuilderRun objects for child configs, if they exist.
-
-        Returns:
-            List of ChildBuilderRun objects if self.config has child_configs.
-            [] otherwise.
-        """
-        # If there are child configs, construct a list of ChildBuilderRun
-        # objects for those child configs and return that.
-        return [
-            ChildBuilderRun(self, ix)
-            for ix in range(len(self.config.child_configs))
-        ]
-
     def GetUngroupedBuilderRuns(self):
-        """Same as GetChildren, but defaults to [self] if no children exist.
+        """Returns this run.
 
         Returns:
-            Result of self.GetChildren, if children exist, otherwise [self].
+            Returns [self].
         """
-        return self.GetChildren() or [self]
+        # There should never be any children anymore.
+        assert not self.config.child_configs
+        return [self]
 
     def GetBuilderIds(self):
         """Return a list of builder names for this, and child, configs."""
