@@ -209,6 +209,7 @@
     myst-release
     nami-kernelnext-release
     nami-release
+    nami-scudo-release
     nautilus-release
     nissa-kernelnext-release
     nissa-pvs-release
@@ -1017,6 +1018,7 @@
     myst-release-tryjob
     nami-kernelnext-release-tryjob
     nami-release-tryjob
+    nami-scudo-release-tryjob
     nautilus-release-tryjob
     nissa-kernelnext-release-tryjob
     nissa-pvs-release-tryjob
@@ -1087,6 +1089,7 @@
   nami-llvm-toolchain-tryjob
   nami-payloads-tryjob
   nami-release-tryjob
+  nami-scudo-release-tryjob
   nautilus-factory-poppy-10504.B-factorybranch-tryjob
   nautilus-full-tryjob
   nautilus-llvm-next-toolchain-tryjob
