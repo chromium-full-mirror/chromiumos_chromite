@@ -65,7 +65,6 @@ class UnitTestStage(
             commands.RunUnitTests(
                 self._build_root,
                 self._current_board,
-                blocklist=self._run.config.unittests_disabled,
                 extra_env=extra_env,
                 build_stage=self._run.config.build_packages,
             )

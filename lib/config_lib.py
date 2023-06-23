@@ -809,8 +809,6 @@ def DefaultSettings():
         signer_tests=False,
         # Runs unittests for packages.
         unittests=True,
-        # A list of the packages whose unittests will not be run.
-        unittests_disabled=[],
         # Generates AFDO data. Will capture a profile of chrome using a hwtest
         # to run a predetermined set of benchmarks.
         # FIXME(tcwang): Keep this config during transition to async AFDO

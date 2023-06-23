@@ -109,7 +109,6 @@
     "tast_vm_tests": [],
     "triggered_gitiles": null,
     "unittests": true,
-    "unittests_disabled": [],
     "upload_hw_test_artifacts": true,
     "upload_standalone_images": true,
     "upload_stripped_packages": [

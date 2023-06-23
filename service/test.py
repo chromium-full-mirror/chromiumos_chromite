@@ -98,7 +98,6 @@ def BuildTargetUnitTest(
         BuildTargetUnitTestResult
     """
     cros_build_lib.AssertInsideChroot()
-    # TODO(saklein) Refactor commands.RunUnitTests to use this/the API.
     # TODO(crbug.com/960805) Move cros_run_unit_tests logic here.
     cmd = ["cros_run_unit_tests"]
 

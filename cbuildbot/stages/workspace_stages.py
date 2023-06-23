@@ -586,7 +586,6 @@ class WorkspaceUnitTestStage(
                 commands.RunUnitTests(
                     self._build_root,
                     self._current_board,
-                    blocklist=self._run.config.unittests_disabled,
                     build_stage=self._run.config.build_packages,
                     chroot_args=ChrootArgs(self._run.options),
                     extra_env=extra_env,

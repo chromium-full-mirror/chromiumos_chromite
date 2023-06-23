@@ -75,7 +75,6 @@ class UnitTestStageTest(
         self.rununittests_mock.assert_called_once_with(
             self.build_root,
             self._current_board,
-            blocklist=[],
             extra_env=mock.ANY,
             build_stage=True,
         )
