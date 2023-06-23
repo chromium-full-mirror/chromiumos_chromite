@@ -1,7 +1,6 @@
 {
   "_default": {
     "_template": null,
-    "afdo_update_chrome_ebuild": false,
     "afdo_update_kernel_ebuild": false,
     "afdo_use": true,
     "android_package": null,
@@ -23,7 +22,6 @@
     "build_type": "pfq",
     "builder_class_name": null,
     "child_configs": [],
-    "chrome_afdo_verify": false,
     "chrome_rev": null,
     "chrome_sdk": false,
     "chrome_sdk_build_chrome": true,
@@ -64,7 +62,6 @@
     ],
     "important": true,
     "internal": false,
-    "kernel_afdo_verify": false,
     "latest_toolchain": false,
     "luci_builder": "LegacyRelease",
     "manifest": "default.xml",
@@ -76,8 +73,6 @@
     "name": null,
     "nobuildretry": false,
     "notification_configs": [],
-    "orderfile_generate": false,
-    "orderfile_verify": false,
     "overlays": "public",
     "packages": [],
     "paygen": false,

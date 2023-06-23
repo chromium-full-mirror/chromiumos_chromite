@@ -802,19 +802,6 @@ def DefaultSettings():
         signer_tests=False,
         # Runs unittests for packages.
         unittests=True,
-        # Verify and publish kernel profiles.
-        kernel_afdo_verify=False,
-        # Verify and publish chrome profiles.
-        chrome_afdo_verify=False,
-        # Generate Chrome orderfile. Will build Chrome with C3 ordering and
-        # generate an orderfile for uploading as a result.
-        orderfile_generate=False,
-        # Verify unvetted Chrome orderfile. Will use the most recent unvetted
-        # orderfile and build Chrome. Upload the orderfile to vetted bucket
-        # as a result.
-        orderfile_verify=False,
-        # Update the Chrome ebuild with the AFDO profile info.
-        afdo_update_chrome_ebuild=False,
         # Update the kernel ebuild with the AFDO profile info.
         afdo_update_kernel_ebuild=False,
         # Uses AFDO data. The Chrome build will be optimized using the AFDO
