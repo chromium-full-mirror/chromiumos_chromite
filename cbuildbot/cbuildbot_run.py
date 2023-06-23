@@ -1076,16 +1076,6 @@ class _RealBuilderRun:
         finally:
             run_base.config = None
 
-    def GetUngroupedBuilderRuns(self):
-        """Returns this run.
-
-        Returns:
-            Returns [self].
-        """
-        # There should never be any children anymore.
-        assert not self.config.child_configs
-        return [self]
-
     def GetBuilderIds(self):
         """Return a list of builder names for this, and child, configs."""
         bot_ids = [self.config.name]

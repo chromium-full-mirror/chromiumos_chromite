@@ -1004,9 +1004,8 @@ class ReportStage(
         build_identifier, db = self._run.GetCIDBHandle()
         build_id = build_identifier.cidb_id
         buildbucket_id = build_identifier.buildbucket_id
-        # Iterate through each builder run, whether there is just the main one
-        # or multiple child builder runs.
-        for builder_run in self._run.GetUngroupedBuilderRuns():
+        # Iterate through each builder run.
+        for builder_run in [self._run]:
             if db is not None:
                 timeline = self._UploadBuildStagesTimeline(
                     builder_run, buildbucket_id

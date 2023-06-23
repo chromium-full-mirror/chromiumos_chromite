@@ -47,7 +47,7 @@ class AndroidMetadataStage(
         branches = set()
         targets = set()
 
-        for builder_run in self._run.GetUngroupedBuilderRuns():
+        for builder_run in [self._run]:
             for board in builder_run.config.boards:
                 try:
                     # Determine the version for each board and record metadata.

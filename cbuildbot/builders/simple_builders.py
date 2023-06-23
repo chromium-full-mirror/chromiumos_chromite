@@ -280,7 +280,7 @@ class SimpleBuilder(generic_builders.Builder):
 
     def RunSetupBoard(self):
         """Run the SetupBoard stage for all child configs and boards."""
-        for builder_run in self._run.GetUngroupedBuilderRuns():
+        for builder_run in [self._run]:
             for board in self.BoardsForSimpleBuilder(builder_run):
                 self._RunStage(
                     build_stages.SetupBoardStage, board, builder_run=builder_run
@@ -303,12 +303,9 @@ class SimpleBuilder(generic_builders.Builder):
 
     def RunBuildStages(self):
         """Runs through the stages to perform the build and resulting tests."""
-        # Prepare stages to run in background.  If child_configs exist then
-        # run each of those here, otherwise use default config.
-        builder_runs = self._run.GetUngroupedBuilderRuns()
-
+        # Prepare stages to run in background.
         tasks = []
-        for builder_run in builder_runs:
+        for builder_run in [self._run]:
             # Prepare a local archive directory for each "run".
             builder_run.GetArchive().SetupArchivePath()
 
