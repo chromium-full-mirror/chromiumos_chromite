@@ -256,7 +256,6 @@ class CBuildbotMetadata:
         stage=None,
         final_status=None,
         completion_instance=None,
-        child_configs_list=None,
     ):
         """Return a metadata dictionary summarizing a build.
 
@@ -280,8 +279,6 @@ class CBuildbotMetadata:
                 builder's metadata. If None, no such status information will be
                 included. It not None, this should be a derivative of
                 MasterSlaveSyncCompletionStage.
-            child_configs_list: The list of child config metadata.  If specified
-                it should be added to the metadata.
 
         Returns:
             A metadata dictionary suitable to be json-serialized.
@@ -327,9 +324,6 @@ class CBuildbotMetadata:
                     "log": builder_run.ConstructDashboardURL(stage=entry.name),
                 }
             )
-
-        if child_configs_list:
-            metadata["child-configs"] = child_configs_list
 
         # If we were a CQ master, then include a summary of the status of slave
         # cq builders in metadata

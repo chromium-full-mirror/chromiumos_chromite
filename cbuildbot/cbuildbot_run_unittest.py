@@ -42,10 +42,6 @@ DEFAULT_CONFIG = config_lib.BuildConfig(
     master=True,
     boards=[DEFAULT_BOARD],
     postsync_patch=True,
-    child_configs=[
-        config_lib.BuildConfig(name="foo", postsync_patch=False, boards=[]),
-        config_lib.BuildConfig(name="bar", postsync_patch=False, boards=[]),
-    ],
 )
 
 DEFAULT_VERSION = "6543.2.1"

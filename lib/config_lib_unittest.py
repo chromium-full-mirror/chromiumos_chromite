@@ -99,7 +99,6 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
             name="deep",
             nested=[1, 2, 3],
             deep=3,
-            child_configs=[self.fooConfig, self.barConfig],
         )
 
     def testAppendUseflags(self):

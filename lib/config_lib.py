@@ -213,10 +213,8 @@ class BuildConfig(AttrDict):
         # shallow.
         for k, v in result.items():
             if v is not None:
-                if k == "child_configs":
-                    result[k] = [x.deepcopy() for x in v]
                 # type(v) is faster than isinstance.
-                elif type(v) is list:  # pylint: disable=unidiomatic-typecheck
+                if type(v) is list:  # pylint: disable=unidiomatic-typecheck
                     result[k] = v[:]
 
         return result
@@ -516,9 +514,6 @@ def DefaultSettings():
         description=None,
         # Boolean that enables parameter --git-sync for upload_prebuilts.
         git_sync=False,
-        # A list of the child config groups, if applicable. See the AddGroup
-        # method.
-        child_configs=[],
         # Whether this config belongs to a config group.
         grouped=False,
         # If enabled, run the PatchChanges stage.  Enabled by default. Can be
@@ -1049,12 +1044,7 @@ class SiteConfig(dict):
         result = {}
         for k, v in config.items():
             if defaults.get(k) != v:
-                if k == "child_configs":
-                    result["child_configs"] = [
-                        self._MarshalBuildConfig(name, child) for child in v
-                    ]
-                else:
-                    result[k] = v
+                result[k] = v
 
         return result
 
@@ -1138,11 +1128,9 @@ class SiteConfig(dict):
                         elif key == "models":
                             raw_devices = value
                         else:
-                            # Ignoring this for now for test analysis.
-                            if key != "child_configs":
-                                row[key] = " | ".join(
-                                    str(array_val) for array_val in value
-                                )
+                            row[key] = " | ".join(
+                                str(array_val) for array_val in value
+                            )
                     else:
                         row[key] = value
 
@@ -1508,7 +1496,6 @@ def _DeserializeConfigs(build_dict):
 def _CreateBuildConfig(name, default, build_dict, templates):
     """Create a BuildConfig object from it's parsed JSON dictionary encoding."""
     # These build config values need special handling.
-    child_configs = build_dict.pop("child_configs", None)
     template = build_dict.get("_template")
 
     # Use the name passed in as the default build name.
@@ -1521,12 +1508,6 @@ def _CreateBuildConfig(name, default, build_dict, templates):
     result.update(build_dict)
 
     _DeserializeConfigs(result)
-
-    if child_configs is not None:
-        result["child_configs"] = [
-            _CreateBuildConfig(name, default, child, templates)
-            for child in child_configs
-        ]
 
     return result
 

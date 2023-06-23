@@ -529,38 +529,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     % (branch, tracking_branch, branch),
                 )
 
-    def testNoNewBuildersOnlyGroups(self):
-        """Grouped builders are deprecated.
-
-        Ensure now new users are created. See crbug.com/691810.
-        """
-        for build_name, config in self.site_config.items():
-            # These group builders are allowlisted, for now.
-            if not (
-                build_name
-                in (
-                    "test-ap-group",
-                    "test-ap-group-tryjob",
-                    "mixed-wificell-pre-cq",
-                )
-                or build_name.endswith("release-afdo")
-                or build_name.endswith("release-afdo-tryjob")
-            ):
-                self.assertFalse(
-                    config.child_configs,
-                    "Unexpected group builder found: %s" % build_name,
-                )
-
-    def testNoGrandChildConfigs(self):
-        """Verify that no child configs have a child config."""
-        for build_name, config in self.site_config.items():
-            for child_config in config.child_configs:
-                for grandchild_config in child_config.child_configs:
-                    self.fail(
-                        "Config %s has grandchild %s"
-                        % (build_name, grandchild_config.name)
-                    )
-
     def _HasValidSuffix(self, config_name, config_types):
         """Given a config_name, see if it has a suffix in config_types.
 
@@ -751,20 +719,8 @@ class TemplateTest(ChromeosConfigTestBase):
                 # We mix '-' and '_' in various name spaces.
                 name = name.replace("_", "-")
                 template = template.replace("_", "-")
-                child_configs = config.child_configs
-                if not child_configs:
-                    msg = "%s should end with %s to match its template"
-                    self.assertTrue(
-                        name.endswith(template), msg % (name, template)
-                    )
-                else:
-                    msg = (
-                        "Child config of %s has name that does not match its "
-                        "template"
-                    )
-                    self.assertTrue(
-                        child_configs[0].name.endswith(template), msg % name
-                    )
+                msg = "%s should end with %s to match its template"
+                self.assertTrue(name.endswith(template), msg % (name, template))
 
             for other in self.site_config.GetTemplates():
                 if name.endswith(other) and other != template:

@@ -40,10 +40,6 @@ DEFAULT_CONFIG = config_lib.BuildConfig(
     name=DEFAULT_BOT_NAME,
     master=True,
     boards=[DEFAULT_BOARD],
-    child_configs=[
-        config_lib.BuildConfig(name="foo"),
-        config_lib.BuildConfig(name="bar"),
-    ],
     gs_path=config_lib.GS_PATH_DEFAULT,
 )
 

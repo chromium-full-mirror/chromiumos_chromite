@@ -40,7 +40,7 @@ def GetBuilderSuccessMap(builder_run, overall_success):
     """
     success_map = {}
     for run in [builder_run]:
-        if run.config.boards and not run.config.child_configs:
+        if run.config.boards:
             success_map[run.config.name] = True
             for board in run.config.boards:
                 board_runattrs = run.GetBoardRunAttrs(board)

@@ -13,7 +13,6 @@
     "build_timeout": 19800,
     "build_type": "pfq",
     "builder_class_name": null,
-    "child_configs": [],
     "chrome_rev": null,
     "chrome_sdk": false,
     "chrome_sdk_build_chrome": true,
