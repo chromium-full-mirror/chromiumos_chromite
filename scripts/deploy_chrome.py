@@ -1274,6 +1274,8 @@ def _PrepareStagingDir(
         else:
             compression = cros_build_lib.CompressionDetectType(pkg_path)
             compressor = cros_build_lib.FindCompressor(compression)
+            if compression == cros_build_lib.CompressionType.ZSTD:
+                compressor += " -f"
             cros_build_lib.dbg_run(
                 [
                     "tar",
