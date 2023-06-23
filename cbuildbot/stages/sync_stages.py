@@ -29,7 +29,6 @@ from chromite.lib import osutils
 from chromite.lib import patch as cros_patch
 from chromite.lib import timeout_util
 from chromite.scripts import cros_mark_chrome_as_stable
-from chromite.service import android
 
 
 class PatchChangesStage(generic_stages.BuilderStage):
@@ -808,10 +807,6 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
 
         return manifest
 
-    def GetLatestAndroidVersion(self):
-        """Returns the version of Android to uprev."""
-        return android.GetLatestBuild(self._run.config.android_import_branch)[0]
-
     def GetLatestChromeVersion(self):
         """Returns the version of Chrome to uprev."""
         return cros_mark_chrome_as_stable.GetLatestRelease(
@@ -821,13 +816,6 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
     def PerformStage(self):
         """Performs the stage."""
-        if self._android_rev and self._run.config.master:
-            self._android_version = self.GetLatestAndroidVersion()
-            logging.info("Latest Android version is: %s", self._android_version)
-            cbuildbot_alerts.PrintKitchenSetBuildProperty(
-                "android_version", self._android_version
-            )
-
         if (
             self._chrome_rev == constants.CHROME_REV_LATEST
             and self._run.config.master

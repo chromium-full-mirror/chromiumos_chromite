@@ -302,7 +302,6 @@ class SimpleBuilder(generic_builders.Builder):
         self._RunStage(build_stages.RegenPortageCacheStage)
         self.RunSetupBoard()
         self._RunStage(chrome_stages.SyncChromeStage)
-        self._RunStage(android_stages.UprevAndroidStage)
         self._RunStage(android_stages.AndroidMetadataStage)
 
     def RunBuildStages(self):
