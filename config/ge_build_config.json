@@ -9929,7 +9929,34 @@
         },
         {
           "board_name": "nissa-kernelnext",
+          "name": "yavijo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-kernelnext",
           "name": "yaviks",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-kernelnext",
+          "name": "yavilla",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa-kernelnext",
+          "name": "yavilly",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
