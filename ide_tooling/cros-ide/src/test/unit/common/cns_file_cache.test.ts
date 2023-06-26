@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import * as path from 'path';
-import * as mockFs from 'mock-fs';
+import mockFs = require('mock-fs');
 import mock = require('mock-fs');
 import {CnsFileCache} from './../../../common/cns_file_cache';
 import * as commonUtil from './../../../common/common_util';
