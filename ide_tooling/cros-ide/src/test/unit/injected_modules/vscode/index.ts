@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+export * as env from './env';
 export * as extensions from './extensions';
 export * as tests from './tests';
 export * as window from './window';
@@ -34,4 +35,5 @@ export {ThemeIcon} from './theme_icon';
 export {TreeItem} from './tree_item';
 export {TreeItemCollapsibleState} from './tree_item_collapsible_state';
 export type {TreeItemLabel} from './tree_item_label';
+export {UIKind} from './ui_kind';
 export {Uri} from './uri';
