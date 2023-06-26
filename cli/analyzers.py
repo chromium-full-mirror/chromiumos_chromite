@@ -46,37 +46,42 @@ class AnalyzerCommand(ABC, command.CliCommand):
     # Additional aliases to offer for the "--inplace" option.
     inplace_option_aliases = []
 
-    use_dryrun_options = True
-    # Override base class property to use path filter options.
+    # Whether to include options that only make sense for analyzers that can
+    # modify the files being checked.
+    can_modify_files = False
+
+    # CliCommand overrides.
     use_filter_options = True
 
     @classmethod
     def AddParser(cls, parser):
         super().AddParser(parser)
-        parser.add_argument(
-            "--check",
-            dest="dryrun",
-            action="store_true",
-            help="Display files with errors & exit non-zero",
-        )
-        parser.add_argument(
-            "--diff",
-            action="store_true",
-            help="Display diff instead of fixed content",
-        )
-        parser.add_argument(
-            "--stdout",
-            dest="inplace",
-            action="store_false",
-            help="Write to stdout",
-        )
-        parser.add_argument(
-            *(["-i", "--inplace"] + cls.inplace_option_aliases),
-            default=True,
-            action="store_true",
-            dest="inplace",
-            help="Fix files inplace (default)",
-        )
+        if cls.can_modify_files:
+            parser.add_argument(
+                "--check",
+                dest="dryrun",
+                action="store_true",
+                help="Display files with errors & exit non-zero",
+            )
+            parser.add_argument(
+                "--diff",
+                action="store_true",
+                help="Display diff instead of fixed content",
+            )
+            parser.add_argument(
+                "--stdout",
+                dest="inplace",
+                action="store_false",
+                help="Write to stdout",
+            )
+            parser.add_argument(
+                *(["-i", "--inplace"] + cls.inplace_option_aliases),
+                default=True,
+                action="store_true",
+                dest="inplace",
+                help="Fix files inplace (default)",
+            )
+
         parser.add_argument(
             "--commit",
             type=str,
@@ -118,7 +123,7 @@ class AnalyzerCommand(ABC, command.CliCommand):
         if is_committed and not options.files:
             options.files = GetFilesFromCommit(options.commit)
 
-        if is_committed and options.inplace:
+        if cls.can_modify_files and is_committed and options.inplace:
             # If a commit is provided, bail when using inplace if any of the
             # files have uncommitted changes. This is because the input to the
             # analyzer will not consider any working state changes, so they will

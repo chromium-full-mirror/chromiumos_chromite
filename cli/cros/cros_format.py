@@ -247,8 +247,10 @@ Supported file names: %s
         " ".join(sorted(itertools.chain(*_FILENAME_PATTERNS_TOOL_MAP))),
     )
 
-    # Override AnalyzerCommand setting to offer "--fix".
+    # AnalyzerCommand overrides.
     inplace_option_aliases = ["--fix"]
+    can_modify_files = True
+    use_dryrun_options = True
 
     def Run(self):
         # Hack "pre-submit" to "HEAD" when being run by repohooks/pre-upload.py

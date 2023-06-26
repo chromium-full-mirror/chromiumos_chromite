@@ -13,6 +13,10 @@ from chromite.cli.cros import cros_format
 class FixCommand(analyzers.AnalyzerCommand):
     """Automatically fix format/lint/etc... issues."""
 
+    # AnalyzerCommand overrides.
+    can_modify_files = True
+    use_dryrun_options = True
+
     def Run(self):
         files = self.options.files
         if not files:

@@ -5,6 +5,7 @@
 """Tests for the analyzers module."""
 
 from typing import List
+from unittest import mock
 
 from chromite.cli import analyzers
 from chromite.lib import commandline
@@ -19,7 +20,11 @@ def process_args(args: List[str]) -> commandline.ArgumentNamespace:
     return parser_namespace
 
 
-def test_get_files_from_commit(run_mock) -> None:
+# Patch can_modify_files to return True for additional coverage.
+@mock.patch(
+    "chromite.cli.analyzers.AnalyzerCommand.can_modify_files", return_value=True
+)
+def test_get_files_from_commit(_, run_mock) -> None:
     """Test files from commit are correctly reconstructed as absolute paths."""
     run_mock.AddCmdResult(
         ["git", "rev-parse", "--show-toplevel"], stdout="/path/to/root\n"

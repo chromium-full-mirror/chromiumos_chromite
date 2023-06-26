@@ -15,6 +15,7 @@ from pathlib import Path
 import stat
 from typing import Callable, Dict, List, Optional, Union
 
+from chromite.cli import analyzers
 from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -633,7 +634,7 @@ def _Dispatcher(
 
 
 @command.command_decorator("lint")
-class LintCommand(command.CliCommand):
+class LintCommand(analyzers.AnalyzerCommand):
     """Run lint checks on the specified files."""
 
     EPILOG = """
@@ -642,6 +643,8 @@ https://chromium.googlesource.com/chromiumos/docs/+/HEAD/styleguide/
 
 Supported file formats: %s
 Supported file names: %s
+
+NB: Not all linters work with `--commit` yet.
 """ % (
         " ".join(sorted(itertools.chain(*_EXT_TOOL_MAP))),
         " ".join(sorted(itertools.chain(*_FILENAME_PATTERNS_TOOL_MAP))),
@@ -650,19 +653,9 @@ Supported file names: %s
     # The output formats supported by cros lint.
     OUTPUT_FORMATS = ("default", "colorized", "msvs", "parseable")
 
-    # Override base class property to use path filter options.
-    use_filter_options = True
-
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser):
         super().AddParser(parser)
-        parser.add_argument(
-            "--commit",
-            type=str,
-            help="Use files from git commit instead of on disk. "
-            "NB: Not all linters work with this yet.",
-        )
-        parser.add_argument("files", type=Path, help="Files to lint", nargs="*")
         parser.add_argument(
             "--output",
             default="default",
