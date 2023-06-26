@@ -54,7 +54,7 @@ export class FakeGerrit {
   }
 
   /**
-   * Processes `internal` option and sets up `/accounts/me`.
+   * Processes `internal` option and sets up `/a/accounts/me`.
    */
   private constructor(opts?: FakeGerritInitialOpts) {
     this.baseUrl = opts?.internal ? CHROME_INTERNAL_GERRIT : CHROMIUM_GERRIT;
@@ -62,7 +62,7 @@ export class FakeGerrit {
     this.reqOpts = opts?.internal ? CHROME_INTERNAL_OPTIONS : CHROMIUM_OPTIONS;
 
     this.httpsGetSpy = spyOn(https, 'getOrThrow')
-      .withArgs(`${this.baseUrl}/accounts/me`, this.reqOpts)
+      .withArgs(`${this.baseUrl}/a/accounts/me`, this.reqOpts)
       .and.resolveTo(apiString(opts?.accountsMe));
 
     this.httpsPutSpy = spyOn(https, 'putJsonOrThrow');
@@ -72,7 +72,7 @@ export class FakeGerrit {
 
   /**
    * Sets up `/changes/<changeId>?o=ALL_REVISIONS`, `/changes/<changeId>/comments`,
-   * and `/changes/<changeId>/drafts`.
+   * and `/a/changes/<changeId>/drafts`.
    */
   setChange(c: {
     id: string;
@@ -91,7 +91,7 @@ export class FakeGerrit {
       .and.callFake(async () =>
         apiString(this.idToChangeInfo.get(c.id)?.comments)
       )
-      .withArgs(`${this.baseUrl}/changes/${c.id}/drafts`, this.reqOpts)
+      .withArgs(`${this.baseUrl}/a/changes/${c.id}/drafts`, this.reqOpts)
       .and.callFake(async () =>
         apiString(this.idToChangeInfo.get(c.id)?.drafts)
       );
@@ -104,7 +104,7 @@ export class FakeGerrit {
       expect(options).toEqual(this.reqOpts);
 
       const createDraftRegex = new RegExp(
-        `${this.baseUrl}/changes/([^/]+)/revisions/([^/]+)/drafts`
+        `${this.baseUrl}/a/changes/([^/]+)/revisions/([^/]+)/drafts`
       );
       const m = createDraftRegex.exec(url);
       if (!m) throw new Error(`Unexpected URL: ${url}`);

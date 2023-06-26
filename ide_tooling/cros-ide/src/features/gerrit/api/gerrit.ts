@@ -130,7 +130,7 @@ export async function createDraftOrThrow(
   sink: Sink
 ): Promise<BaseCommentInfo> {
   const urlBase = git.gerritUrl(repoId);
-  const url = `${urlBase}/changes/${changeId}/revisions/${revisionId}/drafts`;
+  const url = `${urlBase}/a/changes/${changeId}/revisions/${revisionId}/drafts`;
 
   const options =
     authCookie !== undefined ? {headers: {cookie: authCookie}} : undefined;

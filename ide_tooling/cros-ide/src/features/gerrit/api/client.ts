@@ -40,7 +40,7 @@ export class GerritClient {
     repoId: git.RepoId,
     authCookie?: string
   ): Promise<api.AccountInfo | undefined> {
-    return this.client.fetchOrThrow(repoId, 'accounts/me', authCookie);
+    return this.client.fetchOrThrow(repoId, 'a/accounts/me', authCookie);
   }
 
   /** Fetches the change with all revisions */
@@ -93,7 +93,7 @@ export class GerritClient {
     const baseCommentInfosMap: api.FilePathToBaseCommentInfos | undefined =
       await this.client.fetchOrThrow(
         repoId,
-        `changes/${changeId}/drafts`,
+        `a/changes/${changeId}/drafts`,
         authCookie
       );
     if (!baseCommentInfosMap) return undefined;
