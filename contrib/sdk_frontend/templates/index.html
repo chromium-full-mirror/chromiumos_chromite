@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>SDK Server</title>
+
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Chromium_Logo.svg/512px-Chromium_Logo.svg.png"/>
+
+    <script
+      src="https://code.jquery.com/jquery-3.7.0.min.js"
+      integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+      crossorigin="anonymous">
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js" integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT" crossorigin="anonymous"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  </head>
+
+  <body style="background: #737373">
+    <div class = "container-fluid">
+      
+      <!--Top bar-->
+      <div class = "row row-cols-auto align-items-center" style="background: #F2F2F2">
+          <div class = "col">
+            <img class = "pb-1" style="max-height:50px; max-width: 50px;" 
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Chromium_Logo.svg/512px-Chromium_Logo.svg.png">
+          </div>
+          <div class = "col">
+            <h2 class="display-6">
+              <strong>SDK Server</strong>
+            </h2>
+          </div>
+          
+      </div>
+      
+      <!--user@hostname and toolbar-->
+      <div class="row" style="background: #2B2B2B">
+        <div class="col" >
+          <p2 class ="text-light fs-5">{{data["user"]}}@{{data["hostname"]}}</p2>
+        </div>
+
+        <div class="col text-light d-flex justify-content-end fs-5">
+          <a href="#" class="text-light fs-5 link-underline link-underline-opacity-0 me-4">
+            Replace<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 mb-1 bi bi-recycle" viewBox="0 0 16 16">
+            <path d="M9.302 1.256a1.5 1.5 0 0 0-2.604 0l-1.704 2.98a.5.5 0 0 0 .869.497l1.703-2.981a.5.5 0 0 1 .868 0l2.54 4.444-1.256-.337a.5.5 0 1 0-.26.966l2.415.647a.5.5 0 0 0 .613-.353l.647-2.415a.5.5 0 1 0-.966-.259l-.333 1.242-2.532-4.431zM2.973 7.773l-1.255.337a.5.5 0 1 1-.26-.966l2.416-.647a.5.5 0 0 1 .612.353l.647 2.415a.5.5 0 0 1-.966.259l-.333-1.242-2.545 4.454a.5.5 0 0 0 .434.748H5a.5.5 0 0 1 0 1H1.723A1.5 1.5 0 0 1 .421 12.24l2.552-4.467zm10.89 1.463a.5.5 0 1 0-.868.496l1.716 3.004a.5.5 0 0 1-.434.748h-5.57l.647-.646a.5.5 0 1 0-.708-.707l-1.5 1.5a.498.498 0 0 0 0 .707l1.5 1.5a.5.5 0 1 0 .708-.707l-.647-.647h5.57a1.5 1.5 0 0 0 1.302-2.244l-1.716-3.004z"/>
+          </svg></a>
+          <a data-bs-toggle="modal" data-bs-target="#updateChrootModal" href="#" class="text-light fs-5 link-underline link-underline-opacity-0 me-4">
+            Update<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 mb-1 bi bi-clock" viewBox="0 0 16 16">
+              <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+            </svg></a>
+          <a href="#" class="text-light fs-5 link-underline link-underline-opacity-0">
+            Delete<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 mb-1 bi bi-trash3-fill" viewBox="0 0 16 16">
+              <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+            </svg></a>
+        </div>
+
+        <!--Replace, Update, Delete modals-->
+        <div class="modal fade" id="updateChrootModal" tabindex="-1"
+            aria-labelledby="updateChrootModal" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+              <div class="modal-header">
+                <h1 class="modal-title fs-4 text-light">Update Chroot</h1>
+                
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                
+              </div>
+              <div class="modal-body">
+                <!--p class="text-white-50">Runs cros_workon start on selected board and package.</p-->
+                <ul class = "list-unstyled">
+                  
+                  <li>
+                    <p2 class="text-light fs-6 mb-4">Board</p2>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="usepkgCheck" checked>
+                      <label class="form-check-label text-light ms-3" for="usepkgCheck">
+                        Use binary packages to bootstrap.
+                      </label>
+                    </div>
+                  </li>
+                  <li class = "d-flex justify-content-between align-items-center">
+                    <p2 class="text-light fs-6">Package</p2>
+                    <select id="addPackagePackageSelect" class="add-package-select">
+                      {% for package in data["all_packages"] %}
+                        <option>{{package}}</option>
+                      {% endfor %}
+                    </select>
+                    <script>
+                      $(document).ready(function() {
+                      $(".add-package-select").select2({
+                        dropdownParent : $("#addPackagesModal"),
+                        theme: 'bootstrap-5'
+                      });
+                  });
+                    </script>
+                  </li>
+                  
+                </ul>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--Middle section: Chroot info and workon packages-->
+      <div class="row">
+        
+        <div class = "col-3">
+            <p class = "text-light"><strong>Chroot Info</strong></p>
+          <ul class = "list-unstyled">
+            <li class="text-white-50 small mb-3 d-flex justify-content-between align-items-center">
+              Created
+              <span class="small badge bg-primary rounded-pill">
+                {{data["date_created"]}}
+              </span>
+            </li>
+            <li class="text-white-50 small mb-3 d-flex justify-content-between align-items-center">
+              Last Updated
+              <span class="small badge bg-primary rounded-pill">
+                {{data["date_updated"]}}
+              </span>
+            </li>
+            <li class="small mb-2 d-flex  justify-content-between align-items-end">
+              <div class="row">
+                <div class="col-3">
+                  <p class="text-white-50">Path</p>
+                </div>
+                <div class="col" align="right">
+                  <p style="word-wrap: break-word" class="text-light text-break">{{data["path"]}}</p>
+                </div>
+              </div>
+            </li>
+            <li class="text-white-50 small mb-3 d-flex justify-content-between align-items-end">
+              <p>Version</p>
+              <p class="text-light">1.0.0</p>
+            </li>
+          </ul>
+
+          <!--cros workon packages/sysroots panel-->
+         
+          
+        </div>
+         <div class="col">
+            <div class="row bg-light justify-content-start">
+              <div class="col-2">
+                <a>Packages</a>
+              </div>
+              <div class="col-2">
+                <a>Sysroots</a>
+              </div>
+            </div>
+
+            <!--Board selector row and dropdown html/script-->
+            <div class="row bg-dark justify-content-start align-items-center">
+              <div class="col-1">
+                <p2 class="small text-light mr-5"><strong>Board</strong></p2>
+              </div>
+              <div class="col-3">
+                <div class="dropdown">
+                  <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary" type="button" 
+                  data-bs-toggle="dropdown" aria-expanded="false" id="boardSelectorTitle"></button>
+                  <ul class="dropdown-menu" id="boardSelector">
+                    {% for board in data["boards"] %}
+                      <li>
+                        {% if loop.index == 1 %}
+                          <a class="small dropdown-item board-list-item active" href="#">{{board}}</a>
+                        {% else %}
+                          <a class="small dropdown-item board-list-item" href="#">{{board}}</a>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  
+                  <!--Controls dropdown behavior: active selection, title as active selection, and default-->
+                  <script>
+                    $(document).ready( function(){
+                      var boardName = $('#boardSelector li a.active').html()
+
+                      $('#boardSelectorTitle').html(boardName);
+
+                      $('.board-package-list').hide()
+                      $('#' + boardName + "-package-list").show()
+                    })
+
+                    $('#boardSelector li').on('click', function() {
+                      var boardName = $(this).find('a').html()
+
+                      $('#boardSelectorTitle').html(boardName);
+                      $('.board-list-item').removeClass('active');
+                      $(this).find('a').addClass('active');
+
+                      $('.board-package-list').hide()
+                      $('#' + boardName + "-package-list").show()
+                    });
+                  </script>
+                  
+                </div>
+              </div>
+
+              <div class = "col-2">
+                <a data-bs-toggle="modal" data-bs-target="#addPackagesModal" href="#" style="color: #63a7ff;">Add package</a>
+              </div>
+
+              <div class="modal fade" id="addPackagesModal" tabindex="-1"
+                  aria-labelledby="addPackagesModal" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-4 text-light">Add Package</h1>
+                      
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      
+                    </div>
+                    <div class="modal-body">
+                      <p class="text-white-50">Runs cros_workon start on selected board and package.</p>
+                      <ul class = "list-unstyled">
+                        <li class = "d-flex justify-content-between align-items-center mb-4">
+                          <p2 class="text-light fs-6">Board</p2>
+                          <select id="addPackageBoardSelect" class="add-package-select">
+                            {% for board in data["boards"] %}
+                              <option>{{board}}</option>
+                            {% endfor %}
+                          </select>
+                        </li>
+                        <li class = "d-flex justify-content-between align-items-center">
+                          <p2 class="text-light fs-6">Package</p2>
+                          <select id="addPackagePackageSelect" class="add-package-select">
+                            {% for package in data["all_packages"] %}
+                              <option>{{package}}</option>
+                            {% endfor %}
+                          </select>
+                          <script>
+                            $(document).ready(function() {
+                            $(".add-package-select").select2({
+                              dropdownParent : $("#addPackagesModal"),
+                              theme: 'bootstrap-5'
+                            });
+
+                            $("#addPackageSubmit").on("click", function(){
+                              var board = $("#addPackageBoardSelect").select2("data");
+                              console.log(board[0].text);
+                            })
+                        });
+                          </script>
+                        </li>
+                        
+                      </ul>
+                      
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="addPackageSubmit">Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class = "col">
+                <a href="#" style="color: #63a7ff;"">Build packages</a>
+              </div>
+              <!--
+                Needed options:
+                - Board
+                - 
+
+              -->
+              <div class="modal fade" id="buildPackagesModal" tabindex="-1" 
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content bg-dark">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5 text-light">Package Info</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            Modal
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+              <div class = "col"></div>
+              
+            </div>
+            <div class="row bg-dark border-top">
+              <div class="col-7"><p2 class = "small text-light m-3"><strong>Name</strong></p2></div>
+              <div class="col-2"><p2 class = "small text-light"><strong>Delta</strong></p2></div>
+              <div class="col"><p2 class = "small text-light"><strong>Actions</strong></p2></div>
+            </div>
+            
+            <div class="row" id="all-board-packages">
+              {% for board in data["packages"] %}
+                {% if data["packages"][board] != [] %}
+                  <ul class="p-0 board-package-list" id= {{board + "-package-list"}}>
+                    {% for package in data["packages"][board] %}
+
+                      <!--Package list element with name, delta, 3 buttons-->
+                      <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                        <div class="col-7"><p2 class = "small text-light m-4">{{package["name"]}}</p2></div>
+                        <div class="col-2 d-flex">
+                          <p2 class = "col small text-success">+{{package["plus"]}}</p2>
+                          <p2 class = "col small text-danger">-{{package["minus"]}}</p2>
+                        </div>
+                        <div class="col">
+                          <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
+                          <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
+                            data-bs-target={{"#" + package["name"] | replace("/", "\/") + "-info-modal"}} >Info</button>
+                          <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop"
+                          id = {{package["name"]}}>Stop</button>
+                        </div>              
+                      </li>
+                      
+                      <!--Info modal for package-->
+                      <div class="modal fade" id={{package["name"] + "-info-modal"}} tabindex="-1" 
+                          aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content bg-dark">
+                            <div class="modal-header">
+                              <h1 class="modal-title fs-5 text-light">Package Info</h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              Modal
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    {% endfor %}
+                  </ul>
+                  {% else %}
+                    <row class="board-package-list small text-light bg-dark border-top border-black p-0 m-0"
+                     id= {{board + "-package-list"}}>
+                      <p2 class = "ps-5">No packages to display for this board...</p2>
+                    </row>
+                  {% endif %}
+            {% endfor %}
+
+            <script>
+              $(".workon-stop").on('click', function(){
+                var package = this.id;
+                var button = this;
+                var board = $(this).parents("ul")[0].id;
+
+                $(button).addClass("disabled");
+
+                $.ajax({
+                  url: "/workon-stop",
+                  type: "get",
+                  data: {
+                    board: board,
+                    package: package
+                  },
+
+                  success: function(response) {
+                    console.log("success");
+                    location.reload()
+                  },
+                  error: function(xhr) {
+                    console.log("failure");
+                  }
+                });
+              })
+
+            </script>
+            </div>
+              
+          </div>
+        </div>
+         <!--Logs section-->
+      <div class = "row bg-dark">
+        <p2 class = "text-light ms-2 fs-5">Logs</p2>
+      </div>
+      <div class = "row bg-black">
+        <div class="col-8"><p2 class = "small text-light ms-2"><strong>Command</strong></p2></div>
+        <div class="col-2"><p2 class = "small text-light"><strong>Log</strong></p2></div>
+        <div class="col"><p2 class = "small text-light ms-2"><strong>Date</strong></p2></div>
+      </div>
+      <div class = "row">
+        <ul class = "list-unstyled">
+          {% for log in data["logs"] %}
+            <li class = "row bg-dark">
+              <div class="col-8"><p2 class = "small text-light ms-2"><code class = "text-light">{{ log["cmd"] }}</code></p2></div>
+              <div class = "col-2">
+                <a href={{"#log-" + loop.index | string}} data-bs-toggle="collapse" role="button" 
+                  aria-controls={{"log-" + loop.index | string}} aria-expanded="false" 
+                  class = "d-flex align-items-center log-expander link-underline link-underline-opacity-0" 
+                  style="color: #63a7ff;">
+                  View Log 
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                    <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                  </svg>
+                </a>
+                
+              </div>
+              <div class="col"><p2 class = "small text-light ms-2">{{ log["date"] }}</p2></div>
+              <div class = "bg-black small overflow-auto border-top collapse " style="max-height:300px" id = {{"log-" + loop.index | string}}>
+                <code class = "small text-light" style="white-space:pre-line; ">{{log["log"]}}</code>
+              </div>
+            </li>
+          {% endfor %}
+          <style>
+            .rotate-log-button{
+              transform : rotate(90deg);
+            }
+          </style>
+          <script>
+            //Rotate the arrow next to "View Log"
+            $(".log-expander").on('click', function(){
+              $(this).children("svg").toggleClass("rotate-log-button")
+            })
+          </script>
+        </ul>
+        
+      </div>
+    </div>
+  </body>
+</html>
