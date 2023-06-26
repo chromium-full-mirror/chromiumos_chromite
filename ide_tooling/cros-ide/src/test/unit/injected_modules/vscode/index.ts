@@ -28,6 +28,9 @@ export {StatusBarAlignment, StatusBarItem} from './status_bar';
 export {TestMessage} from './test_message';
 export {TestRunProfileKind} from './test_run_profile_kind';
 export {TextEdit} from './text_edit';
+export {ThemeColor} from './theme_color';
+export {ThemeIcon} from './theme_icon';
+export {TreeItem} from './tree_item';
+export {TreeItemCollapsibleState} from './tree_item_collapsible_state';
+export type {TreeItemLabel} from './tree_item_label';
 export {Uri} from './uri';
-
-export class TreeItem {}
