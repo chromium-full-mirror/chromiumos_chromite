@@ -43,6 +43,9 @@ def HasUncommittedChanges(files: List[str]) -> bool:
 class AnalyzerCommand(ABC, command.CliCommand):
     """Shared argument parsing for cros analyzers (fix, lint, format)."""
 
+    # Additional aliases to offer for the "--inplace" option.
+    inplace_option_aliases = []
+
     use_dryrun_options = True
     # Override base class property to use path filter options.
     use_filter_options = True
@@ -68,10 +71,10 @@ class AnalyzerCommand(ABC, command.CliCommand):
             help="Write to stdout",
         )
         parser.add_argument(
-            "-i",
-            "--inplace",
+            *(["-i", "--inplace"] + cls.inplace_option_aliases),
             default=True,
             action="store_true",
+            dest="inplace",
             help="Fix files inplace (default)",
         )
         parser.add_argument(
@@ -106,10 +109,16 @@ class AnalyzerCommand(ABC, command.CliCommand):
         options: commandline.ArgumentNamespace,
     ) -> None:
         """Validate & post-process options before freezing."""
-        if options.commit and not options.files:
+
+        # Whether a committed change is being analyzed. Note "pre-submit" is a
+        # special commit passed by `pre-upload.py --pre-submit` asking to check
+        # changes only staged for a commit, but not yet committed.
+        is_committed = options.commit and options.commit != "pre-submit"
+
+        if is_committed and not options.files:
             options.files = GetFilesFromCommit(options.commit)
 
-        if options.commit and options.inplace:
+        if is_committed and options.inplace:
             # If a commit is provided, bail when using inplace if any of the
             # files have uncommitted changes. This is because the input to the
             # analyzer will not consider any working state changes, so they will
