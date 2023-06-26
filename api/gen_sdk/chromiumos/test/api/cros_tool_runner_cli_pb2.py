@@ -21,7 +21,7 @@ from chromite.api.gen_sdk.chromiumos.test.lab.api import ip_endpoint_pb2 as chro
 from chromite.api.gen_sdk.chromiumos.test.api import pre_test_service_pb2 as chromiumos_dot_test_dot_api_dot_pre__test__service__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.chromiumos/test/api/cros_tool_runner_cli.proto\x12\x13\x63hromiumos.test.api\x1a\x19google/protobuf/any.proto\x1a)chromiumos/test/api/provision_state.proto\x1a,chromiumos/test/api/cros_provision_cli.proto\x1a*chromiumos/test/api/test_case_result.proto\x1a$chromiumos/test/api/test_suite.proto\x1a!chromiumos/test/lab/api/dut.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\x1a*chromiumos/test/api/pre_test_service.proto\"\xd6\x02\n\x1e\x43rosToolRunnerProvisionRequest\x12K\n\x07\x64\x65vices\x18\x01 \x03(\x0b\x32:.chromiumos.test.api.CrosToolRunnerProvisionRequest.Device\x12=\n\x10inventory_server\x18\x02 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12\x14\n\x0c\x61rtifact_dir\x18\x03 \x01(\t\x1a\x91\x01\n\x06\x44\x65vice\x12)\n\x03\x64ut\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12<\n\x0fprovision_state\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.ProvisionState\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x03 \x01(\t\"`\n\x1f\x43rosToolRunnerProvisionResponse\x12=\n\tresponses\x18\x01 \x03(\x0b\x32*.chromiumos.test.api.CrosProvisionResponse\"\xbd\x03\n\x19\x43rosToolRunnerTestRequest\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\x12J\n\x0bprimary_dut\x18\x02 \x01(\x0b\x32\x35.chromiumos.test.api.CrosToolRunnerTestRequest.Device\x12M\n\x0e\x63ompanion_duts\x18\x03 \x03(\x0b\x32\x35.chromiumos.test.api.CrosToolRunnerTestRequest.Device\x12=\n\x10inventory_server\x18\x04 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12\x14\n\x0c\x61rtifact_dir\x18\x05 \x01(\t\x12&\n\x08metadata\x18\x06 \x01(\x0b\x32\x14.google.protobuf.Any\x1aS\n\x06\x44\x65vice\x12)\n\x03\x64ut\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x02 \x01(\t\"\x84\x01\n\x1a\x43rosToolRunnerTestResponse\x12>\n\x11test_case_results\x18\x01 \x03(\x0b\x32#.chromiumos.test.api.TestCaseResult\x12&\n\x08metadata\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\"\x8c\x01\n\x1f\x43rosToolRunnerTestFinderRequest\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\x12\x14\n\x0c\x61rtifact_dir\x18\x02 \x01(\t\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x03 \x01(\t\"W\n CrosToolRunnerTestFinderResponse\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\"\x8e\x01\n\x1c\x43rosToolRunnerPreTestRequest\x12\x14\n\x0c\x61rtifact_dir\x18\x01 \x01(\t\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x02 \x01(\t\x12\x38\n\x07request\x18\x03 \x01(\x0b\x32\'.chromiumos.test.api.FilterFlakyRequest\"[\n\x1d\x43rosToolRunnerPreTestResponse\x12:\n\x08response\x18\x01 \x01(\x0b\x32(.chromiumos.test.api.FilterFlakyResponseB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.chromiumos/test/api/cros_tool_runner_cli.proto\x12\x13\x63hromiumos.test.api\x1a\x19google/protobuf/any.proto\x1a)chromiumos/test/api/provision_state.proto\x1a,chromiumos/test/api/cros_provision_cli.proto\x1a*chromiumos/test/api/test_case_result.proto\x1a$chromiumos/test/api/test_suite.proto\x1a!chromiumos/test/lab/api/dut.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\x1a*chromiumos/test/api/pre_test_service.proto\"\xd6\x02\n\x1e\x43rosToolRunnerProvisionRequest\x12K\n\x07\x64\x65vices\x18\x01 \x03(\x0b\x32:.chromiumos.test.api.CrosToolRunnerProvisionRequest.Device\x12=\n\x10inventory_server\x18\x02 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12\x14\n\x0c\x61rtifact_dir\x18\x03 \x01(\t\x1a\x91\x01\n\x06\x44\x65vice\x12)\n\x03\x64ut\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12<\n\x0fprovision_state\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.ProvisionState\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x03 \x01(\t\"`\n\x1f\x43rosToolRunnerProvisionResponse\x12=\n\tresponses\x18\x01 \x03(\x0b\x32*.chromiumos.test.api.CrosProvisionResponse\"\xd5\x04\n\x19\x43rosToolRunnerTestRequest\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\x12J\n\x0bprimary_dut\x18\x02 \x01(\x0b\x32\x35.chromiumos.test.api.CrosToolRunnerTestRequest.Device\x12M\n\x0e\x63ompanion_duts\x18\x03 \x03(\x0b\x32\x35.chromiumos.test.api.CrosToolRunnerTestRequest.Device\x12=\n\x10inventory_server\x18\x04 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12\x14\n\x0c\x61rtifact_dir\x18\x05 \x01(\t\x12&\n\x08metadata\x18\x06 \x01(\x0b\x32\x14.google.protobuf.Any\x12\x66\n\x18\x63ros_test_container_type\x18\x07 \x01(\x0e\x32\x44.chromiumos.test.api.CrosToolRunnerTestRequest.CrosTestContainerType\x1aS\n\x06\x44\x65vice\x12)\n\x03\x64ut\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x02 \x01(\t\".\n\x15\x43rosTestContainerType\x12\x07\n\x03\x41LL\x10\x00\x12\x0c\n\x08\x43Q_LIGHT\x10\x01\"\x84\x01\n\x1a\x43rosToolRunnerTestResponse\x12>\n\x11test_case_results\x18\x01 \x03(\x0b\x32#.chromiumos.test.api.TestCaseResult\x12&\n\x08metadata\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\"\x8c\x01\n\x1f\x43rosToolRunnerTestFinderRequest\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\x12\x14\n\x0c\x61rtifact_dir\x18\x02 \x01(\t\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x03 \x01(\t\"W\n CrosToolRunnerTestFinderResponse\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\"\x8e\x01\n\x1c\x43rosToolRunnerPreTestRequest\x12\x14\n\x0c\x61rtifact_dir\x18\x01 \x01(\t\x12\x1e\n\x16\x63ontainer_metadata_key\x18\x02 \x01(\t\x12\x38\n\x07request\x18\x03 \x01(\x0b\x32\'.chromiumos.test.api.FilterFlakyRequest\"[\n\x1d\x43rosToolRunnerPreTestResponse\x12:\n\x08response\x18\x01 \x01(\x0b\x32(.chromiumos.test.api.FilterFlakyResponseB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.cros_tool_runner_cli_pb2', globals())
@@ -36,17 +36,19 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _CROSTOOLRUNNERPROVISIONRESPONSE._serialized_start=736
   _CROSTOOLRUNNERPROVISIONRESPONSE._serialized_end=832
   _CROSTOOLRUNNERTESTREQUEST._serialized_start=835
-  _CROSTOOLRUNNERTESTREQUEST._serialized_end=1280
-  _CROSTOOLRUNNERTESTREQUEST_DEVICE._serialized_start=1197
-  _CROSTOOLRUNNERTESTREQUEST_DEVICE._serialized_end=1280
-  _CROSTOOLRUNNERTESTRESPONSE._serialized_start=1283
-  _CROSTOOLRUNNERTESTRESPONSE._serialized_end=1415
-  _CROSTOOLRUNNERTESTFINDERREQUEST._serialized_start=1418
-  _CROSTOOLRUNNERTESTFINDERREQUEST._serialized_end=1558
-  _CROSTOOLRUNNERTESTFINDERRESPONSE._serialized_start=1560
-  _CROSTOOLRUNNERTESTFINDERRESPONSE._serialized_end=1647
-  _CROSTOOLRUNNERPRETESTREQUEST._serialized_start=1650
-  _CROSTOOLRUNNERPRETESTREQUEST._serialized_end=1792
-  _CROSTOOLRUNNERPRETESTRESPONSE._serialized_start=1794
-  _CROSTOOLRUNNERPRETESTRESPONSE._serialized_end=1885
+  _CROSTOOLRUNNERTESTREQUEST._serialized_end=1432
+  _CROSTOOLRUNNERTESTREQUEST_DEVICE._serialized_start=1301
+  _CROSTOOLRUNNERTESTREQUEST_DEVICE._serialized_end=1384
+  _CROSTOOLRUNNERTESTREQUEST_CROSTESTCONTAINERTYPE._serialized_start=1386
+  _CROSTOOLRUNNERTESTREQUEST_CROSTESTCONTAINERTYPE._serialized_end=1432
+  _CROSTOOLRUNNERTESTRESPONSE._serialized_start=1435
+  _CROSTOOLRUNNERTESTRESPONSE._serialized_end=1567
+  _CROSTOOLRUNNERTESTFINDERREQUEST._serialized_start=1570
+  _CROSTOOLRUNNERTESTFINDERREQUEST._serialized_end=1710
+  _CROSTOOLRUNNERTESTFINDERRESPONSE._serialized_start=1712
+  _CROSTOOLRUNNERTESTFINDERRESPONSE._serialized_end=1799
+  _CROSTOOLRUNNERPRETESTREQUEST._serialized_start=1802
+  _CROSTOOLRUNNERPRETESTREQUEST._serialized_end=1944
+  _CROSTOOLRUNNERPRETESTRESPONSE._serialized_start=1946
+  _CROSTOOLRUNNERPRETESTRESPONSE._serialized_end=2037
 # @@protoc_insertion_point(module_scope)

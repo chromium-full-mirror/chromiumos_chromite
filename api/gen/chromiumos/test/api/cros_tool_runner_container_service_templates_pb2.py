@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\nFchromiumos/test/api/cros_tool_runner_container_service_templates.proto\x12\x13\x63hromiumos.test.api\x1a,chromiumos/test/api/cros_provision_cli.proto\x1a+chromiumos/test/api/android_provision.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\"\xbd\x04\n\x08Template\x12\x38\n\x08\x63ros_dut\x18\x01 \x01(\x0b\x32$.chromiumos.test.api.CrosDutTemplateH\x00\x12\x44\n\x0e\x63ros_provision\x18\x02 \x01(\x0b\x32*.chromiumos.test.api.CrosProvisionTemplateH\x00\x12:\n\tcros_test\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.CrosTestTemplateH\x00\x12@\n\x0c\x63ros_publish\x18\x04 \x01(\x0b\x32(.chromiumos.test.api.CrosPublishTemplateH\x00\x12O\n\x11\x63ros_fw_provision\x18\x05 \x01(\x0b\x32\x32.chromiumos.test.api.CrosFirmwareProvisionTemplateH\x00\x12@\n\x0c\x63\x61\x63he_server\x18\x06 \x01(\x0b\x32(.chromiumos.test.api.CacheServerTemplateH\x00\x12G\n\x10\x63ros_test_finder\x18\x07 \x01(\x0b\x32+.chromiumos.test.api.CrosTestFinderTemplateH\x00\x12J\n\x11\x61ndroid_provision\x18\x08 \x01(\x0b\x32-.chromiumos.test.api.AndroidProvisionTemplateH\x00\x42\x0b\n\tcontainer\"\x92\x01\n\x0f\x43rosDutTemplate\x12\x39\n\x0c\x63\x61\x63he_server\x18\x03 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12\x38\n\x0b\x64ut_address\x18\x04 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpointJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03\"e\n\x15\x43rosProvisionTemplate\x12@\n\rinput_request\x18\x03 \x01(\x0b\x32).chromiumos.test.api.CrosProvisionRequestJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03\"_\n\x18\x41ndroidProvisionTemplate\x12\x43\n\rinput_request\x18\x01 \x01(\x0b\x32,.chromiumos.test.api.AndroidProvisionRequest\"\x1e\n\x10\x43rosTestTemplateJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03\"\x18\n\x16\x43rosTestFinderTemplate\"[\n\x13\x43\x61\x63heServerTemplate\x12!\n\x17service_account_keyfile\x18\x01 \x01(\tH\x00\x42!\n\x1f\x61pplication_default_credentials\"\xe8\x01\n\x13\x43rosPublishTemplate\x12J\n\x0cpublish_type\x18\x01 \x01(\x0e\x32\x34.chromiumos.test.api.CrosPublishTemplate.PublishType\x12\x17\n\x0fpublish_src_dir\x18\x02 \x01(\t\"l\n\x0bPublishType\x12\x17\n\x13PUBLISH_UNSPECIFIED\x10\x00\x12\x0f\n\x0bPUBLISH_GCS\x10\x01\x12\x0f\n\x0bPUBLISH_TKO\x10\x02\x12\x0f\n\x0bPUBLISH_RDB\x10\x03\x12\x11\n\rPUBLISH_CPCON\x10\x04\"\x1f\n\x1d\x43rosFirmwareProvisionTemplateB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\nFchromiumos/test/api/cros_tool_runner_container_service_templates.proto\x12\x13\x63hromiumos.test.api\x1a,chromiumos/test/api/cros_provision_cli.proto\x1a+chromiumos/test/api/android_provision.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\"\xf6\x04\n\x08Template\x12\x38\n\x08\x63ros_dut\x18\x01 \x01(\x0b\x32$.chromiumos.test.api.CrosDutTemplateH\x00\x12\x44\n\x0e\x63ros_provision\x18\x02 \x01(\x0b\x32*.chromiumos.test.api.CrosProvisionTemplateH\x00\x12:\n\tcros_test\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.CrosTestTemplateH\x00\x12@\n\x0c\x63ros_publish\x18\x04 \x01(\x0b\x32(.chromiumos.test.api.CrosPublishTemplateH\x00\x12O\n\x11\x63ros_fw_provision\x18\x05 \x01(\x0b\x32\x32.chromiumos.test.api.CrosFirmwareProvisionTemplateH\x00\x12@\n\x0c\x63\x61\x63he_server\x18\x06 \x01(\x0b\x32(.chromiumos.test.api.CacheServerTemplateH\x00\x12G\n\x10\x63ros_test_finder\x18\x07 \x01(\x0b\x32+.chromiumos.test.api.CrosTestFinderTemplateH\x00\x12J\n\x11\x61ndroid_provision\x18\x08 \x01(\x0b\x32-.chromiumos.test.api.AndroidProvisionTemplateH\x00\x12\x37\n\x07generic\x18\t \x01(\x0b\x32$.chromiumos.test.api.GenericTemplateH\x00\x42\x0b\n\tcontainer\"\x92\x01\n\x0f\x43rosDutTemplate\x12\x39\n\x0c\x63\x61\x63he_server\x18\x03 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12\x38\n\x0b\x64ut_address\x18\x04 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpointJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03\"e\n\x15\x43rosProvisionTemplate\x12@\n\rinput_request\x18\x03 \x01(\x0b\x32).chromiumos.test.api.CrosProvisionRequestJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03\"_\n\x18\x41ndroidProvisionTemplate\x12\x43\n\rinput_request\x18\x01 \x01(\x0b\x32,.chromiumos.test.api.AndroidProvisionRequest\"\x1e\n\x10\x43rosTestTemplateJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03\"\x18\n\x16\x43rosTestFinderTemplate\"\x91\x01\n\x0fGenericTemplate\x12\x13\n\x0b\x62inary_name\x18\x01 \x01(\t\x12\x13\n\x0b\x62inary_args\x18\x02 \x03(\t\x12\x1b\n\x13\x64ocker_artifact_dir\x18\x03 \x01(\t\x12\x1a\n\x12\x61\x64\x64itional_volumes\x18\x04 \x03(\t\x12\x0e\n\x06\x65xpose\x18\x05 \x03(\t\x12\x0b\n\x03\x65nv\x18\x06 \x03(\t\"[\n\x13\x43\x61\x63heServerTemplate\x12!\n\x17service_account_keyfile\x18\x01 \x01(\tH\x00\x42!\n\x1f\x61pplication_default_credentials\"\xe8\x01\n\x13\x43rosPublishTemplate\x12J\n\x0cpublish_type\x18\x01 \x01(\x0e\x32\x34.chromiumos.test.api.CrosPublishTemplate.PublishType\x12\x17\n\x0fpublish_src_dir\x18\x02 \x01(\t\"l\n\x0bPublishType\x12\x17\n\x13PUBLISH_UNSPECIFIED\x10\x00\x12\x0f\n\x0bPUBLISH_GCS\x10\x01\x12\x0f\n\x0bPUBLISH_TKO\x10\x02\x12\x0f\n\x0bPUBLISH_RDB\x10\x03\x12\x11\n\rPUBLISH_CPCON\x10\x04\"\x1f\n\x1d\x43rosFirmwareProvisionTemplateB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
   ,
   dependencies=[chromiumos_dot_test_dot_api_dot_cros__provision__cli__pb2.DESCRIPTOR,chromiumos_dot_test_dot_api_dot_android__provision__pb2.DESCRIPTOR,chromiumos_dot_test_dot_lab_dot_api_dot_ip__endpoint__pb2.DESCRIPTOR,])
 
@@ -63,8 +63,8 @@ _CROSPUBLISHTEMPLATE_PUBLISHTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1430,
-  serialized_end=1538,
+  serialized_start=1635,
+  serialized_end=1743,
 )
 _sym_db.RegisterEnumDescriptor(_CROSPUBLISHTEMPLATE_PUBLISHTYPE)
 
@@ -133,6 +133,13 @@ _TEMPLATE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='generic', full_name='chromiumos.test.api.Template.generic', index=8,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -151,7 +158,7 @@ _TEMPLATE = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=230,
-  serialized_end=803,
+  serialized_end=860,
 )
 
 
@@ -189,8 +196,8 @@ _CROSDUTTEMPLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=806,
-  serialized_end=952,
+  serialized_start=863,
+  serialized_end=1009,
 )
 
 
@@ -221,8 +228,8 @@ _CROSPROVISIONTEMPLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=954,
-  serialized_end=1055,
+  serialized_start=1011,
+  serialized_end=1112,
 )
 
 
@@ -253,8 +260,8 @@ _ANDROIDPROVISIONTEMPLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1057,
-  serialized_end=1152,
+  serialized_start=1114,
+  serialized_end=1209,
 )
 
 
@@ -278,8 +285,8 @@ _CROSTESTTEMPLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1154,
-  serialized_end=1184,
+  serialized_start=1211,
+  serialized_end=1241,
 )
 
 
@@ -303,8 +310,75 @@ _CROSTESTFINDERTEMPLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1186,
-  serialized_end=1210,
+  serialized_start=1243,
+  serialized_end=1267,
+)
+
+
+_GENERICTEMPLATE = _descriptor.Descriptor(
+  name='GenericTemplate',
+  full_name='chromiumos.test.api.GenericTemplate',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='binary_name', full_name='chromiumos.test.api.GenericTemplate.binary_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='binary_args', full_name='chromiumos.test.api.GenericTemplate.binary_args', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='docker_artifact_dir', full_name='chromiumos.test.api.GenericTemplate.docker_artifact_dir', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='additional_volumes', full_name='chromiumos.test.api.GenericTemplate.additional_volumes', index=3,
+      number=4, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='expose', full_name='chromiumos.test.api.GenericTemplate.expose', index=4,
+      number=5, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='env', full_name='chromiumos.test.api.GenericTemplate.env', index=5,
+      number=6, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1270,
+  serialized_end=1415,
 )
 
 
@@ -340,8 +414,8 @@ _CACHESERVERTEMPLATE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1212,
-  serialized_end=1303,
+  serialized_start=1417,
+  serialized_end=1508,
 )
 
 
@@ -380,8 +454,8 @@ _CROSPUBLISHTEMPLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1306,
-  serialized_end=1538,
+  serialized_start=1511,
+  serialized_end=1743,
 )
 
 
@@ -405,8 +479,8 @@ _CROSFIRMWAREPROVISIONTEMPLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1540,
-  serialized_end=1571,
+  serialized_start=1745,
+  serialized_end=1776,
 )
 
 _TEMPLATE.fields_by_name['cros_dut'].message_type = _CROSDUTTEMPLATE
@@ -417,6 +491,7 @@ _TEMPLATE.fields_by_name['cros_fw_provision'].message_type = _CROSFIRMWAREPROVIS
 _TEMPLATE.fields_by_name['cache_server'].message_type = _CACHESERVERTEMPLATE
 _TEMPLATE.fields_by_name['cros_test_finder'].message_type = _CROSTESTFINDERTEMPLATE
 _TEMPLATE.fields_by_name['android_provision'].message_type = _ANDROIDPROVISIONTEMPLATE
+_TEMPLATE.fields_by_name['generic'].message_type = _GENERICTEMPLATE
 _TEMPLATE.oneofs_by_name['container'].fields.append(
   _TEMPLATE.fields_by_name['cros_dut'])
 _TEMPLATE.fields_by_name['cros_dut'].containing_oneof = _TEMPLATE.oneofs_by_name['container']
@@ -441,6 +516,9 @@ _TEMPLATE.fields_by_name['cros_test_finder'].containing_oneof = _TEMPLATE.oneofs
 _TEMPLATE.oneofs_by_name['container'].fields.append(
   _TEMPLATE.fields_by_name['android_provision'])
 _TEMPLATE.fields_by_name['android_provision'].containing_oneof = _TEMPLATE.oneofs_by_name['container']
+_TEMPLATE.oneofs_by_name['container'].fields.append(
+  _TEMPLATE.fields_by_name['generic'])
+_TEMPLATE.fields_by_name['generic'].containing_oneof = _TEMPLATE.oneofs_by_name['container']
 _CROSDUTTEMPLATE.fields_by_name['cache_server'].message_type = chromiumos_dot_test_dot_lab_dot_api_dot_ip__endpoint__pb2._IPENDPOINT
 _CROSDUTTEMPLATE.fields_by_name['dut_address'].message_type = chromiumos_dot_test_dot_lab_dot_api_dot_ip__endpoint__pb2._IPENDPOINT
 _CROSPROVISIONTEMPLATE.fields_by_name['input_request'].message_type = chromiumos_dot_test_dot_api_dot_cros__provision__cli__pb2._CROSPROVISIONREQUEST
@@ -456,6 +534,7 @@ DESCRIPTOR.message_types_by_name['CrosProvisionTemplate'] = _CROSPROVISIONTEMPLA
 DESCRIPTOR.message_types_by_name['AndroidProvisionTemplate'] = _ANDROIDPROVISIONTEMPLATE
 DESCRIPTOR.message_types_by_name['CrosTestTemplate'] = _CROSTESTTEMPLATE
 DESCRIPTOR.message_types_by_name['CrosTestFinderTemplate'] = _CROSTESTFINDERTEMPLATE
+DESCRIPTOR.message_types_by_name['GenericTemplate'] = _GENERICTEMPLATE
 DESCRIPTOR.message_types_by_name['CacheServerTemplate'] = _CACHESERVERTEMPLATE
 DESCRIPTOR.message_types_by_name['CrosPublishTemplate'] = _CROSPUBLISHTEMPLATE
 DESCRIPTOR.message_types_by_name['CrosFirmwareProvisionTemplate'] = _CROSFIRMWAREPROVISIONTEMPLATE
@@ -502,6 +581,13 @@ CrosTestFinderTemplate = _reflection.GeneratedProtocolMessageType('CrosTestFinde
   # @@protoc_insertion_point(class_scope:chromiumos.test.api.CrosTestFinderTemplate)
   })
 _sym_db.RegisterMessage(CrosTestFinderTemplate)
+
+GenericTemplate = _reflection.GeneratedProtocolMessageType('GenericTemplate', (_message.Message,), {
+  'DESCRIPTOR' : _GENERICTEMPLATE,
+  '__module__' : 'chromiumos.test.api.cros_tool_runner_container_service_templates_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.GenericTemplate)
+  })
+_sym_db.RegisterMessage(GenericTemplate)
 
 CacheServerTemplate = _reflection.GeneratedProtocolMessageType('CacheServerTemplate', (_message.Message,), {
   'DESCRIPTOR' : _CACHESERVERTEMPLATE,

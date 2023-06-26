@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1ftest_platform/common/task.proto\x12\x14test_platform.common\"J\n\x0bTaskLogData\x12\x0e\n\x06gs_url\x18\x01 \x01(\t\x12\x15\n\rstainless_url\x18\x02 \x01(\t\x12\x14\n\x0ctesthaus_url\x18\x03 \x01(\tB@Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/commonb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1ftest_platform/common/task.proto\x12\x14test_platform.common\"N\n\x0bTaskLogData\x12\x0e\n\x06gs_url\x18\x01 \x01(\t\x12\x19\n\rstainless_url\x18\x02 \x01(\tB\x02\x18\x01\x12\x14\n\x0ctesthaus_url\x18\x03 \x01(\tB@Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/commonb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'test_platform.common.task_pb2', globals())
@@ -21,6 +21,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/common'
+  _TASKLOGDATA.fields_by_name['stainless_url']._options = None
+  _TASKLOGDATA.fields_by_name['stainless_url']._serialized_options = b'\030\001'
   _TASKLOGDATA._serialized_start=57
-  _TASKLOGDATA._serialized_end=131
+  _TASKLOGDATA._serialized_end=135
 # @@protoc_insertion_point(module_scope)

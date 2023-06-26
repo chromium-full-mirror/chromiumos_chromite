@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'ZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_state',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n+test_platform/skylab_local_state/save.proto\x12 test_platform.skylab_local_state\x1a-test_platform/skylab_local_state/common.proto\"\xbe\x01\n\x0bSaveRequest\x12\x38\n\x06\x63onfig\x18\x01 \x01(\x0b\x32(.test_platform.skylab_local_state.Config\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\x12\x10\n\x08\x64ut_name\x18\x03 \x01(\t\x12\x0e\n\x06\x64ut_id\x18\x04 \x01(\t\x12\x11\n\tdut_state\x18\x05 \x01(\t\x12\x18\n\x10seal_results_dir\x18\x06 \x01(\x08\x12\x11\n\tpeer_duts\x18\x07 \x03(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_stateb\x06proto3'
+  serialized_pb=b'\n+test_platform/skylab_local_state/save.proto\x12 test_platform.skylab_local_state\x1a-test_platform/skylab_local_state/common.proto\"\xd7\x01\n\x0bSaveRequest\x12\x38\n\x06\x63onfig\x18\x01 \x01(\x0b\x32(.test_platform.skylab_local_state.Config\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\x12\x10\n\x08\x64ut_name\x18\x03 \x01(\t\x12\x0e\n\x06\x64ut_id\x18\x04 \x01(\t\x12\x11\n\tdut_state\x18\x05 \x01(\t\x12\x18\n\x10seal_results_dir\x18\x06 \x01(\x08\x12\x11\n\tpeer_duts\x18\x07 \x03(\t\x12\x17\n\x0frepair_requests\x18\x08 \x03(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_stateb\x06proto3'
   ,
   dependencies=[test__platform_dot_skylab__local__state_dot_common__pb2.DESCRIPTOR,])
 
@@ -84,6 +84,13 @@ _SAVEREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='repair_requests', full_name='test_platform.skylab_local_state.SaveRequest.repair_requests', index=7,
+      number=8, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -97,7 +104,7 @@ _SAVEREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=129,
-  serialized_end=319,
+  serialized_end=344,
 )
 
 _SAVEREQUEST.fields_by_name['config'].message_type = test__platform_dot_skylab__local__state_dot_common__pb2._CONFIG

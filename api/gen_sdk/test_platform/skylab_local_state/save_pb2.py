@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen_sdk.test_platform.skylab_local_state import common_pb2 as test__platform_dot_skylab__local__state_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+test_platform/skylab_local_state/save.proto\x12 test_platform.skylab_local_state\x1a-test_platform/skylab_local_state/common.proto\"\xbe\x01\n\x0bSaveRequest\x12\x38\n\x06\x63onfig\x18\x01 \x01(\x0b\x32(.test_platform.skylab_local_state.Config\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\x12\x10\n\x08\x64ut_name\x18\x03 \x01(\t\x12\x0e\n\x06\x64ut_id\x18\x04 \x01(\t\x12\x11\n\tdut_state\x18\x05 \x01(\t\x12\x18\n\x10seal_results_dir\x18\x06 \x01(\x08\x12\x11\n\tpeer_duts\x18\x07 \x03(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_stateb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+test_platform/skylab_local_state/save.proto\x12 test_platform.skylab_local_state\x1a-test_platform/skylab_local_state/common.proto\"\xd7\x01\n\x0bSaveRequest\x12\x38\n\x06\x63onfig\x18\x01 \x01(\x0b\x32(.test_platform.skylab_local_state.Config\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\x12\x10\n\x08\x64ut_name\x18\x03 \x01(\t\x12\x0e\n\x06\x64ut_id\x18\x04 \x01(\t\x12\x11\n\tdut_state\x18\x05 \x01(\t\x12\x18\n\x10seal_results_dir\x18\x06 \x01(\x08\x12\x11\n\tpeer_duts\x18\x07 \x03(\t\x12\x17\n\x0frepair_requests\x18\x08 \x03(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_stateb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'test_platform.skylab_local_state.save_pb2', globals())
@@ -23,5 +23,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'ZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_state'
   _SAVEREQUEST._serialized_start=129
-  _SAVEREQUEST._serialized_end=319
+  _SAVEREQUEST._serialized_end=344
 # @@protoc_insertion_point(module_scope)

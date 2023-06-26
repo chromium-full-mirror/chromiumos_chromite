@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n1chromiumos/test/api/test_execution_metadata.proto\x12\x13\x63hromiumos.test.api\"\x9a\x01\n\x19\x41utotestExecutionMetadata\x12@\n\x04\x61rgs\x18\x01 \x03(\x0b\x32\x32.chromiumos.test.api.AutotestExecutionMetadata.Arg\x12\x17\n\x0fresults_sub_dir\x18\x02 \x01(\t\x1a\"\n\x03\x41rg\x12\x0c\n\x04\x66lag\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\tB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\n1chromiumos/test/api/test_execution_metadata.proto\x12\x13\x63hromiumos.test.api\"\x9a\x01\n\x19\x41utotestExecutionMetadata\x12@\n\x04\x61rgs\x18\x01 \x03(\x0b\x32\x32.chromiumos.test.api.AutotestExecutionMetadata.Arg\x12\x17\n\x0fresults_sub_dir\x18\x02 \x01(\t\x1a\"\n\x03\x41rg\x12\x0c\n\x04\x66lag\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\"\n\x03\x41rg\x12\x0c\n\x04\x66lag\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"?\n\x15TastExecutionMetadata\x12&\n\x04\x61rgs\x18\x01 \x03(\x0b\x32\x18.chromiumos.test.api.ArgB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
 )
 
 
@@ -101,9 +101,83 @@ _AUTOTESTEXECUTIONMETADATA = _descriptor.Descriptor(
   serialized_end=229,
 )
 
+
+_ARG = _descriptor.Descriptor(
+  name='Arg',
+  full_name='chromiumos.test.api.Arg',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='flag', full_name='chromiumos.test.api.Arg.flag', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='chromiumos.test.api.Arg.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=195,
+  serialized_end=229,
+)
+
+
+_TASTEXECUTIONMETADATA = _descriptor.Descriptor(
+  name='TastExecutionMetadata',
+  full_name='chromiumos.test.api.TastExecutionMetadata',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='args', full_name='chromiumos.test.api.TastExecutionMetadata.args', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=267,
+  serialized_end=330,
+)
+
 _AUTOTESTEXECUTIONMETADATA_ARG.containing_type = _AUTOTESTEXECUTIONMETADATA
 _AUTOTESTEXECUTIONMETADATA.fields_by_name['args'].message_type = _AUTOTESTEXECUTIONMETADATA_ARG
+_TASTEXECUTIONMETADATA.fields_by_name['args'].message_type = _ARG
 DESCRIPTOR.message_types_by_name['AutotestExecutionMetadata'] = _AUTOTESTEXECUTIONMETADATA
+DESCRIPTOR.message_types_by_name['Arg'] = _ARG
+DESCRIPTOR.message_types_by_name['TastExecutionMetadata'] = _TASTEXECUTIONMETADATA
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 AutotestExecutionMetadata = _reflection.GeneratedProtocolMessageType('AutotestExecutionMetadata', (_message.Message,), {
@@ -120,6 +194,20 @@ AutotestExecutionMetadata = _reflection.GeneratedProtocolMessageType('AutotestEx
   })
 _sym_db.RegisterMessage(AutotestExecutionMetadata)
 _sym_db.RegisterMessage(AutotestExecutionMetadata.Arg)
+
+Arg = _reflection.GeneratedProtocolMessageType('Arg', (_message.Message,), {
+  'DESCRIPTOR' : _ARG,
+  '__module__' : 'chromiumos.test.api.test_execution_metadata_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.Arg)
+  })
+_sym_db.RegisterMessage(Arg)
+
+TastExecutionMetadata = _reflection.GeneratedProtocolMessageType('TastExecutionMetadata', (_message.Message,), {
+  'DESCRIPTOR' : _TASTEXECUTIONMETADATA,
+  '__module__' : 'chromiumos.test.api.test_execution_metadata_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.TastExecutionMetadata)
+  })
+_sym_db.RegisterMessage(TastExecutionMetadata)
 
 
 DESCRIPTOR._options = None

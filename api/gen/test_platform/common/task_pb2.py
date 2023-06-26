@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/common',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1ftest_platform/common/task.proto\x12\x14test_platform.common\"J\n\x0bTaskLogData\x12\x0e\n\x06gs_url\x18\x01 \x01(\t\x12\x15\n\rstainless_url\x18\x02 \x01(\t\x12\x14\n\x0ctesthaus_url\x18\x03 \x01(\tB@Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/commonb\x06proto3'
+  serialized_pb=b'\n\x1ftest_platform/common/task.proto\x12\x14test_platform.common\"N\n\x0bTaskLogData\x12\x0e\n\x06gs_url\x18\x01 \x01(\t\x12\x19\n\rstainless_url\x18\x02 \x01(\tB\x02\x18\x01\x12\x14\n\x0ctesthaus_url\x18\x03 \x01(\tB@Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/commonb\x06proto3'
 )
 
 
@@ -46,7 +46,7 @@ _TASKLOGDATA = _descriptor.Descriptor(
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='testhaus_url', full_name='test_platform.common.TaskLogData.testhaus_url', index=2,
       number=3, type=9, cpp_type=9, label=1,
@@ -67,7 +67,7 @@ _TASKLOGDATA = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=57,
-  serialized_end=131,
+  serialized_end=135,
 )
 
 DESCRIPTOR.message_types_by_name['TaskLogData'] = _TASKLOGDATA
@@ -82,4 +82,5 @@ _sym_db.RegisterMessage(TaskLogData)
 
 
 DESCRIPTOR._options = None
+_TASKLOGDATA.fields_by_name['stainless_url']._options = None
 # @@protoc_insertion_point(module_scope)
