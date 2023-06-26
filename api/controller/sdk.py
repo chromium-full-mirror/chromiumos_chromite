@@ -307,13 +307,11 @@ def UploadPrebuiltPackages(input_proto, _output_proto, _config):
 
 
 @faux.all_empty
-@validate.require("chroot")
 @validate.validation_complete
 def BuildSdkToolchain(input_proto, output_proto, _config):
     """Build cross-compiler packages for the SDK."""
-    chroot = controller_util.ParseChroot(input_proto.chroot)
     extra_env: Dict[str, str] = {}
     if input_proto.use_flags:
         extra_env["USE"] = " ".join(use.flag for use in input_proto.use_flags)
-    generated_files = sdk.BuildSdkToolchain(chroot, extra_env=extra_env)
+    generated_files = sdk.BuildSdkToolchain(extra_env=extra_env)
     output_proto.generated_files.extend(generated_files)

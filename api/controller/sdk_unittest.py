@@ -10,7 +10,6 @@ from typing import List, Optional
 from unittest import mock
 
 from chromite.api import api_config
-from chromite.api.controller import controller_util
 from chromite.api.controller import sdk as sdk_controller
 from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromiumos import common_pb2
@@ -396,7 +395,7 @@ class CreateManifestFromSdkTest(
     def testValidateOnly(self):
         """Check that a validate only call does not execute any logic."""
         impl_patch = self.PatchObject(sdk_service, "CreateManifestFromSdk")
-        sdk_controller.BuildSdkToolchain(
+        sdk_controller.CreateManifestFromSdk(
             self._NewRequest(False),
             self._NewResponse(),
             self.validate_only_config,
@@ -458,6 +457,7 @@ class BuildSdkToolchainTest(
     def setUp(self):
         """Set up the test case."""
         self._chroot_path = "/path/to/chroot"
+        self._result_dir = "/out/toolchain-pkgs/"
         self._response = sdk_pb2.BuildSdkToolchainResponse()
         self._generated_filenames = (
             "armv7a-cros-linux-gnueabihf.tar.xz",
@@ -477,7 +477,14 @@ class BuildSdkToolchainTest(
         use_flags: Optional[List[str]] = None,
     ) -> sdk_pb2.BuildSdkToolchainRequest:
         """Return a new BuildSdkToolchainRequest message."""
-        request = sdk_pb2.BuildSdkToolchainRequest()
+        request = sdk_pb2.BuildSdkToolchainRequest(
+            result_path=common_pb2.ResultPath(
+                path=common_pb2.Path(
+                    path=self._result_dir,
+                    location=common_pb2.Path.Location.OUTSIDE,
+                )
+            )
+        )
         if chroot_path:
             request.chroot.path = chroot_path
         if use_flags:
@@ -494,8 +501,8 @@ class BuildSdkToolchainTest(
         if generated_filenames:
             response.generated_files.extend(
                 common_pb2.Path(
-                    path=os.path.join(constants.SDK_TOOLCHAINS_OUTPUT, fname),
-                    location=common_pb2.Path.Location.INSIDE,
+                    path=os.path.join(self._result_dir, fname),
+                    location=common_pb2.Path.Location.OUTSIDE,
                 )
                 for fname in generated_filenames
             )
@@ -522,10 +529,6 @@ class BuildSdkToolchainTest(
         # Can't use assert_called_with, since the chroot objects are equal but
         # not identical.
         impl_patch.assert_called_once()
-        self.assertEqual(
-            impl_patch.call_args.args[0],
-            controller_util.ParseChroot(request.chroot),
-        )
         self.assertEqual(impl_patch.call_args.kwargs["extra_env"], {})
 
     def testSuccessWithUseFlags(self):
@@ -541,10 +544,6 @@ class BuildSdkToolchainTest(
         # Can't use assert_called_with, since the chroot objects are equal but
         # not identical.
         impl_patch.assert_called_once()
-        self.assertEqual(
-            impl_patch.call_args.args[0],
-            controller_util.ParseChroot(request.chroot),
-        )
         self.assertEqual(
             impl_patch.call_args.kwargs["extra_env"],
             {"USE": "llvm-next another-flag"},

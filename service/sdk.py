@@ -622,19 +622,18 @@ def UploadPrebuiltPackages(
 
 
 def BuildSdkToolchain(
-    chroot: "chroot_lib.Chroot",
     extra_env: Optional[Dict[str, str]] = None,
 ) -> List[common_pb2.Path]:
     """Build cross-compiler toolchain packages for the SDK.
 
     Args:
-        chroot: The chroot in which the build is being run.
         extra_env: Any extra env vars to pass into cros_setup_toolchains.
 
     Returns:
         List of generated filepaths.
     """
-    toolchain_dir = chroot.full_path(constants.SDK_TOOLCHAINS_OUTPUT)
+    cros_build_lib.AssertInsideChroot()
+    toolchain_dir = os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT)
 
     def _SetupToolchains(flags: List[str], include_extra_env: bool):
         """Run the cros_setup_toolchains binary."""
@@ -642,13 +641,11 @@ def BuildSdkToolchain(
         cros_build_lib.sudo_run(
             cmd,
             extra_env=extra_env if include_extra_env else None,
-            enter_chroot=True,
-            chroot_args=chroot.get_enter_args(),
         )
 
     _SetupToolchains(["--nousepkg", "--debug"], True)
     osutils.RmDir(
-        chroot.full_path(constants.SDK_TOOLCHAINS_OUTPUT),
+        toolchain_dir,
         ignore_missing=True,
         sudo=True,
     )
@@ -657,13 +654,13 @@ def BuildSdkToolchain(
             "--debug",
             "--create-packages",
             "--output-dir",
-            os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT),
+            toolchain_dir,
         ],
         False,
     )
     return [
         common_pb2.Path(
-            path=os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT, filename),
+            path=os.path.join(toolchain_dir, filename),
             location=common_pb2.Path.INSIDE,
         )
         for filename in os.listdir(toolchain_dir)

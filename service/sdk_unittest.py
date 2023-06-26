@@ -363,36 +363,23 @@ class UpdateTest(cros_test_lib.RunCommandTestCase):
 class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
     """Test the implementation of BuildSdkToolchain()."""
 
-    _chroot_path = "/test/chroot"
-    _out_path = Path("/test/out")
     _filenames_to_find = ["foo.tar.gz", "bar.txt"]
+    _toolchain_dir = os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT)
 
-    @staticmethod
-    def _Chroot() -> chroot_lib.Chroot:
-        """Return a mock chroot for testing."""
-        return chroot_lib.Chroot(
-            path=BuildSdkToolchainTest._chroot_path,
-            out_path=BuildSdkToolchainTest._out_path,
-        )
-
-    @staticmethod
-    def _ExpectedFoundFiles() -> List[common_pb2.Path]:
+    @property
+    def _expected_generated_files(self) -> List[common_pb2.Path]:
         return [
             common_pb2.Path(
-                path=os.path.join(
-                    "/",
-                    constants.SDK_TOOLCHAINS_OUTPUT,
-                    filename,
-                ),
+                path=os.path.join(self._toolchain_dir, filename),
                 location=common_pb2.Path.INSIDE,
             )
             for filename in BuildSdkToolchainTest._filenames_to_find
         ]
 
     def setUp(self):
-        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
-    def testSuccess(self):
+    def test_success(self):
         """Check that a standard call performs expected logic.
 
         Look for the following behavior:
@@ -402,27 +389,22 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
         4. Return any generated filepaths
         """
         # Arrange
-        chroot = self._Chroot()
-        output_dir = chroot.full_path(constants.SDK_TOOLCHAINS_OUTPUT)
         rmdir_patch = self.PatchObject(osutils, "RmDir")
         listdir_patch = self.PatchObject(os, "listdir")
         listdir_patch.return_value = self._filenames_to_find
 
         # Act
-        found_files = sdk.BuildSdkToolchain(chroot)
+        generated_files = sdk.BuildSdkToolchain()
 
         # Assert
         self.assertCommandCalled(
             ["sudo", "--", "cros_setup_toolchains", "--nousepkg", "--debug"],
-            enter_chroot=True,
-            chroot_args=[
-                "--chroot",
-                chroot.path,
-                "--out-dir",
-                str(chroot.out_path),
-            ],
         )
-        rmdir_patch.assert_any_call(output_dir, ignore_missing=True, sudo=True)
+        rmdir_patch.assert_any_call(
+            self._toolchain_dir,
+            ignore_missing=True,
+            sudo=True,
+        )
         self.assertCommandCalled(
             [
                 "sudo",
@@ -431,19 +413,12 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
                 "--debug",
                 "--create-packages",
                 "--output-dir",
-                os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT),
-            ],
-            enter_chroot=True,
-            chroot_args=[
-                "--chroot",
-                chroot.path,
-                "--out-dir",
-                str(chroot.out_path),
+                self._toolchain_dir,
             ],
         )
-        self.assertEqual(found_files, self._ExpectedFoundFiles())
+        self.assertEqual(generated_files, self._expected_generated_files)
 
-    def testSuccessWithUseFlags(self):
+    def test_success_with_use_flags(self):
         """Check that a standard call with USE flags performs expected logic.
 
         The call to `cros_setup_toolchain --nousepkg` should use the USE flag.
@@ -451,16 +426,12 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
         should NOT use the USE flag.
         """
         # Arrange
-        chroot = self._Chroot()
-        output_dir = chroot.full_path(constants.SDK_TOOLCHAINS_OUTPUT)
         rmdir_patch = self.PatchObject(osutils, "RmDir")
         listdir_patch = self.PatchObject(os, "listdir")
         listdir_patch.return_value = self._filenames_to_find
 
         # Act
-        found_files = sdk.BuildSdkToolchain(
-            chroot, extra_env={"USE": "llvm-next"}
-        )
+        found_files = sdk.BuildSdkToolchain(extra_env={"USE": "llvm-next"})
 
         # Assert
         self.assertCommandCalled(
@@ -472,15 +443,10 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
                 "--nousepkg",
                 "--debug",
             ],
-            enter_chroot=True,
-            chroot_args=[
-                "--chroot",
-                chroot.path,
-                "--out-dir",
-                str(chroot.out_path),
-            ],
         )
-        rmdir_patch.assert_any_call(output_dir, ignore_missing=True, sudo=True)
+        rmdir_patch.assert_any_call(
+            self._toolchain_dir, ignore_missing=True, sudo=True
+        )
         self.assertCommandCalled(
             [
                 "sudo",
@@ -489,20 +455,13 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
                 "--debug",
                 "--create-packages",
                 "--output-dir",
-                os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT),
-            ],
-            enter_chroot=True,
-            chroot_args=[
-                "--chroot",
-                chroot.path,
-                "--out-dir",
-                str(chroot.out_path),
+                self._toolchain_dir,
             ],
         )
-        self.assertEqual(found_files, self._ExpectedFoundFiles())
+        self.assertEqual(found_files, self._expected_generated_files)
 
 
-class uprev_sdk_and_prebuilts_test(cros_test_lib.MockTestCase):
+class UprevSdkAndPrebuiltsTest(cros_test_lib.MockTestCase):
     """Test case for sdk.UprevSdkAndPrebuilts()."""
 
     # The old version, which applies to both the SDK and prebuilt.
