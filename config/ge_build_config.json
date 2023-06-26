@@ -638,6 +638,7 @@
       ],
       "rubik_target_milestone": 108,
       "stable_target_milestone": 114,
+      "board_variant": "labstation",
       "build_cadence": "DAILY_CADENCE"
     },
     {
@@ -7544,6 +7545,7 @@
       ],
       "rubik_target_milestone": 108,
       "stable_target_milestone": 112,
+      "board_variant": "kernelnext",
       "build_cadence": "DAILY_CADENCE"
     },
     {
