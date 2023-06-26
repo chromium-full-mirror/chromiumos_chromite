@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 from typing import Callable, Dict, List, NamedTuple, Optional
 
+from chromite.cli import analyzers
 from chromite.cli import command
 from chromite.format import formatters
 from chromite.lib import cros_build_lib
@@ -221,7 +222,7 @@ def _Dispatcher(
 
 
 @command.command_decorator("format")
-class FormatCommand(command.CliCommand):
+class FormatCommand(analyzers.AnalyzerCommand):
     """Run the right formatter on the specified files."""
 
     EPILOG = """
@@ -235,52 +236,8 @@ Supported file names: %s
         " ".join(sorted(itertools.chain(*_FILENAME_PATTERNS_TOOL_MAP))),
     )
 
-    use_dryrun_options = True
-    # Override base class property to use path filter options.
-    use_filter_options = True
-
-    @classmethod
-    def AddParser(cls, parser):
-        super().AddParser(parser)
-        parser.add_argument(
-            "--check",
-            dest="dryrun",
-            action="store_true",
-            help="Display unformatted files & exit non-zero",
-        )
-        parser.add_argument(
-            "--diff",
-            action="store_true",
-            help="Display diff instead of formatted content",
-        )
-        parser.add_argument(
-            "--stdout",
-            dest="inplace",
-            action="store_false",
-            help="Write to stdout",
-        )
-        parser.add_argument(
-            "-i",
-            "--inplace",
-            "--fix",
-            default=True,
-            action="store_true",
-            help="Format files inplace (default)",
-        )
-        parser.add_argument(
-            "--commit",
-            type=str,
-            help="Use files from git commit instead of on disk.",
-        )
-        parser.add_argument(
-            "files",
-            nargs="*",
-            type=Path,
-            help=(
-                "Files to format.  Directories will be expanded, and if in a "
-                "git repository, the .gitignore will be respected."
-            ),
-        )
+    # Override AnalyzerCommand setting to offer "--fix".
+    inplace_option_aliases = ["--fix"]
 
     def Run(self):
         # Hack "pre-submit" to "HEAD" when being run by repohooks/pre-upload.py
