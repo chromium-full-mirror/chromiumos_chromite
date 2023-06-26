@@ -14,7 +14,7 @@ import {
   tempDir,
 } from '../../testing';
 import {installVscodeDouble, installFakeConfigs} from '../../testing/doubles';
-import {closeDocument} from '../extension_testing';
+import {FakeTextDocument} from '../../testing/fakes';
 
 const {openCurrentFile, searchSelection} = codesearch.TEST_ONLY;
 
@@ -22,20 +22,17 @@ describe('CodeSearch: searching for selection', () => {
   const {vscodeSpy, vscodeEmitters} = installVscodeDouble();
   installFakeConfigs(vscodeSpy, vscodeEmitters);
 
-  let textDocument: vscode.TextDocument;
   let textEditor: vscode.TextEditor;
 
   beforeAll(async () => {
-    textDocument = await vscode.workspace.openTextDocument({
-      content:
-        'Give people the power to share\nand make the world more open and connected.',
+    const textDocument: vscode.TextDocument = new FakeTextDocument({
+      text: 'Give people the power to share\nand make the world more open and connected.',
     });
-    textEditor = await vscode.window.showTextDocument(textDocument);
-    textEditor.selection = new vscode.Selection(0, 5, 0, 11); // selects 'people'
-  });
 
-  afterAll(async () => {
-    await closeDocument(textDocument);
+    textEditor = {
+      document: textDocument,
+      selection: new vscode.Selection(0, 5, 0, 11), // selects 'people'
+    } as vscode.TextEditor;
   });
 
   it('in public CS', async () => {

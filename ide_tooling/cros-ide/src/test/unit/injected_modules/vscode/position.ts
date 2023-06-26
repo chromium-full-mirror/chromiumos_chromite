@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export class Position {
+import type * as vscode from 'vscode';
+
+export class Position implements vscode.Position {
   constructor(readonly line: number, readonly character: number) {
     if (line < 0) {
       throw new Error('Illegal argument: line must be non-negative');
@@ -12,28 +14,32 @@ export class Position {
     }
   }
 
-  compareTo(_other: Position): number {
-    throw new Error('Not implemented');
+  compareTo(other: Position): number {
+    if (this.line < other.line) return -1;
+    if (this.line > other.line) return 1;
+    if (this.character < other.character) return -1;
+    if (this.character > other.character) return 1;
+    return 0;
   }
 
-  isAfter(_other: Position): boolean {
-    throw new Error('Not implemented');
+  isAfter(other: Position): boolean {
+    return this.compareTo(other) > 0;
   }
 
-  isAfterOrEqual(_other: Position): boolean {
-    throw new Error('Not implemented');
+  isAfterOrEqual(other: Position): boolean {
+    return this.compareTo(other) >= 0;
   }
 
-  isBefore(_other: Position): boolean {
-    throw new Error('Not implemented');
+  isBefore(other: Position): boolean {
+    return this.compareTo(other) < 0;
   }
 
-  isBeforeOrEqual(_other: Position): boolean {
-    throw new Error('Not implemented');
+  isBeforeOrEqual(other: Position): boolean {
+    return this.compareTo(other) <= 0;
   }
 
-  isEqual(_other: Position): boolean {
-    throw new Error('Not implemented');
+  isEqual(other: Position): boolean {
+    return this.compareTo(other) === 0;
   }
 
   translate(_lineDelta?: number, _characterDelta?: number): Position;

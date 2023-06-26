@@ -5,9 +5,16 @@
 import {Position} from './position';
 import type * as vscode from 'vscode';
 
-export class Range {
+export class Range implements vscode.Range {
   readonly start: Position;
   readonly end: Position;
+
+  get isEmpty(): boolean {
+    return this.start.isEqual(this.end);
+  }
+  get isSingleLine(): boolean {
+    return this.start.line === this.end.line;
+  }
 
   constructor(start: vscode.Position, end: vscode.Position);
   constructor(
@@ -34,25 +41,25 @@ export class Range {
     }
   }
 
-  contains(_positionOrRange: Range | Position): boolean {
+  contains(_positionOrRange: vscode.Range | vscode.Position): boolean {
     throw new Error('Not implemented');
   }
 
-  intersection(_range: Range): Range {
+  intersection(_range: vscode.Range): vscode.Range {
     throw new Error('Not implemented');
   }
 
-  isEqual(_other: Range): boolean {
+  isEqual(_other: vscode.Range): boolean {
     throw new Error('Not implemented');
   }
 
-  union(_other: Range): Range {
+  union(_other: vscode.Range): vscode.Range {
     throw new Error('Not implemented');
   }
 
-  with(start?: Position, end?: Position): Range;
-  with(change: {end: Position; start: Position}): Range;
-  with(): Range {
+  with(start?: vscode.Position, end?: vscode.Position): vscode.Range;
+  with(change: {end: vscode.Position; start: vscode.Position}): vscode.Range;
+  with(): vscode.Range {
     throw new Error('Not implemented');
   }
 }

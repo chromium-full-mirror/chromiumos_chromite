@@ -25,6 +25,7 @@ export {Progress} from './progress';
 export {ProgressLocation} from './progress_location';
 export {Range} from './range';
 export {StatusBarAlignment, StatusBarItem} from './status_bar';
+export {Selection} from './selection';
 export {TestMessage} from './test_message';
 export {TestRunProfileKind} from './test_run_profile_kind';
 export {TextEdit} from './text_edit';
