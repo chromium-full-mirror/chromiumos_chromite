@@ -64,6 +64,7 @@ describe('Chromiumos product watcher', () => {
   const tempDir = testing.tempDir();
 
   const {vscodeEmitters, vscodeSpy} = testing.installVscodeDouble();
+  testing.installFakeConfigs(vscodeSpy, vscodeEmitters);
 
   const subscriptions: vscode.Disposable[] = [];
   let watcher: ProductWatcher;
