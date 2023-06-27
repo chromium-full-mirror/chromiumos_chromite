@@ -75,7 +75,6 @@
     "packages": [],
     "paygen": false,
     "paygen_skip_testing": false,
-    "payload_image": null,
     "postsync_patch": true,
     "postsync_reexec": true,
     "prebuilts": false,

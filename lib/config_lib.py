@@ -896,9 +896,6 @@ def DefaultSettings():
         #   * Copy the base image to recovery_image.bin instead of running
         #     mod_image_for_recovery.sh.
         base_is_recovery=False,
-        # Image from which we will build update payloads.  Must either be None
-        # or name one of the images in the 'images' list, above.
-        payload_image=None,
         # Whether to build a netboot image.
         factory_install_netboot=True,
         # Whether to build the factory toolkit.

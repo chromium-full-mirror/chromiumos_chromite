@@ -944,13 +944,11 @@ class UploadTestArtifactsStage(
         if not got_images:
             return
 
-        payload_type = self._run.config.payload_image
-        if payload_type is None:
-            payload_type = "base"
-            for t in ["test", "dev"]:
-                if t in self._run.config.images:
-                    payload_type = t
-                    break
+        payload_type = "base"
+        for t in ["test", "dev"]:
+            if t in self._run.config.images:
+                payload_type = t
+                break
         image_name = constants.IMAGE_TYPE_TO_NAME[payload_type]
         logging.info("Generating payloads to upload for %s", image_name)
         self._GeneratePayloads(
