@@ -531,7 +531,6 @@ def Build(
     noretry=False,
     chroot_args=None,
     run_goma=False,
-    build_all_with_goma=False,
     disable_revdep_logic=False,
 ):
     """Wrapper around build_packages.
@@ -550,7 +549,6 @@ def Build(
         chrome_root: The directory where chrome is stored.
         noretry: Deprecated.
         chroot_args: The args to the chroot.
-        build_all_with_goma: Deprecated.
         run_goma: Set `build_package --run-goma` option, which starts and stops
             goma server in chroot while building packages.
         disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling
@@ -607,7 +605,6 @@ def LegacyBuild(
     noretry=False,
     chroot_args=None,
     run_goma=False,
-    build_all_with_goma=False,
     disable_revdep_logic=False,
 ):
     """Wrapper around legacy build_packages.
@@ -629,7 +626,6 @@ def LegacyBuild(
         chrome_root: The directory where chrome is stored.
         noretry: Do not retry package failures.
         chroot_args: The args to the chroot.
-        build_all_with_goma: Use goma to build all board packages.
         run_goma: Set ./build_package --run_goma option, which starts and stops
             goma server in chroot while building packages.
         disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling
@@ -659,9 +655,6 @@ def LegacyBuild(
 
     if run_goma:
         cmd.append("--run_goma")
-
-    if build_all_with_goma:
-        cmd.append("--build_all_with_goma")
 
     if not chroot_args:
         chroot_args = []

@@ -625,10 +625,7 @@ class BuildPackagesStage(
         # goma to build regular packages 2) not latest_toolchain (because
         # toolchain prebuilt package may not be available for goma,
         # crbug.com/728971) and 3) goma is available.
-        return (
-            self._run.options.managed_chrome
-            or self._run.config.build_all_with_goma
-        ) and self._run.options.goma_dir
+        return self._run.options.managed_chrome and self._run.options.goma_dir
 
     def _SetupGomaIfNecessary(self):
         """Sets up goma envs if necessary.
@@ -714,7 +711,6 @@ class BuildPackagesStage(
                 chroot_args=chroot_args,
                 extra_env=self._portage_extra_env,
                 run_goma=run_goma,
-                build_all_with_goma=self._run.config.build_all_with_goma,
                 disable_revdep_logic=clean_build,
             )
         except failures_lib.PackageBuildFailure as ex:
