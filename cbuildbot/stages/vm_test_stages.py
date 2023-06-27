@@ -20,7 +20,6 @@ from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import cgroups
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import cts_helper
 from chromite.lib import failures_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
@@ -155,62 +154,6 @@ class VMTestStage(
 
         # Remove the test results directory.
         osutils.RmDir(results_path, ignore_missing=True, sudo=True)
-
-    @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def _ReportResultsToDashboards(self, test_results_dir):
-        """Report VMTests results to chromeperf and CTS dashboard.
-
-        Args:
-            test_results_dir: Name of the directory containing the test results.
-        """
-        # TODO(pwang): also upload to sponge and afe/tko so results show up
-        # consistently on all dashboards like wmatrix and goldeneye.
-        results_path = GetTestResultsDir(self._build_root, test_results_dir)
-
-        # Skip reporting if results_path does not exist or is an empty
-        # directory.
-        if self._NoTestResults(results_path):
-            logging.info(
-                "Found no test results. Skipping upload to dashboards."
-            )
-            return
-
-        for test_name, test_dir in ListTests(results_path):
-            if cts_helper.isCtsTest(test_name):
-                self._ReportCtsResults(
-                    test_name, os.path.join(results_path, test_dir)
-                )
-
-    def _ReportCtsResults(self, test_name, test_dir):
-        """Report CTS/GTS result to their dashboards.
-
-        Args:
-            test_name: name of the test.
-            test_dir: path to the test directory.
-        """
-        logging.info("Reporting cts test: %s in %s", test_name, test_dir)
-        builder = self._run.GetBuilderName()
-        buildbucket_id = self._run.options.buildbucket_id
-        buildbucket_id = str(buildbucket_id)
-
-        def _uploader(gs_url, file_path, *args, **kwargs):
-            directory, filename = os.path.split(file_path)
-            logging.info("Uploading %s to %s", file_path, gs_url)
-            commands.UploadArchivedFile(
-                directory, [gs_url], filename, *args, **kwargs
-            )
-
-        cts_helper.uploadFiles(
-            test_dir,
-            builder,
-            buildbucket_id,
-            buildbucket_id,
-            test_name,
-            _uploader,
-            self._run.options.debug_forced,
-            update_list=False,
-            acl=self.acl,
-        )
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
     def _ArchiveVMFiles(self, test_results_dir):
@@ -350,8 +293,6 @@ class VMTestStage(
             self._ArchiveVMFiles(test_results_root)
             raise
         finally:
-            if self._run.config.vm_test_report_to_dashboards:
-                self._ReportResultsToDashboards(test_results_root)
             self._ArchiveTestResults(test_results_root, test_basename)
 
     def _HandleStageException(self, exc_info):

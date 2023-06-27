@@ -104,7 +104,6 @@
     "use_sdk": true,
     "useflags": [],
     "usepkg_build_packages": true,
-    "vm_test_report_to_dashboards": false,
     "vm_test_runs": 1,
     "vm_tests": [
       "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": \"smoke\",\n  \"test_type\": \"vm_suite\",\n  \"timeout\": 5400,\n  \"use_ctest\": true,\n  \"warn_only\": false\n}",

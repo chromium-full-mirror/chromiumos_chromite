@@ -119,14 +119,6 @@ class VMTestStageTest(
         board_runattrs.SetParallel("autotest_tarball_generated", True)
         self.RunStage()
 
-    def testReportTestResults(self):
-        """Test trybot with reporting function."""
-        self._run.config["vm_tests"] = [
-            config_lib.VMTestConfig(constants.SIMPLE_AU_TEST_TYPE)
-        ]
-        self._run.config["vm_test_report_to_dashboards"] = True
-        self.RunStage()
-
     def testForgivingVMTest(self):
         """Test if a test is warn-only, it actually warns."""
         self._run.config["vm_tests"] = [
