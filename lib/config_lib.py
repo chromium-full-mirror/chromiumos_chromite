@@ -993,9 +993,6 @@ def DefaultSettings():
         # If chrome_sdk is set to True, this determines whether we attempt to
         # build Chrome itself with the generated SDK.
         chrome_sdk_build_chrome=True,
-        # If chrome_sdk is set to True, this determines whether we use goma to
-        # build chrome.
-        chrome_sdk_goma=True,
         # Run image tests. This should only be set if 'base' is in our list of
         # images.
         image_test=False,

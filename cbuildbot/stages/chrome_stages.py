@@ -299,7 +299,6 @@ class TestSimpleChromeWorkflowStage(
         return (
             self._run.options.managed_chrome
             and self._run.options.goma_dir
-            and self._run.config.chrome_sdk_goma
         )
 
     def _BuildChrome(self, sdk_cmd, goma):
