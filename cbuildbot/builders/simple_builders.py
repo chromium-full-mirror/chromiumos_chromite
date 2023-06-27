@@ -85,24 +85,14 @@ class SimpleBuilder(generic_builders.Builder):
         except_infos = []
 
         try:
-            if config.vm_test_runs > 1:
-                # Run the VMTests multiple times to see if they fail.
-                self._RunStage(
-                    generic_stages.RepeatStage,
-                    config.vm_test_runs,
-                    vm_test_stages.VMTestStage,
-                    board,
-                    builder_run=builder_run,
-                )
-            else:
-                # Retry VM-based tests in case failures are flaky.
-                self._RunStage(
-                    generic_stages.RetryStage,
-                    constants.VM_NUM_RETRIES,
-                    vm_test_stages.VMTestStage,
-                    board,
-                    builder_run=builder_run,
-                )
+            # Retry VM-based tests in case failures are flaky.
+            self._RunStage(
+                generic_stages.RetryStage,
+                constants.VM_NUM_RETRIES,
+                vm_test_stages.VMTestStage,
+                board,
+                builder_run=builder_run,
+            )
         except Exception as e:
             except_infos.extend(
                 failures_lib.CreateExceptInfo(e, traceback.format_exc())

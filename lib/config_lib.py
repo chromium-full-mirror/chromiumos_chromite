@@ -815,10 +815,6 @@ def DefaultSettings():
         # A list of all VMTestConfig objects to use if VM Tests are forced on
         # (--vmtest command line or trybot). None means no override.
         vm_tests_override=None,
-        # The number of times to run the VMTest stage. If this is >1, then we
-        # will run the stage this many times, stopping if we encounter any
-        # failures.
-        vm_test_runs=1,
         # If True, run SkylabHWTestStage instead of HWTestStage for suites that
         # use pools other than pool:cts.
         enable_skylab_hw_tests=False,
