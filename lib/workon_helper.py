@@ -851,12 +851,10 @@ class WorkonHelper:
         ebuild_to_src_paths = collections.defaultdict(list)
 
         for ebuild in ebuilds:
-            workon_vars = portage_util.EBuild.GetCrosWorkonVars(
-                ebuild, portage_util.EbuildToCP(ebuild)
-            )
+            ebuild_obj = portage_util.EBuild(ebuild)
+            workon_vars = ebuild_obj.cros_workon_vars
             projects = workon_vars.project if workon_vars else []
             ebuild_to_repos[ebuild] = projects
-            ebuild_obj = portage_util.EBuild(ebuild)
             if ebuild_obj.is_manually_uprevved:
                 # Manually uprevved ebuild is pinned to a specific git sha1, so
                 # change in that repo matter to the ebuild.
