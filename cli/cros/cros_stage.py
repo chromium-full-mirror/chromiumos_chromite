@@ -11,6 +11,7 @@ import re
 from chromite.cbuildbot import commands
 from chromite.cli import command
 from chromite.lib import build_target_lib
+from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import gs
@@ -160,6 +161,8 @@ NOTES:
         else:
             self._remote_is_moblab = True
 
+        self.chroot = chroot_lib.Chroot()
+
     def _GenerateImageNameFromLocalPath(self, image):
         """Generate the name as which |image| will be staged onto Moblab.
 
@@ -241,7 +244,9 @@ NOTES:
         """
         # Devservers will look for a file named *_full_*.
         payload = os.path.join(tempdir, "update_full_dev.bin")
-        paygen_payload_lib.GenerateUpdatePayload(self.options.image, payload)
+        paygen_payload_lib.GenerateUpdatePayload(
+            self.chroot, self.options.image, payload
+        )
         paygen_stateful_payload_lib.GenerateStatefulPayload(
             self.options.image, tempdir
         )

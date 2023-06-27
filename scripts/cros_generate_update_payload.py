@@ -9,6 +9,7 @@ If a source .bin is specified, the update is assumed to be a delta update.
 
 import logging
 
+from chromite.lib import chroot_lib
 from chromite.lib import commandline
 from chromite.lib.paygen import paygen_payload_lib
 
@@ -71,6 +72,7 @@ def ParseArguments(argv):
 
 def main(argv):
     opts = ParseArguments(argv)
+    chroot = chroot_lib.Chroot()
 
     if opts.payload:
         # We only want the payload's metadata. Create it and exit.
@@ -81,6 +83,7 @@ def main(argv):
         return
 
     return paygen_payload_lib.GenerateUpdatePayload(
+        chroot,
         opts.tgt_image,
         opts.output,
         src_image=opts.src_image,

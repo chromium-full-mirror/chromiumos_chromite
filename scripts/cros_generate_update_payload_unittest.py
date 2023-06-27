@@ -4,6 +4,7 @@
 
 """Unit tests for cros_generate_update_payload."""
 
+from chromite.lib import chroot_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
 from chromite.lib.paygen import paygen_payload_lib
@@ -41,6 +42,7 @@ class CrOSGenerateUpdatePayloadTest(cros_test_lib.MockTestCase):
         )
 
         paygen_mock.assert_called_once_with(
+            chroot_lib.Chroot(),
             partial_mock.HasString("foo-tgt-image"),
             partial_mock.HasString("foo-output"),
             src_image=partial_mock.HasString("foo-src-image"),
