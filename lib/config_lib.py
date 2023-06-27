@@ -430,14 +430,10 @@ def DefaultSettings():
         # should only be one master bot pushing changes to each overlay per
         # branch.
         push_overlays=None,
-        # Android package name.
-        android_package=None,
         # Uprev Chrome, values of 'tot', 'stable_release', or None.
         chrome_rev=None,
         # Runs unittests for packages.
         unittests=True,
-        # Update the kernel ebuild with the AFDO profile info.
-        afdo_update_kernel_ebuild=False,
         # If true, uploads artifacts for hw testing. Upload payloads for test
         # image if the image is built. If not, dev image is used and then base
         # image.
@@ -534,9 +530,6 @@ def DefaultSettings():
         postsync_patch=True,
         # Reexec into the buildroot after syncing.  Enabled by default.
         postsync_reexec=True,
-        # Run the binhost_test stage. Only makes sense for builders that have no
-        # boards.
-        binhost_test=False,
         # If specified, it is passed on to the PushImage script as
         # '--sign-types' commandline argument.  Must be either None or a list of
         # image types.

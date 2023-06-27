@@ -1,14 +1,11 @@
 {
   "_default": {
     "_template": null,
-    "afdo_update_kernel_ebuild": false,
-    "android_package": null,
     "archive": true,
     "archive_build_debug": false,
     "binhost_base_url": null,
     "binhost_bucket": null,
     "binhost_key": null,
-    "binhost_test": false,
     "board_replace": false,
     "boards": null,
     "branch": false,
