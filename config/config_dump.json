@@ -76,7 +76,6 @@
     "overlays": "public",
     "packages": [],
     "paygen": false,
-    "paygen_skip_delta_payloads": false,
     "paygen_skip_testing": false,
     "payload_image": null,
     "postsync_patch": true,

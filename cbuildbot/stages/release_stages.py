@@ -431,12 +431,11 @@ class PaygenStage(generic_stages.BoardSpecificBuilderStage):
                         version,
                         self._run.options.debug,
                         self._run.config.paygen_skip_testing,
-                        self._run.config.paygen_skip_delta_payloads,
                     )
                 )
 
     def _RunPaygenInProcess(
-        self, channel, board, version, debug, disable_tests, skip_delta_payloads
+        self, channel, board, version, debug, disable_tests
     ):
         """Runs the PaygenBuild and PaygenTest stage (if applicable)"""
         PaygenBuildStage(
@@ -447,7 +446,6 @@ class PaygenStage(generic_stages.BoardSpecificBuilderStage):
             version,
             debug,
             disable_tests,
-            skip_delta_payloads,
         ).Run()
 
 
@@ -465,7 +463,6 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
         version,
         debug,
         skip_testing,
-        skip_delta_payloads,
         **kwargs,
     ):
         """Init that accepts the channels argument, if present.
@@ -479,7 +476,6 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
             version: Version of payloads to generate.
             debug: Flag telling if this is a real run, or a test run.
             skip_testing: Do not generate test artifacts or run payload tests.
-            skip_delta_payloads: Skip generating delta payloads.
         """
         super().__init__(
             builder_run,
@@ -494,7 +490,6 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
         self.version = version
         self.debug = debug
         self.skip_testing = skip_testing
-        self.skip_delta_payloads = skip_delta_payloads
 
     def PerformStage(self):
         """Invoke payload generation.
@@ -531,7 +526,6 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                     work_dir=tempdir,
                     site_config=self._run.site_config,
                     dry_run=self.debug,
-                    skip_delta_payloads=self.skip_delta_payloads,
                 )
 
                 testdata = paygen.CreatePayloads()

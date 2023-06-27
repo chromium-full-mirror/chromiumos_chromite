@@ -923,9 +923,6 @@ def DefaultSettings():
         # If the paygen stage runs, generate tests, and schedule auto-tests for
         # them.
         paygen_skip_testing=False,
-        # If the paygen stage runs, don't generate any delta payloads. This is
-        # only done if deltas are broken for a given board.
-        paygen_skip_delta_payloads=False,
         # Run a stage that generates and uploads package CPE information.
         cpe_export=True,
         # Run a stage that generates and uploads debug symbols.

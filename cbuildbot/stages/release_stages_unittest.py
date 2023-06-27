@@ -448,14 +448,12 @@ class PaygenStageTest(
                         "0.0.1",
                         False,
                         False,
-                        False,
                     ),
                     mock.call(
                         stage,
                         "beta",
                         "guado-labstation",
                         "0.0.1",
-                        False,
                         False,
                         False,
                     ),
@@ -497,14 +495,12 @@ class PaygenStageTest(
                         "0.0.1",
                         False,
                         False,
-                        False,
                     ),
                     mock.call(
                         stage,
                         "bar",
                         "guado-labstation",
                         "0.0.1",
-                        False,
                         False,
                         False,
                     ),
@@ -536,7 +532,7 @@ class PaygenStageTest(
         ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
-                "foo", "foo-board", "foo-version", True, False, False
+                "foo", "foo-board", "foo-version", True, False
             )
             # Ensure that PaygenTestStage is created and schedules the test
             # suite with the correct arguments.
@@ -566,7 +562,6 @@ class PaygenStageTest(
             work_dir=mock.ANY,
             site_config=stage._run.site_config,
             dry_run=True,
-            skip_delta_payloads=False,
         )
 
     def testRunPaygenInProcessInSkylab(self):
@@ -580,7 +575,7 @@ class PaygenStageTest(
         ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
-                "foo", "foo-board", "foo-version", True, False, False
+                "foo", "foo-board", "foo-version", True, False
             )
             # Ensure that PaygenTestStage is created and schedules the test
             # suite with the correct arguments.
@@ -605,7 +600,7 @@ class PaygenStageTest(
         # variant.
         stage = self.ConstructStage()
         stage._RunPaygenInProcess(
-            "foo-channel", "foo-board-variant", "foo-version", True, True, True
+            "foo-channel", "foo-board-variant", "foo-version", True, True
         )
 
         # Ensure arguments are properly converted and passed along.
@@ -620,7 +615,6 @@ class PaygenStageTest(
             dry_run=True,
             work_dir=mock.ANY,
             site_config=stage._run.site_config,
-            skip_delta_payloads=True,
         )
 
     def testRunPaygenInProcessWithUnifiedBuild(self):
@@ -637,7 +631,7 @@ class PaygenStageTest(
         ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
-                "foo", "foo-board", "foo-version", True, False, False
+                "foo", "foo-board", "foo-version", True, False
             )
             # Ensure that the first model from the unified build was selected
             # as the platform to be tested
@@ -672,7 +666,7 @@ class PaygenStageTest(
         ) as sched_tests:
             # Call the method under test.
             stage._RunPaygenInProcess(
-                "foo", "foo-board", "foo-version", True, False, False
+                "foo", "foo-board", "foo-version", True, False
             )
             # Ensure that the first model from the unified build was selected
             # as the platform to be tested
@@ -715,7 +709,7 @@ class PaygenStageTest(
             parallel, "RunParallelSteps", autospec=True
         ) as parallel_tests:
             stage._RunPaygenInProcess(
-                "foo", "foo-board", "foo-version", True, False, False
+                "foo", "foo-board", "foo-version", True, False
             )
             # 2 tests scheduled for FSI, 1 test scheduled for OMAHA,
             # 2 tests scheduled for N2N, 2 tests scheduled for STEPPING_STONE.
@@ -728,7 +722,7 @@ class PaygenStageTest(
 
         # Call the method under test.
         stage._RunPaygenInProcess(
-            "foo", "foo-board", "foo-version", False, False, False
+            "foo", "foo-board", "foo-version", False, False
         )
 
         # Ensure arguments are properly converted and passed along.
@@ -744,7 +738,6 @@ class PaygenStageTest(
             work_dir=mock.ANY,
             site_config=stage._run.site_config,
             dry_run=False,
-            skip_delta_payloads=False,
         )
 
     def testTestPayloadBuildSetCorrectly(self):
@@ -754,7 +747,7 @@ class PaygenStageTest(
 
         # Call the method under test.
         stage._RunPaygenInProcess(
-            "foo", "foo-board", "foo-version", True, False, False
+            "foo", "foo-board", "foo-version", True, False
         )
 
         # Ensure arguments are properly converted and passed along.
@@ -773,7 +766,6 @@ class PaygenStageTest(
             work_dir=mock.ANY,
             site_config=stage._run.site_config,
             dry_run=True,
-            skip_delta_payloads=False,
         )
 
 
@@ -801,7 +793,6 @@ class PaygenBuildStageTest(
             version="foo-version",
             debug=True,
             skip_testing=False,
-            skip_delta_payloads=False,
         )
 
     def testStageName(self):
