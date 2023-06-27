@@ -266,7 +266,7 @@ NOTES:
         with remote_access.ChromiumOSDeviceHandler(
             self.options.remote
         ) as device:
-            device.run(["mkdir", "-p", self.stage_directory])
+            device.mkdir(self.stage_directory)
             for f in os.listdir(tempdir):
                 device.CopyToDevice(
                     os.path.join(tempdir, f), self.stage_directory, mode="rsync"

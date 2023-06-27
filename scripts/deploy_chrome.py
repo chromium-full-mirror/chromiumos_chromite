@@ -360,7 +360,7 @@ class DeployChrome:
         # call.
         if os.path.commonprefix([target_dir, "/opt"]) == "/opt":
             return
-        self.device.run(["mkdir", "-p", "--mode", "0775", target_dir])
+        self.device.mkdir(target_dir, mode=0o775)
 
     def _GetDeviceInfo(self):
         """Get the disk space used and available for the target directory."""

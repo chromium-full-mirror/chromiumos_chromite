@@ -16,7 +16,7 @@ import stat
 import subprocess
 import tempfile
 import time
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -1317,6 +1317,20 @@ class RemoteDevice:
             cmd += ["-r"]
         cmd += [path]
 
+        self.run(cmd)
+
+    def mkdir(
+        self,
+        path: Union[Union[str, os.PathLike], List[Union[str, os.PathLike]]],
+        mode: int = 0o755,
+    ) -> None:
+        """Create a directory on the remote device."""
+        # Always specify the mode to avoid umask confusion.
+        cmd = ["mkdir", "-p", f"--mode={mode:o}", "--"]
+        if isinstance(path, (str, os.PathLike)):
+            cmd += [path]
+        else:
+            cmd += path
         self.run(cmd)
 
     def PipeOverSSH(self, filepath, cmd, **kwargs):

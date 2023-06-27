@@ -183,7 +183,7 @@ class Transfer(metaclass=abc.ABCMeta):
         Args:
             directory: The directory to be made on the device.
         """
-        self._device.run(["mkdir", "-p", directory], **self._cmd_kwargs)
+        self._device.mkdir(directory)
 
 
 class LocalTransfer(Transfer):

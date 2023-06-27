@@ -16,13 +16,16 @@ class RemoteDeviceMock(partial_mock.PartialMock):
     """Mocks the RemoteDevice function."""
 
     TARGET = "chromite.lib.remote_access.RemoteDevice"
-    ATTRS = ("Pingable", "IfFileExists", "run")
+    ATTRS = ("Pingable", "IfFileExists", "mkdir", "run")
 
     def Pingable(self, _):
         return True
 
     def IfFileExists(self, _):
         return True
+
+    def mkdir(self, *_, **__):
+        return None
 
     def run(self, *_, **__):
         return None

@@ -1380,7 +1380,7 @@ def _DeployDLCImage(
         dlc_img_path_a = os.path.join(dlc_img_path, "dlc_a")
         dlc_img_path_b = os.path.join(dlc_img_path, "dlc_b")
         # Create directories for DLC images.
-        device.run(["mkdir", "-p", dlc_img_path_a, dlc_img_path_b])
+        device.mkdir([dlc_img_path_a, dlc_img_path_b])
         # Copy images to the destination directories.
         device.CopyToDevice(
             dlc_img_path_src,
@@ -1401,7 +1401,7 @@ def _DeployDLCImage(
 
         # Copy metadata to device.
         dest_meta_dir = Path("/") / dlc_lib.DLC_META_DIR / dlc_id / dlc_package
-        device.run(["mkdir", "-p", dest_meta_dir])
+        device.mkdir(dest_meta_dir)
         src_meta_dir = os.path.join(
             sysroot,
             dlc_lib.DLC_BUILD_DIR,

@@ -132,7 +132,7 @@ def create_dut_sysroot(
             Should be on an executable partition, like in /usr/local.
             Will be created if it does not exist. Should be absolute.
     """
-    device.run(["mkdir", "-p", str(sysroot_device_path)])
+    device.mkdir(sysroot_device_path)
     dest = sysroot_device_path.parent
     device.CopyToDevice(src=str(sysroot_tarball), dest=str(dest), mode="scp")
     untar_cmd = [
@@ -185,8 +185,7 @@ def _sysroot_mount_context(
 
     def _mount(flags, dirname: str):
         mount_target = str(sysroot_device_path / dirname)
-        mkdir_cmd = ["mkdir", "-p", mount_target]
-        device.run(mkdir_cmd, check=False)
+        device.mkdir(mount_target)
         device.run(["mount"] + flags + [f"/{dirname}", mount_target])
 
     def _umount(dirname: str):

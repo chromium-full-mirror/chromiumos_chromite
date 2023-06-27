@@ -673,7 +673,7 @@ class ChromiumOSUpdater(BaseUpdater):
         old_root_dev = self.GetRootDev()
         self.device.Reboot()
         if self._clobber_stateful:
-            self.device.run(["mkdir", "-p", self.device.work_dir])
+            self.device.mkdir(self.device.work_dir)
 
         if self._do_rootfs_update:
             logging.notice("Verifying that the device has been updated...")

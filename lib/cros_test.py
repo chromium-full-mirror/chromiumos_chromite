@@ -634,7 +634,7 @@ class CrOSTest:
         cwd = self.cwd
         if files and not (cwd and os.path.isabs(cwd)):
             cwd = os.path.join(DEST_BASE, cwd) if cwd else DEST_BASE
-            self._device.run(["mkdir", "-p", cwd])
+            self._device.mkdir(cwd)
 
         if self.as_chronos:
             self._AuthorizeKeys()

@@ -79,6 +79,9 @@ class Device:
         if result.returncode != 0:
             raise DeviceError("WaitForBoot failed: %s." % result.stderr)
 
+    def mkdir(self, *args, **kwargs) -> None:
+        return self.remote.mkdir(*args, **kwargs)
+
     def run(self, cmd, stream_output=False, **kwargs):
         """Run a remote command.
 

@@ -68,6 +68,9 @@ class ChromiumOSDeviceFake:
     def IsSELinuxEnforced(self):
         return True
 
+    def mkdir(self, _path):
+        return None
+
     def run(self, cmd, **_kwargs):
         self.cmds.append(cmd)
 
