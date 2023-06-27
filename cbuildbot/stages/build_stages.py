@@ -846,9 +846,7 @@ class BuildImageStage(BuildPackagesStage):
 
         self.board_runattrs.SetParallel("images_generated", True)
 
-        parallel.RunParallelSteps(
-            [self._BuildGuestVMImage, self._BuildGceTarballs]
-        )
+        parallel.RunParallelSteps([self._BuildGuestVMImage])
 
     def _BuildGuestVMImage(self):
         if self._run.config.guest_vm_image:
@@ -869,28 +867,6 @@ class BuildImageStage(BuildPackagesStage):
                 else:
                     # ignore other kinds of image
                     pass
-
-    def _BuildGceTarballs(self):
-        """Creates .tar.gz files that can be converted to GCE images.
-
-        These files will be used by VMTestStage for tests on GCE. They will also
-        be be uploaded to GCS buckets, where they can be used as input to the
-        "gcloud compute images create" command. This will convert them into
-        images that can be used to create GCE VM instances.
-        """
-        if self._run.config.gce_image:
-            image_bins = []
-            if "base" in self._run.config["images"]:
-                image_bins.append(constants.IMAGE_TYPE_TO_NAME["base"])
-            if "test" in self._run.config["images"]:
-                image_bins.append(constants.IMAGE_TYPE_TO_NAME["test"])
-
-            image_dir = self.GetImageDirSymlink("latest")
-            for image_bin in image_bins:
-                if os.path.exists(os.path.join(image_dir, image_bin)):
-                    commands.BuildGceTarball(image_dir, image_dir, image_bin)
-                else:
-                    logging.warning("Missing image file skipped: %s", image_bin)
 
     def _UpdateBuildImageMetadata(self):
         """Update the new metadata available to the build image stage."""

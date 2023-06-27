@@ -3586,37 +3586,6 @@ def BuildEbuildLogsTarball(buildroot, board, archive_dir):
     )
 
 
-def BuildGceTarball(archive_dir, image_dir, image):
-    """Builds a tarball that can be converted into a GCE image.
-
-    GCE has some very specific requirements about the format of VM
-    images. The full list can be found at
-    https://cloud.google.com/compute/docs/tutorials/building-images#requirements
-
-    Args:
-        archive_dir: Directory to store the output tarball.
-        image_dir: Directory where raw disk file can be found.
-        image: Name of raw disk file.
-
-    Returns:
-        The file name of the output tarball.
-    """
-    with osutils.TempDir() as tempdir:
-        temp_disk_raw = os.path.join(tempdir, "disk.raw")
-        output = constants.ImageBinToGceTar(image)
-        tarball_path = os.path.join(archive_dir, output)
-        os.symlink(os.path.join(image_dir, image), temp_disk_raw)
-
-        cros_build_lib.CreateTarball(
-            tarball_path,
-            tempdir,
-            inputs=["disk.raw"],
-            compression=cros_build_lib.CompressionType.GZIP,
-            extra_args=["--dereference"],
-        )
-        return os.path.basename(tarball_path)
-
-
 def BuildFirmwareArchive(
     buildroot, board, archive_dir, archive_name=constants.FIRMWARE_ARCHIVE_NAME
 ):

@@ -2232,26 +2232,6 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(path, ["dlc"])
         self.assertExists(os.path.join(archive_dir, path[0]))
 
-    def testGceTarballGeneration(self):
-        """Verifies BuildGceTarball produces correct archives"""
-        image_dir = os.path.join(self.tempdir, "inputs")
-        archive_dir = os.path.join(self.tempdir, "outputs")
-        image = constants.TEST_IMAGE_BIN
-        output = constants.TEST_IMAGE_GCE_TAR
-
-        osutils.SafeMakedirs(image_dir)
-        osutils.SafeMakedirs(archive_dir)
-        osutils.Touch(os.path.join(image_dir, image))
-
-        output_tar = commands.BuildGceTarball(archive_dir, image_dir, image)
-        self.assertEqual(output, output_tar)
-
-        output_path = os.path.join(archive_dir, output_tar)
-        self.assertExists(output_path)
-
-        # GCE expects the tarball to be in a particular format.
-        cros_test_lib.VerifyTarball(output_path, ["disk.raw"])
-
     def testBuildEbuildLogsTarballPositive(self):
         """Verifies that the ebuild logs archiver builds correct logs"""
         # Names of log files typically found in a build directory.

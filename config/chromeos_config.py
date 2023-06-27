@@ -1675,23 +1675,6 @@ def ApplyCustomOverrides(site_config):
             board + "-llvm-next-toolchain"
         ] = overwritten_configs[board + "-llvm-toolchain"]
 
-    # Boards to enable GCE image output, to support launching on GCE directly.
-    _build_gce_image = frozenset(
-        [
-            "betty-arc-r-release",
-            "betty-arc-t-release",
-            "betty-arc-u-release",
-        ]
-    )
-
-    for config_name in _build_gce_image:
-        config = overwritten_configs.get(
-            config_name, site_config.get(config_name)
-        )
-        if not config:
-            continue
-        config["gce_image"] = True
-
     for config_name, overrides in overwritten_configs.items():
         # TODO: Turn this assert into a unittest.
         # config = site_config[config_name]
