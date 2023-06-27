@@ -943,9 +943,6 @@ def DefaultSettings():
         manifest_version=False,
         # Use a different branch of the project manifest for the build.
         manifest_branch=None,
-        # LKGM for Chrome OS generated for Chrome builds that are blessed from
-        # canary runs.
-        use_chrome_lkgm=False,
         # Upload prebuilts for this build. Valid values are PUBLIC, PRIVATE, or
         # False.
         prebuilts=False,

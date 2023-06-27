@@ -12,10 +12,8 @@ import shutil
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
-from chromite.cbuildbot import manifest_version
 from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import generic_stages
-from chromite.cbuildbot.stages import sync_stages
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -442,33 +440,3 @@ class TestSimpleChromeWorkflowStage(
             self._BuildChrome(sdk_cmd, goma)
             self._TestDeploy(sdk_cmd)
             self._VMTest(sdk_cmd)
-
-
-class ChromeLKGMSyncStage(sync_stages.SyncStage):
-    """Stage that syncs to the last known good manifest for Chrome."""
-
-    output_manifest_sha1 = False
-    category = constants.PRODUCT_CHROME_STAGE
-
-    def GetNextManifest(self):
-        """Override: Gets the LKGM from the Chrome tree."""
-        chrome_lkgm = commands.GetChromeLKGM(self._run.options.chrome_version)
-
-        # We need a full buildspecs manager here as we need an initialized
-        # manifest manager with paths to the spec.
-        # TODO(mtennant): Consider registering as manifest_manager run param,
-        # for consistency, but be careful that consumers do not get confused.
-        # Currently only the "manifest_manager" from ManifestVersionedSync (and
-        # subclasses) is used later in the flow.
-        manifest_manager = manifest_version.BuildSpecsManager(
-            source_repo=self.repo,
-            manifest_repo=self._GetManifestVersionsRepoUrl(),
-            build_names=[self._run.config.name],
-            incr_type="build",
-            force=False,
-            branch=self._run.manifest_branch,
-            buildstore=self.buildstore,
-        )
-
-        manifest_manager.BootstrapFromVersion(chrome_lkgm)
-        return manifest_manager.GetLocalManifest(chrome_lkgm)

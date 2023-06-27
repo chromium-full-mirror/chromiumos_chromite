@@ -870,16 +870,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                         % (build_name, grandchild_config.name)
                     )
 
-    def testUseChromeLKGMImpliesInternal(self):
-        """Currently use_chrome_lkgm refers only to internal manifests."""
-        for build_name, config in self.site_config.items():
-            if config["use_chrome_lkgm"]:
-                self.assertTrue(
-                    config["internal"],
-                    "Chrome lkgm currently only works with an internal "
-                    "manifest: %s" % (build_name,),
-                )
-
     def _HasValidSuffix(self, config_name, config_types):
         """Given a config_name, see if it has a suffix in config_types.
 
