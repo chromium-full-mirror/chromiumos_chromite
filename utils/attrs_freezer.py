@@ -63,7 +63,7 @@ class Class(type):
         return newcls
 
 
-class Mixin(object, metaclass=Class):
+class Mixin(metaclass=Class):
     """Alternate mechanism for freezing attributes in a class.
 
     If an existing class is not a new-style class then it will be unable to

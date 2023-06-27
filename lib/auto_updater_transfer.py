@@ -39,6 +39,7 @@ from __future__ import division
 import abc
 import logging
 import os
+from typing import List
 import urllib.parse
 
 from chromite.lib import cros_build_lib
@@ -85,7 +86,7 @@ def GetPayloadPropertiesFileName(payload):
     return payload + ".json"
 
 
-class Transfer(object, metaclass=abc.ABCMeta):
+class Transfer(metaclass=abc.ABCMeta):
     """Abstract Base Class that handles payload precheck and transfer."""
 
     PAYLOAD_DIR_NAME = "payloads"
@@ -294,14 +295,14 @@ class LabEndToEndPayloadTransfer(Transfer):
         self._staging_server = staging_server
         super().__init__(*args, **kwargs)
 
-    def _RemoteDevserverCall(self, cmd, stdout=False):
+    def _RemoteDevserverCall(self, cmd: List[str], stdout: bool = False):
         """Runs a command on a remote devserver by sshing into it.
 
         Raises cros_build_lib.RunCommandError() if the command could not be run
         successfully.
 
         Args:
-            cmd: (list) the command to be run.
+            cmd: The command to be run.
             stdout: True if the stdout of the command should be captured.
         """
         ip = urllib.parse.urlparse(self._staging_server).hostname
