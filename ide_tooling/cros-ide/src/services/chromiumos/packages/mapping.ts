@@ -23,6 +23,17 @@ const OVERLAYS = [
   'src/private-overlays/chromeos-partner-overlay',
 ];
 
+// HACK: Support nonstandard directory structures, where C++ files in a
+// directory should be compiled by the target in a sibling directory.
+const SIBLING_DEPS: Record<string, string[]> = {
+  'camera/common': [
+    // Instruct files under camera/features to be compiled with the same ebuild
+    // file that compiles camera/common.
+    'camera/features',
+    'camera/gpu',
+  ],
+};
+
 async function generateSub(dir: string) {
   const packages: PackageInfo[] = [];
   for (const ebuild of await util.promisify(glob)(`${dir}/**/*-9999.ebuild`)) {
@@ -30,10 +41,20 @@ async function generateSub(dir: string) {
       await fs.promises.readFile(ebuild, 'utf-8')
     );
     if (platformSubdir) {
-      packages.push({
-        sourceDir: path.join('src/platform2', platformSubdir),
-        atom: toPackageName(ebuild),
-      });
+      const atom = toPackageName(ebuild);
+
+      const subdirs = [platformSubdir];
+      const sublings = SIBLING_DEPS[platformSubdir];
+      if (sublings) {
+        subdirs.push(...sublings);
+      }
+
+      for (const subdir of subdirs) {
+        packages.push({
+          sourceDir: path.join('src/platform2', subdir),
+          atom,
+        });
+      }
     }
   }
   return packages;
