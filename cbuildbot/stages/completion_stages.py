@@ -12,7 +12,6 @@ from chromite.cbuildbot import commands
 from chromite.cbuildbot import prebuilts
 from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import sync_stages
-from chromite.lib import alerts
 from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import chroot_lib
@@ -592,10 +591,6 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
         )
         msg = "\n\n".join(msgs)
         logging.warning(msg)
-        extra_fields = {"X-cbuildbot-alert": "canary-fail-alert"}
-        alerts.SendHealthAlert(
-            self._run, "Canary builder failures", msg, extra_fields=extra_fields
-        )
 
     def CanaryMasterHandleFailure(self, failing, inflight, no_stat):
         """Handles the failure by sending out an alert email.

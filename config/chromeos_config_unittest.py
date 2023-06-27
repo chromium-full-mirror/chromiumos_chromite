@@ -6,7 +6,6 @@
 
 import copy
 import json
-import re
 from unittest import mock
 
 from chromite.cbuildbot import builders
@@ -1004,18 +1003,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                         "-" + flag in useflag_set,
                         msg % (build_name, flag, flag),
                     )
-
-    def testHealthCheckEmails(self):
-        """Configs should only have valid email addresses or aliases"""
-        msg = "%s contains an invalid tree alias or email address: %s"
-        for build_name, config in self.site_config.items():
-            health_alert_recipients = config["health_alert_recipients"]
-            for recipient in health_alert_recipients:
-                self.assertTrue(
-                    re.match(r"[^@]+@[^@]+\.[^@]+", recipient)
-                    or recipient == constants.CHROME_GARDENER,
-                    msg % (build_name, recipient),
-                )
 
     def testCheckBuilderClass(self):
         """Verify builder_class_name is a valid value."""

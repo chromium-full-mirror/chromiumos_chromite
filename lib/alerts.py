@@ -28,7 +28,6 @@ from chromite.third_party.googleapiclient.discovery import (
 from chromite.third_party.oauth2client import client
 from chromite.third_party.oauth2client import file as oauth_client_fileio
 
-from chromite.lib import constants
 from chromite.lib import retry_util
 
 
@@ -391,41 +390,3 @@ def GetUpdatedEmailNotify(builder_run, failure_streak):
             email_notify.append(entry.email_notify)
 
     return email_notify
-
-
-def GetHealthAlertRecipients(builder_run):
-    """Returns a list of email addresses of the health alert recipients."""
-    recipients = []
-    for entry in builder_run.config.health_alert_recipients:
-        if "@" in entry:
-            # If the entry is an email address, add it to the list.
-            recipients.append(entry)
-
-    return recipients
-
-
-def SendHealthAlert(builder_run, subject, body, extra_fields=None):
-    """Send a health alert.
-
-    Health alerts are only sent for regular buildbots and Pre-CQ buildbots.
-
-    Args:
-        builder_run: BuilderRun for the main cbuildbot run.
-        subject: The subject of the health alert email.
-        body: The body of the health alert email.
-        extra_fields: A dictionary of additional message header fields to be
-            added to the message. Custom field names should begin with the
-            prefix 'X-'.
-    """
-    if builder_run.InEmailReportingEnvironment():
-        server = GmailServer(
-            token_cache_file=constants.GMAIL_TOKEN_CACHE_FILE,
-            token_json_file=constants.GMAIL_TOKEN_JSON_FILE,
-        )
-        SendEmail(
-            subject,
-            GetHealthAlertRecipients(builder_run),
-            server=server,
-            message=body,
-            extra_fields=extra_fields,
-        )

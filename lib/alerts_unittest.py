@@ -9,7 +9,6 @@ import json
 import os
 import smtplib
 import socket
-from unittest import mock
 
 from chromite.lib import alerts
 from chromite.lib import cros_test_lib
@@ -237,52 +236,3 @@ class SendEmailLogTest(cros_test_lib.MockTestCase):
             server=alerts.GmailServer(token_cache_file="fakefile"),
         )
         self.assertEqual(send_mock.call_count, 1)
-
-
-class GetHealthAlertRecipientsTest(cros_test_lib.MockTestCase):
-    """Tests for GetHealthAlertRecipients."""
-
-    def SetRecipients(self, recipients):
-        self.builder_run.config.health_alert_recipients = recipients
-
-    def setUp(self):
-        self.builder_run = mock.MagicMock()
-
-    def testSingleRecipient(self):
-        """Test GetHealthAlertRecipients returns a non-gardener recipient."""
-        expected = ["jeff@google.com"]
-        self.SetRecipients(expected)
-        actual = alerts.GetHealthAlertRecipients(self.builder_run)
-        self.assertEqual(actual, expected)
-
-
-class SendHealthAlertTest(cros_test_lib.MockTestCase):
-    """Tests for SendHealthAlert."""
-
-    def setUp(self):
-        self.builder_run = mock.MagicMock()
-        self.builder_run.InEmailReportingEnvironment = lambda: True
-
-        self.recipients = ["jeff@google.com"]
-        self.send_email = self.PatchObject(alerts, "SendEmail")
-        self.get_health_alert_recipients = self.PatchObject(
-            alerts, "GetHealthAlertRecipients", return_value=self.recipients
-        )
-
-    def testBasic(self):
-        """Test that alert functions are called with the correct args."""
-        subject = "PyTorch > TensorFlow"
-        body = "You heard it here, Jeff"
-        alerts.SendHealthAlert(self.builder_run, subject, body)
-        self.assertEqual(
-            self.send_email.call_args_list,
-            [
-                mock.call(
-                    subject,
-                    self.recipients,
-                    server=mock.ANY,
-                    message=body,
-                    extra_fields=None,
-                )
-            ],
-        )

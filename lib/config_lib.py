@@ -732,18 +732,6 @@ def DefaultSettings():
         # A list of NotificationConfig objects describing who to notify of
         # builder failures.
         notification_configs=[],
-        # An integer. If this builder fails this many times consecutively, send
-        # an alert email to the recipients' health_alert_recipients. This does
-        # not apply to tryjobs. This feature is similar to the ERROR_WATERMARK
-        # feature of upload_symbols, and it may make sense to merge the features
-        # at some point.
-        health_threshold=0,
-        # List of email addresses to send health alerts to for this builder. It
-        # supports automatic email address lookup for the following sheriff
-        # types:
-        #     'tree': tree sheriffs
-        #     'chrome': chrome gardeners
-        health_alert_recipients=[],
         # Whether this is an internal build config.
         internal=False,
         # Whether this is a branched build config. Used for pfq logic.
