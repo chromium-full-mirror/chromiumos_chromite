@@ -88,7 +88,6 @@
     "run_build_configs_export": false,
     "run_cpeexport": false,
     "schedule": null,
-    "separate_debug_symbols": true,
     "sign_types": null,
     "signer_tests": false,
     "slave_configs": null,

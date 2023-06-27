@@ -182,12 +182,6 @@ class BuilderStage:
         if useflags:
             self._portage_extra_env["USE"] = " ".join(useflags)
 
-        # TODO(crbug.com/947294): `separatedebug` needs to be disabled as it
-        # leads to CQ flakes.
-
-        # if self._run.config.separate_debug_symbols:
-        #     self._portage_extra_env['FEATURES'] = 'separatedebug'
-
         # Note: BuildStartStage is a special case: Since it is created before we
         # have a valid |build_id|, it is not logged in cidb.
         self._InsertBuildStageInCIDB(name=self.name)

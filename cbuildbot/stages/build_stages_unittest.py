@@ -107,7 +107,6 @@ class InitSDKTest(_RunAbstractStageTestCase):
         self._PrepareFull(extra_cmd_args=["--nosdk"])
         # Do not force chroot replacement in build config.
         self._run._config.chroot_replace = False
-        self._run._config.separate_debug_symbols = False
         self._run.config.useflags = ["foo"]
         self._Run(dir_exists=True)
         self.assertCommandContains([self.cros_sdk], expected=False)
