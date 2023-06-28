@@ -234,6 +234,7 @@
     reef-release
     reven-release
     reven-vmtest-release
+    rex-arc-t-release
     rex-release
     sand-release
     sarien-kernelnext-release
@@ -930,6 +931,7 @@
     reef-release-tryjob
     reven-release-tryjob
     reven-vmtest-release-tryjob
+    rex-arc-t-release-tryjob
     rex-release-tryjob
     sand-release-tryjob
     sarien-kernelnext-release-tryjob
@@ -1070,6 +1072,7 @@
   reven-vmtest-llvm-next-toolchain-tryjob
   reven-vmtest-llvm-toolchain-tryjob
   reven-vmtest-release-tryjob
+  rex-arc-t-release-tryjob
   rex-full-tryjob
   rex-llvm-next-toolchain-tryjob
   rex-llvm-toolchain-tryjob
