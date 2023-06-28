@@ -8,6 +8,8 @@ import getpass
 from pathlib import Path
 import tempfile
 
+from chromite.lib import osutils
+
 
 # Respect the various XDG settings if the xdg module is available.  Otherwise
 # be lazy and hardcode the most common answer.
@@ -47,4 +49,4 @@ def initialize():
     Code does not need to invoke this all the time, but can be helpful when
     creating new config files with default content.
     """
-    DIR.mkdir(mode=0o755, parents=True, exist_ok=True)
+    osutils.SafeMakedirsNonRoot(DIR)
