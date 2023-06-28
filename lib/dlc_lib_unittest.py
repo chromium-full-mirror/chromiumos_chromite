@@ -334,7 +334,7 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
             extra: Add additional manifest fields.
         """
         src_dir = os.path.join(
-            self._src_dir, dlc_id, "package", dlc_lib.DLC_TMP_META_DIR
+            self._src_dir, dlc_id, _PACKAGE, dlc_lib.DLC_TMP_META_DIR
         )
         src_manifest = {"description": f"test manifest for {dlc_id}"}
         if extra:
@@ -364,7 +364,7 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
             for d_id, metadata in sorted(parsed.items()):
                 self.assertEqual(d_id, self._dlc_all[i][0])
                 src_dir = os.path.join(
-                    self._src_dir, d_id, "package", dlc_lib.DLC_TMP_META_DIR
+                    self._src_dir, d_id, _PACKAGE, dlc_lib.DLC_TMP_META_DIR
                 )
                 src_manifest = osutils.ReadFile(
                     os.path.join(src_dir, dlc_lib.IMAGELOADER_JSON)
@@ -372,8 +372,8 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
                 src_table = osutils.ReadFile(
                     os.path.join(src_dir, dlc_lib.DLC_VERITY_TABLE)
                 )
-                dest_manifest = json.dumps(metadata["package"]["manifest"])
-                dest_table = metadata["package"]["table"]
+                dest_manifest = json.dumps(metadata["manifest"])
+                dest_table = metadata["table"]
                 self.assertEqual(src_manifest, dest_manifest)
                 self.assertEqual(src_table, dest_table)
                 i += 1

@@ -420,9 +420,8 @@ class DlcMetadata:
         Returns:
             The metadata as a dict.
         """
-        metadata = {}
         if not os.path.isdir(src_dir):
-            return metadata
+            return None
 
         for pkg in os.listdir(src_dir):
             pkg_path = os.path.join(src_dir, pkg, DLC_TMP_META_DIR)
@@ -441,11 +440,19 @@ class DlcMetadata:
             except Exception as e:
                 logging.error("Failed to read the source metadata: %s.", e)
                 continue
-            metadata[pkg] = {
+
+            if pkg != DLC_PACKAGE:
+                logging.warning(
+                    "The package name should be '%s', but getting '%s' from the"
+                    " source metadata directory %s",
+                    DLC_PACKAGE,
+                    pkg,
+                    src_dir,
+                )
+            return {
                 "manifest": manifest,
                 "table": table.decode("utf-8"),
             }
-        return metadata
 
     def LoadDestMetadata(self, file_id: str) -> dict:
         """Load a metadata file from the destination directory and parse it.
