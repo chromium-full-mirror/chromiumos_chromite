@@ -323,41 +323,6 @@ def GeneralTemplates(site_config):
     )
 
     site_config.AddTemplate(
-        "pre_flight_branch",
-        site_config.templates.internal,
-        site_config.templates.official_chrome,
-        build_type=constants.PFQ_TYPE,
-        luci_builder=config_lib.LUCI_BUILDER_PFQ,
-        build_timeout=20 * 60,
-        manifest_version=True,
-        branch=True,
-        master=True,
-        slave_configs=[],
-        vm_tests=[],
-        vm_tests_override=TRADITIONAL_VM_TESTS_SUPPORTED,
-        hw_tests=[],
-        hw_tests_override=[],
-        unittests=False,
-        uprev=True,
-        overlays=constants.BOTH_OVERLAYS,
-        push_overlays=constants.BOTH_OVERLAYS,
-        doc=(
-            "https://dev.chromium.org/chromium-os/build/builder-overview#"
-            "TOC-Chrome-PFQ"
-        ),
-    )
-
-    # Internal incremental builders don't use official chrome because we want
-    # to test the developer workflow.
-    site_config.AddTemplate(
-        "internal_incremental",
-        site_config.templates.internal,
-        site_config.templates.incremental,
-        overlays=constants.BOTH_OVERLAYS,
-        description="Incremental Builds (internal)",
-    )
-
-    site_config.AddTemplate(
         "release_common",
         site_config.templates.full,
         site_config.templates.official,
@@ -514,16 +479,6 @@ def GeneralTemplates(site_config):
                 "tast_vm_canary_critical",
                 ['("group:mainline" && !informational)'],
                 timeout=210 * 60,
-            ),
-        ],
-    )
-    site_config.AddTemplate(
-        "tast_vm_asan_tests",
-        tast_vm_tests=[
-            config_lib.TastVMTestConfig(
-                "tast_vm_asan_critical",
-                ['("group:asan" && !informational)'],
-                timeout=2 * 60 * 60,
             ),
         ],
     )
