@@ -499,7 +499,13 @@ _EXT_TOOL_MAP = {
     # Note these are defined to keep in line with cpplint.py. Technically, we
     # could include additional ones, but cpplint.py would just filter them out.
     frozenset({".c"}): (_WhitespaceLintFile, _NonExecLintFile),
-    frozenset({".cc", ".cpp", ".h"}): (_CpplintFile, _NonExecLintFile),
+    # Remember to change cros_format accordingly to align supported extensions.
+    # LINT.IfChange(cpp_extensions)
+    frozenset({".cc", ".cpp", ".cxx", ".h", ".hh"}): (
+        _CpplintFile,
+        _NonExecLintFile,
+    ),
+    # LINT.ThenChange(cros_format.py:cpp_extensions)
     frozenset({".conf", ".conf.in"}): (_ConfLintFile, _NonExecLintFile),
     frozenset({".gn", ".gni"}): (_GnlintFile, _NonExecLintFile),
     frozenset({".json", ".jsonproto"}): (_JsonLintFile, _NonExecLintFile),

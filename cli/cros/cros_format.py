@@ -34,7 +34,12 @@ _SHELL_EXT = frozenset({".sh"})
 # Map file extensions to a formatter function.
 _EXT_TOOL_MAP = {
     frozenset({".bazel", ".bzl", ".star"}): (formatters.star.Data,),
-    frozenset({".c", ".cc", ".cpp", ".cxx", ".h"}): (formatters.cpp.Data,),
+    # Remember to change cros_lint accordingly to align supported extensions.
+    # LINT.IfChange(cpp_extensions)
+    frozenset({".c", ".cc", ".cpp", ".cxx", ".h", ".hh"}): (
+        formatters.cpp.Data,
+    ),
+    # LINT.ThenChange(cros_lint.py:cpp_extensions)
     frozenset({".gn", ".gni"}): (formatters.gn.Data,),
     frozenset({".go"}): (formatters.go.Data,),
     frozenset({".json", ".jsonproto"}): (formatters.json.Data,),
