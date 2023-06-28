@@ -104,7 +104,6 @@ def GetParser():
         default=False,
         help="Don't update toolchain automatically.",
     )
-    # TODO(build): Delete by end of 2023.
     build.add_argument(
         "--skip_toolchain_update",
         action="store_true",
@@ -118,7 +117,6 @@ def GetParser():
         default=False,
         help="Don't run the chroot upgrade automatically; use with care.",
     )
-    # TODO(build): Delete by end of 2023.
     build.add_argument(
         "--skip_chroot_upgrade",
         action="store_true",

@@ -41,7 +41,7 @@ class SetupBoardRunConfigTest(cros_test_lib.TestCase):
         args = instance.GetUpdateChrootArgs()
         self.assertIn("--backtrack=1", args)
         self.assertIn("--nousepkg", args)
-        self.assertIn("--skip-toolchain-update", args)
+        self.assertIn("--skip_toolchain_update", args)
         self.assertNotIn("--usepkg", args)
         self.assertNotIn("--jobs", args)
 
@@ -57,7 +57,7 @@ class SetupBoardRunConfigTest(cros_test_lib.TestCase):
         self.assertIn("--usepkg", args)
         self.assertIn("--jobs", args)
         self.assertNotIn("--nousepkg", args)
-        self.assertNotIn("--skip-toolchain-update", args)
+        self.assertNotIn("--skip_toolchain_update", args)
 
 
 class SetupBoardTest(cros_test_lib.MockTestCase):
