@@ -422,8 +422,8 @@ def MigrateStatePaths(chroot: chroot_lib.Chroot, lock: locking.FileLock):
         osutils.WriteFile(
             src / "README",
             """\
-This is not the directory you're looking for. The CrOS SDK has been refactored,
-and this directory's contents contents can now be found within the SDK
+This is not the directory you're looking for. The CrOS SDK has been
+refactored, and this directory's contents can now be found within the SDK
 state/output directory at %s.
 
 Do not remove this directory.
