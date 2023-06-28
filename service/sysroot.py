@@ -487,7 +487,9 @@ class BuildPackagesRunConfig:
             flags.append(f"--jobs={self.jobs}")
 
         if self.rebuild_dep:
-            flags.append("--rebuild-if-new-rev")
+            # TODO(vapier): Purge the rebuild_dep logic and --rebuild options
+            # from various scripts & APIs.
+            logging.warning("Ignore rebuild dependency request")
 
         return flags
 

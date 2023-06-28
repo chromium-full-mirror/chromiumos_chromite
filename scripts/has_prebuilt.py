@@ -105,7 +105,6 @@ def main(argv):
             # trigger rebuilds (and ignoring of binpkgs) in more cases.
             "--newrepo",
             "--with-test-deps=y",
-            "--rebuild-if-new-rev",
         ]
         if board:
             args.append("--board=%s" % board)

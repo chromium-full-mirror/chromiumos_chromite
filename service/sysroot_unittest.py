@@ -614,7 +614,6 @@ class BuildPackagesRunConfigTest(
         self.assertIn("--getbinpkg", flags)
         self.assertIn("--with-bdeps", flags)
         self.assertIn("--usepkg", flags)
-        self.assertIn("--rebuild-if-new-rev", flags)
 
         # Test when use_any_chrome is specified.
         instance = sysroot.BuildPackagesRunConfig(use_any_chrome=True)
