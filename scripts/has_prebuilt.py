@@ -101,6 +101,11 @@ def main(argv):
             # Don't actually install it :).
             "--pretend",
             "--selective=n",
+            # We run build_packages by default with these flags which can
+            # trigger rebuilds (and ignoring of binpkgs) in more cases.
+            "--newrepo",
+            "--with-test-deps=y",
+            "--rebuild-if-new-rev",
         ]
         if board:
             args.append("--board=%s" % board)
