@@ -7466,7 +7466,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true,
-          "stable_target_milestone": 100,
+          "stable_target_milestone": 118,
           "is_experimental": false
         },
         {
@@ -7487,7 +7487,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 418,
           "is_active": true,
-          "stable_target_milestone": 110,
+          "stable_target_milestone": 118,
           "is_experimental": false
         },
         {
