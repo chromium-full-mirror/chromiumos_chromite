@@ -683,6 +683,70 @@
         </div>
       </div> 
       <div id = "repoPanel">
+        <div class = "row">
+          <div class = "col-8">
+            <div class = "row bg-black">
+              <div class="col-6"><p2 class = "small text-light ms-2"><strong>File</strong></p2></div>
+              <div align = "center" class="col"><p2 class = "small text-light" data-bs-toggle="tooltip" data-bs-placement="right"
+                data-bs-title="The difference between the file in the staging area and the latest commit.">
+                <strong>Last Commit</strong></p2>
+              </div>
+              <div align = "center" class="col"><p2 class = "small text-light" data-bs-toggle="tooltip" data-bs-placement="right"
+                data-bs-title="The difference between the file in the working directory and the staging area.">
+                <strong>Working Directory</strong></p2>
+              </div>
+            </div>
+            <script>
+              const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+              const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+            </script>
+            <ul class = "row list-unstyled p-0 mb-0 bg-dark">
+              {% for file in data["repo_status"]["files"] %}
+              <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                <div class="col-6 text-break ms-2">
+                  <p2 class = "small text-light">{{file["file"]}}</p2>
+                </div>
+                <div align = "center" class="col">
+                  <p2 class = "{{"small text-" + data.head_status[file.head][1]}}">{{data.head_status[file.head][0]}}</p2>
+                </div>
+                <div align = "center" class="col">
+                  <p2 class = "{{"small text-" + data.working_status[file.working][1]}}">{{data.working_status[file.working][0]}}</p2>
+                </div>         
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class = "col bg-dark border-start border-top border-light-subtle">
+            <h6 class = "text-light bg-black row py-1"><strong>Repo Info</strong></h6>
+            <div class = "row d-flex justify-content-between">
+              <div class = "col text-white-50 fs-6">Project</div>
+              <div class = "col text-light fs-6">{{data.repo_status.project}}</div>
+            </div>
+            <div class = "row mt-2 mb-5">
+              <div class = "col text-white-50 fs-6">Branch</div>
+              <div class = "col text-light fs-6">{{data.repo_status.branch}}</div>
+            </div>
+            <div class = "d-flex justify-content-start">
+              <div>
+                <button type = "button" class = "btn btn-secondary mt-5" id="repoStatusRefresh">
+                  Refresh<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise ms-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                  </svg>
+                </button>
+              </div>
+              <div>
+                <button type = "button" class = "btn btn-secondary ms-3 mt-5" id="repoSync">
+                  Sync<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat ms-1" viewBox="0 0 16 16">
+                    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
         
       </div>
       

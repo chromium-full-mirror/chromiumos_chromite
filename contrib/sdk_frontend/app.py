@@ -1,17 +1,24 @@
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 """Flask app main file for frontend."""
 # !/usr/bin/env vpython3
 
-# pylint: disable=import-error
-from flask import Flask, render_template, request, redirect, url_for
-from socket import gethostname
 from os import getlogin
+from socket import gethostname
 from time import sleep
 
+# pylint: disable=import-error
+from flask import Flask
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import url_for
+
+
 app = Flask(__name__)
-app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 """Define a dictionary to feed to Jinja template engine for dynamic data.
 These constants will be replaced with actual results from gRPC endpoints."""
@@ -26,30 +33,14 @@ index_data["version"] = "1.0.0"
 
 index_data["boards"] = ["amd64-generic", "betty"]
 
-p1 = {
-    "name": "media-libs/libsync",
-    "plus": "116",
-    "minus":"40"
-}
-p2 = {
-    "name": "media-libs/mesa-iris",
-    "plus": "27",
-    "minus":"0"
-}
-p3 = {
-    "name": "media-sound/cros-alsa",
-    "plus": "52",
-    "minus":"10"
-}
+p1 = {"name": "media-libs/libsync", "plus": "116", "minus": "40"}
+p2 = {"name": "media-libs/mesa-iris", "plus": "27", "minus": "0"}
+p3 = {"name": "media-sound/cros-alsa", "plus": "52", "minus": "10"}
 
-p4 = {
-    "name": "chromeos-base/hammerd",
-    "plus": "652",
-    "minus":"0"
-}
+p4 = {"name": "chromeos-base/hammerd", "plus": "652", "minus": "0"}
 
 index_data["packages"] = {}
-index_data["packages"][index_data["boards"][0]] = [p1,p2,p3]
+index_data["packages"][index_data["boards"][0]] = [p1, p2, p3]
 index_data["packages"][index_data["boards"][1]] = [p4]
 
 with open("workon_packages.txt", mode="r", encoding="utf-8") as f:
@@ -76,17 +67,45 @@ d1 = "June 15 2:54pm"
 d2 = "June 14 4:41pm"
 
 index_data["logs"] = [
-    {
-        "log": log,
-        "cmd": cmd1,
-        "date": d1
-    },
-    {
-        "log": "",
-        "cmd": cmd2,
-        "date": d2
-    },
+    {"log": log, "cmd": cmd1, "date": d1},
+    {"log": "", "cmd": cmd2, "date": d2},
 ]
+
+index_data["head_status"] = {
+    "-": ["No change", "secondary"],
+    "A": ["Added", "success"],
+    "M": ["Modified", "success"],
+    "D": ["Deleted", "danger"],
+    "R": ["Renamed", "secondary-emphasis"],
+    "C": ["Copied", "secondary-emphasis"],
+    "T": ["Mode changed", "secondary-emphasis"],
+    "U": ["Unmerged", "danger"],
+}
+index_data["working_status"] = {
+    "-": ["New", "success"],
+    "m": ["Modified", "success"],
+    "d": ["Deleted", "danger"],
+}
+
+with open("repo_status.txt", mode="r", encoding="utf-8") as f:
+    project = ""
+    branch = ""
+    files = []
+    for line in f.readlines():
+        text = line.split()
+        if text[0] == "project":
+            project = text[1]
+            branch = text[3]
+        else:
+            files += [
+                {"file": text[1], "head": text[0][0], "working": text[0][1]}
+            ]
+    index_data["repo_status"] = {
+        "project": project,
+        "branch": branch,
+        "files": files,
+    }
+
 
 @app.route("/workon-stop")
 def stop():
@@ -96,7 +115,6 @@ def stop():
 
         print("stopping package " + str(package))
 
-
         index_data["packages"][board] = [
             k for k in index_data["packages"][board] if k["name"] != package
         ]
@@ -104,12 +122,14 @@ def stop():
         return "Nothing"
     # Handles user just going to /workon-stop, rather than via the button
     except Exception:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
-@app.route("/", methods=['GET', 'POST'])
+
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template("index.html", data = index_data)
+    return render_template("index.html", data=index_data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.jinja_env.auto_reload = True
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host="0.0.0.0")
