@@ -8,6 +8,19 @@ import {ChrootService, Packages} from '../../../services/chromiumos';
 import * as testing from '../../testing';
 import {getChromiumosDirectory} from '../common/fs';
 
+// Platform2 directories to ignore on listing C++ files.
+const IGNORED_DIRS = [
+  // TODO(b:289171071): following packages are compiled with Makefile.
+  'avtest_label_detect',
+  'hwsec-optee-ta',
+  'wifi-testbed',
+  // Ebuild not found for the following packages.
+  'arc/container/file-syncer', // very new project as of 2023-06-28
+  'authpolicy', // ebuild removed on crrev.com/c/4542250
+  'media_capabilities', // ebuild has not been merged crrev.com/c/2386943
+  'media_perception', // the package will be removed crrev.com/c/4348315
+];
+
 describe('C++ xrefs in platform2', () => {
   testing.installVscodeDouble();
 
@@ -23,7 +36,10 @@ describe('C++ xrefs in platform2', () => {
   // Create a test case for each platform2 directory containing a C++ file.
   const platform2 = path.join(chromiumos, 'src/platform2');
 
-  for (const cppFile of listCppFileRepresentatives(platform2)) {
+  for (const cppFile of listCppFileRepresentatives(
+    platform2,
+    IGNORED_DIRS.map(x => path.join(platform2, x))
+  )) {
     describe(`for ${cppFile}`, () => {
       it('can find package to compile', async () => {
         const packageInfo = await packages.fromFilepath(cppFile);
@@ -38,7 +54,13 @@ describe('C++ xrefs in platform2', () => {
  * Rather than listing up all the C++ files, list up all the directories
  * containing a C++ file, and pick one C++ file from each such a directory.
  */
-function listCppFileRepresentatives(dir: string, res: string[] = []): string[] {
+function listCppFileRepresentatives(
+  dir: string,
+  dirsToIgnore: string[],
+  res: string[] = []
+): string[] {
+  if (dirsToIgnore.includes(dir)) return res;
+
   let cppFileChosen = false;
 
   for (const name of fs.readdirSync(dir)) {
@@ -49,7 +71,7 @@ function listCppFileRepresentatives(dir: string, res: string[] = []): string[] {
       continue;
     }
     if (stat.isDirectory()) {
-      listCppFileRepresentatives(file, res);
+      listCppFileRepresentatives(file, dirsToIgnore, res);
       continue;
     }
     if (!cppFileChosen && ['.c', '.cc', '.cpp'].includes(path.extname(file))) {

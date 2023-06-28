@@ -32,6 +32,12 @@ const SIBLING_DEPS: Record<string, string[]> = {
     'camera/features',
     'camera/gpu',
   ],
+  'camera/tools/cros_camera_tool': ['camera/tools'],
+  'camera/hal_adapter': ['camera/mojo'],
+  // Corner case: for compiling common-mk/testrunner.cc, we can compile any
+  // package that depends on //common-mk/testrunner:testrunner. We just choose
+  // an alphabetically first package here.
+  'arc/adbd': ['common-mk'],
 };
 
 async function generateSub(dir: string) {
