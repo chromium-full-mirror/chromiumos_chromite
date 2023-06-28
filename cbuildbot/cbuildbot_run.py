@@ -756,10 +756,6 @@ class _BuilderRunBase:
         """Return True if this is a production run."""
         return cidb.CIDBConnectionFactory.GetCIDBConnectionType() == "prod"
 
-    def InEmailReportingEnvironment(self):
-        """Return True if this run should send reporting emails.."""
-        return self.InProduction()
-
     def GetVersionInfo(self):
         """Helper for picking apart various version bits.
 

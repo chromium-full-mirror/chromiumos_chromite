@@ -352,10 +352,6 @@ class BuilderRunTest(_BuilderRunTestCase):
         run = self._NewBuilderRun()
         self.assertFalse(run.InProduction())
 
-    def testInEmailReportingEnvironment(self):
-        run = self._NewBuilderRun()
-        self.assertFalse(run.InEmailReportingEnvironment())
-
 
 class GetVersionTest(_BuilderRunTestCase):
     """Test the GetVersion and GetVersionInfo methods of BuilderRun class."""

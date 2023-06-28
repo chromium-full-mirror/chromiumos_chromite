@@ -14,7 +14,6 @@ from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import completion_stages
 from chromite.cbuildbot.stages import generic_stages
-from chromite.lib import alerts
 from chromite.lib import cidb
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -575,41 +574,6 @@ class ReportStage(
         self._completion_instance = completion_instance
         self._post_completion = False
 
-    def _UpdateEmailNotify(self, builder_run, final_status):
-        """Update email_notify build property based on the builder fail streak.
-
-        Update the pass/fail streak counter for the builder. Update the build's
-        email_notify property based on the new streak.
-
-        Args:
-            builder_run: BuilderRun for this run.
-            final_status: Final status string for this run.
-        """
-        if builder_run.InEmailReportingEnvironment():
-            streak_value = self._UpdateStreakCounter(
-                final_status=final_status,
-                counter_name=builder_run.config.name,
-                dry_run=self._run.options.debug_forced,
-            )
-            status = "passed" if streak_value > 0 else "failed"
-            logging.info(
-                "Builder %s has %s %s time(s) in a row.",
-                builder_run.config.name,
-                status,
-                abs(streak_value),
-            )
-            if (
-                builder_run.config.notification_configs
-                and status == "failed"
-                and builder_run.manifest_branch in ("main", "master")
-            ):
-                email_notify = alerts.GetUpdatedEmailNotify(
-                    builder_run, abs(streak_value)
-                )
-                self.buildstore.UpdateLuciNotifyProperties(
-                    email_notify=email_notify
-                )
-
     def _UpdateStreakCounter(self, final_status, counter_name, dry_run=False):
         """Update the given streak counter based on the final status of build.
 
@@ -946,9 +910,6 @@ class ReportStage(
         # Upload metadata, and update the pass/fail streak counter for the main
         # run only. These aren't needed for the child builder runs.
         self.UploadMetadata(export=True)
-        # This non-critical step is killing all CBuildbot builders. Disabling.
-        # BUG: http://b/227316467
-        # self._UpdateEmailNotify(self._run, final_status)
 
         build_identifier, db = self._run.GetCIDBHandle()
         build_id = build_identifier.cidb_id
