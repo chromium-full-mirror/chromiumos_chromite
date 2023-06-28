@@ -154,6 +154,7 @@
     cherry-release
     constitution-release
     coral-release
+    corsola-arc-t-release
     corsola-kernelnext-release
     corsola-release
     dedede-pvs-release
@@ -182,6 +183,7 @@
     grunt-release
     guado-macrophage-release
     guado_labstation-release
+    guybrush-arc-t-release
     guybrush-kernelnext-release
     guybrush-release
     hades-release
@@ -236,6 +238,7 @@
     sand-release
     sarien-kernelnext-release
     sarien-release
+    skyrim-arc-t-release
     skyrim-chausie-release
     skyrim-kernelnext-release
     skyrim-release
@@ -418,6 +421,7 @@
   coral-llvm-toolchain-tryjob
   coral-master-factorybranch-tryjob
   coral-release-tryjob
+  corsola-arc-t-release-tryjob
   corsola-factory-corsola-15196.B-factorybranch-tryjob
   corsola-full-tryjob
   corsola-kernelnext-full-tryjob
@@ -667,6 +671,7 @@
   guado_labstation-llvm-next-toolchain-tryjob
   guado_labstation-llvm-toolchain-tryjob
   guado_labstation-release-tryjob
+  guybrush-arc-t-release-tryjob
   guybrush-factory-guybrush-14908.B-factorybranch-tryjob
   guybrush-full-tryjob
   guybrush-kernelnext-full-tryjob
@@ -845,6 +850,7 @@
     cherry-release-tryjob
     constitution-release-tryjob
     coral-release-tryjob
+    corsola-arc-t-release-tryjob
     corsola-kernelnext-release-tryjob
     corsola-release-tryjob
     dedede-pvs-release-tryjob
@@ -873,6 +879,7 @@
     grunt-release-tryjob
     guado-macrophage-release-tryjob
     guado_labstation-release-tryjob
+    guybrush-arc-t-release-tryjob
     guybrush-kernelnext-release-tryjob
     guybrush-release-tryjob
     hades-release-tryjob
@@ -927,6 +934,7 @@
     sand-release-tryjob
     sarien-kernelnext-release-tryjob
     sarien-release-tryjob
+    skyrim-arc-t-release-tryjob
     skyrim-chausie-release-tryjob
     skyrim-kernelnext-release-tryjob
     skyrim-release-tryjob
@@ -1083,6 +1091,7 @@
   sarien-release-tryjob
   scarlet-factory-scarlet-10211.B-factorybranch-tryjob
   sentry-factory-glados-7828.B-factorybranch-tryjob
+  skyrim-arc-t-release-tryjob
   skyrim-chausie-full-tryjob
   skyrim-chausie-llvm-next-toolchain-tryjob
   skyrim-chausie-llvm-toolchain-tryjob
