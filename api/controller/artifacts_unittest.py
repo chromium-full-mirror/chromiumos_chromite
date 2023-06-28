@@ -124,7 +124,7 @@ class BundleImageArchivesTest(BundleTestCase):
         """Quick check that a validate only call does not execute any logic."""
         patch = self.PatchObject(artifacts_svc, "ArchiveImages")
         artifacts.BundleImageArchives(
-            self.target_request, self.response, self.validate_only_config
+            self.sysroot_request, self.response, self.validate_only_config
         )
         patch.assert_not_called()
 
@@ -132,7 +132,7 @@ class BundleImageArchivesTest(BundleTestCase):
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(artifacts_svc, "ArchiveImages")
         artifacts.BundleImageArchives(
-            self.target_request, self.response, self.mock_call_config
+            self.sysroot_request, self.response, self.mock_call_config
         )
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 2)
@@ -178,7 +178,7 @@ class BundleImageArchivesTest(BundleTestCase):
         self.PatchObject(os.path, "exists", return_value=True)
 
         artifacts.BundleImageArchives(
-            self.target_request, self.response, self.api_config
+            self.sysroot_request, self.response, self.api_config
         )
 
         self.assertCountEqual(

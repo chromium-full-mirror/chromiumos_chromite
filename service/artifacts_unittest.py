@@ -188,12 +188,25 @@ class ArchiveImagesTest(cros_test_lib.TempDirTestCase):
         osutils.SafeMakedirs(self.image_dir)
         self.output_dir = os.path.join(self.tempdir, "output")
         osutils.SafeMakedirs(self.output_dir)
+        chroot_path = os.path.join(self.tempdir, "chroot")
+        self.chroot = chroot_lib.Chroot(
+            path=chroot_path, out_path=self.output_dir
+        )
+        osutils.SafeMakedirs(chroot_path)
+        sysroot_path = os.path.join(self.tempdir, "build/board")
+        self.sysroot = sysroot_lib.Sysroot(sysroot_path)
+        osutils.SafeMakedirs(sysroot_path)
 
         self.images = []
         for img in artifacts.IMAGE_TARS.keys():
             full_path = os.path.join(self.image_dir, img)
             self.images.append(full_path)
             osutils.Touch(full_path)
+            if img in artifacts.IMAGE_ADDITIONAL_SYSROOT_FILES:
+                for file in artifacts.IMAGE_ADDITIONAL_SYSROOT_FILES[img]:
+                    osutils.Touch(
+                        os.path.join(sysroot_path, file), makedirs=True
+                    )
 
         osutils.Touch(os.path.join(self.image_dir, "irrelevant_image.bin"))
         osutils.Touch(os.path.join(self.image_dir, "foo.txt"))
@@ -201,12 +214,16 @@ class ArchiveImagesTest(cros_test_lib.TempDirTestCase):
 
     def testNoImages(self):
         """Test an empty directory handling."""
-        artifacts.ArchiveImages(self.tempdir, self.output_dir)
+        artifacts.ArchiveImages(
+            self.chroot, self.sysroot, self.tempdir, self.output_dir
+        )
         self.assertFalse(os.listdir(self.output_dir))
 
     def testAllImages(self):
         """Test each image gets picked up."""
-        created = artifacts.ArchiveImages(self.image_dir, self.output_dir)
+        created = artifacts.ArchiveImages(
+            self.chroot, self.sysroot, self.image_dir, self.output_dir
+        )
         self.assertCountEqual(list(artifacts.IMAGE_TARS.values()), created)
 
 

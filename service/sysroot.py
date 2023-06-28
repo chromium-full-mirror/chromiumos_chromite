@@ -1299,6 +1299,9 @@ def BundleDebugSymbols(
     exclude_breakpad_tar_arg = "--exclude=%s" % os.path.join(
         debug_dir, "breakpad"
     )
+    exclude_vmlinux_tar_arg = "--exclude=%s" % os.path.join(
+        debug_dir, "boot/vmlinux.debug"
+    )
     result = None
     try:
         result = cros_build_lib.CreateTarball(
@@ -1306,7 +1309,7 @@ def BundleDebugSymbols(
             debug_dir,
             compression=cros_build_lib.CompressionType.GZIP,
             sudo=True,
-            extra_args=[exclude_breakpad_tar_arg],
+            extra_args=[exclude_breakpad_tar_arg, exclude_vmlinux_tar_arg],
         )
     except cros_build_lib.TarballError:
         pass

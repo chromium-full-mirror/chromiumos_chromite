@@ -197,7 +197,7 @@ def _BundleImageArchivesResponse(input_proto, output_proto, _config) -> None:
 
 @faux.success(_BundleImageArchivesResponse)
 @faux.empty_error
-@validate.require("build_target.name")
+@validate.require("sysroot.build_target.name", "sysroot.path")
 @validate.exists("output_dir")
 @validate.validation_complete
 def BundleImageArchives(
@@ -206,13 +206,20 @@ def BundleImageArchives(
     _config: "api_config.ApiConfig",
 ) -> Optional[int]:
     """Create a .tar.xz archive for each image that has been created."""
-    build_target = controller_util.ParseBuildTarget(input_proto.build_target)
+    build_target = controller_util.ParseBuildTarget(
+        input_proto.sysroot.build_target
+    )
+    chroot = controller_util.ParseChroot(input_proto.chroot)
+    sysroot = controller_util.ParseSysroot(input_proto.sysroot)
     output_dir = input_proto.output_dir
     image_dir = _GetImageDir(constants.SOURCE_ROOT, build_target.name)
     if image_dir is None:
         return
 
-    archives = artifacts.ArchiveImages(image_dir, output_dir)
+    if not sysroot.Exists(chroot=chroot):
+        logging.warning("Sysroot does not exist: %s", sysroot.path)
+
+    archives = artifacts.ArchiveImages(chroot, sysroot, image_dir, output_dir)
 
     for archive in archives:
         output_proto.artifacts.add().path = os.path.join(output_dir, archive)

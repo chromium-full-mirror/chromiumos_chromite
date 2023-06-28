@@ -49,6 +49,13 @@ IMAGE_TARS = {
     constants.KERNEL_IMAGE_BIN: constants.KERNEL_IMAGE_TAR,
 }
 
+# Additional files under sysroot that will be archived with individual image.
+IMAGE_ADDITIONAL_SYSROOT_FILES = {
+    constants.KERNEL_IMAGE_BIN: [
+        "usr/lib/debug/boot/%s" % constants.KERNEL_SYMBOL_NAME
+    ],
+}
+
 TAST_BUNDLE_NAME = "tast_bundles.tar.bz2"
 TAST_COMPRESSOR = cros_build_lib.CompressionType.BZIP2
 
@@ -405,10 +412,16 @@ def ArchiveChromeEbuildEnv(
     return result_path
 
 
-def ArchiveImages(image_dir: str, output_dir: str) -> List[str]:
+def ArchiveImages(
+    chroot: "chroot_lib.Chroot",
+    sysroot: "sysroot_lib.Sysroot",
+    image_dir: str, output_dir: str
+) -> List[str]:
     """Create a .tar.xz archive for each image that has been created.
 
     Args:
+        chroot: The chroot containing the sysroot.
+        sysroot: The sysroot whose artifacts are being archived.
         image_dir: The directory where the images are located.
         output_dir: The location where the archives should be created.
 
@@ -422,8 +435,16 @@ def ArchiveImages(image_dir: str, output_dir: str) -> List[str]:
     images = {img: tar for img, tar in IMAGE_TARS.items() if img in files}
     for img, tar in images.items():
         tarball_path = os.path.join(output_dir, tar)
+        content = [img]
+        if img in IMAGE_ADDITIONAL_SYSROOT_FILES:
+            additional_files = {
+                full_path
+                for f in IMAGE_ADDITIONAL_SYSROOT_FILES[img]
+                if os.path.isfile(full_path:=chroot.full_path(sysroot.path, f))
+            }
+            content.extend(additional_files)
         cros_build_lib.CreateTarball(
-            tarball_path, image_dir, inputs=(img,), print_cmd=False
+            tarball_path, image_dir, inputs=content, print_cmd=False
         )
         archives.append(tar)
 

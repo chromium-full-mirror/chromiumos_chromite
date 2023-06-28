@@ -780,6 +780,7 @@ TEST_GUEST_VM_TAR = "%s.tar.xz" % TEST_GUEST_VM_DIR
 KERNEL_IMAGE_NAME = "vmlinuz"
 KERNEL_IMAGE_BIN = "%s.bin" % KERNEL_IMAGE_NAME
 KERNEL_IMAGE_TAR = "%s.tar.xz" % KERNEL_IMAGE_NAME
+KERNEL_SYMBOL_NAME = "vmlinux.debug"
 
 TEST_IMAGE_NAME = "chromiumos_test_image"
 TEST_IMAGE_TAR = "%s.tar.xz" % TEST_IMAGE_NAME
