@@ -264,376 +264,428 @@
           
         </div>
          <div class="col">
-            <div class="row bg-light justify-content-start">
-              <div class="col-2">
-                <a>Packages</a>
-              </div>
-              <div class="col-2">
-                <a>Sysroots</a>
-              </div>
+            
+            <div class = "row bg-light d-flex justify-content-start">
+              <button type="button" class="btn btn-light w-25 rounded-0" id="showPackages"><strong>Packages</strong></button>
+              <button type="button" class="btn btn-light w-25 rounded-0" id="showSysroots"><strong>Sysroots</strong></button>
             </div>
+            <script>
+              var topSelectorStyle = "border-black border-3 border-start-0 border-end-0 border-top-0";
+
+              var showPackages = function(){
+                $("#packagesPanel").show();
+                $("#sysrootsPanel").hide();
+
+                $("#showPackages").addClass(topSelectorStyle);
+                $("#showSysroots").removeClass(topSelectorStyle);
+              }
+              
+              $(document).ready(showPackages);
+              $("#showPackages").on('click', showPackages);
+
+              $("#showSysroots").on('click', function(){
+                $("#packagesPanel").hide();
+                $("#sysrootsPanel").show();
+
+                $("#showSysroots").addClass(topSelectorStyle);
+                $("#showPackages").removeClass(topSelectorStyle);
+              })
+            </script>
 
             <!--Board selector row and dropdown html/script-->
-            <div class="row bg-dark justify-content-start align-items-center">
-              <div class="col-1">
-                <p2 class="small text-light mr-5"><strong>Board</strong></p2>
-              </div>
-              <div class="col-3">
-                <div class="dropdown">
-                  <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary" type="button" 
-                  data-bs-toggle="dropdown" aria-expanded="false" id="boardSelectorTitle"></button>
-                  <ul class="dropdown-menu" id="boardSelector">
-                    {% for board in data["boards"] %}
-                      <li>
-                        {% if loop.index == 1 %}
-                          <a class="small dropdown-item board-list-item active" href="#">{{board}}</a>
-                        {% else %}
-                          <a class="small dropdown-item board-list-item" href="#">{{board}}</a>
-                        {% endif %}
-                      </li>
-                    {% endfor %}
-                  </ul>
-                  
-                  <!--Controls dropdown behavior: active selection, title as active selection, and default-->
-                  <script>
-                    $(document).ready( function(){
-                      var boardName = $('#boardSelector li a.active').html()
-
-                      $('#boardSelectorTitle').html(boardName);
-
-                      $('.board-package-list').hide()
-                      $('#' + boardName + "-package-list").show()
-                    })
-
-                    $('#boardSelector li').on('click', function() {
-                      var boardName = $(this).find('a').html()
-
-                      $('#boardSelectorTitle').html(boardName);
-                      $('.board-list-item').removeClass('active');
-                      $(this).find('a').addClass('active');
-
-                      $('.board-package-list').hide()
-                      $('#' + boardName + "-package-list").show()
-                    });
-                  </script>
-                  
+            <div id = "packagesPanel">
+              <div class="row bg-dark justify-content-start align-items-center ">
+                <div class="col-1">
+                  <p2 class="small text-light mr-5"><strong>Board</strong></p2>
                 </div>
-              </div>
-
-              <div class = "col-2">
-                <a data-bs-toggle="modal" data-bs-target="#addPackagesModal" href="#" style="color: #63a7ff;">Add package</a>
-              </div>
-
-              <div class="modal fade" id="addPackagesModal" tabindex="-1"
-                  aria-labelledby="addPackagesModal" aria-hidden="true">
-                <div class="modal-dialog">
-                  <div class="modal-content bg-dark">
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-4 text-light">Add Package</h1>
-                      
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      
-                    </div>
-                    <div class="modal-body">
-                      <p class="text-white-50">Runs cros_workon start on selected board and package.</p>
-                      <ul class = "list-unstyled">
-                        <li class = "d-flex justify-content-between align-items-center mb-4">
-                          <p2 class="text-light fs-6">Board</p2>
-                          <select id="addPackageBoardSelect" class="add-package-select">
-                            {% for board in data["boards"] %}
-                              <option>{{board}}</option>
-                            {% endfor %}
-                          </select>
+                <div class="col-3">
+                  <div class="dropdown">
+                    <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary" type="button" 
+                    data-bs-toggle="dropdown" aria-expanded="false" id="boardSelectorTitle"></button>
+                    <ul class="dropdown-menu" id="boardSelector">
+                      {% for board in data["boards"] %}
+                        <li>
+                          {% if loop.index == 1 %}
+                            <a class="small dropdown-item board-list-item active" href="#">{{board}}</a>
+                          {% else %}
+                            <a class="small dropdown-item board-list-item" href="#">{{board}}</a>
+                          {% endif %}
                         </li>
-                        <li class = "d-flex justify-content-between align-items-center">
-                          <p2 class="text-light fs-6">Package</p2>
-                          <select id="addPackagePackageSelect" class="add-package-select">
-                            {% for package in data["all_packages"] %}
-                              <option>{{package}}</option>
-                            {% endfor %}
-                          </select>
-                          <script>
-                            $(document).ready(function() {
-                            $(".add-package-select").select2({
-                              dropdownParent : $("#addPackagesModal"),
-                              theme: 'bootstrap-5'
-                            });
+                      {% endfor %}
+                    </ul>
+                    
+                    <!--Controls dropdown behavior: active selection, title as active selection, and default-->
+                    <script>
+                      $(document).ready( function(){
+                        var boardName = $('#boardSelector li a.active').html()
 
-                            $("#addPackageSubmit").on("click", function(){
-                              var board = $("#addPackageBoardSelect").select2("data");
-                              console.log(board[0].text);
-                            })
-                        });
-                          </script>
-                        </li>
-                        
-                      </ul>
-                      
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="addPackageSubmit">Add</button>
-                    </div>
+                        $('#boardSelectorTitle').html(boardName);
+
+                        $('.board-package-list').hide()
+                        $('#' + boardName + "-package-list").show()
+                      })
+
+                      $('#boardSelector li').on('click', function() {
+                        var boardName = $(this).find('a').html()
+
+                        $('#boardSelectorTitle').html(boardName);
+                        $('.board-list-item').removeClass('active');
+                        $(this).find('a').addClass('active');
+
+                        $('.board-package-list').hide()
+                        $('#' + boardName + "-package-list").show()
+                      });
+                    </script>
+                    
                   </div>
                 </div>
-              </div>
 
-              <div class = "col">
-                <a data-bs-toggle="modal" data-bs-target="#buildPackagesModal" href="#" style="color: #63a7ff;"">Build packages</a>
-              </div>
+                <div class = "col-2">
+                  <a data-bs-toggle="modal" data-bs-target="#addPackagesModal" href="#" style="color: #63a7ff;">Add package</a>
+                </div>
 
-              <div class="modal fade" id="buildPackagesModal" tabindex="-1"
-                  aria-labelledby="buildPackagesModal" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable">
-                  <div class="modal-content bg-dark">
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-4 text-light">Build Packages</h1>
-                      
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      
-                    </div>
-                    <div class="modal-body">
-                      <p class="text-white-50">Builds all working packages into selected sysroot.</p>
-                      <ul class = "list-unstyled">
-                        <li class = "mb-3">
-                          <p2 class="text-light fs-6"><strong>chroot_current</strong></p2>
-                          <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" value="" id="buildChrootCurrent">
-                            <label class="form-check-label text-light ms-3" for="buildChrootCurrent">
-                              Triggers an update of the chroot unless it is declared current.
-                            </label>
-                          </div>
-                        </li>
-
-                        <li class = "mb-3">
-                          <p2 class="text-light fs-6"><strong>replace</strong></p2>
-                          <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" value="" id="buildReplace">
-                            <label class="form-check-label text-light ms-3" for="buildReplace">
-                              Replace the existing sysroot when one already exists. Has no effect 
-                              when the sysroot does not exist.
-                            </label>
-                          </div>
-                        </li>
-                        <li class = "mb-3"> 
-                          <p2 class="text-light fs-6"><strong>toolchain_changed</strong></p2>
-                          <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" value="" id="buildToolchainChanged">
-                            <label class="form-check-label text-light ms-3" for="buildToolchainChanged">
-                              Whether a toolchain change has occurred.
-                            </label>
-                          </div>
-                        </li>
-                        <li class = "mb-3">
-                          <p2 class="text-light fs-6"><strong>use_cq_prebuilts</strong></p2>
-                          <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" value="" id="buildCQPrebuilts">
-                            <label class="form-check-label text-light ms-3" for="buildCQPrebuilts">
-                              Whether to use the prebuilts generated by CQ.
-                            </label>
-                          </div>
-                        </li>
-                        <li class = "mb-3">
-                          <p2 class="text-light fs-6"><strong>build_target</strong></p2>
-                          <div class="d-flex justify-content-between align-items-center">
-                            <!--Need to make distinction between existing sysroots and all boards.
-                            Build packages can be done with any board as it creates a sysroot, but
-                            workon commands can only use setup boards.-->
-                            <select id="buildBuildTarget" class="build-packages-select">
+                <div class="modal fade" id="addPackagesModal" tabindex="-1"
+                    aria-labelledby="addPackagesModal" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content bg-dark">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-4 text-light">Add Package</h1>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        
+                      </div>
+                      <div class="modal-body">
+                        <p class="text-white-50">Runs cros_workon start on selected board and package.</p>
+                        <ul class = "list-unstyled">
+                          <li class = "d-flex justify-content-between align-items-center mb-4">
+                            <p2 class="text-light fs-6">Board</p2>
+                            <select id="addPackageBoardSelect" class="add-package-select">
                               {% for board in data["boards"] %}
                                 <option>{{board}}</option>
                               {% endfor %}
                             </select>
+                          </li>
+                          <li class = "d-flex justify-content-between align-items-center">
+                            <p2 class="text-light fs-6">Package</p2>
+                            <select id="addPackagePackageSelect" class="add-package-select">
+                              {% for package in data["all_packages"] %}
+                                <option>{{package}}</option>
+                              {% endfor %}
+                            </select>
                             <script>
                               $(document).ready(function() {
-                              $(".build-packages-select").select2({
-                                dropdownParent : $("#buildPackagesModal"),
-                                theme: 'bootstrap-5',
-                                width: '100%'
+                              $(".add-package-select").select2({
+                                dropdownParent : $("#addPackagesModal"),
+                                theme: 'bootstrap-5'
                               });
+
+                              $("#addPackageSubmit").on("click", function(){
+                                var board = $("#addPackageBoardSelect").select2("data");
+                                console.log(board[0].text);
+                              })
                           });
                             </script>
-                            
-                          </div>
-                          <label class="text-light ms-1" for="buildBuildTarget">
-                            The target to create a sysroot for.
-                          </label>
-                        </li>
-                        <li class = "mb-3">
-                          <p2 class="text-light fs-6"><strong>compile_source</strong></p2>
-                          <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" value="" id="buildCompileSource">
-                            <label class="form-check-label text-light ms-3" for="buildCompileSource">
-                              Compile from source, or use bin packages.
-                            </label>
-                          </div>
-                        </li>
-                        <li class = "mb-3">
-                          <p2 class="text-light fs-6"><strong>dryrun</strong></p2>
-                          <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" value="" id="buildDryrun">
-                            <label class="form-check-label text-light ms-3" for="buildDryrun">
-                              Calculate the packages that would be installed, but don't actually merge them.
-                            </label>
-                          </div>
-                        </li>
-                        <li class = "mb-3">
-                          <p2 class="text-light fs-6"><strong>workon</strong></p2>
-                          <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" value="" id="buildWorkon">
-                            <label class="form-check-label text-light ms-3" for="buildWorkon">
-                              Allow cros workon packages to build from the unstable ebuild.
-                            </label>
-                          </div>
-                        </li>
-                      </ul>
-                      
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="buildPackagesSubmit">Build</button>
+                          </li>
+                          
+                        </ul>
+                        
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="addPackageSubmit">Add</button>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                <div class = "col">
+                  <a data-bs-toggle="modal" data-bs-target="#buildPackagesModal" href="#" style="color: #63a7ff;"">Build packages</a>
+                </div>
+
+                <div class="modal fade" id="buildPackagesModal" tabindex="-1"
+                    aria-labelledby="buildPackagesModal" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content bg-dark">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-4 text-light">Build Packages</h1>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        
+                      </div>
+                      <div class="modal-body">
+                        <p class="text-white-50">Builds all working packages into selected sysroot.</p>
+                        <ul class = "list-unstyled">
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>chroot_current</strong></p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="buildChrootCurrent">
+                              <label class="form-check-label text-light ms-3" for="buildChrootCurrent">
+                                Triggers an update of the chroot unless it is declared current.
+                              </label>
+                            </div>
+                          </li>
+
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>replace</strong></p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="buildReplace">
+                              <label class="form-check-label text-light ms-3" for="buildReplace">
+                                Replace the existing sysroot when one already exists. Has no effect 
+                                when the sysroot does not exist.
+                              </label>
+                            </div>
+                          </li>
+                          <li class = "mb-3"> 
+                            <p2 class="text-light fs-6"><strong>toolchain_changed</strong></p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="buildToolchainChanged">
+                              <label class="form-check-label text-light ms-3" for="buildToolchainChanged">
+                                Whether a toolchain change has occurred.
+                              </label>
+                            </div>
+                          </li>
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>use_cq_prebuilts</strong></p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="buildCQPrebuilts">
+                              <label class="form-check-label text-light ms-3" for="buildCQPrebuilts">
+                                Whether to use the prebuilts generated by CQ.
+                              </label>
+                            </div>
+                          </li>
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>build_target</strong></p2>
+                            <div class="d-flex justify-content-between align-items-center">
+                              <!--Need to make distinction between existing sysroots and all boards.
+                              Build packages can be done with any board as it creates a sysroot, but
+                              workon commands can only use setup boards.-->
+                              <select id="buildBuildTarget" class="build-packages-select">
+                                {% for board in data["boards"] %}
+                                  <option>{{board}}</option>
+                                {% endfor %}
+                              </select>
+                              <script>
+                                $(document).ready(function() {
+                                $(".build-packages-select").select2({
+                                  dropdownParent : $("#buildPackagesModal"),
+                                  theme: 'bootstrap-5',
+                                  width: '100%'
+                                });
+                            });
+                              </script>
+                              
+                            </div>
+                            <label class="text-light ms-1" for="buildBuildTarget">
+                              The target to create a sysroot for.
+                            </label>
+                          </li>
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>compile_source</strong></p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="buildCompileSource">
+                              <label class="form-check-label text-light ms-3" for="buildCompileSource">
+                                Compile from source, or use bin packages.
+                              </label>
+                            </div>
+                          </li>
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>dryrun</strong></p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="buildDryrun">
+                              <label class="form-check-label text-light ms-3" for="buildDryrun">
+                                Calculate the packages that would be installed, but don't actually merge them.
+                              </label>
+                            </div>
+                          </li>
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>workon</strong></p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="buildWorkon">
+                              <label class="form-check-label text-light ms-3" for="buildWorkon">
+                                Allow cros workon packages to build from the unstable ebuild.
+                              </label>
+                            </div>
+                          </li>
+                        </ul>
+                        
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="buildPackagesSubmit">Build</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class = "col"></div>
+                
               </div>
-
-              <div class = "col"></div>
+              <div class="row bg-dark border-top">
+                <div class="col-7"><p2 class = "small text-light m-3"><strong>Name</strong></p2></div>
+                <div class="col-2"><p2 class = "small text-light"><strong>Delta</strong></p2></div>
+                <div class="col"><p2 class = "small text-light"><strong>Actions</strong></p2></div>
+              </div>
               
-            </div>
-            <div class="row bg-dark border-top">
-              <div class="col-7"><p2 class = "small text-light m-3"><strong>Name</strong></p2></div>
-              <div class="col-2"><p2 class = "small text-light"><strong>Delta</strong></p2></div>
-              <div class="col"><p2 class = "small text-light"><strong>Actions</strong></p2></div>
-            </div>
-            
-            <div class="row" id="all-board-packages">
-              {% for board in data["packages"] %}
-                {% if data["packages"][board] != [] %}
-                  <ul class="p-0 board-package-list" id= {{board + "-package-list"}}>
-                    {% for package in data["packages"][board] %}
+              <div class="row" id="all-board-packages">
+                {% for board in data["packages"] %}
+                  {% if data["packages"][board] != [] %}
+                    <ul class="p-0 board-package-list" id= {{board + "-package-list"}}>
+                      {% for package in data["packages"][board] %}
 
-                      <!--Package list element with name, delta, 3 buttons-->
-                      <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
-                        <div class="col-7"><p2 class = "small text-light m-4">{{package["name"]}}</p2></div>
-                        <div class="col-2 d-flex">
-                          <p2 class = "col small text-success">+{{package["plus"]}}</p2>
-                          <p2 class = "col small text-danger">-{{package["minus"]}}</p2>
-                        </div>
-                        <div class="col">
-                          <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
-                          <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
-                            data-bs-target={{"#" + package["name"] | replace("/", "\/") + "-info-modal"}} >Info</button>
-                          <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop"
-                          id = {{package["name"]}}>Stop</button>
-                        </div>              
-                      </li>
-                      
-                      <!--Info modal for package-->
-                      <div class="modal fade" id={{package["name"] + "-info-modal"}} tabindex="-1" 
-                          aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                          <div class="modal-content bg-dark">
-                            <div class="modal-header">
-                              <h1 class="modal-title fs-5 text-light">Package Info</h1>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                              Modal
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <!--Package list element with name, delta, 3 buttons-->
+                        <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                          <div class="col-7"><p2 class = "small text-light m-4">{{package["name"]}}</p2></div>
+                          <div class="col-2 d-flex">
+                            <p2 class = "col small text-success">+{{package["plus"]}}</p2>
+                            <p2 class = "col small text-danger">-{{package["minus"]}}</p2>
+                          </div>
+                          <div class="col">
+                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
+                            <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
+                              data-bs-target={{"#" + package["name"] | replace("/", "\/") + "-info-modal"}} >Info</button>
+                            <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop"
+                            id = {{package["name"]}}>Stop</button>
+                          </div>              
+                        </li>
+                        
+                        <!--Info modal for package-->
+                        <div class="modal fade" id={{package["name"] + "-info-modal"}} tabindex="-1" 
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content bg-dark">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5 text-light">Package Info</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                Modal
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                    {% endfor %}
-                  </ul>
-                  {% else %}
-                    <row class="board-package-list small text-light bg-dark border-top border-black p-0 m-0"
-                     id= {{board + "-package-list"}}>
-                      <p2 class = "ps-5">No packages to display for this board...</p2>
-                    </row>
-                  {% endif %}
-            {% endfor %}
+                      {% endfor %}
+                    </ul>
+                    {% else %}
+                      <row class="board-package-list small text-light bg-dark border-top border-black p-0 m-0"
+                      id= {{board + "-package-list"}}>
+                        <p2 class = "ps-5">No packages to display for this board...</p2>
+                      </row>
+                    {% endif %}
+              {% endfor %}
 
-            <script>
-              $(".workon-stop").on('click', function(){
-                var package = this.id;
-                var button = this;
-                var board = $(this).parents("ul")[0].id;
+              <script>
+                $(".workon-stop").on('click', function(){
+                  var package = this.id;
+                  var button = this;
+                  var board = $(this).parents("ul")[0].id;
 
-                $(button).addClass("disabled");
+                  $(button).addClass("disabled");
 
-                $.ajax({
-                  url: "/workon-stop",
-                  type: "get",
-                  data: {
-                    board: board,
-                    package: package
-                  },
+                  $.ajax({
+                    url: "/workon-stop",
+                    type: "get",
+                    data: {
+                      board: board,
+                      package: package
+                    },
 
-                  success: function(response) {
-                    console.log("success");
-                    location.reload()
-                  },
-                  error: function(xhr) {
-                    console.log("failure");
-                  }
-                });
-              })
+                    success: function(response) {
+                      console.log("success");
+                      location.reload()
+                    },
+                    error: function(xhr) {
+                      console.log("failure");
+                    }
+                  });
+                })
 
-            </script>
+              </script>
+              </div>
             </div>
-              
+            <div hidden id="sysrootsPanel">
+              Sysroots
+            </div>
           </div>
         </div>
          <!--Logs section-->
-      <div class = "row bg-dark">
-        <p2 class = "text-light ms-2 fs-5">Logs</p2>
+      <div class = "row bg-dark d-flex justify-content-start">
+        <button type="button" class="btn btn-dark w-25 rounded-0" id="showLogs"><strong>Logs</strong></button>
+        <button type="button" class="btn btn-dark w-25 rounded-0" id ="showRepo"><strong>Version Control</strong></button>
       </div>
-      <div class = "row bg-black">
-        <div class="col-8"><p2 class = "small text-light ms-2"><strong>Command</strong></p2></div>
-        <div class="col-2"><p2 class = "small text-light"><strong>Log</strong></p2></div>
-        <div class="col"><p2 class = "small text-light ms-2"><strong>Date</strong></p2></div>
-      </div>
-      <div class = "row">
-        <ul class = "list-unstyled">
-          {% for log in data["logs"] %}
-            <li class = "row bg-dark">
-              <div class="col-8"><p2 class = "small text-light ms-2"><code class = "text-light">{{ log["cmd"] }}</code></p2></div>
-              <div class = "col-2">
-                <a href={{"#log-" + loop.index | string}} data-bs-toggle="collapse" role="button" 
-                  aria-controls={{"log-" + loop.index | string}} aria-expanded="false" 
-                  class = "d-flex align-items-center log-expander link-underline link-underline-opacity-0" 
-                  style="color: #63a7ff;">
-                  View Log 
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
-                    <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
-                  </svg>
-                </a>
-                
-              </div>
-              <div class="col"><p2 class = "small text-light ms-2">{{ log["date"] }}</p2></div>
-              <div class = "bg-black small overflow-auto border-top collapse " style="max-height:300px" id = {{"log-" + loop.index | string}}>
-                <code class = "small text-light" style="white-space:pre-line; ">{{log["log"]}}</code>
-              </div>
-            </li>
-          {% endfor %}
-          <style>
-            .rotate-log-button{
-              transform : rotate(90deg);
-            }
-          </style>
-          <script>
-            //Rotate the arrow next to "View Log"
-            $(".log-expander").on('click', function(){
-              $(this).children("svg").toggleClass("rotate-log-button")
-            })
-          </script>
-        </ul>
+      <script>
+        var bottomSelectorStyle = "border-top-0 border-start-0 border-end-0 border-light border-2"
+
+        var selectLogs = function(){
+          $("#logsPanel").show()
+          $("#repoPanel").hide()
+
+          $("#showLogs").addClass(bottomSelectorStyle)
+          $("#showRepo").removeClass(bottomSelectorStyle)
+        }
+        $(document).ready(selectLogs);
+        $("#showLogs").on('click', selectLogs);
+
+        $("#showRepo").on('click', function(){
+          $("#logsPanel").hide()
+          $("#repoPanel").show()
+
+          $("#showRepo").addClass(bottomSelectorStyle)
+          $("#showLogs").removeClass(bottomSelectorStyle)
+        })
+
+      </script> 
+      <div id = "logsPanel">
+        <div class = "row bg-black">
+          <div class="col-8"><p2 class = "small text-light ms-2 btn-border-radius-sm"><strong>Command</strong></p2></div>
+          <div class="col-2"><p2 class = "small text-light"><strong>Log</strong></p2></div>
+          <div class="col"><p2 class = "small text-light ms-2"><strong>Date</strong></p2></div>
+        </div>
+        <div class = "row">
+          <ul class = "list-unstyled">
+            {% for log in data["logs"] %}
+              <li class = "row bg-dark">
+                <div class="col-8"><p2 class = "small text-light ms-2"><code class = "text-light">{{ log["cmd"] }}</code></p2></div>
+                <div class = "col-2">
+                  <a href={{"#log-" + loop.index | string}} data-bs-toggle="collapse" role="button" 
+                    aria-controls={{"log-" + loop.index | string}} aria-expanded="false" 
+                    class = "d-flex align-items-center log-expander link-underline link-underline-opacity-0" 
+                    style="color: #63a7ff;">
+                    View Log 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+                  
+                </div>
+                <div class="col"><p2 class = "small text-light ms-2">{{ log["date"] }}</p2></div>
+                <div class = "bg-black small overflow-auto border-top collapse " style="max-height:300px" id = {{"log-" + loop.index | string}}>
+                  <code class = "small text-light" style="white-space:pre-line; ">{{log["log"]}}</code>
+                </div>
+              </li>
+            {% endfor %}
+            <style>
+              .rotate-log-button{
+                transform : rotate(90deg);
+              }
+            </style>
+            <script>
+              //Rotate the arrow next to "View Log"
+              $(".log-expander").on('click', function(){
+                $(this).children("svg").toggleClass("rotate-log-button")
+              })
+            </script>
+          </ul>
+          
+        </div>
+      </div> 
+      <div id = "repoPanel">
         
       </div>
+      
     </div>
   </body>
 </html>
