@@ -331,7 +331,10 @@ class ClearcutSpanExporter(export.SpanExporter):
                 ) as f:
                     logresponse.ParseFromString(f.read())
             except urllib.error.URLError as e:
-                logging.warning(e)
+                # It is expected that child Pids in build_image which call
+                # sys.exit do not have network re-enabled in that namespace, so
+                # for now, log this error at the debug level.
+                logging.debug(e)
                 return False
             except proto_msg.DecodeError as e:
                 logging.warning("could not decode data into proto: %s", e)

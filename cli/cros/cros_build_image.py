@@ -35,13 +35,18 @@ from pathlib import Path
 import sys
 from typing import List, Optional
 
+from chromite.third_party.opentelemetry import trace
+from chromite.third_party.opentelemetry.trace import status
+
 from chromite.cli import command
+from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import namespaces
 from chromite.lib import path_util
 from chromite.service import image
+from chromite.utils import telemetry
 from chromite.utils import timer
 
 
@@ -173,8 +178,11 @@ def build_shell_string_style_args(
     )
 
 
+tracer = trace.get_tracer(__name__)
+
+
 @timer.timed("Elapsed time (cros build-image)")
-def inner_main(options: commandline.ArgumentNamespace):
+def inner_main(options: commandline.ArgumentNamespace) -> image.BuildResult:
     """Inner main that processes building the image."""
 
     # If the opts.board is not set, then it means user hasn't specified a
@@ -189,13 +197,7 @@ def inner_main(options: commandline.ArgumentNamespace):
     if invalid_image:
         options.parser.error(f"Invalid image type argument(s) {invalid_image}")
 
-    result = image.Build(
-        options.board, options.images, options.build_run_config
-    )
-    if result.run_error:
-        cros_build_lib.Die(
-            f"Error running build-image. Exit Code : {result.return_code}"
-        )
+    return image.Build(options.board, options.images, options.build_run_config)
 
 
 @command.command_decorator("build-image")
@@ -429,8 +431,31 @@ class BuildImageCommand(command.CliCommand):
         except ValueError:
             logging.warning("Unable to translate CWD to a chroot path.")
         commandline.RunInsideChroot(self, chroot_args=chroot_args)
+        commandline.RunAsRootUser(sys.argv, preserve_env=True)
 
-        # Make sure we run with network disabled to prevent leakage.
-        namespaces.ReExecuteWithNamespace(sys.argv, preserve_env=True)
+        chromite_config.initialize()
+        telemetry.initialize(
+            chromite_config.TELEMETRY_CONFIG,
+            log_traces=self.options.log_telemetry,
+        )
 
-        inner_main(self.options)
+        result = None
+
+        with tracer.start_as_current_span("cli.cros.cros_build_image.Run") as s:
+            with namespaces.use_network_sandbox():
+                result = inner_main(self.options)
+
+            if result and result.run_error:
+                s.record_exception(
+                    # TODO(zland): capture underlying exception details/runtime
+                    # errors to stringify for trace data.
+                    cros_build_lib.RunCommandError(
+                        "an exception occurred when running "
+                        "chromite.service.image.Build."
+                    )
+                )
+                s.set_status(status.StatusCode.ERROR)
+                cros_build_lib.Die(
+                    "Error running build-image. "
+                    f"Exit Code: {result.return_code}"
+                )

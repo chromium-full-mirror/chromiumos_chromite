@@ -4,6 +4,7 @@
 
 """Support for Linux namespaces"""
 
+import contextlib
 import ctypes
 import ctypes.util
 import errno
@@ -439,3 +440,60 @@ def ReExecuteWithNamespace(
     SimpleUnshare(net=not network, pid=True)
     # We got our namespaces, so switch back to the non-root user.
     os_util.switch_to_sudo_user(clear_saved_id=clear_saved_id)
+
+
+@contextlib.contextmanager
+def use_network_sandbox():
+    """Context manager to manage switching between network namespaces.
+
+    The default behavior here is to disallow network connectivity during core
+    client execution, and restore network connectivity on client completion to
+    perform tasks which require the previous network state.
+    """
+
+    network_fd = None
+    with contextlib.ExitStack() as stack:
+        try:
+            # Get an open handle to a working network namespace so we can switch
+            # back to it for network-dependent operations (e.g. telemetry
+            # uploads).
+            # pylint: disable=consider-using-with
+            network_fd = stack.enter_context(open("/proc/self/ns/net", "rb"))
+            logging.debug(
+                "open %s %s",
+                network_fd.fileno(),
+                os.readlink("/proc/self/ns/net"),
+            )
+        except OSError as e:
+            logging.debug(
+                "failed to open file descriptor to current network namespace: "
+                "%s",
+                repr(e),
+            )
+
+        try:
+            # Make sure we run with network disabled to prevent leakage.
+            SimpleUnshare(net=True, pid=True)
+            # We got our namespaces, so switch back to the non-root user.
+            os_util.switch_to_sudo_user()
+        except OSError as e:
+            logging.warning("an unshare(2) operation failed: %s", repr(e))
+
+        try:
+            yield
+        finally:
+            # Don't attempt SetNS if we don't have a useful file descriptor for
+            # the network namespace.
+            if network_fd:
+                try:
+                    # Turn network back on to allow containing telemetry trace
+                    # to be sent to clearcut.
+                    os.setresuid(0, 0, -1)
+                    os.setresgid(0, 0, -1)
+                    SetNS(network_fd.fileno(), CLONE_NEWNET)
+                except OSError as e:
+                    logging.warning(
+                        "Trying to re-enter original network namespace failed: "
+                        "%s",
+                        repr(e),
+                    )

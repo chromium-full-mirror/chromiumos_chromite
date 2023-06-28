@@ -4,6 +4,7 @@
 
 """Unittests for the namespaces.py module."""
 
+import builtins
 import errno
 import os
 import unittest
@@ -142,3 +143,101 @@ class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):
         run_as_root_user_mock.assert_called_once_with([], preserve_env=True)
         simple_unshare_mock.assert_called_once_with(net=True, pid=True)
         switch_mock.assert_called_once_with(clear_saved_id=True)
+
+
+class UseNetworkSandboxTests(cros_test_lib.MockTestCase):
+    """Tests for the use_network_sandbox() context manager."""
+
+    def testBasic(self):
+        """Test context manager's baseline success case."""
+        self.PatchObject(commandline, "RunAsRootUser")
+        set_ns_mock = self.PatchObject(namespaces, "SetNS")
+        simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
+        switch_mock = self.PatchObject(os_util, "switch_to_sudo_user")
+        os_setresuid_mock = self.PatchObject(os, "setresuid")
+        os_setresgid_mock = self.PatchObject(os, "setresgid")
+
+        with namespaces.use_network_sandbox():
+            simple_unshare_mock.assert_called_once_with(net=True, pid=True)
+            switch_mock.assert_called_once()
+            set_ns_mock.assert_not_called()
+        os_setresuid_mock.assert_called_with(0, 0, -1)
+        os_setresgid_mock.assert_called_with(0, 0, -1)
+        set_ns_mock.assert_called_once()
+
+    def testRaisedExceptionStillRestoresNetNS(self):
+        """Test context manager cleanup if client code raises exception."""
+        self.PatchObject(commandline, "RunAsRootUser")
+        set_ns_mock = self.PatchObject(namespaces, "SetNS")
+        simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
+        switch_mock = self.PatchObject(os_util, "switch_to_sudo_user")
+        os_setresuid_mock = self.PatchObject(os, "setresuid")
+        os_setresgid_mock = self.PatchObject(os, "setresgid")
+
+        m = unittest.mock.Mock(side_effect=KeyboardInterrupt)
+
+        with self.assertRaises(KeyboardInterrupt):
+            with namespaces.use_network_sandbox():
+                simple_unshare_mock.assert_called_once_with(net=True, pid=True)
+                switch_mock.assert_called_once()
+                set_ns_mock.assert_not_called()
+                m()
+        os_setresuid_mock.assert_called_with(0, 0, -1)
+        os_setresgid_mock.assert_called_with(0, 0, -1)
+        set_ns_mock.assert_called_once()
+
+    def testNetworkRestorationFails(self):
+        """Test exception behavior of finally block in context manager."""
+        self.PatchObject(commandline, "RunAsRootUser")
+        set_ns_mock = self.PatchObject(namespaces, "SetNS", side_effect=OSError)
+        simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
+        switch_mock = self.PatchObject(os_util, "switch_to_sudo_user")
+        os_setresuid_mock = self.PatchObject(os, "setresuid")
+        os_setresgid_mock = self.PatchObject(os, "setresgid")
+
+        with namespaces.use_network_sandbox():
+            simple_unshare_mock.assert_called_once_with(net=True, pid=True)
+            switch_mock.assert_called_once()
+        os_setresuid_mock.assert_called_with(0, 0, -1)
+        os_setresgid_mock.assert_called_with(0, 0, -1)
+        set_ns_mock.assert_called_once()
+
+    def testSimpleUnshareFails(self):
+        """Test failure behavior of context manager's re-exec call."""
+        self.PatchObject(commandline, "RunAsRootUser")
+        set_ns_mock = self.PatchObject(namespaces, "SetNS")
+        simple_unshare_mock = self.PatchObject(
+            namespaces, "SimpleUnshare", side_effect=OSError
+        )
+        switch_mock = self.PatchObject(os_util, "switch_to_sudo_user")
+        os_setresuid_mock = self.PatchObject(os, "setresuid")
+        os_setresgid_mock = self.PatchObject(os, "setresgid")
+
+        with namespaces.use_network_sandbox():
+            simple_unshare_mock.assert_called_once_with(net=True, pid=True)
+            switch_mock.assert_not_called()
+            set_ns_mock.assert_not_called()
+        os_setresuid_mock.assert_called_with(0, 0, -1)
+        os_setresgid_mock.assert_called_with(0, 0, -1)
+        set_ns_mock.assert_called_once()
+
+    def testNetworkFileOpenFails(self):
+        """Test failure behavior of context manager's early call to open()."""
+        self.PatchObject(commandline, "RunAsRootUser")
+        set_ns_mock = self.PatchObject(namespaces, "SetNS")
+        simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
+        switch_mock = self.PatchObject(os_util, "switch_to_sudo_user")
+
+        def mock_open(file, *args, **kwargs):
+            if file == "/proc/self/ns/net":
+                raise OSError
+            else:
+                return open(file, args, kwargs)
+
+        self.PatchObject(builtins, "open", new=mock_open)
+
+        with namespaces.use_network_sandbox():
+            simple_unshare_mock.assert_called_once_with(net=True, pid=True)
+            switch_mock.assert_called_once()
+            set_ns_mock.assert_not_called()
+        set_ns_mock.assert_not_called()
