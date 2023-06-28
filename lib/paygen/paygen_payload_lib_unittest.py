@@ -276,6 +276,35 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         return gen
 
+    def testPaygenPayloadRunOSPayload(self):
+        gen = self._GetStdGenerator(work_dir="/foo", minios=False)
+
+        mock_inner_run = self.PatchObject(gen, "_Run", return_value=None)
+
+        gen.Run()
+
+        self.assertEqual(
+            mock_inner_run.call_args_list,
+            [
+                mock.call(),
+            ],
+        )
+
+    def testPaygenPayloadRunMiniOSPayload(self):
+        gen = self._GetStdGenerator(work_dir="/foo", minios=True)
+
+        mock_inner_run = self.PatchObject(gen, "_Run", return_value=None)
+
+        gen.Run()
+
+        self.assertEqual(
+            mock_inner_run.call_args_list,
+            [
+                mock.call(part_a=True),
+                mock.call(part_a=False),
+            ],
+        )
+
     def testWorkingDirNames(self):
         """Make sure that files we create have the expected names."""
         gen = self._GetStdGenerator(work_dir="/foo")
