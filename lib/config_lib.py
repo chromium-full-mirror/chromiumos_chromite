@@ -1634,7 +1634,14 @@ def LoadGEBuildConfigFromFile(
 ):
     """Load template config dict from a Json encoded file."""
     json_string = osutils.ReadFile(build_settings_file)
-    return json.loads(json_string)
+    ret = json.loads(json_string)
+    i = 0
+    while i < len(ret["boards"]):
+        if ret["boards"][i]["name"] in {"reven", "reven-vmtest"}:
+            ret["boards"].pop(i)
+        else:
+            i += 1
+    return ret
 
 
 def GeBuildConfigAllBoards(ge_build_config):

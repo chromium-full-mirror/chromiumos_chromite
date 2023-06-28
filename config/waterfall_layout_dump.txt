@@ -232,8 +232,6 @@
     rammus-arc-r-userdebug-release
     rammus-release
     reef-release
-    reven-release
-    reven-vmtest-release
     rex-arc-t-release
     rex-release
     sand-release
@@ -929,8 +927,6 @@
     rammus-arc-r-userdebug-release-tryjob
     rammus-release-tryjob
     reef-release-tryjob
-    reven-release-tryjob
-    reven-vmtest-release-tryjob
     rex-arc-t-release-tryjob
     rex-release-tryjob
     sand-release-tryjob
@@ -1064,14 +1060,6 @@
   reef-llvm-next-toolchain-tryjob
   reef-llvm-toolchain-tryjob
   reef-release-tryjob
-  reven-full-tryjob
-  reven-llvm-next-toolchain-tryjob
-  reven-llvm-toolchain-tryjob
-  reven-release-tryjob
-  reven-vmtest-full-tryjob
-  reven-vmtest-llvm-next-toolchain-tryjob
-  reven-vmtest-llvm-toolchain-tryjob
-  reven-vmtest-release-tryjob
   rex-arc-t-release-tryjob
   rex-full-tryjob
   rex-llvm-next-toolchain-tryjob
