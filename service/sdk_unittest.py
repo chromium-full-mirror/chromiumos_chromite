@@ -490,8 +490,8 @@ BOOTSTRAP_FROZEN_VERSION = "%(bootstrap_version)s"
 
     # Contents of the host prebuilt file. Intended to be %-interpolated.
     _prebuilt_file_template = (
-        'FULL_BINHOST="gs://chromeos-prebuilt/board/amd64-host/%(version)s/'
-        'packages/"\n'
+        'FULL_BINHOST="gs://chromeos-prebuilt/board/amd64-host/'
+        'chroot-%(version)s/packages/"\n'
     )
 
     def setUp(self):

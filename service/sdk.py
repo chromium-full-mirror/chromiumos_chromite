@@ -404,16 +404,18 @@ def _uprev_local_sdk_version_file(
 
 
 def _uprev_local_host_prebuilts_file(
-    binhost_gs_bucket: str, target_version: str
+    binhost_gs_bucket: str, binhost_version: str
 ) -> bool:
     """Update the local amd64-host prebuilt file (but don't commit the change).
 
     Args:
         binhost_gs_bucket: The bucket containing prebuilt files (including
             the "gs://" prefix).
-        target_version: The prebuilts version to sync to. Typically this is
-            identical to an SDK version (ex. "chroot-2023.03.14.159265"), since
-            the host prebuilts are typically created during SDK uprevs.
+        binhost_version: The binhost version to sync to. Typically this
+            corresponds directly to an SDK version, since host prebuilts are
+            created during SDK uprevs: for example, if the SDK version were
+            "2023.03.14.159265", then the binhost version would normally be
+            "chroot-2023.03.14.159265".
 
     Returns:
         True if changes were made, else False.
@@ -429,7 +431,7 @@ def _uprev_local_host_prebuilts_file(
     )
     new_binhost = "%(bucket)s/board/amd64-host/%(version)s/packages/" % {
         "bucket": binhost_gs_bucket.rstrip("/"),
-        "version": target_version,
+        "version": binhost_version,
     }
     return key_value_store.UpdateKeyInLocalFile(
         constants.HOST_PREBUILT_CONF_FILE_FULL_PATH,
@@ -439,15 +441,14 @@ def _uprev_local_host_prebuilts_file(
 
 
 def uprev_sdk_and_prebuilts(
-    binhost_gs_bucket: str, version: str, toolchain_tarball_template: str
+    binhost_gs_bucket: str, sdk_version: str, toolchain_tarball_template: str
 ) -> List[Path]:
     """Uprev the SDK version and prebuilt conf files on the local filesystem.
 
     Args:
         binhost_gs_bucket: The bucket to which prebuilts get uploaded, including
-            the "gs://" prefix. Example: "gs://chromeos-prebuilt/"
-        version: The SDK version to uprev to, which is also the prebuilt version
-            to uprev to. Example: "2023.02.12.144623
+            the "gs://" prefix. Example: "gs://chromeos-prebuilt/".
+        sdk_version: The SDK version to uprev to. Example: "2023.03.14.159265".
         toolchain_tarball_template: The new TC_PATH value for the SDK version
             file.
 
@@ -455,9 +456,10 @@ def uprev_sdk_and_prebuilts(
         List of absolute paths to modified files.
     """
     modified_paths = []
-    if _uprev_local_sdk_version_file(version, toolchain_tarball_template):
+    if _uprev_local_sdk_version_file(sdk_version, toolchain_tarball_template):
         modified_paths.append(constants.SDK_VERSION_FILE_FULL_PATH)
-    if _uprev_local_host_prebuilts_file(binhost_gs_bucket, version):
+    binhost_version = f"chroot-{sdk_version}"
+    if _uprev_local_host_prebuilts_file(binhost_gs_bucket, binhost_version):
         modified_paths.append(constants.HOST_PREBUILT_CONF_FILE_FULL_PATH)
     return modified_paths
 
