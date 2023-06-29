@@ -9,12 +9,10 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import List, Optional
 
-import grpc  # pylint: disable=import-error
-
 from chromite.api.gen.chromite.api import sdk_pb2
-from chromite.contrib.sdk_server_poc import range_pb2
-from chromite.contrib.sdk_server_poc import range_pb2_grpc
-from chromite.contrib.sdk_server_poc import sdk_pb2_grpc
+from chromite.contrib.sdk_server.poc.josepp import range_pb2
+from chromite.contrib.sdk_server.poc.josepp import range_pb2_grpc
+from chromite.contrib.sdk_server.poc.josepp import sdk_pb2_grpc
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.service import sdk
