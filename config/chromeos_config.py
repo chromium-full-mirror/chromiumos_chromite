@@ -11,7 +11,6 @@ import re
 from chromite.config import chromeos_config_boards as chromeos_boards
 from chromite.config import chromeos_test_config as chromeos_test
 from chromite.config.chromeos_test_config import HWTestList
-from chromite.config.chromeos_test_config import TRADITIONAL_VM_TESTS_SUPPORTED
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.utils import memoize
@@ -351,7 +350,6 @@ def GeneralTemplates(site_config):
         dev_installer_prebuilts=True,
         git_sync=False,
         vm_tests=[],
-        vm_tests_override=[],
         paygen=True,
         signer_tests=True,
         hwqual=True,
@@ -384,7 +382,6 @@ def GeneralTemplates(site_config):
         paygen_skip_testing=True,
         signer_tests=False,
         vm_tests=[],
-        vm_tests_override=None,
         push_image=False,
         sign_types=[],
         upload_symbols=False,
@@ -699,7 +696,6 @@ def ToolchainBuilders(site_config, boards_dict, ge_build_config):
         "eve-llvm-tot-toolchain",
         site_config.templates.llvm_tot_toolchain,
         vm_tests=[],
-        vm_tests_override=TRADITIONAL_VM_TESTS_SUPPORTED,
         boards=["eve"],
     )
     site_config.Add(
@@ -1795,7 +1791,7 @@ def TryjobMirrors(site_config):
     for build_name, config in site_config.items():
         # Don't mirror builds that are already tryjob safe.
         if config_lib.isTryjobConfig(config):
-            config.apply(hw_tests_override=None, vm_tests_override=None)
+            config.apply(hw_tests_override=None)
             continue
 
         tryjob_name = build_name + "-tryjob"
@@ -1834,11 +1830,6 @@ def TryjobMirrors(site_config):
         if tryjob_config.hw_tests_override is not None:
             tryjob_config.apply(
                 hw_tests=tryjob_config.hw_tests_override, hw_tests_override=None
-            )
-
-        if tryjob_config.vm_tests_override is not None:
-            tryjob_config.apply(
-                vm_tests=tryjob_config.vm_tests_override, vm_tests_override=None
             )
 
         if tryjob_config.master:

@@ -402,7 +402,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
         site_config.Add(
             "vm_tests",
             vm_tests=[config_lib.VMTestConfig("vm_suite")],
-            vm_tests_override=[config_lib.VMTestConfig("vm_override")],
         )
 
         site_config.Add(
@@ -475,7 +474,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
                 "_template": None,
                 "name": "vm_tests",
                 "vm_tests": [config_lib.VMTestConfig("vm_suite")],
-                "vm_tests_override": [config_lib.VMTestConfig("vm_override")],
             },
             "hw_tests": {
                 "_template": None,

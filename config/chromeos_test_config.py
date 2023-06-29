@@ -275,15 +275,6 @@ class HWTestList:
         return config_lib.HWTestConfig(suite_name, **kwargs)
 
 
-TRADITIONAL_VM_TESTS_SUPPORTED = [
-    config_lib.VMTestConfig(
-        constants.VM_SUITE_TEST_TYPE, test_suite="smoke", use_ctest=False
-    ),
-    config_lib.VMTestConfig(constants.SIMPLE_AU_TEST_TYPE),
-    config_lib.VMTestConfig(constants.CROS_VM_TEST_TYPE),
-]
-
-
 def InsertHwTestsOverrideDefaults(build):
     """Insert default hw_tests values for a given build.
 
@@ -420,7 +411,6 @@ def GeneralTemplates(site_config, ge_build_config):
     site_config.AddTemplate(
         "no_vmtest_builder",
         vm_tests=[],
-        vm_tests_override=None,
     )
 
     site_config.AddTemplate(

@@ -613,27 +613,10 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     % build_name,
                 )
 
-    def testOverrideVmTestsOnly(self):
-        """VM/unit tests listed should also be supported."""
-        for build_name, config in self.site_config.items():
-            if config.vm_tests_override is not None:
-                for test in config.vm_tests:
-                    self.assertIn(
-                        test,
-                        config.vm_tests_override,
-                        "Config %s: has %s VM test, not in override (%s, %s)."
-                        % (
-                            build_name,
-                            test,
-                            config.vm_tests,
-                            config.vm_tests_override,
-                        ),
-                    )
-
     def testVmTestsOnlyOnVmTestBoards(self):
         """Verify that only VM capable boards run VM tests."""
         for _, config in self.site_config.items():
-            if config["vm_tests"] or config["vm_tests_override"]:
+            if config["vm_tests"]:
                 for board in config["boards"]:
                     self.assertIn(
                         board,
@@ -641,10 +624,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                         "Board %s not able to run VM tests." % board,
                     )
             for child_config in config.child_configs:
-                if (
-                    child_config["vm_tests"]
-                    or child_config["vm_tests_override"]
-                ):
+                if child_config["vm_tests"]:
                     for board in config["boards"]:
                         self.assertIn(
                             board,
@@ -667,12 +647,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
         for build_name, config in self.site_config.items():
             if not config_lib.isTryjobConfig(config):
                 continue
-
-            self.assertIsNone(
-                config.vm_tests_override,
-                "Config %s: is tryjob safe, but defines vm_tests_override."
-                % build_name,
-            )
 
             self.assertIsNone(
                 config.hw_tests_override,
@@ -1179,10 +1153,6 @@ class BoardConfigsTest(ChromeosConfigTestBase):
             self.assertFalse(
                 "vm_tests" in template and template.vm_tests,
                 "Per-board template for %s defining vm_tests" % board,
-            )
-            self.assertFalse(
-                "vm_tests_override" in template and template.vm_tests_override,
-                "Per-board template for %s defining vm_tests_override" % board,
             )
             self.assertFalse(
                 "hw_tests" in template and template.hw_tests,

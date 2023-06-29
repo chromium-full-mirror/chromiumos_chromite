@@ -241,7 +241,6 @@ class BuildConfig(AttrDict):
                     result[k] = [x.deepcopy() for x in v]
                 elif k in (
                     "vm_tests",
-                    "vm_tests_override",
                     "hw_tests",
                     "hw_tests_override",
                 ):
@@ -771,9 +770,6 @@ def DefaultSettings():
             VMTestConfig(constants.VM_SUITE_TEST_TYPE, test_suite="smoke"),
             VMTestConfig(constants.SIMPLE_AU_TEST_TYPE),
         ],
-        # A list of all VMTestConfig objects to use if VM Tests are forced on
-        # (--vmtest command line or trybot). None means no override.
-        vm_tests_override=None,
         # If True, run SkylabHWTestStage instead of HWTestStage for suites that
         # use pools other than pool:cts.
         enable_skylab_hw_tests=False,
@@ -1884,9 +1880,6 @@ def _DeserializeConfigs(build_dict):
         build_dict: The config dictionary to update (in place).
     """
     _DeserializeConfig(build_dict, "vm_tests", VMTestConfig)
-    _DeserializeConfig(
-        build_dict, "vm_tests_override", VMTestConfig, preserve_none=True
-    )
     _DeserializeConfig(build_dict, "models", ModelTestConfig)
     _DeserializeConfig(build_dict, "hw_tests", HWTestConfig)
     _DeserializeConfig(
