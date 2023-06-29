@@ -11,7 +11,6 @@ from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot.builders import generic_builders
 from chromite.cbuildbot.builders import simple_builders
 from chromite.cbuildbot.stages import generic_stages
-from chromite.cbuildbot.stages import tast_test_stages
 from chromite.cbuildbot.stages import test_stages
 from chromite.cbuildbot.stages import vm_test_stages
 from chromite.lib import config_lib
@@ -40,7 +39,6 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         # VM test stages that are run by SimpleBuilder._RunVMTests.
         self.all_vm_test_stages = [
             vm_test_stages.VMTestStage,
-            tast_test_stages.TastVMTestStage,
         ]
 
         self.buildstore = FakeBuildStore()
@@ -233,10 +231,9 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         """Verify failures are reported when all VM test stages fail."""
         self.stage_exceptions = {
             vm_test_stages.VMTestStage: failures_lib.InfrastructureFailure(),
-            tast_test_stages.TastVMTestStage: failures_lib.TestFailure(),
         }
         self.assertEqual(
-            [failures_lib.InfrastructureFailure, failures_lib.TestFailure],
+            [failures_lib.InfrastructureFailure],
             self._RunVMTests(),
         )
         self.assertEqual(self.all_vm_test_stages, self.called_stages)
@@ -245,14 +242,6 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         """Verify TastVMTestStage is still run when VMTestStage fails."""
         self.stage_exceptions = {
             vm_test_stages.VMTestStage: failures_lib.TestFailure(),
-        }
-        self.assertEqual([failures_lib.TestFailure], self._RunVMTests())
-        self.assertEqual(self.all_vm_test_stages, self.called_stages)
-
-    def testTastVMTestStageFails(self):
-        """Verify VMTestStage is still run when TastVMTestStage fails."""
-        self.stage_exceptions = {
-            tast_test_stages.TastVMTestStage: failures_lib.TestFailure(),
         }
         self.assertEqual([failures_lib.TestFailure], self._RunVMTests())
         self.assertEqual(self.all_vm_test_stages, self.called_stages)

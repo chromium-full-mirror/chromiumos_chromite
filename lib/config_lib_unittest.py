@@ -411,13 +411,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
             hw_tests_override=[config_lib.HWTestConfig("hw_override")],
         )
 
-        site_config.Add(
-            "tast_vm_tests",
-            tast_vm_tests=[
-                config_lib.TastVMTestConfig("tast_vm_suite", ["(!disabled)"])
-            ],
-        )
-
         self.site_config = site_config
 
     def testAddedContents(self):
@@ -489,15 +482,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
                 "name": "hw_tests",
                 "hw_tests": [config_lib.HWTestConfig("hw_suite")],
                 "hw_tests_override": [config_lib.HWTestConfig("hw_override")],
-            },
-            "tast_vm_tests": {
-                "_template": None,
-                "name": "tast_vm_tests",
-                "tast_vm_tests": [
-                    config_lib.TastVMTestConfig(
-                        "tast_vm_suite", ["(!disabled)"]
-                    )
-                ],
             },
         }
 

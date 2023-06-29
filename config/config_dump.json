@@ -87,7 +87,6 @@
     "slave_configs": null,
     "suite_scheduling": false,
     "sync_chrome": null,
-    "tast_vm_tests": [],
     "triggered_gitiles": null,
     "unittests": true,
     "upload_hw_test_artifacts": true,

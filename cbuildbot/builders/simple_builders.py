@@ -19,7 +19,6 @@ from chromite.cbuildbot.stages import release_stages
 from chromite.cbuildbot.stages import report_stages
 from chromite.cbuildbot.stages import scheduler_stages
 from chromite.cbuildbot.stages import sync_stages
-from chromite.cbuildbot.stages import tast_test_stages
 from chromite.cbuildbot.stages import test_stages
 from chromite.cbuildbot.stages import vm_test_stages
 from chromite.lib import chromeos_version
@@ -81,7 +80,6 @@ class SimpleBuilder(generic_builders.Builder):
             builder_run: BuilderRun object for stages.
             board: String containing board name.
         """
-        config = builder_run.config
         except_infos = []
 
         try:
@@ -97,22 +95,6 @@ class SimpleBuilder(generic_builders.Builder):
             except_infos.extend(
                 failures_lib.CreateExceptInfo(e, traceback.format_exc())
             )
-
-        # Run stages serially to avoid issues encountered when running VMs (or
-        # the devserver) in parallel: https://crbug.com/779267
-        if config.tast_vm_tests:
-            try:
-                self._RunStage(
-                    generic_stages.RetryStage,
-                    constants.TAST_VM_NUM_RETRIES,
-                    tast_test_stages.TastVMTestStage,
-                    board,
-                    builder_run=builder_run,
-                )
-            except Exception as e:
-                except_infos.extend(
-                    failures_lib.CreateExceptInfo(e, traceback.format_exc())
-                )
 
         if except_infos:
             raise failures_lib.CompoundFailure("VM tests failed", except_infos)

@@ -244,7 +244,6 @@ class BuildConfig(AttrDict):
                     "vm_tests_override",
                     "hw_tests",
                     "hw_tests_override",
-                    "tast_vm_tests",
                 ):
                     result[k] = [copy.copy(x) for x in v]
                 # type(v) is faster than isinstance.
@@ -416,34 +415,6 @@ class GCETestConfig:
         self.test_suite = test_suite
         self.timeout = timeout
         self.use_ctest = use_ctest
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
-class TastVMTestConfig:
-    """Config object for a Tast virtual-machine-based test suite.
-
-    Attributes:
-        name: String containing short human-readable name describing test suite.
-        test_exprs: List of string expressions describing which tests to run;
-            this is passed directly to the 'tast run' command. See
-            https://goo.gl/UPNEgT for info about test expressions.
-        timeout: Number of seconds to wait before timing out waiting for
-            results.
-    """
-
-    DEFAULT_TEST_TIMEOUT = 60 * 60
-
-    def __init__(self, suite_name, test_exprs, timeout=DEFAULT_TEST_TIMEOUT):
-        """Constructor -- see members above."""
-        # This is an easy mistake to make and results in confusing errors later
-        # when a list of one-character strings gets passed to the tast command.
-        if not isinstance(test_exprs, list):
-            raise TypeError("test_exprs must be list of strings")
-        self.suite_name = suite_name
-        self.test_exprs = test_exprs
-        self.timeout = timeout
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -831,9 +802,6 @@ def DefaultSettings():
         # configs (see crbug.com/974795 project). Only release builders should
         # run this stage.
         run_build_configs_export=False,
-        # A list of TastVMTestConfig objects describing Tast-based test suites
-        # that should be run in a VM.
-        tast_vm_tests=[],
         # List of patterns for portage packages for which stripped binpackages
         # should be uploaded to GS. The patterns are used to search for packages
         # via `equery list`.
@@ -1924,7 +1892,6 @@ def _DeserializeConfigs(build_dict):
     _DeserializeConfig(
         build_dict, "hw_tests_override", HWTestConfig, preserve_none=True
     )
-    _DeserializeConfig(build_dict, "tast_vm_tests", TastVMTestConfig)
     _DeserializeConfig(build_dict, "notification_configs", NotificationConfig)
 
 
