@@ -8,7 +8,6 @@ import collections
 import contextlib
 import ctypes
 import ctypes.util
-import datetime
 import errno
 import getpass
 import glob
@@ -1608,60 +1607,6 @@ def GetDeviceSize(device_path, in_bytes=False):
             return int(d.SIZE) if in_bytes else d.SIZE
 
     raise ValueError("No size info of %s is found." % device_path)
-
-
-FileInfo = collections.namedtuple(
-    "FileInfo", ["path", "owner", "size", "atime", "mtime"]
-)
-
-
-def StatFilesInDirectory(path, recursive=False, to_string=False):
-    """Stat files in the directory |path|.
-
-    Args:
-        path: Path to the target directory.
-        recursive: Whether to recursively list all files in |path|.
-        to_string: Whether to return a string containing the metadata of the
-            files.
-
-    Returns:
-        If |to_string| is False, returns a list of FileInfo objects. Otherwise,
-        returns a string of metadata of the files.
-    """
-    path = ExpandPath(path)
-
-    def ToFileInfo(path, stat_val):
-        return FileInfo(
-            path,
-            pwd.getpwuid(stat_val.st_uid)[0],
-            stat_val.st_size,
-            datetime.datetime.fromtimestamp(stat_val.st_atime),
-            datetime.datetime.fromtimestamp(stat_val.st_mtime),
-        )
-
-    file_infos = []
-    for root, dirs, files in os.walk(path, topdown=True):
-        for filename in dirs + files:
-            filepath = os.path.join(root, filename)
-            file_infos.append(ToFileInfo(filepath, os.lstat(filepath)))
-
-        if not recursive:
-            # Process only the top-most directory.
-            break
-
-    if not to_string:
-        return file_infos
-
-    msg = "Listing the content of %s" % path
-    msg_format = (
-        "Path: {x.path}, Owner: {x.owner}, Size: {x.size} bytes, "
-        "Accessed: {x.atime}, Modified: {x.mtime}"
-    )
-    msg = "%s\n%s" % (
-        msg,
-        "\n".join([msg_format.format(x=x) for x in file_infos]),
-    )
-    return msg
 
 
 @contextlib.contextmanager
