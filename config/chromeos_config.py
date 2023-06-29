@@ -1041,7 +1041,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     _release_experimental_boards = _frozen_ge_set(
         ge_build_config,
         [
-            "betty-kernelnext",
             "elm-kernelnext",
             "grunt-kernelnext",
             "hana-kernelnext",
@@ -1315,39 +1314,6 @@ def ApplyCustomOverrides(site_config):
             "hw_tests": [],
             "hw_tests_override": [],
             "hw_tests_disabled_bug": "https://crbug.com/1011171",
-        },
-        # Currently betty-arc-r is VM only.
-        "betty-arc-r-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/998427",
-            "vm_tests": [],
-            "vm_tests_override": [],
-        },
-        "betty-arc-t-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/998427",
-            "vm_tests": [],
-            "vm_tests_override": [],
-        },
-        "betty-arc-u-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/998427",
-            "vm_tests": [],
-            "vm_tests_override": [],
-        },
-        # No hw tests for any betty builders.  See crbug/998427.
-        "betty-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/998427",
-        },
-        "betty-pi-arc-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1026430",
         },
         # No hw_tests for caroline-ndktranslation.  See crbug.com/1091053.
         "caroline-ndktranslation-release": {

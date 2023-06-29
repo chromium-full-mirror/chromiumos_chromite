@@ -133,12 +133,6 @@
     atlas-release
     atlas-signingnext-release
     aurora-borealis-release
-    betty-arc-r-release
-    betty-arc-t-release
-    betty-arc-u-release
-    betty-kernelnext-release
-    betty-pi-arc-release
-    betty-release
     brask-labstation-release
     brask-release
     brya-arc-t-release
@@ -329,30 +323,6 @@
   aurora-borealis-llvm-next-toolchain-tryjob
   aurora-borealis-llvm-toolchain-tryjob
   aurora-borealis-release-tryjob
-  betty-arc-r-full-tryjob
-  betty-arc-r-llvm-next-toolchain-tryjob
-  betty-arc-r-llvm-toolchain-tryjob
-  betty-arc-r-release-tryjob
-  betty-arc-t-full-tryjob
-  betty-arc-t-llvm-next-toolchain-tryjob
-  betty-arc-t-llvm-toolchain-tryjob
-  betty-arc-t-release-tryjob
-  betty-arc-u-full-tryjob
-  betty-arc-u-llvm-next-toolchain-tryjob
-  betty-arc-u-llvm-toolchain-tryjob
-  betty-arc-u-release-tryjob
-  betty-full-tryjob
-  betty-kernelnext-full-tryjob
-  betty-kernelnext-llvm-next-toolchain-tryjob
-  betty-kernelnext-llvm-toolchain-tryjob
-  betty-kernelnext-release-tryjob
-  betty-llvm-next-toolchain-tryjob
-  betty-llvm-toolchain-tryjob
-  betty-pi-arc-full-tryjob
-  betty-pi-arc-llvm-next-toolchain-tryjob
-  betty-pi-arc-llvm-toolchain-tryjob
-  betty-pi-arc-release-tryjob
-  betty-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
   brask-factory-brya-14517.B-factorybranch-tryjob
   brask-factory-brya-15231.B-factorybranch-tryjob
@@ -826,12 +796,6 @@
     atlas-release-tryjob
     atlas-signingnext-release-tryjob
     aurora-borealis-release-tryjob
-    betty-arc-r-release-tryjob
-    betty-arc-t-release-tryjob
-    betty-arc-u-release-tryjob
-    betty-kernelnext-release-tryjob
-    betty-pi-arc-release-tryjob
-    betty-release-tryjob
     brask-labstation-release-tryjob
     brask-release-tryjob
     brya-arc-t-release-tryjob

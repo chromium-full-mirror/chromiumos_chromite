@@ -136,7 +136,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         Returns:
             List of exception classes in CompoundFailure.
         """
-        board = "betty-release"
+        board = "amd64-generic-full"
         builder_run = self._initConfig(board)
         exception_types = []
 

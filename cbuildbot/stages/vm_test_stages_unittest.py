@@ -31,7 +31,7 @@ class VMTestStageTest(
 ):
     """Tests for the VMTest stage."""
 
-    BOT_ID = "betty-full"
+    BOT_ID = "amd64-generic-full"
     RELEASE_TAG = ""
 
     def setUp(self):

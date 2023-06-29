@@ -1626,6 +1626,12 @@ def LoadGEBuildConfigFromFile(
     i = 0
     while i < len(ret["boards"]):
         if ret["boards"][i]["name"] in {
+            "betty",
+            "betty-arc-r",
+            "betty-arc-t",
+            "betty-arc-u",
+            "betty-kernelnext",
+            "betty-pi-arc",
             "novato",
             "novato-arc64",
             "reven",
