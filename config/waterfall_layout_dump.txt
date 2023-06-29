@@ -132,7 +132,6 @@
     atlas-kernelnext-release
     atlas-release
     atlas-signingnext-release
-    aurora-borealis-release
     brask-labstation-release
     brask-release
     brya-arc-t-release
@@ -297,8 +296,6 @@
   atlas-release-basic-tryjob
   atlas-release-tryjob
   atlas-signingnext-release-tryjob
-  aurora-borealis-full-tryjob
-  aurora-borealis-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
   brask-factory-brya-14517.B-factorybranch-tryjob
   brask-factory-brya-15231.B-factorybranch-tryjob
@@ -641,7 +638,6 @@
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
     atlas-signingnext-release-tryjob
-    aurora-borealis-release-tryjob
     brask-labstation-release-tryjob
     brask-release-tryjob
     brya-arc-t-release-tryjob

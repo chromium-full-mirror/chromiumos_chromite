@@ -1584,9 +1584,11 @@ def LoadGEBuildConfigFromFile(
     """Load template config dict from a Json encoded file."""
     json_string = osutils.ReadFile(build_settings_file)
     ret = json.loads(json_string)
+
     i = 0
-    while i < len(ret["boards"]):
-        if ret["boards"][i]["name"] in {
+    configs = ret["boards"]
+    while i < len(configs):
+        if configs[i]["name"] in {
             "betty",
             "betty-arc-r",
             "betty-arc-t",
@@ -1598,9 +1600,18 @@ def LoadGEBuildConfigFromFile(
             "reven",
             "reven-vmtest",
         }:
-            ret["boards"].pop(i)
+            configs.pop(i)
         else:
             i += 1
+
+    i = 0
+    configs = ret["reference_board_unified_builds"]
+    while i < len(configs):
+        if configs[i]["name"] in {"aurora-borealis"}:
+            configs.pop(i)
+        else:
+            i += 1
+
     return ret
 
 

@@ -138,7 +138,6 @@ builder_incompatible_binaries_boards = frozenset(
         "mancomb",
         "zork",
         "zork-arc-r",
-        "zork-borealis",
         "skyrim",
         "skyrim-chausie",
         "skyrim-kernelnext",

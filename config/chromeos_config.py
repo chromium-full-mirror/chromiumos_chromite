@@ -1416,31 +1416,6 @@ def ApplyCustomOverrides(site_config):
                 overwritten_configs[config_name] = {}
             overwritten_configs[config_name]["models"] = models
 
-    # Some devices has limited DUT in the lab and running bvt-tast-informational
-    # may miss tests results due to timeout.
-    # TODO(ddmail): Enable it once we have enough DUT in the lab.
-    _disable_bvt_tast_informational = [
-        "hatch-borealis-release",
-        "puff-borealis-release",
-        "volteer-borealis-release",
-        "zork-borealis-release",
-    ]
-    for config_name in _disable_bvt_tast_informational:
-        config = overwritten_configs.get(config_name)
-        if not config:
-            config = site_config.get(config_name)
-        if not config or "hw_tests" not in config:
-            continue
-
-        hw_tests = [
-            test
-            for test in config["hw_tests"]
-            if test.suite != "bvt-tast-informational"
-        ]
-        if config_name not in overwritten_configs:
-            overwritten_configs[config_name] = {}
-        overwritten_configs[config_name]["hw_tests"] = hw_tests
-
     for config_name, overrides in overwritten_configs.items():
         # TODO: Turn this assert into a unittest.
         # config = site_config[config_name]
