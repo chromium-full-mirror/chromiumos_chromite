@@ -845,9 +845,6 @@
     "manifest_version": true,
     "prebuilts": "public",
     "run_cpeexport": true,
-    "tast_vm_tests": [
-      "{\n  \"suite_name\": \"tast_vm_canary_critical\",\n  \"test_exprs\": [\n    \"(\\\"group:mainline\\\" && !informational)\"\n  ],\n  \"timeout\": 12600\n}"
-    ],
     "useflags": [
       "-chrome_internal"
     ]
@@ -873,9 +870,6 @@
     "manifest_version": true,
     "prebuilts": "public",
     "run_cpeexport": true,
-    "tast_vm_tests": [
-      "{\n  \"suite_name\": \"tast_vm_canary_critical\",\n  \"test_exprs\": [\n    \"(\\\"group:mainline\\\" && !informational)\"\n  ],\n  \"timeout\": 12600\n}"
-    ],
     "useflags": [
       "-chrome_internal"
     ]
@@ -921,9 +915,6 @@
     "manifest_version": true,
     "prebuilts": "public",
     "run_cpeexport": true,
-    "tast_vm_tests": [
-      "{\n  \"suite_name\": \"tast_vm_canary_critical\",\n  \"test_exprs\": [\n    \"(\\\"group:mainline\\\" && !informational)\"\n  ],\n  \"timeout\": 12600\n}"
-    ],
     "useflags": [
       "-chrome_internal"
     ]
@@ -940,9 +931,6 @@
     "manifest_version": true,
     "prebuilts": "public",
     "run_cpeexport": true,
-    "tast_vm_tests": [
-      "{\n  \"suite_name\": \"tast_vm_canary_critical\",\n  \"test_exprs\": [\n    \"(\\\"group:mainline\\\" && !informational)\"\n  ],\n  \"timeout\": 12600\n}"
-    ],
     "useflags": [
       "-chrome_internal"
     ]

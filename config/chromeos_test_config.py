@@ -359,11 +359,6 @@ def ApplyCustomOverrides(site_config):
             "signer_tests": False,
             "vm_tests": [],
         },
-        # There's no amd64-generic-release builder, so we use amd64-generic-full
-        # to validate informational Tast tests on amd64-generic:
-        # https://crbug.com/946858
-        "amd64-generic-full": site_config.templates.tast_vm_canary_tests,
-        "amd64-generic-vm-full": site_config.templates.tast_vm_canary_tests,
     }
 
     for config_name, overrides in overwritten_configs.items():

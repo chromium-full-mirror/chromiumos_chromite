@@ -467,22 +467,6 @@ def GeneralTemplates(site_config):
         ),
     )
 
-    # Tast is an alternate system for running integration tests.
-
-    # The expression specified here matches the union of the tast.critical-* and
-    # tast.informational-* Autotest server tests, which are executed by the
-    # bvt-tast-cq and bvt-tast-informational suites on real hardware in the lab.
-    site_config.AddTemplate(
-        "tast_vm_canary_tests",
-        tast_vm_tests=[
-            config_lib.TastVMTestConfig(
-                "tast_vm_canary_critical",
-                ['("group:mainline" && !informational)'],
-                timeout=210 * 60,
-            ),
-        ],
-    )
-
     site_config.AddTemplate(
         "buildspec",
         site_config.templates.workspace,
