@@ -5,6 +5,7 @@
 """field_handler module tests."""
 
 import os
+from pathlib import Path
 
 from chromite.api import field_handler
 from chromite.api.gen.chromite.api import build_api_test_pb2
@@ -451,6 +452,24 @@ class ExtractResultsTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(path)
         if contents:
             self.assertFileContents(path, contents)
+
+    def test_empty_result_path(self):
+        """Test an empty result path.
+
+        Destination should be unchanged, and response message left as-is /
+        unfilled.
+        """
+        self.request.result_path.path.path = ""
+        self.response.artifact.path = self.source_file1_inside
+        self.response.artifact.location = common_pb2.Path.INSIDE
+
+        field_handler.extract_results(self.request, self.response, self.chroot)
+
+        self.assertEqual([], list(Path(self.dest_dir).iterdir()))
+        self.assertEqual(self.source_file1_inside, self.response.artifact.path)
+        self.assertEqual(
+            common_pb2.Path.INSIDE, self.response.artifact.location
+        )
 
     def test_single_file(self):
         """Test a single file.

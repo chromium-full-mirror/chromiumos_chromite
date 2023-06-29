@@ -353,6 +353,10 @@ def extract_results(
         return
 
     destination = result_path_message.path.path
+    # ResultPath wasn't filled; don't copy to undefined location.
+    if not destination:
+        return
+
     handlers = _extract_handlers(
         response_message, destination, chroot=chroot, delete=False, reset=False
     )
