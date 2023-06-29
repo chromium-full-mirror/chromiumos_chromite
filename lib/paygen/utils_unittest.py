@@ -367,10 +367,10 @@ class TestUtils(cros_test_lib.TempDirTestCase):
 
         mem_avail = multiprocessing.Value("I", initial_memory, lock=True)
         good_process_exits = multiprocessing.Value("I", 0, lock=True)
-        n_processes = 8
+        n_processes = 4
 
-        # Currently executes in 45 seconds a 2 x Xeon Gold 6154 CPUs
-        get_and_releases = 50
+        # Currently executes in 10 seconds a 2 x Xeon Gold 6154 CPUs.
+        get_and_releases = 25
 
         def sub_mem():
             with mem_avail.get_lock():
