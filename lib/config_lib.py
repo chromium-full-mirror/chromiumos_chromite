@@ -1625,7 +1625,12 @@ def LoadGEBuildConfigFromFile(
     ret = json.loads(json_string)
     i = 0
     while i < len(ret["boards"]):
-        if ret["boards"][i]["name"] in {"reven", "reven-vmtest"}:
+        if ret["boards"][i]["name"] in {
+            "novato",
+            "novato-arc64",
+            "reven",
+            "reven-vmtest",
+        }:
             ret["boards"].pop(i)
         else:
             i += 1

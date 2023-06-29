@@ -21,9 +21,6 @@ vmtest_boards = frozenset(
         "betty-kernelnext",  # Like betty but on the next kernel version.
         "betty-pi-arc",  # Like betty but P version of ARC++.
         "betty-arc-r",  # Like betty but R version of ARC++.
-        "novato",  # Like betty but with GMSCore but not the Play Store
-        "novato-arc64",  # 64 bit x86_64 ARC++ ABI
-        "reven-vmtest",  # Like betty, but based on reven.
     ]
 )
 
@@ -375,8 +372,6 @@ def ApplyCustomOverrides(site_config):
         "betty-kernelnext-release": site_config.templates.tast_vm_canary_tests,
         "betty-pi-arc-release": site_config.templates.tast_vm_canary_tests,
         "betty-release": site_config.templates.tast_vm_canary_tests,
-        "novato-release": site_config.templates.tast_vm_canary_tests,
-        "reven-vmtest-release": site_config.templates.tast_vm_canary_tests,
     }
 
     for config_name, overrides in overwritten_configs.items():

@@ -704,7 +704,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     check_name = check_name.replace("-tryjob", "")
                 if (
                     check_name.startswith("betty-")
-                    or check_name.startswith("novato-")
                     or check_name.startswith("amd64-generic-")
                 ):
                     # Betty is vm-only, so never does hardware tests.  See

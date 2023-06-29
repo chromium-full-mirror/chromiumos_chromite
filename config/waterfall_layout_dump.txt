@@ -218,8 +218,6 @@
     nissa-release
     nocturne-kernelnext-release
     nocturne-release
-    novato-arc64-release
-    novato-release
     octopus-arc-r-release
     octopus-arc-t-release
     octopus-kernelnext-release
@@ -913,8 +911,6 @@
     nissa-release-tryjob
     nocturne-kernelnext-release-tryjob
     nocturne-release-tryjob
-    novato-arc64-release-tryjob
-    novato-release-tryjob
     octopus-arc-r-release-tryjob
     octopus-arc-t-release-tryjob
     octopus-kernelnext-release-tryjob
@@ -997,14 +993,6 @@
   nocturne-llvm-next-toolchain-tryjob
   nocturne-llvm-toolchain-tryjob
   nocturne-release-tryjob
-  novato-arc64-full-tryjob
-  novato-arc64-llvm-next-toolchain-tryjob
-  novato-arc64-llvm-toolchain-tryjob
-  novato-arc64-release-tryjob
-  novato-full-tryjob
-  novato-llvm-next-toolchain-tryjob
-  novato-llvm-toolchain-tryjob
-  novato-release-tryjob
   octopus-arc-r-full-tryjob
   octopus-arc-r-llvm-next-toolchain-tryjob
   octopus-arc-r-llvm-toolchain-tryjob
