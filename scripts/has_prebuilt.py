@@ -73,6 +73,10 @@ def main(argv):
     cros_build_lib.AssertInsideChroot()
 
     board = opts.build_target_name
+
+    portage_binhost = portage_util.PortageqEnvvar("PORTAGE_BINHOST", board)
+    logging.info("PORTAGE_BINHOST: %s", portage_binhost)
+
     results = {}
     bests = {}
     for cpv in opts.packages:

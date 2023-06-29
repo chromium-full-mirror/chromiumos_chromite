@@ -314,7 +314,7 @@ class DepGraphGenerator:
             self.GenDependencyTree()
 
         package = self.package_db.get(pkg_cpf)
-        logging.debug("Checking if %s has a prebuilt: %s", pkg_cpf, package)
+        logging.debug("Checking if %s can use a prebuilt: %s", pkg_cpf, package)
         if package:
             return package.type_name == "binary"
 
