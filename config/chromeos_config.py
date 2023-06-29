@@ -573,139 +573,6 @@ def UpdateBoardConfigs(board_configs, boards, *args, **kwargs):
     return result
 
 
-def ToolchainBuilders(site_config, boards_dict, ge_build_config):
-    """Define templates used for toolchain builders.
-
-    Args:
-        site_config: config_lib.SiteConfig to be modified by adding templates
-            and configs.
-        boards_dict: A dict mapping board types to board name collections.
-        ge_build_config: Dictionary containing the decoded GE configuration
-            file.
-    """
-    board_configs = CreateInternalBoardConfigs(
-        site_config, boards_dict, ge_build_config
-    )
-    hw_test_list = HWTestList(ge_build_config)
-
-    site_config.AddTemplate(
-        "base_toolchain",
-        # Full build, AFDO, latest-toolchain, -cros-debug, and simple-chrome.
-        site_config.templates.full,
-        display_label=config_lib.DISPLAY_LABEL_TOOLCHAIN,
-        build_type=constants.TOOLCHAIN_TYPE,
-        build_timeout=(15 * 60 + 50) * 60,
-        # Need to re-enable platform_SyncCrash after issue crosbug/658864 is
-        # fixed. Need to re-enable network_VPNConnect.* tests after issue
-        # crosbug/585936 is fixed. Need to re-enable
-        # power_DarkResumeShutdownServer after issue crosbug/689598 is fixed.
-        # According to crosbug/653496 security_OpenFDs will not work for
-        # non-official builds, so we need to leave it permanently disabled.
-        # Need to reenable power_DarkResumeDisplay after crosbug/703250 is
-        # fixed.
-        # Need to reenable cheets_SELinuxTest after crosbug/693308 is fixed.
-        # Add strict_toolchain_checks to perform toolchain-related checks
-        useflags=config_lib.append_useflags(
-            [
-                "-cros-debug",
-                "-tests_security_OpenFDs",
-                "-tests_platform_SyncCrash",
-                "-tests_network_VPNConnect.l2tpipsec_xauth",
-                "-tests_network_VPNConnect.l2tpipsec_psk",
-                "-tests_power_DarkResumeShutdownServer",
-                "-tests_power_DarkResumeDisplay",
-                "-tests_cheets_SELinuxTest",
-                "thinlto",
-                "strict_toolchain_checks",
-            ]
-        ),
-        latest_toolchain=True,
-        enable_skylab_hw_tests=True,
-        debuginfo_test=True,
-    )
-
-    site_config.AddTemplate(
-        "toolchain",
-        site_config.templates.base_toolchain,
-        site_config.templates.internal,
-        site_config.templates.official_chrome,
-        site_config.templates.no_vmtest_builder,
-        images=["base", "test", "recovery"],
-        manifest=constants.OFFICIAL_MANIFEST,
-        manifest_version=True,
-        git_sync=False,
-        description="Toolchain Builds (internal)",
-    )
-    site_config.AddTemplate(
-        "llvm_toolchain",
-        site_config.templates.toolchain,
-        description="Full release build with LLVM toolchain",
-        hw_tests=hw_test_list.ToolchainTestMedium(
-            constants.HWTEST_QUOTA_POOL,
-            quota_account=constants.HWTEST_QUOTA_ACCOUNT_TOOLCHAIN,
-        ),
-        hw_tests_override=hw_test_list.ToolchainTestMedium(
-            constants.HWTEST_QUOTA_POOL,
-            quota_account=constants.HWTEST_QUOTA_ACCOUNT_TOOLCHAIN,
-        ),
-    )
-    site_config.AddTemplate(
-        "llvm_next_toolchain",
-        site_config.templates.llvm_toolchain,
-        description="Full release build with LLVM (next) toolchain",
-        useflags=config_lib.append_useflags(["llvm-next"]),
-    )
-    site_config.AddTemplate(
-        "llvm_tot_toolchain",
-        site_config.templates.llvm_toolchain,
-        useflags=config_lib.append_useflags(["llvm-tot"]),
-        description=(
-            "Full release builds with a near-top-of-tree LLVM. Since "
-            "this uses internal sources, it should only be used with LLVM "
-            "revisions that have been reviewed manually somehow"
-        ),
-    )
-
-    #
-    # Create toolchain tryjob builders.
-    #
-    builder_to_boards_dict = config_lib.GroupBoardsByBuilder(
-        ge_build_config[config_lib.CONFIG_TEMPLATE_BOARDS]
-    )
-
-    toolchain_tryjob_boards = (
-        builder_to_boards_dict[config_lib.CONFIG_TEMPLATE_RELEASE]
-        | boards_dict["all_boards"]
-    )
-
-    site_config.AddForBoards(
-        "llvm-toolchain",
-        toolchain_tryjob_boards,
-        board_configs,
-        site_config.templates.llvm_toolchain,
-    )
-    site_config.AddForBoards(
-        "llvm-next-toolchain",
-        toolchain_tryjob_boards,
-        board_configs,
-        site_config.templates.llvm_next_toolchain,
-    )
-
-    # All *-generic boards are external.
-    site_config.Add(
-        "eve-llvm-tot-toolchain",
-        site_config.templates.llvm_tot_toolchain,
-        vm_tests=[],
-        boards=["eve"],
-    )
-    site_config.Add(
-        "kevin-llvm-tot-toolchain",
-        site_config.templates.llvm_tot_toolchain,
-        site_config.templates.no_vmtest_builder,
-        boards=["kevin"],
-    )
-
-
 def FullBuilders(site_config, boards_dict, ge_build_config):
     """Create all full builders.
 
@@ -1574,43 +1441,6 @@ def ApplyCustomOverrides(site_config):
             overwritten_configs[config_name] = {}
         overwritten_configs[config_name]["hw_tests"] = hw_tests
 
-    # Some boards in toolchain builder are not using the same configuration as
-    # release builders. Configure it here since it's easier, for both
-    # llvm-toolchain and llvm-next-toolchain builders.
-    for board in ["fizz-moblab"]:
-        if board == "fizz-moblab":
-            overwritten_configs[board + "-llvm-toolchain"] = {
-                "enable_skylab_hw_tests": False,
-                "hw_tests": [
-                    config_lib.HWTestConfig(constants.HWTEST_MOBLAB_QUICK_SUITE)
-                ],
-                "hw_tests_override": [
-                    config_lib.HWTestConfig(constants.HWTEST_MOBLAB_QUICK_SUITE)
-                ],
-            }
-        else:  # This is the case for gale, mistral and whirlwind
-            overwritten_configs[board + "-llvm-toolchain"] = {
-                "hw_tests": [
-                    config_lib.HWTestConfig(
-                        constants.HWTEST_JETSTREAM_COMMIT_SUITE,
-                        pool=constants.HWTEST_QUOTA_POOL,
-                        quota_account=constants.HWTEST_QUOTA_ACCOUNT_TOOLCHAIN,
-                    )
-                ],
-                "hw_tests_override": [
-                    config_lib.HWTestConfig(
-                        constants.HWTEST_JETSTREAM_COMMIT_SUITE,
-                        pool=constants.HWTEST_QUOTA_POOL,
-                        quota_account=constants.HWTEST_QUOTA_ACCOUNT_TOOLCHAIN,
-                    )
-                ],
-            }
-
-        # Use the same configuration for llvm-next
-        overwritten_configs[
-            board + "-llvm-next-toolchain"
-        ] = overwritten_configs[board + "-llvm-toolchain"]
-
     for config_name, overrides in overwritten_configs.items():
         # TODO: Turn this assert into a unittest.
         # config = site_config[config_name]
@@ -2063,8 +1893,6 @@ def GetConfig():
     GeneralTemplates(site_config)
 
     chromeos_test.GeneralTemplates(site_config, ge_build_config)
-
-    ToolchainBuilders(site_config, boards_dict, ge_build_config)
 
     ReleaseBuilders(site_config, boards_dict, ge_build_config)
 
