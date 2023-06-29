@@ -1,0 +1,123 @@
+syntax = "proto3";
+package cros_sdk;
+import "chromite/api/sysroot.proto";
+import "chromite/api/sdk.proto";
+import "chromite/api/image.proto";
+import "chromiumos/common.proto";
+
+service sdk_server_service {
+  rpc cros_workon_start(WorkonStartRequest) returns (WorkonStartResponse);
+  rpc cros_workon_stop(WorkonStopRequest) returns (WorkonStopResponse);
+  rpc cros_workon_list(WorkonListRequest) returns (WorkonListResponse);
+  rpc cros_workon_info(WorkonInfoRequest) returns (WorkonInfoResponse);
+  rpc chroot_path(ChrootPathRequest) returns (ChrootPathResponse);
+  rpc all_packages(AllPackagesRequest) returns (AllPackagesResponse);
+  rpc repo_sync(RepoSyncRequest) returns (RepoSyncResponse);
+  rpc repo_status(RepoStatusRequest) returns (RepoStatusResponse);
+  rpc update_chroot(UpdateChrootRequest) returns (stream UpdateChrootResponse);
+  rpc build_packages(BuildPackagesRequest)
+      returns (stream BuildPackagesResponse);
+  rpc create_sdk(CreateSdkRequest) returns (stream CreateSdkResponse);
+  rpc delete_sdk(DeleteSdkRequest) returns (stream DeleteSdkResponse);
+  rpc replace_sdk(ReplaceSdkRequest) returns (stream ReplaceSdkResponse);
+  rpc build_image(BuildImageRequest) returns (stream BuildImageResponse);
+  rpc query_boards(QueryBoardsRequest) returns (QueryBoardsResponse);
+  rpc current_boards(CurrentBoardsRequest) returns (CurrentBoardsResponse);
+}
+
+message CurrentBoardsRequest {}
+message CurrentBoardsResponse {
+  repeated chromiumos.BuildTarget build_target = 1;
+}
+
+message QueryBoardsRequest {}
+message QueryBoardsResponse {
+  repeated chromiumos.BuildTarget build_target = 1;
+}
+
+message BuildImageRequest { chromite.api.CreateImageRequest request = 1; }
+message BuildImageResponse {
+  chromite.api.CreateImageResult response = 1;
+  string logging_info = 2;
+}
+
+message DeleteSdkRequest { chromite.api.DeleteRequest request = 1; }
+
+message DeleteSdkResponse {
+  chromite.api.DeleteResponse response = 1;
+  string logging_info = 2;
+}
+
+message ReplaceSdkRequest { chromite.api.CreateRequest request = 1; }
+
+message ReplaceSdkResponse {
+  chromite.api.CreateResponse response = 1;
+  string logging_info = 2;
+}
+
+message CreateSdkRequest { chromite.api.CreateRequest request = 1; }
+
+message CreateSdkResponse {
+  chromite.api.CreateResponse response = 1;
+  string logging_info = 2;
+}
+
+message BuildPackagesRequest {
+  chromite.api.SysrootCreateRequest create_req = 1;
+  chromite.api.InstallToolchainRequest toolchain_req = 2;
+  chromite.api.InstallPackagesRequest packages_req = 3;
+}
+message BuildPackagesResponse {
+  chromite.api.SysrootCreateResponse create_resp = 1;
+  chromite.api.InstallToolchainResponse toolchain_resp = 2;
+  chromite.api.InstallPackagesResponse packages_resp = 3;
+  string logging_info = 4;
+}
+
+message UpdateChrootRequest { chromite.api.UpdateRequest request = 1; }
+message UpdateChrootResponse {
+  chromite.api.UpdateResponse response = 1;
+  string logging_info = 2;
+}
+
+message RepoSyncRequest {}
+message RepoSyncResponse { string info = 1; }
+
+message RepoStatusRequest {}
+message RepoStatusResponse { repeated string info = 1; }
+
+message AllPackagesRequest { chromiumos.BuildTarget build_target = 1; }
+message AllPackagesResponse {
+  repeated chromiumos.PackageInfo package_info = 1;
+}
+
+message ChrootPathRequest {}
+message ChrootPathResponse { string path = 1; }
+
+message WorkonStartRequest {
+  chromiumos.BuildTarget build_target = 1;
+  chromiumos.PackageInfo package_info = 2;
+}
+
+message WorkonStartResponse { string info = 1; }
+
+message WorkonStopRequest {
+  chromiumos.BuildTarget build_target = 1;
+  chromiumos.PackageInfo package_info = 2;
+}
+
+message WorkonStopResponse { string info = 1; }
+
+message WorkonListRequest {
+  chromiumos.BuildTarget build_target = 1;
+  chromiumos.PackageInfo package_info = 2;
+}
+
+message WorkonListResponse { repeated chromiumos.PackageInfo package_info = 1; }
+
+message WorkonInfoRequest {
+  chromiumos.BuildTarget build_target = 1;
+  chromiumos.PackageInfo package_info = 2;
+}
+
+message WorkonInfoResponse { string info = 1; }
