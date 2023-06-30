@@ -938,16 +938,23 @@ def BuildPackages(
                     )
 
                     if run_configs.bazel:
+                        bazel_extra_env = {"BOARD": target.name}
                         cros_build_lib.run(
                             ["bazel", "build"]
                             + [
                                 f"@portage//{package}:package_set"
                                 for package in packages
-                            ]
+                            ],
+                            extra_env=bazel_extra_env,
                         )
                         for package in packages:
                             cros_build_lib.run(
-                                ["bazel", "run", f"@portage//{package}:install"]
+                                [
+                                    "bazel",
+                                    "run",
+                                    f"@portage//{package}:install",
+                                ],
+                                extra_env=bazel_extra_env,
                             )
                     else:
                         cros_build_lib.sudo_run(
