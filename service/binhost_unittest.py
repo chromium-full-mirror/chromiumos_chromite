@@ -225,17 +225,19 @@ class GetPrebuiltsRootTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GetPrebuiltsRoot."""
 
     def setUp(self):
-        self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
-        self.chroot_path = os.path.join(self.tempdir, "chroot")
-        self.sysroot_path = "/build/foo"
-        self.root = os.path.join(
-            self.chroot_path, self.sysroot_path.lstrip("/"), "packages"
-        )
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
-        self.chroot = chroot_lib.Chroot(self.chroot_path)
+        self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
+        self.sysroot_path = "/build/foo"
+
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
         self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
         self.build_target = build_target_lib.BuildTarget("foo")
 
+        self.root = self.chroot.full_path(self.sysroot.Path("packages"))
         osutils.SafeMakedirs(self.root)
 
     def testGetPrebuiltsRoot(self):
@@ -433,11 +435,13 @@ class RegenBuildCacheTest(cros_test_lib.MockTempDirTestCase):
 
     def testCallsRegenPortageCache(self):
         """Test that overlays=None works."""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         chroot = chroot_lib.Chroot(
             path=self.tempdir / "chroot", out_path=self.tempdir / "out"
         )
         osutils.SafeMakedirs(chroot.tmp)
-        overlays_found = [os.path.join(chroot.path, "path/to")]
+        overlays_found = [chroot.full_path("/path/to")]
         for o in overlays_found:
             osutils.SafeMakedirs(o)
         self.PatchObject(
@@ -539,9 +543,13 @@ class CreateChromePackageIndexTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for CreateChromePackageIndex."""
 
     def setUp(self):
-        self.chroot_path = self.tempdir / "chroot"
-        self.sysroot_path = self.chroot_path / "build" / "foo"
-        self.chroot = chroot_lib.Chroot(self.chroot_path)
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+        self.sysroot_path = Path("/build/foo")
         self.pkgs_dir = self.sysroot_path / "packages"
         self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
 
@@ -559,9 +567,15 @@ CPV: chromeos-base/chrome-icu-100.0.0-r1
 
 CPV: package/exclude-2
     """
-        package_index_file_path = self.pkgs_dir / "Packages"
+        package_index_file_path = self.chroot.full_path(
+            self.pkgs_dir / "Packages"
+        )
         osutils.Touch(package_index_file_path, makedirs=True)
         osutils.WriteFile(package_index_file_path, packages_content)
+
+        self.upload_dir = Path(self.chroot.tmp) / "upload_dir"
+        osutils.SafeMakedirs(self.upload_dir)
+        self.upload_packages_file = self.upload_dir / "Packages"
 
         self.PatchObject(os.path, "exists", return_value=True)
         self.fake_packages = [
@@ -595,10 +609,6 @@ CPV: package/exclude-2
             "InstalledPackages",
             return_value=self.fake_packages,
         )
-
-        self.upload_dir = self.chroot_path / "upload_dir"
-        osutils.SafeMakedirs(self.upload_dir)
-        self.upload_packages_file = self.upload_dir / "Packages"
 
     def testCreateChromePackageIndex(self):
         """CreateChromePackageIndex writes updated file to disk."""

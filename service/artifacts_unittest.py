@@ -231,6 +231,8 @@ class CreateChromeRootTest(cros_test_lib.RunCommandTempDirTestCase):
     """CreateChromeRoot tests."""
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         # Create the build target.
         self.build_target = build_target_lib.BuildTarget("board")
 
@@ -1100,6 +1102,48 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ),
         ]
         compress_file_mock.assert_has_calls(calls)
+
+
+class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
+    """BundleTastFiles tests."""
+
+    def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+        self.sysroot = sysroot_lib.Sysroot("/build/board")
+        self.output_dir = self.tempdir / "output_dir"
+
+        osutils.SafeMakedirs(self.output_dir)
+
+    def testSuccess(self):
+        """Successfully create a tast tarball.
+
+        /build/board/build/{libexec/tast,share/tast}/* ->
+          libexec/tast/*
+          share/tast/*
+        """
+        sysroot_files = (
+            cros_test_lib.Directory("libexec/tast", ("foo", "bar")),
+            cros_test_lib.Directory("share/tast", ("baz",)),
+        )
+
+        cros_test_lib.CreateOnDiskHierarchy(
+            self.chroot.full_path(self.sysroot.Path("build")), sysroot_files
+        )
+
+        tarball = artifacts.BundleTastFiles(
+            self.chroot, self.sysroot, self.output_dir
+        )
+
+        # Verify location and content of the tarball.
+        self.assertEqual(
+            tarball, str(self.output_dir / artifacts.TAST_BUNDLE_NAME)
+        )
+        cros_test_lib.VerifyTarball(tarball, sysroot_files)
 
 
 class GenerateCpeExportTest(cros_test_lib.RunCommandTempDirTestCase):

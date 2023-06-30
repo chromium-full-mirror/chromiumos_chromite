@@ -702,9 +702,14 @@ class BundleSimpleChromeArtifactsTest(
     """BundleSimpleChromeArtifacts tests."""
 
     def setUp(self):
-        self.chroot_dir = os.path.join(self.tempdir, "chroot_dir")
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
         self.sysroot_path = "/sysroot"
-        self.sysroot_dir = os.path.join(self.chroot_dir, "sysroot")
+        self.sysroot_dir = self.chroot.full_path(self.sysroot_path)
         osutils.SafeMakedirs(self.sysroot_dir)
         self.output_dir = os.path.join(self.tempdir, "output_dir")
         osutils.SafeMakedirs(self.output_dir)
@@ -715,7 +720,7 @@ class BundleSimpleChromeArtifactsTest(
 
     def _GetRequest(
         self,
-        chroot: Optional[str] = None,
+        chroot: Optional[chroot_lib.Chroot] = None,
         sysroot: Optional[str] = None,
         build_target: Optional[str] = None,
         output_dir: Optional[str] = None,
@@ -730,7 +735,10 @@ class BundleSimpleChromeArtifactsTest(
         """
         return artifacts_pb2.BundleRequest(
             sysroot={"path": sysroot, "build_target": {"name": build_target}},
-            chroot={"path": chroot},
+            chroot={
+                "path": chroot.path if chroot else None,
+                "out_path": str(chroot.out_path) if chroot else None,
+            },
             output_dir=output_dir,
         )
 
@@ -738,7 +746,7 @@ class BundleSimpleChromeArtifactsTest(
         """Quick check that a validate only call does not execute any logic."""
         patch = self.PatchObject(artifacts_svc, "BundleSimpleChromeArtifacts")
         request = self._GetRequest(
-            chroot=self.chroot_dir,
+            chroot=self.chroot,
             sysroot=self.sysroot_path,
             build_target="board",
             output_dir=self.output_dir,
@@ -752,7 +760,7 @@ class BundleSimpleChromeArtifactsTest(
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(artifacts_svc, "BundleSimpleChromeArtifacts")
         request = self._GetRequest(
-            chroot=self.chroot_dir,
+            chroot=self.chroot,
             sysroot=self.sysroot_path,
             build_target="board",
             output_dir=self.output_dir,
@@ -770,7 +778,7 @@ class BundleSimpleChromeArtifactsTest(
     def testNoBuildTarget(self):
         """Test no build target fails."""
         request = self._GetRequest(
-            chroot=self.chroot_dir,
+            chroot=self.chroot,
             sysroot=self.sysroot_path,
             output_dir=self.output_dir,
         )
@@ -807,7 +815,7 @@ class BundleSimpleChromeArtifactsTest(
     def testNoOutputDir(self):
         """Test no output dir fails."""
         request = self._GetRequest(
-            chroot=self.chroot_dir,
+            chroot=self.chroot,
             sysroot=self.sysroot_path,
             build_target="board",
         )
@@ -820,7 +828,7 @@ class BundleSimpleChromeArtifactsTest(
     def testOutputDirDoesNotExist(self):
         """Test no output dir fails."""
         request = self._GetRequest(
-            chroot=self.chroot_dir,
+            chroot=self.chroot,
             sysroot=self.sysroot_path,
             build_target="board",
             output_dir=self.does_not_exist,
@@ -841,7 +849,7 @@ class BundleSimpleChromeArtifactsTest(
             return_value=expected_files,
         )
         request = self._GetRequest(
-            chroot=self.chroot_dir,
+            chroot=self.chroot,
             sysroot=self.sysroot_path,
             build_target="board",
             output_dir=self.output_dir,

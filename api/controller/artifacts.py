@@ -611,7 +611,7 @@ def BundleSimpleChromeArtifacts(
     )
     chroot = controller_util.ParseChroot(input_proto.chroot)
     # Sysroot.path needs to be the fully qualified path, including the chroot.
-    full_sysroot_path = os.path.join(chroot.path, sysroot_path.lstrip(os.sep))
+    full_sysroot_path = chroot.full_path(sysroot_path)
     sysroot = sysroot_lib.Sysroot(full_sysroot_path)
 
     # Check that the sysroot exists before we go on.

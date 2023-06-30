@@ -494,7 +494,7 @@ def CreateChromeRoot(
 
     extra_env = {"USE": "chrome_internal"}
     with chroot.tempdir() as tempdir:
-        in_chroot_path = os.path.relpath(tempdir, chroot.path)
+        in_chroot_path = chroot.chroot_path(tempdir)
         cmd = [
             "cros_generate_sysroot",
             "--out-dir",
@@ -826,7 +826,7 @@ def BundleTastFiles(
         Path of the generated tarball, or None if there is no private test
             bundles.
     """
-    cwd = os.path.join(chroot.path, sysroot.path.lstrip(os.sep), "build")
+    cwd = chroot.full_path(sysroot.Path("build"))
 
     dirs = []
     for d in ("libexec/tast", "share/tast"):
