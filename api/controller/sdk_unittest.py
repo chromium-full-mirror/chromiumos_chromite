@@ -609,7 +609,7 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         sdk_controller.Uprev(request, response, self.api_config)
         self._uprev_patch.assert_called_with(
             binhost_gs_bucket=self._binhost_gs_bucket,
-            version=specified_version,
+            sdk_version=specified_version,
             toolchain_tarball_template=toolchain_tarball_template,
         )
 
@@ -629,7 +629,7 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         sdk_controller.Uprev(request, response, self.api_config)
         self._uprev_patch.assert_called_with(
             binhost_gs_bucket=self._binhost_gs_bucket,
-            version=self._latest_uprev_target_version,
+            sdk_version=self._latest_uprev_target_version,
             toolchain_tarball_template=toolchain_tarball_template,
         )
 

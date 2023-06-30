@@ -196,7 +196,7 @@ def Uprev(input_proto, output_proto, _config):
     # The main uprev logic occurs in service/sdk.py.
     modified_files = sdk.uprev_sdk_and_prebuilts(
         binhost_gs_bucket=input_proto.binhost_gs_bucket,
-        version=target_version,
+        sdk_version=target_version,
         toolchain_tarball_template=input_proto.toolchain_tarball_template,
     )
 
