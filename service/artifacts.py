@@ -415,7 +415,8 @@ def ArchiveChromeEbuildEnv(
 def ArchiveImages(
     chroot: "chroot_lib.Chroot",
     sysroot: "sysroot_lib.Sysroot",
-    image_dir: str, output_dir: str
+    image_dir: str,
+    output_dir: str,
 ) -> List[str]:
     """Create a .tar.xz archive for each image that has been created.
 
@@ -436,15 +437,24 @@ def ArchiveImages(
     for img, tar in images.items():
         tarball_path = os.path.join(output_dir, tar)
         content = [img]
+        extra_args = []
         if img in IMAGE_ADDITIONAL_SYSROOT_FILES:
             additional_files = {
                 full_path
                 for f in IMAGE_ADDITIONAL_SYSROOT_FILES[img]
-                if os.path.isfile(full_path:=chroot.full_path(sysroot.path, f))
+                if os.path.isfile(
+                    full_path := chroot.full_path(sysroot.path, f)
+                )
             }
             content.extend(additional_files)
+            # Remove path folders created for additional files
+            extra_args.append("--transform=s#.*/##")
         cros_build_lib.CreateTarball(
-            tarball_path, image_dir, inputs=content, print_cmd=False
+            tarball_path,
+            image_dir,
+            inputs=content,
+            print_cmd=False,
+            extra_args=extra_args,
         )
         archives.append(tar)
 
