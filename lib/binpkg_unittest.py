@@ -5,12 +5,16 @@
 """Unittests for the binpkg.py module."""
 
 import os
+from pathlib import Path
+from unittest import mock
 
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import gerrit
 from chromite.lib import gs_unittest
 from chromite.lib import osutils
+from chromite.lib import patch as cros_patch
 from chromite.lib import sysroot_lib
 
 
@@ -162,4 +166,164 @@ class PackageIndexInfoTest(cros_test_lib.TestCase):
         self.assertNotEqual(
             info,
             self._make_instance("SHA5", 5, "target", "profile", "XXXXXXXX"),
+        )
+
+
+class UpdateAndSubmitKeyValueFileTest(cros_test_lib.MockTestCase):
+    """Unit test for UpdateAndSubmitKeyValueFile."""
+
+    def setUp(self):
+        self.mock_gerrit_patch = mock.Mock(spec=cros_patch.GerritPatch)
+        self.mock_gerrit_patch.PatchLink.return_value = "chromium:1234"
+        self.gerrit_helper = mock.create_autospec(gerrit.GerritHelper)
+        self.gerrit_helper.CreateGerritPatch.return_value = (
+            self.mock_gerrit_patch
+        )
+        self.PatchObject(binpkg, "git", autospec=True)
+        self.PatchObject(
+            binpkg.gerrit, "GetGerritHelper", return_value=self.gerrit_helper
+        )
+        self.PatchObject(binpkg, "key_value_store", autospec=True)
+
+    def testDryRun(self):
+        """Checks that dryrun=True is passed to gerrit_helper."""
+
+        report = {}
+        git_file = "somefile"
+        abs_file = Path(git_file).absolute()
+
+        binpkg.UpdateAndSubmitKeyValueFile(
+            git_file,
+            {"SDK_LATEST_VERSION": "2023.06.16.179334"},
+            report,
+            dryrun=True,
+        )
+
+        self.gerrit_helper.CreateGerritPatch.assert_called_once()
+        self.assertEqual(
+            list(sorted(report.setdefault("created_cls", []))),
+            ["chromium:1234"],
+        )
+        binpkg.key_value_store.UpdateKeyInLocalFile.assert_called_once_with(
+            abs_file,
+            "SDK_LATEST_VERSION",
+            "2023.06.16.179334",
+        )
+        binpkg.git.RunGit.assert_has_calls(
+            [
+                mock.call(abs_file.parent, ["add", abs_file.name]),
+                mock.call(abs_file.parent, ["commit", "-m", mock.ANY]),
+            ]
+        )
+        self.gerrit_helper.SetReview.assert_called_once_with(
+            self.mock_gerrit_patch,
+            labels={"Bot-Commit": 1},
+            dryrun=True,
+            notify="NONE",
+        )
+        self.gerrit_helper.SubmitChange.assert_called_once_with(
+            self.mock_gerrit_patch,
+            dryrun=True,
+            notify="NONE",
+        )
+
+    def testWithReport(self):
+        """Tests that created CL is listed in the report."""
+
+        report = {}
+        git_file = "chromiumos-overlay/chromeos/binhost/host/sdk_version.conf"
+        abs_file = Path(git_file).absolute()
+        data = {
+            "SDK_LATEST_VERSION": "2023.06.15.171224",
+            "TC_PATH": "2023/06/%(target)s-2023.06.15.171224.tar.xz",
+        }
+
+        binpkg.UpdateAndSubmitKeyValueFile(
+            git_file,
+            data,
+            report,
+        )
+
+        self.gerrit_helper.CreateGerritPatch.assert_called_once()
+        self.assertEqual(
+            list(sorted(report.setdefault("created_cls", []))),
+            ["chromium:1234"],
+        )
+        binpkg.key_value_store.UpdateKeyInLocalFile.assert_has_calls(
+            [
+                mock.call(
+                    abs_file,
+                    "SDK_LATEST_VERSION",
+                    "2023.06.15.171224",
+                ),
+                mock.call(
+                    abs_file,
+                    "TC_PATH",
+                    "2023/06/%(target)s-2023.06.15.171224.tar.xz",
+                ),
+            ],
+            any_order=True,
+        )
+        binpkg.git.RunGit.assert_has_calls(
+            [
+                mock.call(abs_file.parent, ["add", abs_file.name]),
+                mock.call(abs_file.parent, ["commit", "-m", mock.ANY]),
+            ]
+        )
+        self.gerrit_helper.SetReview.assert_called_once_with(
+            self.mock_gerrit_patch,
+            labels={"Bot-Commit": 1},
+            dryrun=False,
+            notify="NONE",
+        )
+        self.gerrit_helper.SubmitChange.assert_called_once_with(
+            self.mock_gerrit_patch,
+            dryrun=False,
+            notify="NONE",
+        )
+
+    def testWithExistingReport(self):
+        """Tests that created CL is added to an existing report."""
+
+        report = {
+            "created_cls": ["chromium:956"],
+        }
+        git_file = "chromeos/config/make.conf.amd64-host"
+        abs_file = Path(git_file).absolute()
+        data = {
+            "FULL_BINHOST": "gs://test/host/test-2023.06.15.171224/packages/",
+        }
+
+        binpkg.UpdateAndSubmitKeyValueFile(
+            git_file,
+            data,
+            report,
+        )
+
+        self.gerrit_helper.CreateGerritPatch.assert_called_once()
+        self.assertEqual(
+            list(sorted(report.setdefault("created_cls", []))),
+            ["chromium:1234", "chromium:956"],
+        )
+        binpkg.key_value_store.UpdateKeyInLocalFile.assert_called_once_with(
+            abs_file,
+            "FULL_BINHOST",
+            "gs://test/host/test-2023.06.15.171224/packages/",
+        )
+        binpkg.git.RunGit.assert_has_calls(
+            [
+                mock.call(abs_file.parent, ["add", abs_file.name]),
+                mock.call(abs_file.parent, ["commit", "-m", mock.ANY]),
+            ]
+        )
+        self.gerrit_helper.SetReview.assert_called_once_with(
+            self.mock_gerrit_patch,
+            labels={"Bot-Commit": 1},
+            dryrun=False,
+            notify="NONE",
+        )
+        self.gerrit_helper.SubmitChange.assert_called_once_with(
+            self.mock_gerrit_patch,
+            dryrun=False,
+            notify="NONE",
         )
