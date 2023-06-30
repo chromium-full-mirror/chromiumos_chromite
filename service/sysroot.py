@@ -927,8 +927,17 @@ def BuildPackages(
             logging.info("Merging board packages now.")
             try:
                 with metrics_lib.timer(f"{metrics_prefix}.emerge"):
+                    packages = run_configs.GetPackages()
+                    span = trace.get_current_span()
+                    span.set_attributes(
+                        {
+                            "board": target.name,
+                            "packages": packages,
+                            "bazel": run_configs.bazel,
+                        }
+                    )
+
                     if run_configs.bazel:
-                        packages = run_configs.GetPackages()
                         cros_build_lib.run(
                             ["bazel", "build"]
                             + [
@@ -942,9 +951,7 @@ def BuildPackages(
                             )
                     else:
                         cros_build_lib.sudo_run(
-                            emerge_cmd
-                            + emerge_flags
-                            + run_configs.GetPackages(),
+                            emerge_cmd + emerge_flags + packages,
                             preserve_env=True,
                             extra_env=extra_env,
                         )

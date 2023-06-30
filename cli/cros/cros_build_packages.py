@@ -530,6 +530,9 @@ def build_packages(opts: commandline.ArgumentNamespace):
     span.set_attributes(
         {
             "board": build_target.name,
+            "packages": opts.packages or [],
+            "workon": opts.workon is True,
+            "bazel": opts.bazel is True,
             "workon_packages": workon_helper.WorkonHelper(
                 build_target.root
             ).ListAtoms(),
