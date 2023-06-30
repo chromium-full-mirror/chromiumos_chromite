@@ -119,7 +119,8 @@
       "master": true,
       "overlays": "both",
       "postsync_patch": false,
-      "push_overlays": "both"
+      "push_overlays": "both",
+      "vm_tests": []
     },
     "factorybranch": {
       "_template": "factorybranch",
@@ -9773,7 +9774,8 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ]
+    ],
+    "vm_tests": []
   },
   "master-full-tryjob": {
     "_template": "full",
@@ -9813,7 +9815,8 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ]
+    ],
+    "vm_tests": []
   },
   "master-release": {
     "_template": "release",

@@ -478,6 +478,7 @@ def GeneralTemplates(site_config):
         builder_class_name="workspace_builders.BuildSpecBuilder",
         build_timeout=4 * 60 * 60,
         description="Buildspec creator.",
+        vm_tests=[],
     )
 
     site_config.AddTemplate(
@@ -631,6 +632,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
         overlays=constants.PUBLIC_OVERLAYS,
         slave_configs=[],
         schedule=None,
+        vm_tests=[],
     )
 
     master_config.AddSlaves(
