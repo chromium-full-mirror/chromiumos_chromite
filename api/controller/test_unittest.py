@@ -827,12 +827,15 @@ class GetArtifactsTest(cros_test_lib.MockTempDirTestCase):
 
     def setUp(self):
         """Set up the class for tests."""
-        chroot_dir = os.path.join(self.tempdir, "chroot")
-        osutils.SafeMakedirs(chroot_dir)
-        osutils.SafeMakedirs(os.path.join(chroot_dir, "tmp"))
-        self.chroot = chroot_lib.Chroot(chroot_dir)
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
-        sysroot_path = os.path.join(chroot_dir, "build", "board")
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+        osutils.SafeMakedirs(self.chroot.tmp)
+
+        sysroot_path = self.chroot.full_path("/build/board")
         osutils.SafeMakedirs(sysroot_path)
         self.sysroot = sysroot_lib.Sysroot(sysroot_path)
 

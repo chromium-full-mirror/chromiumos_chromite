@@ -472,9 +472,7 @@ def BundleCodeCoverageGolang(
     # Gather host code coverage
     # Builder sets build target to Brya, code coverage currently only
     # supports Golang host packages
-    coverage_dir = os.path.join(
-        chroot.path, "var/lib/chromeos/package-artifacts"
-    )
+    coverage_dir = chroot.full_path("/var/lib/chromeos/package-artifacts")
     go_coverage_data_list = GatherCodeCoverageGolang(coverage_dir)
     # Create tarball
     with osutils.TempDir() as dest_tmpdir:
