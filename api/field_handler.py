@@ -31,6 +31,10 @@ class InvalidResultPathError(Error):
     """Result path is invalid."""
 
 
+class MissingChrootMessage(Error):
+    """Message is missing Chroot field."""
+
+
 class ChrootHandler:
     """Translate a Chroot message to chroot enter arguments and env."""
 
@@ -60,7 +64,8 @@ class ChrootHandler:
                     if chroot:
                         return chroot
 
-        return None
+        # Complain loudly if a message is used without a Chroot field.
+        raise MissingChrootMessage("No chroot message found.")
 
     def parse_chroot(
         self, chroot_message: common_pb2.Chroot
@@ -74,12 +79,7 @@ def handle_chroot(
 ) -> "chroot_lib.Chroot":
     """Find and parse the chroot field, returning the Chroot instance."""
     handler = ChrootHandler(clear_field)
-    chroot = handler.handle(message)
-    if chroot:
-        return chroot
-
-    logging.warning("No chroot message found, falling back to defaults.")
-    return handler.parse_chroot(common_pb2.Chroot())
+    return handler.handle(message)
 
 
 def handle_goma(message, chroot_path, out_path):

@@ -77,6 +77,18 @@ class ChrootHandlerTest(cros_test_lib.TestCase):
 
         self.assertEqual(empty_chroot, chroot)
 
+    def test_handle_no_chroot_message(self):
+        """Test handling of a message with no Chroot field."""
+        message = build_api_test_pb2.MultiFieldMessage()
+
+        # Double-check we didn't grow a Chroot field.
+        for descriptor in message.DESCRIPTOR.fields:
+            field = getattr(message, descriptor.name)
+            self.assertFalse(isinstance(field, common_pb2.Chroot))
+
+        with self.assertRaises(field_handler.MissingChrootMessage):
+            field_handler.handle_chroot(message, clear_field=False)
+
 
 class HandleRemoteexec(cros_test_lib.TempDirTestCase):
     """Tests for handling remoteexec."""
