@@ -542,14 +542,14 @@
                           <div class="col">
                             <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
                             <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
-                              data-bs-target={{"#" + package["name"] | replace("/", "\/") + "-info-modal"}} >Info</button>
+                              data-bs-target={{"#" + package["name"] | replace("/", "-") + "-info-modal"}} >Info</button>
                             <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop"
                             id = {{package["name"]}}>Stop</button>
                           </div>              
                         </li>
                         
                         <!--Info modal for package-->
-                        <div class="modal fade" id={{package["name"] + "-info-modal"}} tabindex="-1" 
+                        <div class="modal fade" id={{package["name"] | replace("/", "-") + "-info-modal"}} tabindex="-1" 
                             aria-labelledby="exampleModalLabel" aria-hidden="true">
                           <div class="modal-dialog">
                             <div class="modal-content bg-dark">
@@ -581,7 +581,9 @@
                 $(".workon-stop").on('click', function(){
                   var package = this.id;
                   var button = this;
+
                   var board = $(this).parents("ul")[0].id;
+                  board = board.substring(0, board.length - 13)
 
                   $(button).addClass("disabled");
 
