@@ -19,6 +19,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import toolchain as toolchain_lib
 from chromite.lib import toolchain_util
+from chromite.service import toolchain as toolchain_service
 
 
 # pylint: disable=protected-access
@@ -460,3 +461,49 @@ class GetToolchainsForBoardTest(
             self.response.nondefault_toolchains,
             ["nondefault-a", "nondefault-b"],
         )
+
+
+class SetupToolchainsTest(cros_test_lib.MockTestCase,
+                          api_config.ApiConfigMixin):
+    """Unit tests for ToolchainService.SetupToolchains."""
+    def setUp(self) -> None:
+        self.response = toolchain_pb2.SetupToolchainsResponse()
+        self.chroot = common_pb2.Chroot(path='/path/to/chroot')
+
+    def test_outside_chroot(self) -> None:
+        """Test the behavior if run from outside the chroot."""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.PatchObject(toolchain_service, "setup_toolchains")
+        request = toolchain_pb2.SetupToolchainsRequest(chroot=self.chroot)
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            toolchain.SetupToolchains(request, self.response, self.api_config)
+
+    def test_with_empty_request(self) -> None:
+        """Test the behavior if the request object is empty."""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+        service_mock = self.PatchObject(toolchain_service, "setup_toolchains")
+        request = toolchain_pb2.SetupToolchainsRequest(chroot=self.chroot)
+        toolchain.SetupToolchains(
+            request,
+            self.response,
+            self.api_config,
+        )
+        service_mock.assert_called_once_with(include_boards=[])
+
+    def test_with_boards(self) -> None:
+        """Test the behavior if the request object specifies boards."""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+        service_mock = self.PatchObject(toolchain_service, "setup_toolchains")
+        request = toolchain_pb2.SetupToolchainsRequest(
+            chroot=self.chroot,
+            boards=[
+                common_pb2.BuildTarget(name="amd64-generic"),
+                common_pb2.BuildTarget(name="arm-generic"),
+            ])
+        toolchain.SetupToolchains(
+            request,
+            self.response,
+            self.api_config,
+        )
+        service_mock.assert_called_once_with(
+            include_boards=["amd64-generic", "arm-generic"], )

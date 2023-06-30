@@ -597,3 +597,28 @@ class TestEmergeAndUploadLints(cros_test_lib.RunCommandTestCase):
 
         self.assertEqual(used_gs_path, target_gs_path)
         copy_mock.assert_called_with(target_gs_path, b"linting output")
+
+
+class TestSetupToolchains(cros_test_lib.RunCommandTestCase):
+    """Unit tests for setup_toolchains()."""
+
+    def test_no_kwargs(self) -> None:
+        toolchain.setup_toolchains()
+        self.assertCommandCalled(
+            ["sudo", "--preserve-env", "--", "cros_setup_toolchains"],
+            enter_chroot=True,
+        )
+
+    def test_multiple_include_boards(self) -> None:
+        toolchain.setup_toolchains(["amd64-generic", "arm-generic"])
+        self.assertCommandCalled(
+            [
+                "sudo",
+                "--preserve-env",
+                "--",
+                "cros_setup_toolchains",
+                "--include-boards",
+                "amd64-generic,arm-generic",
+            ],
+            enter_chroot=True,
+        )

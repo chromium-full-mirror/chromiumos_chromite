@@ -17,6 +17,7 @@ from chromite.api.gen.chromite.api import toolchain_pb2
 from chromite.api.gen.chromite.api.artifacts_pb2 import PrepareForBuildResponse
 from chromite.api.gen.chromiumos.builder_config_pb2 import BuilderConfig
 from chromite.api.gen.chromiumos.common_pb2 import PackageInfo
+from chromite.lib import cros_build_lib
 from chromite.lib import toolchain as toolchain_lib
 from chromite.lib import toolchain_util
 from chromite.service import toolchain
@@ -397,7 +398,7 @@ def EmergeAndUploadLints(
     output_proto: toolchain_pb2.DashboardLintResponse,
     _config,
 ):
-    """Lints all platform2 packages and uploads lints to GS"""
+    """Lint all platform2 packages and uploads lints to GS"""
     board = input_proto.sysroot.build_target.name
     output_proto.gs_path = toolchain.emerge_and_upload_lints(
         board, input_proto.start_time
@@ -485,7 +486,7 @@ def GetToolchainsForBoard(
     output_proto: "toolchain_pb2.ToolchainsReponse",
     _config: "api_config.ApiConfig",
 ):
-    """Gets the default and non-default toolchains for a board.
+    """Get the default and non-default toolchains for a board.
 
     Args:
         input_proto: The input proto with board and sysroot info.
@@ -499,3 +500,18 @@ def GetToolchainsForBoard(
     output_proto.nondefault_toolchains.extend(
         list(toolchain_lib.FilterToolchains(toolchains, "default", False))
     )
+
+
+@faux.all_empty
+@validate.require("chroot.path")
+@validate.validation_complete
+def SetupToolchains(
+    input_proto: "toolchain_pb2.SetupToolchainsRequest",
+    output_proto: "toolchain_pb2.SetupToolchainsResponse",
+    config: "api_config.ApiConfig",
+):
+    """Run `cros_setup_toolchains`."""
+    del output_proto, config  # Unused.
+    cros_build_lib.AssertInsideChroot()
+    include_boards = [bt.name for bt in input_proto.boards]
+    toolchain.setup_toolchains(include_boards=include_boards)

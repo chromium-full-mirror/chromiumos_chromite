@@ -35,8 +35,10 @@ class ToolchainServiceError(Exception):
 class NotChrootError(ToolchainServiceError):
     """An error raised when linting endpoints are invoked outside the chroot."""
 
+
 class InvalidSysrootError(ToolchainServiceError):
     """An error raised when the given sysroot is invalid or does not exist."""
+
 
 class ParsingError(ToolchainServiceError):
     """An error raised when parsing lint files in an unexpected format."""
@@ -124,7 +126,7 @@ class BuildLinter:
         packages: List[package_info.PackageInfo],
         sysroot: Text,
         differential: bool = False,
-        validate: bool = True
+        validate: bool = True,
     ):
         self.packages: List[package_info.PackageInfo] = packages
         self.sysroot: Text = sysroot
@@ -822,3 +824,15 @@ class BuildLinter:
                 lines[0] = lines[0][col_start:]
                 lines[-1] = lines[-1][: col_end + 1]
         return "\n".join(lines)
+
+
+def setup_toolchains(include_boards: List[str] = None) -> None:
+    """Run `cros_setup_toolchains` with the specified args."""
+    cmd = ["cros_setup_toolchains"]
+    if include_boards:
+        cmd.extend(["--include-boards", ",".join(include_boards)])
+    cros_build_lib.sudo_run(
+        cmd,
+        preserve_env=True,
+        enter_chroot=True,
+    )
