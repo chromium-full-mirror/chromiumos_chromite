@@ -782,11 +782,6 @@
           "description": "Enable Experimental Code Coverage Features",
           "default": false
         },
-        "chromiumide.underDevelopment.metricsGA4": {
-          "type": "boolean",
-          "description": "Send metrics to GA4 instead of UA",
-          "default": true
-        },
         "chromiumide.deviceManagement.devices": {
           "type": "array",
           "scope": "machine-overridable",

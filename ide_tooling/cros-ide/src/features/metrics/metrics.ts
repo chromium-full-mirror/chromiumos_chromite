@@ -3,8 +3,6 @@
 // found in the LICENSE file.
 
 import * as https from 'https';
-import * as os from 'os';
-import * as queryString from 'querystring';
 import * as vscode from 'vscode';
 import * as semver from 'semver';
 import * as config from '../../services/config';
@@ -74,9 +72,6 @@ enum MetricsMode {
   Real,
 }
 
-const trackingIdTesting = 'UA-221509619-1';
-const trackingIdReal = 'UA-221509619-2';
-
 const apiSecretTesting = 'FxaCE5c2RnKdPWB_t_LnfQ';
 const apiSecretReal = 'my_879bLQCq-hgEMGvyBBg';
 
@@ -109,15 +104,11 @@ export class Analytics {
   ) {
     this.options = {
       hostname: 'www.google-analytics.com',
-      path: config.underDevelopment.metricsGA4.get()
-        ? `/mp/collect?api_secret=${
-            mode === MetricsMode.Testing ? apiSecretTesting : apiSecretReal
-          }&measurement_id=${
-            mode === MetricsMode.Testing
-              ? measurementIdTesting
-              : measurementIdReal
-          }`
-        : '/batch',
+      path: `/mp/collect?api_secret=${
+        mode === MetricsMode.Testing ? apiSecretTesting : apiSecretReal
+      }&measurement_id=${
+        mode === MetricsMode.Testing ? measurementIdTesting : measurementIdReal
+      }`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -133,84 +124,6 @@ export class Analytics {
     const userId = await metricsConfig.getOrGenerateValidUserId();
     const isGoogler = await metricsUtils.isGoogler();
     return new Analytics(mode, userId, isGoogler);
-  }
-
-  /**
-   * Creates a batch query from event for Google Analytics UA measurement protocol, see
-   * https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide
-   *
-   * See go/cros-ide-metrics for the memo on what values are assigned to GA parameters.
-   */
-  private eventToRequestBodyUA(
-    event: metricsEvent.Event,
-    gitRepo: string | undefined
-  ): string {
-    const baseData = () => {
-      return {
-        v: '1',
-        tid:
-          this.mode === MetricsMode.Testing
-            ? trackingIdTesting
-            : trackingIdReal,
-        cid: this.userId,
-        // Document: Git repository info.
-        dh: 'cros',
-        dp: '/' + (gitRepo ?? 'unknown'),
-        dt: gitRepo ?? 'unknown',
-        // User agent: OS + VSCode version.
-        ua: `${os.type()}-${vscode.env.appName}-${vscode.version}`,
-        // Custom dimensions.
-        cd1: os.type(),
-        cd2: vscode.env.appName,
-        cd3: vscode.version,
-        cd4: extensionVersion ?? 'unknown',
-        cd5: event.group,
-      } as Record<string, string | number>;
-    };
-
-    const queries: string[] = [];
-
-    if (event.category === 'error') {
-      const data = Object.assign(baseData(), {
-        t: 'exception',
-        exd: `${event.group}: ${event.description}`,
-      });
-      queries.push(queryString.stringify(data));
-    }
-
-    // For an error, we send an event not only an exception. If we only send
-    // exception hits we cannot see how many users are impacted per exception
-    // description because exception hits are not associated with sessions or
-    // users (b/25110142).
-
-    const data = baseData();
-    Object.assign(data, {
-      t: 'event',
-      ec: event.category,
-      ea: `${event.group}: ${event.description}`,
-    });
-
-    // The unused variables are needed for object destruction of event and match customFields.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {category, group, description, ...customFields} = event;
-
-    // Temporary. Convert all extra fields (i.e. future custom dimensions and
-    // metrics) to event label (string) or event value (number).
-    if (category !== 'error') {
-      for (const [key, value] of Object.entries(customFields)) {
-        if (key === 'name') {
-          continue;
-        }
-        if (typeof value === 'string') {
-          data.el = value;
-        } else if (typeof value === 'number') {
-          data.ev = value;
-        }
-      }
-    }
-    queries.push(queryString.stringify(data));
-
-    return queries.join('\n');
   }
 
   /**
@@ -253,21 +166,15 @@ export class Analytics {
     const gitRepo = filePath
       ? metricsUtils.getGitRepoName(filePath)
       : undefined;
-    const query = config.underDevelopment.metricsGA4.get()
-      ? metricsUtils.eventToRequestBodyGA4(
-          event,
-          gitRepo,
-          this.userId,
-          vscode.env.appName,
-          vscode.version,
-          extensionVersion
-        )
-      : this.eventToRequestBodyUA(event, gitRepo);
-    console.debug(
-      `sending query ${query} to ${
-        config.underDevelopment.metricsGA4.get() ? 'GA4' : 'UA'
-      } with uid ${this.userId}`
+    const query = metricsUtils.eventToRequestBodyGA4(
+      event,
+      gitRepo,
+      this.userId,
+      vscode.env.appName,
+      vscode.version,
+      extensionVersion
     );
+    console.debug(`sending query ${query} to GA4 with uid ${this.userId}`);
 
     const req = https.request(options, res => {
       console.debug(`Sent request, status code = ${res.statusCode}`);

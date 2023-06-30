@@ -126,7 +126,6 @@ export const underDevelopment = {
   relatedFiles: new ConfigValue<boolean>('underDevelopment.relatedFiles'),
   systemLogViewer: new ConfigValue<boolean>('underDevelopment.systemLogViewer'),
   testCoverage: new ConfigValue<boolean>('underDevelopment.testCoverage'),
-  metricsGA4: new ConfigValue<boolean>('underDevelopment.metricsGA4'),
 };
 
 export const deviceManagement = {
