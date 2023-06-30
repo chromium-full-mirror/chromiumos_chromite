@@ -92,8 +92,7 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     Returns:
         A dict mapping board types to board name collections.
         The dict contains board types including distinct_board_sets,
-        all_release_boards, all_full_boards, all_boards, internal_boards,
-        and no_vmtest_boards.
+        all_release_boards, all_full_boards, all_boards, and internal_boards.
     """
     ge_arch_board_dict = config_lib.GetArchBoardDict(ge_build_config)
 
@@ -139,10 +138,6 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     boards_dict["all_boards"] = all_boards
 
     boards_dict["internal_boards"] = boards_dict["all_release_boards"]
-
-    # This set controls the final vmtest override. It allows us to specify
-    # vm_tests for each class of builders, but only execute on vmtest_boards.
-    boards_dict["no_vmtest_boards"] = all_boards - chromeos_test.vmtest_boards
 
     boards_dict["generic_kernel_boards"] = frozenset(
         ["amd64-generic"],
@@ -349,7 +344,6 @@ def GeneralTemplates(site_config):
         ),
         dev_installer_prebuilts=True,
         git_sync=False,
-        vm_tests=[],
         paygen=True,
         signer_tests=True,
         hwqual=True,
@@ -381,7 +375,6 @@ def GeneralTemplates(site_config):
         image_test=False,
         paygen_skip_testing=True,
         signer_tests=False,
-        vm_tests=[],
         push_image=False,
         sign_types=[],
         upload_symbols=False,
@@ -478,7 +471,6 @@ def GeneralTemplates(site_config):
         builder_class_name="workspace_builders.BuildSpecBuilder",
         build_timeout=4 * 60 * 60,
         description="Buildspec creator.",
-        vm_tests=[],
     )
 
     site_config.AddTemplate(
@@ -632,7 +624,6 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
         overlays=constants.PUBLIC_OVERLAYS,
         slave_configs=[],
         schedule=None,
-        vm_tests=[],
     )
 
     master_config.AddSlaves(
@@ -1083,7 +1074,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
                     site_config[config_name].apply(
                         _GetConfigValues(board),
                         chrome_sdk_build_chrome=False,
-                        vm_tests=[],
                     )
                     _AssignToMaster(site_config[config_name])
 
@@ -1421,7 +1411,6 @@ def SpecialtyBuilders(site_config):
         "success-build",
         site_config.templates.external,
         site_config.templates.no_hwtest_builder,
-        site_config.templates.no_vmtest_builder,
         boards=[],
         display_label=config_lib.DISPLAY_LABEL_TRYJOB,
         luci_builder=config_lib.LUCI_BUILDER_TRY,
@@ -1433,7 +1422,6 @@ def SpecialtyBuilders(site_config):
     site_config.AddWithoutTemplate(
         "sync-test-cbuildbot",
         site_config.templates.no_hwtest_builder,
-        site_config.templates.no_vmtest_builder,
         boards=[],
         display_label=config_lib.DISPLAY_LABEL_TRYJOB,
         luci_builder=config_lib.LUCI_BUILDER_INFRA,
@@ -1445,7 +1433,6 @@ def SpecialtyBuilders(site_config):
         "fail-build",
         site_config.templates.external,
         site_config.templates.no_hwtest_builder,
-        site_config.templates.no_vmtest_builder,
         boards=[],
         display_label=config_lib.DISPLAY_LABEL_TRYJOB,
         luci_builder=config_lib.LUCI_BUILDER_TRY,
@@ -1472,7 +1459,6 @@ def SpecialtyBuilders(site_config):
             "TOC-Continuous"
         ),
         schedule="with 30m interval",
-        vm_tests=[],
     )
 
     site_config.AddWithoutTemplate(
@@ -1491,14 +1477,12 @@ def SpecialtyBuilders(site_config):
         description="Build the SDK with llvm-next",
         # Once every day. 8 AM UTC is 1 AM PST.
         schedule="0 8 * * *",
-        vm_tests=[],
     )
 
     site_config.AddWithoutTemplate(
         "config-updater",
         site_config.templates.internal,
         site_config.templates.no_hwtest_builder,
-        site_config.templates.no_vmtest_builder,
         site_config.templates.infra_builder,
         display_label=config_lib.DISPLAY_LABEL_UTILITY,
         description=(
@@ -1516,7 +1500,6 @@ def SpecialtyBuilders(site_config):
         "luci-scheduler-updater",
         site_config.templates.internal,
         site_config.templates.no_hwtest_builder,
-        site_config.templates.no_vmtest_builder,
         site_config.templates.infra_builder,
         display_label=config_lib.DISPLAY_LABEL_UTILITY,
         description="Deploy changes to luci_scheduler.cfg.",

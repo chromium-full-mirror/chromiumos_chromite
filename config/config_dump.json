@@ -99,10 +99,7 @@
     "use_sdk": true,
     "useflags": [],
     "usepkg_build_packages": true,
-    "vm_tests": [
-      "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": \"smoke\",\n  \"test_type\": \"vm_suite\",\n  \"timeout\": 5400,\n  \"use_ctest\": true,\n  \"warn_only\": false\n}",
-      "{\n  \"max_retries\": 5,\n  \"retry\": false,\n  \"test_suite\": null,\n  \"test_type\": \"pfq_suite\",\n  \"timeout\": 5400,\n  \"use_ctest\": true,\n  \"warn_only\": false\n}"
-    ],
+    "vm_tests": [],
     "workspace_branch": null
   },
   "_templates": {
@@ -119,8 +116,7 @@
       "master": true,
       "overlays": "both",
       "postsync_patch": false,
-      "push_overlays": "both",
-      "vm_tests": []
+      "push_overlays": "both"
     },
     "factorybranch": {
       "_template": "factorybranch",
@@ -161,8 +157,7 @@
         "chrome_internal",
         "thinlto"
       ],
-      "usepkg_build_packages": false,
-      "vm_tests": []
+      "usepkg_build_packages": false
     },
     "full": {
       "_template": "full",
@@ -254,8 +249,7 @@
         "chrome_internal",
         "thinlto"
       ],
-      "usepkg_build_packages": false,
-      "vm_tests": []
+      "usepkg_build_packages": false
     },
     "release_basic": {
       "_template": "release_basic",
@@ -298,8 +292,7 @@
         "chrome_internal",
         "thinlto"
       ],
-      "usepkg_build_packages": false,
-      "vm_tests": []
+      "usepkg_build_packages": false
     }
   },
   "adlnrvp-full": {
@@ -311,8 +304,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "adlnrvp-full-tryjob": {
     "_template": "full",
@@ -336,8 +328,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "adlnrvp-release": {
     "_template": "release",
@@ -385,8 +376,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "adlrvp-full-tryjob": {
     "_template": "full",
@@ -410,8 +400,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "adlrvp-release": {
     "_template": "release",
@@ -485,8 +474,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "ambassador-full-tryjob": {
     "_template": "full",
@@ -510,8 +498,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "ambassador-release": {
     "_template": "release",
@@ -639,8 +626,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "asurada-connectivitynext-full-tryjob": {
     "_template": "full",
@@ -664,8 +650,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "asurada-connectivitynext-release": {
     "_template": "release",
@@ -735,8 +720,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "asurada-full-tryjob": {
     "_template": "full",
@@ -760,8 +744,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "asurada-kernelnext-release": {
     "_template": "release",
@@ -886,8 +869,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "atlas-connectivitynext-full-tryjob": {
     "_template": "full",
@@ -911,8 +893,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "atlas-connectivitynext-release": {
     "_template": "release",
@@ -978,8 +959,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "atlas-full-tryjob": {
     "_template": "full",
@@ -1003,8 +983,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "atlas-kernelnext-full": {
     "_template": "full",
@@ -1015,8 +994,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "atlas-kernelnext-full-tryjob": {
     "_template": "full",
@@ -1040,8 +1018,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "atlas-kernelnext-release": {
     "_template": "release",
@@ -1259,8 +1236,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brask-full-tryjob": {
     "_template": "full",
@@ -1284,8 +1260,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brask-labstation-release": {
     "_template": "release",
@@ -1397,8 +1372,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-arc-t-full-tryjob": {
     "_template": "full",
@@ -1422,8 +1396,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-arc-t-release": {
     "_template": "release",
@@ -1649,8 +1622,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-full-tryjob": {
     "_template": "full",
@@ -1674,8 +1646,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-gki-release": {
     "_template": "release",
@@ -1761,8 +1732,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-hibernate-full-tryjob": {
     "_template": "full",
@@ -1786,8 +1756,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-hibernate-release": {
     "_template": "release",
@@ -1891,8 +1860,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-kernelnext-full-tryjob": {
     "_template": "full",
@@ -1916,8 +1884,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-kernelnext-release": {
     "_template": "release",
@@ -2158,8 +2125,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-zephyr-full-tryjob": {
     "_template": "full",
@@ -2183,8 +2149,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "brya-zephyr-release": {
     "_template": "release",
@@ -2236,8 +2201,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "bubs-full-tryjob": {
     "_template": "full",
@@ -2261,8 +2225,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "bubs-release": {
     "_template": "release",
@@ -2341,8 +2304,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "caroline-ndktranslation-full-tryjob": {
     "_template": "full",
@@ -2366,8 +2328,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "caroline-ndktranslation-release": {
     "_template": "release",
@@ -2545,8 +2506,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "cherry-full-tryjob": {
     "_template": "full",
@@ -2570,8 +2530,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "cherry-release": {
     "_template": "release",
@@ -2645,8 +2604,7 @@
     "prebuilts": "public",
     "schedule": "with 30m interval",
     "use_sdk": false,
-    "usepkg_build_packages": false,
-    "vm_tests": []
+    "usepkg_build_packages": false
   },
   "chromiumos-sdk-llvm-next": {
     "archive_build_debug": true,
@@ -2678,8 +2636,7 @@
     "useflags": [
       "llvm-next"
     ],
-    "usepkg_build_packages": false,
-    "vm_tests": []
+    "usepkg_build_packages": false
   },
   "chromiumos-sdk-llvm-next-tryjob": {
     "archive_build_debug": true,
@@ -2709,8 +2666,7 @@
     "useflags": [
       "llvm-next"
     ],
-    "usepkg_build_packages": false,
-    "vm_tests": []
+    "usepkg_build_packages": false
   },
   "chromiumos-sdk-tryjob": {
     "archive_build_debug": true,
@@ -2737,8 +2693,7 @@
     "luci_builder": "Try",
     "prebuilts": "public",
     "use_sdk": false,
-    "usepkg_build_packages": false,
-    "vm_tests": []
+    "usepkg_build_packages": false
   },
   "config-updater": {
     "boards": [],
@@ -2752,8 +2707,7 @@
     "luci_builder": "Infra",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
     "overlays": "both",
-    "schedule": "@hourly",
-    "vm_tests": []
+    "schedule": "@hourly"
   },
   "config-updater-tryjob": {
     "boards": [],
@@ -2766,8 +2720,7 @@
     "internal": true,
     "luci_builder": "Try",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
-    "overlays": "both",
-    "vm_tests": []
+    "overlays": "both"
   },
   "constitution-factory-brya-15231.B-factorybranch": {
     "_template": "factorybranch",
@@ -2798,8 +2751,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "constitution-full-tryjob": {
     "_template": "full",
@@ -2823,8 +2775,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "constitution-release": {
     "_template": "release",
@@ -2890,8 +2841,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "coral-full-tryjob": {
     "_template": "full",
@@ -2915,8 +2865,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "coral-master-factorybranch": {
     "_template": "factorybranch",
@@ -3084,8 +3033,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "corsola-full-tryjob": {
     "_template": "full",
@@ -3109,8 +3057,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "corsola-kernelnext-full": {
     "_template": "full",
@@ -3121,8 +3068,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "corsola-kernelnext-full-tryjob": {
     "_template": "full",
@@ -3146,8 +3092,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "corsola-kernelnext-release": {
     "_template": "release",
@@ -3283,8 +3228,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "dedede-full-tryjob": {
     "_template": "full",
@@ -3308,8 +3252,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "dedede-pvs-release": {
     "_template": "release",
@@ -3581,8 +3524,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "draco-full-tryjob": {
     "_template": "full",
@@ -3606,8 +3548,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "draco-release": {
     "_template": "release",
@@ -3678,8 +3619,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "drallion-full-tryjob": {
     "_template": "full",
@@ -3703,8 +3643,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "drallion-kernelnext-release": {
     "_template": "release",
@@ -3824,8 +3763,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-arc64-full-tryjob": {
     "_template": "full",
@@ -3849,8 +3787,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-arc64-release": {
     "_template": "release",
@@ -3896,8 +3833,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-connectivitynext-full-tryjob": {
     "_template": "full",
@@ -3921,8 +3857,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-connectivitynext-release": {
     "_template": "release",
@@ -3988,8 +3923,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-full-tryjob": {
     "_template": "full",
@@ -4013,8 +3947,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-kernelnext-full": {
     "_template": "full",
@@ -4025,8 +3958,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-kernelnext-full-tryjob": {
     "_template": "full",
@@ -4050,8 +3982,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "elm-kernelnext-release": {
     "_template": "release",
@@ -4151,8 +4082,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "endeavour-full-tryjob": {
     "_template": "full",
@@ -4176,8 +4106,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "endeavour-release": {
     "_template": "release",
@@ -4222,8 +4151,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-arc-r-full-tryjob": {
     "_template": "full",
@@ -4247,8 +4175,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-arc-r-release": {
     "_template": "release",
@@ -4290,8 +4217,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-arm64-full-tryjob": {
     "_template": "full",
@@ -4315,8 +4241,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-arm64-release": {
     "_template": "release",
@@ -4383,8 +4308,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-full-tryjob": {
     "_template": "full",
@@ -4409,8 +4333,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-master-factorybranch": {
     "_template": "factorybranch",
@@ -4498,8 +4421,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-userdebug-full-tryjob": {
     "_template": "full",
@@ -4523,8 +4445,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "eve-userdebug-release": {
     "_template": "release",
@@ -4586,8 +4507,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "excelsior-full-tryjob": {
     "_template": "full",
@@ -4611,8 +4531,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "excelsior-release": {
     "_template": "release",
@@ -5755,8 +5674,7 @@
     "builder_class_name": "test_builders.FailBuilder",
     "description": "Builder always fails as quickly as possible.",
     "display_label": "tryjob",
-    "luci_builder": "Try",
-    "vm_tests": []
+    "luci_builder": "Try"
   },
   "fizz-cfm-full": {
     "_template": "full",
@@ -5767,8 +5685,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-cfm-full-tryjob": {
     "_template": "full",
@@ -5792,8 +5709,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-cfm-release": {
     "_template": "release",
@@ -5866,8 +5782,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-full-tryjob": {
     "_template": "full",
@@ -5891,8 +5806,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-labstation-full": {
     "_template": "full",
@@ -5911,8 +5825,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-labstation-full-tryjob": {
     "_template": "full",
@@ -5944,8 +5857,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-labstation-release": {
     "_template": "release",
@@ -6014,8 +5926,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-moblab-full-tryjob": {
     "_template": "full",
@@ -6040,8 +5951,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "fizz-moblab-release": {
     "_template": "release",
@@ -6160,8 +6070,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "geralt-full-tryjob": {
     "_template": "full",
@@ -6185,8 +6094,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "geralt-release": {
     "_template": "release",
@@ -6315,8 +6223,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "glados-full-tryjob": {
     "_template": "full",
@@ -6340,8 +6247,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "glados-release": {
     "_template": "release",
@@ -6380,8 +6286,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "goroh-full-tryjob": {
     "_template": "full",
@@ -6405,8 +6310,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "goroh-release": {
     "_template": "release",
@@ -6469,8 +6373,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "grunt-arc-r-full-tryjob": {
     "_template": "full",
@@ -6495,8 +6398,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "grunt-arc-r-release": {
     "_template": "release",
@@ -6605,8 +6507,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "grunt-full-tryjob": {
     "_template": "full",
@@ -6631,8 +6532,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "grunt-kernelnext-full": {
     "_template": "full",
@@ -6643,8 +6543,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "grunt-kernelnext-full-tryjob": {
     "_template": "full",
@@ -6668,8 +6567,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "grunt-kernelnext-release": {
     "_template": "release",
@@ -6841,8 +6739,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guado-macrophage-full-tryjob": {
     "_template": "full",
@@ -6867,8 +6764,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guado-macrophage-release": {
     "_template": "release",
@@ -6918,8 +6814,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guado_labstation-full-tryjob": {
     "_template": "full",
@@ -6951,8 +6846,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guado_labstation-release": {
     "_template": "release",
@@ -7076,8 +6970,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guybrush-full-tryjob": {
     "_template": "full",
@@ -7102,8 +6995,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guybrush-kernelnext-full": {
     "_template": "full",
@@ -7114,8 +7006,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guybrush-kernelnext-full-tryjob": {
     "_template": "full",
@@ -7139,8 +7030,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "guybrush-kernelnext-release": {
     "_template": "release",
@@ -7244,8 +7134,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hades-full-tryjob": {
     "_template": "full",
@@ -7269,8 +7158,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hades-release": {
     "_template": "release",
@@ -7315,8 +7203,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hana-arc64-full-tryjob": {
     "_template": "full",
@@ -7340,8 +7227,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hana-arc64-release": {
     "_template": "release",
@@ -7422,8 +7308,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hana-full-tryjob": {
     "_template": "full",
@@ -7448,8 +7333,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hana-kernelnext-full": {
     "_template": "full",
@@ -7460,8 +7344,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hana-kernelnext-full-tryjob": {
     "_template": "full",
@@ -7485,8 +7368,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hana-kernelnext-release": {
     "_template": "release",
@@ -7594,8 +7476,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-arc-r-full-tryjob": {
     "_template": "full",
@@ -7619,8 +7500,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-arc-r-release": {
     "_template": "release",
@@ -7686,8 +7566,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-arc-r-userdebug-full-tryjob": {
     "_template": "full",
@@ -7711,8 +7590,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-arc-r-userdebug-release": {
     "_template": "release",
@@ -7778,8 +7656,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-arc-t-full-tryjob": {
     "_template": "full",
@@ -7803,8 +7680,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-arc-t-release": {
     "_template": "release",
@@ -7873,8 +7749,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-connectivitynext-full-tryjob": {
     "_template": "full",
@@ -7898,8 +7773,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-connectivitynext-release": {
     "_template": "release",
@@ -7989,8 +7863,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-full-tryjob": {
     "_template": "full",
@@ -8014,8 +7887,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-kernelnext-full": {
     "_template": "full",
@@ -8026,8 +7898,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-kernelnext-full-tryjob": {
     "_template": "full",
@@ -8051,8 +7922,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "hatch-kernelnext-release": {
     "_template": "release",
@@ -8223,8 +8093,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jacuzzi-full-tryjob": {
     "_template": "full",
@@ -8249,8 +8118,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jacuzzi-kernelnext-full": {
     "_template": "full",
@@ -8261,8 +8129,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jacuzzi-kernelnext-full-tryjob": {
     "_template": "full",
@@ -8286,8 +8153,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jacuzzi-kernelnext-release": {
     "_template": "release",
@@ -8433,8 +8299,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jacuzzi64-full-tryjob": {
     "_template": "full",
@@ -8458,8 +8323,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jacuzzi64-release": {
     "_template": "release",
@@ -8535,8 +8399,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jecht-full-tryjob": {
     "_template": "full",
@@ -8560,8 +8423,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "jecht-release": {
     "_template": "release",
@@ -8600,8 +8462,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kalista-cfm-full-tryjob": {
     "_template": "full",
@@ -8625,8 +8486,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kalista-cfm-release": {
     "_template": "release",
@@ -8691,8 +8551,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kalista-full-tryjob": {
     "_template": "full",
@@ -8716,8 +8575,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kalista-release": {
     "_template": "release",
@@ -8802,8 +8660,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kevin-userdebug-full-tryjob": {
     "_template": "full",
@@ -8827,8 +8684,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kevin-userdebug-release": {
     "_template": "release",
@@ -8878,8 +8734,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kevin64-full-tryjob": {
     "_template": "full",
@@ -8905,8 +8760,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kevin64-release": {
     "_template": "release",
@@ -8952,8 +8806,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kukui-arc-r-full-tryjob": {
     "_template": "full",
@@ -8977,8 +8830,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kukui-arc-r-release": {
     "_template": "release",
@@ -9072,8 +8924,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kukui-full-tryjob": {
     "_template": "full",
@@ -9097,8 +8948,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kukui-kernelnext-full": {
     "_template": "full",
@@ -9109,8 +8959,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kukui-kernelnext-full-tryjob": {
     "_template": "full",
@@ -9134,8 +8983,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "kukui-kernelnext-release": {
     "_template": "release",
@@ -9289,8 +9137,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "littlejoe-full-tryjob": {
     "_template": "full",
@@ -9316,8 +9163,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "littlejoe-rapid": {
     "_template": "release",
@@ -9431,8 +9277,7 @@
           "generated/luci-scheduler.cfg"
         ]
       ]
-    ],
-    "vm_tests": []
+    ]
   },
   "luci-scheduler-updater-tryjob": {
     "boards": [],
@@ -9444,8 +9289,7 @@
     "internal": true,
     "luci_builder": "Try",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
-    "overlays": "both",
-    "vm_tests": []
+    "overlays": "both"
   },
   "majolica-full": {
     "_template": "full",
@@ -9457,8 +9301,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "majolica-full-tryjob": {
     "_template": "full",
@@ -9483,8 +9326,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "majolica-release": {
     "_template": "release",
@@ -9527,8 +9369,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "mancomb-full-tryjob": {
     "_template": "full",
@@ -9553,8 +9394,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "mancomb-release": {
     "_template": "release",
@@ -9641,8 +9481,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "master-full-tryjob": {
     "_template": "full",
@@ -9679,8 +9518,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "master-release": {
     "_template": "release",
@@ -10114,8 +9952,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "myst-full-tryjob": {
     "_template": "full",
@@ -10139,8 +9976,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "myst-release": {
     "_template": "release",
@@ -10200,8 +10036,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nami-full-tryjob": {
     "_template": "full",
@@ -10225,8 +10060,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nami-kernelnext-full": {
     "_template": "full",
@@ -10237,8 +10071,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nami-kernelnext-full-tryjob": {
     "_template": "full",
@@ -10262,8 +10095,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nami-kernelnext-release": {
     "_template": "release",
@@ -10446,8 +10278,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nautilus-full-tryjob": {
     "_template": "full",
@@ -10471,8 +10302,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nautilus-release": {
     "_template": "release",
@@ -10539,8 +10369,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nissa-full-tryjob": {
     "_template": "full",
@@ -10564,8 +10393,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nissa-kernelnext-release": {
     "_template": "release",
@@ -10826,8 +10654,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nocturne-full-tryjob": {
     "_template": "full",
@@ -10851,8 +10678,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nocturne-kernelnext-full": {
     "_template": "full",
@@ -10863,8 +10689,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nocturne-kernelnext-full-tryjob": {
     "_template": "full",
@@ -10888,8 +10713,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "nocturne-kernelnext-release": {
     "_template": "release",
@@ -10981,8 +10805,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "octopus-arc-r-full-tryjob": {
     "_template": "full",
@@ -11006,8 +10829,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "octopus-arc-r-release": {
     "_template": "release",
@@ -11289,8 +11111,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "octopus-full-tryjob": {
     "_template": "full",
@@ -11315,8 +11136,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "octopus-kernelnext-full": {
     "_template": "full",
@@ -11327,8 +11147,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "octopus-kernelnext-full-tryjob": {
     "_template": "full",
@@ -11352,8 +11171,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "octopus-kernelnext-release": {
     "_template": "release",
@@ -11593,8 +11411,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "ovis-full-tryjob": {
     "_template": "full",
@@ -11618,8 +11435,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "ovis-release": {
     "_template": "release",
@@ -11665,8 +11481,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "poppy-full-tryjob": {
     "_template": "full",
@@ -11690,8 +11505,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "poppy-release": {
     "_template": "release",
@@ -11770,8 +11584,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "puff-full-tryjob": {
     "_template": "full",
@@ -11795,8 +11608,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "puff-kernelnext-release": {
     "_template": "release",
@@ -11881,8 +11693,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "puff-moblab-full-tryjob": {
     "_template": "full",
@@ -11907,8 +11718,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "puff-moblab-release": {
     "_template": "release",
@@ -12043,8 +11853,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "pyro-full-tryjob": {
     "_template": "full",
@@ -12068,8 +11877,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "pyro-release": {
     "_template": "release",
@@ -12114,8 +11922,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "rammus-arc-r-userdebug-full-tryjob": {
     "_template": "full",
@@ -12139,8 +11946,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "rammus-arc-r-userdebug-release": {
     "_template": "release",
@@ -12208,8 +12014,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "rammus-full-tryjob": {
     "_template": "full",
@@ -12233,8 +12038,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "rammus-master-factorybranch": {
     "_template": "factorybranch",
@@ -12321,8 +12125,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "reef-full-tryjob": {
     "_template": "full",
@@ -12346,8 +12149,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "reef-release": {
     "_template": "release",
@@ -12433,8 +12235,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "rex-full-tryjob": {
     "_template": "full",
@@ -12458,8 +12259,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "rex-release": {
     "_template": "release",
@@ -12530,8 +12330,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sand-full-tryjob": {
     "_template": "full",
@@ -12555,8 +12354,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sand-release": {
     "_template": "release",
@@ -12621,8 +12419,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sarien-full-tryjob": {
     "_template": "full",
@@ -12646,8 +12443,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sarien-kernelnext-full": {
     "_template": "full",
@@ -12658,8 +12454,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sarien-kernelnext-full-tryjob": {
     "_template": "full",
@@ -12683,8 +12478,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sarien-kernelnext-release": {
     "_template": "release",
@@ -12914,8 +12708,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "skyrim-chausie-full-tryjob": {
     "_template": "full",
@@ -12940,8 +12733,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "skyrim-chausie-release": {
     "_template": "release",
@@ -13024,8 +12816,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "skyrim-full-tryjob": {
     "_template": "full",
@@ -13050,8 +12841,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "skyrim-kernelnext-full": {
     "_template": "full",
@@ -13063,8 +12853,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "skyrim-kernelnext-full-tryjob": {
     "_template": "full",
@@ -13089,8 +12878,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "skyrim-kernelnext-release": {
     "_template": "release",
@@ -13228,8 +13016,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sludge-full-tryjob": {
     "_template": "full",
@@ -13265,8 +13052,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "sludge-release": {
     "_template": "release",
@@ -13370,8 +13156,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "snappy-full-tryjob": {
     "_template": "full",
@@ -13395,8 +13180,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "snappy-kernelnext-full": {
     "_template": "full",
@@ -13407,8 +13191,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "snappy-kernelnext-full-tryjob": {
     "_template": "full",
@@ -13432,8 +13215,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "snappy-kernelnext-release": {
     "_template": "release",
@@ -13541,8 +13323,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "soraka-full-tryjob": {
     "_template": "full",
@@ -13566,8 +13347,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "soraka-libcamera-full": {
     "_template": "full",
@@ -13578,8 +13358,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "soraka-libcamera-full-tryjob": {
     "_template": "full",
@@ -13603,8 +13382,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "soraka-libcamera-release": {
     "_template": "release",
@@ -13704,8 +13482,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "staryu-full-tryjob": {
     "_template": "full",
@@ -13729,8 +13506,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "staryu-release": {
     "_template": "release",
@@ -13835,8 +13611,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "strongbad-full-tryjob": {
     "_template": "full",
@@ -13860,8 +13635,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "strongbad-kernelnext-full": {
     "_template": "full",
@@ -13872,8 +13646,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "strongbad-kernelnext-full-tryjob": {
     "_template": "full",
@@ -13897,8 +13670,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "strongbad-kernelnext-release": {
     "_template": "release",
@@ -14002,8 +13774,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "strongbad-userdebug-full-tryjob": {
     "_template": "full",
@@ -14027,8 +13798,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "strongbad-userdebug-release": {
     "_template": "release",
@@ -14078,8 +13848,7 @@
     "builder_class_name": "test_builders.SucessBuilder",
     "description": "Builder always passes as quickly as possible.",
     "display_label": "tryjob",
-    "luci_builder": "Try",
-    "vm_tests": []
+    "luci_builder": "Try"
   },
   "sync-test-cbuildbot": {
     "boards": [],
@@ -14087,8 +13856,7 @@
     "description": "Used by sync_stages_unittest.",
     "display_label": "tryjob",
     "hw_tests_override": [],
-    "luci_builder": "Infra",
-    "vm_tests": []
+    "luci_builder": "Infra"
   },
   "sync-test-cbuildbot-tryjob": {
     "boards": [],
@@ -14096,8 +13864,7 @@
     "debug": true,
     "description": "Used by sync_stages_unittest.",
     "display_label": "tryjob",
-    "luci_builder": "Try",
-    "vm_tests": []
+    "luci_builder": "Try"
   },
   "tael-full": {
     "_template": "full",
@@ -14131,8 +13898,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "tael-full-tryjob": {
     "_template": "full",
@@ -14169,8 +13935,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "tael-release": {
     "_template": "release",
@@ -14279,8 +14044,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "tatl-full-tryjob": {
     "_template": "full",
@@ -14317,8 +14081,7 @@
     ],
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "tatl-release": {
     "_template": "release",
@@ -14404,8 +14167,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-arc-r-full-tryjob": {
     "_template": "full",
@@ -14429,8 +14191,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-arc-r-release": {
     "_template": "release",
@@ -14488,8 +14249,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-connectivitynext-full-tryjob": {
     "_template": "full",
@@ -14513,8 +14273,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-connectivitynext-release": {
     "_template": "release",
@@ -14632,8 +14391,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-full-tryjob": {
     "_template": "full",
@@ -14657,8 +14415,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-kernelnext-full": {
     "_template": "full",
@@ -14669,8 +14426,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-kernelnext-full-tryjob": {
     "_template": "full",
@@ -14694,8 +14450,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-kernelnext-release": {
     "_template": "release",
@@ -14807,8 +14562,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-userdebug-full-tryjob": {
     "_template": "full",
@@ -14832,8 +14586,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-userdebug-release": {
     "_template": "release",
@@ -14891,8 +14644,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-zephyr-full-tryjob": {
     "_template": "full",
@@ -14916,8 +14668,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "trogdor-zephyr-release": {
     "_template": "release",
@@ -14977,8 +14728,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "viking-arm64-full-tryjob": {
     "_template": "full",
@@ -15004,8 +14754,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "viking-arm64-rapid": {
     "_template": "release",
@@ -15109,8 +14858,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "viking-full-tryjob": {
     "_template": "full",
@@ -15136,8 +14884,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "viking-poc2-full": {
     "_template": "full",
@@ -15160,8 +14907,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "viking-poc2-full-tryjob": {
     "_template": "full",
@@ -15187,8 +14933,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "viking-poc2-rapid": {
     "_template": "release",
@@ -15381,8 +15126,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "volteer-full-tryjob": {
     "_template": "full",
@@ -15406,8 +15150,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "volteer-kernelnext-full": {
     "_template": "full",
@@ -15418,8 +15161,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "volteer-kernelnext-full-tryjob": {
     "_template": "full",
@@ -15443,8 +15185,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "volteer-kernelnext-release": {
     "_template": "release",
@@ -15698,8 +15439,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "wristpin-full-tryjob": {
     "_template": "full",
@@ -15726,8 +15466,7 @@
     "upload_hw_test_artifacts": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "wristpin-rapid": {
     "_template": "release",
@@ -15822,8 +15561,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-arc-r-full-tryjob": {
     "_template": "full",
@@ -15848,8 +15586,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-arc-r-release": {
     "_template": "release",
@@ -15923,8 +15660,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-connectivitynext-full-tryjob": {
     "_template": "full",
@@ -15948,8 +15684,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-connectivitynext-release": {
     "_template": "release",
@@ -16065,8 +15800,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-full-tryjob": {
     "_template": "full",
@@ -16092,8 +15826,7 @@
     "unittests": false,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-kernelnext-full": {
     "_template": "full",
@@ -16104,8 +15837,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-kernelnext-full-tryjob": {
     "_template": "full",
@@ -16129,8 +15861,7 @@
     "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
-    ],
-    "vm_tests": []
+    ]
   },
   "zork-kernelnext-release": {
     "_template": "release",

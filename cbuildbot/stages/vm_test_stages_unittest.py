@@ -90,16 +90,6 @@ class VMTestStageTest(
         ]
         self.RunStage()
 
-    def testFailedTest(self):
-        """Tests quick unit and cros_au_test_harness tests are correct."""
-        self.PatchObject(
-            vm_test_stages.VMTestStage,
-            "_RunTest",
-            autospec=True,
-            side_effect=Exception(),
-        )
-        self.assertRaises(failures_lib.StepFailure, self.RunStage)
-
     def testRaisesInfraFail(self):
         """Tests that a infra failures has been raised."""
         commands.BuildAndArchiveTestResultsTarball.side_effect = OSError(

@@ -11,14 +11,6 @@ from chromite.lib import config_lib
 from chromite.lib import constants
 
 
-vmtest_boards = frozenset(
-    [
-        # Full VMTest support on ChromeOS is currently limited.
-        "amd64-generic",  # Has kernel 4.4, used with public Chromium.
-    ]
-)
-
-
 class HWTestList:
     """Container for methods to generate HWTest lists."""
 
@@ -305,24 +297,6 @@ def InsertHwTestsOverrideDefaults(build):
             hw_config.priority = constants.HWTEST_DEFAULT_PRIORITY
 
 
-def EnsureVmTestsOnVmTestBoards(site_config, boards_dict, _gs_build_config):
-    """Make sure VMTests are only enabled on boards that support them.
-
-    Args:
-        site_config: config_lib.SiteConfig containing builds to have their
-            waterfall values updated.
-        boards_dict: A dict mapping board types to board name collections.
-        ge_build_config: Dictionary containing the decoded GE configuration
-            file.
-    """
-    for c in site_config.values():
-        if set(c["boards"]).intersection(set(boards_dict["no_vmtest_boards"])):
-            c.apply(site_config.templates.no_vmtest_builder)
-            if c.child_configs:
-                for cc in c.child_configs:
-                    cc.apply(site_config.templates.no_vmtest_builder)
-
-
 def ApplyCustomOverrides(site_config):
     """Method with to override specific flags for specific builders.
 
@@ -375,7 +349,6 @@ def PostsubmitBuilders(site_config):
     for config in site_config.values():
         if config.name.endswith("postsubmit"):
             config.apply(
-                site_config.templates.no_vmtest_builder,
                 site_config.templates.no_hwtest_builder,
             )
 
@@ -406,12 +379,6 @@ def GeneralTemplates(site_config, ge_build_config):
         ),
     )
 
-    # Notice all builders except for vmtest_boards should not run vmtest.
-    site_config.AddTemplate(
-        "no_vmtest_builder",
-        vm_tests=[],
-    )
-
     site_config.AddTemplate(
         "no_hwtest_builder",
         hw_tests=[],
@@ -420,7 +387,6 @@ def GeneralTemplates(site_config, ge_build_config):
 
     site_config.AddTemplate(
         "moblab",
-        site_config.templates.no_vmtest_builder,
         image_test=False,
     )
 
@@ -432,28 +398,24 @@ def GeneralTemplates(site_config, ge_build_config):
     # BEGIN Factory
     site_config.templates.factory.apply(
         # site_config.templates.default_hw_tests_override,
-        site_config.templates.no_vmtest_builder,
         site_config.templates.no_hwtest_builder,
     )
     # END Factory
 
     # BEGIN Loonix
     site_config.templates.loonix.apply(
-        site_config.templates.no_vmtest_builder,
         site_config.templates.no_hwtest_builder,
     )
     # END Loonix
 
     # BEGIN WSHWOS
     site_config.templates.wshwos.apply(
-        site_config.templates.no_vmtest_builder,
         site_config.templates.no_hwtest_builder,
     )
     # END WSHWOS
 
     # BEGIN Dustbuster
     site_config.templates.dustbuster.apply(
-        site_config.templates.no_vmtest_builder,
         site_config.templates.no_hwtest_builder,
     )
     # END Dustbuster
@@ -483,14 +445,12 @@ def GeneralTemplates(site_config, ge_build_config):
     )
 
     site_config.templates.payloads.apply(
-        site_config.templates.no_vmtest_builder,
         site_config.templates.no_hwtest_builder,
     )
     # END Release
 
     # BEGIN Termina
     site_config.templates.termina.apply(
-        site_config.templates.no_vmtest_builder,
         site_config.templates.no_hwtest_builder,
     )
     # END Termina
@@ -512,7 +472,5 @@ def ApplyConfig(site_config, boards_dict, ge_build_config):
         InsertHwTestsOverrideDefaults(build)
 
     PostsubmitBuilders(site_config)
-
-    EnsureVmTestsOnVmTestBoards(site_config, boards_dict, ge_build_config)
 
     ApplyCustomOverrides(site_config)

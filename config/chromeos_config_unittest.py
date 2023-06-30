@@ -613,25 +613,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     % build_name,
                 )
 
-    def testVmTestsOnlyOnVmTestBoards(self):
-        """Verify that only VM capable boards run VM tests."""
-        for _, config in self.site_config.items():
-            if config["vm_tests"]:
-                for board in config["boards"]:
-                    self.assertIn(
-                        board,
-                        chromeos_test.vmtest_boards,
-                        "Board %s not able to run VM tests." % board,
-                    )
-            for child_config in config.child_configs:
-                if child_config["vm_tests"]:
-                    for board in config["boards"]:
-                        self.assertIn(
-                            board,
-                            chromeos_test.vmtest_boards,
-                            "Board %s not able to run VM tests." % board,
-                        )
-
     def testHWTestsArchivingHWTestArtifacts(self):
         """Verify all configs upload artifacts that need them for hw testing."""
         for build_name, config in self.site_config.items():

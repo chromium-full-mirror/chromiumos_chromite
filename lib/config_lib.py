@@ -763,10 +763,7 @@ def DefaultSettings():
         # Update the kernel ebuild with the AFDO profile info.
         afdo_update_kernel_ebuild=False,
         # A list of VMTestConfig objects to run by default.
-        vm_tests=[
-            VMTestConfig(constants.VM_SUITE_TEST_TYPE, test_suite="smoke"),
-            VMTestConfig(constants.SIMPLE_AU_TEST_TYPE),
-        ],
+        vm_tests=[],
         # If True, run SkylabHWTestStage instead of HWTestStage for suites that
         # use pools other than pool:cts.
         enable_skylab_hw_tests=False,
