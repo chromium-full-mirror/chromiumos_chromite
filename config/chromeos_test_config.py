@@ -15,7 +15,6 @@ vmtest_boards = frozenset(
     [
         # Full VMTest support on ChromeOS is currently limited.
         "amd64-generic",  # Has kernel 4.4, used with public Chromium.
-        "amd64-generic-vm",  # amd64-generic with optimization for VMs.
     ]
 )
 

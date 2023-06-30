@@ -652,22 +652,6 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
         )
     )
 
-    vm_config = site_config.Add(
-        "amd64-generic-vm-full",
-        site_config.templates.vm,
-        site_config.templates.build_external_chrome,
-        boards=["amd64-generic"],
-        description="Build for running on VMs",
-        run_cpeexport=True,
-        internal=False,
-        manifest_version=True,
-        manifest_repo_url=config_lib.GetSiteParams().MANIFEST_URL,
-        overlays=constants.PUBLIC_OVERLAYS,
-        prebuilts=constants.PUBLIC,
-    )
-
-    master_config.AddSlave(vm_config)
-
 
 def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
     """Create all factory build configs.

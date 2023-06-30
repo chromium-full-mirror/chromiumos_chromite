@@ -275,7 +275,6 @@
   ambassador-full-tryjob
   ambassador-release-tryjob
   amd64-generic-full-tryjob
-  amd64-generic-vm-full-tryjob
   arm-generic-full-tryjob
   arm64-generic-full-tryjob
   asuka-factory-glados-7828.B-factorybranch-tryjob
@@ -611,7 +610,6 @@
     sarien-master-factorybranch-tryjob
   master-full-tryjob
     amd64-generic-full-tryjob
-    amd64-generic-vm-full-tryjob
     arm-generic-full-tryjob
     arm64-generic-full-tryjob
     eve-full-tryjob
