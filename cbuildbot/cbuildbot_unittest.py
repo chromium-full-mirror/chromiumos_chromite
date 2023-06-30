@@ -474,7 +474,7 @@ class FullInterfaceTest(cros_test_lib.MockTempDirTestCase):
                 [
                     "-r",
                     self.buildroot,
-                    "arm-generic-full-tryjob",
+                    "master-full-tryjob",
                     "amd64-generic-full-tryjob",
                 ]
             )

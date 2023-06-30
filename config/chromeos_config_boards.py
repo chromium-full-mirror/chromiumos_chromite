@@ -29,11 +29,7 @@ arm_internal_release_boards = frozenset(
     ]
 )
 
-arm_external_boards = frozenset(
-    [
-        "arm-generic",
-    ]
-)
+arm_external_boards = frozenset()
 
 x86_internal_release_boards = frozenset(
     [

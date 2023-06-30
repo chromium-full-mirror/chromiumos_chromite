@@ -302,7 +302,7 @@ class AllConfigsTestCase(
         if site_config is None:
             site_config = config_lib.GetConfig()
 
-        boards = ("hatch", "arm-generic")
+        boards = ("hatch", "kevin")
 
         for board in boards:
             self.CreateMockOverlay(board)

@@ -145,7 +145,7 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     boards_dict["no_vmtest_boards"] = all_boards - chromeos_test.vmtest_boards
 
     boards_dict["generic_kernel_boards"] = frozenset(
-        ["amd64-generic", "arm-generic"],
+        ["amd64-generic"],
     )
 
     all_ge_boards = set()
@@ -597,7 +597,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
             "tatl",
             "zork",
         ],
-        ("amd64-generic", "arm-generic"),
+        ("amd64-generic",),
     )
 
     # Move the following builders to active_builders once they are consistently
@@ -1472,6 +1472,7 @@ def SpecialtyBuilders(site_config):
             "TOC-Continuous"
         ),
         schedule="with 30m interval",
+        vm_tests=[],
     )
 
     site_config.AddWithoutTemplate(
@@ -1490,6 +1491,7 @@ def SpecialtyBuilders(site_config):
         description="Build the SDK with llvm-next",
         # Once every day. 8 AM UTC is 1 AM PST.
         schedule="0 8 * * *",
+        vm_tests=[],
     )
 
     site_config.AddWithoutTemplate(
