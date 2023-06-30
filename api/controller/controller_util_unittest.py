@@ -13,6 +13,7 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
@@ -229,10 +230,13 @@ def test_package_index_info():
     assert obj == controller_util.deserialize_package_index_info(msg)
 
 
-class Pb2PathToPathlibPathTest(cros_test_lib.TestCase):
+class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
     """Verify functionality for pb2_path_to_pathlib_path()."""
 
-    chroot = common_pb2.Chroot(path="/path/to/chroot")
+    chroot = common_pb2.Chroot(path="/path/to/chroot", out_path="/path/to/out")
+
+    def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
     @staticmethod
     def create_pb2_path(path: str, inside: bool) -> common_pb2.Path:

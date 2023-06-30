@@ -5,7 +5,7 @@
 """SDK tests."""
 
 import os
-import pathlib
+from pathlib import Path
 from typing import List, Optional
 from unittest import mock
 
@@ -13,6 +13,7 @@ from chromite.api import api_config
 from chromite.api.controller import sdk as sdk_controller
 from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromiumos import common_pb2
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -369,16 +370,17 @@ class CreateManifestFromSdkTest(
 ):
     """Test the SdkService/CreateManifestFromSdk endpoint."""
 
-    _chroot_path = "/path/to/chroot"
-    _sdk_path_relative = "build/my_sdk"
+    _sdk_path = "/build/my_sdk"
     _dest_dir = "/build"
     _manifest_path = "/build/my_sdk.Manifest"
 
     def _NewRequest(self, inside: bool) -> sdk_pb2.CreateManifestFromSdkRequest:
         return sdk_pb2.CreateManifestFromSdkRequest(
-            chroot=common_pb2.Chroot(path=self._chroot_path),
+            chroot=common_pb2.Chroot(
+                path=self.chroot.path, out_path=str(self.chroot.out_path)
+            ),
             sdk_path=common_pb2.Path(
-                path="/%s" % self._sdk_path_relative,
+                path=self._sdk_path,
                 location=common_pb2.Path.Location.INSIDE
                 if inside
                 else common_pb2.Path.Location.OUTSIDE,
@@ -391,6 +393,14 @@ class CreateManifestFromSdkTest(
 
     def _NewResponse(self) -> sdk_pb2.CreateManifestFromSdkResponse:
         return sdk_pb2.CreateManifestFromSdkResponse()
+
+    def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        self.chroot = chroot_lib.Chroot(
+            path=Path("/path/to/chroot"),
+            out_path=Path("/path/to/out"),
+        )
 
     def testValidateOnly(self):
         """Check that a validate only call does not execute any logic."""
@@ -407,7 +417,7 @@ class CreateManifestFromSdkTest(
         impl_patch = self.PatchObject(
             sdk_service,
             "CreateManifestFromSdk",
-            return_value=pathlib.Path(self._manifest_path),
+            return_value=Path(self._manifest_path),
         )
         request = self._NewRequest(inside=False)
         response = self._NewResponse()
@@ -417,8 +427,8 @@ class CreateManifestFromSdkTest(
             self.api_config,
         )
         impl_patch.assert_called_with(
-            pathlib.Path("/", self._sdk_path_relative),
-            pathlib.Path(self._dest_dir),
+            Path(self._sdk_path),
+            Path(self._dest_dir),
         )
         self.assertEqual(
             response.manifest_path.location, common_pb2.Path.Location.OUTSIDE
@@ -430,7 +440,7 @@ class CreateManifestFromSdkTest(
         impl_patch = self.PatchObject(
             sdk_service,
             "CreateManifestFromSdk",
-            return_value=pathlib.Path(self._manifest_path),
+            return_value=Path(self._manifest_path),
         )
         request = self._NewRequest(inside=True)
         response = self._NewResponse()
@@ -440,8 +450,8 @@ class CreateManifestFromSdkTest(
             self.api_config,
         )
         impl_patch.assert_called_with(
-            pathlib.Path(self._chroot_path, self._sdk_path_relative),
-            pathlib.Path(self._dest_dir),
+            Path(self.chroot.full_path(self._sdk_path)),
+            Path(self._dest_dir),
         )
         self.assertEqual(
             response.manifest_path.location, common_pb2.Path.Location.OUTSIDE

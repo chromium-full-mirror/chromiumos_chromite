@@ -317,5 +317,4 @@ def pb2_path_to_pathlib_path(
         return Path(pb2_path.path)
     if chroot is None:
         raise ValueError("Cannot convert inside path without a chroot.")
-    path_relative_to_root = pb2_path.path[1:]
-    return Path(chroot.path, path_relative_to_root)
+    return Path(ParseChroot(chroot).full_path(pb2_path.path))
