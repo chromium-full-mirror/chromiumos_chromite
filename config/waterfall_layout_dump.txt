@@ -276,7 +276,6 @@
   ambassador-release-tryjob
   amd64-generic-full-tryjob
   arm-generic-full-tryjob
-  arm64-generic-full-tryjob
   asuka-factory-glados-7828.B-factorybranch-tryjob
   asurada-connectivitynext-full-tryjob
   asurada-connectivitynext-release-tryjob
@@ -611,7 +610,6 @@
   master-full-tryjob
     amd64-generic-full-tryjob
     arm-generic-full-tryjob
-    arm64-generic-full-tryjob
     eve-full-tryjob
     hana-full-tryjob
     jacuzzi-full-tryjob

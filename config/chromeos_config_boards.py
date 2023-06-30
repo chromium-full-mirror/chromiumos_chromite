@@ -32,7 +32,6 @@ arm_internal_release_boards = frozenset(
 arm_external_boards = frozenset(
     [
         "arm-generic",
-        "arm64-generic",
     ]
 )
 

@@ -145,7 +145,7 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     boards_dict["no_vmtest_boards"] = all_boards - chromeos_test.vmtest_boards
 
     boards_dict["generic_kernel_boards"] = frozenset(
-        ["amd64-generic", "arm-generic", "arm64-generic"]
+        ["amd64-generic", "arm-generic"],
     )
 
     all_ge_boards = set()
@@ -597,7 +597,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
             "tatl",
             "zork",
         ],
-        ("amd64-generic", "arm-generic", "arm64-generic"),
+        ("amd64-generic", "arm-generic"),
     )
 
     # Move the following builders to active_builders once they are consistently
@@ -1195,10 +1195,7 @@ def ApplyCustomOverrides(site_config):
             "paygen": False,
         },
         # Run TestSimpleChromeWorkflow only on kevin64-release instead of
-        # arm64-generic/kevin64-full.
-        "arm64-generic-full": {
-            "chrome_sdk_build_chrome": False,
-        },
+        # kevin64-full.
         "kevin64-full": {
             "chrome_sdk_build_chrome": False,
         },
