@@ -482,7 +482,7 @@ export class Runner extends AbstractRunner {
 
     let testItemOrInstantiationItem;
     if (instantiationName !== null) {
-      const instantiationId = `${item.id}:instantiation:${instantiationName}`;
+      const instantiationId = `instantiation:${instantiationName}`;
       let instantiationItem = item.children.get(instantiationId);
       if (!instantiationItem) {
         instantiationItem = this.controller.createTestItem(
@@ -498,7 +498,7 @@ export class Runner extends AbstractRunner {
       testItemOrInstantiationItem = item;
     }
 
-    const subTestId = `${testItemOrInstantiationItem.id}:subtest:${subTestName}`;
+    const subTestId = `subtest:${subTestName}`;
     let subTestItem = testItemOrInstantiationItem.children.get(subTestId);
     if (!subTestItem) {
       subTestItem = this.controller.createTestItem(

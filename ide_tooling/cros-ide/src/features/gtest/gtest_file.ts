@@ -2,19 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as path from 'path';
 import * as vscode from 'vscode';
 import {GtestCase} from './gtest_case';
+import {GtestRunnable} from './gtest_runnable';
+import {GtestSuite} from './gtest_suite';
 import * as parser from './parser';
 
 /**
- * Represents a unit test file containing at least one gtest test case.
+ * Represents a test file containing at least one test suite with a test case.
  */
-export class GtestFile implements vscode.Disposable {
-  private readonly cases: GtestCase[] = [];
-  private readonly item: vscode.TestItem;
+export class GtestFile extends GtestRunnable {
+  readonly testSuites: GtestSuite[] = [];
+
+  override dispose() {
+    super.dispose();
+    this.testSuites.splice(0);
+  }
 
   private constructor(
-    private readonly controller: vscode.TestController,
+    controller: vscode.TestController,
     uri: vscode.Uri,
     testSuiteMap: parser.TestSuiteMap
   ) {
@@ -22,26 +29,28 @@ export class GtestFile implements vscode.Disposable {
       throw new Error('Internal error: testSuiteMap must not be empty');
     }
 
-    this.item = this.controller.createTestItem(
-      uri.toString(),
-      uri.path.split('/').pop()!,
+    const item = controller.createTestItem(
+      /*id=*/ uri.toString(),
+      /*label=*/ path.basename(uri.fsPath),
       uri
     );
-    this.controller.items.add(this.item);
+    controller.items.add(item);
+    super(controller, item, uri);
 
-    for (const [suite, {cases, isParametrized}] of testSuiteMap.entries()) {
-      for (const [name, {range}] of cases.entries()) {
-        const testCase = new GtestCase(
-          this.controller,
-          this.item,
-          uri,
-          range,
-          suite,
-          name,
-          isParametrized
-        );
-        this.cases.push(testCase);
-      }
+    for (const [
+      suite,
+      {range, cases, isParametrized},
+    ] of testSuiteMap.entries()) {
+      const testSuite = new GtestSuite(
+        controller,
+        item,
+        uri,
+        range,
+        suite,
+        isParametrized,
+        cases
+      );
+      this.testSuites.push(testSuite);
     }
   }
 
@@ -57,41 +66,35 @@ export class GtestFile implements vscode.Disposable {
     return new GtestFile(getOrCreateController(), uri, testSuiteMap);
   }
 
-  dispose() {
-    for (const testCase of this.cases) {
-      testCase.dispose();
-    }
-    this.cases.splice(0);
+  override getChildren(): GtestSuite[] {
+    return this.testSuites;
+  }
 
-    if (this.item) {
-      this.controller.items.delete(this.item.id);
-    }
+  override getGtestFilter(): string {
+    // Unfortunately, gtest does not allow to filter by filename.
+    return this.testSuites
+      .map(testSuite => testSuite.getGtestFilter())
+      .join(':');
   }
 
   /**
    * Returns a generator over all test cases matching the request.
    */
-  *matchingTestCases(
-    request: vscode.TestRunRequest
+  override *matchingTestCases(
+    request: vscode.TestRunRequest,
+    parentIsIncluded: boolean
   ): Generator<GtestCase, void, void> {
     if (request.exclude?.includes(this.item)) {
       return;
     }
 
-    const runAll = request.include?.includes(this.item);
+    const include =
+      parentIsIncluded ||
+      !request.include ||
+      request.include.includes(this.item);
 
-    for (const testCase of this.cases) {
-      if (
-        !runAll &&
-        request.include &&
-        !request.include.includes(testCase.item)
-      ) {
-        continue;
-      }
-      if (request.exclude?.includes(testCase.item)) {
-        continue;
-      }
-      yield testCase;
+    for (const testSuite of this.testSuites) {
+      yield* testSuite.matchingTestCases(request, include);
     }
   }
 }

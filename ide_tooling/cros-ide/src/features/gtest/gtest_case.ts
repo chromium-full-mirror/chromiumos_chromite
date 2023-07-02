@@ -3,42 +3,66 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {GtestRunnable} from './gtest_runnable';
+import {GtestSuite} from './gtest_suite';
 
 /**
  * Represents one gtest test case.
  */
-export class GtestCase implements vscode.Disposable {
-  readonly item: vscode.TestItem;
-
-  dispose() {
-    this.parent.children.delete(this.item.id);
-  }
-
+export class GtestCase extends GtestRunnable {
   constructor(
     controller: vscode.TestController,
-    private readonly parent: vscode.TestItem,
-    readonly uri: vscode.Uri,
+    private readonly testSuite: GtestSuite,
     range: vscode.Range,
-    private readonly suite: string,
-    private readonly name: string,
-    private readonly isParametrized: boolean
+    private readonly caseName: string
   ) {
-    const id = `${uri}/${this.testName}`;
-    this.item = controller.createTestItem(id, this.testName, uri);
-    this.item.range = range;
-    this.parent.children.add(this.item);
+    const item = controller.createTestItem(
+      /*id=*/ `case:${caseName}`,
+      /*label=*/ caseName,
+      testSuite.uri
+    );
+    item.range = range;
+    testSuite.item.children.add(item);
+    super(controller, item, testSuite.uri);
   }
 
   get testName(): string {
-    return `${this.suite}.${this.name}`;
+    return `${this.testSuite.suiteName}.${this.caseName}`;
   }
 
-  getGtestFilter(): string {
-    if (this.isParametrized) {
+  override getChildren(): [] {
+    // A test case currently does not have children.
+    // TODO(cmfcmf): It will have children once we properly support parametrized tests.
+    return [];
+  }
+
+  override getGtestFilter(): string {
+    if (this.testSuite.isParametrized) {
       // Parametrized tests may or may not have a prefix.
       return `*/${this.testName}/*:${this.testName}/*`;
     } else {
       return this.testName;
+    }
+  }
+
+  /**
+   * Returns a generator over all test cases matching the request.
+   */
+  override *matchingTestCases(
+    request: vscode.TestRunRequest,
+    parentIsIncluded: boolean
+  ): Generator<GtestCase, void, void> {
+    if (request.exclude?.includes(this.item)) {
+      return;
+    }
+
+    const include =
+      parentIsIncluded ||
+      !request.include ||
+      request.include.includes(this.item);
+
+    if (include) {
+      yield this;
     }
   }
 }

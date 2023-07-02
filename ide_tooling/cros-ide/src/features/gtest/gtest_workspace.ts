@@ -100,7 +100,7 @@ export class GtestWorkspace implements vscode.Disposable {
     request: vscode.TestRunRequest
   ): Generator<GtestCase, void, void> {
     for (const testFile of this.uriToGtestFile.values()) {
-      yield* testFile.matchingTestCases(request);
+      yield* testFile.matchingTestCases(request, /*parentIsIncluded=*/ false);
     }
   }
 }
