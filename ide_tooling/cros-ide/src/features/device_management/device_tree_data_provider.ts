@@ -16,7 +16,7 @@ export enum ItemKind {
 export class DeviceItem extends vscode.TreeItem {
   readonly kind = ItemKind.DEVICE;
   readonly hostname: string;
-  readonly iconPath = new vscode.ThemeIcon('device-desktop');
+  override readonly iconPath = new vscode.ThemeIcon('device-desktop');
 
   constructor(device: repository.Device) {
     super(device.hostname, vscode.TreeItemCollapsibleState.None);
@@ -25,17 +25,17 @@ export class DeviceItem extends vscode.TreeItem {
 }
 
 export class OwnedDeviceItem extends DeviceItem {
-  readonly contextValue = 'device-owned';
+  override readonly contextValue = 'device-owned';
 
-  constructor(readonly device: repository.OwnedDevice) {
+  constructor(device: repository.OwnedDevice) {
     super(device);
   }
 }
 
 export class LeasedDeviceItem extends DeviceItem {
-  readonly contextValue = 'device-leased';
+  override readonly contextValue = 'device-leased';
 
-  constructor(readonly device: repository.LeasedDevice) {
+  constructor(device: repository.LeasedDevice) {
     super(device);
     this.description = `${device.board ?? '???'}/${device.model ?? '???'}`;
     const now = new Date();
@@ -73,7 +73,7 @@ export class PlaceholderItem extends vscode.TreeItem {
 
 export class LoginItem extends vscode.TreeItem {
   readonly kind = ItemKind.LOGIN;
-  readonly command: vscode.Command = {
+  override readonly command: vscode.Command = {
     title: 'Log in to Crosfleet',
     command: 'chromiumide.deviceManagement.crosfleetLogin',
   };

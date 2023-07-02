@@ -310,8 +310,8 @@ class PackageItem extends ChrootItem implements Package {
     super(name, vscode.TreeItemCollapsibleState.None);
   }
 
-  contextValue = 'package';
-  iconPath = new vscode.ThemeIcon('package');
+  override readonly contextValue = 'package';
+  override readonly iconPath = new vscode.ThemeIcon('package');
 }
 
 export const TEST_ONLY = {
