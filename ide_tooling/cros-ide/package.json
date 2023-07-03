@@ -685,6 +685,11 @@
           "description": "Link to the hash of the current revision instead of TOT",
           "default": false
         },
+        "chromiumide.crosFormat.enabled": {
+          "type": "boolean",
+          "description": "Format files with 'cros format'",
+          "default": true
+        },
         "chromiumide.gerrit.enabled": {
           "type": "boolean",
           "markdownDescription": "Enable Gerrit comments.",
@@ -740,11 +745,6 @@
         "chromiumide.underDevelopment.chromiumBuild": {
           "type": "boolean",
           "description": "Enable build + deploy for chromium code (incomplete)",
-          "default": false
-        },
-        "chromiumide.underDevelopment.crosFormat": {
-          "type": "boolean",
-          "description": "Format files with 'cros format' (under development)",
           "default": false
         },
         "chromiumide.underDevelopment.deviceManagement": {

@@ -108,13 +108,16 @@ export const codeSearch = {
   openWithRevision: new ConfigValue<boolean>('codeSearchHash'),
 };
 
+export const crosFormat = {
+  enabled: new ConfigValue<boolean>('crosFormat.enabled'),
+};
+
 export const gerrit = {
   enabled: new ConfigValue<boolean>('gerrit.enabled'),
 };
 
 export const underDevelopment = {
   chromiumBuild: new ConfigValue<boolean>('underDevelopment.chromiumBuild'),
-  crosFormat: new ConfigValue<boolean>('underDevelopment.crosFormat'),
   deviceManagement: new ConfigValue<boolean>(
     'underDevelopment.deviceManagement'
   ),
