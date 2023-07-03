@@ -7,28 +7,104 @@ import * as gtestTestListParser from '../../../../features/gtest/gtest_test_list
 describe('Gtest test list parser', () => {
   it('parses --gtest_list_tests output', () => {
     const input = `\
-Foo.
-  Bar
-  X
-Foo/Foo.
-  TestP/0  # GetParam() = false
-  TestP/1  # GetParam() = true
-  TestQ/0  # GetParam() = false
-  TestQ/1  # GetParam() = true
-NoPrefix.
-  TestP/A  # GetParam() = ...
-  TestP/B  # GetParam() = ...
-TypedTest.  # TypeParam =
-  TypedTestName  # GetParam() =
+TestSuite.
+  TestCase
+TestFixture.
+  TestCase
+TypedTest/0.  # TypeParam = char
+  TestCase
+TypedTest/1.  # TypeParam = int
+  TestCase
+TypedTestWithTypeNameGenerator/char.  # TypeParam = char
+  TestCase
+TypedTestWithTypeNameGenerator/int.  # TypeParam = int
+  TestCase
+TypeParameterizedTest/0.  # TypeParam = char
+  TestCase
+TypeParameterizedTest/1.  # TypeParam = int
+  TestCase
+Instantiation/TypeParameterizedTest/0.  # TypeParam = char
+  TestCase
+Instantiation/TypeParameterizedTest/1.  # TypeParam = int
+  TestCase
+InstantiationWithTypeNameGenerator/TypeParameterizedTest/char.  # TypeParam = char
+  TestCase
+InstantiationWithTypeNameGenerator/TypeParameterizedTest/int.  # TypeParam = int
+  TestCase
+ParameterizedTest.
+  TestCase/0  # GetParam() = false
+  TestCase/1  # GetParam() = true
+Instantiation/ParameterizedTest.
+  TestCase/0  # GetParam() = false
+  TestCase/1  # GetParam() = true
+InstantiationWithParamNameGenerator/ParameterizedTest.
+  TestCase/false  # GetParam() = false
+  TestCase/true  # GetParam() = true
 `;
     const result = gtestTestListParser.parse(input);
-    expect([...new Set(result)]).toEqual([
-      'Foo.Bar',
-      'Foo.X',
-      'Foo.TestP',
-      'Foo.TestQ',
-      'NoPrefix.TestP',
-      'TypedTest.TypedTestName',
-    ]);
+    expect(result).toBeInstanceOf(gtestTestListParser.TestNameCollection);
+    if (result instanceof Error) {
+      fail();
+      return;
+    }
+
+    expect(result.getFullTestNames()).toEqual(
+      new Set([
+        'TestSuite.TestCase',
+        'TestFixture.TestCase',
+
+        'TypedTest/0.TestCase',
+        'TypedTest/1.TestCase',
+
+        'TypedTestWithTypeNameGenerator/char.TestCase',
+        'TypedTestWithTypeNameGenerator/int.TestCase',
+
+        'TypeParameterizedTest/0.TestCase',
+        'TypeParameterizedTest/1.TestCase',
+
+        'Instantiation/TypeParameterizedTest/0.TestCase',
+        'Instantiation/TypeParameterizedTest/1.TestCase',
+
+        'InstantiationWithTypeNameGenerator/TypeParameterizedTest/char.TestCase',
+        'InstantiationWithTypeNameGenerator/TypeParameterizedTest/int.TestCase',
+
+        'ParameterizedTest.TestCase/0',
+        'ParameterizedTest.TestCase/1',
+
+        'Instantiation/ParameterizedTest.TestCase/0',
+        'Instantiation/ParameterizedTest.TestCase/1',
+
+        'InstantiationWithParamNameGenerator/ParameterizedTest.TestCase/false',
+        'InstantiationWithParamNameGenerator/ParameterizedTest.TestCase/true',
+      ])
+    );
+    expect(result.getSuiteAndCaseNames()).toEqual(
+      new Set([
+        'TestSuite.TestCase',
+        'TestFixture.TestCase',
+
+        'TypedTest.TestCase',
+
+        'TypedTestWithTypeNameGenerator.TestCase',
+
+        'TypeParameterizedTest.TestCase',
+
+        'ParameterizedTest.TestCase',
+        'ParameterizedTest.TestCase',
+      ])
+    );
+
+    expect(
+      result.hasFullTestName(
+        'InstantiationWithTypeNameGenerator/TypeParameterizedTest/char.TestCase'
+      )
+    ).toBeTrue();
+    expect(result.hasFullTestName('Foo/Foo.TestP/3')).toBeFalse();
+    expect(
+      result.hasSuiteAndCaseName('TypedTestWithTypeNameGenerator.TestCase')
+    ).toBeTrue();
+    expect(result.hasSuiteAndCaseName('TestSuite.TestCase')).toBeTrue();
+    expect(result.hasSuiteAndCaseName('Foo.TestP')).toBeFalse();
+    expect(result.hasSuiteAndCaseName('TypedTest/0.TestCase')).toBeFalse();
   });
 });

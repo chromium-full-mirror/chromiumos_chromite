@@ -26,22 +26,23 @@ export class GtestCase extends GtestRunnable {
     super(controller, item, testSuite.uri);
   }
 
-  get testName(): string {
+  get suiteAndCaseName(): string {
     return `${this.testSuite.suiteName}.${this.caseName}`;
   }
 
   override getChildren(): [] {
     // A test case currently does not have children.
-    // TODO(cmfcmf): It will have children once we properly support parametrized tests.
+    // TODO(cmfcmf): It will have children once we properly support parameterized tests.
     return [];
   }
 
   override getGtestFilter(): string {
     if (this.testSuite.isParametrized) {
-      // Parametrized tests may or may not have a prefix.
-      return `*/${this.testName}/*:${this.testName}/*`;
+      // Parameterized tests may or may not have a prefix.
+      // TODO(cmfcmf): This does not work for typed tests.
+      return `*/${this.suiteAndCaseName}/*:${this.suiteAndCaseName}/*`;
     } else {
-      return this.testName;
+      return this.suiteAndCaseName;
     }
   }
 

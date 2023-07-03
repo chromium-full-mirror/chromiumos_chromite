@@ -21,7 +21,7 @@ type TestLauncherSummary = {
   global_tags: string[];
   per_iteration_data: Array<
     Record<
-      string, // test name
+      string, // full test name (e.g., Inst/Foo.Bar/Baz)
       Array<{
         elapsed_time_ms: number;
         losless_snippet: boolean; // This appears to be a typo in the test launcher code.
@@ -57,8 +57,9 @@ export type TestSummaryResult = {
   duration: number;
   errors: vscode.TestMessage[];
 };
-// A map from test name to test result. The test names include the full name of the test, including
-// parametrization, such as: FooTest.TestFoo, All/FooTest.TestFoo/0, FooTest.TestFoo/Bar.
+// A map from full test names to test results. The test names include the full name of the test,
+// including parametrization, such as: FooTest.TestFoo, All/FooTest.TestFoo/0, FooTest.TestFoo/Bar,
+// All/FooTest/0.Bar.
 export type TestSummaryResults = Map<string, TestSummaryResult>;
 
 /**

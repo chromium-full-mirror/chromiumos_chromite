@@ -36,7 +36,7 @@ export class Runner extends AbstractRunner {
   /**
    * Given a request from the user, find all the matching test cases that should run.
    *
-   * TODO(cmfcmf): Ideally, we should also support the user wanting to run/not run parametrized sub
+   * TODO(cmfcmf): Ideally, we should also support the user wanting to run/not run parameterized sub
    * tests.
    */
   private getTestCasesToRun() {
@@ -128,15 +128,11 @@ export class Runner extends AbstractRunner {
   }
 
   /**
-   * Given a built test target, extracts a set of test names contained in the target. Note that
-   * these names will *not* include test parameters. E.g., a test named `All/FooTest.Bar/0` will be
-   * returned as `FooTest.Bar`.
-   *
-   * TODO(cmfcmf): We should probably support parametrized test names here.
+   * Given a built test target, extracts a set of test names contained in the target.
    */
   private async extractAllTestNamesFromTestTarget(
     testTargetName: string
-  ): Promise<Set<string> | Error> {
+  ): Promise<gtestTestListParser.TestNameCollection | Error> {
     const result = await commonUtil.exec(
       path.join(
         this.srcPath,
@@ -153,7 +149,7 @@ export class Runner extends AbstractRunner {
     if (result instanceof Error) {
       return result;
     }
-    return new Set(gtestTestListParser.parse(result.stdout));
+    return gtestTestListParser.parse(result.stdout);
   }
 
   /**
@@ -296,7 +292,7 @@ export class Runner extends AbstractRunner {
       }
 
       const testCasesInTarget = testCases.filter(testCase =>
-        allTestNamesInTarget.has(testCase.testName)
+        allTestNamesInTarget.hasSuiteAndCaseName(testCase.suiteAndCaseName)
       );
       if (testCasesInTarget.length === 0) {
         this.output.appendLine(
@@ -371,15 +367,8 @@ export class Runner extends AbstractRunner {
       );
     }
 
-    for (const [
-      possiblyParametrizedTestName,
-      testResult,
-    ] of testResults.entries()) {
-      const error = this.processTestResult(
-        testCases,
-        possiblyParametrizedTestName,
-        testResult
-      );
+    for (const [fullTestName, testResult] of testResults.entries()) {
+      const error = this.processTestResult(testCases, fullTestName, testResult);
       if (error instanceof Error) {
         this.output.appendLine(error.toString());
         // We don't `return` here, since a single test result missing is not a critical error.
@@ -389,16 +378,13 @@ export class Runner extends AbstractRunner {
 
   private processTestResult(
     testCases: GtestCase[],
-    possibleParametrizedTestName: string,
+    fullTestName: string,
     testResult: testLauncherSummaryParser.TestSummaryResult
   ): Error | void {
-    const item = this.getOrCreateTestItemForTestResult(
-      testCases,
-      possibleParametrizedTestName
-    );
+    const item = this.getOrCreateTestItemForTestResult(testCases, fullTestName);
     if (item instanceof Error) {
       return new Error(
-        `Unable to get or create vscode.TestItem for test result (${possibleParametrizedTestName}): ${item}`
+        `Unable to get or create vscode.TestItem for test result (${fullTestName}): ${item}`
       );
     }
     switch (testResult.status) {
@@ -429,13 +415,16 @@ export class Runner extends AbstractRunner {
     }
   }
 
+  // TODO(cmfcmf): Support typed tests.
   private getOrCreateTestItemForTestResult(
     testCases: GtestCase[],
-    possibleParametrizedTestName: string
+    fullTestName: string
   ): Error | vscode.TestItem {
     {
+      // If the test is not parameterized nor typed, then we should be able to find the test case for
+      // it.
       const item = testCases.find(
-        testCase => testCase.testName === possibleParametrizedTestName
+        testCase => testCase.suiteAndCaseName === fullTestName
       )?.item;
       if (item) {
         return item;
@@ -447,7 +436,7 @@ export class Runner extends AbstractRunner {
     let testName: string;
     let subTestName: string;
 
-    const parts = possibleParametrizedTestName.split('/');
+    const parts = fullTestName.split('/');
     if (parts.length === 3) {
       instantiationName = parts[0]!;
       testName = parts[1]!;
@@ -458,12 +447,12 @@ export class Runner extends AbstractRunner {
       subTestName = parts[1]!;
     } else {
       return new Error(
-        `Unable to parse possibly parametrized test name ("${possibleParametrizedTestName}")`
+        `Unable to parse possibly parameterized test name ("${fullTestName}")`
       );
     }
 
     const item = testCases.find(
-      testCase => testCase.testName === testName
+      testCase => testCase.suiteAndCaseName === testName
     )?.item;
     if (!item) {
       metrics.send({
@@ -474,8 +463,8 @@ export class Runner extends AbstractRunner {
       });
 
       return new Error(
-        `Unable to find test case for test "${testName}" ("${possibleParametrizedTestName}"). Test cases: ${testCases
-          .map(testCase => testCase.testName)
+        `Unable to find test case for test "${testName}" ("${fullTestName}"). Test cases: ${testCases
+          .map(testCase => testCase.suiteAndCaseName)
           .join(', ')}`
       );
     }
@@ -512,7 +501,7 @@ export class Runner extends AbstractRunner {
 
     // Mark the sub test item as started.
     //
-    // TODO(cmfcmf): Once we have proper support for parametrized tests, we will only need to start
+    // TODO(cmfcmf): Once we have proper support for parameterized tests, we will only need to start
     // the item if it was just created. However, for now, we'll have to always start the item since
     // currently only `GtestCase.item` (not its children) are marked as started by the rest of the
     // code.

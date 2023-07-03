@@ -87,10 +87,11 @@ export class Runner extends AbstractRunner {
 
       // Collect all the test cases.
       const gtestInfos = await this.collectGtests(buildDir);
-      const testNameToInfo = new Map<string, GTestInfo>();
+      const suiteAndCaseNameToInfo = new Map<string, GTestInfo>();
       for (const t of gtestInfos) {
-        for (const name of t.testNames) {
-          testNameToInfo.set(name, t);
+        // TODO(cmfcmf): This should support parameterized and typed tests.
+        for (const suiteAndCaseName of t.testNames.getSuiteAndCaseNames()) {
+          suiteAndCaseNameToInfo.set(suiteAndCaseName, t);
         }
       }
 
@@ -106,12 +107,12 @@ export class Runner extends AbstractRunner {
 
       // Run the tests with reporting the results.
       for (const test of tests) {
-        const gtestInfo = testNameToInfo.get(test.testName);
+        const gtestInfo = suiteAndCaseNameToInfo.get(test.suiteAndCaseName);
         if (!gtestInfo) {
           this.testRun.failed(
             test.item,
             new vscode.TestMessage(
-              `gtest executable to run ${test.testName} was not found in chroot build dir ${buildDir}`
+              `gtest executable to run ${test.suiteAndCaseName} was not found in chroot build dir ${buildDir}`
             )
           );
           continue;
@@ -195,7 +196,7 @@ export class Runner extends AbstractRunner {
       const packageInfo = await packages.fromFilepath(testCase.uri.fsPath);
       if (!packageInfo) {
         this.output.append(
-          `Skip ${testCase.testName}: found no package info for ${testCase.uri.fsPath}\n`
+          `Skip ${testCase.suiteAndCaseName}: found no package info for ${testCase.uri.fsPath}\n`
         );
         this.testRun.skipped(testCase.item);
         continue;
@@ -344,7 +345,9 @@ export class Runner extends AbstractRunner {
     return results;
   }
 
-  private async listTests(gtestInChroot: string): Promise<string[] | Error> {
+  private async listTests(
+    gtestInChroot: string
+  ): Promise<gtestTestListParser.TestNameCollection | Error> {
     const result = await this.chrootService.exec(
       PLATFORM2_TEST_PY,
       [`--board=${this.board}`, gtestInChroot, '--', '--gtest_list_tests'],
@@ -493,7 +496,7 @@ export class Runner extends AbstractRunner {
 
 type GTestInfo = {
   // Name of tests the executable contains.
-  testNames: string[];
+  testNames: gtestTestListParser.TestNameCollection;
   // Path to the executable in chroot.
   executable: string;
   // Possible platform2 directories relative to the executable.
