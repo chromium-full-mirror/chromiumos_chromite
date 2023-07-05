@@ -52,7 +52,9 @@ describe('platform2 compdb generator', () => {
       languageId: 'cpp',
     } as vscode.TextDocument;
 
-    expect(await state.generator.shouldGenerate(document)).toBeTrue();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.Yes
+    );
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
@@ -80,11 +82,15 @@ describe('platform2 compdb generator', () => {
         'utf8'
       )
     ).toEqual('compile commands for bloonchipper:RW (Makefile)');
-    expect(await state.generator.shouldGenerate(document)).toBeFalse();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.NoNeedNoChange
+    );
 
     // Change mode from RW to RO and verify the file is re-generated
     await config.platformEc.mode.update('RO');
-    expect(await state.generator.shouldGenerate(document)).toBeTrue();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.Yes
+    );
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
@@ -112,12 +118,16 @@ describe('platform2 compdb generator', () => {
         'utf8'
       )
     ).toEqual('compile commands for bloonchipper:RO (Makefile)');
-    expect(await state.generator.shouldGenerate(document)).toBeFalse();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.NoNeedNoChange
+    );
 
     // Change board from bloonchipper to dartmonkey and verify the file is
     // re-generated
     await config.platformEc.board.update('dartmonkey');
-    expect(await state.generator.shouldGenerate(document)).toBeTrue();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.Yes
+    );
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
@@ -142,11 +152,15 @@ describe('platform2 compdb generator', () => {
         'utf8'
       )
     ).toEqual('compile commands for dartmonkey:RO (Makefile)');
-    expect(await state.generator.shouldGenerate(document)).toBeFalse();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.NoNeedNoChange
+    );
 
     // Change build from Makefile to Zephyr and verify the file is re-generated
     await config.platformEc.build.update('Zephyr');
-    expect(await state.generator.shouldGenerate(document)).toBeTrue();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.Yes
+    );
     fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
@@ -174,7 +188,9 @@ describe('platform2 compdb generator', () => {
         'utf8'
       )
     ).toEqual('compile commands for dartmonkey:RO (Zephyr)');
-    expect(await state.generator.shouldGenerate(document)).toBeFalse();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.NoNeedNoChange
+    );
   });
 
   it('does not run outside platform/ec', async () => {
@@ -183,6 +199,8 @@ describe('platform2 compdb generator', () => {
       languageId: 'cpp',
     } as vscode.TextDocument;
 
-    expect(await state.generator.shouldGenerate(document)).toBeFalse();
+    expect(await state.generator.shouldGenerate(document)).toEqual(
+      compdbGenerator.ShouldGenerateResult.NoUnsupported
+    );
   });
 });

@@ -45,6 +45,11 @@
         "enablement": "config.chromiumide.underDevelopment.chromiumBuild"
       },
       {
+        "command": "chromiumide.cppxrefs.forceGenerate",
+        "category": "CrOS",
+        "title": "Generate C++ xrefs for the active file"
+      },
+      {
         "command": "chromiumide.deviceManagement.connectToDeviceForScreen",
         "category": "CrOS",
         "title": "Connect to Device (VNC)",
@@ -461,6 +466,11 @@
           "group": "inline"
         },
         {
+          "command": "chromiumide.cppxrefs.forceGenerate",
+          "when": "view == chromiumide-status && viewItem == cppxrefs",
+          "group": "1_generate"
+        },
+        {
           "command": "chromiumide.deviceManagement.connectToDeviceForScreen",
           "when": "view == devices && viewItem =~ /^device-/",
           "group": "inline@1"
@@ -573,10 +583,6 @@
       ],
       "commandPalette": [
         {
-          "command": "chromiumide.deviceManagement.copyHostname",
-          "when": "false"
-        },
-        {
           "command": "chromiumide.chromium.outputDirectories.editArgs",
           "when": "false"
         },
@@ -586,6 +592,14 @@
         },
         {
           "command": "chromiumide.chromium.outputDirectories.refresh",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.cppxrefs.forceGenerate",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.deviceManagement.copyHostname",
           "when": "false"
         },
         {

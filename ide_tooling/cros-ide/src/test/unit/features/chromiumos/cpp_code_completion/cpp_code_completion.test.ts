@@ -4,7 +4,10 @@
 
 import 'jasmine';
 import * as vscode from 'vscode';
-import {ErrorDetails} from '../../../../../features/chromiumos/cpp_code_completion/compdb_generator';
+import {
+  ErrorDetails,
+  ShouldGenerateResult,
+} from '../../../../../features/chromiumos/cpp_code_completion/compdb_generator';
 import {CLANGD_EXTENSION} from '../../../../../features/chromiumos/cpp_code_completion/constants';
 import {CppCodeCompletion} from '../../../../../features/chromiumos/cpp_code_completion/cpp_code_completion';
 import * as testing from '../../../../testing';
@@ -35,7 +38,7 @@ describe('C++ code completion', () => {
   type TestCase = {
     // Inputs
     name: string;
-    maybeGenerateResponse: boolean;
+    shouldGenerateResponse: ShouldGenerateResult;
     hasClangd: boolean;
     fireSaveTextDocument?: boolean;
     fireChangeActiveTextEditor?: boolean;
@@ -46,28 +49,28 @@ describe('C++ code completion', () => {
   const testCases: TestCase[] = [
     {
       name: 'generates on active editor change',
-      maybeGenerateResponse: true,
+      shouldGenerateResponse: ShouldGenerateResult.Yes,
       hasClangd: true,
       fireChangeActiveTextEditor: true,
       wantGenerate: true,
     },
     {
       name: 'generates on file save',
-      maybeGenerateResponse: true,
+      shouldGenerateResponse: ShouldGenerateResult.Yes,
       hasClangd: true,
       fireSaveTextDocument: true,
       wantGenerate: true,
     },
     {
-      name: 'does not generate if shouldGenerate returns false',
-      maybeGenerateResponse: false,
+      name: 'does not generate if shouldGenerate returns no',
+      shouldGenerateResponse: ShouldGenerateResult.NoNeedNoChange,
       hasClangd: true,
       fireChangeActiveTextEditor: true,
       wantGenerate: false,
     },
     {
       name: 'does not generate if clangd extension is not installed',
-      maybeGenerateResponse: true,
+      shouldGenerateResponse: ShouldGenerateResult.Yes,
       hasClangd: false,
       fireChangeActiveTextEditor: true,
       wantGenerate: false,
@@ -83,7 +86,7 @@ describe('C++ code completion', () => {
           () => {
             return {
               name: 'fake',
-              shouldGenerate: async () => tc.maybeGenerateResponse,
+              shouldGenerate: async () => tc.shouldGenerateResponse,
               generate: async () => {
                 generateCalled = true;
               },
@@ -161,7 +164,7 @@ describe('C++ code completion on failure', () => {
         () => {
           return {
             name: 'fake',
-            shouldGenerate: async () => true,
+            shouldGenerate: async () => ShouldGenerateResult.Yes,
             generate: async () => {
               throw new ErrorDetails(errorKind, 'error!', {
                 label: buttonLabel,

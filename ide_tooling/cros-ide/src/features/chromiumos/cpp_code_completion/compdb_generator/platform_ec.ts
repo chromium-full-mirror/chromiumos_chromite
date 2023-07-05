@@ -8,7 +8,7 @@ import * as vscode from 'vscode';
 import * as commonUtil from '../../../../common/common_util';
 import * as services from '../../../../services';
 import * as config from '../../../../services/config';
-import {CompdbGenerator, ErrorDetails} from '.';
+import {CompdbGenerator, ErrorDetails, ShouldGenerateResult} from '.';
 
 function getBoard() {
   return config.platformEc.board.get();
@@ -38,24 +38,26 @@ export class PlatformEc implements CompdbGenerator {
   ) {}
 
   /**
-   * Returns true for files in platform/ec unless compilation database has been
+   * Returns Yes for files in platform/ec unless compilation database has been
    * already generated for the same board in this session.
    */
-  async shouldGenerate(document: vscode.TextDocument): Promise<boolean> {
+  async shouldGenerate(
+    document: vscode.TextDocument
+  ): Promise<ShouldGenerateResult> {
     const gitDir = commonUtil.findGitDir(document.fileName);
     if (!gitDir?.endsWith('platform/ec')) {
-      return false;
+      return ShouldGenerateResult.NoUnsupported;
     }
 
     if (!fs.existsSync(path.join(gitDir, COMPILE_COMMANDS_JSON))) {
-      return true;
+      return ShouldGenerateResult.Yes;
     }
 
-    return (
-      this.generatedBoard !== getBoard() ||
+    return this.generatedBoard !== getBoard() ||
       this.generatedBuild !== getBuild() ||
       this.generatedMode !== getMode()
-    );
+      ? ShouldGenerateResult.Yes
+      : ShouldGenerateResult.NoNeedNoChange;
   }
 
   async generate(

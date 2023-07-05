@@ -31,6 +31,19 @@ export class ErrorDetails extends Error {
   }
 }
 
+/** The type shouldGenerate method returns. */
+export enum ShouldGenerateResult {
+  Yes,
+  /** The file is not supported by this class */
+  NoUnsupported,
+  /** Existing compdb should need no change */
+  NoNeedNoChange,
+  /** The compdb for the file is being generated */
+  NoGenerating,
+  /** Failure was observed before */
+  NoHasFailed,
+}
+
 export interface CompdbGenerator extends vscode.Disposable {
   /**
    * Globally unique and constant name of the generator, e.g. "platform2".
@@ -39,14 +52,14 @@ export interface CompdbGenerator extends vscode.Disposable {
 
   /**
    * Returns whether this class should generate a compilation database for the
-   * given document. Returning true, `generate` will be called with the same
+   * given document. Returning Yes, `generate` will be called with the same
    * document.
    *
    * This method should not throw an error.
    *
    * This method is called when a document is opened or saved.
    */
-  shouldGenerate(document: vscode.TextDocument): Promise<boolean>;
+  shouldGenerate(document: vscode.TextDocument): Promise<ShouldGenerateResult>;
 
   /**
    * Generates a compilation database for the given document.

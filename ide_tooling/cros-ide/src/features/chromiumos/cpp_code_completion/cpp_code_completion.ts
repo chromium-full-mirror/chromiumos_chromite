@@ -52,6 +52,21 @@ export class CppCodeCompletion implements vscode.Disposable {
         description: 'show cpp log',
       });
     }),
+    vscode.commands.registerCommand(
+      'chromiumide.cppxrefs.forceGenerate',
+      async () => {
+        const document = vscode.window.activeTextEditor?.document;
+
+        if (!document) {
+          void vscode.window.showErrorMessage(
+            'No file is open; open the file to compile and return the command'
+          );
+          return;
+        }
+        await this.maybeGenerate(document, true);
+        this.onDidMaybeGenerateEmitter.fire();
+      }
+    ),
     vscode.window.onDidChangeActiveTextEditor(async editor => {
       if (editor?.document) {
         await this.maybeGenerate(editor.document);
@@ -90,14 +105,32 @@ export class CppCodeCompletion implements vscode.Disposable {
     vscode.Disposable.from(...this.subscriptions).dispose();
   }
 
-  private async maybeGenerate(document: vscode.TextDocument) {
+  private async maybeGenerate(
+    document: vscode.TextDocument,
+    runByUser = false
+  ) {
     const generators = [];
     for (const g of this.generators) {
-      if (await g.shouldGenerate(document)) {
+      const r = await g.shouldGenerate(document);
+      if (
+        r === compdbGenerator.ShouldGenerateResult.Yes ||
+        // If the operation is run by user, execute it even when an error was
+        // observed before or no change is expected.
+        (runByUser &&
+          [
+            compdbGenerator.ShouldGenerateResult.NoHasFailed,
+            compdbGenerator.ShouldGenerateResult.NoNeedNoChange,
+          ].includes(r))
+      ) {
         generators.push(g);
       }
     }
     if (generators.length === 0) {
+      if (runByUser) {
+        void vscode.window.showErrorMessage(
+          'Compilation database generator not found; confirm the active file on editor is a C++ file'
+        );
+      }
       return;
     }
     if (generators.length > 1) {
@@ -146,6 +179,7 @@ export class CppCodeCompletion implements vscode.Disposable {
       this.statusManager.setTask(STATUS_BAR_TASK_NAME, {
         status: TaskStatus.RUNNING,
         command: SHOW_LOG_COMMAND,
+        contextValue: 'cppxrefs',
       });
       const canceller = new vscode.CancellationTokenSource();
       try {
@@ -184,16 +218,10 @@ export class CppCodeCompletion implements vscode.Disposable {
         });
         this.output.appendLine(error.message);
         this.showErrorMessage(error);
-        this.statusManager.setTask(STATUS_BAR_TASK_NAME, {
-          status: TaskStatus.ERROR,
-          command: SHOW_LOG_COMMAND,
-        });
+        this.statusManager.setStatus(STATUS_BAR_TASK_NAME, TaskStatus.ERROR);
         return;
       }
-      this.statusManager.setTask(STATUS_BAR_TASK_NAME, {
-        status: TaskStatus.OK,
-        command: SHOW_LOG_COMMAND,
-      });
+      this.statusManager.setStatus(STATUS_BAR_TASK_NAME, TaskStatus.OK);
     });
   }
 

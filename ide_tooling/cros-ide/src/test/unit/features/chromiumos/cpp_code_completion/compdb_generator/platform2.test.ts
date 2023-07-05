@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commonUtil from '../../../../../../common/common_util';
+import {ShouldGenerateResult} from '../../../../../../features/chromiumos/cpp_code_completion/compdb_generator';
 import {Platform2} from '../../../../../../features/chromiumos/cpp_code_completion/compdb_generator/platform2';
 import * as compdbService from '../../../../../../features/chromiumos/cpp_code_completion/compdb_service';
 import * as services from '../../../../../../services';
@@ -59,7 +60,9 @@ inherit cros-workon platform user
       languageId: 'cpp',
     } as vscode.TextDocument;
 
-    expect(await state.compdbGenerator.shouldGenerate(document)).toBeTrue();
+    expect(await state.compdbGenerator.shouldGenerate(document)).toEqual(
+      ShouldGenerateResult.Yes
+    );
 
     await expectAsync(
       state.compdbGenerator.generate(document, state.cancellation.token)
@@ -82,7 +85,9 @@ inherit cros-workon platform user
       languageId: 'gn',
     } as vscode.TextDocument;
 
-    expect(await state.compdbGenerator.shouldGenerate(document)).toBeTrue();
+    expect(await state.compdbGenerator.shouldGenerate(document)).toEqual(
+      ShouldGenerateResult.Yes
+    );
   });
 
   it('does not run on C++ file if already generated', async () => {
@@ -93,7 +98,9 @@ inherit cros-workon platform user
 
     await state.compdbGenerator.generate(document, state.cancellation.token);
 
-    expect(await state.compdbGenerator.shouldGenerate(document)).toBeFalse();
+    expect(await state.compdbGenerator.shouldGenerate(document)).toEqual(
+      ShouldGenerateResult.NoNeedNoChange
+    );
   });
 
   it('does not rerun on C++ file if generation fails', async () => {
@@ -108,13 +115,17 @@ inherit cros-workon platform user
       })
     );
 
-    expect(await state.compdbGenerator.shouldGenerate(document)).toBeTrue();
+    expect(await state.compdbGenerator.shouldGenerate(document)).toEqual(
+      ShouldGenerateResult.Yes
+    );
 
     await expectAsync(
       state.compdbGenerator.generate(document, state.cancellation.token)
     ).toBeRejected();
 
-    expect(await state.compdbGenerator.shouldGenerate(document)).toBeFalse();
+    expect(await state.compdbGenerator.shouldGenerate(document)).toEqual(
+      ShouldGenerateResult.NoHasFailed
+    );
   });
 
   it('runs for C++ file if compilation database has been removed', async () => {
@@ -129,7 +140,9 @@ inherit cros-workon platform user
       path.join(state.source, 'src/platform2/cros-disks/compile_commands.json')
     );
 
-    expect(await state.compdbGenerator.shouldGenerate(document)).toBeTrue();
+    expect(await state.compdbGenerator.shouldGenerate(document)).toEqual(
+      ShouldGenerateResult.Yes
+    );
   });
 
   // TODO(oka): Test error handling.

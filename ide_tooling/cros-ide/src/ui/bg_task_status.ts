@@ -115,6 +115,11 @@ export interface TaskData {
    * It is ignored if `command` is set.
    */
   outputChannel?: vscode.OutputChannel;
+
+  /**
+   * The context value to set for the tree item.
+   */
+  contextValue?: string;
 }
 
 /**
@@ -246,7 +251,8 @@ class StatusTreeData implements vscode.TreeDataProvider<TaskName> {
       element,
       taskData.status,
       taskData.command,
-      taskData.outputChannel
+      taskData.outputChannel,
+      taskData.contextValue
     );
   }
 
@@ -265,9 +271,13 @@ class TaskTreeItem extends vscode.TreeItem {
     readonly title: string,
     status: TaskStatus,
     command?: vscode.Command,
-    outputChannel?: vscode.OutputChannel
+    outputChannel?: vscode.OutputChannel,
+    contextValue?: string
   ) {
     super(title, vscode.TreeItemCollapsibleState.None);
+
+    this.contextValue = contextValue;
+
     this.iconPath = new vscode.ThemeIcon(getIcon(status));
     if (command) {
       this.command = command;

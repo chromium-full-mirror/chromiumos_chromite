@@ -16,7 +16,7 @@ import {
   CompdbServiceImpl,
   destination,
 } from '../compdb_service';
-import {CompdbGenerator, ErrorDetails} from '.';
+import {CompdbGenerator, ErrorDetails, ShouldGenerateResult} from '.';
 
 type GenerationState = 'generating' | 'generated' | 'failed';
 
@@ -40,17 +40,19 @@ export class Platform2 implements CompdbGenerator {
   }
 
   /**
-   * Returns true for files in platform2 that belong to some package. GN files always return true,
+   * Returns Yes for files in platform2 that belong to some package. GN files always return Yes,
    * whereas for C/C++ we generate xrefs only if we haven't done it in the current session.
    */
-  async shouldGenerate(document: vscode.TextDocument): Promise<boolean> {
+  async shouldGenerate(
+    document: vscode.TextDocument
+  ): Promise<ShouldGenerateResult> {
     const gitDir = commonUtil.findGitDir(document.fileName);
     if (!gitDir?.endsWith('src/platform2')) {
-      return false;
+      return ShouldGenerateResult.NoUnsupported;
     }
     const packageInfo = await this.packages.fromFilepath(document.fileName);
     if (!packageInfo) {
-      return false;
+      return ShouldGenerateResult.NoUnsupported;
     }
 
     // Send metrcis if the user interacts with platform2 files for which we support
@@ -66,31 +68,32 @@ export class Platform2 implements CompdbGenerator {
 
     // Rebuild when a GN file is edited.
     if (document.languageId === 'gn') {
-      return true;
+      return ShouldGenerateResult.Yes;
     }
 
     if (!['cpp', 'c'].includes(document.languageId)) {
-      return false;
+      return ShouldGenerateResult.NoUnsupported;
     }
 
     switch (this.generationStates.get(packageInfo.atom)) {
       case undefined:
-        return true;
+        return ShouldGenerateResult.Yes;
       case 'generated': {
         const source = this.chrootService.source;
         if (!fs.existsSync(destination(source.root, packageInfo))) {
           // Corner case: compdb was generated but then manually removed. In
           // this case we can safely rerun the same command and regenerate it.
-          return true;
+          return ShouldGenerateResult.Yes;
         }
-        return false;
+        return ShouldGenerateResult.NoNeedNoChange;
       }
       case 'generating':
+        return ShouldGenerateResult.NoGenerating;
       case 'failed':
         // We don't retry the generation if it fails. Instead we instruct the
         // user to manually fix the problem and then reload the IDE through the
         // error message.
-        return false;
+        return ShouldGenerateResult.NoHasFailed;
     }
   }
 
