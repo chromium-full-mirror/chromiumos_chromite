@@ -4658,6 +4658,15 @@
         },
         {
           "board_name": "dedede",
+          "name": "peezer",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 419,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "dedede",
           "name": "pirette",
           "test_suites": [
             "sanity",
@@ -5160,6 +5169,15 @@
         {
           "board_name": "dedede-pvs",
           "name": "pasara",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7267,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "dedede-pvs",
+          "name": "peezer",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
