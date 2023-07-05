@@ -586,7 +586,7 @@ def UploadPrebuiltPackages(
     prepend_version: str,
     version: str,
     upload_location: str,
-):
+) -> None:
     """Uploads prebuilt packages (such as built by BuildPrebuilts).
 
     Args:

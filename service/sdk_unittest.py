@@ -461,6 +461,43 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
         self.assertEqual(found_files, self._expected_generated_files)
 
 
+class UploadPrebuiltPackagesTest(cros_test_lib.RunCommandTestCase):
+    """Test case for sdk.UploadPrebuiltPackages()."""
+
+    def test_runs_script_with_expected_args(self):
+        """Check that the expected arguments and values are passed."""
+
+        # Arrange
+        chroot = chroot_lib.Chroot("/test/chroot", out_path="/test/out")
+        expected_binhost_conf_dir = os.path.join(
+            constants.SOURCE_ROOT,
+            constants.PUBLIC_BINHOST_CONF_DIR,
+        )
+        expected_parts = [
+            ["--sync-host"],
+            ["--build-path", constants.SOURCE_ROOT],
+            ["--chroot", "/test/chroot"],
+            ["--out-dir", "/test/out"],
+            ["--board", "amd64-host"],
+            ["--set-version", "19691231"],
+            ["--prepend-version", "upptest"],
+            ["--upload", "gs://upptest"],
+            ["--binhost-conf-dir", expected_binhost_conf_dir],
+        ]
+
+        # Act
+        sdk.UploadPrebuiltPackages(
+            chroot=chroot,
+            prepend_version="upptest",
+            version="19691231",
+            upload_location="gs://upptest",
+        )
+
+        # Assert
+        for part in expected_parts:
+            self.assertCommandContains(part)
+
+
 class UprevSdkAndPrebuiltsTest(cros_test_lib.MockTestCase):
     """Test case for sdk.UprevSdkAndPrebuilts()."""
 
