@@ -473,6 +473,10 @@ class UploadPrebuiltPackagesTest(cros_test_lib.RunCommandTestCase):
             constants.SOURCE_ROOT,
             constants.PUBLIC_BINHOST_CONF_DIR,
         )
+        expected_prepackaged_tarball = os.path.join(
+            constants.SOURCE_ROOT,
+            constants.SDK_TARBALL_NAME,
+        )
         expected_parts = [
             ["--sync-host"],
             ["--build-path", constants.SOURCE_ROOT],
@@ -483,6 +487,8 @@ class UploadPrebuiltPackagesTest(cros_test_lib.RunCommandTestCase):
             ["--prepend-version", "upptest"],
             ["--upload", "gs://upptest"],
             ["--binhost-conf-dir", expected_binhost_conf_dir],
+            ["--upload-board-tarball"],
+            ["--prepackaged-tarball", expected_prepackaged_tarball],
         ]
 
         # Act

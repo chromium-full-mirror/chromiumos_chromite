@@ -599,6 +599,9 @@ def UploadPrebuiltPackages(
         [
             constants.CHROMITE_BIN_DIR / "upload_prebuilts",
             "--sync-host",
+            "--upload-board-tarball",
+            "--prepackaged-tarball",
+            os.path.join(constants.SOURCE_ROOT, constants.SDK_TARBALL_NAME),
             "--build-path",
             constants.SOURCE_ROOT,
             "--chroot",
