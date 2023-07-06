@@ -434,57 +434,9 @@
                 <div class="col-2"><p2 class = "small text-light"><strong>Delta</strong></p2></div>
                 <div class="col"><p2 class = "small text-light"><strong>Actions</strong></p2></div>
               </div>
-              
-              <div class="row" id="all-board-packages">
-                {% for board in data["packages"] %}
-                  {% if data["packages"][board] != [] %}
-                    <ul class="p-0 board-package-list" id= {{board + "-package-list"}}>
-                      {% for package in data["packages"][board] %}
-
-                        <!--Package list element with name, delta, 3 buttons-->
-                        <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
-                          <div class="col-7"><p2 class = "small text-light m-4">{{package["name"]}}</p2></div>
-                          <div class="col-2 d-flex">
-                            <p2 class = "col small text-success">+{{package["plus"]}}</p2>
-                            <p2 class = "col small text-danger">-{{package["minus"]}}</p2>
-                          </div>
-                          <div class="col">
-                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
-                            <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
-                              data-bs-target={{"#" + package["name"] | replace("/", "-") + "-info-modal"}} >Info</button>
-                            <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop"
-                            id = {{package["name"]}}>Stop</button>
-                          </div>              
-                        </li>
-                        
-                        <!--Info modal for package-->
-                        <div class="modal fade" id={{package["name"] | replace("/", "-") + "-info-modal"}} tabindex="-1" 
-                            aria-labelledby="exampleModalLabel" aria-hidden="true">
-                          <div class="modal-dialog">
-                            <div class="modal-content bg-dark">
-                              <div class="modal-header">
-                                <h1 class="modal-title fs-5 text-light">Package Info</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                Modal
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                      {% endfor %}
-                    </ul>
-                    {% else %}
-                      <row class="board-package-list small text-light bg-dark border-top border-black p-0 m-0"
-                      id= {{board + "-package-list"}}>
-                        <p2 class = "ps-5">No packages to display for this board...</p2>
-                      </row>
-                    {% endif %}
-              {% endfor %}
+            
+              <div class="row" id="allBoardPackages">
+                
               </div>
             </div>
             <div hidden id="sysrootsPanel">

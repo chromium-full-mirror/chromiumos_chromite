@@ -9,6 +9,7 @@ const topSelectorStyle = `border-black border-3 border-start-0
 const bottomSelectorStyle = `border-top-0 border-start-0
     border-end-0 border-light border-2`;
 
+//maps repo status indicators to labels/colors
 const head_status = {
     "-": ["No change", "secondary"],
     "A": ["Added", "success"],
@@ -105,6 +106,80 @@ function populateRepoFiles() {
     });
 }
 
+function populatePackages() {
+    $.ajax({
+        url: "/get-packages",
+        type: "POST",
+
+        success: function (response) {
+            allPackagesHTML = "";
+            jQuery.each(response, function (board, packages) {
+                if (packages !== []) {
+                    allPackagesHTML += `<ul class="p-0 board-package-list" 
+                        id= "`+ board + `-package-list">
+                    `
+                    packages.forEach(function (pack) {
+                        allPackagesHTML +=
+                        `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                          <div class="col-7"><p2 class = "small text-light m-4">` + pack.name + `</p2></div>
+                          <div class="col-2 d-flex">
+                            <p2 class = "col small text-success">+` + pack.plus + `</p2>
+                            <p2 class = "col small text-danger">-`  + pack.minus + `</p2>
+                          </div>
+                          <div class="col">
+                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
+                            <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
+                              data-bs-target="#` + pack.name.replace("/", "-") + `-info-modal" >Info</button>
+                            <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop"
+                            id = ` + pack.name + `>Stop</button>
+                          </div>              
+                        </li>
+                        
+                        <div class="modal fade" id="` + pack.name.replace("/", "-") + `-info-modal" tabindex="-1" 
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content bg-dark">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5 text-light">Package Info</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                Modal
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>`
+
+                    })
+
+                    allPackagesHTML += `</ul>`
+                }
+                else {
+                    allPackagesHTML += `
+                    <row class="board-package-list small text-light bg-dark border-top border-black p-0 m-0"
+                      id= `+ board + `-package-list>
+                        <p2 class = "ps-5">No packages to display for this board...</p2>
+                      </row>`
+                }
+            })
+            $("#allBoardPackages").html(allPackagesHTML);
+
+            //Packages board dropdown selection logic
+            var boardName = $('#boardSelector li a.active').html()
+            $('#boardSelectorTitle').html(boardName);
+            $('.board-package-list').hide()
+            $('#' + boardName + "-package-list").show()
+        },
+
+        failure: function (xhr) {
+            console.log("failure");
+        }
+    })
+}
+
 function addPackages() {
     var board = $("#addPackageBoardSelect").select2("data");
 }
@@ -163,7 +238,10 @@ $(document).ready(function () {
     //Show default active panels (logs/packages)
     showPackages();
     showLogs();
+
+    //Fetch repo and workon data
     populateRepoFiles();
+    populatePackages();
 
     //Activates tooltips
     const tooltipTriggerList = document.querySelectorAll(
@@ -173,11 +251,7 @@ $(document).ready(function () {
         tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)
     )
 
-    //Packages board dropdown selection logic
-    var boardName = $('#boardSelector li a.active').html()
-    $('#boardSelectorTitle').html(boardName);
-    $('.board-package-list').hide()
-    $('#' + boardName + "-package-list").show()
+    
 
     //Activates select2s (the large dropdowns with search bars)
     $(".update-select").select2({
@@ -211,4 +285,6 @@ $(document).ready(function () {
     $(".log-expander").on('click', function () {
         $(this).children("svg").toggleClass("rotate-log-button")
     })
+
+    
 });

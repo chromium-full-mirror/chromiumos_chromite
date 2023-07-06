@@ -19,6 +19,9 @@ from flask import url_for
 
 from chromite.contrib.sdk_server.grpc_server import client
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2 as sdk
+from chromite.contrib.sdk_server.grpc_server.chromiumos import (
+    common_pb2 as common,
+)
 from chromite.contrib.sdk_server.ui.constants import constants
 
 
@@ -76,6 +79,34 @@ async def repo_refresh():
                 "files": files,
             }
         )
+    else:
+        # GET (user visiting URL) redirects to homepage.
+        return redirect(url_for("index"))
+
+
+@app.route("/get-packages", methods=["GET", "POST"])
+async def get_packages():
+    """App route to get packages from gRPC server."""
+
+    if request.method == "POST":
+        # POST only sent by script
+
+        packages_json = {}
+        current_boards = await client.current_boards(sdk.CurrentBoardsRequest())
+        for board in current_boards.build_target:
+            req = sdk.WorkonListRequest(
+                build_target=common.BuildTarget(name=board.name)
+            )
+            board_packages = (await client.cros_workon_list(req)).package_info
+            board_packages = sorted([p.package_name for p in board_packages])
+            board_packages = [
+                {"name": p, "plus": "0", "minus": "0"} for p in board_packages
+            ]
+
+            packages_json[board.name] = board_packages
+
+        return jsonify(packages_json)
+
     else:
         # GET (user visiting URL) redirects to homepage.
         return redirect(url_for("index"))
