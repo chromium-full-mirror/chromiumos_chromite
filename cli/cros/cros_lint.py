@@ -715,6 +715,7 @@ Supported file names: %s
             (
                 # Compiled python protobuf bindings.
                 path_filter.exclude("*_pb2.py"),
+                path_filter.exclude("*_pb2_grpc.py"),
             )
         )
 
