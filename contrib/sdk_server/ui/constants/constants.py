@@ -63,39 +63,4 @@ def get_index_data():
         {"log": "", "cmd": cmd2, "date": d2},
     ]
 
-    index_data["head_status"] = {
-        "-": ["No change", "secondary"],
-        "A": ["Added", "success"],
-        "M": ["Modified", "success"],
-        "D": ["Deleted", "danger"],
-        "R": ["Renamed", "secondary-emphasis"],
-        "C": ["Copied", "secondary-emphasis"],
-        "T": ["Mode changed", "secondary-emphasis"],
-        "U": ["Unmerged", "danger"],
-    }
-    index_data["working_status"] = {
-        "-": ["New", "success"],
-        "m": ["Modified", "success"],
-        "d": ["Deleted", "danger"],
-    }
-
-    repo_file = pathlib.Path(__file__).parent / "repo_status.txt"
-    with open(repo_file, mode="r", encoding="utf-8") as f:
-        project = ""
-        branch = ""
-        files = []
-        for line in f.readlines():
-            text = line.split()
-            if text[0] == "project":
-                project = text[1]
-                branch = text[3]
-            else:
-                files += [
-                    {"file": text[1], "head": text[0][0], "working": text[0][1]}
-                ]
-        index_data["repo_status"] = {
-            "project": project,
-            "branch": branch,
-            "files": files,
-        }
     return index_data

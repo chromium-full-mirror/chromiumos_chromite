@@ -192,7 +192,7 @@
                     <p2 class="text-light fs-6"><strong>toolchain_targets</strong></p2>
                     <div class="d-flex justify-content-between align-items-center">
                       <select id="updateToolchainTargets" class="update-select" multiple>
-                        {% for board in data["boards"] %}
+                        {% for board in data["all_boards"] %}
                           <option>{{board}}</option>
                         {% endfor %}
                       </select>
@@ -303,7 +303,7 @@
                     <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary" type="button" 
                     data-bs-toggle="dropdown" aria-expanded="false" id="boardSelectorTitle"></button>
                     <ul class="dropdown-menu" id="boardSelector">
-                      {% for board in data["boards"] %}
+                      {% for board in data["current_boards"] %}
                         <li>
                           {% if loop.index == 1 %}
                             <a class="small dropdown-item board-list-item active" href="#">{{board}}</a>
@@ -360,7 +360,7 @@
                           <li class = "d-flex justify-content-between align-items-center mb-4">
                             <p2 class="text-light fs-6">Board</p2>
                             <select id="addPackageBoardSelect" class="add-package-select">
-                              {% for board in data["boards"] %}
+                              {% for board in data["current_boards"] %}
                                 <option>{{board}}</option>
                               {% endfor %}
                             </select>
@@ -456,11 +456,9 @@
                           <li class = "mb-3">
                             <p2 class="text-light fs-6"><strong>build_target</strong></p2>
                             <div class="d-flex justify-content-between align-items-center">
-                              <!--Need to make distinction between existing sysroots and all boards.
-                              Build packages can be done with any board as it creates a sysroot, but
-                              workon commands can only use setup boards.-->
+
                               <select id="buildBuildTarget" class="build-packages-select">
-                                {% for board in data["boards"] %}
+                                {% for board in data["all_boards"] %}
                                   <option>{{board}}</option>
                                 {% endfor %}
                               </select>
@@ -686,7 +684,7 @@
       </div> 
       <div id = "repoPanel">
         <div class = "row">
-          <div class = "col-8">
+          <div class = "col-8" >
             <div class = "row bg-black">
               <div class="col-6"><p2 class = "small text-light ms-2"><strong>File</strong></p2></div>
               <div align = "center" class="col"><p2 class = "small text-light" data-bs-toggle="tooltip" data-bs-placement="right"
@@ -702,35 +700,24 @@
               const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
               const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
             </script>
-            <ul class = "row list-unstyled p-0 mb-0 bg-dark">
-              {% for file in data["repo_status"]["files"] %}
-              <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
-                <div class="col-6 text-break ms-2">
-                  <p2 class = "small text-light">{{file["file"]}}</p2>
-                </div>
-                <div align = "center" class="col">
-                  <p2 class = "{{"small text-" + data.head_status[file.head][1]}}">{{data.head_status[file.head][0]}}</p2>
-                </div>
-                <div align = "center" class="col">
-                  <p2 class = "{{"small text-" + data.working_status[file.working][1]}}">{{data.working_status[file.working][0]}}</p2>
-                </div>         
-              </li>
-              {% endfor %}
+            <ul id = "repoFilesList" class = "row list-unstyled p-0 mb-0 bg-dark" style = "overflow-y: scroll; height: 400px">
+              
             </ul>
           </div>
           <div class = "col bg-dark border-start border-top border-light-subtle">
             <h6 class = "text-light bg-black row py-1"><strong>Repo Info</strong></h6>
             <div class = "row d-flex justify-content-between">
-              <div class = "col text-white-50 fs-6">Project</div>
-              <div class = "col text-light fs-6">{{data.repo_status.project}}</div>
+              <div class = "col text-white-50 fs-6" >Project</div>
+              <div class = "col text-light fs-6" id = "repoProject"></div>
             </div>
-            <div class = "row mt-2 mb-5">
+            <div class = "row mt-2">
               <div class = "col text-white-50 fs-6">Branch</div>
-              <div class = "col text-light fs-6">{{data.repo_status.branch}}</div>
+              <div class = "col text-light fs-6" id = "repoBranch"></div>
             </div>
-            <div class = "d-flex justify-content-start">
+            <div class = "d-flex justify-content-start position-relative">
               <div>
-                <button type = "button" class = "btn btn-secondary mt-5" id="repoStatusRefresh">
+                <button type = "button" class = "btn btn-secondary mt-5
+                 position-relative bottom-0 start-0" id="repoStatusRefresh">
                   Refresh<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise ms-1" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                     <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
@@ -746,6 +733,88 @@
                 </button>
               </div>
             </div>
+            {% raw %}
+              <script>
+                head_status = {
+                  "-": ["No change", "secondary"],
+                  "A": ["Added", "success"],
+                  "M": ["Modified", "success"],
+                  "D": ["Deleted", "danger"],
+                  "R": ["Renamed", "secondary-emphasis"],
+                  "C": ["Copied", "secondary-emphasis"],
+                  "T": ["Mode changed", "secondary-emphasis"],
+                  "U": ["Unmerged", "danger"],
+                }
+                working_status = {
+                  "-": ["New", "success"],
+                  "m": ["Modified", "success"],
+                  "d": ["Deleted", "danger"]
+                }
+
+                const populateRepoFiles = function(){
+                  $.ajax({
+                      url: "/repo-refresh",
+                      type: "POST",
+
+                      success: function(response) {
+                        head_status = {
+                          "-": ["No change", "secondary"],
+                          "A": ["Added", "success"],
+                          "M": ["Modified", "success"],
+                          "D": ["Deleted", "danger"],
+                          "R": ["Renamed", "secondary-emphasis"],
+                          "C": ["Copied", "secondary-emphasis"],
+                          "T": ["Mode changed", "secondary-emphasis"],
+                          "U": ["Unmerged", "danger"],
+                        }
+                        working_status = {
+                          "-": ["New", "success"],
+                          "m": ["Modified", "success"],
+                          "d": ["Deleted", "danger"]
+                        }
+
+                        console.log(head_status["-"][0])
+
+                        $("#repoProject").html(response.project);           
+                        $("#repoBranch").html(response.branch);
+
+                        var filesHTML = "";
+                        
+                        
+                        response.files.forEach(function(file){
+                          console.log(file.head);
+                          console.log(file.working);
+                          filesHTML +=`
+                          <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                            <div class="col-6 text-break ms-2">
+                              <p2 class = "small text-light">` + file.file + `</p2>
+                            </div>
+                            <div align = "center" class="col">
+                              <p2 class = "small text-` + head_status[file.head][1] + `">
+                                ` + head_status[file.head][0] + `
+                              </p2>
+                            </div>
+                            <div align = "center" class="col">
+                              <p2 class = "small text-` + working_status[file.working][1] + `">
+                                ` + working_status[file.working][0] + `
+                              </p2>
+                            </div>       
+                          </li>
+                          `
+                        })
+
+                        $("#repoFilesList").html(filesHTML);
+                      },
+                      error: function(xhr) {
+                        console.log("failure");
+                      }
+                    });
+                }
+                $("#repoStatusRefresh").on("click", populateRepoFiles)
+
+                $(document).ready(populateRepoFiles);
+              </script>
+              {% endraw %}
             
           </div>
         </div>
