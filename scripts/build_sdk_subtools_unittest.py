@@ -35,6 +35,13 @@ def mock_emerge_fixture():
         yield mocks["_run_system_emerge"]
 
 
+@pytest.fixture(name="mock_exporter", autouse=True)
+def mock_exporter_fixture():
+    """Stubs the exporter for InstalledSubtools to avoid side-effects."""
+    with mock.patch("chromite.lib.subtool_lib.InstalledSubtools") as mock_lib:
+        yield mock_lib
+
+
 def test_must_run_outside_sdk(caplog) -> None:
     """Tests build_sdk_subtools complains if run in the chroot."""
     with pytest.raises(cros_build_lib.DieSystemExit) as error_info:
@@ -160,3 +167,13 @@ def test_skip_package_update(mock_emerge) -> None:
     """Tests --skip-package-update will not try to emerge anything."""
     assert build_sdk_subtools.main(["--no-update-packages"]) == 0
     assert mock_emerge.call_count == 0
+
+
+def test_invokes_exporter(mock_emerge, mock_exporter) -> None:
+    """Tests that the exporter is invoked."""
+    assert build_sdk_subtools.main([]) == 0
+    assert mock_emerge.call_count == 1
+    assert mock_exporter.called
+    installed_subtools = mock_exporter.return_value
+    assert installed_subtools.bundle_all.called
+    assert installed_subtools.export_all.called

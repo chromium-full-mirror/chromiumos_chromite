@@ -35,6 +35,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
+from chromite.lib import subtool_lib
 from chromite.lib import sysroot_lib
 from chromite.service import sysroot
 
@@ -58,11 +59,35 @@ EXCLUDE_PACKAGES = (
     "sys-libs/glibc",
     "sys-devel/gcc",
     "sys-devel/binutils",
+    "sys-kernel/linux-headers",
 )
+
+# Path in subtools chroot that holds export package manifests.
+SUBTOOLS_EXPORTS_CONFIG_DIR = Path("/etc/cros/sdk-packages.d")
+
+# Path where subtools will be bundled.
+SUBTOOLS_BUNDLE_WORK_DIR = Path("/var/tmp/cros-subtools")
 
 # Flag passed to subprocesses in chroots that might not yet be set up as a
 # subtools chroot.
 _RELAUNCH_FOR_SETUP_FLAG = "--relaunch-for-setup"
+
+# Used to populate a test manifest in /etc/cros/standalone-packages.d/.
+# Ebuilds will later be updated to provide these files instead.
+_TEST_PACKAGE = SUBTOOLS_EXPORTS_CONFIG_DIR / "shellcheck.textproto"
+_TEST_PACKAGE_CONTENTS = """\
+# proto-file: chromiumos/build/api/subtools.proto
+# proto-message: chromiumos.build.api.SubtoolPackage
+name: "shellcheck"
+type: EXPORT_CIPD
+max_files: 2
+paths: [{
+    input: "/usr/bin/shellcheck"
+},{
+    input: "/usr/share/doc/*/LICENSE.gz"
+    ebuild_filter: "dev-util/shellcheck"
+}]
+"""
 
 
 class Options(Protocol):
@@ -198,8 +223,9 @@ def _setup_base_sdk(
         )
 
     if setup_chroot:
-        # TODO(b/277992359): Additional setup here, e.g., packages, base layout.
         logging.info("Setting up subtools SDK in %s.", build_target.root)
+        osutils.SafeMakedirs(SUBTOOLS_EXPORTS_CONFIG_DIR)
+        _TEST_PACKAGE.write_text(_TEST_PACKAGE_CONTENTS, encoding="utf-8")
 
 
 def _run_system_emerge(
@@ -267,6 +293,21 @@ def _build_sdk_packages(config: sysroot.BuildPackagesRunConfig) -> None:
         cros_build_lib.Die(e)
 
 
+def _run_inside_subtools_chroot(opts: Options) -> None:
+    """Steps that build_sdk_subtools performs once it is in its chroot."""
+    _assert_inside_subtools_chroot()
+
+    if opts.update_packages:
+        _build_sdk_packages(opts.build_run_config)
+
+    subtools = subtool_lib.InstalledSubtools(
+        config_dir=SUBTOOLS_EXPORTS_CONFIG_DIR,
+        work_root=SUBTOOLS_BUNDLE_WORK_DIR,
+    )
+    subtools.bundle_all()
+    subtools.export_all()
+
+
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     opts = parse_args(argv)
     return build_sdk_subtools(opts, argv if argv else [])
@@ -283,8 +324,7 @@ def build_sdk_subtools(opts: Options, argv: List[str]) -> int:
     # If the process is in the subtools chroot, we must assume it's already set
     # up (we are in it). So start building.
     if _is_inside_subtools_chroot() and not opts.relaunch_for_setup:
-        if opts.update_packages:
-            _build_sdk_packages(opts.build_run_config)
+        _run_inside_subtools_chroot(opts)
         return 0
 
     # Otherwise, we have the option to set it up. Then restart inside it. The

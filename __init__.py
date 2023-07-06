@@ -5,6 +5,7 @@
 import functools
 import logging
 import sys
+from typing import Optional
 
 
 assert sys.version_info >= (3, 6), "Chromite requires Python 3.6+"
@@ -15,6 +16,15 @@ NOTICE = 25
 
 class ChromiteLogger(logging.getLoggerClass()):
     """Logger subclass that provides the additional `notice` level."""
+
+    @staticmethod
+    def getLogger(name: Optional[str] = None) -> "ChromiteLogger":
+        logger = logging.getLogger(name)
+        if not isinstance(logger, ChromiteLogger):
+            raise TypeError(
+                f"Logger({logging.root.__class__.__name__}) not ChromiteLogger"
+            )
+        return logger
 
     def __init__(self, name: str, level: int = logging.NOTSET):
         super().__init__(name, level=level)
