@@ -315,13 +315,11 @@ def ApplyCustomOverrides(site_config):
             "image_test": False,
             # 'images':['test'],
             "signer_tests": False,
-            "vm_tests": [],
         },
         "fizz-labstation-release": {
             "hw_tests": [],
             "image_test": False,
             "signer_tests": False,
-            "vm_tests": [],
         },
     }
 
@@ -456,15 +454,12 @@ def GeneralTemplates(site_config, ge_build_config):
     # END Termina
 
 
-def ApplyConfig(site_config, boards_dict, ge_build_config):
+def ApplyConfig(site_config):
     """Apply test specific config to site_config
 
     Args:
         site_config: config_lib.SiteConfig to be modified by adding templates
             and configs.
-        boards_dict: A dict mapping board types to board name collections.
-        ge_build_config: Dictionary containing the decoded GE configuration
-            file.
     """
 
     # Insert default HwTests for tryjobs.

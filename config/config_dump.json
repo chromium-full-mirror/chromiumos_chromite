@@ -99,7 +99,6 @@
     "use_sdk": true,
     "useflags": [],
     "usepkg_build_packages": true,
-    "vm_tests": [],
     "workspace_branch": null
   },
   "_templates": {

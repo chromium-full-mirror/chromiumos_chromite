@@ -240,7 +240,6 @@ class BuildConfig(AttrDict):
                 if k == "child_configs":
                     result[k] = [x.deepcopy() for x in v]
                 elif k in (
-                    "vm_tests",
                     "hw_tests",
                     "hw_tests_override",
                 ):
@@ -349,46 +348,6 @@ class BuildConfig(AttrDict):
         self.slave_configs.sort()
 
 
-class VMTestConfig:
-    """Config object for virtual machine tests suites.
-
-    Attributes:
-        test_type: Test type to be run.
-        test_suite: Test suite to be run in VMTest.
-        timeout: Number of seconds to wait before timing out waiting for
-            results.
-        retry: Whether we should retry tests that fail in a suite run.
-        max_retries: Integer, maximum job retries allowed at suite level.
-            None for no max.
-        warn_only: Boolean, failure on VM tests warns only.
-        use_ctest: Use the old ctest code path rather than the new chromite one.
-    """
-
-    DEFAULT_TEST_TIMEOUT = 90 * 60
-
-    def __init__(
-        self,
-        test_type,
-        test_suite=None,
-        timeout=DEFAULT_TEST_TIMEOUT,
-        retry=False,
-        max_retries=constants.VM_TEST_MAX_RETRIES,
-        warn_only=False,
-        use_ctest=True,
-    ):
-        """Constructor -- see members above."""
-        self.test_type = test_type
-        self.test_suite = test_suite
-        self.timeout = timeout
-        self.retry = retry
-        self.max_retries = max_retries
-        self.warn_only = warn_only
-        self.use_ctest = use_ctest
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
 class GCETestConfig:
     """Config object for GCE tests suites.
 
@@ -414,26 +373,6 @@ class GCETestConfig:
         self.test_suite = test_suite
         self.timeout = timeout
         self.use_ctest = use_ctest
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
-class MoblabVMTestConfig:
-    """Config object for moblab tests suites.
-
-    Attributes:
-        test_type: Test type to be run.
-        timeout: Number of seconds to wait before timing out waiting for
-               results.
-    """
-
-    DEFAULT_TEST_TIMEOUT = 60 * 60
-
-    def __init__(self, test_type, timeout=DEFAULT_TEST_TIMEOUT):
-        """Constructor -- see members above."""
-        self.test_type = test_type
-        self.timeout = timeout
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -762,8 +701,6 @@ def DefaultSettings():
         unittests=True,
         # Update the kernel ebuild with the AFDO profile info.
         afdo_update_kernel_ebuild=False,
-        # A list of VMTestConfig objects to run by default.
-        vm_tests=[],
         # If True, run SkylabHWTestStage instead of HWTestStage for suites that
         # use pools other than pool:cts.
         enable_skylab_hw_tests=False,
@@ -1884,7 +1821,6 @@ def _DeserializeConfigs(build_dict):
     Args:
         build_dict: The config dictionary to update (in place).
     """
-    _DeserializeConfig(build_dict, "vm_tests", VMTestConfig)
     _DeserializeConfig(build_dict, "models", ModelTestConfig)
     _DeserializeConfig(build_dict, "hw_tests", HWTestConfig)
     _DeserializeConfig(

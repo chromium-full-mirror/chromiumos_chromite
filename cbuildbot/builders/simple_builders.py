@@ -6,7 +6,6 @@
 
 import collections
 import logging
-import traceback
 
 from chromite.cbuildbot.builders import generic_builders
 from chromite.cbuildbot.stages import android_stages
@@ -14,13 +13,11 @@ from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import build_stages
 from chromite.cbuildbot.stages import chrome_stages
 from chromite.cbuildbot.stages import completion_stages
-from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import release_stages
 from chromite.cbuildbot.stages import report_stages
 from chromite.cbuildbot.stages import scheduler_stages
 from chromite.cbuildbot.stages import sync_stages
 from chromite.cbuildbot.stages import test_stages
-from chromite.cbuildbot.stages import vm_test_stages
 from chromite.lib import chromeos_version
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -72,32 +69,6 @@ class SimpleBuilder(generic_builders.Builder):
         self._RunStage(
             test_stages.TestPlanStage, board, builder_run=builder_run
         )
-
-    def _RunVMTests(self, builder_run, board):
-        """Run VM test stages for the specified board.
-
-        Args:
-            builder_run: BuilderRun object for stages.
-            board: String containing board name.
-        """
-        except_infos = []
-
-        try:
-            # Retry VM-based tests in case failures are flaky.
-            self._RunStage(
-                generic_stages.RetryStage,
-                constants.VM_NUM_RETRIES,
-                vm_test_stages.VMTestStage,
-                board,
-                builder_run=builder_run,
-            )
-        except Exception as e:
-            except_infos.extend(
-                failures_lib.CreateExceptInfo(e, traceback.format_exc())
-            )
-
-        if except_infos:
-            raise failures_lib.CompoundFailure("VM tests failed", except_infos)
 
     def _RunDebugSymbolStages(self, builder_run, board):
         """Run debug-related stages for the specified board.
@@ -231,9 +202,6 @@ class SimpleBuilder(generic_builders.Builder):
                 lambda: self._RunHWTests(builder_run, board),
             ]
         )
-        # Move VMTests out of parallel execution due to high failure rate.
-        # http://crbug/932644
-        self._RunVMTests(builder_run, board)
 
     def BoardsForSimpleBuilder(self, builder_run):
         """All boards for this builder.

@@ -541,24 +541,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "Config %s: has chrome_rev but is not a PFQ." % build_name,
                 )
 
-    def testValidVMTestType(self):
-        """Verify vm_tests has an expected value"""
-        for build_name, config in self.site_config.items():
-            if config["vm_tests"] is None:
-                continue
-            for vm_test in config["vm_tests"]:
-                self.assertTrue(
-                    vm_test.test_type in constants.VALID_VM_TEST_TYPES,
-                    "Config %s: has unexpected vm test type value."
-                    % build_name,
-                )
-                if vm_test.test_type == constants.VM_SUITE_TEST_TYPE:
-                    self.assertTrue(
-                        vm_test.test_suite is not None,
-                        "Config %s: has unexpected vm test suite value."
-                        % build_name,
-                    )
-
     def testImageTestMustHaveBaseImage(self):
         """Verify image_test build is only enabled with 'base' in images."""
         for build_name, config in self.site_config.items():
@@ -591,16 +573,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 config["build_type"],
                 constants.VALID_BUILD_TYPES,
                 "Config %s: has unexpected build_type value." % build_name,
-            )
-
-    def testBuildToRun(self):
-        """Verify we don't try to run tests without building them."""
-        for build_name, config in self.site_config.items():
-            self.assertFalse(
-                isinstance(config["useflags"], list)
-                and "-build_tests" in config["useflags"]
-                and config["vm_tests"],
-                "Config %s: has vm_tests and use -build_tests." % build_name,
             )
 
     def testSyncToChromeSdk(self):
@@ -1108,10 +1080,6 @@ class BoardConfigsTest(ChromeosConfigTestBase):
     def _verifyNoTests(self, board_configs):
         """Defining tests in board specific templates doesn't work."""
         for board, template in board_configs.items():
-            self.assertFalse(
-                "vm_tests" in template and template.vm_tests,
-                "Per-board template for %s defining vm_tests" % board,
-            )
             self.assertFalse(
                 "hw_tests" in template and template.hw_tests,
                 "Per-board template for %s defining hw_tests" % board,

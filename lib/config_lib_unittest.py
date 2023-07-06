@@ -44,7 +44,6 @@ def MockSiteConfig():
         manifest_version=True,
         prebuilts="public",
         upload_standalone_images=False,
-        vm_tests=[config_lib.VMTestConfig("smoke_suite")],
     )
 
     return result
@@ -400,11 +399,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
         site_config.Add("calling", site_config.templates.callable)
 
         site_config.Add(
-            "vm_tests",
-            vm_tests=[config_lib.VMTestConfig("vm_suite")],
-        )
-
-        site_config.Add(
             "hw_tests",
             hw_tests=[config_lib.HWTestConfig("hw_suite")],
             hw_tests_override=[config_lib.HWTestConfig("hw_override")],
@@ -469,11 +463,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
                 "_template": "template",
                 "name": "template_back_to_default",
                 "value": "default",
-            },
-            "vm_tests": {
-                "_template": None,
-                "name": "vm_tests",
-                "vm_tests": [config_lib.VMTestConfig("vm_suite")],
             },
             "hw_tests": {
                 "_template": None,

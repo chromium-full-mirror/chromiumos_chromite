@@ -1847,7 +1847,7 @@ def GetConfig():
 
     ApplyCustomOverrides(site_config)
 
-    chromeos_test.ApplyConfig(site_config, boards_dict, ge_build_config)
+    chromeos_test.ApplyConfig(site_config)
 
     TryjobMirrors(site_config)
 

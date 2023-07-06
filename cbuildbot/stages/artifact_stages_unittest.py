@@ -299,7 +299,6 @@ class DebugSymbolsStageTest(
         if extra_config is None:
             extra_config = {
                 "archive_build_debug": True,
-                "vm_tests": True,
                 "upload_symbols": True,
                 "basic_builder": False,
             }
@@ -371,7 +370,6 @@ class DebugSymbolsStageTest(
         """Smoke test for an PerformStage when debugging is disabled"""
         extra_config = {
             "archive_build_debug": False,
-            "vm_tests": False,
             "upload_symbols": False,
             "basic_builder": False,
         }
@@ -391,7 +389,6 @@ class DebugSymbolsStageTest(
         """Test for a PerformStage when basic_builder is enabled"""
         extra_config = {
             "archive_build_debug": False,
-            "vm_tests": False,
             "upload_symbols": False,
             "basic_builder": True,
         }

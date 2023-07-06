@@ -12,7 +12,6 @@ from chromite.cbuildbot.builders import generic_builders
 from chromite.cbuildbot.builders import simple_builders
 from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import test_stages
-from chromite.cbuildbot.stages import vm_test_stages
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -35,11 +34,6 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
 
         # Map from stage class to exception to be raised when stage is run.
         self.stage_exceptions = {}
-
-        # VM test stages that are run by SimpleBuilder._RunVMTests.
-        self.all_vm_test_stages = [
-            vm_test_stages.VMTestStage,
-        ]
 
         self.buildstore = FakeBuildStore()
 
@@ -221,30 +215,6 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         simple_builders.SimpleBuilder(
             unified_build, self.buildstore
         ).RunStages()
-
-    def testAllVMTestStagesSucceed(self):
-        """Verify all VM test stages are run."""
-        self.assertEqual([], self._RunVMTests())
-        self.assertEqual(self.all_vm_test_stages, self.called_stages)
-
-    def testAllVMTestStagesFail(self):
-        """Verify failures are reported when all VM test stages fail."""
-        self.stage_exceptions = {
-            vm_test_stages.VMTestStage: failures_lib.InfrastructureFailure(),
-        }
-        self.assertEqual(
-            [failures_lib.InfrastructureFailure],
-            self._RunVMTests(),
-        )
-        self.assertEqual(self.all_vm_test_stages, self.called_stages)
-
-    def testVMTestStageFails(self):
-        """Verify TastVMTestStage is still run when VMTestStage fails."""
-        self.stage_exceptions = {
-            vm_test_stages.VMTestStage: failures_lib.TestFailure(),
-        }
-        self.assertEqual([failures_lib.TestFailure], self._RunVMTests())
-        self.assertEqual(self.all_vm_test_stages, self.called_stages)
 
     def testBoardsForSimpleBuilderWithDUTOverride(self):
         """Test BoardsForSimpleBuilder function with a DUT board override."""
