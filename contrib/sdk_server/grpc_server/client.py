@@ -219,7 +219,9 @@ async def current_boards(
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     # asyncio.run(cros_workon_list("betty"))
-    # asyncio.run(all_packages("betty"))
+    target = common_pb2.BuildTarget(name="amd64-generic")
+    all_packages_req = sdk_server_pb2.AllPackagesRequest(build_target=target)
+    asyncio.run(all_packages(all_packages_req))
     # asyncio.run(
     #     cros_workon_start("sys-kernel/chromeos-kernel-upstream", "betty")
     # )
@@ -230,45 +232,53 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     #     cros_workon_info("sys-kernel/chromeos-kernel-upstream", "betty")
     # )
     # asyncio.run(repo_status())
-    async def k():
-        request = sdk_server_pb2.BuildPackagesRequest()
 
-        create_internal_req = sysroot_pb2.SysrootCreateRequest()
-        create_input = {
-            "build_target": {"name": "amd64-generic"},
-            "flags": {"chroot_current": True, "replace": True},
-        }
-        json_format.ParseDict(create_input, create_internal_req)
-        request.create_req.CopyFrom(create_internal_req)
 
-        toolchain_internal_req = sysroot_pb2.InstallToolchainRequest()
-        tool_input = {
-            "chroot": {"env": {"use_flags": [{"flag": "chrome_internal"}]}},
-            "sysroot": {
-                "buildTarget": {"name": "amd64-generic"},
-                "path": "/build/amd64-generic",
-            },
-        }
-        json_format.ParseDict(tool_input, toolchain_internal_req)
-        request.toolchain_req.CopyFrom(toolchain_internal_req)
+    # async def k():
+    #     request = sdk_server_pb2.BuildPackagesRequest()
 
-        packages_internal_req = sysroot_pb2.InstallPackagesRequest()
-        packages_input = {
-            "sysroot": {
-                "buildTarget": {"name": "amd64-generic"},
-                "path": "/build/amd64-generic",
-            },
-            "use_flags": [{"flag": "chrome_internal"}],
-        }
-        json_format.ParseDict(packages_input, packages_internal_req)
-        request.packages_req.CopyFrom(packages_internal_req)
+    #     create_internal_req = sysroot_pb2.SysrootCreateRequest()
+    #     create_input = {
+    #         "build_target": {"name": "amd64-generic"},
+    #         "flags": {"replace": True},
+    #     }
+    #     json_format.ParseDict(create_input, create_internal_req)
+    #     request.create_req.CopyFrom(create_internal_req)
 
-        async for x in build_packages(request):
-            logging.info(x)
+    #     toolchain_internal_req = sysroot_pb2.InstallToolchainRequest()
+    #     tool_input = {
+    #         "chroot": {"env": {"use_flags": [{"flag": "chrome_internal"}]}},
+    #         "sysroot": {
+    #             "buildTarget": {"name": "amd64-generic"},
+    #             "path": "/build/amd64-generic",
+    #         },
+    #     }
+    #     json_format.ParseDict(tool_input, toolchain_internal_req)
+    #     request.toolchain_req.CopyFrom(toolchain_internal_req)
 
-    asyncio.run(k())
+    #     packages_internal_req = sysroot_pb2.InstallPackagesRequest()
+    #     packages_input = {
+    #         "sysroot": {
+    #             "buildTarget": {"name": "amd64-generic"},
+    #             "path": "/build/amd64-generic",
+    #         },
+    #         "use_flags": [{"flag": "chrome_internal"}],
+    #     }
+    #     json_format.ParseDict(packages_input, packages_internal_req)
+    #     request.packages_req.CopyFrom(packages_internal_req)
+
+    #     async for x in build_packages(request):
+    #         logging.info(x)
+
+    # asyncio.run(k())
+
+
     # asyncio.run(chroot_path())
     # asyncio.run(current_boards())
     # asyncio.run(query_boards())
-    # asyncio.run(current_boards())
+
+    # cur_boards_req = sdk_server_pb2.CurrentBoardsRequest()
+    # asyncio.run(current_boards(cur_boards_req))
+
+    # workon start, workon info, all packages, current boards
     pass

@@ -26,7 +26,7 @@ async def serve() -> None:
     server.add_insecure_port("[::]:50051")
     await server.start()
     logging.info("CONNECTED")
-    await server.wait_for_termination(timeout=60)
+    await server.wait_for_termination(timeout=None)
     logging.info("TERMINATED!")
 
 
