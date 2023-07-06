@@ -503,7 +503,6 @@ def GetToolchainsForBoard(
 
 
 @faux.all_empty
-@validate.require("chroot.path")
 @validate.validation_complete
 def SetupToolchains(
     input_proto: "toolchain_pb2.SetupToolchainsRequest",
