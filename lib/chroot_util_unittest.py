@@ -10,6 +10,7 @@ from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import osutils
 
 
 pytestmark = cros_test_lib.pytestmark_inside_only
@@ -89,7 +90,7 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
     def testRunUnittests(self):
         """Tests running unit tests invoking emerge with provided flags"""
 
-        sudo_run_mock = self.PatchObject(cros_build_lib, "sudo_run")
+        self.PatchObject(osutils, "IsRootUser", return_value=True)
         chroot_util.RunUnittests(
             sysroot="/sysroot/",
             packages=["package1", "package2"],
@@ -99,7 +100,7 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
             },
             keep_going=True,
         )
-        sudo_run_mock.assert_called_once_with(
+        self.rc.assertCommandCalled(
             [
                 constants.CHROMITE_BIN_DIR / "parallel_emerge",
                 "--sysroot=/sysroot/",

@@ -395,7 +395,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         lb.close()
 
 
-class LsbUtilsTest(cros_test_lib.MockTempDirTestCase):
+class LsbUtilsTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests the various LSB utilities."""
 
     def setUp(self):
@@ -406,7 +406,6 @@ class LsbUtilsTest(cros_test_lib.MockTempDirTestCase):
 
     def testWriteLsbRelease(self):
         """Tests writing out the lsb_release file using WriteLsbRelease(..)."""
-        rc_mock = self.PatchObject(cros_build_lib, "sudo_run")
         fields = collections.OrderedDict(
             (
                 ("x", "1"),
@@ -418,7 +417,7 @@ class LsbUtilsTest(cros_test_lib.MockTempDirTestCase):
         lsb_release_file = os.path.join(self.tempdir, "etc", "lsb-release")
         expected_content = "x=1\ny=2\nfoo=bar\n"
         self.assertFileContents(lsb_release_file, expected_content)
-        rc_mock.assert_called_once_with(
+        self.rc.assertCommandCalled(
             [
                 "setfattr",
                 "-n",
@@ -429,8 +428,22 @@ class LsbUtilsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
+    def testOverwriteLsbRelease(self):
+        """Tests overwriting the lsb_release file using WriteLsbRelease(..)."""
+        lsb_release_file = os.path.join(self.tempdir, "etc", "lsb-release")
+
+        image_lib.WriteLsbRelease(
+            self.tempdir,
+            collections.OrderedDict(
+                (
+                    ("x", "1"),
+                    ("y", "2"),
+                    ("foo", "bar"),
+                )
+            ),
+        )
+
         # Test that WriteLsbRelease(..) correctly handles an existing file.
-        rc_mock = self.PatchObject(cros_build_lib, "sudo_run")
         fields = collections.OrderedDict(
             (
                 ("newkey1", "value1"),
@@ -444,7 +457,7 @@ class LsbUtilsTest(cros_test_lib.MockTempDirTestCase):
             "x=1\ny=2\nfoo=bar\nnewkey1=value1\nnewkey2=value2\na=3\nb=4\n"
         )
         self.assertFileContents(lsb_release_file, expected_content)
-        rc_mock.assert_called_once_with(
+        self.rc.assertCommandCalled(
             [
                 "setfattr",
                 "-n",

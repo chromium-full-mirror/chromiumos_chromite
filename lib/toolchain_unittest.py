@@ -10,6 +10,7 @@ from unittest import mock
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import partial_mock
 from chromite.lib import sysroot_lib
 from chromite.lib import toolchain
 from chromite.lib.parser import package_info
@@ -240,7 +241,7 @@ class ToolchainInfoTest(cros_test_lib.MockTestCase):
         )
 
 
-class ToolchainInstallerTest(cros_test_lib.MockTempDirTestCase):
+class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for the toolchain installer class."""
 
     def setUp(self):
@@ -389,6 +390,8 @@ class ToolchainInstallerTest(cros_test_lib.MockTempDirTestCase):
 
     def testWriteConfig(self):
         """Test the sysroot configs are updated correctly."""
+        # This test is safe to run all the real commands.
+        self.rc.stop()
         # pylint: disable=protected-access
         self.updater._WriteConfigs(self.sysroot, self.go_toolchain)
         self.assertEqual("3.4.5", self.sysroot.GetCachedField("LIBC_VERSION"))
@@ -397,11 +400,8 @@ class ToolchainInstallerTest(cros_test_lib.MockTempDirTestCase):
         """Test the installer error handling."""
         # Test error thrown during toolchain installation.
         # We want a ToolchainInstallError with the glibc info set.
-        error_result = cros_build_lib.CompletedProcess(returncode=1)
-        self.PatchObject(
-            cros_build_lib,
-            "sudo_run",
-            side_effect=cros_build_lib.RunCommandError("Error", error_result),
+        self.rc.AddCmdResult(
+            partial_mock.ListRegex(f"emerge.*{self.libc_cpv}"), returncode=1
         )
 
         try:
@@ -418,10 +418,12 @@ class ToolchainInstallerTest(cros_test_lib.MockTempDirTestCase):
         else:
             self.fail("_InstallLibc should have thrown an error.")
 
+    def testExtractLibcFailures(self):
+        """Test the installer error handling."""
         # Test error thrown during cross toolchain installation.
-        self.PatchObject(cros_build_lib, "sudo_run")
         # This is the error we're testing for, but _InstallLibc catches and
         # modifies the error before re-raising it.
+        error_result = cros_build_lib.CompletedProcess(returncode=1)
         self.PatchObject(
             self.updater,
             "_ExtractLibc",

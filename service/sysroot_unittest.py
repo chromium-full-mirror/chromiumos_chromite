@@ -840,38 +840,13 @@ class BuildPackagesTest(
         )
         config = sysroot.BuildPackagesRunConfig()
 
-        result = cros_build_lib.CompletedProcess(
-            self.base_command, returncode=1
+        self.rc.AddCmdResult(
+            partial_mock.ListRegex("emerge.*--useoldpkg-atoms"), returncode=1
         )
-        error = cros_build_lib.RunCommandError("Error", result)
-        self.PatchObject(
-            cros_build_lib,
-            "sudo_run",
-            side_effect=(
-                cros_build_lib.CompletedProcess(stdout=""),
-                cros_build_lib.CompletedProcess(stdout=""),
-                cros_build_lib.RunCommandError(
-                    "Error",
-                    cros_build_lib.CompletedProcess(
-                        self.base_command, returncode=0
-                    ),
-                ),
-            ),
-        )
-        self.PatchObject(
-            cros_build_lib,
-            "run",
-            side_effect=(
-                cros_build_lib.CompletedProcess(stdout=""),
-                cros_build_lib.CompletedProcess(stdout=""),
-                error,
-            ),
-        )
-
         with self.assertRaises(sysroot_lib.PackageInstallError) as e:
             sysroot.BuildPackages(self.target, self.sysroot, config)
-            self.assertEqual(cpvs, e.failed_packages)
-            self.assertEqual(result, e.result)
+        self.assertEqual(cpvs, e.exception.failed_packages)
+        self.assertCommandContains(self.base_command)
 
 
 class GatherSymbolFilesTest(cros_test_lib.MockTempDirTestCase):
