@@ -289,6 +289,8 @@ class Profile:
         return self._name
 
     def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
         return self.name == other.name
 
 
@@ -309,6 +311,8 @@ class Sysroot:
 
     def __eq__(self, other):
         """Equality check."""
+        if not isinstance(other, self.__class__):
+            return False
         return self.path == other.path
 
     def Exists(self, chroot: "chroot_lib.Chroot" = None) -> bool:

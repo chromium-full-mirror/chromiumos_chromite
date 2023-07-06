@@ -154,10 +154,11 @@ baz
         self.assertTrue(self.relative_sysroot.Exists(chroot=chroot))
 
     def testEquals(self):
-        """Sanity check for the __eq__ methods."""
+        """Basic checks for the __eq__ methods."""
         sysroot1 = sysroot_lib.Sysroot(self.tempdir)
         sysroot2 = sysroot_lib.Sysroot(self.tempdir)
         self.assertEqual(sysroot1, sysroot2)
+        self.assertNotEqual(sysroot1, None)
 
     def testProfileName(self):
         """Test the profile_name property when a value is set."""
@@ -263,6 +264,7 @@ class ProfileTest(cros_test_lib.TestCase):
         self.assertEqual(profile, sysroot_lib.Profile("profile"))
         self.assertNotEqual(profile, sysroot_lib.Profile("other"))
         self.assertNotEqual(profile, sysroot_lib.Profile(""))
+        self.assertNotEqual(profile, None)
 
 
 class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
