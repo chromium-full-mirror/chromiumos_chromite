@@ -12,6 +12,7 @@ from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import partial_mock
 from chromite.lib.firmware import dut
 from chromite.lib.firmware import firmware_config
 from chromite.lib.firmware import firmware_lib
@@ -43,29 +44,23 @@ class CleanTest(cros_test_lib.RunCommandTestCase):
 
         pkgs = [*self.pkgs, *fw_config.build_packages]
 
-        def run_side_effect(*args, **kwargs):
-            if args[0][0].startswith("qfile"):
-                if kwargs.get("capture_output"):
-                    return mock.MagicMock(stdout="\n".join(pkgs).encode())
-                return mock.MagicMock(stdout="".encode())
-            elif args[0][0].startswith("emerge"):
-                return mock.MagicMock(returncode=0)
-
-        run_mock = self.PatchObject(
-            cros_build_lib, "run", side_effect=run_side_effect
+        self.rc.AddCmdResult(
+            partial_mock.In("qfile-boardname"), stdout="\n".join(pkgs).encode()
         )
         self.PatchObject(osutils, "RmDir")
         firmware_lib.clean(build_target_lib.BuildTarget("boardname"))
-        run_mock.assert_any_call(
-            [mock.ANY, mock.ANY, *sorted(pkgs)],
+        self.rc.assertCommandCalled(
+            ["emerge-boardname", "--rage-clean", *sorted(pkgs)],
             capture_output=mock.ANY,
             dryrun=False,
         )
 
     def test_nonexistent_board_clean(self):
         """Verifies exception thrown when target board was not configured."""
-        se = cros_build_lib.RunCommandError("nonexistent board")
-        self.PatchObject(cros_build_lib, "run", side_effect=se)
+        self.rc.AddCmdResult(
+            partial_mock.In("qfile-schrodinger"),
+            side_effect=cros_build_lib.RunCommandError("qfile: not found"),
+        )
         with self.assertRaisesRegex(firmware_lib.CleanError, "qfile"):
             firmware_lib.clean(build_target_lib.BuildTarget("schrodinger"))
 
@@ -87,13 +82,6 @@ class FlashTest(cros_test_lib.RunCommandTestCase):
     def test_servo_args(self):
         """Sanity check for the clean command (ideal case)."""
 
-        def run_side_effect(*args, **kwargs):
-            pass
-
-        run_mock = self.PatchObject(
-            cros_build_lib, "run", side_effect=run_side_effect
-        )
-
         def get_servo_side_effect() -> servo_lib.Servo:
             return servo_lib.Servo("servo_v4p1_with_ccd", "123456ab")
 
@@ -112,67 +100,54 @@ class FlashTest(cros_test_lib.RunCommandTestCase):
                 self.flash_contents,
                 self.passthrough_args,
             )
-        run_mock.assert_has_calls(
+        self.rc.assertCommandCalled(
             [
-                mock.call(
-                    [
-                        "dut-control",
-                        f"--port={self.servo_port}",
-                        "ec_uart_timeout:10",
-                    ],
-                    print_cmd=False,
-                    dryrun=False,
-                ),
-                mock.call(
-                    [
-                        "dut-control",
-                        f"--port={self.servo_port}",
-                        "ccd_cpu_fw_spi:on",
-                    ],
-                    print_cmd=False,
-                    dryrun=False,
-                ),
-                mock.call(
-                    [
-                        "sudo",
-                        "--",
-                        "futility",
-                        "update",
-                        "-p",
-                        "raiden_debug_spi:target=AP,custom_rst=true,"
-                        "serial=123456ab",
-                        "-i",
-                        mock.ANY,
-                        "--force",
-                        "--wp=0",
-                        "--fast",
-                    ],
-                    print_cmd=False,
-                    dryrun=False,
-                ),
-                mock.call(
-                    [
-                        "dut-control",
-                        f"--port={self.servo_port}",
-                        "ccd_cpu_fw_spi:off",
-                    ],
-                    print_cmd=False,
-                    dryrun=False,
-                ),
-            ]
+                "dut-control",
+                f"--port={self.servo_port}",
+                "ec_uart_timeout:10",
+            ],
+            print_cmd=False,
+            dryrun=False,
+        )
+        self.rc.assertCommandCalled(
+            [
+                "dut-control",
+                f"--port={self.servo_port}",
+                "ccd_cpu_fw_spi:on",
+            ],
+            print_cmd=False,
+            dryrun=False,
+        )
+        self.rc.assertCommandCalled(
+            [
+                "sudo",
+                "--",
+                "futility",
+                "update",
+                "-p",
+                "raiden_debug_spi:target=AP,custom_rst=true,serial=123456ab",
+                "-i",
+                mock.ANY,
+                "--force",
+                "--wp=0",
+                "--fast",
+            ],
+            print_cmd=False,
+            dryrun=False,
+        )
+        self.rc.assertCommandCalled(
+            [
+                "dut-control",
+                f"--port={self.servo_port}",
+                "ccd_cpu_fw_spi:off",
+            ],
+            print_cmd=False,
+            dryrun=False,
         )
         get_servo_mock.assert_any_call()
 
     def test_ssh_args(self):
         """Sanity check for the clean command (ideal case)."""
-
-        def run_side_effect(*args, **kwargs):
-            pass
-
-        run_mock = self.PatchObject(
-            cros_build_lib, "run", side_effect=run_side_effect
-        )
-
         with tempfile.NamedTemporaryFile() as image_file:
             firmware_lib._deploy_ssh(
                 self.build_target,
@@ -187,53 +162,50 @@ class FlashTest(cros_test_lib.RunCommandTestCase):
             ssh_keys_expected = ["-i", mock.ANY]
             if os.path.exists(firmware_lib._ssh_partner_id_filename):
                 ssh_keys_expected += ["-i", mock.ANY]
-            run_mock.assert_has_calls(
+
+            self.rc.assertCommandCalled(
                 [
-                    mock.call(
-                        [
-                            "scp",
-                            *ssh_keys_expected,
-                            "-P",
-                            self.ssh_port,
-                            "-o",
-                            "UserKnownHostsFile=/dev/null",
-                            "-o",
-                            "StrictHostKeyChecking=no",
-                            "-o",
-                            "CheckHostIP=no",
-                            mock.ANY,
-                            f"root@{self.ssh_ip}:/tmp",
-                        ],
-                        print_cmd=False,
-                        check=True,
-                        dryrun=False,
-                    ),
-                    mock.call(
-                        [
-                            "ssh",
-                            f"root@{self.ssh_ip}",
-                            *ssh_keys_expected,
-                            "-p",
-                            self.ssh_port,
-                            "-o",
-                            "UserKnownHostsFile=/dev/null",
-                            "-o",
-                            "StrictHostKeyChecking=no",
-                            "-o",
-                            "CheckHostIP=no",
-                            "futility",
-                            "update",
-                            "-p",
-                            "host",
-                            "-i",
-                            mock.ANY,
-                            "&& reboot",
-                        ],
-                        print_cmd=False,
-                        check=True,
-                        dryrun=False,
-                    ),
-                ]
+                    "scp",
+                    *ssh_keys_expected,
+                    "-P",
+                    self.ssh_port,
+                    "-o",
+                    "UserKnownHostsFile=/dev/null",
+                    "-o",
+                    "StrictHostKeyChecking=no",
+                    "-o",
+                    "CheckHostIP=no",
+                    mock.ANY,
+                    f"root@{self.ssh_ip}:/tmp",
+                ],
+                print_cmd=False,
+                check=True,
+                dryrun=False,
+            )
+            self.rc.assertCommandCalled(
+                [
+                    "ssh",
+                    f"root@{self.ssh_ip}",
+                    *ssh_keys_expected,
+                    "-p",
+                    self.ssh_port,
+                    "-o",
+                    "UserKnownHostsFile=/dev/null",
+                    "-o",
+                    "StrictHostKeyChecking=no",
+                    "-o",
+                    "CheckHostIP=no",
+                    "futility",
+                    "update",
+                    "-p",
+                    "host",
+                    "-i",
+                    mock.ANY,
+                    "&& reboot",
+                ],
+                print_cmd=False,
+                check=True,
+                dryrun=False,
             )
 
 
@@ -249,14 +221,6 @@ class ReadTest(cros_test_lib.RunCommandTestCase):
 
     def test_ssh_args(self):
         """Sanity check for the clean command (ideal case)."""
-
-        def run_side_effect(*args, **kwargs):
-            pass
-
-        run_mock = self.PatchObject(
-            cros_build_lib, "run", side_effect=run_side_effect
-        )
-
         with tempfile.NamedTemporaryFile() as image_file:
             firmware_lib.ssh_read(
                 image_file.name,
@@ -270,49 +234,45 @@ class ReadTest(cros_test_lib.RunCommandTestCase):
             if os.path.exists(firmware_lib._ssh_partner_id_filename):
                 ssh_keys_expected += ["-i", mock.ANY]
 
-            run_mock.assert_has_calls(
+            self.rc.assertCommandCalled(
                 [
-                    mock.call(
-                        [
-                            "ssh",
-                            f"root@{self.ssh_ip}",
-                            *ssh_keys_expected,
-                            "-p",
-                            self.ssh_port,
-                            "-o",
-                            "UserKnownHostsFile=/dev/null",
-                            "-o",
-                            "StrictHostKeyChecking=no",
-                            "-o",
-                            "CheckHostIP=no",
-                            "flashrom",
-                            "-p",
-                            "host",
-                            "-r",
-                            image_file.name,
-                        ],
-                        print_cmd=False,
-                        check=True,
-                        dryrun=False,
-                    ),
-                    mock.call(
-                        [
-                            "scp",
-                            *ssh_keys_expected,
-                            "-P",
-                            self.ssh_port,
-                            "-o",
-                            "UserKnownHostsFile=/dev/null",
-                            "-o",
-                            "StrictHostKeyChecking=no",
-                            "-o",
-                            "CheckHostIP=no",
-                            mock.ANY,
-                            image_file.name,
-                        ],
-                        print_cmd=False,
-                        check=True,
-                        dryrun=False,
-                    ),
-                ]
+                    "ssh",
+                    f"root@{self.ssh_ip}",
+                    *ssh_keys_expected,
+                    "-p",
+                    self.ssh_port,
+                    "-o",
+                    "UserKnownHostsFile=/dev/null",
+                    "-o",
+                    "StrictHostKeyChecking=no",
+                    "-o",
+                    "CheckHostIP=no",
+                    "flashrom",
+                    "-p",
+                    "host",
+                    "-r",
+                    image_file.name,
+                ],
+                print_cmd=False,
+                check=True,
+                dryrun=False,
+            )
+            self.rc.assertCommandCalled(
+                [
+                    "scp",
+                    *ssh_keys_expected,
+                    "-P",
+                    self.ssh_port,
+                    "-o",
+                    "UserKnownHostsFile=/dev/null",
+                    "-o",
+                    "StrictHostKeyChecking=no",
+                    "-o",
+                    "CheckHostIP=no",
+                    mock.ANY,
+                    image_file.name,
+                ],
+                print_cmd=False,
+                check=True,
+                dryrun=False,
             )

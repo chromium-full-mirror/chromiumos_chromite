@@ -12,6 +12,7 @@ from chromite.cbuildbot import repository
 from chromite.cbuildbot.stages import config_stages
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -97,7 +98,10 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
         self.assertEqual(paths[0], self.R54_PATH)
 
 
-class UpdateConfigStageTest(generic_stages_unittest.AbstractStageTestCase):
+class UpdateConfigStageTest(
+    generic_stages_unittest.AbstractStageTestCase,
+    cros_test_lib.RunCommandTestCase,
+):
     """Tests for UpdateConfigStage."""
 
     def setUp(self):
@@ -109,7 +113,6 @@ class UpdateConfigStageTest(generic_stages_unittest.AbstractStageTestCase):
         self.PatchObject(git, "PushBranch")
         self.PatchObject(git, "RunGit")
         self.PatchObject(repository, "CloneWorkingRepo")
-        self.PatchObject(cros_build_lib, "run")
 
         self.project = "chromite"
         self.chromite_dir = os.path.join(self.tempdir, self.project)

@@ -178,13 +178,10 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         delete_patch.assert_called_once()
 
 
-class CreateSimpleChromeSysrootTest(cros_test_lib.MockTempDirTestCase):
+class CreateSimpleChromeSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for CreateSimpleChromeSysroot."""
 
     def setUp(self):
-        self.run_mock = self.PatchObject(
-            cros_build_lib, "run", return_value=True
-        )
         self.source_root = os.path.join(self.tempdir, "source_root")
         osutils.SafeMakedirs(self.source_root)
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
@@ -215,7 +212,7 @@ class CreateSimpleChromeSysrootTest(cros_test_lib.MockTempDirTestCase):
             self.chroot, None, self.build_target, self.output_dir
         )
 
-        self.run_mock.assert_called_with(
+        self.rc.assertCommandCalled(
             [
                 "cros_generate_sysroot",
                 "--out-dir",
@@ -235,13 +232,10 @@ class CreateSimpleChromeSysrootTest(cros_test_lib.MockTempDirTestCase):
         )
 
 
-class CreateFuzzerSysrootTest(cros_test_lib.MockTempDirTestCase):
+class CreateFuzzerSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for CreateFuzzerSysroot."""
 
     def setUp(self):
-        self.run_mock = self.PatchObject(
-            cros_build_lib, "run", return_value=True
-        )
         self.source_root = os.path.join(self.tempdir, "source_root")
         osutils.SafeMakedirs(self.source_root)
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
@@ -273,7 +267,7 @@ class CreateFuzzerSysrootTest(cros_test_lib.MockTempDirTestCase):
             self.chroot, None, self.build_target, self.output_dir
         )
 
-        self.run_mock.assert_called_with(
+        self.rc.assertCommandCalled(
             [
                 "cros_generate_sysroot",
                 "--out-dir",
@@ -381,13 +375,10 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         )
 
 
-class GenerateArchiveTest(cros_test_lib.MockTempDirTestCase):
+class GenerateArchiveTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for GenerateArchive."""
 
     def setUp(self):
-        self.run_mock = self.PatchObject(
-            cros_build_lib, "run", return_value=True
-        )
         self.chroot_path = os.path.join(self.tempdir, "chroot_dir")
 
     def testCreateSimpleChromeSysroot(self):
@@ -397,7 +388,7 @@ class GenerateArchiveTest(cros_test_lib.MockTempDirTestCase):
 
         # Call service, verify arguments passed to run.
         sysroot.GenerateArchive(self.chroot_path, target, pkg_list)
-        self.run_mock.assert_called_with(
+        self.rc.assertCommandCalled(
             [
                 "cros_generate_sysroot",
                 "--out-file",
@@ -1132,7 +1123,7 @@ STACK CFI 1234
         return relative_files
 
 
-class GenerateBreakpadSymbolsTest(cros_test_lib.MockTempDirTestCase):
+class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
     """Base class for testing GenerateBreakpadSymbols."""
 
     def setUp(self):
@@ -1143,12 +1134,11 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.MockTempDirTestCase):
         """Verify calling the service layer invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
-        self.PatchObject(cros_build_lib, "run")
 
         # Call the method being tested.
         sysroot.GenerateBreakpadSymbols(chroot, build_target, False, False, [])
 
-        cros_build_lib.run.assert_called_with(
+        self.rc.assertCommandCalled(
             [
                 "cros_generate_breakpad_symbols",
                 "--board=board",
@@ -1164,12 +1154,11 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.MockTempDirTestCase):
         """Verify that calling with debug invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
-        self.PatchObject(cros_build_lib, "run")
 
         # Call the method being tested.
         sysroot.GenerateBreakpadSymbols(chroot, build_target, True, False, [])
 
-        cros_build_lib.run.assert_called_with(
+        self.rc.assertCommandCalled(
             [
                 "cros_generate_breakpad_symbols",
                 "--debug",
@@ -1186,12 +1175,11 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.MockTempDirTestCase):
         """Verify that calling with debug invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
-        self.PatchObject(cros_build_lib, "run")
 
         # Call the method being tested.
         sysroot.GenerateBreakpadSymbols(chroot, build_target, False, True, [])
 
-        cros_build_lib.run.assert_called_with(
+        self.rc.assertCommandCalled(
             [
                 "cros_generate_breakpad_symbols",
                 "--ignore_errors",
@@ -1208,14 +1196,13 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.MockTempDirTestCase):
         """Verify that calling with debug invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
-        self.PatchObject(cros_build_lib, "run")
 
         # Call the method being tested.
         sysroot.GenerateBreakpadSymbols(
             chroot, build_target, False, False, ["ASH_CHROME", "LIBC"]
         )
 
-        cros_build_lib.run.assert_called_with(
+        self.rc.assertCommandCalled(
             [
                 "cros_generate_breakpad_symbols",
                 "--ignore_expected_file=ASH_CHROME",

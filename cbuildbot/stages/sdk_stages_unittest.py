@@ -240,13 +240,14 @@ class SDKPackageStageTest(
         self.assertEqual(kwargs["revision"], 123456)
 
 
-class SDKTestStageTest(generic_stages_unittest.AbstractStageTestCase):
+class SDKTestStageTest(
+    generic_stages_unittest.AbstractStageTestCase,
+    cros_test_lib.RunCommandTestCase,
+):
     """Tests SDK test phase."""
 
     def setUp(self):
         self.buildstore = FakeBuildStore()
-        # This code has its own unit tests, so no need to go testing it here.
-        self.run_mock = self.PatchObject(cros_build_lib, "run")
 
     def ConstructStage(self):
         return sdk_stages.SDKTestStage(self._run, self.buildstore)

@@ -1698,9 +1698,7 @@ class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
         )
 
 
-class BuildTarballTests(
-    cros_test_lib.RunCommandTestCase, cros_test_lib.MockTempDirTestCase
-):
+class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
     """Tests related to building tarball artifacts."""
 
     def setUp(self):
@@ -1899,7 +1897,6 @@ class BuildTarballTests(
         ]
 
         tar_mock = self.PatchObject(commands, "BuildTarball")
-        self.PatchObject(cros_build_lib, "run")
         commands.BuildStrippedPackagesTarball(
             self._buildroot, "test-board", package_globs, self.tempdir
         )

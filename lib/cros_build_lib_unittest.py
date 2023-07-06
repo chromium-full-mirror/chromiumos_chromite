@@ -1445,7 +1445,7 @@ class FailedCreateTarballExceptionTests(
 
 
 # Tests for tar failure retry logic.
-class FailedCreateTarballTests(cros_test_lib.MockTestCase):
+class FailedCreateTarballTests(cros_test_lib.RunCommandTestCase):
     """Tests special case error handling for CreateTarball."""
 
     def setUp(self):
@@ -1457,26 +1457,24 @@ class FailedCreateTarballTests(cros_test_lib.MockTestCase):
         def Result(*_args, **_kwargs):
             """Creates CompletedProcess objects for each tarResults value."""
             return cros_build_lib.CompletedProcess(
-                returncode=self.tarResults.pop(0)
+                stdout="", stderr="", returncode=self.tarResults.pop(0)
             )
 
-        self.mockRun = self.PatchObject(
-            cros_build_lib, "run", autospec=True, side_effect=Result
-        )
+        self.rc.SetDefaultCmdResult(side_effect=Result)
 
     def testSuccess(self):
         """CreateTarball works the first time."""
         self.tarResults = [0]
         cros_build_lib.CreateTarball("foo", "bar", inputs=["a", "b"])
 
-        self.assertEqual(self.mockRun.call_count, 1)
+        self.assertEqual(self.rc.call_count, 1)
 
     def testFailedOnceSoft(self):
         """Force a single retry for CreateTarball."""
         self.tarResults = [1, 0]
         cros_build_lib.CreateTarball("foo", "bar", inputs=["a", "b"], timeout=0)
 
-        self.assertEqual(self.mockRun.call_count, 2)
+        self.assertEqual(self.rc.call_count, 2)
 
     def testFailedOnceHard(self):
         """Test unrecoverable error."""
@@ -1484,7 +1482,7 @@ class FailedCreateTarballTests(cros_test_lib.MockTestCase):
         with self.assertRaises(cros_build_lib.RunCommandError) as cm:
             cros_build_lib.CreateTarball("foo", "bar", inputs=["a", "b"])
 
-        self.assertEqual(self.mockRun.call_count, 1)
+        self.assertEqual(self.rc.call_count, 1)
         self.assertEqual(cm.exception.args[1].returncode, 2)
 
     def testFailedThriceSoft(self):
@@ -1495,7 +1493,7 @@ class FailedCreateTarballTests(cros_test_lib.MockTestCase):
                 "foo", "bar", inputs=["a", "b"], timeout=0
             )
 
-        self.assertEqual(self.mockRun.call_count, 3)
+        self.assertEqual(self.rc.call_count, 3)
         self.assertEqual(cm.exception.args[1].returncode, 1)
 
 

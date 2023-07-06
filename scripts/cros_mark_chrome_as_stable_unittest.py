@@ -10,7 +10,6 @@ from textwrap import dedent
 from unittest import mock
 
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import gob_util
@@ -279,9 +278,8 @@ class CrosMarkChromeAsStable(cros_test_lib.MockTempDirTestCase):
             new_ebuild_path: path to the to be created path
             commit_string_indicator: a string the commit message must contain
         """
-        self.PatchObject(
-            cros_build_lib, "run", side_effect=Exception("should not be called")
-        )
+        # This will throw an exception by default when called.
+        self.StartPatcher(cros_test_lib.RunCommandMock())
         self.PatchObject(
             portage_util.EBuild, "GetCrosWorkonVars", return_value=None
         )

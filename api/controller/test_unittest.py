@@ -440,24 +440,18 @@ class BuildTestServiceContainers(
 
     def testFailure(self):
         """Check failure case with mocked cros_build_lib.run."""
-        patch = self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(returncode=1),
-        )
-
         response = test_pb2.BuildTestServiceContainersResponse()
         test_controller.BuildTestServiceContainers(
             self.request, response, self.api_config
         )
-        patch.assert_called()
+        self.assertTrue(self.rc.called)
         for result in response.results:
             self.assertEqual(result.WhichOneof("result"), "failure")
             self.assertEqual(result.name, "Service Builder")
 
 
 class ChromiteUnitTestTest(
-    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+    cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin
 ):
     """Tests for the ChromiteInfoTest function."""
 
@@ -478,49 +472,37 @@ class ChromiteUnitTestTest(
 
     def testValidateOnly(self):
         """Verify a validate-only call does not execute any logic."""
-        patch = self.PatchObject(cros_build_lib, "run")
-
         input_msg = self._GetInput(chroot_path=self.chroot_path)
         test_controller.ChromiteUnitTest(
             input_msg, self._GetOutput(), self.validate_only_config
         )
-        patch.assert_not_called()
+        self.assertFalse(self.rc.called)
 
     def testMockError(self):
         """Test mock error call does not execute any logic, returns error."""
-        patch = self.PatchObject(cros_build_lib, "run")
-
         input_msg = self._GetInput(chroot_path=self.chroot_path)
         rc = test_controller.ChromiteUnitTest(
             input_msg, self._GetOutput(), self.mock_error_config
         )
-        patch.assert_not_called()
+        self.assertFalse(self.rc.called)
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
 
     def testMockCall(self):
         """Test mock call does not execute any logic, returns success."""
-        patch = self.PatchObject(cros_build_lib, "run")
-
         input_msg = self._GetInput(chroot_path=self.chroot_path)
         rc = test_controller.ChromiteUnitTest(
             input_msg, self._GetOutput(), self.mock_call_config
         )
-        patch.assert_not_called()
+        self.assertFalse(self.rc.called)
         self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
 
     def testChromiteUnitTest(self):
         """Call ChromiteUnitTest with mocked cros_build_lib.run."""
         request = self._GetInput(chroot_path=self.chroot_path)
-        patch = self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(returncode=0),
-        )
-
         test_controller.ChromiteUnitTest(
             request, self._GetOutput(), self.api_config
         )
-        patch.assert_called_once()
+        self.assertEqual(self.rc.call_count, 1)
 
 
 class CrosSigningTestTest(
@@ -545,27 +527,21 @@ class CrosSigningTestTest(
     def testValidateOnly(self):
         """Verify a validate-only call does not execute any logic."""
         test_controller.CrosSigningTest(None, None, self.validate_only_config)
-        self.assertFalse(self.rc.call_count)
+        self.assertFalse(self.rc.called)
 
     def testMockCall(self):
         """Test mock call does not execute any logic, returns success."""
         rc = test_controller.CrosSigningTest(None, None, self.mock_call_config)
-        self.assertFalse(self.rc.call_count)
+        self.assertFalse(self.rc.called)
         self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
 
     def testCrosSigningTest(self):
         """Call CrosSigningTest with mocked cros_build_lib.run."""
         request = self._GetInput(chroot_path=self.chroot_path)
-        patch = self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(returncode=0),
-        )
-
         test_controller.CrosSigningTest(
             request, self._GetOutput(), self.api_config
         )
-        patch.assert_called_once()
+        self.assertEqual(self.rc.call_count, 1)
 
 
 class SimpleChromeWorkflowTestTest(
@@ -712,14 +688,12 @@ class VmTestTest(cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin):
 
     def testMockCall(self):
         """Test mock call does not execute any logic."""
-        patch = self.PatchObject(cros_build_lib, "run")
-
         request = self._GetInput()
         response = self._Output()
         # VmTest does not return a value, checking mocked value is flagged by
         # lint.
         test_controller.VmTest(request, response, self.mock_call_config)
-        patch.assert_not_called()
+        self.assertFalse(self.rc.called)
 
     def testTastAllOptions(self):
         """Test VmTest for Tast with all options set."""
@@ -799,14 +773,8 @@ class VmTestTest(cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin):
         """Call VmTest with valid args and temp dir."""
         request = self._GetInput()
         response = self._Output()
-        patch = self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(returncode=0),
-        )
-
         test_controller.VmTest(request, response, self.api_config)
-        patch.assert_called()
+        self.assertTrue(self.rc.called)
 
 
 class GetArtifactsTest(cros_test_lib.MockTempDirTestCase):

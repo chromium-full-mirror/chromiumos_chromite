@@ -989,13 +989,8 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
                 projects=None, srcdirs=[], subdirs=[], subtrees=[]
             ),
         )
-        self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(
-                returncode=0, stdout="1122", stderr="STDERR"
-            ),
-        )
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult(stdout="1122", stderr="STDERR")
         self.assertEqual("1122", self.m_ebuild.GetVersion(None, None, "1234"))
         # Sanity check.
         self.assertEqual(exists.call_count, 1)
@@ -1010,12 +1005,10 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
                 projects=None, srcdirs=[], subdirs=[], subtrees=[]
             ),
         )
-        run = self.PatchObject(cros_build_lib, "run")
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
 
         # Reject no output.
-        run.return_value = cros_build_lib.CompletedProcess(
-            returncode=0, stdout="", stderr="STDERR"
-        )
+        rc_mock.SetDefaultCmdResult(stdout="", stderr="STDERR")
         self.assertRaises(
             portage_util.Error, self.m_ebuild.GetVersion, None, None, "1234"
         )
@@ -1024,9 +1017,7 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
         exists.reset_mock()
 
         # Reject simple output.
-        run.return_value = cros_build_lib.CompletedProcess(
-            returncode=0, stdout="\n", stderr="STDERR"
-        )
+        rc_mock.SetDefaultCmdResult(stdout="\n", stderr="STDERR")
         self.assertRaises(
             portage_util.Error, self.m_ebuild.GetVersion, None, None, "1234"
         )
@@ -1035,7 +1026,7 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
         exists.reset_mock()
 
         # Reject error.
-        run.return_value = cros_build_lib.CompletedProcess(
+        rc_mock.SetDefaultCmdResult(
             returncode=1, stdout="FAIL\n", stderr="STDERR"
         )
         self.assertRaises(
@@ -1054,13 +1045,8 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
                 projects=None, srcdirs=[], subdirs=[], subtrees=[]
             ),
         )
-        self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(
-                returncode=0, stdout="999999", stderr="STDERR"
-            ),
-        )
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult(stdout="999999", stderr="STDERR")
         self.assertRaises(
             ValueError, self.m_ebuild.GetVersion, None, None, "1234"
         )
@@ -1077,13 +1063,8 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
                 projects=None, srcdirs=[], subdirs=[], subtrees=[]
             ),
         )
-        self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(
-                returncode=0, stdout="abcd", stderr="STDERR"
-            ),
-        )
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult(stdout="abcd", stderr="STDERR")
         self.assertRaises(
             ValueError, self.m_ebuild.GetVersion, None, None, "1234"
         )
@@ -1100,13 +1081,8 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
                 projects=None, srcdirs=[], subdirs=[], subtrees=[]
             ),
         )
-        self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(
-                returncode=0, stdout="4.4.21_baseline", stderr="STDERR"
-            ),
-        )
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult(stdout="4.4.21_baseline", stderr="STDERR")
         with self.assertRaises(portage_util.EbuildVersionError):
             self.m_ebuild.GetVersion(None, None, "1234")
         # Sanity check.

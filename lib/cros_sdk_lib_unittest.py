@@ -361,11 +361,8 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
 
     def testApplyUpdates(self):
         """Test ApplyUpdates."""
-        self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(returncode=0),
-        )
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
         for version in self.success_versions:
             self.chroot.SetVersion(version)
             self.chroot.ApplyUpdates()

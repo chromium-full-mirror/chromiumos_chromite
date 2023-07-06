@@ -888,17 +888,14 @@ class CrosLabEndToEndPayloadTransferTest(cros_test_lib.MockTempDirTestCase):
         ) as device:
             transfer = self.CreateInstance(device)
 
-            self.PatchObject(cros_build_lib, "run")
+            rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+            rc_mock.SetDefaultCmdResult()
+
             cmd = ["test", "command"]
 
             transfer._RemoteDevserverCall(cmd=cmd)
-            self.assertListEqual(
-                cros_build_lib.run.call_args_list,
-                [
-                    mock.call(
-                        ["ssh", "0.0.0.0"] + cmd, log_output=True, stdout=False
-                    )
-                ],
+            rc_mock.assertCommandCalled(
+                ["ssh", "0.0.0.0"] + cmd, log_output=True, stdout=False
             )
 
     def test_RemoteDevserverCallWithStdout(self):
@@ -908,17 +905,13 @@ class CrosLabEndToEndPayloadTransferTest(cros_test_lib.MockTempDirTestCase):
         ) as device:
             transfer = self.CreateInstance(device)
 
-            self.PatchObject(cros_build_lib, "run")
+            rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+            rc_mock.SetDefaultCmdResult()
             cmd = ["test", "command"]
 
             transfer._RemoteDevserverCall(cmd=cmd, stdout=True)
-            self.assertListEqual(
-                cros_build_lib.run.call_args_list,
-                [
-                    mock.call(
-                        ["ssh", "0.0.0.0"] + cmd, log_output=True, stdout=True
-                    )
-                ],
+            rc_mock.assertCommandCalled(
+                ["ssh", "0.0.0.0"] + cmd, log_output=True, stdout=True
             )
 
     def test_RemoteDevserverCallError(self):
@@ -931,11 +924,8 @@ class CrosLabEndToEndPayloadTransferTest(cros_test_lib.MockTempDirTestCase):
         ) as device:
             transfer = self.CreateInstance(device)
 
-            self.PatchObject(
-                cros_build_lib,
-                "run",
-                side_effect=cros_build_lib.RunCommandError(msg=""),
-            )
+            rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+            rc_mock.SetDefaultCmdResult(returncode=1)
 
             self.assertRaises(
                 cros_build_lib.RunCommandError,

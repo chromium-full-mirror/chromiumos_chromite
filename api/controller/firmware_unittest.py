@@ -12,22 +12,16 @@ from chromite.api.controller import firmware
 from chromite.api.gen.chromite.api import firmware_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 
 
 class BuildAllFirmwareTestCase(
-    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+    cros_test_lib.RunCommandTempDirTestCase, api_config.ApiConfigMixin
 ):
     """BuildAllFirmware tests."""
 
     def setUp(self):
         self.chroot_path = "/path/to/chroot"
-        self.cros_build_run_patch = self.PatchObject(
-            cros_build_lib,
-            "run",
-            return_value=cros_build_lib.CompletedProcess(returncode=0),
-        )
 
     def _GetInput(
         self,
@@ -62,7 +56,7 @@ class BuildAllFirmwareTestCase(
             called_function = os.path.join(
                 constants.SOURCE_ROOT, fw_path, "firmware_builder.py"
             )
-            self.cros_build_run_patch.assert_called_with(
+            self.rc.assertCommandCalled(
                 [
                     called_function,
                     "--metrics",
@@ -87,7 +81,7 @@ class BuildAllFirmwareTestCase(
             firmware.BuildAllFirmware(
                 request, response, self.validate_only_config
             )
-            self.cros_build_run_patch.assert_not_called()
+            self.assertFalse(self.rc.called)
 
     def testMockCall(self):
         """Test a mock call does not execute logic, returns mocked value."""
@@ -101,7 +95,7 @@ class BuildAllFirmwareTestCase(
             )
             response = firmware_pb2.BuildAllFirmwareResponse()
             firmware.BuildAllFirmware(request, response, self.mock_call_config)
-            self.cros_build_run_patch.assert_not_called()
+            self.assertFalse(self.rc.called)
             self.assertEqual(len(response.metrics.value), 1)
             self.assertEqual(response.metrics.value[0].target_name, "foo")
             self.assertEqual(response.metrics.value[0].platform_name, "bar")

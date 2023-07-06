@@ -881,7 +881,8 @@ class BundleHwqualTarballTest(cros_test_lib.MockTempDirTestCase):
         )
         ssh_private_key = os.path.join(image_dir, constants.TEST_KEY_PRIVATE)
 
-        run_mock = self.PatchObject(cros_build_lib, "run")
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
         # Fake artifact placement.
         env_file = os.path.join(
             self.output_dir, "chromeos-hwqual-foo-bar.tar.bz2"
@@ -891,7 +892,7 @@ class BundleHwqualTarballTest(cros_test_lib.MockTempDirTestCase):
         created = test.BundleHwqualTarball(
             "foo", "bar", self.chroot, self.sysroot, self.output_dir
         )
-        run_mock.assert_called_with(
+        rc_mock.assertCommandCalled(
             [
                 os.path.join(script_dir, "archive_hwqual"),
                 "--from",

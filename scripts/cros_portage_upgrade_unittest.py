@@ -2403,7 +2403,7 @@ class VerifyPackageTest(CpuTestBase):
         cmdargs = []
         mocked_upgrader = self._MockUpgrader(cmdargs=cmdargs)
 
-        run_mock = self.PatchObject(cros_build_lib, "run")
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
 
         # Replay script.
         envvars = cpu.Upgrader._GenPortageEnvvars(
@@ -2411,10 +2411,7 @@ class VerifyPackageTest(CpuTestBase):
         )
         mocked_upgrader._GenPortageEnvvars.return_value = envvars
         mocked_upgrader._GetBoardCmd.return_value = "equery"
-        run_result = cros_build_lib.CompletedProcess(
-            returncode=0, stdout=ebuild_path
-        )
-        run_mock.return_value = run_result
+        rc_mock.SetDefaultCmdResult(stdout=ebuild_path)
         split_ebuild = cpu.Upgrader._SplitEBuildPath(
             mocked_upgrader, ebuild_path
         )
@@ -2428,7 +2425,7 @@ class VerifyPackageTest(CpuTestBase):
         mocked_upgrader._GenPortageEnvvars.assert_called_once_with(
             mocked_upgrader._curr_arch, unstable_ok=False
         )
-        run_mock.assert_called_once_with(
+        rc_mock.assertCommandCalled(
             ["equery", "-C", "which", "--include-masked", cpv],
             check=False,
             extra_env=envvars,
@@ -2478,15 +2475,12 @@ class VerifyPackageTest(CpuTestBase):
         cmdargs = []
         mocked_upgrader = self._MockUpgrader(cmdargs=cmdargs)
 
-        run_mock = self.PatchObject(cros_build_lib, "run")
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
 
         # Replay script.
-        mocked_upgrader._GenPortageEnvvars.return_value = "envvars"
+        mocked_upgrader._GenPortageEnvvars.return_value = {"env": "vars"}
         mocked_upgrader._GetBoardCmd.return_value = "equery"
-        run_result = cros_build_lib.CompletedProcess(
-            returncode=0, stdout=output
-        )
-        run_mock.return_value = run_result
+        rc_mock.SetDefaultCmdResult(stdout=output)
 
         # Verify.
         cpu.Upgrader._SetUpgradedMaskBits(mocked_upgrader, pinfo)
@@ -2494,10 +2488,10 @@ class VerifyPackageTest(CpuTestBase):
         mocked_upgrader._GenPortageEnvvars.assert_called_once_with(
             mocked_upgrader._curr_arch, unstable_ok=False
         )
-        run_mock.assert_called_once_with(
+        rc_mock.assertCommandCalled(
             ["equery", "-qCN", "list", "-F", "$mask|$cpv:$slot", "-op", cpv],
             check=False,
-            extra_env="envvars",
+            extra_env={"env": "vars"},
             print_cmd=False,
             stdout=True,
             stderr=subprocess.STDOUT,

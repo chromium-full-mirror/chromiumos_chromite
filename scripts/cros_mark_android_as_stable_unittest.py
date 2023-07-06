@@ -8,7 +8,6 @@ import builtins
 import os
 from unittest import mock
 
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -117,7 +116,8 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
 
     def testMarkAndroidEBuildAsStable(self):
         """Test updating of ebuild."""
-        self.PatchObject(cros_build_lib, "run")
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
         self.PatchObject(
             portage_util.EBuild, "GetCrosWorkonVars", return_value=None
         )
@@ -215,7 +215,8 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
     def testMainRevved(self):
         android_version = self.new_version
 
-        self.PatchObject(cros_build_lib, "run")
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
         self.PatchObject(
             portage_util.EBuild, "GetCrosWorkonVars", return_value=None
         )
