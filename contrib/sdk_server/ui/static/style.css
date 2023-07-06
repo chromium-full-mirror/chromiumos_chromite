@@ -1,0 +1,41 @@
+body{
+	background: #737373;
+}
+
+.classic-link{
+	color: #63a7ff;
+}
+
+.rotate-log-button{
+	transform : rotate(90deg);
+}
+
+.log-box{
+	max-height:300px;
+}
+
+.log-text{
+	white-space:pre-line;
+}
+
+#topBar{
+	background: #F2F2F2;
+}
+
+#chromeLogo{
+	max-height: 50px;
+	max-width:  50px;
+}
+
+#hostnameBar{
+	background: #2B2B2B;
+}
+
+#chrootPath{
+	word-wrap: break-word;
+}
+
+#repoFilesList{
+	overflow-y: auto; 
+	height: 400px
+}

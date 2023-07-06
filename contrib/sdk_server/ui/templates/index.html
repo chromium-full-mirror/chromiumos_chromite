@@ -20,15 +20,17 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="{{url_for('static', filename='main.js')}}"></script>
+    <link rel = "stylesheet" type = "text/css" href = "{{url_for('static', filename = 'style.css')}}"/>
   </head>
 
-  <body style="background: #737373">
+  <body>
     <div class = "container-fluid">
       
       <!--Top bar-->
-      <div class = "row row-cols-auto align-items-center" style="background: #F2F2F2">
+      <div class = "row row-cols-auto align-items-center" id = "topBar">
           <div class = "col">
-            <img class = "pb-1" style="max-height:50px; max-width: 50px;" 
+            <img class = "pb-1" id = "chromeLogo" 
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Chromium_Logo.svg/512px-Chromium_Logo.svg.png">
           </div>
           <div class = "col">
@@ -40,7 +42,7 @@
       </div>
       
       <!--user@hostname and toolbar-->
-      <div class="row" style="background: #2B2B2B">
+      <div class="row" id = "hostnameBar">
         <div class="col" >
           <p2 class ="text-light fs-5">{{data["user"]}}@{{data["hostname"]}}</p2>
         </div>
@@ -134,18 +136,6 @@
                     <input type="checkbox" class="btn-check" name="options-outlined" id="confirmDelete" autocomplete="off">
                     <label class="btn btn-outline-danger" for="confirmDelete">Confirm Delete</label>
                   </li>
-                  <script>
-                    $("#confirmDelete").on('click', function(){
-                      var btnDisabled = $("#deleteSubmit").attr("disabled");
-
-                      if(typeof btnDisabled == 'undefined' || btnDisabled == false){
-                        $("#deleteSubmit").attr("disabled", "");
-                      }
-                      else{
-                        $("#deleteSubmit").removeAttr("disabled");
-                      }
-                    })
-                  </script>
                 </ul>
                 
               </div>
@@ -195,18 +185,7 @@
                         {% for board in data["all_boards"] %}
                           <option>{{board}}</option>
                         {% endfor %}
-                      </select>
-                      <script>
-                        $(document).ready(function() {
-                        $(".update-select").select2({
-                          dropdownParent : $("#updateChrootModal"),
-                          theme: 'bootstrap-5',
-                          width: '100%',
-                          placeholder: "Select a board..."
-                        });
-                    });
-                      </script>
-                      
+                      </select>          
                     </div>
                     <label class="text-light ms-1" for="buildBuildTarget">
                       The targets whose toolchains should be updated in the chroot.
@@ -249,7 +228,7 @@
                   <p class="text-white-50">Path</p>
                 </div>
                 <div class="col" align="right">
-                  <p style="word-wrap: break-word" class="text-light text-break">{{data["path"]}}</p>
+                  <p id = "chrootPath" class="text-light text-break">{{data["path"]}}</p>
                 </div>
               </div>
             </li>
@@ -269,30 +248,7 @@
               <button type="button" class="btn btn-light w-25 rounded-0" id="showPackages"><strong>Packages</strong></button>
               <button type="button" class="btn btn-light w-25 rounded-0" id="showSysroots"><strong>Sysroots</strong></button>
             </div>
-            <script>
-              var topSelectorStyle = "border-black border-3 border-start-0 border-end-0 border-top-0";
-
-              var showPackages = function(){
-                $("#packagesPanel").show();
-                $("#sysrootsPanel").hide();
-
-                $("#showPackages").addClass(topSelectorStyle);
-                $("#showSysroots").removeClass(topSelectorStyle);
-              }
-              
-              $(document).ready(showPackages);
-              $("#showPackages").on('click', showPackages);
-
-              $("#showSysroots").on('click', function(){
-                $("#packagesPanel").hide();
-                $("#sysrootsPanel").show();
-
-                $("#showSysroots").addClass(topSelectorStyle);
-                $("#showPackages").removeClass(topSelectorStyle);
-              })
-            </script>
-
-            <!--Board selector row and dropdown html/script-->
+            <!--Board selector row and dropdown-->
             <div id = "packagesPanel">
               <div class="row bg-dark justify-content-start align-items-center ">
                 <div class="col-1">
@@ -313,35 +269,12 @@
                         </li>
                       {% endfor %}
                     </ul>
-                    
-                    <!--Controls dropdown behavior: active selection, title as active selection, and default-->
-                    <script>
-                      $(document).ready( function(){
-                        var boardName = $('#boardSelector li a.active').html()
-
-                        $('#boardSelectorTitle').html(boardName);
-
-                        $('.board-package-list').hide()
-                        $('#' + boardName + "-package-list").show()
-                      })
-
-                      $('#boardSelector li').on('click', function() {
-                        var boardName = $(this).find('a').html()
-
-                        $('#boardSelectorTitle').html(boardName);
-                        $('.board-list-item').removeClass('active');
-                        $(this).find('a').addClass('active');
-
-                        $('.board-package-list').hide()
-                        $('#' + boardName + "-package-list").show()
-                      });
-                    </script>
-                    
+                                        
                   </div>
                 </div>
 
                 <div class = "col-2">
-                  <a data-bs-toggle="modal" data-bs-target="#addPackagesModal" href="#" style="color: #63a7ff;">Add package</a>
+                  <a data-bs-toggle="modal" data-bs-target="#addPackagesModal" href="#" class = "classic-link">Add package</a>
                 </div>
 
                 <div class="modal fade" id="addPackagesModal" tabindex="-1"
@@ -372,19 +305,6 @@
                                 <option>{{package}}</option>
                               {% endfor %}
                             </select>
-                            <script>
-                              $(document).ready(function() {
-                              $(".add-package-select").select2({
-                                dropdownParent : $("#addPackagesModal"),
-                                theme: 'bootstrap-5'
-                              });
-
-                              $("#addPackageSubmit").on("click", function(){
-                                var board = $("#addPackageBoardSelect").select2("data");
-                                console.log(board[0].text);
-                              })
-                          });
-                            </script>
                           </li>
                           
                         </ul>
@@ -399,7 +319,7 @@
                 </div>
 
                 <div class = "col">
-                  <a data-bs-toggle="modal" data-bs-target="#buildPackagesModal" href="#" style="color: #63a7ff;"">Build packages</a>
+                  <a data-bs-toggle="modal" data-bs-target="#buildPackagesModal" href="#" class = "classic-link">Build packages</a>
                 </div>
 
                 <div class="modal fade" id="buildPackagesModal" tabindex="-1"
@@ -462,15 +382,6 @@
                                   <option>{{board}}</option>
                                 {% endfor %}
                               </select>
-                              <script>
-                                $(document).ready(function() {
-                                $(".build-packages-select").select2({
-                                  dropdownParent : $("#buildPackagesModal"),
-                                  theme: 'bootstrap-5',
-                                  width: '100%'
-                                });
-                            });
-                              </script>
                               
                             </div>
                             <label class="text-light ms-1" for="buildBuildTarget">
@@ -574,36 +485,6 @@
                       </row>
                     {% endif %}
               {% endfor %}
-
-              <script>
-                $(".workon-stop").on('click', function(){
-                  var package = this.id;
-                  var button = this;
-
-                  var board = $(this).parents("ul")[0].id;
-                  board = board.substring(0, board.length - 13)
-
-                  $(button).addClass("disabled");
-
-                  $.ajax({
-                    url: "/workon-stop",
-                    type: "get",
-                    data: {
-                      board: board,
-                      package: package
-                    },
-
-                    success: function(response) {
-                      console.log("success");
-                      location.reload()
-                    },
-                    error: function(xhr) {
-                      console.log("failure");
-                    }
-                  });
-                })
-
-              </script>
               </div>
             </div>
             <div hidden id="sysrootsPanel">
@@ -616,28 +497,6 @@
         <button type="button" class="btn btn-dark w-25 rounded-0" id="showLogs"><strong>Logs</strong></button>
         <button type="button" class="btn btn-dark w-25 rounded-0" id ="showRepo"><strong>Version Control</strong></button>
       </div>
-      <script>
-        var bottomSelectorStyle = "border-top-0 border-start-0 border-end-0 border-light border-2"
-
-        var selectLogs = function(){
-          $("#logsPanel").show()
-          $("#repoPanel").hide()
-
-          $("#showLogs").addClass(bottomSelectorStyle)
-          $("#showRepo").removeClass(bottomSelectorStyle)
-        }
-        $(document).ready(selectLogs);
-        $("#showLogs").on('click', selectLogs);
-
-        $("#showRepo").on('click', function(){
-          $("#logsPanel").hide()
-          $("#repoPanel").show()
-
-          $("#showRepo").addClass(bottomSelectorStyle)
-          $("#showLogs").removeClass(bottomSelectorStyle)
-        })
-
-      </script> 
       <div id = "logsPanel">
         <div class = "row bg-black">
           <div class="col-8"><p2 class = "small text-light ms-2 btn-border-radius-sm"><strong>Command</strong></p2></div>
@@ -652,8 +511,8 @@
                 <div class = "col-2">
                   <a href={{"#log-" + loop.index | string}} data-bs-toggle="collapse" role="button" 
                     aria-controls={{"log-" + loop.index | string}} aria-expanded="false" 
-                    class = "d-flex align-items-center log-expander link-underline link-underline-opacity-0" 
-                    style="color: #63a7ff;">
+                    class = "d-flex align-items-center log-expander link-underline 
+                      link-underline-opacity-0 classic-link">
                     View Log 
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
                       <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
@@ -662,22 +521,11 @@
                   
                 </div>
                 <div class="col"><p2 class = "small text-light ms-2">{{ log["date"] }}</p2></div>
-                <div class = "bg-black small overflow-auto border-top collapse " style="max-height:300px" id = {{"log-" + loop.index | string}}>
-                  <code class = "small text-light" style="white-space:pre-line; ">{{log["log"]}}</code>
+                <div class = "bg-black small overflow-auto border-top collapse log-box" id = {{"log-" + loop.index | string}}>
+                  <code class = "small text-light log-text">{{log["log"]}}</code>
                 </div>
               </li>
             {% endfor %}
-            <style>
-              .rotate-log-button{
-                transform : rotate(90deg);
-              }
-            </style>
-            <script>
-              //Rotate the arrow next to "View Log"
-              $(".log-expander").on('click', function(){
-                $(this).children("svg").toggleClass("rotate-log-button")
-              })
-            </script>
           </ul>
           
         </div>
@@ -696,11 +544,8 @@
                 <strong>Working Directory</strong></p2>
               </div>
             </div>
-            <script>
-              const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-              const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-            </script>
-            <ul id = "repoFilesList" class = "row list-unstyled p-0 mb-0 bg-dark" style = "overflow-y: scroll; height: 400px">
+            
+            <ul id = "repoFilesList" class = "row list-unstyled p-0 mb-0 bg-dark">
               
             </ul>
           </div>
@@ -732,90 +577,7 @@
                   </svg>
                 </button>
               </div>
-            </div>
-            {% raw %}
-              <script>
-                head_status = {
-                  "-": ["No change", "secondary"],
-                  "A": ["Added", "success"],
-                  "M": ["Modified", "success"],
-                  "D": ["Deleted", "danger"],
-                  "R": ["Renamed", "secondary-emphasis"],
-                  "C": ["Copied", "secondary-emphasis"],
-                  "T": ["Mode changed", "secondary-emphasis"],
-                  "U": ["Unmerged", "danger"],
-                }
-                working_status = {
-                  "-": ["New", "success"],
-                  "m": ["Modified", "success"],
-                  "d": ["Deleted", "danger"]
-                }
-
-                const populateRepoFiles = function(){
-                  $.ajax({
-                      url: "/repo-refresh",
-                      type: "POST",
-
-                      success: function(response) {
-                        head_status = {
-                          "-": ["No change", "secondary"],
-                          "A": ["Added", "success"],
-                          "M": ["Modified", "success"],
-                          "D": ["Deleted", "danger"],
-                          "R": ["Renamed", "secondary-emphasis"],
-                          "C": ["Copied", "secondary-emphasis"],
-                          "T": ["Mode changed", "secondary-emphasis"],
-                          "U": ["Unmerged", "danger"],
-                        }
-                        working_status = {
-                          "-": ["New", "success"],
-                          "m": ["Modified", "success"],
-                          "d": ["Deleted", "danger"]
-                        }
-
-                        console.log(head_status["-"][0])
-
-                        $("#repoProject").html(response.project);           
-                        $("#repoBranch").html(response.branch);
-
-                        var filesHTML = "";
-                        
-                        
-                        response.files.forEach(function(file){
-                          console.log(file.head);
-                          console.log(file.working);
-                          filesHTML +=`
-                          <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
-                            <div class="col-6 text-break ms-2">
-                              <p2 class = "small text-light">` + file.file + `</p2>
-                            </div>
-                            <div align = "center" class="col">
-                              <p2 class = "small text-` + head_status[file.head][1] + `">
-                                ` + head_status[file.head][0] + `
-                              </p2>
-                            </div>
-                            <div align = "center" class="col">
-                              <p2 class = "small text-` + working_status[file.working][1] + `">
-                                ` + working_status[file.working][0] + `
-                              </p2>
-                            </div>       
-                          </li>
-                          `
-                        })
-
-                        $("#repoFilesList").html(filesHTML);
-                      },
-                      error: function(xhr) {
-                        console.log("failure");
-                      }
-                    });
-                }
-                $("#repoStatusRefresh").on("click", populateRepoFiles)
-
-                $(document).ready(populateRepoFiles);
-              </script>
-              {% endraw %}
-            
+            </div>          
           </div>
         </div>
         
