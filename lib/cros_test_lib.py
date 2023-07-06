@@ -1238,6 +1238,11 @@ class MockTestCase(TestCase):
 
         stop() will be called automatically during tearDown.
         """
+        assert args[:2] != (cros_build_lib, "sudo_run"), (
+            "Do not mock cros_build_lib.sudo_run directly; use "
+            "cros_test_lib.RunCommandTestCase/self.rc or "
+            "self.StartPatcher/cros_test_lib.RunCommandMock instead"
+        )
         return self.StartPatcher(mock.patch.object(*args, **kwargs))
 
     def PatchDict(self, *args, **kwargs):
