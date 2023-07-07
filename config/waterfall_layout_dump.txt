@@ -488,7 +488,6 @@
   kukui-factory-kukui-14374.B-factorybranch-tryjob
   kukui-kernelnext-release-tryjob
   kukui-release-tryjob
-  littlejoe-rapid
   littlejoe-release-tryjob
   luci-scheduler-updater-tryjob
   majolica-release-tryjob
@@ -723,17 +722,13 @@
   trogdor-release-tryjob
   trogdor-userdebug-release-tryjob
   trogdor-zephyr-release-tryjob
-  viking-arm64-rapid
   viking-arm64-release-tryjob
-  viking-poc2-rapid
   viking-poc2-release-tryjob
-  viking-rapid
   viking-release-tryjob
   volteer-factory-volteer-13600.B-factorybranch-tryjob
   volteer-kernelnext-release-tryjob
   volteer-release-tryjob
   volteer-scudo-release-tryjob
-  wristpin-rapid
   wristpin-release-tryjob
   zork-arc-r-release-tryjob
   zork-connectivitynext-release-tryjob

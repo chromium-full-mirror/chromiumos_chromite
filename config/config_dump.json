@@ -6243,36 +6243,6 @@
     ],
     "suite_scheduling": false
   },
-  "littlejoe-rapid": {
-    "_template": "release",
-    "boards": [
-      "littlejoe"
-    ],
-    "chrome_sdk": false,
-    "debug": true,
-    "description": "Create unsigned release image for ingestion into build tool",
-    "dev_installer_prebuilts": false,
-    "display_label": "utility",
-    "factory": false,
-    "factory_install_netboot": false,
-    "factory_toolkit": false,
-    "hw_tests": [],
-    "hw_tests_override": null,
-    "hwqual": false,
-    "image_test": false,
-    "images": [
-      "base",
-      "test"
-    ],
-    "luci_builder": "Rapid",
-    "paygen": false,
-    "push_image": false,
-    "rootfs_verification": false,
-    "signer_tests": false,
-    "suite_scheduling": false,
-    "sync_chrome": false,
-    "upload_hw_test_artifacts": false
-  },
   "littlejoe-release": {
     "_template": "release",
     "boards": [
@@ -10067,36 +10037,6 @@
     "push_image": false,
     "suite_scheduling": false
   },
-  "viking-arm64-rapid": {
-    "_template": "release",
-    "boards": [
-      "viking-arm64"
-    ],
-    "chrome_sdk": false,
-    "debug": true,
-    "description": "Create unsigned release image for ingestion into build tool",
-    "dev_installer_prebuilts": false,
-    "display_label": "utility",
-    "factory": false,
-    "factory_install_netboot": false,
-    "factory_toolkit": false,
-    "hw_tests": [],
-    "hw_tests_override": null,
-    "hwqual": false,
-    "image_test": false,
-    "images": [
-      "base",
-      "test"
-    ],
-    "luci_builder": "Rapid",
-    "paygen": false,
-    "push_image": false,
-    "rootfs_verification": false,
-    "signer_tests": false,
-    "suite_scheduling": false,
-    "sync_chrome": false,
-    "upload_hw_test_artifacts": false
-  },
   "viking-arm64-release": {
     "_template": "release",
     "boards": [
@@ -10148,36 +10088,6 @@
     "sync_chrome": false,
     "upload_hw_test_artifacts": false
   },
-  "viking-poc2-rapid": {
-    "_template": "release",
-    "boards": [
-      "viking-poc2"
-    ],
-    "chrome_sdk": false,
-    "debug": true,
-    "description": "Create unsigned release image for ingestion into build tool",
-    "dev_installer_prebuilts": false,
-    "display_label": "utility",
-    "factory": false,
-    "factory_install_netboot": false,
-    "factory_toolkit": false,
-    "hw_tests": [],
-    "hw_tests_override": null,
-    "hwqual": false,
-    "image_test": false,
-    "images": [
-      "base",
-      "test"
-    ],
-    "luci_builder": "Rapid",
-    "paygen": false,
-    "push_image": false,
-    "rootfs_verification": false,
-    "signer_tests": false,
-    "suite_scheduling": false,
-    "sync_chrome": false,
-    "upload_hw_test_artifacts": false
-  },
   "viking-poc2-release": {
     "_template": "release",
     "boards": [
@@ -10224,36 +10134,6 @@
     "luci_builder": "Try",
     "paygen": false,
     "push_image": false,
-    "signer_tests": false,
-    "suite_scheduling": false,
-    "sync_chrome": false,
-    "upload_hw_test_artifacts": false
-  },
-  "viking-rapid": {
-    "_template": "release",
-    "boards": [
-      "viking"
-    ],
-    "chrome_sdk": false,
-    "debug": true,
-    "description": "Create unsigned release image for ingestion into build tool",
-    "dev_installer_prebuilts": false,
-    "display_label": "utility",
-    "factory": false,
-    "factory_install_netboot": false,
-    "factory_toolkit": false,
-    "hw_tests": [],
-    "hw_tests_override": null,
-    "hwqual": false,
-    "image_test": false,
-    "images": [
-      "base",
-      "test"
-    ],
-    "luci_builder": "Rapid",
-    "paygen": false,
-    "push_image": false,
-    "rootfs_verification": false,
     "signer_tests": false,
     "suite_scheduling": false,
     "sync_chrome": false,
@@ -10559,36 +10439,6 @@
     "paygen": false,
     "push_image": false,
     "suite_scheduling": false
-  },
-  "wristpin-rapid": {
-    "_template": "release",
-    "boards": [
-      "wristpin"
-    ],
-    "chrome_sdk": false,
-    "debug": true,
-    "description": "Create unsigned release image for ingestion into build tool",
-    "dev_installer_prebuilts": false,
-    "display_label": "utility",
-    "factory": false,
-    "factory_install_netboot": false,
-    "factory_toolkit": false,
-    "hw_tests": [],
-    "hw_tests_override": null,
-    "hwqual": false,
-    "image_test": false,
-    "images": [
-      "base",
-      "test"
-    ],
-    "luci_builder": "Rapid",
-    "paygen": false,
-    "push_image": false,
-    "rootfs_verification": false,
-    "signer_tests": false,
-    "suite_scheduling": false,
-    "sync_chrome": false,
-    "upload_hw_test_artifacts": false
   },
   "wristpin-release": {
     "_template": "release",

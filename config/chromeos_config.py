@@ -1486,30 +1486,6 @@ def SpecialtyBuilders(site_config):
         ],
     )
 
-    # Loonix release builders; no signed images nor testing
-    # Associated with Rapid releases, triggered from Rapid.
-    for board in frozenset.union(
-        chromeos_boards.dustbuster_boards, chromeos_boards.wshwos_boards
-    ):
-        site_config.Add(
-            f"{board}-rapid",
-            site_config.templates.release,
-            site_config.templates.loonix,
-            display_label=config_lib.DISPLAY_LABEL_UTILITY,
-            luci_builder=config_lib.LUCI_BUILDER_RAPID,
-            boards=[board],
-            debug=True,
-            hwqual=False,
-            push_image=False,
-            suite_scheduling=False,
-            # crbug.com/1111964 - Disable rootfs verification
-            rootfs_verification=False,
-            description=(
-                "Create unsigned release image for ingestion "
-                + "into build tool"
-            ),
-        )
-
 
 def TryjobMirrors(site_config):
     """Create tryjob specialized variants of every build config.
