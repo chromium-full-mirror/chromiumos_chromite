@@ -92,7 +92,7 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     Returns:
         A dict mapping board types to board name collections.
         The dict contains board types including distinct_board_sets,
-        all_release_boards, all_full_boards, all_boards, and internal_boards.
+        all_release_boards, all_boards, and internal_boards.
     """
     ge_arch_board_dict = config_lib.GetArchBoardDict(ge_build_config)
 
@@ -133,7 +133,6 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     boards_dict["all_release_boards"] = (
         arm_internal_release_boards | x86_internal_release_boards
     )
-    boards_dict["all_full_boards"] = arm_full_boards | x86_full_boards
     all_boards = x86_boards | arm_boards
     boards_dict["all_boards"] = all_boards
 
@@ -579,15 +578,6 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
     active_builders = _frozen_ge_set(
         ge_build_config,
         [
-            "eve",
-            "hana",
-            "jacuzzi",
-            "kevin",
-            "kevin64",
-            "octopus",
-            "tael",
-            "tatl",
-            "zork",
         ],
         ("amd64-generic",),
     )
@@ -602,7 +592,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
 
     site_config.AddForBoards(
         config_lib.CONFIG_TYPE_FULL,
-        boards_dict["all_full_boards"],
+        ["amd64-generic"],
         external_board_configs,
         site_config.templates.full,
         site_config.templates.build_external_chrome,

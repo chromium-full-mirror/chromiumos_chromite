@@ -163,14 +163,6 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
         """Test finding of a release builder."""
         self._CheckFullConfig("eve", internal_expected="eve-release")
 
-    def testBoth(self):
-        """Both an external and internal config exist for board."""
-        self._CheckFullConfig(
-            "nocturne",
-            external_expected="nocturne-full",
-            internal_expected="nocturne-release",
-        )
-
     def testExternalCanonicalResolution(self):
         """Test an external canonical config."""
         self._CheckCanonicalConfig("amd64-generic", "full")

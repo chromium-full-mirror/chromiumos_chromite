@@ -87,9 +87,6 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
         self.assertNotIn(
             self.site_config["glados-release"], board_tryjob_configs
         )
-        self.assertNotIn(
-            self.site_config["hatch-full"], board_release_tryjob_configs
-        )
 
         # And that we really filtered something out in every case.
         self.assertLess(
@@ -149,12 +146,12 @@ class TryjobTestParsing(TryjobTest):
             "local_patches": [],
             "passthrough": None,
             "passthrough_raw": None,
-            "build_configs": ["eve-full-tryjob"],
+            "build_configs": ["amd64-generic-full-tryjob"],
         }
 
     def testMinimalParsing(self):
         """Tests flow for an interactive session."""
-        self.SetupCommandMock(["eve-full-tryjob"])
+        self.SetupCommandMock(["amd64-generic-full-tryjob"])
         options = self.cmd_mock.inst.options
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
 
@@ -192,7 +189,7 @@ class TryjobTestParsing(TryjobTest):
                 "--pass-through",
                 "bar",
                 "--list",
-                "eve-full-tryjob",
+                "amd64-generic-full-tryjob",
                 "eve-release",
             ]
         )
@@ -222,7 +219,7 @@ class TryjobTestParsing(TryjobTest):
                     "--debug-cidb",
                 ],
                 "passthrough_raw": ["--cbuild-arg", "bar"],
-                "build_configs": ["eve-full-tryjob", "eve-release"],
+                "build_configs": ["amd64-generic-full-tryjob", "eve-release"],
             }
         )
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
@@ -263,7 +260,7 @@ class TryjobTestParsing(TryjobTest):
                 "--pass-through",
                 "bar",
                 "--list",
-                "eve-full",
+                "amd64-generic-full",
                 "eve-release",
             ]
         )
@@ -294,7 +291,7 @@ class TryjobTestParsing(TryjobTest):
                     "--debug-cidb",
                 ],
                 "passthrough_raw": ["--cbuild-arg", "bar"],
-                "build_configs": ["eve-full", "eve-release"],
+                "build_configs": ["amd64-generic-full", "eve-release"],
             }
         )
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
@@ -334,7 +331,7 @@ class TryjobTestParsing(TryjobTest):
                 "--pass-through",
                 "bar",
                 "--list",
-                "eve-full-tryjob",
+                "amd64-generic-full-tryjob",
                 "eve-release",
             ]
         )
@@ -364,7 +361,7 @@ class TryjobTestParsing(TryjobTest):
                     "chrome_git_hash",
                 ],
                 "passthrough_raw": ["--cbuild-arg", "bar"],
-                "build_configs": ["eve-full-tryjob", "eve-release"],
+                "build_configs": ["amd64-generic-full-tryjob", "eve-release"],
             }
         )
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
@@ -558,7 +555,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "--pass-through=bar",
                 "-b",
                 "release-R107-15117.B",
-                "eve-full-tryjob",
+                "amd64-generic-full-tryjob",
                 "eve-release-tryjob",
             ]
         )
@@ -599,7 +596,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "--pass-through=bar",
                 "-b",
                 "release-R107-15117.B",
-                "eve-full",
+                "amd64-generic-full",
                 "eve-release",
             ]
         )
@@ -638,7 +635,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "--pass-through=bar",
                 "-b",
                 "release-R107-15117.B",
-                "eve-full-tryjob",
+                "amd64-generic-full-tryjob",
                 "eve-release-tryjob",
             ]
         )
@@ -682,7 +679,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "--production",
                 "-b",
                 "release-R107-15117.B",
-                "eve-full-tryjob",
+                "amd64-generic-full-tryjob",
                 "eve-release",
             ]
         )
@@ -765,7 +762,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "*123",
                 "-g",
                 "123..456",
-                "eve-full-tryjob",
+                "amd64-generic-full-tryjob",
                 "eve-release",
             ]
         )
@@ -778,7 +775,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
     def testRemoteTryjobProductionConfig(self):
         """Test option verification remote tryjob w/production config."""
-        self.SetupCommandMock(["eve-full-tryjob", "eve-release"])
+        self.SetupCommandMock(["amd64-generic-full-tryjob", "eve-release"])
 
         with self.assertRaises(cros_build_lib.DieSystemExit) as cm:
             cros_tryjob.VerifyOptions(
@@ -1171,7 +1168,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             "chan",
             "--pass-through=--cbuild-arg",
             "--pass-through=bar",
-            "eve-full",
+            "amd64-generic-full",
             "eve-release",
         ]
 
@@ -1270,7 +1267,7 @@ class TryjobTestDisplayLabel(TryjobTest):
         return cros_tryjob.DisplayLabel(site_config, options, config_name)
 
     def testMainTryjob(self):
-        label = self.FindLabel(["eve-full-tryjob"])
+        label = self.FindLabel(["amd64-generic-full-tryjob"])
         self.assertEqual(label, "tryjob")
 
     def testMainUnknown(self):
@@ -1278,7 +1275,7 @@ class TryjobTestDisplayLabel(TryjobTest):
         self.assertEqual(label, "tryjob")
 
     def testMainKnownProduction(self):
-        label = self.FindLabel(["--production", "eve-full"])
+        label = self.FindLabel(["--production", "amd64-generic-full"])
         self.assertEqual(label, "production_tryjob")
 
     def testMainUnknownProduction(self):
