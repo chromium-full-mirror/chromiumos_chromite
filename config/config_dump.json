@@ -64,7 +64,6 @@
     "models": [],
     "name": null,
     "nobuildretry": false,
-    "notification_configs": [],
     "overlays": "public",
     "packages": [],
     "paygen": false,

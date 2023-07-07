@@ -894,16 +894,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                         % (config.name, config.triggered_gitiles)
                     )
 
-    def testNotificationConfigsType(self):
-        """Verify notification_configs has an expected value"""
-        for config in self.site_config.values():
-            if config["notification_configs"] is None:
-                continue
-            for notification_config in config["notification_configs"]:
-                self.assertIsInstance(
-                    notification_config, config_lib.NotificationConfig
-                )
-
 
 class TemplateTest(ChromeosConfigTestBase):
     """Tests for templates."""

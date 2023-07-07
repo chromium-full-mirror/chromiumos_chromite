@@ -371,22 +371,3 @@ def SendEmailLog(
         attachment=attachment,
         extra_fields=extra_fields,
     )
-
-
-def GetUpdatedEmailNotify(builder_run, failure_streak):
-    """Return a list of email_notify values based on the streak.
-
-    Generate a list of email_notify values for notification recipients.
-    Recipients are added if the current failure streak is greater than or equal
-    to their threshold.
-
-    Args:
-        builder_run: BuilderRun for the main cbuildbot run.
-        failure_streak: number of consecutive failures for the builder.
-    """
-    email_notify = []
-    for entry in builder_run.config.notification_configs:
-        if entry.threshold <= failure_streak:
-            email_notify.append(entry.email_notify)
-
-    return email_notify

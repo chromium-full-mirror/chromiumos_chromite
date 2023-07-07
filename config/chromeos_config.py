@@ -1430,7 +1430,6 @@ def TryjobMirrors(site_config):
             name=tryjob_name,
             display_label=config_lib.DISPLAY_LABEL_TRYJOB,
             luci_builder=config_lib.LUCI_BUILDER_TRY,
-            notification_configs=[],
             # Generally make tryjobs safer.
             chroot_replace=True,
             debug=True,
