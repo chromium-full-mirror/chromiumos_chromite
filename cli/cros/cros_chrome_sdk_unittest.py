@@ -873,13 +873,12 @@ class GomaTest(
 
 
 class VersionTest(
-    cros_test_lib.MockTempDirTestCase, cros_test_lib.LoggingTestCase
+    gs_unittest.AbstractGSContextTest, cros_test_lib.LoggingTestCase
 ):
     """Tests the determination of which SDK version to use."""
 
     VERSION = "3543.0.0"
     FULL_VERSION = "R55-%s" % VERSION
-    RECENT_VERSION_MISSING = "3542.0.0"
     RECENT_VERSION_FOUND = "3541.0.0"
     FULL_VERSION_RECENT = "R55-%s" % RECENT_VERSION_FOUND
     NON_CANARY_VERSION = "3543.2.1"
@@ -895,8 +894,6 @@ class VersionTest(
     LS_ERROR = "CommandException: One or more URLs matched no objects."
 
     def setUp(self):
-        self.gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
-        self.gs_mock.SetDefaultCmdResult()
         self.sdk_mock = self.StartPatcher(
             SDKFetcherMock(external_mocks=[self.gs_mock])
         )
@@ -933,81 +930,6 @@ class VersionTest(
         self.assertEqual(
             self.FULL_VERSION, self.sdk.GetFullVersion(self.FULL_VERSION)
         )
-
-    def testFullVersionFromPlatformVersion(self):
-        """Test full version calculation from the platform version."""
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*/LATEST-%s" % self.VERSION),
-            stdout=self.FULL_VERSION,
-        )
-        self.assertEqual(
-            self.FULL_VERSION, self.sdk.GetFullVersion(self.VERSION)
-        )
-
-    def _SetupMissingVersions(self):
-        """Version & Version-1 are missing, but Version-2 exists."""
-
-        def _RaiseGSNoSuchKey(*_args, **_kwargs):
-            raise gs.GSNoSuchKey("file does not exist")
-
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*/LATEST-%s" % self.VERSION),
-            side_effect=_RaiseGSNoSuchKey,
-        )
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex(
-                "cat .*/LATEST-%s" % self.RECENT_VERSION_MISSING
-            ),
-            side_effect=_RaiseGSNoSuchKey,
-        )
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex(
-                "cat .*/LATEST-%s" % self.RECENT_VERSION_FOUND
-            ),
-            stdout=self.FULL_VERSION_RECENT,
-        )
-
-    def testNoFallbackVersion(self):
-        """Test that all versions are checked before raising an exception."""
-
-        def _RaiseGSNoSuchKey(*_args, **_kwargs):
-            raise gs.GSNoSuchKey("file does not exist")
-
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*/LATEST-*"),
-            side_effect=_RaiseGSNoSuchKey,
-        )
-        self.sdk.fallback_versions = 2000000
-        with cros_test_lib.LoggingCapturer() as logs:
-            self.assertRaises(
-                cros_chrome_sdk.MissingSDK,
-                self.sdk.GetFullVersion,
-                self.VERSION,
-            )
-        self.AssertLogsContain(logs, "LATEST-1.0.0")
-        self.AssertLogsContain(logs, "LATEST--1.0.0", inverted=True)
-
-    def testFallbackVersions(self):
-        """Test full version calculation with various fallback versions."""
-        self._SetupMissingVersions()
-        for version in range(6):
-            self.sdk.fallback_versions = version
-            # _SetupMissingVersions mocks the result of 3 files.
-            # The file ending with LATEST-3.0.0 is the only one that would pass.
-            if version < 3:
-                self.assertRaises(
-                    cros_chrome_sdk.MissingSDK,
-                    self.sdk.GetFullVersion,
-                    self.VERSION,
-                )
-            else:
-                self.assertEqual(
-                    self.FULL_VERSION_RECENT,
-                    self.sdk.GetFullVersion(self.VERSION),
-                )
 
     def testFullVersionCaching(self):
         """Test full version calculation and caching."""
@@ -1059,40 +981,6 @@ class VersionTest(
         )
         self.assertRaises(
             cros_chrome_sdk.MissingSDK, self.sdk.GetFullVersion, self.VERSION
-        )
-
-    def testNonCanaryFullVersion(self):
-        """Test full version calculation for a non canary version."""
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex(
-                "cat .*/LATEST-%s" % self.NON_CANARY_VERSION
-            ),
-            stdout=self.FULL_VERSION_NON_CANARY,
-        )
-        self.assertEqual(
-            self.FULL_VERSION_NON_CANARY,
-            self.sdk.GetFullVersion(self.NON_CANARY_VERSION),
-        )
-
-    def testNonCanaryNoLatestVersion(self):
-        """We raise an exception when there is no matching latest non canary."""
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex(
-                "cat .*/LATEST-%s" % self.NON_CANARY_VERSION
-            ),
-            stdout="",
-            stderr=self.CAT_ERROR,
-            returncode=1,
-        )
-        # Set any other query to return a valid version, but we don't expect
-        # that to occur for non canary versions.
-        self.gs_mock.SetDefaultCmdResult(stdout=self.FULL_VERSION_NON_CANARY)
-        self.assertRaises(
-            cros_chrome_sdk.MissingSDK,
-            self.sdk.GetFullVersion,
-            self.NON_CANARY_VERSION,
         )
 
     def testDefaultEnvBadBoard(self):

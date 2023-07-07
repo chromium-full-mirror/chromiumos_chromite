@@ -21,6 +21,7 @@ from chromite.third_party.gn_helpers import gn_helpers
 
 from chromite.cli import command
 from chromite.lib import cache
+from chromite.lib import chrome_lkgm
 from chromite.lib import chromite_config
 from chromite.lib import cipd
 from chromite.lib import config_lib
@@ -50,20 +51,6 @@ def Log(*args, **kwargs):
     silent = kwargs.pop("silent", False)
     level = logging.DEBUG if silent else logging.INFO
     logging.log(level, *args, **kwargs)
-
-
-class NoChromiumSrcDir(Exception):
-    """Error thrown when no chromium src dir is found."""
-
-    def __init__(self, path):
-        Exception.__init__(self, "No chromium src dir found in: %s" % (path))
-
-
-class MissingLKGMFile(Exception):
-    """Error thrown when we cannot get the version from CHROMEOS_LKGM."""
-
-    def __init__(self, path):
-        Exception.__init__(self, "Cannot parse CHROMEOS_LKGM file: %s" % (path))
 
 
 class MissingSDK(Exception):
@@ -199,6 +186,10 @@ class SDKFetcher:
         else:
             self.config_name = f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
             self.gs_base = f"gs://chromeos-image-archive/{self.config_name}"
+
+        self.version_finder = chrome_lkgm.ChromeOSVersionFinder(
+            self.gs_ctx, self.gs_base, self.fallback_versions
+        )
 
     def _HasInternalConfig(self):
         """Determines if the SDK we need is provided by an internal builder.
@@ -377,25 +368,6 @@ class SDKFetcher:
                 ref.AssignText(raw_json)
 
         return json.loads(raw_json)
-
-    @staticmethod
-    def GetChromeLKGM(chrome_src_dir=None):
-        """Get the CHROMEOS LKGM checked into the Chrome tree.
-
-        Args:
-            chrome_src_dir: chrome source directory.
-
-        Returns:
-            Version number in format '10171.0.0'.
-        """
-        if not chrome_src_dir:
-            chrome_src_dir = path_util.DetermineCheckout().chrome_src_dir
-        if not chrome_src_dir:
-            return None
-        lkgm_file = os.path.join(chrome_src_dir, constants.PATH_TO_CHROME_LKGM)
-        version = osutils.ReadFile(lkgm_file).rstrip()
-        logging.debug("Read LKGM version from %s: %s", lkgm_file, version)
-        return version
 
     @classmethod
     def _LookupMiscCache(cls, cache_dir, key):
@@ -665,80 +637,6 @@ class SDKFetcher:
             if not os.path.exists(target_dir):
                 os.symlink(src_dir, target_dir)
 
-    def _GetFullVersionFromStorage(self, version_file):
-        """Cat |version_file| in google storage.
-
-        Args:
-            version_file: google storage path of the version file.
-
-        Returns:
-            Version number in the format 'R30-3929.0.0' or None.
-        """
-        try:
-            # If the version doesn't exist in google storage,
-            # which isn't unlikely, don't waste time on retries.
-            full_version = self.gs_ctx.Cat(
-                version_file, retries=0, encoding="utf-8"
-            )
-            assert full_version.startswith("R")
-            return full_version
-        except (gs.GSNoSuchKey, gs.GSCommandError):
-            return None
-
-    def _GetFullVersionFromRecentLatest(self, version):
-        """Gets the full version number from a recent LATEST- file.
-
-        If LATEST-{version} does not exist, we need to look for a recent
-        LATEST- file to get a valid full version from.
-
-        Args:
-            version: The version number to look backwards from. If version is
-            not a canary version (ending in .0.0), returns None.
-
-        Returns:
-            Version number in the format 'R30-3929.0.0' or None.
-        """
-
-        # If version does not end in .0.0 it is not a canary so fail.
-        if not version.endswith(".0.0"):
-            return None
-        version_base = int(version.split(".")[0])
-        version_base_min = max(version_base - self.fallback_versions, 0)
-
-        for v in range(version_base - 1, version_base_min, -1):
-            version_file = "%s/LATEST-%d.0.0" % (self.gs_base, v)
-            logging.info("Trying: %s", version_file)
-            full_version = self._GetFullVersionFromStorage(version_file)
-            if full_version is not None:
-                logging.info(
-                    "Using cros version from most recent LATEST file: %s -> %s",
-                    version_file,
-                    full_version,
-                )
-                return full_version
-        logging.warning(
-            "No recent LATEST file found from %d.0.0 to %d.0.0: ",
-            version_base_min,
-            version_base,
-        )
-        return None
-
-    def _GetFullVersionFromLatest(self, version):
-        """Gets the full version number from the LATEST-{version} file.
-
-        Args:
-            version: The version number or branch to look at.
-
-        Returns:
-            Version number in the format 'R30-3929.0.0' or None.
-        """
-        version_file = "%s/LATEST-%s" % (self.gs_base, version)
-        full_version = self._GetFullVersionFromStorage(version_file)
-        if full_version is None:
-            logging.warning("No LATEST file matching SDK version %s", version)
-            return self._GetFullVersionFromRecentLatest(version)
-        return full_version
-
     def GetDefaultVersion(self):
         """Get the default SDK version to use.
 
@@ -779,11 +677,11 @@ class SDKFetcher:
         current = self.GetDefaultVersion() or "0"
 
         if not checkout.chrome_src_dir:
-            raise NoChromiumSrcDir(checkout_dir)
+            raise chrome_lkgm.NoChromiumSrcDir(checkout_dir)
 
-        target = self.GetChromeLKGM(checkout.chrome_src_dir)
+        target = chrome_lkgm.GetChromeLkgm(checkout.chrome_src_dir)
         if target is None:
-            raise MissingLKGMFile(checkout.chrome_src_dir)
+            raise chrome_lkgm.MissingLkgmFile(checkout.chrome_src_dir)
 
         self._SetDefaultVersion(target)
         return target, target != current
@@ -813,7 +711,7 @@ class SDKFetcher:
             if ref.Exists(lock=True):
                 return osutils.ReadFile(ref.path).strip()
 
-            full_version = self._GetFullVersionFromLatest(version)
+            full_version = self.version_finder.GetFullVersionFromLatest(version)
 
             if full_version is None:
                 raise MissingSDK(self.config_name, self.board, version)
@@ -1648,7 +1546,7 @@ class ChromeSDKCommand(command.CliCommand):
             # testing, and given that Lacros uses CHROMEOS_LKGM for testing
             # regardless of the version used for compilation, so always set the
             # value as CHROME_LKGM.
-            gn_args["cros_sdk_version"] = SDKFetcher.GetChromeLKGM(
+            gn_args["cros_sdk_version"] = chrome_lkgm.GetChromeLkgm(
                 options.chrome_src
             )
         else:
