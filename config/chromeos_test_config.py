@@ -5,7 +5,6 @@
 """Configuration options for various cbuildbot tests."""
 
 import copy
-import logging
 
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -297,60 +296,6 @@ def InsertHwTestsOverrideDefaults(build):
             hw_config.priority = constants.HWTEST_DEFAULT_PRIORITY
 
 
-def ApplyCustomOverrides(site_config):
-    """Method with to override specific flags for specific builders.
-
-    Generally try really hard to avoid putting anything here that isn't
-    a really special case for a single specific builder. This is performed
-    after every other bit of processing, so it always has the final say.
-
-    Args:
-        site_config: config_lib.SiteConfig containing builds to have their
-            waterfall values updated.
-    """
-    overwritten_configs = {
-        "guado_labstation-release": {
-            "hw_tests": [],
-            # 'hwqual':False,
-            "image_test": False,
-            # 'images':['test'],
-            "signer_tests": False,
-        },
-        "fizz-labstation-release": {
-            "hw_tests": [],
-            "image_test": False,
-            "signer_tests": False,
-        },
-    }
-
-    for config_name, overrides in overwritten_configs.items():
-        # TODO: Turn this assert into a unittest.
-        # config = site_config[config_name]
-        # for k, v in overrides.items():
-        #   assert config[k] != v, ('Unnecessary override: %s: %s' %
-        #                           (config_name, k))
-        if config_name in site_config:
-            site_config[config_name].apply(**overrides)
-        else:
-            logging.warning(
-                "ignoring overrides for missing config %s", config_name
-            )
-
-
-def PostsubmitBuilders(site_config):
-    """Create all postsubmit test configs.
-
-    Args:
-        site_config: config_lib.SiteConfig to be modified by adding templates
-            and configs.
-    """
-    for config in site_config.values():
-        if config.name.endswith("postsubmit"):
-            config.apply(
-                site_config.templates.no_hwtest_builder,
-            )
-
-
 def GeneralTemplates(site_config, ge_build_config):
     """Apply test config to general templates
 
@@ -383,11 +328,6 @@ def GeneralTemplates(site_config, ge_build_config):
         hw_tests_override=[],
     )
 
-    site_config.AddTemplate(
-        "moblab",
-        image_test=False,
-    )
-
     site_config.templates.full.apply(
         site_config.templates.default_hw_tests_override,
         image_test=True,
@@ -400,24 +340,6 @@ def GeneralTemplates(site_config, ge_build_config):
     )
     # END Factory
 
-    # BEGIN Loonix
-    site_config.templates.loonix.apply(
-        site_config.templates.no_hwtest_builder,
-    )
-    # END Loonix
-
-    # BEGIN WSHWOS
-    site_config.templates.wshwos.apply(
-        site_config.templates.no_hwtest_builder,
-    )
-    # END WSHWOS
-
-    # BEGIN Dustbuster
-    site_config.templates.dustbuster.apply(
-        site_config.templates.no_hwtest_builder,
-    )
-    # END Dustbuster
-
     # BEGIN Release
     release_hw_tests = hw_test_list.SharedPoolCanary()
 
@@ -425,33 +347,7 @@ def GeneralTemplates(site_config, ge_build_config):
         site_config.templates.default_hw_tests_override,
         hw_tests=release_hw_tests,
     )
-
-    site_config.templates.moblab_release.apply(
-        site_config.templates.default_hw_tests_override,
-        hw_tests=[
-            config_lib.HWTestConfig(
-                constants.HWTEST_MOBLAB_SUITE, timeout=120 * 60
-            ),
-            config_lib.HWTestConfig(constants.HWTEST_BVT_SUITE, warn_only=True),
-            hw_test_list.TastConfig(
-                constants.HWTEST_TAST_CQ_SUITE, warn_only=True
-            ),
-            config_lib.HWTestConfig(
-                constants.HWTEST_INSTALLER_SUITE, warn_only=True
-            ),
-        ],
-    )
-
-    site_config.templates.payloads.apply(
-        site_config.templates.no_hwtest_builder,
-    )
     # END Release
-
-    # BEGIN Termina
-    site_config.templates.termina.apply(
-        site_config.templates.no_hwtest_builder,
-    )
-    # END Termina
 
 
 def ApplyConfig(site_config):
@@ -465,7 +361,3 @@ def ApplyConfig(site_config):
     # Insert default HwTests for tryjobs.
     for build in site_config.values():
         InsertHwTestsOverrideDefaults(build)
-
-    PostsubmitBuilders(site_config)
-
-    ApplyCustomOverrides(site_config)

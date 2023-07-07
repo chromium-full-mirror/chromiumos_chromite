@@ -947,7 +947,7 @@ class BoardConfigsTest(ChromeosConfigTestBase):
         boards_dict = chromeos_config.GetBoardTypeToBoardsDict(ge_build_config)
 
         self.external_board_configs = chromeos_config.CreateBoardConfigs(
-            self.site_config, boards_dict, ge_build_config
+            boards_dict, ge_build_config
         )
 
         self.internal_board_configs = (

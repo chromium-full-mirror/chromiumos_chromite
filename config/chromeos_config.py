@@ -175,12 +175,6 @@ def GeneralTemplates(site_config):
         ge_build_config: Dictionary containing the decoded GE configuration
             file.
     """
-    # Config parameters for builders that do not run tests on the builder.
-    site_config.AddTemplate(
-        "no_unittest_builder",
-        unittests=False,
-    )
-
     # Builder type templates.
 
     site_config.AddTemplate(
@@ -204,30 +198,6 @@ def GeneralTemplates(site_config):
         ),
     )
 
-    # Incremental builders are intended to test the developer workflow.
-    # For that reason, they don't uprev.
-    site_config.AddTemplate(
-        "incremental",
-        display_label=config_lib.DISPLAY_LABEL_INCREMENATAL,
-        build_type=constants.INCREMENTAL_TYPE,
-        luci_builder=config_lib.LUCI_BUILDER_INCREMENTAL,
-        chroot_replace=False,
-        uprev=False,
-        overlays=constants.PUBLIC_OVERLAYS,
-        description="Incremental Builds",
-        doc=(
-            "https://dev.chromium.org/chromium-os/build/builder-overview#"
-            "TOC-Continuous"
-        ),
-    )
-
-    site_config.AddTemplate(
-        "informational",
-        display_label=config_lib.DISPLAY_LABEL_INFORMATIONAL,
-        description="Informational Builds",
-        luci_builder=config_lib.LUCI_BUILDER_INFORMATIONAL,
-    )
-
     site_config.AddTemplate(
         "external",
         internal=False,
@@ -247,58 +217,6 @@ def GeneralTemplates(site_config):
     site_config.AddTemplate(
         "infra_builder",
         luci_builder=config_lib.LUCI_BUILDER_INFRA,
-    )
-
-    site_config.AddTemplate(
-        "brillo",
-        sync_chrome=False,
-        chrome_sdk=False,
-        dev_installer_prebuilts=False,
-    )
-
-    site_config.AddTemplate(
-        "termina",
-        sync_chrome=False,
-        chrome_sdk=False,
-        dev_installer_prebuilts=False,
-        signer_tests=False,
-        sign_types=None,
-        paygen=False,
-        upload_hw_test_artifacts=False,
-        upload_stripped_packages=["sys-kernel/*kernel*"],
-        image_test=False,
-        images=["base", "test"],
-        packages=[
-            "virtual/target-os",
-            "virtual/target-os-dev",
-            "virtual/target-os-test",
-        ],
-    )
-
-    site_config.AddTemplate(
-        "loonix",
-        factory=False,
-        factory_install_netboot=False,
-        factory_toolkit=False,
-        sync_chrome=False,
-        chrome_sdk=False,
-        dev_installer_prebuilts=False,
-        # TODO(harshmodi): Re-enable this when we start using vboot
-        signer_tests=False,
-        paygen=False,
-        upload_hw_test_artifacts=False,
-        image_test=False,
-        images=remove_images(["recovery", "factory_install"]),
-    )
-
-    site_config.AddTemplate("wshwos", site_config.templates.loonix)
-
-    site_config.AddTemplate(
-        "dustbuster",
-        # TODO(ehislen): Starting with loonix but will diverge later.
-        site_config.templates.loonix,
-        # Disable rootfs_verification until Dustbuster is ready.
-        rootfs_verification=False,
     )
 
     # This adds Chrome branding.
@@ -360,14 +278,6 @@ def GeneralTemplates(site_config):
         luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
     )
 
-    site_config.AddTemplate(
-        "moblab_release",
-        site_config.templates.release,
-        description="Moblab release builders",
-        images=["base", "recovery", "test"],
-        signer_tests=False,
-    )
-
     # Factory releases much inherit from these classes.
     # Modifications for these release builders should go here.
 
@@ -401,22 +311,6 @@ def GeneralTemplates(site_config):
     )
 
     site_config.AddTemplate(
-        "payloads",
-        site_config.templates.internal,
-        site_config.templates.no_unittest_builder,
-        display_label=config_lib.DISPLAY_LABEL_TRYJOB,
-        build_type=constants.PAYLOADS_TYPE,
-        luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
-        builder_class_name="release_builders.GeneratePayloadsBuilder",
-        description="Regenerate release payloads.",
-        # Sync to the code used to do the build the first time.
-        manifest_version=True,
-        # This is the actual work we want to do.
-        paygen=True,
-        upload_hw_test_artifacts=False,
-    )
-
-    site_config.AddTemplate(
         "build_external_chrome",
         useflags=config_lib.append_useflags(
             ["-%s" % constants.USE_CHROME_INTERNAL]
@@ -439,14 +333,8 @@ def GeneralTemplates(site_config):
         description="Buildspec creator.",
     )
 
-    site_config.AddTemplate(
-        "vm",
-        site_config.templates.full,
-        profile="vm-optimized",
-    )
 
-
-def CreateBoardConfigs(site_config, boards_dict, ge_build_config):
+def CreateBoardConfigs(boards_dict, ge_build_config):
     """Create mixin templates for each board."""
     # Extract the full list of board names from GE data.
     separate_board_names = set(
@@ -466,16 +354,6 @@ def CreateBoardConfigs(site_config, boards_dict, ge_build_config):
     for board in board_names:
         board_config = config_lib.BuildConfig(boards=[board])
 
-        if board in chromeos_boards.brillo_boards:
-            board_config.apply(site_config.templates.brillo)
-        if board in chromeos_boards.wshwos_boards:
-            board_config.apply(site_config.templates.wshwos)
-        if board in chromeos_boards.dustbuster_boards:
-            board_config.apply(site_config.templates.dustbuster)
-        if board in chromeos_boards.moblab_boards:
-            board_config.apply(site_config.templates.moblab)
-        if board in chromeos_boards.termina_boards:
-            board_config.apply(site_config.templates.termina)
         if board in chromeos_boards.nofactory_boards:
             board_config.apply(
                 factory=False,
@@ -499,7 +377,7 @@ def CreateBoardConfigs(site_config, boards_dict, ge_build_config):
 
 def CreateInternalBoardConfigs(site_config, boards_dict, ge_build_config):
     """Create mixin templates for each board."""
-    result = CreateBoardConfigs(site_config, boards_dict, ge_build_config)
+    result = CreateBoardConfigs(boards_dict, ge_build_config)
 
     for board in boards_dict["internal_boards"]:
         if board in result:
@@ -552,9 +430,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
     # green.
     unstable_builders = _frozen_ge_set(ge_build_config, [])
 
-    external_board_configs = CreateBoardConfigs(
-        site_config, boards_dict, ge_build_config
-    )
+    external_board_configs = CreateBoardConfigs(boards_dict, ge_build_config)
 
     site_config.AddForBoards(
         config_lib.CONFIG_TYPE_FULL,
@@ -972,286 +848,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
                         chrome_sdk_build_chrome=False,
                     )
                     _AssignToMaster(site_config[config_name])
-
-    def _AdjustReleaseConfigs():
-        """Adjust ungrouped and grouped release configs"""
-        for board in chromeos_boards.moblab_boards:
-            config_name = GetReleaseConfigName(board)
-            if config_name not in site_config:
-                continue
-            # If the board is in moblab_boards, use moblab_release template
-            site_config[config_name].apply(
-                site_config.templates.moblab_release,
-                board_configs[board],
-            )
-
-    _AdjustReleaseConfigs()
-
-
-def ApplyCustomOverrides(site_config):
-    """Method with to override specific flags for specific builders.
-
-    Generally try really hard to avoid putting anything here that isn't
-    a really special case for a single specific builder. This is performed
-    after every other bit of processing, so it always has the final say.
-
-    Args:
-        site_config: config_lib.SiteConfig containing builds to have their
-            waterfall values updated.
-    """
-
-    overwritten_configs = {
-        "amd64-generic-cheets-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1000717",
-        },
-        "expresso-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1011171",
-        },
-        # No hw_tests for caroline-ndktranslation.  See crbug.com/1091053.
-        "caroline-ndktranslation-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "http://crbug.com/1091053",
-        },
-        # No hw_tests for eve-arc-r.  See crbug.com/1161335
-        "eve-arc-r-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "http://crbug.com/1161335",
-        },
-        # No hw_tests for eve-kvm.  See crbug.com/1085769.
-        "eve-kvm-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "http://crbug.com/1085769",
-        },
-        # No hw_tests for eve-userdebug.  See crbug.com/1085769.
-        "eve-userdebug-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "http://crbug.com/1085769",
-        },
-        "heli-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "http://b/148950027",
-        },
-        "setzer-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1092947",
-        },
-        # TODO(yshaul): find out if hwqual needs to go as well
-        # TODO(yshaul): fix apply method to merge base and test
-        "guado_labstation-release": {
-            "hwqual": False,
-            "images": ["base", "test"],
-            "paygen": False,
-        },
-        "fizz-labstation-release": {
-            "hwqual": False,
-            "images": ["base", "test"],
-            "paygen": False,
-        },
-        # Run TestSimpleChromeWorkflow only on kevin64-release instead of
-        # kevin64-full.
-        "kevin64-full": {
-            "chrome_sdk_build_chrome": False,
-        },
-        "kevin64-release": {
-            "chrome_sdk_build_chrome": True,
-        },
-        # Currently factory branches will be created after DVT stage. Therefore
-        # we need signed factory shim or accessory_rwsig firmware from ToT
-        # temporarily.
-        #
-        # After factory branches are created, the configuration of this project
-        # should be removed.
-        # --- start from here ---
-        "dedede-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        # See go/cros-fingerprint-firmware-branching-and-signing for details on
-        # accessory_rwsig signing.
-        "hatch-release": {
-            "sign_types": ["recovery", "factory", "accessory_rwsig"],
-        },
-        # Mushu does not have DUTs in lab See http://b/147462165
-        "mushu-release": {
-            "sign_types": ["recovery", "factory"],
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://b/147462165",
-        },
-        "jacuzzi-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "puff-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "kukui-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "sarien-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "strongbad-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "trogdor-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "trogdor64-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "shadowkeep-release": {
-            "sign_types": ["recovery", "factory"],
-            # Shadowkeep has no DUTs in the lab (b/159934902).
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/159934902",
-        },
-        "draco-release": {
-            "sign_types": ["recovery", "factory"],
-            # Draco has no DUTs in the lab (b/204940128).
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/204940128",
-        },
-        "brask-release": {
-            "sign_types": ["recovery", "factory"],
-            # Brask has no DUTs in the lab (b/207095933).
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/207095933",
-        },
-        "brya-release": {
-            "sign_types": ["recovery", "factory", "hps_firmware"],
-        },
-        "brya-lvm-stateful-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "keeby-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "aurora-release": {
-            "sign_types": ["recovery", "factory"],
-            # Aurora has no DUTs in the lab. (b/186859558)
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/186859558",
-        },
-        "volteer-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "ghost-release": {
-            "sign_types": ["recovery", "factory"],
-            # Ghost has no DUTs in the lab (b/237833835).
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/237833835",
-        },
-        # See go/cros-fingerprint-firmware-branching-and-signing for details on
-        # accessory_rwsig signing.
-        "zork-release": {
-            "sign_types": ["recovery", "factory", "accessory_rwsig"],
-        },
-        "guybrush-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "drallion-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        # puff-moblab board does not exist in the lab.
-        "puff-moblab-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1145306",
-        },
-        # fizz-moblab board fails are not being monitored.
-        "fizz-moblab-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1145306",
-        },
-        "cherry-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "cherry64-release": {
-            "sign_types": ["recovery"],
-        },
-        "nissa-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "corsola-release": {
-            "sign_types": ["recovery", "factory"],
-        },
-        "geralt-release": {
-            "sign_types": ["recovery", "factory"],
-            # Geralt has no DUTs in the lab (b/239660108).
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/239660108",
-        },
-        "skyrim-release": {
-            "sign_types": ["recovery", "factory"],
-            # Skyrim has no DUTs in the lab (b/240824186).
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/240824186",
-        },
-        "rex-release": {
-            "sign_types": ["recovery", "factory"],
-            # Rex has no DUTs in the lab (b/243985220).
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "b/243985220",
-        },
-        # --- end from here ---
-        # Enable distributed ThinLTO (crbug/877722) only on nocturne for now.
-        "nocturne-release": {
-            "useflags": config_lib.append_useflags(["goma_thinlto"]),
-        },
-    }
-
-    # Some Unibuild boards need to have hardware tests disabled.  This means
-    # disabling it at the model level as well.
-    _unibuild_disabled_hw_tests = frozenset(
-        [
-            "eve-arc-r-release",  # crbug.com/1161335
-        ]
-    )
-
-    for config_name in _unibuild_disabled_hw_tests:
-        config = site_config.get(config_name)
-        if config and "models" in config:
-            models = []
-            for model in config["models"]:
-                models.append(
-                    config_lib.ModelTestConfig(
-                        model.name,
-                        model.lab_board_name,
-                        [],
-                        enable_skylab=model.enable_skylab,
-                    )
-                )
-            if config_name not in overwritten_configs:
-                overwritten_configs[config_name] = {}
-            overwritten_configs[config_name]["models"] = models
-
-    for config_name, overrides in overwritten_configs.items():
-        # TODO: Turn this assert into a unittest.
-        # config = site_config[config_name]
-        # for k, v in overrides.items():
-        #   assert config[k] != v, ('Unnecessary override: %s: %s' %
-        #                           (config_name, k))
-        config = site_config.get(config_name)
-        if config:
-            config.apply(**overrides)
 
 
 def SpecialtyBuilders(site_config):
@@ -1672,8 +1268,6 @@ def GetConfig():
     FactoryBuilders(site_config, boards_dict, ge_build_config)
 
     FullBuilders(site_config, boards_dict, ge_build_config)
-
-    ApplyCustomOverrides(site_config)
 
     chromeos_test.ApplyConfig(site_config)
 

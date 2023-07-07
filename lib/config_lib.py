@@ -325,36 +325,6 @@ class BuildConfig(AttrDict):
         self.slave_configs.sort()
 
 
-class GCETestConfig:
-    """Config object for GCE tests suites.
-
-    Attributes:
-        test_type: Test type to be run.
-        test_suite: Test suite to be run in GCETest.
-        timeout: Number of seconds to wait before timing out waiting for
-            results.
-        use_ctest: Use the old ctest code path rather than the new chromite one.
-    """
-
-    DEFAULT_TEST_TIMEOUT = 60 * 60
-
-    def __init__(
-        self,
-        test_type,
-        test_suite=None,
-        timeout=DEFAULT_TEST_TIMEOUT,
-        use_ctest=True,
-    ):
-        """Constructor -- see members above."""
-        self.test_type = test_type
-        self.test_suite = test_suite
-        self.timeout = timeout
-        self.use_ctest = use_ctest
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
 class ModelTestConfig:
     """Model specific config that controls which test suites are executed.
 
