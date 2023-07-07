@@ -558,6 +558,7 @@ def GenerateBreakpadSymbol(
     num_errors=None,
     found_files=None,
     dump_syms_cmd="dump_syms",
+    dump_syms_args=None,
     force_basic_fallback=False,
 ):
     """Generate the symbols for |elf_file| using |debug_file|
@@ -574,6 +575,8 @@ def GenerateBreakpadSymbol(
             ExpectedFiles, representing which of the "should always be present"
             files have been processed.
         dump_syms_cmd: Command to use for dumping symbols.
+        dump_syms_args: List of args to pass to dump_syms_cmd.
+            If not specified, a reasonable default will be used.
         force_basic_fallback: If True, always use _DumpAllowingBasicFallback()
             instead of _DumpExpectingSymbols().
 
@@ -583,9 +586,11 @@ def GenerateBreakpadSymbol(
     assert breakpad_dir
     if num_errors is None:
         num_errors = ctypes.c_int(0)
+    if dump_syms_args is None:
+        dump_syms_args = ["-v", "-d", "-m"]
     debug_file_only = not os.path.exists(elf_file)
 
-    cmd_base = [dump_syms_cmd, "-v", "-d", "-m"]
+    cmd_base = [dump_syms_cmd] + dump_syms_args
     if strip_cfi:
         cmd_base += ["-c"]
     # Some files will not be readable by non-root (e.g. set*id /bin/su).
