@@ -402,21 +402,12 @@ class BuildReexecutionFinishedStage(
                 for suite_config in self._run.config.hw_tests:
                     # Python 3.7+ made async a reserved keyword.
                     if not getattr(suite_config, "async"):
-                        if self._run.config.enable_skylab_hw_tests:
-                            commands.AbortSkylabHWTests(
-                                build="%s/%s"
-                                % (self._run.config.name, old_version),
-                                board=self._run.config.boards[0],
-                                debug=False,  # For tryjob
-                                suite=suite_config.suite,
-                            )
-                        else:
-                            commands.AbortHWTests(
-                                self._run.config.name,
-                                old_version,
-                                debug,
-                                suite_config.suite,
-                            )
+                        commands.AbortHWTests(
+                            self._run.config.name,
+                            old_version,
+                            debug,
+                            suite_config.suite,
+                        )
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
     def PerformStage(self):

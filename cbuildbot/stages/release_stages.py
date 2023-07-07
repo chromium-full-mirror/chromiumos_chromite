@@ -594,9 +594,7 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                                 archive_build,
                                 self.debug,
                                 payload_test_configs,
-                                config_lib.GetHWTestEnv(
-                                    self._run.config, model_config=model
-                                ),
+                                constants.ENV_AUTOTEST,
                             ).Run()
                     else:
                         lab_board_name = config_lib.GetNonUniBuildLabBoardName(
@@ -613,7 +611,7 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                             archive_build,
                             self.debug,
                             payload_test_configs,
-                            config_lib.GetHWTestEnv(self._run.config),
+                            constants.ENV_AUTOTEST,
                         ).Run()
 
             except paygen_build_lib.BuildLocked as e:
@@ -648,7 +646,7 @@ class PaygenBuildStage(generic_stages.BoardSpecificBuilderStage):
                 archive_build,
                 self.debug,
                 payload_configs,
-                config_lib.GetHWTestEnv(self._run.config, model_config=model),
+                constants.ENV_AUTOTEST,
             )
             for model in models
         ]

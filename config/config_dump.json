@@ -36,8 +36,6 @@
     "disk_layout": null,
     "display_label": null,
     "doc": null,
-    "enable_skylab_cts_hw_tests": false,
-    "enable_skylab_hw_tests": false,
     "factory": true,
     "factory_install_netboot": true,
     "factory_toolkit": true,

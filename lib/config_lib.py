@@ -173,29 +173,6 @@ def IsCanaryType(b_type):
     return b_type == constants.CANARY_TYPE
 
 
-def GetHWTestEnv(builder_run_config, model_config=None, suite_config=None):
-    """Return the env of a suite to run for a given build/model.
-
-    Args:
-        builder_run_config: The BuildConfig object inside a BuilderRun object.
-        model_config: A ModelTestConfig object to test against.
-        suite_config: A HWTestConfig object to test against.
-
-    Returns:
-        A string variable to indiate the hwtest environment.
-    """
-    enable_suite = True if suite_config is None else suite_config.enable_skylab
-    enable_model = True if model_config is None else model_config.enable_skylab
-    if (
-        builder_run_config.enable_skylab_hw_tests
-        and enable_suite
-        and enable_model
-    ):
-        return constants.ENV_SKYLAB
-
-    return constants.ENV_AUTOTEST
-
-
 class AttrDict(dict):
     """Dictionary with 'attribute' access.
 
@@ -701,15 +678,9 @@ def DefaultSettings():
         unittests=True,
         # Update the kernel ebuild with the AFDO profile info.
         afdo_update_kernel_ebuild=False,
-        # If True, run SkylabHWTestStage instead of HWTestStage for suites that
-        # use pools other than pool:cts.
-        enable_skylab_hw_tests=False,
         # If set, this is the URL of the bug justifying why hw_tests are
         # disabled on a builder that should always have hw_tests.
         hw_tests_disabled_bug="",
-        # If True, run SkylabHWTestStage instead of HWTestStage for suites that
-        # use pool:cts.
-        enable_skylab_cts_hw_tests=False,
         # A list of HWTestConfig objects to run.
         hw_tests=[],
         # A list of all HWTestConfig objects to use if HW Tests are forced on

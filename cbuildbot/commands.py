@@ -1905,45 +1905,6 @@ def AbortHWTests(config_type_or_name, version, debug, suite=""):
         logging.warning("AbortHWTests failed", exc_info=True)
 
 
-def AbortSkylabHWTests(build, board, debug, suite):
-    """Abort the specified hardware tests for the given bot(s).
-
-    Args:
-        build: A string build name, like 'link-paladin/R18-1655.0.0-rc1'.
-        board: The name of the board.
-        debug: Whether we are in debug mode.
-        suite: Name of the Autotest suite.
-    """
-    abort_args = ["--board", board, "--suite_name", suite, "--build", build]
-
-    try:
-        cmd = [_SKYLAB_ABORT_SUITE_PATH] + abort_args
-        swarming_args = {
-            "swarming_server": topology.topology.get(
-                topology.CHROME_SWARMING_PROXY_HOST_KEY
-            ),
-            "task_name": "-".join(["abort", build, suite]),
-            "dimensions": [
-                ("os", "Ubuntu-14.04"),
-                ("pool", SKYLAB_SUITE_BOT_POOL),
-            ],
-            "print_status_updates": True,
-            "expiration_secs": _SWARMING_EXPIRATION,
-            "tags": {"luci_project": "chromeos", "skylab": "abort_suite"},
-        }
-        if debug:
-            logging.info(
-                "AbortSkylabHWTests would run the cmd via "
-                "swarming, cmd: %s, swarming_args: %s",
-                cros_build_lib.CmdToStr(cmd),
-                str(swarming_args),
-            )
-        else:
-            swarming_lib.RunSwarmingCommand(cmd, **swarming_args)
-    except cros_build_lib.RunCommandError:
-        logging.warning("AbortHWTests failed", exc_info=True)
-
-
 def GenerateStackTraces(
     buildroot, board, test_results_dir, archive_dir, got_symbols
 ):

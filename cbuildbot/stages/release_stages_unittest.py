@@ -564,35 +564,6 @@ class PaygenStageTest(
             dry_run=True,
         )
 
-    def testRunPaygenInProcessInSkylab(self):
-        """Test that _RunPaygenInProcess works in Skylab."""
-        self._run.config.enable_skylab_hw_tests = True
-        # Have to patch and verify that the PaygenTestStage is created.
-        stage = self.ConstructStage()
-
-        with mock.patch.object(
-            paygen_build_lib, "ScheduleAutotestTests", autospec=True
-        ) as sched_tests:
-            # Call the method under test.
-            stage._RunPaygenInProcess(
-                "foo", "foo-board", "foo-version", True, False
-            )
-            # Ensure that PaygenTestStage is created and schedules the test
-            # suite with the correct arguments.
-            sched_tests.assert_called_once_with(
-                "foo-suite-name",
-                "eve",
-                "eve",
-                "foo-archive-build",
-                [
-                    self.payload_config1,
-                    self.payload_config2,
-                    self.payload_config3,
-                    self.payload_config4,
-                    self.payload_config5,
-                ],
-            )
-
     def testRunPaygenInProcessComplex(self):
         """Test _RunPaygenInProcess with arguments that are more unusual."""
         # Call the method under test.
@@ -621,41 +592,6 @@ class PaygenStageTest(
         self._run.config.models = [
             config_lib.ModelTestConfig("model1", "model1"),
             config_lib.ModelTestConfig("model2", "board", ["au"]),
-        ]
-
-        # Have to patch and verify that the PaygenTestStage is created.
-        stage = self.ConstructStage()
-
-        with mock.patch.object(
-            paygen_build_lib, "ScheduleAutotestTests", autospec=True
-        ) as sched_tests:
-            # Call the method under test.
-            stage._RunPaygenInProcess(
-                "foo", "foo-board", "foo-version", True, False
-            )
-            # Ensure that the first model from the unified build was selected
-            # as the platform to be tested
-            sched_tests.assert_called_once_with(
-                "foo-suite-name",
-                "board",
-                "model2",
-                "foo-archive-build",
-                [
-                    self.payload_config1,
-                    self.payload_config2,
-                    self.payload_config3,
-                    self.payload_config4,
-                    self.payload_config5,
-                ],
-            )
-
-    def testRunPaygenInProcessWithUnifiedBuildInSkylab(self):
-        """Test that _RunPaygenInProcess works for unibuild in Skylab."""
-        self._run.config.enable_skylab_hw_tests = True
-        self._run.config.models = [
-            config_lib.ModelTestConfig(
-                "model2", "board", ["au"], enable_skylab=True
-            ),
         ]
 
         # Have to patch and verify that the PaygenTestStage is created.

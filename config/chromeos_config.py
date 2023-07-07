@@ -893,11 +893,9 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         if reference_board_name in _release_experimental_boards:
             important = False
 
-        enable_skylab_hw_tests = _get_skylab_settings(reference_board_name)
         props = {
             "models": models,
             "important": important,
-            "enable_skylab_hw_tests": enable_skylab_hw_tests["default"],
             "hw_tests": hw_test_list.SharedPoolCanary(),
         }
         if config_name in _no_unittest_configs:
@@ -929,13 +927,9 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         if board["name"] in _release_experimental_boards:
             important = False
 
-        enable_skylab_hw_tests = _get_skylab_settings(board["name"])
-
         # Move non-unibuild to skylab.
         config_values = {
             "important": important,
-            "enable_skylab_hw_tests": enable_skylab_hw_tests["default"],
-            "enable_skylab_cts_hw_tests": enable_skylab_hw_tests["cts"],
         }
 
         return config_values
