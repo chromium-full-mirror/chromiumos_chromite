@@ -110,136 +110,7 @@
 
 == release ==
   master-release
-    adlnrvp-release
-    adlrvp-release
-    ambassador-release
-    asurada-connectivitynext-release
-    asurada-kernelnext-release
-    asurada-release
-    asurada64-release
-    atlas-connectivitynext-release
-    atlas-kernelnext-release
-    atlas-release
-    atlas-signingnext-release
-    brask-labstation-release
-    brask-release
-    brya-arc-t-release
-    brya-connectivitynext-release
-    brya-gki-release
-    brya-hibernate-release
-    brya-kernelnext-release
-    brya-pvs-release
-    brya-release
-    brya-zephyr-release
-    bubs-release
-    cherry-release
-    constitution-release
-    coral-release
-    corsola-arc-t-release
-    corsola-kernelnext-release
-    corsola-release
-    dedede-pvs-release
-    dedede-release
-    draco-release
-    drallion-kernelnext-release
-    drallion-release
-    elm-arc64-release
-    elm-connectivitynext-release
-    elm-kernelnext-release
-    elm-release
-    endeavour-release
-    eve-arc-r-release
-    eve-arm64-release
     eve-release
-    eve-userdebug-release
-    excelsior-release
-    fizz-cfm-release
-    fizz-labstation-release
-    fizz-release
-    geralt-release
-    goroh-release
-    grunt-arc-r-release
-    grunt-kernelnext-release
-    grunt-release
-    guado_labstation-release
-    guybrush-arc-t-release
-    guybrush-kernelnext-release
-    guybrush-release
-    hades-release
-    hana-arc64-release
-    hana-kernelnext-release
-    hana-release
-    hatch-arc-r-release
-    hatch-arc-r-userdebug-release
-    hatch-arc-t-release
-    hatch-connectivitynext-release
-    hatch-kernelnext-release
-    hatch-release
-    jacuzzi-kernelnext-release
-    jacuzzi-release
-    jacuzzi64-release
-    kalista-cfm-release
-    kalista-release
-    kevin-userdebug-release
-    kevin64-release
-    kukui-arc-r-release
-    kukui-kernelnext-release
-    kukui-release
-    majolica-release
-    midna-release
-    myst-release
-    nami-kernelnext-release
-    nami-release
-    nami-scudo-release
-    nautilus-release
-    nissa-kernelnext-release
-    nissa-pvs-release
-    nissa-release
-    nocturne-kernelnext-release
-    nocturne-release
-    octopus-arc-r-release
-    octopus-arc-t-release
-    octopus-kernelnext-release
-    octopus-release
-    ovis-release
-    puff-kernelnext-release
-    puff-release
-    pyro-release
-    rammus-arc-r-userdebug-release
-    rammus-release
-    reef-release
-    rex-arc-t-release
-    rex-release
-    sand-release
-    sarien-kernelnext-release
-    sarien-release
-    skyrim-arc-t-release
-    skyrim-chausie-release
-    skyrim-kernelnext-release
-    skyrim-release
-    snappy-kernelnext-release
-    snappy-release
-    soraka-libcamera-release
-    soraka-release
-    staryu-release
-    strongbad-kernelnext-release
-    strongbad-release
-    strongbad-userdebug-release
-    tael-release
-    tatl-release
-    trogdor-arc-r-release
-    trogdor-connectivitynext-release
-    trogdor-kernelnext-release
-    trogdor-release
-    trogdor-userdebug-release
-    trogdor-zephyr-release
-    volteer-kernelnext-release
-    volteer-release
-    volteer-scudo-release
-    zork-arc-r-release
-    zork-connectivitynext-release
-    zork-kernelnext-release
-    zork-release
 
 == utility ==
   chromiumos-sdk
@@ -248,76 +119,34 @@
   luci-scheduler-updater
 
 == tryjob ==
-  adlnrvp-release-tryjob
-  adlrvp-release-tryjob
   ambassador-factory-ambassador-14265.B-factorybranch-tryjob
-  ambassador-release-tryjob
   amd64-generic-full-tryjob
-  asurada-connectivitynext-release-tryjob
   asurada-factory-asurada-13929.B-factorybranch-tryjob
-  asurada-kernelnext-release-tryjob
-  asurada-release-tryjob
-  asurada64-release-tryjob
-  atlas-connectivitynext-release-tryjob
   atlas-factory-atlas-11907.B-factorybranch-tryjob
-  atlas-kernelnext-release-tryjob
   atlas-master-factorybranch-tryjob
-  atlas-release-tryjob
-  atlas-signingnext-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
   brask-factory-brya-14517.B-factorybranch-tryjob
   brask-factory-brya-15231.B-factorybranch-tryjob
-  brask-labstation-release-tryjob
-  brask-release-tryjob
-  brya-arc-t-release-tryjob
-  brya-connectivitynext-release-tryjob
   brya-factory-brya-14517.B-factorybranch-tryjob
   brya-factory-brya-14909.124.B-factorybranch-tryjob
   brya-factory-brya-15231.B-factorybranch-tryjob
-  brya-gki-release-tryjob
-  brya-hibernate-release-tryjob
-  brya-kernelnext-release-tryjob
-  brya-pvs-release-tryjob
-  brya-release-tryjob
-  brya-zephyr-release-tryjob
-  bubs-release-tryjob
   cherry-factory-cherry-14455.B-factorybranch-tryjob
-  cherry-release-tryjob
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
   config-updater-tryjob
   constitution-factory-brya-15231.B-factorybranch-tryjob
-  constitution-release-tryjob
   coral-factory-coral-10122.B-factorybranch-tryjob
   coral-master-factorybranch-tryjob
-  coral-release-tryjob
-  corsola-arc-t-release-tryjob
   corsola-factory-corsola-15196.B-factorybranch-tryjob
-  corsola-kernelnext-release-tryjob
-  corsola-release-tryjob
   dedede-factory-dedede-13683.B-factorybranch-tryjob
-  dedede-pvs-release-tryjob
-  dedede-release-tryjob
-  draco-release-tryjob
   drallion-factory-drallion-13080.B-factorybranch-tryjob
-  drallion-kernelnext-release-tryjob
   drallion-master-factorybranch-tryjob
-  drallion-release-tryjob
-  elm-arc64-release-tryjob
-  elm-connectivitynext-release-tryjob
   elm-factory-oak-8182.B-factorybranch-tryjob
-  elm-kernelnext-release-tryjob
-  elm-release-tryjob
   endeavour-factory-endeavour-13295.B-factorybranch-tryjob
-  endeavour-release-tryjob
-  eve-arc-r-release-tryjob
-  eve-arm64-release-tryjob
   eve-factory-eve-9667.B-factorybranch-tryjob
   eve-master-factorybranch-tryjob
   eve-release-tryjob
-  eve-userdebug-release-tryjob
   excelsior-factory-excelsior-12812.B-factorybranch-tryjob
-  excelsior-release-tryjob
   factory-ambassador-14265.B-buildspec-tryjob
     ambassador-factory-ambassador-14265.B-factorybranch-tryjob
   factory-asurada-13929.B-buildspec-tryjob
@@ -427,59 +256,22 @@
   factory-zork-13700.B-buildspec-tryjob
     zork-factory-zork-13700.B-factorybranch-tryjob
   fail-build
-  fizz-cfm-release-tryjob
   fizz-factory-fizz-10167.B-factorybranch-tryjob
-  fizz-labstation-release-tryjob
-  fizz-release-tryjob
   gale-factory-gale-8743.19.B-factorybranch-tryjob
-  geralt-release-tryjob
-  glados-release-tryjob
-  goroh-release-tryjob
   gru-factory-gru-9017.B-factorybranch-tryjob
-  grunt-arc-r-release-tryjob
   grunt-factory-grunt-11164.135.B-factorybranch-tryjob
   grunt-factory-grunt-11164.B-factorybranch-tryjob
-  grunt-kernelnext-release-tryjob
-  grunt-release-tryjob
-  guado_labstation-release-tryjob
-  guybrush-arc-t-release-tryjob
   guybrush-factory-guybrush-14908.B-factorybranch-tryjob
-  guybrush-kernelnext-release-tryjob
-  guybrush-release-tryjob
-  hades-release-tryjob
-  hana-arc64-release-tryjob
   hana-factory-oak-8182.B-factorybranch-tryjob
-  hana-kernelnext-release-tryjob
-  hana-release-tryjob
-  hatch-arc-r-release-tryjob
-  hatch-arc-r-userdebug-release-tryjob
-  hatch-arc-t-release-tryjob
-  hatch-connectivitynext-release-tryjob
   hatch-factory-hatch-12692.B-factorybranch-tryjob
-  hatch-kernelnext-release-tryjob
-  hatch-release-tryjob
   jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
   jacuzzi-factory-kukui-14374.B-factorybranch-tryjob
-  jacuzzi-kernelnext-release-tryjob
-  jacuzzi-release-tryjob
-  jacuzzi64-release-tryjob
-  jecht-release-tryjob
-  kalista-cfm-release-tryjob
   kalista-factory-nami-10715.B-factorybranch-tryjob
-  kalista-release-tryjob
   keeby-factory-keeby-14162.B-factorybranch-tryjob
   kevin-factory-gru-8652.B-factorybranch-tryjob
-  kevin-userdebug-release-tryjob
-  kevin64-release-tryjob
-  kukui-arc-r-release-tryjob
   kukui-factory-kukui-12587.B-factorybranch-tryjob
   kukui-factory-kukui-14374.B-factorybranch-tryjob
-  kukui-kernelnext-release-tryjob
-  kukui-release-tryjob
-  littlejoe-release-tryjob
   luci-scheduler-updater-tryjob
-  majolica-release-tryjob
-  mancomb-release-tryjob
   master-buildspec-tryjob
     atlas-master-factorybranch-tryjob
     coral-master-factorybranch-tryjob
@@ -492,227 +284,38 @@
   master-full-tryjob
     amd64-generic-full-tryjob
   master-release-tryjob
-    adlnrvp-release-tryjob
-    adlrvp-release-tryjob
-    ambassador-release-tryjob
-    asurada-connectivitynext-release-tryjob
-    asurada-kernelnext-release-tryjob
-    asurada-release-tryjob
-    asurada64-release-tryjob
-    atlas-connectivitynext-release-tryjob
-    atlas-kernelnext-release-tryjob
-    atlas-release-tryjob
-    atlas-signingnext-release-tryjob
-    brask-labstation-release-tryjob
-    brask-release-tryjob
-    brya-arc-t-release-tryjob
-    brya-connectivitynext-release-tryjob
-    brya-gki-release-tryjob
-    brya-hibernate-release-tryjob
-    brya-kernelnext-release-tryjob
-    brya-pvs-release-tryjob
-    brya-release-tryjob
-    brya-zephyr-release-tryjob
-    bubs-release-tryjob
-    cherry-release-tryjob
-    constitution-release-tryjob
-    coral-release-tryjob
-    corsola-arc-t-release-tryjob
-    corsola-kernelnext-release-tryjob
-    corsola-release-tryjob
-    dedede-pvs-release-tryjob
-    dedede-release-tryjob
-    draco-release-tryjob
-    drallion-kernelnext-release-tryjob
-    drallion-release-tryjob
-    elm-arc64-release-tryjob
-    elm-connectivitynext-release-tryjob
-    elm-kernelnext-release-tryjob
-    elm-release-tryjob
-    endeavour-release-tryjob
-    eve-arc-r-release-tryjob
-    eve-arm64-release-tryjob
     eve-release-tryjob
-    eve-userdebug-release-tryjob
-    excelsior-release-tryjob
-    fizz-cfm-release-tryjob
-    fizz-labstation-release-tryjob
-    fizz-release-tryjob
-    geralt-release-tryjob
-    goroh-release-tryjob
-    grunt-arc-r-release-tryjob
-    grunt-kernelnext-release-tryjob
-    grunt-release-tryjob
-    guado_labstation-release-tryjob
-    guybrush-arc-t-release-tryjob
-    guybrush-kernelnext-release-tryjob
-    guybrush-release-tryjob
-    hades-release-tryjob
-    hana-arc64-release-tryjob
-    hana-kernelnext-release-tryjob
-    hana-release-tryjob
-    hatch-arc-r-release-tryjob
-    hatch-arc-r-userdebug-release-tryjob
-    hatch-arc-t-release-tryjob
-    hatch-connectivitynext-release-tryjob
-    hatch-kernelnext-release-tryjob
-    hatch-release-tryjob
-    jacuzzi-kernelnext-release-tryjob
-    jacuzzi-release-tryjob
-    jacuzzi64-release-tryjob
-    kalista-cfm-release-tryjob
-    kalista-release-tryjob
-    kevin-userdebug-release-tryjob
-    kevin64-release-tryjob
-    kukui-arc-r-release-tryjob
-    kukui-kernelnext-release-tryjob
-    kukui-release-tryjob
-    majolica-release-tryjob
-    midna-release-tryjob
-    myst-release-tryjob
-    nami-kernelnext-release-tryjob
-    nami-release-tryjob
-    nami-scudo-release-tryjob
-    nautilus-release-tryjob
-    nissa-kernelnext-release-tryjob
-    nissa-pvs-release-tryjob
-    nissa-release-tryjob
-    nocturne-kernelnext-release-tryjob
-    nocturne-release-tryjob
-    octopus-arc-r-release-tryjob
-    octopus-arc-t-release-tryjob
-    octopus-kernelnext-release-tryjob
-    octopus-release-tryjob
-    ovis-release-tryjob
-    puff-kernelnext-release-tryjob
-    puff-release-tryjob
-    pyro-release-tryjob
-    rammus-arc-r-userdebug-release-tryjob
-    rammus-release-tryjob
-    reef-release-tryjob
-    rex-arc-t-release-tryjob
-    rex-release-tryjob
-    sand-release-tryjob
-    sarien-kernelnext-release-tryjob
-    sarien-release-tryjob
-    skyrim-arc-t-release-tryjob
-    skyrim-chausie-release-tryjob
-    skyrim-kernelnext-release-tryjob
-    skyrim-release-tryjob
-    snappy-kernelnext-release-tryjob
-    snappy-release-tryjob
-    soraka-libcamera-release-tryjob
-    soraka-release-tryjob
-    staryu-release-tryjob
-    strongbad-kernelnext-release-tryjob
-    strongbad-release-tryjob
-    strongbad-userdebug-release-tryjob
-    tael-release-tryjob
-    tatl-release-tryjob
-    trogdor-arc-r-release-tryjob
-    trogdor-connectivitynext-release-tryjob
-    trogdor-kernelnext-release-tryjob
-    trogdor-release-tryjob
-    trogdor-userdebug-release-tryjob
-    trogdor-zephyr-release-tryjob
-    volteer-kernelnext-release-tryjob
-    volteer-release-tryjob
-    volteer-scudo-release-tryjob
-    zork-arc-r-release-tryjob
-    zork-connectivitynext-release-tryjob
-    zork-kernelnext-release-tryjob
-    zork-release-tryjob
-  midna-release-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
   mistral-master-factorybranch-tryjob
-  myst-release-tryjob
   nami-factory-nami-10715.B-factorybranch-tryjob
-  nami-kernelnext-release-tryjob
-  nami-release-tryjob
-  nami-scudo-release-tryjob
   nautilus-factory-poppy-10504.B-factorybranch-tryjob
-  nautilus-release-tryjob
   nissa-factory-nissa-15199.B-factorybranch-tryjob
-  nissa-kernelnext-release-tryjob
-  nissa-pvs-release-tryjob
-  nissa-release-tryjob
   nocturne-factory-nocturne-11066.B-factorybranch-tryjob
-  nocturne-kernelnext-release-tryjob
-  nocturne-release-tryjob
-  octopus-arc-r-release-tryjob
-  octopus-arc-t-release-tryjob
   octopus-factory-octopus-11512.B-factorybranch-tryjob
-  octopus-kernelnext-release-tryjob
   octopus-master-factorybranch-tryjob
-  octopus-release-tryjob
-  ovis-release-tryjob
-  poppy-release-tryjob
   puff-factory-puff-13329.B-factorybranch-tryjob
   puff-factory-puff-13813.B-factorybranch-tryjob
-  puff-kernelnext-release-tryjob
   puff-moblab-factory-puff-13329.B-factorybranch-tryjob
-  puff-release-tryjob
   pyro-factory-reef-8811.B-factorybranch-tryjob
-  pyro-release-tryjob
-  rammus-arc-r-userdebug-release-tryjob
   rammus-factory-rammus-11289.B-factorybranch-tryjob
   rammus-master-factorybranch-tryjob
-  rammus-release-tryjob
   reef-factory-reef-8811.B-factorybranch-tryjob
-  reef-release-tryjob
-  rex-arc-t-release-tryjob
-  rex-release-tryjob
   sand-factory-reef-8811.B-factorybranch-tryjob
-  sand-release-tryjob
   sarien-factory-sarien-12033.B-factorybranch-tryjob
-  sarien-kernelnext-release-tryjob
   sarien-master-factorybranch-tryjob
-  sarien-release-tryjob
   scarlet-factory-scarlet-10211.B-factorybranch-tryjob
-  skyrim-arc-t-release-tryjob
-  skyrim-chausie-release-tryjob
   skyrim-factory-skyrim-15384.B-factorybranch-tryjob
-  skyrim-kernelnext-release-tryjob
-  skyrim-release-tryjob
-  sludge-release-tryjob
   snappy-factory-reef-8811.B-factorybranch-tryjob
-  snappy-kernelnext-release-tryjob
-  snappy-release-tryjob
   soraka-factory-soraka-10323.39.B-factorybranch-tryjob
-  soraka-libcamera-release-tryjob
-  soraka-release-tryjob
   staryu-factory-corsola-15196.B-factorybranch-tryjob
-  staryu-release-tryjob
   strongbad-factory-strongbad-13963.B-factorybranch-tryjob
   strongbad-factory-trogdor-13443.B-factorybranch-tryjob
   strongbad-factory-trogdor-15210.B-factorybranch-tryjob
-  strongbad-kernelnext-release-tryjob
-  strongbad-release-tryjob
-  strongbad-userdebug-release-tryjob
   success-build
   sync-test-cbuildbot-tryjob
-  tael-release-tryjob
-  tatl-release-tryjob
-  trogdor-arc-r-release-tryjob
-  trogdor-connectivitynext-release-tryjob
   trogdor-factory-strongbad-13963.B-factorybranch-tryjob
   trogdor-factory-trogdor-13443.B-factorybranch-tryjob
   trogdor-factory-trogdor-15210.B-factorybranch-tryjob
-  trogdor-kernelnext-release-tryjob
-  trogdor-release-tryjob
-  trogdor-userdebug-release-tryjob
-  trogdor-zephyr-release-tryjob
-  viking-arm64-release-tryjob
-  viking-poc2-release-tryjob
-  viking-release-tryjob
   volteer-factory-volteer-13600.B-factorybranch-tryjob
-  volteer-kernelnext-release-tryjob
-  volteer-release-tryjob
-  volteer-scudo-release-tryjob
-  wristpin-release-tryjob
-  zork-arc-r-release-tryjob
-  zork-connectivitynext-release-tryjob
   zork-factory-zork-13427.B-factorybranch-tryjob
   zork-factory-zork-13700.B-factorybranch-tryjob
-  zork-kernelnext-release-tryjob
-  zork-release-tryjob

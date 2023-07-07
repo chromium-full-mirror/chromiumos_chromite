@@ -63,30 +63,27 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
         )
 
         board_tryjob_configs = cros_tryjob.ConfigsToPrint(
-            self.site_config, production=False, build_config_fragments=["hatch"]
+            self.site_config, production=False, build_config_fragments=["eve"]
         )
 
         board_release_tryjob_configs = cros_tryjob.ConfigsToPrint(
             self.site_config,
             production=False,
-            build_config_fragments=["hatch", "release"],
+            build_config_fragments=["eve", "release"],
         )
 
         # Prove expecting things are there.
-        self.assertIn(self.site_config["hatch-release-tryjob"], tryjob_configs)
+        self.assertIn(self.site_config["eve-release-tryjob"], tryjob_configs)
         self.assertIn(
-            self.site_config["hatch-release-tryjob"], board_tryjob_configs
+            self.site_config["eve-release-tryjob"], board_tryjob_configs
         )
         self.assertIn(
-            self.site_config["hatch-release-tryjob"],
+            self.site_config["eve-release-tryjob"],
             board_release_tryjob_configs,
         )
 
         # Unexpecting things aren't.
-        self.assertNotIn(self.site_config["hatch-release"], tryjob_configs)
-        self.assertNotIn(
-            self.site_config["glados-release"], board_tryjob_configs
-        )
+        self.assertNotIn(self.site_config["eve-release"], tryjob_configs)
 
         # And that we really filtered something out in every case.
         self.assertLess(

@@ -5,13 +5,11 @@
 """Unittests for config."""
 
 import copy
-import json
 from unittest import mock
 
 from chromite.cbuildbot import builders
 from chromite.cbuildbot.builders import generic_builders
 from chromite.config import chromeos_config
-from chromite.config import chromeos_test_config as chromeos_test
 from chromite.format import formatters
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -167,10 +165,6 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
         """Test an external canonical config."""
         self._CheckCanonicalConfig("amd64-generic", "full")
 
-    def testInternalCanonicalResolution(self):
-        """Test prefer internal over external when both exist."""
-        self._CheckCanonicalConfig("nocturne", "release")
-
     def testAFDOCanonicalResolution(self):
         """Test prefer non-AFDO over AFDO builder."""
         self._CheckCanonicalConfig("eve", "release")
@@ -203,94 +197,6 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
             external, internal = self.config.FindFullConfigsForBoard(b)
             AtMostNumConfigs(b, "external", external, numExternal)
             AtMostNumConfigs(b, "internal", internal, 1)
-
-
-class UnifiedBuildConfigTestCase:
-    """Base test class that builds a fake unibuild config model."""
-
-    def setUp(self):
-        # Code assumes at least one non-unified build exists, so we're
-        # accommodating that by keeping the non-unified reef board.
-        self._fake_ge_build_config_json = """
-{
-  "metadata_version": "1.0",
-  "release_branch": true,
-  "reference_board_unified_builds": [
-    {
-      "name": "coral",
-      "reference_board_name": "coral",
-      "builder": "RELEASE",
-      "experimental": true,
-      "arch": "X86_INTERNAL",
-      "models" : [
-        {
-          "name": "coral",
-          "board_name": "coral"
-        },
-        {
-          "name": "robo",
-          "board_name": "robo",
-          "test_suites": ["sanity"],
-          "cq_test_enabled": true
-        }
-      ]
-    }
-  ],
-  "boards": [
-    {
-      "name": "reef",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "reef",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    }
-  ]
-}
-    """
-        self._fake_ge_build_config = json.loads(self._fake_ge_build_config_json)
-
-        defaults = chromeos_config.DefaultSettings()
-        self._site_config = config_lib.SiteConfig(defaults=defaults)
-        self._ge_build_config = config_lib.LoadGEBuildConfigFromFile()
-        self._boards_dict = chromeos_config.GetBoardTypeToBoardsDict(
-            self._ge_build_config
-        )
-
-        chromeos_config.GeneralTemplates(self._site_config)
-        chromeos_test.GeneralTemplates(
-            self._site_config, self._fake_ge_build_config
-        )
-        chromeos_config.ReleaseBuilders(
-            self._site_config, self._boards_dict, self._fake_ge_build_config
-        )
-
-
-class UnifiedBuildReleaseBuilders(
-    cros_test_lib.OutputTestCase, UnifiedBuildConfigTestCase
-):
-    """Tests that verify how unified builder configs are generated"""
-
-    def setUp(self):
-        UnifiedBuildConfigTestCase.setUp(self)
-
-    def testUnifiedReleaseBuilders(self):
-        coral_release = self._site_config["coral-release"]
-        self.assertIsNotNone(coral_release)
-        models = coral_release["models"]
-        self.assertIn(
-            config_lib.ModelTestConfig("coral", "coral", [], False), models
-        )
-        self.assertIn(
-            config_lib.ModelTestConfig("robo", "robo", ["sanity"]), models
-        )
-
-        master_release = self._site_config["master-release"]
-        self.assertIn("coral-release", master_release["slave_configs"])
 
 
 class ConfigClassTest(ChromeosConfigTestBase):

@@ -468,7 +468,7 @@ class HWTestPlanStageTest(cros_test_lib.MockTempDirTestCase):
 
     def testModelsToTestWithDUTOverride(self):
         """Test TestPlanStage.ModelsToTest with a DUT model override."""
-        builder_run = self._initConfig("octopus-release")
+        builder_run = self._initConfig("eve-release")
         builder_run.options.hwtest_dut_override = test_stages.HWTestDUTOverride(
             "bar-board", "bar-model", "bar-pool"
         )
@@ -483,7 +483,7 @@ class HWTestPlanStageTest(cros_test_lib.MockTempDirTestCase):
     @pytest.mark.skip(reason="Test relies on external state: b/215089089")
     def testModelsToTestWithoutDUTOverride(self):
         """Test TestPlanStage.ModelsToTest without a DUT model override."""
-        builder_run = self._initConfig("octopus-release")
+        builder_run = self._initConfig("eve-release")
         stage = test_stages.TestPlanStage(
             builder_run, self.buildstore, "octopus"
         )
