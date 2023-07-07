@@ -107,6 +107,7 @@ function populateRepoFiles() {
 }
 
 function populatePackages() {
+
     $.ajax({
         url: "/get-packages",
         type: "POST",
@@ -114,7 +115,8 @@ function populatePackages() {
         success: function (response) {
             allPackagesHTML = "";
             jQuery.each(response, function (board, packages) {
-                if (packages !== []) {
+                console.log(packages)
+                if (packages.length > 0) {
                     allPackagesHTML += `<ul class="p-0 board-package-list" 
                         id= "`+ board + `-package-list">
                     `
@@ -158,6 +160,7 @@ function populatePackages() {
                     allPackagesHTML += `</ul>`
                 }
                 else {
+                    console.log("here")
                     allPackagesHTML += `
                     <row class="board-package-list small text-light bg-dark border-top border-black p-0 m-0"
                       id= `+ board + `-package-list>
@@ -172,6 +175,9 @@ function populatePackages() {
             $('#boardSelectorTitle').html(boardName);
             $('.board-package-list').hide()
             $('#' + boardName + "-package-list").show()
+
+            $(".workon-stop").on('click', workonStop);
+            $('#boardSelector li').on('click', changeBoardSelectorActive)
         },
 
         failure: function (xhr) {
@@ -180,9 +186,7 @@ function populatePackages() {
     })
 }
 
-function addPackages() {
-    var board = $("#addPackageBoardSelect").select2("data");
-}
+
 
 function confirmDelete() {
     var btnDisabled = $("#deleteSubmit").attr("disabled");
@@ -206,6 +210,28 @@ function changeBoardSelectorActive() {
     $('#' + boardName + "-package-list").show()
 }
 
+function workonStart() {
+
+    var board = $("#addPackageBoardSelect").select2("data")[0].text;
+    var pack = $("#addPackagePackageSelect").select2("data")[0].text;
+    $.ajax({
+        url: "/workon-start",
+        type: "get",
+        data: {
+            board: board,
+            package: pack
+        },
+
+        success: function (response) {
+            console.log("success");
+            populatePackages();
+        },
+        error: function (xhr) {
+            console.log("failure");
+        }
+    });
+}
+
 //Will make cros_workon stop request via Flask routes.
 function workonStop() {
     var package = this.id;
@@ -226,7 +252,7 @@ function workonStop() {
 
         success: function (response) {
             console.log("success");
-            location.reload()
+            populatePackages();
         },
         error: function (xhr) {
             console.log("failure");
@@ -271,12 +297,11 @@ $(document).ready(function () {
     });
 
     //Button listeners
-    $("#addPackageSubmit").on("click", addPackages);
+    $("#addPackageSubmit").on("click", workonStart);
     $("#confirmDelete").on('click', confirmDelete);
     $("#showPackages").on('click', showPackages);
     $("#showSysroots").on('click', showSysroots);
-    $('#boardSelector li').on('click', changeBoardSelectorActive)
-    $(".workon-stop").on('click', workonStop);
+    
     $("#showLogs").on('click', showLogs);
     $("#showRepo").on('click', showRepo);
     $("#repoStatusRefresh").on("click", populateRepoFiles)

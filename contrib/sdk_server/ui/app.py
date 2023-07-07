@@ -6,7 +6,6 @@
 # !/usr/bin/env vpython3
 
 import asyncio
-import time
 from typing import List, Optional
 
 # pylint: disable=import-error
@@ -17,6 +16,8 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
+from chromite.api.controller import controller_util
+from chromite.lib.parser import package_info
 from chromite.contrib.sdk_server.grpc_server import client
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2 as sdk
 from chromite.contrib.sdk_server.grpc_server.chromiumos import (
@@ -32,17 +33,45 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 index_data = constants.get_index_data()
 
 
-@app.route("/workon-stop", methods=["GET", "POST"])
-def stop():
+@app.route("/workon-start", methods=["GET", "POST"])
+async def workon_start():
     try:
         board = str(request.args.get("board"))
         package = str(request.args.get("package"))
 
-        index_data["packages"][board] = [
-            k for k in index_data["packages"][board] if k["name"] != package
-        ]
+        parsed_pkg = package_info.parse(package)
+        package = common.PackageInfo()
+        controller_util.serialize_package_info(parsed_pkg, package)
 
-        time.sleep(5)
+        req = sdk.WorkonStartRequest(
+            build_target=common.BuildTarget(name=board),
+            package_info=package,
+        )
+        await client.cros_workon_start(req)
+        return ("", 204)
+
+    except KeyError:
+        # Handles user just going to /workon-start, rather than via the button.
+        return redirect(url_for("index"))
+
+
+@app.route("/workon-stop", methods=["GET", "POST"])
+async def workon_stop():
+    try:
+        board = str(request.args.get("board"))
+        package = str(request.args.get("package"))
+
+        parsed_pkg = package_info.parse(package)
+        package = common.PackageInfo()
+        controller_util.serialize_package_info(parsed_pkg, package)
+
+        req = sdk.WorkonStopRequest(
+            build_target=common.BuildTarget(name=board),
+            package_info=package,
+        )
+
+        await client.cros_workon_stop(req)
+
         return ("", 204)
 
     except KeyError:
