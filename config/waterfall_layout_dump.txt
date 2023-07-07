@@ -161,7 +161,6 @@
     grunt-arc-r-release
     grunt-kernelnext-release
     grunt-release
-    guado-macrophage-release
     guado_labstation-release
     guybrush-arc-t-release
     guybrush-kernelnext-release
@@ -442,7 +441,6 @@
   grunt-factory-grunt-11164.B-factorybranch-tryjob
   grunt-kernelnext-release-tryjob
   grunt-release-tryjob
-  guado-macrophage-release-tryjob
   guado_labstation-release-tryjob
   guybrush-arc-t-release-tryjob
   guybrush-factory-guybrush-14908.B-factorybranch-tryjob
@@ -545,7 +543,6 @@
     grunt-arc-r-release-tryjob
     grunt-kernelnext-release-tryjob
     grunt-release-tryjob
-    guado-macrophage-release-tryjob
     guado_labstation-release-tryjob
     guybrush-arc-t-release-tryjob
     guybrush-kernelnext-release-tryjob

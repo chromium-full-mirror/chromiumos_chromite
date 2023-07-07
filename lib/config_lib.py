@@ -1529,6 +1529,7 @@ def LoadGEBuildConfigFromFile(
             "betty-arc-u",
             "betty-kernelnext",
             "betty-pi-arc",
+            "guado-macrophage",
             "novato",
             "novato-arc64",
             "reven",
