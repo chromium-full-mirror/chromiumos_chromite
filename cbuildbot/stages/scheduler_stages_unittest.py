@@ -43,7 +43,6 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
     def testRequestBuild(self):
         config = config_lib.BuildConfig(
             name="child",
-            build_affinity=True,
             important=True,
             display_label="cq",
             boards=["board_A"],
@@ -70,7 +69,6 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
     def testRequestBuildWithSnapshotRev(self):
         config = config_lib.BuildConfig(
             name="child",
-            build_affinity=True,
             important=True,
             display_label="cq",
             boards=["board_A"],
@@ -104,7 +102,6 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         """Test PostSlaveBuildToBuildbucket on builds with a single board."""
         slave_config = config_lib.BuildConfig(
             name="slave",
-            build_affinity=True,
             important=True,
             display_label="cq",
             boards=["board_A"],

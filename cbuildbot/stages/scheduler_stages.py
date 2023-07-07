@@ -74,15 +74,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         master_buildbucket_id,
         requested_bot=None,
     ):
-        if build_config.build_affinity:
-            requested_bot = self._FindMostRecentBotId(
-                build_config.name, self._run.manifest_branch
-            )
-            logging.info(
-                "Requesting build affinity for %s against %s",
-                build_config.name,
-                requested_bot,
-            )
         cbb_extra_args = ["--buildbot"]
         if master_buildbucket_id is not None:
             cbb_extra_args.append("--master-buildbucket-id")

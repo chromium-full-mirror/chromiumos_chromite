@@ -13,7 +13,6 @@
     "board_replace": false,
     "boards": null,
     "branch": false,
-    "build_affinity": false,
     "build_packages": true,
     "build_timeout": 19800,
     "build_type": "pfq",

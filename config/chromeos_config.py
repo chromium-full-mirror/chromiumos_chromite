@@ -1420,7 +1420,6 @@ def TryjobMirrors(site_config):
             suite_scheduling=False,
             triggered_gitiles=None,
             important=True,
-            build_affinity=False,
         )
 
         # Force uprev. This is so patched in changes are always built.

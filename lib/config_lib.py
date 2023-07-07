@@ -813,12 +813,6 @@ def DefaultSettings():
         triggered_gitiles=None,
         # If true, skip package retries in BuildPackages step.
         nobuildretry=False,
-        # Attempt to run this build on the same bot each time it builds.
-        # This is only meaningful for slave builds run on swarming. This
-        # should only be used with LUCI Builders that use a reserved
-        # role to avoid having bots stolen by other builds while
-        # waiting on a new master build.
-        build_affinity=False,
     )
 
 
