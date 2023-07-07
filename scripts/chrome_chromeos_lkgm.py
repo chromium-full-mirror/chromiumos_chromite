@@ -186,7 +186,7 @@ class ChromeLKGMCommitter:
     _PRESUBMIT_BOTS = (
         "chromeos-betty-pi-arc-chrome",
         "chromeos-eve-chrome",
-        "chromeos-kevin-chrome",
+        "chromeos-jacuzzi-chrome",
         "chromeos-octopus-chrome",
         "chromeos-reven-chrome",
     )
