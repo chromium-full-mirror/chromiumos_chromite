@@ -356,38 +356,6 @@ def GeneralTemplates(site_config):
     )
 
     site_config.AddTemplate(
-        "release_basic",
-        site_config.templates.release_common,
-        luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
-        description="Fail Fast Release Builds (canary) (internal)",
-        basic_builder=True,
-        notification_configs=[
-            config_lib.NotificationConfig(email="navil+spam@chromium.org")
-        ],
-        chromeos_official=False,
-        paygen=False,
-        suite_scheduling=False,
-        unittests=False,
-        hw_tests=[],
-        hw_tests_override=[],
-        hwqual=False,
-        image_test=False,
-        paygen_skip_testing=True,
-        signer_tests=False,
-        push_image=False,
-        sign_types=[],
-        upload_symbols=False,
-        upload_stripped_packages=[],
-        archive=False,
-        archive_build_debug=False,
-        upload_standalone_images=False,
-        upload_hw_test_artifacts=False,
-        cpe_export=False,
-        run_cpeexport=False,
-        run_build_configs_export=False,
-    )
-
-    site_config.AddTemplate(
         "release",
         site_config.templates.release_common,
         luci_builder=config_lib.LUCI_BUILDER_LEGACY_RELEASE,
@@ -803,23 +771,11 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
 
     ### Master release configs.
     master_config = _CreateMasterConfig("master-release")
-    # pylint: disable=unused-variable
-    basic_master_config = _CreateMasterConfig(
-        "master-release-basic",
-        template=site_config.templates.release_basic,
-        schedule="30 */2 * * * *",
-    )
 
     def _AssignToMaster(config):
         """Add |config| as a slave config to the appropriate master config."""
         # Default to chromeos master release builder.
-        master = master_config
-
-        # Add this config to the master release basic builder.
-        if config.name.endswith("-release-basic"):
-            master = basic_master_config
-
-        master.AddSlave(config)
+        master_config.AddSlave(config)
 
     ### Release configs.
 
@@ -1060,21 +1016,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
                 board_configs[board],
             )
 
-    def AddReleaseBasicMirrors():
-        """Create basic release builder variants for relevant build configs."""
-        release_basic_boards = ["eve", "atlas", "grunt"]
-        for board in release_basic_boards:
-            config_name = "%s-release-basic" % board
-            site_config.Add(
-                config_name,
-                site_config.templates.release_basic,
-                site_config[board + "-release"],
-            )
-            site_config[config_name].apply(site_config.templates.release_basic)
-            _AssignToMaster(site_config[config_name])
-
     _AdjustReleaseConfigs()
-    AddReleaseBasicMirrors()
 
 
 def ApplyCustomOverrides(site_config):

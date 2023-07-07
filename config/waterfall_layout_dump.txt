@@ -243,10 +243,6 @@
     zork-connectivitynext-release
     zork-kernelnext-release
     zork-release
-  master-release-basic
-    atlas-release-basic
-    eve-release-basic
-    grunt-release-basic
 
 == utility ==
   chromiumos-sdk
@@ -269,7 +265,6 @@
   atlas-factory-atlas-11907.B-factorybranch-tryjob
   atlas-kernelnext-release-tryjob
   atlas-master-factorybranch-tryjob
-  atlas-release-basic-tryjob
   atlas-release-tryjob
   atlas-signingnext-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
@@ -322,7 +317,6 @@
   eve-arm64-release-tryjob
   eve-factory-eve-9667.B-factorybranch-tryjob
   eve-master-factorybranch-tryjob
-  eve-release-basic-tryjob
   eve-release-tryjob
   eve-userdebug-release-tryjob
   excelsior-factory-excelsior-12812.B-factorybranch-tryjob
@@ -450,7 +444,6 @@
   grunt-factory-grunt-11164.135.B-factorybranch-tryjob
   grunt-factory-grunt-11164.B-factorybranch-tryjob
   grunt-kernelnext-release-tryjob
-  grunt-release-basic-tryjob
   grunt-release-tryjob
   guado-macrophage-release-tryjob
   guado_labstation-release-tryjob
@@ -503,10 +496,6 @@
     sarien-master-factorybranch-tryjob
   master-full-tryjob
     amd64-generic-full-tryjob
-  master-release-basic-tryjob
-    atlas-release-basic-tryjob
-    eve-release-basic-tryjob
-    grunt-release-basic-tryjob
   master-release-tryjob
     adlnrvp-release-tryjob
     adlrvp-release-tryjob
