@@ -50,11 +50,6 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         )
 
         stage = self.ConstructStage()
-        self.PatchObject(
-            scheduler_stages.ScheduleSlavesStage,
-            "_FindMostRecentBotId",
-            return_value="chromeos-ci-test-1",
-        )
         # pylint: disable=protected-access
         request = stage._CreateScheduledBuild(
             "child", config, 0, "master_bb_0", None
@@ -76,11 +71,6 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         )
 
         stage = self.ConstructStage()
-        self.PatchObject(
-            scheduler_stages.ScheduleSlavesStage,
-            "_FindMostRecentBotId",
-            return_value="chromeos-ci-test-1",
-        )
         # Set the annealing snapshot revision to pass to the child builders.
         # pylint: disable=protected-access
         stage._run.options.cbb_snapshot_revision = "hash1234"
@@ -109,11 +99,6 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         )
 
         stage = self.ConstructStage()
-        self.PatchObject(
-            scheduler_stages.ScheduleSlavesStage,
-            "_FindMostRecentBotId",
-            return_value="chromeos-ci-test-1",
-        )
 
         buildbucket_id, created_ts = stage.PostSlaveBuildToBuildbucket(
             "slave", slave_config, 0, "master_bb_id", dryrun=True

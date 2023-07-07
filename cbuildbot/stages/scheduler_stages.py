@@ -7,13 +7,6 @@
 import logging
 import time
 
-from chromite.third_party.google.protobuf import field_mask_pb2
-from chromite.third_party.infra_libs.buildbucket.proto import (
-    builder_common_pb2,
-    builds_service_pb2,
-    common_pb2,
-)
-
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import build_requests
@@ -32,39 +25,6 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         super().__init__(builder_run, buildstore, **kwargs)
         self.sync_stage = sync_stage
         self.buildbucket_client = buildbucket_v2.BuildbucketV2()
-
-    def _FindMostRecentBotId(self, build_config, branch):
-        if not self.buildbucket_client:
-            logging.info("No buildbucket_client, no bot found.")
-            return None
-
-        builder = builder_common_pb2.BuilderID(
-            project="chromeos", bucket="general"
-        )
-        tags = [
-            common_pb2.StringPair(key="cbb_config", value=build_config),
-            common_pb2.StringPair(key="cbb_branch", value=branch),
-        ]
-        predicate = builds_service_pb2.BuildPredicate(
-            builder=builder, status=common_pb2.SUCCESS, tags=tags
-        )
-        field_mask = field_mask_pb2.FieldMask(
-            paths=["builds.*.infra.swarming.bot_dimensions.*"]
-        )
-        previous_builds = self.buildbucket_client.SearchBuild(
-            build_predicate=predicate, fields=field_mask, page_size=1
-        )
-
-        if not previous_builds:
-            logging.info("No previous build found, no bot found.")
-            return None
-
-        bot_id = buildbucket_v2.GetBotId(previous_builds[0])
-        if not bot_id:
-            logging.info("Previous build has no bot.")
-            return None
-
-        return bot_id
 
     def _CreateScheduledBuild(
         self,
