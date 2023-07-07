@@ -267,7 +267,6 @@ def GeneralTemplates(site_config):
         upload_hw_test_artifacts=False,
         upload_stripped_packages=["sys-kernel/*kernel*"],
         image_test=False,
-        guest_vm_image=True,
         images=["base", "test"],
         packages=[
             "virtual/target-os",

@@ -43,7 +43,6 @@
     "goma_client_type": null,
     "grouped": false,
     "gs_path": "default",
-    "guest_vm_image": false,
     "hw_tests": [],
     "hw_tests_disabled_bug": "",
     "hw_tests_override": null,

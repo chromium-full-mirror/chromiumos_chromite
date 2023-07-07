@@ -38,7 +38,6 @@ from chromite.lib import portage_util
 from chromite.lib import request_build
 from chromite.lib.parser import package_info
 from chromite.service import binhost as binhost_service
-from chromite.service import image as image_service
 
 
 class CleanUpStage(generic_stages.BuilderStage):
@@ -845,28 +844,6 @@ class BuildImageStage(BuildPackagesStage):
         os.symlink(latest_image, cbuildbot_image_link)
 
         self.board_runattrs.SetParallel("images_generated", True)
-
-        parallel.RunParallelSteps([self._BuildGuestVMImage])
-
-    def _BuildGuestVMImage(self):
-        if self._run.config.guest_vm_image:
-            chroot = chroot_lib.Chroot(
-                path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
-                out_path=self._build_root / Path(constants.DEFAULT_OUT_DIR),
-            )
-            for image in self._run.config.images:
-                if image in (
-                    constants.IMAGE_TYPE_BASE,
-                    constants.IMAGE_TYPE_TEST,
-                ):
-                    image_service.CreateGuestVm(
-                        self._current_board,
-                        is_test=(image == constants.IMAGE_TYPE_TEST),
-                        chroot=chroot,
-                    )
-                else:
-                    # ignore other kinds of image
-                    pass
 
     def _UpdateBuildImageMetadata(self):
         """Update the new metadata available to the build image stage."""

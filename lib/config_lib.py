@@ -693,8 +693,6 @@ def DefaultSettings():
         builder_class_name=None,
         # List of images we want to build -- see `cros build-image --help`.
         images=["test"],
-        # Whether to convert the image into a guest VM image.
-        guest_vm_image=False,
         # b/186631313: On reven the base image has a graphical installer
         # enabled, which is used to recover the device. Recovery images in the
         # traditional sense can not be booted on reven devices, which run legacy
