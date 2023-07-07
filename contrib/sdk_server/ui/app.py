@@ -19,7 +19,8 @@ from flask import url_for
 from chromite.api.controller import controller_util
 from chromite.lib.parser import package_info
 from chromite.contrib.sdk_server.grpc_server import client
-from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2 as sdk
+from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2
+from chromite.contrib.sdk_server.grpc_server.chromite.api import sdk_pb2
 from chromite.contrib.sdk_server.grpc_server.chromiumos import (
     common_pb2 as common,
 )
@@ -32,6 +33,9 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 index_data = constants.get_index_data()
 
+# Code 204 "No content" for endpoints which just execute a function.
+NO_RESPONSE_OK = ("", 204)
+
 
 @app.route("/workon-start", methods=["GET", "POST"])
 async def workon_start():
@@ -39,16 +43,17 @@ async def workon_start():
         board = str(request.args.get("board"))
         package = str(request.args.get("package"))
 
+
         parsed_pkg = package_info.parse(package)
         package = common.PackageInfo()
         controller_util.serialize_package_info(parsed_pkg, package)
 
-        req = sdk.WorkonStartRequest(
+        req = sdk_server_pb2.WorkonStartRequest(
             build_target=common.BuildTarget(name=board),
             package_info=package,
         )
         await client.cros_workon_start(req)
-        return ("", 204)
+        return NO_RESPONSE_OK
 
     except KeyError:
         # Handles user just going to /workon-start, rather than via the button.
@@ -65,14 +70,15 @@ async def workon_stop():
         package = common.PackageInfo()
         controller_util.serialize_package_info(parsed_pkg, package)
 
-        req = sdk.WorkonStopRequest(
+        req = sdk_server_pb2.WorkonStopRequest(
+
             build_target=common.BuildTarget(name=board),
             package_info=package,
         )
 
         await client.cros_workon_stop(req)
 
-        return ("", 204)
+        return NO_RESPONSE_OK
 
     except KeyError:
         # Handles user just going to /workon-stop, rather than via the button.
@@ -85,7 +91,7 @@ async def repo_refresh():
 
     if request.method == "POST":
         # POST only sent by script.
-        response = await client.repo_status(sdk.RepoStatusRequest())
+        response = await client.repo_status(sdk_server_pb2.RepoStatusRequest())
 
         project = ""
         branch = ""
@@ -121,9 +127,11 @@ async def get_packages():
         # POST only sent by script
 
         packages_json = {}
-        current_boards = await client.current_boards(sdk.CurrentBoardsRequest())
+        current_boards = await client.current_boards(
+            sdk_server_pb2.CurrentBoardsRequest()
+        )
         for board in current_boards.build_target:
-            req = sdk.WorkonListRequest(
+            req = sdk_server_pb2.WorkonListRequest(
                 build_target=common.BuildTarget(name=board.name)
             )
             board_packages = (await client.cros_workon_list(req)).package_info
@@ -141,6 +149,35 @@ async def get_packages():
         return redirect(url_for("index"))
 
 
+@app.route("/update-chroot", methods=["GET", "POST"])
+async def update_chroot():
+    """App route to call BAPI Update."""
+
+    if request.method == "POST":
+        flags = sdk_pb2.UpdateRequest.Flags(
+            build_source=request.json["buildSource"],
+            toolchain_changed=request.json["toolchainChanged"],
+        )
+
+        targets = request.json["toolchainTargets"]
+        toolchain_targets = [common.BuildTarget(name=b) for b in targets]
+
+        req = sdk_server_pb2.UpdateChrootRequest(
+            request=sdk_pb2.UpdateRequest(
+                flags=flags, toolchain_targets=toolchain_targets
+            )
+        )
+
+        # Exhausts asynchronous generator.
+        async for _ in client.update_chroot(req):
+            pass
+
+        return NO_RESPONSE_OK
+
+    else:
+        return redirect(url_for("index"))
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Home page route. Renders index.html file with templating data."""
@@ -152,12 +189,14 @@ async def setup():
     """Populates initial templating data from gRPC requests."""
 
     # List of all boards for various menus.
-    all_boards = await client.query_boards(sdk.QueryBoardsRequest())
+    all_boards = await client.query_boards(sdk_server_pb2.QueryBoardsRequest())
     all_boards = sorted([b.name for b in all_boards.build_target])
     index_data["all_boards"] = all_boards
 
     # List of boards with active sysroots for packages display.
-    current_boards = await client.current_boards(sdk.CurrentBoardsRequest())
+    current_boards = await client.current_boards(
+        sdk_server_pb2.CurrentBoardsRequest()
+    )
     current_boards = sorted([b.name for b in current_boards.build_target])
     index_data["current_boards"] = current_boards
 

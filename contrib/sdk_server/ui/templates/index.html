@@ -163,8 +163,8 @@
                   <li>
                     <p2 class="text-light fs-6">build_source</p2>
                     <div class="form-check mt-1">
-                      <input class="form-check-input" type="checkbox" value="" id="usepkgCheck" >
-                      <label class="form-check-label text-light ms-3" for="usepkgCheck">
+                      <input class="form-check-input" type="checkbox" value="" id="buildSourceCheck" >
+                      <label class="form-check-label text-light ms-3" for="buildSourceCheck">
                        Build from source, otherwise use binary packages to bootstrap.
                       </label>
                     </div>
@@ -197,7 +197,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Update</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id = "updateChrootSubmit">Update</button>
               </div>
             </div>
           </div>

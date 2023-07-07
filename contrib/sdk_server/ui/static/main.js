@@ -260,6 +260,44 @@ function workonStop() {
     });
 }
 
+function updateChroot(){
+
+    $("#updateChrootSubmit").addClass("disabled");
+
+    buildSource = $('#buildSourceCheck').is(':checked');
+    toolchainChanged = $("#toolchainChangedCheck").is(":checked");
+    console.log(buildSource);
+    console.log(toolchainChanged);
+    toolchainTargets = []
+    $("#updateToolchainTargets").select2("data").forEach(function(board){
+        toolchainTargets.push(board.text);
+    })
+
+    $.ajax({
+        url: "/update-chroot",
+        type: "POST",
+        data: JSON.stringify({
+            buildSource: buildSource,
+            toolchainChanged: toolchainChanged,
+            toolchainTargets: toolchainTargets
+        }),
+        dataType: "json",
+        contentType: "application/json",
+        
+        success: function(response){
+            console.log("success");
+            console.log(response)
+
+            $("#updateChrootSubmit").removeClass("disabled");
+        },
+
+        error: function(xhr){
+            console.log("failure");
+            console.log(xhr)
+        }
+    })
+}
+
 $(document).ready(function () {
     //Show default active panels (logs/packages)
     showPackages();
@@ -301,11 +339,10 @@ $(document).ready(function () {
     $("#confirmDelete").on('click', confirmDelete);
     $("#showPackages").on('click', showPackages);
     $("#showSysroots").on('click', showSysroots);
-    
     $("#showLogs").on('click', showLogs);
     $("#showRepo").on('click', showRepo);
     $("#repoStatusRefresh").on("click", populateRepoFiles)
-
+    $("#updateChrootSubmit").on("click", updateChroot)
     //Rotates the log expander arrow
     $(".log-expander").on('click', function () {
         $(this).children("svg").toggleClass("rotate-log-button")
