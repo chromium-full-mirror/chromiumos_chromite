@@ -824,7 +824,10 @@ class Upgrader:
         # Note that git will remove a parent directory when it removes
         # the last item in the directory.
         if os.path.exists(pkgdir):
-            items = set(os.listdir(pkgdir)) - CROS_AUTHORED_FILES
+            items = set(
+                x for x in os.listdir(pkgdir) if not x.endswith(".bashrc")
+            )
+            items -= CROS_AUTHORED_FILES
             items = [os.path.join(catpkgsubdir, x) for x in items]
             if items:
                 args = ["rm", "-rf", "--ignore-unmatch"] + items
