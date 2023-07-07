@@ -116,7 +116,7 @@ GROUP_BASELINE = dict(
         GroupEntry(group="daemon", gid=2, users={"root", "bin", "daemon"}),
         GroupEntry(group="sys", gid=3, users={"root", "bin", "adm"}),
         GroupEntry(group="adm", gid=4, users={"root", "adm", "daemon"}),
-        GroupEntry(group="tty", gid=5, users={"power", "brltty"}),
+        GroupEntry(group="tty", gid=5, users={"power", "brltty", "bootsplash"}),
         GroupEntry(
             group="disk",
             gid=6,
@@ -420,6 +420,7 @@ GROUP_BASELINE = dict(
             users={"traced", "chronos", "debugd"},
         ),
         GroupEntry(group="vpn", gid=20174, users={"vpn", "shill"}),
+        GroupEntry(group="frecon", gid=20203, users={"frecon", "bootsplash"}),
         GroupEntry(group="nogroup", gid=65533),
         GroupEntry(group="nobody", gid=65534),
         GroupEntry(
