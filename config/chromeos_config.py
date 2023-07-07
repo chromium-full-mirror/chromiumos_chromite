@@ -662,12 +662,6 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
     MONTHLY = "with 720h interval"  # 30 day interval
     TRIGGERED = "triggered"  # Only when triggered
     branch_builders = [
-        (MONTHLY, "factory-glados-7657.B", ["glados", "chell"]),
-        (
-            MONTHLY,
-            "factory-glados-7828.B",
-            ["glados", "chell", "lars", "sentry", "cave", "asuka", "caroline"],
-        ),
         (MONTHLY, "factory-oak-8182.B", ["elm", "hana"]),
         (MONTHLY, "factory-gru-8652.B", ["kevin"]),
         (MONTHLY, "factory-gale-8743.19.B", ["gale"]),
@@ -753,26 +747,6 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
         doc="https://goto.google.com/tot-for-firmware-branches",
     )
 
-    site_config.AddTemplate(
-        "old_factorybranch_packages",
-        packages=[
-            "virtual/target-os",
-            "virtual/target-os-dev",
-            "virtual/target-os-test",
-            "chromeos-base/chromeos-installshim",
-            "chromeos-base/chromeos-factory",
-            "chromeos-base/chromeos-hwid",
-            "chromeos-base/autotest-factory-install",
-            "chromeos-base/autotest-all",
-        ],
-    )
-
-    # These branches require a differnt list of packages to build.
-    old_package_branches = {
-        "factory-glados-7657.B",
-        "factory-glados-7828.B",
-    }
-
     for active, branch, boards in branch_builders:
         schedule = {}
         if active:
@@ -798,8 +772,6 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
                 boards=[board],
                 workspace_branch=branch,
             )
-            if branch in old_package_branches:
-                child.apply(site_config.templates.old_factorybranch_packages)
             branch_master.AddSlave(child)
 
 

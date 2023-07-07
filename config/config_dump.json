@@ -576,46 +576,6 @@
       "-chrome_internal"
     ]
   },
-  "asuka-factory-glados-7828.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "asuka"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "asuka-factory-glados-7828.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "asuka"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7828.B"
-  },
   "asurada-connectivitynext-full": {
     "_template": "full",
     "boards": [
@@ -2254,46 +2214,6 @@
     "push_image": false,
     "suite_scheduling": false
   },
-  "caroline-factory-glados-7828.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "caroline"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "caroline-factory-glados-7828.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "caroline"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7828.B"
-  },
   "caroline-ndktranslation-full": {
     "_template": "full",
     "boards": [
@@ -2355,126 +2275,6 @@
     "paygen": false,
     "push_image": false,
     "suite_scheduling": false
-  },
-  "cave-factory-glados-7828.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "cave"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "cave-factory-glados-7828.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "cave"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "chell-factory-glados-7657.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "chell"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7657.B"
-  },
-  "chell-factory-glados-7657.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "chell"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7657.B"
-  },
-  "chell-factory-glados-7828.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "chell"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "chell-factory-glados-7828.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "chell"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7828.B"
   },
   "cherry-factory-cherry-14455.B-factorybranch": {
     "_template": "factorybranch",
@@ -4926,64 +4726,6 @@
     ],
     "workspace_branch": "factory-gale-8743.19.B"
   },
-  "factory-glados-7657.B-buildspec": {
-    "_template": "buildspec",
-    "build_timeout": 43200,
-    "display_label": "factory",
-    "schedule": "with 720h interval",
-    "slave_configs": [
-      "chell-factory-glados-7657.B-factorybranch",
-      "glados-factory-glados-7657.B-factorybranch"
-    ],
-    "workspace_branch": "factory-glados-7657.B"
-  },
-  "factory-glados-7657.B-buildspec-tryjob": {
-    "_template": "buildspec",
-    "build_timeout": 43200,
-    "debug": true,
-    "debug_cidb": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "slave_configs": [
-      "chell-factory-glados-7657.B-factorybranch-tryjob",
-      "glados-factory-glados-7657.B-factorybranch-tryjob"
-    ],
-    "workspace_branch": "factory-glados-7657.B"
-  },
-  "factory-glados-7828.B-buildspec": {
-    "_template": "buildspec",
-    "build_timeout": 43200,
-    "display_label": "factory",
-    "schedule": "with 720h interval",
-    "slave_configs": [
-      "asuka-factory-glados-7828.B-factorybranch",
-      "caroline-factory-glados-7828.B-factorybranch",
-      "cave-factory-glados-7828.B-factorybranch",
-      "chell-factory-glados-7828.B-factorybranch",
-      "glados-factory-glados-7828.B-factorybranch",
-      "lars-factory-glados-7828.B-factorybranch",
-      "sentry-factory-glados-7828.B-factorybranch"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "factory-glados-7828.B-buildspec-tryjob": {
-    "_template": "buildspec",
-    "build_timeout": 43200,
-    "debug": true,
-    "debug_cidb": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "slave_configs": [
-      "asuka-factory-glados-7828.B-factorybranch-tryjob",
-      "caroline-factory-glados-7828.B-factorybranch-tryjob",
-      "cave-factory-glados-7828.B-factorybranch-tryjob",
-      "chell-factory-glados-7828.B-factorybranch-tryjob",
-      "glados-factory-glados-7828.B-factorybranch-tryjob",
-      "lars-factory-glados-7828.B-factorybranch-tryjob",
-      "sentry-factory-glados-7828.B-factorybranch-tryjob"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
   "factory-gru-8652.B-buildspec": {
     "_template": "buildspec",
     "build_timeout": 43200,
@@ -6132,86 +5874,6 @@
       "factory"
     ],
     "suite_scheduling": false
-  },
-  "glados-factory-glados-7657.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "glados"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7657.B"
-  },
-  "glados-factory-glados-7657.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "glados"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7657.B"
-  },
-  "glados-factory-glados-7828.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "glados"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "glados-factory-glados-7828.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "glados"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7828.B"
   },
   "glados-full": {
     "_template": "full",
@@ -9074,46 +8736,6 @@
       "factory"
     ],
     "suite_scheduling": false
-  },
-  "lars-factory-glados-7828.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "lars"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "lars-factory-glados-7828.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "lars"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7828.B"
   },
   "littlejoe-full": {
     "_template": "full",
@@ -12607,46 +12229,6 @@
     "push_image": false,
     "suite_scheduling": false,
     "workspace_branch": "factory-scarlet-10211.B"
-  },
-  "sentry-factory-glados-7828.B-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "sentry"
-    ],
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "workspace_branch": "factory-glados-7828.B"
-  },
-  "sentry-factory-glados-7828.B-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "sentry"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "packages": [
-      "virtual/target-os",
-      "virtual/target-os-dev",
-      "virtual/target-os-test",
-      "chromeos-base/chromeos-installshim",
-      "chromeos-base/chromeos-factory",
-      "chromeos-base/chromeos-hwid",
-      "chromeos-base/autotest-factory-install",
-      "chromeos-base/autotest-all"
-    ],
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "factory-glados-7828.B"
   },
   "skyrim-arc-t-release": {
     "_template": "release",

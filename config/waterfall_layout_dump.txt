@@ -35,17 +35,6 @@
     fizz-factory-fizz-10167.B-factorybranch
   factory-gale-8743.19.B-buildspec
     gale-factory-gale-8743.19.B-factorybranch
-  factory-glados-7657.B-buildspec
-    chell-factory-glados-7657.B-factorybranch
-    glados-factory-glados-7657.B-factorybranch
-  factory-glados-7828.B-buildspec
-    asuka-factory-glados-7828.B-factorybranch
-    caroline-factory-glados-7828.B-factorybranch
-    cave-factory-glados-7828.B-factorybranch
-    chell-factory-glados-7828.B-factorybranch
-    glados-factory-glados-7828.B-factorybranch
-    lars-factory-glados-7828.B-factorybranch
-    sentry-factory-glados-7828.B-factorybranch
   factory-gru-8652.B-buildspec
     kevin-factory-gru-8652.B-factorybranch
   factory-gru-9017.B-buildspec
@@ -275,7 +264,6 @@
   ambassador-full-tryjob
   ambassador-release-tryjob
   amd64-generic-full-tryjob
-  asuka-factory-glados-7828.B-factorybranch-tryjob
   asurada-connectivitynext-full-tryjob
   asurada-connectivitynext-release-tryjob
   asurada-factory-asurada-13929.B-factorybranch-tryjob
@@ -317,12 +305,8 @@
   brya-zephyr-release-tryjob
   bubs-full-tryjob
   bubs-release-tryjob
-  caroline-factory-glados-7828.B-factorybranch-tryjob
   caroline-ndktranslation-full-tryjob
   caroline-ndktranslation-release-tryjob
-  cave-factory-glados-7828.B-factorybranch-tryjob
-  chell-factory-glados-7657.B-factorybranch-tryjob
-  chell-factory-glados-7828.B-factorybranch-tryjob
   cherry-factory-cherry-14455.B-factorybranch-tryjob
   cherry-full-tryjob
   cherry-release-tryjob
@@ -415,17 +399,6 @@
     fizz-factory-fizz-10167.B-factorybranch-tryjob
   factory-gale-8743.19.B-buildspec-tryjob
     gale-factory-gale-8743.19.B-factorybranch-tryjob
-  factory-glados-7657.B-buildspec-tryjob
-    chell-factory-glados-7657.B-factorybranch-tryjob
-    glados-factory-glados-7657.B-factorybranch-tryjob
-  factory-glados-7828.B-buildspec-tryjob
-    asuka-factory-glados-7828.B-factorybranch-tryjob
-    caroline-factory-glados-7828.B-factorybranch-tryjob
-    cave-factory-glados-7828.B-factorybranch-tryjob
-    chell-factory-glados-7828.B-factorybranch-tryjob
-    glados-factory-glados-7828.B-factorybranch-tryjob
-    lars-factory-glados-7828.B-factorybranch-tryjob
-    sentry-factory-glados-7828.B-factorybranch-tryjob
   factory-gru-8652.B-buildspec-tryjob
     kevin-factory-gru-8652.B-factorybranch-tryjob
   factory-gru-9017.B-buildspec-tryjob
@@ -511,8 +484,6 @@
   gale-factory-gale-8743.19.B-factorybranch-tryjob
   geralt-full-tryjob
   geralt-release-tryjob
-  glados-factory-glados-7657.B-factorybranch-tryjob
-  glados-factory-glados-7828.B-factorybranch-tryjob
   glados-full-tryjob
   glados-release-tryjob
   goroh-full-tryjob
@@ -588,7 +559,6 @@
   kukui-kernelnext-full-tryjob
   kukui-kernelnext-release-tryjob
   kukui-release-tryjob
-  lars-factory-glados-7828.B-factorybranch-tryjob
   littlejoe-full-tryjob
   littlejoe-rapid
   littlejoe-release-tryjob
@@ -825,7 +795,6 @@
   sarien-master-factorybranch-tryjob
   sarien-release-tryjob
   scarlet-factory-scarlet-10211.B-factorybranch-tryjob
-  sentry-factory-glados-7828.B-factorybranch-tryjob
   skyrim-arc-t-release-tryjob
   skyrim-chausie-full-tryjob
   skyrim-chausie-release-tryjob
