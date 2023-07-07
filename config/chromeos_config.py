@@ -544,8 +544,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
     """
     active_builders = _frozen_ge_set(
         ge_build_config,
-        [
-        ],
+        [],
         ("amd64-generic",),
     )
 
@@ -1166,25 +1165,6 @@ def ApplyCustomOverrides(site_config):
         },
         "drallion-release": {
             "sign_types": ["recovery", "factory"],
-        },
-        # reven board does not exist in the lab.
-        "reven-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1066311",
-            "images": add_images(["base"]),
-            "base_is_recovery": True,
-        },
-        "reven-vmtest-release": {
-            "hw_tests": [],
-            "hw_tests_override": [],
-            "hw_tests_disabled_bug": "https://crbug.com/1232182",
-            "images": ["test"],
-            "paygen": False,
-            # This requires a base image.
-            "image_test": False,
-            # This requires a recovery image.
-            "signer_tests": False,
         },
         # puff-moblab board does not exist in the lab.
         "puff-moblab-release": {

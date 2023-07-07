@@ -5,7 +5,6 @@
     "android_package": null,
     "archive": true,
     "archive_build_debug": false,
-    "base_is_recovery": false,
     "basic_builder": false,
     "binhost_base_url": null,
     "binhost_bucket": null,
