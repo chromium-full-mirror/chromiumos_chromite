@@ -4228,52 +4228,6 @@
     "signer_tests": false,
     "suite_scheduling": false
   },
-  "fizz-moblab-release": {
-    "_template": "release",
-    "boards": [
-      "fizz-moblab"
-    ],
-    "description": "Moblab release builders",
-    "hw_tests": [],
-    "hw_tests_disabled_bug": "https://crbug.com/1145306",
-    "hw_tests_override": [],
-    "image_test": false,
-    "images": [
-      "base",
-      "recovery",
-      "test"
-    ],
-    "models": [
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"fizz-moblab\",\n  \"name\": \"wukong\",\n  \"test_suites\": [\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"au\",\n    \"bvt-cq\"\n  ]\n}"
-    ],
-    "signer_tests": false
-  },
-  "fizz-moblab-release-tryjob": {
-    "_template": "release",
-    "boards": [
-      "fizz-moblab"
-    ],
-    "debug": true,
-    "description": "Moblab release builders",
-    "display_label": "tryjob",
-    "hw_tests": [],
-    "hw_tests_disabled_bug": "https://crbug.com/1145306",
-    "hw_tests_override": null,
-    "image_test": false,
-    "images": [
-      "base",
-      "recovery",
-      "test"
-    ],
-    "luci_builder": "Try",
-    "models": [
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"fizz-moblab\",\n  \"name\": \"wukong\",\n  \"test_suites\": [\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"au\",\n    \"bvt-cq\"\n  ]\n}"
-    ],
-    "paygen": false,
-    "push_image": false,
-    "signer_tests": false,
-    "suite_scheduling": false
-  },
   "fizz-release": {
     "_template": "release",
     "boards": [
@@ -6396,7 +6350,6 @@
       "excelsior-release",
       "fizz-cfm-release",
       "fizz-labstation-release",
-      "fizz-moblab-release",
       "fizz-release",
       "geralt-release",
       "goroh-release",
@@ -6446,7 +6399,6 @@
       "octopus-release",
       "ovis-release",
       "puff-kernelnext-release",
-      "puff-moblab-release",
       "puff-release",
       "pyro-release",
       "rammus-arc-r-userdebug-release",
@@ -6554,7 +6506,6 @@
       "excelsior-release-tryjob",
       "fizz-cfm-release-tryjob",
       "fizz-labstation-release-tryjob",
-      "fizz-moblab-release-tryjob",
       "fizz-release-tryjob",
       "geralt-release-tryjob",
       "goroh-release-tryjob",
@@ -6604,7 +6555,6 @@
       "octopus-release-tryjob",
       "ovis-release-tryjob",
       "puff-kernelnext-release-tryjob",
-      "puff-moblab-release-tryjob",
       "puff-release-tryjob",
       "pyro-release-tryjob",
       "rammus-arc-r-userdebug-release-tryjob",
@@ -8016,54 +7966,6 @@
     "push_image": false,
     "suite_scheduling": false,
     "workspace_branch": "factory-puff-13329.B"
-  },
-  "puff-moblab-release": {
-    "_template": "release",
-    "boards": [
-      "puff-moblab"
-    ],
-    "description": "Moblab release builders",
-    "hw_tests": [],
-    "hw_tests_disabled_bug": "https://crbug.com/1145306",
-    "hw_tests_override": [],
-    "image_test": false,
-    "images": [
-      "base",
-      "recovery",
-      "test"
-    ],
-    "models": [
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"puff-moblab\",\n  \"name\": \"wyvern\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"puff-moblab\",\n  \"name\": \"wyvern_accelerator\",\n  \"test_suites\": []\n}"
-    ],
-    "signer_tests": false
-  },
-  "puff-moblab-release-tryjob": {
-    "_template": "release",
-    "boards": [
-      "puff-moblab"
-    ],
-    "debug": true,
-    "description": "Moblab release builders",
-    "display_label": "tryjob",
-    "hw_tests": [],
-    "hw_tests_disabled_bug": "https://crbug.com/1145306",
-    "hw_tests_override": null,
-    "image_test": false,
-    "images": [
-      "base",
-      "recovery",
-      "test"
-    ],
-    "luci_builder": "Try",
-    "models": [
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"puff-moblab\",\n  \"name\": \"wyvern\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"puff-moblab\",\n  \"name\": \"wyvern_accelerator\",\n  \"test_suites\": []\n}"
-    ],
-    "paygen": false,
-    "push_image": false,
-    "signer_tests": false,
-    "suite_scheduling": false
   },
   "puff-release": {
     "_template": "release",

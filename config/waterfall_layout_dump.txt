@@ -155,7 +155,6 @@
     excelsior-release
     fizz-cfm-release
     fizz-labstation-release
-    fizz-moblab-release
     fizz-release
     geralt-release
     goroh-release
@@ -205,7 +204,6 @@
     octopus-release
     ovis-release
     puff-kernelnext-release
-    puff-moblab-release
     puff-release
     pyro-release
     rammus-arc-r-userdebug-release
@@ -433,7 +431,6 @@
   fizz-cfm-release-tryjob
   fizz-factory-fizz-10167.B-factorybranch-tryjob
   fizz-labstation-release-tryjob
-  fizz-moblab-release-tryjob
   fizz-release-tryjob
   gale-factory-gale-8743.19.B-factorybranch-tryjob
   geralt-release-tryjob
@@ -542,7 +539,6 @@
     excelsior-release-tryjob
     fizz-cfm-release-tryjob
     fizz-labstation-release-tryjob
-    fizz-moblab-release-tryjob
     fizz-release-tryjob
     geralt-release-tryjob
     goroh-release-tryjob
@@ -592,7 +588,6 @@
     octopus-release-tryjob
     ovis-release-tryjob
     puff-kernelnext-release-tryjob
-    puff-moblab-release-tryjob
     puff-release-tryjob
     pyro-release-tryjob
     rammus-arc-r-userdebug-release-tryjob
@@ -659,7 +654,6 @@
   puff-factory-puff-13813.B-factorybranch-tryjob
   puff-kernelnext-release-tryjob
   puff-moblab-factory-puff-13329.B-factorybranch-tryjob
-  puff-moblab-release-tryjob
   puff-release-tryjob
   pyro-factory-reef-8811.B-factorybranch-tryjob
   pyro-release-tryjob

@@ -1541,7 +1541,11 @@ def LoadGEBuildConfigFromFile(
     i = 0
     configs = ret["reference_board_unified_builds"]
     while i < len(configs):
-        if configs[i]["name"] in {"aurora-borealis"}:
+        if configs[i]["name"] in {
+            "aurora-borealis",
+            "fizz-moblab",
+            "puff-moblab",
+        }:
             configs.pop(i)
         else:
             i += 1
