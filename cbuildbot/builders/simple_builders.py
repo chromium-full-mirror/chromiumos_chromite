@@ -132,10 +132,6 @@ class SimpleBuilder(generic_builders.Builder):
         ]
 
         stage_list = []
-        if config.debuginfo_test:
-            stage_list += [
-                [test_stages.DebugInfoTestStage, board],
-            ]
 
         stage_list += [[chrome_stages.SimpleChromeArtifactsStage, board]]
 

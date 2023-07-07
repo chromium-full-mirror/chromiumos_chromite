@@ -27,7 +27,6 @@
     "debug": false,
     "debug_cidb": false,
     "debug_symbols": true,
-    "debuginfo_test": false,
     "description": null,
     "dev_installer_prebuilts": false,
     "disk_layout": null,

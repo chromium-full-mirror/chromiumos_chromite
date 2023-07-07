@@ -12,10 +12,8 @@ from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import generic_stages
-from chromite.lib import build_target_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
 from chromite.lib import image_test_lib
 from chromite.lib import osutils
@@ -344,32 +342,6 @@ class ImageTestStage(
                 cros_version=cros_ver,
                 chrome_version=chrome_ver,
             )
-
-
-class DebugInfoTestStage(
-    generic_stages.BoardSpecificBuilderStage,
-    generic_stages.ForgivingBuilderStage,
-):
-    """Perform tests that are based on debug info
-
-    Tests may include, for example,
-      * whether dwarf info exists
-      * whether clang is used
-      * whether FORTIFY is enabled, etc.
-    """
-
-    option_name = "tests"
-    category = constants.CI_INFRA_STAGE
-
-    def PerformStage(self):
-        cmd = [
-            "debug_info_test",
-            os.path.join(
-                build_target_lib.get_default_sysroot_path(self._current_board),
-                "usr/lib/debug",
-            ),
-        ]
-        cros_build_lib.run(cmd, enter_chroot=True)
 
 
 class TestPlanStage(generic_stages.BoardSpecificBuilderStage):
