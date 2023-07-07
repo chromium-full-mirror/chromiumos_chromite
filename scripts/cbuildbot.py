@@ -491,12 +491,6 @@ def _CreateParser():
         "--manifest-repo-url", help="Overrides the default manifest repo url."
     )
     group.add_remote_option(
-        "--compilecheck",
-        action="store_true",
-        default=False,
-        help="Only verify compilation and unit tests.",
-    )
-    group.add_remote_option(
         "--noarchive",
         action="store_false",
         dest="archive",

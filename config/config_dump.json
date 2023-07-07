@@ -23,7 +23,6 @@
     "chrome_sdk_build_chrome": true,
     "chromeos_official": false,
     "chroot_replace": true,
-    "compilecheck": false,
     "cpe_export": true,
     "debug": false,
     "debug_cidb": false,

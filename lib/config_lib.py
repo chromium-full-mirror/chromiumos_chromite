@@ -631,9 +631,6 @@ def DefaultSettings():
         android_package=None,
         # Uprev Chrome, values of 'tot', 'stable_release', or None.
         chrome_rev=None,
-        # Exit the builder right after checking compilation.
-        # TODO(mtennant): Should be something like "compile_check_only".
-        compilecheck=False,
         # If True, run DebugInfoTest stage.
         debuginfo_test=False,
         # Runs the tests that the signer would run. This should only be set if

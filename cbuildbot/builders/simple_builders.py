@@ -137,15 +137,6 @@ class SimpleBuilder(generic_builders.Builder):
                 [test_stages.DebugInfoTestStage, board],
             ]
 
-        # Skip most steps if we're a compilecheck builder.
-        if builder_run.config.compilecheck or builder_run.options.compilecheck:
-            board_runattrs = builder_run.GetBoardRunAttrs(board)
-            board_runattrs.SetParallel("test_artifacts_uploaded", False)
-            stages = early_stage_list + stage_list
-            for x in stages:
-                self._RunStage(*x, builder_run=builder_run)
-            return
-
         stage_list += [[chrome_stages.SimpleChromeArtifactsStage, board]]
 
         stage_list += [
