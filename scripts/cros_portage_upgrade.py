@@ -34,7 +34,7 @@ WORLD_TARGET = "world"
 UPGRADED = "Upgraded"
 
 # Files that we authored.
-CROS_AUTHORED_FILES = {"OWNERS", "README.md"}
+CROS_AUTHORED_FILES = {"DIR_METADATA", "METADATA", "OWNERS", "README.md"}
 
 
 # pylint: disable=attribute-defined-outside-init
