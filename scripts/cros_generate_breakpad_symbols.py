@@ -255,7 +255,7 @@ class SymbolFileLineCounts:
                 else:
                     raise ValueError(
                         f"{elf_file}: symbol file has unknown line type "
-                        f"{line_type}"
+                        f"{line_type} (line='{line}')"
                     )
 
                 if expected_words_max is not None:
@@ -265,14 +265,15 @@ class SymbolFileLineCounts:
                         raise ValueError(
                             f"{elf_file}: symbol file has {line_type} line "
                             f"with {len(words)} words (expected "
-                            f"{expected_words_min} - {expected_words_max})"
+                            f"{expected_words_min} - {expected_words_max}) "
+                            f"(line='{line}')"
                         )
                 elif expected_words_min is not None:
                     if len(words) < expected_words_min:
                         raise ValueError(
                             f"{elf_file}: symbol file has {line_type} line "
                             f"with {len(words)} words (expected "
-                            f"{expected_words_min} or more)"
+                            f"{expected_words_min} or more) (line='{line}')"
                         )
 
 

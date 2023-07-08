@@ -917,7 +917,8 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
         INVALID_SYMBOL_FILES = [
             InvalidSymbolFile(
                 "bad_unknown_line_type.sym",
-                "symbol file has unknown line type UNKNOWN",
+                r"symbol file has unknown line type UNKNOWN "
+                r"\(line='UNKNOWN line type\n'\)",
             ),
             InvalidSymbolFile(
                 "bad_blank_line.sym",
@@ -926,17 +927,17 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             InvalidSymbolFile(
                 "bad_short_func.sym",
                 r"symbol file has FUNC line with 2 words "
-                r"\(expected 5 or more\)",
+                r"\(expected 5 or more\) \(line='FUNC fb0\n'\)",
             ),
             InvalidSymbolFile(
                 "bad_short_line_number.sym",
                 r"symbol file has line number line with 3 words "
-                r"\(expected 4 - 4\)",
+                r"\(expected 4 - 4\) \(line='fb0 106 0\n'\)",
             ),
             InvalidSymbolFile(
                 "bad_long_line_number.sym",
                 r"symbol file has line number line with 5 words "
-                r"\(expected 4 - 4\)",
+                r"\(expected 4 - 4\) \(line='c184 7 59 4 8\n'\)",
             ),
         ]
 
