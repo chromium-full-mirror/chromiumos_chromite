@@ -1689,33 +1689,6 @@
     "push_image": false,
     "suite_scheduling": false
   },
-  "caroline-ndktranslation-release": {
-    "_template": "release",
-    "boards": [
-      "caroline-ndktranslation"
-    ],
-    "chrome_sdk_build_chrome": false,
-    "hw_tests": [],
-    "hw_tests_disabled_bug": "http://crbug.com/1091053",
-    "hw_tests_override": [],
-    "important": false
-  },
-  "caroline-ndktranslation-release-tryjob": {
-    "_template": "release",
-    "boards": [
-      "caroline-ndktranslation"
-    ],
-    "chrome_sdk_build_chrome": false,
-    "debug": true,
-    "display_label": "tryjob",
-    "hw_tests": [],
-    "hw_tests_disabled_bug": "http://crbug.com/1091053",
-    "hw_tests_override": null,
-    "luci_builder": "Try",
-    "paygen": false,
-    "push_image": false,
-    "suite_scheduling": false
-  },
   "cherry-factory-cherry-14455.B-factorybranch": {
     "_template": "factorybranch",
     "boards": [
@@ -6564,7 +6537,6 @@
       "brya-release",
       "brya-zephyr-release",
       "bubs-release",
-      "caroline-ndktranslation-release",
       "cherry-release",
       "constitution-release",
       "coral-release",
@@ -6754,7 +6726,6 @@
       "brya-release-tryjob",
       "brya-zephyr-release-tryjob",
       "bubs-release-tryjob",
-      "caroline-ndktranslation-release-tryjob",
       "cherry-release-tryjob",
       "constitution-release-tryjob",
       "coral-release-tryjob",

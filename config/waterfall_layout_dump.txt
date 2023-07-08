@@ -132,7 +132,6 @@
     brya-release
     brya-zephyr-release
     bubs-release
-    caroline-ndktranslation-release
     cherry-release
     constitution-release
     coral-release
@@ -290,7 +289,6 @@
   brya-release-tryjob
   brya-zephyr-release-tryjob
   bubs-release-tryjob
-  caroline-ndktranslation-release-tryjob
   cherry-factory-cherry-14455.B-factorybranch-tryjob
   cherry-release-tryjob
   chromiumos-sdk-llvm-next-tryjob
@@ -533,7 +531,6 @@
     brya-release-tryjob
     brya-zephyr-release-tryjob
     bubs-release-tryjob
-    caroline-ndktranslation-release-tryjob
     cherry-release-tryjob
     constitution-release-tryjob
     coral-release-tryjob
