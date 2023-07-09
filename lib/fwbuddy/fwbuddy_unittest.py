@@ -137,28 +137,18 @@ def test_generate_unsigned_gspaths(setup):
     assert result == expected_gspaths
 
 
-def test_lookup_branch(setup, monkeypatch):
+def test_lookup_branch(setup, run_mock):
     """Tests that we correctly parse the SQL output from the branch lookup"""
     csv = "branch_name\nfirmware-icarus-12574.B\n"
-    mock_response = CompletedProcess([], 0, stdout=csv)
-    monkeypatch.setattr(
-        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
-    )
+    run_mock.SetDefaultCmdResult(stdout=csv)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     assert f.lookup_branch() == "firmware-icarus-12574.B"
 
 
-def test_lookup_branch_fails(setup, monkeypatch):
+def test_lookup_branch_fails(setup, run_mock):
     """Tests that we return None when our dremel command fails to run"""
-
-    def raise_error():
-        raise cros_build_lib.RunCommandError("")
-
-    monkeypatch.setattr(
-        cros_build_lib, "run", lambda *_, **kwargs,: raise_error()
-    )
+    run_mock.SetDefaultCmdResult(returncode=1)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
-
     assert f.lookup_branch() is None
 
 

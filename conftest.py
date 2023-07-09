@@ -196,3 +196,13 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "inside_only" in item.keywords:
             item.add_marker(skip_inside_only)
+
+
+@pytest.fixture
+def run_mock():
+    """Robust mock for cros_build_lib.run."""
+    from chromite.lib import cros_test_lib
+
+    with cros_test_lib.RunCommandMock() as rc_mock:
+        rc_mock.SetDefaultCmdResult()
+        yield rc_mock
