@@ -1308,3 +1308,63 @@ class EncodingCheckerTest(CheckerTestCase):
             ),
             False,
         )
+
+
+class MonkeypatchCheckerTest(CheckerTestCase):
+    """Tests for MonkeypatchChecker"""
+
+    CHECKER = lint.MonkeypatchChecker
+
+    @staticmethod
+    def _make_node(code):
+        """Helper to construct a callable node."""
+        node = astroid.extract_node(f"monkeypatch.setattr({code})")
+        node.doc = code
+        return node
+
+    def _check_tests(self, tests, passes):
+        """Helper to run all the test cases."""
+        for test in tests:
+            node = self._make_node(test)
+            self.results = []
+            self.checker.visit_call(node)
+            if passes:
+                self.assertLintPassed()
+            else:
+                self.assertLintFailed()
+
+    def testBadCalls(self):
+        """Don't crash when the API is used incorrectly."""
+        self._check_tests(
+            (
+                "",
+                "None",
+                "'asdf'",
+                "1",
+            ),
+            True,
+        )
+
+    def testCrosBuildLibRun(self):
+        """Reject cros_build_lib.run usage."""
+        self._check_tests(
+            (
+                "cros_build_lib, 'run'",
+                "cros_build_lib, 'run', lambda *_, **kwargs: 1",
+                "'cros_build_lib.run'",
+                "'cros_build_lib.run', lambda *_, **kwargs: 1",
+            ),
+            False,
+        )
+
+    def testCrosBuildLibSudoRun(self):
+        """Reject cros_build_lib.sudo_run usage."""
+        self._check_tests(
+            (
+                "cros_build_lib, 'sudo_run'",
+                "cros_build_lib, 'sudo_run', lambda *_, **kwargs: 1",
+                "'cros_build_lib.sudo_run'",
+                "'cros_build_lib.sudo_run', lambda *_, **kwargs: 1",
+            ),
+            False,
+        )

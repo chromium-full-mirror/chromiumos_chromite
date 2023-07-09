@@ -253,6 +253,66 @@ class EncodingChecker(pylint.checkers.BaseChecker):
                 self.add_message("R9150", node=node, line=node.fromlineno)
 
 
+class MonkeypatchChecker(pylint.checkers.BaseChecker):
+    """Various monkeypatch enforcements."""
+
+    __implements__ = pylint.interfaces.IAstroidChecker
+
+    # pylint: disable=class-missing-docstring,multiple-statements
+    class _MessageR9160:
+        pass
+
+    # pylint: enable=class-missing-docstring,multiple-statements
+
+    name = "monkeypatch_checker"
+    priority = -1
+    msgs = {
+        "R9160": (
+            "Do not monkeypatch cros_build_lib.%(func)s; use run_mock instead",
+            "monkeypatch-cros-build-lib-run",
+            _MessageR9160,
+        ),
+    }
+    options = ()
+
+    def visit_call(self, node: astroid.Call) -> None:
+        """Check |node| call."""
+        # Only look for monkeypatch.setattr(...) calls.
+        if (
+            not isinstance(node.func, astroid.Attribute)
+            or node.func.attrname != "setattr"
+            or not node.args
+            or node.func.expr.name != "monkeypatch"
+        ):
+            return
+
+        func = None
+        arg0 = node.args[0]
+        if isinstance(arg0, astroid.Const):
+            # monkeypatch.setattr(<string>) where <string> is module & func.
+            if arg0.value == "cros_build_lib.run":
+                func = "run"
+            elif arg0.value == "cros_build_lib.sudo_run":
+                func = "sudo_run"
+        elif isinstance(arg0, astroid.Name):
+            # monkeypatch.setattr(module, <string>) where <string> is func.
+            if arg0.name != "cros_build_lib" or len(node.args) < 2:
+                return
+            arg1 = node.args[1]
+            if not isinstance(arg1, astroid.Const) or arg1.value not in (
+                "run",
+                "sudo_run",
+            ):
+                return
+            func = arg1.value
+        if func is None:
+            return
+
+        self.add_message(
+            "R9160", node=node, line=node.fromlineno, args={"func": func}
+        )
+
+
 class DocStringChecker(pylint.checkers.BaseChecker):
     """PyLint AST based checker to verify PEP 257 compliance
 
