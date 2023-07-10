@@ -65,21 +65,6 @@ class ParallelAttributeError(AttributeError):
         return self.msg
 
 
-class AttrSepCountError(ValueError):
-    """Custom version of ValueError for when BOARD_ATTR_SEP is misused."""
-
-    def __init__(self, attr, *args):
-        self.msg = (
-            'Attribute name has an unexpected number of "%s" occurrences'
-            " in it: %s" % (RunAttributes.BOARD_ATTR_SEP, attr)
-        )
-        super().__init__(self.msg, *args)
-        self.args = (attr,) + tuple(args)
-
-    def __str__(self):
-        return self.msg
-
-
 class AttrNotPickleableError(RunAttributesError):
     """For when attribute value to queue is not pickleable."""
 
@@ -103,10 +88,6 @@ class AttrTimeoutError(RunAttributesError):
 
 class NoAndroidBranchError(Exception):
     """For when Android branch cannot be determined."""
-
-
-class NoAndroidABIError(Exception):
-    """For when Android ABI cannot be determined."""
 
 
 class NoAndroidVariantError(Exception):
@@ -744,10 +725,6 @@ class _BuilderRunBase:
     def ShouldPatchAfterSync(self):
         """Return True if this run should patch changes after sync stage."""
         return self.options.postsync_patch and self.config.postsync_patch
-
-    def InProduction(self):
-        """Return True if this is a production run."""
-        return cidb.CIDBConnectionFactory.GetCIDBConnectionType() == "prod"
 
     def GetVersionInfo(self):
         """Helper for picking apart various version bits.

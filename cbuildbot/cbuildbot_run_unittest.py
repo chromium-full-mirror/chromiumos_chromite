@@ -87,11 +87,6 @@ class ExceptionsTest(cros_test_lib.TestCase):
             err2, "No such board-specific parallel run attribute"
         )
 
-    def testAttrSepCountError(self):
-        """Test AttrSepCountError message and pickle behavior."""
-        err1 = cbuildbot_run.AttrSepCountError("SomeAttr")
-        self._TestException(err1, "Attribute name has an unexpected number")
-
     def testAttrNotPickleableError(self):
         """Test AttrNotPickleableError message and pickle behavior."""
         err1 = cbuildbot_run.AttrNotPickleableError("SomeAttr", "SomeValue")
@@ -347,10 +342,6 @@ class BuilderRunTest(_BuilderRunTestCase):
         config = _ExtendDefaultConfig(postsync_reexec=True)
         run = self._NewBuilderRun(options=options, config=config)
         self.assertFalse(run.ShouldReexecAfterSync())
-
-    def testInProduction(self):
-        run = self._NewBuilderRun()
-        self.assertFalse(run.InProduction())
 
 
 class GetVersionTest(_BuilderRunTestCase):
