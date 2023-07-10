@@ -580,12 +580,14 @@ class EBuild:
         self._ReadEBuild(path)
 
         # Grab the latest project settings.
-        try:
-            new_vars = EBuild.GetCrosWorkonVars(
-                self._unstable_ebuild_path, self.pkgname
-            )
-        except EbuildFormatIncorrectError:
-            new_vars = None
+        new_vars = None
+        if self._unstable_ebuild_path != self.ebuild_path:
+            try:
+                new_vars = EBuild.GetCrosWorkonVars(
+                    self._unstable_ebuild_path, self.pkgname
+                )
+            except EbuildFormatIncorrectError:
+                pass
 
         # Grab the current project settings.
         try:
