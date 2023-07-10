@@ -215,18 +215,6 @@ class _ManifestShim:
         )
         self.checkout = git.ProjectCheckout(attrs)
 
-    def FindCheckouts(self, *_args, **_kwargs):
-        """Returns the list of checkouts.
-
-        In this case, we only have one repository so we just return that
-        repository. We accept the same arguments as
-        git.ManifestCheckout.FindCheckouts, but we do not make any use of them.
-
-        Returns:
-            A list of ProjectCheckout objects.
-        """
-        return [self.checkout]
-
 
 class PatchSeries:
     """Class representing a set of patches applied to a repo checkout."""
@@ -333,32 +321,6 @@ class PatchSeries:
                 return [c.GetPath(absolute=True) for c in checkouts]
 
         return None
-
-    @_ManifestDecorator
-    def GetGitRepoForChange(self, change, strict=False, manifest=None):
-        """Get the project path associated with the specified change.
-
-        Args:
-            change: The change to operate on.
-            strict: If True, throw ChangeNotInManifest rather than returning
-                None.
-            Default: False.
-            manifest: A ManifestCheckout instance representing what we're
-                working on.
-
-        Returns:
-            The project path if found in the manifest. Otherwise returns
-            None (if strict=False).
-        """
-        project_dir = None
-        if manifest is None:
-            manifest = self.manifest
-        if manifest:
-            checkout = change.GetCheckout(manifest, strict=strict)
-            if checkout is not None:
-                project_dir = checkout.GetPath(absolute=True)
-
-        return project_dir
 
     @_ManifestDecorator
     def ApplyChange(self, change):
