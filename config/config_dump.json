@@ -196,7 +196,6 @@
         "recovery",
         "accessory_rwsig"
       ],
-      "signer_tests": true,
       "suite_scheduling": true,
       "upload_symbols": true,
       "useflags": [
