@@ -11,10 +11,11 @@
 import asyncio
 import json
 import logging
-from logging.handlers import TimedRotatingFileHandler
+from logging import handlers
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import time
 from typing import (
@@ -135,6 +136,19 @@ def AsyncRun(
         raise Exception("Popen failed")
 
 
+class TempMemLogger(logging.Logger):
+    def __init__(self, target, capacity=4000):
+        self.file = tempfile.NamedTemporaryFile(mode="a", delete=True)
+        super().__init__(self.file.name)
+        self.handler = handlers.MemoryHandler(capacity=capacity)
+        self.handler.setTarget(target)
+        self.addHandler(self.handler)
+
+    def clean_up(self):
+        self.handler.close()
+        self.file.close()
+
+
 class SdkImage:
     """Chroot Image class"""
 
@@ -211,7 +225,8 @@ class SdkChroot(
         self.logger.addHandler(self.handler)
 
     def current_boards(self, request, context):
-        self.logger.info("REQUEST: current boards")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: current boards")
         boards = []
         if self.has_path("/build"):
             path = Path(self.full_path("/build/"))
@@ -223,13 +238,15 @@ class SdkChroot(
                 boards.append(common_pb2.BuildTarget(name=sysroot.name))
 
             response = sdk_server_pb2.CurrentBoardsResponse(build_target=boards)
+            logger.clean_up()
             return response
 
         # "/build" does not exist i.e. chroot has no boards
         return sdk_server_pb2.CurrentBoardsResponse()
 
     def query_boards(self, request, context):
-        self.logger.info("REQUEST: query boards")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: query boards")
 
         query = build_query.Query(build_query.Board)
         boards = [common_pb2.BuildTarget(name=board.name) for board in query]
@@ -238,7 +255,8 @@ class SdkChroot(
         return response
 
     def repo_sync(self, request, context):
-        self.logger.info("REQUEST: repo sync")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: repo sync")
         script = ["repo", "sync"]
         result = cros_build_lib.run(
             script, stdout=subprocess.PIPE, encoding="utf-8"
@@ -248,7 +266,8 @@ class SdkChroot(
         return response
 
     def repo_status(self, request, context):
-        self.logger.info("REQUEST: repo status")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: repo status")
         script = ["repo", "status"]
         result = cros_build_lib.run(
             script, stdout=subprocess.PIPE, encoding="utf-8"
@@ -258,7 +277,8 @@ class SdkChroot(
         return response
 
     def update_chroot(self, request, context):
-        self.logger.info("REQUEST: update_chroot\n")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: update_chroot\n")
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
                 input_content = json_format.MessageToDict(request.request)
@@ -272,7 +292,7 @@ class SdkChroot(
                 )
 
                 for line in iter(lambda: process.stdout.readline(), b""):
-                    self.logger.info(line.decode())
+                    logger.info(line.decode())
                     response = sdk_server_pb2.UpdateChrootResponse(
                         logging_info=line.decode()
                     )
@@ -289,18 +309,19 @@ class SdkChroot(
                     process.stdout.close()
                     yield response
                 else:
-                    self.logger.info(EMPTY_OUTPUT_ERROR)
-                    response.logging_info = EMPTY_OUTPUT_ERROR
+                    logger.info(ERROR_OCCURRED)
                     response.logging_info = ERROR_OCCURRED
                     process.stdout.close()
                     yield response
+                logger.clean_up()
 
     def cros_workon_info(self, request, context):
         """run cros workon info for given package
 
         if build_target not specified will run with --host enabled
         """
-        self.logger.info("REQUEST: cros_workon info")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: cros_workon info")
         package = request.package_info.package_name
 
         target = (
@@ -319,6 +340,8 @@ class SdkChroot(
         )
         output = result.stdout
         response = sdk_server_pb2.WorkonInfoResponse(info=output)
+        logger.info(response)
+        logger.clean_up()
         return response
 
     def cros_workon_start(self, request, context):
@@ -326,7 +349,8 @@ class SdkChroot(
 
         if build_target not specified will run with --host enabled
         """
-        self.logger.info("REQUEST: cros_workon start")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: cros_workon start")
         print("REQUEST: cros_workon start")
         package = request.package_info.package_name
         target = (
@@ -345,6 +369,8 @@ class SdkChroot(
         )
         output = result.stdout
         response = sdk_server_pb2.WorkonStartResponse(info=output)
+        logger.info(response)
+        logger.clean_up()
         return response
 
     def cros_workon_stop(self, request, context):
@@ -352,7 +378,8 @@ class SdkChroot(
 
         if build_target not specified will run with --host enabled
         """
-        self.logger.info("REQUEST: cros_workon stop")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: cros_workon stop")
         print("REQUEST: cros_workon stop")
         package = request.package_info.package_name
         target = (
@@ -372,6 +399,8 @@ class SdkChroot(
         )
         output = result.stdout
         response = sdk_server_pb2.WorkonStopResponse(info=output)
+        logger.info(response)
+        logger.clean_up()
         return response
 
     def cros_workon_list(self, request, context):
@@ -379,7 +408,8 @@ class SdkChroot(
 
         if build_target not specified will run with --host enabled
         """
-        self.logger.info("REQUEST: cros_workon list")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: cros_workon list")
         print("REQUEST: cros_workon list")
         target = (
             f"--board={request.build_target.name}"
@@ -400,15 +430,19 @@ class SdkChroot(
             common_pb2.PackageInfo(package_name=package) for package in output
         ]
         response = sdk_server_pb2.WorkonListResponse(package_info=packages)
+        logger.clean_up()
         return response
 
     def chroot_path(self, request, context):
-        self.logger.info("REQUEST: chroot path")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: chroot path")
         response = sdk_server_pb2.ChrootPathResponse(path=self.path)
+        logger.clean_up()
         return response
 
     def all_packages(self, request, context):
-        self.logger.info("REQUEST: all packages")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: all packages")
         target = (
             f"--board={request.build_target.name}"
             if request.build_target
@@ -429,6 +463,7 @@ class SdkChroot(
             common_pb2.PackageInfo(package_name=package) for package in output
         ]
         response = sdk_server_pb2.AllPackagesResponse(package_info=packages)
+        logger.clean_up()
         return response
 
     def _run_endpoint(self, endpoint, inputfile, outputfile):
@@ -448,7 +483,8 @@ class SdkChroot(
         return process
 
     def create_sdk(self, request, context):
-        self.logger.info("REQUEST: cros_sdk create")
+        logger = TempMemLogger(target=self.handler)
+        logger.info("REQUEST: cros_sdk create")
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
                 input_content = json_format.MessageToDict(request.request)
@@ -507,7 +543,7 @@ class SdkChroot(
                     )
                     yield response
 
-                contents = osutils.ReadFile(tempoutput)
+                contents = osutils.ReadFile(tempoutput.name)
                 response = sdk_server_pb2.ReplaceSdkResponse()
                 internal_resp = sdk_pb2.CreateResponse()
 
@@ -734,7 +770,7 @@ class SdkChroot(
                     )
                     yield response
 
-                contents = osutils.ReadFile(tempoutput)
+                contents = osutils.ReadFile(tempoutput.name)
                 response = sdk_server_pb2.BuildImageResponse()
                 internal_resp = image_pb2.CreateImageResult()
                 if process.returncode in VALID_RETURN_CODES:
