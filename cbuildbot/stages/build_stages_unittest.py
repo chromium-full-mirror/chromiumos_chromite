@@ -9,17 +9,11 @@ import os
 from pathlib import Path
 from unittest import mock
 
-from chromite.third_party.infra_libs.buildbucket.proto import (
-    build_pb2,
-    builds_service_pb2,
-)
-
 from chromite.cbuildbot import cbuildbot_unittest
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import build_stages
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.lib import build_summary
-from chromite.lib import buildbucket_v2
 from chromite.lib import cidb
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -771,133 +765,3 @@ class CleanUpStageTest(generic_stages_unittest.StageTestCase):
 
         stage = self.ConstructStage()
         self.assertFalse(stage.CanReuseChroot())
-
-
-class CleanUpStageCancelSlaveBuilds(generic_stages_unittest.StageTestCase):
-    """Test CleanUpStage.CancelObsoleteSlaveBuilds."""
-
-    BOT_ID = "master-full"
-
-    def setUp(self):
-        # Mock out the active APIs for both testing and safety.
-        self.cancelMock = self.PatchObject(
-            buildbucket_v2.BuildbucketV2, "BatchCancelBuilds"
-        )
-        self.searchMock = self.PatchObject(
-            buildbucket_v2.BuildbucketV2, "BatchSearchBuilds"
-        )
-
-        self._Prepare()
-        self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
-        cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
-
-    def ConstructStage(self):
-        return build_stages.CleanUpStage(self._run, self.buildstore)
-
-    def testNoPreviousMasterBuilds(self):
-        """Test cancellation if the master has never run."""
-        search_results = builds_service_pb2.BatchResponse(
-            responses=[
-                builds_service_pb2.BatchResponse.Response(
-                    search_builds=builds_service_pb2.SearchBuildsResponse(
-                        builds=[],
-                    ),
-                ),
-            ],
-        )
-        self.searchMock.return_value = search_results
-        cancel_results = builds_service_pb2.BatchResponse(
-            responses=[],
-        )
-        self.cancelMock.return_value = cancel_results
-        stage = self.ConstructStage()
-        stage.CancelObsoleteSlaveBuilds()
-
-        # Validate searches and cancellations match expectations.
-        self.assertEqual(
-            len(self.searchMock.return_value.responses[0].search_builds.builds),
-            0,
-        )
-        self.assertEqual(len(self.cancelMock.return_value.responses), 0)
-
-    def testNoPreviousSlaveBuilds(self):
-        """Test cancellation if there are no running slave builds."""
-        search_results = builds_service_pb2.BatchResponse(
-            responses=[
-                builds_service_pb2.BatchResponse.Response(
-                    search_builds=builds_service_pb2.SearchBuildsResponse(
-                        builds=[build_pb2.Build(id=1)],
-                    ),
-                )
-            ],
-        )
-        self.searchMock.return_value = search_results
-        cancel_results = builds_service_pb2.BatchResponse(
-            responses=[],
-        )
-        self.cancelMock.return_value = cancel_results
-        stage = self.ConstructStage()
-        stage.CancelObsoleteSlaveBuilds()
-
-        # Validate searches and cancellations match expectations.
-        self.assertEqual(len(self.searchMock.return_value.responses), 1)
-        self.assertEqual(len(self.cancelMock.return_value.responses), 0)
-
-    def testPreviousSlaveBuild(self):
-        """Test cancellation if there is a running slave build."""
-        search_results = builds_service_pb2.BatchResponse(
-            responses=[
-                builds_service_pb2.BatchResponse.Response(
-                    search_builds=builds_service_pb2.SearchBuildsResponse(
-                        builds=[
-                            build_pb2.Build(id=1, status="SUCCESS"),
-                            build_pb2.Build(id=2, status="SUCCESS"),
-                        ],
-                    ),
-                )
-            ],
-        )
-        self.searchMock.return_value = search_results
-        stage = self.ConstructStage()
-        stage.CancelObsoleteSlaveBuilds()
-
-        # Validate searches and cancellations match expectations.
-        self.assertEqual(
-            len(self.searchMock.return_value.responses[0].search_builds.builds),
-            2,
-        )
-        self.assertEqual(self.cancelMock.call_count, 1)
-
-        cancelled_ids = self.cancelMock.call_args[0][0]
-        self.assertEqual(cancelled_ids, [1, 2])
-
-    def testManyPreviousSlaveBuilds(self):
-        """Test cancellation with an assortment of running slave builds."""
-        search_results = builds_service_pb2.BatchResponse(
-            responses=[
-                builds_service_pb2.BatchResponse.Response(
-                    search_builds=builds_service_pb2.SearchBuildsResponse(
-                        builds=[
-                            build_pb2.Build(id=1, status="SUCCESS"),
-                            build_pb2.Build(id=2, status="SUCCESS"),
-                            build_pb2.Build(id=3, status="SUCCESS"),
-                            build_pb2.Build(id=4, status="SUCCESS"),
-                        ],
-                    ),
-                )
-            ],
-        )
-        self.searchMock.return_value = search_results
-        stage = self.ConstructStage()
-        stage.CancelObsoleteSlaveBuilds()
-
-        # Validate searches and cancellations match expectations.
-        self.assertEqual(
-            len(self.searchMock.return_value.responses[0].search_builds.builds),
-            4,
-        )
-        self.assertEqual(self.cancelMock.call_count, 1)
-
-        cancelled_ids = self.cancelMock.call_args[0][0]
-        self.assertEqual(cancelled_ids, [1, 2, 3, 4])

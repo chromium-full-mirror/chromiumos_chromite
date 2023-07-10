@@ -10,19 +10,11 @@ import logging
 import os
 from pathlib import Path
 
-from chromite.third_party.google.protobuf import field_mask_pb2
-from chromite.third_party.infra_libs.buildbucket.proto import (
-    builder_common_pb2,
-    builds_service_pb2,
-    common_pb2,
-)
-
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
 from chromite.cbuildbot import repository
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import build_summary
-from chromite.lib import buildbucket_v2
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -34,7 +26,6 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import path_util
 from chromite.lib import portage_util
-from chromite.lib import request_build
 from chromite.lib.parser import package_info
 from chromite.service import binhost as binhost_service
 
@@ -192,93 +183,6 @@ class CleanUpStage(generic_stages.BuilderStage):
 
         return master_status["build_number"], master_status["status"]
 
-    def CancelObsoleteSlaveBuilds(self):
-        """Cancel the obsolete builds scheduled by the previous orchestrator."""
-        logging.info("Canceling obsolete builds.")
-
-        buildbucket_client = buildbucket_v2.BuildbucketV2()
-        if not buildbucket_client:
-            logging.info("No buildbucket_client, not canceling builds.")
-            return
-        main_search = []
-        # Find the 3 most recent master buildbucket ids in active buckets.
-        for bucket in constants.ACTIVE_BUCKETS:
-            for status in [
-                constants.BUILDBUCKET_BUILDER_STATUS_CANCELED,
-                constants.BUILDBUCKET_BUILDER_STATUS_SUCCESS,
-            ]:
-                build_predicate = builds_service_pb2.BuildPredicate(
-                    builder=builder_common_pb2.BuilderID(
-                        project="chromeos", bucket=bucket
-                    ),
-                    status=status,
-                    tags=[
-                        common_pb2.StringPair(
-                            key="cbb_config", value=self._run.config.name
-                        ),
-                        common_pb2.StringPair(
-                            key="cbb_branch", value=self._run.manifest_branch
-                        ),
-                    ],
-                )
-                main_search.append(
-                    builds_service_pb2.SearchBuildsRequest(
-                        predicate=build_predicate,
-                        fields=field_mask_pb2.FieldMask(paths=["builds.*.id"]),
-                        page_size=3,
-                    )
-                )
-        main_builds = buildbucket_client.BatchSearchBuilds(
-            search_requests=main_search
-        )
-        main_ids = []
-        for br in main_builds.responses:
-            for build in br.search_builds.builds:
-                main_ids.append(str(build.id))
-        # Find the scheduled or started slaves for those master builds.
-        logging.info(
-            "Found Previous Orchestrator builds: %s", ", ".join(main_ids)
-        )
-        builds = []
-        batch_search = []
-        for main_id in main_ids:
-            for status in [
-                constants.BUILDBUCKET_BUILDER_STATUS_SCHEDULED,
-                constants.BUILDBUCKET_BUILDER_STATUS_STARTED,
-            ]:
-                child_predicate = builds_service_pb2.BuildPredicate(
-                    builder=builder_common_pb2.BuilderID(
-                        project="chromeos", bucket=bucket
-                    ),
-                    status=status,
-                    tags=[
-                        common_pb2.StringPair(
-                            key="buildset",
-                            value=request_build.ChildBuildSet(main_id),
-                        )
-                    ],
-                )
-                batch_search.append(
-                    builds_service_pb2.SearchBuildsRequest(
-                        predicate=child_predicate
-                    )
-                )
-        builds = buildbucket_client.BatchSearchBuilds(
-            search_requests=batch_search
-        )
-        cancel_nodes = []
-        for cr in builds.responses:
-            for cb in cr.search_builds.builds:
-                logging.info(
-                    "Found build %s in status %s from previous orchestrator.",
-                    str(cb.id),
-                    common_pb2.Status.Name(cb.status),
-                )
-                cancel_nodes.append(cb.id)
-        buildbucket_client.BatchCancelBuilds(
-            cancel_nodes, "Canceling builds from a previous orchestrator."
-        )
-
     def CanReuseChroot(self):
         """Determine if the chroot can be reused.
 
@@ -384,12 +288,6 @@ class CleanUpStage(generic_stages.BuilderStage):
                 tasks.append(self._CleanChroot)
             if self._run.options.workspace:
                 tasks.append(self._CleanWorkspace)
-
-            # TODO(b/201081848): Don't cancel for now, paygen going on too long.
-            #
-            # CancelObsoleteSlaveBuilds, if there are slave builds to cancel.
-            # if self._run.config.slave_configs:
-            #  tasks.append(self.CancelObsoleteSlaveBuilds)
 
             parallel.RunParallelSteps(tasks)
 
