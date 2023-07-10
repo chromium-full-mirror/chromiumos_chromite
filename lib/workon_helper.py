@@ -603,11 +603,11 @@ class WorkonHelper:
             )
             for ebuild_path in ebuild_paths:
                 ebuild_contents = osutils.ReadFile(ebuild_path)
+                if filter_on_arch and not keyword_pat.search(ebuild_contents):
+                    continue
                 if not _IsWorkonEbuild(
                     include_chrome, ebuild_path, ebuild_contents=ebuild_contents
                 ):
-                    continue
-                if filter_on_arch and not keyword_pat.search(ebuild_contents):
                     continue
                 result.append(ebuild_path)
 
