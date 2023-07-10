@@ -531,13 +531,6 @@ def _CreateParser():
         ),
     )
     group.add_remote_option(
-        "--nopaygen",
-        action="store_false",
-        dest="paygen",
-        default=True,
-        help="Don't generate payloads.",
-    )
-    group.add_remote_option(
         "--noreexec",
         action="store_false",
         dest="postsync_reexec",
@@ -948,18 +941,11 @@ def _PostParseCheck(parser, options, site_config):
         )
 
     build_config = site_config[options.build_config_name]
-    is_payloads_build = build_config.build_type == constants.PAYLOADS_TYPE
 
-    if options.channels and not is_payloads_build:
+    if options.channels:
         cros_build_lib.Die(
             "--channel must only be used with a payload config,"
             " not target (%s)." % options.build_config_name
-        )
-
-    if not options.channels and is_payloads_build:
-        cros_build_lib.Die(
-            "payload configs (%s) require --channel to do anything useful."
-            % options.build_config_name
         )
 
     # If the build config explicitly forces the debug flag, set the debug flag

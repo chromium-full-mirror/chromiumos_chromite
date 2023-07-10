@@ -29,7 +29,7 @@ class ModuleTest(cros_test_lib.MockTempDirTestCase):
         self.assertRaises(
             AttributeError,
             builders.GetBuilderClass,
-            "release_builders.Foalksdjo",
+            "generic_builders.Foalksdjo",
         )
 
     def testGetBuilderClassConfig(self):

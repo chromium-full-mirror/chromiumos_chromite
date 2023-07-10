@@ -108,9 +108,6 @@ class SimpleBuilder(generic_builders.Builder):
         # stages below need it as an argument.
         archive_stage = self.archive_stages[BoardConfig(board, config.name)]
 
-        # paygen can't complete without push_image.
-        assert not config.paygen or config.push_image
-
         # While this stage list is run in parallel, the order here dictates the
         # order that things will be shown in the log.  So group things together
         # that make sense when read in order.  Also keep in mind that, since we
@@ -126,8 +123,6 @@ class SimpleBuilder(generic_builders.Builder):
 
         stage_list += [
             [release_stages.SignerTestStage, board, archive_stage],
-            [release_stages.SigningStage, board],
-            [release_stages.PaygenStage, board],
             [test_stages.ImageTestStage, board],
             [artifact_stages.UploadPrebuiltsStage, board],
             [artifact_stages.DevInstallerPrebuiltsStage, board],

@@ -503,11 +503,6 @@ def DefaultSettings():
         push_image=False,
         # Do we upload debug symbols.
         upload_symbols=False,
-        # Run a stage that generates release payloads for signed images.
-        paygen=False,
-        # If the paygen stage runs, generate tests, and schedule auto-tests for
-        # them.
-        paygen_skip_testing=False,
         # Run a stage that generates and uploads package CPE information.
         cpe_export=True,
         # Run a stage that generates and uploads debug symbols.

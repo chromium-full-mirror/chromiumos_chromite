@@ -597,35 +597,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
             valid_values = (False, constants.PRIVATE, constants.PUBLIC)
             self.assertTrue(config["prebuilts"] in valid_values, msg)
 
-    def testPushImagePaygenDependancies(self):
-        """Paygen requires PushImage."""
-        for build_name, config in self.site_config.items():
-            # paygen can't complete without push_image, except for payloads
-            # where --channel arguments meet the requirements.
-            if config["paygen"]:
-                self.assertTrue(
-                    config["push_image"]
-                    or config["build_type"] == constants.PAYLOADS_TYPE,
-                    "%s has paygen without push_image" % build_name,
-                )
-
-    def testPaygenTestDependancies(self):
-        """paygen testing requires upload_hw_test_artifacts."""
-        for build_name, config in self.site_config.items():
-            # This requirement doesn't apply to payloads(-tryjob) builds.
-            # Payloads(-tryjob) are using artifacts from a previous build.
-            if build_name.endswith("-payloads") or build_name.endswith(
-                "-payloads-tryjob"
-            ):
-                continue
-
-            if config["paygen"] and not config["paygen_skip_testing"]:
-                self.assertTrue(
-                    config["upload_hw_test_artifacts"],
-                    "%s is not upload_hw_test_artifacts, but also not"
-                    " paygen_skip_testing" % build_name,
-                )
-
     def testBuildPackagesForRecoveryImage(self):
         """Tests that we build the packages required for recovery image."""
         for build_name, config in self.site_config.items():
@@ -640,22 +611,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "%s does not build chromeos-initramfs, which is required "
                     "for creating the recovery image" % build_name,
                 )
-
-    def testBuildRecoveryImageFlags(self):
-        """Ensure the right flags are disabled building a recovery image."""
-        incompatible_flags = ["paygen", "signer_tests"]
-        for build_name, config in self.site_config.items():
-            for flag in incompatible_flags:
-                if (
-                    config[flag]
-                    and config.build_type != constants.PAYLOADS_TYPE
-                ):
-                    self.assertIn(
-                        "recovery",
-                        config.images,
-                        "%s does not build the recovery image, which is "
-                        "incompatible with %s=True" % (build_name, flag),
-                    )
 
     def testBuildBaseImageForRecoveryImage(self):
         """Tests that we build the packages required for recovery image."""

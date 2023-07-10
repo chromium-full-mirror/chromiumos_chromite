@@ -453,9 +453,6 @@ FULL_TYPE = "full"
 # Full but with versioned logic.
 CANARY_TYPE = "canary"
 
-# Generate payloads for an already built build/version.
-PAYLOADS_TYPE = "payloads"
-
 # How long we should wait for the signing fleet to sign payloads.
 PAYLOAD_SIGNING_TIMEOUT = 10800
 
@@ -480,29 +477,10 @@ VALID_BUILD_TYPES = (
     CHROOT_BUILDER_TYPE,
     CHROOT_BUILDER_BOARD,
     PFQ_TYPE,
-    PAYLOADS_TYPE,
     TOOLCHAIN_TYPE,
     TRYJOB_TYPE,
     GENERIC_TYPE,
 )
-
-HWTEST_QUOTA_POOL = "quota"
-
-HWTEST_QUOTA_ACCOUNT_BVT = "legacypool-bvt"
-HWTEST_QUOTA_ACCOUNT_BVT_SYNC = "bvt-sync"
-HWTEST_QUOTA_ACCOUNT_PFQ = "pfq"
-HWTEST_QUOTA_ACCOUNT_SUITES = "legacypool-suites"
-HWTEST_QUOTA_ACCOUNT_TOOLCHAIN = "toolchain"
-
-# The environment for executing tests.
-ENV_SKYLAB = "skylab"
-ENV_AUTOTEST = "autotest"
-
-# The cipd package for skylab tool
-CIPD_SKYLAB_PACKAGE = "chromiumos/infra/skylab/linux-amd64"
-# The skylab tool CIPD package is pinned to a specific tag to avoid uncontrolled
-# tool release.
-CIPD_SKYLAB_INSTANCE_ID = "cbuildbot-prod"
 
 # Build messages
 MESSAGE_TYPE_IGNORED_REASON = "ignored_reason"

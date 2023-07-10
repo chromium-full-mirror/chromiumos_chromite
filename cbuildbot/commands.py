@@ -31,7 +31,6 @@ from chromite.api.gen.chromiumos.build.api.container_metadata_pb2 import (
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
-from chromite.lib import cipd
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -957,123 +956,6 @@ def RunUnitTests(
         extra_env=extra_env or {},
         chroot_args=chroot_args,
     )
-
-
-# TODO(akeshet): Deprecate this undocumented type.
-HWTestSuiteResult = collections.namedtuple(
-    "HWTestSuiteResult", ["to_raise", "json_dump_result"]
-)
-
-
-def _InstallSkylabTool():
-    """Install skylab tool.
-
-    Returns:
-        the path of installed skylab tool.
-    """
-    path = cipd.InstallPackage(
-        cipd.GetCIPDFromCache(),
-        constants.CIPD_SKYLAB_PACKAGE,
-        constants.CIPD_SKYLAB_INSTANCE_ID,
-    )
-    return os.path.join(path, "skylab")
-
-
-def RunSkylabHWTestPlan(
-    test_plan=None,
-    build=None,
-    legacy_suite=None,
-    pool=None,
-    quota_account=None,
-    board=None,
-    model=None,
-    timeout_mins=120,
-    tags=None,
-    keyvals=None,
-):
-    """Run a skylab test in the Autotest lab using skylab tool.
-
-    Args:
-        test_plan: A JSONpb string containing a TestPlan object.
-        build: A string full image name.
-        legacy_suite: A string suite name, if non-empty it overrides the test
-            plan on the autotest backend.
-        pool: A string pool to run the test on.
-        quota_account: A string quota account to be used for Skylab tasks
-            created by the cros_test_platform build triggered for this test
-            plan.
-        board: A string board to run the test on.
-        model: A string model to run the test on.
-        timeout_mins: An integer to indicate the test's timeout.
-        tags: A list of strings to tag the task in swarming.
-        keyvals: A list of strings to be passed to the test as job_keyvals.
-    """
-    if not test_plan:
-        raise ValueError("Need to specify test plan.")
-    if not build:
-        raise ValueError("Need to specify build.")
-    if not (board or model):
-        raise ValueError("Need to specify either board or model.")
-
-    args = ["-image", build]
-
-    if legacy_suite:
-        args += ["-legacy-suite", legacy_suite]
-
-    if pool:
-        args += ["-pool", pool]
-
-    if quota_account:
-        args += ["-qs-account", quota_account]
-
-    if board:
-        args += ["-board", board]
-
-    if model:
-        args += ["-model", model]
-
-    if timeout_mins:
-        args += ["-timeout-mins", str(timeout_mins)]
-
-    if tags:
-        for tag in tags:
-            args += ["-tag", tag]
-
-    if keyvals is not None:
-        for k, v in keyvals.items():
-            args += ["-keyval", k + ":" + v]
-
-    args += ["-service-account-json", constants.CHROMEOS_SERVICE_ACCOUNT]
-
-    args += ["-plan-file", "/dev/stdin"]
-
-    skylab_path = _InstallSkylabTool()
-
-    try:
-        result = cros_build_lib.run(
-            [skylab_path, "create-testplan"] + args,
-            stdout=True,
-            input=test_plan,
-        )
-
-        task_url = ""
-        try:
-            report = json.loads(result.stdout)
-            task_url = report.get("task_url")
-
-            logging.info("Launched test plan task %s", task_url)
-            cbuildbot_alerts.PrintBuildbotLink("Test plan task", task_url)
-
-        except ValueError:
-            logging.warning("Unable to parse output:\n%s", result.stdout)
-
-        return HWTestSuiteResult(None, None)
-    except cros_build_lib.RunCommandError as e:
-        result = e.result
-        to_raise = failures_lib.TestFailure(
-            "** HWTest failed (code %d) **" % result.returncode
-        )
-        return HWTestSuiteResult(to_raise, None)
 
 
 @failures_lib.SetFailureType(failures_lib.BuilderFailure)

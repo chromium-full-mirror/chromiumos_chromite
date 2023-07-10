@@ -57,8 +57,6 @@
     "nobuildretry": false,
     "overlays": "public",
     "packages": [],
-    "paygen": false,
-    "paygen_skip_testing": false,
     "postsync_patch": true,
     "postsync_reexec": true,
     "prebuilts": false,

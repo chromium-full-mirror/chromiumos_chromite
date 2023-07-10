@@ -194,8 +194,6 @@ class RunAttributes:
             "instruction_urls_per_channel",  # Set by ArchiveStage
             "success",  # Set by cbuildbot.py:Builder
             "packages_under_test",  # Set by BuildPackagesStage.
-            "signed_images_ready",  # Set by SigningStage
-            "paygen_test_payloads_ready",  # Set by PaygenStage
         )
     )
 
