@@ -143,7 +143,6 @@
       "display_label": "full",
       "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
       "git_sync": true,
-      "image_test": true,
       "images": [
         "base",
         "recovery",
@@ -166,7 +165,6 @@
       "description": "Release Builds (canary) (internal)",
       "display_label": "release",
       "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Canaries",
-      "image_test": true,
       "images": [
         "base",
         "recovery",
@@ -442,7 +440,6 @@
     "display_label": "utility",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "image_test": true,
     "images": [
       "base",
       "recovery",
@@ -470,7 +467,6 @@
     "display_label": "utility",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "image_test": true,
     "images": [
       "base",
       "recovery",
@@ -501,7 +497,6 @@
     "display_label": "tryjob",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "image_test": true,
     "images": [
       "base",
       "recovery",
@@ -531,7 +526,6 @@
     "display_label": "tryjob",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "image_test": true,
     "images": [
       "base",
       "recovery",

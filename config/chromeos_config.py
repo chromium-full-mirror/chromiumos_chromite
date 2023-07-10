@@ -189,7 +189,6 @@ def GeneralTemplates(site_config):
         images=["base", "recovery", "test", "factory_install"],
         git_sync=True,
         description="Full Builds",
-        image_test=True,
         doc=(
             "https://dev.chromium.org/chromium-os/build/builder-overview#"
             "TOC-Continuous"
@@ -258,7 +257,6 @@ def GeneralTemplates(site_config):
         git_sync=False,
         description="Release Builds (canary) (internal)",
         chrome_sdk=True,
-        image_test=True,
         doc=(
             "https://dev.chromium.org/chromium-os/build/builder-overview#"
             "TOC-Canaries"
@@ -286,7 +284,6 @@ def GeneralTemplates(site_config):
         description="Factory Builds",
         factory_toolkit=True,
         images=["test", "factory_install"],
-        image_test=False,
         luci_builder=config_lib.LUCI_BUILDER_FACTORY,
         sign_types=["factory"],
         upload_hw_test_artifacts=True,
@@ -350,8 +347,6 @@ def CreateBoardConfigs(boards_dict, ge_build_config):
                 factory_install_netboot=False,
                 images=remove_images(["factory_install"]),
             )
-        if board in chromeos_boards.noimagetest_boards:
-            board_config.apply(image_test=False)
         if board in chromeos_boards.builder_incompatible_binaries_boards:
             board_config.apply(unittests=False)
 
@@ -1221,10 +1216,6 @@ def GetConfig():
     site_config = config_lib.SiteConfig(defaults=defaults)
 
     GeneralTemplates(site_config)
-
-    site_config.templates.full.apply(
-        image_test=True,
-    )
 
     ReleaseBuilders(site_config, boards_dict, ge_build_config)
 

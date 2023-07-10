@@ -110,10 +110,6 @@ labstation_boards = frozenset(
 
 nofactory_boards = termina_boards | reven_boards | labstation_boards
 
-noimagetest_boards = (
-    termina_boards | scribe_boards | wshwos_boards | dustbuster_boards
-)
-
 builder_incompatible_binaries_boards = frozenset(
     [
         "grunt",
