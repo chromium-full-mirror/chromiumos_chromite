@@ -2048,7 +2048,7 @@ def GetWorkonProjectMap(overlay, subdirectories):
         base_dir = os.path.join(overlay, subdir)
         for ebuild in WorkonEBuildGeneratorForDirectory(base_dir):
             full_path = ebuild.ebuild_path
-            workon_vars = EBuild.GetCrosWorkonVars(full_path, ebuild.pkgname)
+            workon_vars = ebuild.cros_workon_vars
             relpath = os.path.relpath(full_path, start=overlay)
             yield relpath, workon_vars.project, workon_vars.srcpath
 
