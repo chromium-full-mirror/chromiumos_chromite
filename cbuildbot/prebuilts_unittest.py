@@ -5,7 +5,6 @@
 """Unittests for prebuilts."""
 
 import os
-from unittest import mock
 
 from chromite.cbuildbot import cbuildbot_unittest
 from chromite.cbuildbot import prebuilts
@@ -112,44 +111,6 @@ class PrebuiltTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--prepackaged-tarball",
                 os.path.join(self._buildroot, constants.SDK_TARBALL_NAME),
             ]
-        )
-
-    def testDevInstallerPrebuilts(self, packages=("package1", "package2")):
-        """Test UploadDevInstallerPrebuilts."""
-        args = ["gs://dontcare", "some_path_to_key", "https://my_test/location"]
-        with mock.patch.object(
-            prebuilts, "_AddPackagesForPrebuilt", return_value=packages
-        ):
-            prebuilts.UploadDevInstallerPrebuilts(
-                *args, buildroot=self._buildroot, board=self._board
-            )
-        self.assertCommandContains(args[2:] + args[0:2])
-
-    def testAddPackagesForPrebuilt(self):
-        """Test AddPackagesForPrebuilt."""
-        self.assertEqual(prebuilts._AddPackagesForPrebuilt("/"), None)
-
-        data = """# comment!
-cat/pkg-0
-ca-t2/pkg2-123
-ca-t3/pk-g4-4.0.1-r333
-"""
-        pkgs = [
-            "cat/pkg",
-            "ca-t2/pkg2",
-            "ca-t3/pk-g4",
-        ]
-        cmds = ["--packages=" + x for x in pkgs]
-        f = os.path.join(self.tempdir, "package.provided")
-        osutils.WriteFile(f, data)
-        self.assertEqual(prebuilts._AddPackagesForPrebuilt(f), cmds)
-
-    def testMissingDevInstallerFile(self):
-        """Test that we raise an exception when installer file is missing."""
-        self.assertRaises(
-            prebuilts.PackageFileMissing,
-            self.testDevInstallerPrebuilts,
-            packages=(),
         )
 
 

@@ -23,7 +23,6 @@
     "debug_cidb": false,
     "debug_symbols": true,
     "description": null,
-    "dev_installer_prebuilts": false,
     "display_label": null,
     "doc": null,
     "factory": true,

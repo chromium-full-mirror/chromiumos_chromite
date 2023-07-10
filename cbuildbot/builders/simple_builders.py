@@ -123,7 +123,6 @@ class SimpleBuilder(generic_builders.Builder):
         stage_list += [
             [test_stages.ImageTestStage, board],
             [artifact_stages.UploadPrebuiltsStage, board],
-            [artifact_stages.DevInstallerPrebuiltsStage, board],
         ]
 
         if config.run_build_configs_export:

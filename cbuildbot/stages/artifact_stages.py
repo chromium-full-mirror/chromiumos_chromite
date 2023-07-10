@@ -698,25 +698,6 @@ class UploadPrebuiltsStage(generic_stages.BoardSpecificBuilderStage):
             )
 
 
-class DevInstallerPrebuiltsStage(UploadPrebuiltsStage):
-    """Stage that uploads DevInstaller prebuilts."""
-
-    config_name = "dev_installer_prebuilts"
-    category = constants.CI_INFRA_STAGE
-
-    @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
-        generated_args = self.GenerateCommonArgs(inc_chrome_ver=False)
-        prebuilts.UploadDevInstallerPrebuilts(
-            binhost_bucket=self._run.config.binhost_bucket,
-            binhost_key=self._run.config.binhost_key,
-            binhost_base_url=self._run.config.binhost_base_url,
-            buildroot=self._build_root,
-            board=self._current_board,
-            extra_args=generated_args,
-        )
-
-
 class UploadTestArtifactsStage(
     generic_stages.BoardSpecificBuilderStage, generic_stages.ArchivingStageMixin
 ):

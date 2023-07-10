@@ -541,8 +541,6 @@ def DefaultSettings():
         # Parameter --binhost-base-url for upload_prebuilts. If it equals None,
         # the default value is used.
         binhost_base_url=None,
-        # Upload dev installer prebuilts.
-        dev_installer_prebuilts=False,
         # Enable rootfs verification on the image.
         rootfs_verification=True,
         # Build the Chrome SDK.

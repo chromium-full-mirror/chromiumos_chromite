@@ -5,60 +5,18 @@
 """cbuildbot logic for uploading prebuilts and managing binhosts."""
 
 import glob
-import logging
 import os
 from pathlib import Path
 
 from chromite.cbuildbot import commands
 from chromite.lib import constants
 from chromite.lib import path_util
-from chromite.lib.parser import package_info
 
 
 _PREFLIGHT_BINHOST = "PREFLIGHT_BINHOST"
 _POSTSUBMIT_BINHOST = "POSTSUBMIT_BINHOST"
 _CHROME_BINHOST = "CHROME_BINHOST"
 _FULL_BINHOST = "FULL_BINHOST"
-# The list of packages to upload for the dev-install tool.  This path is
-# relative to the /build/$BOARD sysroot.
-_BINHOST_PACKAGE_FILE = "build/dev-install/package.installable"
-
-
-def _AddPackagesForPrebuilt(filename):
-    """Add list of packages for upload.
-
-    Process a file that lists all the packages that can be uploaded to the
-    package prebuilt bucket and generates the command line args for
-    upload_prebuilts.
-
-    Args:
-        filename: file with the package full name (category/name-version), one
-            package per line.
-
-    Returns:
-        A list of parameters for upload_prebuilts. For example:
-        ['--packages=net-misc/dhcp', '--packages=app-admin/eselect-python']
-    """
-    try:
-        cmd = []
-        with open(filename, encoding="utf-8") as f:
-            # Get only the package name and category as that is what
-            # upload_prebuilts matches on.
-            for line in f:
-                atom = line.split("#", 1)[0].strip()
-                cpv = package_info.parse(atom)
-                if not cpv.atom:
-                    logging.warning(
-                        "Could not split atom %r (line: %r)", atom, line
-                    )
-                    continue
-                cmd.extend(["--packages=%s" % cpv.atom])
-        return cmd
-    except IOError as e:
-        logging.warning("Problem with package file %s", filename)
-        logging.warning("Skipping uploading of prebuilts.")
-        logging.warning("ERROR(%d): %s", e.errno, e.strerror)
-        return None
 
 
 def GetToolchainSdkPaths(build_root, is_overlay=False):
@@ -207,52 +165,6 @@ def UploadPrebuilts(
 
     kwargs.setdefault("extra_args", []).extend(extra_args)
     return _UploadPrebuilts(buildroot=buildroot, **kwargs)
-
-
-class PackageFileMissing(Exception):
-    """Raised when the dev installer package file is missing."""
-
-
-def UploadDevInstallerPrebuilts(
-    binhost_bucket, binhost_key, binhost_base_url, buildroot, board, **kwargs
-):
-    """Upload Prebuilts for dev-installer use case.
-
-    Args:
-        binhost_bucket: bucket for uploading prebuilt packages. If it equals
-            None then the default bucket is used.
-        binhost_key: key parameter to pass onto upload_prebuilts. If it equals
-            None, then chrome_rev is used to select a default key.
-        binhost_base_url: base url for upload_prebuilts. If None the parameter
-            --binhost-base-url is absent.
-        buildroot: The root directory where the build occurs.
-        board: Board type that was built on this machine.
-        extra_args: Extra args to pass to prebuilts script.
-    """
-    extra_args = [
-        "--binhost-base-url",
-        binhost_base_url,
-        "--upload",
-        binhost_bucket,
-        "--key",
-        binhost_key,
-    ]
-
-    filename = os.path.join(
-        buildroot,
-        constants.DEFAULT_CHROOT_DIR,
-        "build",
-        board,
-        _BINHOST_PACKAGE_FILE,
-    )
-    cmd_packages = _AddPackagesForPrebuilt(filename)
-    if cmd_packages:
-        extra_args.extend(cmd_packages)
-    else:
-        raise PackageFileMissing()
-
-    kwargs.setdefault("extra_args", []).extend(extra_args)
-    return _UploadPrebuilts(buildroot=buildroot, board=board, **kwargs)
 
 
 def _UploadPrebuilts(buildroot, board, extra_args):

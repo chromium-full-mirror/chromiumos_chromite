@@ -10,7 +10,6 @@ from unittest import mock
 
 from chromite.cbuildbot import cbuildbot_unittest
 from chromite.cbuildbot import commands
-from chromite.cbuildbot import prebuilts
 from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import build_stages_unittest
 from chromite.cbuildbot.stages import generic_stages_unittest
@@ -172,53 +171,6 @@ class UploadPrebuiltsStageTest(
         """Test that _VerifyBoardMap asserts when the count is wrong."""
         self.assertRaises(
             AssertionError, self._VerifyBoardMap, "amd64-generic-full", 1, {}
-        )
-
-
-class UploadDevInstallerPrebuiltsStageTest(
-    generic_stages_unittest.AbstractStageTestCase,
-    cbuildbot_unittest.SimpleBuilderTestCase,
-):
-    """Tests for the UploadDevInstallerPrebuilts stage."""
-
-    RELEASE_TAG = "RT"
-
-    def setUp(self):
-        self.upload_mock = self.PatchObject(
-            prebuilts, "UploadDevInstallerPrebuilts"
-        )
-
-        self._Prepare()
-
-    # Our API here is not great when it comes to kwargs passing.
-    def _Prepare(
-        self, bot_id=None, **kwargs
-    ):  # pylint: disable=arguments-differ
-        super()._Prepare(bot_id, **kwargs)
-
-        self._run.options.prebuilts = True
-        self._run.config["dev_installer_prebuilts"] = True
-        self._run.config["binhost_bucket"] = "gs://testbucket"
-        self._run.config["binhost_key"] = "dontcare"
-        self._run.config["binhost_base_url"] = "https://dontcare/here"
-        self.buildstore = FakeBuildStore()
-
-    def ConstructStage(self):
-        return artifact_stages.DevInstallerPrebuiltsStage(
-            self._run, self.buildstore, self._current_board
-        )
-
-    def testDevInstallerUpload(self):
-        """Basic sanity test testing uploads of dev installer prebuilts."""
-        self.RunStage()
-
-        self.upload_mock.assert_called_with(
-            binhost_bucket=self._run.config.binhost_bucket,
-            binhost_key=self._run.config.binhost_key,
-            binhost_base_url=self._run.config.binhost_base_url,
-            buildroot=self.build_root,
-            board=self._current_board,
-            extra_args=mock.ANY,
         )
 
 
