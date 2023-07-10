@@ -667,6 +667,8 @@ class TestMain(cros_test_lib.MockTestCase):
 class TestSdk(cros_test_lib.MockTestCase):
     """Test logic related to uploading SDK binaries"""
 
+    VERSION_PREFIX = "cros-"
+
     def setUp(self):
         self.PatchObject(
             prebuilt,
@@ -706,7 +708,7 @@ class TestSdk(cros_test_lib.MockTestCase):
             False,
             "x86-foo",
             [],
-            "chroot-1234",
+            f"{self.VERSION_PREFIX}-1234.08.01.5678",
             report={},
         )
 
@@ -719,7 +721,7 @@ class TestSdk(cros_test_lib.MockTestCase):
     ):
         """Make sure we can upload just an SDK tarball"""
         tar = "sdk.tar.xz"
-        ver = "1234"
+        ver = "1234.08.01.5678"
         vtar = "cros-sdk-%s.tar.xz" % ver
 
         upload_calls = [
@@ -803,6 +805,12 @@ LATEST_SDK_UPREV_TARGET=\"2000\""""
         self.testSdkUpload(
             tc_tarballs=tc_tarballs, tc_upload_path=tc_upload_path
         )
+
+
+class TestSdkBuildToolchain(TestSdk):
+    """Like TestSdk, but uses a different version prefix."""
+
+    VERSION_PREFIX = "build_toolchain-"
 
 
 @pytest.mark.parametrize(

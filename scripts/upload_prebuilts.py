@@ -25,6 +25,7 @@ import logging
 import multiprocessing
 import os
 from pathlib import Path
+import re
 import tempfile
 from typing import Optional, Tuple
 
@@ -491,7 +492,12 @@ class PrebuiltUploader:
         assert boardname == constants.CHROOT_BUILDER_BOARD
         assert prepackaged is not None
 
-        version_str = self._version[len("chroot-") :]
+        # _version consists of a prefix followed by the actual version.
+        # We want the version without the prefix. It starts with the
+        # year, month, and date in YYYY.MM.DD format, so we match that.
+        m = re.match(r"(.*-)?(\d\d\d\d\.\d\d\.\d\d.*)", self._version)
+        assert m, "version does not match format .*YYYY.MM.DD.*"
+        version_str = m[2]
         remote_tarfile = toolchain.GetSdkURL(
             for_gsutil=True, suburl="cros-sdk-%s.tar.xz" % (version_str,)
         )
