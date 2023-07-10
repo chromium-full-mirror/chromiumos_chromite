@@ -14,12 +14,10 @@ from unittest import mock
 
 from chromite.cbuildbot import commands
 from chromite.lib import chroot_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import failures_lib
-from chromite.lib import gob_util
 from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import path_util
@@ -784,31 +782,6 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
         )
         self.assertCommandContains(["./build_image"])
 
-    def _TestChromeLKGM(self, chrome_revision):
-        """Helper method for testing the GetChromeLKGM method."""
-        chrome_lkgm = b"3322.0.0"
-        url = "%s/+/%s/%s?format=text" % (
-            constants.CHROMIUM_SRC_PROJECT,
-            chrome_revision or "HEAD",
-            constants.PATH_TO_CHROME_LKGM,
-        )
-        site_params = config_lib.GetSiteParams()
-        with mock.patch.object(
-            gob_util, "FetchUrl", return_value=base64.b64encode(chrome_lkgm)
-        ) as patcher:
-            self.assertEqual(
-                chrome_lkgm, commands.GetChromeLKGM(chrome_revision)
-            )
-            patcher.assert_called_with(site_params.EXTERNAL_GOB_HOST, url)
-
-    def testChromeLKGM(self):
-        """Verifies we can get the chrome lkgm without a chrome revision."""
-        self._TestChromeLKGM(None)
-
-    def testChromeLKGMWithRevision(self):
-        """Verifies that we can get the chrome lkgm with a chrome revision."""
-        self._TestChromeLKGM("deadbeef" * 5)
-
 
 class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
     """Tests related to building tarball artifacts."""
@@ -1458,127 +1431,6 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
             self.tempdir, self._TEST_BOARD, self.tempdir
         )
         self.assertEqual(tarball_rel_path, None)
-
-
-class GenerateAFDOArtifactsTests(cros_test_lib.RunCommandTempDirTestCase):
-    """Test GenerateChromeOrderfileArtifacts command."""
-
-    def setUp(self):
-        self.buildroot = os.path.join(self.tempdir, "buildroot")
-        osutils.SafeMakedirs(self.buildroot)
-        chroot_tmp = os.path.join(self.buildroot, "chroot", "tmp")
-        osutils.SafeMakedirs(chroot_tmp)
-        self.board = "board"
-        self.target = "any_target"
-        self.chrome_root = "/path/to/chrome_root"
-        self.output_path = os.path.join(self.tempdir, "output_dir")
-        osutils.SafeMakedirs(self.output_path)
-        self.mock_command = self.PatchObject(commands, "RunBuildScript")
-
-    def testGeneratePass(self):
-        """Test generate call correctly."""
-        # Redirect the current tempdir to read/write contents inside it.
-        self.PatchObject(
-            osutils.TempDir, "__enter__", return_value=self.tempdir
-        )
-        input_proto_file = os.path.join(self.tempdir, "input.json")
-        output_proto_file = os.path.join(self.tempdir, "output.json")
-        # Write stub outputs to output JSON file
-        with open(output_proto_file, "w", encoding="utf-8") as f:
-            output_proto = {
-                "artifacts": [
-                    {"path": "artifact1"},
-                    {"path": "artifact2"},
-                ]
-            }
-            json.dump(output_proto, f)
-
-        ret = commands.GenerateAFDOArtifacts(
-            self.buildroot,
-            self.chrome_root,
-            self.board,
-            self.output_path,
-            self.target,
-        )
-
-        cmd = [
-            "build_api",
-            "chromite.api.ArtifactsService/BundleAFDOGenerationArtifacts",
-            "--input-json",
-            input_proto_file,
-            "--output-json",
-            output_proto_file,
-        ]
-
-        self.mock_command.assert_called_once_with(
-            self.buildroot, cmd, chromite_cmd=True, stdout=True
-        )
-
-        # Verify the input proto has all the information
-        input_proto = json.loads(osutils.ReadFile(input_proto_file))
-        self.assertEqual(
-            input_proto["chroot"]["path"],
-            os.path.join(self.buildroot, "chroot"),
-        )
-        self.assertEqual(input_proto["chroot"]["chrome_dir"], self.chrome_root)
-        self.assertEqual(input_proto["build_target"]["name"], self.board)
-        self.assertEqual(input_proto["output_dir"], self.output_path)
-        self.assertEqual(input_proto["artifact_type"], self.target)
-
-        # Verify the output matches the proto
-        self.assertEqual(ret, ["artifact1", "artifact2"])
-
-
-class VerifyAFDOArtifactsTests(cros_test_lib.RunCommandTempDirTestCase):
-    """Test VerifyChromeOrderfileArtifacts command."""
-
-    def setUp(self):
-        self.buildroot = os.path.join(self.tempdir, "buildroot")
-        osutils.SafeMakedirs(self.buildroot)
-        chroot_tmp = os.path.join(self.buildroot, "chroot", "tmp")
-        osutils.SafeMakedirs(chroot_tmp)
-        self.board = "board"
-        self.target = "any_target"
-        self.build_api = "path.to.anyBuildAPI"
-        self.mock_command = self.PatchObject(commands, "RunBuildScript")
-
-    def testVerifyPass(self):
-        """Test verify call correctly."""
-        # Redirect the current tempdir to read/write contents inside it.
-        self.PatchObject(
-            osutils.TempDir, "__enter__", return_value=self.tempdir
-        )
-        input_proto_file = os.path.join(self.tempdir, "input.json")
-        output_proto_file = os.path.join(self.tempdir, "output.json")
-        # Write stub outputs to output JSON file
-        with open(output_proto_file, "w", encoding="utf-8") as f:
-            output_proto = {"status": True}
-            json.dump(output_proto, f)
-
-        ret = commands.VerifyAFDOArtifacts(
-            self.buildroot, self.board, self.target, self.build_api
-        )
-
-        cmd = [
-            "build_api",
-            self.build_api,
-            "--input-json",
-            input_proto_file,
-            "--output-json",
-            output_proto_file,
-        ]
-
-        self.mock_command.assert_called_once_with(
-            self.buildroot, cmd, chromite_cmd=True, stdout=True
-        )
-
-        # Verify the input proto has all the information
-        input_proto = json.loads(osutils.ReadFile(input_proto_file))
-        self.assertEqual(input_proto["build_target"]["name"], self.board)
-        self.assertEqual(input_proto["artifact_type"], self.target)
-
-        # Verify the output matches the proto
-        self.assertTrue(ret)
 
 
 class MarkChromeAsStableTest(cros_test_lib.RunCommandTempDirTestCase):

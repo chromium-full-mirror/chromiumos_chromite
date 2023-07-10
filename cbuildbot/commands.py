@@ -4,7 +4,6 @@
 
 """Module containing the various individual commands a builder can run."""
 
-import base64
 import collections
 import contextlib
 import datetime
@@ -31,11 +30,9 @@ from chromite.api.gen.chromiumos.build.api.container_metadata_pb2 import (
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
-from chromite.lib import gob_util
 from chromite.lib import gs
 from chromite.lib import metrics
 from chromite.lib import osutils
@@ -2522,22 +2519,6 @@ def GeneratePayloads(
     )
 
 
-def GetChromeLKGM(revision):
-    """Returns the ChromeOS LKGM from Chrome given the git revision."""
-    revision = revision or "HEAD"
-    lkgm_url_path = "%s/+/%s/%s?format=text" % (
-        constants.CHROMIUM_SRC_PROJECT,
-        revision,
-        constants.PATH_TO_CHROME_LKGM,
-    )
-    contents_b64 = gob_util.FetchUrl(
-        config_lib.GetSiteParams().EXTERNAL_GOB_HOST, lkgm_url_path
-    )
-    # TODO(crbug.com/997354): for Python 3 support, it probably makes
-    # sense to return a string here, not bytes.
-    return base64.b64decode(contents_b64).strip()
-
-
 def SyncChrome(
     build_root,
     chrome_root,
@@ -2723,69 +2704,6 @@ class ChromeSDK:
             Path to the .ninja_log file.
         """
         return os.path.join(self._GetOutDirectory(debug=debug), ".ninja_log")
-
-
-def GenerateAFDOArtifacts(buildroot, chrome_root, board, output_path, target):
-    """Command to generate AFDO artifacts.
-
-    This is only a wrapper of the build API. It doesn't validate the inputs.
-
-    Args:
-        buildroot: The path to build root.
-        chrome_root: The path to Chrome root.
-        board: Name of the board.
-        output_path: The path to save output.
-        target: A valid toolchain_pb2.AFDOArtifactType.
-
-    Returns:
-        List of artifact names.
-    """
-    input_proto = {
-        "chroot": {
-            "path": os.path.join(buildroot, "chroot"),
-            "chrome_dir": chrome_root,
-        },
-        "build_target": {
-            "name": board,
-        },
-        "output_dir": output_path,
-        "artifact_type": target,
-    }
-
-    output = CallBuildApiWithInputProto(
-        buildroot,
-        "chromite.api.ArtifactsService/BundleAFDOGenerationArtifacts",
-        input_proto,
-    )
-
-    return [artifact["path"] for artifact in output["artifacts"]]
-
-
-def VerifyAFDOArtifacts(buildroot, board, target, build_api):
-    """Command to verify AFDO artifacts.
-
-    This is only a wrapper of the build API. It doesn't validate the inputs.
-
-    Args:
-        buildroot: The path to build root.
-        board: Name of the board.
-        target: A valid toolchain_pb2.AFDOArtifactType.
-        build_api: Full path of the build API. Only applies to APIs that returns
-            a single field containing the status.
-
-    Returns:
-        True of False: The status of the build API.
-    """
-    input_proto = {
-        "build_target": {
-            "name": board,
-        },
-        "artifact_type": target,
-    }
-
-    output = CallBuildApiWithInputProto(buildroot, build_api, input_proto)
-
-    return output["status"]
 
 
 class ApiMismatchError(Exception):
