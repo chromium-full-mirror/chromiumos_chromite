@@ -11,11 +11,9 @@ from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot.builders import generic_builders
 from chromite.cbuildbot.builders import simple_builders
 from chromite.cbuildbot.stages import generic_stages
-from chromite.cbuildbot.stages import test_stages
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
-from chromite.lib import failures_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib.buildstore import FakeBuildStore
@@ -88,7 +86,6 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         bot_id,
         master=False,
         extra_argv=None,
-        override_hw_test_config=None,
         models=None,
     ):
         """Return normal options/build_config for |bot_id|"""
@@ -112,33 +109,9 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         # Yikes.
         options.managed_chrome = build_config["sync_chrome"]
 
-        # Iterate through override and update HWTestConfig attributes.
-        if override_hw_test_config:
-            for key, val in override_hw_test_config.items():
-                for hw_test in build_config.hw_tests:
-                    setattr(hw_test, key, val)
-
         return cbuildbot_run.BuilderRun(
             options, site_config, build_config, self._manager
         )
-
-    def _RunVMTests(self):
-        """Helper method that runs VM tests and returns exceptions.
-
-        Returns:
-            List of exception classes in CompoundFailure.
-        """
-        board = "amd64-generic-full"
-        builder_run = self._initConfig(board)
-        exception_types = []
-
-        try:
-            simple_builders.SimpleBuilder(
-                builder_run, self.buildstore
-            )._RunVMTests(builder_run, board)
-        except failures_lib.CompoundFailure as f:
-            exception_types = [e.type for e in f.exc_infos]
-        return exception_types
 
     def testRunStagesChrootBuilder(self):
         """Verify RunStages for CHROOT_BUILDER_TYPE builders"""
@@ -150,83 +123,3 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         builder_run = self._initConfig("amd64-generic-full")
         builder_run.attrs.chrome_version = "TheChromeVersion"
         simple_builders.SimpleBuilder(builder_run, self.buildstore).RunStages()
-
-    def testRunStagesDefaultBuildHwTests(self):
-        """Verify RunStages for boards w/hwtests"""
-        extra_argv = ["--hwtest"]
-        builder_run = self._initConfig("eve-release", extra_argv=extra_argv)
-        builder_run.attrs.chrome_version = "TheChromeVersion"
-        simple_builders.SimpleBuilder(builder_run, self.buildstore).RunStages()
-
-    def testThatWeScheduleHWTestsRegardlessOfBlocking(self):
-        """Verify RunStages for boards w/hwtests (blocking).
-
-        Make sure the same stages get scheduled regardless of whether their
-        hwtest suites are marked blocking or not.
-        """
-        extra_argv = ["--hwtest"]
-        builder_run_without_blocking = self._initConfig(
-            "eve-release",
-            extra_argv=extra_argv,
-            override_hw_test_config=dict(blocking=False),
-        )
-        builder_run_with_blocking = self._initConfig(
-            "eve-release",
-            extra_argv=extra_argv,
-            override_hw_test_config=dict(blocking=True),
-        )
-        builder_run_without_blocking.attrs.chrome_version = "TheChromeVersion"
-        builder_run_with_blocking.attrs.chrome_version = "TheChromeVersion"
-
-        simple_builders.SimpleBuilder(
-            builder_run_without_blocking, self.buildstore
-        ).RunStages()
-        without_blocking_stages = list(self.called_stages)
-
-        self.called_stages = []
-        simple_builders.SimpleBuilder(
-            builder_run_with_blocking, self.buildstore
-        ).RunStages()
-        self.assertEqual(without_blocking_stages, self.called_stages)
-
-    def testUnifiedBuildsRunHwTestsForAllModels(self):
-        """Verify hwtests run for model fanout with unified builds"""
-        extra_argv = ["--hwtest"]
-        unified_build = self._initConfig(
-            "eve-release",
-            extra_argv=extra_argv,
-            models=[
-                config_lib.ModelTestConfig("model1", "model1"),
-                config_lib.ModelTestConfig(
-                    "model2", "model2", ["sanity", "bvt-inline"]
-                ),
-            ],
-        )
-        unified_build.attrs.chrome_version = "TheChromeVersion"
-        simple_builders.SimpleBuilder(
-            unified_build, self.buildstore
-        ).RunStages()
-
-    def testBoardsForSimpleBuilderWithDUTOverride(self):
-        """Test BoardsForSimpleBuilder function with a DUT board override."""
-        builder_run = self._initConfig("amd64-generic-full")
-        builder_run.options.hwtest_dut_override = test_stages.HWTestDUTOverride(
-            "bar-board", "bar-model", "bar-pool"
-        )
-        simple_builder = simple_builders.SimpleBuilder(
-            builder_run, self.buildstore
-        )
-        self.assertEqual(
-            simple_builder.BoardsForSimpleBuilder(builder_run), ["bar-board"]
-        )
-
-    def testBoardsForSimpleBuilderWithoutDUTOverride(self):
-        """Test BoardsForSimpleBuilder function withhut a DUT board override."""
-        builder_run = self._initConfig("amd64-generic-full")
-        simple_builder = simple_builders.SimpleBuilder(
-            builder_run, self.buildstore
-        )
-        self.assertEqual(
-            simple_builder.BoardsForSimpleBuilder(builder_run),
-            ["amd64-generic"],
-        )

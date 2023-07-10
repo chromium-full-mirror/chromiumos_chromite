@@ -398,12 +398,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
 
         site_config.Add("calling", site_config.templates.callable)
 
-        site_config.Add(
-            "hw_tests",
-            hw_tests=[config_lib.HWTestConfig("hw_suite")],
-            hw_tests_override=[config_lib.HWTestConfig("hw_override")],
-        )
-
         self.site_config = site_config
 
     def testAddedContents(self):
@@ -463,12 +457,6 @@ class SiteConfigTest(cros_test_lib.TestCase):
                 "_template": "template",
                 "name": "template_back_to_default",
                 "value": "default",
-            },
-            "hw_tests": {
-                "_template": None,
-                "name": "hw_tests",
-                "hw_tests": [config_lib.HWTestConfig("hw_suite")],
-                "hw_tests_override": [config_lib.HWTestConfig("hw_override")],
             },
         }
 

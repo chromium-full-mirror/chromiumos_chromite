@@ -21,7 +21,6 @@ from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
 from chromite.cbuildbot import repository
 from chromite.cbuildbot.stages import generic_stages
-from chromite.cbuildbot.stages import test_stages
 from chromite.lib import build_summary
 from chromite.lib import buildbucket_v2
 from chromite.lib import chroot_lib
@@ -91,17 +90,6 @@ class CleanUpStage(generic_stages.BuilderStage):
                 trybot=trybot
             )
             osutils.RmDir(archive_root, ignore_missing=True)
-
-    def _DeleteArchivedPerfResults(self):
-        """Clear any previously stashed perf results from hw testing."""
-        logging.info("Deleting archived perf results.")
-        for result in glob.glob(
-            os.path.join(
-                self._run.options.log_dir,
-                "*.%s" % test_stages.HWTestStage.PERF_RESULTS_EXTENSION,
-            )
-        ):
-            os.remove(result)
 
     def _DeleteChromeBuildOutput(self):
         logging.info("Deleting Chrome build output.")
@@ -384,7 +372,6 @@ class CleanUpStage(generic_stages.BuilderStage):
             tasks = [
                 self._WipeOldOutput,
                 self._DeleteArchivedTrybotImages,
-                self._DeleteArchivedPerfResults,
                 self._DeleteAutotestSitePackages,
             ]
             if not os.path.ismount(self._build_root):

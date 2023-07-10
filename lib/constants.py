@@ -486,7 +486,6 @@ VALID_BUILD_TYPES = (
     GENERIC_TYPE,
 )
 
-HWTEST_TRYBOT_NUM = 3
 HWTEST_QUOTA_POOL = "quota"
 
 HWTEST_QUOTA_ACCOUNT_BVT = "legacypool-bvt"
@@ -494,98 +493,6 @@ HWTEST_QUOTA_ACCOUNT_BVT_SYNC = "bvt-sync"
 HWTEST_QUOTA_ACCOUNT_PFQ = "pfq"
 HWTEST_QUOTA_ACCOUNT_SUITES = "legacypool-suites"
 HWTEST_QUOTA_ACCOUNT_TOOLCHAIN = "toolchain"
-
-# How many total test retries should be done for a suite.
-HWTEST_MAX_RETRIES = 5
-
-# Defines for the various hardware test suites:
-#   BVT:  Basic blocking suite to be run against any build that
-#       requires a HWTest phase.
-#   COMMIT:  Suite of basic tests required for commits to the source
-#       tree.  Runs as a blocking suite on the CQ and PFQ; runs as
-#       a non-blocking suite on canaries.
-#   CANARY:  Non-blocking suite run only against the canaries.
-#   AFDO:  Non-blocking suite run only AFDO builders.
-#   MOBLAB: Blocking Suite run only on *_moblab builders.
-#   INSTALLER: Blocking suite run against all canaries; tests basic installer
-#              functionality.
-HWTEST_ARC_COMMIT_SUITE = "bvt-arc"
-HWTEST_BVT_SUITE = "bvt-inline"
-HWTEST_COMMIT_SUITE = "bvt-cq"
-HWTEST_CANARY_SUITE = "bvt-perbuild"
-HWTEST_INSTALLER_SUITE = "bvt-installer"
-# Runs all non-informational Tast tests (exercising any of OS, Chrome, and ARC).
-HWTEST_TAST_CQ_SUITE = "bvt-tast-cq"
-# Runs non-informational Tast tests exercising either Chrome or ARC.
-HWTEST_TAST_CHROME_PFQ_SUITE = "bvt-tast-chrome-pfq"
-# Runs non-informational Tast tests exercising ARC.
-HWTEST_TAST_ANDROID_PFQ_SUITE = "bvt-tast-android-pfq"
-# Runs all Tast informational tests.
-HWTEST_TAST_INFORMATIONAL_SUITE = "bvt-tast-informational"
-HWTEST_AFDO_SUITE = "AFDO_record"
-HWTEST_JETSTREAM_COMMIT_SUITE = "jetstream_cq"
-HWTEST_MOBLAB_SUITE = "moblab"
-HWTEST_MOBLAB_QUICK_SUITE = "moblab_quick"
-HWTEST_SANITY_SUITE = "sanity"
-HWTEST_TOOLCHAIN_SUITE = "toolchain-tests"
-# Non-blocking informational hardware tests for Chrome, run throughout the
-# day on tip-of-trunk Chrome rather than on the daily Chrome branch.
-HWTEST_CHROME_INFORMATIONAL = "chrome-informational"
-
-# Additional timeout to wait for autotest to abort a suite if the test takes
-# too long to run. This is meant to be overly conservative as a timeout may
-# indicate that autotest is at capacity.
-HWTEST_TIMEOUT_EXTENSION = 10 * 60
-
-HWTEST_WEEKLY_PRIORITY = "Weekly"
-HWTEST_CTS_PRIORITY = "CTS"
-HWTEST_GTS_PRIORITY = HWTEST_CTS_PRIORITY
-HWTEST_DAILY_PRIORITY = "Daily"
-HWTEST_DEFAULT_PRIORITY = "DEFAULT"
-HWTEST_CQ_PRIORITY = "CQ"
-HWTEST_BUILD_PRIORITY = "Build"
-HWTEST_PFQ_PRIORITY = "PFQ"
-HWTEST_POST_BUILD_PRIORITY = "PostBuild"
-
-# Ordered by priority (first item being lowest).
-HWTEST_VALID_PRIORITIES = [
-    HWTEST_WEEKLY_PRIORITY,
-    HWTEST_CTS_PRIORITY,
-    HWTEST_DAILY_PRIORITY,
-    HWTEST_POST_BUILD_PRIORITY,
-    HWTEST_DEFAULT_PRIORITY,
-    HWTEST_BUILD_PRIORITY,
-    HWTEST_PFQ_PRIORITY,
-    HWTEST_CQ_PRIORITY,
-]
-
-# Creates a mapping of priorities to make easy comparsions.
-# Use the same priorities mapping as autotest/client/common_lib/priorities.py
-HWTEST_PRIORITIES_MAP = {
-    HWTEST_WEEKLY_PRIORITY: 10,
-    HWTEST_CTS_PRIORITY: 11,
-    HWTEST_DAILY_PRIORITY: 20,
-    HWTEST_POST_BUILD_PRIORITY: 30,
-    HWTEST_DEFAULT_PRIORITY: 40,
-    HWTEST_BUILD_PRIORITY: 50,
-    HWTEST_PFQ_PRIORITY: 60,
-    HWTEST_CQ_PRIORITY: 70,
-}
-
-# Creates a mapping of priorities for skylab hwtest tasks. In swarming,
-# lower number means high priorities. Priority lower than 48 will be special
-# tasks. The upper bound of priority is 255.
-# Use the same priorities mapping as autotest/venv/skylab_suite/swarming_lib.py
-SKYLAB_HWTEST_PRIORITIES_MAP = {
-    HWTEST_WEEKLY_PRIORITY: 230,
-    HWTEST_CTS_PRIORITY: 215,
-    HWTEST_DAILY_PRIORITY: 200,
-    HWTEST_POST_BUILD_PRIORITY: 170,
-    HWTEST_DEFAULT_PRIORITY: 140,
-    HWTEST_BUILD_PRIORITY: 110,
-    HWTEST_PFQ_PRIORITY: 80,
-    HWTEST_CQ_PRIORITY: 50,
-}
 
 # The environment for executing tests.
 ENV_SKYLAB = "skylab"
@@ -596,15 +503,6 @@ CIPD_SKYLAB_PACKAGE = "chromiumos/infra/skylab/linux-amd64"
 # The skylab tool CIPD package is pinned to a specific tag to avoid uncontrolled
 # tool release.
 CIPD_SKYLAB_INSTANCE_ID = "cbuildbot-prod"
-
-# HWTest result statuses
-HWTEST_STATUS_PASS = "pass"
-HWTEST_STATUS_FAIL = "fail"
-HWTEST_STATUS_ABORT = "abort"
-HWTEST_STATUS_OTHER = "other"
-HWTEST_STATUES_NOT_PASSED = frozenset(
-    [HWTEST_STATUS_FAIL, HWTEST_STATUS_ABORT, HWTEST_STATUS_OTHER]
-)
 
 # Build messages
 MESSAGE_TYPE_IGNORED_REASON = "ignored_reason"

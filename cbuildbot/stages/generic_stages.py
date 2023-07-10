@@ -467,26 +467,6 @@ class BuilderStage:
         else:
             return self.GetBuildFailureMessageFromResults()
 
-    def GetJobKeyvals(self):
-        """Get job keyvals for the build stage."""
-        build_identifier, _ = self._run.GetCIDBHandle()
-        build_id = build_identifier.cidb_id
-        if self._run.options.master_buildbucket_id:
-            master_status = self.buildstore.GetBuildStatuses(
-                [self._run.options.master_buildbucket_id]
-            )[0]
-            master_config = master_status["build_config"]
-        else:
-            master_config = None
-        job_keyvals = {
-            constants.JOB_KEYVAL_DATASTORE_PARENT_KEY: ("Build", build_id),
-            constants.JOB_KEYVAL_CIDB_BUILD_ID: build_id,
-            constants.JOB_KEYVAL_BUILD_CONFIG: self._run.config.name,
-            constants.JOB_KEYVAL_BRANCH: self._run.options.branch,
-            constants.JOB_KEYVAL_MASTER_BUILD_CONFIG: master_config,
-        }
-        return job_keyvals
-
     def _Print(self, msg):
         """Prints a msg to stderr."""
         sys.stdout.flush()
@@ -628,10 +608,6 @@ class BuilderStage:
 
         Subclassed stages must override this function.
         """
-
-    def _HandleExceptionAsSuccess(self, _exc_info):
-        """Use instead of HandleStageException to ignore an exception."""
-        return (results_lib.Results.SUCCESS, None, False)
 
     @staticmethod
     def _StringifyException(exc_info):

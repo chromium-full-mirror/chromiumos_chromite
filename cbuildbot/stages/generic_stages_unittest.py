@@ -7,7 +7,6 @@
 import copy
 import os
 import sys
-import unittest
 from unittest import mock
 
 from chromite.cbuildbot import cbuildbot_run
@@ -214,15 +213,6 @@ class StageTestCase(
         """
         for item in to_patch:
             self.PatchObject(*item, autospec=True)
-
-    def GetHWTestSuite(self):
-        """Get the HW test suite for the current bot."""
-        hw_tests = self._run.config["hw_tests"]
-        if not hw_tests:
-            # TODO(milleral): Add HWTests back to lumpy-chrome-perf.
-            raise unittest.SkipTest("Missing HWTest for %s" % (self._bot_id,))
-
-        return hw_tests[0]
 
     def assertRaisesStringifyable(self, exception, functor, *args, **kwargs):
         """assertRaises stand-in that also verifies exception is Stringifyable.

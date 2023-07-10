@@ -160,7 +160,6 @@ class TryjobTestParsing(TryjobTest):
                 "--yes",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -204,7 +203,6 @@ class TryjobTestParsing(TryjobTest):
                 "passthrough": [
                     "--latest-toolchain",
                     "--nochromesdk",
-                    "--hwtest",
                     "--notests",
                     "--novmtests",
                     "--noimagetests",
@@ -228,7 +226,6 @@ class TryjobTestParsing(TryjobTest):
                 "--yes",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -276,7 +273,6 @@ class TryjobTestParsing(TryjobTest):
                 "passthrough": [
                     "--latest-toolchain",
                     "--nochromesdk",
-                    "--hwtest",
                     "--notests",
                     "--novmtests",
                     "--noimagetests",
@@ -300,7 +296,6 @@ class TryjobTestParsing(TryjobTest):
                 "--yes",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -347,7 +342,6 @@ class TryjobTestParsing(TryjobTest):
                 "passthrough": [
                     "--latest-toolchain",
                     "--nochromesdk",
-                    "--hwtest",
                     "--notests",
                     "--novmtests",
                     "--noimagetests",
@@ -524,7 +518,6 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "--yes",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -565,12 +558,9 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "--yes",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
-                "--hwtest_dut_dimensions",
-                "label-board:foo label-model:bar label-pool:baz",
                 "--cbuildbot",
                 "--buildroot",
                 "/buildroot",
@@ -607,7 +597,6 @@ class TryjobTestVerifyOptions(TryjobTest):
                 "--yes",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -789,21 +778,6 @@ class TryjobTestVerifyOptions(TryjobTest):
                 self.cmd_mock.inst.options, self.site_config
             )
         self.assertEqual(cm.exception.code, 1)
-
-    def testInvalidHWTestDUTDimensions(self):
-        """Test option verification with invalid hw_test_dut_dimensions."""
-        self.SetupCommandMock(
-            [
-                "--hwtest_dut_dimensions",
-                "label-board:foo-board label-model:foo-model "
-                "label-pol:foo-typo",
-            ]
-        )
-
-        with self.assertRaises(cros_build_lib.DieSystemExit):
-            cros_tryjob.VerifyOptions(
-                self.cmd_mock.inst.options, self.site_config
-            )
 
     def testRemoteTryjobBranchProductionConfig(self):
         """Test a tryjob on a branch for a production config w/confirm."""
@@ -995,7 +969,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             "--yes",
             "--latest-toolchain",
             "--nochromesdk",
-            "--hwtest",
             "--notests",
             "--novmtests",
             "--noimagetests",
@@ -1039,7 +1012,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
                 "123..456",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -1063,7 +1035,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             "--yes",
             "--latest-toolchain",
             "--nochromesdk",
-            "--hwtest",
             "--notests",
             "--novmtests",
             "--noimagetests",
@@ -1114,7 +1085,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
                 "123..456",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -1138,12 +1108,9 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             "--yes",
             "--latest-toolchain",
             "--nochromesdk",
-            "--hwtest",
             "--notests",
             "--novmtests",
             "--noimagetests",
-            "--hwtest_dut_dimensions",
-            "foo:bar baz:lol",
             "--buildroot",
             "/buildroot",
             "--timeout",
@@ -1192,11 +1159,8 @@ class TryjobTestCbuildbotArgs(TryjobTest):
                 "*123",
                 "-g",
                 "123..456",
-                "--hwtest_dut_dimensions",
-                "foo:bar baz:lol",
                 "--latest-toolchain",
                 "--nochromesdk",
-                "--hwtest",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",

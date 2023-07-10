@@ -39,9 +39,6 @@
     "goma_client_type": null,
     "grouped": false,
     "gs_path": "default",
-    "hw_tests": [],
-    "hw_tests_disabled_bug": "",
-    "hw_tests_override": null,
     "image_test": false,
     "images": [
       "test"
@@ -122,7 +119,6 @@
       "description": "TOT builder to build a factory branch.",
       "display_label": "factory",
       "doc": "https://goto.google.com/tot-for-firmware-branches",
-      "hw_tests_override": [],
       "images": [
         "test",
         "factory_install"
@@ -464,7 +460,6 @@
     "display_label": "utility",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "hw_tests_override": [],
     "image_test": true,
     "images": [
       "base",
@@ -493,7 +488,6 @@
     "display_label": "utility",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "hw_tests_override": [],
     "image_test": true,
     "images": [
       "base",
@@ -525,7 +519,6 @@
     "display_label": "tryjob",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "hw_tests_override": [],
     "image_test": true,
     "images": [
       "base",
@@ -556,7 +549,6 @@
     "display_label": "tryjob",
     "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
     "git_sync": true,
-    "hw_tests_override": [],
     "image_test": true,
     "images": [
       "base",
@@ -576,7 +568,6 @@
     "builder_class_name": "config_builders.UpdateConfigBuilder",
     "description": "Build Config Updater reads updated GE config files from GS, and commits them to chromite after running tests.",
     "display_label": "utility",
-    "hw_tests_override": [],
     "internal": true,
     "luci_builder": "Infra",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
@@ -591,7 +582,6 @@
     "debug": true,
     "description": "Build Config Updater reads updated GE config files from GS, and commits them to chromite after running tests.",
     "display_label": "tryjob",
-    "hw_tests_override": [],
     "internal": true,
     "luci_builder": "Try",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
@@ -1898,7 +1888,6 @@
     "builder_class_name": "test_builders.FailBuilder",
     "description": "Builder always fails as quickly as possible.",
     "display_label": "tryjob",
-    "hw_tests_override": [],
     "luci_builder": "Try"
   },
   "fizz-factory-fizz-10167.B-factorybranch": {
@@ -2192,7 +2181,6 @@
     "builder_class_name": "config_builders.LuciSchedulerBuilder",
     "description": "Deploy changes to luci_scheduler.cfg.",
     "display_label": "utility",
-    "hw_tests_override": [],
     "internal": true,
     "luci_builder": "Infra",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
@@ -2226,7 +2214,6 @@
     "debug": true,
     "description": "Deploy changes to luci_scheduler.cfg.",
     "display_label": "tryjob",
-    "hw_tests_override": [],
     "internal": true,
     "luci_builder": "Try",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
@@ -2827,7 +2814,6 @@
     "builder_class_name": "test_builders.SucessBuilder",
     "description": "Builder always passes as quickly as possible.",
     "display_label": "tryjob",
-    "hw_tests_override": [],
     "luci_builder": "Try"
   },
   "sync-test-cbuildbot": {
@@ -2835,7 +2821,6 @@
     "builder_class_name": "test_builders.SucessBuilder",
     "description": "Used by sync_stages_unittest.",
     "display_label": "tryjob",
-    "hw_tests_override": [],
     "luci_builder": "Infra"
   },
   "sync-test-cbuildbot-tryjob": {
@@ -2844,7 +2829,6 @@
     "debug": true,
     "description": "Used by sync_stages_unittest.",
     "display_label": "tryjob",
-    "hw_tests_override": [],
     "luci_builder": "Try"
   },
   "trogdor-factory-strongbad-13963.B-factorybranch": {

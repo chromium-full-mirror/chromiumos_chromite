@@ -9,7 +9,6 @@ import logging
 import re
 
 from chromite.config import chromeos_config_boards as chromeos_boards
-from chromite.config import chromeos_test_config as chromeos_test
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.utils import memoize
@@ -852,7 +851,6 @@ def SpecialtyBuilders(site_config):
     site_config.AddWithoutTemplate(
         "success-build",
         site_config.templates.external,
-        site_config.templates.no_hwtest_builder,
         boards=[],
         display_label=config_lib.DISPLAY_LABEL_TRYJOB,
         luci_builder=config_lib.LUCI_BUILDER_TRY,
@@ -863,7 +861,6 @@ def SpecialtyBuilders(site_config):
     # Used by cbuildbot/stages/sync_stages_unittest
     site_config.AddWithoutTemplate(
         "sync-test-cbuildbot",
-        site_config.templates.no_hwtest_builder,
         boards=[],
         display_label=config_lib.DISPLAY_LABEL_TRYJOB,
         luci_builder=config_lib.LUCI_BUILDER_INFRA,
@@ -874,7 +871,6 @@ def SpecialtyBuilders(site_config):
     site_config.AddWithoutTemplate(
         "fail-build",
         site_config.templates.external,
-        site_config.templates.no_hwtest_builder,
         boards=[],
         display_label=config_lib.DISPLAY_LABEL_TRYJOB,
         luci_builder=config_lib.LUCI_BUILDER_TRY,
@@ -885,7 +881,6 @@ def SpecialtyBuilders(site_config):
     site_config.AddWithoutTemplate(
         "chromiumos-sdk",
         site_config.templates.full,
-        site_config.templates.no_hwtest_builder,
         # The amd64-host has to be last as that is when the toolchains
         # are bundled up for inclusion in the sdk.
         boards=["arm-generic", "amd64-generic"],
@@ -906,7 +901,6 @@ def SpecialtyBuilders(site_config):
     site_config.AddWithoutTemplate(
         "chromiumos-sdk-llvm-next",
         site_config.templates.full,
-        site_config.templates.no_hwtest_builder,
         boards=["arm-generic", "amd64-generic"],
         display_label=config_lib.DISPLAY_LABEL_UTILITY,
         build_type=constants.CHROOT_BUILDER_TYPE,
@@ -924,7 +918,6 @@ def SpecialtyBuilders(site_config):
     site_config.AddWithoutTemplate(
         "config-updater",
         site_config.templates.internal,
-        site_config.templates.no_hwtest_builder,
         site_config.templates.infra_builder,
         display_label=config_lib.DISPLAY_LABEL_UTILITY,
         description=(
@@ -941,7 +934,6 @@ def SpecialtyBuilders(site_config):
     site_config.AddWithoutTemplate(
         "luci-scheduler-updater",
         site_config.templates.internal,
-        site_config.templates.no_hwtest_builder,
         site_config.templates.infra_builder,
         display_label=config_lib.DISPLAY_LABEL_UTILITY,
         description="Deploy changes to luci_scheduler.cfg.",
@@ -1243,7 +1235,9 @@ def GetConfig():
 
     GeneralTemplates(site_config)
 
-    chromeos_test.GeneralTemplates(site_config)
+    site_config.templates.full.apply(
+        image_test=True,
+    )
 
     ReleaseBuilders(site_config, boards_dict, ge_build_config)
 
@@ -1252,8 +1246,6 @@ def GetConfig():
     FactoryBuilders(site_config, boards_dict, ge_build_config)
 
     FullBuilders(site_config, boards_dict, ge_build_config)
-
-    chromeos_test.ApplyConfig(site_config)
 
     TryjobMirrors(site_config)
 

@@ -59,17 +59,6 @@ class SimpleBuilder(generic_builders.Builder):
         """Returns the CrOS version info from the chromiumos-overlay."""
         return chromeos_version.VersionInfo.from_repo(self._run.buildroot)
 
-    def _RunHWTests(self, builder_run, board):
-        """Run hwtest-related stages for the specified board.
-
-        Args:
-            builder_run: BuilderRun object for these background stages.
-            board: Board name.
-        """
-        self._RunStage(
-            test_stages.TestPlanStage, board, builder_run=builder_run
-        )
-
     def _RunDebugSymbolStages(self, builder_run, board):
         """Run debug-related stages for the specified board.
 
@@ -186,19 +175,11 @@ class SimpleBuilder(generic_builders.Builder):
         parallel.RunParallelSteps(
             [
                 lambda: self._RunParallelStages(stage_objs + [archive_stage]),
-                lambda: self._RunHWTests(builder_run, board),
             ]
         )
 
     def BoardsForSimpleBuilder(self, builder_run):
-        """All boards for this builder.
-
-        Defaults to builder_run.config.boards, but can be overridden if a
-        HWTestDUTOverride was specified for this run.
-        """
-        if self._run.options.hwtest_dut_override:
-            return [self._run.options.hwtest_dut_override.board]
-
+        """All boards for this builder."""
         return builder_run.config.boards
 
     def RunSetupBoard(self):

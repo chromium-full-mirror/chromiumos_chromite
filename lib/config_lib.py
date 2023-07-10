@@ -7,7 +7,6 @@
 import copy
 import itertools
 import json
-import numbers
 import os
 
 from chromite.lib import constants
@@ -216,11 +215,6 @@ class BuildConfig(AttrDict):
             if v is not None:
                 if k == "child_configs":
                     result[k] = [x.deepcopy() for x in v]
-                elif k in (
-                    "hw_tests",
-                    "hw_tests_override",
-                ):
-                    result[k] = [copy.copy(x) for x in v]
                 # type(v) is faster than isinstance.
                 elif type(v) is list:  # pylint: disable=unidiomatic-typecheck
                     result[k] = v[:]
@@ -347,164 +341,6 @@ class ModelTestConfig:
         return self.__dict__ == other.__dict__
 
 
-class HWTestConfig:
-    """Config object for hardware tests suites.
-
-    Attributes:
-        suite: Name of the test suite to run.
-        timeout: Number of seconds to wait before timing out waiting for
-            results.
-        pool: Pool to use for hw testing.
-        blocking: Setting this to true requires that this suite must PASS for
-            suites scheduled after it to run. This also means any suites that
-            are scheduled before a blocking one are also blocking ones scheduled
-            after. This should be used when you want some suites to block
-            whether others should run e.g. only run longer-running suites if
-            some core ones pass first.
-
-            Note, if you want multiple suites to block other suites but run
-            in parallel, you should only mark the last one scheduled as
-            blocking (it effectively serves as a thread/process join).
-        async: Fire-and-forget suite.
-        warn_only: Failure on HW tests warns only (does not generate error).
-        critical: Usually we consider structural failures here as OK.
-        priority:  Priority at which tests in the suite will be scheduled in
-            the hw lab.
-        file_bugs: Should we file bugs if a test fails in a suite run.
-        minimum_duts: minimum number of DUTs required for testing in the hw lab.
-        retry: Whether we should retry tests that fail in a suite run.
-        max_retries: Integer, maximum job retries allowed at suite level.
-            None for no max.
-        suite_min_duts: Preferred minimum duts. Lab will prioritize on getting
-            such number of duts even if the suite is competing with other suites
-            that have higher priority.
-        suite_args: Arguments passed to the suite. This should be a dict
-            representing keyword arguments. The value is marshalled using
-            repr(), so the dict values should be basic types.
-        quota_account: The quotascheduler account to use for all tests in this
-            suite.
-
-    Some combinations of member settings are invalid:
-        * A suite config may not specify both blocking and async.
-        * A suite config may not specify both warn_only and critical.
-    """
-
-    _MINUTE = 60
-    _HOUR = 60 * _MINUTE
-    _DAY = 24 * _HOUR
-    # CTS timeout ~ 2 * expected runtime in case other tests are using the CTS
-    # pool.
-    # Must not exceed the buildbucket build timeout set at
-    # https://chrome-internal.googlesource.com/chromeos/infra/config/+/8f12edac54383831aaed9ed1819ef909a66ecc97/testplatform/main.star#90
-    CTS_QUAL_HW_TEST_TIMEOUT = int(1 * _DAY + 18 * _HOUR)
-    # GTS runs faster than CTS. But to avoid starving GTS by CTS we set both
-    # timeouts equal.
-    GTS_QUAL_HW_TEST_TIMEOUT = CTS_QUAL_HW_TEST_TIMEOUT
-    SHARED_HW_TEST_TIMEOUT = int(3.0 * _HOUR)
-    PFQ_HW_TEST_TIMEOUT = int(6.0 * _HOUR)
-    PALADIN_HW_TEST_TIMEOUT = int(2.0 * _HOUR)
-    BRANCHED_HW_TEST_TIMEOUT = int(10.0 * _HOUR)
-
-    # TODO(jrbarnette) Async HW test phases complete within seconds.
-    # however, the tests they start can require hours to complete.
-    # Chromite code doesn't distinguish "timeout for Autotest" from
-    # timeout in the builder.  This is WRONG WRONG WRONG.  But, until
-    # there's a better fix, we'll allow these phases hours to fail.
-    ASYNC_HW_TEST_TIMEOUT = int(250.0 * _MINUTE)
-
-    def __init__(
-        self,
-        suite,
-        pool=constants.HWTEST_QUOTA_POOL,
-        timeout=SHARED_HW_TEST_TIMEOUT,
-        warn_only=False,
-        critical=False,
-        blocking=False,
-        file_bugs=False,
-        priority=constants.HWTEST_BUILD_PRIORITY,
-        retry=True,
-        max_retries=constants.HWTEST_MAX_RETRIES,
-        minimum_duts=0,
-        suite_min_duts=0,
-        suite_args=None,
-        offload_failures_only=False,
-        enable_skylab=True,
-        quota_account=constants.HWTEST_QUOTA_ACCOUNT_BVT,
-        **kwargs,
-    ):
-        """Constructor -- see members above."""
-        # Python 3.7+ made async a reserved keyword.
-        asynchronous = kwargs.pop("async", False)
-        setattr(self, "async", asynchronous)
-        assert not kwargs, "Excess kwargs found: %s" % (kwargs,)
-
-        assert not asynchronous or not blocking, (
-            "%s is async and blocking" % suite
-        )
-        assert not warn_only or not critical
-        self.suite = suite
-        self.pool = pool
-        self.timeout = timeout
-        self.blocking = blocking
-        self.warn_only = warn_only
-        self.critical = critical
-        self.file_bugs = file_bugs
-        self.priority = priority
-        self.retry = retry
-        self.max_retries = max_retries
-        self.minimum_duts = minimum_duts
-        self.suite_min_duts = suite_min_duts
-        self.suite_args = suite_args
-        self.offload_failures_only = offload_failures_only
-        # Usually whether to run in skylab is controlled by
-        # 'enable_skylab_hw_test' in build config. But for some particular
-        # suites, we want to exclude them from Skylab even if the build config
-        # is migrated to Skylab.
-        self.enable_skylab = enable_skylab
-        self.quota_account = quota_account
-
-    def _SetCommonBranchedValues(self):
-        """Set the common values for branched builds."""
-        self.timeout = max(HWTestConfig.BRANCHED_HW_TEST_TIMEOUT, self.timeout)
-
-        # Set minimum_duts default to 0, which means that lab will not check the
-        # number of available duts to meet the minimum requirement before
-        # creating a suite job for branched build.
-        self.minimum_duts = 0
-
-    def SetBranchedValuesForSkylab(self):
-        """Set suite values for branched builds for skylab."""
-        self._SetCommonBranchedValues()
-
-        if (
-            constants.SKYLAB_HWTEST_PRIORITIES_MAP[self.priority]
-            < constants.SKYLAB_HWTEST_PRIORITIES_MAP[
-                constants.HWTEST_DEFAULT_PRIORITY
-            ]
-        ):
-            self.priority = constants.HWTEST_DEFAULT_PRIORITY
-
-    def SetBranchedValues(self):
-        """Changes the HW Test timeout/priority values to branched values."""
-        self._SetCommonBranchedValues()
-
-        # Only reduce priority if it's lower.
-        new_priority = constants.HWTEST_PRIORITIES_MAP[
-            constants.HWTEST_DEFAULT_PRIORITY
-        ]
-        if isinstance(self.priority, numbers.Integral):
-            self.priority = min(self.priority, new_priority)
-        elif constants.HWTEST_PRIORITIES_MAP[self.priority] > new_priority:
-            self.priority = new_priority
-
-    @property
-    def timeout_mins(self):
-        return self.timeout // 60
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
 def DefaultSettings():
     # Enumeration of valid settings; any/all config settings must be in this.
     # All settings must be documented.
@@ -608,14 +444,6 @@ def DefaultSettings():
         unittests=True,
         # Update the kernel ebuild with the AFDO profile info.
         afdo_update_kernel_ebuild=False,
-        # If set, this is the URL of the bug justifying why hw_tests are
-        # disabled on a builder that should always have hw_tests.
-        hw_tests_disabled_bug="",
-        # A list of HWTestConfig objects to run.
-        hw_tests=[],
-        # A list of all HWTestConfig objects to use if HW Tests are forced on
-        # (--hwtest command line or trybot). None means no override.
-        hw_tests_override=None,
         # If true, uploads artifacts for hw testing. Upload payloads for test
         # image if the image is built. If not, dev image is used and then base
         # image.
@@ -1708,10 +1536,6 @@ def _DeserializeConfigs(build_dict):
         build_dict: The config dictionary to update (in place).
     """
     _DeserializeConfig(build_dict, "models", ModelTestConfig)
-    _DeserializeConfig(build_dict, "hw_tests", HWTestConfig)
-    _DeserializeConfig(
-        build_dict, "hw_tests_override", HWTestConfig, preserve_none=True
-    )
 
 
 def _CreateBuildConfig(name, default, build_dict, templates):

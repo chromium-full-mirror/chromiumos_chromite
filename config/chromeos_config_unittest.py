@@ -472,16 +472,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     % build_name,
                 )
 
-    def testHWTestsArchivingHWTestArtifacts(self):
-        """Verify all configs upload artifacts that need them for hw testing."""
-        for build_name, config in self.site_config.items():
-            if config.hw_tests or config.hw_tests_override:
-                self.assertTrue(
-                    config.upload_hw_test_artifacts,
-                    "%s is trying to run hw tests without uploading payloads."
-                    % build_name,
-                )
-
     def testValidUnifiedMasterConfig(self):
         """Make sure any unified master configurations are valid."""
         for build_name, config in self.site_config.items():
@@ -606,15 +596,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
             msg = "Config %s: has unexpected prebuilts value." % build_name
             valid_values = (False, constants.PRIVATE, constants.PUBLIC)
             self.assertTrue(config["prebuilts"] in valid_values, msg)
-
-    def testValidHWTestPriority(self):
-        """Verify that hw test priority is valid."""
-        for build_name, config in self.site_config.items():
-            for test_config in config["hw_tests"]:
-                self.assertTrue(
-                    test_config.priority in constants.HWTEST_VALID_PRIORITIES,
-                    "%s has an invalid hwtest priority." % build_name,
-                )
 
     def testPushImagePaygenDependancies(self):
         """Paygen requires PushImage."""
@@ -874,26 +855,6 @@ class BoardConfigsTest(ChromeosConfigTestBase):
         """Ensure all external boards are listed as internal, also."""
         for board in self.external_board_configs:
             self.assertIn(board, self.internal_board_configs)
-
-    def _verifyNoTests(self, board_configs):
-        """Defining tests in board specific templates doesn't work."""
-        for board, template in board_configs.items():
-            self.assertFalse(
-                "hw_tests" in template and template.hw_tests,
-                "Per-board template for %s defining hw_tests" % board,
-            )
-            self.assertFalse(
-                "hw_tests_override" in template and template.hw_tests_override,
-                "Per-board template for %s defining hw_tests_override" % board,
-            )
-
-    def testExternalsDontDefineTests(self):
-        """Verify no external boards define tests at the board level."""
-        self._verifyNoTests(self.external_board_configs)
-
-    def testInternalsDontDefineTests(self):
-        """Verify no internal boards define tests at the board level."""
-        self._verifyNoTests(self.internal_board_configs)
 
     def testUpdateBoardConfigs(self):
         """Test UpdateBoardConfigs."""
