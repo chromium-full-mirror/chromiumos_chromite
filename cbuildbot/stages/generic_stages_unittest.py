@@ -344,20 +344,6 @@ class BuilderStageTest(AbstractStageTestCase):
     def ConstructStage(self):
         return self._ConstructStageWithExpectations(generic_stages.BuilderStage)
 
-    def testGetPortageEnvVar(self):
-        """Basic test case for _GetPortageEnvVar function."""
-        stage = self.ConstructStage()
-        board = self._current_board
-
-        envvar = "EXAMPLE"
-        envvar_val = "RESULT"
-        self.PatchObject(
-            portage_util, "PortageqEnvvars", return_value={envvar: envvar_val}
-        )
-
-        result = stage._GetPortageEnvVar(envvar, board)
-        self.assertEqual(result, envvar_val)
-
     def testStageNamePrefixSmoke(self):
         """Basic test for the StageNamePrefix() function."""
         stage = self.ConstructStage()

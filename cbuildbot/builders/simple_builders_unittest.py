@@ -10,7 +10,6 @@ import os
 from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot.builders import generic_builders
 from chromite.cbuildbot.builders import simple_builders
-from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -38,15 +37,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         # Simple new function that redirects RunStage to record all stages to be
         # run rather than mock them completely. These can be used in a test to
         # assert something has been called.
-        def run_stage(_class_instance, stage_name, *args, **_kwargs):
-            # It's more useful to record the actual stage that's wrapped within
-            # RepeatStage or RetryStage.
-            if stage_name in [
-                generic_stages.RepeatStage,
-                generic_stages.RetryStage,
-            ]:
-                stage_name = args[1]
-
+        def run_stage(_class_instance, stage_name, *_args, **_kwargs):
             self.called_stages.append(stage_name)
             if stage_name in self.stage_exceptions:
                 raise self.stage_exceptions[stage_name]

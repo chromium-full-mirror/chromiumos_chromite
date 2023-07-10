@@ -32,7 +32,6 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import results_lib
-from chromite.lib import retry_util
 from chromite.lib import timeout_util
 from chromite.lib.buildstore import BuildIdentifier
 
@@ -188,12 +187,6 @@ class BuilderStage:
     def GetStageNames(self):
         """Get a list of the places where this stage has recorded results."""
         return [self.name]
-
-    def GetBuildStageIDs(self):
-        """Get a list of build stage ids in cidb corresponding to this stage."""
-        return (
-            [self._build_stage_id] if self._build_stage_id is not None else []
-        )
 
     def UpdateSuffix(self, tag, child_suffix):
         """Update the suffix arg for the init call.
@@ -469,21 +462,6 @@ class BuilderStage:
 
         print(border_line, file=sys.stderr)
         sys.stderr.flush()
-
-    def _GetPortageEnvVar(self, envvar, board):
-        """Get a portage environment variable for the configuration's board.
-
-        Args:
-            envvar: The environment variable to get. E.g. 'PORTAGE_BINHOST'.
-            board: The board to apply, if any.  Specify None to use host.
-
-        Returns:
-            The value of the environment variable, as a string. If no such
-            variable can be found, return the empty string.
-        """
-        return portage_util.PortageqEnvvar(
-            envvar, board=board, allow_undefined=True
-        )
 
     def _GetSlaveConfigs(self):
         """Get the slave configs for the current build config.
@@ -828,123 +806,6 @@ class ForgivingBuilderStage(BuilderStage):
     def _HandleStageException(self, exc_info):
         """Override and don't set status to FAIL but FORGIVEN instead."""
         return self._HandleExceptionAsWarning(exc_info)
-
-
-class RetryStage:
-    """Retry a given stage multiple times to see if it passes."""
-
-    category = constants.UNCATEGORIZED_STAGE
-
-    def __init__(
-        self, builder_run, buildstore, max_retry, stage, *args, **kwargs
-    ):
-        """Create a RetryStage object.
-
-        Args:
-            builder_run: See arguments to BuilderStage.__init__()
-            buildstore: BuildStore instance to make DB calls with.
-            max_retry: The number of times to try the given stage.
-            stage: The stage class to create.
-            *args: A list of arguments to pass to the stage constructor.
-            **kwargs: A list of keyword arguments to pass to the stage
-                constructor.
-        """
-        self._run = builder_run
-        self.buildstore = buildstore
-        self.max_retry = max_retry
-        self.stage = stage
-        self.args = (
-            builder_run,
-            buildstore,
-        ) + args
-        self.kwargs = kwargs
-        self.names = []
-        self._build_stage_ids = []
-        self.attempt = None
-
-    def GetStageNames(self):
-        """Get a list of the places where this stage has recorded results."""
-        return self.names[:]
-
-    def GetBuildStageIDs(self):
-        """Get a list of build stage ids in cidb corresponding to this stage."""
-        return self._build_stage_ids[:]
-
-    def _PerformStage(self):
-        """Run the stage once, incrementing the attempt number as needed."""
-        suffix = " (attempt %d)" % (self.attempt,)
-        stage_obj = self.stage(
-            *self.args,
-            attempt=self.attempt,
-            max_retry=self.max_retry,
-            suffix=suffix,
-            **self.kwargs,
-        )
-        self.names.extend(stage_obj.GetStageNames())
-        self._build_stage_ids.extend(stage_obj.GetBuildStageIDs())
-        self.attempt += 1
-        stage_obj.Run()
-
-    def Run(self):
-        """Retry the given stage multiple times to see if it passes."""
-        self.attempt = 1
-        retry_util.RetryException(
-            failures_lib.RetriableStepFailure,
-            self.max_retry,
-            self._PerformStage,
-        )
-
-
-class RepeatStage:
-    """Run a given stage multiple times to see if it fails."""
-
-    category = constants.UNCATEGORIZED_STAGE
-
-    def __init__(self, builder_run, buildstore, count, stage, *args, **kwargs):
-        """Create a RepeatStage object.
-
-        Args:
-            builder_run: See arguments to BuilderStage.__init__()
-            buildstore: BuildStore instance to make DB calls with.
-            count: The number of times to try the given stage.
-            stage: The stage class to create.
-            *args: A list of arguments to pass to the stage constructor.
-            **kwargs: A list of keyword arguments to pass to the stage
-                constructor.
-        """
-        self._run = builder_run
-        self.buildstore = buildstore
-        self.count = count
-        self.stage = stage
-        self.args = (builder_run,) + args
-        self.kwargs = kwargs
-        self.names = []
-        self._build_stage_ids = []
-        self.attempt = None
-
-    def GetStageNames(self):
-        """Get a list of the places where this stage has recorded results."""
-        return self.names[:]
-
-    def GetBuildStageIDs(self):
-        """Get a list of build stage ids in cidb corresponding to this stage."""
-        return self._build_stage_ids[:]
-
-    def _PerformStage(self):
-        """Run the stage once."""
-        suffix = " (attempt %d)" % (self.attempt,)
-        stage_obj = self.stage(
-            *self.args, attempt=self.attempt, suffix=suffix, **self.kwargs
-        )
-        self.names.extend(stage_obj.GetStageNames())
-        self._build_stage_ids.extend(stage_obj.GetBuildStageIDs())
-        stage_obj.Run()
-
-    def Run(self):
-        """Retry the given stage multiple times to see if it passes."""
-        for i in range(self.count):
-            self.attempt = i + 1
-            self._PerformStage()
 
 
 class BoardSpecificBuilderStage(BuilderStage):
