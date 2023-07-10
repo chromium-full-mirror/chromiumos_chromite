@@ -176,12 +176,3 @@ class ConstructUrlTests(cros_test_lib.TestCase):
             "build_id=123"
         )
         self.assertEqual(actual, expected)
-
-    def testConstructGoldenEyeBuildDetailsUri(self):
-        """Test generating GoldenEye suite details URIs with suite ID."""
-        actual = uri_lib.ConstructGoldenEyeBuildDetailsUri(123)
-        expected = (
-            "http://go/goldeneye/"
-            "chromeos/healthmonitoring/buildDetails?id=123"
-        )
-        self.assertEqual(actual, expected)
