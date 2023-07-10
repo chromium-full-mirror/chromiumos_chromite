@@ -17,14 +17,15 @@ from flask import request
 from flask import url_for
 
 from chromite.api.controller import controller_util
-from chromite.lib.parser import package_info
 from chromite.contrib.sdk_server.grpc_server import client
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2
 from chromite.contrib.sdk_server.grpc_server.chromite.api import sdk_pb2
+from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
 from chromite.contrib.sdk_server.grpc_server.chromiumos import (
     common_pb2 as common,
 )
 from chromite.contrib.sdk_server.ui.constants import constants
+from chromite.lib.parser import package_info
 
 
 app = Flask("SDK Server")
@@ -42,7 +43,6 @@ async def workon_start():
     try:
         board = str(request.args.get("board"))
         package = str(request.args.get("package"))
-
 
         parsed_pkg = package_info.parse(package)
         package = common.PackageInfo()
@@ -71,7 +71,6 @@ async def workon_stop():
         controller_util.serialize_package_info(parsed_pkg, package)
 
         req = sdk_server_pb2.WorkonStopRequest(
-
             build_target=common.BuildTarget(name=board),
             package_info=package,
         )
@@ -114,9 +113,9 @@ async def repo_refresh():
                 "files": files,
             }
         )
-    else:
-        # GET (user visiting URL) redirects to homepage.
-        return redirect(url_for("index"))
+
+    # GET (user visiting URL) redirects to homepage.
+    return redirect(url_for("index"))
 
 
 @app.route("/get-packages", methods=["GET", "POST"])
@@ -144,9 +143,8 @@ async def get_packages():
 
         return jsonify(packages_json)
 
-    else:
-        # GET (user visiting URL) redirects to homepage.
-        return redirect(url_for("index"))
+    # GET (user visiting URL) redirects to homepage.
+    return redirect(url_for("index"))
 
 
 @app.route("/update-chroot", methods=["GET", "POST"])
@@ -174,8 +172,73 @@ async def update_chroot():
 
         return NO_RESPONSE_OK
 
-    else:
-        return redirect(url_for("index"))
+    return redirect(url_for("index"))
+
+
+@app.route("/replace-chroot", methods=["GET", "POST"])
+async def replace_chroot():
+    """Forwards requests for replace chroot endpoint."""
+    if request.method == "POST":
+        flags = sdk_pb2.CreateRequest.Flags(
+            no_replace=False,
+            bootstrap=request.json["bootstrap"],
+            no_use_image=request.json["noUseImage"],
+        )
+
+        req = sdk_server_pb2.UpdateChrootRequest(
+            sdk_pb2.UpdateRequest(
+                flags=flags, sdk_version=request.json["version"]
+            )
+        )
+
+        async for _ in client.replace_chroot(req):
+            pass
+
+        return NO_RESPONSE_OK
+
+    return redirect(url_for("index"))
+
+
+@app.route("/build-packages", methods=["GET", "POST"])
+async def build_packages():
+    """Formulates/forwards all 3 requests for build packages endpoint."""
+    if request.method == "POST":
+        create_sysroot = sysroot_pb2.SysrootCreateRequest(
+            flags=sysroot_pb2.SysrootCreateRequest.Flags(
+                chroot_current=request.json["chrootCurrent"],
+                replace=request.json["replace"],
+                toolchain_changed=request.json["toolchainChanged"],
+                use_cq_prebuilts=request.json["CQPrebuilts"],
+            ),
+            build_target=common.BuildTarget(name=request.json["buildTarget"]),
+        )
+
+        install_toolchain = sysroot_pb2.InstallToolchainRequest(
+            flags=sysroot_pb2.InstallToolchainRequest.Flags(
+                compile_source=request.json["compileSource"],
+                toolchain_changed=request.json["toolchainChanged"],
+            )
+        )
+
+        install_packages = sysroot_pb2.InstallPackagesRequest(
+            flags=sysroot_pb2.InstallPackagesRequest.Flags(
+                compile_source=request.json["compileSource"],
+                toolchain_changed=request.json["toolchainChanged"],
+                dryrun=request.json["dryrun"],
+                workon=request.json["workon"],
+            )
+        )
+
+        req = sdk_server_pb2.BuildPackagesRequest(
+            create_req=create_sysroot,
+            toolchain_req=install_toolchain,
+            packages_req=install_packages,
+        )
+
+        async for _ in client.build_packages(req):
+            pass
+
+    return redirect(url_for("index"))
 
 
 @app.route("/", methods=["GET", "POST"])

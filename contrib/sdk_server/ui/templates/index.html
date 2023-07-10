@@ -81,8 +81,8 @@
                   <li>
                     <p2 class="text-light fs-6">bootstrap</p2>
                     <div class="form-check mt-1">
-                      <input class="form-check-input" type="checkbox" value="" id="usepkgCheck" checked>
-                      <label class="form-check-label text-light ms-3" for="usepkgCheck">
+                      <input class="form-check-input" type="checkbox" value="" id="replaceBootstrap" checked>
+                      <label class="form-check-label text-light ms-3" for="replaceBootstrap">
                        When creating the new chroot, do a full build of the SDK, otherwise use prebuilts.
                       </label>
                     </div>
@@ -91,8 +91,8 @@
                   <li class="mt-3">
                     <p2 class="text-light fs-6">no_use_image</p2>
                     <div class="form-check mt-1">
-                      <input class="form-check-input" type="checkbox" value="" id="usepkgCheck" checked>
-                      <label class="form-check-label text-light ms-3" for="usepkgCheck">
+                      <input class="form-check-input" type="checkbox" value="" id="replaceNoUseImage" checked>
+                      <label class="form-check-label text-light ms-3" for="replaceNoUseImage">
                        Create the chroot directly in a directory. If false, mount it on a loopback image.
                       </label>
                     </div>
@@ -113,7 +113,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Replace</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id = "replaceSubmit">Replace</button>
               </div>
             </div>
           </div>

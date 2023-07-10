@@ -298,6 +298,79 @@ function updateChroot(){
     })
 }
 
+function replaceChroot(){
+    $("#replaceChrootSubmit").addClass("disabled");
+
+    bootstrap = $("#replaceBootstrap").is(":checked");
+    noUseImage = $("#replaceNoUseImage").is(":checked");
+    version = $("replaceSDKVersion").value;
+
+    $.ajax({
+        url: "/replace-chroot",
+        type: "POST",
+        data: JSON.stringify({
+            bootstrap: bootstrap,
+            noUseImage: noUseImage,
+            version: version
+        }),
+        dataType: "json",
+        contentType: "application/json",
+
+        success: function(response){
+            $("#replaceChrootSubmit").removeClass("disabled");
+            location.reload();
+            
+        },
+
+        error: function(xhr){
+            console.log("failure");
+        }
+
+    })
+}
+
+function buildPackages(){
+    $("#buildPackagesSubmit").addClass("disabled");
+
+
+    chrootCurrent = $("#buildChrootCurrent").is(":checked");
+    replace = $("#buildReplace").is(":checked");
+    toolchainChanged = $("#buildToolchainChanged").is(":checked");
+    CQPrebuilts = $("#buildCQPrebuilts").is(":checked");
+    buildTarget = $("#buildBuildTarget").select2("data")[0].text;
+    compileSource = $("#buildCompileSource").is(":checked");
+    dryrun = $("#buildDryrun").is(":checked");
+    workon = $("#buildWorkon").is(":checked");
+
+    $.ajax({
+        url: "/build-packages",
+        type: "POST",
+        data: JSON.stringify({
+            chrootCurrent: chrootCurrent,
+            replace : replace,
+            toolchainChanged : toolchainChanged,
+            CQPrebuilts: CQPrebuilts,
+            buildTarget: buildTarget,
+            compileSource: compileSource,
+            dryrun: dryrun,
+            workon: workon
+        }),
+
+        dataType: "json",
+        contentType: "application/json",
+
+        success: function(response){
+            $("#replaceChrootSubmit").removeClass("disabled");
+            location.reload();
+            
+        },
+
+        error: function(xhr){
+            console.log("failure");
+        }
+    })
+}
+
 $(document).ready(function () {
     //Show default active panels (logs/packages)
     showPackages();
@@ -341,8 +414,11 @@ $(document).ready(function () {
     $("#showSysroots").on('click', showSysroots);
     $("#showLogs").on('click', showLogs);
     $("#showRepo").on('click', showRepo);
-    $("#repoStatusRefresh").on("click", populateRepoFiles)
-    $("#updateChrootSubmit").on("click", updateChroot)
+    $("#repoStatusRefresh").on("click", populateRepoFiles);
+    $("#updateChrootSubmit").on("click", updateChroot);
+    $("#replaceChrootSubmit").on("click", replaceChroot);
+    $("#buildPackagesSubmit").on("click", buildPackages);
+    
     //Rotates the log expander arrow
     $(".log-expander").on('click', function () {
         $(this).children("svg").toggleClass("rotate-log-button")
