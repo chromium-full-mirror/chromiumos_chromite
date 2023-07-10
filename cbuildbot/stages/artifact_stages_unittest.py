@@ -257,7 +257,6 @@ class DebugSymbolsStageTest(
             extra_config = {
                 "archive_build_debug": True,
                 "upload_symbols": True,
-                "basic_builder": False,
             }
         super()._Prepare(extra_config=extra_config, **kwargs)
         self._run.attrs.release_tag = self.VERSION
@@ -328,7 +327,6 @@ class DebugSymbolsStageTest(
         extra_config = {
             "archive_build_debug": False,
             "upload_symbols": False,
-            "basic_builder": False,
         }
         result = self._TestPerformStage(extra_config)
         self.assertIsNone(result)
@@ -338,25 +336,6 @@ class DebugSymbolsStageTest(
         self.assertEqual(self.upload_mock.call_count, 0)
         self.assertEqual(self.tar_mock.call_count, 2)
         self.assertEqual(self.upload_artifact_mock.call_count, 2)
-
-        self.assertBoardAttrEqual("breakpad_symbols_generated", True)
-        self.assertBoardAttrEqual("debug_tarball_generated", True)
-
-    def testPerformStageBasicBuilder(self):
-        """Test for a PerformStage when basic_builder is enabled"""
-        extra_config = {
-            "archive_build_debug": False,
-            "upload_symbols": False,
-            "basic_builder": True,
-        }
-        result = self._TestPerformStage(extra_config)
-        self.assertIsNone(result)
-
-        self.assertEqual(self.gen_mock.call_count, 1)
-        self.assertEqual(self.gen_android_mock.call_count, 0)
-        self.assertEqual(self.upload_mock.call_count, 0)
-        self.assertEqual(self.upload_artifact_mock.call_count, 0)
-        self.assertEqual(self.tar_mock.call_count, 2)
 
         self.assertBoardAttrEqual("breakpad_symbols_generated", True)
         self.assertBoardAttrEqual("debug_tarball_generated", True)

@@ -350,7 +350,7 @@ class DistributedBuilder(SimpleBuilder):
             self._run.config.master
             and self._run.config.build_type == constants.FULL_TYPE
         ):
-            if build_finished and not self._run.config.basic_builder:
+            if build_finished:
                 self._RunStage(completion_stages.UpdateChromeosLKGMStage)
             else:
                 logging.info(

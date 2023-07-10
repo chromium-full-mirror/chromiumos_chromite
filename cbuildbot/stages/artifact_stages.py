@@ -468,7 +468,7 @@ class DebugSymbolsStage(
         """Generate debug symbols and upload debug.tgz."""
         buildroot = self._build_root
         board = self._current_board
-        dryrun = self._run.config.basic_builder
+        dryrun = False
 
         # Generate breakpad symbols of Chrome OS binaries.
         commands.GenerateBreakpadSymbols(
