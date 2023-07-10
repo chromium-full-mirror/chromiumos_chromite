@@ -38,7 +38,6 @@ def MockSiteConfig():
         chrome_sdk_build_chrome=False,
         description="LegacyRelease",
         doc="http://mock_url/",
-        image_test=True,
         images=["base", "test"],
         important=True,
         manifest_version=True,

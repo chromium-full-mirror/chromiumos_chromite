@@ -896,36 +896,6 @@ def BuildImage(
     )
 
 
-def RunTestImage(buildroot, board, image_dir, results_dir):
-    """Executes test_image on the produced image in |image_dir|.
-
-    The "test_image" script will be run as root in chroot. Running the script as
-    root will allow the tests to read normally-forbidden files such as those
-    owned by root. Running tests inside the chroot allows us to control
-    dependencies better.
-
-    Args:
-        buildroot: The buildroot of the current build.
-        board: The board the image was built for.
-        image_dir: The directory in which to find the image.
-        results_dir: The directory to store result files.
-
-    Raises:
-        failures_lib.BuildScriptFailure if the test script fails.
-    """
-    cmd = [
-        "test_image",
-        "--board",
-        board,
-        "--test_results_root",
-        path_util.ToChrootPath(results_dir),
-        path_util.ToChrootPath(image_dir),
-    ]
-    RunBuildScript(
-        buildroot, cmd, enter_chroot=True, chromite_cmd=True, sudo=True
-    )
-
-
 def RunUnitTests(
     buildroot,
     board,
@@ -2513,20 +2483,6 @@ def BuildFactoryZip(
             )
 
     return filename
-
-
-def CreateTestRoot(build_root):
-    """Returns a temporary directory for test results in chroot.
-
-    Returns:
-        The path inside the chroot rather than whole path.
-    """
-    # Create test directory within tmp in chroot.
-    chroot_tmp = path_util.FromChrootPath("/tmp", source_path=build_root)
-    test_root = tempfile.mkdtemp(prefix="cbuildbot", dir=chroot_tmp)
-
-    # Path inside chroot.
-    return path_util.ToChrootPath(test_root)
 
 
 def GeneratePayloads(

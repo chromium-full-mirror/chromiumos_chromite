@@ -121,7 +121,6 @@ class SimpleBuilder(generic_builders.Builder):
         stage_list += [[chrome_stages.SimpleChromeArtifactsStage, board]]
 
         stage_list += [
-            [test_stages.ImageTestStage, board],
             [artifact_stages.UploadPrebuiltsStage, board],
         ]
 

@@ -32,7 +32,6 @@
     "goma_client_type": null,
     "grouped": false,
     "gs_path": "default",
-    "image_test": false,
     "images": [
       "test"
     ],

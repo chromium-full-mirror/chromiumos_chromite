@@ -1460,38 +1460,6 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(tarball_rel_path, None)
 
 
-class ImageTestCommandsTest(cros_test_lib.RunCommandTestCase):
-    """Test commands related to ImageTest tests."""
-
-    def setUp(self):
-        self._build = "test-build"
-        self._board = "test-board"
-        self._image_dir = "image-dir"
-        self._result_dir = "result-dir"
-        self.PatchObject(
-            path_util, "ToChrootPath", side_effect=lambda x, **kwargs: x
-        )
-
-    def testRunTestImage(self):
-        """Verifies RunTestImage calls into test-image script properly."""
-        commands.RunTestImage(
-            self._build, self._board, self._image_dir, self._result_dir
-        )
-        self.assertCommandContains(
-            [
-                "sudo",
-                "--",
-                os.path.join(self._build, "chromite", "bin", "test_image"),
-                "--board",
-                self._board,
-                "--test_results_root",
-                path_util.ToChrootPath(self._result_dir),
-                path_util.ToChrootPath(self._image_dir),
-            ],
-            enter_chroot=True,
-        )
-
-
 class GenerateAFDOArtifactsTests(cros_test_lib.RunCommandTempDirTestCase):
     """Test GenerateChromeOrderfileArtifacts command."""
 

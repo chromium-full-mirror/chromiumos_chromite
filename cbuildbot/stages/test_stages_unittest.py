@@ -14,7 +14,6 @@ from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.cbuildbot.stages import test_stages
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
-from chromite.lib import path_util
 from chromite.lib.buildstore import FakeBuildStore
 
 
@@ -68,58 +67,3 @@ class UnitTestStageTest(
             extra_env=mock.ANY,
             build_stage=True,
         )
-
-
-class ImageTestStageTest(
-    generic_stages_unittest.AbstractStageTestCase,
-    cros_test_lib.RunCommandTestCase,
-    cbuildbot_unittest.SimpleBuilderTestCase,
-):
-    """Test image test stage."""
-
-    BOT_ID = "eve-release"
-    RELEASE_TAG = "ToT.0.0"
-
-    def setUp(self):
-        self._test_root = os.path.join(self.build_root, "tmp/results_dir")
-        self.PatchObject(
-            commands,
-            "CreateTestRoot",
-            autospec=True,
-            return_value="/tmp/results_dir",
-        )
-        self.PatchObject(
-            path_util, "ToChrootPath", side_effect=lambda x, **kwargs: x
-        )
-        self._Prepare()
-        self.buildstore = FakeBuildStore()
-
-    # Our API here is not great when it comes to kwargs passing.
-    def _Prepare(
-        self, bot_id=None, **kwargs
-    ):  # pylint: disable=arguments-differ
-        super()._Prepare(bot_id, **kwargs)
-        self._run.GetArchive().SetupArchivePath()
-
-    def ConstructStage(self):
-        return test_stages.ImageTestStage(
-            self._run, self.buildstore, self._current_board
-        )
-
-    def testPerformStage(self):
-        """Tests that we correctly run test-image script."""
-        stage = self.ConstructStage()
-        stage.PerformStage()
-        cmd = [
-            "sudo",
-            "--",
-            os.path.join(self.build_root, "chromite", "bin", "test_image"),
-            "--board",
-            self._current_board,
-            "--test_results_root",
-            path_util.ToChrootPath(
-                os.path.join(self._test_root, "image_test_results")
-            ),
-            path_util.ToChrootPath(stage.GetImageDirSymlink()),
-        ]
-        self.assertCommandContains(cmd)

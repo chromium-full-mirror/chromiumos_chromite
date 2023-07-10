@@ -4,12 +4,9 @@
 
 """Module containing the test stages."""
 
-import os
-
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import constants
-from chromite.lib import osutils
 from chromite.lib import timeout_util
 
 
@@ -56,33 +53,4 @@ class UnitTestStage(
                 self._current_board,
                 extra_env=extra_env,
                 build_stage=self._run.config.build_packages,
-            )
-
-
-class ImageTestStage(
-    generic_stages.BoardSpecificBuilderStage, generic_stages.ArchivingStageMixin
-):
-    """Stage that launches tests on the produced disk image."""
-
-    option_name = "image_test"
-    config_name = "image_test"
-    category = constants.CI_INFRA_STAGE
-
-    # Give the tests 60 minutes to run. Image tests should be really quick but
-    # the umount/rmdir bug (see osutils.UmountDir) may take a long time.
-    IMAGE_TEST_TIMEOUT = 60 * 60
-
-    def PerformStage(self):
-        test_results_dir = commands.CreateTestRoot(self._build_root)
-        # CreateTestRoot returns a temp directory inside chroot.
-        # We bring that back out to the build root.
-        test_results_dir = os.path.join(self._build_root, test_results_dir[1:])
-        test_results_dir = os.path.join(test_results_dir, "image_test_results")
-        osutils.SafeMakedirs(test_results_dir)
-        with timeout_util.Timeout(self.IMAGE_TEST_TIMEOUT):
-            commands.RunTestImage(
-                self._build_root,
-                self._current_board,
-                self.GetImageDirSymlink(),
-                test_results_dir,
             )
