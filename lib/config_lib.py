@@ -550,10 +550,6 @@ def DefaultSettings():
         # ==================================================================
         # The documentation associated with the config.
         doc=None,
-        # ==================================================================
-        # The goma related options.
-        # Which goma client to use.
-        goma_client_type=None,
         # This is a LUCI Scheduler schedule string. Setting this will create
         # a LUCI Scheduler for this build on swarming (not buildbot).
         # See: https://goo.gl/VxSzFf

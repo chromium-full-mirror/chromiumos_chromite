@@ -87,7 +87,7 @@ def genSchedulerJob(build_config):
         "cbb_config": build_config.name,
         "cbb_display_label": build_config.display_label,
         "cbb_workspace_branch": build_config.workspace_branch,
-        "cbb_goma_client_type": build_config.goma_client_type,
+        "cbb_goma_client_type": None,
     }
 
     # Filter out tags with no value set.

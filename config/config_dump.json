@@ -28,7 +28,6 @@
     "factory_install_netboot": true,
     "factory_toolkit": true,
     "git_sync": false,
-    "goma_client_type": null,
     "grouped": false,
     "gs_path": "default",
     "images": [
