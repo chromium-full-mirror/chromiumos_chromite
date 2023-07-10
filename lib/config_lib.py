@@ -450,10 +450,6 @@ def DefaultSettings():
         upload_hw_test_artifacts=True,
         # If true, uploads individual image tarballs.
         upload_standalone_images=True,
-        # Whether to run CPEExport stage. This stage generates portage depgraph
-        # data that is used for bugs reporting (see go/why-cpeexport). Only
-        # release builders should run this stage.
-        run_cpeexport=False,
         # Whether to run BuildConfigsExport stage. This stage generates build
         # configs (see crbug.com/974795 project). Only release builders should
         # run this stage.
@@ -503,8 +499,6 @@ def DefaultSettings():
         push_image=False,
         # Do we upload debug symbols.
         upload_symbols=False,
-        # Run a stage that generates and uploads package CPE information.
-        cpe_export=True,
         # Run a stage that generates and uploads debug symbols.
         debug_symbols=True,
         # Include *.debug files for debugging core files with gdb in debug.tgz.

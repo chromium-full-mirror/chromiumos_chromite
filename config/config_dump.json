@@ -23,7 +23,6 @@
     "chrome_sdk_build_chrome": true,
     "chromeos_official": false,
     "chroot_replace": true,
-    "cpe_export": true,
     "debug": false,
     "debug_cidb": false,
     "debug_symbols": true,
@@ -65,7 +64,6 @@
     "push_overlays": null,
     "rootfs_verification": true,
     "run_build_configs_export": false,
-    "run_cpeexport": false,
     "schedule": null,
     "sign_types": null,
     "signer_tests": false,
@@ -131,7 +129,6 @@
       "push_image": true,
       "push_overlays": "both",
       "run_build_configs_export": true,
-      "run_cpeexport": true,
       "sign_types": [
         "factory"
       ],
@@ -191,7 +188,6 @@
       "overlays": "both",
       "push_image": true,
       "run_build_configs_export": true,
-      "run_cpeexport": true,
       "sign_types": [
         "recovery",
         "accessory_rwsig"
@@ -232,7 +228,6 @@
     ],
     "manifest_version": true,
     "prebuilts": "public",
-    "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
     ]
@@ -247,7 +242,6 @@
     "luci_builder": "Try",
     "manifest_version": true,
     "prebuilts": "public",
-    "run_cpeexport": true,
     "useflags": [
       "-chrome_internal"
     ]

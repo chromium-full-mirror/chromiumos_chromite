@@ -128,9 +128,6 @@ class SimpleBuilder(generic_builders.Builder):
             [artifact_stages.DevInstallerPrebuiltsStage, board],
         ]
 
-        if config.run_cpeexport:
-            stage_list += [[artifact_stages.CPEExportStage, board]]
-
         if config.run_build_configs_export:
             stage_list += [[artifact_stages.BuildConfigsExportStage, board]]
 

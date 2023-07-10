@@ -331,7 +331,6 @@ class BuildPackagesStageTest(
         self._release_tag = None
         self._update_metadata = False
         self._mock_configurator = None
-        self.PatchObject(commands, "ExtractDependencies", return_value={})
         self.fake_db = fake_cidb.FakeCIDBConnection()
         self.buildstore = FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
@@ -377,15 +376,6 @@ class BuildPackagesStageTest(
     def testNoTests(self):
         """Test that self.options.tests = False works."""
         self.RunTestsWithBotId("amd64-generic-full", options_tests=False)
-
-    def testIgnoreExtractDependenciesError(self):
-        """Ignore errors when failing to extract dependencies."""
-        self.PatchObject(
-            commands,
-            "ExtractDependencies",
-            side_effect=Exception("unmet dependency"),
-        )
-        self.RunTestsWithBotId("amd64-generic-full")
 
     def testFirmwareVersionsMixedImage(self):
         """Test that firmware versions are extracted correctly."""

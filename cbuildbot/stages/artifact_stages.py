@@ -417,40 +417,6 @@ class ArchiveStage(
         return super()._HandleStageException(exc_info)
 
 
-class CPEExportStage(
-    generic_stages.BoardSpecificBuilderStage, generic_stages.ArchivingStageMixin
-):
-    """Handles generation & upload of package CPE information."""
-
-    config_name = "cpe_export"
-    category = constants.CI_INFRA_STAGE
-
-    @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
-        """Generate and upload CPE files."""
-        buildroot = self._build_root
-        board = self._current_board
-        useflags = self._run.config.useflags
-
-        logging.info("Generating CPE export.")
-        result = commands.GenerateCPEExport(buildroot, board, useflags)
-
-        logging.info("Writing CPE export to files for archive.")
-        warnings_filename = os.path.join(
-            self.archive_path, "cpe-warnings-chromeos-%s.txt" % board
-        )
-        results_filename = os.path.join(
-            self.archive_path, "cpe-chromeos-%s.json" % board
-        )
-
-        osutils.WriteFile(warnings_filename, result.stderr)
-        osutils.WriteFile(results_filename, result.stdout)
-
-        logging.info("Uploading CPE files.")
-        self.UploadArtifact(os.path.basename(warnings_filename), archive=False)
-        self.UploadArtifact(os.path.basename(results_filename), archive=False)
-
-
 class BuildConfigsExportStage(
     generic_stages.BoardSpecificBuilderStage, generic_stages.ArchivingStageMixin
 ):

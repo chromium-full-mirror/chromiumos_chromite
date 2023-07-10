@@ -1127,71 +1127,6 @@ def UprevPush(buildroot, overlay_type, dryrun=True, workspace=None):
     RunBuildScript(buildroot, cmd, chromite_cmd=True)
 
 
-def ExtractDependencies(
-    buildroot,
-    packages,
-    board=None,
-    useflags=None,
-    cpe_format=False,
-    raw_cmd_result=False,
-):
-    """Extracts dependencies for |packages|.
-
-    Args:
-        buildroot: The root directory where the build occurs.
-        packages: A list of packages for which to extract dependencies.
-        board: Board type that was built on this machine.
-        useflags: A list of useflags for this build.
-        cpe_format: Set output format to CPE-only JSON; otherwise, output
-            traditional deps.
-        raw_cmd_result: If set True, returns the CompletedProcess object.
-            Otherwise, returns the dependencies as a dictionary.
-
-    Returns:
-        Returns the CompletedProcess object if |raw_cmd_result| is set; returns
-        the dependencies in a dictionary otherwise.
-    """
-    cmd = ["cros_extract_deps"]
-    if board:
-        cmd += ["--board", board]
-    if cpe_format:
-        cmd += ["--format=cpe"]
-    else:
-        cmd += ["--format=deps"]
-    cmd += packages
-    env = {}
-    if useflags:
-        env["USE"] = " ".join(useflags)
-
-    if raw_cmd_result:
-        return RunBuildScript(
-            buildroot,
-            cmd,
-            enter_chroot=True,
-            chromite_cmd=True,
-            capture_output=True,
-            encoding="utf-8",
-            extra_env=env,
-        )
-
-    # The stdout of cros_extract_deps may contain undesirable
-    # output. Avoid that by instructing the script to explicitly dump
-    # the deps into a file.
-    with tempfile.NamedTemporaryFile(
-        dir=path_util.FromChrootPath("/tmp", source_path=buildroot)
-    ) as f:
-        cmd += ["--output-path", path_util.ToChrootPath(f.name)]
-        RunBuildScript(
-            buildroot,
-            cmd,
-            enter_chroot=True,
-            chromite_cmd=True,
-            capture_output=True,
-            extra_env=env,
-        )
-        return json.loads(f.read())
-
-
 def ExtractBuildDepsGraph(buildroot, board):
     """Extract the build deps graph for |board| using build_api proto service.
 
@@ -1251,28 +1186,6 @@ def GenerateBuildConfigs(board, config_useflags):
         results["config_useflags"] = config_useflags
 
     return results
-
-
-def GenerateCPEExport(buildroot, board, useflags=None):
-    """Generate CPE export.
-
-    Args:
-        buildroot: The root directory where the build occurs.
-        board: Board type that was built on this machine.
-        useflags: A list of useflags for this build.
-
-    Returns:
-        A CompletedProcess object with the results of running the CPE
-        export command.
-    """
-    return ExtractDependencies(
-        buildroot,
-        ["virtual/target-os"],
-        board=board,
-        useflags=useflags,
-        cpe_format=True,
-        raw_cmd_result=True,
-    )
 
 
 def GenerateBreakpadSymbols(

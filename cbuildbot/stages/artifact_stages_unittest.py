@@ -222,49 +222,6 @@ class UploadDevInstallerPrebuiltsStageTest(
         )
 
 
-class CPEExportStageTest(
-    generic_stages_unittest.AbstractStageTestCase,
-    cbuildbot_unittest.SimpleBuilderTestCase,
-):
-    """Test CPEExportStage"""
-
-    def setUp(self):
-        self.CreateMockOverlay("amd64-generic")
-
-        self.StartPatcher(generic_stages_unittest.ArchivingStageMixinMock())
-        self.StartPatcher(parallel_unittest.ParallelMock())
-
-        self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
-        self.rc_mock.SetDefaultCmdResult(stdout="")
-
-        self.stage = None
-        self.buildstore = FakeBuildStore()
-
-    def ConstructStage(self):
-        """Create a CPEExportStage instance for testing"""
-        self._run.GetArchive().SetupArchivePath()
-        return artifact_stages.CPEExportStage(
-            self._run, self.buildstore, self._current_board
-        )
-
-    def assertBoardAttrEqual(self, attr, expected_value):
-        """Assert the value of a board run |attr| against |expected_value|."""
-        value = self.stage.board_runattrs.GetParallel(attr)
-        self.assertEqual(expected_value, value)
-
-    def _TestPerformStage(self):
-        """Run PerformStage for the stage."""
-        self._Prepare()
-        self._run.attrs.release_tag = self.VERSION
-
-        self.stage = self.ConstructStage()
-        self.stage.PerformStage()
-
-    def testCPEExport(self):
-        """Test that CPEExport stage runs without syntax errors."""
-        self._TestPerformStage()
-
-
 class DebugSymbolsStageTest(
     generic_stages_unittest.AbstractStageTestCase,
     cbuildbot_unittest.SimpleBuilderTestCase,
