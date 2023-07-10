@@ -129,8 +129,6 @@ class SimpleBuilder(generic_builders.Builder):
 
         # This is what adds the autotest/tast uploads to the image.
         early_stage_list += [[artifact_stages.UploadTestArtifactsStage, board]]
-        # Adds CFT images to their own repo & metadata to this image.
-        early_stage_list += [[artifact_stages.UploadCFTArtifactsStage, board]]
 
         early_stage_objs = [
             self._GetStageInstance(*x, builder_run=builder_run)
