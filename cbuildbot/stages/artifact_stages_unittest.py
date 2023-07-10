@@ -20,7 +20,6 @@ from chromite.lib import failures_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import parallel_unittest
-from chromite.lib import partial_mock
 from chromite.lib import path_util
 from chromite.lib import results_lib
 from chromite.lib.buildstore import FakeBuildStore
@@ -424,79 +423,3 @@ class UploadTestArtifactsStageTest(
     def testAllConfigs(self):
         """Test all major configurations"""
         self.RunAllConfigs(self.RunTestsWithBotId)
-
-
-# TODO: Delete ArchivingMock once ArchivingStage is deprecated.
-class ArchivingMock(partial_mock.PartialMock):
-    """Partial mock for ArchivingStage."""
-
-    TARGET = "chromite.cbuildbot.stages.artifact_stages.ArchivingStage"
-    ATTRS = ("UploadArtifact",)
-
-    def UploadArtifact(self, *args, **kwargs):
-        with mock.patch.object(
-            commands, "ArchiveFile", autospec=True, return_value="foo.txt"
-        ):
-            with mock.patch.object(
-                commands, "UploadArchivedFile", autospec=True
-            ):
-                self.backup["UploadArtifact"](*args, **kwargs)
-
-
-# TODO: Delete ArchivingStageTest once ArchivingStage is deprecated.
-class ArchivingStageTest(
-    generic_stages_unittest.AbstractStageTestCase,
-    cbuildbot_unittest.SimpleBuilderTestCase,
-):
-    """Excerise ArchivingStage functionality."""
-
-    RELEASE_TAG = ""
-
-    def setUp(self):
-        self.StartPatcher(ArchivingMock())
-
-        self._Prepare()
-        self.buildstore = FakeBuildStore()
-
-    def ConstructStage(self):
-        self._run.GetArchive().SetupArchivePath()
-        archive_stage = artifact_stages.ArchiveStage(
-            self._run, self.buildstore, self._current_board
-        )
-        return artifact_stages.ArchivingStage(
-            self._run, self.buildstore, self._current_board, archive_stage
-        )
-
-
-class GenerateSysrootStageTest(
-    generic_stages_unittest.AbstractStageTestCase,
-    cbuildbot_unittest.SimpleBuilderTestCase,
-):
-    """Exercise GenerateSysrootStage functionality."""
-
-    RELEASE_TAG = ""
-
-    # pylint: disable=protected-access
-
-    def setUp(self):
-        self._Prepare()
-        self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
-        self.rc_mock.SetDefaultCmdResult()
-        self.buildstore = FakeBuildStore()
-
-    def ConstructStage(self):
-        self._run.GetArchive().SetupArchivePath()
-        return artifact_stages.GenerateSysrootStage(
-            self._run, self.buildstore, self._current_board
-        )
-
-    def testGenerateSysroot(self):
-        """Test that the sysroot generation was called correctly."""
-        stage = self.ConstructStage()
-        self.PatchObject(
-            path_util, "ToChrootPath", return_value="", autospec=True
-        )
-        self.PatchObject(stage._upload_queue, "put", autospec=True)
-        stage._GenerateSysroot()
-        sysroot_tarball = "sysroot_%s.tar.xz" % "virtual_target-os"
-        stage._upload_queue.put.assert_called_with([sysroot_tarball])
