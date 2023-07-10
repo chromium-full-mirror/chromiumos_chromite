@@ -191,7 +191,6 @@
       "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
       "manifest_version": true,
       "overlays": "both",
-      "paygen": true,
       "push_image": true,
       "run_build_configs_export": true,
       "run_cpeexport": true,
@@ -816,7 +815,6 @@
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"eve\",\n  \"name\": \"eve\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}"
     ],
-    "paygen": false,
     "push_image": false,
     "suite_scheduling": false
   },
@@ -2307,7 +2305,6 @@
     "display_label": "tryjob",
     "luci_builder": "Try",
     "master": true,
-    "paygen": false,
     "push_image": false,
     "slave_configs": [
       "eve-release-tryjob"

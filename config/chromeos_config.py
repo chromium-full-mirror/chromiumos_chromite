@@ -258,7 +258,6 @@ def GeneralTemplates(site_config):
         ),
         dev_installer_prebuilts=True,
         git_sync=False,
-        paygen=True,
         signer_tests=True,
         description="Release Builds (canary) (internal)",
         chrome_sdk=True,
@@ -293,7 +292,6 @@ def GeneralTemplates(site_config):
         images=["test", "factory_install"],
         image_test=False,
         luci_builder=config_lib.LUCI_BUILDER_FACTORY,
-        paygen=False,
         signer_tests=False,
         sign_types=["factory"],
         upload_hw_test_artifacts=True,
@@ -1007,9 +1005,6 @@ def TryjobMirrors(site_config):
 
         if tryjob_config.master:
             tryjob_config.apply(debug_cidb=True)
-
-        if tryjob_config.build_type != constants.PAYLOADS_TYPE:
-            tryjob_config.apply(paygen=False)
 
         if tryjob_config.slave_configs:
             new_children = []
