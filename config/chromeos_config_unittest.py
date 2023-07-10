@@ -482,18 +482,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     % build_name,
                 )
 
-    def testTryjobConfigsDontDefineOverrides(self):
-        """Make sure that no tryjob safe configs define test overrides."""
-        for build_name, config in self.site_config.items():
-            if not config_lib.isTryjobConfig(config):
-                continue
-
-            self.assertIsNone(
-                config.hw_tests_override,
-                "Config %s: is tryjob safe, but defines hw_tests_override."
-                % build_name,
-            )
-
     def testValidUnifiedMasterConfig(self):
         """Make sure any unified master configurations are valid."""
         for build_name, config in self.site_config.items():

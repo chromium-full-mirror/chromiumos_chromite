@@ -10,7 +10,6 @@ import re
 
 from chromite.config import chromeos_config_boards as chromeos_boards
 from chromite.config import chromeos_test_config as chromeos_test
-from chromite.config.chromeos_test_config import HWTestList
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.utils import memoize
@@ -709,8 +708,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         config_lib.CONFIG_TEMPLATE_RELEASE
     ]
 
-    hw_test_list = HWTestList(ge_build_config)
-
     for unibuild in config_lib.GetUnifiedBuildConfigAllBuilds(ge_build_config):
         models = []
         for model in unibuild[config_lib.CONFIG_TEMPLATE_MODELS]:
@@ -766,7 +763,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
         props = {
             "models": models,
             "important": important,
-            "hw_tests": hw_test_list.SharedPoolCanary(),
         }
         if config_name in _no_unittest_configs:
             props["unittests"] = False
@@ -986,7 +982,6 @@ def TryjobMirrors(site_config):
     for build_name, config in site_config.items():
         # Don't mirror builds that are already tryjob safe.
         if config_lib.isTryjobConfig(config):
-            config.apply(hw_tests_override=None)
             continue
 
         tryjob_name = build_name + "-tryjob"
@@ -1017,13 +1012,6 @@ def TryjobMirrors(site_config):
         # Force uprev. This is so patched in changes are always built.
         if tryjob_config.internal:
             tryjob_config.apply(overlays=constants.BOTH_OVERLAYS)
-
-        # In trybots, we want to always run VM tests and all unit tests, so that
-        # developers will get better testing for their changes.
-        if tryjob_config.hw_tests_override is not None:
-            tryjob_config.apply(
-                hw_tests=tryjob_config.hw_tests_override, hw_tests_override=None
-            )
 
         if tryjob_config.master:
             tryjob_config.apply(debug_cidb=True)
@@ -1255,7 +1243,7 @@ def GetConfig():
 
     GeneralTemplates(site_config)
 
-    chromeos_test.GeneralTemplates(site_config, ge_build_config)
+    chromeos_test.GeneralTemplates(site_config)
 
     ReleaseBuilders(site_config, boards_dict, ge_build_config)
 

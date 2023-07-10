@@ -296,32 +296,13 @@ def InsertHwTestsOverrideDefaults(build):
             hw_config.priority = constants.HWTEST_DEFAULT_PRIORITY
 
 
-def GeneralTemplates(site_config, ge_build_config):
+def GeneralTemplates(site_config):
     """Apply test config to general templates
 
     Args:
         site_config: config_lib.SiteConfig to be modified by adding templates
             and configs.
-        ge_build_config: Dictionary containing the decoded GE configuration
-            file.
     """
-    hw_test_list = HWTestList(ge_build_config)
-
-    # TryjobMirrors uses hw_tests_override to ensure that tryjobs run all suites
-    # rather than just the ones that are assigned to the board being used. Add
-    # bvt-tast-cq here since it includes system, Chrome, and Android tests.
-    site_config.AddTemplate(
-        "default_hw_tests_override",
-        hw_tests_override=hw_test_list.DefaultList(
-            # Explicitly set quota account to preserve pre-QuotaScheduler
-            # behaviour: Skylab tasks created for tryjobs compete with the
-            # general suite_scheduler triggered tasks.
-            pool=constants.HWTEST_QUOTA_POOL,
-            quota_account=constants.HWTEST_QUOTA_ACCOUNT_SUITES,
-            file_bugs=False,
-        ),
-    )
-
     site_config.AddTemplate(
         "no_hwtest_builder",
         hw_tests=[],
@@ -329,25 +310,14 @@ def GeneralTemplates(site_config, ge_build_config):
     )
 
     site_config.templates.full.apply(
-        site_config.templates.default_hw_tests_override,
         image_test=True,
     )
 
     # BEGIN Factory
     site_config.templates.factory.apply(
-        # site_config.templates.default_hw_tests_override,
         site_config.templates.no_hwtest_builder,
     )
     # END Factory
-
-    # BEGIN Release
-    release_hw_tests = hw_test_list.SharedPoolCanary()
-
-    site_config.templates.release.apply(
-        site_config.templates.default_hw_tests_override,
-        hw_tests=release_hw_tests,
-    )
-    # END Release
 
 
 def ApplyConfig(site_config):

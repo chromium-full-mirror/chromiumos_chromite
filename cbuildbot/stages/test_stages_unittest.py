@@ -434,38 +434,6 @@ class HWTestPlanStageTest(cros_test_lib.MockTempDirTestCase):
             options, site_config, build_config, parallel.Manager()
         )
 
-    def testGetHWTestStageWithPerModelFilters(self):
-        """Verify hwtests are filtered correctly on a per-model basis"""
-        extra_argv = ["--hwtest"]
-        unified_build = self._initConfig("eve-release", extra_argv=extra_argv)
-        unified_build.attrs.chrome_version = "TheChromeVersion"
-
-        test_phase1 = unified_build.config.hw_tests[0]
-        test_phase2 = unified_build.config.hw_tests[1]
-
-        model1 = config_lib.ModelTestConfig("model1", "some_lab_board")
-        model2 = config_lib.ModelTestConfig(
-            "model2", "mode11", [test_phase2.suite]
-        )
-
-        stage = test_stages.TestPlanStage(unified_build, self.buildstore, "eve")
-
-        hw_stage = stage._GetHWTestStage(
-            unified_build, self.buildstore, "eve", model1, test_phase1
-        )
-        self.assertIsNotNone(hw_stage)
-        self.assertEqual(hw_stage._board_name, "some_lab_board")
-
-        hw_stage = stage._GetHWTestStage(
-            unified_build, self.buildstore, "eve", model2, test_phase1
-        )
-        self.assertIsNone(hw_stage)
-
-        hw_stage = stage._GetHWTestStage(
-            unified_build, self.buildstore, "eve", model2, test_phase2
-        )
-        self.assertIsNotNone(hw_stage)
-
     def testModelsToTestWithDUTOverride(self):
         """Test TestPlanStage.ModelsToTest with a DUT model override."""
         builder_run = self._initConfig("eve-release")
