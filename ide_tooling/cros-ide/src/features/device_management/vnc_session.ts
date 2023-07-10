@@ -77,6 +77,7 @@ export class VncSession {
     context: vscode.ExtensionContext,
     output: vscode.OutputChannel,
     sshIdentity: SshIdentity,
+    rotate: boolean,
     proxyProtocol?: ProxyProtocol
   ): Promise<VncSession> {
     const forwardPort = await netUtil.findUnusedPort();
@@ -86,7 +87,8 @@ export class VncSession {
       output,
       proxyProtocol,
       forwardPort,
-      sshIdentity
+      sshIdentity,
+      rotate
     );
   }
 
@@ -96,7 +98,8 @@ export class VncSession {
     output: vscode.OutputChannel,
     proxyProtocol: ProxyProtocol | undefined,
     forwardPort: number,
-    sshIdentity: SshIdentity
+    sshIdentity: SshIdentity,
+    rotate: boolean
   ) {
     this.panel = VncSession.createWebview(hostname);
     switch (proxyProtocol ?? detectProxyProtocol()) {
@@ -123,7 +126,8 @@ export class VncSession {
       this.panel.webview,
       output,
       this.canceller.token,
-      sshIdentity
+      sshIdentity,
+      rotate
     );
 
     // Dispose the session when the panel is closed.
@@ -216,14 +220,16 @@ async function startAndWaitVncServer(
   webview: vscode.Webview,
   output: vscode.OutputChannel,
   token: vscode.CancellationToken,
-  sshIdentity: SshIdentity
+  sshIdentity: SshIdentity,
+  rotate: boolean
 ): Promise<void> {
   const serverStopped = startVncServer(
     hostname,
     forwardPort,
     output,
     token,
-    sshIdentity
+    sshIdentity,
+    rotate
   );
   const serverStarted = waitVncServer(forwardPort, token);
   const webViewReady = waitWebViewReady(webview);
@@ -277,14 +283,19 @@ async function startVncServer(
   forwardPort: number,
   output: vscode.OutputChannel,
   token: vscode.CancellationToken,
-  sshIdentity: SshIdentity
+  sshIdentity: SshIdentity,
+  rotate: boolean
 ): Promise<void> {
   const KMSVNC_PORT = 5900;
+  let command = `fuser -k ${KMSVNC_PORT}/tcp; kmsvnc`;
+  if (rotate) {
+    command += ' --rotate';
+  }
   const args = sshUtil.buildSshCommand(
     hostname,
     sshIdentity,
     ['-L', `${forwardPort}:localhost:${KMSVNC_PORT}`],
-    `fuser -k ${KMSVNC_PORT}/tcp; kmsvnc`
+    command
   );
 
   const memoryOutput = new MemoryOutputChannel();

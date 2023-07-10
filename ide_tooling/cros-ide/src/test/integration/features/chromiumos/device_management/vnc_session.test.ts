@@ -58,7 +58,8 @@ describe('VNC session', () => {
       `localhost:${sshServer.listenPort}`,
       api.context,
       state.output,
-      new SshIdentity(api.context.extensionUri, new ChromiumosServiceModule())
+      new SshIdentity(api.context.extensionUri, new ChromiumosServiceModule()),
+      false,
     );
     state.subscriptions.push(session);
 
@@ -90,6 +91,7 @@ describe('VNC session', () => {
       api.context,
       state.output,
       new SshIdentity(api.context.extensionUri, new ChromiumosServiceModule()),
+      false,
       vnc.ProxyProtocol.MESSAGE_PASSING // force message passing protocol
     );
     state.subscriptions.push(session);

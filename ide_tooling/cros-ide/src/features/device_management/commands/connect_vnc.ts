@@ -9,6 +9,7 @@ import {CommandContext, promptKnownHostnameIfNeeded} from './common';
 
 export async function connectToDeviceForScreen(
   context: CommandContext,
+  rotate: boolean,
   item?: provider.DeviceItem
 ): Promise<void> {
   metrics.send({
@@ -39,7 +40,8 @@ export async function connectToDeviceForScreen(
     hostname,
     context.extensionContext,
     context.output,
-    context.sshIdentity
+    context.sshIdentity,
+    rotate
   );
   newSession.onDidDispose(() => {
     context.vncSessions.delete(hostname);

@@ -56,6 +56,12 @@
         "icon": "$(window)"
       },
       {
+        "command": "chromiumide.deviceManagement.connectToDeviceForRotatedScreen",
+        "category": "CrOS",
+        "title": "Connect to Device (VNC) with rotation",
+        "icon": "$(window)"
+      },
+      {
         "command": "chromiumide.deviceManagement.connectToDeviceForShell",
         "category": "CrOS",
         "title": "Connect to Device (Shell)",
@@ -481,6 +487,11 @@
           "group": "1_connect@1"
         },
         {
+          "command": "chromiumide.deviceManagement.connectToDeviceForRotatedScreen",
+          "when": "view == devices && viewItem =~ /^device-/",
+          "group": "1_connect@2"
+        },
+        {
           "command": "chromiumide.deviceManagement.connectToDeviceForShell",
           "when": "view == devices && viewItem =~ /^device-/",
           "group": "inline@2"
@@ -488,7 +499,7 @@
         {
           "command": "chromiumide.deviceManagement.connectToDeviceForShell",
           "when": "view == devices && viewItem =~ /^device-/",
-          "group": "1_connect@2"
+          "group": "1_connect@3"
         },
         {
           "command": "chromiumide.deviceManagement.flashPrebuiltImage",

@@ -71,7 +71,13 @@ export function registerCommands(
     ),
     vscode.commands.registerCommand(
       'chromiumide.deviceManagement.connectToDeviceForScreen',
-      (item?: provider.DeviceItem) => connectToDeviceForScreen(context, item)
+      (item?: provider.DeviceItem) =>
+        connectToDeviceForScreen(context, /* rotate = */ false, item)
+    ),
+    vscode.commands.registerCommand(
+      'chromiumide.deviceManagement.connectToDeviceForRotatedScreen',
+      (item?: provider.DeviceItem) =>
+        connectToDeviceForScreen(context, /* rotate = */ true, item)
     ),
     vscode.commands.registerCommand(
       'chromiumide.deviceManagement.connectToDeviceForShell',
