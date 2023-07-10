@@ -4,17 +4,12 @@
 
 """Module containing the test stages."""
 
-import collections
-import logging
 import os
 
-from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import constants
-from chromite.lib import image_test_lib
 from chromite.lib import osutils
-from chromite.lib import perf_uploader
 from chromite.lib import timeout_util
 
 
@@ -84,53 +79,10 @@ class ImageTestStage(
         test_results_dir = os.path.join(self._build_root, test_results_dir[1:])
         test_results_dir = os.path.join(test_results_dir, "image_test_results")
         osutils.SafeMakedirs(test_results_dir)
-        try:
-            with timeout_util.Timeout(self.IMAGE_TEST_TIMEOUT):
-                commands.RunTestImage(
-                    self._build_root,
-                    self._current_board,
-                    self.GetImageDirSymlink(),
-                    test_results_dir,
-                )
-        finally:
-            self.SendPerfValues(test_results_dir)
-
-    def SendPerfValues(self, test_results_dir):
-        """Gather perf values in |test_results_dir| and send them to chromeperf.
-
-        The uploading will be retried 3 times for each file.
-
-        Args:
-            test_results_dir: A path to the directory with perf files.
-        """
-        # A dict of list of perf values, keyed by test name.
-        perf_entries = collections.defaultdict(list)
-        for root, _, filenames in os.walk(test_results_dir):
-            for relative_name in filenames:
-                if not image_test_lib.IsPerfFile(relative_name):
-                    continue
-                full_name = os.path.join(root, relative_name)
-                entries = perf_uploader.LoadPerfValues(full_name)
-                test_name = image_test_lib.ImageTestCase.GetTestName(
-                    relative_name
-                )
-                perf_entries[test_name].extend(entries)
-
-        platform_name = self._run.bot_id
-        try:
-            cros_ver = self._run.GetVersionInfo().VersionString()
-        except cbuildbot_run.VersionNotSetError:
-            logging.error(
-                "Could not obtain version info. Failed to upload perf results."
-            )
-            return
-
-        chrome_ver = self._run.DetermineChromeVersion()
-        for test_name, perf_values in perf_entries.items():
-            self._UploadPerfValues(
-                perf_values,
-                platform_name,
-                test_name,
-                cros_version=cros_ver,
-                chrome_version=chrome_ver,
+        with timeout_util.Timeout(self.IMAGE_TEST_TIMEOUT):
+            commands.RunTestImage(
+                self._build_root,
+                self._current_board,
+                self.GetImageDirSymlink(),
+                test_results_dir,
             )

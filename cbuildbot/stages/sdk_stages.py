@@ -20,17 +20,8 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
-from chromite.lib import perf_uploader
 from chromite.lib import portage_util
 from chromite.service import sdk
-
-
-def SdkPerfPath(buildroot):
-    """Return the path to the perf file for sdk stages."""
-    return path_util.FromChrootPath(
-        os.path.join(os.path.sep, "tmp", "cros-sdk.perf"),
-        source_path=buildroot,
-    )
 
 
 def CreateTarball(source_root, tarball_path, exclude_paths=None):
@@ -135,10 +126,6 @@ class SDKPackageStage(
 
     category = constants.PRODUCT_TOOLCHAIN_STAGE
 
-    def __init__(self, builder_run, buildstore, version=None, **kwargs):
-        self.sdk_version = version
-        super().__init__(builder_run, buildstore, **kwargs)
-
     def PerformStage(self):
         tarball_location = os.path.join(
             self._build_root, constants.SDK_TARBALL_NAME
@@ -162,8 +149,6 @@ class SDKPackageStage(
         # Create a package manifest for the tarball.
         self.CreateManifestFromSDK(board_location, manifest_location)
 
-        self.SendPerfValues(tarball_location)
-
     def CreateManifestFromSDK(self, sdk_path, dest_manifest):
         """Creates a manifest from a given source chroot.
 
@@ -181,70 +166,6 @@ class SDKPackageStage(
         """Encode manifest into a json file."""
         json_input = dict(version=sdk.PACKAGE_MANIFEST_VERSION, packages=data)
         osutils.WriteFile(manifest, json.dumps(json_input))
-
-    def _SendPerfValues(
-        self, buildroot, sdk_tarball, buildbot_uri_log, version, platform_name
-    ):
-        """Generate & upload perf data for the build"""
-        perf_path = SdkPerfPath(buildroot)
-        test_name = "sdk"
-        units = "bytes"
-
-        # Make sure the file doesn't contain previous data.
-        osutils.SafeUnlink(perf_path)
-
-        common_kwargs = {
-            "higher_is_better": False,
-            "graph": "cros-sdk-size",
-            "stdio_uri": buildbot_uri_log,
-        }
-
-        sdk_size = os.path.getsize(sdk_tarball)
-        perf_uploader.OutputPerfValue(
-            perf_path, "base", sdk_size, units, **common_kwargs
-        )
-
-        for tarball in glob.glob(
-            path_util.FromChrootPath(
-                os.path.join(
-                    os.path.sep,
-                    constants.SDK_TOOLCHAINS_OUTPUT,
-                    "*.tar.*",
-                ),
-                source_path=buildroot,
-            )
-        ):
-            name = os.path.basename(tarball).rsplit(".", 2)[0]
-            size = os.path.getsize(tarball)
-            perf_uploader.OutputPerfValue(
-                perf_path, name, size, units, **common_kwargs
-            )
-            perf_uploader.OutputPerfValue(
-                perf_path,
-                "base_plus_%s" % name,
-                sdk_size + size,
-                units,
-                **common_kwargs,
-            )
-
-        # Due to limitations in the perf dashboard, we have to create an integer
-        # based on the current timestamp.  This field only accepts integers, and
-        # the perf dashboard accepts this or CrOS+Chrome official versions.
-        revision = int(version.replace(".", ""))
-        perf_values = perf_uploader.LoadPerfValues(perf_path)
-        self._UploadPerfValues(
-            perf_values, platform_name, test_name, revision=revision
-        )
-
-    def SendPerfValues(self, sdk_tarball):
-        """Generate & upload perf data for the build"""
-        self._SendPerfValues(
-            self._build_root,
-            sdk_tarball,
-            self.ConstructDashboardURL(),
-            self.sdk_version,
-            self._run.bot_id,
-        )
 
     def CleanupMakeConfBoardSetup(self, board_location):
         """Cleanup etc/make.conf.board_setup to be usable in the SDK"""

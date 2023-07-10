@@ -19,7 +19,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
-from chromite.lib import perf_uploader
 from chromite.lib import portage_util
 from chromite.lib.buildstore import FakeBuildStore
 from chromite.lib.parser import package_info
@@ -116,9 +115,6 @@ class SDKPackageStageTest(
 
     def testTarballCreation(self):
         """Tests if we package the tarball and correctly create a Manifest."""
-        # We'll test this separately.
-        self.PatchObject(sdk_stages.SDKPackageStage, "_SendPerfValues")
-
         self._Prepare("chromiumos-sdk")
         fake_tarball = os.path.join(self.build_root, constants.SDK_TARBALL_NAME)
         fake_manifest = os.path.join(
@@ -151,93 +147,6 @@ class SDKPackageStageTest(
         self.uploadartifact_mock.assert_called_once_with(
             fake_tarball, strict=True, archive=True
         )
-
-    def testPerf(self):
-        """Check perf data points are generated/uploaded."""
-        m = self.PatchObject(perf_uploader, "UploadPerfValues")
-
-        sdk_data = "asldjfasf"
-        sdk_size = len(sdk_data)
-        sdk_tarball = os.path.join(self.tempdir, "sdk.tar.xz")
-        osutils.WriteFile(sdk_tarball, sdk_data)
-
-        tarball_dir = path_util.FromChrootPath(
-            os.path.join(
-                os.path.sep,
-                constants.SDK_TOOLCHAINS_OUTPUT,
-            ),
-            source_path=self.tempdir,
-        )
-        arm_tar = os.path.join(tarball_dir, "arm-cros-linux-gnu.tar.xz")
-        x86_tar = os.path.join(tarball_dir, "i686-pc-linux-gnu.tar.xz")
-        osutils.Touch(arm_tar, makedirs=True)
-        osutils.Touch(x86_tar, makedirs=True)
-
-        self._Prepare("chromiumos-sdk")
-        stage = self.ConstructStage()
-        # pylint: disable=protected-access
-        stage._SendPerfValues(
-            self.tempdir, sdk_tarball, "http://some/log", "123.4.5.6", "sdk-bot"
-        )
-        # pylint: enable=protected-access
-
-        perf_values = m.call_args[0][0]
-        exp = perf_uploader.PerformanceValue(
-            description="base",
-            value=sdk_size,
-            units="bytes",
-            higher_is_better=False,
-            graph="cros-sdk-size",
-            stdio_uri="http://some/log",
-        )
-        self.assertEqual(exp, perf_values[0])
-
-        exp = set(
-            (
-                perf_uploader.PerformanceValue(
-                    description="arm-cros-linux-gnu",
-                    value=0,
-                    units="bytes",
-                    higher_is_better=False,
-                    graph="cros-sdk-size",
-                    stdio_uri="http://some/log",
-                ),
-                perf_uploader.PerformanceValue(
-                    description="i686-pc-linux-gnu",
-                    value=0,
-                    units="bytes",
-                    higher_is_better=False,
-                    graph="cros-sdk-size",
-                    stdio_uri="http://some/log",
-                ),
-                perf_uploader.PerformanceValue(
-                    description="base_plus_arm-cros-linux-gnu",
-                    value=sdk_size,
-                    units="bytes",
-                    higher_is_better=False,
-                    graph="cros-sdk-size",
-                    stdio_uri="http://some/log",
-                ),
-                perf_uploader.PerformanceValue(
-                    description="base_plus_i686-pc-linux-gnu",
-                    value=sdk_size,
-                    units="bytes",
-                    higher_is_better=False,
-                    graph="cros-sdk-size",
-                    stdio_uri="http://some/log",
-                ),
-            )
-        )
-        self.assertEqual(exp, set(perf_values[1:]))
-
-        platform_name = m.call_args[0][1]
-        self.assertEqual(platform_name, "sdk-bot")
-
-        test_name = m.call_args[0][2]
-        self.assertEqual(test_name, "sdk")
-
-        kwargs = m.call_args[1]
-        self.assertEqual(kwargs["revision"], 123456)
 
 
 class SDKTestStageTest(

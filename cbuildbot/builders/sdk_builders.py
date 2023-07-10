@@ -39,7 +39,7 @@ class ChrootSdkBuilder(simple_builders.SimpleBuilder):
 
         self._RunStage(sdk_stages.SDKBuildToolchainsStage)
 
-        self._RunStage(sdk_stages.SDKPackageStage, version=version)
+        self._RunStage(sdk_stages.SDKPackageStage)
 
         self._RunStage(sdk_stages.SDKTestStage)
         # manojgupta: The comment in para below is not valid right now. Need to
