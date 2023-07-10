@@ -275,11 +275,7 @@ class DistributedBuilder(SimpleBuilder):
             )
         elif config_lib.IsPFQType(
             self._run.config.build_type
-        ) or self._run.config.build_type in (
-            constants.TOOLCHAIN_TYPE,
-            constants.FULL_TYPE,
-            constants.INCREMENTAL_TYPE,
-        ):
+        ) or self._run.config.build_type in (constants.FULL_TYPE,):
             sync_stage = self._GetStageInstance(
                 sync_stages.MasterSlaveLKGMSyncStage
             )

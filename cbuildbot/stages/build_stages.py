@@ -575,7 +575,6 @@ class BuildPackagesStage(
             # pylint: disable-next=consider-using-in
             self._run.config.build_type == constants.CANARY_TYPE
             or self._run.config.build_type == constants.FULL_TYPE
-            or self._run.config.build_type == constants.TOOLCHAIN_TYPE
         )
 
         # Set property to specify bisection builder job to run for Findit.

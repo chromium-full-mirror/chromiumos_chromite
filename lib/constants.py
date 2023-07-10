@@ -438,11 +438,6 @@ VALID_ANDROID_REVISIONS = [ANDROID_REV_LATEST]
 
 # Build types supported.
 
-# TODO(sosa): Deprecate PFQ type.
-# Incremental builds that are built using binary packages when available.
-# These builds have less validation than other build types.
-INCREMENTAL_TYPE = "binary"
-
 # These builds serve as PFQ builders.  This is being deprecated.
 PFQ_TYPE = "pfq"
 
@@ -456,9 +451,6 @@ CANARY_TYPE = "canary"
 # How long we should wait for the signing fleet to sign payloads.
 PAYLOAD_SIGNING_TIMEOUT = 10800
 
-# Similar behavior to canary, but used to validate toolchain changes.
-TOOLCHAIN_TYPE = "toolchain"
-
 # Generic type of tryjob only build configs.
 TRYJOB_TYPE = "tryjob"
 
@@ -471,13 +463,11 @@ CHROOT_BUILDER_BOARD = "amd64-host"
 GENERIC_TYPE = "generic"
 
 VALID_BUILD_TYPES = (
-    INCREMENTAL_TYPE,
     FULL_TYPE,
     CANARY_TYPE,
     CHROOT_BUILDER_TYPE,
     CHROOT_BUILDER_BOARD,
     PFQ_TYPE,
-    TOOLCHAIN_TYPE,
     TRYJOB_TYPE,
     GENERIC_TYPE,
 )
