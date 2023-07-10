@@ -521,10 +521,6 @@ def DefaultSettings():
         child_configs=[],
         # Whether this config belongs to a config group.
         grouped=False,
-        # Layout of the resulting image. See
-        # scripts/build_library/legacy_disk_layout.json or
-        # overlay-<board>/scripts/disk_layout.json for possible values.
-        disk_layout=None,
         # If enabled, run the PatchChanges stage.  Enabled by default. Can be
         # overridden by the --nopatch flag.
         postsync_patch=True,

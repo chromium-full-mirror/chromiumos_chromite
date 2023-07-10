@@ -850,7 +850,6 @@ def BuildImage(
     builder_path=None,
     rootfs_verification=True,
     extra_env=None,
-    disk_layout=None,
     chroot_args=None,
 ):
     """Run the script which builds images.
@@ -864,7 +863,6 @@ def BuildImage(
         rootfs_verification: Whether to enable the rootfs verification.
         extra_env: A dictionary of environmental variables to set during
             generation.
-        disk_layout: The disk layout.
         chroot_args: The args to the chroot.
     """
 
@@ -886,9 +884,6 @@ def BuildImage(
 
     if not rootfs_verification:
         cmd += ["--noenable_rootfs_verification"]
-
-    if disk_layout:
-        cmd += ["--disk_layout=%s" % disk_layout]
 
     cmd += images_to_build
 

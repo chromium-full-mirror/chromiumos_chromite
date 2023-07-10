@@ -114,8 +114,6 @@ noimagetest_boards = (
     termina_boards | scribe_boards | wshwos_boards | dustbuster_boards
 )
 
-base_layout_boards = termina_boards
-
 builder_incompatible_binaries_boards = frozenset(
     [
         "grunt",

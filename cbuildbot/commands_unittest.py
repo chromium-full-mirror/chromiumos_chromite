@@ -780,7 +780,6 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             images_to_build,
             rootfs_verification=False,
             extra_env={"LOVE": "free"},
-            disk_layout="2+2",
             version="1969",
         )
         self.assertCommandContains(["./build_image"])

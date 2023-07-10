@@ -801,7 +801,6 @@ class BuildImageStage(BuildPackagesStage):
         )
 
         version = self._run.attrs.release_tag
-        disk_layout = self._run.config.disk_layout
 
         rootfs_verification = self._run.config.rootfs_verification
         builder_path = "/".join([self._bot_id, self.version])
@@ -817,7 +816,6 @@ class BuildImageStage(BuildPackagesStage):
             rootfs_verification=rootfs_verification,
             version=version,
             builder_path=builder_path,
-            disk_layout=disk_layout,
             extra_env=self._portage_extra_env,
             chroot_args=chroot_args,
         )

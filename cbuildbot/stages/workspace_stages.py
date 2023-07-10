@@ -608,7 +608,6 @@ class WorkspaceBuildImageStage(
         # Collect build_image arguments.
         version = self.GetWorkspaceReleaseTag()
         rootfs_verification = self._run.config.rootfs_verification
-        disk_layout = self._run.config.disk_layout
         builder_path = "/".join([self._bot_id, version])
 
         # We only build base, dev, and test images from this stage.
@@ -633,9 +632,6 @@ class WorkspaceBuildImageStage(
 
         if not rootfs_verification:
             cmd += ["--noenable_rootfs_verification"]
-
-        if disk_layout:
-            cmd += ["--disk_layout", disk_layout]
 
         if self.AfterLimit(BUILD_IMAGE_BUILDER_PATH):
             cmd += ["--builder_path", builder_path]

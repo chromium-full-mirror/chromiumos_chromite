@@ -354,8 +354,6 @@ def CreateBoardConfigs(boards_dict, ge_build_config):
             )
         if board in chromeos_boards.noimagetest_boards:
             board_config.apply(image_test=False)
-        if board in chromeos_boards.base_layout_boards:
-            board_config.apply(disk_layout="base")
         if board in chromeos_boards.builder_incompatible_binaries_boards:
             board_config.apply(unittests=False)
 
