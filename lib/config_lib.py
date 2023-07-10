@@ -434,9 +434,6 @@ def DefaultSettings():
         android_package=None,
         # Uprev Chrome, values of 'tot', 'stable_release', or None.
         chrome_rev=None,
-        # Runs the tests that the signer would run. This should only be set if
-        # 'recovery' is in images.
-        signer_tests=False,
         # Runs unittests for packages.
         unittests=True,
         # Update the kernel ebuild with the AFDO profile info.

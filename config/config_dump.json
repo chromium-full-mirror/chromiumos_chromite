@@ -65,7 +65,6 @@
     "run_build_configs_export": false,
     "schedule": null,
     "sign_types": null,
-    "signer_tests": false,
     "slave_configs": null,
     "suite_scheduling": false,
     "sync_chrome": null,

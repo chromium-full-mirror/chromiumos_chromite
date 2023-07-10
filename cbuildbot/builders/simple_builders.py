@@ -13,7 +13,6 @@ from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import build_stages
 from chromite.cbuildbot.stages import chrome_stages
 from chromite.cbuildbot.stages import completion_stages
-from chromite.cbuildbot.stages import release_stages
 from chromite.cbuildbot.stages import report_stages
 from chromite.cbuildbot.stages import scheduler_stages
 from chromite.cbuildbot.stages import sync_stages
@@ -122,7 +121,6 @@ class SimpleBuilder(generic_builders.Builder):
         stage_list += [[chrome_stages.SimpleChromeArtifactsStage, board]]
 
         stage_list += [
-            [release_stages.SignerTestStage, board, archive_stage],
             [test_stages.ImageTestStage, board],
             [artifact_stages.UploadPrebuiltsStage, board],
             [artifact_stages.DevInstallerPrebuiltsStage, board],

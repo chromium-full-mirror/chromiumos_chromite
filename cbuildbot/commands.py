@@ -37,7 +37,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
 from chromite.lib import gob_util
 from chromite.lib import gs
-from chromite.lib import image_lib
 from chromite.lib import metrics
 from chromite.lib import osutils
 from chromite.lib import path_util
@@ -930,10 +929,6 @@ def RunTestImage(buildroot, board, image_dir, results_dir):
     RunBuildScript(
         buildroot, cmd, enter_chroot=True, chromite_cmd=True, sudo=True
     )
-
-
-def RunSignerTests(_buildroot, board):
-    image_lib.SecurityTest(board=board)
 
 
 def RunUnitTests(

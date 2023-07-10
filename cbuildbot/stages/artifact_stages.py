@@ -69,23 +69,9 @@ class ArchiveStage(
         # move to use self._run.attrs.release_tag directly.
         self.release_tag = getattr(self._run.attrs, "release_tag", None)
 
-        self._recovery_image_status_queue = multiprocessing.Queue()
         self._release_upload_queue = multiprocessing.Queue()
         self._upload_queue = multiprocessing.Queue()
         self.artifacts = []
-
-    def WaitForRecoveryImage(self):
-        """Wait until artifacts needed by SignerTest stage are created.
-
-        Returns:
-            True if artifacts created successfully.
-            False otherwise.
-        """
-        logging.info("Waiting for recovery image...")
-        status = self._recovery_image_status_queue.get()
-        # Put the status back so other SignerTestStage instances don't starve.
-        self._recovery_image_status_queue.put(status)
-        return status
 
     def ArchiveStrippedPackages(self):
         """Generate and archive stripped versions of packages requested."""
@@ -311,7 +297,6 @@ class ArchiveStage(
                 commands.BuildRecoveryImage(
                     buildroot, board, image_dir, extra_env
                 )
-                self._recovery_image_status_queue.put(True)
                 recovery_image = constants.RECOVERY_IMAGE_BIN
                 if not self.IsArchivedFile(recovery_image):
                     info = {
@@ -321,8 +306,6 @@ class ArchiveStage(
                         "compress": "xz",
                     }
                     self.artifacts.append(info)
-            else:
-                self._recovery_image_status_queue.put(False)
 
             if config["images"]:
                 if self._run.HasUseFlag(board, "no_factory_flow"):
@@ -412,7 +395,6 @@ class ArchiveStage(
     def _HandleStageException(self, exc_info):
         # Tell the HWTestStage not to wait for artifacts to be uploaded
         # in case ArchiveStage throws an exception.
-        self._recovery_image_status_queue.put(False)
         self.board_runattrs.SetParallel("instruction_urls_per_channel", None)
         return super()._HandleStageException(exc_info)
 
