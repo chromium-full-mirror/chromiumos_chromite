@@ -449,17 +449,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     % build_name,
                 )
 
-    def testDisableHWQualWithoutTestImage(self):
-        """Don't run steps that need a test image, without a test image."""
-        for build_name, config in self.site_config.items():
-            if config.hwqual and config.upload_hw_test_artifacts:
-                self.assertIn(
-                    "test",
-                    config.images,
-                    "Build %s must create a test image to enable hwqual"
-                    % build_name,
-                )
-
     def testBuildType(self):
         """Verifies that all configs use valid build types."""
         for build_name, config in self.site_config.items():
@@ -504,69 +493,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 "Config %s: is tryjob safe, but defines hw_tests_override."
                 % build_name,
             )
-
-    def testHWTestsReleaseBuilderRequirement(self):
-        """Make sure all release configs run hw tests."""
-        expected_exceptions = set(
-            (
-                build_name
-                for build_name, config in self.site_config.items()
-                if config.hw_tests_disabled_bug
-            )
-        )
-        missing_tests = set()
-        running_tests = set()
-        for build_name, config in self.site_config.items():
-            if (
-                config.build_type == "canary"
-                and "test" in config.images
-                and config.upload_hw_test_artifacts
-                and config.hwqual
-            ):
-                check_name = build_name
-                # Release tryjobs match their release job.
-                if "-release-tryjob" in check_name:
-                    check_name = check_name.replace("-tryjob", "")
-                if check_name.startswith("amd64-generic-"):
-                    # amd64-generic never does hardware tests.  See
-                    # crbug/998427.
-                    continue
-                elif check_name not in expected_exceptions:
-                    # If it's not listed as an exception, it needs to run
-                    # hardware tests.
-                    if not config.hw_tests and not config.hw_tests_disabled_bug:
-                        missing_tests.add(build_name)
-                elif config.hw_tests:
-                    # It is listed as an exception, and it is running hardware
-                    # tests.  It must be removed from the exceptions list.
-                    running_tests.add(build_name)
-        # Assert at the end, so that we can print the entire list.
-        self.assertEqual(
-            set(),
-            running_tests,
-            "Expected no hw_tests, but found them: %s" % running_tests,
-        )
-        self.assertEqual(
-            set(),
-            missing_tests,
-            "Builds must run hardware tests: %s" % missing_tests,
-        )
-
-    def testHWTestsReleaseBuilderWeakRequirement(self):
-        """Make sure most release configs run hw tests."""
-        for build_name, config in self.site_config.items():
-            if config.hw_tests_disabled_bug:
-                continue
-            if (
-                config.build_type == "canary"
-                and "test" in config.images
-                and config.upload_hw_test_artifacts
-                and config.hwqual
-            ):
-                self.assertTrue(
-                    config.hw_tests,
-                    "Release builder %s must run hw tests." % build_name,
-                )
 
     def testValidUnifiedMasterConfig(self):
         """Make sure any unified master configurations are valid."""

@@ -3308,51 +3308,6 @@ def py2_MessageToJson(obj):
     )
 
 
-def BuildFullAutotestTarball(buildroot, board, tarball_dir):
-    """Tar up the full autotest directory into image_dir.
-
-    Args:
-        buildroot: Root directory where build occurs.
-        board: Board type that was built on this machine.
-        tarball_dir: Location for storing autotest tarballs.
-
-    Returns:
-        A tuple the path of the full autotest tarball.
-    """
-
-    tarball = os.path.join(tarball_dir, "autotest.tar.bz2")
-    cwd = os.path.abspath(
-        path_util.FromChrootPath(
-            os.path.join(
-                "/build",
-                board,
-                constants.AUTOTEST_BUILD_PATH,
-                "..",
-            ),
-            source_path=buildroot,
-        )
-    )
-    result = BuildTarball(
-        buildroot, ["autotest"], tarball, cwd=cwd, check=False
-    )
-
-    # Emerging the autotest package to the factory test image while this is
-    # running modifies the timestamp on /build/autotest/server by
-    # adding a tmp directory underneath it.
-    # When tar spots this, it flags this and returns
-    # status code 1. The tarball is still OK, although there might be a few
-    # unneeded (and garbled) tmp files. If tar fails in a different way, it'll
-    # return an error code other than 1.
-    # TODO: Fix the autotest ebuild. See https://crbug.com/237537
-    if result.returncode not in (0, 1):
-        raise Exception(
-            "Autotest tarball creation failed with exit code %s"
-            % (result.returncode)
-        )
-
-    return tarball
-
-
 def BuildImageZip(archive_dir, image_dir):
     """Build image.zip in archive_dir from contents of image_dir.
 
@@ -3697,32 +3652,6 @@ def BuildFactoryZip(
             )
 
     return filename
-
-
-def ArchiveHWQual(buildroot, hwqual_name, archive_dir, image_dir):
-    """Create a hwqual tarball in archive_dir.
-
-    Args:
-        buildroot: Root directory where build occurs.
-        hwqual_name: Name for tarball.
-        archive_dir: Local directory for hwqual tarball.
-        image_dir: Directory containing test image.
-    """
-    script_dir = os.path.join(buildroot, "src", "platform", "crostestutils")
-    ssh_private_key = os.path.join(image_dir, constants.TEST_KEY_PRIVATE)
-    cmd = [
-        os.path.join(script_dir, "archive_hwqual"),
-        "--from",
-        archive_dir,
-        "--image_dir",
-        image_dir,
-        "--ssh_private_key",
-        ssh_private_key,
-        "--output_tag",
-        hwqual_name,
-    ]
-    cros_build_lib.run(cmd, capture_output=True)
-    return "%s.tar.bz2" % hwqual_name
 
 
 def CreateTestRoot(build_root):

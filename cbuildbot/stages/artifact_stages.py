@@ -177,7 +177,6 @@ class ArchiveStage(
         #          \- ArchiveStandaloneArtifacts
         #             \- ArchiveStandaloneArtifact
         #          \- ArchiveZipFiles
-        #          \- ArchiveHWQual
         #          \- ArchiveLicenseFile
         #       \- PushImage (blocks on BuildAndArchiveAllImages)
         #    \- ArchiveManifest
@@ -278,42 +277,6 @@ class ArchiveStage(
             image_zip = commands.BuildImageZip(archive_path, image_dir)
             self._release_upload_queue.put([image_zip])
 
-        def ArchiveHWQual():
-            """Build and archive the HWQual images."""
-            # TODO(petermayo): This logic needs to be exported from the
-            # BuildTargets stage rather than copied/re-evaluated here.
-            # TODO(mtennant): Make this autotest_built concept into a run param.
-            autotest_built = (
-                self._run.options.tests and config["upload_hw_test_artifacts"]
-            )
-
-            if config["hwqual"] and autotest_built:
-                # Build the full autotest tarball for hwqual image. We don't
-                # upload it, as it's fairly large and only needed by the hwqual
-                # tarball.
-                logging.info("Archiving full autotest tarball locally ...")
-                logging.info("Running commands.BuildFullAutotestTarball")
-                tarball = commands.BuildFullAutotestTarball(
-                    self._build_root, self._current_board, image_dir
-                )
-                self.board_runattrs.SetParallel(
-                    "autotest_tarball_generated", True
-                )
-                logging.info("Running commands.ArchiveFile")
-                commands.ArchiveFile(tarball, archive_path)
-
-                # Build hwqual image and upload to Google Storage.
-                hwqual_name = "chromeos-hwqual-%s-%s" % (board, self.version)
-                logging.info("Running commands.ArchiveHWQual")
-                filename = commands.ArchiveHWQual(
-                    buildroot, hwqual_name, archive_path, image_dir
-                )
-                self._release_upload_queue.put([filename])
-            else:
-                self.board_runattrs.SetParallel(
-                    "autotest_tarball_generated", True
-                )
-
         def ArchiveLicenseFile():
             """Archive licensing file."""
             filename = "license_credits.html"
@@ -336,12 +299,6 @@ class ArchiveStage(
             # only run one instance of build_image at a time. TODO(davidjames):
             # Move the image generation out of the archive stage.
             self.LoadArtifactsList(self._current_board, image_dir)
-
-            # If there's no plan to run ArchiveHWQual, VMTest should start asap.
-            if not config["images"]:
-                self.board_runattrs.SetParallel(
-                    "autotest_tarball_generated", True
-                )
 
             # For recovery image to be generated correctly, BuildRecoveryImage
             # must run before BuildAndArchiveFactoryImages.
@@ -374,7 +331,6 @@ class ArchiveStage(
                     steps = [BuildAndArchiveFactoryImages]
                 steps += [
                     ArchiveLicenseFile,
-                    ArchiveHWQual,
                     ArchiveStandaloneArtifacts,
                     ArchiveZipFiles,
                 ]
@@ -452,19 +408,12 @@ class ArchiveStage(
             assert self._release_upload_queue.empty()
 
         BuildAndArchiveArtifacts()
-        self.board_runattrs.SetParallel("autotest_tarball_generated", True)
-
-    def HandleSkip(self):
-        """Tell other stages to not wait on us if we are skipped."""
-        self.board_runattrs.SetParallel("autotest_tarball_generated", True)
-        return super().HandleSkip()
 
     def _HandleStageException(self, exc_info):
         # Tell the HWTestStage not to wait for artifacts to be uploaded
         # in case ArchiveStage throws an exception.
         self._recovery_image_status_queue.put(False)
         self.board_runattrs.SetParallel("instruction_urls_per_channel", None)
-        self.board_runattrs.SetParallel("autotest_tarball_generated", True)
         return super()._HandleStageException(exc_info)
 
 

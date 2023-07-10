@@ -675,8 +675,6 @@ def DefaultSettings():
         push_image=False,
         # Do we upload debug symbols.
         upload_symbols=False,
-        # Whether we upload a hwqual tarball.
-        hwqual=False,
         # Run a stage that generates release payloads for signed images.
         paygen=False,
         # If the paygen stage runs, generate tests, and schedule auto-tests for

@@ -42,7 +42,6 @@
     "hw_tests": [],
     "hw_tests_disabled_bug": "",
     "hw_tests_override": null,
-    "hwqual": false,
     "image_test": false,
     "images": [
       "test"

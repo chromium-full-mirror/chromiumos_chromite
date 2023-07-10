@@ -292,7 +292,6 @@ def GeneralTemplates(site_config):
         description="Factory Builds",
         dev_installer_prebuilts=False,
         factory_toolkit=True,
-        hwqual=False,
         images=["test", "factory_install"],
         image_test=False,
         luci_builder=config_lib.LUCI_BUILDER_FACTORY,
@@ -362,8 +361,6 @@ def CreateBoardConfigs(boards_dict, ge_build_config):
             )
         if board in chromeos_boards.noimagetest_boards:
             board_config.apply(image_test=False)
-        if board in chromeos_boards.nohwqual_boards:
-            board_config.apply(hwqual=False)
         if board in chromeos_boards.base_layout_boards:
             board_config.apply(disk_layout="base")
         if board in chromeos_boards.builder_incompatible_binaries_boards:

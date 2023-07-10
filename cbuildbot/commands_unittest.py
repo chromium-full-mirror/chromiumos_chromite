@@ -1725,21 +1725,6 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         )
         self._tarball_dir = self.tempdir
 
-    def testBuildFullAutotestTarball(self):
-        """Tests our call to generate the full autotest tarball is correct."""
-        with mock.patch.object(commands, "BuildTarball") as m:
-            m.return_value.returncode = 0
-            commands.BuildFullAutotestTarball(
-                self._buildroot, self._board, self._tarball_dir
-            )
-            m.assert_called_once_with(
-                self._buildroot,
-                ["autotest"],
-                os.path.join(self._tarball_dir, "autotest.tar.bz2"),
-                cwd=self._cwd,
-                check=False,
-            )
-
     def testBuildAutotestPackagesTarball(self):
         """Tests that generating the autotest packages tarball is correct."""
         with mock.patch.object(commands, "BuildTarball") as m:
