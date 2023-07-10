@@ -262,7 +262,6 @@ def GeneralTemplates(site_config):
         git_sync=False,
         paygen=True,
         signer_tests=True,
-        hwqual=True,
         description="Release Builds (canary) (internal)",
         chrome_sdk=True,
         image_test=True,
