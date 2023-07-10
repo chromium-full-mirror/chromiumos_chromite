@@ -526,50 +526,6 @@ class ReportStage(
         self._completion_instance = completion_instance
         self._post_completion = False
 
-    def _UpdateStreakCounter(self, final_status, counter_name, dry_run=False):
-        """Update the given streak counter based on the final status of build.
-
-        A streak counter counts the number of consecutive passes or failures of
-        a particular builder. Consecutive passes are indicated by a positive
-        value, consecutive failures by a negative value.
-
-        Args:
-            final_status: String indicating final status of build,
-                constants.BUILDER_STATUS_PASSED indicating success.
-            counter_name: Name of counter to increment, typically the name of
-                the build config.
-            dry_run: Pretend to update counter only. Default: False.
-
-        Returns:
-            The new value of the streak counter.
-        """
-        site_params = config_lib.GetSiteParams()
-        gs_ctx = gs.GSContext(dry_run=dry_run)
-        counter_url = os.path.join(
-            site_params.MANIFEST_VERSIONS_GS_URL,
-            constants.STREAK_COUNTERS,
-            counter_name,
-        )
-        gs_counter = gs.GSCounter(gs_ctx, counter_url)
-
-        if final_status == constants.BUILDER_STATUS_PASSED:
-            streak_value = gs_counter.StreakIncrement()
-        else:
-            streak_value = gs_counter.StreakDecrement()
-
-        return streak_value
-
-    def _HealthAlertMessage(self, fail_count):
-        """Returns the body of a health alert email message."""
-        return (
-            "The builder named %s has failed %i consecutive times. See %s"
-            % (
-                self._run.config["name"],
-                fail_count,
-                self.ConstructDashboardURL(),
-            )
-        )
-
     def _LinkArtifacts(self, builder_run):
         """Upload an HTML index and uploaded.json for artifacts.
 

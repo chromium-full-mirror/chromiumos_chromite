@@ -255,14 +255,6 @@ class AbstractReportStageTestCase(
 
         self._Prepare()
 
-    def _SetupUpdateStreakCounter(self, counter_value=-1):
-        self.PatchObject(
-            report_stages.ReportStage,
-            "_UpdateStreakCounter",
-            autospec=True,
-            return_value=counter_value,
-        )
-
     def ConstructStage(self):
         return report_stages.ReportStage(self._run, self.buildstore, None)
 
@@ -328,7 +320,6 @@ class ReportStageTest(AbstractReportStageTestCase):
         ]
         self.buildstore.GetBuildsStages = mock.Mock(return_value=stages)
         self.mock_cidb.GetSlaveStatuses = mock.Mock(return_value=statuses)
-        self._SetupUpdateStreakCounter()
         self.PatchObject(report_stages.ReportStage, "_LinkArtifacts")
         self.RunStage()
         filenames = (
@@ -387,7 +378,6 @@ class ReportStageTest(AbstractReportStageTestCase):
 
     def testDoNotUpdateLATESTMarkersWhenBuildFailed(self):
         """Check that we do not update the latest markers on failed build."""
-        self._SetupUpdateStreakCounter()
         self.PatchObject(report_stages.ReportStage, "_LinkArtifacts")
         self.PatchObject(
             results_lib.Results, "BuildSucceededSoFar", return_value=False
@@ -433,7 +423,6 @@ class ReportStageTest(AbstractReportStageTestCase):
         self.PatchObject(
             cros_build_lib, "GetHostName", return_value="cros-wimpy2"
         )
-        self._SetupUpdateStreakCounter()
         report_stages.WriteTagMetadata(self._run)
         tags_dict = self._run.attrs.metadata.GetValue(constants.METADATA_TAGS)
         self.assertEqual(
@@ -471,5 +460,4 @@ class ReportStageNoSyncTest(AbstractReportStageTestCase):
 
     def testCommitQueueResults(self):
         """Check that we can run with a RELEASE_TAG of None."""
-        self._SetupUpdateStreakCounter()
         self.RunStage()
