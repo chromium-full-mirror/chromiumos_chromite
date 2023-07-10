@@ -85,12 +85,12 @@ async def workon_stop():
 
 
 @app.route("/repo-refresh", methods=["GET", "POST"])
-async def repo_refresh():
+def repo_refresh():
     """App route to run gRPC repo status endpoint and parse."""
 
     if request.method == "POST":
         # POST only sent by script.
-        response = await client.repo_status(sdk_server_pb2.RepoStatusRequest())
+        response = client.repo_status(sdk_server_pb2.RepoStatusRequest())
 
         project = ""
         branch = ""

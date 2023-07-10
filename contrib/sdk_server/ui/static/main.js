@@ -70,6 +70,9 @@ function populateRepoFiles() {
 
         success: function (response) {
 
+            $("#repoProject").removeClass("placeholder bg-light me-3");
+            $("#repoBranch").removeClass("placeholder bg-light me-3");
+
             $("#repoProject").html(response.project);
             $("#repoBranch").html(response.branch);
 
@@ -418,7 +421,7 @@ $(document).ready(function () {
     $("#updateChrootSubmit").on("click", updateChroot);
     $("#replaceChrootSubmit").on("click", replaceChroot);
     $("#buildPackagesSubmit").on("click", buildPackages);
-    
+
     //Rotates the log expander arrow
     $(".log-expander").on('click', function () {
         $(this).children("svg").toggleClass("rotate-log-button")

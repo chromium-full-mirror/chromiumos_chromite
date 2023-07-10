@@ -257,7 +257,7 @@
                 <div class="col-3">
                   <div class="dropdown">
                     <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary" type="button" 
-                    data-bs-toggle="dropdown" aria-expanded="false" id="boardSelectorTitle"></button>
+                    data-bs-toggle="dropdown" aria-expanded="false" id="boardSelectorTitle">Loading...</button>
                     <ul class="dropdown-menu" id="boardSelector">
                       {% for board in data["current_boards"] %}
                         <li>
@@ -436,6 +436,36 @@
               </div>
             
               <div class="row" id="allBoardPackages">
+                <li class="row bg-dark border-top border-black p-0 m-0 align-items-center placeholder-glow ">
+                  <div class="ms-1 col-4 placeholder bg-light "></div>
+                  <div class="col-1 placeholder bg-light offset-md-3 d-flex">
+                  </div>
+                  <div class="col offset-md-1">
+                    <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1 disabled placeholder"  >Build</button>
+                    <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0 disabled placeholder" >Info </button>
+                    <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop disabled placeholder">Stop</button>
+                  </div>              
+                </li>
+                <li class="row bg-dark border-top border-black p-0 m-0 align-items-center placeholder-glow ">
+                  <div class="ms-1 col-6 placeholder bg-light "></div>
+                  <div class="col-1 placeholder bg-light offset-md-1 d-flex">
+                  </div>
+                  <div class="col offset-md-1">
+                    <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1 disabled placeholder" >Build</button>
+                    <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0 disabled placeholder" >Info</button>
+                    <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop disabled placeholder">Stop</button>
+                  </div>              
+                </li>
+                <li class="row bg-dark border-top border-black p-0 m-0 align-items-center placeholder-glow ">
+                  <div class="ms-1 col-5 placeholder bg-light "></div>
+                  <div class="col-1 placeholder bg-light offset-md-2 d-flex">
+                  </div>
+                  <div class="col offset-md-1">
+                    <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1 disabled placeholder" >Build</button>
+                    <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0 disabled placeholder" >Info</button>
+                    <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop disabled placeholder">Stop</button>
+                  </div>              
+                </li>
                 
               </div>
             </div>
@@ -497,19 +527,51 @@
               </div>
             </div>
             
-            <ul id = "repoFilesList" class = "row list-unstyled p-0 mb-0 bg-dark">
-              
+            <ul id = "repoFilesList" class = "row list-unstyled mb-0 bg-dark p-0 d-flex flex-column">
+              <div class = "placeholder-glow justify-content-center row mb-2" style="height:15px">
+                <div class = "placeholder bg-light col-md-6"></div>
+                <div class = "placeholder bg-light col-md-2 offset-md-1"></div>
+                <div class = "placeholder bg-light col-md-1 offset-md-1"></div>
+                <div class = "col"></div>
+              </div>
+              <div class = "placeholder-glow justify-content-center row mb-2" style="height:15px">
+                <div class = "placeholder bg-light col-md-4"></div>
+                <div class = "placeholder bg-light col-md-1 offset-md-3"></div>
+                <div class = "placeholder bg-light col-md-2 offset-md-2"></div>
+              </div>
+              <div class = "placeholder-glow justify-content-center row mb-2" style="height:15px">
+                <div class = "placeholder bg-light col-md-5"></div>
+                <div class = "placeholder bg-light col-md-1 offset-md-2"></div>
+                <div class = "placeholder bg-light col-md-1 offset-md-2"></div>
+                <div class = "col"></div>
+              </div>
+              <div class = "placeholder-glow justify-content-center row mb-2" style="height:15px">
+                <div class = "placeholder bg-light col-md-6"></div>
+                <div class = "placeholder bg-light col-md-2 offset-md-1"></div>
+                <div class = "placeholder bg-light col-md-2 offset-md-1"></div>
+              </div>
+              <div class = "placeholder-glow justify-content-center row mb-2" style="height:15px">
+                <div class = "placeholder bg-light col-md-5"></div>
+                <div class = "placeholder bg-light col-md-2 offset-md-2"></div>
+                <div class = "placeholder bg-light col-md-1 offset-md-1"></div>
+                <div class = "col"></div>
+              </div>
+              <div class = "flex-grow-1">
+              </div>
             </ul>
           </div>
           <div class = "col bg-dark border-start border-top border-light-subtle">
             <h6 class = "text-light bg-black row py-1"><strong>Repo Info</strong></h6>
-            <div class = "row d-flex justify-content-between">
+            <div class = "row d-flex justify-content-between placeholder-glow">
               <div class = "col text-white-50 fs-6" >Project</div>
-              <div class = "col text-light fs-6" id = "repoProject"></div>
+              <div class = "col text-light fs-6 placeholder bg-light me-3" id = "repoProject">
+              </div>
             </div>
-            <div class = "row mt-2">
+            <div class = "row mt-2 placeholder-glow">
               <div class = "col text-white-50 fs-6">Branch</div>
-              <div class = "col text-light fs-6" id = "repoBranch"></div>
+              <div class = "col text-light fs-6 placeholder bg-light me-3" id = "repoBranch">
+
+              </div>
             </div>
             <div class = "d-flex justify-content-start position-relative">
               <div>
