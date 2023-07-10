@@ -7,12 +7,10 @@
 from unittest import mock
 
 from chromite.cbuildbot import cbuildbot_run
-from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.cbuildbot.stages import scheduler_stages
 from chromite.lib import cidb
 from chromite.lib import config_lib
-from chromite.lib import constants
 from chromite.lib import fake_cidb
 from chromite.lib.buildstore import FakeBuildStore
 
@@ -101,47 +99,6 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
             "hash1234",
         ]
         self.assertEqual(request.extra_args, expected_extra_args)
-
-    def testScheduleSlaveBuildsSuccess(self):
-        """Test ScheduleSlaveBuilds with success."""
-        stage = self.ConstructStage()
-
-        self.PatchObject(
-            scheduler_stages.ScheduleSlavesStage,
-            "PostSlaveBuildToBuildbucket",
-            return_value=("buildbucket_id", None),
-        )
-
-        slave_config_map = {
-            "target1-release": config_lib.BuildConfig(important=False),
-            "target2-full": config_lib.BuildConfig(important=True),
-            "target3-release": config_lib.BuildConfig(important=True),
-        }
-        self.PatchObject(
-            generic_stages.BuilderStage,
-            "_GetSlaveConfigMap",
-            return_value=slave_config_map,
-        )
-        self.PatchObject(
-            constants, "LEGACY_RELEASE_ALLOWLIST", new=["target1-release"]
-        )
-
-        stage.ScheduleSlaveBuildsViaBuildbucket(
-            important_only=False, dryrun=True
-        )
-
-        scheduled_slaves = self._run.attrs.metadata.GetValue(
-            constants.METADATA_SCHEDULED_IMPORTANT_SLAVES
-        )
-        self.assertEqual(len(scheduled_slaves), 1)
-        experimental_slaves = self._run.attrs.metadata.GetValue(
-            constants.METADATA_SCHEDULED_EXPERIMENTAL_SLAVES
-        )
-        self.assertEqual(len(experimental_slaves), 1)
-        unscheduled_slaves = self._run.attrs.metadata.GetValue(
-            constants.METADATA_UNSCHEDULED_SLAVES
-        )
-        self.assertEqual(len(unscheduled_slaves), 0)
 
     def testPostSlaveBuildToBuildbucket(self):
         """Test PostSlaveBuildToBuildbucket on builds with a single board."""

@@ -1036,7 +1036,3 @@ RECOVERY_DATA_PRIVATE_KEY = "recovery_kernel_data_key.vbprivk"
 RECOVERY_KEYBLOCK = "recovery_kernel.keyblock"
 MINIOS_DATA_PRIVATE_KEY = "minios_kernel_data_key.vbprivk"
 MINIOS_KEYBLOCK = "minios_kernel.keyblock"
-
-# LegacyRelease allowlist.
-# TODO(b/238925754): Delete when Rubik is fully rolled out.
-LEGACY_RELEASE_ALLOWLIST = []
