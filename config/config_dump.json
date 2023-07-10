@@ -165,7 +165,6 @@
       "chrome_sdk": true,
       "chromeos_official": true,
       "description": "Release Builds (canary) (internal)",
-      "dev_installer_prebuilts": true,
       "display_label": "release",
       "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Canaries",
       "image_test": true,

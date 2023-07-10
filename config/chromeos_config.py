@@ -255,7 +255,6 @@ def GeneralTemplates(site_config):
         binhost_base_url=(
             "https://commondatastorage.googleapis.com/chromeos-dev-installer"
         ),
-        dev_installer_prebuilts=True,
         git_sync=False,
         description="Release Builds (canary) (internal)",
         chrome_sdk=True,
@@ -285,7 +284,6 @@ def GeneralTemplates(site_config):
         chrome_sdk=False,
         chrome_sdk_build_chrome=False,
         description="Factory Builds",
-        dev_installer_prebuilts=False,
         factory_toolkit=True,
         images=["test", "factory_install"],
         image_test=False,
