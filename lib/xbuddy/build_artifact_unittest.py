@@ -16,6 +16,7 @@ import tempfile
 from unittest import mock
 
 from chromite.lib import cros_test_lib
+from chromite.lib import gs_unittest
 from chromite.lib.xbuddy import artifact_info
 from chromite.lib.xbuddy import build_artifact
 from chromite.lib.xbuddy import devserver_constants
@@ -539,6 +540,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
 
     def testProcessBuildArtifactWithException(self):
         """Test processing a non-existing artifact from GSUtil."""
+        self.StartPatcher(gs_unittest.GSContextMock())
         artifact = build_artifact.Artifact(
             build_artifact.TEST_SUITES_FILE, self.work_dir, _VERSION
         )
