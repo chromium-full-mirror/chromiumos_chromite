@@ -52,13 +52,14 @@ class ProtocVersion(enum.Enum):
     # CIPD that matches the version of the protobuf library in
     # chromite/third_party/google/protobuf.
     CHROMITE = enum.auto()
+    # Type annotations for the chromite bindings.
+    CHROMITE_PYI = enum.auto()
 
     def get_gen_dir(self) -> Path:
         """Get the chromite/api directory path."""
         if self is ProtocVersion.SDK:
             return constants.CHROMITE_DIR / "api" / "gen_sdk"
-        else:
-            return constants.CHROMITE_DIR / "api" / "gen"
+        return constants.CHROMITE_DIR / "api" / "gen"
 
     def get_proto_dir(self) -> Path:
         """Get the proto directory for the target protoc."""
@@ -66,11 +67,14 @@ class ProtocVersion(enum.Enum):
 
     def get_protoc_command(self, cipd_root: Optional[Path] = None) -> Path:
         """Get protoc command path."""
-        assert self is ProtocVersion.SDK or cipd_root
         if self is ProtocVersion.SDK:
             return Path("protoc")
-        elif cipd_root:
-            return cipd_root / "bin" / "protoc"
+        assert cipd_root
+        return cipd_root / "bin" / "protoc"
+
+    def get_suffix(self) -> str:
+        """Get the file suffix of generated output."""
+        return "pyi" if self is ProtocVersion.CHROMITE_PYI else "py"
 
 
 @enum.unique
@@ -104,7 +108,7 @@ class SubdirectorySet(enum.Enum):
 
 def InstallProtoc(protoc_version: ProtocVersion) -> Path:
     """Install protoc from CIPD."""
-    if protoc_version is not ProtocVersion.CHROMITE:
+    if protoc_version is ProtocVersion.SDK:
         cipd_root = None
     else:
         cipd_root = Path(
@@ -115,7 +119,7 @@ def InstallProtoc(protoc_version: ProtocVersion) -> Path:
     return protoc_version.get_protoc_command(cipd_root)
 
 
-def _CleanTargetDirectory(directory: Path):
+def _CleanTargetDirectory(directory: Path, protoc_version: ProtocVersion):
     """Remove any existing generated files in the directory.
 
     This clean only removes the generated files to avoid accidentally destroying
@@ -126,12 +130,16 @@ def _CleanTargetDirectory(directory: Path):
 
     Args:
         directory: Path to be cleaned up.
+        protoc_version: The type of generated files to be cleaned.
     """
     logging.info("Cleaning old files from %s.", directory)
-    for current in directory.rglob("*_pb2.py"):
+    for current in directory.rglob(f"*_pb2.{protoc_version.get_suffix()}"):
         # Remove old generated files.
         current.unlink()
-    for current in directory.rglob("__init__.py"):
+
+    # Note the generator does not currently make __init__.pyi files but, if it
+    # did, we'd want them to be cleaned up here.
+    for current in directory.rglob(f"__init__.{protoc_version.get_suffix()}"):
         # Remove empty init files to clean up otherwise empty directories.
         if not current.stat().st_size:
             current.unlink()
@@ -174,11 +182,14 @@ def _GenerateFiles(
         for src_dir in dir_subset.get_source_dirs(source, chromeos_config_path):
             targets.extend(list(src_dir.rglob("*.proto")))
 
+        output_type = (
+            "pyi" if protoc_version is ProtocVersion.CHROMITE_PYI else "python"
+        )
         cmd = [
             protoc_bin_path,
             "-I",
             chromeos_config_path / "proto",
-            "--python_out",
+            f"--{output_type}_out",
             output,
             "--proto_path",
             source,
@@ -198,8 +209,13 @@ def _GenerateFiles(
             )
 
 
-def _InstallMissingInits(directory: Path):
+def _InstallMissingInits(directory: Path, protoc_version: ProtocVersion):
     """Add missing __init__.py files in the generated protobuf folders."""
+    if protoc_version is ProtocVersion.CHROMITE_PYI:
+        # For pyi, rely on module markers left behind by CHROMITE flows to avoid
+        # additional clutter.
+        return
+
     logging.info("Adding missing __init__.py files in %s.", directory)
     # glob ** returns only directories.
     for current in directory.rglob("**"):
@@ -239,11 +255,14 @@ def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion):
     ]
 
     seds = [from_sed]
+
     if protoc_version is ProtocVersion.CHROMITE:
         # We also need to change the google.protobuf imports to point directly
         # at the chromite.third_party version of the library.
         # The SDK version of the proto is meant to be used with the protobuf
         # libraries installed in the SDK, so leave those as google.protobuf.
+        # For CHROMITE_PYI, types for the protobuf imports come from type stubs,
+        # which won't map if the imports are renamed to third_party.
         g_p_address = "^from google.protobuf"
         g_p_find = r"from \([^ ]*\) import \(.*\)$"
         g_p_sub = "from chromite.third_party.\\1 import \\2"
@@ -255,7 +274,26 @@ def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion):
         ]
         seds.append(google_protobuf_sed)
 
-    pb2 = list(directory.rglob("*_pb2.py"))
+    if protoc_version is ProtocVersion.CHROMITE_PYI:
+        # Workaround https://github.com/protocolbuffers/protobuf/issues/11402
+        # until cl/560557754 in in the protoc version used.
+        untyped_empty_slot_list = [
+            "sed",
+            "-E",
+            "-i",
+            "s/(^ *__slots__ = )\\[]/\\1()/",
+        ]
+
+        # Suppress errors on GRPC options field numbers using ClassVar outside
+        # of a class body. See b/297782342.
+        ignore_class_var_in_file_scope = [
+            "sed",
+            "-i",
+            "s/^[A-Z_]*: _ClassVar\\[int]/&  # type: ignore/",
+        ]
+        seds.extend((untyped_empty_slot_list, ignore_class_var_in_file_scope))
+
+    pb2 = list(directory.rglob(f"*_pb2.{protoc_version.get_suffix()}"))
     if pb2:
         for sed in seds:
             cros_build_lib.dbg_run(sed + pb2)
@@ -279,15 +317,14 @@ def CompileProto(
         dir_subset: What proto to compile.
         postprocess: Whether to run the postprocess step.
     """
-    protoc_version = protoc_version or ProtocVersion.CHROMITE
     source = protoc_version.get_proto_dir() / "src"
     if not output:
         output = protoc_version.get_gen_dir()
 
     protoc_bin_path = InstallProtoc(protoc_version)
-    _CleanTargetDirectory(output)
+    _CleanTargetDirectory(output, protoc_version)
     _GenerateFiles(source, output, protoc_version, dir_subset, protoc_bin_path)
-    _InstallMissingInits(output)
+    _InstallMissingInits(output, protoc_version)
     if postprocess:
         _PostprocessFiles(output, protoc_version)
 
@@ -307,6 +344,13 @@ def GetParser():
         help="Generate only the chromite bindings. Generates all by default. "
         "The chromite bindings are compatible with the version of protobuf "
         "in chromite/third_party.",
+    )
+    standard_group.add_argument(
+        "--pyi",
+        dest="protoc_version",
+        action="append_const",
+        const=ProtocVersion.CHROMITE_PYI,
+        help="Generate only the pyi type annotations.",
     )
     standard_group.add_argument(
         "--sdk",
@@ -364,7 +408,11 @@ def _ParseArguments(argv):
     opts = parser.parse_args(argv)
 
     if not opts.protoc_version:
-        opts.protoc_version = [ProtocVersion.CHROMITE, ProtocVersion.SDK]
+        opts.protoc_version = [
+            ProtocVersion.CHROMITE,
+            ProtocVersion.SDK,
+            ProtocVersion.CHROMITE_PYI,
+        ]
 
     if opts.destination:
         opts.destination = Path(opts.destination)
@@ -386,9 +434,7 @@ def main(argv):
                 postprocess=opts.postprocess,
             )
         except Error as e:
-            cros_build_lib.Die(
-                "Error compiling bindings to destination: %s", str(e)
-            )
+            cros_build_lib.Die("Error compiling bindings to destination: %s", e)
         else:
             return 0
 
@@ -397,7 +443,13 @@ def main(argv):
         try:
             CompileProto(protoc_version=ProtocVersion.CHROMITE)
         except Error as e:
-            cros_build_lib.Die("Error compiling chromite bindings: %s", str(e))
+            cros_build_lib.Die("Error compiling chromite bindings: %s", e)
+
+    if ProtocVersion.CHROMITE_PYI in opts.protoc_version:
+        try:
+            CompileProto(protoc_version=ProtocVersion.CHROMITE_PYI)
+        except Error as e:
+            cros_build_lib.Die("Error compiling type annotations: %s", e)
 
     if ProtocVersion.SDK in opts.protoc_version:
         # Compile the SDK bindings.
@@ -418,4 +470,4 @@ def main(argv):
             try:
                 CompileProto(protoc_version=ProtocVersion.SDK)
             except Error as e:
-                cros_build_lib.Die("Error compiling SDK bindings: %s", str(e))
+                cros_build_lib.Die("Error compiling SDK bindings: %s", e)
