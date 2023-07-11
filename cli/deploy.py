@@ -1359,22 +1359,33 @@ def _DeployDLCImage(
             logging.error("Failed to uninstall DLC.")
             raise
 
-        logging.notice("Deploy the DLC image for %s", dlc_id)
-        dlc_img_path_src = os.path.join(
+        src_dlc_dir = os.path.join(
             sysroot,
             dlc_lib.DLC_BUILD_DIR,
             dlc_id,
-            dlc_package,
-            dlc_lib.DLC_IMAGE,
         )
-        if not os.path.exists(dlc_img_path_src):
-            dlc_img_path_src = os.path.join(
+        if not os.path.exists(src_dlc_dir):
+            src_dlc_dir = os.path.join(
                 sysroot,
                 dlc_lib.DLC_BUILD_DIR_SCALED,
                 dlc_id,
-                dlc_package,
-                dlc_lib.DLC_IMAGE,
             )
+
+        # Deploy the metadata entry to compressed metadata on device.
+        logging.notice("Setting the DLC metadata for %s", dlc_id)
+        metadata = dlc_lib.DlcMetadata.LoadSrcMetadata(src_dlc_dir)
+        device.run(
+            [dlc_lib.DLC_METADATA_UTIL, "--set", f"--id={dlc_id}"],
+            input=json.dumps(metadata),
+            check=False,
+        )
+
+        logging.notice("Deploy the DLC image for %s", dlc_id)
+        dlc_img_path_src = os.path.join(
+            src_dlc_dir,
+            dlc_package,
+            dlc_lib.DLC_IMAGE,
+        )
 
         dlc_img_path = os.path.join(_DLC_INSTALL_ROOT, dlc_id, dlc_package)
         dlc_img_path_a = os.path.join(dlc_img_path, "dlc_a")
@@ -1400,23 +1411,15 @@ def _DeployDLCImage(
         device.run(["chown", "-R", "dlcservice:dlcservice", _DLC_INSTALL_ROOT])
 
         # Copy metadata to device.
+        # TODO(b/290961240): To be removed once the transition to compressed
+        # metadata is complete.
         dest_meta_dir = Path("/") / dlc_lib.DLC_META_DIR / dlc_id / dlc_package
         device.mkdir(dest_meta_dir)
         src_meta_dir = os.path.join(
-            sysroot,
-            dlc_lib.DLC_BUILD_DIR,
-            dlc_id,
+            src_dlc_dir,
             dlc_package,
             dlc_lib.DLC_TMP_META_DIR,
         )
-        if not os.path.exists(src_meta_dir):
-            src_meta_dir = os.path.join(
-                sysroot,
-                dlc_lib.DLC_BUILD_DIR_SCALED,
-                dlc_id,
-                dlc_package,
-                dlc_lib.DLC_TMP_META_DIR,
-            )
         device.CopyToDevice(
             src_meta_dir + "/",
             dest_meta_dir,

@@ -34,6 +34,7 @@ DLC_GID = 20118
 DLC_IMAGE = "dlc.img"
 DLC_LOADPIN_FILE_HEADER = "# LOADPIN_TRUSTED_VERITY_ROOT_DIGESTS"
 DLC_LOADPIN_TRUSTED_VERITY_DIGESTS = "_trusted_verity_digests"
+DLC_METADATA_UTIL = "dlc_metadata_util"
 DLC_META_DIR = "opt/google/dlc"
 DLC_META_FILE_PREFIX = "_metadata_"
 DLC_META_FILE_SIZE_LIMIT = 4096
@@ -411,7 +412,8 @@ class DlcMetadata:
             )
         self._compressed.clear()
 
-    def LoadSrcMetadata(self, src_dir: str) -> dict:
+    @staticmethod
+    def LoadSrcMetadata(src_dir: str) -> dict:
         """Read manifest and table from the source directory and make metadata.
 
         Args:
@@ -1249,7 +1251,7 @@ def InstallDlcImages(
                     )
 
                 # Create metadata directory in rootfs.
-                # TODO(yuanpengni): Remove copying individual imageloader.json
+                # TODO(b/290961240): Remove copying individual imageloader.json
                 # and table files after fully migrated to used the compressed
                 # metadata.
                 if rootfs:
@@ -1336,7 +1338,6 @@ def InstallDlcImages(
 
     # Skip creating compressed metadata when installing a single DLC (e.g. for
     # `cros deploy`).
-    # TODO(yuanpengni): Deploy compressed metadata.
     if rootfs and not dlc_id:
         logging.info("Creating compressed DLC metadata.")
         dlc_all = []
