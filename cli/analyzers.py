@@ -6,6 +6,7 @@
 
 from abc import ABC
 import logging
+import os
 from pathlib import Path
 from typing import List
 
@@ -14,12 +15,29 @@ from chromite.lib import commandline
 from chromite.lib import git
 
 
-def _GetFilesFromCommit(commit: str) -> List[str]:
-    """Returns ths files changed in the provided git `commit`."""
-    return git.RunGit(
-        None,
+def GetFilesFromCommit(commit: str) -> List[str]:
+    """Returns files changed in the provided git `commit` as absolute paths."""
+    repo_root_path = git.FindGitTopLevel(None)
+    files_in_repo = git.RunGit(
+        repo_root_path,
         ["diff-tree", "--no-commit-id", "--name-only", "-r", commit],
-    ).stdout.splitlines()[:-1]
+    ).stdout.splitlines()
+    return [os.path.join(repo_root_path, p) for p in files_in_repo]
+
+
+def HasUncommittedChanges(files: List[str]) -> bool:
+    """Returns whether there are uncommitted changes on any of the `files`.
+
+    `files` can be absolute or relative to the current working directory. If a
+    file is passed that is outside the git repository corresponding to the
+    current working directory, an exception will be thrown.
+    """
+    working_status = git.RunGit(
+        None, ["status", "--porcelain=v1", *files]
+    ).stdout.splitlines()
+    if working_status:
+        logging.warning("%s", "\n".join(working_status))
+    return bool(working_status)
 
 
 class AnalyzerCommand(ABC, command.CliCommand):
@@ -89,7 +107,16 @@ class AnalyzerCommand(ABC, command.CliCommand):
     ) -> None:
         """Validate & post-process options before freezing."""
         if options.commit and not options.files:
-            options.files = _GetFilesFromCommit(options.commit)
+            options.files = GetFilesFromCommit(options.commit)
+
+        if options.commit and options.inplace:
+            # If a commit is provided, bail when using inplace if any of the
+            # files have uncommitted changes. This is because the input to the
+            # analyzer will not consider any working state changes, so they will
+            # likely be lost. In future this may be supported by attempting to
+            # stash and rebase changes. See also b/290714959.
+            if HasUncommittedChanges(options.files):
+                parser.error("In-place may clobber uncommitted changes.")
 
         if not options.files:
             # Running with no arguments is allowed to make the repo upload hook
