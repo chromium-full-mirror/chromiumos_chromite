@@ -234,7 +234,7 @@ def main(argv):
     parser.add_argument(
         "--breakpad_dir",
         type="path",
-        default="/tmp/breakpad",
+        required=True,
         help="Root directory for breakpad symbol files.",
     )
 
