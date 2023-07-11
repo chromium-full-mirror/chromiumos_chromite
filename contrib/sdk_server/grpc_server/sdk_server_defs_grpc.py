@@ -4,18 +4,15 @@
 
 """Defines classes and functions used in implementation of sdk server.
 
-    TODO: Have a log for each message
-    TODO: Figure out how to use osutils for tempfiles
-    TODO: Double check the necessity of SdkImage and SdkSysroot classe
+    TODO: Double check the necessity of SdkImage and SdkSysroot classes
 """
-import asyncio
+import datetime
 import json
 import logging
 from logging import handlers
 import os
 from pathlib import Path
 import subprocess
-import sys
 import tempfile
 import time
 from typing import (
@@ -52,7 +49,6 @@ VALID_RETURN_CODES = (
     controller.RETURN_CODE_SUCCESS,
     controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
 )
-
 
 def IsInsideChroot():
     """Returns True if we are inside chroot.
@@ -137,6 +133,11 @@ def AsyncRun(
 
 
 class TempMemLogger(logging.Logger):
+    """Wrapper for logging.logger and MemoryHandler.
+
+    logger used to buffer messages before adding to log file
+    """
+
     def __init__(self, target, capacity=4000):
         self.file = tempfile.NamedTemporaryFile(mode="a", delete=True)
         super().__init__(self.file.name)
@@ -208,6 +209,8 @@ class SdkChroot(
         chroot_lib.Chroot.__init__(self, path)
         self.sysroots = []
         self.version = None
+
+        #TODO: delete when finalizing project
         self.logger = logging.getLogger()
 
         self.logs_folder = Path.cwd() / "logs"
@@ -216,17 +219,32 @@ class SdkChroot(
             osutils.SafeMakedirs(self.logs_folder)
         osutils.Touch(self.log_path)
 
-        self.handler = TimedRotatingFileHandler(
-            filename="logs/log", when="midnight"
-        )
+        #TODO: delete when finalizing project
+        self.handler = logging.FileHandler(filename="logs/log")
         self.all_possible_boards = []
         self.handler.setLevel(logging.DEBUG)
-        self.handler.suffix = "%Y-%m-%d"
         self.logger.addHandler(self.handler)
+
+    def get_logs(self, request, context):
+        logfile = self.handler.baseFilename
+        logs = []
+        with open(logfile, "r+") as f:
+            log_splits = f.read().split("REQUEST: ")[1:]
+            for log in log_splits:
+                splits = log.split()
+                log_time = splits[0]
+                command = splits[1]
+                message = sdk_server_pb2.LogMessage(
+                    command=command, time=log_time, logs=log
+                )
+                logs.append(message)
+        response = sdk_server_pb2.LogsResponse(log=logs)
+        return response
 
     def current_boards(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: current boards")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s current_boards", req_time)
         boards = []
         if self.has_path("/build"):
             path = Path(self.full_path("/build/"))
@@ -246,7 +264,8 @@ class SdkChroot(
 
     def query_boards(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: query boards")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s query_boards", req_time)
 
         query = build_query.Query(build_query.Board)
         boards = [common_pb2.BuildTarget(name=board.name) for board in query]
@@ -256,29 +275,37 @@ class SdkChroot(
 
     def repo_sync(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: repo sync")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s repo_sync", req_time)
         script = ["repo", "sync"]
         result = cros_build_lib.run(
             script, stdout=subprocess.PIPE, encoding="utf-8"
         )
-        output = result.stdout
+        output = []
+        for line in iter(lambda: process.stdout.readline(), ""):
+            output.append(line)
+
+        output = "".join(output)
+
         response = sdk_server_pb2.RepoSyncResponse(info=output)
         return response
 
     def repo_status(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: repo status")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s repo_status", req_time)
         script = ["repo", "status"]
-        result = cros_build_lib.run(
-            script, stdout=subprocess.PIPE, encoding="utf-8"
-        )
-        output = result.stdout.splitlines()
+        process = AsyncRun(script, stdout=subprocess.PIPE, encoding="utf-8")
+        output = []
+        for line in iter(lambda: process.stdout.readline(), ""):
+            output.append(line)
         response = sdk_server_pb2.RepoStatusResponse(info=output)
         return response
 
     def update_chroot(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: update_chroot\n")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s update_chroot", req_time)
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
                 input_content = json_format.MessageToDict(request.request)
@@ -291,8 +318,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.UpdateChrootResponse(
                         logging_info=line.decode()
                     )
@@ -313,6 +340,7 @@ class SdkChroot(
                     response.logging_info = ERROR_OCCURRED
                     process.stdout.close()
                     yield response
+
                 logger.clean_up()
 
     def cros_workon_info(self, request, context):
@@ -321,7 +349,8 @@ class SdkChroot(
         if build_target not specified will run with --host enabled
         """
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: cros_workon info")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s cros_workon_info", req_time)
         package = request.package_info.package_name
 
         target = (
@@ -338,7 +367,12 @@ class SdkChroot(
             stderr=subprocess.STDOUT,
             encoding="utf-8",
         )
-        output = result.stdout
+        output = []
+        for line in iter(lambda: process.stdout.readline(), ""):
+            output.append(line)
+
+        output = "".join(output)
+
         response = sdk_server_pb2.WorkonInfoResponse(info=output)
         logger.info(response)
         logger.clean_up()
@@ -350,8 +384,8 @@ class SdkChroot(
         if build_target not specified will run with --host enabled
         """
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: cros_workon start")
-        print("REQUEST: cros_workon start")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s cros_workon_start", req_time)
         package = request.package_info.package_name
         target = (
             f"--board={request.build_target.name}"
@@ -367,7 +401,12 @@ class SdkChroot(
             stderr=subprocess.STDOUT,
             encoding="utf-8",
         )
-        output = result.stdout
+        output = []
+        for line in iter(lambda: process.stdout.readline(), ""):
+            output.append(line)
+
+        output = "".join(output)
+
         response = sdk_server_pb2.WorkonStartResponse(info=output)
         logger.info(response)
         logger.clean_up()
@@ -379,8 +418,8 @@ class SdkChroot(
         if build_target not specified will run with --host enabled
         """
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: cros_workon stop")
-        print("REQUEST: cros_workon stop")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s cros_workon_stop", req_time)
         package = request.package_info.package_name
         target = (
             f"--board={request.build_target.name}"
@@ -397,7 +436,12 @@ class SdkChroot(
             stderr=subprocess.STDOUT,
             encoding="utf-8",
         )
-        output = result.stdout
+        output = []
+        for line in iter(lambda: process.stdout.readline(), ""):
+            output.append(line)
+
+        output = "".join(output)
+
         response = sdk_server_pb2.WorkonStopResponse(info=output)
         logger.info(response)
         logger.clean_up()
@@ -409,8 +453,8 @@ class SdkChroot(
         if build_target not specified will run with --host enabled
         """
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: cros_workon list")
-        print("REQUEST: cros_workon list")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s cros_workon_list", req_time)
         target = (
             f"--board={request.build_target.name}"
             if request.build_target
@@ -418,31 +462,22 @@ class SdkChroot(
         )
 
         script = ["cros", "workon", "list", target]
-        result = cros_build_lib.run(
-            script,
-            enter_chroot=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            encoding="utf-8",
-        )
-        output = result.stdout.splitlines()
+        process = AsyncRun(script, stdout=subprocess.PIPE, encoding="utf-8")
+        output = []
+        for line in iter(lambda: process.stdout.readline(), ""):
+            output.append(line)
+
         packages = [
             common_pb2.PackageInfo(package_name=package) for package in output
         ]
         response = sdk_server_pb2.WorkonListResponse(package_info=packages)
-        logger.clean_up()
         return response
 
     def chroot_path(self, request, context):
-        logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: chroot path")
         response = sdk_server_pb2.ChrootPathResponse(path=self.path)
-        logger.clean_up()
         return response
 
     def all_packages(self, request, context):
-        logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: all packages")
         target = (
             f"--board={request.build_target.name}"
             if request.build_target
@@ -451,19 +486,14 @@ class SdkChroot(
 
         script = ["cros", "workon", target, "--all", "list"]
 
-        result = cros_build_lib.run(
-            script,
-            enter_chroot=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            encoding="utf-8",
-        )
-        output = result.stdout.splitlines()
+        process = AsyncRun(script, stdout=subprocess.PIPE, encoding="utf-8")
+        output = []
+        for line in iter(lambda: process.stdout.readline(), ""):
+            output.append(line)
         packages = [
             common_pb2.PackageInfo(package_name=package) for package in output
         ]
         response = sdk_server_pb2.AllPackagesResponse(package_info=packages)
-        logger.clean_up()
         return response
 
     def _run_endpoint(self, endpoint, inputfile, outputfile):
@@ -484,7 +514,8 @@ class SdkChroot(
 
     def create_sdk(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: cros_sdk create")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s create_sdk", req_time)
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
                 input_content = json_format.MessageToDict(request.request)
@@ -496,8 +527,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.CreateSdkResponse(
                         logging_info=line.decode()
                     )
@@ -522,7 +553,8 @@ class SdkChroot(
 
     def replace_sdk(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: cros_sdk replace")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s replace_sdk", req_time)
 
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
@@ -536,8 +568,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.ReplaceSdkResponse(
                         logging_info=line.decode()
                     )
@@ -563,7 +595,8 @@ class SdkChroot(
 
     def delete_sdk(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: cros_sdk delete")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s delete_sdk", req_time)
 
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
@@ -577,8 +610,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.DeleteSdkResponse(
                         logging_info=line.decode()
                     )
@@ -604,7 +637,8 @@ class SdkChroot(
 
     def build_packages(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: build packages")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s build_packages", req_time)
         create_req = request.create_req
         toolchain_req = request.toolchain_req
         packages_req = request.packages_req
@@ -651,8 +685,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
                         logging_info=line.decode()
                     )
@@ -688,8 +722,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
                         logging_info=line.decode()
                     )
@@ -725,8 +759,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
                         logging_info=line.decode()
                     )
@@ -749,7 +783,8 @@ class SdkChroot(
 
     def build_image(self, request, context):
         logger = TempMemLogger(target=self.handler)
-        logger.info("REQUEST: build image")
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s build_image", req_time)
 
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
@@ -763,8 +798,8 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), b""):
-                    logger.info(line.decode())
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
                     response = sdk_server_pb2.BuildImageResponse(
                         logging_info=line.decode()
                     )

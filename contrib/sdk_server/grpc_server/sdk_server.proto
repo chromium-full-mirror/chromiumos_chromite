@@ -23,6 +23,16 @@ service sdk_server_service {
   rpc build_image(BuildImageRequest) returns (stream BuildImageResponse);
   rpc query_boards(QueryBoardsRequest) returns (QueryBoardsResponse);
   rpc current_boards(CurrentBoardsRequest) returns (CurrentBoardsResponse);
+  rpc get_logs(LogsRequest) returns (LogsResponse);
+}
+
+message LogsRequest {}
+message LogsResponse { repeated LogMessage logs = 1; }
+
+message LogMessage {
+  string command = 1;
+  string time = 2;
+  string logs = 3;
 }
 
 message CurrentBoardsRequest {}

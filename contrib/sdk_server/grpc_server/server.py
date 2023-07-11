@@ -16,7 +16,6 @@ from chromite.lib import sudo
 
 
 async def serve() -> None:
-    logging.info("STARTING UP...")
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=None))
     servicer = sdk_server_defs_grpc.SdkChroot()
     sdk_server_pb2_grpc.add_sdk_server_serviceServicer_to_server(
@@ -25,9 +24,8 @@ async def serve() -> None:
 
     server.add_insecure_port("[::]:50051")
     await server.start()
-    logging.info("CONNECTED")
     await server.wait_for_termination(timeout=None)
-    logging.info("TERMINATED!")
+
 
 
 def run():
