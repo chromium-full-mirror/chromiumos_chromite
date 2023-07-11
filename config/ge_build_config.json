@@ -3998,6 +3998,17 @@
         {
           "board_name": "hatch-arc-t",
           "name": "akemi",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
@@ -4008,6 +4019,17 @@
         {
           "board_name": "hatch-arc-t",
           "name": "dragonair",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
@@ -4018,6 +4040,17 @@
         {
           "board_name": "hatch-arc-t",
           "name": "dratini",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7222,
