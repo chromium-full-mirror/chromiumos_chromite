@@ -257,6 +257,7 @@ GROUP_BASELINE = dict(
                 "secagentd",
                 "shill",
                 "u2f",
+                "flex_hwis",
             },
         ),
         GroupEntry(group="fuse-drivefs", gid=304, users={"chronos"}),
