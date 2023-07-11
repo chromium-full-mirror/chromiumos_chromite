@@ -560,11 +560,14 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
     def testForegroundExceptionRaising(self):
         """Verify BackgroundTaskRunner halts tasks on a foreground exception."""
         with self.assertRaises(_TestForegroundException):
-            with parallel.BackgroundTaskRunner(
-                self._PassEventually, processes=1, halt_on_error=True
-            ) as queue:
-                queue.put([])
-                raise _TestForegroundException()
+            with mock.patch.multiple(
+                parallel._BackgroundTask, SIGTERM_TIMEOUT=5
+            ):
+                with parallel.BackgroundTaskRunner(
+                    self._PassEventually, processes=1, halt_on_error=True
+                ) as queue:
+                    queue.put([])
+                    raise _TestForegroundException()
         self.assertFalse(self.passed.is_set())
 
     @unittest.skipIf(_SKIP_FLAKY_TESTS, "Occasionally fails.")
