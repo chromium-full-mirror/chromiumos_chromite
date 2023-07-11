@@ -61,6 +61,43 @@ function showRepo() {
     $("#showLogs").removeClass(bottomSelectorStyle)
 }
 
+function liveLogPopulator(commandName, logText, now){
+    //log panel already exists
+    if ($("#" + now.format("x") + "liveLog").length){
+        $("#log" + now.format("x") + "Text").html(logText);
+    }
+    else{
+        //Create it
+        $("#logsList").html(
+            `
+            <li class = "row bg-dark" id = "` + now.format("x") + `liveLog">
+                <div class="col-8"><p2 class = "small text-light ms-2"><code class = "text-light">`+commandName+`</code></p2></div>
+                <div class = "col-2">
+                  <a href="#log`+now.format("x")+`" data-bs-toggle="collapse" role="button" 
+                    aria-controls="log`+now.format("x")+`" aria-expanded="false" 
+                    class = "d-flex align-items-center log-expander link-underline 
+                      link-underline-opacity-0 classic-link">
+                    View Log 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+                  
+                </div>
+                <div class="col"><p2 class = "small text-light ms-2">`+now.format("MMM D h:mma")+`</p2></div>
+                <div class = "bg-black small overflow-auto border-top collapse log-box" id = "log`+now.format("x")+`">
+                  <code class = "small text-light log-text" id = "log`+now.format("x")+`Text" >`+logText+`</code>
+                </div>
+              </li>
+            ` + $("#logsList").html()  
+        )
+        //Rotates the log expander arrow
+        $(".log-expander").on('click', function () {
+            $(this).children("svg").toggleClass("rotate-log-button")
+        })
+    }
+}
+
 //Makes request to gRPC server via python routes and generates HTML
 //for repo files dynamically.
 function populateRepoFiles() {
@@ -267,14 +304,18 @@ function updateChroot(){
 
     $("#updateChrootSubmit").addClass("disabled");
 
+    window.onbeforeunload = function() {
+        return true;
+    };
+
     buildSource = $('#buildSourceCheck').is(':checked');
     toolchainChanged = $("#toolchainChangedCheck").is(":checked");
-    console.log(buildSource);
-    console.log(toolchainChanged);
     toolchainTargets = []
     $("#updateToolchainTargets").select2("data").forEach(function(board){
         toolchainTargets.push(board.text);
     })
+
+    now = moment()
 
     $.ajax({
         url: "/update-chroot",
@@ -284,7 +325,6 @@ function updateChroot(){
             toolchainChanged: toolchainChanged,
             toolchainTargets: toolchainTargets
         }),
-        dataType: "json",
         contentType: "application/json",
         
         success: function(response){
@@ -292,17 +332,34 @@ function updateChroot(){
             console.log(response)
 
             $("#updateChrootSubmit").removeClass("disabled");
+            window.onbeforeunload = null;
         },
 
         error: function(xhr){
             console.log("failure");
             console.log(xhr)
+            $("#updateChrootSubmit").removeClass("disabled");
+        },
+
+        xhrFields: {
+            onprogress: function(e){
+
+                liveLogPopulator(
+                    "Update Chroot", 
+                    e.currentTarget.response, 
+                    now
+                )
+            }
         }
     })
 }
 
 function replaceChroot(){
     $("#replaceChrootSubmit").addClass("disabled");
+
+    window.onbeforeunload = function() {
+        return true;
+    };
 
     bootstrap = $("#replaceBootstrap").is(":checked");
     noUseImage = $("#replaceNoUseImage").is(":checked");
@@ -322,11 +379,22 @@ function replaceChroot(){
         success: function(response){
             $("#replaceChrootSubmit").removeClass("disabled");
             location.reload();
-            
+            window.onbeforeunload = null;
         },
 
         error: function(xhr){
             console.log("failure");
+        },
+
+        xhrFields: {
+            onprogress: function(e){
+
+                liveLogPopulator(
+                    "Replace Chroot", 
+                    e.currentTarget.response, 
+                    now
+                )
+            }
         }
 
     })
@@ -335,6 +403,9 @@ function replaceChroot(){
 function buildPackages(){
     $("#buildPackagesSubmit").addClass("disabled");
 
+    window.onbeforeunload = function() {
+        return true;
+    };
 
     chrootCurrent = $("#buildChrootCurrent").is(":checked");
     replace = $("#buildReplace").is(":checked");
@@ -344,6 +415,8 @@ function buildPackages(){
     compileSource = $("#buildCompileSource").is(":checked");
     dryrun = $("#buildDryrun").is(":checked");
     workon = $("#buildWorkon").is(":checked");
+
+    now = moment();
 
     $.ajax({
         url: "/build-packages",
@@ -359,18 +432,28 @@ function buildPackages(){
             workon: workon
         }),
 
-        dataType: "json",
         contentType: "application/json",
 
         success: function(response){
-            $("#replaceChrootSubmit").removeClass("disabled");
-            location.reload();
-            
+            $("#buildPackagesSubmit").removeClass("disabled");
+            window.onbeforeunload = null;
         },
 
         error: function(xhr){
             console.log("failure");
+        },
+
+        xhrFields: {
+            onprogress: function(e){
+
+                liveLogPopulator(
+                    "Build Packages", 
+                    e.currentTarget.response, 
+                    now
+                )
+            }
         }
+
     })
 }
 
@@ -422,10 +505,7 @@ $(document).ready(function () {
     $("#replaceChrootSubmit").on("click", replaceChroot);
     $("#buildPackagesSubmit").on("click", buildPackages);
 
-    //Rotates the log expander arrow
-    $(".log-expander").on('click', function () {
-        $(this).children("svg").toggleClass("rotate-log-button")
-    })
+    
 
     
 });
