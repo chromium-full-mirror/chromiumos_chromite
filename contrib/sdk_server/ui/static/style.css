@@ -35,6 +35,10 @@ body{
 	word-wrap: break-word;
 }
 
+.modal-body p2{
+	word-wrap: break-word;
+}
+
 #repoFilesList{
 	overflow-y: auto; 
 	height: 400px

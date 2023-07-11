@@ -146,16 +146,20 @@ function populateRepoFiles() {
     });
 }
 
-function populatePackages() {
+function populatePackages(board = "") {
 
     $.ajax({
         url: "/get-packages",
         type: "POST",
+        data: JSON.stringify({
+            board: board
+        }),
+        contentType: "application/json",
 
         success: function (response) {
             allPackagesHTML = "";
             jQuery.each(response, function (board, packages) {
-                console.log(packages)
+
                 if (packages.length > 0) {
                     allPackagesHTML += `<ul class="p-0 board-package-list" 
                         id= "`+ board + `-package-list">
@@ -186,7 +190,25 @@ function populatePackages() {
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                Modal
+                                
+                                <p2 class = "row text-white-50 ms-1">Package Name</p2>
+                                <p2 class = "row text-light ms-1">`+pack.name+`</p2>
+                            
+
+                                <p2 class = "row text-white-50 ms-1 mt-4">Repositor`+(pack.repo.length > 1 ? `ies` : `y`)+`</p2>
+                                `+
+                                    pack.repo.reduce(function(base, curr){
+                                        return base += `<p2 class = "row text-light ms-1"">`+curr+`</p2>`
+                                    }, "")
+                                +`
+                            
+                                <p2 class = "row text-white-50 ms-1 mt-4">Source Director`+(pack.source.length > 1 ? `ies` : `y`)+`</p2>
+                                `+
+                                    pack.source.reduce(function(base, curr){
+                                        return base += `<p2 class = "row text-light ms-1"">`+curr+`</p2>`
+                                    }, "")
+                                +`
+                                
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -208,7 +230,13 @@ function populatePackages() {
                       </row>`
                 }
             })
-            $("#allBoardPackages").html(allPackagesHTML);
+            if(!board){
+                $("#allBoardPackages").html(allPackagesHTML);
+            }else{
+                $(`#`+ board + `-package-list`).remove()
+                $("#allBoardPackages").html($("#allBoardPackages").html() + allPackagesHTML);
+            }
+            
 
             //Packages board dropdown selection logic
             var boardName = $('#boardSelector li a.active').html()
@@ -264,7 +292,7 @@ function workonStart() {
 
         success: function (response) {
             console.log("success");
-            populatePackages();
+            populatePackages(board = board);
         },
         error: function (xhr) {
             console.log("failure");
@@ -292,7 +320,7 @@ function workonStop() {
 
         success: function (response) {
             console.log("success");
-            populatePackages();
+            populatePackages(board = board);
         },
         error: function (xhr) {
             console.log("failure");

@@ -132,23 +132,48 @@ async def get_packages():
     """App route to get packages from gRPC server."""
 
     if request.method == "POST":
-        # POST only sent by script
+        # POST only sent by script.
 
         packages_json = {}
-        current_boards = client.current_boards(
-            sdk_server_pb2.CurrentBoardsRequest()
-        )
-        for board in current_boards.build_target:
-            req = sdk_server_pb2.WorkonListRequest(
-                build_target=common.BuildTarget(name=board.name)
-            )
-            board_packages = (client.cros_workon_list(req)).package_info
-            board_packages = sorted([p.package_name for p in board_packages])
-            board_packages = [
-                {"name": p, "plus": "0", "minus": "0"} for p in board_packages
-            ]
+        boards_to_get = []
 
-            packages_json[board.name] = board_packages
+        # May request just for a single board (when updating from stop/start),
+        # but default should be all boards (for page loading).
+        if request.json["board"]:
+            boards_to_get = [common.BuildTarget(name=request.json["board"])]
+        else:
+            current_boards = client.current_boards(
+                sdk_server_pb2.CurrentBoardsRequest()
+            )
+            boards_to_get = current_boards.build_target
+
+        for board in boards_to_get:
+            req = sdk_server_pb2.WorkonListRequest(build_target=board)
+            board_packages = (client.cros_workon_list(req)).package_info
+            board_packages_data = []
+
+            for pkg_msg in board_packages:
+                req = sdk_server_pb2.WorkonInfoRequest(
+                    build_target=board, package_info=pkg_msg
+                )
+
+                # Parse info for modals.
+                _, repo, source = client.cros_workon_info(req).info.split(" ")
+                repo = repo.split(",")
+                source = source.split(",")
+
+                pkg = controller_util.deserialize_package_info(pkg_msg)
+                board_packages_data += [
+                    {
+                        "name": pkg.atom,
+                        "plus": "0",
+                        "minus": "0",
+                        "repo": repo,
+                        "source": source,
+                    }
+                ]
+
+            packages_json[board.name] = board_packages_data
 
         return jsonify(packages_json)
 
