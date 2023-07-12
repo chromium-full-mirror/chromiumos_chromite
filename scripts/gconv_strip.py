@@ -64,13 +64,15 @@ class GconvModules:
     See the comments on gconv-modules file for syntax details.
     """
 
-    def __init__(self, gconv_modules_file):
+    def __init__(self, gconv_modules_file, modules_dir):
         """Initialize the class.
 
         Args:
             gconv_modules_file: Path to gconv/gconv-modules file.
+            modules_dir: Path to the directory that contains the gconv modules.
         """
         self._filename = gconv_modules_file
+        self._modules_dir = modules_dir
 
         # An alias map of charsets. The key (fromcharset) is the alias name and
         # the value (tocharset) is the real charset name. We also support a
@@ -150,8 +152,6 @@ class GconvModules:
             - used_modules
         )
 
-        modules_dir = os.path.dirname(self._filename)
-
         all_modules = set.union(used_modules, unused_modules)
         # The list of charsets that depend on a given library. For example,
         # libdeps['libCNS.so'] is the set of all the modules that require that
@@ -159,7 +159,9 @@ class GconvModules:
         libdeps = {}
         for module in all_modules:
             deps = lddtree.ParseELF(
-                os.path.join(modules_dir, "%s.so" % module), modules_dir, []
+                os.path.join(self._modules_dir, "%s.so" % module),
+                self._modules_dir,
+                [],
             )
             if "needed" not in deps:
                 continue
@@ -181,7 +183,7 @@ class GconvModules:
 
         unused_size = 0
         for module in sorted(unused_modules):
-            module_path = os.path.join(modules_dir, "%s.so" % module)
+            module_path = os.path.join(self._modules_dir, "%s.so" % module)
             unused_size += os.lstat(module_path).st_size
             logging.debug("rm %s", module_path)
             if not dryrun:
@@ -189,7 +191,7 @@ class GconvModules:
 
         unused_libdeps_size = 0
         for lib in sorted(unused_libdeps):
-            lib_path = os.path.join(modules_dir, lib)
+            lib_path = os.path.join(self._modules_dir, lib)
             unused_libdeps_size += os.lstat(lib_path).st_size
             logging.debug("rm %s", lib_path)
             if not dryrun:
@@ -288,8 +290,19 @@ def GconvStrip(opts):
         "Searching for unused gconv files defined in %s", gconv_modules_file
     )
 
-    gmods = GconvModules(gconv_modules_file)
-    charsets = gmods.Load()
+    # Additional gconv-modules configuration files can be present in the
+    # co-located gconv-modules.d. glibc installs a gconv-modules-extra.conf
+    # here by default.
+    modules_dir = os.path.dirname(gconv_modules_file)
+    extras = glob.glob(
+        os.path.join(
+            modules_dir,
+            os.path.basename(gconv_modules_file) + ".d",
+            "*.conf",
+        )
+    )
+    gmods_groups = [GconvModules(gconv_modules_file, modules_dir)]
+    gmods_groups.extend(GconvModules(x, modules_dir) for x in extras)
 
     # Use scanelf to search for all the binary files on the rootfs that require
     # or define the symbol iconv_open. We also include the binaries that define
@@ -312,46 +325,48 @@ def GconvStrip(opts):
     files = set(result.stdout.splitlines())
     logging.debug("Symbols %s found on %d files.", symbols, len(files))
 
-    # The charsets are represented as nul-terminated strings in the binary
-    # files, so we append the '\0' to each string. This prevents some false
-    # positives when the name of the charset is a substring of some other
-    # string. It doesn't prevent false positives when the charset name is the
-    # suffix of another string, for example a binary with the string "DON'T DO
-    # IT\0" will match the 'IT' charset. Empirical test on ChromeOS images
-    # suggests that only 4 charsets could fall in category.
-    strings = [s.encode("utf-8") + b"x\00" for s in charsets]
-    logging.info(
-        "Will search for %d strings in %d files", len(strings), len(files)
-    )
-
-    # Charsets listed in STICKY_MOUDLES are initialized as used. Note that those
-    # strings should be listed in the gconv-modules file.
-    unknown_sticky_modules = set(STICKY_MODULES) - set(charsets)
-    if unknown_sticky_modules:
-        logging.warning(
-            "The following charsets were explicitly requested in "
-            "STICKY_MODULES even though they don't exist: %s",
-            ", ".join(unknown_sticky_modules),
-        )
-    global_used = [charset in STICKY_MODULES for charset in charsets]
-
-    for filename in files:
-        used_filenames = MultipleStringMatch(
-            strings, osutils.ReadFile(filename, mode="rb")
+    for gmods in gmods_groups:
+        charsets = gmods.Load()
+        # The charsets are represented as nul-terminated strings in the binary
+        # files, so we append the '\0' to each string. This prevents some false
+        # positives when the name of the charset is a substring of some other
+        # string. It doesn't prevent false positives when the charset name is
+        # the suffix of another string, for example a binary with the string
+        # "DON'T DO IT\0" will match the 'IT' charset. Empirical test on
+        # ChromeOS images suggests that only 4 charsets could fall in category.
+        strings = [s.encode("utf-8") + b"x\00" for s in charsets]
+        logging.info(
+            "Will search for %d strings in %d files", len(strings), len(files)
         )
 
-        global_used = [
-            operator.or_(*x) for x in zip(global_used, used_filenames)
-        ]
-        # Check the debug flag to avoid running a useless loop.
-        if opts.debug and any(used_filenames):
-            logging.debug("File %s:", filename)
-            for i, used_filename in enumerate(used_filenames):
-                if used_filename:
-                    logging.debug(" - %s", strings[i])
+        # Charsets listed in STICKY_MOUDLES are initialized as used. Note that
+        # those strings should be listed in the gconv-modules file.
+        unknown_sticky_modules = set(STICKY_MODULES) - set(charsets)
+        if unknown_sticky_modules:
+            logging.warning(
+                "The following charsets were explicitly requested in "
+                "STICKY_MODULES even though they don't exist: %s",
+                ", ".join(unknown_sticky_modules),
+            )
+        global_used = [charset in STICKY_MODULES for charset in charsets]
 
-    used_charsets = [cs for cs, used in zip(charsets, global_used) if used]
-    gmods.Rewrite(used_charsets, opts.dryrun)
+        for filename in files:
+            used_filenames = MultipleStringMatch(
+                strings, osutils.ReadFile(filename, mode="rb")
+            )
+
+            global_used = [
+                operator.or_(*x) for x in zip(global_used, used_filenames)
+            ]
+            # Check the debug flag to avoid running a useless loop.
+            if opts.debug and any(used_filenames):
+                logging.debug("File %s:", filename)
+                for i, used_filename in enumerate(used_filenames):
+                    if used_filename:
+                        logging.debug(" - %s", strings[i])
+
+        used_charsets = [cs for cs, used in zip(charsets, global_used) if used]
+        gmods.Rewrite(used_charsets, opts.dryrun)
     return 0
 
 
