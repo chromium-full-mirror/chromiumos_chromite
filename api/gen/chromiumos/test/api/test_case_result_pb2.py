@@ -25,12 +25,43 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n*chromiumos/test/api/test_case_result.proto\x12\x13\x63hromiumos.test.api\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1d\x63hromiumos/storage_path.proto\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\x1a,chromiumos/test/api/test_case_metadata.proto\"\xa2\x06\n\x0eTestCaseResult\x12\x36\n\x0ctest_case_id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestCase.Id\x12\x30\n\x0fresult_dir_path\x18\x02 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x38\n\x04pass\x18\x03 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.PassH\x00\x12\x38\n\x04\x66\x61il\x18\x04 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.FailH\x00\x12:\n\x05\x63rash\x18\x05 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.CrashH\x00\x12:\n\x05\x61\x62ort\x18\x06 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.AbortH\x00\x12\x38\n\x04skip\x18\x07 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.SkipH\x00\x12=\n\x07not_run\x18\x08 \x01(\x0b\x32*.chromiumos.test.api.TestCaseResult.NotRunH\x00\x12\x0e\n\x06reason\x18\t \x01(\t\x12\x36\n\x0ctest_harness\x18\n \x01(\x0b\x32 .chromiumos.test.api.TestHarness\x12.\n\nstart_time\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12+\n\x08\x64uration\x18\x0c \x01(\x0b\x32\x19.google.protobuf.Duration\x12\r\n\x05retry\x18\r \x01(\x08\x12\x41\n\x12test_case_metadata\x18\x0e \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x1a\x0b\n\tArtifacts\x1a\x06\n\x04Pass\x1a\x06\n\x04\x46\x61il\x1a\x07\n\x05\x43rash\x1a\x07\n\x05\x41\x62ort\x1a\x06\n\x04Skip\x1a\x08\n\x06NotRunB\t\n\x07verdictB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\n*chromiumos/test/api/test_case_result.proto\x12\x13\x63hromiumos.test.api\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1d\x63hromiumos/storage_path.proto\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\x1a,chromiumos/test/api/test_case_metadata.proto\"\xb9\x07\n\x0eTestCaseResult\x12\x36\n\x0ctest_case_id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestCase.Id\x12\x30\n\x0fresult_dir_path\x18\x02 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x38\n\x04pass\x18\x03 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.PassH\x00\x12\x38\n\x04\x66\x61il\x18\x04 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.FailH\x00\x12:\n\x05\x63rash\x18\x05 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.CrashH\x00\x12:\n\x05\x61\x62ort\x18\x06 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.AbortH\x00\x12\x38\n\x04skip\x18\x07 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.SkipH\x00\x12=\n\x07not_run\x18\x08 \x01(\x0b\x32*.chromiumos.test.api.TestCaseResult.NotRunH\x00\x12\x38\n\x04warn\x18\x0f \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.WarnH\x00\x12\x0e\n\x06reason\x18\t \x01(\t\x12\x36\n\x0ctest_harness\x18\n \x01(\x0b\x32 .chromiumos.test.api.TestHarness\x12.\n\nstart_time\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12+\n\x08\x64uration\x18\x0c \x01(\x0b\x32\x19.google.protobuf.Duration\x12\r\n\x05retry\x18\r \x01(\x08\x12\x41\n\x12test_case_metadata\x18\x0e \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x12\x39\n\x06\x65rrors\x18\x10 \x03(\x0b\x32).chromiumos.test.api.TestCaseResult.Error\x1a\x18\n\x05\x45rror\x12\x0f\n\x07message\x18\x01 \x01(\t\x1a\x0b\n\tArtifacts\x1a\x06\n\x04Pass\x1a\x06\n\x04\x46\x61il\x1a\x07\n\x05\x43rash\x1a\x07\n\x05\x41\x62ort\x1a\x06\n\x04Skip\x1a\x08\n\x06NotRun\x1a\x06\n\x04WarnB\t\n\x07verdictB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,chromiumos_dot_storage__path__pb2.DESCRIPTOR,chromiumos_dot_test_dot_api_dot_test__case__pb2.DESCRIPTOR,chromiumos_dot_test_dot_api_dot_test__harness__pb2.DESCRIPTOR,chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2.DESCRIPTOR,])
 
 
 
+
+_TESTCASERESULT_ERROR = _descriptor.Descriptor(
+  name='Error',
+  full_name='chromiumos.test.api.TestCaseResult.Error',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='message', full_name='chromiumos.test.api.TestCaseResult.Error.message', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1132,
+  serialized_end=1156,
+)
 
 _TESTCASERESULT_ARTIFACTS = _descriptor.Descriptor(
   name='Artifacts',
@@ -52,8 +83,8 @@ _TESTCASERESULT_ARTIFACTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1015,
-  serialized_end=1026,
+  serialized_start=1158,
+  serialized_end=1169,
 )
 
 _TESTCASERESULT_PASS = _descriptor.Descriptor(
@@ -76,8 +107,8 @@ _TESTCASERESULT_PASS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1028,
-  serialized_end=1034,
+  serialized_start=1171,
+  serialized_end=1177,
 )
 
 _TESTCASERESULT_FAIL = _descriptor.Descriptor(
@@ -100,8 +131,8 @@ _TESTCASERESULT_FAIL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1036,
-  serialized_end=1042,
+  serialized_start=1179,
+  serialized_end=1185,
 )
 
 _TESTCASERESULT_CRASH = _descriptor.Descriptor(
@@ -124,8 +155,8 @@ _TESTCASERESULT_CRASH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1044,
-  serialized_end=1051,
+  serialized_start=1187,
+  serialized_end=1194,
 )
 
 _TESTCASERESULT_ABORT = _descriptor.Descriptor(
@@ -148,8 +179,8 @@ _TESTCASERESULT_ABORT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1053,
-  serialized_end=1060,
+  serialized_start=1196,
+  serialized_end=1203,
 )
 
 _TESTCASERESULT_SKIP = _descriptor.Descriptor(
@@ -172,8 +203,8 @@ _TESTCASERESULT_SKIP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1062,
-  serialized_end=1068,
+  serialized_start=1205,
+  serialized_end=1211,
 )
 
 _TESTCASERESULT_NOTRUN = _descriptor.Descriptor(
@@ -196,8 +227,32 @@ _TESTCASERESULT_NOTRUN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1070,
-  serialized_end=1078,
+  serialized_start=1213,
+  serialized_end=1221,
+)
+
+_TESTCASERESULT_WARN = _descriptor.Descriptor(
+  name='Warn',
+  full_name='chromiumos.test.api.TestCaseResult.Warn',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1223,
+  serialized_end=1229,
 )
 
 _TESTCASERESULT = _descriptor.Descriptor(
@@ -265,51 +320,65 @@ _TESTCASERESULT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='reason', full_name='chromiumos.test.api.TestCaseResult.reason', index=8,
+      name='warn', full_name='chromiumos.test.api.TestCaseResult.warn', index=8,
+      number=15, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='reason', full_name='chromiumos.test.api.TestCaseResult.reason', index=9,
       number=9, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='test_harness', full_name='chromiumos.test.api.TestCaseResult.test_harness', index=9,
+      name='test_harness', full_name='chromiumos.test.api.TestCaseResult.test_harness', index=10,
       number=10, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='start_time', full_name='chromiumos.test.api.TestCaseResult.start_time', index=10,
+      name='start_time', full_name='chromiumos.test.api.TestCaseResult.start_time', index=11,
       number=11, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='duration', full_name='chromiumos.test.api.TestCaseResult.duration', index=11,
+      name='duration', full_name='chromiumos.test.api.TestCaseResult.duration', index=12,
       number=12, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='retry', full_name='chromiumos.test.api.TestCaseResult.retry', index=12,
+      name='retry', full_name='chromiumos.test.api.TestCaseResult.retry', index=13,
       number=13, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='test_case_metadata', full_name='chromiumos.test.api.TestCaseResult.test_case_metadata', index=13,
+      name='test_case_metadata', full_name='chromiumos.test.api.TestCaseResult.test_case_metadata', index=14,
       number=14, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='errors', full_name='chromiumos.test.api.TestCaseResult.errors', index=15,
+      number=16, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[_TESTCASERESULT_ARTIFACTS, _TESTCASERESULT_PASS, _TESTCASERESULT_FAIL, _TESTCASERESULT_CRASH, _TESTCASERESULT_ABORT, _TESTCASERESULT_SKIP, _TESTCASERESULT_NOTRUN, ],
+  nested_types=[_TESTCASERESULT_ERROR, _TESTCASERESULT_ARTIFACTS, _TESTCASERESULT_PASS, _TESTCASERESULT_FAIL, _TESTCASERESULT_CRASH, _TESTCASERESULT_ABORT, _TESTCASERESULT_SKIP, _TESTCASERESULT_NOTRUN, _TESTCASERESULT_WARN, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -324,9 +393,10 @@ _TESTCASERESULT = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=287,
-  serialized_end=1089,
+  serialized_end=1240,
 )
 
+_TESTCASERESULT_ERROR.containing_type = _TESTCASERESULT
 _TESTCASERESULT_ARTIFACTS.containing_type = _TESTCASERESULT
 _TESTCASERESULT_PASS.containing_type = _TESTCASERESULT
 _TESTCASERESULT_FAIL.containing_type = _TESTCASERESULT
@@ -334,6 +404,7 @@ _TESTCASERESULT_CRASH.containing_type = _TESTCASERESULT
 _TESTCASERESULT_ABORT.containing_type = _TESTCASERESULT
 _TESTCASERESULT_SKIP.containing_type = _TESTCASERESULT
 _TESTCASERESULT_NOTRUN.containing_type = _TESTCASERESULT
+_TESTCASERESULT_WARN.containing_type = _TESTCASERESULT
 _TESTCASERESULT.fields_by_name['test_case_id'].message_type = chromiumos_dot_test_dot_api_dot_test__case__pb2._TESTCASE_ID
 _TESTCASERESULT.fields_by_name['result_dir_path'].message_type = chromiumos_dot_storage__path__pb2._STORAGEPATH
 _TESTCASERESULT.fields_by_name['pass'].message_type = _TESTCASERESULT_PASS
@@ -342,10 +413,12 @@ _TESTCASERESULT.fields_by_name['crash'].message_type = _TESTCASERESULT_CRASH
 _TESTCASERESULT.fields_by_name['abort'].message_type = _TESTCASERESULT_ABORT
 _TESTCASERESULT.fields_by_name['skip'].message_type = _TESTCASERESULT_SKIP
 _TESTCASERESULT.fields_by_name['not_run'].message_type = _TESTCASERESULT_NOTRUN
+_TESTCASERESULT.fields_by_name['warn'].message_type = _TESTCASERESULT_WARN
 _TESTCASERESULT.fields_by_name['test_harness'].message_type = chromiumos_dot_test_dot_api_dot_test__harness__pb2._TESTHARNESS
 _TESTCASERESULT.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TESTCASERESULT.fields_by_name['duration'].message_type = google_dot_protobuf_dot_duration__pb2._DURATION
 _TESTCASERESULT.fields_by_name['test_case_metadata'].message_type = chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2._TESTCASEMETADATA
+_TESTCASERESULT.fields_by_name['errors'].message_type = _TESTCASERESULT_ERROR
 _TESTCASERESULT.oneofs_by_name['verdict'].fields.append(
   _TESTCASERESULT.fields_by_name['pass'])
 _TESTCASERESULT.fields_by_name['pass'].containing_oneof = _TESTCASERESULT.oneofs_by_name['verdict']
@@ -364,10 +437,20 @@ _TESTCASERESULT.fields_by_name['skip'].containing_oneof = _TESTCASERESULT.oneofs
 _TESTCASERESULT.oneofs_by_name['verdict'].fields.append(
   _TESTCASERESULT.fields_by_name['not_run'])
 _TESTCASERESULT.fields_by_name['not_run'].containing_oneof = _TESTCASERESULT.oneofs_by_name['verdict']
+_TESTCASERESULT.oneofs_by_name['verdict'].fields.append(
+  _TESTCASERESULT.fields_by_name['warn'])
+_TESTCASERESULT.fields_by_name['warn'].containing_oneof = _TESTCASERESULT.oneofs_by_name['verdict']
 DESCRIPTOR.message_types_by_name['TestCaseResult'] = _TESTCASERESULT
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 TestCaseResult = _reflection.GeneratedProtocolMessageType('TestCaseResult', (_message.Message,), {
+
+  'Error' : _reflection.GeneratedProtocolMessageType('Error', (_message.Message,), {
+    'DESCRIPTOR' : _TESTCASERESULT_ERROR,
+    '__module__' : 'chromiumos.test.api.test_case_result_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.TestCaseResult.Error)
+    })
+  ,
 
   'Artifacts' : _reflection.GeneratedProtocolMessageType('Artifacts', (_message.Message,), {
     'DESCRIPTOR' : _TESTCASERESULT_ARTIFACTS,
@@ -417,11 +500,19 @@ TestCaseResult = _reflection.GeneratedProtocolMessageType('TestCaseResult', (_me
     # @@protoc_insertion_point(class_scope:chromiumos.test.api.TestCaseResult.NotRun)
     })
   ,
+
+  'Warn' : _reflection.GeneratedProtocolMessageType('Warn', (_message.Message,), {
+    'DESCRIPTOR' : _TESTCASERESULT_WARN,
+    '__module__' : 'chromiumos.test.api.test_case_result_pb2'
+    # @@protoc_insertion_point(class_scope:chromiumos.test.api.TestCaseResult.Warn)
+    })
+  ,
   'DESCRIPTOR' : _TESTCASERESULT,
   '__module__' : 'chromiumos.test.api.test_case_result_pb2'
   # @@protoc_insertion_point(class_scope:chromiumos.test.api.TestCaseResult)
   })
 _sym_db.RegisterMessage(TestCaseResult)
+_sym_db.RegisterMessage(TestCaseResult.Error)
 _sym_db.RegisterMessage(TestCaseResult.Artifacts)
 _sym_db.RegisterMessage(TestCaseResult.Pass)
 _sym_db.RegisterMessage(TestCaseResult.Fail)
@@ -429,6 +520,7 @@ _sym_db.RegisterMessage(TestCaseResult.Crash)
 _sym_db.RegisterMessage(TestCaseResult.Abort)
 _sym_db.RegisterMessage(TestCaseResult.Skip)
 _sym_db.RegisterMessage(TestCaseResult.NotRun)
+_sym_db.RegisterMessage(TestCaseResult.Warn)
 
 
 DESCRIPTOR._options = None

@@ -21,11 +21,51 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n,chromiumos/test/api/test_case_metadata.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\"\xba\x01\n\x10TestCaseMetadata\x12\x30\n\ttest_case\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.TestCase\x12\x39\n\x0etest_case_exec\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.TestCaseExec\x12\x39\n\x0etest_case_info\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.TestCaseInfo\"F\n\x0cTestCaseExec\x12\x36\n\x0ctest_harness\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestHarness\"\x95\x02\n\x0cTestCaseInfo\x12,\n\x06owners\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Contact\x12\x36\n\x0crequirements\x18\x02 \x03(\x0b\x32 .chromiumos.test.api.Requirement\x12\x38\n\rbug_component\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.BugComponent\x12/\n\x08\x63riteria\x18\x04 \x01(\x0b\x32\x1d.chromiumos.test.api.Criteria\x12\x34\n\x0bhw_agnostic\x18\x05 \x01(\x0b\x32\x1f.chromiumos.test.api.HwAgnostic\"\x18\n\x07\x43ontact\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x1c\n\x0bRequirement\x12\r\n\x05value\x18\x01 \x01(\t\"\x1d\n\x0c\x42ugComponent\x12\r\n\x05value\x18\x01 \x01(\t\"\x19\n\x08\x43riteria\x12\r\n\x05value\x18\x01 \x01(\t\"\x1b\n\nHwAgnostic\x12\r\n\x05value\x18\x01 \x01(\x08\"M\n\x14TestCaseMetadataList\x12\x35\n\x06values\x18\x01 \x03(\x0b\x32%.chromiumos.test.api.TestCaseMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\n,chromiumos/test/api/test_case_metadata.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\"\xba\x01\n\x10TestCaseMetadata\x12\x30\n\ttest_case\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.TestCase\x12\x39\n\x0etest_case_exec\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.TestCaseExec\x12\x39\n\x0etest_case_info\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.TestCaseInfo\"F\n\x0cTestCaseExec\x12\x36\n\x0ctest_harness\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestHarness\"\xd4\x02\n\x0cTestCaseInfo\x12,\n\x06owners\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Contact\x12\x36\n\x0crequirements\x18\x02 \x03(\x0b\x32 .chromiumos.test.api.Requirement\x12\x38\n\rbug_component\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.BugComponent\x12/\n\x08\x63riteria\x18\x04 \x01(\x0b\x32\x1d.chromiumos.test.api.Criteria\x12\x34\n\x0bhw_agnostic\x18\x05 \x01(\x0b\x32\x1f.chromiumos.test.api.HwAgnostic\x12=\n\x10life_cycle_stage\x18\x06 \x01(\x0b\x32#.chromiumos.test.api.LifeCycleStage\"\x18\n\x07\x43ontact\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x1c\n\x0bRequirement\x12\r\n\x05value\x18\x01 \x01(\t\"\x1d\n\x0c\x42ugComponent\x12\r\n\x05value\x18\x01 \x01(\t\"\x19\n\x08\x43riteria\x12\r\n\x05value\x18\x01 \x01(\t\"\x1b\n\nHwAgnostic\x12\r\n\x05value\x18\x01 \x01(\x08\"\xf1\x01\n\x0eLifeCycleStage\x12<\n\x05value\x18\x01 \x01(\x0e\x32-.chromiumos.test.api.LifeCycleStage.LifeCycle\"\xa0\x01\n\tLifeCycle\x12\x1f\n\x1bLIFE_CYCLE_PRODUCTION_READY\x10\x00\x12\x17\n\x13LIFE_CYCLE_DISABLED\x10\x01\x12\x1d\n\x19LIFE_CYCLE_IN_DEVELOPMENT\x10\x02\x12\x1a\n\x16LIFE_CYCLE_MANUAL_ONLY\x10\x03\x12\x1e\n\x1aLIFE_CYCLE_OWNER_MONITORED\x10\x04\"M\n\x14TestCaseMetadataList\x12\x35\n\x06values\x18\x01 \x03(\x0b\x32%.chromiumos.test.api.TestCaseMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
   ,
   dependencies=[chromiumos_dot_test_dot_api_dot_test__case__pb2.DESCRIPTOR,chromiumos_dot_test_dot_api_dot_test__harness__pb2.DESCRIPTOR,])
 
 
+
+_LIFECYCLESTAGE_LIFECYCLE = _descriptor.EnumDescriptor(
+  name='LifeCycle',
+  full_name='chromiumos.test.api.LifeCycleStage.LifeCycle',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='LIFE_CYCLE_PRODUCTION_READY', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='LIFE_CYCLE_DISABLED', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='LIFE_CYCLE_IN_DEVELOPMENT', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='LIFE_CYCLE_MANUAL_ONLY', index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='LIFE_CYCLE_OWNER_MONITORED', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=975,
+  serialized_end=1135,
+)
+_sym_db.RegisterEnumDescriptor(_LIFECYCLESTAGE_LIFECYCLE)
 
 
 _TESTCASEMETADATA = _descriptor.Descriptor(
@@ -149,6 +189,13 @@ _TESTCASEINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='life_cycle_stage', full_name='chromiumos.test.api.TestCaseInfo.life_cycle_stage', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -162,7 +209,7 @@ _TESTCASEINFO = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=408,
-  serialized_end=685,
+  serialized_end=748,
 )
 
 
@@ -193,8 +240,8 @@ _CONTACT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=687,
-  serialized_end=711,
+  serialized_start=750,
+  serialized_end=774,
 )
 
 
@@ -225,8 +272,8 @@ _REQUIREMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=713,
-  serialized_end=741,
+  serialized_start=776,
+  serialized_end=804,
 )
 
 
@@ -257,8 +304,8 @@ _BUGCOMPONENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=743,
-  serialized_end=772,
+  serialized_start=806,
+  serialized_end=835,
 )
 
 
@@ -289,8 +336,8 @@ _CRITERIA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=774,
-  serialized_end=799,
+  serialized_start=837,
+  serialized_end=862,
 )
 
 
@@ -321,8 +368,41 @@ _HWAGNOSTIC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=801,
-  serialized_end=828,
+  serialized_start=864,
+  serialized_end=891,
+)
+
+
+_LIFECYCLESTAGE = _descriptor.Descriptor(
+  name='LifeCycleStage',
+  full_name='chromiumos.test.api.LifeCycleStage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='value', full_name='chromiumos.test.api.LifeCycleStage.value', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _LIFECYCLESTAGE_LIFECYCLE,
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=894,
+  serialized_end=1135,
 )
 
 
@@ -353,8 +433,8 @@ _TESTCASEMETADATALIST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=830,
-  serialized_end=907,
+  serialized_start=1137,
+  serialized_end=1214,
 )
 
 _TESTCASEMETADATA.fields_by_name['test_case'].message_type = chromiumos_dot_test_dot_api_dot_test__case__pb2._TESTCASE
@@ -366,6 +446,9 @@ _TESTCASEINFO.fields_by_name['requirements'].message_type = _REQUIREMENT
 _TESTCASEINFO.fields_by_name['bug_component'].message_type = _BUGCOMPONENT
 _TESTCASEINFO.fields_by_name['criteria'].message_type = _CRITERIA
 _TESTCASEINFO.fields_by_name['hw_agnostic'].message_type = _HWAGNOSTIC
+_TESTCASEINFO.fields_by_name['life_cycle_stage'].message_type = _LIFECYCLESTAGE
+_LIFECYCLESTAGE.fields_by_name['value'].enum_type = _LIFECYCLESTAGE_LIFECYCLE
+_LIFECYCLESTAGE_LIFECYCLE.containing_type = _LIFECYCLESTAGE
 _TESTCASEMETADATALIST.fields_by_name['values'].message_type = _TESTCASEMETADATA
 DESCRIPTOR.message_types_by_name['TestCaseMetadata'] = _TESTCASEMETADATA
 DESCRIPTOR.message_types_by_name['TestCaseExec'] = _TESTCASEEXEC
@@ -375,6 +458,7 @@ DESCRIPTOR.message_types_by_name['Requirement'] = _REQUIREMENT
 DESCRIPTOR.message_types_by_name['BugComponent'] = _BUGCOMPONENT
 DESCRIPTOR.message_types_by_name['Criteria'] = _CRITERIA
 DESCRIPTOR.message_types_by_name['HwAgnostic'] = _HWAGNOSTIC
+DESCRIPTOR.message_types_by_name['LifeCycleStage'] = _LIFECYCLESTAGE
 DESCRIPTOR.message_types_by_name['TestCaseMetadataList'] = _TESTCASEMETADATALIST
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -433,6 +517,13 @@ HwAgnostic = _reflection.GeneratedProtocolMessageType('HwAgnostic', (_message.Me
   # @@protoc_insertion_point(class_scope:chromiumos.test.api.HwAgnostic)
   })
 _sym_db.RegisterMessage(HwAgnostic)
+
+LifeCycleStage = _reflection.GeneratedProtocolMessageType('LifeCycleStage', (_message.Message,), {
+  'DESCRIPTOR' : _LIFECYCLESTAGE,
+  '__module__' : 'chromiumos.test.api.test_case_metadata_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.LifeCycleStage)
+  })
+_sym_db.RegisterMessage(LifeCycleStage)
 
 TestCaseMetadataList = _reflection.GeneratedProtocolMessageType('TestCaseMetadataList', (_message.Message,), {
   'DESCRIPTOR' : _TESTCASEMETADATALIST,
