@@ -4,7 +4,20 @@
 
 """Defines classes and functions used in implementation of sdk server.
 
-    TODO: Double check the necessity of SdkImage and SdkSysroot classes
+    TODO: MAIN
+        chroot version w/o update chroot
+        **DONE** existing images for board (paths) - add image paths to current_boards rpc
+        build individual package
+        Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
+        Use full path for log files, not relative
+
+    TODO: Create new file - add ability to download log arhchive (user chosen logs)
+        for bug reports
+
+    TODO: possible errors:
+        what if all packages output is an error? - need logging_info in response?
+        what about the other non bapi endpoints? ^
+        check chroot or boards exist for certain calls
 """
 import datetime
 import json
@@ -49,6 +62,7 @@ VALID_RETURN_CODES = (
     controller.RETURN_CODE_SUCCESS,
     controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
 )
+
 
 def IsInsideChroot():
     """Returns True if we are inside chroot.
@@ -170,20 +184,22 @@ class SdkImage:
 class SdkSysroot(sysroot_lib.Sysroot):
     """Wrapper for sysroot_lib.Sysroot class."""
 
-    def __init__(self, path: Union[str, os.PathLike]):
+    def __init__(self, path: Union[str, os.PathLike], name):
         super().__init__(path)
+        self.name = name
         self.images = []
         self.packages = []
+        self.get_images()
 
     def get_images(self):
         path = Path(
             f"{constants.SOURCE_ROOT}/src/build/images/{self.name}"
         )
         self.images = []
-        for image in path.iterdir():
-            image_path = f"{path}/{image}"
-            image_obj = SdkImage(image_path)
-            self.images.append(image_obj)
+        if path.exists():
+            for image in path.iterdir():
+                image_obj = SdkImage(image)
+                self.images.append(image_obj)
 
     def get_all_packages(self):
         script = ["cros", "workon", "--board", self.name, "--all", "list"]
@@ -210,7 +226,7 @@ class SdkChroot(
         self.sysroots = []
         self.version = None
 
-        #TODO: delete when finalizing project
+        # TODO: delete when finalizing project
         self.logger = logging.getLogger()
 
         self.logs_folder = Path.cwd() / "logs"
@@ -219,7 +235,7 @@ class SdkChroot(
             osutils.SafeMakedirs(self.logs_folder)
         osutils.Touch(self.log_path)
 
-        #TODO: delete when finalizing project
+        # TODO: delete when finalizing project
         self.handler = logging.FileHandler(filename="logs/log")
         self.all_possible_boards = []
         self.handler.setLevel(logging.DEBUG)
@@ -251,11 +267,20 @@ class SdkChroot(
             self.sysroots = []
             for sysroot in path.iterdir():
                 sysroot_path = self.full_path(f"/build/{sysroot}")
-                sysroot_obj = SdkSysroot(sysroot_path)
+                sysroot_obj = SdkSysroot(sysroot_path, sysroot.name)
                 self.sysroots.append(sysroot_obj)
-                boards.append(common_pb2.BuildTarget(name=sysroot.name))
 
-            response = sdk_server_pb2.CurrentBoardsResponse(build_target=boards)
+                build_target = common_pb2.BuildTarget(name=sysroot.name)
+                images = [
+                    image_pb2.Image(path=str(image.path), build_target=build_target)
+                    for image in sysroot_obj.images
+                ]
+                board_images = sdk_server_pb2.BoardImages(
+                    build_target=build_target, images=images, latest=latest
+                )
+                boards.append(board_images)
+
+            response = sdk_server_pb2.CurrentBoardsResponse(board_images=boards)
             logger.clean_up()
             return response
 
@@ -332,6 +357,7 @@ class SdkChroot(
 
                 if process.returncode in VALID_RETURN_CODES:
                     json_format.Parse(contents, internal_resp)
+                    self.version = internal_resp.version.version
                     response.response.CopyFrom(internal_resp)
                     process.stdout.close()
                     yield response
@@ -540,6 +566,7 @@ class SdkChroot(
                 process.communicate()
                 if process.returncode in VALID_RETURN_CODES:
                     json_format.Parse(contents, internal_resp)
+                    self.version = internal_resp.version.version
                     response.response.CopyFrom(internal_resp)
                     process.stdout.close()
                     yield response

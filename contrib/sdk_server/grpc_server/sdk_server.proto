@@ -36,8 +36,12 @@ message LogMessage {
 }
 
 message CurrentBoardsRequest {}
-message CurrentBoardsResponse {
-  repeated chromiumos.BuildTarget build_target = 1;
+message CurrentBoardsResponse { repeated BoardImages board_images = 1; }
+
+message BoardImages {
+  chromiumos.BuildTarget build_target = 1;
+  repeated chromite.api.Image images = 2;
+  chromite.api.Image latest = 3;
 }
 
 message QueryBoardsRequest {}
@@ -77,6 +81,7 @@ message BuildPackagesRequest {
   chromite.api.InstallToolchainRequest toolchain_req = 2;
   chromite.api.InstallPackagesRequest packages_req = 3;
 }
+
 message BuildPackagesResponse {
   chromite.api.SysrootCreateResponse create_resp = 1;
   chromite.api.InstallToolchainResponse toolchain_resp = 2;

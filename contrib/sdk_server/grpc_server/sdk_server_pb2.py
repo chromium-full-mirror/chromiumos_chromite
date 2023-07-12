@@ -162,7 +162,7 @@ _CURRENTBOARDSRESPONSE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='build_target', full_name='cros_sdk.CurrentBoardsResponse.build_target', index=0,
+      name='board_images', full_name='cros_sdk.CurrentBoardsResponse.board_images', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -1215,6 +1215,7 @@ DESCRIPTOR.message_types_by_name['LogsResponse'] = _LOGSRESPONSE
 DESCRIPTOR.message_types_by_name['LogMessage'] = _LOGMESSAGE
 DESCRIPTOR.message_types_by_name['CurrentBoardsRequest'] = _CURRENTBOARDSREQUEST
 DESCRIPTOR.message_types_by_name['CurrentBoardsResponse'] = _CURRENTBOARDSRESPONSE
+DESCRIPTOR.message_types_by_name['BoardImages'] = _BOARDIMAGES
 DESCRIPTOR.message_types_by_name['QueryBoardsRequest'] = _QUERYBOARDSREQUEST
 DESCRIPTOR.message_types_by_name['QueryBoardsResponse'] = _QUERYBOARDSRESPONSE
 DESCRIPTOR.message_types_by_name['BuildImageRequest'] = _BUILDIMAGEREQUEST
@@ -1281,6 +1282,13 @@ CurrentBoardsResponse = _reflection.GeneratedProtocolMessageType('CurrentBoardsR
   # @@protoc_insertion_point(class_scope:cros_sdk.CurrentBoardsResponse)
   ))
 _sym_db.RegisterMessage(CurrentBoardsResponse)
+
+BoardImages = _reflection.GeneratedProtocolMessageType('BoardImages', (_message.Message,), dict(
+  DESCRIPTOR = _BOARDIMAGES,
+  __module__ = 'sdk_server_pb2'
+  # @@protoc_insertion_point(class_scope:cros_sdk.BoardImages)
+  ))
+_sym_db.RegisterMessage(BoardImages)
 
 QueryBoardsRequest = _reflection.GeneratedProtocolMessageType('QueryBoardsRequest', (_message.Message,), dict(
   DESCRIPTOR = _QUERYBOARDSREQUEST,
