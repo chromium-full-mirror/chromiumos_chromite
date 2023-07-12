@@ -11,6 +11,7 @@ from io import BytesIO
 import logging
 import os
 import re
+import shutil
 import tempfile
 import threading
 import time
@@ -524,7 +525,12 @@ class GsFileCopier(ReaderBase):
     def run(self):
         """Runs the download and write into the output pipe."""
         try:
-            gs.GSContext().Copy(self._image, self._Source())
+            if gs.PathIsGs(self._image):
+                gs.GSContext().Copy(self._image, self._Source())
+            else:
+                with open(self._image, "rb") as fsrc:
+                    with open(self._Source(), "wb") as fdst:
+                        shutil.copyfileobj(fsrc, fdst)
         finally:
             self._CloseSource()
 
