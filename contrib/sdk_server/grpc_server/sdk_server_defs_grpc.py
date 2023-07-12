@@ -7,8 +7,9 @@
     TODO: MAIN
         chroot version w/o update chroot
         **DONE** existing images for board (paths) - add image paths to current_boards rpc
-        build individual package
-        Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
+        **DONE** build individual package
+        **DONE** Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
+            -- modify so that "run:..." log is added to log output???
         Use full path for log files, not relative
 
     TODO: Create new file - add ability to download log arhchive (user chosen logs)
@@ -76,12 +77,13 @@ def AsyncRun(
     cmd,
     cwd=None,
     env=None,
-    shell=True,
+    shell=False,
     extra_env=None,
     enter_chroot=False,
     chroot_args=None,
     stdout=None,
     stderr=None,
+    encoding=None,
     debug_level=logging.INFO,
 ):
     """Asynchronous implementation of cros_build_lib.run.
@@ -124,12 +126,6 @@ def AsyncRun(
 
         cmd = wrapper + ["--"] + cmd
 
-    log = ""
-    log += "run: %s" % ("".join(cmd),)
-    if cwd:
-        log += " in %s" % (cwd,)
-    logging.log(debug_level, "%s", log)
-
     proc = None
     try:
         proc = subprocess.Popen(
@@ -140,6 +136,7 @@ def AsyncRun(
             shell=False,
             env=env,
             close_fds=True,
+            encoding=encoding,
         )
         return proc
     except:
@@ -201,20 +198,6 @@ class SdkSysroot(sysroot_lib.Sysroot):
                 image_obj = SdkImage(image)
                 self.images.append(image_obj)
 
-    def get_all_packages(self):
-        script = ["cros", "workon", "--board", self.name, "--all", "list"]
-        result = cros_build_lib.run(
-            script,
-            shell=True,
-            stdout=subprocess.PIPE,
-            enter_chroot=True,
-            encoding="utf-8",
-        )
-        packages = result.stdout.splitlines()
-        result.stdout.close()
-        self.packages = packages
-        return packages
-
 
 class SdkChroot(
     chroot_lib.Chroot, sdk_server_pb2_grpc.sdk_server_serviceServicer
@@ -236,7 +219,7 @@ class SdkChroot(
         osutils.Touch(self.log_path)
 
         # TODO: delete when finalizing project
-        self.handler = logging.FileHandler(filename="logs/log")
+        self.handler = logging.FileHandler(filename=log_path)
         self.all_possible_boards = []
         self.handler.setLevel(logging.DEBUG)
         self.logger.addHandler(self.handler)
@@ -303,8 +286,11 @@ class SdkChroot(
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s repo_sync", req_time)
         script = ["repo", "sync"]
-        result = cros_build_lib.run(
-            script, stdout=subprocess.PIPE, encoding="utf-8"
+        process = AsyncRun(
+            script,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            encoding="utf-8",
         )
         output = []
         for line in iter(lambda: process.stdout.readline(), ""):
@@ -346,7 +332,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.UpdateChrootResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
@@ -386,9 +372,8 @@ class SdkChroot(
         )
 
         script = ["cros", "workon", target, "info", package]
-        result = cros_build_lib.run(
+        process = AsyncRun(
             script,
-            enter_chroot=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
@@ -420,9 +405,8 @@ class SdkChroot(
         )
 
         script = ["cros", "workon", target, "start", package]
-        result = cros_build_lib.run(
+        process = AsyncRun(
             script,
-            enter_chroot=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
@@ -453,11 +437,9 @@ class SdkChroot(
             else "--host"
         )
 
-        script = f"cros workon {target} stop {package}"
-        result = cros_build_lib.run(
+        script = ["cros", "workon", target, "stop", package]
+        process = AsyncRun(
             script,
-            shell=True,
-            enter_chroot=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
@@ -497,6 +479,7 @@ class SdkChroot(
             common_pb2.PackageInfo(package_name=package) for package in output
         ]
         response = sdk_server_pb2.WorkonListResponse(package_info=packages)
+        logger.clean_up()
         return response
 
     def chroot_path(self, request, context):
@@ -523,18 +506,20 @@ class SdkChroot(
         return response
 
     def _run_endpoint(self, endpoint, inputfile, outputfile):
-        """calls a BAPI endpoint"""
-        script = (
-            f"{constants.HOME_DIRECTORY}"
-            "/chromiumos/chromite/bin/build_api "
-            f"{endpoint} "
-            f"--input-json {inputfile} "
-            f"--output-json {outputfile} "
-            "--debug"
-        )
+        """calls a BAPI endpoint."""
+        script = [
+            f"{constants.HOME_DIRECTORY}/chromiumos/chromite/bin/build_api",
+            endpoint,
+            "--input-json", inputfile,
+            "--output-json", outputfile,
+            "--debug",
+        ]
 
         process = AsyncRun(
-            script, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
+            script,
+            stderr=subprocess.STDOUT,
+            stdout=subprocess.PIPE,
+            encoding="utf-8",
         )
         return process
 
@@ -556,7 +541,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.CreateSdkResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
@@ -598,7 +583,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.ReplaceSdkResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
@@ -640,7 +625,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.DeleteSdkResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
@@ -715,7 +700,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
@@ -752,7 +737,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
@@ -789,7 +774,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
@@ -828,7 +813,7 @@ class SdkChroot(
                 for line in iter(lambda: process.stdout.readline(), ""):
                     logger.info(line)
                     response = sdk_server_pb2.BuildImageResponse(
-                        logging_info=line.decode()
+                        logging_info=line
                     )
                     yield response
 
