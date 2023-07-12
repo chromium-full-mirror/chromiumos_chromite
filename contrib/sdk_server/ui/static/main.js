@@ -24,7 +24,8 @@ const head_status = {
 const working_status = {
     "-": ["New", "success"],
     "m": ["Modified", "success"],
-    "d": ["Deleted", "danger"]
+    "d": ["Deleted", "danger"],
+    "u": ["Unmerged", "danger"]
 }
 
 
@@ -61,7 +62,36 @@ function showRepo() {
     $("#showLogs").removeClass(bottomSelectorStyle)
 }
 
-function liveLogPopulator(commandName, logText, now){
+function logItemHTML(commandName, logText, now, completed){
+    return `
+    <li class = "row bg-dark" id = "` + now.format("x") + `liveLog">
+        <div class="col-6"><p2 class = "small text-light ms-2"><code class = "text-light">`+commandName+`</code></p2></div>
+        <div class = "col-2" id="`+now.format("x")+`status">
+        `+  (completed ?
+            `<p2 class="small text-success ms">Completed</p2>`
+            : `<p2 class="small log-running">Running</p2>`)
+        +` </div>
+        <div class = "col-2">
+          <a href="#log`+now.format("x")+`" data-bs-toggle="collapse" role="button" 
+            aria-controls="log`+now.format("x")+`" aria-expanded="false" 
+            class = "d-flex align-items-center log-expander link-underline 
+              link-underline-opacity-0 classic-link">
+            View Log 
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+              <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+            </svg>
+          </a>
+          
+        </div>
+        <div class="col"><p2 class = "small text-light ms-2">`+now.format("MMM D h:mma")+`</p2></div>
+        <div class = "bg-black small overflow-auto border-top collapse log-box" id = "log`+now.format("x")+`">
+          <code class = "small text-light log-text" id = "log`+now.format("x")+`Text" >`+logText+`</code>
+        </div>
+      </li>
+    `   
+}
+
+function populateLiveLog(commandName, logText, now){
     //log panel already exists
     if ($("#" + now.format("x") + "liveLog").length){
         $("#log" + now.format("x") + "Text").html(logText);
@@ -69,33 +99,37 @@ function liveLogPopulator(commandName, logText, now){
     else{
         //Create it
         $("#logsList").html(
-            `
-            <li class = "row bg-dark" id = "` + now.format("x") + `liveLog">
-                <div class="col-8"><p2 class = "small text-light ms-2"><code class = "text-light">`+commandName+`</code></p2></div>
-                <div class = "col-2">
-                  <a href="#log`+now.format("x")+`" data-bs-toggle="collapse" role="button" 
-                    aria-controls="log`+now.format("x")+`" aria-expanded="false" 
-                    class = "d-flex align-items-center log-expander link-underline 
-                      link-underline-opacity-0 classic-link">
-                    View Log 
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
-                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
-                    </svg>
-                  </a>
-                  
-                </div>
-                <div class="col"><p2 class = "small text-light ms-2">`+now.format("MMM D h:mma")+`</p2></div>
-                <div class = "bg-black small overflow-auto border-top collapse log-box" id = "log`+now.format("x")+`">
-                  <code class = "small text-light log-text" id = "log`+now.format("x")+`Text" >`+logText+`</code>
-                </div>
-              </li>
-            ` + $("#logsList").html()  
+            logItemHTML(commandName, logText, now, false) + $("#logsList").html()
         )
         //Rotates the log expander arrow
         $(".log-expander").on('click', function () {
             $(this).children("svg").toggleClass("rotate-log-button")
         })
     }
+}
+
+function populateHistoricLogs(){
+    $.ajax({
+        url: "/get-logs",
+        type: "POST",
+
+        success: function(response){
+            allLogsHTML = ``;
+            response.forEach(function(log){
+                now = moment.unix(log.time)
+                allLogsHTML += logItemHTML(log.command, log.logs, now, true);
+            })
+            $("#logsList").html(allLogsHTML);
+
+            $(".log-expander").on('click', function () {
+                $(this).children("svg").toggleClass("rotate-log-button")
+            })
+        },
+
+        error: function(xhr){
+            console.log("failure")
+        }
+    })
 }
 
 //Makes request to gRPC server via python routes and generates HTML
@@ -356,11 +390,9 @@ function updateChroot(){
         contentType: "application/json",
         
         success: function(response){
-            console.log("success");
-            console.log(response)
-
             $("#updateChrootSubmit").removeClass("disabled");
             window.onbeforeunload = null;
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
         },
 
         error: function(xhr){
@@ -372,10 +404,10 @@ function updateChroot(){
         xhrFields: {
             onprogress: function(e){
 
-                liveLogPopulator(
-                    "Update Chroot", 
+                populateLiveLog(
+                    "update_chroot", 
                     e.currentTarget.response, 
-                    now
+                    now,
                 )
             }
         }
@@ -408,6 +440,8 @@ function replaceChroot(){
             $("#replaceChrootSubmit").removeClass("disabled");
             location.reload();
             window.onbeforeunload = null;
+
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
         },
 
         error: function(xhr){
@@ -417,8 +451,8 @@ function replaceChroot(){
         xhrFields: {
             onprogress: function(e){
 
-                liveLogPopulator(
-                    "Replace Chroot", 
+                populateLiveLog(
+                    "replace_chroot", 
                     e.currentTarget.response, 
                     now
                 )
@@ -465,6 +499,8 @@ function buildPackages(){
         success: function(response){
             $("#buildPackagesSubmit").removeClass("disabled");
             window.onbeforeunload = null;
+
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
         },
 
         error: function(xhr){
@@ -474,8 +510,8 @@ function buildPackages(){
         xhrFields: {
             onprogress: function(e){
 
-                liveLogPopulator(
-                    "Build Packages", 
+                populateLiveLog(
+                    "build_packages", 
                     e.currentTarget.response, 
                     now
                 )
@@ -493,6 +529,7 @@ $(document).ready(function () {
     //Fetch repo and workon data
     populateRepoFiles();
     populatePackages();
+    populateHistoricLogs()
 
     //Activates tooltips
     const tooltipTriggerList = document.querySelectorAll(

@@ -9,13 +9,8 @@ import asyncio
 from typing import List, Optional
 
 # pylint: disable=import-error
-from flask import Flask
-from flask import jsonify
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import Response
-from flask import url_for
+import flask
+from google.protobuf import json_format
 
 from chromite.api.controller import controller_util
 from chromite.contrib.sdk_server.grpc_server import client
@@ -29,7 +24,7 @@ from chromite.contrib.sdk_server.ui.constants import constants
 from chromite.lib.parser import package_info
 
 
-app = Flask("SDK Server")
+app = flask.Flask("SDK Server")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
@@ -37,6 +32,8 @@ index_data = constants.get_index_data()
 
 # Code 204 "No content" for endpoints which just execute a function.
 NO_RESPONSE_OK = ("", 204)
+
+COMMANDS_TO_IGNORE = ("cros_workon_info", "current_boards")
 
 
 def logGenerator(endpoint, req):
@@ -47,11 +44,31 @@ def logGenerator(endpoint, req):
             yield response.logging_info
 
 
+@app.route("/get-logs", methods=["GET", "POST"])
+async def get_logs():
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    logsResponse = client.get_logs(sdk_server_pb2.LogsRequest())
+    resp = []
+    for log in logsResponse.log:
+        if log.command not in COMMANDS_TO_IGNORE:
+            second_line = log.logs.index("\n\n") + 2
+
+            # Internal logger adds a second newline to output which
+            # already has them. Remove them to make it more readable.
+            log.logs = log.logs[second_line:].replace("\n\n", "\n")
+
+            resp += [json_format.MessageToDict(log)]
+
+    return flask.jsonify(resp[-1::-1])
+
+
 @app.route("/workon-start", methods=["GET", "POST"])
 async def workon_start():
     try:
-        board = str(request.args.get("board"))
-        package = str(request.args.get("package"))
+        board = str(flask.request.args.get("board"))
+        package = str(flask.request.args.get("package"))
 
         parsed_pkg = package_info.parse(package)
         package = common.PackageInfo()
@@ -66,14 +83,14 @@ async def workon_start():
 
     except KeyError:
         # Handles user just going to /workon-start, rather than via the button.
-        return redirect(url_for("index"))
+        return flask.redirect(flask.url_for("index"))
 
 
 @app.route("/workon-stop", methods=["GET", "POST"])
 async def workon_stop():
     try:
-        board = str(request.args.get("board"))
-        package = str(request.args.get("package"))
+        board = str(flask.request.args.get("board"))
+        package = str(flask.request.args.get("package"))
 
         parsed_pkg = package_info.parse(package)
         package = common.PackageInfo()
@@ -90,188 +107,187 @@ async def workon_stop():
 
     except KeyError:
         # Handles user just going to /workon-stop, rather than via the button.
-        return redirect(url_for("index"))
+        return flask.redirect(flask.url_for("index"))
 
 
 @app.route("/repo-refresh", methods=["GET", "POST"])
 async def repo_refresh():
     """App route to run gRPC repo status endpoint and parse."""
 
-    if request.method == "POST":
-        # POST only sent by script.
-        response = client.repo_status(sdk_server_pb2.RepoStatusRequest())
+    if flask.request.method != "POST":
+        # GET (user visiting URL) redirects to homepage.
+        return flask.redirect(flask.url_for("index"))
 
-        project = ""
-        branch = ""
-        files = []
-        for line in response.info:
-            text = line.split()
-            if text[0] == "project":
-                project = text[1]
-                branch = text[3]
-            else:
-                files += [
-                    {"file": text[1], "head": text[0][0], "working": text[0][1]}
-                ]
+    # POST only sent by script.
+    response = client.repo_status(sdk_server_pb2.RepoStatusRequest())
 
-        # Returns dict-like format which JS parses into HTML.
-        return jsonify(
-            {
-                "project": project,
-                "branch": branch,
-                "files": files,
-            }
-        )
+    project = ""
+    branch = ""
+    files = []
+    for line in response.info:
+        text = line.split()
+        if text[0] == "project":
+            project = text[1]
+            branch = text[3]
+        else:
+            files += [
+                {"file": text[1], "head": text[0][0], "working": text[0][1]}
+            ]
 
-    # GET (user visiting URL) redirects to homepage.
-    return redirect(url_for("index"))
+    # Returns dict-like format which JS parses into HTML.
+    return flask.jsonify(
+        {
+            "project": project,
+            "branch": branch,
+            "files": files,
+        }
+    )
 
 
 @app.route("/get-packages", methods=["GET", "POST"])
 async def get_packages():
     """App route to get packages from gRPC server."""
 
-    if request.method == "POST":
-        # POST only sent by script.
+    if flask.request.method != "POST":
+        # GET (user visiting URL) redirects to homepage.
+        return flask.redirect(flask.url_for("index"))
 
-        packages_json = {}
-        boards_to_get = []
+    # POST only sent by script.
+    packages_json = {}
+    boards_to_get = []
 
-        # May request just for a single board (when updating from stop/start),
-        # but default should be all boards (for page loading).
-        if request.json["board"]:
-            boards_to_get = [common.BuildTarget(name=request.json["board"])]
-        else:
-            current_boards = client.current_boards(
-                sdk_server_pb2.CurrentBoardsRequest()
+    # May request just for a single board (when updating from stop/start),
+    # but default should be all boards (for page loading).
+    if flask.request.json["board"]:
+        boards_to_get = [common.BuildTarget(name=flask.request.json["board"])]
+    else:
+        current_boards = client.current_boards(
+            sdk_server_pb2.CurrentBoardsRequest()
+        )
+        boards_to_get = current_boards.build_target
+
+    for board in boards_to_get:
+        req = sdk_server_pb2.WorkonListRequest(build_target=board)
+        board_packages = (client.cros_workon_list(req)).package_info
+        board_packages_data = []
+
+        for pkg_msg in board_packages:
+            req = sdk_server_pb2.WorkonInfoRequest(
+                build_target=board, package_info=pkg_msg
             )
-            boards_to_get = current_boards.build_target
 
-        for board in boards_to_get:
-            req = sdk_server_pb2.WorkonListRequest(build_target=board)
-            board_packages = (client.cros_workon_list(req)).package_info
-            board_packages_data = []
+            # Parse info for modals.
+            _, repo, source = client.cros_workon_info(req).info.split(" ")
+            repo = repo.split(",")
+            source = source.split(",")
 
-            for pkg_msg in board_packages:
-                req = sdk_server_pb2.WorkonInfoRequest(
-                    build_target=board, package_info=pkg_msg
-                )
+            pkg = controller_util.deserialize_package_info(pkg_msg)
+            board_packages_data += [
+                {
+                    "name": pkg.atom,
+                    "plus": "0",
+                    "minus": "0",
+                    "repo": repo,
+                    "source": source,
+                }
+            ]
 
-                # Parse info for modals.
-                _, repo, source = client.cros_workon_info(req).info.split(" ")
-                repo = repo.split(",")
-                source = source.split(",")
+        packages_json[board.name] = board_packages_data
 
-                pkg = controller_util.deserialize_package_info(pkg_msg)
-                board_packages_data += [
-                    {
-                        "name": pkg.atom,
-                        "plus": "0",
-                        "minus": "0",
-                        "repo": repo,
-                        "source": source,
-                    }
-                ]
-
-            packages_json[board.name] = board_packages_data
-
-        return jsonify(packages_json)
-
-    # GET (user visiting URL) redirects to homepage.
-    return redirect(url_for("index"))
+    return flask.jsonify(packages_json)
 
 
 @app.route("/update-chroot", methods=["GET", "POST"])
 async def update_chroot():
     """App route to call BAPI Update."""
 
-    if request.method == "POST":
-        flags = sdk_pb2.UpdateRequest.Flags(
-            build_source=request.json["buildSource"],
-            toolchain_changed=request.json["toolchainChanged"],
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    flags = sdk_pb2.UpdateRequest.Flags(
+        build_source=flask.request.json["buildSource"],
+        toolchain_changed=flask.request.json["toolchainChanged"],
+    )
+
+    targets = flask.request.json["toolchainTargets"]
+    toolchain_targets = [common.BuildTarget(name=b) for b in targets]
+
+    req = sdk_server_pb2.UpdateChrootRequest(
+        request=sdk_pb2.UpdateRequest(
+            flags=flags, toolchain_targets=toolchain_targets
         )
+    )
 
-        targets = request.json["toolchainTargets"]
-        toolchain_targets = [common.BuildTarget(name=b) for b in targets]
-
-        req = sdk_server_pb2.UpdateChrootRequest(
-            request=sdk_pb2.UpdateRequest(
-                flags=flags, toolchain_targets=toolchain_targets
-            )
-        )
-
-        return Response(logGenerator(client.update_chroot, req))
-
-    return redirect(url_for("index"))
+    return flask.Response(logGenerator(client.update_chroot, req))
 
 
 @app.route("/replace-chroot", methods=["GET", "POST"])
 async def replace_chroot():
     """Forwards requests for replace chroot endpoint."""
-    if request.method == "POST":
-        flags = sdk_pb2.CreateRequest.Flags(
-            no_replace=False,
-            bootstrap=request.json["bootstrap"],
-            no_use_image=request.json["noUseImage"],
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    flags = sdk_pb2.CreateRequest.Flags(
+        no_replace=False,
+        bootstrap=flask.request.json["bootstrap"],
+        no_use_image=flask.request.json["noUseImage"],
+    )
+
+    req = sdk_server_pb2.UpdateChrootRequest(
+        sdk_pb2.UpdateRequest(
+            flags=flags, sdk_version=flask.request.json["version"]
         )
+    )
 
-        req = sdk_server_pb2.UpdateChrootRequest(
-            sdk_pb2.UpdateRequest(
-                flags=flags, sdk_version=request.json["version"]
-            )
-        )
-
-        return Response(logGenerator(client.replace_chroot, req))
-
-    return redirect(url_for("index"))
+    return flask.Response(logGenerator(client.replace_chroot, req))
 
 
 @app.route("/build-packages", methods=["GET", "POST"])
 async def build_packages():
     """Formulates/forwards all 3 requests for build packages endpoint."""
-    if request.method == "POST":
-        create_sysroot = sysroot_pb2.SysrootCreateRequest(
-            flags=sysroot_pb2.SysrootCreateRequest.Flags(
-                chroot_current=request.json["chrootCurrent"],
-                replace=request.json["replace"],
-                toolchain_changed=request.json["toolchainChanged"],
-                use_cq_prebuilts=request.json["CQPrebuilts"],
-            ),
-            build_target=common.BuildTarget(name=request.json["buildTarget"]),
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    create_sysroot = sysroot_pb2.SysrootCreateRequest(
+        flags=sysroot_pb2.SysrootCreateRequest.Flags(
+            chroot_current=flask.request.json["chrootCurrent"],
+            replace=flask.request.json["replace"],
+            toolchain_changed=flask.request.json["toolchainChanged"],
+            use_cq_prebuilts=flask.request.json["CQPrebuilts"],
+        ),
+        build_target=common.BuildTarget(name=flask.request.json["buildTarget"]),
+    )
+
+    install_toolchain = sysroot_pb2.InstallToolchainRequest(
+        flags=sysroot_pb2.InstallToolchainRequest.Flags(
+            compile_source=flask.request.json["compileSource"],
+            toolchain_changed=flask.request.json["toolchainChanged"],
         )
+    )
 
-        install_toolchain = sysroot_pb2.InstallToolchainRequest(
-            flags=sysroot_pb2.InstallToolchainRequest.Flags(
-                compile_source=request.json["compileSource"],
-                toolchain_changed=request.json["toolchainChanged"],
-            )
+    install_packages = sysroot_pb2.InstallPackagesRequest(
+        flags=sysroot_pb2.InstallPackagesRequest.Flags(
+            compile_source=flask.request.json["compileSource"],
+            toolchain_changed=flask.request.json["toolchainChanged"],
+            dryrun=flask.request.json["dryrun"],
+            workon=flask.request.json["workon"],
         )
+    )
 
-        install_packages = sysroot_pb2.InstallPackagesRequest(
-            flags=sysroot_pb2.InstallPackagesRequest.Flags(
-                compile_source=request.json["compileSource"],
-                toolchain_changed=request.json["toolchainChanged"],
-                dryrun=request.json["dryrun"],
-                workon=request.json["workon"],
-            )
-        )
+    req = sdk_server_pb2.BuildPackagesRequest(
+        create_req=create_sysroot,
+        toolchain_req=install_toolchain,
+        packages_req=install_packages,
+    )
 
-        req = sdk_server_pb2.BuildPackagesRequest(
-            create_req=create_sysroot,
-            toolchain_req=install_toolchain,
-            packages_req=install_packages,
-        )
-
-        return Response(logGenerator(client.build_packages, req))
-
-    return redirect(url_for("index"))
+    return flask.Response(logGenerator(client.build_packages, req))
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Home page route. Renders index.html file with templating data."""
 
-    return render_template("index.html", data=index_data)
+    return flask.render_template("index.html", data=index_data)
 
 
 async def setup():

@@ -43,3 +43,19 @@ body{
 	overflow-y: auto; 
 	height: 400px
 }
+
+@keyframes pulse{
+	0%{
+		color: white;
+	}
+	50%{
+		color: gray;
+	}
+	100%{
+		color: white;
+	}
+}
+
+.log-running{
+	animation: pulse 3s infinite;
+}
