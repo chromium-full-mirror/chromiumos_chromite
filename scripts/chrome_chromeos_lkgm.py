@@ -182,7 +182,9 @@ class ChromeLKGMCommitter:
 
     # The list of trybots we require LKGM updates to run and pass on before
     # landing. Since they're internal trybots, the CQ won't automatically
-    # trigger them, so we have to explicitly tell it to.
+    # trigger them, so we have to explicitly tell it to. If you add a new
+    # internal builder here, make sure it's also listed in
+    # https://source.chromium.org/chromium/chromium/src/+/main:infra/config/subprojects/chrome/try.star.
     _PRESUBMIT_BOTS = (
         "chromeos-betty-pi-arc-chrome",
         "chromeos-eve-chrome",
