@@ -854,13 +854,16 @@ def Clone(
     RunGit(dest_path, cmd, print_cmd=True)
 
 
-def ShallowFetch(git_repo, git_url, sparse_checkout=None):
+def ShallowFetch(
+    git_repo, git_url, sparse_checkout=None, commit: Optional[str] = None
+):
     """Fetch a shallow git repository.
 
     Args:
         git_repo: Path of the git repo.
         git_url: Url to fetch the git repository from.
         sparse_checkout: List of file paths to fetch.
+        commit: Commit to fetch (defaults to HEAD).
     """
     Init(git_repo)
     RunGit(git_repo, ["remote", "add", "origin", git_url])
@@ -876,9 +879,12 @@ def ShallowFetch(git_repo, git_url, sparse_checkout=None):
     utcnow = datetime.datetime.utcnow
     start = utcnow()
     # Only fetch TOT git metadata without revision history.
+    cmd = ["fetch", "--depth=1"]
+    if commit:
+        cmd += ["origin", commit]
     RunGit(
         git_repo,
-        ["fetch", "--depth=1"],
+        cmd,
         print_cmd=True,
         stderr=True,
         stdout=None,

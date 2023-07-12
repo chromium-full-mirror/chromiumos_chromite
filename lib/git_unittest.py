@@ -103,7 +103,45 @@ Change-Id: %s
             ]
         )
 
-    def testShallowFetch(self):
+    def testShallowFetchDefault(self):
+        url = "http://happy/git/repo"
+
+        git.ShallowFetch(self.fake_git_dir, url)
+
+        # Should have created the git repo directory, if it didn't exist.
+        self.assertExists(self.fake_git_dir)
+        self.assertCommandContains(["init"])
+        self.assertCommandContains(["remote", "add", "origin", url])
+        self.assertCommandContains(["fetch", "--depth=1"])
+        self.assertCommandContains(["pull", "origin", "HEAD"])
+
+        sparse_checkout = os.path.join(
+            self.fake_git_dir, ".git", "info", "sparse-checkout"
+        )
+        self.assertNotExists(sparse_checkout)
+
+    def testShallowFetchCommit(self):
+        url = "http://happy/git/repo"
+
+        git.ShallowFetch(
+            self.fake_git_dir,
+            url,
+            commit="1234",
+        )
+
+        # Should have created the git repo directory, if it didn't exist.
+        self.assertExists(self.fake_git_dir)
+        self.assertCommandContains(["init"])
+        self.assertCommandContains(["remote", "add", "origin", url])
+        self.assertCommandContains(["fetch", "--depth=1", "origin", "1234"])
+        self.assertCommandContains(["pull", "origin", "HEAD"])
+
+        sparse_checkout = os.path.join(
+            self.fake_git_dir, ".git", "info", "sparse-checkout"
+        )
+        self.assertNotExists(sparse_checkout)
+
+    def testShallowFetchSparseCheckout(self):
         url = "http://happy/git/repo"
 
         sparse_checkout = os.path.join(
