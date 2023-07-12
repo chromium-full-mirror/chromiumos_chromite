@@ -34,11 +34,6 @@ class sdk_server_serviceStub(object):
         request_serializer=sdk__server__pb2.WorkonInfoRequest.SerializeToString,
         response_deserializer=sdk__server__pb2.WorkonInfoResponse.FromString,
         )
-    self.chroot_path = channel.unary_unary(
-        '/cros_sdk.sdk_server_service/chroot_path',
-        request_serializer=sdk__server__pb2.ChrootPathRequest.SerializeToString,
-        response_deserializer=sdk__server__pb2.ChrootPathResponse.FromString,
-        )
     self.all_packages = channel.unary_unary(
         '/cros_sdk.sdk_server_service/all_packages',
         request_serializer=sdk__server__pb2.AllPackagesRequest.SerializeToString,
@@ -99,6 +94,11 @@ class sdk_server_serviceStub(object):
         request_serializer=sdk__server__pb2.LogsRequest.SerializeToString,
         response_deserializer=sdk__server__pb2.LogsResponse.FromString,
         )
+    self.chroot_info = channel.unary_unary(
+        '/cros_sdk.sdk_server_service/chroot_info',
+        request_serializer=sdk__server__pb2.ChrootInfoRequest.SerializeToString,
+        response_deserializer=sdk__server__pb2.ChrootInfoResponse.FromString,
+        )
 
 
 class sdk_server_serviceServicer(object):
@@ -127,13 +127,6 @@ class sdk_server_serviceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def cros_workon_info(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def chroot_path(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -224,6 +217,13 @@ class sdk_server_serviceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def chroot_info(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_sdk_server_serviceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -246,11 +246,6 @@ def add_sdk_server_serviceServicer_to_server(servicer, server):
           servicer.cros_workon_info,
           request_deserializer=sdk__server__pb2.WorkonInfoRequest.FromString,
           response_serializer=sdk__server__pb2.WorkonInfoResponse.SerializeToString,
-      ),
-      'chroot_path': grpc.unary_unary_rpc_method_handler(
-          servicer.chroot_path,
-          request_deserializer=sdk__server__pb2.ChrootPathRequest.FromString,
-          response_serializer=sdk__server__pb2.ChrootPathResponse.SerializeToString,
       ),
       'all_packages': grpc.unary_unary_rpc_method_handler(
           servicer.all_packages,
@@ -311,6 +306,11 @@ def add_sdk_server_serviceServicer_to_server(servicer, server):
           servicer.get_logs,
           request_deserializer=sdk__server__pb2.LogsRequest.FromString,
           response_serializer=sdk__server__pb2.LogsResponse.SerializeToString,
+      ),
+      'chroot_info': grpc.unary_unary_rpc_method_handler(
+          servicer.chroot_info,
+          request_deserializer=sdk__server__pb2.ChrootInfoRequest.FromString,
+          response_serializer=sdk__server__pb2.ChrootInfoResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

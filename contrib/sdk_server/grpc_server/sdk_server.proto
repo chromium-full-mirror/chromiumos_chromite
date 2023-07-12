@@ -10,7 +10,6 @@ service sdk_server_service {
   rpc cros_workon_stop(WorkonStopRequest) returns (WorkonStopResponse);
   rpc cros_workon_list(WorkonListRequest) returns (WorkonListResponse);
   rpc cros_workon_info(WorkonInfoRequest) returns (WorkonInfoResponse);
-  rpc chroot_path(ChrootPathRequest) returns (ChrootPathResponse);
   rpc all_packages(AllPackagesRequest) returns (AllPackagesResponse);
   rpc repo_sync(RepoSyncRequest) returns (RepoSyncResponse);
   rpc repo_status(RepoStatusRequest) returns (RepoStatusResponse);
@@ -24,8 +23,16 @@ service sdk_server_service {
   rpc query_boards(QueryBoardsRequest) returns (QueryBoardsResponse);
   rpc current_boards(CurrentBoardsRequest) returns (CurrentBoardsResponse);
   rpc get_logs(LogsRequest) returns (LogsResponse);
+  rpc chroot_info(ChrootInfoRequest) returns (ChrootInfoResponse);
 }
 
+message ChrootInfoRequest {}
+message ChrootInfoResponse {
+  string date_created = 1;
+  chromite.api.ChrootVersion version = 2;
+  bool valid_version = 3;
+  chromiumos.Path path = 4;
+}
 message LogsRequest {}
 message LogsResponse { repeated LogMessage logs = 1; }
 
@@ -105,9 +112,6 @@ message AllPackagesRequest { chromiumos.BuildTarget build_target = 1; }
 message AllPackagesResponse {
   repeated chromiumos.PackageInfo package_info = 1;
 }
-
-message ChrootPathRequest {}
-message ChrootPathResponse { string path = 1; }
 
 message WorkonStartRequest {
   chromiumos.BuildTarget build_target = 1;

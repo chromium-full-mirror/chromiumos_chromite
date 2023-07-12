@@ -5,12 +5,12 @@
 """Defines classes and functions used in implementation of sdk server.
 
     TODO: MAIN
-        chroot version w/o update chroot
+        **DONE** chroot version w/o update chroot
         **DONE** existing images for board (paths) - add image paths to current_boards rpc
         **DONE** build individual package
-        **DONE** Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
+        **REASSESS** **DONE** Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
             -- modify so that "run:..." log is added to log output???
-        Use full path for log files, not relative
+        **DONE** Use full path for log files, not relative
 
     TODO: Create new file - add ability to download log arhchive (user chosen logs)
         for bug reports
@@ -206,11 +206,13 @@ class SdkChroot(
 
     def __init__(self, path: Union[str, os.PathLike] = None):
         chroot_lib.Chroot.__init__(self, path)
-        self.sysroots = []
+        self.date_created = None
         self.version = None
-
+        self.valid_version = None
+        self._update_chroot_info()
+        self.sysroots = []
         # TODO: delete when finalizing project
-        self.logger = logging.getLogger()
+        self.logger = logging.getLogger("Chroot Logger")
 
         self.logs_folder = Path.cwd() / "logs"
         self.log_path = self.logs_folder / "log"
@@ -223,6 +225,31 @@ class SdkChroot(
         self.all_possible_boards = []
         self.handler.setLevel(logging.DEBUG)
         self.logger.addHandler(self.handler)
+
+    def _update_chroot_info(self):
+        """Collects general information about the chroot."""
+        self.date_created = time.ctime(os.path.getctime(self.path))
+        self.version = cros_sdk_lib.GetChrootVersion(self.path)
+        self.valid_version = cros_sdk_lib.IsChrootVersionValid(self.path)
+
+    def chroot_info(self, request, context):
+        """Sends general information about the chroot via grpc."""
+        path_exists = Path(self.path).exists()
+        is_ready = cros_sdk_lib.IsChrootReady(self.path)
+        ready = path_exists and is_ready
+
+        response = None
+        if not path_exists:
+            response = sdk_server_pb2.ChrootInfoResponse(ready=ready)
+        else:
+            response = sdk_server_pb2.ChrootInfoResponse(
+                ready=ready,
+                date_created=self.date_created,
+                valid_version=self.valid_version,
+                path=common_pb2.Path(path=self.path),
+                version=sdk_pb2.ChrootVersion(version=self.version),
+            )
+        return response
 
     def get_logs(self, request, context):
         logfile = self.handler.baseFilename
@@ -255,7 +282,9 @@ class SdkChroot(
 
                 build_target = common_pb2.BuildTarget(name=sysroot.name)
                 images = [
-                    image_pb2.Image(path=str(image.path), build_target=build_target)
+                    image_pb2.Image(
+                        path=str(image.path), build_target=build_target
+                    )
                     for image in sysroot_obj.images
                 ]
                 board_images = sdk_server_pb2.BoardImages(
@@ -271,6 +300,7 @@ class SdkChroot(
         return sdk_server_pb2.CurrentBoardsResponse()
 
     def query_boards(self, request, context):
+        """Runs `cros query boards`."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s query_boards", req_time)
@@ -282,6 +312,7 @@ class SdkChroot(
         return response
 
     def repo_sync(self, request, context):
+        """Runs `repo sync`."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s repo_sync", req_time)
@@ -302,6 +333,7 @@ class SdkChroot(
         return response
 
     def repo_status(self, request, context):
+        """Runs `repo status`."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s repo_status", req_time)
@@ -314,6 +346,7 @@ class SdkChroot(
         return response
 
     def update_chroot(self, request, context):
+        """Runs the update chroot BAPI endpoint."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s update_chroot", req_time)
@@ -340,7 +373,7 @@ class SdkChroot(
                 response = sdk_server_pb2.UpdateChrootResponse()
                 internal_resp = sdk_pb2.UpdateResponse()
                 process.communicate()
-
+                self._update_chroot_info()
                 if process.returncode in VALID_RETURN_CODES:
                     json_format.Parse(contents, internal_resp)
                     self.version = internal_resp.version.version
@@ -356,7 +389,7 @@ class SdkChroot(
                 logger.clean_up()
 
     def cros_workon_info(self, request, context):
-        """run cros workon info for given package
+        """Runs `cros workon info` for a given package.
 
         if build_target not specified will run with --host enabled
         """
@@ -390,7 +423,7 @@ class SdkChroot(
         return response
 
     def cros_workon_start(self, request, context):
-        """run cros workon start for given package
+        """Runs `cros workon start` for a given package.
 
         if build_target not specified will run with --host enabled
         """
@@ -423,7 +456,7 @@ class SdkChroot(
         return response
 
     def cros_workon_stop(self, request, context):
-        """run cros workon stop for given package
+        """Runs `cros workon stop` for a given package.
 
         if build_target not specified will run with --host enabled
         """
@@ -456,7 +489,7 @@ class SdkChroot(
         return response
 
     def cros_workon_list(self, request, context):
-        """run cros workon list
+        """Runs `cros workon list`.
 
         if build_target not specified will run with --host enabled
         """
@@ -482,11 +515,8 @@ class SdkChroot(
         logger.clean_up()
         return response
 
-    def chroot_path(self, request, context):
-        response = sdk_server_pb2.ChrootPathResponse(path=self.path)
-        return response
-
     def all_packages(self, request, context):
+        """Runs `cros workon --all list`."""
         target = (
             f"--board={request.build_target.name}"
             if request.build_target
@@ -524,6 +554,7 @@ class SdkChroot(
         return process
 
     def create_sdk(self, request, context):
+        """Runs create sdk BAPI endpoint."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s create_sdk", req_time)
@@ -548,6 +579,7 @@ class SdkChroot(
                 contents = osutils.ReadFile(tempoutput.name)
                 response = sdk_server_pb2.CreateSdkResponse()
                 internal_resp = sdk_pb2.CreateResponse()
+                self._update_chroot_info()
                 process.communicate()
                 if process.returncode in VALID_RETURN_CODES:
                     json_format.Parse(contents, internal_resp)
@@ -564,6 +596,7 @@ class SdkChroot(
                 logger.clean_up()
 
     def replace_sdk(self, request, context):
+        """Runs create sdk BAPI endpoint with `no_repalce = False`."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s replace_sdk", req_time)
@@ -606,6 +639,7 @@ class SdkChroot(
                 logger.clean_up()
 
     def delete_sdk(self, request, context):
+        """Runs delete sdk BAPI endpoint."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s delete_sdk", req_time)
@@ -648,6 +682,13 @@ class SdkChroot(
                 logger.clean_up()
 
     def build_packages(self, request, context):
+        """Runs runs build packages BAPI endpoint.
+
+        Calls the following endpoints:
+            Sysroot create
+            install toolcahin
+            build packages
+        """
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s build_packages", req_time)
@@ -683,7 +724,7 @@ class SdkChroot(
         logger.clean_up()
 
     def _sysroot_create(self, request, logger):
-        """Call BAPI sysroot_create endpoint"""
+        """Calls BAPI sysroot_create endpoint."""
 
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
@@ -720,7 +761,7 @@ class SdkChroot(
                     yield response
 
     def _install_toolchain(self, request, logger):
-        """Call BAPI install_toolchain endpoint"""
+        """Calls BAPI install_toolchain endpoint."""
 
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
@@ -757,7 +798,7 @@ class SdkChroot(
                     yield response
 
     def _install_packages(self, request, logger):
-        """Call BAPI install_toolchain endpoint"""
+        """Calls BAPI install_toolchain endpoint."""
 
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
@@ -794,6 +835,7 @@ class SdkChroot(
                     yield response
 
     def build_image(self, request, context):
+        """Calls BAPI create image endpoint."""
         logger = TempMemLogger(target=self.handler)
         req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
         logger.info("REQUEST: %s build_image", req_time)

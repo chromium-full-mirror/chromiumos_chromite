@@ -59,13 +59,13 @@ def cros_workon_stop(
         return response
 
 
-def chroot_path(
-    request: sdk_server_pb2.ChrootPathRequest,
-) -> sdk_server_pb2.ChrootPathResponse:
+def chroot_info(
+    request: sdk_server_pb2.ChrootInfoRequest,
+) -> sdk_server_pb2.ChrootInfoResponse:
     """sends grpc request for the chroot path to sdk server."""
     with grpc.insecure_channel("localhost:50051") as channel:
         stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
-        response = stub.chroot_path(request)
+        response = stub.chroot_info(request)
         return response
 
 
