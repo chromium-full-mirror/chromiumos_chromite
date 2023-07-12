@@ -12,9 +12,9 @@ from chromite.cbuildbot import repository
 from chromite.cbuildbot.stages import config_stages
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.lib import cros_build_lib
-from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import gs
+from chromite.lib import gs_unittest
 from chromite.lib import osutils
 from chromite.lib.buildstore import FakeBuildStore
 
@@ -100,7 +100,7 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
 
 class UpdateConfigStageTest(
     generic_stages_unittest.AbstractStageTestCase,
-    cros_test_lib.RunCommandTestCase,
+    gs_unittest.AbstractGSContextTest,
 ):
     """Tests for UpdateConfigStage."""
 

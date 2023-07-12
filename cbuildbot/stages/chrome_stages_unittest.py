@@ -71,6 +71,11 @@ class SimpleChromeArtifactsStage(
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc_mock.SetDefaultCmdResult()
         self.PatchObject(
+            commands,
+            "UploadArchivedFile",
+            autospec=True,
+        )
+        self.PatchObject(
             chrome_stages.SimpleChromeArtifactsStage,
             "_ArchiveChromeEbuildEnv",
             autospec=True,
