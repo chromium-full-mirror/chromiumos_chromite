@@ -316,7 +316,9 @@ class WorkonHelper:
             (self.workon_file_path, self._unmasked_symlink),
             (self.workon_file_path, self._keywords_symlink),
         ):
-            if os.path.exists(target):
+            if not os.path.exists(target):
+                logging.debug("Config %s doesn't exist; ignoring.", target)
+            elif not os.path.exists(symlink):
                 osutils.SafeMakedirs(os.path.dirname(symlink), sudo=True)
                 osutils.SafeSymlink(target, symlink, sudo=True)
             else:
