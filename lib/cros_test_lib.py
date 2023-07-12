@@ -56,6 +56,13 @@ except (ImportError, AttributeError):
     pytestmark_skipif = lambda condition, reason=None: None
 
 
+# Whether the current test session has --network tests enabled.  Since pytest
+# doesn't have a way of detecting markers dynamically, we set this with a global
+# fixture for other places to read.  This does not indicate whether the current
+# test itself has pytestmark_network_test enabled, only the overall session.
+NETWORK_TESTS_ENABLED = False
+
+
 Directory = collections.namedtuple("Directory", ["name", "contents"])
 
 

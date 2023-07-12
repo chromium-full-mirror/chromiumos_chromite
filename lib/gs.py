@@ -1150,6 +1150,20 @@ wheel: <
                 cros_build_lib.CmdToStr(cmd),
             )
         else:
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                from chromite.lib import cros_test_lib
+
+                # Only allow tests to call us directly when network tests are
+                # enabled.  If they're disabled, require that the APIs be mocked
+                # to avoid trying to talk to the actual network.
+                assert (
+                    cros_test_lib.NETWORK_TESTS_ENABLED
+                    or hasattr(GSContext.DoCommand, "mock")
+                    or hasattr(cros_build_lib.run, "mock")
+                    or hasattr(retry_stats.RetryWithStats, "mock")
+                ), "GSContext mock missing"
+                print(cmd)
+
             try:
                 return retry_stats.RetryWithStats(
                     retry_stats.GSUTIL,

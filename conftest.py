@@ -17,6 +17,7 @@ import pytest
 
 import chromite as cr
 from chromite.lib import cidb
+from chromite.lib import cros_test_lib
 from chromite.lib import parallel
 from chromite.lib import retry_stats
 from chromite.lib.parser import package_info
@@ -201,8 +202,20 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture
 def run_mock():
     """Robust mock for cros_build_lib.run."""
-    from chromite.lib import cros_test_lib
-
     with cros_test_lib.RunCommandMock() as rc_mock:
         rc_mock.SetDefaultCmdResult()
         yield rc_mock
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _check_network_test(request):
+    """Detect whether the test uses network_test marker.
+
+    This can be helpful for code to detect when network traffic is attempted but
+    network tests weren't requested which indicates a bad test -- one that needs
+    to be decorated with @cros_test_lib.pytestmark_network_test.
+    """
+    for item in request.session.items:
+        if item.get_closest_marker("network_test") is not None:
+            cros_test_lib.NETWORK_TESTS_ENABLED = True
+            break
