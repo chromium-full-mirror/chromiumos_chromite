@@ -12,6 +12,7 @@ import shutil
 import traceback
 
 from chromite.lib import cros_build_lib
+from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib.xbuddy import artifact_info
 from chromite.lib.xbuddy import common_util
@@ -391,7 +392,7 @@ class Artifact(metaclass=ArtifactMeta):
                         )
                     self._Setup()
                     self._MarkArtifactStaged()
-                except Exception as e:
+                except gs.GSContextException as e:
                     # Convert an unknown exception into an
                     # ArtifactDownloadError.
                     if not isinstance(e, ArtifactDownloadError):

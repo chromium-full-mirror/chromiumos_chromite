@@ -540,25 +540,24 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
 
     def testProcessBuildArtifactWithException(self):
         """Test processing a non-existing artifact from GSUtil."""
-        self.StartPatcher(gs_unittest.GSContextMock())
+        gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
+        gs_mock.SetDefaultCmdResult()
         artifact = build_artifact.Artifact(
             build_artifact.TEST_SUITES_FILE, self.work_dir, _VERSION
         )
-        try:
+        with self.assertRaises(build_artifact.ArtifactDownloadError) as cm:
             dl = downloader.GoogleStorageDownloader(
                 self.work_dir,
                 _TEST_NON_EXISTING_GOLO_ARCHIVE,
                 _TEST_NON_EXISTING_GOLO_BUILD_ID,
             )
             artifact.Process(dl, False)
-        except Exception as e:
-            expected_exception = e
         saved_exception = artifact.GetException()
         # saved_exception has traceback info - strip it.
         self.assertEqual(
             # TODO(b/236161656): Fix.
             # pylint: disable=used-before-assignment,use-maxsplit-arg
-            str(expected_exception),
+            str(cm.exception),
             str(saved_exception).split("\n")[0],
         )
 

@@ -399,7 +399,7 @@ class XBuddy:
                     "suffix": suffix,
                     "version": version,
                 }
-            except Exception as e:
+            except gs.GSContextException as e:
                 logging.warning(
                     "Failed to look up file %s with error %s. ignoring", f, e
                 )
@@ -823,10 +823,8 @@ class XBuddy:
                     logging.debug("Deleting downloaded image at %s", clear_dir)
                     shutil.rmtree(clear_dir)
 
-            except Exception as err:
-                raise XBuddyException(
-                    "Failed to clear %s: %s" % (clear_dir, err)
-                )
+            except OSError as e:
+                raise XBuddyException(f"Failed to clear {clear_dir}: {e}")
 
     def _TranslateSignedGSUrl(
         self, build_id: os.PathLike, channel: str = None
