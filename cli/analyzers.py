@@ -43,9 +43,6 @@ def HasUncommittedChanges(files: List[str]) -> bool:
 class AnalyzerCommand(ABC, command.CliCommand):
     """Shared argument parsing for cros analyzers (fix, lint, format)."""
 
-    # Additional aliases to offer for the "--inplace" option.
-    inplace_option_aliases = []
-
     use_dryrun_options = True
     # Override base class property to use path filter options.
     use_filter_options = True
@@ -71,10 +68,10 @@ class AnalyzerCommand(ABC, command.CliCommand):
             help="Write to stdout",
         )
         parser.add_argument(
-            *(["-i", "--inplace"] + cls.inplace_option_aliases),
+            "-i",
+            "--inplace",
             default=True,
             action="store_true",
-            dest="inplace",
             help="Fix files inplace (default)",
         )
         parser.add_argument(
