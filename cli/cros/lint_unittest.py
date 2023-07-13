@@ -7,7 +7,7 @@
 import collections
 import io
 import os
-from typing import NamedTuple, Optional
+from typing import Iterable, NamedTuple, Optional
 
 import astroid
 
@@ -1316,22 +1316,27 @@ class MonkeypatchCheckerTest(CheckerTestCase):
     CHECKER = lint.MonkeypatchChecker
 
     @staticmethod
-    def _make_node(code):
+    def _make_nodes(code: str) -> Iterable:
         """Helper to construct a callable node."""
-        node = astroid.extract_node(f"monkeypatch.setattr({code})")
-        node.doc = code
-        return node
+        snippets = (
+            f"monkeypatch.setattr({code})",
+            f"self.monkeypatch.setattr({code})",
+        )
+        for snippet in snippets:
+            node = astroid.extract_node(snippet)
+            node.doc = code
+            yield node
 
     def _check_tests(self, tests, passes):
         """Helper to run all the test cases."""
         for test in tests:
-            node = self._make_node(test)
-            self.results = []
-            self.checker.visit_call(node)
-            if passes:
-                self.assertLintPassed()
-            else:
-                self.assertLintFailed()
+            for node in self._make_nodes(test):
+                self.results = []
+                self.checker.visit_call(node)
+                if passes:
+                    self.assertLintPassed()
+                else:
+                    self.assertLintFailed()
 
     def testBadCalls(self):
         """Don't crash when the API is used incorrectly."""

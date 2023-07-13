@@ -278,11 +278,21 @@ class MonkeypatchChecker(pylint.checkers.BaseChecker):
     def visit_call(self, node: astroid.Call) -> None:
         """Check |node| call."""
         # Only look for monkeypatch.setattr(...) calls.
-        if (
-            not isinstance(node.func, astroid.Attribute)
-            or node.func.attrname != "setattr"
-            or not node.args
-            or node.func.expr.name != "monkeypatch"
+        # Or self.monkeypatch.setattr(...) calls in unittest.TestCase.
+        if not (
+            isinstance(node.func, astroid.Attribute)
+            and node.func.attrname == "setattr"
+            and node.args
+            and (
+                (
+                    isinstance(node.func.expr, astroid.Attribute)
+                    and node.func.expr.attrname == "monkeypatch"
+                )
+                or (
+                    isinstance(node.func.expr, astroid.Name)
+                    and node.func.expr.name == "monkeypatch"
+                )
+            )
         ):
             return
 
@@ -299,9 +309,9 @@ class MonkeypatchChecker(pylint.checkers.BaseChecker):
             if arg0.name != "cros_build_lib" or len(node.args) < 2:
                 return
             arg1 = node.args[1]
-            if not isinstance(arg1, astroid.Const) or arg1.value not in (
-                "run",
-                "sudo_run",
+            if not (
+                isinstance(arg1, astroid.Const)
+                and arg1.value in ("run", "sudo_run")
             ):
                 return
             func = arg1.value
