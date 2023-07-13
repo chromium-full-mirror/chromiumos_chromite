@@ -14,7 +14,7 @@ TODO: MAIN
 
     **DONE** mark "latest" image in proto and don't forward "latest" symlink
 
-    stream repo sync output, change info field to logging_info
+    **DONE** stream repo sync output, change info field to logging_info
 
     **DONE** clear logs endpoint
 
@@ -313,13 +313,13 @@ class SdkChroot(
                 latest = None
                 images = []
                 for image in sysroot_obj.images:
-                    image_pb2.Image(
+                    image_msg = image_pb2.Image(
                         path=str(image.path), build_target=build_target
                     )
 
                     if image.latest:
-                        latest = image
-                    images.append(image)
+                        latest = image_msg
+                    images.append(image_msg)
 
                 board_images = sdk_server_pb2.BoardImages(
                     build_target=build_target, images=images, latest=latest
@@ -360,9 +360,7 @@ class SdkChroot(
 
         for line in iter(lambda: process.stdout.readline(), ""):
             logger.info(line)
-            response = sdk_server_pb2.RepoSyncResponse(
-                logging_info=line
-            )
+            response = sdk_server_pb2.RepoSyncResponse(logging_info=line)
             yield response
 
     def repo_status(self, request, context):
