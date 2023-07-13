@@ -24,7 +24,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z-go.chromium.org/chromiumos/config/go/test/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1e\x63hromiumos/test/api/ctp2.proto\x12\x13\x63hromiumos.test.api\x1a$chromiumos/test/api/test_suite.proto\x1a,chromiumos/test/api/test_case_metadata.proto\x1a-chromiumos/build/api/container_metadata.proto\x1a!chromiumos/test/lab/api/dut.proto\x1a\x19google/protobuf/any.proto\"\xa8\x03\n\x0c\x43TPv2Request\x12\x34\n\ntest_suite\x18\x01 \x01(\x0b\x32\x1e.chromiumos.test.api.TestSuiteH\x00\x12:\n\x11hierarchical_plan\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.ReservedH\x00\x12\x32\n\nhw_targets\x18\x04 \x01(\x0b\x32\x1e.chromiumos.test.api.HWTargets\x12\x32\n\nsw_targets\x18\x05 \x01(\x0b\x32\x1e.chromiumos.test.api.SWTargets\x12\x36\n\x0ekarbon_filters\x18\x06 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x36\n\x0ekoffee_filters\x18\x07 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x0c\n\x04pool\x18\x08 \x01(\t\x12/\n\x11scheduke_metadata\x18\t \x01(\x0b\x32\x14.google.protobuf.AnyB\x0f\n\rsuite_request\"x\n\tHWTargets\x12\x32\n\tlegacy_hw\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.LegacyHWH\x00\x12,\n\x06\x64\x64\x64_hw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDHWH\x00\x42\t\n\x07targets\"|\n\tSWTargets\x12\x33\n\tlegacy_sw\x18\x01 \x01(\x0b\x32\x1e.chromiumos.test.api.LegacySWsH\x00\x12,\n\x06\x64\x64\x64_sw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDSWH\x00\x42\x0c\n\nsw_targets\"u\n\tLegacySWs\x12;\n\nlegacy_sws\x18\x04 \x03(\x0b\x32\'.chromiumos.test.api.LegacySWs.LegacySW\x1a+\n\x08LegacySW\x12\r\n\x05\x62uild\x18\x02 \x01(\t\x12\x10\n\x08gcs_path\x18\x03 \x01(\t\"\x07\n\x05\x44\x44\x44SW\"\xaf\x01\n\x08LegacyHW\x12\r\n\x05\x62oard\x18\x01 \x03(\t\x12\r\n\x05model\x18\x02 \x03(\t\x12\x11\n\tany_model\x18\x03 \x01(\x08\x12\x0f\n\x07variant\x18\x04 \x03(\t\x12\x17\n\x0f\x62oards_excludes\x18\x05 \x03(\t\x12\x16\n\x0emodel_excludes\x18\x06 \x03(\t\x12\x30\n\tmulti_dut\x18\x07 \x01(\x0b\x32\x1d.chromiumos.test.api.MultiDut\"\x07\n\x05\x44\x44\x44HW\"*\n\x04Pair\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x11\n\tsecondary\x18\x02 \x01(\t\"_\n\x08MultiDut\x12)\n\x06\x62oards\x18\x01 \x03(\x0b\x32\x19.chromiumos.test.api.Pair\x12(\n\x05model\x18\x02 \x03(\x0b\x32\x19.chromiumos.test.api.Pair\"\xc2\x01\n\tCTPFilter\x12;\n\tcontainer\x18\x01 \x01(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x46\n\x14\x64\x65pendent_containers\x18\x02 \x03(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x30\n\x12\x63ontainer_metadata\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\"\n\n\x08Reserved\"\x84\x01\n\x10InternalTestplan\x12\x34\n\ntest_cases\x18\x01 \x03(\x0b\x32 .chromiumos.test.api.CTPTestCase\x12:\n\x0esuite_metadata\x18\x02 \x01(\x0b\x32\".chromiumos.test.api.SuiteMetadata\"\xd0\x01\n\x0b\x43TPTestCase\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x12<\n\x0fhw_requirements\x18\x03 \x03(\x0b\x32#.chromiumos.test.api.HWRequirements\x12<\n\x0fsw_requirements\x18\x04 \x03(\x0b\x32#.chromiumos.test.api.SWRequirements\"m\n\rSuiteMetadata\x12<\n\x0fhw_requirements\x18\x01 \x03(\x0b\x32#.chromiumos.test.api.HWRequirements\x12\x10\n\x08\x63hannels\x18\x02 \x03(\t\x12\x0c\n\x04pool\x18\x03 \x01(\t\"\x9b\x01\n\x0eHWRequirements\x12>\n\rhw_definition\x18\x01 \x03(\x0b\x32\'.chromiumos.test.api.SwarmingDefinition\"I\n\x05State\x12\x0c\n\x08REQUIRED\x10\x00\x12\x0c\n\x08OPTIONAL\x10\x01\x12\r\n\tPREFERRED\x10\x02\x12\n\n\x06\x42\x41NNED\x10\x03\x12\t\n\x05ONEOF\x10\x04\"\x10\n\x0eSWRequirements\"\x87\x01\n\rProvisionInfo\x12\x39\n\x0finstall_request\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.InstallInfo\x12\x12\n\nidentifier\x18\x02 \x01(\t\"\'\n\x04Type\x12\x08\n\x04\x43ROS\x10\x00\x12\x0b\n\x07\x41NDROID\x10\x01\x12\x08\n\x04ROFW\x10\x02\"\x80\x01\n\x12SwarmingDefinition\x12.\n\x08\x64ut_info\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12:\n\x0eprovision_info\x18\x02 \x03(\x0b\x32\".chromiumos.test.api.ProvisionInfo\"\r\n\x0bInstallInfo\"R\n\rCTPv2Response\x12\x41\n\rtest_requests\x18\x01 \x03(\x0b\x32*.chromiumos.test.api.CrosTestRunnerRequest\"\x17\n\x15\x43rosTestRunnerRequest2h\n\x0c\x43TPv2Service\x12X\n\x0fRequestResolver\x12!.chromiumos.test.api.CTPv2Request\x1a\".chromiumos.test.api.CTPv2Response2o\n\x14GenericFilterService\x12W\n\x07\x45xecute\x12%.chromiumos.test.api.InternalTestplan\x1a%.chromiumos.test.api.InternalTestplanB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
+  serialized_pb=b'\n\x1e\x63hromiumos/test/api/ctp2.proto\x12\x13\x63hromiumos.test.api\x1a$chromiumos/test/api/test_suite.proto\x1a,chromiumos/test/api/test_case_metadata.proto\x1a-chromiumos/build/api/container_metadata.proto\x1a!chromiumos/test/lab/api/dut.proto\x1a\x19google/protobuf/any.proto\"\xdf\x02\n\x0c\x43TPv2Request\x12\x38\n\rsuite_request\x18\x01 \x01(\x0b\x32!.chromiumos.test.api.SuiteRequest\x12\x32\n\nhw_targets\x18\x02 \x01(\x0b\x32\x1e.chromiumos.test.api.HWTargets\x12\x32\n\nsw_targets\x18\x03 \x01(\x0b\x32\x1e.chromiumos.test.api.SWTargets\x12\x36\n\x0ekarbon_filters\x18\x04 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x36\n\x0ekoffee_filters\x18\x05 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x0c\n\x04pool\x18\x06 \x01(\t\x12/\n\x11scheduke_metadata\x18\x07 \x01(\x0b\x32\x14.google.protobuf.Any\"\x91\x01\n\x0cSuiteRequest\x12\x34\n\ntest_suite\x18\x01 \x01(\x0b\x32\x1e.chromiumos.test.api.TestSuiteH\x00\x12:\n\x11hierarchical_plan\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.ReservedH\x00\x42\x0f\n\rsuite_request\"x\n\tHWTargets\x12\x32\n\tlegacy_hw\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.LegacyHWH\x00\x12,\n\x06\x64\x64\x64_hw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDHWH\x00\x42\t\n\x07targets\"|\n\tSWTargets\x12\x33\n\tlegacy_sw\x18\x01 \x01(\x0b\x32\x1e.chromiumos.test.api.LegacySWsH\x00\x12,\n\x06\x64\x64\x64_sw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDSWH\x00\x42\x0c\n\nsw_targets\"u\n\tLegacySWs\x12;\n\nlegacy_sws\x18\x04 \x03(\x0b\x32\'.chromiumos.test.api.LegacySWs.LegacySW\x1a+\n\x08LegacySW\x12\r\n\x05\x62uild\x18\x02 \x01(\t\x12\x10\n\x08gcs_path\x18\x03 \x01(\t\"\x07\n\x05\x44\x44\x44SW\"\xaf\x01\n\x08LegacyHW\x12\r\n\x05\x62oard\x18\x01 \x03(\t\x12\r\n\x05model\x18\x02 \x03(\t\x12\x11\n\tany_model\x18\x03 \x01(\x08\x12\x0f\n\x07variant\x18\x04 \x03(\t\x12\x17\n\x0f\x62oards_excludes\x18\x05 \x03(\t\x12\x16\n\x0emodel_excludes\x18\x06 \x03(\t\x12\x30\n\tmulti_dut\x18\x07 \x01(\x0b\x32\x1d.chromiumos.test.api.MultiDut\"\x07\n\x05\x44\x44\x44HW\"*\n\x04Pair\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x11\n\tsecondary\x18\x02 \x01(\t\"_\n\x08MultiDut\x12)\n\x06\x62oards\x18\x01 \x03(\x0b\x32\x19.chromiumos.test.api.Pair\x12(\n\x05model\x18\x02 \x03(\x0b\x32\x19.chromiumos.test.api.Pair\"\xc2\x01\n\tCTPFilter\x12;\n\tcontainer\x18\x01 \x01(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x46\n\x14\x64\x65pendent_containers\x18\x02 \x03(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x30\n\x12\x63ontainer_metadata\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\"\n\n\x08Reserved\"|\n\x10InternalTestplan\x12\x34\n\ntest_cases\x18\x01 \x03(\x0b\x32 .chromiumos.test.api.CTPTestCase\x12\x32\n\nsuite_info\x18\x02 \x01(\x0b\x32\x1e.chromiumos.test.api.SuiteInfo\"\xd0\x01\n\x0b\x43TPTestCase\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x12<\n\x0fhw_requirements\x18\x03 \x03(\x0b\x32#.chromiumos.test.api.HWRequirements\x12<\n\x0fsw_requirements\x18\x04 \x03(\x0b\x32#.chromiumos.test.api.SWRequirements\"\x81\x01\n\tSuiteInfo\x12:\n\x0esuite_metadata\x18\x01 \x01(\x0b\x32\".chromiumos.test.api.SuiteMetadata\x12\x38\n\rsuite_request\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.SuiteRequest\"m\n\rSuiteMetadata\x12<\n\x0fhw_requirements\x18\x01 \x03(\x0b\x32#.chromiumos.test.api.HWRequirements\x12\x10\n\x08\x63hannels\x18\x02 \x03(\t\x12\x0c\n\x04pool\x18\x03 \x01(\t\"\xb4\x01\n\x0eHWRequirements\x12>\n\rhw_definition\x18\x01 \x03(\x0b\x32\'.chromiumos.test.api.SwarmingDefinition\x12\x17\n\x0fswarming_labels\x18\x05 \x03(\t\"I\n\x05State\x12\x0c\n\x08REQUIRED\x10\x00\x12\x0c\n\x08OPTIONAL\x10\x01\x12\r\n\tPREFERRED\x10\x02\x12\n\n\x06\x42\x41NNED\x10\x03\x12\t\n\x05ONEOF\x10\x04\"\x10\n\x0eSWRequirements\"\x87\x01\n\rProvisionInfo\x12\x39\n\x0finstall_request\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.InstallInfo\x12\x12\n\nidentifier\x18\x02 \x01(\t\"\'\n\x04Type\x12\x08\n\x04\x43ROS\x10\x00\x12\x0b\n\x07\x41NDROID\x10\x01\x12\x08\n\x04ROFW\x10\x02\"\x80\x01\n\x12SwarmingDefinition\x12.\n\x08\x64ut_info\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12:\n\x0eprovision_info\x18\x02 \x03(\x0b\x32\".chromiumos.test.api.ProvisionInfo\"\r\n\x0bInstallInfo\"R\n\rCTPv2Response\x12\x41\n\rtest_requests\x18\x01 \x03(\x0b\x32*.chromiumos.test.api.CrosTestRunnerRequest\"\x17\n\x15\x43rosTestRunnerRequest2h\n\x0c\x43TPv2Service\x12X\n\x0fRequestResolver\x12!.chromiumos.test.api.CTPv2Request\x1a\".chromiumos.test.api.CTPv2Response2o\n\x14GenericFilterService\x12W\n\x07\x45xecute\x12%.chromiumos.test.api.InternalTestplan\x1a%.chromiumos.test.api.InternalTestplanB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3'
   ,
   dependencies=[chromiumos_dot_test_dot_api_dot_test__suite__pb2.DESCRIPTOR,chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2.DESCRIPTOR,chromiumos_dot_build_dot_api_dot_container__metadata__pb2.DESCRIPTOR,chromiumos_dot_test_dot_lab_dot_api_dot_dut__pb2.DESCRIPTOR,google_dot_protobuf_dot_any__pb2.DESCRIPTOR,])
 
@@ -65,8 +65,8 @@ _HWREQUIREMENTS_STATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2128,
-  serialized_end=2201,
+  serialized_start=2351,
+  serialized_end=2424,
 )
 _sym_db.RegisterEnumDescriptor(_HWREQUIREMENTS_STATE)
 
@@ -95,8 +95,8 @@ _PROVISIONINFO_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2318,
-  serialized_end=2357,
+  serialized_start=2541,
+  serialized_end=2580,
 )
 _sym_db.RegisterEnumDescriptor(_PROVISIONINFO_TYPE)
 
@@ -110,57 +110,89 @@ _CTPV2REQUEST = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='test_suite', full_name='chromiumos.test.api.CTPv2Request.test_suite', index=0,
+      name='suite_request', full_name='chromiumos.test.api.CTPv2Request.suite_request', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='hierarchical_plan', full_name='chromiumos.test.api.CTPv2Request.hierarchical_plan', index=1,
+      name='hw_targets', full_name='chromiumos.test.api.CTPv2Request.hw_targets', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='hw_targets', full_name='chromiumos.test.api.CTPv2Request.hw_targets', index=2,
-      number=4, type=11, cpp_type=10, label=1,
+      name='sw_targets', full_name='chromiumos.test.api.CTPv2Request.sw_targets', index=2,
+      number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='sw_targets', full_name='chromiumos.test.api.CTPv2Request.sw_targets', index=3,
-      number=5, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='karbon_filters', full_name='chromiumos.test.api.CTPv2Request.karbon_filters', index=4,
-      number=6, type=11, cpp_type=10, label=3,
+      name='karbon_filters', full_name='chromiumos.test.api.CTPv2Request.karbon_filters', index=3,
+      number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='koffee_filters', full_name='chromiumos.test.api.CTPv2Request.koffee_filters', index=5,
-      number=7, type=11, cpp_type=10, label=3,
+      name='koffee_filters', full_name='chromiumos.test.api.CTPv2Request.koffee_filters', index=4,
+      number=5, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='pool', full_name='chromiumos.test.api.CTPv2Request.pool', index=6,
-      number=8, type=9, cpp_type=9, label=1,
+      name='pool', full_name='chromiumos.test.api.CTPv2Request.pool', index=5,
+      number=6, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='scheduke_metadata', full_name='chromiumos.test.api.CTPv2Request.scheduke_metadata', index=7,
-      number=9, type=11, cpp_type=10, label=1,
+      name='scheduke_metadata', full_name='chromiumos.test.api.CTPv2Request.scheduke_metadata', index=6,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=249,
+  serialized_end=600,
+)
+
+
+_SUITEREQUEST = _descriptor.Descriptor(
+  name='SuiteRequest',
+  full_name='chromiumos.test.api.SuiteRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='test_suite', full_name='chromiumos.test.api.SuiteRequest.test_suite', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='hierarchical_plan', full_name='chromiumos.test.api.SuiteRequest.hierarchical_plan', index=1,
+      number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -177,13 +209,13 @@ _CTPV2REQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='suite_request', full_name='chromiumos.test.api.CTPv2Request.suite_request',
+      name='suite_request', full_name='chromiumos.test.api.SuiteRequest.suite_request',
       index=0, containing_type=None,
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=249,
-  serialized_end=673,
+  serialized_start=603,
+  serialized_end=748,
 )
 
 
@@ -226,8 +258,8 @@ _HWTARGETS = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=675,
-  serialized_end=795,
+  serialized_start=750,
+  serialized_end=870,
 )
 
 
@@ -270,8 +302,8 @@ _SWTARGETS = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=797,
-  serialized_end=921,
+  serialized_start=872,
+  serialized_end=996,
 )
 
 
@@ -309,8 +341,8 @@ _LEGACYSWS_LEGACYSW = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=997,
-  serialized_end=1040,
+  serialized_start=1072,
+  serialized_end=1115,
 )
 
 _LEGACYSWS = _descriptor.Descriptor(
@@ -340,8 +372,8 @@ _LEGACYSWS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=923,
-  serialized_end=1040,
+  serialized_start=998,
+  serialized_end=1115,
 )
 
 
@@ -365,8 +397,8 @@ _DDDSW = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1042,
-  serialized_end=1049,
+  serialized_start=1117,
+  serialized_end=1124,
 )
 
 
@@ -439,8 +471,8 @@ _LEGACYHW = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1052,
-  serialized_end=1227,
+  serialized_start=1127,
+  serialized_end=1302,
 )
 
 
@@ -464,8 +496,8 @@ _DDDHW = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1229,
-  serialized_end=1236,
+  serialized_start=1304,
+  serialized_end=1311,
 )
 
 
@@ -503,8 +535,8 @@ _PAIR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1238,
-  serialized_end=1280,
+  serialized_start=1313,
+  serialized_end=1355,
 )
 
 
@@ -542,8 +574,8 @@ _MULTIDUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1282,
-  serialized_end=1377,
+  serialized_start=1357,
+  serialized_end=1452,
 )
 
 
@@ -588,8 +620,8 @@ _CTPFILTER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1380,
-  serialized_end=1574,
+  serialized_start=1455,
+  serialized_end=1649,
 )
 
 
@@ -613,8 +645,8 @@ _RESERVED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1576,
-  serialized_end=1586,
+  serialized_start=1651,
+  serialized_end=1661,
 )
 
 
@@ -634,7 +666,7 @@ _INTERNALTESTPLAN = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='suite_metadata', full_name='chromiumos.test.api.InternalTestplan.suite_metadata', index=1,
+      name='suite_info', full_name='chromiumos.test.api.InternalTestplan.suite_info', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -652,8 +684,8 @@ _INTERNALTESTPLAN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1589,
-  serialized_end=1721,
+  serialized_start=1663,
+  serialized_end=1787,
 )
 
 
@@ -705,8 +737,47 @@ _CTPTESTCASE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1724,
-  serialized_end=1932,
+  serialized_start=1790,
+  serialized_end=1998,
+)
+
+
+_SUITEINFO = _descriptor.Descriptor(
+  name='SuiteInfo',
+  full_name='chromiumos.test.api.SuiteInfo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='suite_metadata', full_name='chromiumos.test.api.SuiteInfo.suite_metadata', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='suite_request', full_name='chromiumos.test.api.SuiteInfo.suite_request', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2001,
+  serialized_end=2130,
 )
 
 
@@ -751,8 +822,8 @@ _SUITEMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1934,
-  serialized_end=2043,
+  serialized_start=2132,
+  serialized_end=2241,
 )
 
 
@@ -771,6 +842,13 @@ _HWREQUIREMENTS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='swarming_labels', full_name='chromiumos.test.api.HWRequirements.swarming_labels', index=1,
+      number=5, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -784,8 +862,8 @@ _HWREQUIREMENTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2046,
-  serialized_end=2201,
+  serialized_start=2244,
+  serialized_end=2424,
 )
 
 
@@ -809,8 +887,8 @@ _SWREQUIREMENTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2203,
-  serialized_end=2219,
+  serialized_start=2426,
+  serialized_end=2442,
 )
 
 
@@ -849,8 +927,8 @@ _PROVISIONINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2222,
-  serialized_end=2357,
+  serialized_start=2445,
+  serialized_end=2580,
 )
 
 
@@ -888,8 +966,8 @@ _SWARMINGDEFINITION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2360,
-  serialized_end=2488,
+  serialized_start=2583,
+  serialized_end=2711,
 )
 
 
@@ -913,8 +991,8 @@ _INSTALLINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2490,
-  serialized_end=2503,
+  serialized_start=2713,
+  serialized_end=2726,
 )
 
 
@@ -945,8 +1023,8 @@ _CTPV2RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2505,
-  serialized_end=2587,
+  serialized_start=2728,
+  serialized_end=2810,
 )
 
 
@@ -970,23 +1048,24 @@ _CROSTESTRUNNERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2589,
-  serialized_end=2612,
+  serialized_start=2812,
+  serialized_end=2835,
 )
 
-_CTPV2REQUEST.fields_by_name['test_suite'].message_type = chromiumos_dot_test_dot_api_dot_test__suite__pb2._TESTSUITE
-_CTPV2REQUEST.fields_by_name['hierarchical_plan'].message_type = _RESERVED
+_CTPV2REQUEST.fields_by_name['suite_request'].message_type = _SUITEREQUEST
 _CTPV2REQUEST.fields_by_name['hw_targets'].message_type = _HWTARGETS
 _CTPV2REQUEST.fields_by_name['sw_targets'].message_type = _SWTARGETS
 _CTPV2REQUEST.fields_by_name['karbon_filters'].message_type = _CTPFILTER
 _CTPV2REQUEST.fields_by_name['koffee_filters'].message_type = _CTPFILTER
 _CTPV2REQUEST.fields_by_name['scheduke_metadata'].message_type = google_dot_protobuf_dot_any__pb2._ANY
-_CTPV2REQUEST.oneofs_by_name['suite_request'].fields.append(
-  _CTPV2REQUEST.fields_by_name['test_suite'])
-_CTPV2REQUEST.fields_by_name['test_suite'].containing_oneof = _CTPV2REQUEST.oneofs_by_name['suite_request']
-_CTPV2REQUEST.oneofs_by_name['suite_request'].fields.append(
-  _CTPV2REQUEST.fields_by_name['hierarchical_plan'])
-_CTPV2REQUEST.fields_by_name['hierarchical_plan'].containing_oneof = _CTPV2REQUEST.oneofs_by_name['suite_request']
+_SUITEREQUEST.fields_by_name['test_suite'].message_type = chromiumos_dot_test_dot_api_dot_test__suite__pb2._TESTSUITE
+_SUITEREQUEST.fields_by_name['hierarchical_plan'].message_type = _RESERVED
+_SUITEREQUEST.oneofs_by_name['suite_request'].fields.append(
+  _SUITEREQUEST.fields_by_name['test_suite'])
+_SUITEREQUEST.fields_by_name['test_suite'].containing_oneof = _SUITEREQUEST.oneofs_by_name['suite_request']
+_SUITEREQUEST.oneofs_by_name['suite_request'].fields.append(
+  _SUITEREQUEST.fields_by_name['hierarchical_plan'])
+_SUITEREQUEST.fields_by_name['hierarchical_plan'].containing_oneof = _SUITEREQUEST.oneofs_by_name['suite_request']
 _HWTARGETS.fields_by_name['legacy_hw'].message_type = _LEGACYHW
 _HWTARGETS.fields_by_name['ddd_hw'].message_type = _DDDHW
 _HWTARGETS.oneofs_by_name['targets'].fields.append(
@@ -1012,10 +1091,12 @@ _CTPFILTER.fields_by_name['container'].message_type = chromiumos_dot_build_dot_a
 _CTPFILTER.fields_by_name['dependent_containers'].message_type = chromiumos_dot_build_dot_api_dot_container__metadata__pb2._CONTAINERIMAGEINFO
 _CTPFILTER.fields_by_name['container_metadata'].message_type = google_dot_protobuf_dot_any__pb2._ANY
 _INTERNALTESTPLAN.fields_by_name['test_cases'].message_type = _CTPTESTCASE
-_INTERNALTESTPLAN.fields_by_name['suite_metadata'].message_type = _SUITEMETADATA
+_INTERNALTESTPLAN.fields_by_name['suite_info'].message_type = _SUITEINFO
 _CTPTESTCASE.fields_by_name['metadata'].message_type = chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2._TESTCASEMETADATA
 _CTPTESTCASE.fields_by_name['hw_requirements'].message_type = _HWREQUIREMENTS
 _CTPTESTCASE.fields_by_name['sw_requirements'].message_type = _SWREQUIREMENTS
+_SUITEINFO.fields_by_name['suite_metadata'].message_type = _SUITEMETADATA
+_SUITEINFO.fields_by_name['suite_request'].message_type = _SUITEREQUEST
 _SUITEMETADATA.fields_by_name['hw_requirements'].message_type = _HWREQUIREMENTS
 _HWREQUIREMENTS.fields_by_name['hw_definition'].message_type = _SWARMINGDEFINITION
 _HWREQUIREMENTS_STATE.containing_type = _HWREQUIREMENTS
@@ -1025,6 +1106,7 @@ _SWARMINGDEFINITION.fields_by_name['dut_info'].message_type = chromiumos_dot_tes
 _SWARMINGDEFINITION.fields_by_name['provision_info'].message_type = _PROVISIONINFO
 _CTPV2RESPONSE.fields_by_name['test_requests'].message_type = _CROSTESTRUNNERREQUEST
 DESCRIPTOR.message_types_by_name['CTPv2Request'] = _CTPV2REQUEST
+DESCRIPTOR.message_types_by_name['SuiteRequest'] = _SUITEREQUEST
 DESCRIPTOR.message_types_by_name['HWTargets'] = _HWTARGETS
 DESCRIPTOR.message_types_by_name['SWTargets'] = _SWTARGETS
 DESCRIPTOR.message_types_by_name['LegacySWs'] = _LEGACYSWS
@@ -1037,6 +1119,7 @@ DESCRIPTOR.message_types_by_name['CTPFilter'] = _CTPFILTER
 DESCRIPTOR.message_types_by_name['Reserved'] = _RESERVED
 DESCRIPTOR.message_types_by_name['InternalTestplan'] = _INTERNALTESTPLAN
 DESCRIPTOR.message_types_by_name['CTPTestCase'] = _CTPTESTCASE
+DESCRIPTOR.message_types_by_name['SuiteInfo'] = _SUITEINFO
 DESCRIPTOR.message_types_by_name['SuiteMetadata'] = _SUITEMETADATA
 DESCRIPTOR.message_types_by_name['HWRequirements'] = _HWREQUIREMENTS
 DESCRIPTOR.message_types_by_name['SWRequirements'] = _SWREQUIREMENTS
@@ -1053,6 +1136,13 @@ CTPv2Request = _reflection.GeneratedProtocolMessageType('CTPv2Request', (_messag
   # @@protoc_insertion_point(class_scope:chromiumos.test.api.CTPv2Request)
   })
 _sym_db.RegisterMessage(CTPv2Request)
+
+SuiteRequest = _reflection.GeneratedProtocolMessageType('SuiteRequest', (_message.Message,), {
+  'DESCRIPTOR' : _SUITEREQUEST,
+  '__module__' : 'chromiumos.test.api.ctp2_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.SuiteRequest)
+  })
+_sym_db.RegisterMessage(SuiteRequest)
 
 HWTargets = _reflection.GeneratedProtocolMessageType('HWTargets', (_message.Message,), {
   'DESCRIPTOR' : _HWTARGETS,
@@ -1146,6 +1236,13 @@ CTPTestCase = _reflection.GeneratedProtocolMessageType('CTPTestCase', (_message.
   })
 _sym_db.RegisterMessage(CTPTestCase)
 
+SuiteInfo = _reflection.GeneratedProtocolMessageType('SuiteInfo', (_message.Message,), {
+  'DESCRIPTOR' : _SUITEINFO,
+  '__module__' : 'chromiumos.test.api.ctp2_pb2'
+  # @@protoc_insertion_point(class_scope:chromiumos.test.api.SuiteInfo)
+  })
+_sym_db.RegisterMessage(SuiteInfo)
+
 SuiteMetadata = _reflection.GeneratedProtocolMessageType('SuiteMetadata', (_message.Message,), {
   'DESCRIPTOR' : _SUITEMETADATA,
   '__module__' : 'chromiumos.test.api.ctp2_pb2'
@@ -1212,8 +1309,8 @@ _CTPV2SERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2614,
-  serialized_end=2718,
+  serialized_start=2837,
+  serialized_end=2941,
   methods=[
   _descriptor.MethodDescriptor(
     name='RequestResolver',
@@ -1238,8 +1335,8 @@ _GENERICFILTERSERVICE = _descriptor.ServiceDescriptor(
   index=1,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2720,
-  serialized_end=2831,
+  serialized_start=2943,
+  serialized_end=3054,
   methods=[
   _descriptor.MethodDescriptor(
     name='Execute',

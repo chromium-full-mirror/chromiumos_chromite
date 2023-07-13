@@ -393,7 +393,9 @@ def GetBinhosts(build_target: "build_target_lib.BuildTarget") -> List[str]:
         The build target's binhosts.
     """
     binhosts = portage_util.PortageqEnvvar(
-        "PORTAGE_BINHOST", board=build_target.name, allow_undefined=True
+        "PORTAGE_BINHOST",
+        board=build_target.name,
+        allow_undefined=True,
     )
     return binhosts.split() if binhosts else []
 
