@@ -575,7 +575,7 @@ class AfdoMetadata(NamedTuple):
 
 
 @uprevs_versioned_package("afdo/kernel-profiles")
-def uprev_kernel_afdo(*_args, **_kwargs):
+def uprev_kernel_afdo(_build_targets, _refs, chroot: "chroot_lib.Chroot"):
     """Updates kernel ebuilds with versions from kernel_afdo.json.
 
     See: uprev_versioned_package.
@@ -625,7 +625,9 @@ def uprev_kernel_afdo(*_args, **_kwargs):
 
             try:
                 cmd = ["ebuild", chroot_ebuild_path, "manifest", "--force"]
-                cros_build_lib.run(cmd, enter_chroot=True)
+                cros_build_lib.run(
+                    cmd, enter_chroot=True, chroot_args=chroot.get_enter_args()
+                )
             except cros_build_lib.RunCommandError as e:
                 raise uprev_lib.EbuildManifestError(
                     "Error encountered when regenerating the manifest for "

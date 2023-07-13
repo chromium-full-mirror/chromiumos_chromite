@@ -2101,7 +2101,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         for f, contents in json_files.items():
             self.WriteTempFile(os.path.join(self.metadata_dir, f), contents)
 
-        returned_output = packages.uprev_kernel_afdo()
+        returned_output = packages.uprev_kernel_afdo(None, [], Chroot())
 
         package_root = os.path.join(
             constants.SOURCE_ROOT,
@@ -2148,7 +2148,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         for f, contents in json_files.items():
             self.WriteTempFile(os.path.join(self.metadata_dir, f), contents)
 
-        returned_output = packages.uprev_kernel_afdo()
+        returned_output = packages.uprev_kernel_afdo(None, [], Chroot())
         self.assertFalse(returned_output.uprevved)
 
     def test_uprev_kernel_afdo_empty_file(self):
@@ -2163,7 +2163,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         with self.assertRaisesRegex(
             json.decoder.JSONDecodeError, "Expecting value"
         ):
-            packages.uprev_kernel_afdo()
+            packages.uprev_kernel_afdo(None, [], Chroot())
 
     def test_uprev_kernel_afdo_manifest_raises(self):
         """Test manifest update raises."""
@@ -2184,7 +2184,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         )
 
         with self.assertRaises(uprev_lib.EbuildManifestError):
-            packages.uprev_kernel_afdo()
+            packages.uprev_kernel_afdo(None, [], Chroot())
 
 
 # TODO(chenghaoyang): Shouldn't use uprev_workon_ebuild_to_version.
