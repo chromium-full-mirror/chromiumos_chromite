@@ -4,27 +4,27 @@
 
 """Defines classes and functions used in implementation of sdk server.
 
-    TODO: MAIN
-        **DONE** chroot version w/o update chroot
-        **DONE** existing images for board (paths) - add image paths to current_boards rpc
-        **DONE** build individual package
-        **REASSESS** **DONE** Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
-            -- modify so that "run:..." log is added to log output???
-        **DONE** Use full path for log files, not relative
+TODO: MAIN
+    **DONE** chroot version w/o update chroot
+    **DONE** existing images for board (paths) - add image paths to current_boards rpc
+    **DONE** build individual package
+    **REASSESS** **DONE** Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
+        -- modify so that "run:..." log is added to log output???
+    **DONE** Use full path for log files, not relative
 
-        mark "latest" image in proto and don't forward "latest" symlink
+    **DONE** mark "latest" image in proto and don't forward "latest" symlink
 
-        stream repo sync output, change info field to logging_info
+    stream repo sync output, change info field to logging_info
 
-        clear logs endpoint
+    clear logs endpoint
 
-    TODO: Create new file - add ability to download log arhchive (user chosen logs)
-        for bug reports
+TODO: Create new file - add ability to download log arhchive (user chosen logs)
+    for bug reports
 
-    TODO: possible errors:
-        what if all packages output is an error? - need logging_info in response?
-        what about the other non bapi endpoints? ^
-        check chroot or boards exist for certain calls
+TODO: possible errors:
+    what if all packages output is an error? - need logging_info in response?
+    what about the other non bapi endpoints? ^
+    check chroot or boards exist for certain calls
 """
 import datetime
 import json
@@ -235,14 +235,25 @@ class SdkChroot(
         self.logs_folder = Path.cwd() / "logs"
         self.log_path = self.logs_folder / "log"
         if not Path(self.logs_folder).exists():
-            osutils.SafeMakedirs(self.logs_folder)
-        osutils.Touch(self.log_path)
+            osutils.Touch(self.log_path, makedirs=True)
+        osutils.WriteFile(self.log_path, "")
 
         # TODO: delete when finalizing project
-        self.handler = logging.FileHandler(filename=log_path)
+        self.handler = logging.FileHandler(filename=self.log_path)
         self.all_possible_boards = []
         self.handler.setLevel(logging.DEBUG)
         self.logger.addHandler(self.handler)
+
+    def clear_logs(self, request, context):
+        """Clears current log file."""
+        prev_size = self.log_path.stat().st_size
+        osutils.WriteFile(self.log_path, "")
+        new_size = self.log_path.stat().st_size
+        response = sdk_server_pb2.ClearLogsResponse(
+            bytes_cleared=prev_size,
+            new_size=new_size,
+        )
+        return response
 
     def _update_chroot_info(self):
         """Collects general information about the chroot."""

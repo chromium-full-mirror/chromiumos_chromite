@@ -99,6 +99,11 @@ class sdk_server_serviceStub(object):
         request_serializer=sdk__server__pb2.ChrootInfoRequest.SerializeToString,
         response_deserializer=sdk__server__pb2.ChrootInfoResponse.FromString,
         )
+    self.clear_logs = channel.unary_unary(
+        '/cros_sdk.sdk_server_service/clear_logs',
+        request_serializer=sdk__server__pb2.ClearLogsRequest.SerializeToString,
+        response_deserializer=sdk__server__pb2.ClearLogsResponse.FromString,
+        )
 
 
 class sdk_server_serviceServicer(object):
@@ -224,6 +229,13 @@ class sdk_server_serviceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def clear_logs(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_sdk_server_serviceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -311,6 +323,11 @@ def add_sdk_server_serviceServicer_to_server(servicer, server):
           servicer.chroot_info,
           request_deserializer=sdk__server__pb2.ChrootInfoRequest.FromString,
           response_serializer=sdk__server__pb2.ChrootInfoResponse.SerializeToString,
+      ),
+      'clear_logs': grpc.unary_unary_rpc_method_handler(
+          servicer.clear_logs,
+          request_deserializer=sdk__server__pb2.ClearLogsRequest.FromString,
+          response_serializer=sdk__server__pb2.ClearLogsResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

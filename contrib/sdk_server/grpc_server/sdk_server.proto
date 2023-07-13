@@ -24,6 +24,13 @@ service sdk_server_service {
   rpc current_boards(CurrentBoardsRequest) returns (CurrentBoardsResponse);
   rpc get_logs(LogsRequest) returns (LogsResponse);
   rpc chroot_info(ChrootInfoRequest) returns (ChrootInfoResponse);
+  rpc clear_logs(ClearLogsRequest) returns (ClearLogsResponse);
+}
+
+message ClearLogsRequest{}
+message ClearLogsResponse{
+  uint32 bytes_cleared = 1;
+  uint32 new_size = 2;
 }
 
 message ChrootInfoRequest {}

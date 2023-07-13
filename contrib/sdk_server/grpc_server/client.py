@@ -220,6 +220,11 @@ def get_logs(request: sdk_server_pb2.LogsRequest):
         response = stub.get_logs(request)
         return response
 
+def clear_logs(request: sdk_server_pb2.ClearLogsRequest):
+    with grpc.insecure_channel("localhost:50051") as channel:
+        stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
+        response = stub.clear_logs(request)
+        return response
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     pass

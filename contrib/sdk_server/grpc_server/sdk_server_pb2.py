@@ -30,82 +30,6 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 
 
-_CHROOTINFOREQUEST = _descriptor.Descriptor(
-  name='ChrootInfoRequest',
-  full_name='cros_sdk.ChrootInfoRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=133,
-  serialized_end=152,
-)
-
-
-_CHROOTINFORESPONSE = _descriptor.Descriptor(
-  name='ChrootInfoResponse',
-  full_name='cros_sdk.ChrootInfoResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='date_created', full_name='cros_sdk.ChrootInfoResponse.date_created', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='version', full_name='cros_sdk.ChrootInfoResponse.version', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='valid_version', full_name='cros_sdk.ChrootInfoResponse.valid_version', index=2,
-      number=3, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='path', full_name='cros_sdk.ChrootInfoResponse.path', index=3,
-      number=4, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=155,
-  serialized_end=298,
-)
-
-
 _LOGSREQUEST = _descriptor.Descriptor(
   name='LogsRequest',
   full_name='cros_sdk.LogsRequest',
@@ -125,8 +49,8 @@ _LOGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=300,
-  serialized_end=313,
+  serialized_start=133,
+  serialized_end=146,
 )
 
 
@@ -1285,8 +1209,6 @@ _WORKONLISTREQUEST.fields_by_name['package_info'].message_type = chromiumos_dot_
 _WORKONLISTRESPONSE.fields_by_name['package_info'].message_type = chromiumos_dot_common__pb2._PACKAGEINFO
 _WORKONINFOREQUEST.fields_by_name['build_target'].message_type = chromiumos_dot_common__pb2._BUILDTARGET
 _WORKONINFOREQUEST.fields_by_name['package_info'].message_type = chromiumos_dot_common__pb2._PACKAGEINFO
-DESCRIPTOR.message_types_by_name['ChrootInfoRequest'] = _CHROOTINFOREQUEST
-DESCRIPTOR.message_types_by_name['ChrootInfoResponse'] = _CHROOTINFORESPONSE
 DESCRIPTOR.message_types_by_name['LogsRequest'] = _LOGSREQUEST
 DESCRIPTOR.message_types_by_name['LogsResponse'] = _LOGSRESPONSE
 DESCRIPTOR.message_types_by_name['LogMessage'] = _LOGMESSAGE
@@ -1322,20 +1244,6 @@ DESCRIPTOR.message_types_by_name['WorkonListResponse'] = _WORKONLISTRESPONSE
 DESCRIPTOR.message_types_by_name['WorkonInfoRequest'] = _WORKONINFOREQUEST
 DESCRIPTOR.message_types_by_name['WorkonInfoResponse'] = _WORKONINFORESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-ChrootInfoRequest = _reflection.GeneratedProtocolMessageType('ChrootInfoRequest', (_message.Message,), dict(
-  DESCRIPTOR = _CHROOTINFOREQUEST,
-  __module__ = 'sdk_server_pb2'
-  # @@protoc_insertion_point(class_scope:cros_sdk.ChrootInfoRequest)
-  ))
-_sym_db.RegisterMessage(ChrootInfoRequest)
-
-ChrootInfoResponse = _reflection.GeneratedProtocolMessageType('ChrootInfoResponse', (_message.Message,), dict(
-  DESCRIPTOR = _CHROOTINFORESPONSE,
-  __module__ = 'sdk_server_pb2'
-  # @@protoc_insertion_point(class_scope:cros_sdk.ChrootInfoResponse)
-  ))
-_sym_db.RegisterMessage(ChrootInfoResponse)
 
 LogsRequest = _reflection.GeneratedProtocolMessageType('LogsRequest', (_message.Message,), dict(
   DESCRIPTOR = _LOGSREQUEST,
@@ -1728,15 +1636,6 @@ _SDK_SERVER_SERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_LOGSREQUEST,
     output_type=_LOGSRESPONSE,
-    options=None,
-  ),
-  _descriptor.MethodDescriptor(
-    name='chroot_info',
-    full_name='cros_sdk.sdk_server_service.chroot_info',
-    index=16,
-    containing_service=None,
-    input_type=_CHROOTINFOREQUEST,
-    output_type=_CHROOTINFORESPONSE,
     options=None,
   ),
 ])
