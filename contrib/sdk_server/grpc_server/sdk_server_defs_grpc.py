@@ -12,6 +12,12 @@
             -- modify so that "run:..." log is added to log output???
         **DONE** Use full path for log files, not relative
 
+        mark "latest" image in proto and don't forward "latest" symlink
+
+        stream repo sync output, change info field to logging_info
+
+        clear logs endpoint
+
     TODO: Create new file - add ability to download log arhchive (user chosen logs)
         for bug reports
 
@@ -164,8 +170,9 @@ class TempMemLogger(logging.Logger):
 class SdkImage:
     """Chroot Image class"""
 
-    def __init__(self, path: Union[str, os.PathLike]):
+    def __init__(self, path: Union[str, os.PathLike], latest: bool = False):
         self.path = path
+        self.latest = latest
         self.name = os.path.split(str(path).rstrip("/"))[1]
         self.last_modified = time.ctime(os.path.getmtime(path))
         self.date_created = time.ctime(os.path.getctime(path))
@@ -189,14 +196,25 @@ class SdkSysroot(sysroot_lib.Sysroot):
         self.get_images()
 
     def get_images(self):
-        path = Path(
-            f"{constants.SOURCE_ROOT}/src/build/images/{self.name}"
-        )
+        path = Path(f"{constants.SOURCE_ROOT}/src/build/images/{self.name}")
         self.images = []
-        if path.exists():
-            for image in path.iterdir():
+        latest_target = None
+
+        if not path.exists():
+            return
+
+        latest_path = path / "latest"
+        if latest_path.exists():
+            latest_target = latest_path.resolve()
+            image_obj = SdkImage(latest_target, latest=True)
+            self.images.append(image_obj)
+
+        for image in path.iterdir():
+            if image not in (latest_target, latest_path):
                 image_obj = SdkImage(image)
                 self.images.append(image_obj)
+
+        return self.images
 
 
 class SdkChroot(
@@ -281,12 +299,17 @@ class SdkChroot(
                 self.sysroots.append(sysroot_obj)
 
                 build_target = common_pb2.BuildTarget(name=sysroot.name)
-                images = [
+                latest = None
+                images = []
+                for image in sysroot_obj.images:
                     image_pb2.Image(
                         path=str(image.path), build_target=build_target
                     )
-                    for image in sysroot_obj.images
-                ]
+
+                    if image.latest:
+                        latest = image
+                    images.append(image)
+
                 board_images = sdk_server_pb2.BoardImages(
                     build_target=build_target, images=images, latest=latest
                 )
