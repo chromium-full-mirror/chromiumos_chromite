@@ -134,8 +134,6 @@ def replace_sdk(
     """
     with grpc.insecure_channel("localhost:50051") as channel:
         stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
-        internal_req = sdk_pb2.CreateRequest()
-        request.request.CopyFrom(internal_req)
 
         finalResp = None
         for response in stub.replace_sdk(request):
@@ -183,8 +181,6 @@ def build_image(
     """sends grpc request to sdk server for BAPI build image endpoint."""
     with grpc.insecure_channel("localhost:50051") as channel:
         stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
-        internal_req = image_pb2.CreateImageRequest()
-        request.request.CopyFrom(internal_req)
 
         finalResp = None
         for response in stub.build_image(request):
