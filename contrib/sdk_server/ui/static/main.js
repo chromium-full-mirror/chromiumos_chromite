@@ -135,10 +135,10 @@ function populateHistoricLogs(){
 //Makes request to gRPC server via python routes and generates HTML
 //for repo files dynamically.
 function populateRepoFiles() {
-    $.ajax({
-        url: "/repo-refresh",
-        type: "POST",
 
+    $("#repoStatusRefresh").addClass("disabled")
+    $.post({
+        url: "/repo-refresh",
         success: function (response) {
 
             $("#repoProject").removeClass("placeholder bg-light me-3");
@@ -173,6 +173,7 @@ function populateRepoFiles() {
             })
 
             $("#repoFilesList").html(filesHTML);
+            $("#repoStatusRefresh").removeClass("disabled");
         },
         error: function (xhr) {
             console.log("failure");
@@ -253,7 +254,23 @@ function populatePackages(board = "") {
                               </div>
                             </div>
                           </div>
-                        </div>`
+                        </div>
+
+                        <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                          <div class="col-7"><p2 class = "small text-light m-4">` + pack.name + `</p2></div>
+                          <div class="col-2 d-flex">
+                            <p2 class = "col small text-success"></p2>
+                            <p2 class = "col small text-danger"></p2>
+                          </div>
+                          <div class="col" id = ` + pack.name + `>
+                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1 build-single" >Build</button>
+                            <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
+                              data-bs-target="#` + pack.name.replace("/", "-") + `-info-modal" >Info</button>
+                            <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop">Stop</button>
+                          </div>              
+                        </li>
+                        
+                        `
 
                     })
 
@@ -275,7 +292,7 @@ function populatePackages(board = "") {
                     images.forEach(function(image){
                         allImagesHTML +=
                         `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
-                          <div class="col-7"><p2 style = "display: block;" class = "small text-light ms-3">` + image.path + `</p2></div>
+                          <div class="col-8"><p2 style = "display: block;" class = "small text-light ms-3">` + image.path + `</p2></div>
                           <div class="col-2 d-flex">
                             <p2 class = "small text-light ms">` + image.type + `</p2>
                           </div>
@@ -313,6 +330,7 @@ function populatePackages(board = "") {
             $('#' + boardName + "-image-list").show()
 
             $(".workon-stop").on('click', workonStop);
+            $(".build-single").on('click', buildSinglePackage)
             $('#boardSelector li').on('click', changeBoardSelectorActive)
         },
 
@@ -379,15 +397,17 @@ function workonStop() {
     var board = $(this).parents("ul")[0].id;
     board = board.substring(0, board.length - 13)
 
-    $(button).addClass("disabled");
+    var board = $(this).parents("ul")[0].id;
+    board = board.substring(0, board.length - 13)
 
-    $.ajax({
+    $.post({
         url: "/workon-stop",
-        type: "get",
-        data: {
+
+        data: JSON.stringify({
             board: board,
-            package: package
-        },
+            package: $(this).parents("div")[0].id
+        }),
+        contentType: "application/json",
 
         success: function (response) {
             console.log("success");
@@ -556,6 +576,51 @@ function buildPackages(){
         }
 
     })
+}
+
+function buildSinglePackage(){
+    $(this).addClass("disabled");
+
+    var board = $(this).parents("ul")[0].id;
+    board = board.substring(0, board.length - 13)
+
+    now = moment()
+
+    $.post({
+        url: "/build-packages",
+
+        data: JSON.stringify({
+            buildTarget: board,
+            package: $(this).parents("div")[0].id,
+
+            chrootCurrent: false,
+            replace : false,
+            toolchainChanged : false,
+            CQPrebuilts: false,
+            compileSource: false,
+            dryrun: false,
+            workon: false
+        }),
+        contentType: "application/json",
+
+        success: function(response){
+            $(this).removeClass("disabled");
+            window.onbeforeunload = null;
+
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
+        },
+        xhrFields: {
+            onprogress: function(e){
+
+                populateLiveLog(
+                    "build_packages", 
+                    e.currentTarget.response, 
+                    now
+                )
+            }
+        }
+    })
+
 }
 
 function buildImage(){

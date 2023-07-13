@@ -34,7 +34,13 @@ index_data = constants.get_index_data()
 # Code 204 "No content" for endpoints which just execute a function.
 NO_RESPONSE_OK = ("", 204)
 
-COMMANDS_TO_IGNORE = ("cros_workon_info", "current_boards")
+COMMANDS_TO_IGNORE = (
+    "cros_workon_info",
+    "current_boards",
+    "cros_workon_list",
+    "cros_workon_start",
+    "cros_workon_stop",
+)
 
 
 def logGenerator(endpoint, req):
@@ -67,48 +73,47 @@ async def get_logs():
 
 @app.route("/workon-start", methods=["GET", "POST"])
 async def workon_start():
-    try:
-        board = str(flask.request.args.get("board"))
-        package = str(flask.request.args.get("package"))
-
-        parsed_pkg = package_info.parse(package)
-        package = common.PackageInfo()
-        controller_util.serialize_package_info(parsed_pkg, package)
-
-        req = sdk_server_pb2.WorkonStartRequest(
-            build_target=common.BuildTarget(name=board),
-            package_info=package,
-        )
-        client.cros_workon_start(req)
-        return NO_RESPONSE_OK
-
-    except KeyError:
+    if flask.request.method != "POST":
         # Handles user just going to /workon-start, rather than via the button.
         return flask.redirect(flask.url_for("index"))
+
+    board = flask.request.json["board"]
+    package = flask.request.json["package"]
+
+    parsed_pkg = package_info.parse(package)
+    package = common.PackageInfo()
+    controller_util.serialize_package_info(parsed_pkg, package)
+
+    req = sdk_server_pb2.WorkonStartRequest(
+        build_target=common.BuildTarget(name=board),
+        package_info=package,
+    )
+    client.cros_workon_start(req)
+
+    return NO_RESPONSE_OK
 
 
 @app.route("/workon-stop", methods=["GET", "POST"])
 async def workon_stop():
-    try:
-        board = str(flask.request.args.get("board"))
-        package = str(flask.request.args.get("package"))
-
-        parsed_pkg = package_info.parse(package)
-        package = common.PackageInfo()
-        controller_util.serialize_package_info(parsed_pkg, package)
-
-        req = sdk_server_pb2.WorkonStopRequest(
-            build_target=common.BuildTarget(name=board),
-            package_info=package,
-        )
-
-        client.cros_workon_stop(req)
-
-        return NO_RESPONSE_OK
-
-    except KeyError:
+    if flask.request.method != "POST":
         # Handles user just going to /workon-stop, rather than via the button.
         return flask.redirect(flask.url_for("index"))
+
+    board = flask.request.json["board"]
+    package = flask.request.json["package"]
+
+    parsed_pkg = package_info.parse(package)
+    package = common.PackageInfo()
+    controller_util.serialize_package_info(parsed_pkg, package)
+
+    req = sdk_server_pb2.WorkonStopRequest(
+        build_target=common.BuildTarget(name=board),
+        package_info=package,
+    )
+
+    client.cros_workon_stop(req)
+
+    return NO_RESPONSE_OK
 
 
 @app.route("/repo-refresh", methods=["GET", "POST"])
@@ -259,6 +264,14 @@ async def build_packages():
     if flask.request.method != "POST":
         return flask.redirect(flask.url_for("index"))
 
+    package = ""
+    if "package" in flask.request.json:
+        package = flask.request.json["package"]
+
+        parsed_pkg = package_info.parse(package)
+        package = common.PackageInfo()
+        controller_util.serialize_package_info(parsed_pkg, package)
+
     create_sysroot = sysroot_pb2.SysrootCreateRequest(
         flags=sysroot_pb2.SysrootCreateRequest.Flags(
             chroot_current=flask.request.json["chrootCurrent"],
@@ -282,7 +295,8 @@ async def build_packages():
             toolchain_changed=flask.request.json["toolchainChanged"],
             dryrun=flask.request.json["dryrun"],
             workon=flask.request.json["workon"],
-        )
+        ),
+        packages=[package],
     )
 
     req = sdk_server_pb2.BuildPackagesRequest(
@@ -320,6 +334,20 @@ async def build_image():
         )
     )
     return flask.Response(logGenerator(client.build_image, req))
+
+
+@app.route("/chroot-info", methods=["GET", "POST"])
+async def chroot_info():
+    """Forwards basic chroot info for info panel."""
+
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    return flask.jsonify(
+        json_format.MessageToDict(
+            client.chroot_info(sdk_server_pb2.ChrootInfoRequest())
+        )
+    )
 
 
 @app.route("/", methods=["GET", "POST"])
