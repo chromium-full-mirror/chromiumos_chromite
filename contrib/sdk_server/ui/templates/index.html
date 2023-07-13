@@ -248,7 +248,7 @@
             
             <div class = "row bg-light d-flex justify-content-start">
               <button type="button" class="btn btn-light w-25 rounded-0" id="showPackages"><strong>Packages</strong></button>
-              <button type="button" class="btn btn-light w-25 rounded-0" id="showSysroots"><strong>Sysroots</strong></button>
+              <button type="button" class="btn btn-light w-25 rounded-0" id="showImages"><strong>Images</strong></button>
             </div>
             <!--Board selector row and dropdown-->
             <div id = "packagesPanel">
@@ -258,8 +258,8 @@
                 </div>
                 <div class="col-3">
                   <div class="dropdown">
-                    <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary" type="button" 
-                    data-bs-toggle="dropdown" aria-expanded="false" id="boardSelectorTitle">Loading...</button>
+                    <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary board-selector-title" type="button" 
+                    data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
                     <ul class="dropdown-menu" id="boardSelector">
                       {% for board in data["current_boards"] %}
                         <li>
@@ -471,8 +471,158 @@
                 
               </div>
             </div>
-            <div hidden id="sysrootsPanel">
-              Sysroots
+            <div id="imagesPanel">
+              <div class="row bg-dark justify-content-start align-items-center ">
+                <div class="col-1">
+                  <p2 class="small text-light mr-5"><strong>Board</strong></p2>
+                </div>
+                <div class="col-3">
+                  <div class="dropdown">
+                    <button class="btn btn-dark btn-sm dropdown-toggle pt-0 pb-0 border-secondary board-selector-title" type="button" 
+                    data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
+                    <ul class="dropdown-menu" id="boardSelector">
+                      {% for board in data["current_boards"] %}
+                        <li>
+                          {% if loop.index == 1 %}
+                            <a class="small dropdown-item board-list-item active" href="#">{{board}}</a>
+                          {% else %}
+                            <a class="small dropdown-item board-list-item" href="#">{{board}}</a>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                                        
+                  </div>
+                </div>
+                <div class = "col-2">
+                  <a data-bs-toggle="modal" data-bs-target="#buildImageModal" href="#" class = "classic-link">Build Image</a>
+                </div>
+
+                <div class="modal fade" id="buildImageModal" tabindex="-1"
+                    aria-labelledby="buildImageModal" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content bg-dark">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-4 text-light">Build Image</h1>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        
+                      </div>
+                      <div class = "modal-body">
+                        <ul class = "list-unstyled">
+                  
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>build_target</strong></p2>
+                            <div class="d-flex justify-content-between align-items-center">
+  
+                              <select id="buildImageBuildTarget" class="build-image-select">
+                                {% for board in data["all_boards"] %}
+                                  <option>{{board}}</option>
+                                {% endfor %}
+                              </select>
+                              
+                            </div>
+                            <label class="text-light ms-1" for="buildImageBuildTarget">
+                              The build target whose image is being built.
+                            </label>
+                          </li>
+                          <li class = "mb-3">
+                            <p2 class="text-light fs-6"><strong>image_types</strong></p2>
+                            <div class="d-flex justify-content-between align-items-center">
+  
+                              <select id="buildImageImageTypes" class="build-image-select" multiple>
+                                <option>IMAGE_TYPE_BASE</option>
+                                <option>IMAGE_TYPE_DEV</option>
+                                <option>IMAGE_TYPE_TEST</option>
+                                <option>IMAGE_TYPE_BASE_VM</option>
+                                <option>IMAGE_TYPE_TEST_VM</option>
+                                <option>IMAGE_TYPE_RECOVERY</option>
+                                <option>IMAGE_TYPE_FACTORY</option>
+                                <option>IMAGE_TYPE_FIRMWARE</option>
+                                <option>IMAGE_TYPE_CR50_FIRMWARE</option>
+                                <option>IMAGE_TYPE_BASE_GUEST_VM </option>
+                                <option>IMAGE_TYPE_TEST_GUEST_VM </option>
+                                <option>IMAGE_TYPE_DLC </option>
+                                <option>IMAGE_TYPE_GSC_FIRMWARE </option>
+                                <option>IMAGE_TYPE_ACCESSORY_USBPD </option>
+                                <option>IMAGE_TYPE_ACCESSORY_RWSIG </option>
+                                <option>IMAGE_TYPE_HPS_FIRMWARE </option>
+                                <option>IMAGE_TYPE_NETBOOT </option>
+                              </select>
+                              
+                            </div>
+                            <label class="text-light ms-1" for="buildImageImageTypes">
+                              The types of images to build, defaults to building base image.
+                            </label>
+                          </li>
+                          <li class = "mt-3">
+                            <p2 class="text-light fs-6">disable_rootfs_verification</p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="rootfsVerification">
+                              <label class="form-check-label text-light ms-3" for="rootfsVerification">
+                                Whether rootfs verification should be disabled.
+                              </label>
+                            </div>
+                          </li>
+                          <li class = "mt-3">
+                            <p2 class="text-light fs-6">version</p2>
+                            <div class="input-group">
+                              <input type="text" class="form-control" placeholder="Version" aria-label="image version" id="imageVersion">
+                              
+                            </div>
+                            <div class="form-text text-light ms-1" id="basic-addon4">The image version.</div>
+        
+                          </li>
+                          <li class = "mt-3">
+                            <p2 class="text-light fs-6">disk_layout</p2>
+                            <div class="input-group">
+                              <input type="text" class="form-control" placeholder="" aria-label="disk layout" id="diskLayout">
+                              
+                            </div>
+                            <div class="form-text text-light ms-1" id="basic-addon4">Disk layout option. See README.disk_layout and legacy_disk_layout.json in
+                              src/scripts/build_library.</div>
+        
+                          </li>
+                          <li class = "mt-3">
+                            <p2 class="text-light fs-6">builder_path</p2>
+                            <div class="input-group">
+                              <input type="text" class="form-control" placeholder="" aria-label="Builder Path" id="builderPath">
+                              
+                            </div>
+                            <div class="form-text text-light ms-1" id="basic-addon4">Used to set the LSB builder path key in /etc/lsb-release. See
+                              chromite/scripts/cros_set_lsb_release.py.</div>
+        
+                          </li>
+                          <li class = "mt-3">
+                            <p2 class="text-light fs-6">base_is_recovery</p2>
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" value="" id="baseIsRecovery">
+                              <label class="form-check-label text-light ms-3" for="baseIsRecovery">
+                                Whether to use the base image as the recovery image.
+                              </label>
+                            </div>
+                          </li>
+                          
+                        </ul>
+                      </div>
+                      
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="buildImageSubmit">Build</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class = "col"></div>
+              </div>
+              <div class="row bg-dark border-top">
+                <div class="col-7"><p2 class = "small text-light m-3"><strong>Path</strong></p2></div>
+                <div class="col-2"><p2 class = "small text-light"><strong>Type</strong></p2></div>
+                <div class="col"><p2 class = "small text-light"><strong></strong></p2></div>
+              </div>
+              <div class = "row" id = "allBoardImages">
+
+              </div>
             </div>
           </div>
         </div>

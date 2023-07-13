@@ -32,17 +32,17 @@ const working_status = {
 //Panel selection/styling functions
 function showPackages() {
     $("#packagesPanel").show();
-    $("#sysrootsPanel").hide();
+    $("#imagesPanel").hide();
 
     $("#showPackages").addClass(topSelectorStyle);
-    $("#showSysroots").removeClass(topSelectorStyle);
+    $("#showImages").removeClass(topSelectorStyle);
 }
 
-function showSysroots() {
+function showImages() {
     $("#packagesPanel").hide();
-    $("#sysrootsPanel").show();
+    $("#imagesPanel").show();
 
-    $("#showSysroots").addClass(topSelectorStyle);
+    $("#showImages").addClass(topSelectorStyle);
     $("#showPackages").removeClass(topSelectorStyle);
 }
 
@@ -192,7 +192,11 @@ function populatePackages(board = "") {
 
         success: function (response) {
             allPackagesHTML = "";
-            jQuery.each(response, function (board, packages) {
+            allImagesHTML = "";
+            jQuery.each(response, function (board, data) {
+
+                packages = data.packages
+                images = data.images
 
                 if (packages.length > 0) {
                     allPackagesHTML += `<ul class="p-0 board-package-list" 
@@ -203,8 +207,8 @@ function populatePackages(board = "") {
                         `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
                           <div class="col-7"><p2 class = "small text-light m-4">` + pack.name + `</p2></div>
                           <div class="col-2 d-flex">
-                            <p2 class = "col small text-success">+` + pack.plus + `</p2>
-                            <p2 class = "col small text-danger">-`  + pack.minus + `</p2>
+                            <p2 class = "col small text-success"></p2>
+                            <p2 class = "col small text-danger"></p2>
                           </div>
                           <div class="col">
                             <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
@@ -256,16 +260,42 @@ function populatePackages(board = "") {
                     allPackagesHTML += `</ul>`
                 }
                 else {
-                    console.log("here")
                     allPackagesHTML += `
                     <row class="board-package-list small text-light bg-dark border-top border-black p-0 m-0"
                       id= `+ board + `-package-list>
                         <p2 class = "ps-5">No packages to display for this board...</p2>
                       </row>`
                 }
+                
+                
+                if(images.length > 0){
+                    allImagesHTML += `<ul class="p-0 board-image-list" 
+                    id= "`+ board + `-image-list">`
+
+                    images.forEach(function(image){
+                        allImagesHTML +=
+                        `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                          <div class="col-7"><p2 style = "display: block;" class = "small text-light ms-3">` + image.path + `</p2></div>
+                          <div class="col-2 d-flex">
+                            <p2 class = "small text-light ms">` + image.type + `</p2>
+                          </div>
+         
+                        </li>`
+                    })
+
+                    allImagesHTML += `</ul>`
+                }
+                else{
+                    allImagesHTML += `
+                    <row class="board-image-list small text-light bg-dark border-top border-black p-0 m-0"
+                      id= `+ board + `-image-list>
+                        <p2 class = "ps-5">No images to display for this board...</p2>
+                      </row>`
+                }
             })
             if(!board){
                 $("#allBoardPackages").html(allPackagesHTML);
+                $("#allBoardImages").html(allImagesHTML);
             }else{
                 $(`#`+ board + `-package-list`).remove()
                 $("#allBoardPackages").html($("#allBoardPackages").html() + allPackagesHTML);
@@ -274,9 +304,13 @@ function populatePackages(board = "") {
 
             //Packages board dropdown selection logic
             var boardName = $('#boardSelector li a.active').html()
-            $('#boardSelectorTitle').html(boardName);
+            console.log(boardName)
+            $('.board-selector-title').html(boardName);
             $('.board-package-list').hide()
+            $('.board-image-list').hide()
+
             $('#' + boardName + "-package-list").show()
+            $('#' + boardName + "-image-list").show()
 
             $(".workon-stop").on('click', workonStop);
             $('#boardSelector li').on('click', changeBoardSelectorActive)
@@ -304,12 +338,15 @@ function confirmDelete() {
 function changeBoardSelectorActive() {
     var boardName = $(this).find('a').html()
 
-    $('#boardSelectorTitle').html(boardName);
+    $('.board-selector-title').html(boardName);
     $('.board-list-item').removeClass('active');
     $(this).find('a').addClass('active');
 
     $('.board-package-list').hide()
     $('#' + boardName + "-package-list").show()
+
+    $('.board-image-list').hide()
+    $('#' + boardName + "-image-list").show()
 }
 
 function workonStart() {
@@ -521,6 +558,47 @@ function buildPackages(){
     })
 }
 
+function buildImage(){
+    $("#buildImage").addClass("disabled");
+    now = moment()
+    window.onbeforeunload = function() {
+        return true;
+    };
+
+    $.post({
+        url: "/build-image",
+        data: JSON.stringify({
+            buildTarget: $("#buildImageBuildTarget").select2("data")[0].text,
+            imageTypes: $("#buildImageImageTypes").select2("data").map((x) => x.text),
+            disableRootfsVerification: $("#rootfsVerification").is(":checked"),
+            version: $("#imageVersion").val(),
+            diskLayout: $("#diskLayout").val(),
+            builderPath: $("#builderPath").val(),
+            baseIsRecovery: $("#baseIsRecovery").is(":checked")
+        }),
+
+        contentType: "application/json",
+
+        success: function(response){
+            $("#buildImage").removeClass("disabled");
+            window.onbeforeunload = null;
+
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
+        },
+
+        xhrFields: {
+            onprogress: function(e){
+                populateLiveLog(
+                    "build_image",
+                    e.currentTarget.response,
+                    now
+                    
+                )
+            }
+        }
+    })
+}
+
 $(document).ready(function () {
     //Show default active panels (logs/packages)
     showPackages();
@@ -557,19 +635,24 @@ $(document).ready(function () {
         theme: 'bootstrap-5',
         width: '100%'
     });
+    $(".build-image-select").select2({
+        dropdownParent: $("#buildImageModal"),
+        theme: 'bootstrap-5',
+        width: '100%'
+    });
 
     //Button listeners
     $("#addPackageSubmit").on("click", workonStart);
     $("#confirmDelete").on('click', confirmDelete);
     $("#showPackages").on('click', showPackages);
-    $("#showSysroots").on('click', showSysroots);
+    $("#showImages").on('click', showImages);
     $("#showLogs").on('click', showLogs);
     $("#showRepo").on('click', showRepo);
     $("#repoStatusRefresh").on("click", populateRepoFiles);
     $("#updateChrootSubmit").on("click", updateChroot);
     $("#replaceChrootSubmit").on("click", replaceChroot);
     $("#buildPackagesSubmit").on("click", buildPackages);
-
+    $("#buildImageSubmit").on("click", buildImage);
     
 
     

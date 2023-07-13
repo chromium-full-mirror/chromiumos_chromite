@@ -15,6 +15,7 @@ from google.protobuf import json_format
 from chromite.api.controller import controller_util
 from chromite.contrib.sdk_server.grpc_server import client
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2
+from chromite.contrib.sdk_server.grpc_server.chromite.api import image_pb2
 from chromite.contrib.sdk_server.grpc_server.chromite.api import sdk_pb2
 from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
 from chromite.contrib.sdk_server.grpc_server.chromiumos import (
@@ -185,14 +186,24 @@ async def get_packages():
             board_packages_data += [
                 {
                     "name": pkg.atom,
-                    "plus": "0",
-                    "minus": "0",
                     "repo": repo,
                     "source": source,
                 }
             ]
 
-        packages_json[board.name] = board_packages_data
+        board_images_data = []
+        for image in board.image:
+            board_images_data += [
+                {
+                    "path": image.path,
+                    "type": common.ImageType.Name(image.type),
+                }
+            ]
+
+        packages_json[board.build_target.name] = {
+            "images": board_images_data,
+            "packages": board_packages_data,
+        }
 
     return flask.jsonify(packages_json)
 
@@ -283,6 +294,34 @@ async def build_packages():
     return flask.Response(logGenerator(client.build_packages, req))
 
 
+@app.route("/build-image", methods=["GET", "POST"])
+async def build_image():
+    """Forwards build image request to gRPC server."""
+
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    # Converts strings to proto enum values.
+    toEnum = common.ImageType.Value
+
+    req = sdk_server_pb2.BuildImageRequest(
+        request=image_pb2.CreateImageRequest(
+            build_target=common.BuildTarget(
+                name=flask.request.json["buildTarget"]
+            ),
+            image_types=[toEnum(im) for im in flask.request.json["imageTypes"]],
+            disable_rootfs_verification=flask.request.json[
+                "disableRootfsVerification"
+            ],
+            version=flask.request.json["version"],
+            disk_layout=flask.request.json["diskLayout"],
+            builder_path=flask.request.json["builderPath"],
+            base_is_recovery=flask.request.json["baseIsRecovery"],
+        )
+    )
+    return flask.Response(logGenerator(client.build_image, req))
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Home page route. Renders index.html file with templating data."""
@@ -302,7 +341,7 @@ async def setup():
     current_boards = client.current_boards(
         sdk_server_pb2.CurrentBoardsRequest()
     )
-    current_boards = sorted([b.name for b in current_boards.build_target])
+    current_boards = sorted([b.build_target.name for b in current_boards.board])
     index_data["current_boards"] = current_boards
 
 
