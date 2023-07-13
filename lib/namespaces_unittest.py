@@ -11,6 +11,7 @@ import unittest
 from chromite.lib import commandline
 from chromite.lib import cros_test_lib
 from chromite.lib import namespaces
+from chromite.lib import process_util
 
 
 class SetNSTests(cros_test_lib.TestCase):
@@ -80,6 +81,36 @@ class SimpleUnshareCgroupsTests(cros_test_lib.MockTestCase):
             cgroup=True,
         )
         unshare_mock.assert_called_once_with(namespaces.CLONE_NEWCGROUP)
+
+
+class CreateUserNsTests(cros_test_lib.TestCase):
+    """Tests for CreateUserNs()"""
+
+    def testBasic(self):
+        """Simple functionality test."""
+        # Since entering namespaces will modify the state of the current
+        # process, fork in advance.
+        pid = os.fork()
+        if pid == 0:
+            # Below we call os._exit() to exit the process directly. It is one
+            # of the officially justified usage of the function.
+            # pylint: disable=protected-access
+            try:
+                # Enter a new user namespace. The current process will gain
+                # capabilities within the namespace.
+                namespaces.CreateUserNs()
+            except Exception:
+                os._exit(10)
+            try:
+                # Enter a new mount namespace. This operation requires
+                # privileges, but we have one thanks to the user namespace.
+                namespaces.Unshare(namespaces.CLONE_NEWNS)
+            except Exception:
+                os._exit(20)
+            os._exit(0)
+
+        status = os.waitpid(pid, 0)[1]
+        self.assertEqual(process_util.GetExitStatus(status), 0)
 
 
 class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):

@@ -304,6 +304,36 @@ def CreateNetNs():
             raise
 
 
+def CreateUserNs() -> None:
+    """Start a user namespace
+
+    This will create a new user namespace and move the current process into it.
+    It will fail if the current process is multi-threaded.
+
+    In the new user namespace, the current process will:
+    - have UID=GID=0, which is mapped to the original UID/GID in the original
+      user namespace
+    - have all capabilities (with the namespace)
+
+    This function is useful when you want to enter other namespaces (e.g. mount
+    namespace) without root privileges.
+    """
+    orig_uid = os.getuid()
+    orig_gid = os.getgid()
+
+    Unshare(CLONE_NEWUSER)
+
+    # Set up a UID/GID mapping that maps the original UID/GID to UID=GID=0 in
+    # the new user namespace. The order of writing these files matters.
+    # See `man 1 user_namespaces` for details.
+    with open("/proc/self/setgroups", "w", encoding="utf-8") as f:
+        f.write("deny")
+    with open("/proc/self/uid_map", "w", encoding="utf-8") as f:
+        f.write("0 %d 1\n" % orig_uid)
+    with open("/proc/self/gid_map", "w", encoding="utf-8") as f:
+        f.write("0 %d 1\n" % orig_gid)
+
+
 def SimpleUnshare(
     mount=True, uts=True, ipc=True, net=False, pid=False, cgroup=False
 ):
