@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='sdk_server.proto',
   package='cros_sdk',
   syntax='proto3',
-  serialized_pb=_b('\n\x10sdk_server.proto\x12\x08\x63ros_sdk\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x16\x63hromite/api/sdk.proto\x1a\x18\x63hromite/api/image.proto\x1a\x16\x63hromite/api/api.proto\x1a\x17\x63hromiumos/common.proto\"2\n\rCustomRequest\x12\x10\n\x08\x65ndpoint\x18\x01 \x01(\t\x12\x0f\n\x07request\x18\x02 \x01(\t\"8\n\x0e\x43ustomResponse\x12\x14\n\x0clogging_info\x18\x01 \x01(\t\x12\x10\n\x08response\x18\x02 \x01(\t\"\x10\n\x0eMethodsRequest\"D\n\x0fMethodsResponse\x12\x31\n\x08response\x18\x01 \x01(\x0b\x32\x1f.chromite.api.MethodGetResponse\"\x12\n\x10\x43learLogsRequest\"<\n\x11\x43learLogsResponse\x12\x15\n\rbytes_cleared\x18\x01 \x01(\r\x12\x10\n\x08new_size\x18\x02 \x01(\r\"\x13\n\x11\x43hrootInfoRequest\"\x9e\x01\n\x12\x43hrootInfoResponse\x12\r\n\x05ready\x18\x01 \x01(\x08\x12\x14\n\x0c\x64\x61te_created\x18\x02 \x01(\t\x12,\n\x07version\x18\x03 \x01(\x0b\x32\x1b.chromite.api.ChrootVersion\x12\x15\n\rvalid_version\x18\x04 \x01(\x08\x12\x1e\n\x04path\x18\x05 \x01(\x0b\x32\x10.chromiumos.Path\"\r\n\x0bLogsRequest\"2\n\x0cLogsResponse\x12\"\n\x04logs\x18\x01 \x03(\x0b\x32\x14.cros_sdk.LogMessage\"9\n\nLogMessage\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\t\x12\x0c\n\x04logs\x18\x03 \x01(\t\"\x16\n\x14\x43urrentBoardsRequest\"D\n\x15\x43urrentBoardsResponse\x12+\n\x0c\x62oard_images\x18\x01 \x03(\x0b\x32\x15.cros_sdk.BoardImages\"\x86\x01\n\x0b\x42oardImages\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12#\n\x06images\x18\x02 \x03(\x0b\x32\x13.chromite.api.Image\x12#\n\x06latest\x18\x03 \x01(\x0b\x32\x13.chromite.api.Image\"\x14\n\x12QueryBoardsRequest\"D\n\x13QueryBoardsResponse\x12-\n\x0c\x62uild_target\x18\x01 \x03(\x0b\x32\x17.chromiumos.BuildTarget\"F\n\x11\x42uildImageRequest\x12\x31\n\x07request\x18\x01 \x01(\x0b\x32 .chromite.api.CreateImageRequest\"]\n\x12\x42uildImageResponse\x12\x31\n\x08response\x18\x01 \x01(\x0b\x32\x1f.chromite.api.CreateImageResult\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"@\n\x10\x44\x65leteSdkRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.DeleteRequest\"Y\n\x11\x44\x65leteSdkResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.DeleteResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"A\n\x11ReplaceSdkRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.CreateRequest\"Z\n\x12ReplaceSdkResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.CreateResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"@\n\x10\x43reateSdkRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.CreateRequest\"Y\n\x11\x43reateSdkResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.CreateResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"\xc8\x01\n\x14\x42uildPackagesRequest\x12\x36\n\ncreate_req\x18\x01 \x01(\x0b\x32\".chromite.api.SysrootCreateRequest\x12<\n\rtoolchain_req\x18\x02 \x01(\x0b\x32%.chromite.api.InstallToolchainRequest\x12:\n\x0cpackages_req\x18\x03 \x01(\x0b\x32$.chromite.api.InstallPackagesRequest\"\xe5\x01\n\x15\x42uildPackagesResponse\x12\x38\n\x0b\x63reate_resp\x18\x01 \x01(\x0b\x32#.chromite.api.SysrootCreateResponse\x12>\n\x0etoolchain_resp\x18\x02 \x01(\x0b\x32&.chromite.api.InstallToolchainResponse\x12<\n\rpackages_resp\x18\x03 \x01(\x0b\x32%.chromite.api.InstallPackagesResponse\x12\x14\n\x0clogging_info\x18\x04 \x01(\t\"C\n\x13UpdateChrootRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.UpdateRequest\"\\\n\x14UpdateChrootResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.UpdateResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"\x11\n\x0fRepoSyncRequest\"(\n\x10RepoSyncResponse\x12\x14\n\x0clogging_info\x18\x01 \x01(\t\"\x13\n\x11RepoStatusRequest\"\"\n\x12RepoStatusResponse\x12\x0c\n\x04info\x18\x01 \x03(\t\"C\n\x12\x41llPackagesRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\"D\n\x13\x41llPackagesResponse\x12-\n\x0cpackage_info\x18\x01 \x03(\x0b\x32\x17.chromiumos.PackageInfo\"r\n\x12WorkonStartRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"#\n\x13WorkonStartResponse\x12\x0c\n\x04info\x18\x01 \x01(\t\"q\n\x11WorkonStopRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"\"\n\x12WorkonStopResponse\x12\x0c\n\x04info\x18\x01 \x01(\t\"q\n\x11WorkonListRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"C\n\x12WorkonListResponse\x12-\n\x0cpackage_info\x18\x01 \x03(\x0b\x32\x17.chromiumos.PackageInfo\"q\n\x11WorkonInfoRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"\"\n\x12WorkonInfoResponse\x12\x0c\n\x04info\x18\x01 \x01(\t2\xf9\x0b\n\x12sdk_server_service\x12P\n\x11\x63ros_workon_start\x12\x1c.cros_sdk.WorkonStartRequest\x1a\x1d.cros_sdk.WorkonStartResponse\x12M\n\x10\x63ros_workon_stop\x12\x1b.cros_sdk.WorkonStopRequest\x1a\x1c.cros_sdk.WorkonStopResponse\x12M\n\x10\x63ros_workon_list\x12\x1b.cros_sdk.WorkonListRequest\x1a\x1c.cros_sdk.WorkonListResponse\x12M\n\x10\x63ros_workon_info\x12\x1b.cros_sdk.WorkonInfoRequest\x1a\x1c.cros_sdk.WorkonInfoResponse\x12K\n\x0c\x61ll_packages\x12\x1c.cros_sdk.AllPackagesRequest\x1a\x1d.cros_sdk.AllPackagesResponse\x12\x44\n\trepo_sync\x12\x19.cros_sdk.RepoSyncRequest\x1a\x1a.cros_sdk.RepoSyncResponse0\x01\x12H\n\x0brepo_status\x12\x1b.cros_sdk.RepoStatusRequest\x1a\x1c.cros_sdk.RepoStatusResponse\x12P\n\rupdate_chroot\x12\x1d.cros_sdk.UpdateChrootRequest\x1a\x1e.cros_sdk.UpdateChrootResponse0\x01\x12S\n\x0e\x62uild_packages\x12\x1e.cros_sdk.BuildPackagesRequest\x1a\x1f.cros_sdk.BuildPackagesResponse0\x01\x12G\n\ncreate_sdk\x12\x1a.cros_sdk.CreateSdkRequest\x1a\x1b.cros_sdk.CreateSdkResponse0\x01\x12G\n\ndelete_sdk\x12\x1a.cros_sdk.DeleteSdkRequest\x1a\x1b.cros_sdk.DeleteSdkResponse0\x01\x12J\n\x0breplace_sdk\x12\x1b.cros_sdk.ReplaceSdkRequest\x1a\x1c.cros_sdk.ReplaceSdkResponse0\x01\x12J\n\x0b\x62uild_image\x12\x1b.cros_sdk.BuildImageRequest\x1a\x1c.cros_sdk.BuildImageResponse0\x01\x12K\n\x0cquery_boards\x12\x1c.cros_sdk.QueryBoardsRequest\x1a\x1d.cros_sdk.QueryBoardsResponse\x12Q\n\x0e\x63urrent_boards\x12\x1e.cros_sdk.CurrentBoardsRequest\x1a\x1f.cros_sdk.CurrentBoardsResponse\x12\x39\n\x08get_logs\x12\x15.cros_sdk.LogsRequest\x1a\x16.cros_sdk.LogsResponse\x12H\n\x0b\x63hroot_info\x12\x1b.cros_sdk.ChrootInfoRequest\x1a\x1c.cros_sdk.ChrootInfoResponse\x12\x45\n\nclear_logs\x12\x1a.cros_sdk.ClearLogsRequest\x1a\x1b.cros_sdk.ClearLogsResponse\x12\x42\n\x0bget_methods\x12\x18.cros_sdk.MethodsRequest\x1a\x19.cros_sdk.MethodsResponse\x12\x46\n\x0f\x63ustom_endpoint\x12\x17.cros_sdk.CustomRequest\x1a\x18.cros_sdk.CustomResponse0\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x10sdk_server.proto\x12\x08\x63ros_sdk\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x16\x63hromite/api/sdk.proto\x1a\x18\x63hromite/api/image.proto\x1a\x17\x63hromiumos/common.proto\"\x12\n\x10\x43learLogsRequest\"<\n\x11\x43learLogsResponse\x12\x15\n\rbytes_cleared\x18\x01 \x01(\r\x12\x10\n\x08new_size\x18\x02 \x01(\r\"\x13\n\x11\x43hrootInfoRequest\"\x8f\x01\n\x12\x43hrootInfoResponse\x12\x14\n\x0c\x64\x61te_created\x18\x01 \x01(\t\x12,\n\x07version\x18\x02 \x01(\x0b\x32\x1b.chromite.api.ChrootVersion\x12\x15\n\rvalid_version\x18\x03 \x01(\x08\x12\x1e\n\x04path\x18\x04 \x01(\x0b\x32\x10.chromiumos.Path\"\r\n\x0bLogsRequest\"1\n\x0cLogsResponse\x12!\n\x03log\x18\x01 \x03(\x0b\x32\x14.cros_sdk.LogMessage\"9\n\nLogMessage\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\t\x12\x0c\n\x04logs\x18\x03 \x01(\t\"\x16\n\x14\x43urrentBoardsRequest\"=\n\x15\x43urrentBoardsResponse\x12$\n\x05\x62oard\x18\x01 \x03(\x0b\x32\x15.cros_sdk.BoardImages\"\x85\x01\n\x0b\x42oardImages\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\"\n\x05image\x18\x02 \x03(\x0b\x32\x13.chromite.api.Image\x12#\n\x06latest\x18\x03 \x01(\x0b\x32\x13.chromite.api.Image\"\x14\n\x12QueryBoardsRequest\"D\n\x13QueryBoardsResponse\x12-\n\x0c\x62uild_target\x18\x01 \x03(\x0b\x32\x17.chromiumos.BuildTarget\"F\n\x11\x42uildImageRequest\x12\x31\n\x07request\x18\x01 \x01(\x0b\x32 .chromite.api.CreateImageRequest\"]\n\x12\x42uildImageResponse\x12\x31\n\x08response\x18\x01 \x01(\x0b\x32\x1f.chromite.api.CreateImageResult\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"@\n\x10\x44\x65leteSdkRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.DeleteRequest\"Y\n\x11\x44\x65leteSdkResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.DeleteResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"A\n\x11ReplaceSdkRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.CreateRequest\"Z\n\x12ReplaceSdkResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.CreateResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"@\n\x10\x43reateSdkRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.CreateRequest\"Y\n\x11\x43reateSdkResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.CreateResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"\xc8\x01\n\x14\x42uildPackagesRequest\x12\x36\n\ncreate_req\x18\x01 \x01(\x0b\x32\".chromite.api.SysrootCreateRequest\x12<\n\rtoolchain_req\x18\x02 \x01(\x0b\x32%.chromite.api.InstallToolchainRequest\x12:\n\x0cpackages_req\x18\x03 \x01(\x0b\x32$.chromite.api.InstallPackagesRequest\"\xe5\x01\n\x15\x42uildPackagesResponse\x12\x38\n\x0b\x63reate_resp\x18\x01 \x01(\x0b\x32#.chromite.api.SysrootCreateResponse\x12>\n\x0etoolchain_resp\x18\x02 \x01(\x0b\x32&.chromite.api.InstallToolchainResponse\x12<\n\rpackages_resp\x18\x03 \x01(\x0b\x32%.chromite.api.InstallPackagesResponse\x12\x14\n\x0clogging_info\x18\x04 \x01(\t\"C\n\x13UpdateChrootRequest\x12,\n\x07request\x18\x01 \x01(\x0b\x32\x1b.chromite.api.UpdateRequest\"\\\n\x14UpdateChrootResponse\x12.\n\x08response\x18\x01 \x01(\x0b\x32\x1c.chromite.api.UpdateResponse\x12\x14\n\x0clogging_info\x18\x02 \x01(\t\"\x11\n\x0fRepoSyncRequest\"(\n\x10RepoSyncResponse\x12\x14\n\x0clogging_info\x18\x01 \x01(\t\"\x13\n\x11RepoStatusRequest\"\"\n\x12RepoStatusResponse\x12\x0c\n\x04info\x18\x01 \x03(\t\"C\n\x12\x41llPackagesRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\"D\n\x13\x41llPackagesResponse\x12-\n\x0cpackage_info\x18\x01 \x03(\x0b\x32\x17.chromiumos.PackageInfo\"r\n\x12WorkonStartRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"#\n\x13WorkonStartResponse\x12\x0c\n\x04info\x18\x01 \x01(\t\"q\n\x11WorkonStopRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"\"\n\x12WorkonStopResponse\x12\x0c\n\x04info\x18\x01 \x01(\t\"q\n\x11WorkonListRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"C\n\x12WorkonListResponse\x12-\n\x0cpackage_info\x18\x01 \x03(\x0b\x32\x17.chromiumos.PackageInfo\"q\n\x11WorkonInfoRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12-\n\x0cpackage_info\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"\"\n\x12WorkonInfoResponse\x12\x0c\n\x04info\x18\x01 \x01(\t2\xed\n\n\x12sdk_server_service\x12P\n\x11\x63ros_workon_start\x12\x1c.cros_sdk.WorkonStartRequest\x1a\x1d.cros_sdk.WorkonStartResponse\x12M\n\x10\x63ros_workon_stop\x12\x1b.cros_sdk.WorkonStopRequest\x1a\x1c.cros_sdk.WorkonStopResponse\x12M\n\x10\x63ros_workon_list\x12\x1b.cros_sdk.WorkonListRequest\x1a\x1c.cros_sdk.WorkonListResponse\x12M\n\x10\x63ros_workon_info\x12\x1b.cros_sdk.WorkonInfoRequest\x1a\x1c.cros_sdk.WorkonInfoResponse\x12K\n\x0c\x61ll_packages\x12\x1c.cros_sdk.AllPackagesRequest\x1a\x1d.cros_sdk.AllPackagesResponse\x12\x44\n\trepo_sync\x12\x19.cros_sdk.RepoSyncRequest\x1a\x1a.cros_sdk.RepoSyncResponse0\x01\x12H\n\x0brepo_status\x12\x1b.cros_sdk.RepoStatusRequest\x1a\x1c.cros_sdk.RepoStatusResponse\x12P\n\rupdate_chroot\x12\x1d.cros_sdk.UpdateChrootRequest\x1a\x1e.cros_sdk.UpdateChrootResponse0\x01\x12S\n\x0e\x62uild_packages\x12\x1e.cros_sdk.BuildPackagesRequest\x1a\x1f.cros_sdk.BuildPackagesResponse0\x01\x12G\n\ncreate_sdk\x12\x1a.cros_sdk.CreateSdkRequest\x1a\x1b.cros_sdk.CreateSdkResponse0\x01\x12G\n\ndelete_sdk\x12\x1a.cros_sdk.DeleteSdkRequest\x1a\x1b.cros_sdk.DeleteSdkResponse0\x01\x12J\n\x0breplace_sdk\x12\x1b.cros_sdk.ReplaceSdkRequest\x1a\x1c.cros_sdk.ReplaceSdkResponse0\x01\x12J\n\x0b\x62uild_image\x12\x1b.cros_sdk.BuildImageRequest\x1a\x1c.cros_sdk.BuildImageResponse0\x01\x12K\n\x0cquery_boards\x12\x1c.cros_sdk.QueryBoardsRequest\x1a\x1d.cros_sdk.QueryBoardsResponse\x12Q\n\x0e\x63urrent_boards\x12\x1e.cros_sdk.CurrentBoardsRequest\x1a\x1f.cros_sdk.CurrentBoardsResponse\x12\x39\n\x08get_logs\x12\x15.cros_sdk.LogsRequest\x1a\x16.cros_sdk.LogsResponse\x12H\n\x0b\x63hroot_info\x12\x1b.cros_sdk.ChrootInfoRequest\x1a\x1c.cros_sdk.ChrootInfoResponse\x12\x45\n\nclear_logs\x12\x1a.cros_sdk.ClearLogsRequest\x1a\x1b.cros_sdk.ClearLogsResponseb\x06proto3')
   ,
   dependencies=[chromite_dot_api_dot_sysroot__pb2.DESCRIPTOR,chromite_dot_api_dot_sdk__pb2.DESCRIPTOR,chromite_dot_api_dot_image__pb2.DESCRIPTOR,chromiumos_dot_common__pb2.DESCRIPTOR,])
 
@@ -759,7 +759,7 @@ _REPOSYNCRESPONSE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='info', full_name='cros_sdk.RepoSyncResponse.info', index=0,
+      name='logging_info', full_name='cros_sdk.RepoSyncResponse.logging_info', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -777,8 +777,8 @@ _REPOSYNCRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2325,
-  serialized_end=2365,
+  serialized_start=2079,
+  serialized_end=2119,
 )
 
 
@@ -801,8 +801,8 @@ _REPOSTATUSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2367,
-  serialized_end=2386,
+  serialized_start=2121,
+  serialized_end=2140,
 )
 
 
@@ -832,8 +832,8 @@ _REPOSTATUSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2388,
-  serialized_end=2422,
+  serialized_start=2142,
+  serialized_end=2176,
 )
 
 
@@ -863,8 +863,8 @@ _ALLPACKAGESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2424,
-  serialized_end=2491,
+  serialized_start=2178,
+  serialized_end=2245,
 )
 
 
@@ -894,8 +894,8 @@ _ALLPACKAGESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2493,
-  serialized_end=2561,
+  serialized_start=2247,
+  serialized_end=2315,
 )
 
 
@@ -932,8 +932,8 @@ _WORKONSTARTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2563,
-  serialized_end=2677,
+  serialized_start=2317,
+  serialized_end=2431,
 )
 
 
@@ -963,8 +963,8 @@ _WORKONSTARTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2679,
-  serialized_end=2714,
+  serialized_start=2433,
+  serialized_end=2468,
 )
 
 
@@ -1001,8 +1001,8 @@ _WORKONSTOPREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2716,
-  serialized_end=2829,
+  serialized_start=2470,
+  serialized_end=2583,
 )
 
 
@@ -1032,8 +1032,8 @@ _WORKONSTOPRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2831,
-  serialized_end=2865,
+  serialized_start=2585,
+  serialized_end=2619,
 )
 
 
@@ -1070,8 +1070,8 @@ _WORKONLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2867,
-  serialized_end=2980,
+  serialized_start=2621,
+  serialized_end=2734,
 )
 
 
@@ -1101,8 +1101,8 @@ _WORKONLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2982,
-  serialized_end=3049,
+  serialized_start=2736,
+  serialized_end=2803,
 )
 
 
@@ -1139,8 +1139,8 @@ _WORKONINFOREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3051,
-  serialized_end=3164,
+  serialized_start=2805,
+  serialized_end=2918,
 )
 
 
@@ -1170,8 +1170,8 @@ _WORKONINFORESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3166,
-  serialized_end=3200,
+  serialized_start=2920,
+  serialized_end=2954,
 )
 
 _METHODSRESPONSE.fields_by_name['response'].message_type = chromite_dot_api_dot_api__pb2._METHODGETRESPONSE
@@ -1491,8 +1491,8 @@ _SDK_SERVER_SERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=3203,
-  serialized_end=4732,
+  serialized_start=2957,
+  serialized_end=4346,
   methods=[
   _descriptor.MethodDescriptor(
     name='cros_workon_start',

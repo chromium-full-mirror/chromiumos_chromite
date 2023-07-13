@@ -11,7 +11,7 @@ service sdk_server_service {
   rpc cros_workon_list(WorkonListRequest) returns (WorkonListResponse);
   rpc cros_workon_info(WorkonInfoRequest) returns (WorkonInfoResponse);
   rpc all_packages(AllPackagesRequest) returns (AllPackagesResponse);
-  rpc repo_sync(RepoSyncRequest) returns (RepoSyncResponse);
+  rpc repo_sync(RepoSyncRequest) returns (stream RepoSyncResponse);
   rpc repo_status(RepoStatusRequest) returns (RepoStatusResponse);
   rpc update_chroot(UpdateChrootRequest) returns (stream UpdateChrootResponse);
   rpc build_packages(BuildPackagesRequest)
@@ -110,7 +110,7 @@ message UpdateChrootResponse {
 }
 
 message RepoSyncRequest {}
-message RepoSyncResponse { string info = 1; }
+message RepoSyncResponse { string logging_info = 1; }
 
 message RepoStatusRequest {}
 message RepoStatusResponse { repeated string info = 1; }

@@ -16,7 +16,7 @@ TODO: MAIN
 
     stream repo sync output, change info field to logging_info
 
-    clear logs endpoint
+    **DONE** clear logs endpoint
 
 TODO: Create new file - add ability to download log arhchive (user chosen logs)
     for bug reports
@@ -357,14 +357,13 @@ class SdkChroot(
             stderr=subprocess.STDOUT,
             encoding="utf-8",
         )
-        output = []
+
         for line in iter(lambda: process.stdout.readline(), ""):
-            output.append(line)
-
-        output = "".join(output)
-
-        response = sdk_server_pb2.RepoSyncResponse(info=output)
-        return response
+            logger.info(line)
+            response = sdk_server_pb2.RepoSyncResponse(
+                logging_info=line
+            )
+            yield response
 
     def repo_status(self, request, context):
         """Runs `repo status`."""

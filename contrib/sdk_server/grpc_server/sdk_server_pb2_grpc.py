@@ -39,7 +39,7 @@ class sdk_server_serviceStub(object):
         request_serializer=sdk__server__pb2.AllPackagesRequest.SerializeToString,
         response_deserializer=sdk__server__pb2.AllPackagesResponse.FromString,
         )
-    self.repo_sync = channel.unary_unary(
+    self.repo_sync = channel.unary_stream(
         '/cros_sdk.sdk_server_service/repo_sync',
         request_serializer=sdk__server__pb2.RepoSyncRequest.SerializeToString,
         response_deserializer=sdk__server__pb2.RepoSyncResponse.FromString,
@@ -264,7 +264,7 @@ def add_sdk_server_serviceServicer_to_server(servicer, server):
           request_deserializer=sdk__server__pb2.AllPackagesRequest.FromString,
           response_serializer=sdk__server__pb2.AllPackagesResponse.SerializeToString,
       ),
-      'repo_sync': grpc.unary_unary_rpc_method_handler(
+      'repo_sync': grpc.unary_stream_rpc_method_handler(
           servicer.repo_sync,
           request_deserializer=sdk__server__pb2.RepoSyncRequest.FromString,
           response_serializer=sdk__server__pb2.RepoSyncResponse.SerializeToString,
