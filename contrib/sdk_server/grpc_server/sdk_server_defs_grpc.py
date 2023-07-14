@@ -424,9 +424,6 @@ class SdkChroot(
 
         if build_target not specified will run with --host enabled
         """
-        logger = TempMemLogger(target=self.handler)
-        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        logger.info("REQUEST: %s cros_workon_info", req_time)
         package = request.package_info.package_name
 
         target = (
@@ -449,8 +446,6 @@ class SdkChroot(
         output = "".join(output)
 
         response = sdk_server_pb2.WorkonInfoResponse(info=output)
-        logger.info(response)
-        logger.clean_up()
         return response
 
     def cros_workon_start(self, request, context):
@@ -458,9 +453,6 @@ class SdkChroot(
 
         if build_target not specified will run with --host enabled
         """
-        logger = TempMemLogger(target=self.handler)
-        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        logger.info("REQUEST: %s cros_workon_start", req_time)
         package = request.package_info.package_name
         target = (
             f"--board={request.build_target.name}"
@@ -482,8 +474,6 @@ class SdkChroot(
         output = "".join(output)
 
         response = sdk_server_pb2.WorkonStartResponse(info=output)
-        logger.info(response)
-        logger.clean_up()
         return response
 
     def cros_workon_stop(self, request, context):
@@ -491,9 +481,6 @@ class SdkChroot(
 
         if build_target not specified will run with --host enabled
         """
-        logger = TempMemLogger(target=self.handler)
-        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        logger.info("REQUEST: %s cros_workon_stop", req_time)
         package = request.package_info.package_name
         target = (
             f"--board={request.build_target.name}"
@@ -515,8 +502,6 @@ class SdkChroot(
         output = "".join(output)
 
         response = sdk_server_pb2.WorkonStopResponse(info=output)
-        logger.info(response)
-        logger.clean_up()
         return response
 
     def cros_workon_list(self, request, context):
@@ -524,9 +509,6 @@ class SdkChroot(
 
         if build_target not specified will run with --host enabled
         """
-        logger = TempMemLogger(target=self.handler)
-        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        logger.info("REQUEST: %s cros_workon_list", req_time)
         target = (
             f"--board={request.build_target.name}"
             if request.build_target
@@ -543,7 +525,6 @@ class SdkChroot(
             common_pb2.PackageInfo(package_name=package) for package in output
         ]
         response = sdk_server_pb2.WorkonListResponse(package_info=packages)
-        logger.clean_up()
         return response
 
     def all_packages(self, request, context):
