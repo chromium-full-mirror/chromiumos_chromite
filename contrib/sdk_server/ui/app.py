@@ -71,6 +71,19 @@ async def get_logs():
     return flask.jsonify(resp[-1::-1])
 
 
+@app.route("/clear-logs", methods=["GET", "POST"])
+async def clear_logs():
+    """Clears log files."""
+
+    if request.method != "POST":
+        return redirect(url_for("index"))
+
+    req = sdk_server_pb2.ClearLogsRequest()
+    client.clear_logs(req)
+
+    return NO_RESPONSE_OK
+
+
 @app.route("/workon-start", methods=["GET", "POST"])
 async def workon_start():
     if flask.request.method != "POST":
@@ -148,6 +161,18 @@ async def repo_refresh():
             "files": files,
         }
     )
+
+
+@app.route("/repo-sync", methods=["GET", "POST"])
+async def repo_sync():
+    """Enacts repo sync and streams logging data."""
+
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    req = sdk_server_pb2.RepoSyncRequest()
+
+    return flask.Response(logGenerator(client.repo_sync, req))
 
 
 @app.route("/get-packages", methods=["GET", "POST"])
@@ -338,7 +363,7 @@ async def build_image():
 
 @app.route("/chroot-info", methods=["GET", "POST"])
 async def chroot_info():
-    """Forwards basic chroot info for info panel."""
+    """Fetches basic Chroot Info for panel."""
 
     if flask.request.method != "POST":
         return flask.redirect(flask.url_for("index"))

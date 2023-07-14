@@ -62,18 +62,18 @@ function showRepo() {
     $("#showLogs").removeClass(bottomSelectorStyle)
 }
 
-function logItemHTML(commandName, logText, now, completed){
+function logItemHTML(commandName, logText, now, completed) {
     return `
-    <li class = "row bg-dark" id = "` + now.format("x") + `liveLog">
-        <div class="col-6"><p2 class = "small text-light ms-2"><code class = "text-light">`+commandName+`</code></p2></div>
-        <div class = "col-2" id="`+now.format("x")+`status">
-        `+  (completed ?
+    <li class = "row bg-dark border-bottom border-1 border-black" id = "` + now.format("x") + `liveLog">
+        <div class="col-6"><p2 class = "small text-light ms-2"><code class = "text-light">`+ commandName + `</code></p2></div>
+        <div class = "col-2" id="`+ now.format("x") + `status">
+        `+ (completed ?
             `<p2 class="small text-success ms">Completed</p2>`
             : `<p2 class="small log-running">Running</p2>`)
-        +` </div>
+        + ` </div>
         <div class = "col-2">
-          <a href="#log`+now.format("x")+`" data-bs-toggle="collapse" role="button" 
-            aria-controls="log`+now.format("x")+`" aria-expanded="false" 
+          <a href="#log`+ now.format("x") + `" data-bs-toggle="collapse" role="button" 
+            aria-controls="log`+ now.format("x") + `" aria-expanded="false" 
             class = "d-flex align-items-center log-expander link-underline 
               link-underline-opacity-0 classic-link">
             View Log 
@@ -83,24 +83,27 @@ function logItemHTML(commandName, logText, now, completed){
           </a>
           
         </div>
-        <div class="col"><p2 class = "small text-light ms-2">`+now.format("MMM D h:mma")+`</p2></div>
-        <div class = "bg-black small overflow-auto border-top collapse log-box" id = "log`+now.format("x")+`">
-          <code class = "small text-light log-text" id = "log`+now.format("x")+`Text" >`+logText+`</code>
+        <div class="col"><p2 class = "small text-light ms-2">`+ now.format("MMM D h:mma") + `</p2></div>
+        <div class = "bg-black small overflow-auto border-top collapse log-box" id = "log`+ now.format("x") + `">
+          <code class = "small text-light log-text" id = "log`+ now.format("x") + `Text" >` + logText + `</code>
         </div>
       </li>
-    `   
+    `
 }
 
-function populateLiveLog(commandName, logText, now){
+function populateLiveLog(commandName, logText, now) {
     //log panel already exists
-    if ($("#" + now.format("x") + "liveLog").length){
+    if ($("#" + now.format("x") + "liveLog").length) {
         $("#log" + now.format("x") + "Text").html(logText);
     }
-    else{
+    else {
         //Create it
+
+        $("#noLogs").remove()
         $("#logsList").html(
             logItemHTML(commandName, logText, now, false) + $("#logsList").html()
         )
+
         //Rotates the log expander arrow
         $(".log-expander").on('click', function () {
             $(this).children("svg").toggleClass("rotate-log-button")
@@ -108,17 +111,33 @@ function populateLiveLog(commandName, logText, now){
     }
 }
 
-function populateHistoricLogs(){
+function populateHistoricLogs() {
     $.ajax({
         url: "/get-logs",
         type: "POST",
 
-        success: function(response){
+        success: function (response) {
+            foundUpdate = false
             allLogsHTML = ``;
-            response.forEach(function(log){
+            response.forEach(function (log) {
                 now = moment.unix(log.time)
                 allLogsHTML += logItemHTML(log.command, log.logs, now, true);
+                if(log.command == "update_chroot" && !foundUpdate){
+                    foundUpdate = true
+                    $("#chrootLastUpdated").html(moment(log.time).format("MMM d, YYYY"))
+                }
+
             })
+
+            if (response.length < 1) {
+                allLogsHTML = `
+                    <div class = "row bg-dark" id = "noLogs">
+                        <p2 class = "text-light ms-2">
+                            No log history found...
+                        </p2>
+                    </div>
+                `
+            }
             $("#logsList").html(allLogsHTML);
 
             $(".log-expander").on('click', function () {
@@ -126,8 +145,20 @@ function populateHistoricLogs(){
             })
         },
 
-        error: function(xhr){
+        error: function (xhr) {
             console.log("failure")
+        }
+    })
+}
+
+function clearLogs() {
+    $("#clearLogs").addClass("disabled");
+    $.post({
+        url: "/clear-logs",
+
+        success: (response) => {
+            $("#clearLogs").removeClass("disabled");
+            populateHistoricLogs()
         }
     })
 }
@@ -181,6 +212,39 @@ function populateRepoFiles() {
     });
 }
 
+function repoSync() {
+
+    now = moment()
+
+    window.onbeforeunload = function () {
+        return true;
+    };
+
+    $("#repoSync").addClass("disabled");
+    $.post({
+        url: "/repo-sync",
+
+        success: function (response) {
+            $("#repoSync").removeClass("disabled");
+            window.onbeforeunload = null;
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
+        },
+
+        xhrFields: {
+            onprogress: function (e) {
+
+                populateLiveLog(
+                    "repo_sync",
+                    e.currentTarget.response,
+                    now,
+                )
+            }
+        }
+
+
+    })
+}
+
 function populatePackages(board = "") {
 
     $.ajax({
@@ -205,7 +269,7 @@ function populatePackages(board = "") {
                     `
                     packages.forEach(function (pack) {
                         allPackagesHTML +=
-                        `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                            `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
                           <div class="col-7"><p2 class = "small text-light m-4">` + pack.name + `</p2></div>
                           <div class="col-2 d-flex">
                             <p2 class = "col small text-success"></p2>
@@ -231,22 +295,22 @@ function populatePackages(board = "") {
                               <div class="modal-body">
                                 
                                 <p2 class = "row text-white-50 ms-1">Package Name</p2>
-                                <p2 class = "row text-light ms-1">`+pack.name+`</p2>
+                                <p2 class = "row text-light ms-1">`+ pack.name + `</p2>
                             
 
-                                <p2 class = "row text-white-50 ms-1 mt-4">Repositor`+(pack.repo.length > 1 ? `ies` : `y`)+`</p2>
+                                <p2 class = "row text-white-50 ms-1 mt-4">Repositor`+ (pack.repo.length > 1 ? `ies` : `y`) + `</p2>
                                 `+
-                                    pack.repo.reduce(function(base, curr){
-                                        return base += `<p2 class = "row text-light ms-1"">`+curr+`</p2>`
-                                    }, "")
-                                +`
+                            pack.repo.reduce(function (base, curr) {
+                                return base += `<p2 class = "row text-light ms-1"">` + curr + `</p2>`
+                            }, "")
+                            + `
                             
-                                <p2 class = "row text-white-50 ms-1 mt-4">Source Director`+(pack.source.length > 1 ? `ies` : `y`)+`</p2>
+                                <p2 class = "row text-white-50 ms-1 mt-4">Source Director`+ (pack.source.length > 1 ? `ies` : `y`) + `</p2>
                                 `+
-                                    pack.source.reduce(function(base, curr){
-                                        return base += `<p2 class = "row text-light ms-1"">`+curr+`</p2>`
-                                    }, "")
-                                +`
+                            pack.source.reduce(function (base, curr) {
+                                return base += `<p2 class = "row text-light ms-1"">` + curr + `</p2>`
+                            }, "")
+                            + `
                                 
                               </div>
                               <div class="modal-footer">
@@ -283,26 +347,27 @@ function populatePackages(board = "") {
                         <p2 class = "ps-5">No packages to display for this board...</p2>
                       </row>`
                 }
-                
-                
-                if(images.length > 0){
+
+
+                if (images.length > 0) {
                     allImagesHTML += `<ul class="p-0 board-image-list" 
                     id= "`+ board + `-image-list">`
 
-                    images.forEach(function(image){
+                    images.forEach(function (image) {
                         allImagesHTML +=
-                        `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
-                          <div class="col-8"><p2 style = "display: block;" class = "small text-light ms-3">` + image.path + `</p2></div>
-                          <div class="col-2 d-flex">
+                            `<li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
+                          <div class="col-8"><p2 style = "display: block;" class = "small text-light ms-3">` + image.path
+                            + `</p2></div>
+                          <div class="col-3 d-flex">
                             <p2 class = "small text-light ms">` + image.type + `</p2>
-                          </div>
-         
-                        </li>`
+                          </div>`
+                            + (image.latest ? `<div class = "col-1"> <p2 class = "text-success"> (Latest)</p2></div>` : ``) +
+                            +`</li>`
                     })
 
                     allImagesHTML += `</ul>`
                 }
-                else{
+                else {
                     allImagesHTML += `
                     <row class="board-image-list small text-light bg-dark border-top border-black p-0 m-0"
                       id= `+ board + `-image-list>
@@ -310,14 +375,14 @@ function populatePackages(board = "") {
                       </row>`
                 }
             })
-            if(!board){
+            if (!board) {
                 $("#allBoardPackages").html(allPackagesHTML);
                 $("#allBoardImages").html(allImagesHTML);
-            }else{
-                $(`#`+ board + `-package-list`).remove()
+            } else {
+                $(`#` + board + `-package-list`).remove()
                 $("#allBoardPackages").html($("#allBoardPackages").html() + allPackagesHTML);
             }
-            
+
 
             //Packages board dropdown selection logic
             var boardName = $('#boardSelector li a.active').html()
@@ -419,18 +484,18 @@ function workonStop() {
     });
 }
 
-function updateChroot(){
+function updateChroot() {
 
     $("#updateChrootSubmit").addClass("disabled");
 
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
         return true;
     };
 
     buildSource = $('#buildSourceCheck').is(':checked');
     toolchainChanged = $("#toolchainChangedCheck").is(":checked");
     toolchainTargets = []
-    $("#updateToolchainTargets").select2("data").forEach(function(board){
+    $("#updateToolchainTargets").select2("data").forEach(function (board) {
         toolchainTargets.push(board.text);
     })
 
@@ -445,25 +510,25 @@ function updateChroot(){
             toolchainTargets: toolchainTargets
         }),
         contentType: "application/json",
-        
-        success: function(response){
+
+        success: function (response) {
             $("#updateChrootSubmit").removeClass("disabled");
             window.onbeforeunload = null;
             $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
         },
 
-        error: function(xhr){
+        error: function (xhr) {
             console.log("failure");
             console.log(xhr)
             $("#updateChrootSubmit").removeClass("disabled");
         },
 
         xhrFields: {
-            onprogress: function(e){
+            onprogress: function (e) {
 
                 populateLiveLog(
-                    "update_chroot", 
-                    e.currentTarget.response, 
+                    "update_chroot",
+                    e.currentTarget.response,
                     now,
                 )
             }
@@ -471,10 +536,10 @@ function updateChroot(){
     })
 }
 
-function replaceChroot(){
+function replaceChroot() {
     $("#replaceChrootSubmit").addClass("disabled");
 
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
         return true;
     };
 
@@ -493,7 +558,7 @@ function replaceChroot(){
         dataType: "json",
         contentType: "application/json",
 
-        success: function(response){
+        success: function (response) {
             $("#replaceChrootSubmit").removeClass("disabled");
             location.reload();
             window.onbeforeunload = null;
@@ -501,16 +566,16 @@ function replaceChroot(){
             $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
         },
 
-        error: function(xhr){
+        error: function (xhr) {
             console.log("failure");
         },
 
         xhrFields: {
-            onprogress: function(e){
+            onprogress: function (e) {
 
                 populateLiveLog(
-                    "replace_chroot", 
-                    e.currentTarget.response, 
+                    "replace_chroot",
+                    e.currentTarget.response,
                     now
                 )
             }
@@ -519,10 +584,10 @@ function replaceChroot(){
     })
 }
 
-function buildPackages(){
+function buildPackages() {
     $("#buildPackagesSubmit").addClass("disabled");
 
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
         return true;
     };
 
@@ -542,8 +607,8 @@ function buildPackages(){
         type: "POST",
         data: JSON.stringify({
             chrootCurrent: chrootCurrent,
-            replace : replace,
-            toolchainChanged : toolchainChanged,
+            replace: replace,
+            toolchainChanged: toolchainChanged,
             CQPrebuilts: CQPrebuilts,
             buildTarget: buildTarget,
             compileSource: compileSource,
@@ -553,23 +618,23 @@ function buildPackages(){
 
         contentType: "application/json",
 
-        success: function(response){
+        success: function (response) {
             $("#buildPackagesSubmit").removeClass("disabled");
             window.onbeforeunload = null;
 
             $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
         },
 
-        error: function(xhr){
+        error: function (xhr) {
             console.log("failure");
         },
 
         xhrFields: {
-            onprogress: function(e){
+            onprogress: function (e) {
 
                 populateLiveLog(
-                    "build_packages", 
-                    e.currentTarget.response, 
+                    "build_packages",
+                    e.currentTarget.response,
                     now
                 )
             }
@@ -578,7 +643,7 @@ function buildPackages(){
     })
 }
 
-function buildSinglePackage(){
+function buildSinglePackage() {
     $(this).addClass("disabled");
 
     var board = $(this).parents("ul")[0].id;
@@ -594,8 +659,8 @@ function buildSinglePackage(){
             package: $(this).parents("div")[0].id,
 
             chrootCurrent: false,
-            replace : false,
-            toolchainChanged : false,
+            replace: false,
+            toolchainChanged: false,
             CQPrebuilts: false,
             compileSource: false,
             dryrun: false,
@@ -603,18 +668,18 @@ function buildSinglePackage(){
         }),
         contentType: "application/json",
 
-        success: function(response){
+        success: function (response) {
             $(this).removeClass("disabled");
             window.onbeforeunload = null;
 
             $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
         },
         xhrFields: {
-            onprogress: function(e){
+            onprogress: function (e) {
 
                 populateLiveLog(
-                    "build_packages", 
-                    e.currentTarget.response, 
+                    "build_packages",
+                    e.currentTarget.response,
                     now
                 )
             }
@@ -623,10 +688,10 @@ function buildSinglePackage(){
 
 }
 
-function buildImage(){
+function buildImage() {
     $("#buildImage").addClass("disabled");
     now = moment()
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
         return true;
     };
 
@@ -644,7 +709,7 @@ function buildImage(){
 
         contentType: "application/json",
 
-        success: function(response){
+        success: function (response) {
             $("#buildImage").removeClass("disabled");
             window.onbeforeunload = null;
 
@@ -652,14 +717,27 @@ function buildImage(){
         },
 
         xhrFields: {
-            onprogress: function(e){
+            onprogress: function (e) {
                 populateLiveLog(
                     "build_image",
                     e.currentTarget.response,
                     now
-                    
+
                 )
             }
+        }
+    })
+}
+
+function populateChrootInfo() {
+    $.post({
+        url: "/chroot-info",
+
+        success: (response) => {
+            $("#chrootCreated").html(moment(response.date_created).format("MMM d, YYYY"))
+            $("#chrootLastUpdated").html(moment(response.date_created).format("MMM d, YYYY"))
+            $("#chrootPath").html(response.path.path)
+            $("#chrootVersion").html(response.version.version)
         }
     })
 }
@@ -673,6 +751,7 @@ $(document).ready(function () {
     populateRepoFiles();
     populatePackages();
     populateHistoricLogs()
+    populateChrootInfo();
 
     //Activates tooltips
     const tooltipTriggerList = document.querySelectorAll(
@@ -682,7 +761,7 @@ $(document).ready(function () {
         tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)
     )
 
-    
+
 
     //Activates select2s (the large dropdowns with search bars)
     $(".update-select").select2({
@@ -718,7 +797,8 @@ $(document).ready(function () {
     $("#replaceChrootSubmit").on("click", replaceChroot);
     $("#buildPackagesSubmit").on("click", buildPackages);
     $("#buildImageSubmit").on("click", buildImage);
-    
+    $("#clearLogs").on("click", clearLogs);
+    $("#repoSync").on("click", repoSync);
 
-    
+
 });
