@@ -206,6 +206,11 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         )
 
     def SetupVartree(self, vartree_pkgs):
+        self.PatchObject(
+            self.scanner,
+            "_get_portage_interpreter",
+            return_value="FAKE_PYTHON",
+        )
         self.device.agent.remote_sh_output = json.dumps(vartree_pkgs)
 
     def SetupBintree(self, bintree_pkgs):
@@ -424,6 +429,18 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(installs, [app1, app7], constraints=[(app1, app7)])
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 1)
+
+    def test_get_portage_interpreter(self):
+        """Test getting the portage interpreter from the device."""
+        self.device.agent.remote_sh_output = """\
+/usr/lib/python-exec/python3.6/emerge
+/usr/lib/python-exec/python3.8/emerge
+/usr/lib/python-exec/python3.11/emerge
+"""
+        self.assertEqual(
+            self.scanner._get_portage_interpreter(self.device),
+            "python3.11",
+        )
 
 
 class TestDeploy(

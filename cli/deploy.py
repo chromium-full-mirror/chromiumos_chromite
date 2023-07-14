@@ -17,6 +17,7 @@ import json
 import logging
 import os
 from pathlib import Path
+import re
 import tempfile
 from typing import Dict, List, NamedTuple, Set, Tuple
 
@@ -455,6 +456,36 @@ print(json.dumps(pkg_info))
 
         return db
 
+    def _get_portage_interpreter(
+        self, device: remote_access.RemoteDevice
+    ) -> str:
+        """Get the Python interpreter that should be used for Portage.
+
+        Args:
+            device: The device to find the interpreter on.
+
+        Returns:
+            The executable that should be used for Python.
+        """
+        result = device.agent.RemoteSh(
+            "ls -1 /usr/lib/python-exec/python*/emerge"
+        )
+        emerge_bins = [Path(x) for x in result.stdout.splitlines()]
+        if not emerge_bins:
+            raise self.VartreeError(
+                "No suitable Python interpreter found for Portage."
+            )
+
+        # If Portage is installed for multiple Python versions, prefer the
+        # interpreter with the highest version.
+        def _parse_version(name):
+            match = re.fullmatch(r"python(\d+)\.(\d+)", name)
+            if match:
+                return tuple(int(x) for x in match.groups())
+            return (0, 0)
+
+        return max((x.parent.name for x in emerge_bins), key=_parse_version)
+
     def _InitTargetVarDB(
         self,
         device: remote_access.RemoteDevice,
@@ -464,9 +495,10 @@ print(json.dumps(pkg_info))
     ) -> None:
         """Initializes a dictionary of packages installed on |device|."""
         get_vartree_script = self._GetVartreeSnippet(root)
+        python = self._get_portage_interpreter(device)
         try:
             result = device.agent.RemoteSh(
-                ["python"], remote_sudo=True, input=get_vartree_script
+                [python], remote_sudo=True, input=get_vartree_script
             )
         except cros_build_lib.RunCommandError as e:
             logging.error("Cannot get target vartree:\n%s", e.stderr)
