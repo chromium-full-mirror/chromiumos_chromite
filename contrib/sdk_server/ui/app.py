@@ -52,7 +52,7 @@ def logGenerator(endpoint, req):
 
 
 @app.route("/get-logs", methods=["GET", "POST"])
-async def get_logs():
+def get_logs():
     if flask.request.method != "POST":
         return flask.redirect(flask.url_for("index"))
 
@@ -72,11 +72,11 @@ async def get_logs():
 
 
 @app.route("/clear-logs", methods=["GET", "POST"])
-async def clear_logs():
+def clear_logs():
     """Clears log files."""
 
-    if request.method != "POST":
-        return redirect(url_for("index"))
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
 
     req = sdk_server_pb2.ClearLogsRequest()
     client.clear_logs(req)
@@ -85,7 +85,7 @@ async def clear_logs():
 
 
 @app.route("/workon-start", methods=["GET", "POST"])
-async def workon_start():
+def workon_start():
     if flask.request.method != "POST":
         # Handles user just going to /workon-start, rather than via the button.
         return flask.redirect(flask.url_for("index"))
@@ -107,7 +107,7 @@ async def workon_start():
 
 
 @app.route("/workon-stop", methods=["GET", "POST"])
-async def workon_stop():
+def workon_stop():
     if flask.request.method != "POST":
         # Handles user just going to /workon-stop, rather than via the button.
         return flask.redirect(flask.url_for("index"))
@@ -130,7 +130,7 @@ async def workon_stop():
 
 
 @app.route("/repo-refresh", methods=["GET", "POST"])
-async def repo_refresh():
+def repo_refresh():
     """App route to run gRPC repo status endpoint and parse."""
 
     if flask.request.method != "POST":
@@ -164,7 +164,7 @@ async def repo_refresh():
 
 
 @app.route("/repo-sync", methods=["GET", "POST"])
-async def repo_sync():
+def repo_sync():
     """Enacts repo sync and streams logging data."""
 
     if flask.request.method != "POST":
@@ -176,7 +176,7 @@ async def repo_sync():
 
 
 @app.route("/get-packages", methods=["GET", "POST"])
-async def get_packages():
+def get_packages():
     """App route to get packages from gRPC server."""
 
     if flask.request.method != "POST":
@@ -215,7 +215,7 @@ async def get_packages():
             pkg = controller_util.deserialize_package_info(pkg_msg)
             board_packages_data += [
                 {
-                    "name": pkg.atom,
+                    "name": pkg.atom.strip(),
                     "repo": repo,
                     "source": source,
                 }
@@ -227,6 +227,7 @@ async def get_packages():
                 {
                     "path": image.path,
                     "type": common.ImageType.Name(image.type),
+                    "latest": (image == board.latest),
                 }
             ]
 
@@ -239,7 +240,7 @@ async def get_packages():
 
 
 @app.route("/update-chroot", methods=["GET", "POST"])
-async def update_chroot():
+def update_chroot():
     """App route to call BAPI Update."""
 
     if flask.request.method != "POST":
@@ -263,7 +264,7 @@ async def update_chroot():
 
 
 @app.route("/replace-chroot", methods=["GET", "POST"])
-async def replace_chroot():
+def replace_chroot():
     """Forwards requests for replace chroot endpoint."""
     if flask.request.method != "POST":
         return flask.redirect(flask.url_for("index"))
@@ -274,17 +275,17 @@ async def replace_chroot():
         no_use_image=flask.request.json["noUseImage"],
     )
 
-    req = sdk_server_pb2.UpdateChrootRequest(
-        sdk_pb2.UpdateRequest(
+    req = sdk_server_pb2.ReplaceSdkRequest(
+        request=sdk_pb2.CreateRequest(
             flags=flags, sdk_version=flask.request.json["version"]
         )
     )
 
-    return flask.Response(logGenerator(client.replace_chroot, req))
+    return flask.Response(logGenerator(client.replace_sdk, req))
 
 
 @app.route("/build-packages", methods=["GET", "POST"])
-async def build_packages():
+def build_packages():
     """Formulates/forwards all 3 requests for build packages endpoint."""
     if flask.request.method != "POST":
         return flask.redirect(flask.url_for("index"))
@@ -321,7 +322,7 @@ async def build_packages():
             dryrun=flask.request.json["dryrun"],
             workon=flask.request.json["workon"],
         ),
-        packages=[package],
+        packages=[package] if package else [],
     )
 
     req = sdk_server_pb2.BuildPackagesRequest(
@@ -334,7 +335,7 @@ async def build_packages():
 
 
 @app.route("/build-image", methods=["GET", "POST"])
-async def build_image():
+def build_image():
     """Forwards build image request to gRPC server."""
 
     if flask.request.method != "POST":
@@ -362,7 +363,7 @@ async def build_image():
 
 
 @app.route("/chroot-info", methods=["GET", "POST"])
-async def chroot_info():
+def chroot_info():
     """Fetches basic Chroot Info for panel."""
 
     if flask.request.method != "POST":
@@ -382,7 +383,7 @@ def index():
     return flask.render_template("index.html", data=index_data)
 
 
-async def setup():
+def setup():
     """Populates initial templating data from gRPC requests."""
 
     # List of all boards for various menus.
@@ -402,6 +403,6 @@ async def setup():
 def main(argv: Optional[List[str]]) -> Optional[int]:
     """Runs setup and hosts the Flask app."""
 
-    asyncio.run(setup())
+    setup()
     app.jinja_env.auto_reload = True
     app.run(debug=True, host="0.0.0.0")
