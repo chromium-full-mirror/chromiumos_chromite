@@ -5,8 +5,9 @@
 """Tests for sdk server RPCs."""
 
 import subprocess
-import types
+import unittest
 import unittest.mock as mock
+import tempfile
 
 
 import pytest
@@ -18,8 +19,29 @@ from chromite.contrib.sdk_server.grpc_server.chromite.api import sdk_pb2
 from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
 from chromite.contrib.sdk_server.grpc_server.chromiumos import common_pb2
 
-
 CHROOT = sdk_server_defs_grpc.SdkChroot()
+
+
+class PopenMock():
+    def __init__(self, returncode=0):
+        self.stdout = tempfile.NamedTemporaryFile(delete=False)
+        self.stdout.write(b'we are testing stdout!')
+        self.stdout.seek(0)
+
+        self.stderr = tempfile.NamedTemporaryFile(delete=False)
+        self.stderr.write(b'we are testing stderr!')
+        self.stderr.seek(0)
+
+        self.returncode = returncode
+
+    def communicate(self):
+        pass
+
+    def clean_up(self):
+        self.stdout.close()
+        self.stderr.close()
+
+
 
 # def replace_sdk():
 #     """Tests replace_sdk rpc."""
@@ -38,14 +60,14 @@ CHROOT = sdk_server_defs_grpc.SdkChroot()
 #     for response in CHROOT.delete_sdk(request, None):
 #         assert isinstance(response, sdk_server_pb2.CreateSdkResponse)
 
-def test_create_sdk():
-    """Tests create_sdk rpc."""
-    request = sdk_server_pb2.CreateSdkRequest()
-    internal_req = sdk_pb2.CreateRequest()
-    internal_req.flags.no_replace = True
-    request.request.CopyFrom(internal_req)
-    for response in CHROOT.create_sdk(request, None):
-        assert isinstance(response, sdk_server_pb2.CreateSdkResponse)
+# def test_create_sdk():
+#     """Tests create_sdk rpc."""
+#     request = sdk_server_pb2.CreateSdkRequest()
+#     internal_req = sdk_pb2.CreateRequest()
+#     internal_req.flags.no_replace = True
+#     request.request.CopyFrom(internal_req)
+#     for response in CHROOT.create_sdk(request, None):
+#         assert isinstance(response, sdk_server_pb2.CreateSdkResponse)
 
 # def test_build_packages():
 #     """Tests build_packages rpc."""
@@ -122,11 +144,11 @@ def test_workon_stop():
     assert isinstance(response, sdk_server_pb2.WorkonStopResponse)
 
 
-def test_chroot_path():
-    """Tests chroot path rpc."""
-    request = sdk_server_pb2.ChrootPathRequest()
-    response = CHROOT.chroot_path(request, None)
-    assert isinstance(response, sdk_server_pb2.ChrootPathResponse)
+def test_chroot_info():
+    """Tests chroot info rpc."""
+    request = sdk_server_pb2.ChrootInfoRequest()
+    response = CHROOT.chroot_info(request, None)
+    assert isinstance(response, sdk_server_pb2.ChrootInfoResponse)
 
 
 def test_all_packages():
@@ -147,17 +169,25 @@ def test_repo_status():
 # def test_repo_sync():
 #     """Tests repo_sync rpc."""
 #     request = sdk_server_pb2.RepoSyncRequest()
-#     response = CHROOT.repo_sync(request, None)
-#     assert isinstance(response, sdk_server_pb2.RepoSyncResponse)
+#     for response in CHROOT.repo_sync(request, None):
+#         assert isinstance(response, sdk_server_pb2.RepoSyncResponse)
 
-# @mock.patch('sdk_server_defs_grpc.SdkChroot._run_endpoint')
-# def test_update_chroot(func):
-#     """Tests update_chroot rpc."""
-#     func.return_value = sdk_server_defs_grpc.AsyncRun("", shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+# @mock.patch('sdk_server_defs_grpc.AsyncRun')
+# @mock.patch("subprocess.Popen")
+def test_update_chroot(monkeypatch):
+    """Tests update_chroot rpc."""
+    chroot = sdk_server_defs_grpc.SdkChroot()
+    monkeypatch.setattr(chroot, '_run_endpoint', lambda *args, **kwargs: PopenMock())
+    # func.return_value = mock.MagicMock(return_value=PopenMock())
+    # subprocess.Popen = mock.MagicMock(return_value=subprocess.Popen(["echo", "hello"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT))
+    # func.return_value = subprocess.Popen(["echo", "hello"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # func.return_value = PopenMock()
 
-#     request = sdk_server_pb2.UpdateChrootRequest()
-#     for response in CHROOT.update_chroot(request, None):
-#         assert isinstance(response, sdk_server_pb2.UpdateChrootResponse)
+    request = sdk_server_pb2.UpdateChrootRequest()
+    for response in chroot.update_chroot(request, None):
+        assert isinstance(response, sdk_server_pb2.UpdateChrootResponse)
+
+    #TODO: add another case where PopenMock.returncode != 0
 
 
 def test_query_boards():

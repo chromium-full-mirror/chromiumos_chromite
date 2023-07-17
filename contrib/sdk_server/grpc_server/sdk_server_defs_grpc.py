@@ -18,13 +18,10 @@ TODO: MAIN
 
     **DONE** clear logs endpoint
 
-TODO: Create new file - add ability to download log arhchive (user chosen logs)
-    for bug reports
+    Use chromite.lib.workon_helper.ListAllWorkedOnAtoms to get all packages being worked on
+        -- add to chroot_info rpc
 
-TODO: possible errors:
-    what if all packages output is an error? - need logging_info in response?
-    what about the other non bapi endpoints? ^
-    check chroot or boards exist for certain calls
+TODO: Move copying of outputfile of bapi calls to after process.communicate
 """
 import datetime
 import json
@@ -280,6 +277,7 @@ class SdkChroot(
                 logger.clean_up()
 
     def get_methods(self, request, context):
+        """Calls MethodGet BAPI endpoint."""
         with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
             with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
                 tempinput.write("{}")
@@ -336,6 +334,7 @@ class SdkChroot(
         return response
 
     def get_logs(self, request, context):
+        """Sends a formated copy of current log file"""
         logfile = self.handler.baseFilename
         logs = []
         with open(logfile, "r+") as f:
