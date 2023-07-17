@@ -211,16 +211,38 @@ def current_boards(
 
 
 def get_logs(request: sdk_server_pb2.LogsRequest):
+    """Sends request to get grpc server logs."""
     with grpc.insecure_channel("localhost:50051") as channel:
         stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
         response = stub.get_logs(request)
         return response
 
+
 def clear_logs(request: sdk_server_pb2.ClearLogsRequest):
+    """Sends request to clear grpc server logs."""
     with grpc.insecure_channel("localhost:50051") as channel:
         stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
         response = stub.clear_logs(request)
         return response
+
+def get_methods(request: sdk_server_pb2.MethodsRequest):
+    """Sends grpc request to run the BAPI MethodGet endpoint."""
+    with grpc.insecure_channel("localhost:50051") as channel:
+        stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
+        response = stub.get_methods(request)
+        return response
+
+def custom_endpoint(request: sdk_server_pb2.CustomRequest):
+    """Sends grpc request to run a chosen BAPI endpoint."""
+    with grpc.insecure_channel("localhost:50051") as channel:
+        stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
+        finalResp = None
+        for response in stub.custom_endpoint(request):
+            finalResp = response
+            yield response
+
+        yield finalResp
+
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     pass

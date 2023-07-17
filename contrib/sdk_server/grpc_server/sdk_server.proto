@@ -3,6 +3,7 @@ package cros_sdk;
 import "chromite/api/sysroot.proto";
 import "chromite/api/sdk.proto";
 import "chromite/api/image.proto";
+import "chromite/api/api.proto";
 import "chromiumos/common.proto";
 
 service sdk_server_service {
@@ -25,6 +26,23 @@ service sdk_server_service {
   rpc get_logs(LogsRequest) returns (LogsResponse);
   rpc chroot_info(ChrootInfoRequest) returns (ChrootInfoResponse);
   rpc clear_logs(ClearLogsRequest) returns (ClearLogsResponse);
+  rpc get_methods(MethodsRequest) returns (MethodsResponse);
+  rpc custom_endpoint(CustomRequest) returns (stream CustomResponse);
+}
+
+message CustomRequest{
+  string endpoint = 1;
+  string request = 2;
+}
+
+message CustomResponse{
+  string logging_info = 1;
+  string response = 2;
+}
+
+message MethodsRequest{}
+message MethodsResponse{
+  chromite.api.MethodGetResponse response = 1;
 }
 
 message ClearLogsRequest {}

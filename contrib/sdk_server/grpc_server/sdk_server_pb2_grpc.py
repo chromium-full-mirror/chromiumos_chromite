@@ -104,6 +104,16 @@ class sdk_server_serviceStub(object):
         request_serializer=sdk__server__pb2.ClearLogsRequest.SerializeToString,
         response_deserializer=sdk__server__pb2.ClearLogsResponse.FromString,
         )
+    self.get_methods = channel.unary_unary(
+        '/cros_sdk.sdk_server_service/get_methods',
+        request_serializer=sdk__server__pb2.MethodsRequest.SerializeToString,
+        response_deserializer=sdk__server__pb2.MethodsResponse.FromString,
+        )
+    self.custom_endpoint = channel.unary_stream(
+        '/cros_sdk.sdk_server_service/custom_endpoint',
+        request_serializer=sdk__server__pb2.CustomRequest.SerializeToString,
+        response_deserializer=sdk__server__pb2.CustomResponse.FromString,
+        )
 
 
 class sdk_server_serviceServicer(object):
@@ -236,6 +246,20 @@ class sdk_server_serviceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def get_methods(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def custom_endpoint(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_sdk_server_serviceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -328,6 +352,16 @@ def add_sdk_server_serviceServicer_to_server(servicer, server):
           servicer.clear_logs,
           request_deserializer=sdk__server__pb2.ClearLogsRequest.FromString,
           response_serializer=sdk__server__pb2.ClearLogsResponse.SerializeToString,
+      ),
+      'get_methods': grpc.unary_unary_rpc_method_handler(
+          servicer.get_methods,
+          request_deserializer=sdk__server__pb2.MethodsRequest.FromString,
+          response_serializer=sdk__server__pb2.MethodsResponse.SerializeToString,
+      ),
+      'custom_endpoint': grpc.unary_stream_rpc_method_handler(
+          servicer.custom_endpoint,
+          request_deserializer=sdk__server__pb2.CustomRequest.FromString,
+          response_serializer=sdk__server__pb2.CustomResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

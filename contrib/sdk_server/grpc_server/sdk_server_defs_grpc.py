@@ -51,6 +51,7 @@ from chromite.third_party.google.protobuf import json_format
 from chromite.api import controller
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2_grpc
+from chromite.contrib.sdk_server.grpc_server.chromite.api import api_pb2
 from chromite.contrib.sdk_server.grpc_server.chromite.api import image_pb2
 from chromite.contrib.sdk_server.grpc_server.chromite.api import sdk_pb2
 from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
@@ -244,6 +245,60 @@ class SdkChroot(
         self.handler.setLevel(logging.DEBUG)
         self.logger.addHandler(self.handler)
 
+    def custom_endpoint(self, request, context):
+        """Runs a chosen BAPI endpoint."""
+        logger = TempMemLogger(target=self.handler)
+        req_time = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        logger.info("REQUEST: %s %s", req_time, request.endpoint)
+        with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
+            with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
+                input_content = request.request
+                osutils.WriteFile(tempinput.name, input_content)
+                process = self._run_endpoint(
+                    request.endpoint, tempinput.name, tempoutput.name
+                )
+
+                for line in iter(lambda: process.stdout.readline(), ""):
+                    logger.info(line)
+                    response = sdk_server_pb2.CustomResponse(logging_info=line)
+                    yield response
+
+                process.communicate()
+                contents = osutils.ReadFile(tempoutput.name)
+                response = sdk_server_pb2.CustomResponse()
+                self._update_chroot_info()
+                if process.returncode in VALID_RETURN_CODES:
+                    response.response = contents
+                    process.stdout.close()
+                    yield response
+                else:
+                    logger.info(ERROR_OCCURRED)
+                    response.logging_info = ERROR_OCCURRED
+                    process.stdout.close()
+                    yield response
+
+                logger.clean_up()
+
+    def get_methods(self, request, context):
+        with tempfile.NamedTemporaryFile(mode="w+") as tempinput:
+            with tempfile.NamedTemporaryFile(mode="w+") as tempoutput:
+                tempinput.write("{}")
+                tempinput.seek(0)
+
+                process = self._run_endpoint(
+                    "chromite.api.MethodService/Get",
+                    tempinput.name,
+                    tempoutput.name,
+                )
+                process.communicate()
+                contents = osutils.ReadFile(tempoutput.name)
+                response = sdk_server_pb2.MethodsResponse()
+                internal_resp = api_pb2.MethodGetResponse()
+                json_format.Parse(contents, internal_resp)
+                response.response.CopyFrom(internal_resp)
+                process.stdout.close()
+                return response
+
     def clear_logs(self, request, context):
         """Clears current log file."""
         prev_size = self.log_path.stat().st_size
@@ -293,7 +348,7 @@ class SdkChroot(
                     command=command, time=log_time, logs=log
                 )
                 logs.append(message)
-        response = sdk_server_pb2.LogsResponse(log=logs)
+        response = sdk_server_pb2.LogsResponse(logs=logs)
         return response
 
     def current_boards(self, request, context):
@@ -552,8 +607,10 @@ class SdkChroot(
         script = [
             f"{constants.HOME_DIRECTORY}/chromiumos/chromite/bin/build_api",
             endpoint,
-            "--input-json", inputfile,
-            "--output-json", outputfile,
+            "--input-json",
+            inputfile,
+            "--output-json",
+            outputfile,
             "--debug",
         ]
 
