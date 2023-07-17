@@ -362,11 +362,12 @@ Supported file names: %s
             if misformatted_file:
                 misformatted_files = [str(misformatted_file)]
         else:
+            ret = 0
             # Run the tool in parallel on the files.
             for task_ret, task_file in parallel.RunTasksInProcessPool(
                 dispatcher, tasks
             ):
-                ret = task_ret or 0
+                ret += task_ret
                 if task_file:
                     misformatted_files.append(str(task_file))
 

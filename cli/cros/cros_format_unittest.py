@@ -112,6 +112,26 @@ class FormatCommandTempDirTests(
             self.assertEqual(1, cmd.Run())
             self.assertEqual(" ", file.read_text(encoding="utf-8"))
 
+    def checkMultipleFiles(self, contents, expected_ret):
+        """Helper to check behavior with --check with multiple files."""
+        files = []
+        for i, content in enumerate(contents):
+            file = self.tempdir / f"foo.{i}.txt"
+            files.append(str(file))
+            file.write_text(content, encoding="utf-8")
+        for arg in ("-n", "--dry-run", "--check"):
+            opts = self.parse_args([arg, *files])
+            cmd = cros_format.FormatCommand(opts)
+            self.assertEqual(cmd.Run(), expected_ret)
+
+    def testCheckMultipleFilesWithFirstBroken(self):
+        """Check --check fails when the first supplied file is broken."""
+        self.checkMultipleFiles([" ", ""], 1)
+
+    def testCheckMultipleFilesWithLastBroken(self):
+        """Check --check fails when the last supplied file is broken."""
+        self.checkMultipleFiles(["", " "], 1)
+
     def testStdoutFile(self):
         """Check behavior with --stdout file."""
         file = self.tempdir / "foo.txt"
