@@ -692,15 +692,19 @@ class BundleTestUpdatePayloadsTest(
         )
 
         actual = [
-            os.path.relpath(artifact.artifact_path.path, self.archive_root)
+            os.path.basename(artifact.artifact_path.path)
             for artifact in self.output_proto.artifacts
         ]
         expected = ["payload1.bin", "payload2.bin"]
         self.assertCountEqual(actual, expected)
 
         actual = [
-            os.path.relpath(path, self.archive_root)
-            for path in osutils.DirectoryIterator(self.archive_root)
+            os.path.basename(path)
+            for path in osutils.DirectoryIterator(
+                os.path.dirname(
+                    self.output_proto.artifacts[0].artifact_path.path
+                )
+            )
         ]
         self.assertCountEqual(actual, expected)
 
