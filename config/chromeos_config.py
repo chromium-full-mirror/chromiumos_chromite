@@ -693,44 +693,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     ]
 
     for unibuild in config_lib.GetUnifiedBuildConfigAllBuilds(ge_build_config):
-        models = []
-        for model in unibuild[config_lib.CONFIG_TEMPLATE_MODELS]:
-            name = model[config_lib.CONFIG_TEMPLATE_MODEL_NAME]
-            lab_board_name = config_lib.GetNonUniBuildLabBoardName(
-                model[config_lib.CONFIG_TEMPLATE_MODEL_BOARD_NAME]
-            )
-            enable_skylab = True
-            if (
-                lab_board_name in _release_enable_skylab_hwtest
-                and lab_board_name in _release_enable_skylab_partial_boards
-                and name
-                not in _release_enable_skylab_partial_boards[lab_board_name]
-            ):
-                enable_skylab = False
-
-            if config_lib.CONFIG_TEMPLATE_MODEL_TEST_SUITES in model:
-                test_suites = model[
-                    config_lib.CONFIG_TEMPLATE_MODEL_TEST_SUITES
-                ]
-                models.append(
-                    config_lib.ModelTestConfig(
-                        name,
-                        lab_board_name,
-                        test_suites,
-                        enable_skylab=enable_skylab,
-                    )
-                )
-            else:
-                no_model_test_suites = []
-                models.append(
-                    config_lib.ModelTestConfig(
-                        name,
-                        lab_board_name,
-                        no_model_test_suites,
-                        enable_skylab=enable_skylab,
-                    )
-                )
-
         reference_board_name = unibuild[
             config_lib.CONFIG_TEMPLATE_REFERENCE_BOARD_NAME
         ]
@@ -745,7 +707,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
             important = False
 
         props = {
-            "models": models,
             "important": important,
         }
         if config_name in _no_unittest_configs:
