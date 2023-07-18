@@ -58,7 +58,7 @@ def get_logs():
 
     logsResponse = client.get_logs(sdk_server_pb2.LogsRequest())
     resp = []
-    for log in logsResponse.log:
+    for log in logsResponse.logs:
         if log.command not in COMMANDS_TO_IGNORE:
             second_line = log.logs.index("\n\n") + 2
 
@@ -190,21 +190,24 @@ def get_packages():
     # May request just for a single board (when updating from stop/start),
     # but default should be all boards (for page loading).
     if flask.request.json["board"]:
-        boards_to_get = [common.BuildTarget(name=flask.request.json["board"])]
+        boards_to_get = [
+            sdk_server_pb2.BoardImages(
+                build_target=common.BuildTarget(name=flask.request.json["board"])
+            )
+        ]
     else:
-        current_boards = client.current_boards(
+        boards_to_get = client.current_boards(
             sdk_server_pb2.CurrentBoardsRequest()
-        )
-        boards_to_get = current_boards.build_target
+        ).board_images
 
     for board in boards_to_get:
-        req = sdk_server_pb2.WorkonListRequest(build_target=board)
+        req = sdk_server_pb2.WorkonListRequest(build_target=board.build_target)
         board_packages = (client.cros_workon_list(req)).package_info
         board_packages_data = []
 
         for pkg_msg in board_packages:
             req = sdk_server_pb2.WorkonInfoRequest(
-                build_target=board, package_info=pkg_msg
+                build_target=board.build_target, package_info=pkg_msg
             )
 
             # Parse info for modals.
@@ -222,7 +225,7 @@ def get_packages():
             ]
 
         board_images_data = []
-        for image in board.image:
+        for image in board.images:
             board_images_data += [
                 {
                     "path": image.path,
@@ -410,7 +413,9 @@ def setup():
     current_boards = client.current_boards(
         sdk_server_pb2.CurrentBoardsRequest()
     )
-    current_boards = sorted([b.build_target.name for b in current_boards.board])
+    current_boards = sorted(
+        [b.build_target.name for b in current_boards.board_images]
+    )
     index_data["current_boards"] = current_boards
 
     all_endpoints = client.get_methods(sdk_server_pb2.MethodsRequest()).response

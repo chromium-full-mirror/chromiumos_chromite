@@ -199,14 +199,14 @@ def test_get_packages_all(client):
     board2 = common_pb2.BuildTarget(name="betty")
 
     bi1 = sdk_server_pb2.BoardImages(
-        build_target=board1, image=[im1, im2], latest=im2
+        build_target=board1, images=[im1, im2], latest=im2
     )
 
     bi2 = sdk_server_pb2.BoardImages(
         build_target=board2,
     )
 
-    cb_response = sdk_server_pb2.CurrentBoardsResponse(board=[bi1, bi2])
+    cb_response = sdk_server_pb2.CurrentBoardsResponse(board_images=[bi1, bi2])
 
     sdk_client.current_boards = mock.MagicMock(return_value=cb_response)
 
