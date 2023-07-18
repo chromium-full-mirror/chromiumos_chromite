@@ -275,16 +275,15 @@ Supported file names: %s
 
         # Ignore generated files.  Some tools can do this for us, but not all,
         # and it'd be faster if we just never spawned the tools in the first
-        # place.
+        # place.  Prepend to exclude them early: a more general filter like
+        # `--include "*.py"` earlier in the list would otherwise nerf this.
         # TODO(build): Move to a centralized configuration somewhere.
-        self.options.filter.rules.extend(
-            (
-                # Compiled python protobuf bindings.
-                path_filter.exclude("*_pb2.py"),
-                path_filter.exclude("*_pb2_grpc.py"),
-                # Vendored third-party code.
-                path_filter.exclude("*third_party/*.py"),
-            )
+        self.options.filter.rules[:0] = (
+            # Compiled python protobuf bindings.
+            path_filter.exclude("*_pb2.py"),
+            path_filter.exclude("*_pb2_grpc.py"),
+            # Vendored third-party code.
+            path_filter.exclude("*third_party/*.py"),
         )
 
         files = self.options.filter.filter(files)
