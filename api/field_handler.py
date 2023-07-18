@@ -166,7 +166,7 @@ class PathHandler:
             return
 
         # Create a tempdir for the copied file if we're cleaning it up
-        # afterwords.
+        # afterwards.
         if self.delete:
             self.tempdir = osutils.TempDir(base_dir=self.destination)
             destination = self.tempdir.tempdir
