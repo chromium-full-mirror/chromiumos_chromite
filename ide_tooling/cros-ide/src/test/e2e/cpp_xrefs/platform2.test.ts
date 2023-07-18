@@ -3,9 +3,16 @@
 // found in the LICENSE file.
 
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
-import {ChrootService, Packages} from '../../../services/chromiumos';
+import {CompdbServiceImpl} from '../../../features/chromiumos/cpp_code_completion/compdb_service';
+import {
+  ChrootService,
+  PackageInfo,
+  Packages,
+} from '../../../services/chromiumos';
 import * as testing from '../../testing';
+import {VoidOutputChannel} from '../../testing/fakes';
 import {getChromiumosDirectory} from '../common/fs';
 
 // Platform2 directories to ignore on listing C++ files.
@@ -19,6 +26,15 @@ const IGNORED_DIRS = [
   'authpolicy', // ebuild removed on crrev.com/c/4542250
   'media_capabilities', // ebuild has not been merged crrev.com/c/2386943
   'media_perception', // the package will be removed crrev.com/c/4348315
+];
+
+// Platform2 packages for which we test generation of compdb works.
+// We apply this filtering so that test doesn't take too long.
+const PACKAGES_TO_TEST_COMPDB_GENERATION: string[] = [
+  'chromeos-base/codelab',
+  'chromeos-base/cryptohome',
+  'chromeos-base/missive',
+  'chromeos-base/shill',
 ];
 
 describe('C++ xrefs in platform2', () => {
@@ -36,22 +52,117 @@ describe('C++ xrefs in platform2', () => {
   // Create a test case for each platform2 directory containing a C++ file.
   const platform2 = path.join(chromiumos, 'src/platform2');
 
-  for (const cppFile of listCppFileRepresentatives(
-    platform2,
-    IGNORED_DIRS.map(x => path.join(platform2, x))
-  )) {
-    describe(`for ${cppFile}`, () => {
-      it(
-        'can find package to compile',
-        async () => {
-          const packageInfo = await packages.fromFilepath(cppFile);
+  const representatives = [
+    ...listCppFileRepresentatives(
+      platform2,
+      IGNORED_DIRS.map(x => path.join(platform2, x))
+    ),
+  ];
 
-          expect(packageInfo).toBeTruthy();
-        },
-        // Initial call to packages.fromFilepath takes about 30 seconds.
-        60 * 1000
-      );
-    });
+  for (const cppFile of representatives) {
+    it(
+      `for ${cppFile} can find package to compile`,
+      async () => {
+        const packageInfo = await packages.fromFilepath(cppFile);
+
+        expect(packageInfo).toBeTruthy();
+      },
+      // Initial call to packages.fromFilepath takes about 30 seconds.
+      60 * 1000
+    );
+  }
+
+  const board = 'amd64-generic';
+
+  const output = new VoidOutputChannel();
+  const compdbService = new CompdbServiceImpl(output, {
+    chroot: chrootService.chroot,
+    source: chrootService.source,
+  });
+
+  const seenPackageInfo: PackageInfo[] = [];
+
+  type GenerateCompdbJobResult =
+    | {packageName: string; error?: Error}
+    | undefined;
+
+  // For each C++ file in representatives, compute the package the file belongs to, and if the
+  // package is what we want to test, generate the compilation database for it. The generations are
+  // parallelized and each test case just reports the result of it.
+  const jobs = representatives.map(cppFile =>
+    // Returns a job that is always fulfilled. The job returns undefined if we don't test compdb
+    // generation for the cppFile. Otherwise it returns an object containing the package name and
+    // the error on compdb generation if any.
+    async (): Promise<GenerateCompdbJobResult> => {
+      const packageInfo = await packages.fromFilepath(cppFile);
+      if (packageInfo === null) {
+        return undefined;
+      }
+      const packageName = packageInfo.name;
+      if (!PACKAGES_TO_TEST_COMPDB_GENERATION.includes(packageName)) {
+        return undefined;
+      }
+
+      if (
+        seenPackageInfo.find(
+          pi =>
+            pi.name === packageInfo.name &&
+            pi.sourceDir === packageInfo.sourceDir
+        )
+      ) {
+        return undefined;
+      }
+      seenPackageInfo.push(packageInfo);
+
+      try {
+        await compdbService.generate(board, packageInfo);
+        return {packageName};
+      } catch (e: unknown) {
+        return {packageName, error: e as Error};
+      }
+    }
+  );
+
+  const nproc = os.cpus().length;
+
+  // Lazily create job runner instance to ensure heavy computation happens inside `it`.
+  let jobRunner:
+    | testing.ThrottledJobRunner<GenerateCompdbJobResult>
+    | undefined = undefined;
+
+  for (const packageName of PACKAGES_TO_TEST_COMPDB_GENERATION) {
+    const timeoutInMillis = 30 * 60 * 1000;
+
+    it(
+      `for ${packageName} can generate compilation database on ${board}`,
+      async () => {
+        if (!jobRunner) {
+          jobRunner = new testing.ThrottledJobRunner(jobs, nproc);
+        }
+
+        const settledResults = await jobRunner.allSettled();
+
+        const results: (Error | undefined)[] = settledResults
+          .map((r, i) => {
+            if (r.status === 'rejected') {
+              fail(`Job ${i} unexpectedly rejected: ${r.reason}`);
+              return undefined;
+            }
+            return r.value;
+          })
+          .filter(r => r?.packageName === packageName)
+          .map(r => r!.error);
+
+        expect(results.length).toBeGreaterThan(0);
+
+        for (const result of results) {
+          if (result instanceof Error) {
+            fail(result);
+          }
+        }
+      },
+      timeoutInMillis
+    );
   }
 });
 
