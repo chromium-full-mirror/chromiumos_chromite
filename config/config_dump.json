@@ -42,7 +42,6 @@
     "manifest_repo_url": "https://chromium.googlesource.com/chromiumos/manifest",
     "manifest_version": false,
     "master": false,
-    "models": [],
     "name": null,
     "nobuildretry": false,
     "overlays": "public",

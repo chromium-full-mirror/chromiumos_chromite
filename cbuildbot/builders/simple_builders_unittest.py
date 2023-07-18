@@ -77,15 +77,12 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         bot_id,
         master=False,
         extra_argv=None,
-        models=None,
     ):
         """Return normal options/build_config for |bot_id|"""
         site_config = config_lib.GetConfig()
         build_config = copy.deepcopy(site_config[bot_id])
         build_config["master"] = master
         build_config["important"] = False
-        if models:
-            build_config["models"] = models
 
         # Use the cbuildbot parser to create properties and populate default
         # values.

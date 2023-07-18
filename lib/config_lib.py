@@ -317,28 +317,6 @@ class BuildConfig(AttrDict):
         self.slave_configs.sort()
 
 
-class ModelTestConfig:
-    """Model specific config that controls which test suites are executed.
-
-    Attributes:
-        name: The name of the model that will be tested (matches model label)
-        lab_board_name: The name of the board in the lab (matches board label)
-        test_suites: List of hardware test suites that will be executed.
-    """
-
-    def __init__(
-        self, name, lab_board_name, test_suites=None, enable_skylab=True
-    ):
-        """Constructor -- see members above."""
-        self.name = name
-        self.lab_board_name = lab_board_name
-        self.test_suites = test_suites
-        self.enable_skylab = enable_skylab
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
 def DefaultSettings():
     # Enumeration of valid settings; any/all config settings must be in this.
     # All settings must be documented.
@@ -349,10 +327,6 @@ def DefaultSettings():
         name=None,
         # A list of boards to build.
         boards=None,
-        # A list of ModelTestConfig objects that represent all the models
-        # supported by a given unified build and their corresponding test
-        # config.
-        models=[],
         # This value defines what part of the Golden Eye UI is responsible for
         # displaying builds of this build config. The value is required, and
         # must be in ALL_DISPLAY_LABEL.
@@ -1426,11 +1400,8 @@ def LoadConfigFromString(json_string):
     # Use standard defaults, but allow the config to override.
     defaults = DefaultSettings()
     defaults.update(config_dict.pop(DEFAULT_BUILD_CONFIG))
-    _DeserializeConfigs(defaults)
 
     templates = config_dict.pop("_templates", {})
-    for t in templates.values():
-        _DeserializeConfigs(t)
 
     defaultBuildConfig = BuildConfig(**defaults)
 
@@ -1476,19 +1447,6 @@ def _DeserializeConfig(
     build_dict[config_key] = deserialized_configs
 
 
-def _DeserializeConfigs(build_dict):
-    """Updates a config dictionary with recreated objects.
-
-    Notification configs and various test configs are serialized as strings
-    (rather than JSON objects), so we need to turn them into real objects before
-    they can be consumed.
-
-    Args:
-        build_dict: The config dictionary to update (in place).
-    """
-    _DeserializeConfig(build_dict, "models", ModelTestConfig)
-
-
 def _CreateBuildConfig(name, default, build_dict, templates):
     """Create a BuildConfig object from it's parsed JSON dictionary encoding."""
     # These build config values need special handling.
@@ -1502,8 +1460,6 @@ def _CreateBuildConfig(name, default, build_dict, templates):
     if template:
         result.update(templates[template])
     result.update(build_dict)
-
-    _DeserializeConfigs(result)
 
     return result
 
