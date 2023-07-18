@@ -117,6 +117,7 @@ function populateHistoricLogs() {
         type: "POST",
 
         success: function (response) {
+
             foundUpdate = false
             allLogsHTML = ``;
             response.forEach(function (log) {
@@ -276,11 +277,12 @@ function populatePackages(board = "") {
                             <p2 class = "col small text-danger"></p2>
                           </div>
                           <div class="col">
-                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" >Build</button>
+                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" 
+                            id = "` + pack.name + `-build">Build</button>
                             <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
                               data-bs-target="#` + pack.name.replace("/", "-") + `-info-modal" >Info</button>
                             <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop"
-                            id = ` + pack.name + `>Stop</button>
+                            id = "` + pack.name + `-stop">Stop</button>
                           </div>              
                         </li>
                         
@@ -318,22 +320,7 @@ function populatePackages(board = "") {
                               </div>
                             </div>
                           </div>
-                        </div>
-
-                        <li class="row bg-dark border-top border-black p-0 m-0 align-items-center">
-                          <div class="col-7"><p2 class = "small text-light m-4">` + pack.name + `</p2></div>
-                          <div class="col-2 d-flex">
-                            <p2 class = "col small text-success"></p2>
-                            <p2 class = "col small text-danger"></p2>
-                          </div>
-                          <div class="col" id = ` + pack.name + `>
-                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1 build-single" >Build</button>
-                            <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
-                              data-bs-target="#` + pack.name.replace("/", "-") + `-info-modal" >Info</button>
-                            <button type="button" class="small btn btn-danger btn-sm pt-0 pb-0 workon-stop">Stop</button>
-                          </div>              
-                        </li>
-                        
+                        </div>                        
                         `
 
                     })
@@ -436,13 +423,13 @@ function workonStart() {
 
     var board = $("#addPackageBoardSelect").select2("data")[0].text;
     var pack = $("#addPackagePackageSelect").select2("data")[0].text;
-    $.ajax({
+    $.post({
         url: "/workon-start",
-        type: "get",
-        data: {
+        data: JSON.stringify({
             board: board,
             package: pack
-        },
+        }),
+        contentType: "application/json",
 
         success: function (response) {
             console.log("success");
@@ -456,21 +443,19 @@ function workonStart() {
 
 //Will make cros_workon stop request via Flask routes.
 function workonStop() {
-    var package = this.id;
-    var button = this;
+    
+    $(this).addClass("disabled");
 
     var board = $(this).parents("ul")[0].id;
     board = board.substring(0, board.length - 13)
 
-    var board = $(this).parents("ul")[0].id;
-    board = board.substring(0, board.length - 13)
 
     $.post({
         url: "/workon-stop",
 
         data: JSON.stringify({
             board: board,
-            package: $(this).parents("div")[0].id
+            package: this.id.substring(0, this.id.length - 5)
         }),
         contentType: "application/json",
 
@@ -742,6 +727,38 @@ function populateChrootInfo() {
     })
 }
 
+function customEndpoint(){
+    now = moment()
+    window.onbeforeunload = () => {return true;}
+
+    $.post({
+        url: "/custom",
+        data: JSON.stringify({
+            endpoint: $("#customEndpoint").select2("data")[0].text,
+            request: $("#customRequest").val()
+        }),
+        contentType: "application/json",
+
+        success: function (response) {
+
+            window.onbeforeunload = null;
+
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
+        },
+
+        xhrFields: {
+            onprogress: function (e) {
+                populateLiveLog(
+                    "custom",
+                    e.currentTarget.response,
+                    now
+
+                )
+            }
+        }
+    })
+}
+
 $(document).ready(function () {
     //Show default active panels (logs/packages)
     showPackages();
@@ -784,6 +801,11 @@ $(document).ready(function () {
         theme: 'bootstrap-5',
         width: '100%'
     });
+    $(".custom-select").select2({
+        dropdownParent: $("#customModal"),
+        theme: 'bootstrap-5',
+        width: '100%'
+    });
 
     //Button listeners
     $("#addPackageSubmit").on("click", workonStart);
@@ -799,6 +821,7 @@ $(document).ready(function () {
     $("#buildImageSubmit").on("click", buildImage);
     $("#clearLogs").on("click", clearLogs);
     $("#repoSync").on("click", repoSync);
+    $("#customSubmit").on("click", customEndpoint);
 
 
 });

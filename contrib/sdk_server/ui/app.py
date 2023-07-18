@@ -376,6 +376,21 @@ def chroot_info():
     )
 
 
+@app.route("/custom", methods=["GET", "POST"])
+def custom_endpoint():
+    """Forwards custom endpoint/JSON request."""
+
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    req = sdk_server_pb2.CustomRequest(
+        endpoint=flask.request.json["endpoint"],
+        request=flask.request.json["request"],
+    )
+
+    return flask.Response(logGenerator(client.custom_endpoint, req))
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Home page route. Renders index.html file with templating data."""
@@ -397,6 +412,10 @@ def setup():
     )
     current_boards = sorted([b.build_target.name for b in current_boards.board])
     index_data["current_boards"] = current_boards
+
+    all_endpoints = client.get_methods(sdk_server_pb2.MethodsRequest()).response
+    all_endpoints = [m.method for m in all_endpoints.methods]
+    index_data["all_endpoints"] = all_endpoints
 
 
 # pylint: disable=unused-argument

@@ -427,6 +427,25 @@ def test_build_image(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
+def test_custom_endpoint(client):
+    """Tests custom properly calls custom endpoint."""
+
+    logGen = logGenerator(sdk_server_pb2.CustomResponse)
+    req = {
+        "endpoint": "some.service/endpoint",
+        "request": "proto request for endpoint",
+    }
+
+    sdk_client.custom_endpoint = mock.MagicMock(return_value=logGen)
+
+    response = client.post("/custom", json=req)
+
+    sdk_client.custom_endpoint.assert_called_once()
+    assert len(response.history) == 0
+    assert response.data == b"01234"
+
+
+@pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
 @parametrize("route", all_routes)
 def test_get_redirect(client, route):
     """Tests that all routes redirect to index on a GET request."""
