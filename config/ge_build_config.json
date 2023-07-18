@@ -13899,6 +13899,15 @@
       "models": [
         {
           "board_name": "skyrim-chausie",
+          "name": "chausie",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7219,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "skyrim-chausie",
           "name": "crystaldrift",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
