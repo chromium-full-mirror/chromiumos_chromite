@@ -209,6 +209,8 @@ def general_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
     if files[0].is_symlink:
         files = [files[1], files[0]]
     src_ebuild = files[0]
+    if src_ebuild.eapi == "7":
+        return False
 
     lines = src_ebuild.lines
 
