@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z.go.chromium.org/chromiumos/config/go/build/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n*chromiumos/build/api/firmware_config.proto\x12\x14\x63hromiumos.build.api\x1a\"chromiumos/build/api/portage.proto\x1a\x1d\x63hromiumos/storage_path.proto\"=\n\x0c\x46irmwareType\"-\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04MAIN\x10\x01\x12\x06\n\x02\x45\x43\x10\x02\x12\x06\n\x02PD\x10\x03\"6\n\x07Version\x12\r\n\x05major\x18\x01 \x01(\x05\x12\r\n\x05minor\x18\x02 \x01(\x05\x12\r\n\x05patch\x18\x03 \x01(\x05\"\xeb\x01\n\x0f\x46irmwarePayload\x12\x36\n\x13\x66irmware_image_path\x18\x05 \x01(\x0b\x32\x17.chromiumos.StoragePathH\x00\x12!\n\x13\x66irmware_image_name\x18\x02 \x01(\tB\x02\x18\x01H\x00\x12\x35\n\x04type\x18\x03 \x01(\x0e\x32\'.chromiumos.build.api.FirmwareType.Type\x12.\n\x07version\x18\x04 \x01(\x0b\x32\x1d.chromiumos.build.api.VersionB\x10\n\x0e\x66irmware_imageJ\x04\x08\x01\x10\x02\"\xd0\x02\n\x0e\x46irmwareConfig\x12>\n\x0fmain_ro_payload\x18\x01 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12>\n\x0fmain_rw_payload\x18\x02 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12<\n\rec_ro_payload\x18\x03 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12<\n\rpd_ro_payload\x18\x05 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12<\n\rec_rw_payload\x18\x06 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayloadJ\x04\x08\x04\x10\x05\"\xb2\x02\n\x08\x46irmware\x12\x42\n\rbuild_targets\x18\x01 \x01(\x0b\x32+.chromiumos.build.api.Firmware.BuildTargets\x1a\xe1\x01\n\x0c\x42uildTargets\x12\x10\n\x08\x63oreboot\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65pthcharge\x18\x02 \x01(\t\x12\n\n\x02\x65\x63\x18\x03 \x01(\t\x12\x11\n\tec_extras\x18\x04 \x03(\t\x12\x12\n\nlibpayload\x18\x05 \x01(\t\x12G\n\x14portage_build_target\x18\x06 \x01(\x0b\x32).chromiumos.build.api.Portage.BuildTarget\x12\x11\n\tzephyr_ec\x18\x07 \x01(\t\x12\x0e\n\x06\x62mpblk\x18\x08 \x01(\t\x12\x0b\n\x03ish\x18\t \x01(\t\"Y\n\x13\x46irmwareBuildConfig\x12\x42\n\rbuild_targets\x18\x01 \x01(\x0b\x32+.chromiumos.build.api.Firmware.BuildTargetsB0Z.go.chromium.org/chromiumos/config/go/build/apib\x06proto3'
+  serialized_pb=b'\n*chromiumos/build/api/firmware_config.proto\x12\x14\x63hromiumos.build.api\x1a\"chromiumos/build/api/portage.proto\x1a\x1d\x63hromiumos/storage_path.proto\"=\n\x0c\x46irmwareType\"-\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04MAIN\x10\x01\x12\x06\n\x02\x45\x43\x10\x02\x12\x06\n\x02PD\x10\x03\"6\n\x07Version\x12\r\n\x05major\x18\x01 \x01(\x05\x12\r\n\x05minor\x18\x02 \x01(\x05\x12\r\n\x05patch\x18\x03 \x01(\x05\"\xeb\x01\n\x0f\x46irmwarePayload\x12\x36\n\x13\x66irmware_image_path\x18\x05 \x01(\x0b\x32\x17.chromiumos.StoragePathH\x00\x12!\n\x13\x66irmware_image_name\x18\x02 \x01(\tB\x02\x18\x01H\x00\x12\x35\n\x04type\x18\x03 \x01(\x0e\x32\'.chromiumos.build.api.FirmwareType.Type\x12.\n\x07version\x18\x04 \x01(\x0b\x32\x1d.chromiumos.build.api.VersionB\x10\n\x0e\x66irmware_imageJ\x04\x08\x01\x10\x02\"\xd0\x02\n\x0e\x46irmwareConfig\x12>\n\x0fmain_ro_payload\x18\x01 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12>\n\x0fmain_rw_payload\x18\x02 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12<\n\rec_ro_payload\x18\x03 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12<\n\rpd_ro_payload\x18\x05 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayload\x12<\n\rec_rw_payload\x18\x06 \x01(\x0b\x32%.chromiumos.build.api.FirmwarePayloadJ\x04\x08\x04\x10\x05\"\xd2\x02\n\x08\x46irmware\x12\x42\n\rbuild_targets\x18\x01 \x01(\x0b\x32+.chromiumos.build.api.Firmware.BuildTargets\x1a\x81\x02\n\x0c\x42uildTargets\x12\x10\n\x08\x63oreboot\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65pthcharge\x18\x02 \x01(\t\x12\n\n\x02\x65\x63\x18\x03 \x01(\t\x12\x11\n\tec_extras\x18\x04 \x03(\t\x12\x12\n\nlibpayload\x18\x05 \x01(\t\x12G\n\x14portage_build_target\x18\x06 \x01(\x0b\x32).chromiumos.build.api.Portage.BuildTarget\x12\x11\n\tzephyr_ec\x18\x07 \x01(\t\x12\x0e\n\x06\x62mpblk\x18\x08 \x01(\t\x12\x0b\n\x03ish\x18\t \x01(\t\x12\x1e\n\x16zephyr_detachable_base\x18\n \x01(\t\"Y\n\x13\x46irmwareBuildConfig\x12\x42\n\rbuild_targets\x18\x01 \x01(\x0b\x32+.chromiumos.build.api.Firmware.BuildTargetsB0Z.go.chromium.org/chromiumos/config/go/build/apib\x06proto3'
   ,
   dependencies=[chromiumos_dot_build_dot_api_dot_portage__pb2.DESCRIPTOR,chromiumos_dot_storage__path__pb2.DESCRIPTOR,])
 
@@ -324,6 +324,13 @@ _FIRMWARE_BUILDTARGETS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='zephyr_detachable_base', full_name='chromiumos.build.api.Firmware.BuildTargets.zephyr_detachable_base', index=9,
+      number=10, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -337,7 +344,7 @@ _FIRMWARE_BUILDTARGETS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=913,
-  serialized_end=1138,
+  serialized_end=1170,
 )
 
 _FIRMWARE = _descriptor.Descriptor(
@@ -368,7 +375,7 @@ _FIRMWARE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=832,
-  serialized_end=1138,
+  serialized_end=1170,
 )
 
 
@@ -399,8 +406,8 @@ _FIRMWAREBUILDCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1140,
-  serialized_end=1229,
+  serialized_start=1172,
+  serialized_end=1261,
 )
 
 _FIRMWARETYPE_TYPE.containing_type = _FIRMWARETYPE
