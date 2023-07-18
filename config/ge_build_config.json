@@ -2386,10 +2386,22 @@
         {
           "board_name": "dedede",
           "name": "peezer",
-          "cq_test_enabled": false,
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 419,
           "is_active": true,
+          "stable_target_milestone": 120,
           "is_experimental": false
         },
         {
