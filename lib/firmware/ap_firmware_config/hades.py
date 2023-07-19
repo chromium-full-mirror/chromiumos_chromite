@@ -25,23 +25,6 @@ def get_config(servo: servo_lib.Servo) -> servo_lib.ServoConfig:
                 where cmd1 will be run before cmd2.
             programmer=programmer argument (-p) for flashrom and futility.
     """
-    dut_control_on = []
-    dut_control_off = []
-
-    # Common flashing sequence for C2D2 and CCD
-    # Shutdown AP so that it enters G3 state.
-    dut_control_on.append(["ec_uart_cmd:apshutdown"])
-    # Sleep to ensure the SoC rails get chance to discharge enough.
-    dut_control_on.append(["sleep:5"])
-    # Block power sequence (PG_PP3300_S5_OD) in order to
-    dut_control_on.append(["ec_uart_cmd:gpioset PG_PP3300_S5_OD 0"])
-    # Turning on AP but it'll stay in S5 because PG_PP3300_S5 is blocked.
-    # This allows AP to set BIOS SPI pins to high-z, preventing leakage.
-    dut_control_on.append(["ec_uart_cmd:gpioset EN_S5_RAILS 1"])
-    # Undo the changes on exit.
-    dut_control_off.append(["ec_uart_cmd:gpioset EN_S5_RAILS 0"])
-    dut_control_off.append(["ec_uart_cmd:gpioset PG_PP3300_S5_OD 1"])
-
     if servo.is_micro:
         dut_control_on = [["cpu_fw_spi:on"]]
         dut_control_off = [["cpu_fw_spi:off"]]
