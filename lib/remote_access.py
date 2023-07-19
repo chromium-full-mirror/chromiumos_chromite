@@ -1711,6 +1711,15 @@ class ChromiumOSDevice(RemoteDevice):
         self.run(["dev_install", "--reinstall", "--only_bootstrap", "--yes"])
         self.HasProgramInPath.cache_clear()
 
+    def Reboot(self, timeout_sec=REBOOT_MAX_WAIT):
+        """Reboot the device."""
+        # A reboot in developer mode takes a while (and has delays), so the user
+        # will have time to read and act on the USB boot instructions below.
+        logging.info(
+            "Please remember to press Ctrl-U if you are booting from USB."
+        )
+        return super().Reboot(timeout_sec=timeout_sec)
+
     def run(self, cmd, **kwargs):
         """Executes a shell command on the device.
 

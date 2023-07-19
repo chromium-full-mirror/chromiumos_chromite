@@ -213,14 +213,6 @@ class DeployChrome:
         )
         return result.returncode == 0
 
-    def _Reboot(self):
-        # A reboot in developer mode takes a while (and has delays), so the user
-        # will have time to read and act on the USB boot instructions below.
-        logging.info(
-            "Please remember to press Ctrl-U if you are booting from USB."
-        )
-        self.device.Reboot()
-
     def _DisableRootfsVerification(self):
         if not self.options.force:
             logging.error(
@@ -249,7 +241,7 @@ class DeployChrome:
         for partition in (KERNEL_A_PARTITION, KERNEL_B_PARTITION):
             self.device.run(cmd % partition, check=False)
 
-        self._Reboot()
+        self.device.Reboot()
 
         # Now that the machine has been rebooted, we need to kill Chrome again.
         self._KillAshChromeIfNeeded()
