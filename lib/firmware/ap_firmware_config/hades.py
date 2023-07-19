@@ -28,14 +28,10 @@ def get_config(servo: servo_lib.Servo) -> servo_lib.ServoConfig:
     if servo.is_micro:
         dut_control_on = [["cpu_fw_spi:on"]]
         dut_control_off = [["cpu_fw_spi:off"]]
-        # Supply power to PP3300_BIOS (via PP3300_SERVO_PCH_SPI).
-        dut_control_on.append(["spi2_vref:pp3300"])
-        dut_control_off.append(["spi2_vref:off"])
         programmer = "raiden_debug_spi:serial=%s" % servo.serial
     elif servo.is_ccd:
         dut_control_on = [["ccd_cpu_fw_spi:on"]]
         dut_control_off = [["ccd_cpu_fw_spi:off"]]
-        dut_control_off.append(["power_state:reset"])
         programmer = (
             "raiden_debug_spi:target=AP,custom_rst=True,serial=%s"
             % servo.serial
