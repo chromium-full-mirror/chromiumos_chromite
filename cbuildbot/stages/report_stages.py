@@ -630,135 +630,6 @@ class ReportStage(
             "Artifacts[%s]" % links_build_description, artifacts_url
         )
 
-    def _UploadBuildStagesTimeline(self, builder_run, buildbucket_id):
-        """Upload HTML timeline for the build stages at remote archive location.
-
-        Args:
-            builder_run: BuilderRun object for this run.
-            buildbucket_id: Buildbucket id for the current build.
-
-        Returns:
-            If an index file is uploaded then a dict is returned where each
-            value
-            is the same (the URL for the uploaded HTML index) and the keys are
-            the boards it applies to, including None if applicable.  If no index
-            file is uploaded then this returns None.
-        """
-        archive = builder_run.GetArchive()
-        archive_path = archive.archive_path
-
-        config = builder_run.config
-        boards = config.boards
-        if boards:
-            board_names = " ".join(boards)
-        else:
-            boards = [None]
-            board_names = "<no board>"
-
-        timeline_file = "timeline-stages.html"
-        timeline = os.path.join(archive_path, timeline_file)
-
-        # Gather information about this build from CIDB.
-        stages = self.buildstore.GetBuildsStages(
-            buildbucket_ids=[buildbucket_id]
-        )
-        # Many stages are started in parallel after the build finishes. Stages
-        # are sorted by start_time first bceause it shows that progression most
-        # clearly. Sort by finish_time secondarily to display those parallel
-        # stages cleanly.
-        epoch = datetime.datetime.fromtimestamp(0)
-        stages.sort(
-            key=lambda stage: (
-                stage["start_time"] or epoch,
-                stage["finish_time"] or epoch,
-            )
-        )
-        rows = ((s["name"], s["start_time"], s["finish_time"]) for s in stages)
-
-        # Prepare html head.
-        title = "Build Stages Timeline: %s / %s (%s config)" % (
-            board_names,
-            builder_run.GetVersion(),
-            config.name,
-        )
-
-        commands.GenerateHtmlTimeline(timeline, rows, title=title)
-        commands.UploadArchivedFile(
-            archive_path,
-            [archive.upload_url],
-            os.path.basename(timeline),
-            debug=self._run.options.debug_forced,
-            update_list=True,
-            acl=self.acl,
-        )
-        return os.path.join(archive.download_url_file, timeline_file)
-
-    def _UploadSlavesTimeline(self, builder_run, build_identifier):
-        """Upload an HTML timeline for the slaves at remote archive location.
-
-        Args:
-            builder_run: BuilderRun object for this run.
-            build_identifier: BuildIdentifier instance for the master build.
-
-        Returns:
-            The URL of the timeline is returned if slave builds exists.  If no
-            slave builds exists then this returns None.
-        """
-        archive = builder_run.GetArchive()
-        archive_path = archive.archive_path
-
-        config = builder_run.config
-        boards = config.boards
-        if boards:
-            board_names = " ".join(boards)
-        else:
-            boards = [None]
-            board_names = "<no board>"
-
-        timeline_file = "timeline-slaves.html"
-        timeline = os.path.join(archive_path, timeline_file)
-
-        # Gather information about this build from CIDB.
-        statuses = self.buildstore.GetSlaveStatuses(build_identifier)
-        if not statuses:
-            return None
-        # Slaves may be started at slightly different times, but what matters
-        # most is which slave is the bottleneck - namely, which slave finishes
-        # last. Therefore, sort primarily by finish_time.
-        epoch = datetime.datetime.fromtimestamp(0)
-        statuses.sort(
-            key=lambda stage: (
-                stage["finish_time"] or epoch,
-                stage["start_time"] or epoch,
-            )
-        )
-        rows = (
-            (
-                "%s - %s" % (s["build_config"], s["build_number"]),
-                s["start_time"],
-                s["finish_time"],
-            )
-            for s in statuses
-        )
-
-        # Prepare html head.
-        title = "Slave Builds Timeline: %s / %s (%s config)" % (
-            board_names,
-            builder_run.GetVersion(),
-            config.name,
-        )
-
-        commands.GenerateHtmlTimeline(timeline, rows, title=title)
-        commands.UploadArchivedFile(
-            archive_path,
-            [archive.upload_url],
-            os.path.basename(timeline),
-            debug=self._run.options.debug_forced,
-            update_list=True,
-            acl=self.acl,
-        )
-        return os.path.join(archive.download_url_file, timeline_file)
-
     def GetReportMetadata(
         self,
         config=None,
@@ -819,27 +690,10 @@ class ReportStage(
         # run only. These aren't needed for the child builder runs.
         self.UploadMetadata(export=True)
 
-        build_identifier, db = self._run.GetCIDBHandle()
+        build_identifier, _ = self._run.GetCIDBHandle()
         build_id = build_identifier.cidb_id
-        buildbucket_id = build_identifier.buildbucket_id
         # Iterate through each builder run.
         for builder_run in [self._run]:
-            if db is not None:
-                timeline = self._UploadBuildStagesTimeline(
-                    builder_run, buildbucket_id
-                )
-                cbuildbot_alerts.PrintBuildbotLink(
-                    "Build stages timeline", timeline
-                )
-
-                timeline = self._UploadSlavesTimeline(
-                    builder_run, build_identifier
-                )
-                if timeline is not None:
-                    cbuildbot_alerts.PrintBuildbotLink(
-                        "Slaves timeline", timeline
-                    )
-
             if build_id is not None:
                 details_link = uri_lib.ConstructViceroyBuildDetailsUri(build_id)
                 cbuildbot_alerts.PrintBuildbotLink(
