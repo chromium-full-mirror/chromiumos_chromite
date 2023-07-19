@@ -1138,7 +1138,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
         # Call the method being tested.
         sysroot.GenerateBreakpadSymbols(chroot, build_target, False, False, [])
 
-        self.rc.assertCommandCalled(
+        self.rc.assertCommandContains(
             [
                 "cros_generate_breakpad_symbols",
                 "--board=board",
@@ -1158,7 +1158,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
         # Call the method being tested.
         sysroot.GenerateBreakpadSymbols(chroot, build_target, True, False, [])
 
-        self.rc.assertCommandCalled(
+        self.rc.assertCommandContains(
             [
                 "cros_generate_breakpad_symbols",
                 "--debug",
@@ -1179,7 +1179,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
         # Call the method being tested.
         sysroot.GenerateBreakpadSymbols(chroot, build_target, False, True, [])
 
-        self.rc.assertCommandCalled(
+        self.rc.assertCommandContains(
             [
                 "cros_generate_breakpad_symbols",
                 "--ignore_errors",
@@ -1202,7 +1202,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
             chroot, build_target, False, False, ["ASH_CHROME", "LIBC"]
         )
 
-        self.rc.assertCommandCalled(
+        self.rc.assertCommandContains(
             [
                 "cros_generate_breakpad_symbols",
                 "--ignore_expected_file=ASH_CHROME",

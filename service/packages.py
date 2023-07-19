@@ -202,13 +202,7 @@ def uprev_android(
     if skip_commit:
         command.append("--skip_commit")
 
-    result = cros_build_lib.run(
-        command,
-        stdout=True,
-        enter_chroot=True,
-        encoding="utf-8",
-        chroot_args=chroot.get_enter_args(),
-    )
+    result = chroot.run(command, stdout=True, encoding="utf-8")
 
     # cros_mark_android_as_stable prints the uprev result to stdout as JSON in a
     # single line. We only take the last line from stdout to make sure no junk
@@ -227,9 +221,7 @@ def uprev_android(
         # Android we just unmasked.
         command = [f"emerge-{target.name}", "-p", "--quiet", f"={android_atom}"]
         try:
-            cros_build_lib.run(
-                command, enter_chroot=True, chroot_args=chroot.get_enter_args()
-            )
+            chroot.run(command)
         except cros_build_lib.RunCommandError:
             logging.error(
                 "Cannot emerge-%s =%s\nIs Android pinned to an older version?",
@@ -625,9 +617,7 @@ def uprev_kernel_afdo(_build_targets, _refs, chroot: "chroot_lib.Chroot"):
 
             try:
                 cmd = ["ebuild", chroot_ebuild_path, "manifest", "--force"]
-                cros_build_lib.run(
-                    cmd, enter_chroot=True, chroot_args=chroot.get_enter_args()
-                )
+                chroot.run(cmd)
             except cros_build_lib.RunCommandError as e:
                 raise uprev_lib.EbuildManifestError(
                     "Error encountered when regenerating the manifest for "
@@ -1040,9 +1030,7 @@ def _generate_platform_c_files(
         '"TRUE"',
     ]
 
-    cros_build_lib.run(
-        command, enter_chroot=True, chroot_args=chroot.get_enter_args()
-    )
+    chroot.run(command)
 
     # A relative (to the source root) path to the generated C files.
     generated_output_dir = os.path.dirname(build_config_path)

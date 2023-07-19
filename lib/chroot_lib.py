@@ -10,9 +10,10 @@ functionality that can eventually be centralized here.
 
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
 
@@ -124,7 +125,7 @@ class Chroot:
         """Check if a chroot-relative path exists inside the chroot."""
         return os.path.exists(self.full_path(*args))
 
-    def get_enter_args(self, for_shell: Optional[bool] = False) -> List[str]:
+    def get_enter_args(self, for_shell: bool = False) -> List[str]:
         """Build the arguments to enter this chroot.
 
         Args:
@@ -179,3 +180,37 @@ class Chroot:
             env.update(self.remoteexec.GetChrootExtraEnv())
 
         return env
+
+    def _runner(
+        self,
+        func: Callable[..., cros_build_lib.CompletedProcess],
+        cmd: Union[List[str], str],
+        **kwargs,
+    ) -> cros_build_lib.CompletedProcess:
+        # Merge provided |extra_env| with self.env.
+        extra_env = {**self.env, **kwargs.pop("extra_env", {})}
+        return func(
+            cmd,
+            enter_chroot=True,
+            chroot_args=self.get_enter_args(),
+            extra_env=extra_env,
+            **kwargs,
+        )
+
+    def run(
+        self, cmd: Union[List[str], str], **kwargs
+    ) -> cros_build_lib.CompletedProcess:
+        """Run a command inside this chroot.
+
+        A convenience wrapper around cros_build_lib.run().
+        """
+        return self._runner(cros_build_lib.run, cmd, **kwargs)
+
+    def sudo_run(
+        self, cmd: Union[List[str], str], **kwargs
+    ) -> cros_build_lib.CompletedProcess:
+        """Run a sudo command inside this chroot.
+
+        A convenience wrapper around cros_build_lib.sudo_run().
+        """
+        return self._runner(cros_build_lib.sudo_run, cmd, **kwargs)

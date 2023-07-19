@@ -500,8 +500,6 @@ def CreateChromeRoot(
         CrosGenerateSysrootError: When cros_generate_sysroot does not complete
             successfully.
     """
-    chroot_args = chroot.get_enter_args()
-
     extra_env = {"USE": "chrome_internal"}
     with chroot.tempdir() as tempdir:
         in_chroot_path = chroot.chroot_path(tempdir)
@@ -517,11 +515,9 @@ def CreateChromeRoot(
         ]
 
         try:
-            cros_build_lib.run(
+            chroot.run(
                 cmd,
-                enter_chroot=True,
                 extra_env=extra_env,
-                chroot_args=chroot_args,
             )
         except cros_build_lib.RunCommandError as e:
             raise CrosGenerateSysrootError(
@@ -892,12 +888,7 @@ def GenerateCpeReport(
     ]
 
     logging.info("Beginning CPE Export.")
-    result = cros_build_lib.run(
-        cmd,
-        capture_output=True,
-        enter_chroot=True,
-        chroot_args=chroot.get_enter_args(),
-    )
+    result = chroot.run(cmd, capture_output=True)
     logging.info("CPE Export Complete.")
 
     # Write out the warnings the export produced.

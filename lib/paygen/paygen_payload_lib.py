@@ -622,11 +622,9 @@ class PaygenPayload:
         def _inner_run(cmd, response_queue):
             try:
                 # Run the command.
-                result = cros_build_lib.run(
+                result = self.chroot.run(
                     cmd,
                     stdout=True,
-                    enter_chroot=True,
-                    chroot_args=self.chroot.get_enter_args(),
                     stderr=subprocess.STDOUT,
                 )
                 response_queue.append(result)

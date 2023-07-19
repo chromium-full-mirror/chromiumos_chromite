@@ -474,11 +474,8 @@ def BuildPrebuilts(chroot: "chroot_lib.Chroot", board: str = ""):
     cmd = ["./build_sdk_board"]
     if board:
         cmd.append(f"--board={board}")
-    cros_build_lib.run(
+    chroot.run(
         cmd,
-        enter_chroot=True,
-        extra_env=chroot.env,
-        chroot_args=chroot.get_enter_args(),
         check=True,
     )
 

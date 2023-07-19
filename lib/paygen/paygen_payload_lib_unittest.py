@@ -391,6 +391,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             enter_chroot=True,
             chroot_args=mock.ANY,
             stderr=subprocess.STDOUT,
+            extra_env=mock.ANY,
         )
 
         self.assertIn(
@@ -412,6 +413,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             enter_chroot=True,
             chroot_args=mock.ANY,
             stderr=subprocess.STDOUT,
+            extra_env=mock.ANY,
         )
 
         self.assertIn(

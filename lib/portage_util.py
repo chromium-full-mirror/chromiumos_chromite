@@ -1844,7 +1844,7 @@ def GetOverlayEBuilds(
 def _Egencache(
     repo_name: str,
     repos_conf: Optional[str] = None,
-    chroot_args: Optional[List[str]] = None,
+    chroot: Optional[chroot_lib.Chroot] = None,
     log_output: bool = True,
 ) -> cros_build_lib.CompletedProcess:
     """Execute egencache for repo_name inside the chroot.
@@ -1852,7 +1852,7 @@ def _Egencache(
     Args:
         repo_name: Name of the repo for the overlay.
         repos_conf: Alternative repos.conf file.
-        chroot_args: chroot enter args.
+        chroot: Chroot to run in.
         log_output: Log output of cros_build_run commands.
 
     Returns:
@@ -1868,9 +1868,8 @@ def _Egencache(
     ]
     if repos_conf:
         cmd += ["--repos-conf", repos_conf]
-    return cros_build_lib.run(
-        cmd, enter_chroot=True, chroot_args=chroot_args, log_output=log_output
-    )
+    chroot = chroot or chroot_lib.Chroot()
+    return chroot.run(cmd, log_output=log_output)
 
 
 def generate_repositories_configuration(
@@ -1926,14 +1925,11 @@ def RegenCache(
     if layout.get("cache-format") != "md5-dict":
         return None
 
-    chroot_args = None
-    if chroot:
-        chroot_args = chroot.get_enter_args()
-        if repos_conf:
-            repos_conf = chroot.chroot_path(repos_conf)
+    if chroot and repos_conf:
+        repos_conf = chroot.chroot_path(repos_conf)
 
     # Regen for the whole repo.
-    _Egencache(repo_name, repos_conf=repos_conf, chroot_args=chroot_args)
+    _Egencache(repo_name, repos_conf=repos_conf, chroot=chroot)
     # If there was nothing new generated, then let's just bail.
     result = git.RunGit(overlay, ["status", "-s", "metadata/"])
     if not result.stdout:
@@ -2861,13 +2857,10 @@ def _Portageq(
     kwargs.setdefault("cwd", constants.SOURCE_ROOT)
     kwargs.setdefault("debug_level", logging.DEBUG)
     kwargs.setdefault("encoding", "utf-8")
-    kwargs.setdefault("enter_chroot", True)
 
     chroot = chroot or chroot_lib.Chroot()
     portageq = _GetSysrootTool("portageq", board, sysroot)
-    return cros_build_lib.run(
-        [portageq] + command, chroot_args=chroot.get_enter_args(), **kwargs
-    )
+    return chroot.run([portageq] + command, **kwargs)
 
 
 def PortageqBestVisible(
@@ -3213,11 +3206,6 @@ def UpdateEbuildManifest(
         The command result.
     """
 
-    chroot_args = None
-    if chroot:
-        chroot_args = chroot.get_enter_args()
-
+    chroot = chroot or chroot_lib.Chroot()
     command = ["ebuild", ebuild_path, "manifest", "--force"]
-    return cros_build_lib.run(
-        command, enter_chroot=True, chroot_args=chroot_args
-    )
+    return chroot.run(command)

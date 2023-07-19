@@ -685,13 +685,7 @@ def _create_sysroot(
         ]
         if deps_only:
             cmd.append("--deps-only")
-        cros_build_lib.run(
-            cmd,
-            cwd=constants.SOURCE_ROOT,
-            enter_chroot=True,
-            chroot_args=chroot.get_enter_args(),
-            extra_env=chroot.env,
-        )
+        chroot.run(cmd, cwd=constants.SOURCE_ROOT)
 
         # Move the artifact out of the chroot.
         sysroot_tar_path = os.path.join(tempdir, output_file)
@@ -1484,9 +1478,7 @@ def GenerateBreakpadSymbols(
     cmd += ["--exclude-dir=%s" % x for x in exclude_dirs]
 
     logging.info("Generating breakpad symbols: %s.", cmd)
-    result = cros_build_lib.run(
-        cmd, enter_chroot=True, chroot_args=chroot.get_enter_args()
-    )
+    result = chroot.run(cmd)
     return result
 
 

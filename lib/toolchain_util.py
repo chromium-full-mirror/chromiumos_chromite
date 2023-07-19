@@ -934,11 +934,7 @@ class _CommonPrepareBundle:
                 "manifest",
                 "--force",
             ]
-            cros_build_lib.run(
-                cmd,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
-            )
+            self.chroot.run(cmd)
 
         return CPV
 
@@ -1068,12 +1064,7 @@ class _CommonPrepareBundle:
         # Here only because this was copied from afdo.py
         if use_extbinary:
             merge_command.append("--extbinary")
-        cros_build_lib.run(
-            merge_command,
-            enter_chroot=True,
-            chroot_args=self.chroot.get_enter_args(),
-            print_cmd=True,
-        )
+        self.chroot.run(merge_command, print_cmd=True)
 
     def _ProcessAFDOProfile(
         self,
@@ -1116,24 +1107,17 @@ class _CommonPrepareBundle:
             "-output",
             self.chroot.chroot_path(input_to_text_temp),
         ]
-        cros_build_lib.run(
-            cmd_to_text,
-            enter_chroot=True,
-            chroot_args=self.chroot.get_enter_args(),
-            print_cmd=True,
-        )
+        self.chroot.run(cmd_to_text, print_cmd=True)
 
         current_input_file = input_to_text_temp
         if redact:
             # Call the redaction script.
             redacted_temp = input_path + ".redacted.temp"
             with open(current_input_file, "rb") as f:
-                cros_build_lib.run(
+                self.chroot.run(
                     ["redact_textual_afdo_profile"],
                     input=f,
                     stdout=redacted_temp,
-                    enter_chroot=True,
-                    chroot_args=self.chroot.get_enter_args(),
                     print_cmd=True,
                 )
             current_input_file = redacted_temp
@@ -1141,14 +1125,12 @@ class _CommonPrepareBundle:
         if remove:
             # Call the remove indirect call script
             removed_temp = input_path + ".removed.temp"
-            cros_build_lib.run(
+            self.chroot.run(
                 [
                     "remove_indirect_calls",
                     "--input=" + self.chroot.chroot_path(current_input_file),
                     "--output=" + self.chroot.chroot_path(removed_temp),
                 ],
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
             current_input_file = removed_temp
@@ -1158,15 +1140,13 @@ class _CommonPrepareBundle:
             # 20k functions, as our current profile has ~20k functions so this
             # modification brings less impact on prod.
             reduced_tmp = input_path + ".reduced.tmp"
-            cros_build_lib.run(
+            self.chroot.run(
                 [
                     "remove_cold_functions",
                     "--input=" + self.chroot.chroot_path(current_input_file),
                     "--output=" + self.chroot.chroot_path(reduced_tmp),
                     "--number=" + str(reduce_functions),
                 ],
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
             current_input_file = reduced_tmp
@@ -1181,10 +1161,8 @@ class _CommonPrepareBundle:
             # Using `extbinary` profiles saves us hundreds of MB of RAM per
             # compilation, since it allows profiles to be lazily loaded.
             cmd_to_binary.append("--extbinary")
-        cros_build_lib.run(
+        self.chroot.run(
             cmd_to_binary,
-            enter_chroot=True,
-            chroot_args=self.chroot.get_enter_args(),
             print_cmd=True,
         )
 
@@ -1569,7 +1547,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             # Extract the name with a concrete version of chrome.
             bin_name = os.path.basename(bin_url)
             bin_compressed = self._AfdoTmpPath(bin_name)
-            cros_build_lib.run(
+            self.chroot.run(
                 [
                     "gsutil",
                     "-o",
@@ -1580,14 +1558,10 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
                     bin_url,
                     bin_compressed,
                 ],
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
-            cros_build_lib.run(
+            self.chroot.run(
                 ["bzip2", "-d", bin_compressed],
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
 
@@ -1607,10 +1581,8 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             self.gs_context.Copy(
                 perf_url, self.chroot.full_path(perf_compressed)
             )
-            cros_build_lib.run(
+            self.chroot.run(
                 ["bzip2", "-d", perf_compressed],
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         return ret
@@ -1907,12 +1879,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         )
 
         try:
-            cros_build_lib.run(
-                cmd,
-                stdout=result_out_chroot,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
-            )
+            self.chroot.run(cmd, stdout=result_out_chroot)
         except cros_build_lib.RunCommandError:
             raise BundleArtifactsHandlerError(
                 f"Unable to run {cmd} to get nm on Chrome binary"
@@ -1957,10 +1924,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         ]
 
         try:
-            cros_build_lib.run(
+            self.chroot.run(
                 cmd,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 check=True,
                 capture_output=True,
             )
@@ -2030,12 +1995,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 "--logs-dir",
                 os.path.join("/tmp/clang-tidy-logs", self.build_target),
             ]
-            cros_build_lib.run(
-                cmd,
-                cwd=self.chroot.path,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
-            )
+            self.chroot.run(cmd, cwd=self.chroot.path)
             artifact_path = os.path.join(self.output_dir, clang_tidy_tarball)
             shutil.copy2(
                 os.path.join(tempdir, clang_tidy_tarball), artifact_path
@@ -2078,10 +2038,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
 
         # Capture the clang version.
         clang_version_str = (
-            cros_build_lib.sudo_run(
+            self.chroot.sudo_run(
                 ["clang", "--version"],
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 stdout=True,
                 encoding="utf-8",
             )
@@ -2116,7 +2074,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             osutils.WriteFile(raw_list, "\n".join(profiles))
             basename = "%s.llvm.profdata" % profdata_base
             merged_path = os.path.join(tempdir, basename)
-            cros_build_lib.sudo_run(
+            self.chroot.sudo_run(
                 [
                     "llvm-profdata",
                     "merge",
@@ -2126,8 +2084,6 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                     self.chroot.chroot_path(merged_path),
                 ],
                 cwd=tempdir,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
             )
             artifact = os.path.join(self.output_dir, "%s.tar.xz" % basename)
             cros_build_lib.CreateTarball(
@@ -2155,11 +2111,9 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             self.output_dir, binary_name + BZ2_COMPRESSION_SUFFIX
         )
         with open(bin_path, "w", encoding="utf-8") as f:
-            cros_build_lib.run(
+            self.chroot.run(
                 ["bzip2", "-c", debug_bin_inside],
                 stdout=f,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         return [bin_path]
@@ -2186,7 +2140,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         afdo_name = self._GetBenchmarkAFDOName()
         afdo_path_inside = self._AfdoTmpPath(afdo_name)
         # Generate the afdo profile.
-        cros_build_lib.run(
+        self.chroot.run(
             [
                 _AFDO_GENERATE_LLVM_PROF,
                 "--binary=%s" % self._AfdoTmpPath(CHROME_UNSTRIPPED_NAME),
@@ -2196,8 +2150,6 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 # precise as the raw profile.
                 "--sample_threshold_frac=0",
             ],
-            enter_chroot=True,
-            chroot_args=self.chroot.get_enter_args(),
             print_cmd=True,
         )
         profile_size = os.path.getsize(self.chroot.full_path(afdo_path_inside))
@@ -2221,11 +2173,9 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             self.output_dir, afdo_name + BZ2_COMPRESSION_SUFFIX
         )
         with open(afdo_path, "w", encoding="utf-8") as f:
-            cros_build_lib.run(
+            self.chroot.run(
                 ["bzip2", "-c", afdo_path_inside],
                 stdout=f,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         files.append(afdo_path)
@@ -2259,11 +2209,9 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         )
 
         with open(merged_profile_compressed, "wb") as f:
-            cros_build_lib.run(
+            self.chroot.run(
                 ["bzip2", "-c", merged_profile_inside],
                 stdout=f,
-                enter_chroot=True,
-                chroot_args=self.chroot.get_enter_args(),
                 print_cmd=True,
             )
         files.append(merged_profile_compressed)

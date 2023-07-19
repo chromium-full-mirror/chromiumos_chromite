@@ -473,6 +473,7 @@ def CreateVm(
     Returns:
         str: Path to the created VM .bin file.
     """
+    chroot = chroot or chroot_lib.Chroot()
     assert board
     cmd = ["./image_to_vm.sh", "--board", board]
 
@@ -483,19 +484,10 @@ def CreateVm(
         cmd.extend(["--disk_layout", disk_layout])
 
     if image_dir:
-        if chroot:
-            inside_image_dir = chroot.chroot_path(image_dir)
-        else:
-            inside_image_dir = path_util.ToChrootPath(image_dir)
+        inside_image_dir = chroot.chroot_path(image_dir)
         cmd.extend(["--from", inside_image_dir])
 
-    chroot_args = None
-    if chroot and cros_build_lib.IsOutsideChroot():
-        chroot_args = chroot.get_enter_args()
-
-    result = cros_build_lib.run(
-        cmd, check=False, enter_chroot=True, chroot_args=chroot_args
-    )
+    result = chroot.run(cmd, check=False)
 
     if result.returncode:
         # Error running the command. Unfortunately we can't be much more helpful
@@ -553,13 +545,7 @@ def CreateGuestVm(
     cmd.append(image_path)
     cmd.append(output_path)
 
-    chroot_args = None
-    if chroot and cros_build_lib.IsOutsideChroot():
-        chroot_args = chroot.get_enter_args()
-
-    result = cros_build_lib.sudo_run(
-        cmd, check=False, enter_chroot=True, chroot_args=chroot_args
-    )
+    result = chroot.sudo_run(cmd, check=False)
 
     if result.returncode:
         # Error running the command. Unfortunately we can't be much more helpful
@@ -813,10 +799,7 @@ def create_stripped_packages_tar(
     for pattern in package_globs:
         packages = portage_util.FindPackageNameMatches(pattern, board)
         for cpv in packages:
-            cmd = [strip_package_path, "--board", board, cpv.cpf]
-            cros_build_lib.run(
-                cmd, enter_chroot=True, chroot_args=chroot.get_enter_args()
-            )
+            chroot.run([strip_package_path, "--board", board, cpv.cpf])
             # Find the stripped package.
             files = glob.glob(os.path.join(stripped_pkg_dir, cpv.cpf) + ".*")
             if not files:

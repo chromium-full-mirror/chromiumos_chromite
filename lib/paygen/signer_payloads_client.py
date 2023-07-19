@@ -484,7 +484,7 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
                 )
             )
 
-            cros_build_lib.run(
+            self._chroot.run(
                 [
                     sign_script,
                     "update_payload",
@@ -492,8 +492,6 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
                     self._chroot.chroot_path(self._work_dir),
                     self._chroot.chroot_path(signature_file),
                 ],
-                enter_chroot=True,
-                chroot_args=self._chroot.get_enter_args(),
             )
 
             signatures.append([osutils.ReadFile(signature_file, mode="rb")])

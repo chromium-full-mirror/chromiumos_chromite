@@ -1192,7 +1192,7 @@ class GenerateCpeExportTest(cros_test_lib.RunCommandTempDirTestCase):
             "--output-path",
             self.result_file,
         ]
-        self.assertCommandCalled(
+        self.assertCommandContains(
             expected_cmd,
             capture_output=True,
             chroot_args=["--chroot", mock.ANY, "--out-dir", mock.ANY],

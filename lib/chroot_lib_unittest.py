@@ -204,3 +204,39 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotEqual(chroot1, chroot3)
         self.assertNotEqual(chroot1, chroot5)
         self.assertNotEqual(chroot3, chroot5)
+
+
+class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
+    """Chroot tests with mock run()."""
+
+    def testRun(self):
+        """Test run() method."""
+        chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot", out_path=self.tempdir / "out"
+        )
+
+        chroot.run(["./foo", "bar"])
+        self.assertCommandContains(
+            ["./foo", "bar"],
+            enter_chroot=True,
+            chroot_args=[
+                "--chroot",
+                str(self.tempdir / "chroot"),
+                "--out-dir",
+                str(self.tempdir / "out"),
+            ],
+            extra_env={},
+        )
+
+        chroot.run(["cat", "dog"], extra_env={"USE": "antigravity"})
+        self.assertCommandContains(
+            ["cat", "dog"],
+            enter_chroot=True,
+            chroot_args=[
+                "--chroot",
+                str(self.tempdir / "chroot"),
+                "--out-dir",
+                str(self.tempdir / "out"),
+            ],
+            extra_env={"USE": "antigravity"},
+        )
