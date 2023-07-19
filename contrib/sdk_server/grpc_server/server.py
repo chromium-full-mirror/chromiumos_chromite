@@ -4,8 +4,10 @@
 
 """The definition of the grpc server for sdk server."""
 import asyncio
+import atexit
 from concurrent import futures
 import logging
+import signal
 from typing import List, Optional
 
 import grpc
@@ -16,16 +18,20 @@ from chromite.lib import sudo
 
 
 async def serve() -> None:
-    server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=None))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=None))
     servicer = sdk_server_defs_grpc.SdkChroot()
     sdk_server_pb2_grpc.add_sdk_server_serviceServicer_to_server(
         servicer, server
     )
 
     server.add_insecure_port("[::]:50051")
-    await server.start()
-    await server.wait_for_termination(timeout=None)
+    server.start()
 
+    def stop_server():
+        server.stop(5)
+
+    atexit.register(stop_server)
+    server.wait_for_termination(timeout=None)
 
 
 def run():
