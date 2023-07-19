@@ -43,22 +43,6 @@ def get_config(servo: servo_lib.Servo) -> servo_lib.ServoConfig:
     dut_control_on = []
     dut_control_off = []
 
-    # We need to get the SoC into a state where the AP won't boot, but enough
-    # rails are up to prevent leakage.
-    # Shutdown AP so that it enters G3 state.
-    dut_control_on.append(["ec_uart_cmd:apshutdown"])
-    # Sleep to ensure the SoC rails get chance to discharge enough.
-    dut_control_on.append(["sleep:5"])
-    # Turn on the S5 rails & initiate partial power up.
-    dut_control_on.append(["ec_uart_cmd:gpioset en_pp3300_a 1"])
-    # Sleep to ensure the required delay for device power sequencing.
-    # Require 130 ms between EN_PP3300_A assertion and EC_AP_RSMRST_L assertion.
-    dut_control_on.append(["sleep:0.2"])
-    # Halt the power sequencing by de-asserting EC_AP_RSMRST_L.
-    dut_control_on.append(["ec_uart_cmd:gpioset ec_ap_rsmrst_l 0"])
-    # De-assert again to be on the safe side.
-    dut_control_on.append(["ec_uart_cmd:gpioset ec_ap_rsmrst_l 0"])
-
     if servo.is_micro or servo.is_v2:
         dut_control_on.append(["cpu_fw_spi:on"])
         dut_control_off = [["cpu_fw_spi:off"]]
