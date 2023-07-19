@@ -464,16 +464,18 @@ def EmergeWithLinting(
                     line_end=location.line_end,
                 )
             )
+
+        pkg = PackageInfo()
+        if finding.package:
+            pkg.category = finding.package.category
+            pkg.package_name = finding.package.package
+            pkg.version = finding.package.version
         output_proto.findings.append(
             toolchain_pb2.LinterFinding(
                 message=finding.message,
                 locations=locations,
                 linter=LINTER_CODES[finding.linter],
-                package=PackageInfo(
-                    category=finding.package.category,
-                    package_name=finding.package.package,
-                    version=finding.package.version,
-                ),
+                package=pkg,
             )
         )
 
