@@ -41,11 +41,16 @@ describe('C++ xrefs in platform2', () => {
     IGNORED_DIRS.map(x => path.join(platform2, x))
   )) {
     describe(`for ${cppFile}`, () => {
-      it('can find package to compile', async () => {
-        const packageInfo = await packages.fromFilepath(cppFile);
+      it(
+        'can find package to compile',
+        async () => {
+          const packageInfo = await packages.fromFilepath(cppFile);
 
-        expect(packageInfo).toBeTruthy();
-      });
+          expect(packageInfo).toBeTruthy();
+        },
+        // Initial call to packages.fromFilepath takes about 30 seconds.
+        60 * 1000
+      );
     });
   }
 });
