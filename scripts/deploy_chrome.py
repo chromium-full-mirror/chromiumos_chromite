@@ -529,14 +529,6 @@ class DeployChrome:
             mode="rsync",
         )
 
-    def _CheckConnection(self):
-        try:
-            logging.info("Testing connection to the device...")
-            self.device.run("true")
-        except cros_build_lib.RunCommandError as ex:
-            logging.error("Error connecting to the test device.")
-            raise DeployFailure(ex)
-
     def _CheckBoard(self):
         """Check that the Chrome build is targeted for the device board."""
         if self.options.board == self.device.board:
@@ -636,7 +628,6 @@ class DeployChrome:
         logging.info("Preparing device")
         steps = [
             self._GetDeviceInfo,
-            self._CheckConnection,
             self._MountRootfsAsWritable,
             self._PrepareStagingDir,
         ]
