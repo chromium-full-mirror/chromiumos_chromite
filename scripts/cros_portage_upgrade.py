@@ -872,6 +872,24 @@ class Upgrader:
         # Write ebuild file back out.
         osutils.WriteFile(ebuild_path, content)
 
+    def _FixPythonCompat(self, ebuild_path):
+        """Edit PYTHON_COMPAT to cover the python versions used by ChromeOS."""
+        oper.Notice(f"Fixing up PYTHON_COMPAT for {ebuild_path!r}")
+
+        # Regexp to search for PYTHON_COMPAT="...".
+        python_regexp = re.compile(
+            r"^(\s*PYTHON_COMPAT=\()[^)]*(\))", re.MULTILINE
+        )
+
+        # Read in entire ebuild.
+        content = osutils.ReadFile(ebuild_path)
+
+        # Set PYTHON_COMPAT to "( python3_{6..12} )".
+        content = re.sub(python_regexp, r"\1 python3_{6..12} \2", content)
+
+        # Write ebuild file back out.
+        osutils.WriteFile(ebuild_path, content)
+
     def _CopyUpstreamEclass(self, eclass):
         """Upgrades eclass in |eclass| to upstream copy.
 
@@ -1105,6 +1123,7 @@ class Upgrader:
             self._SetUpgradedMaskBits(pinfo)
             ebuild_path = Upgrader._GetEbuildPathFromCpv(pinfo.upgraded_cpv)
             self._StabilizeEbuild(os.path.join(self._stable_repo, ebuild_path))
+            self._FixPythonCompat(os.path.join(self._stable_repo, ebuild_path))
 
             # Add all new package files to git.
             self._RunGit(self._stable_repo, ["add", pinfo.package])
