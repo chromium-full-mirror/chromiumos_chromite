@@ -277,6 +277,16 @@ class DeployChrome:
 
     def _KillLacrosChrome(self):
         """This method kills lacros-chrome on the device, if it's running."""
+        # Mark the lacros chrome binary as not executable, so if keep-alive is
+        # enabled ash chrome can't restart lacros chrome. This prevents rsync
+        # from failing if the file is still in use (being executed by ash
+        # chrome). Note that this will cause ash chrome to continuously attempt
+        # to start lacros and fail, although it doesn't seem to cause issues.
+        if self.options.skip_restart_ui:
+            self.device.run(
+                ["chmod", "-x", f"{self.options.target_dir}/chrome"],
+                check=False,
+            )
         self.device.run(
             _KILL_LACROS_CHROME_CMD % {"lacros_dir": self.options.target_dir},
             check=False,
@@ -423,15 +433,35 @@ class DeployChrome:
             if not self.device.HasRsync():
                 raise DeployFailure("Failed to install rsync")
 
-        self.device.CopyToDevice(
-            "%s/" % os.path.abspath(self.staging_dir),
-            self.options.target_dir,
-            mode="rsync",
-            inplace=True,
-            compress=self._ShouldUseCompression(),
-            debug_level=logging.INFO,
-            verbose=self.options.verbose,
-        )
+        try:
+            staging_dir = os.path.abspath(self.staging_dir)
+            staging_chrome = os.path.join(staging_dir, "chrome")
+
+            if (
+                self.options.lacros
+                and self.options.skip_restart_ui
+                and os.path.exists(staging_chrome)
+            ):
+                # Make the chrome binary not executable before deploying to
+                # prevent ash chrome from starting chrome before the rsync has
+                # finished.
+                os.chmod(staging_chrome, 0o644)
+
+            self.device.CopyToDevice(
+                f"{staging_dir}/",
+                self.options.target_dir,
+                mode="rsync",
+                inplace=True,
+                compress=self._ShouldUseCompression(),
+                debug_level=logging.INFO,
+                verbose=self.options.verbose,
+            )
+        finally:
+            if self.options.lacros and self.options.skip_restart_ui:
+                self.device.run(
+                    ["chmod", "+x", f"{self.options.target_dir}/chrome"],
+                    check=False,
+                )
 
         # Set the security context on the default Chrome dir if that's where
         # it's getting deployed, and only on SELinux supported devices.
