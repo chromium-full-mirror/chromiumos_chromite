@@ -387,8 +387,8 @@ class ReportStageTest(AbstractReportStageTestCase):
         self.assertIn("builder_name", tags_dict)
         self.assertIn("bot_hostname", tags_dict)
         self.RunStage()
-        tags_content = osutils.WriteFile.call_args_list[1][0][1]
-        tags_content_dict = json.loads(tags_content)
+        tags_content = osutils.WriteFile.call_args_list[0][0][1]
+        tags_content_dict = json.loads(tags_content)["tags"]
         self.assertEqual(
             tags_content_dict["build_number"],
             generic_stages_unittest.DEFAULT_BUILD_NUMBER,

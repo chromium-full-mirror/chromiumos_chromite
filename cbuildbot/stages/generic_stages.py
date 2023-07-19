@@ -1164,6 +1164,8 @@ class ArchivingStageMixin:
         Returns:
             If upload was successful or not
         """
+        assert not export, "Export support is being removed"
+
         metadata_json = os.path.join(self.archive_path, filename)
 
         # Stages may run in parallel, so we have to do atomic updates on this.

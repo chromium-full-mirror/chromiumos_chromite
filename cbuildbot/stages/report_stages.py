@@ -688,7 +688,7 @@ class ReportStage(
 
         # Upload metadata, and update the pass/fail streak counter for the main
         # run only. These aren't needed for the child builder runs.
-        self.UploadMetadata(export=True)
+        self.UploadMetadata()
 
         build_identifier, _ = self._run.GetCIDBHandle()
         build_id = build_identifier.cidb_id
