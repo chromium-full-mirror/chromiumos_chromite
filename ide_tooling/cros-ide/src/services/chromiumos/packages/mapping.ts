@@ -47,7 +47,7 @@ async function generateSub(dir: string) {
       await fs.promises.readFile(ebuild, 'utf-8')
     );
     if (platformSubdir) {
-      const atom = toPackageName(ebuild);
+      const name = toPackageName(ebuild);
 
       const subdirs = [platformSubdir];
       const sublings = SIBLING_DEPS[platformSubdir];
@@ -58,7 +58,7 @@ async function generateSub(dir: string) {
       for (const subdir of subdirs) {
         packages.push({
           sourceDir: path.join('src/platform2', subdir),
-          atom,
+          name,
         });
       }
     }

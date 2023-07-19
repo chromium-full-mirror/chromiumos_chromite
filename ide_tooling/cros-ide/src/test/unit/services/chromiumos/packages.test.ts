@@ -37,7 +37,7 @@ PLATFORM_SUBDIR="camera/common"
       )
     ).toEqual({
       sourceDir: 'src/platform2/foo',
-      atom: 'chromeos-base/foo',
+      name: 'chromeos-base/foo',
     });
 
     for (const name of ['common', 'features', 'gpu']) {
@@ -47,7 +47,7 @@ PLATFORM_SUBDIR="camera/common"
         )
       ).toEqual({
         sourceDir: `src/platform2/camera/${name}`,
-        atom: 'chromeos-base/cros-camera-libs',
+        name: 'chromeos-base/cros-camera-libs',
       });
     }
 

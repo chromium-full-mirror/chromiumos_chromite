@@ -73,7 +73,7 @@ inherit cros-workon platform user
         board: 'amd64-generic',
         packageInfo: {
           sourceDir: 'src/platform2/cros-disks',
-          atom: 'chromeos-base/cros-disks',
+          name: 'chromeos-base/cros-disks',
         },
       },
     ]);

@@ -77,7 +77,7 @@ describe('Compdb service', () => {
     });
     await compdbService.generate('amd64-generic', {
       sourceDir: 'src/platform2/codelab',
-      atom: 'chromeos-base/codelab',
+      name: 'chromeos-base/codelab',
     });
 
     expect(
@@ -147,7 +147,7 @@ describe('Compdb service', () => {
     });
     await compdbService.generate('amd64-generic', {
       sourceDir: 'src/platform2/codelab',
-      atom: 'chromeos-base/codelab',
+      name: 'chromeos-base/codelab',
     });
 
     expect(

@@ -7,14 +7,14 @@ import * as vscode from 'vscode';
 import {buildGet9999EbuildCommand} from '../../../../common/chromiumos/portage/equery';
 import * as commonUtil from '../../../../common/common_util';
 import * as services from '../../../../services';
-import {Atom} from '../../../../services/chromiumos';
+import {PackageName} from '../../../../services/chromiumos';
 import {Board, HOST} from './board';
 import {CompdbError, CompdbErrorKind} from './error';
 
 export class Ebuild {
   constructor(
     private readonly board: Board,
-    readonly atom: Atom,
+    readonly packageName: PackageName,
     private readonly output: Pick<
       vscode.OutputChannel,
       'append' | 'appendLine'
@@ -28,7 +28,7 @@ export class Ebuild {
     new Map();
 
   private mutex() {
-    const key = `${this.board}:${this.atom}:${this.crosFs.source.root}`;
+    const key = `${this.board}:${this.packageName}:${this.crosFs.source.root}`;
     const existing = Ebuild.globalMutexMap.get(key);
     if (existing) {
       return existing;
@@ -41,7 +41,7 @@ export class Ebuild {
   /**
    * Generates compilation database.
    *
-   * We run concurrent operations exclusively if the board, atom, and chroot path
+   * We run concurrent operations exclusively if the board, package name, and chroot path
    * for the operations are exactly the same.
    *
    * @throws CompdbError on failure.
@@ -77,7 +77,7 @@ export class Ebuild {
    * https://devmanual.gentoo.org/ebuild-writing/variables/index.html
    */
   private portageBuildDir(): string {
-    return path.join(this.sysroot(), 'tmp/portage', this.atom + '-9999');
+    return path.join(this.sysroot(), 'tmp/portage', this.packageName + '-9999');
   }
 
   /**
@@ -87,7 +87,7 @@ export class Ebuild {
   private buildDirs(): string[] {
     return [
       // If CROS_WORKON_INCREMENTAL_BUILD=="1"
-      path.join(this.sysroot(), 'var/cache/portage', this.atom),
+      path.join(this.sysroot(), 'var/cache/portage', this.packageName),
       // Otherwise
       path.join(this.portageBuildDir(), 'work', 'build'),
       path.join(this.portageBuildDir()),
@@ -99,10 +99,10 @@ export class Ebuild {
    * cros_workon was run for the package.
    */
   async ebuild9999(): Promise<string> {
-    // TODO(oka): Update the type of this.atom to EbuildBaseAtom.
+    // TODO(oka): Update the type of this.packageName to ParsedPackageName.
     const pkg = {
-      category: this.atom.split('/')[0],
-      name: this.atom.split('/')[1],
+      category: this.packageName.split('/')[0],
+      name: this.packageName.split('/')[1],
     };
 
     const args = buildGet9999EbuildCommand(this.board, pkg);

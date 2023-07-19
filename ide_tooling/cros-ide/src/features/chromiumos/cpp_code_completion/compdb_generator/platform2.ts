@@ -7,7 +7,7 @@ import * as vscode from 'vscode';
 import * as commonUtil from '../../../../common/common_util';
 import {getOrSelectTargetBoard, NoBoardError} from '../../../../ide_util';
 import * as services from '../../../../services';
-import {Atom, Packages} from '../../../../services/chromiumos';
+import {PackageName, Packages} from '../../../../services/chromiumos';
 import * as metrics from '../../../metrics/metrics';
 import {
   CompdbError,
@@ -26,7 +26,7 @@ export class Platform2 implements CompdbGenerator {
   private readonly subscriptions: vscode.Disposable[] = [];
   private readonly packages: Packages;
   // Packages for which compdb has been or being generated in this session.
-  private readonly generationStates = new Map<Atom, GenerationState>();
+  private readonly generationStates = new Map<PackageName, GenerationState>();
 
   constructor(
     private readonly chrootService: services.chromiumos.ChrootService,
@@ -75,7 +75,7 @@ export class Platform2 implements CompdbGenerator {
       return ShouldGenerateResult.NoUnsupported;
     }
 
-    switch (this.generationStates.get(packageInfo.atom)) {
+    switch (this.generationStates.get(packageInfo.name)) {
       case undefined:
         return ShouldGenerateResult.Yes;
       case 'generated': {
@@ -111,15 +111,15 @@ export class Platform2 implements CompdbGenerator {
     }
     const packageInfo = (await this.packages.fromFilepath(document.fileName))!;
 
-    this.generationStates.set(packageInfo.atom, 'generating');
+    this.generationStates.set(packageInfo.name, 'generating');
 
     try {
       // TODO(oka): use token to cancel the operation.
       await this.compdbService!.generate(board, packageInfo);
 
-      this.generationStates.set(packageInfo.atom, 'generated');
+      this.generationStates.set(packageInfo.name, 'generated');
     } catch (e) {
-      this.generationStates.set(packageInfo.atom, 'failed');
+      this.generationStates.set(packageInfo.name, 'failed');
 
       const error = e as CompdbError;
       switch (error.details.kind) {

@@ -4,7 +4,7 @@
 
 import * as path from 'path';
 import * as commonUtil from '../../../../common/common_util';
-import {Atom, PackageInfo} from '../../../../services/chromiumos';
+import {PackageName, PackageInfo} from '../../../../services/chromiumos';
 
 /**
  * Returns the destination on which the compilation database should be generated.
@@ -16,6 +16,6 @@ export function destination(
   return path.join(source, sourceDir, 'compile_commands.json');
 }
 
-export function packageName(atom: Atom): string {
-  return atom.split('/')[1];
+export function packageName(name: PackageName): string {
+  return name.split('/')[1];
 }

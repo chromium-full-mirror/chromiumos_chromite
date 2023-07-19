@@ -243,25 +243,25 @@ class Tester {
     }
 
     const jobsProviders = [];
-    const seenAtoms = new Set();
+    const seenPackageNames = new Set();
     for (const buildGn of cppBuildGn) {
       const packageInfo = await packagesInstance().fromFilepath(buildGn);
       if (!packageInfo) {
         throw new Error(`Failed to get package info from ${buildGn}`);
       }
-      if (SKIP_PACKAGES.has(packageInfo.atom)) {
+      if (SKIP_PACKAGES.has(packageInfo.name)) {
         continue;
       }
       if (
         this.options.package.length &&
-        !this.options.package.includes(packageInfo.atom)
+        !this.options.package.includes(packageInfo.name)
       ) {
         continue;
       }
-      if (seenAtoms.has(packageInfo.atom)) {
+      if (seenPackageNames.has(packageInfo.name)) {
         continue;
       }
-      seenAtoms.add(packageInfo.atom);
+      seenPackageNames.add(packageInfo.name);
 
       const output = await this.packageOutputChannel(packageInfo);
 
@@ -360,7 +360,7 @@ class Tester {
     packageInfo: services.chromiumos.PackageInfo
   ): Promise<vscode.OutputChannel> {
     return await FileOutputChannel.create(
-      path.join(this.logDir, packageInfo.atom, 'output.txt'),
+      path.join(this.logDir, packageInfo.name, 'output.txt'),
       false
     );
   }

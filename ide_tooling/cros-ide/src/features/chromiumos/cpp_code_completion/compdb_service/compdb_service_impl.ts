@@ -38,7 +38,7 @@ export class CompdbServiceImpl implements CompdbService {
       return;
     }
     this.output.appendLine(
-      `Running compilation for ${packageInfo.atom} to create generated C++ files`
+      `Running compilation for ${packageInfo.name} to create generated C++ files`
     );
     // Run compilation to generate C++ files (from mojom files, for example).
     await this.generateInner(board, packageInfo, [
@@ -54,17 +54,20 @@ export class CompdbServiceImpl implements CompdbService {
    */
   async generateInner(
     board: string,
-    {sourceDir, atom}: PackageInfo,
+    {sourceDir, name}: PackageInfo,
     useFlags: string[]
   ): Promise<string | undefined> {
-    const ebuild = new Ebuild(board, atom, this.output, this.crosFs, useFlags);
+    const ebuild = new Ebuild(board, name, this.output, this.crosFs, useFlags);
     const artifact = await ebuild.generate();
     if (artifact === undefined) {
       throw new CompdbError({
         kind: CompdbErrorKind.NotGenerated,
       });
     }
-    const dest = destination(this.crosFs.source.root, {sourceDir, atom});
+    const dest = destination(this.crosFs.source.root, {
+      sourceDir,
+      name,
+    });
     let tempFile;
     for (;;) {
       tempFile = path.join(path.dirname(dest), '.' + uuid.v4());

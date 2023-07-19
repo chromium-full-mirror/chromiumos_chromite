@@ -10,9 +10,9 @@ export type SourceDir = string;
 /**
  * category/packagename e.g. chromeos-base/codelab
  */
-export type Atom = string;
+export type PackageName = string;
 
 export interface PackageInfo {
   sourceDir: SourceDir;
-  atom: Atom;
+  name: PackageName;
 }

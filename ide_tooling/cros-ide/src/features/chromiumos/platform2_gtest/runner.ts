@@ -46,7 +46,7 @@ export class Runner extends AbstractRunner {
   );
 
   protected override async doRun() {
-    const atomToTests = await this.atomToTests();
+    const packageToTests = await this.packageToTests();
 
     const name =
       this.request.profile?.kind === vscode.TestRunProfileKind.Run
@@ -62,16 +62,16 @@ export class Runner extends AbstractRunner {
           ? 'run platform2 gtests'
           : 'debug platform2 gtests',
       // Package names.
-      package_names: [...atomToTests.keys()].sort().join(' '),
+      package_names: [...packageToTests.keys()].sort().join(' '),
       // Number of tests to run.
-      tests_count: [...atomToTests.values()]
+      tests_count: [...packageToTests.values()]
         .map(x => x.length)
         .reduce((x, y) => x + y),
     });
 
     // Run tests per package.
-    for (const [atom, tests] of atomToTests.entries()) {
-      const ebuildInstance = this.createEbuild(atom);
+    for (const [packageName, tests] of packageToTests.entries()) {
+      const ebuildInstance = this.createEbuild(packageName);
 
       // Compile the package for unit test executables.
       let buildDir: string;
@@ -178,14 +178,17 @@ export class Runner extends AbstractRunner {
    * iterates all the tests to run, and marks a test as enqueued if a package
    * containing the test is found, or as skipped otherwise.
    */
-  private async atomToTests(): Promise<
-    Map<services.chromiumos.Atom, GtestCase[]>
+  private async packageToTests(): Promise<
+    Map<services.chromiumos.PackageName, GtestCase[]>
   > {
     const packages = services.chromiumos.Packages.getOrCreate(
       this.chrootService
     );
 
-    const atomToTests = new Map<services.chromiumos.Atom, GtestCase[]>();
+    const packageToTests = new Map<
+      services.chromiumos.PackageName,
+      GtestCase[]
+    >();
     await this.gtestWorkspace.forEachMatching(this.request, async testCase => {
       const packageInfo = await packages.fromFilepath(testCase.uri.fsPath);
       if (!packageInfo) {
@@ -197,18 +200,18 @@ export class Runner extends AbstractRunner {
       }
       this.testRun.enqueued(testCase.item);
 
-      const tests = atomToTests.get(packageInfo.atom);
+      const tests = packageToTests.get(packageInfo.name);
       if (tests) {
         tests.push(testCase);
       } else {
-        atomToTests.set(packageInfo.atom, [testCase]);
+        packageToTests.set(packageInfo.name, [testCase]);
       }
     });
 
-    return atomToTests;
+    return packageToTests;
   }
 
-  private createEbuild(atom: string): ebuild.Ebuild {
+  private createEbuild(packageName: string): ebuild.Ebuild {
     // HACK: We don't need compdb (compilation database) here, but still pass
     // the compilation_database flag, because internally the Ebuild class
     // hard-codes the filename of compdb and use it as a marker to find the
@@ -224,7 +227,7 @@ export class Runner extends AbstractRunner {
     // compilation_database flag here.
     return new ebuild.Ebuild(
       this.board,
-      atom,
+      packageName,
       this.output,
       this.chrootService.crosFs,
       ['compilation_database', 'test'],
@@ -240,7 +243,7 @@ export class Runner extends AbstractRunner {
     // generate() throws on failure.
     const compilationDatabase = await ebuildInstance.generate();
     if (!compilationDatabase) {
-      throw new Error(`failed to compile ${ebuildInstance.atom}`);
+      throw new Error(`failed to compile ${ebuildInstance.packageName}`);
     }
     return path.dirname(compilationDatabase);
   }
