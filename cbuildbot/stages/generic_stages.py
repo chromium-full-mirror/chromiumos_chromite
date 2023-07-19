@@ -12,14 +12,12 @@ import logging
 import os
 import re
 import sys
-import tempfile
 import time
 import traceback
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
 from chromite.cbuildbot import repository
-from chromite.cbuildbot import topology
 from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import constants
@@ -1142,7 +1140,7 @@ class ArchivingStageMixin:
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
     def UploadMetadata(
-        self, upload_queue=None, filename=constants.METADATA_JSON, export=False
+        self, upload_queue=None, filename=constants.METADATA_JSON
     ):
         """Create & upload JSON file of the builder run's metadata, and to cidb.
 
@@ -1159,13 +1157,10 @@ class ArchivingStageMixin:
                 this queue.  If None then upload it directly now.
             filename: Name of file to dump metadata to. Defaults to
                 constants.METADATA_JSON
-            export: If true, constants.METADATA_TAGS will be exported to gcloud.
 
         Returns:
             If upload was successful or not
         """
-        assert not export, "Export support is being removed"
-
         metadata_json = os.path.join(self.archive_path, filename)
 
         # Stages may run in parallel, so we have to do atomic updates on this.
@@ -1194,38 +1189,6 @@ class ArchivingStageMixin:
                 build_id,
             )
             self.buildstore.UpdateMetadata(build_id, self._run.attrs.metadata)
-            if export:
-                d = self._run.attrs.metadata.GetDict()
-                if constants.METADATA_TAGS in d:
-                    c_file = topology.topology.get(
-                        topology.DATASTORE_WRITER_CREDS_KEY
-                    )
-                    if c_file:
-                        with tempfile.NamedTemporaryFile() as f:
-                            logging.info(
-                                "Export tags to gcloud via %s.", f.name
-                            )
-                            logging.debug(
-                                "Exporting: %s", d[constants.METADATA_TAGS]
-                            )
-                            osutils.WriteFile(
-                                f.name,
-                                json.dumps(d[constants.METADATA_TAGS]),
-                                atomic=True,
-                                makedirs=True,
-                            )
-                            commands.ExportToGCloud(
-                                self._build_root,
-                                c_file,
-                                f.name,
-                                caller=type(self).__name__,
-                            )
-                    else:
-                        logging.warning(
-                            "No datastore credential file found; "
-                            "skipping export"
-                        )
-                        return False
         else:
             logging.info("Skipping database update, no database or build_id.")
             return False

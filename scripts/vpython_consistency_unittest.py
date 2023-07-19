@@ -19,7 +19,6 @@ from chromite.lib import constants
 # The list of vpython environments to check for consistency. Paths are relative
 # to CHROMITE_DIR.
 _INPUTS = [
-    "bin/export_to_gcloud.vpython3",
     "scripts/black",
     "scripts/isort",
     "scripts/mypy",
@@ -35,18 +34,12 @@ _EXCEPTIONS = {
     " wants 0.4.3 but scripts/mypy has 1.0.0",
     "infra/python/wheels/mypy-extensions-py3: scripts/black"
     " wants 0.4.3 but scripts/mypy has 1.0.0",
-    "infra/python/wheels/mypy-extensions-py3: bin/export_to_gcloud.vpython3"
-    " wants 0.4.3 but scripts/mypy has 1.0.0",
-    "infra/python/wheels/protobuf-py2_py3: scripts/run_tests.vpython3"
-    " wants 3.13.0 but bin/export_to_gcloud.vpython3 has 3.18.1",
     "infra/python/wheels/pyasn1-py2_py3: scripts/vpython_wrapper.py"
     " wants 0.2.3 but scripts/run_tests.vpython3 has 0.4.8",
     "infra/python/wheels/pyasn1_modules-py2_py3: scripts/vpython_wrapper.py"
     " wants 0.0.8 but scripts/run_tests.vpython3 has 0.2.8",
     "infra/python/wheels/typing-extensions-py3: scripts/mypy"
     " wants 3.10.0.2 but scripts/run_tests.vpython3 has 4.0.1",
-    "infra/python/wheels/typing-extensions-py3: bin/export_to_gcloud.vpython3"
-    " wants 3.7.4.3 but scripts/run_tests.vpython3 has 4.0.1",
     "infra/python/wheels/tomli-py3: scripts/mypy"
     " wants 1.1.0 but scripts/run_tests.vpython3 has 2.0.1",
     "infra/python/wheels/tomli-py3: scripts/black"

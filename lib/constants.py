@@ -201,7 +201,6 @@ MON_BB_RETRY_BUILD_COUNT = "chromeos/cbuildbot/buildbucket/retry_build_count"
 MON_BB_CANCEL_BATCH_BUILDS_COUNT = (
     "chromeos/cbuildbot/buildbucket/cancel_batch_builds_count"
 )
-MON_EXPORT_TO_GCLOUD = "chromeos/cbuildbot/export_to_gcloud"
 
 # Stage Categorization for failed stages metric.
 UNCATEGORIZED_STAGE = "Uncategorized"
