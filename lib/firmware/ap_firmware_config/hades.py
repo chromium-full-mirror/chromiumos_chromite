@@ -2,13 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Draco configs."""
+"""Hades configs."""
 
 from chromite.lib.firmware import servo_lib
 
 
 def get_config(servo: servo_lib.Servo) -> servo_lib.ServoConfig:
-    """Get DUT controls and programmer argument to flash Draco.
+    """Get DUT controls and programmer argument to flash Hades.
 
     Each board needs specific config including the voltage for Vref, to turn
     on and turn off the SPI flash. get_config() returns servo_lib.ServoConfig
