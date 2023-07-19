@@ -1,11 +1,12 @@
+# !/usr/bin/env vpython3
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
 """Flask app main file for frontend."""
-# !/usr/bin/env vpython3
 
-import asyncio
+import os
+import socket
 from typing import List, Optional
 
 # pylint: disable=import-error
@@ -21,15 +22,13 @@ from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
 from chromite.contrib.sdk_server.grpc_server.chromiumos import (
     common_pb2 as common,
 )
-from chromite.contrib.sdk_server.ui.constants import constants
 from chromite.lib.parser import package_info
 
 
 app = flask.Flask("SDK Server")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-
-index_data = constants.get_index_data()
+index_data = {}
 
 # Code 204 "No content" for endpoints which just execute a function.
 NO_RESPONSE_OK = ("", 204)
@@ -192,7 +191,9 @@ def get_packages():
     if flask.request.json["board"]:
         boards_to_get = [
             sdk_server_pb2.BoardImages(
-                build_target=common.BuildTarget(name=flask.request.json["board"])
+                build_target=common.BuildTarget(
+                    name=flask.request.json["board"]
+                )
             )
         ]
     else:
@@ -403,6 +404,9 @@ def index():
 
 def setup():
     """Populates initial templating data from gRPC requests."""
+
+    index_data["user"] = os.getlogin()
+    index_data["hostname"] = socket.gethostname()
 
     # List of all boards for various menus.
     all_boards = client.query_boards(sdk_server_pb2.QueryBoardsRequest())
