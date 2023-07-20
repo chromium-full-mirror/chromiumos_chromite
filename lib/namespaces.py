@@ -17,7 +17,7 @@ import signal
 # the cros_build_lib.run helper.
 import subprocess
 import sys
-from typing import List
+from typing import List, Optional
 
 from chromite.lib import commandline
 from chromite.lib import locking
@@ -77,21 +77,24 @@ def Unshare(flags):
         raise OSError(e, os.strerror(e))
 
 
-def _ReapChildren(pid):
+def _ReapChildren(pid: int, uid: Optional[int], gid: Optional[int]) -> None:
     """Reap all children that get reparented to us until we see |pid| exit.
 
     Args:
         pid: The main child to watch for.
-
-    Returns:
-        The wait status of the |pid| child.
+        uid: The user to switch to first.
+        gid: The group to switch to first.
     """
+    if gid is not None:
+        os.setgid(gid)
+    if uid is not None:
+        os.setuid(uid)
 
     while True:
         try:
             (wpid, status) = os.wait()
             if pid == wpid:
-                return status
+                process_util.ExitAsStatus(status)
         except OSError as e:
             if e.errno == errno.ECHILD:
                 raise ValueError(
@@ -137,8 +140,8 @@ def _ForwardToChildPid(pid, signal_to_forward):
     signal.signal(signal_to_forward, _ForwardingHandler)
 
 
-def CreatePidNs():
-    """Start a new pid namespace
+def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> None:
+    """Start a new pid namespace.
 
     This will launch all the right manager processes.  The child that returns
     will be isolated in a new pid namespace.
@@ -158,6 +161,10 @@ def CreatePidNs():
             - All SIGTERM/SIGINT signals are forwarded down from pid X to pid Z
               to handle.
             - SIGKILL will only kill pid X, and leak Pid Y and Z.
+
+    Args:
+        uid: The user to run the init processes as.
+        gid: The group to run the init processes as.
 
     Returns:
         The last pid outside of the namespace. (i.e., pid X)
@@ -202,7 +209,7 @@ def CreatePidNs():
         del lock
 
         # Reap the children as the parent of the new namespace.
-        process_util.ExitAsStatus(_ReapChildren(pid))
+        _ReapChildren(pid, uid=uid, gid=gid)
     else:
         # Make sure to unshare the existing mount point if needed.  Some distros
         # create shared mount points everywhere by default.
@@ -258,7 +265,7 @@ def CreatePidNs():
 
             # Watch all the children.  We need to act as the master inside the
             # namespace and reap old processes.
-            process_util.ExitAsStatus(_ReapChildren(pid))
+            _ReapChildren(pid, uid=uid, gid=gid)
 
     # Wait for our parent to finish initialization.
     lock.Wait()
@@ -335,8 +342,15 @@ def CreateUserNs() -> None:
 
 
 def SimpleUnshare(
-    mount=True, uts=True, ipc=True, net=False, pid=False, cgroup=False
-):
+    mount: bool = True,
+    uts: bool = True,
+    ipc: bool = True,
+    net: bool = False,
+    pid: bool = False,
+    cgroup: bool = False,
+    pid_uid: Optional[int] = None,
+    pid_gid: Optional[int] = None,
+) -> None:
     """Simpler helper for setting up namespaces quickly.
 
     If support for any namespace type is not available, we'll silently skip it.
@@ -348,6 +362,8 @@ def SimpleUnshare(
         net: Create a net namespace.
         pid: Create a pid namespace.
         cgroup: Create a cgroup namespace.
+        pid_uid: The UID to switch the init to when creating a pid namespace.
+        pid_gid: The GID to switch the init to when creating a pid namespace.
     """
     # The mount namespace is the only one really guaranteed to exist --
     # it's been supported forever and it cannot be turned off.
@@ -374,7 +390,7 @@ def SimpleUnshare(
         CreateNetNs()
 
     if pid:
-        CreatePidNs()
+        CreatePidNs(uid=pid_uid, gid=pid_gid)
 
     # The cgroup namespace was added in 4.6 and may be disabled in the kernel.
     if cgroup:
