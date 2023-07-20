@@ -3179,7 +3179,7 @@
       "reference_board_name": "constitution",
       "arch": "X86_INTERNAL",
       "builder": "RELEASE",
-      "experimental": true,
+      "experimental": false,
       "models": [
         {
           "board_name": "constitution",
