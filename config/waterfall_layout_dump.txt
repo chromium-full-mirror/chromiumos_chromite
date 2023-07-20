@@ -131,10 +131,10 @@
     brya-release
     bubs-release
     cherry-release
+    constitution-release
     coral-release
     corsola-release
     dedede-release
-    draco-release
     drallion-release
     elm-release
     endeavour-release
@@ -148,7 +148,6 @@
     grunt-release
     guado_labstation-release
     guybrush-release
-    hades-release
     hana-arc64-release
     hana-release
     hatch-arc-t-release
@@ -313,6 +312,11 @@
   chromiumos-sdk-llvm-next-tryjob
   chromiumos-sdk-tryjob
   config-updater-tryjob
+  constitution-full-tryjob
+  constitution-llvm-next-toolchain-tryjob
+  constitution-llvm-toolchain-tryjob
+  constitution-payloads-tryjob
+  constitution-release-tryjob
   coral-factory-coral-10122.B-factorybranch-tryjob
   coral-full-tryjob
   coral-llvm-next-toolchain-tryjob
@@ -337,11 +341,6 @@
   deltaur-llvm-toolchain-tryjob
   deltaur-payloads-tryjob
   deltaur-release-tryjob
-  draco-full-tryjob
-  draco-llvm-next-toolchain-tryjob
-  draco-llvm-toolchain-tryjob
-  draco-payloads-tryjob
-  draco-release-tryjob
   drallion-factory-drallion-13080.B-factorybranch-tryjob
   drallion-full-tryjob
   drallion-llvm-next-toolchain-tryjob
@@ -559,11 +558,6 @@
   guybrush-llvm-toolchain-tryjob
   guybrush-payloads-tryjob
   guybrush-release-tryjob
-  hades-full-tryjob
-  hades-llvm-next-toolchain-tryjob
-  hades-llvm-toolchain-tryjob
-  hades-payloads-tryjob
-  hades-release-tryjob
   hana-arc64-full-tryjob
   hana-arc64-llvm-next-toolchain-tryjob
   hana-arc64-llvm-toolchain-tryjob
@@ -685,10 +679,10 @@
     brya-release-tryjob
     bubs-release-tryjob
     cherry-release-tryjob
+    constitution-release-tryjob
     coral-release-tryjob
     corsola-release-tryjob
     dedede-release-tryjob
-    draco-release-tryjob
     drallion-release-tryjob
     elm-release-tryjob
     endeavour-release-tryjob
@@ -702,7 +696,6 @@
     grunt-release-tryjob
     guado_labstation-release-tryjob
     guybrush-release-tryjob
-    hades-release-tryjob
     hana-arc64-release-tryjob
     hana-release-tryjob
     hatch-arc-t-release-tryjob
