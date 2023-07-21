@@ -31,10 +31,21 @@ const IGNORED_DIRS = [
 // Platform2 packages for which we test generation of compdb works.
 // We apply this filtering so that test doesn't take too long.
 const PACKAGES_TO_TEST_COMPDB_GENERATION: string[] = [
+  'chromeos-base/attestation',
+  'chromeos-base/chaps',
+  'chromeos-base/chromeos-imageburner',
   'chromeos-base/codelab',
+  'chromeos-base/crash-reporter',
+  'chromeos-base/cros-camera-libs',
+  'chromeos-base/cros-camera',
+  'chromeos-base/cros-disks',
   'chromeos-base/cryptohome',
+  'chromeos-base/diagnostics',
+  'chromeos-base/imageloader',
   'chromeos-base/missive',
+  'chromeos-base/power_manager',
   'chromeos-base/shill',
+  'chromeos-base/vm_host_tools',
 ];
 
 describe('C++ xrefs in platform2', () => {
