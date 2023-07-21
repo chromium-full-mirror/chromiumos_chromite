@@ -1569,6 +1569,15 @@
         },
         {
           "board_name": "corsola",
+          "name": "ponyta",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7211,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "corsola",
           "name": "rusty",
           "test_suites": [
             "sanity",
