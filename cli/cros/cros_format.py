@@ -63,9 +63,18 @@ _EXT_TOOL_MAP = {
     frozenset({".grd", ".svg", ".xml", ".xtb"}): (formatters.xml.Data,),
     # TODO(build): Switch .toml to rustfmt when available.
     # https://github.com/rust-lang/rustfmt/issues/4091
-    frozenset({".cfg", ".conf", ".ini", ".rules", ".toml", ".txt"}): (
-        formatters.whitespace.Data,
-    ),
+    frozenset(
+        {
+            ".cfg",
+            ".conf",
+            ".ini",
+            ".rules",
+            ".toml",
+            ".txt",
+            ".vpython",
+            ".vpython3",
+        }
+    ): (formatters.whitespace.Data,),
 }
 
 
@@ -79,6 +88,8 @@ _FILENAME_PATTERNS_TOOL_MAP = {
             ".clang-format",
             ".gitignore",
             ".gitmodules",
+            ".vpython",
+            ".vpython3",
             "COPYING*",
             "LICENSE*",
             "make.conf",

@@ -570,6 +570,8 @@ _EXT_TOOL_MAP = {
             ".svg",
             ".toml",
             ".txt",
+            ".vpython",
+            ".vpython3",
             ".xml",
             ".xtb",
             ".y",
@@ -585,6 +587,12 @@ _FILENAME_PATTERNS_TOOL_MAP = {
     frozenset({"DIR_METADATA"}): (_DirMdLintFile, _NonExecLintFile),
     frozenset({"OWNERS*"}): (_OwnersLintFile, _NonExecLintFile),
     frozenset({"Dockerfile", "Makefile"}): (_NonExecLintFile,),
+    frozenset(
+        {
+            ".vpython",
+            ".vpython3",
+        }
+    ): (_NonExecLintFile,),
 }
 
 
