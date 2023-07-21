@@ -1816,36 +1816,6 @@ class UmaskTests(cros_test_lib.TestCase):
         assert old == 0o222
 
 
-class TestRootUserCheck(cros_test_lib.MockTestCase):
-    """Tests root/Non-root user functionality for a root user."""
-
-    def setUp(self):
-        self.geteuid_mock = self.PatchObject(os, "geteuid", return_value=0)
-
-    def testIsRootUserforRoot(self):
-        """Verify IsRootUser returns true"""
-        self.assertTrue(osutils.IsRootUser())
-
-    def testIsNonRootUserforRoot(self):
-        """Verify IsNonRootUser returns False"""
-        self.assertFalse(osutils.IsNonRootUser())
-
-
-class TestNonRootUserCheck(cros_test_lib.MockTestCase):
-    """Tests root/Non-root user functionality for a non-root user."""
-
-    def setUp(self):
-        self.geteuid_mock = self.PatchObject(os, "geteuid", return_value=20)
-
-    def testIsRootUserforNonRoot(self):
-        """Verify IsRootUser returns False"""
-        self.assertFalse(osutils.IsRootUser())
-
-    def testIsNonRootUserforNonRoot(self):
-        """Verify IsNonRootUser returns Test"""
-        self.assertTrue(osutils.IsNonRootUser())
-
-
 class TestSyncStorage(cros_test_lib.TestCase):
     """Test sync_storage helper."""
 

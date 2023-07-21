@@ -24,6 +24,7 @@ from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import retry_util
 from chromite.utils import c_loop
+from chromite.utils import os_util
 
 
 # pylint: disable=protected-access
@@ -134,7 +135,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
 
         # Patch osutils.IsRootUser() to pretend running as root so we attempt to
         # do all the setup directly instead of falling back to our sudo helper.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def testContextManager(self):
         """Test using the loopback class as a context manager."""
@@ -402,7 +403,7 @@ class LsbUtilsTest(cros_test_lib.RunCommandTempDirTestCase):
         # Patch osutils.IsRootUser() to pretend running as root, so
         # reading/writing the lsb-release file doesn't require escalated
         # privileges and the test can clean itself up correctly.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def testWriteLsbRelease(self):
         """Tests writing out the lsb_release file using WriteLsbRelease(..)."""

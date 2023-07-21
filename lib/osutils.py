@@ -26,6 +26,7 @@ from typing import Callable, Iterable, Iterator, List, Optional, Union
 from chromite.lib import cros_build_lib
 from chromite.lib import retry_util
 from chromite.utils import key_value_store
+from chromite.utils import os_util
 
 
 # Env vars that tempdir can be gotten from; minimally, this
@@ -1915,29 +1916,13 @@ def UmaskContext(mask: int) -> int:
 
 
 def IsRootUser() -> bool:
-    """Returns True if the user has root privileges.
-
-    For a given process there are two ID's, that we care about. The real user ID
-    and effective user ID. The real user ID or simply referred as uid, is the ID
-    assigned for the user on whose behalf the process is running. Effective user
-    ID is used for privilege checks.
-
-    For a given process the real user ID and effective user ID can be different
-    and the access to resources are determined based on the effective user ID.
-    For example, a regular user with uid 12345, may not have access to certain
-    resources. Running with sudo privileges will make the euid to be 0 (Root)
-    (while the uid remains the same 12345) and will gain certain resource
-    access.
-
-    Hence to check if a user has root privileges, it is best to check the euid
-    of the process.
-    """
-    return os.geteuid() == 0
+    """Returns True if the user has root privileges."""
+    return os_util.is_root_user()
 
 
 def IsNonRootUser() -> bool:
     """Returns True if user doesn't have root privileges."""
-    return not IsRootUser()
+    return os_util.is_non_root_user()
 
 
 def sync_storage(

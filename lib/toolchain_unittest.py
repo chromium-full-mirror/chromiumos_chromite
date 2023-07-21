@@ -14,6 +14,7 @@ from chromite.lib import partial_mock
 from chromite.lib import sysroot_lib
 from chromite.lib import toolchain
 from chromite.lib.parser import package_info
+from chromite.utils import os_util
 
 
 BASE_TOOLCHAIN_CONF = """# The root of all evil is money, err, this config.
@@ -336,7 +337,7 @@ class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
         self.updater = toolchain.ToolchainInstaller(False, True, "tc", pkgdir)
 
         # Avoid sudo password prompt for _WriteConfigs.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def testUpdateProvided(self):
         """Test the updates to the package.provided file."""

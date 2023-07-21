@@ -16,6 +16,7 @@ from chromite.lib import sysroot_lib
 from chromite.lib import toolchain
 from chromite.lib import unittest_lib
 from chromite.lib.parser import package_info
+from chromite.utils import os_util
 
 
 class SysrootLibTest(cros_test_lib.MockTempDirTestCase):
@@ -26,7 +27,7 @@ class SysrootLibTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         # Fake being root to avoid running all filesystem commands with
         # sudo_run.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
         sysroot_path = os.path.join(self.tempdir, "sysroot")
         osutils.SafeMakedirs(sysroot_path)
         self.sysroot = sysroot_lib.Sysroot(sysroot_path)
@@ -276,7 +277,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
         """Setup the test environment."""
         # Fake being root to avoid running all filesystem commands with
         # sudo_run.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
         self.sysroot = sysroot_lib.Sysroot(self.tempdir)
         self.make_conf_generic_target = os.path.join(
             self.tempdir, "make.conf.generic-target"
@@ -356,7 +357,7 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
     def setUp(self):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
 
         sysroot_path = os.path.join(self.tempdir, "sysroot")
         osutils.SafeMakedirs(sysroot_path)
@@ -529,7 +530,7 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
     def setUp(self):
         """Setup the test environment."""
         # Fake being root to avoid running commands with sudo_run.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
 
         self.sysroot = sysroot_lib.Sysroot(self.tempdir)
         self.emerge = constants.CHROMITE_BIN_DIR / "parallel_emerge"
