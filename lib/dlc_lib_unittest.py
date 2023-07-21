@@ -222,6 +222,50 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         params.StoreDlcParameters(install_root_dir=install_root_dir, sudo=False)
         return params
 
+    def testGetUriPathMissingId(self):
+        """Tests EbuildParams.GetUriPath missing ID"""
+        params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
+        params.dlc_id = None
+        with self.assertRaises(Exception):
+            params.GetUriPath()
+        params.dlc_id = ""
+        with self.assertRaises(Exception):
+            params.GetUriPath()
+
+    def testGetUriPathMissingPackage(self):
+        """Tests EbuildParams.GetUriPath missing package"""
+        params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
+        params.dlc_package = None
+        with self.assertRaises(Exception):
+            params.GetUriPath()
+        params.dlc_package = ""
+        with self.assertRaises(Exception):
+            params.GetUriPath()
+
+    def testGetUriPathMissingVersion(self):
+        """Tests EbuildParams.GetUriPath missing version"""
+        params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
+        params.version = None
+        with self.assertRaises(Exception):
+            params.GetUriPath()
+        params.version = ""
+        with self.assertRaises(Exception):
+            params.GetUriPath()
+
+    def testGetUriPath(self):
+        """Tests EbuildParams.GetUriPath"""
+        params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
+        self.assertEqual(
+            params.GetUriPath(),
+            os.path.join(
+                dlc_lib.GS_LOCALMIRROR_BUCKET,
+                dlc_lib.GS_DLC_IMAGES_DIR,
+                params.dlc_id,
+                params.dlc_package,
+                params.version,
+            ),
+        )
+
     def testVerifyDlcParametersFactoryInstallable(self):
         """Tests EbuildParams.VerifyDlcParameters"""
         dlc_allowlist_mock = self.PatchObject(

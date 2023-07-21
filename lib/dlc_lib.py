@@ -19,12 +19,22 @@ import zlib
 from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import dlc_allowlist
+from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import verity
 from chromite.licensing import licenses_lib
 from chromite.scripts import cros_set_lsb_release
 from chromite.utils import pformat
 
+
+# ChromiumOS Google Storage Buckets.
+GS_LOCALMIRROR_BUCKET = "gs://chromeos-localmirror"
+
+# ChromiumOS Google Storage Bucket related paths.
+GS_DLC_IMAGES_DIR = "dlc-images"
+
+# ChromiumOS Google Storage Bucket related values.
+GS_PUBLIC_READ_ACL = "public-read"
 
 DLC_BUILD_DIR = "build/rootfs/dlc"
 DLC_BUILD_DIR_SCALED = "build/rootfs/dlc-scaled"
@@ -51,6 +61,10 @@ LICENSE = "LICENSE"
 LSB_RELEASE = "etc/lsb-release"
 
 DLC_ID_RE = r"[a-zA-Z0-9][a-zA-Z0-9-]*"
+
+# This is a special board that allows for out of band DLC build for builds that
+# aren't associated with a specific board.
+MAGIC_BOARD = "none"
 
 # This file has major and minor version numbers that the update_engine client
 # supports. These values are needed for generating a delta/full payload.
@@ -82,6 +96,65 @@ _MAX_ID_NAME = 80
 
 _IMAGE_SIZE_NEARING_RATIO = 1.05
 _IMAGE_SIZE_GROWTH_RATIO = 1.2
+
+
+class Error(Exception):
+    """Base class for dlc_lib errors."""
+
+
+def CheckAndRaise(value: bool, err_msg: str) -> None:
+    """Check and raises and exception with `err_msg` if `value` is False
+
+    Raises:
+        Error on false `value`.
+    """
+    if not value:
+        raise Error(err_msg)
+
+
+class DlcArtifacts:
+    """Holds information about generated DLC artifacts.
+
+    Attributes:
+        image: The path to the DLC image.
+        image_hash: The hash of the DLC image.
+        meta: The path to the DLC meta.
+        uri_path: The URI path (dir) where artifacts should be uploaded.
+    """
+
+    def __init__(
+        self,
+        *,
+        image: str,
+        meta: str,
+        uri_path: str = None,
+    ):
+        self.image = image
+        if self.image:
+            self.image_hash = HashFile(self.image)
+        self.meta = meta
+        self.uri_path = uri_path
+
+    def StringJSON(self):
+        """String format of this objects fields."""
+        return pformat.json(self.__dict__)
+
+    def Upload(self, dry_run: bool):
+        """Uploads based on fields.
+
+        Args:
+            dry_run: Dry run without actual uploading.
+        """
+        gs_ctx = gs.GSContext(dry_run=dry_run)
+        if self.uri_path:
+            if self.image:
+                gs_ctx.CopyInto(
+                    self.image, self.uri_path, acl=GS_PUBLIC_READ_ACL
+                )
+            if self.meta:
+                gs_ctx.CopyInto(
+                    self.meta, self.uri_path, acl=GS_PUBLIC_READ_ACL
+                )
 
 
 def HashFile(file_path: str) -> str:
@@ -184,6 +257,21 @@ class EbuildParams:
         self.loadpin_verity_digest = loadpin_verity_digest
         self.scaled = scaled
         self.powerwash_safe = powerwash_safe
+
+    def GetUriPath(self) -> str:
+        """Retrieves the DLC image URI path based on field values"""
+        CheckAndRaise(self.dlc_id, "Missing DLC ID")
+        CheckAndRaise(self.dlc_package, "Missing DLC package")
+        CheckAndRaise(self.version, "Missing DLC version")
+        return "/".join(
+            (
+                GS_LOCALMIRROR_BUCKET,
+                GS_DLC_IMAGES_DIR,
+                self.dlc_id,
+                self.dlc_package,
+                self.version,
+            )
+        )
 
     def VerifyDlcParameters(self):
         """Verifies certain DLC parameters are valid and allowed."""
@@ -523,6 +611,7 @@ class DlcGenerator:
         board: str,
         src_dir: str = None,
         reproducible: bool = False,
+        license_file: os.PathLike = None,
     ):
         """Object initializer.
 
@@ -534,6 +623,7 @@ class DlcGenerator:
                 None, the default directory in |DLC_BUILD_DIR| is used.
             reproducible: Generates a completely reproducible squash image that
                 produces identical bits each gen. (Only applicable to squashfs)
+            license_file: Optional license file, but required for prebuilt DLCs.
         """
         # Use a temporary directory to avoid having to use sudo every time we
         # write into the build directory.
@@ -543,6 +633,7 @@ class DlcGenerator:
         self.board = board
         self.ebuild_params = ebuild_params
         self.reproducible = reproducible
+        self.license_file = license_file
 
         build_dir = (
             DLC_BUILD_DIR_SCALED if ebuild_params.scaled else DLC_BUILD_DIR
@@ -590,6 +681,12 @@ class DlcGenerator:
             dst,
         )
         cros_build_lib.sudo_run(["cp", "-dR", src, dst])
+
+    def CopyArtifactsToOutput(self, output: str):
+        """Copy the artifacts to the output directory."""
+        files = (self.dest_image, self.meta_dir)
+        logging.debug("Copying %s to %s", files, output)
+        cros_build_lib.sudo_run(["cp", "-r", *files, output])
 
     def SquashOwnerships(self, path: str):
         """Squash the ownerships & permissions for files.
@@ -717,6 +814,10 @@ class DlcGenerator:
         Args:
             dlc_dir: The path to the mounted point during image creation.
         """
+        if self.board == MAGIC_BOARD:
+            logging.info("Skipping lsb prep since magic board.")
+            return
+
         app_id = None
         platform_lsb_rel_path = os.path.join(self.sysroot, LSB_RELEASE)
         if os.path.isfile(platform_lsb_rel_path):
@@ -759,6 +860,13 @@ class DlcGenerator:
         Args:
             dlc_dir: The path to the mounted point during image creation.
         """
+        license_path = os.path.join(dlc_dir, LICENSE)
+        if self.board == MAGIC_BOARD:
+            if not self.license_file or not os.path.exists(self.license_file):
+                raise Error("License file missing")
+            shutil.copyfile(self.license_file, license_path)
+            return
+
         if not self.ebuild_params.fullnamerev:
             return
 
@@ -768,7 +876,6 @@ class DlcGenerator:
         )
         licensing.LoadPackageInfo()
         licensing.ProcessPackageLicenses()
-        license_path = os.path.join(dlc_dir, LICENSE)
         licenses = licensing.GenerateLicenseText()
         # The first (and only) item contains the values for |self.fullnamerev|.
         if licenses:
@@ -787,6 +894,10 @@ class DlcGenerator:
         Args:
             dlc_dir: The path to the mounted point during image creation.
         """
+        if self.board == MAGIC_BOARD:
+            logging.info("Skipping extra collection since magic board.")
+            return
+
         for r in _EXTRA_RESOURCES:
             source_path = os.path.join(self.sysroot, r)
             target_path = os.path.join(dlc_dir, r)
@@ -978,6 +1089,27 @@ class DlcGenerator:
             self.ebuild_params.scaled,
         )
         osutils.SafeUnlink(ebuild_params_path, sudo=True)
+
+    def ExternalGenerateDLC(
+        self, output: str, salt: Optional[str] = None
+    ) -> DlcArtifacts:
+        """Generate the DLC artifacts from external / non-SDK builds
+
+        Args:
+            output: Path in which generated contents are emitted.
+            salt: An optional salt for randomness.
+
+        Returns:
+            The `DlcArtifacts` class.
+        """
+        self.CreateImage()
+        self.VerifyImageSize()
+        self.GenerateVerity(salt=salt)
+        self.CopyArtifactsToOutput(output)
+        return DlcArtifacts(
+            image=os.path.join(output, DLC_IMAGE),
+            meta=os.path.join(output, DLC_TMP_META_DIR),
+        )
 
 
 def IsFieldAllowed(dlc_id: str, dlc_build_dir: str, field: str):
