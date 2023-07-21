@@ -105,8 +105,13 @@ export class Chromiumos implements vscode.Disposable {
         chrootService
       );
 
-      this.featureName = 'boardsPackages';
-      await boardsPackages.activate(this.subscriptions, chrootService);
+      if (!config.underDevelopment.boardsAndPackagesV2.get()) {
+        this.featureName = 'boardsPackages';
+        await boardsPackages.activate(this.subscriptions, chrootService);
+      } else {
+        this.featureName = 'boardsAndPackagesV2';
+        // TODO(oka): implement boards and packages v2.
+      }
 
       if (config.crosFormat.enabled.get()) {
         crosFormat.activate(ephemeralContext, this.root, this.statusManager);

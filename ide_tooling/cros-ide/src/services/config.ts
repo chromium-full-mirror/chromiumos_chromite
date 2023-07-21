@@ -117,6 +117,9 @@ export const gerrit = {
 };
 
 export const underDevelopment = {
+  boardsAndPackagesV2: new ConfigValue<boolean>(
+    'underDevelopment.boardsAndPackagesV2'
+  ),
   chromiumBuild: new ConfigValue<boolean>('underDevelopment.chromiumBuild'),
   deviceManagement: new ConfigValue<boolean>(
     'underDevelopment.deviceManagement'

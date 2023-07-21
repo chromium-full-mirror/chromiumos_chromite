@@ -136,7 +136,7 @@
         "category": "CrOS",
         "title": "Refresh Boards and Packages",
         "icon": "$(refresh)",
-        "enablement": "chromiumide.chrootPath"
+        "enablement": "chromiumide.chrootPath && !config.chromiumide.underDevelopment.boardsAndPackagesV2"
       },
       {
         "command": "chromiumide.codeSearchOpenCurrentFile",
@@ -157,19 +157,22 @@
         "command": "chromiumide.crosWorkonStart",
         "category": "CrOS",
         "title": "Start Working on a new Package",
-        "icon": "$(add)"
+        "icon": "$(add)",
+        "enablement": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
       },
       {
         "command": "chromiumide.crosWorkonStop",
         "category": "CrOS",
         "title": "Stop Working On",
-        "icon": "$(remove)"
+        "icon": "$(remove)",
+        "enablement": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
       },
       {
         "command": "chromiumide.openEbuild",
         "category": "CrOS",
         "title": "Open Ebuild",
-        "icon": "$(edit)"
+        "icon": "$(edit)",
+        "enablement": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
       },
       {
         "command": "chromiumide.selectBoard",
@@ -179,7 +182,8 @@
       {
         "command": "chromiumide.setDefaultBoard",
         "category": "CrOS",
-        "title": "Set as Default Board"
+        "title": "Set as Default Board",
+        "enablement": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
       },
       {
         "command": "chromiumide.fileIdeBug",
@@ -277,7 +281,8 @@
       {
         "command": "chromiumide.showHelpForBoardsPackages",
         "title": "Show Help",
-        "icon": "$(question)"
+        "icon": "$(question)",
+        "enablement": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
       },
       {
         "command": "chromiumide.showHelpForDevices",
@@ -339,7 +344,13 @@
         },
         {
           "id": "boards-packages",
-          "name": "Boards and Packages"
+          "name": "Boards and Packages",
+          "when": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
+        },
+        {
+          "id": "boards-packages-v2",
+          "name": "Boards and Packages",
+          "when": "config.chromiumide.underDevelopment.boardsAndPackagesV2"
         },
         {
           "id": "chromiumide-status",
@@ -766,6 +777,11 @@
           "type": "boolean",
           "markdownDescription": "Show Code Coverage ([go/cros-ide-doc-boards-pkgs#code-coverage](http://go/cros-ide-doc-boards-pkgs#code-coverage)). Requires a reload to take effect.",
           "default": true
+        },
+        "chromiumide.underDevelopment.boardsAndPackagesV2": {
+          "type": "boolean",
+          "description": "Enable boards and packages v2",
+          "default": false
         },
         "chromiumide.underDevelopment.chromiumBuild": {
           "type": "boolean",
