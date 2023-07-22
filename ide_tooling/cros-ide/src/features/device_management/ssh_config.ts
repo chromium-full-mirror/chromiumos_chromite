@@ -6,10 +6,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as dateFns from 'date-fns';
+import SSHConfig from 'ssh-config';
 import {OwnedDeviceRepository} from './device_repository';
-// TODO(joelbecker): import normally once tsconfig esModuleInterop=true doesn't break a lot of
-// other things.
-const SSHConfig = require('ssh-config');
 
 export const defaultConfigPath = path.join(os.homedir(), '.ssh', 'config');
 
@@ -84,7 +82,7 @@ export async function removeSshConfigEntry(
   sshConfigPath: string = defaultConfigPath
 ): Promise<boolean> {
   let found = false;
-  await backupAndModifySshConfig((sshConfig: typeof SSHConfig) => {
+  await backupAndModifySshConfig((sshConfig: SSHConfig) => {
     while (sshConfig.remove({Host: hostname})) {
       found = true;
     }
@@ -93,7 +91,7 @@ export async function removeSshConfigEntry(
 }
 
 async function backupAndModifySshConfig(
-  modifier: (config: typeof SSHConfig) => void,
+  modifier: (config: SSHConfig) => void,
   sshConfigPath: string = defaultConfigPath
 ): Promise<void> {
   const fileContents = fs.readFileSync(sshConfigPath).toString();
