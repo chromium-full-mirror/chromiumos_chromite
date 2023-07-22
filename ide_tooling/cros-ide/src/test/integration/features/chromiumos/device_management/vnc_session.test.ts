@@ -59,7 +59,7 @@ describe('VNC session', () => {
       api.context,
       state.output,
       new SshIdentity(api.context.extensionUri, new ChromiumosServiceModule()),
-      false,
+      false
     );
     state.subscriptions.push(session);
 
