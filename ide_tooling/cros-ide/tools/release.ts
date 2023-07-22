@@ -5,7 +5,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as semver from 'semver';
-import * as commonUtil from '../common/common_util';
+import * as commonUtil from '../src/common/common_util';
 
 const USAGE = `
  Usage:
