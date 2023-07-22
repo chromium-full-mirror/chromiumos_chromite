@@ -11,6 +11,7 @@
     "rootDirs": ["src", "../src"],
     "strict": true,
     "jsx": "react-jsx",
+    "isolatedModules": true,
     "esModuleInterop": true
   },
   "include": [

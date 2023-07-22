@@ -75,62 +75,20 @@ const extensionConfig = {
     new GitRevisionPlugin({
       versionCommand: 'describe --always --dirty',
     }),
-  ],
-};
 
-/** @type WebpackConfig */
-const viewsConfig = {
-  ...commonConfig,
-
-  // WebView scripts run in the web context.
-  target: 'web',
-
-  // TODO(joelbecker): move to common config? Check implications.
-  mode: 'development',
-
-  // Entry points.
-  // https://webpack.js.org/configuration/entry-context/
-  entry: {
-    vnc: './views/src/vnc.ts',
-    syslog_view: './views/src/features/device_management/syslog/view.tsx',
-  },
-  output: {
-    path: path.resolve(__dirname, 'dist', 'views'),
-    filename: '[name].js',
-    libraryTarget: 'commonjs2',
-  },
-  resolve: {
-    // Support TypeScript, JavaScript, and JSX-enabled TypeScript and
-    // JavaScript for use with React.
-    extensions: ['.ts', '.js', '.tsx', '.jsx'],
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        exclude: /node_modules/,
-        loader: 'esbuild-loader',
-        options: {
-          loader: 'tsx',
-          target: 'es2020',
-          tsconfigRaw: require('./views/tsconfig.json'),
-        },
-      },
-    ],
-  },
-  plugins: [
+    // Copy files for views.
     new CopyPlugin({
       patterns: [
         // Copy webview static files to dist/views/.
-        {from: 'views/static', to: '.'},
+        {from: 'views/static', to: 'views/'},
         // Copy @vscode/codicons's dist files to dist/views/vscode/.
         {
           from: 'node_modules/@vscode/codicons/dist/',
-          to: './vscode/',
+          to: 'views/vscode/',
         },
       ],
     }),
   ],
 };
 
-module.exports = [extensionConfig, viewsConfig];
+module.exports = [extensionConfig];

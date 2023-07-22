@@ -98,6 +98,12 @@ module.exports = {
           },
         },
         {
+          files: ['tools/**/*.ts'],
+          parserOptions: {
+            project: 'tools/tsconfig.json',
+          },
+        },
+        {
           files: ['views/src/**/*.ts'],
           parserOptions: {
             project: 'views/tsconfig.json',
