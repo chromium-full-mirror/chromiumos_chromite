@@ -5,6 +5,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as config from '../../services/config';
+import * as injectedVscode from '../unit/injected_modules/vscode';
 import * as fakes from './fakes';
 import {cleanState} from '.';
 
@@ -271,27 +272,47 @@ export function installVscodeDouble(): {
   // This an injected module for unit tests and real vscode module for integration tests.
   const theVscode = vscode;
 
+  const isInjected = theVscode.env.appName === injectedVscode.env.appName;
+
   // We cannot use Object.assign({}, real) here; if we do so we see the
   // following error in unit tests where vscode is an injected module.
   // TypeError: Cannot set property CancellationTokenSource of #<Object> which has only a getter
   const original = copyVscodeNamespaces();
   beforeEach(() => {
-    theVscode.comments = vscodeSpy.comments;
-    theVscode.commands = vscodeSpy.commands;
-    theVscode.env = vscodeSpy.env;
-    theVscode.extensions = vscodeSpy.extensions;
-    theVscode.window = buildNamespace(
-      theVscode.window,
-      vscodeSpy.window,
-      vscodeEmitters.window,
-      vscodeGetters.window
-    );
-    theVscode.workspace = buildNamespace(
-      theVscode.workspace,
-      vscodeSpy.workspace,
-      vscodeEmitters.workspace,
-      vscodeGetters.workspace
-    );
+    const double = {
+      commands: vscodeSpy.commands,
+      comments: vscodeSpy.comments,
+      env: buildNamespace(theVscode.env, vscodeSpy.env, {}, {}),
+      extensions: buildNamespace(
+        theVscode.extensions,
+        vscodeSpy.extensions,
+        {},
+        {}
+      ),
+      window: buildNamespace(
+        theVscode.window,
+        vscodeSpy.window,
+        vscodeEmitters.window,
+        vscodeGetters.window
+      ),
+      workspace: buildNamespace(
+        theVscode.workspace,
+        vscodeSpy.workspace,
+        vscodeEmitters.workspace,
+        vscodeGetters.workspace
+      ),
+    };
+
+    if (isInjected) {
+      injectedVscode.setVscode(double);
+    } else {
+      theVscode.commands = double.commands;
+      theVscode.comments = double.comments;
+      theVscode.env = double.env;
+      theVscode.extensions = double.extensions;
+      theVscode.window = double.window;
+      theVscode.workspace = double.workspace;
+    }
 
     const fakeCommands = new fakes.FakeCommands(vscode.window);
     vscodeSpy.commands.registerCommand.and.callFake((id, callback, thisArg) =>
@@ -309,7 +330,11 @@ export function installVscodeDouble(): {
     );
   });
   afterEach(() => {
-    Object.assign(theVscode, original);
+    if (isInjected) {
+      injectedVscode.setVscode(original);
+    } else {
+      Object.assign(theVscode, original);
+    }
   });
 
   return {

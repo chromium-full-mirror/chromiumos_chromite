@@ -12,15 +12,15 @@ export enum StatusBarAlignment {
 export class StatusBarItem {
   // some fields are omitted to avoid having to create more fakes
 
-  command: string | vscode.Command = '';
+  command: string | vscode.Command | undefined = '';
   id = 'google.cros-ide';
-  name = '';
+  name: string | undefined = '';
   text = '';
-  tooltip: string | vscode.MarkdownString = '';
+  tooltip: string | vscode.MarkdownString | undefined = '';
 
   constructor(
     readonly alignment = StatusBarAlignment.Left,
-    readonly priority = 1
+    readonly priority = 1 as number | undefined
   ) {}
 
   dispose() {}

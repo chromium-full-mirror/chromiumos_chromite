@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export * as env from './env';
-export * as extensions from './extensions';
-export * as tests from './tests';
-export * as window from './window';
-export * as workspace from './workspace';
+import * as envModule from './env';
+import * as extensionsModule from './extensions';
+import * as testsModule from './tests';
+import * as windowModule from './window';
+import * as workspaceModule from './workspace';
+import type * as vscode from 'vscode';
 
 export {CancellationTokenSource} from './cancellation_token';
 export {CommentMode} from './comment_mode';
@@ -37,3 +38,27 @@ export {TreeItemCollapsibleState} from './tree_item_collapsible_state';
 export type {TreeItemLabel} from './tree_item_label';
 export {UIKind} from './ui_kind';
 export {Uri} from './uri';
+
+export let commands = {};
+export let comments = {};
+export let env = envModule;
+export let extensions = extensionsModule;
+export const tests = testsModule;
+export let window = windowModule;
+export let workspace = workspaceModule;
+
+export function setVscode(double: {
+  commands: typeof vscode.commands;
+  comments: typeof vscode.comments;
+  env: typeof vscode.env;
+  extensions: typeof vscode.extensions;
+  window: typeof vscode.window;
+  workspace: typeof vscode.workspace;
+}) {
+  commands = double.commands;
+  comments = double.comments;
+  env = double.env;
+  extensions = double.extensions;
+  window = double.window;
+  workspace = double.workspace;
+}

@@ -6,9 +6,9 @@ import {LogLevel} from '../log_level';
 import {UIKind} from '../ui_kind';
 import type * as vscode from 'vscode';
 
-export const appHost = 'fakeAppHost';
-export const appName = 'fakeAppName';
-export const appRoot = 'fakeAppRoot';
+export const appHost = 'fakeAppHost' as string;
+export const appName = 'fakeAppName' as string;
+export const appRoot = 'fakeAppRoot' as string;
 export const clipboard: vscode.Clipboard = {
   readText(): Thenable<string> {
     throw new Error('Unimplemented in injected_modules');
@@ -17,13 +17,13 @@ export const clipboard: vscode.Clipboard = {
     throw new Error('Unimplemented in injected_modules');
   },
 };
-export const isNewAppInstall = false;
-export const isTelemetryEnabled = false;
-export const language = 'en';
+export const isNewAppInstall = false as boolean;
+export const isTelemetryEnabled = false as boolean;
+export const language = 'en' as string;
 export const logLevel: vscode.LogLevel = LogLevel.Debug;
-export const machineId = 'fakeMachineId';
+export const machineId = 'fakeMachineId' as string;
 export const remoteName: string | undefined = undefined;
-export const sessionId = 'fakeSessionId';
-export const shell = 'fakeShell';
-export const uiKind = UIKind.Desktop;
-export const uriScheme = 'fake';
+export const sessionId = 'fakeSessionId' as string;
+export const shell = 'fakeShell' as string;
+export const uiKind = UIKind.Desktop as UIKind;
+export const uriScheme = 'fake' as string;

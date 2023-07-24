@@ -91,27 +91,14 @@ async function buildTests() {
   // transpilaiton works as we want in future version of the tools, but that's the same for tsc.
   // TODO: empty this allowlist.
   const mockableModules = [
-    'features/chromiumos/cpp_code_completion/cpp_code_completion',
-    'features/chromiumos/tast/tast_tests',
     'features/gerrit/api/client',
-    'features/gerrit/gerrit',
     'features/gerrit/https',
-    'features/gerrit/model/gerrit_comments',
-    'features/gerrit/sink',
     'features/metrics/metrics',
-    'features/suggest_extension',
-    'services/chromiumos/chroot',
-    'services/watchers/product/watcher',
-    'test/testing/doubles',
-    'test/unit/features/chromiumos/boards_packages.test',
-    'test/unit/features/chromiumos/cpp_code_completion/cpp_code_completion.test',
     'test/unit/features/chromiumos/cros_format.test',
     'test/unit/features/gerrit/fake_env',
     'test/unit/features/gerrit/gerrit.test',
     'test/unit/features/gerrit/sink.test',
     'test/unit/features/suggest_extension.test',
-    'test/unit/injected_modules/vscode/index',
-    'test/unit/services/chromiumos/module.test',
     'test/unit/services/git_document.test',
   ];
 

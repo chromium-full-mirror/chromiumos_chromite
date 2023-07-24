@@ -5,7 +5,7 @@
 import {CancellationTokenSource, Progress} from '..';
 import type * as vscode from 'vscode';
 
-export async function withProgress<R>(
+export function withProgress<R>(
   _options: vscode.ProgressOptions,
   task: (
     progress: vscode.Progress<{
@@ -14,13 +14,15 @@ export async function withProgress<R>(
     }>,
     token: vscode.CancellationToken
   ) => Thenable<R>
-): Promise<R> {
-  const progress = new Progress();
-  const source = new CancellationTokenSource();
+): Thenable<R> {
+  return (async () => {
+    const progress = new Progress();
+    const source = new CancellationTokenSource();
 
-  const res = await task(progress, source.token);
+    const res = await task(progress, source.token);
 
-  source.dispose();
+    source.dispose();
 
-  return res;
+    return res;
+  })();
 }
