@@ -2,27 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Defines classes and functions used in implementation of sdk server.
-
-TODO: MAIN
-    **DONE** chroot version w/o update chroot
-    **DONE** existing images for board (paths) - add image paths to current_boards rpc
-    **DONE** build individual package
-    **REASSESS** **DONE** Replace cros_build_lib.run with AsyncRun to get rid of "run:..." log
-        -- modify so that "run:..." log is added to log output???
-    **DONE** Use full path for log files, not relative
-
-    **DONE** mark "latest" image in proto and don't forward "latest" symlink
-
-    **DONE** stream repo sync output, change info field to logging_info
-
-    **DONE** clear logs endpoint
-
-    Use chromite.lib.workon_helper.ListAllWorkedOnAtoms to get all packages being worked on
-        -- add to chroot_info rpc
-
-TODO: Move copying of outputfile of bapi calls to after process.communicate
-"""
+"""Defines classes and functions used in implementation of sdk server."""
 import datetime
 import json
 import logging
@@ -227,8 +207,6 @@ class SdkChroot(
         self.valid_version = None
         self._update_chroot_info()
         self.sysroots = []
-        # TODO: delete when finalizing project
-        self.logger = logging.getLogger("Chroot Logger")
 
         self.logs_folder = Path.cwd() / "logs"
         self.log_path = self.logs_folder / "log"
@@ -236,11 +214,9 @@ class SdkChroot(
             osutils.Touch(self.log_path, makedirs=True)
         osutils.WriteFile(self.log_path, "")
 
-        # TODO: delete when finalizing project
         self.handler = logging.FileHandler(filename=self.log_path)
         self.all_possible_boards = []
         self.handler.setLevel(logging.DEBUG)
-        self.logger.addHandler(self.handler)
 
     def custom_endpoint(self, request, context):
         """Runs a chosen BAPI endpoint."""
