@@ -31,14 +31,44 @@ export class VoidOutputChannel implements vscode.LogOutputChannel {
 /**
  * An OutputChannel that sends logs to console.
  */
-export class ConsoleOutputChannel implements vscode.OutputChannel {
+export class ConsoleOutputChannel implements vscode.LogOutputChannel {
   constructor(readonly name = 'console') {}
+
+  readonly logLevel = vscode.LogLevel.Info;
+  readonly onDidChangeLogLevel = new vscode.EventEmitter<vscode.LogLevel>()
+    .event;
 
   append(value: string): void {
     process.stdout.write(value);
   }
   appendLine(value: string): void {
     process.stdout.write(`${value}\n`);
+  }
+
+  private log(
+    level: vscode.LogLevel,
+    message: string | Error,
+    ...args: unknown[]
+  ): void {
+    if (level >= this.logLevel) {
+      this.appendLine([message, ...args].join(' '));
+    }
+  }
+
+  trace(message: string, ...args: unknown[]): void {
+    this.log(vscode.LogLevel.Trace, message, ...args);
+  }
+  debug(message: string, ...args: unknown[]): void {
+    this.log(vscode.LogLevel.Debug, message, ...args);
+  }
+  info(message: string, ...args: unknown[]): void {
+    this.log(vscode.LogLevel.Info, message, ...args);
+  }
+  warn(message: string, ...args: unknown[]): void {
+    this.log(vscode.LogLevel.Warning, message, ...args);
+  }
+  error(error: string | Error, ...args: unknown[]): void {
+    this.log(vscode.LogLevel.Error, error, ...args);
   }
 
   replace(): void {}
