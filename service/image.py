@@ -21,7 +21,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import dlc_lib
 from chromite.lib import image_lib
 from chromite.lib import osutils
-from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
@@ -504,34 +503,26 @@ def CreateVm(
 
 
 def CreateGuestVm(
-    board: str,
+    image_dir: str,
     is_test: bool = False,
     chroot: chroot_lib.Chroot = None,
-    image_dir: str = None,
 ) -> str:
     """Convert an existing image into a guest VM image.
 
     Args:
-        board: The name of the board to convert.
+        image_dir: The directory containing the built images.
         is_test: Flag to create a test guest VM image.
         chroot: The chroot where the cros image lives.
-        image_dir: The directory containing the built images.
 
     Returns:
         Path to the created guest VM folder.
     """
+    assert image_dir
     chroot = chroot or chroot_lib.Chroot()
-    assert board
 
     cmd = [os.path.join(constants.TERMINA_TOOLS_DIR, "termina_build_image.py")]
 
-    if image_dir:
-        if chroot:
-            image_dir = chroot.chroot_path(image_dir)
-        else:
-            image_dir = path_util.ToChrootPath(image_dir)
-    else:
-        image_dir = image_lib.GetLatestImageLink(board, force_chroot=True)
+    image_dir = chroot.chroot_path(image_dir)
 
     image_file = (
         constants.TEST_IMAGE_BIN if is_test else constants.BASE_IMAGE_BIN

@@ -326,7 +326,7 @@ def Create(
                 try:
                     if vm_type in [_BASE_GUEST_VM_ID, _TEST_GUEST_VM_ID]:
                         vm_path = image.CreateGuestVm(
-                            board, is_test=is_test, image_dir=img_dir
+                            image_dir=img_dir, is_test=is_test
                         )
                     else:
                         vm_path = image.CreateVm(

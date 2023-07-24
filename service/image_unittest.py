@@ -423,6 +423,45 @@ class CreateVmTest(cros_test_lib.RunCommandTestCase):
         )
 
 
+class CreateGuestVmTest(cros_test_lib.RunCommandTestCase):
+    """Create guest VM tests."""
+
+    def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+
+    def testNoImageDirFails(self):
+        """Should fail when not given a valid image directory value."""
+        with self.assertRaises(AssertionError):
+            image.CreateGuestVm(image_dir="")
+
+    def testBaseImage(self):
+        """Test finding the base-image variant."""
+        image.CreateGuestVm(image_dir="/tmp")
+        self.assertCommandContains(
+            [os.path.join("/tmp", constants.BASE_IMAGE_BIN)]
+        )
+
+    def testTestImage(self):
+        """Test finding the test-image variant."""
+        image.CreateGuestVm(image_dir="/tmp", is_test=True)
+        self.assertCommandContains(
+            [os.path.join("/tmp", constants.TEST_IMAGE_BIN)]
+        )
+
+    def testCommandError(self):
+        """Test handling of an error when running the command."""
+        self.rc.SetDefaultCmdResult(returncode=1)
+        with self.assertRaises(image.ImageToVmError):
+            image.CreateGuestVm(image_dir="/tmp")
+
+    def testResultPath(self):
+        """Test the path building."""
+        self.assertEqual(
+            os.path.join("/tmp", constants.BASE_GUEST_VM_DIR),
+            image.CreateGuestVm(image_dir="/tmp"),
+        )
+
+
 class CopyBaseToRecoveryTest(cros_test_lib.MockTempDirTestCase):
     """Tests the CopyBaseToRecovery method."""
 
