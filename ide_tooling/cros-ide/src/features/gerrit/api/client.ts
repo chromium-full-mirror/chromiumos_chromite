@@ -4,7 +4,8 @@
 
 import * as git from '../git';
 import {Https} from '../https';
-import * as api from '.';
+import {parseResponse} from '.';
+import type * as api from '.';
 
 /**
  * Provides primitive methods to call Gerrit REST APIs.
@@ -23,7 +24,7 @@ export class RawGerritClient {
     const options =
       authCookie !== undefined ? {headers: {cookie: authCookie}} : undefined;
     const str = await Https.getOrThrow(url, options);
-    return str === undefined ? undefined : api.parseResponse(str);
+    return str === undefined ? undefined : parseResponse(str);
   }
 }
 
