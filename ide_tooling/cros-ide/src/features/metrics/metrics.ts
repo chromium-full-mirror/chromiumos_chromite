@@ -174,7 +174,7 @@ export class Analytics {
       vscode.version,
       extensionVersion
     );
-    console.debug(`sending query ${query} to GA4 with uid ${this.userId}`);
+    console.debug(`sending query ${query} to GA4 ${this.options.path}`);
 
     const req = https.request(options, res => {
       console.debug(`Sent request, status code = ${res.statusCode}`);
