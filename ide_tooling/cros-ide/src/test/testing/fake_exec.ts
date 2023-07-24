@@ -100,7 +100,7 @@ export function installFakeExec(): {fakeExec: FakeExec} {
 
   const state = cleanState(() => {
     Object.assign(fakeExec, new FakeExec()); // clear handlers
-    return {undo: setExecForTesting(fakeExec.exec.bind(fakeExec))};
+    return {undo: setExecForTesting((...args) => fakeExec.exec(...args))};
   });
   afterEach(() => {
     state.undo();

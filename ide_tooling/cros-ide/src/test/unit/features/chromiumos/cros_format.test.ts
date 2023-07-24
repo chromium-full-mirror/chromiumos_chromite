@@ -3,17 +3,19 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import * as commonUtil from '../../../../common/common_util';
 import {TEST_ONLY} from '../../../../features/chromiumos/cros_format';
 import * as metrics from '../../../../features/metrics/metrics';
 import {StatusManager, TaskStatus} from '../../../../ui/bg_task_status';
 import * as testing from '../../../testing';
 import {FakeTextDocument} from '../../../testing/fakes';
+import type * as commonUtil from '../../../../common/common_util';
 
 const {CrosFormat} = TEST_ONLY;
 
 describe('Cros format', () => {
   const crosUri = vscode.Uri.file('/ssd/chromiumos/src/some/file.md');
+
+  const {fakeExec} = testing.installFakeExec();
 
   const state = testing.cleanState(() => {
     const statusManager = jasmine.createSpyObj<StatusManager>('statusManager', [
@@ -35,7 +37,7 @@ describe('Cros format', () => {
   });
 
   it('shows error when the command fails (execution error)', async () => {
-    spyOn(commonUtil, 'exec').and.resolveTo(new Error());
+    spyOn(fakeExec, 'exec').and.resolveTo(new Error());
 
     await state.crosFormat.provideDocumentFormattingEdits(
       new FakeTextDocument({uri: crosUri})
@@ -59,7 +61,7 @@ describe('Cros format', () => {
       stderr: 'stderr',
       stdout: 'stdout',
     };
-    spyOn(commonUtil, 'exec').and.resolveTo(execResult);
+    spyOn(fakeExec, 'exec').and.resolveTo(execResult);
 
     await state.crosFormat.provideDocumentFormattingEdits(
       new FakeTextDocument({uri: crosUri})
@@ -83,7 +85,7 @@ describe('Cros format', () => {
       stderr: '',
       stdout: '',
     };
-    spyOn(commonUtil, 'exec').and.resolveTo(execResult);
+    spyOn(fakeExec, 'exec').and.resolveTo(execResult);
 
     const edits = await state.crosFormat.provideDocumentFormattingEdits(
       new FakeTextDocument({uri: crosUri})
@@ -103,13 +105,13 @@ describe('Cros format', () => {
       stderr: '',
       stdout: 'formatted\nfile',
     };
-    spyOn(commonUtil, 'exec').and.resolveTo(execResult);
+    spyOn(fakeExec, 'exec').and.resolveTo(execResult);
 
     const edits = await state.crosFormat.provideDocumentFormattingEdits(
       new FakeTextDocument({uri: crosUri})
     );
 
-    expect(commonUtil.exec).toHaveBeenCalled();
+    expect(fakeExec.exec).toHaveBeenCalled();
     expect(edits).toBeDefined();
     expect(state.statusManager.setStatus).toHaveBeenCalledOnceWith(
       'Formatter',
@@ -124,13 +126,13 @@ describe('Cros format', () => {
   });
 
   it('does not format files outside CrOS chroot', async () => {
-    spyOn(commonUtil, 'exec');
+    spyOn(fakeExec, 'exec');
 
     const edits = await state.crosFormat.provideDocumentFormattingEdits(
       new FakeTextDocument({uri: vscode.Uri.file('/not/a/cros/file.md')})
     );
 
-    expect(commonUtil.exec).not.toHaveBeenCalled();
+    expect(fakeExec.exec).not.toHaveBeenCalled();
     expect(edits).toBeUndefined();
     expect(metrics.send).not.toHaveBeenCalled();
   });

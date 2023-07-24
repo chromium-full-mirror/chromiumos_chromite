@@ -3,9 +3,10 @@
 // found in the LICENSE file.
 
 import assert from 'assert';
+import * as path from 'path';
 import * as vscode from 'vscode';
-import * as commonUtil from '../../../common/common_util';
 import * as ownersLinkProvider from '../../../features/owners_links';
+import * as testing from '../../testing';
 import {FakeCancellationToken} from '../../testing/fakes';
 import * as extensionTesting from '../extension_testing';
 
@@ -29,6 +30,8 @@ function resolveLink(link: ownersLinkProvider.OwnersLink) {
 }
 
 describe('OWNERS links', () => {
+  const tempDir = testing.tempDir();
+
   it('ignores links with project or branch references', async () => {
     // We do not support project or branch references for now.
     const text = `\
@@ -163,15 +166,30 @@ per-file foo.txt =   file:/path2
   });
 
   it('resolves link with absolute path', async () => {
-    spyOn(commonUtil, 'findGitDir').and.returnValue('/root_dir');
+    const git = new testing.Git(tempDir.path);
+
+    await testing.cachedSetup(
+      tempDir.path,
+      async () => {
+        await git.init();
+      },
+      'owners_links_resolves_link_with_absolute_path'
+    );
+
+    await testing.putFiles(tempDir.path, {
+      document: 'fake',
+    });
 
     const link = new ownersLinkProvider.OwnersLink(
       '/foo/bar/baz/..',
-      vscode.Uri.file('/document'),
+      vscode.Uri.file(path.join(tempDir.path, 'document')),
       new vscode.Range(0, 0, 0, 10)
     );
 
     resolveLink(link);
-    assert.deepStrictEqual(link.target, vscode.Uri.file('/root_dir/foo/bar'));
+    assert.deepStrictEqual(
+      link.target,
+      vscode.Uri.file(path.join(tempDir.path, 'foo/bar'))
+    );
   });
 });
