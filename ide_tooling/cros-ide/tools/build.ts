@@ -4,10 +4,6 @@
 
 // Executable to build ChromiumIDE extension.
 
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
-import * as babel from '@babel/core';
 import {build, BuildOptions} from 'esbuild';
 import glob from 'glob';
 import * as commonUtil from '../src/common/common_util';
@@ -83,47 +79,6 @@ async function buildTests() {
   };
 
   await build(options);
-
-  // HACK: transform following files so that they can use mock. It's a bug of tsc that exported
-  // fields on modules are imported as mutable, which is fixed on esbuild, but we are currently
-  // heavily relying on it. Transformation is done by first compiling the file to ES module via
-  // esbuild and then transpiling it to CommonJS format via babel. There's no guarantee that the
-  // transpilaiton works as we want in future version of the tools, but that's the same for tsc.
-  // TODO: empty this allowlist.
-  const mockableModules: string[] = [];
-
-  const tempDir = await fs.promises.mkdtemp(
-    path.join(os.tmpdir(), 'ide-build-tests-')
-  );
-
-  await build({
-    ...options,
-    format: 'esm',
-    outdir: tempDir,
-    entryPoints: mockableModules.map(x => `./src/${x}.ts`),
-  });
-
-  const transformPromises = [];
-
-  for (const module of mockableModules) {
-    const esmFile = `${tempDir}/${module}.js`;
-    const cjsFile = `./out/${module}.js`;
-
-    transformPromises.push(
-      (async () => {
-        const res = await babel.transformFileAsync(esmFile, {
-          plugins: ['@babel/plugin-transform-modules-commonjs'],
-        });
-        const content = res!.code!;
-        await fs.promises.mkdir(path.dirname(cjsFile), {recursive: true});
-        await fs.promises.writeFile(cjsFile, content);
-      })()
-    );
-  }
-
-  await Promise.all(transformPromises);
-
-  await fs.promises.rm(tempDir, {recursive: true});
 }
 
 async function main() {
