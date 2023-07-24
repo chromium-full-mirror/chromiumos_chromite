@@ -4,6 +4,7 @@
 
 """Tests for sdk server RPCs."""
 
+import os
 import subprocess
 import tempfile
 import unittest
@@ -12,6 +13,7 @@ import unittest.mock as mock
 import pytest
 
 from chromite.api import controller
+from chromite.lib import constants
 
 
 try:
@@ -22,11 +24,13 @@ try:
     from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
     from chromite.contrib.sdk_server.grpc_server.chromiumos import common_pb2
 
-    ModuleNotFound = False
+    _MODULE_NOT_FOUND = False
 except ModuleNotFoundError:
-    ModuleNotFound = True
-SKIP_REASON = "Appropriate module not imported"
+    _MODULE_NOT_FOUND = True
 
+_NO_CHROOT = not os.path.exists(constants.DEFAULT_CHROOT_PATH)
+SKIP_REASON = "Appropriate module not imported or Chroot may not exist"
+SKIP = _NO_CHROOT or _MODULE_NOT_FOUND
 
 
 class PopenMock:
@@ -49,7 +53,7 @@ class PopenMock:
         self.stderr.close()
 
 
-# @pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+# @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 # def replace_sdk():
 #     """Tests replace_sdk rpc."""
 #     chroot = sdk_server_defs_grpc.SdkChroot()
@@ -60,7 +64,7 @@ class PopenMock:
 #     for response in chroot.create_sdk(request, None):
 #         assert isinstance(response, sdk_server_pb2.CreateSdkResponse)
 
-# @pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+# @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 # def delete_sdk():
 #     """Tests delete_sdk rpc."""
 #     chroot =sdk_server_defs_grpc.SdkChroot()
@@ -70,7 +74,7 @@ class PopenMock:
 #     for response in chroot.delete_sdk(request, None):
 #         assert isinstance(response, sdk_server_pb2.CreateSdkResponse)
 
-# @pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+# @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 # def test_create_sdk():
 #     """Tests create_sdk rpc."""
 #     chroot =sdk_server_defs_grpc.SdkChroot()
@@ -81,7 +85,7 @@ class PopenMock:
 #     for response in chroot.create_sdk(request, None):
 #         assert isinstance(response, sdk_server_pb2.CreateSdkResponse)
 
-# @pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+# @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 # def test_build_packages():
 #     """Tests build_packages rpc."""
 #     chroot =sdk_server_defs_grpc.SdkChroot()
@@ -99,7 +103,7 @@ class PopenMock:
 #     for response in chroot.build_packages(request, None):
 #         assert isinstance(response, sdk_server_pb2.BuildPackagesResponse)
 
-# @pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+# @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 # def test_build_image():
 #     """Tests build_image rpc."""
 #     chroot =sdk_server_defs_grpc.SdkChroot()
@@ -111,10 +115,10 @@ class PopenMock:
 #         assert isinstance(response, sdk_server_pb2.BuildImageResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_workon_info():
     """Tests cros_workon_info rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
     target_package = common_pb2.PackageInfo(
         package_name="x11-themes/cros-adapta"
@@ -127,20 +131,20 @@ def test_workon_info():
     assert isinstance(response, sdk_server_pb2.WorkonInfoResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_workon_list():
     """Tests cros_workon_list rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
     request = sdk_server_pb2.WorkonListRequest(build_target=target)
     response = chroot.cros_workon_list(request, None)
     assert isinstance(response, sdk_server_pb2.WorkonListResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_workon_start():
     """Tests cros_workon_start rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
     target_package = common_pb2.PackageInfo(
         package_name="x11-themes/cros-adapta"
@@ -152,10 +156,10 @@ def test_workon_start():
     assert isinstance(response, sdk_server_pb2.WorkonStartResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_workon_stop():
     """Tests cros_workon_stop rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
     target_package = common_pb2.PackageInfo(
         package_name="x11-themes/cros-adapta"
@@ -167,35 +171,35 @@ def test_workon_stop():
     assert isinstance(response, sdk_server_pb2.WorkonStopResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_chroot_info():
     """Tests chroot info rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.ChrootInfoRequest()
     response = chroot.chroot_info(request, None)
     assert isinstance(response, sdk_server_pb2.ChrootInfoResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_all_packages():
     """Tests all_packages rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
     request = sdk_server_pb2.AllPackagesRequest(build_target=target)
     response = chroot.all_packages(request, None)
     assert isinstance(response, sdk_server_pb2.AllPackagesResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_repo_status():
     """Tests repo_status rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.RepoStatusRequest()
     response = chroot.repo_status(request, None)
     assert isinstance(response, sdk_server_pb2.RepoStatusResponse)
 
 
-# @pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+# @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 # def test_repo_sync():
 #     """Tests repo_sync rpc."""
 #     chroot =sdk_server_defs_grpc.SdkChroot()
@@ -206,7 +210,7 @@ def test_repo_status():
 
 # @mock.patch('sdk_server_defs_grpc.AsyncRun')
 # @mock.patch("subprocess.Popen")
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_update_chroot(monkeypatch):
     """Tests update_chroot rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
@@ -225,19 +229,19 @@ def test_update_chroot(monkeypatch):
     # TODO: add another case where PopenMock.returncode != 0
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_query_boards():
     """Tests query_boards rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.QueryBoardsRequest()
     response = chroot.query_boards(request, None)
     assert isinstance(response, sdk_server_pb2.QueryBoardsResponse)
 
 
-@pytest.mark.skipif(ModuleNotFound, reason=SKIP_REASON)
+@pytest.mark.skipif(SKIP, reason=SKIP_REASON)
 def test_current_boards():
     """Tests current_boards rpc."""
-    chroot =sdk_server_defs_grpc.SdkChroot()
+    chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.CurrentBoardsRequest()
     response = chroot.current_boards(request, None)
     assert isinstance(response, sdk_server_pb2.CurrentBoardsResponse)
