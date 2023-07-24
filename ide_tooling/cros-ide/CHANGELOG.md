@@ -1,5 +1,19 @@
 # Change Log
 
+## 0.18.0 (July 2023)
+
+- Chromium
+  - Add gtest runner for Chromium.
+- Device managements
+  - Support rotated VNC session.
+- Gerrit integration
+  - Fix failure to get Gerrit account info.
+- Tast tests
+  - Add settings to set extra args on running Tast tests.
+- Xrefs
+  - Add a context menu to regenerate compilation database.
+  - Fix the issue of compilation database not generated for camera/features and camera/gpu.
+
 ## 0.16.0 (June 2023)
 
 - Migrate cros-ide* configs and commands to chromiumide* .
