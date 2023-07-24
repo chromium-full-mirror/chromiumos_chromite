@@ -106,7 +106,7 @@ export function eventToRequestBodyGA4(
   const sanitizedEventName = metricsEvent.sanitizeEventName(name);
 
   const params = {
-    engagement_time_msec: "1", // Necessary to trigger active user count.
+    engagement_time_msec: '1', // Necessary to trigger active user count.
     git_repo: gitRepo ?? 'unknown',
     os: os.type(),
     vscode_name: vscodeName,
