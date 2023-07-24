@@ -4,7 +4,7 @@
 
 import * as api from '../../../../features/gerrit/api';
 import * as git from '../../../../features/gerrit/git';
-import * as https from '../../../../features/gerrit/https';
+import {Https} from '../../../../features/gerrit/https';
 import * as fakeData from './fake_data';
 
 export type FakeGerritInitialOpts = Readonly<{
@@ -61,11 +61,11 @@ export class FakeGerrit {
 
     this.reqOpts = opts?.internal ? CHROME_INTERNAL_OPTIONS : CHROMIUM_OPTIONS;
 
-    this.httpsGetSpy = spyOn(https, 'getOrThrow')
+    this.httpsGetSpy = spyOn(Https, 'getOrThrow')
       .withArgs(`${this.baseUrl}/a/accounts/me`, this.reqOpts)
       .and.resolveTo(apiString(opts?.accountsMe));
 
-    this.httpsPutSpy = spyOn(https, 'putJsonOrThrow');
+    this.httpsPutSpy = spyOn(Https, 'putJsonOrThrow');
 
     this.registerFakePut();
   }

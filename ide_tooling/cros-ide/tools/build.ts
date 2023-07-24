@@ -90,11 +90,7 @@ async function buildTests() {
   // esbuild and then transpiling it to CommonJS format via babel. There's no guarantee that the
   // transpilaiton works as we want in future version of the tools, but that's the same for tsc.
   // TODO: empty this allowlist.
-  const mockableModules = [
-    'features/gerrit/api/client',
-    'features/gerrit/https',
-    'test/unit/features/gerrit/fake_env',
-  ];
+  const mockableModules = ['features/gerrit/api/client'];
 
   const tempDir = await fs.promises.mkdtemp(
     path.join(os.tmpdir(), 'ide-build-tests-')

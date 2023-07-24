@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import * as git from '../git';
-import * as https from '../https';
+import {Https} from '../https';
 import {Sink} from '../sink';
 
 // APIs Gerrit defines
@@ -135,7 +135,7 @@ export async function createDraftOrThrow(
   const options =
     authCookie !== undefined ? {headers: {cookie: authCookie}} : undefined;
 
-  const res = await https.putJsonOrThrow(url, req, options, sink);
+  const res = await Https.putJsonOrThrow(url, req, options, sink);
   return parseResponse(res);
 }
 

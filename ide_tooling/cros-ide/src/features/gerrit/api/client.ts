@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import * as git from '../git';
-import * as https from '../https';
+import {Https} from '../https';
 import * as api from '.';
 
 /**
@@ -22,7 +22,7 @@ export class RawGerritClient {
     const url = `${git.gerritUrl(repoId)}/${path}`;
     const options =
       authCookie !== undefined ? {headers: {cookie: authCookie}} : undefined;
-    const str = await https.getOrThrow(url, options);
+    const str = await Https.getOrThrow(url, options);
     return str === undefined ? undefined : api.parseResponse(str);
   }
 }

@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as path from 'path';
 import * as netUtil from '../../../../common/net_util';
-import * as gerritHttps from '../../../../features/gerrit/https';
+import {Https} from '../../../../features/gerrit/https';
 
 const TEST_DATA = '../../../../../src/test/testdata/https/';
 
@@ -40,7 +40,7 @@ describe('http request', () => {
       .listen(port);
 
     await expectAsync(
-      gerritHttps.getOrThrow(`https://localhost:${port}/`, requestOptions)
+      Https.getOrThrow(`https://localhost:${port}/`, requestOptions)
     ).toBeResolvedTo('hello');
   });
 
@@ -54,7 +54,7 @@ describe('http request', () => {
       .listen(port);
 
     await expectAsync(
-      gerritHttps.getOrThrow(`https://localhost:${port}/`, requestOptions)
+      Https.getOrThrow(`https://localhost:${port}/`, requestOptions)
     ).toBeRejectedWith(
       new Error(`GET https://localhost:${port}/: status code: 403`)
     );
@@ -70,7 +70,7 @@ describe('http request', () => {
       .listen(port);
 
     await expectAsync(
-      gerritHttps.getOrThrow(`https://localhost:${port}/`, requestOptions)
+      Https.getOrThrow(`https://localhost:${port}/`, requestOptions)
     ).toBeResolvedTo(undefined);
   });
 
@@ -86,7 +86,7 @@ describe('http request', () => {
     // Note the absence of the `requestOptions`. The request will be rejected
     // due to a self-signed certificated.
     await expectAsync(
-      gerritHttps.getOrThrow(`https://localhost:${port}/`)
+      Https.getOrThrow(`https://localhost:${port}/`)
     ).toBeRejectedWith(new Error('self signed certificate'));
   });
 });
