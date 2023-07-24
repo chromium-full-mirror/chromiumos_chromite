@@ -6,6 +6,7 @@
 """Flask app main file for frontend."""
 
 import os
+from pathlib import Path
 import socket
 from typing import List, Optional
 
@@ -25,8 +26,12 @@ from chromite.contrib.sdk_server.grpc_server.chromiumos import (
 from chromite.lib.parser import package_info
 
 
-app = flask.Flask("SDK Server")
-app.config["TEMPLATES_AUTO_RELOAD"] = True
+UI_DIR = Path(__file__).parent
+app = flask.Flask(
+    "SDK Server",
+    template_folder=UI_DIR / "templates",
+    static_folder=UI_DIR / "static",
+)
 
 index_data = {}
 
@@ -425,6 +430,10 @@ def setup():
     all_endpoints = client.get_methods(sdk_server_pb2.MethodsRequest()).response
     all_endpoints = [m.method for m in all_endpoints.methods]
     index_data["all_endpoints"] = all_endpoints
+
+
+def test_app():
+    return flask.Flask(__name__)
 
 
 # pylint: disable=unused-argument
