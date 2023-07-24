@@ -932,6 +932,15 @@ def BuildPackages(
                     )
 
                     if run_configs.bazel:
+                        # TODO(b/286245887): When symlinks are managed by repo
+                        # instead of by link_files.py, stop invoking that
+                        # script.
+                        cros_build_lib.run(
+                            [
+                                Path(constants.SOURCE_ROOT)
+                                / "src/bazel/link_files.py"
+                            ]
+                        )
                         bazel_extra_env = {"BOARD": target.name}
                         cros_build_lib.run(
                             ["bazel", "build"]
