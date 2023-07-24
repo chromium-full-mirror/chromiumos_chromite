@@ -520,6 +520,7 @@ def CreateGuestVm(
     Returns:
         Path to the created guest VM folder.
     """
+    chroot = chroot or chroot_lib.Chroot()
     assert board
 
     cmd = [os.path.join(constants.TERMINA_TOOLS_DIR, "termina_build_image.py")]
