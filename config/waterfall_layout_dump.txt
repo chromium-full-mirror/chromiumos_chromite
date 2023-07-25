@@ -131,6 +131,7 @@
     brask-labstation-release
     brask-release
     brya-arc-t-release
+    brya-kernelnext-release
     brya-release
     bubs-release
     cherry-release
@@ -297,6 +298,11 @@
   brya-factory-brya-14909.124.B-factorybranch-tryjob
   brya-factory-brya-15231.B-factorybranch-tryjob
   brya-full-tryjob
+  brya-kernelnext-full-tryjob
+  brya-kernelnext-llvm-next-toolchain-tryjob
+  brya-kernelnext-llvm-toolchain-tryjob
+  brya-kernelnext-payloads-tryjob
+  brya-kernelnext-release-tryjob
   brya-llvm-next-toolchain-tryjob
   brya-llvm-toolchain-tryjob
   brya-payloads-tryjob
@@ -688,6 +694,7 @@
     brask-labstation-release-tryjob
     brask-release-tryjob
     brya-arc-t-release-tryjob
+    brya-kernelnext-release-tryjob
     brya-release-tryjob
     bubs-release-tryjob
     cherry-release-tryjob
