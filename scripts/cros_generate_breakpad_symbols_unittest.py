@@ -35,6 +35,39 @@ class FindDebugDirMock(partial_mock.PartialMock):
         return self.path
 
 
+class IsSharedLibraryTest(cros_test_lib.TestCase):
+    """Test IsSharedLibrary"""
+
+    def testSharedLibaries(self):
+        """Verify that shared libraries return truthy"""
+        shared_libraries = [
+            "lib/libcontainer.so",
+            "lib64/libnss_db.so.2",
+            "usr/lib/libboost_type_erasure.so.1.81.0",
+            "usr/lib/v4l1compat.so",
+        ]
+
+        for shared_library in shared_libraries:
+            self.assertTrue(
+                cros_generate_breakpad_symbols.IsSharedLibrary(shared_library),
+                msg=f"expected {shared_library} to be a shared library",
+            )
+
+    def testExecutables(self):
+        """Verify that executables return None"""
+        executables = [
+            "sbin/crash_reporter",
+            "usr/bin/pqso",  # ends in so but not .so
+            "usr/bin/perl5.36.0",  # ends in numbers but not .so
+        ]
+
+        for executable in executables:
+            self.assertFalse(
+                cros_generate_breakpad_symbols.IsSharedLibrary(executable),
+                msg=f"expected {executable} to not be a shared library",
+            )
+
+
 # This long decorator triggers a false positive in the docstring test.
 # https://github.com/PyCQA/pylint/issues/3077
 # pylint: disable=bad-docstring-quotes
@@ -962,7 +995,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             found_files = mp_manager.list()
             self.assertTrue(
                 cros_generate_breakpad_symbols.ValidateSymbolFile(
-                    self._GetTestdataFile("bad_no_stack.sym"),
+                    self._GetTestdataFile("bad_no_module.sym"),
                     "/build/board/opt/google/chrome/nacl_helper_bootstrap",
                     "/build/board",
                     found_files,
@@ -976,8 +1009,22 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             found_files = mp_manager.list()
             self.assertTrue(
                 cros_generate_breakpad_symbols.ValidateSymbolFile(
+                    self._GetTestdataFile("bad_no_module.sym"),
+                    "/build/board/lib64/libnss_dns.so.2",
+                    "/build/board",
+                    found_files,
+                )
+            )
+            self.assertFalse(found_files)
+
+    def testSharedLibrariesSkipStackTest(self):
+        """Test that shared libraries can pass validation with no STACK."""
+        with multiprocessing.Manager() as mp_manager:
+            found_files = mp_manager.list()
+            self.assertTrue(
+                cros_generate_breakpad_symbols.ValidateSymbolFile(
                     self._GetTestdataFile("bad_no_stack.sym"),
-                    "/build/board/usr/lib/libcros_ml_core.so",
+                    "/build/board/lib64/libiw.so.30",
                     "/build/board",
                     found_files,
                 )

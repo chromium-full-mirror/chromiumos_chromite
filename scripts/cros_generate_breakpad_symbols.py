@@ -66,32 +66,18 @@ ALLOWLIST_NO_SYMBOL_FILE_VALIDATION = {
     # Built in a weird way, see comments at top of
     # https://source.chromium.org/chromium/chromium/src/+/main:native_client/src/trusted/service_runtime/linux/nacl_bootstrap.x
     "opt/google/chrome/nacl_helper_bootstrap",
-    # TODO(b/273543528): Investigate why this doesn't have stack records on
-    # kevin builds.
-    "build/rootfs/dlc-scaled/screen-ai/package/root/libchromescreenai.so",
     # TODO(b/279645511): Investigate why this doesn't have STACK records on
     # jacuzzi, scarlet, kukui, etc.
     "usr/bin/rma_reset",
-    # Virtual dynamic shared object, not expected to have STACK records.
-    (
-        "opt/google/containers/android/ndk_translation/lib/arm/"
-        "libndk_translation_vdso.so"
-    ),
-    # TODO(b/279665879): Figure out why this ndk_translation libraries is not
-    # getting STACK records.
-    "opt/google/containers/android/ndk_translation/lib/arm/libdexfile.so",
 }
 # Same but patterns not exact paths.
 ALLOWLIST_NO_SYMBOL_FILE_VALIDATION_RE = tuple(
     re.compile(x)
     for x in (
-        # Only has code if use.camera_feature_effects. Otherwise will have no
-        # STACK records.
-        r"usr/lib[^/]*/libcros_ml_core\.so",
         # Prebuilt closed-source library.
         r"usr/lib[^/]*/python[0-9]\.[0-9]/site-packages/.*/x_ignore_nofocus.so",
         # b/273577373: Rarely used, and only by few programs that do
-        # non-standard encoding conversions
+        # non-standard encoding conversions.
         r"lib[^/]*/libnss_files\.so\.[0-9.]+",
         r"lib[^/]*/libnss_dns\.so\.[0-9.]+",
         r"usr/lib[^/]*/gconv/libISOIR165\.so",
@@ -100,34 +86,6 @@ ALLOWLIST_NO_SYMBOL_FILE_VALIDATION_RE = tuple(
         r"usr/lib[^/]*/gconv/libCNS\.so",
         r"usr/lib[^/]*/gconv/libJISX0213\.so",
         r"usr/lib[^/]*/gconv/libJIS\.so",
-        # TODO(b/273579075): Figure out why libcares.so is not getting STACK
-        # records on kevin.
-        r"usr/lib[^/]*/libcares\.so[0-9.]*",
-        # libevent-2.1.so.7.0.1 does not have executable code and thus no
-        # STACK records. See libevent-2.1.12-libevent-shrink.patch.
-        r"usr/lib[^/]*/libevent-[0-9.]+\.so[0-9.]*",
-        # TODO(b/273599604): Figure out why libdcerpc-samr.so.0.0.1 is not
-        # getting STACK records on kevin.
-        r"usr/lib[^/]*/libdcerpc-samr\.so[0-9.]*",
-        # TODO(b/272613635): Figure out why these libabsl shared libraries are
-        # not getting STACK records.
-        r"usr/lib[^/]*/libabsl_bad_variant_access\.so\.[0-9.]+",
-        r"usr/lib[^/]*/libabsl_random_internal_platform\.so\.[0-9.]+",
-        r"usr/lib[^/]*/libabsl_flags\.so\.[0-9.]+",
-        r"usr/lib[^/]*/libabsl_bad_any_cast_impl\.so\.[0-9.]+",
-        r"usr/lib[^/]*/libabsl_bad_optional_access\.so\.[0-9.]+",
-        # TODO(b/273607289): Figure out why libgrpc++_error_details.so.1.43.0 is
-        # not getting STACK records on kevin.
-        r"usr/lib[^/]*/libgrpc\+\+_error_details\.so\.[0-9.]+",
-        # linux-gate.so is system call wrappers which don't always have enough
-        # code to get STACK entries.
-        r"lib/modules/[^/]+/vdso/linux-gate\.so",
-        # TODO(b/280503615): Figure out why libGLESv2.so.2.0.0 doesn't have
-        # STACK records on amd64-generic or betty-pi-arc.
-        r"usr/lib[^/]*/libGLESv[0-9]+\.so.*",
-        # This is just a backwards compatibility stub if ENABLE_HLSL is defined,
-        # see https://github.com/KhronosGroup/glslang/blob/main/hlsl/stub.cpp
-        r"usr/lib[^/]*/libHLSL.so",
     )
 )
 
@@ -180,6 +138,27 @@ ALL_EXPECTED_FILES = frozenset(
 # their own libc.so file; we don't want to do the extra validation on those.
 # (They are often subsets of the full libc and will not pass STACK count tests.)
 LIBC_REGEX = re.compile(r"lib[^/]*/libc\.so\.[0-9.]+")
+
+# Regular expression to find shared object libraries. Covers filenames like
+# "libcontainer.so" and also "libc.so.6" and also
+# "libabsl_log_entry.so.2301.0.0".
+SO_REGEX = re.compile(r"\.so(?:\.[0-9]+)*$")
+
+
+def IsSharedLibrary(elf_file: str) -> Optional[re.Match]:
+    """Returns non-None if the elf_file appears to be a shared library.
+
+    Tests if the elf_file appears to be a shared object library. The test is
+    just based on the filename.
+
+    Args:
+        elf_file: The path of the elf_file being tested.
+
+    Returns:
+        An object that evaluates to true if the elf_file is a shared object
+        library. None if the elf_file is not a shared object library.
+    """
+    return SO_REGEX.search(elf_file)
 
 
 class SymbolFileLineCounts:
@@ -317,7 +296,13 @@ def ValidateSymbolFile(
     counts = SymbolFileLineCounts(sym_file, elf_file)
 
     errors = False
-    if counts.stack_lines == 0:
+    # Executables should always have code, and thus STACK records. Many shared
+    # libraries, however, just have some constants (libabsl_log_entry.so) or
+    # are stubs that only have code under some #if or USE condition
+    # (libcros_ml_core.so). It is correct for such shared libraries to have no
+    # STACK records.
+    is_shared_library = IsSharedLibrary(elf_file)
+    if counts.stack_lines == 0 and not is_shared_library:
         # Use the elf_file in error messages; sym_file is still a temporary
         # file with a meaningless-to-humans name right now.
         logging.warning("%s: Symbol file has no STACK records", elf_file)
