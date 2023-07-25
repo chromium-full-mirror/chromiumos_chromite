@@ -1002,9 +1002,9 @@
     ]
   },
   "scripts": {
-    "build": "rm -rf dist && npx ts-node --swc tools/build.ts -p tools",
-    "build-release": "rm -rf dist && NODE_ENV=production npx ts-node tools/build.ts -p tools",
-    "build-tests": "rm -rf out && NODE_ENV=test npx ts-node --swc tools/build.ts -p tools",
+    "build": "rm -rf dist && ts-node --swc tools/build.ts -p tools",
+    "build-release": "rm -rf dist && NODE_ENV=production ts-node tools/build.ts -p tools",
+    "build-tests": "rm -rf out && NODE_ENV=test ts-node --swc tools/build.ts -p tools",
     "build-all": "npm run build && npm run build-tests",
     "test": "npm run unit-test && npm run integration-test",
     "unit-test": "npm run build-tests && NODE_PATH=out/test/unit/injected_modules NODE_OPTIONS=$NODE_OPTIONS' -r source-map-support/register' jasmine --config=src/test/unit/jasmine.json",
