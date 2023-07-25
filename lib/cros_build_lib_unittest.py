@@ -1195,13 +1195,13 @@ class TestAssertRootUserCheck(cros_test_lib.MockTestCase):
     def setUp(self):
         self.geteuid_mock = self.PatchObject(os, "geteuid", return_value=0)
 
-    def testAssertNonRootUserforRoot(self):
+    def testAssertNonRootUserForRoot(self):
         """Verify AssertNonRootUser raises an exception"""
         self.assertRaises(
             cros_build_lib.DieSystemExit, cros_build_lib.AssertNonRootUser
         )
 
-    def testAssertRootUserforRoot(self):
+    def testAssertRootUserForRoot(self):
         """Verify AssertRootUser doesn't raise an exception"""
         cros_build_lib.AssertRootUser()
 
