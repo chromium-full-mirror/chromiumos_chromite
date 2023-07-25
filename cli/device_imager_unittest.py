@@ -222,7 +222,8 @@ class TestReaderBase(cros_test_lib.MockTestCase):
 class PartialFileReaderTest(cros_test_lib.TempDirTestCase):
     """Tests PartialFileReader class."""
 
-    def testRunCat(self):
+    @mock.patch.object(os, "close", side_effect=os.close)
+    def testRunCat(self, os_close_mock):
         """Tests the main run() function with cat."""
         # Create a data file to read.  Pick a stride that doesn't repeat at the
         # same offsets that we're reading.
@@ -240,10 +241,11 @@ class PartialFileReaderTest(cros_test_lib.TempDirTestCase):
             out_data = os.read(pfr.Target(), 1024)
         assert out_data == data[1024 : 1024 + 512]
 
-        # Make sure the source has been close.
-        self.assertNotExists(GetFdPath(pfr._Source()))
+        # Make sure the source has been closed.
+        os_close_mock.assert_called_with(pfr._Source())
 
-    def testRunShrinker(self):
+    @mock.patch.object(os, "close", side_effect=os.close)
+    def testRunShrinker(self, os_close_mock):
         """Tests the main run() function with a "compressor"."""
         # Create a data file to read.  Pick a stride that doesn't repeat at the
         # same offsets that we're reading.
@@ -262,8 +264,8 @@ class PartialFileReaderTest(cros_test_lib.TempDirTestCase):
         # purposes in this test.
         assert sum(out_data) == 32499
 
-        # Make sure the source has been close.
-        self.assertNotExists(GetFdPath(pfr._Source()))
+        # Make sure the source has been closed.
+        os_close_mock.assert_called_with(pfr._Source())
 
 
 class GsFileCopierTest(cros_test_lib.TestCase):
@@ -696,13 +698,15 @@ class StatefulPayloadGeneratorTest(cros_test_lib.TestCase):
     """Tests stateful payload generator."""
 
     @mock.patch.object(paygen_stateful_payload_lib, "GenerateStatefulPayload")
-    def testRun(self, paygen_mock):
+    @mock.patch.object(os, "close")
+    def testRun(self, os_close_mock, paygen_mock):
         """Tests run() function."""
         image = "/foo/image"
         with device_imager.StatefulPayloadGenerator(image) as spg:
             pass
 
         paygen_mock.assert_called_with(image, spg._Source())
+        os_close_mock.assert_called_with(spg._Source())
 
 
 class StatefulUpdaterTest(cros_test_lib.TestCase):
