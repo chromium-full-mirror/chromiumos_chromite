@@ -6,6 +6,7 @@
 
 import ast
 import collections
+import functools
 import grp
 import logging
 import os
@@ -13,6 +14,7 @@ from pathlib import Path
 import pwd
 import resource
 import shutil
+import sys
 from typing import List, Optional, Set, Union
 
 from chromite.lib import chroot_lib
@@ -79,6 +81,89 @@ class UninitializedChrootError(Error):
 
 class VersionHasMultipleHooksError(Error):
     """When it is found that a single version has multiple hooks."""
+
+
+def is_inside_chroot() -> bool:
+    """Returns True if we are inside chroot."""
+    return os.path.exists(CHROOT_VERSION_FILE)
+
+
+def is_outside_chroot() -> bool:
+    """Returns True if we are outside chroot."""
+    return not is_inside_chroot()
+
+
+def assert_inside_chroot(name: Optional[str] = None):
+    """Die if we are outside the chroot"""
+    name = name or Path(sys.argv[0]).name
+    assert is_inside_chroot(), f"{name}: please run inside the chroot"
+
+
+def assert_outside_chroot(name: Optional[str] = None):
+    """Die if we are inside the chroot"""
+    name = name or Path(sys.argv[0]).name
+    assert is_outside_chroot(), f"{name}: please run outside the chroot"
+
+
+def require_inside_chroot(_reason: str = ""):
+    """Decorator to assert a function must be called when inside the SDK."""
+
+    def outer(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            assert_inside_chroot(func.__name__)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return outer
+
+
+def require_outside_chroot(_reason: str = ""):
+    """Decorator to assert a function must be called when outside the SDK."""
+
+    def outer(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            assert_outside_chroot(func.__name__)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return outer
+
+
+def require_chroot(_reason: str = ""):
+    """Decorator to note the function requires the SDK.
+
+    The function can be called from inside or outside the SDK and the function
+    handles entering as needed, but a chroot must have been instantiated.
+    This is currently only for documentation purposes.
+    """
+
+    def outer(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return outer
+
+
+def chroot_not_required(func):
+    """Decorator to note the SDK has no effect on the function.
+
+    The function does not use SDK specific functionality, and behaves
+    identically inside and outside the SDK. This is currently only for
+    documentation purposes.
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 def GetChrootVersion(chroot):

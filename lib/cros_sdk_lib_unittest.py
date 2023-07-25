@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 import stat
 
+import pytest
+
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
@@ -574,3 +576,98 @@ class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
             int(self.sysctl_vm_max_map_count.read_text(encoding="utf-8")),
             self.enteror._RLIMIT_NOFILE_MIN,
         )
+
+
+@pytest.fixture(name="chroot_version_file")
+def _with_chroot_version_file(monkeypatch, tmp_path: Path):
+    """Set CHROOT_VERSION_FILE to the returned temp path.
+
+    The chroot version file is not created, callers expected to write the
+    file if that's the desired behavior.
+    """
+    chroot_version_file = tmp_path / "chroot_version_file"
+    monkeypatch.setattr(
+        cros_sdk_lib, "CHROOT_VERSION_FILE", str(chroot_version_file)
+    )
+
+    yield chroot_version_file
+
+
+def test_inside_chroot_checks_inside_chroot(chroot_version_file: Path):
+    """Test {is|assert}_inside_chroot inside the chroot."""
+    chroot_version_file.write_text("123", encoding="utf-8")
+
+    assert cros_sdk_lib.is_inside_chroot()
+    cros_sdk_lib.assert_inside_chroot()
+
+
+def test_outside_chroot_checks_inside_chroot(chroot_version_file: Path):
+    """Test {is|assert}_outside_chroot inside the chroot."""
+    chroot_version_file.write_text("123", encoding="utf-8")
+
+    assert not cros_sdk_lib.is_outside_chroot()
+    with pytest.raises(AssertionError):
+        cros_sdk_lib.assert_outside_chroot()
+
+
+def test_inside_chroot_checks_outside_chroot(chroot_version_file: Path):
+    """Test {is|assert}_inside_chroot outside the chroot."""
+    assert not chroot_version_file.exists()
+
+    assert not cros_sdk_lib.is_inside_chroot()
+    with pytest.raises(AssertionError):
+        cros_sdk_lib.assert_inside_chroot()
+
+
+def test_outside_chroot_checks_outside_chroot(chroot_version_file: Path):
+    """Test {is|assert}_outside_chroot outside the chroot."""
+    assert not chroot_version_file.exists()
+
+    assert cros_sdk_lib.is_outside_chroot()
+    cros_sdk_lib.assert_outside_chroot()
+
+
+def test_require_inside_decorator_inside_chroot(chroot_version_file: Path):
+    """Test require_inside_chroot decorator inside the chroot."""
+    chroot_version_file.write_text("123", encoding="utf-8")
+
+    @cros_sdk_lib.require_inside_chroot("Runs")
+    def inside():
+        pass
+
+    inside()
+
+
+def test_require_outside_decorator_inside_chroot(chroot_version_file: Path):
+    """Test require_outside_chroot decorator inside the chroot."""
+    chroot_version_file.write_text("123", encoding="utf-8")
+
+    @cros_sdk_lib.require_outside_chroot("Raises assertion")
+    def outside():
+        pass
+
+    with pytest.raises(AssertionError):
+        outside()
+
+
+def test_require_inside_decorator_outside_chroot(chroot_version_file: Path):
+    """Test require_inside_chroot decorator outside the chroot."""
+    assert not chroot_version_file.exists()
+
+    @cros_sdk_lib.require_inside_chroot("Raises assertion")
+    def inside():
+        pass
+
+    with pytest.raises(AssertionError):
+        inside()
+
+
+def test_require_outside_decorator_outside_chroot(chroot_version_file: Path):
+    """Test require_outside_chroot decorator inside the chroot."""
+    assert not chroot_version_file.exists()
+
+    @cros_sdk_lib.require_outside_chroot("Runs")
+    def outside():
+        pass
+
+    outside()
