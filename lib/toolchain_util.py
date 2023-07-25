@@ -2130,10 +2130,14 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         # binary.  Create a symbolic link named 'chrome.unstripped'.
         CHROME_UNSTRIPPED_NAME = "chrome.unstripped"
         bin_path_in = self._AfdoTmpPath(CHROME_UNSTRIPPED_NAME)
-        osutils.SafeSymlink(
-            self._GetBenchmarkAFDOName(CHROME_DEBUG_BINARY_NAME),
-            self.chroot.full_path(bin_path_in),
+        benchmark_afdo_name = self._GetBenchmarkAFDOName(
+            CHROME_DEBUG_BINARY_NAME
         )
+        benchmark_chroot_path = self.chroot.full_path(bin_path_in)
+        logging.info(
+            "Linking %s => %s", benchmark_afdo_name, benchmark_chroot_path
+        )
+        osutils.SafeSymlink(benchmark_afdo_name, benchmark_chroot_path)
         perf_path_inside = self._AfdoTmpPath(
             self._GetBenchmarkAFDOName(template=CHROME_PERF_AFDO_FILE)
         )
