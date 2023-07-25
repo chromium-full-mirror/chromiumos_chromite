@@ -49,6 +49,7 @@ TERMINA_TOOLS_DIR = os.path.join(
     CHROOT_SOURCE_ROOT, "src/platform/container-guest-tools/termina"
 )
 RULES_CROS_PATH = os.path.join(CHROOT_SOURCE_ROOT, "src/platform/rules_cros")
+BAZEL_WORKSPACE_ROOT = Path(SOURCE_ROOT, "src")
 
 STATEFUL_DIR = "/mnt/stateful_partition"
 
