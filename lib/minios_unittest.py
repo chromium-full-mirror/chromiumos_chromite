@@ -36,10 +36,10 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(
             self.image, "GetPartitionInfo", side_effect=self.FAKE_PARTITIONS
         )
+        os.environ["USE"] = ""
 
     def testCreateMiniOsKernelImage(self):
         """Tests CreateMiniOsKernelImage()."""
-        self.PatchObject(os.environ, "get", return_value="")
         bck_mock = self.PatchObject(
             kernel_builder.Builder, "CreateCustomKernel"
         )
@@ -83,7 +83,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def testCreateMiniOsKernelImageOverrideUseFlags(self):
         """Tests CreateMiniOsKernelImage()."""
-        self.PatchObject(os.environ, "get", return_value="other_ramfs foo bar")
+        os.environ["USE"] = "other_ramfs foo bar"
         bck_mock = self.PatchObject(
             kernel_builder.Builder, "CreateCustomKernel"
         )
@@ -127,7 +127,6 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def testCreateMiniOsKernelImageDeveloperMode(self):
         """Tests CreateMiniOsKernelImage() with developer mode enabled."""
-        self.PatchObject(os.environ, "get", return_value="")
         bck_mock = self.PatchObject(
             kernel_builder.Builder, "CreateCustomKernel"
         )
@@ -173,7 +172,6 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def testCreateMiniOsKernelImageBuildDisabled(self):
         """Tests CreateMiniOsKernelImage() with kernel build disabled."""
-        self.PatchObject(os.environ, "get", return_value="")
         bck_mock = self.PatchObject(
             kernel_builder.Builder, "CreateCustomKernel"
         )
