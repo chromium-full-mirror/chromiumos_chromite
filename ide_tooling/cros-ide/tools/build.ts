@@ -51,7 +51,7 @@ async function buildWebview(production: boolean) {
 async function runWebpack(production: boolean) {
   const args = ['npx', 'webpack'];
   if (production) {
-    args.push('--mode', 'produciton');
+    args.push('--mode', 'production');
   }
   await commonUtil.execOrThrow(args[0], args.slice(1), {
     logger: {
