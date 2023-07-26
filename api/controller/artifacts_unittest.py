@@ -42,8 +42,7 @@ class BundleRequestMixin:
         if build_target:
             request.build_target.name = build_target
         if output_dir:
-            request.result_path.path.path = str(output_dir)
-            request.result_path.path.location = common_pb2.Path.Location.OUTSIDE
+            request.output_dir = output_dir
         if chroot:
             request.chroot.path = chroot
 
@@ -64,8 +63,7 @@ class BundleRequestMixin:
         if build_target:
             request.sysroot.build_target.name = build_target
         if output_dir:
-            request.result_path.path.path = output_dir
-            request.result_path.path.location = common_pb2.Path.Location.OUTSIDE
+            request.output_dir = output_dir
         if chroot:
             request.chroot.path = str(chroot)
         if chroot_out:
@@ -139,11 +137,11 @@ class BundleImageArchivesTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 2)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "path0.tar.xz"),
         )
         self.assertEqual(
-            self.response.artifacts[1].artifact_path.path,
+            self.response.artifacts[1].path,
             os.path.join(self.output_dir, "path1.tar.xz"),
         )
 
@@ -184,7 +182,7 @@ class BundleImageArchivesTest(BundleTestCase):
         )
 
         self.assertCountEqual(
-            expected, [a.artifact_path.path for a in self.response.artifacts]
+            expected, [a.path for a in self.response.artifacts]
         )
 
 
@@ -208,7 +206,7 @@ class BundleImageZipTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "image.zip"),
         )
 
@@ -222,10 +220,7 @@ class BundleImageZipTest(BundleTestCase):
             self.target_request, self.response, self.api_config
         )
         self.assertEqual(
-            [
-                artifact.artifact_path.path
-                for artifact in self.response.artifacts
-            ],
+            [artifact.path for artifact in self.response.artifacts],
             [os.path.join(self.output_dir, "image.zip")],
         )
 
@@ -266,7 +261,7 @@ class BundleAutotestFilesTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "autotest-a.tar.gz"),
         )
 
@@ -292,9 +287,7 @@ class BundleAutotestFilesTest(BundleTestCase):
 
         # Verify the output proto is being populated correctly.
         self.assertTrue(self.response.artifacts)
-        paths = [
-            artifact.artifact_path.path for artifact in self.response.artifacts
-        ]
+        paths = [artifact.path for artifact in self.response.artifacts]
         self.assertCountEqual(list(files.values()), paths)
 
     def testInvalidOutputDir(self):
@@ -351,7 +344,7 @@ class BundleTastFilesTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "tast_bundles.tar.gz"),
         )
 
@@ -379,9 +372,7 @@ class BundleTastFilesTest(BundleTestCase):
 
         # Make sure the artifact got recorded successfully.
         self.assertTrue(self.response.artifacts)
-        self.assertEqual(
-            expected_archive, self.response.artifacts[0].artifact_path.path
-        )
+        self.assertEqual(expected_archive, self.response.artifacts[0].path)
         # Make sure the service got called correctly.
         bundle_patch.assert_called_once_with(
             self.chroot, self.sysroot, self.output_dir
@@ -408,7 +399,7 @@ class BundleFirmwareTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "firmware.tar.gz"),
         )
 
@@ -424,10 +415,7 @@ class BundleFirmwareTest(BundleTestCase):
             self.sysroot_request, self.response, self.api_config
         )
         self.assertEqual(
-            [
-                artifact.artifact_path.path
-                for artifact in self.response.artifacts
-            ],
+            [artifact.path for artifact in self.response.artifacts],
             [os.path.join(self.output_dir, "firmware.tar.gz")],
         )
 
@@ -460,7 +448,7 @@ class BundleFpmcuUnittestsTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "fpmcu_unittests.tar.gz"),
         )
 
@@ -477,10 +465,7 @@ class BundleFpmcuUnittestsTest(BundleTestCase):
             self.sysroot_request, self.response, self.api_config
         )
         self.assertEqual(
-            [
-                artifact.artifact_path.path
-                for artifact in self.response.artifacts
-            ],
+            [artifact.path for artifact in self.response.artifacts],
             [os.path.join(self.output_dir, "fpmcu_unittests.tar.gz")],
         )
 
@@ -515,7 +500,7 @@ class BundleEbuildLogsTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "ebuild-logs.tar.gz"),
         )
 
@@ -530,10 +515,7 @@ class BundleEbuildLogsTest(BundleTestCase):
             self.sysroot_request, self.response, self.api_config
         )
         self.assertEqual(
-            [
-                artifact.artifact_path.path
-                for artifact in self.response.artifacts
-            ],
+            [artifact.path for artifact in self.response.artifacts],
             [os.path.join(self.output_dir, "ebuild-logs.tar.gz")],
         )
         self.assertEqual(
@@ -571,7 +553,7 @@ class BundleChromeOSConfigTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "config.yaml"),
         )
 
@@ -584,10 +566,7 @@ class BundleChromeOSConfigTest(BundleTestCase):
             self.sysroot_request, self.response, self.api_config
         )
         self.assertEqual(
-            [
-                artifact.artifact_path.path
-                for artifact in self.response.artifacts
-            ],
+            [artifact.path for artifact in self.response.artifacts],
             [os.path.join(self.output_dir, "config.yaml")],
         )
 
@@ -628,11 +607,6 @@ class BundleTestUpdatePayloadsTest(
         self.input_proto = artifacts_pb2.BundleRequest()
         self.input_proto.build_target.name = self.target
         self.input_proto.output_dir = self.archive_root
-        self.input_proto.result_path.path.path = self.archive_root
-        self.input_proto.result_path.path.location = (
-            common_pb2.Path.Location.OUTSIDE
-        )
-
         self.output_proto = artifacts_pb2.BundleResponse()
 
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
@@ -670,15 +644,15 @@ class BundleTestUpdatePayloadsTest(
         patch.assert_not_called()
         self.assertEqual(len(self.output_proto.artifacts), 3)
         self.assertEqual(
-            self.output_proto.artifacts[0].artifact_path.path,
+            self.output_proto.artifacts[0].path,
             os.path.join(self.archive_root, "payload1.bin"),
         )
         self.assertEqual(
-            self.output_proto.artifacts[1].artifact_path.path,
+            self.output_proto.artifacts[1].path,
             os.path.join(self.archive_root, "payload1.json"),
         )
         self.assertEqual(
-            self.output_proto.artifacts[2].artifact_path.path,
+            self.output_proto.artifacts[2].path,
             os.path.join(self.archive_root, "payload1.log"),
         )
 
@@ -692,7 +666,7 @@ class BundleTestUpdatePayloadsTest(
         )
 
         actual = [
-            os.path.relpath(artifact.artifact_path.path, self.archive_root)
+            os.path.relpath(artifact.path, self.archive_root)
             for artifact in self.output_proto.artifacts
         ]
         expected = ["payload1.bin", "payload2.bin"]
@@ -765,12 +739,7 @@ class BundleSimpleChromeArtifactsTest(
                 "path": chroot.path if chroot else None,
                 "out_path": str(chroot.out_path) if chroot else None,
             },
-            result_path=common_pb2.ResultPath(
-                path=common_pb2.Path(
-                    path=output_dir,
-                    location=common_pb2.Path.OUTSIDE,
-                )
-            ),
+            output_dir=output_dir,
         )
 
     def testValidateOnly(self):
@@ -802,7 +771,7 @@ class BundleSimpleChromeArtifactsTest(
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "simple_chrome.txt"),
         )
 
@@ -893,7 +862,7 @@ class BundleSimpleChromeArtifactsTest(
 
         self.assertTrue(response.artifacts)
         self.assertCountEqual(
-            expected_files, [a.artifact_path.path for a in response.artifacts]
+            expected_files, [a.path for a in response.artifacts]
         )
 
 
@@ -1060,11 +1029,11 @@ class ExportCpeReportTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 2)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, "cpe_report.txt"),
         )
         self.assertEqual(
-            self.response.artifacts[1].artifact_path.path,
+            self.response.artifacts[1].path,
             os.path.join(self.output_dir, "cpe_warnings.txt"),
         )
 
@@ -1082,10 +1051,7 @@ class ExportCpeReportTest(BundleTestCase):
         )
 
         for artifact in self.response.artifacts:
-            self.assertIn(
-                artifact.artifact_path.path,
-                [expected.report, expected.warnings],
-            )
+            self.assertIn(artifact.path, [expected.report, expected.warnings])
 
 
 class BundleGceTarballTest(BundleTestCase):
@@ -1108,7 +1074,7 @@ class BundleGceTarballTest(BundleTestCase):
         patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].path,
             os.path.join(self.output_dir, constants.TEST_IMAGE_GCE_TAR),
         )
 
@@ -1126,10 +1092,7 @@ class BundleGceTarballTest(BundleTestCase):
             self.target_request, self.response, self.api_config
         )
         self.assertEqual(
-            [
-                artifact.artifact_path.path
-                for artifact in self.response.artifacts
-            ],
+            [artifact.path for artifact in self.response.artifacts],
             [os.path.join(self.output_dir, constants.TEST_IMAGE_GCE_TAR)],
         )
 
