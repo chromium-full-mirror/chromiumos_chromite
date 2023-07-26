@@ -5,8 +5,10 @@
 // Executable to build ChromiumIDE extension.
 
 import {build, BuildOptions} from 'esbuild';
+import {GitRevisionPlugin} from 'git-revision-webpack-plugin';
 import glob from 'glob';
-import * as commonUtil from '../src/common/common_util';
+import webpack from 'webpack';
+const CopyPlugin = require('copy-webpack-plugin');
 
 const VIEW_ENTRY_POINTS = {
   vnc: './views/src/vnc.ts',
@@ -48,18 +50,45 @@ async function buildWebview(production: boolean) {
 }
 
 /** Run plugins defined in webpack.config.js. */
-async function runWebpack(production: boolean) {
-  const args = ['npx', 'webpack'];
-  if (production) {
-    args.push('--mode', 'production');
-  }
-  await commonUtil.execOrThrow(args[0], args.slice(1), {
-    logger: {
-      append(value) {
-        process.stderr.write(value);
+async function runWebpack(production: boolean): Promise<void> {
+  await new Promise((resolve, reject) => {
+    const compiler = webpack({
+      mode: production ? 'production' : 'development',
+      // A fake entry point. We just want to execute plugins.
+      entry: './empty.js',
+      output: {
+        filename: 'webpack_generated_empty_file.js',
+        // The path is dist by default.
       },
-    },
-    logStdout: true,
+    });
+
+    new GitRevisionPlugin({
+      versionCommand: 'describe --always --dirty',
+    }).apply(compiler);
+
+    // Copy files for views.
+    new CopyPlugin({
+      patterns: [
+        // Copy webview static files to dist/views/.
+        {from: 'views/static', to: 'views/'},
+        // Copy @vscode/codicons's dist files to dist/views/vscode/.
+        {
+          from: 'node_modules/@vscode/codicons/dist/',
+          to: 'views/vscode/',
+        },
+      ],
+    }).apply(compiler);
+
+    compiler.run((err, stats) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      if (stats?.hasErrors()) {
+        reject(new Error(stats.toString()));
+      }
+      resolve(0);
+    });
   });
 }
 
@@ -101,7 +130,7 @@ async function main() {
 }
 
 main().catch(e => {
-  process.stderr.write(`${e}`);
+  process.stderr.write(`${e}\n`);
   // eslint-disable-next-line no-process-exit
   process.exit(1);
 });
