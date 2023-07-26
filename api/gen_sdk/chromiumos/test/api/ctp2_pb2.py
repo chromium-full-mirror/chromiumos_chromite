@@ -11,6 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from chromite.api.gen_sdk.chromiumos.test.api import provision_pb2 as chromiumos_dot_test_dot_api_dot_provision__pb2
 from chromite.api.gen_sdk.chromiumos.test.api import test_suite_pb2 as chromiumos_dot_test_dot_api_dot_test__suite__pb2
 from chromite.api.gen_sdk.chromiumos.test.api import test_case_metadata_pb2 as chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2
 from chromite.api.gen_sdk.chromiumos.build.api import container_metadata_pb2 as chromiumos_dot_build_dot_api_dot_container__metadata__pb2
@@ -18,7 +19,7 @@ from chromite.api.gen_sdk.chromiumos.test.lab.api import dut_pb2 as chromiumos_d
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1e\x63hromiumos/test/api/ctp2.proto\x12\x13\x63hromiumos.test.api\x1a$chromiumos/test/api/test_suite.proto\x1a,chromiumos/test/api/test_case_metadata.proto\x1a-chromiumos/build/api/container_metadata.proto\x1a!chromiumos/test/lab/api/dut.proto\x1a\x19google/protobuf/any.proto\"\xdf\x02\n\x0c\x43TPv2Request\x12\x38\n\rsuite_request\x18\x01 \x01(\x0b\x32!.chromiumos.test.api.SuiteRequest\x12\x32\n\nhw_targets\x18\x02 \x01(\x0b\x32\x1e.chromiumos.test.api.HWTargets\x12\x32\n\nsw_targets\x18\x03 \x01(\x0b\x32\x1e.chromiumos.test.api.SWTargets\x12\x36\n\x0ekarbon_filters\x18\x04 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x36\n\x0ekoffee_filters\x18\x05 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x0c\n\x04pool\x18\x06 \x01(\t\x12/\n\x11scheduke_metadata\x18\x07 \x01(\x0b\x32\x14.google.protobuf.Any\"\x91\x01\n\x0cSuiteRequest\x12\x34\n\ntest_suite\x18\x01 \x01(\x0b\x32\x1e.chromiumos.test.api.TestSuiteH\x00\x12:\n\x11hierarchical_plan\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.ReservedH\x00\x42\x0f\n\rsuite_request\"x\n\tHWTargets\x12\x32\n\tlegacy_hw\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.LegacyHWH\x00\x12,\n\x06\x64\x64\x64_hw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDHWH\x00\x42\t\n\x07targets\"|\n\tSWTargets\x12\x33\n\tlegacy_sw\x18\x01 \x01(\x0b\x32\x1e.chromiumos.test.api.LegacySWsH\x00\x12,\n\x06\x64\x64\x64_sw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDSWH\x00\x42\x0c\n\nsw_targets\"u\n\tLegacySWs\x12;\n\nlegacy_sws\x18\x04 \x03(\x0b\x32\'.chromiumos.test.api.LegacySWs.LegacySW\x1a+\n\x08LegacySW\x12\r\n\x05\x62uild\x18\x02 \x01(\t\x12\x10\n\x08gcs_path\x18\x03 \x01(\t\"\x07\n\x05\x44\x44\x44SW\"\xaf\x01\n\x08LegacyHW\x12\r\n\x05\x62oard\x18\x01 \x03(\t\x12\r\n\x05model\x18\x02 \x03(\t\x12\x11\n\tany_model\x18\x03 \x01(\x08\x12\x0f\n\x07variant\x18\x04 \x03(\t\x12\x17\n\x0f\x62oards_excludes\x18\x05 \x03(\t\x12\x16\n\x0emodel_excludes\x18\x06 \x03(\t\x12\x30\n\tmulti_dut\x18\x07 \x01(\x0b\x32\x1d.chromiumos.test.api.MultiDut\"\x07\n\x05\x44\x44\x44HW\"*\n\x04Pair\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x11\n\tsecondary\x18\x02 \x01(\t\"_\n\x08MultiDut\x12)\n\x06\x62oards\x18\x01 \x03(\x0b\x32\x19.chromiumos.test.api.Pair\x12(\n\x05model\x18\x02 \x03(\x0b\x32\x19.chromiumos.test.api.Pair\"\xc2\x01\n\tCTPFilter\x12;\n\tcontainer\x18\x01 \x01(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x46\n\x14\x64\x65pendent_containers\x18\x02 \x03(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x30\n\x12\x63ontainer_metadata\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\"\n\n\x08Reserved\"|\n\x10InternalTestplan\x12\x34\n\ntest_cases\x18\x01 \x03(\x0b\x32 .chromiumos.test.api.CTPTestCase\x12\x32\n\nsuite_info\x18\x02 \x01(\x0b\x32\x1e.chromiumos.test.api.SuiteInfo\"\xd0\x01\n\x0b\x43TPTestCase\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x12<\n\x0fhw_requirements\x18\x03 \x03(\x0b\x32#.chromiumos.test.api.HWRequirements\x12<\n\x0fsw_requirements\x18\x04 \x03(\x0b\x32#.chromiumos.test.api.SWRequirements\"\x81\x01\n\tSuiteInfo\x12:\n\x0esuite_metadata\x18\x01 \x01(\x0b\x32\".chromiumos.test.api.SuiteMetadata\x12\x38\n\rsuite_request\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.SuiteRequest\"m\n\rSuiteMetadata\x12<\n\x0fhw_requirements\x18\x01 \x03(\x0b\x32#.chromiumos.test.api.HWRequirements\x12\x10\n\x08\x63hannels\x18\x02 \x03(\t\x12\x0c\n\x04pool\x18\x03 \x01(\t\"\xb4\x01\n\x0eHWRequirements\x12>\n\rhw_definition\x18\x01 \x03(\x0b\x32\'.chromiumos.test.api.SwarmingDefinition\x12\x17\n\x0fswarming_labels\x18\x05 \x03(\t\"I\n\x05State\x12\x0c\n\x08REQUIRED\x10\x00\x12\x0c\n\x08OPTIONAL\x10\x01\x12\r\n\tPREFERRED\x10\x02\x12\n\n\x06\x42\x41NNED\x10\x03\x12\t\n\x05ONEOF\x10\x04\"\x10\n\x0eSWRequirements\"\x87\x01\n\rProvisionInfo\x12\x39\n\x0finstall_request\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.InstallInfo\x12\x12\n\nidentifier\x18\x02 \x01(\t\"\'\n\x04Type\x12\x08\n\x04\x43ROS\x10\x00\x12\x0b\n\x07\x41NDROID\x10\x01\x12\x08\n\x04ROFW\x10\x02\"\x80\x01\n\x12SwarmingDefinition\x12.\n\x08\x64ut_info\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12:\n\x0eprovision_info\x18\x02 \x03(\x0b\x32\".chromiumos.test.api.ProvisionInfo\"\r\n\x0bInstallInfo\"R\n\rCTPv2Response\x12\x41\n\rtest_requests\x18\x01 \x03(\x0b\x32*.chromiumos.test.api.CrosTestRunnerRequest\"\x17\n\x15\x43rosTestRunnerRequest2h\n\x0c\x43TPv2Service\x12X\n\x0fRequestResolver\x12!.chromiumos.test.api.CTPv2Request\x1a\".chromiumos.test.api.CTPv2Response2o\n\x14GenericFilterService\x12W\n\x07\x45xecute\x12%.chromiumos.test.api.InternalTestplan\x1a%.chromiumos.test.api.InternalTestplanB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1e\x63hromiumos/test/api/ctp2.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/provision.proto\x1a$chromiumos/test/api/test_suite.proto\x1a,chromiumos/test/api/test_case_metadata.proto\x1a-chromiumos/build/api/container_metadata.proto\x1a!chromiumos/test/lab/api/dut.proto\x1a\x19google/protobuf/any.proto\"\xa6\x02\n\x0c\x43TPv2Request\x12\x38\n\rsuite_request\x18\x01 \x01(\x0b\x32!.chromiumos.test.api.SuiteRequest\x12-\n\x07targets\x18\x02 \x03(\x0b\x32\x1c.chromiumos.test.api.Targets\x12\x36\n\x0ekarbon_filters\x18\x03 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x36\n\x0ekoffee_filters\x18\x04 \x03(\x0b\x32\x1e.chromiumos.test.api.CTPFilter\x12\x0c\n\x04pool\x18\x05 \x01(\t\x12/\n\x11scheduke_metadata\x18\x06 \x01(\x0b\x32\x14.google.protobuf.Any\"\x91\x01\n\x0cSuiteRequest\x12\x34\n\ntest_suite\x18\x01 \x01(\x0b\x32\x1e.chromiumos.test.api.TestSuiteH\x00\x12:\n\x11hierarchical_plan\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.ReservedH\x00\x42\x0f\n\rsuite_request\"&\n\x08KeyValue\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"n\n\x07Targets\x12\x30\n\thw_target\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.HWTarget\x12\x31\n\nsw_targets\x18\x02 \x03(\x0b\x32\x1d.chromiumos.test.api.SWTarget\"v\n\x08HWTarget\x12\x32\n\tlegacy_hw\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.LegacyHWH\x00\x12,\n\x06\x64\x64\x64_hw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDHWH\x00\x42\x08\n\x06target\"y\n\x08SWTarget\x12\x32\n\tlegacy_sw\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.LegacySWH\x00\x12,\n\x06\x64\x64\x64_sw\x18\x02 \x01(\x0b\x32\x1a.chromiumos.test.api.DDDSWH\x00\x42\x0b\n\tsw_target\"^\n\x08LegacySW\x12\r\n\x05\x62uild\x18\x01 \x01(\t\x12\x10\n\x08gcs_path\x18\x02 \x01(\t\x12\x31\n\nkey_values\x18\x03 \x03(\x0b\x32\x1d.chromiumos.test.api.KeyValue\"\x07\n\x05\x44\x44\x44SW\"k\n\x08LegacyHW\x12\r\n\x05\x62oard\x18\x01 \x01(\t\x12\r\n\x05model\x18\x02 \x01(\t\x12\x0f\n\x07variant\x18\x03 \x01(\t\x12\x30\n\tmulti_dut\x18\x04 \x01(\x0b\x32\x1d.chromiumos.test.api.MultiDut\"\x07\n\x05\x44\x44\x44HW\"*\n\x04Pair\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x11\n\tsecondary\x18\x02 \x01(\t\"_\n\x08MultiDut\x12)\n\x06\x62oards\x18\x01 \x01(\x0b\x32\x19.chromiumos.test.api.Pair\x12(\n\x05model\x18\x02 \x01(\x0b\x32\x19.chromiumos.test.api.Pair\"\xc2\x01\n\tCTPFilter\x12;\n\tcontainer\x18\x01 \x01(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x46\n\x14\x64\x65pendent_containers\x18\x02 \x03(\x0b\x32(.chromiumos.build.api.ContainerImageInfo\x12\x30\n\x12\x63ontainer_metadata\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\"\n\n\x08Reserved\"|\n\x10InternalTestplan\x12\x34\n\ntest_cases\x18\x01 \x03(\x0b\x32 .chromiumos.test.api.CTPTestCase\x12\x32\n\nsuite_info\x18\x02 \x01(\x0b\x32\x1e.chromiumos.test.api.SuiteInfo\"\xd0\x01\n\x0b\x43TPTestCase\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x12<\n\x0fhw_requirements\x18\x03 \x03(\x0b\x32#.chromiumos.test.api.HWRequirements\x12<\n\x0fsw_requirements\x18\x04 \x03(\x0b\x32#.chromiumos.test.api.SWRequirements\"\x81\x01\n\tSuiteInfo\x12:\n\x0esuite_metadata\x18\x01 \x01(\x0b\x32\".chromiumos.test.api.SuiteMetadata\x12\x38\n\rsuite_request\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.SuiteRequest\"u\n\rSuiteMetadata\x12\x44\n\x13target_requirements\x18\x01 \x03(\x0b\x32\'.chromiumos.test.api.TargetRequirements\x12\x10\n\x08\x63hannels\x18\x02 \x03(\t\x12\x0c\n\x04pool\x18\x03 \x01(\t\"\x8a\x01\n\x12TargetRequirements\x12<\n\x0fhw_requirements\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.HWRequirements\x12\x36\n\x0fsw_requirements\x18\x02 \x03(\x0b\x32\x1d.chromiumos.test.api.LegacySW\"\xee\x01\n\x0eHWRequirements\x12>\n\rhw_definition\x18\x01 \x03(\x0b\x32\'.chromiumos.test.api.SwarmingDefinition\x12\x17\n\x0fswarming_labels\x18\x05 \x03(\t\x12\x38\n\x05state\x18\x06 \x01(\x0e\x32).chromiumos.test.api.HWRequirements.State\"I\n\x05State\x12\x0c\n\x08REQUIRED\x10\x00\x12\x0c\n\x08OPTIONAL\x10\x01\x12\r\n\tPREFERRED\x10\x02\x12\n\n\x06\x42\x41NNED\x10\x03\x12\t\n\x05ONEOF\x10\x04\"\x10\n\x0eSWRequirements\"\xc1\x01\n\rProvisionInfo\x12<\n\x0finstall_request\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallRequest\x12\x12\n\nidentifier\x18\x02 \x01(\t\x12\x35\n\x04type\x18\x03 \x01(\x0e\x32\'.chromiumos.test.api.ProvisionInfo.Type\"\'\n\x04Type\x12\x08\n\x04\x43ROS\x10\x00\x12\x0b\n\x07\x41NDROID\x10\x01\x12\x08\n\x04ROFW\x10\x02\"\x80\x01\n\x12SwarmingDefinition\x12.\n\x08\x64ut_info\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.lab.api.Dut\x12:\n\x0eprovision_info\x18\x02 \x03(\x0b\x32\".chromiumos.test.api.ProvisionInfo\"R\n\rCTPv2Response\x12\x41\n\rtest_requests\x18\x01 \x03(\x0b\x32*.chromiumos.test.api.CrosTestRunnerRequest\"\x17\n\x15\x43rosTestRunnerRequest2h\n\x0c\x43TPv2Service\x12X\n\x0fRequestResolver\x12!.chromiumos.test.api.CTPv2Request\x1a\".chromiumos.test.api.CTPv2Response2o\n\x14GenericFilterService\x12W\n\x07\x45xecute\x12%.chromiumos.test.api.InternalTestplan\x1a%.chromiumos.test.api.InternalTestplanB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.ctp2_pb2', globals())
@@ -26,60 +27,62 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
-  _CTPV2REQUEST._serialized_start=249
-  _CTPV2REQUEST._serialized_end=600
-  _SUITEREQUEST._serialized_start=603
-  _SUITEREQUEST._serialized_end=748
-  _HWTARGETS._serialized_start=750
-  _HWTARGETS._serialized_end=870
-  _SWTARGETS._serialized_start=872
-  _SWTARGETS._serialized_end=996
-  _LEGACYSWS._serialized_start=998
-  _LEGACYSWS._serialized_end=1115
-  _LEGACYSWS_LEGACYSW._serialized_start=1072
-  _LEGACYSWS_LEGACYSW._serialized_end=1115
-  _DDDSW._serialized_start=1117
-  _DDDSW._serialized_end=1124
-  _LEGACYHW._serialized_start=1127
-  _LEGACYHW._serialized_end=1302
-  _DDDHW._serialized_start=1304
-  _DDDHW._serialized_end=1311
-  _PAIR._serialized_start=1313
-  _PAIR._serialized_end=1355
-  _MULTIDUT._serialized_start=1357
-  _MULTIDUT._serialized_end=1452
-  _CTPFILTER._serialized_start=1455
-  _CTPFILTER._serialized_end=1649
-  _RESERVED._serialized_start=1651
-  _RESERVED._serialized_end=1661
-  _INTERNALTESTPLAN._serialized_start=1663
-  _INTERNALTESTPLAN._serialized_end=1787
-  _CTPTESTCASE._serialized_start=1790
-  _CTPTESTCASE._serialized_end=1998
-  _SUITEINFO._serialized_start=2001
-  _SUITEINFO._serialized_end=2130
-  _SUITEMETADATA._serialized_start=2132
-  _SUITEMETADATA._serialized_end=2241
-  _HWREQUIREMENTS._serialized_start=2244
-  _HWREQUIREMENTS._serialized_end=2424
-  _HWREQUIREMENTS_STATE._serialized_start=2351
-  _HWREQUIREMENTS_STATE._serialized_end=2424
-  _SWREQUIREMENTS._serialized_start=2426
-  _SWREQUIREMENTS._serialized_end=2442
-  _PROVISIONINFO._serialized_start=2445
-  _PROVISIONINFO._serialized_end=2580
-  _PROVISIONINFO_TYPE._serialized_start=2541
-  _PROVISIONINFO_TYPE._serialized_end=2580
-  _SWARMINGDEFINITION._serialized_start=2583
-  _SWARMINGDEFINITION._serialized_end=2711
-  _INSTALLINFO._serialized_start=2713
-  _INSTALLINFO._serialized_end=2726
-  _CTPV2RESPONSE._serialized_start=2728
-  _CTPV2RESPONSE._serialized_end=2810
-  _CROSTESTRUNNERREQUEST._serialized_start=2812
-  _CROSTESTRUNNERREQUEST._serialized_end=2835
-  _CTPV2SERVICE._serialized_start=2837
-  _CTPV2SERVICE._serialized_end=2941
-  _GENERICFILTERSERVICE._serialized_start=2943
-  _GENERICFILTERSERVICE._serialized_end=3054
+  _CTPV2REQUEST._serialized_start=286
+  _CTPV2REQUEST._serialized_end=580
+  _SUITEREQUEST._serialized_start=583
+  _SUITEREQUEST._serialized_end=728
+  _KEYVALUE._serialized_start=730
+  _KEYVALUE._serialized_end=768
+  _TARGETS._serialized_start=770
+  _TARGETS._serialized_end=880
+  _HWTARGET._serialized_start=882
+  _HWTARGET._serialized_end=1000
+  _SWTARGET._serialized_start=1002
+  _SWTARGET._serialized_end=1123
+  _LEGACYSW._serialized_start=1125
+  _LEGACYSW._serialized_end=1219
+  _DDDSW._serialized_start=1221
+  _DDDSW._serialized_end=1228
+  _LEGACYHW._serialized_start=1230
+  _LEGACYHW._serialized_end=1337
+  _DDDHW._serialized_start=1339
+  _DDDHW._serialized_end=1346
+  _PAIR._serialized_start=1348
+  _PAIR._serialized_end=1390
+  _MULTIDUT._serialized_start=1392
+  _MULTIDUT._serialized_end=1487
+  _CTPFILTER._serialized_start=1490
+  _CTPFILTER._serialized_end=1684
+  _RESERVED._serialized_start=1686
+  _RESERVED._serialized_end=1696
+  _INTERNALTESTPLAN._serialized_start=1698
+  _INTERNALTESTPLAN._serialized_end=1822
+  _CTPTESTCASE._serialized_start=1825
+  _CTPTESTCASE._serialized_end=2033
+  _SUITEINFO._serialized_start=2036
+  _SUITEINFO._serialized_end=2165
+  _SUITEMETADATA._serialized_start=2167
+  _SUITEMETADATA._serialized_end=2284
+  _TARGETREQUIREMENTS._serialized_start=2287
+  _TARGETREQUIREMENTS._serialized_end=2425
+  _HWREQUIREMENTS._serialized_start=2428
+  _HWREQUIREMENTS._serialized_end=2666
+  _HWREQUIREMENTS_STATE._serialized_start=2593
+  _HWREQUIREMENTS_STATE._serialized_end=2666
+  _SWREQUIREMENTS._serialized_start=2668
+  _SWREQUIREMENTS._serialized_end=2684
+  _PROVISIONINFO._serialized_start=2687
+  _PROVISIONINFO._serialized_end=2880
+  _PROVISIONINFO_TYPE._serialized_start=2841
+  _PROVISIONINFO_TYPE._serialized_end=2880
+  _SWARMINGDEFINITION._serialized_start=2883
+  _SWARMINGDEFINITION._serialized_end=3011
+  _CTPV2RESPONSE._serialized_start=3013
+  _CTPV2RESPONSE._serialized_end=3095
+  _CROSTESTRUNNERREQUEST._serialized_start=3097
+  _CROSTESTRUNNERREQUEST._serialized_end=3120
+  _CTPV2SERVICE._serialized_start=3122
+  _CTPV2SERVICE._serialized_end=3226
+  _GENERICFILTERSERVICE._serialized_start=3228
+  _GENERICFILTERSERVICE._serialized_end=3339
 # @@protoc_insertion_point(module_scope)
