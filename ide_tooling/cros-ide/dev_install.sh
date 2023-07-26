@@ -66,7 +66,21 @@ previous_version="$(npm pkg get version)"
 previous_version="${previous_version%\"}"
 previous_version="${previous_version#\"}"
 
-npm version prerelease --preid=dev
+# Remove pre-release tag if any.
+version_core="${previous_version%-*}"
+
+build="$(date "+%s").$(git rev-parse --short HEAD)"
+if ! git diff --quiet; then
+  build+="-dirty"
+fi
+
+# Set the version <version core>-dev.<timestamp>.<commit hash>(-dirty)? .
+#
+# We can use the same version core because we force-install the extension. We
+# don't increment the patch here so that VSCode, which only supports
+# major.minor.patch for extension versions, automatically installs a new patch
+# release over the dev version.
+npm version "${version_core}-dev.${build}" || exit 1
 
 td="$(mktemp -d)"
 
