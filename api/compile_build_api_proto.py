@@ -22,10 +22,14 @@ from chromite.lib import osutils
 
 
 # Chromite's protobuf library version (third_party/google/protobuf).
-PROTOC_VERSION = "3.13.0"
+PROTOC_VERSION = "21.9"
 
-_CIPD_PACKAGE = "infra/tools/protoc/linux-amd64"
-_CIPD_PACKAGE_VERSION = f"protobuf_version:v{PROTOC_VERSION}"
+# Protobuf dropped the major version number after 3.20, jumping to 21.0. But
+# some places (e.g., in protobuf/__init__.py) refer to this as 4.21.0.
+PROTOC_MAJOR_VERSION = "4"
+
+_CIPD_PACKAGE = "infra/3pp/tools/protoc/linux-amd64"
+_CIPD_PACKAGE_VERSION = f"version:2@{PROTOC_VERSION}"
 
 
 class Error(Exception):
@@ -66,7 +70,7 @@ class ProtocVersion(enum.Enum):
         if self is ProtocVersion.SDK:
             return Path("protoc")
         elif cipd_root:
-            return cipd_root / "protoc"
+            return cipd_root / "bin" / "protoc"
 
 
 @enum.unique

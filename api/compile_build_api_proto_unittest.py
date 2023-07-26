@@ -23,7 +23,10 @@ def test_versions_match():
     TODO: Investigate using protobuf.__version__ instead of hard coding a
         version in compile_build_api_proto.
     """
-    assert compile_build_api_proto.PROTOC_VERSION == protobuf.__version__, (
+    assert (
+        f"{compile_build_api_proto.PROTOC_MAJOR_VERSION}."
+        f"{compile_build_api_proto.PROTOC_VERSION}"
+    ) == protobuf.__version__, (
         "The protobuf library or compile_build_api_proto.PROTOC_VERSION has "
         "been updated, but the other has not. They must be updated together."
     )
