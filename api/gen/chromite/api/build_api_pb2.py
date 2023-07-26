@@ -17,17 +17,17 @@ from chromite.third_party.google.protobuf import descriptor_pb2 as google_dot_pr
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='chromite/api/build_api.proto',
-  package='chromite.api',
+  package='',
   syntax='proto2',
   serialized_options=b'Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1c\x63hromite/api/build_api.proto\x12\x0c\x63hromite.api\x1a google/protobuf/descriptor.proto\"\xe5\x01\n\x16\x42uildApiServiceOptions\x12\x0e\n\x06module\x18\x01 \x02(\t\x12<\n\x15service_chroot_assert\x18\x02 \x01(\x0e\x32\x1d.chromite.api.ChrootAssertion\x12\x38\n\x12service_visibility\x18\x03 \x01(\x0e\x32\x1c.chromite.api.ListVisibility\x12\x43\n\x1aservice_branched_execution\x18\x04 \x01(\x0e\x32\x1f.chromite.api.BranchedExecution\"\xee\x01\n\x15\x42uildApiMethodOptions\x12\x1b\n\x13implementation_name\x18\x01 \x01(\t\x12;\n\x14method_chroot_assert\x18\x02 \x01(\x0e\x32\x1d.chromite.api.ChrootAssertion\x12\x37\n\x11method_visibility\x18\x03 \x01(\x0e\x32\x1c.chromite.api.ListVisibility\x12\x42\n\x19method_branched_execution\x18\x04 \x01(\x0e\x32\x1f.chromite.api.BranchedExecution*<\n\x0f\x43hrootAssertion\x12\x10\n\x0cNO_ASSERTION\x10\x00\x12\n\n\x06INSIDE\x10\x01\x12\x0b\n\x07OUTSIDE\x10\x02*E\n\x0eListVisibility\x12\x14\n\x10LV_NOT_SPECIFIED\x10\x00\x12\x0e\n\nLV_VISIBLE\x10\x01\x12\r\n\tLV_HIDDEN\x10\x02*U\n\x11\x42ranchedExecution\x12\x19\n\x15\x45XECUTE_NOT_SPECIFIED\x10\x00\x12\x14\n\x10\x45XECUTE_BRANCHED\x10\x01\x12\x0f\n\x0b\x45XECUTE_TOT\x10\x02:`\n\x0fservice_options\x12\x1f.google.protobuf.ServiceOptions\x18\xd8\xad\x03 \x01(\x0b\x32$.chromite.api.BuildApiServiceOptions:]\n\x0emethod_options\x12\x1e.google.protobuf.MethodOptions\x18\xd8\xad\x03 \x01(\x0b\x32#.chromite.api.BuildApiMethodOptionsB8Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api'
+  serialized_pb=b'\n\x1c\x63hromite/api/build_api.proto\x1a google/protobuf/descriptor.proto\"\xbe\x01\n\x16\x42uildApiServiceOptions\x12\x0e\n\x06module\x18\x01 \x02(\t\x12/\n\x15service_chroot_assert\x18\x02 \x01(\x0e\x32\x10.ChrootAssertion\x12+\n\x12service_visibility\x18\x03 \x01(\x0e\x32\x0f.ListVisibility\x12\x36\n\x1aservice_branched_execution\x18\x04 \x01(\x0e\x32\x12.BranchedExecution\"\xc7\x01\n\x15\x42uildApiMethodOptions\x12\x1b\n\x13implementation_name\x18\x01 \x01(\t\x12.\n\x14method_chroot_assert\x18\x02 \x01(\x0e\x32\x10.ChrootAssertion\x12*\n\x11method_visibility\x18\x03 \x01(\x0e\x32\x0f.ListVisibility\x12\x35\n\x19method_branched_execution\x18\x04 \x01(\x0e\x32\x12.BranchedExecution*<\n\x0f\x43hrootAssertion\x12\x10\n\x0cNO_ASSERTION\x10\x00\x12\n\n\x06INSIDE\x10\x01\x12\x0b\n\x07OUTSIDE\x10\x02*E\n\x0eListVisibility\x12\x14\n\x10LV_NOT_SPECIFIED\x10\x00\x12\x0e\n\nLV_VISIBLE\x10\x01\x12\r\n\tLV_HIDDEN\x10\x02*U\n\x11\x42ranchedExecution\x12\x19\n\x15\x45XECUTE_NOT_SPECIFIED\x10\x00\x12\x14\n\x10\x45XECUTE_BRANCHED\x10\x01\x12\x0f\n\x0b\x45XECUTE_TOT\x10\x02:S\n\x0fservice_options\x12\x1f.google.protobuf.ServiceOptions\x18\xd8\xad\x03 \x01(\x0b\x32\x17.BuildApiServiceOptions:P\n\x0emethod_options\x12\x1e.google.protobuf.MethodOptions\x18\xd8\xad\x03 \x01(\x0b\x32\x16.BuildApiMethodOptionsB8Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api'
   ,
   dependencies=[google_dot_protobuf_dot_descriptor__pb2.DESCRIPTOR,])
 
 _CHROOTASSERTION = _descriptor.EnumDescriptor(
   name='ChrootAssertion',
-  full_name='chromite.api.ChrootAssertion',
+  full_name='ChrootAssertion',
   filename=None,
   file=DESCRIPTOR,
   create_key=_descriptor._internal_create_key,
@@ -50,15 +50,15 @@ _CHROOTASSERTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=553,
-  serialized_end=613,
+  serialized_start=461,
+  serialized_end=521,
 )
 _sym_db.RegisterEnumDescriptor(_CHROOTASSERTION)
 
 ChrootAssertion = enum_type_wrapper.EnumTypeWrapper(_CHROOTASSERTION)
 _LISTVISIBILITY = _descriptor.EnumDescriptor(
   name='ListVisibility',
-  full_name='chromite.api.ListVisibility',
+  full_name='ListVisibility',
   filename=None,
   file=DESCRIPTOR,
   create_key=_descriptor._internal_create_key,
@@ -81,15 +81,15 @@ _LISTVISIBILITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=615,
-  serialized_end=684,
+  serialized_start=523,
+  serialized_end=592,
 )
 _sym_db.RegisterEnumDescriptor(_LISTVISIBILITY)
 
 ListVisibility = enum_type_wrapper.EnumTypeWrapper(_LISTVISIBILITY)
 _BRANCHEDEXECUTION = _descriptor.EnumDescriptor(
   name='BranchedExecution',
-  full_name='chromite.api.BranchedExecution',
+  full_name='BranchedExecution',
   filename=None,
   file=DESCRIPTOR,
   create_key=_descriptor._internal_create_key,
@@ -112,8 +112,8 @@ _BRANCHEDEXECUTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=686,
-  serialized_end=771,
+  serialized_start=594,
+  serialized_end=679,
 )
 _sym_db.RegisterEnumDescriptor(_BRANCHEDEXECUTION)
 
@@ -130,7 +130,7 @@ EXECUTE_TOT = 2
 
 SERVICE_OPTIONS_FIELD_NUMBER = 55000
 service_options = _descriptor.FieldDescriptor(
-  name='service_options', full_name='chromite.api.service_options', index=0,
+  name='service_options', full_name='service_options', index=0,
   number=55000, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -138,7 +138,7 @@ service_options = _descriptor.FieldDescriptor(
   serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key)
 METHOD_OPTIONS_FIELD_NUMBER = 55000
 method_options = _descriptor.FieldDescriptor(
-  name='method_options', full_name='chromite.api.method_options', index=1,
+  name='method_options', full_name='method_options', index=1,
   number=55000, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -148,35 +148,35 @@ method_options = _descriptor.FieldDescriptor(
 
 _BUILDAPISERVICEOPTIONS = _descriptor.Descriptor(
   name='BuildApiServiceOptions',
-  full_name='chromite.api.BuildApiServiceOptions',
+  full_name='BuildApiServiceOptions',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='module', full_name='chromite.api.BuildApiServiceOptions.module', index=0,
+      name='module', full_name='BuildApiServiceOptions.module', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='service_chroot_assert', full_name='chromite.api.BuildApiServiceOptions.service_chroot_assert', index=1,
+      name='service_chroot_assert', full_name='BuildApiServiceOptions.service_chroot_assert', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='service_visibility', full_name='chromite.api.BuildApiServiceOptions.service_visibility', index=2,
+      name='service_visibility', full_name='BuildApiServiceOptions.service_visibility', index=2,
       number=3, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='service_branched_execution', full_name='chromite.api.BuildApiServiceOptions.service_branched_execution', index=3,
+      name='service_branched_execution', full_name='BuildApiServiceOptions.service_branched_execution', index=3,
       number=4, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -194,42 +194,42 @@ _BUILDAPISERVICEOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=81,
-  serialized_end=310,
+  serialized_start=67,
+  serialized_end=257,
 )
 
 
 _BUILDAPIMETHODOPTIONS = _descriptor.Descriptor(
   name='BuildApiMethodOptions',
-  full_name='chromite.api.BuildApiMethodOptions',
+  full_name='BuildApiMethodOptions',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='implementation_name', full_name='chromite.api.BuildApiMethodOptions.implementation_name', index=0,
+      name='implementation_name', full_name='BuildApiMethodOptions.implementation_name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='method_chroot_assert', full_name='chromite.api.BuildApiMethodOptions.method_chroot_assert', index=1,
+      name='method_chroot_assert', full_name='BuildApiMethodOptions.method_chroot_assert', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='method_visibility', full_name='chromite.api.BuildApiMethodOptions.method_visibility', index=2,
+      name='method_visibility', full_name='BuildApiMethodOptions.method_visibility', index=2,
       number=3, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='method_branched_execution', full_name='chromite.api.BuildApiMethodOptions.method_branched_execution', index=3,
+      name='method_branched_execution', full_name='BuildApiMethodOptions.method_branched_execution', index=3,
       number=4, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -247,8 +247,8 @@ _BUILDAPIMETHODOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=313,
-  serialized_end=551,
+  serialized_start=260,
+  serialized_end=459,
 )
 
 _BUILDAPISERVICEOPTIONS.fields_by_name['service_chroot_assert'].enum_type = _CHROOTASSERTION
@@ -269,14 +269,14 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 BuildApiServiceOptions = _reflection.GeneratedProtocolMessageType('BuildApiServiceOptions', (_message.Message,), {
   'DESCRIPTOR' : _BUILDAPISERVICEOPTIONS,
   '__module__' : 'chromite.api.build_api_pb2'
-  # @@protoc_insertion_point(class_scope:chromite.api.BuildApiServiceOptions)
+  # @@protoc_insertion_point(class_scope:BuildApiServiceOptions)
   })
 _sym_db.RegisterMessage(BuildApiServiceOptions)
 
 BuildApiMethodOptions = _reflection.GeneratedProtocolMessageType('BuildApiMethodOptions', (_message.Message,), {
   'DESCRIPTOR' : _BUILDAPIMETHODOPTIONS,
   '__module__' : 'chromite.api.build_api_pb2'
-  # @@protoc_insertion_point(class_scope:chromite.api.BuildApiMethodOptions)
+  # @@protoc_insertion_point(class_scope:BuildApiMethodOptions)
   })
 _sym_db.RegisterMessage(BuildApiMethodOptions)
 

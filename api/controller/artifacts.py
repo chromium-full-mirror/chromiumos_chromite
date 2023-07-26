@@ -309,7 +309,8 @@ def _BundleTestUpdatePayloadsResponse(
 
 @faux.success(_BundleTestUpdatePayloadsResponse)
 @faux.empty_error
-@validate.require("build_target.name")
+@validate.require("build_target.name", "result_path.path.path")
+@validate.exists("result_path.path.path")
 @validate.validation_complete
 def BundleTestUpdatePayloads(
     input_proto: artifacts_pb2.BundleRequest,
@@ -318,12 +319,9 @@ def BundleTestUpdatePayloads(
 ) -> Optional[int]:
     """Generate minimal update payloads for the build target for testing."""
     target = input_proto.build_target.name
+    output_dir = input_proto.result_path.path.path
     chroot = controller_util.ParseChroot(input_proto.chroot)
     build_root = constants.SOURCE_ROOT
-    # Leave artifact output intact, for the router layer to copy it out of the
-    # chroot. This may leave stray files leftover, but builders should clean
-    # these up.
-    output_dir = chroot.tempdir(delete=False)
 
     # Use the first available image to create the update payload.
     img_dir = _GetImageDir(build_root, target)
@@ -349,13 +347,11 @@ def BundleTestUpdatePayloads(
         )
     image = valid_images[0]
 
-    payloads = artifacts.BundleTestUpdatePayloads(
-        chroot, image, str(output_dir)
-    )
+    payloads = artifacts.BundleTestUpdatePayloads(chroot, image, output_dir)
     for payload in payloads:
         output_proto.artifacts.add(
             artifact_path=common_pb2.Path(
-                path=payload, location=common_pb2.Path.INSIDE
+                path=payload, location=common_pb2.Path.OUTSIDE
             ),
         )
 
