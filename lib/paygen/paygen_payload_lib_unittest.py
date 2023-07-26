@@ -1426,35 +1426,3 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                 "target_version": "1620.0.0",
             },
         )
-
-
-class PaygenPayloadLibEndToEndTest(PaygenLibTest):
-    """PaygenPayloadLib end-to-end testing."""
-
-    def _EndToEndIntegrationTest(self, tgt_image, src_image, sign):
-        """Helper test function for validating end to end payload generation."""
-        output_uri = os.path.join(self.tempdir, "expected_payload_out")
-        output_metadata_uri = output_uri + ".metadata-signature"
-        output_metadata_json = output_uri + ".json"
-
-        payload = gspaths.Payload(
-            tgt_image=tgt_image, src_image=src_image, uri=output_uri
-        )
-
-        paygen_payload_lib.CreateAndUploadPayload(payload=payload, sign=sign)
-
-        self.assertExists(output_uri)
-        self.assertEqual(os.path.exists(output_metadata_uri), sign)
-        self.assertExists(output_metadata_json)
-
-    @cros_test_lib.pytestmark_network_test
-    def testEndToEndIntegrationFull(self):
-        """Integration test to generate a full payload for old_image."""
-        self._EndToEndIntegrationTest(self.old_image, None, sign=True)
-
-    @cros_test_lib.pytestmark_network_test
-    def testEndToEndIntegrationDelta(self):
-        """Integration test to generate a delta payload for N -> N."""
-        self._EndToEndIntegrationTest(
-            self.new_image, self.new_image, sign=False
-        )

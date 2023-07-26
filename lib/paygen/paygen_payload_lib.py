@@ -1382,34 +1382,6 @@ class PaygenPayload:
         return ret
 
 
-def CreateAndUploadPayload(payload, sign=True, verify=True):
-    """Helper to create a PaygenPayloadLib instance and use it.
-
-    Mainly can be used as a single function to help with parallelism.
-
-    Args:
-        payload: An instance of gspaths.Payload describing the payload to
-            generate.
-        sign: Whether the payload should be signed (normally, you do).
-        verify: Whether the payload should be verified (default: True).
-    """
-    # We need to create a temp directory inside the chroot so be able to access
-    # from both inside and outside the chroot.
-    chroot = chroot_lib.Chroot()
-    with chroot.tempdir() as work_dir:
-        signer = PaygenSigner(
-            chroot=chroot,
-            work_dir=work_dir,
-            payload_build=payload.build if sign else None,
-        )
-        try:
-            PaygenPayload(
-                chroot, payload, work_dir, signer=signer, verify=verify
-            ).Run()
-        except PayloadGenerationSkippedException:
-            pass
-
-
 def GenerateUpdatePayload(
     chroot: chroot_lib.Chroot,
     tgt_image,
