@@ -1684,6 +1684,12 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         # Return ~1MB profile size.
         self.PatchObject(os.path, "getsize", return_value=100000)
 
+        chrome_debug_file = os.path.join(
+            self.afdo_tmp_path, self.debug_binary_name
+        )
+        osutils.WriteFile(
+            self.chroot.full_path(chrome_debug_file), "", makedirs=True
+        )
         ret = self.obj.Bundle()
         afdo_path = os.path.join(
             self.outdir, self.afdo_name + toolchain_util.BZ2_COMPRESSION_SUFFIX
@@ -1709,6 +1715,41 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             ]
         )
         self.rc.assertCommandContains(["bzip2", "-c", afdo_path_inside])
+
+    def testBundleUnverifiedChromeBenchmarkAfdoFileLinksMismatchedChrome(self):
+        """Checks that Bundle() is OK with mismatched debuginfo files.
+
+        Regression test for b/292382163. It's correct, though rare, for us to
+        download an older version of chrome.debug symbols.
+        """
+        self.SetUpBundle("UnverifiedChromeBenchmarkAfdoFile")
+        self.PatchObject(
+            self.obj,
+            "_GetEbuildInfo",
+            return_value=toolchain_util._EbuildInfo(
+                path=self.chrome_ebuild, CPV=self.chrome_pkg
+            ),
+        )
+        sym_link_command = self.PatchObject(osutils, "SafeSymlink")
+        # Return ~1MB profile size.
+        self.PatchObject(os.path, "getsize", return_value=100000)
+        mismatched_debug_binary = self.debug_binary_name.replace("-r1", "-r0")
+        # Use a regular assert here since this firing == a bug in the test.
+        assert mismatched_debug_binary != self.debug_binary_name
+
+        chrome_debug_file = os.path.join(
+            self.afdo_tmp_path, mismatched_debug_binary
+        )
+        osutils.WriteFile(
+            self.chroot.full_path(chrome_debug_file), "", makedirs=True
+        )
+        self.obj.Bundle()
+        sym_link_command.assert_called_with(
+            mismatched_debug_binary,
+            self.chroot.full_path(
+                os.path.join(self.afdo_tmp_path, "chrome.unstripped")
+            ),
+        )
 
     def testBundleUnverifiedChromeBenchmarkAfdoFileRaisesError(self):
         self.SetUpBundle("UnverifiedChromeBenchmarkAfdoFile")

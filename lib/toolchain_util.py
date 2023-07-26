@@ -2118,6 +2118,28 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             )
         return [bin_path]
 
+    @staticmethod
+    def _LocateChromeDebugInfo(afdo_tmp_path: Path) -> Path:
+        """Locates debuginfo for a Chrome binary in the given path.
+
+        Returns:
+            The path to debuginfo.
+
+        Raises:
+            BundleArtifactsHandlerError: if the number of files that seem to be
+            Chrome debuginfo is not exactly one.
+        """
+        debug_glob = "chromeos-chrome*.debug"
+        matches = list(afdo_tmp_path.glob(debug_glob))
+        if len(matches) == 1:
+            return matches[0]
+
+        if matches:
+            msg = f"Too many chrome debug files found; results: {matches}"
+        else:
+            msg = f"No files found matching {afdo_tmp_path / debug_glob}"
+        raise BundleArtifactsHandlerError(msg)
+
     def _BundleUnverifiedChromeBenchmarkAfdoFile(self):
         """Bundle a benchmark Chrome AFDO profile.
 
@@ -2130,9 +2152,9 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         # binary.  Create a symbolic link named 'chrome.unstripped'.
         CHROME_UNSTRIPPED_NAME = "chrome.unstripped"
         bin_path_in = self._AfdoTmpPath(CHROME_UNSTRIPPED_NAME)
-        benchmark_afdo_name = self._GetBenchmarkAFDOName(
-            CHROME_DEBUG_BINARY_NAME
-        )
+        benchmark_afdo_name = self._LocateChromeDebugInfo(
+            afdo_tmp_path=Path(self.chroot.full_path(self._AfdoTmpPath())),
+        ).name
         benchmark_chroot_path = self.chroot.full_path(bin_path_in)
         logging.info(
             "Linking %s => %s", benchmark_afdo_name, benchmark_chroot_path
