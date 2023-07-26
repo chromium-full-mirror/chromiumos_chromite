@@ -70,7 +70,7 @@ npm version prerelease --preid=dev
 
 td="$(mktemp -d)"
 
-npx vsce package -o "${td}/"
+npx --no vsce package -o "${td}/"
 
 "${exe}" --force --install-extension "${td}"/*
 
