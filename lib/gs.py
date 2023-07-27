@@ -584,8 +584,6 @@ wheel: <
   version: "version:1.7"
 >
 """
-        # TODO(vapier): Drop str() once WriteFile accepts Path objects.
-        spec = str(spec)
         try:
             osutils.WriteFile(spec, data, mode="wb", atomic=True)
         except OSError:
