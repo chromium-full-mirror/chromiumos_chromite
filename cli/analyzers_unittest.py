@@ -51,6 +51,16 @@ def test_commit_is_pre_submit(run_mock) -> None:
     assert not parser_namespace.files, "Files should remain empty."
 
 
+@mock.patch.multiple(
+    analyzers.AnalyzerCommand, can_modify_files=True, use_dryrun_options=True
+)
+def test_dry_run_never_inplace() -> None:
+    """Ensure --check ignores --inplace (sets it to False)."""
+    assert process_args(["--inplace"]).inplace
+    assert not process_args(["--check"]).inplace
+    assert not process_args(["--check", "--inplace"]).inplace
+
+
 def test_has_uncommitted_changes(run_mock) -> None:
     """Test handling of porcelain output for uncommitted change."""
     run_mock.SetDefaultCmdResult(stdout="M file\n")

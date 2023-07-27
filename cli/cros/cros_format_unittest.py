@@ -5,10 +5,10 @@
 """This module tests the cros format command."""
 
 from pathlib import Path
+from typing import List
 
 from chromite.cli.cros import cros_format
 from chromite.format import formatters
-from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.scripts import cros
 
@@ -16,175 +16,153 @@ from chromite.scripts import cros
 # pylint: disable=protected-access
 
 
-class FormatCommandTestCase(cros_test_lib.TestCase):
-    """Utils for testing the format subcommand."""
+def _call_cros_format(args: List[str]) -> int:
+    """Call "cros format" with the given command line arguments.
 
-    def setUp(self):
-        # Set up default options for tests to play with for running cros format.
-        self._parser = cros.GetOptions("format")
-        self.options = self.parse_args([])
+    Args:
+        args: The command line arguments.
 
-    def parse_args(self, args, **kwargs):
-        return self._parser.parse_args(["format"] + args, **kwargs)
-
-
-class FormatCommandTest(FormatCommandTestCase):
-    """Tests that don't involve real files."""
-
-    def testBreakoutFilesByTool(self):
-        """Check extension<->tool mapping."""
-        self.assertEqual({}, cros_format._BreakoutFilesByTool([]))
-        self.assertEqual(
-            {},
-            cros_format._BreakoutFilesByTool([Path("foo"), Path("blah.xxx")]),
-        )
-
-        tool_map = cros_format._BreakoutFilesByTool([Path("foo.md")])
-        # It's not easy to test the tool_map as the keys are functools partials
-        # which do not support equality tests.
-        items = list(tool_map.items())
-        self.assertEqual(len(items), 1)
-        key, value = items[0]
-        self.assertEqual(key.func, formatters.whitespace.Data.func)
-        self.assertEqual(value, [Path("foo.md")])
-
-    def testCliNoFiles(self):
-        """Check cros format handling with no files."""
-        cmd = cros_format.FormatCommand(self.options)
-        self.assertEqual(0, cmd.Run())
-
-    def testCliNoMatchedFiles(self):
-        """Check cros format handling with no matched files."""
-        self.options.files = [Path("foo")]
-        cmd = cros_format.FormatCommand(self.options)
-        self.assertEqual(0, cmd.Run())
+    Returns:
+        The return code of "cros format".
+    """
+    return cros.main(["format"] + args)
 
 
-class FormatCommandTempDirTests(
-    FormatCommandTestCase, cros_test_lib.TempDirTestCase
-):
-    """Tests that use real files."""
+def test_breakout_files_by_tool():
+    """Check extension<->tool mapping."""
+    assert not cros_format._BreakoutFilesByTool([])
+    assert not cros_format._BreakoutFilesByTool([Path("foo"), Path("blah.xxx")])
 
-    def testCliOneFile(self):
-        """Check behavior with one file."""
-        file = self.tempdir / "foo.txt"
+    tool_map = cros_format._BreakoutFilesByTool([Path("foo.md")])
+    # It's not easy to test the tool_map as the keys are functools partials
+    # which do not support equality tests.
+    items = list(tool_map.items())
+    assert len(items) == 1
+    key, value = items[0]
+    assert key.func == formatters.whitespace.Data.func
+    assert value == [Path("foo.md")]
+
+
+def test_cli_no_files(caplog):
+    """Check cros format handling with no files."""
+    assert _call_cros_format([]) == 0
+    assert "No files found to process." in caplog.text
+
+
+def test_cli_no_matched_files(caplog):
+    """Check cros format handling with no matched files."""
+    assert _call_cros_format(["foo"]) == 0
+    assert "No files support formatting." in caplog.text
+
+
+def test_cli_one_file(tmp_path):
+    """Check behavior with one file."""
+    file = tmp_path / "foo.txt"
+    osutils.Touch(file)
+    assert _call_cros_format([str(file)]) == 0
+
+
+def test_cli_dir(tmp_path):
+    """Test the CLI expands directories when given one."""
+    files = [tmp_path / "foo.txt", tmp_path / "bar.txt"]
+    for file in files:
         osutils.Touch(file)
-        opts = self.parse_args([str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(0, cmd.Run())
+    assert _call_cros_format([str(tmp_path)]) == 0
 
-    def testCliDir(self):
-        """Test the CLI expands directories when given one."""
-        files = [self.tempdir / "foo.txt", self.tempdir / "bar.txt"]
-        for file in files:
-            osutils.Touch(file)
-        opts = self.parse_args([str(self.tempdir)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(0, cmd.Run())
 
-    def testCliManyFile(self):
-        """Check behavior with many files."""
-        files = []
-        for n in range(0, 10):
-            file = self.tempdir / f"foo.{n}.txt"
-            osutils.Touch(file)
-            files.append(str(file))
-        opts = self.parse_args(files)
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(0, cmd.Run())
+def test_cli_many_files(tmp_path):
+    """Check behavior with many files."""
+    files = []
+    for n in range(0, 10):
+        file = tmp_path / f"foo.{n}.txt"
+        osutils.Touch(file)
+        files.append(str(file))
+    assert _call_cros_format(files) == 0
 
-    def testDiffFile(self):
-        """Check behavior with --diff file."""
-        file = self.tempdir / "foo.txt"
-        file.write_text(" ", encoding="utf-8")
-        opts = self.parse_args(["--diff", str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(1, cmd.Run())
-        self.assertEqual(" ", file.read_text(encoding="utf-8"))
 
-    def testCheckFile(self):
-        """Check behavior with --check file."""
-        file = self.tempdir / "foo.txt"
-        file.write_text(" ", encoding="utf-8")
-        for arg in ("-n", "--dry-run", "--check"):
-            opts = self.parse_args([arg, str(file)])
-            cmd = cros_format.FormatCommand(opts)
-            self.assertEqual(1, cmd.Run())
-            self.assertEqual(" ", file.read_text(encoding="utf-8"))
+def test_diff_file(tmp_path):
+    """Check behavior with --diff file."""
+    file = tmp_path / "foo.txt"
+    file.write_text(" ", encoding="utf-8")
+    assert _call_cros_format(["--diff", str(file)]) == 1
+    assert " " == file.read_text(encoding="utf-8")
 
-    def checkMultipleFiles(self, contents, expected_ret):
-        """Helper to check behavior with --check with multiple files."""
-        files = []
-        for i, content in enumerate(contents):
-            file = self.tempdir / f"foo.{i}.txt"
-            files.append(str(file))
-            file.write_text(content, encoding="utf-8")
-        for arg in ("-n", "--dry-run", "--check"):
-            opts = self.parse_args([arg, *files])
-            cmd = cros_format.FormatCommand(opts)
-            self.assertEqual(cmd.Run(), expected_ret)
 
-    def testCheckMultipleFilesWithFirstBroken(self):
-        """Check --check fails when the first supplied file is broken."""
-        self.checkMultipleFiles([" ", ""], 1)
+def test_check_file(tmp_path):
+    """Check behavior with --check file."""
+    file = tmp_path / "foo.txt"
+    file.write_text(" ", encoding="utf-8")
+    for arg in ("-n", "--dry-run", "--check"):
+        assert _call_cros_format([arg, str(file)]) == 1
+        assert " " == file.read_text(encoding="utf-8")
 
-    def testCheckMultipleFilesWithLastBroken(self):
-        """Check --check fails when the last supplied file is broken."""
-        self.checkMultipleFiles(["", " "], 1)
 
-    def testStdoutFile(self):
-        """Check behavior with --stdout file."""
-        file = self.tempdir / "foo.txt"
-        file.write_text(" ", encoding="utf-8")
-        opts = self.parse_args(["--stdout", str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(1, cmd.Run())
-        self.assertEqual(" ", file.read_text(encoding="utf-8"))
+def check_multiple_files(tmp_path, contents, expected_ret):
+    """Helper to check behavior with --check with multiple files."""
+    files = []
+    for i, content in enumerate(contents):
+        file = tmp_path / f"foo.{i}.txt"
+        files.append(str(file))
+        file.write_text(content, encoding="utf-8")
+    for arg in ("-n", "--dry-run", "--check"):
+        assert _call_cros_format([arg, *files]) == expected_ret
 
-    def testInplaceFile(self):
-        """Check behavior with --inplace file."""
-        file = self.tempdir / "foo.txt"
-        file.write_text(" ", encoding="utf-8")
-        opts = self.parse_args([str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(0, cmd.Run())
-        self.assertEqual("", file.read_text(encoding="utf-8"))
 
-    def testMissingFile(self):
-        """Check behavior with missing files."""
-        file = self.tempdir / "foo.py"
-        opts = self.parse_args([str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(1, cmd.Run())
+def test_check_multiple_files_with_first_broken(tmp_path):
+    """Check --check fails when the first supplied file is broken."""
+    check_multiple_files(tmp_path, [" ", ""], 1)
 
-    def testUnicodeError(self):
-        """Check binary files don't crash."""
-        file = self.tempdir / "foo.txt"
-        file.write_bytes(b"\xff")
-        opts = self.parse_args([str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(1, cmd.Run())
 
-    def testParseErrorJson(self):
-        """Check JSON parsing errors don't crash."""
-        file = self.tempdir / "foo.json"
-        file.write_bytes(b"{")
-        opts = self.parse_args([str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(1, cmd.Run())
+def test_check_multiple_files_with_last_broken(tmp_path):
+    """Check --check fails when the last supplied file is broken."""
+    check_multiple_files(tmp_path, ["", " "], 1)
 
-    def testParseErrorPython(self):
-        """Check Python parsing errors don't crash."""
-        file = self.tempdir / "foo.py"
-        file.write_bytes(b"'")
-        opts = self.parse_args([str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(1, cmd.Run())
 
-    def testParseErrorXml(self):
-        """Check XML parsing errors don't crash."""
-        file = self.tempdir / "foo.xml"
-        file.write_bytes(b"<")
-        opts = self.parse_args([str(file)])
-        cmd = cros_format.FormatCommand(opts)
-        self.assertEqual(1, cmd.Run())
+def test_stdout_file(tmp_path):
+    """Check behavior with --stdout file."""
+    file = tmp_path / "foo.txt"
+    file.write_text(" ", encoding="utf-8")
+    assert _call_cros_format(["--stdout", str(file)]) == 1
+    assert " " == file.read_text(encoding="utf-8")
+
+
+def test_inplace_file(tmp_path):
+    """Check behavior with --inplace file."""
+    file = tmp_path / "foo.txt"
+    file.write_text(" ", encoding="utf-8")
+    assert _call_cros_format([str(file)]) == 0
+    assert "" == file.read_text(encoding="utf-8")
+
+
+def test_missing_file(tmp_path):
+    """Check behavior with missing files."""
+    file = tmp_path / "foo.py"
+    assert _call_cros_format([str(file)]) == 1
+
+
+def test_unicode_error(tmp_path):
+    """Check binary files don't crash."""
+    file = tmp_path / "foo.txt"
+    file.write_bytes(b"\xff")
+    assert _call_cros_format([str(file)]) == 1
+
+
+def test_parse_error_json(tmp_path):
+    """Check JSON parsing errors don't crash."""
+    file = tmp_path / "foo.json"
+    file.write_bytes(b"{")
+    assert _call_cros_format([str(file)]) == 1
+
+
+def test_parse_error_python(tmp_path):
+    """Check Python parsing errors don't crash."""
+    file = tmp_path / "foo.py"
+    file.write_bytes(b"'")
+    assert _call_cros_format([str(file)]) == 1
+
+
+def test_parse_error_xml(tmp_path):
+    """Check XML parsing errors don't crash."""
+    file = tmp_path / "foo.xml"
+    file.write_bytes(b"<")
+    assert _call_cros_format([str(file)]) == 1

@@ -8,10 +8,12 @@ import os
 from typing import List
 from unittest import mock
 
+import pytest
+
 from chromite.cli.cros import cros_lint
-from chromite.lib import commandline
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.scripts import cros
 
 
 # pylint: disable=protected-access
@@ -114,20 +116,28 @@ def _call_cros_lint(args: List[str]) -> int:
     Returns:
         The return code of "cros lint".
     """
-    parser = commandline.ArgumentParser(filter=True)
-    cros_lint.LintCommand.AddParser(parser)
-    opts = parser.parse_args(args)
-    cmd = cros_lint.LintCommand(opts)
-    return cmd.Run()
+    return cros.main(["lint"] + args)
 
 
-def test_expand_dir(tmp_path):
+@pytest.fixture(name="breakout_files")
+def breakout_files_fixture() -> object:
+    """Fixture that mocks _BreakoutFilesByTool to observe files to process."""
+    with mock.patch(
+        "chromite.cli.cros.cros_lint._BreakoutFilesByTool", spec=True
+    ) as breakout_files:
+        yield breakout_files
+
+
+def test_no_files(breakout_files):
+    """Test to ensure passing no files is not an error."""
+    assert _call_cros_lint([]) == 0
+    assert not breakout_files.called
+
+
+def test_expand_dir(tmp_path, breakout_files):
     """Test the CLI expands directories when given one."""
     files = [tmp_path / "foo.txt", tmp_path / "bar.txt"]
     for file in files:
         osutils.Touch(file)
-    with mock.patch(
-        "chromite.cli.cros.cros_lint._BreakoutFilesByTool", spec=True
-    ) as breakout_files:
-        assert _call_cros_lint([str(tmp_path)]) == 0
+    assert _call_cros_lint([str(tmp_path)]) == 0
     assert set(breakout_files.call_args.args[0]) == set(files)

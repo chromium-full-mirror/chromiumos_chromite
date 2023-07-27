@@ -114,6 +114,10 @@ class AnalyzerCommand(ABC, command.CliCommand):
         options: commandline.ArgumentNamespace,
     ) -> None:
         """Validate & post-process options before freezing."""
+        if cls.use_dryrun_options and options.dryrun and options.inplace:
+            # A dry-run should never alter files in-place.
+            logging.warning("Ignoring inplace option for dry-run.")
+            options.inplace = False
 
         # Whether a committed change is being analyzed. Note "pre-submit" is a
         # special commit passed by `pre-upload.py --pre-submit` asking to check
