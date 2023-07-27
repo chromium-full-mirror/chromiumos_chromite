@@ -34,8 +34,9 @@
 #ifndef GOOGLE_PROTOBUF_PYTHON_CPP_EXTENSION_DICT_H__
 #define GOOGLE_PROTOBUF_PYTHON_CPP_EXTENSION_DICT_H__
 
-#define PY_SSIZE_T_CLEAN
 #include <Python.h>
+
+#include <memory>
 
 #include <google/protobuf/pyext/message.h>
 

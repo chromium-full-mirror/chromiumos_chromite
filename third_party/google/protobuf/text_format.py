@@ -46,16 +46,19 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 import encodings.raw_unicode_escape  # pylint: disable=unused-import
 import encodings.unicode_escape  # pylint: disable=unused-import
 import io
-import math
 import re
 
+from chromite.third_party import six
+
+if six.PY3:
+  long = int  # pylint: disable=redefined-builtin,invalid-name
+
+# pylint: disable=g-import-not-at-top
 from chromite.third_party.google.protobuf.internal import decoder
 from chromite.third_party.google.protobuf.internal import type_checkers
 from chromite.third_party.google.protobuf import descriptor
 from chromite.third_party.google.protobuf import text_encoding
-from chromite.third_party.google.protobuf import unknown_fields
 
-# pylint: disable=g-import-not-at-top
 __all__ = ['MessageToString', 'Parse', 'PrintMessage', 'PrintField',
            'PrintFieldValue', 'Merge', 'MessageToBytes']
 
@@ -99,9 +102,15 @@ class ParseError(Error):
 class TextWriter(object):
 
   def __init__(self, as_utf8):
-    self._writer = io.StringIO()
+    if six.PY2:
+      self._writer = io.BytesIO()
+    else:
+      self._writer = io.StringIO()
 
   def write(self, val):
+    if six.PY2:
+      if isinstance(val, six.text_type):
+        val = val.encode('utf-8')
     return self._writer.write(val)
 
   def close(self):
@@ -137,6 +146,8 @@ def MessageToString(
   Args:
     message: The protocol buffers message.
     as_utf8: Return unescaped Unicode for non-ASCII characters.
+        In Python 3 actual Unicode characters may appear as is in strings.
+        In Python 2 the return value will be valid UTF-8 rather than only ASCII.
     as_one_line: Don't introduce newlines between fields.
     use_short_repeated_primitives: Use short repeated format for primitives.
     pointy_brackets: If True, use angle brackets instead of curly braces for
@@ -222,36 +233,6 @@ def PrintMessage(message,
                  message_formatter=None,
                  print_unknown_fields=False,
                  force_colon=False):
-  """Convert the message to text format and write it to the out stream.
-
-  Args:
-    message: The Message object to convert to text format.
-    out: A file handle to write the message to.
-    indent: The initial indent level for pretty print.
-    as_utf8: Return unescaped Unicode for non-ASCII characters.
-    as_one_line: Don't introduce newlines between fields.
-    use_short_repeated_primitives: Use short repeated format for primitives.
-    pointy_brackets: If True, use angle brackets instead of curly braces for
-      nesting.
-    use_index_order: If True, print fields of a proto message using the order
-      defined in source code instead of the field number. By default, use the
-      field number order.
-    float_format: If set, use this to specify float field formatting
-      (per the "Format Specification Mini-Language"); otherwise, shortest
-      float that has same value in wire will be printed. Also affect double
-      field if double_format is not set but float_format is set.
-    double_format: If set, use this to specify double field formatting
-      (per the "Format Specification Mini-Language"); if it is not set but
-      float_format is set, use float_format. Otherwise, str() is used.
-    use_field_number: If True, print field numbers instead of names.
-    descriptor_pool: A DescriptorPool used to resolve Any types.
-    message_formatter: A function(message, indent, as_one_line): unicode|None
-      to custom format selected sub-messages (usually based on message type).
-      Use to pretty print parts of the protobuf for easier diffing.
-    print_unknown_fields: If True, unknown fields will be printed.
-    force_colon: If set, a colon will be added after the field name even if
-      the field is a proto message.
-  """
   printer = _Printer(
       out=out, indent=indent, as_utf8=as_utf8,
       as_one_line=as_one_line,
@@ -376,6 +357,8 @@ class _Printer(object):
       out: To record the text format result.
       indent: The initial indent level for pretty print.
       as_utf8: Return unescaped Unicode for non-ASCII characters.
+          In Python 3 actual Unicode characters may appear as is in strings.
+          In Python 2 the return value will be valid UTF-8 rather than ASCII.
       as_one_line: Don't introduce newlines between fields.
       use_short_repeated_primitives: Use short repeated format for primitives.
       pointy_brackets: If True, use angle brackets instead of curly braces for
@@ -481,12 +464,12 @@ class _Printer(object):
         self.PrintField(field, value)
 
     if self.print_unknown_fields:
-      self._PrintUnknownFields(unknown_fields.UnknownFieldSet(message))
+      self._PrintUnknownFields(message.UnknownFields())
 
-  def _PrintUnknownFields(self, unknown_field_set):
+  def _PrintUnknownFields(self, unknown_fields):
     """Print unknown fields."""
     out = self.out
-    for field in unknown_field_set:
+    for field in unknown_fields:
       out.write(' ' * self.indent)
       out.write(str(field.field_number))
       if field.wire_type == WIRETYPE_START_GROUP:
@@ -558,7 +541,7 @@ class _Printer(object):
         # For groups, use the capitalized name.
         out.write(field.message_type.name)
       else:
-          out.write(field.name)
+        out.write(field.name)
 
     if (self.force_colon or
         field.cpp_type != descriptor.FieldDescriptor.CPPTYPE_MESSAGE):
@@ -579,11 +562,13 @@ class _Printer(object):
     # Note: this is called only when value has at least one element.
     self._PrintFieldName(field)
     self.out.write(' [')
-    for i in range(len(value) - 1):
+    for i in six.moves.range(len(value) - 1):
       self.PrintFieldValue(field, value[i])
       self.out.write(', ')
     self.PrintFieldValue(field, value[-1])
     self.out.write(']')
+    if self.force_colon:
+      self.out.write(':')
     self.out.write(' ' if self.as_one_line else '\n')
 
   def _PrintMessageFieldValue(self, value):
@@ -625,7 +610,7 @@ class _Printer(object):
         out.write(str(value))
     elif field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_STRING:
       out.write('\"')
-      if isinstance(value, str) and not self.as_utf8:
+      if isinstance(value, six.text_type) and (six.PY2 or not self.as_utf8):
         out_value = value.encode('utf-8')
       else:
         out_value = value
@@ -645,10 +630,7 @@ class _Printer(object):
       if self.float_format is not None:
         out.write('{1:{0}}'.format(self.float_format, value))
       else:
-        if math.isnan(value):
-          out.write(str(value))
-        else:
-          out.write(str(type_checkers.ToShortestFloat(value)))
+        out.write(str(type_checkers.ToShortestFloat(value)))
     elif (field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_DOUBLE and
           self.double_format is not None):
       out.write('{1:{0}}'.format(self.double_format, value))
@@ -856,9 +838,12 @@ class _Parser(object):
       ParseError: On text parsing problems.
     """
     # Tokenize expects native str lines.
-    str_lines = (
-        line if isinstance(line, str) else line.decode('utf-8')
-        for line in lines)
+    if six.PY2:
+      str_lines = (line if isinstance(line, str) else line.encode('utf-8')
+                   for line in lines)
+    else:
+      str_lines = (line if isinstance(line, str) else line.decode('utf-8')
+                   for line in lines)
     tokenizer = Tokenizer(str_lines)
     while not tokenizer.AtEnd():
       self._MergeField(tokenizer, message)
@@ -886,10 +871,7 @@ class _Parser(object):
         expanded_any_end_token = '}'
       expanded_any_sub_message = _BuildMessageFromTypeName(packed_type_name,
                                                            self.descriptor_pool)
-      # Direct comparison with None is used instead of implicit bool conversion
-      # to avoid false positives with falsy initial values, e.g. for
-      # google.protobuf.ListValue.
-      if expanded_any_sub_message is None:
+      if not expanded_any_sub_message:
         raise ParseError('Type %s not found in descriptor pool' %
                          packed_type_name)
       while not tokenizer.TryConsume(expanded_any_end_token):
@@ -897,11 +879,8 @@ class _Parser(object):
           raise tokenizer.ParseErrorPreviousToken('Expected "%s".' %
                                                   (expanded_any_end_token,))
         self._MergeField(tokenizer, expanded_any_sub_message)
-      deterministic = False
-
       message.Pack(expanded_any_sub_message,
-                   type_url_prefix=type_url_prefix,
-                   deterministic=deterministic)
+                   type_url_prefix=type_url_prefix)
       return
 
     if tokenizer.TryConsume('['):
@@ -917,8 +896,6 @@ class _Parser(object):
       # pylint: disable=protected-access
       field = message.Extensions._FindExtensionByName(name)
       # pylint: enable=protected-access
-
-
       if not field:
         if self.allow_unknown_extension:
           field = None
@@ -1005,7 +982,6 @@ class _Parser(object):
     if not tokenizer.TryConsume(','):
       tokenizer.TryConsume(';')
 
-
   def _ConsumeAnyTypeUrl(self, tokenizer):
     """Consumes a google.protobuf.Any type URL and returns the type name."""
     # Consume "type.googleapis.com/".
@@ -1075,7 +1051,7 @@ class _Parser(object):
       value_cpptype = field.message_type.fields_by_name['value'].cpp_type
       if value_cpptype == descriptor.FieldDescriptor.CPPTYPE_MESSAGE:
         value = getattr(message, field.name)[sub_message.key]
-        value.CopyFrom(sub_message.value)
+        value.MergeFrom(sub_message.value)
       else:
         getattr(message, field.name)[sub_message.key] = sub_message.value
 
@@ -1173,12 +1149,9 @@ def _SkipFieldContents(tokenizer):
   # start with "{" or "<" which indicates the beginning of a message body.
   # If there is no ":" or there is a "{" or "<" after ":", this field has
   # to be a message or the input is ill-formed.
-  if tokenizer.TryConsume(
-      ':') and not tokenizer.LookingAt('{') and not tokenizer.LookingAt('<'):
-    if tokenizer.LookingAt('['):
-      _SkipRepeatedFieldValue(tokenizer)
-    else:
-      _SkipFieldValue(tokenizer)
+  if tokenizer.TryConsume(':') and not tokenizer.LookingAt(
+      '{') and not tokenizer.LookingAt('<'):
+    _SkipFieldValue(tokenizer)
   else:
     _SkipFieldMessage(tokenizer)
 
@@ -1245,20 +1218,6 @@ def _SkipFieldValue(tokenizer):
       not _TryConsumeInt64(tokenizer) and not _TryConsumeUint64(tokenizer) and
       not tokenizer.TryConsumeFloat()):
     raise ParseError('Invalid field value: ' + tokenizer.token)
-
-
-def _SkipRepeatedFieldValue(tokenizer):
-  """Skips over a repeated field value.
-
-  Args:
-    tokenizer: A tokenizer to parse the field value.
-  """
-  tokenizer.Consume('[')
-  if not tokenizer.LookingAt(']'):
-    _SkipFieldValue(tokenizer)
-    while tokenizer.TryConsume(','):
-      _SkipFieldValue(tokenizer)
-  tokenizer.Consume(']')
 
 
 class Tokenizer(object):
@@ -1429,14 +1388,17 @@ class Tokenizer(object):
 
   def TryConsumeInteger(self):
     try:
+      # Note: is_long only affects value type, not whether an error is raised.
       self.ConsumeInteger()
       return True
     except ParseError:
       return False
 
-  def ConsumeInteger(self):
+  def ConsumeInteger(self, is_long=False):
     """Consumes an integer number.
 
+    Args:
+      is_long: True if the value should be returned as a long integer.
     Returns:
       The integer parsed.
 
@@ -1444,7 +1406,7 @@ class Tokenizer(object):
       ParseError: If an integer couldn't be consumed.
     """
     try:
-      result = _ParseAbstractInteger(self.token)
+      result = _ParseAbstractInteger(self.token, is_long=is_long)
     except ValueError as e:
       raise self.ParseError(str(e))
     self.NextToken()
@@ -1507,7 +1469,7 @@ class Tokenizer(object):
     """
     the_bytes = self.ConsumeByteString()
     try:
-      return str(the_bytes, 'utf-8')
+      return six.text_type(the_bytes, 'utf-8')
     except UnicodeDecodeError as e:
       raise self._StringParseError(e)
 
@@ -1681,6 +1643,14 @@ def _ConsumeUint64(tokenizer):
   return _ConsumeInteger(tokenizer, is_signed=False, is_long=True)
 
 
+def _TryConsumeInteger(tokenizer, is_signed=False, is_long=False):
+  try:
+    _ConsumeInteger(tokenizer, is_signed=is_signed, is_long=is_long)
+    return True
+  except ParseError:
+    return False
+
+
 def _ConsumeInteger(tokenizer, is_signed=False, is_long=False):
   """Consumes an integer number from tokenizer.
 
@@ -1718,7 +1688,7 @@ def ParseInteger(text, is_signed=False, is_long=False):
     ValueError: Thrown Iff the text is not a valid integer.
   """
   # Do the actual parsing. Exception handling is propagated to caller.
-  result = _ParseAbstractInteger(text)
+  result = _ParseAbstractInteger(text, is_long=is_long)
 
   # Check if the integer is sane. Exceptions handled by callers.
   checker = _INTEGER_CHECKERS[2 * int(is_long) + int(is_signed)]
@@ -1726,11 +1696,12 @@ def ParseInteger(text, is_signed=False, is_long=False):
   return result
 
 
-def _ParseAbstractInteger(text):
+def _ParseAbstractInteger(text, is_long=False):
   """Parses an integer without checking size/signedness.
 
   Args:
     text: The text to parse.
+    is_long: True if the value should be returned as a long integer.
 
   Returns:
     The integer value.
@@ -1746,7 +1717,13 @@ def _ParseAbstractInteger(text):
     # we always use the '0o' prefix for multi-digit numbers starting with 0.
     text = c_octal_match.group(1) + '0o' + c_octal_match.group(2)
   try:
-    return int(text, 0)
+    # We force 32-bit values to int and 64-bit values to long to make
+    # alternate implementations where the distinction is more significant
+    # (e.g. the C++ implementation) simpler.
+    if is_long:
+      return long(text, 0)
+    else:
+      return int(text, 0)
   except ValueError:
     raise ValueError('Couldn\'t parse integer: %s' % orig_text)
 
