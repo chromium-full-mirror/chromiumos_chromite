@@ -131,7 +131,10 @@ def git_add(pkg: Package, dryrun: bool = False) -> None:
 
 
 def ebuild_bump(
-    pkg: Package, ebuilds: List[Ebuild], dryrun: bool = False
+    pkg: Package,
+    ebuilds: List[Ebuild],
+    dryrun: bool = False,
+    force: bool = False,  # pylint: disable=unused-argument
 ) -> None:
     """Revbump the package."""
     if len(ebuilds) == 1:
@@ -151,7 +154,11 @@ def ebuild_bump(
         git_mv(pkg.path, ebuild.name, ebuild.rev_next_path.name, dryrun=dryrun)
 
 
-def normalize(pkg: Package, dryrun: bool = False) -> bool:
+def normalize(
+    pkg: Package,
+    dryrun: bool = False,
+    force: bool = False,  # pylint: disable=unused-argument
+) -> bool:
     """Normalize how the revbump is handled.
 
     We want the base ebuild to never have a -r# component, and then use a
@@ -195,15 +202,22 @@ def normalize(pkg: Package, dryrun: bool = False) -> bool:
     return False
 
 
-def general_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
+def general_bump_eapi(
+    pkg: Package, dryrun: bool = False, force: bool = False
+) -> bool:
     """Update EAPI for normal (non-virtual & non-cros-workon) packages."""
+    log_prefix = "general EAPI update"
+
     if pkg.is_workon or pkg.category == "virtual":
         return False
 
     files = list(pkg.iterebuilds(symlinks=True))
     if len(files) not in (1, 2):
         logging.error(
-            "%s: too many ebuilds found: %s", pkg.cp, [x.cpv for x in files]
+            "%s: %s: too many ebuilds found: %s",
+            pkg.cp,
+            log_prefix,
+            [x.cpv for x in files],
         )
         return False
     if files[0].is_symlink:
@@ -220,16 +234,30 @@ def general_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
     ):
         if src_ebuild.eapi == "6":
             logging.warning(
-                "%s: assuming EAPI=6 -> EAPI=7 is easy; please review!", pkg.cp
+                "%s: %s: assuming EAPI=6 -> EAPI=7 is easy; please review!",
+                pkg.cp,
+                log_prefix,
             )
         else:
-            logging.error("%s: general EAPI update: has src_xxx funcs", pkg.cp)
-            return False
+            if not force:
+                logging.error(
+                    "%s: %s: skipping: has src_xxx funcs", pkg.cp, log_prefix
+                )
+                return False
+            logging.warning(
+                "%s: %s: has src_xxx funcs; please review!", pkg.cp, log_prefix
+            )
     if any(x.startswith("STRIP_MASK=") for x in lines):
-        logging.error("%s: SKIP: EAPI update: has STRIP_MASK", pkg.cp)
-        return False
+        if not force:
+            logging.error(
+                "%s: %s: skipping: has STRIP_MASK", pkg.cp, log_prefix
+            )
+            return False
+        logging.warning(
+            "%s: %s: has STRIP_MASK; please review!", pkg.cp, log_prefix
+        )
 
-    logging.notice("%s: general EAPI update", pkg.cp)
+    logging.notice("%s: %s", pkg.cp, log_prefix)
     lines = ['EAPI="7"' if x.startswith("EAPI=") else x for x in lines]
     src_ebuild.write_lines(lines, dryrun=dryrun)
 
@@ -239,8 +267,12 @@ def general_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
     return True
 
 
-def cros_workon_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
+def cros_workon_bump_eapi(
+    pkg: Package, dryrun: bool = False, force: bool = False
+) -> bool:
     """Update EAPI for cros-workon packages."""
+    log_prefix = "cros-workon EAPI update"
+
     if not pkg.is_workon:
         return False
     ebuild = pkg.workon_ebuild
@@ -256,18 +288,34 @@ def cros_workon_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
     ):
         if ebuild.eapi == "6":
             logging.warning(
-                "%s: assuming EAPI=6 -> EAPI=7 is easy; please review!", pkg.cp
+                "%s: %s: assuming EAPI=6 -> EAPI=7 is easy; please review!",
+                pkg.cp,
+                log_prefix,
             )
         else:
+            if not force:
+                logging.error(
+                    "%s: %s: skipping: has src_xxx funcs",
+                    pkg.cp,
+                    log_prefix,
+                )
+                return False
+            logging.warning(
+                "%s: %s: has src_xxx funcs; please review!",
+                pkg.cp,
+                log_prefix,
+            )
+    if any(x.startswith("STRIP_MASK=") for x in lines):
+        if not force:
             logging.error(
-                "%s: cros-workon EAPI update: has src_xxx funcs", pkg.cp
+                "%s: %s: skipping: has STRIP_MASK", pkg.cp, log_prefix
             )
             return False
-    if any(x.startswith("STRIP_MASK=") for x in lines):
-        logging.error("%s: SKIP: EAPI update: has STRIP_MASK", pkg.cp)
-        return False
+        logging.warning(
+            "%s: %s: has STRIP_MASK; please review!", pkg.cp, log_prefix
+        )
 
-    logging.notice("%s: cros-workon EAPI update", pkg.cp)
+    logging.notice("%s: %s", pkg.cp, log_prefix)
     lines = ['EAPI="7"' if x.startswith("EAPI=") else x for x in lines]
     ebuild.write_lines(lines, dryrun=dryrun)
 
@@ -276,7 +324,11 @@ def cros_workon_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
     return True
 
 
-def virtual_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
+def virtual_bump_eapi(
+    pkg: Package,
+    dryrun: bool = False,
+    force: bool = False,  # pylint: disable=unused-argument
+) -> bool:
     """Update EAPI for virtual packages."""
     if pkg.category != "virtual":
         return False
@@ -306,7 +358,11 @@ def virtual_bump_eapi(pkg: Package, dryrun: bool = False) -> bool:
     return True
 
 
-def set_license(pkg: Package, dryrun: bool = False) -> bool:
+def set_license(
+    pkg: Package,
+    dryrun: bool = False,
+    force: bool = False,  # pylint: disable=unused-argument
+) -> bool:
     """Set the LICENSE to the right value.
 
     This handles metapackages only atm.
@@ -396,7 +452,7 @@ def process_overlay(opts, mode: RunMode, overlay: Path) -> None:
         logging.debug("%s: checking", pkg.cp)
 
         func, msg = ACTION_MAP[mode]
-        if func(pkg, dryrun=opts.dryrun):
+        if func(pkg, dryrun=opts.dryrun, force=opts.force):
             if not opts.dryrun:
                 git.Commit(
                     overlay,
@@ -415,6 +471,9 @@ def get_parser():
     ]
     parser = commandline.ArgumentParser(
         description=__doc__, epilog="\n\n".join(actions), dryrun=True
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Ignore safety checks"
     )
     parser.add_argument("--bug-tag", default="None", help="Which bug to use")
     parser.add_argument(
