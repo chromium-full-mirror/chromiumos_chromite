@@ -246,6 +246,8 @@ function repoSync() {
     })
 }
 
+var board_packages = {}
+
 function populatePackages(board = "") {
 
     $.ajax({
@@ -259,7 +261,32 @@ function populatePackages(board = "") {
         success: function (response) {
             allPackagesHTML = "";
             allImagesHTML = "";
+            done = false;
             jQuery.each(response, function (board, data) {
+
+                $.post({
+                    url: "/all-packages",
+                    data: JSON.stringify({
+                        board: board
+                    }),
+                    contentType: "application/json",
+
+                    success: function(response){
+                        board_packages[board] = [];
+
+                        response.forEach((item) => {
+                            board_packages[board].push(new Option(item))
+                        })
+
+                        if(!done){
+                            done = true;
+                            board_packages[board].forEach((item) => {
+                                $('#addPackagePackageSelect').append(item).trigger('change');
+                            })
+                        }
+                        
+                    }
+                })
 
                 packages = data.packages
                 images = data.images
@@ -384,6 +411,19 @@ function populatePackages(board = "") {
             $(".workon-stop").on('click', workonStop);
             $(".build-single").on('click', buildSinglePackage)
             $('#boardSelector li').on('click', changeBoardSelectorActive)
+        },
+
+        complete: function (data) {
+            $("#addPackageBoardSelect").on('select2:select', (e) => {
+                board = e.params.data.text
+                $("#addPackagePackageSelect").empty().trigger("change");
+
+                board_packages[board].forEach((item) => {
+                    $('#addPackagePackageSelect').append(item).trigger('change');
+                })
+
+                
+            })
         },
 
         failure: function (xhr) {
@@ -823,5 +863,5 @@ $(document).ready(function () {
     $("#repoSync").on("click", repoSync);
     $("#customSubmit").on("click", customEndpoint);
 
-
+    
 });

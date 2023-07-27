@@ -24,6 +24,8 @@
     <link rel = "stylesheet" type = "text/css" href = "{{url_for('static', filename = 'style.css')}}"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src = "https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.7/jstz.min.js"></script>
+
+    <meta id="all_packages" data-packages="{{ data['all_packages']}}">
   </head>
 
   <body>
@@ -352,9 +354,9 @@
                           <li class = "d-flex justify-content-between align-items-center">
                             <p2 class="text-light fs-6">Package</p2>
                             <select id="addPackagePackageSelect" class="add-package-select">
-                              {% for package in data["all_packages"] %}
+                              <!-- {% for package in data["all_packages"] %}
                                 <option>{{package}}</option>
-                              {% endfor %}
+                              {% endfor %} -->
                             </select>
                           </li>
                           

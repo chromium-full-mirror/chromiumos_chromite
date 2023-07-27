@@ -400,6 +400,19 @@ def custom_endpoint():
     return flask.Response(logGenerator(client.custom_endpoint, req))
 
 
+@app.route("/all-packages", methods=["GET", "POST"])
+def all_packages():
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    req = sdk_server_pb2.AllPackagesRequest(
+        build_target=common.BuildTarget(name=flask.request.json["board"])
+    )
+
+    resp = client.all_packages(req)
+    return flask.jsonify([p.package_name for p in resp.package_info])
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Home page route. Renders index.html file with templating data."""
@@ -413,7 +426,6 @@ def setup():
     index_data["user"] = os.getlogin()
     index_data["hostname"] = socket.gethostname()
 
-    # List of all boards for various menus.
     all_boards = client.query_boards(sdk_server_pb2.QueryBoardsRequest())
     all_boards = sorted([b.name for b in all_boards.build_target])
     index_data["all_boards"] = all_boards
@@ -422,6 +434,7 @@ def setup():
     current_boards = client.current_boards(
         sdk_server_pb2.CurrentBoardsRequest()
     )
+
     current_boards = sorted(
         [b.build_target.name for b in current_boards.board_images]
     )
@@ -430,10 +443,6 @@ def setup():
     all_endpoints = client.get_methods(sdk_server_pb2.MethodsRequest()).response
     all_endpoints = [m.method for m in all_endpoints.methods]
     index_data["all_endpoints"] = all_endpoints
-
-
-def test_app():
-    return flask.Flask(__name__)
 
 
 # pylint: disable=unused-argument
