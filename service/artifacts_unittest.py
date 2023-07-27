@@ -553,18 +553,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateFullTestPayloads(self):
         """Verifies correctly generating full payloads."""
-        bools = [
-            True,  # Generate CrOS
-            True,  # Generate MiniOS
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
-
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True
-        )
-
         cros_payload_path = os.path.join(
             self.tempdir,
             "chromeos_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin",
@@ -573,6 +561,20 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir,
             "minios_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin",
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload_path],  # Generate CrOS
+                [minios_payload_path],  # Generate MiniOS
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, full=True
+        )
+
         self.assertEqual(
             generated,
             artifacts.ExtendBinPaths(cros_payload_path)
@@ -592,17 +594,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateFullTestPayloadsPartial(self):
         """Verifies partially generating full payloads."""
-        bools = [
-            True,  # Generate CrOS
-            False,  # Generate MiniOS
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True
-        )
-
         cros_payload_path = os.path.join(
             self.tempdir,
             "chromeos_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin",
@@ -611,6 +602,20 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir,
             "minios_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin",
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload_path],  # Generate CrOS
+                [],  # Skip MiniOS
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, full=True
+        )
+
         self.assertEqual(generated, artifacts.ExtendBinPaths(cros_payload_path))
         paygen_mock.assert_has_calls(
             [
@@ -626,17 +631,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateFullTestPayloadsSkipped(self):
         """Verifies skipping generating full payloads."""
-        bools = [
-            False,  # Generate CrOS
-            False,  # Generate MiniOS
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True
-        )
-
         cros_payload_path = os.path.join(
             self.tempdir,
             "chromeos_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin",
@@ -645,6 +639,20 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir,
             "minios_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin",
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [],  # Skip CrOS
+                [],  # Skip MiniOS
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, full=True
+        )
+
         self.assertEqual(generated, [])
         paygen_mock.assert_has_calls(
             [
@@ -660,16 +668,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateDeltaTestPayloads(self):
         """Verifies correctly generating delta payloads."""
-        bools = [
-            True,  # Generate CrOS
-            True,  # Generate MiniOS
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True
-        )
         cros_payload_path = os.path.join(
             self.tempdir,
             "chromeos_R37-5952.0.2014_06_12_2302-a1_R37-"
@@ -680,6 +678,20 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             "minios_R37-5952.0.2014_06_12_2302-a1_R37-"
             "5952.0.2014_06_12_2302-a1_link_delta_dev.bin",
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload_path],  # Generate CrOS
+                [minios_payload_path],  # Generate MiniOS
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, delta=True
+        )
+
         self.assertEqual(
             generated,
             artifacts.ExtendBinPaths(cros_payload_path)
@@ -705,17 +717,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateDeltaTestPayloadsPartial(self):
         """Verifies partially generating delta payloads."""
-        bools = [
-            True,  # Generate CrOS
-            False,  # Generate MiniOS
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True
-        )
-
         cros_payload_path = os.path.join(
             self.tempdir,
             "chromeos_R37-5952.0.2014_06_12_2302-a1_R37-"
@@ -726,6 +727,20 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             "minios_R37-5952.0.2014_06_12_2302-a1_R37-"
             "5952.0.2014_06_12_2302-a1_link_delta_dev.bin",
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload_path],  # Generate CrOS
+                [],  # Skip MiniOS
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, delta=True
+        )
+
         self.assertEqual(generated, artifacts.ExtendBinPaths(cros_payload_path))
         paygen_mock.assert_has_calls(
             [
@@ -747,17 +762,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateDeltaTestPayloadsSkipped(self):
         """Verifies skipping generating delta payloads."""
-        bools = [
-            False,  # Generate CrOS
-            False,  # Generate MiniOS
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True
-        )
-
         cros_payload_path = os.path.join(
             self.tempdir,
             "chromeos_R37-5952.0.2014_06_12_2302-a1_R37-"
@@ -768,6 +772,19 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             "minios_R37-5952.0.2014_06_12_2302-a1_R37-"
             "5952.0.2014_06_12_2302-a1_link_delta_dev.bin",
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [],  # Skip CrOS
+                [],  # Skip MiniOS
+            ],
+        )
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, delta=True
+        )
+
         self.assertEqual(generated, [])
         paygen_mock.assert_has_calls(
             [
@@ -789,18 +806,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateFullStubDlcTestPayloads(self):
         """Verifies correctly generating full payloads for sample-dlc."""
-        bools = [
-            True,  # Generate CrOS
-            True,  # Generate MiniOS
-            True,  # Generate DLC
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True, dlc=True
-        )
 
         cros_payload = os.path.join(
             self.tempdir,
@@ -817,6 +823,21 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
                 "5952.0.2014_06_12_2302-a1_link_full_dev.bin"
             ),
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload],  # Generate CrOS
+                [minios_payload],  # Generate MiniOS
+                [dlc_payload],  # Generate DLC
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, full=True, dlc=True
+        )
+
         self.assertEqual(
             generated,
             artifacts.ExtendBinPaths(cros_payload)
@@ -835,18 +856,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateFullStubDlcTestPayloadsSkipped(self):
         """Verifies skipping generating full payloads for sample-dlc."""
-        bools = [
-            True,  # Generate CrOS
-            True,  # Generate MiniOS
-            False,  # Generate DLC
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, full=True, dlc=True
-        )
 
         cros_payload = os.path.join(
             self.tempdir,
@@ -863,6 +873,22 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
                 "5952.0.2014_06_12_2302-a1_link_full_dev.bin"
             ),
         )
+
+        # Omitting dlc_payload.
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload],  # Generate CrOS
+                [minios_payload],  # Generate MiniOS
+                [],  # Skip DLC
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, full=True, dlc=True
+        )
+
         self.assertEqual(
             generated,
             artifacts.ExtendBinPaths(cros_payload)
@@ -881,18 +907,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateDeltaStubDlcTestPayloads(self):
         """Verifies correctly generating delta payloads for sample-dlc."""
-        bools = [
-            True,  # Generate CrOS
-            True,  # Generate MiniOS
-            True,  # Generate DLC
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True, dlc=True
-        )
 
         cros_payload = os.path.join(
             self.tempdir,
@@ -915,6 +930,21 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
                 "5952.0.2014_06_12_2302-a1_link_delta_dev.bin"
             ),
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload],  # Generate CrOS
+                [minios_payload],  # Generate MiniOS
+                [dlc_payload],  # Generate DLC
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, delta=True, dlc=True
+        )
+
         self.assertEqual(
             generated,
             artifacts.ExtendBinPaths(cros_payload)
@@ -947,18 +977,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateDeltaStubDlcTestPayloadsSkipped(self):
         """Verifies skipping generating delta payloads for sample-dlc."""
-        bools = [
-            True,  # Generate CrOS
-            True,  # Generate MiniOS
-            False,  # Generate DLC
-        ]
-        paygen_mock = self.PatchObject(
-            paygen_payload_lib, "GenerateUpdatePayload", side_effect=bools
-        )
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
-        generated = artifacts.GenerateTestPayloads(
-            self.chroot, self.target_image, self.tempdir, delta=True, dlc=True
-        )
 
         cros_payload = os.path.join(
             self.tempdir,
@@ -981,6 +1000,21 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
                 "5952.0.2014_06_12_2302-a1_link_delta_dev.bin"
             ),
         )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [cros_payload],  # Generate CrOS
+                [minios_payload],  # Generate MiniOS
+                [],  # Skip DLC
+            ],
+        )
+
+        generated = artifacts.GenerateTestPayloads(
+            self.chroot, self.target_image, self.tempdir, delta=True, dlc=True
+        )
+
         self.assertEqual(
             generated,
             artifacts.ExtendBinPaths(cros_payload)

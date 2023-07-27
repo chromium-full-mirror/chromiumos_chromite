@@ -15,6 +15,7 @@ import subprocess
 import tempfile
 import threading
 import time
+from typing import List, Optional, Union
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.lib import cgpt
@@ -187,13 +188,13 @@ class PaygenPayload:
     def __init__(
         self,
         chroot: chroot_lib.Chroot,
-        payload,
-        work_dir,
-        signer=None,
-        verify=False,
-        upload=True,
-        cache_dir=None,
-        static=True,
+        payload: gspaths.Payload,
+        work_dir: Union[str, os.PathLike],
+        signer: Optional[PaygenSigner] = None,
+        verify: bool = False,
+        upload: bool = True,
+        cache_dir: Optional[Union[str, os.PathLike]] = None,
+        static: bool = True,
     ):
         """Init for PaygenPayload.
 
@@ -1384,14 +1385,14 @@ class PaygenPayload:
 
 def GenerateUpdatePayload(
     chroot: chroot_lib.Chroot,
-    tgt_image,
-    payload,
-    src_image=None,
-    work_dir=None,
-    private_key=None,
-    check=None,
-    minios=None,
-):
+    tgt_image: str,
+    payload: str,
+    src_image: Optional[str] = None,
+    work_dir: Optional[Union[str, os.PathLike]] = None,
+    private_key: Optional[str] = None,
+    check: bool = False,
+    minios: bool = False,
+) -> List[str]:
     """Generates output payload and verifies its integrity if needed.
 
     Args:
@@ -1409,7 +1410,8 @@ def GenerateUpdatePayload(
             kernel.
 
     Returns:
-        Returns a Boolean indicating if the payload was generated or not.
+        Returns a list of payload remote result paths, or an empty list if none
+        were generated.
     """
     if path_util.DetermineCheckout().type != path_util.CHECKOUT_TYPE_REPO:
         raise Error("Need a chromeos checkout to generate payloads.")
@@ -1432,12 +1434,13 @@ def GenerateUpdatePayload(
             chroot, payload, work_dir, signer=signer, verify=check
         )
         try:
-            paygen.Run()
+            results = paygen.Run()
+            remote_paths = [paths[1] for paths in results.values()]
         except PayloadGenerationSkippedException:
             logging.info("No payload generated.")
-            return False
+            return []
 
-    return True
+    return remote_paths
 
 
 def GenerateUpdatePayloadPropertiesFile(payload, output=None):

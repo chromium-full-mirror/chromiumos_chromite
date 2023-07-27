@@ -160,9 +160,13 @@ class PaygenLibTest(cros_test_lib.RunCommandTempDirTestCase):
             uri="gs://delta_new_old/boo-test",
         )
 
-        self.PatchObject(
-            cros_build_lib, "GetRandomString", return_value="<random>"
-        )
+        self._rand_idx = 0
+
+        def _random():
+            self._rand_idx = self._rand_idx + 1
+            return f"<random{self._rand_idx}>"
+
+        self.PatchObject(cros_build_lib, "GetRandomString", side_effect=_random)
 
     @classmethod
     def setUpClass(cls):
@@ -325,36 +329,36 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         """Make sure that files we create have the expected names."""
         gen = self._GetStdGenerator(work_dir="/foo", static=False)
 
-        self.assertEqual(gen.src_image_file, "/foo/src_image-<random>.bin")
-        self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random>.bin")
-        self.assertEqual(gen.payload_file, "/foo/delta-<random>.bin")
-        self.assertEqual(gen.log_file, "/foo/delta-<random>.log")
+        self.assertEqual(gen.src_image_file, "/foo/src_image-<random1>.bin")
+        self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random1>.bin")
+        self.assertEqual(gen.payload_file, "/foo/delta-<random1>.bin")
+        self.assertEqual(gen.log_file, "/foo/delta-<random1>.log")
 
         # Siged image specific values.
         self.assertEqual(
-            gen.signed_payload_file, "/foo/delta-<random>.bin.signed"
+            gen.signed_payload_file, "/foo/delta-<random1>.bin.signed"
         )
         self.assertEqual(
             gen.metadata_signature_file,
-            "/foo/delta-<random>.bin.signed.metadata-signature",
+            "/foo/delta-<random1>.bin.signed.metadata-signature",
         )
 
     def testWorkingDirNamesMiniOS(self):
         """Make sure that files we create have the expected names."""
         gen = self._GetStdGenerator(work_dir="/foo", minios=True)
 
-        self.assertEqual(gen.src_image_file, "/foo/src_image-<random>.bin")
-        self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random>.bin")
-        self.assertEqual(gen.payload_file, "/foo/delta-<random>.bin")
-        self.assertEqual(gen.log_file, "/foo/delta-<random>.log")
+        self.assertEqual(gen.src_image_file, "/foo/src_image-<random1>.bin")
+        self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random1>.bin")
+        self.assertEqual(gen.payload_file, "/foo/delta-<random1>.bin")
+        self.assertEqual(gen.log_file, "/foo/delta-<random1>.log")
 
         # Siged image specific values.
         self.assertEqual(
-            gen.signed_payload_file, "/foo/delta-<random>.bin.signed"
+            gen.signed_payload_file, "/foo/delta-<random1>.bin.signed"
         )
         self.assertEqual(
             gen.metadata_signature_file,
-            "/foo/delta-<random>.bin.signed.metadata-signature",
+            "/foo/delta-<random1>.bin.signed.metadata-signature",
         )
 
     def testUriManipulators(self):
@@ -1251,28 +1255,29 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             [
                 # Check signed calls.
                 mock.call(
-                    "/work/delta-<random>.bin.signed",
-                    "gs://full_old_foo/boo-<random>",
+                    "/work/delta-<random1>.bin.signed",
+                    "gs://full_old_foo/boo-<random3>",
                 ),
                 mock.call(
-                    "/work/delta-<random>.log",
-                    "gs://full_old_foo/boo-<random>.log",
+                    "/work/delta-<random1>.log",
+                    "gs://full_old_foo/boo-<random3>.log",
                 ),
                 mock.call(
-                    "/work/delta-<random>.json",
-                    "gs://full_old_foo/boo-<random>.json",
+                    "/work/delta-<random1>.json",
+                    "gs://full_old_foo/boo-<random3>.json",
                 ),
                 # Check unsigned calls.
                 mock.call(
-                    "/work/delta-<random>.bin", "gs://full_old_foo/boo-<random>"
+                    "/work/delta-<random2>.bin",
+                    "gs://full_old_foo/boo-<random4>",
                 ),
                 mock.call(
-                    "/work/delta-<random>.log",
-                    "gs://full_old_foo/boo-<random>.log",
+                    "/work/delta-<random2>.log",
+                    "gs://full_old_foo/boo-<random4>.log",
                 ),
                 mock.call(
-                    "/work/delta-<random>.json",
-                    "gs://full_old_foo/boo-<random>.json",
+                    "/work/delta-<random2>.json",
+                    "gs://full_old_foo/boo-<random4>.json",
                 ),
             ],
         )
@@ -1298,28 +1303,29 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             [
                 # Check signed calls.
                 mock.call(
-                    "/work/delta-<random>.bin.signed",
-                    "gs://full_old_foo/boo-<random>",
+                    "/work/delta-<random1>.bin.signed",
+                    "gs://full_old_foo/boo-<random3>",
                 ),
                 mock.call(
-                    "/work/delta-<random>.log",
-                    "gs://full_old_foo/boo-<random>.log",
+                    "/work/delta-<random1>.log",
+                    "gs://full_old_foo/boo-<random3>.log",
                 ),
                 mock.call(
-                    "/work/delta-<random>.json",
-                    "gs://full_old_foo/boo-<random>.json",
+                    "/work/delta-<random1>.json",
+                    "gs://full_old_foo/boo-<random3>.json",
                 ),
                 # Check unsigned calls.
                 mock.call(
-                    "/work/delta-<random>.bin", "gs://full_old_foo/boo-<random>"
+                    "/work/delta-<random2>.bin",
+                    "gs://full_old_foo/boo-<random4>",
                 ),
                 mock.call(
-                    "/work/delta-<random>.log",
-                    "gs://full_old_foo/boo-<random>.log",
+                    "/work/delta-<random2>.log",
+                    "gs://full_old_foo/boo-<random4>.log",
                 ),
                 mock.call(
-                    "/work/delta-<random>.json",
-                    "gs://full_old_foo/boo-<random>.json",
+                    "/work/delta-<random2>.json",
+                    "gs://full_old_foo/boo-<random4>.json",
                 ),
             ],
         )
@@ -1425,4 +1431,74 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                 "public_key": "Zm9vLXB1YmtleQ==",
                 "target_version": "1620.0.0",
             },
+        )
+
+
+class GenerateUpdatePayloadTest(PaygenLibTest):
+    """Tests for GenerateUpdatePayload."""
+
+    def testGenerateUpdatePayload(self):
+        self.PatchObject(
+            partition_lib,
+            "LookupImageType",
+            return_value=partition_lib.CROS_IMAGE,
+        )
+        prep_image_mock = self.PatchObject(
+            paygen_payload_lib.PaygenPayload, "_PrepareImage"
+        )
+        prep_part_mock = self.PatchObject(
+            paygen_payload_lib.PaygenPayload, "_PreparePartitions"
+        )
+        gen_mock = self.PatchObject(
+            paygen_payload_lib.PaygenPayload, "_GenerateUnsignedPayload"
+        )
+        sign_mock = self.PatchObject(
+            paygen_payload_lib.PaygenPayload,
+            "_SignPayload",
+            return_value=(["payload_sigs"], ["metadata_sigs"]),
+        )
+        store_mock = self.PatchObject(
+            paygen_payload_lib.PaygenPayload, "_StorePayloadJson"
+        )
+
+        result_paths = paygen_payload_lib.GenerateUpdatePayload(
+            chroot=chroot_lib.Chroot(),
+            tgt_image=str(self.full_minios_payload.uri),
+            payload=str(self.full_payload.uri),
+            src_image=None,
+            work_dir=self.tempdir,
+            minios=True,
+        )
+
+        # Check expected calls.
+        self.assertEqual(
+            prep_image_mock.call_args_list,
+            [
+                mock.call(mock.ANY, mock.ANY),
+                mock.call(mock.ANY, mock.ANY),
+            ],
+        )
+        self.assertEqual(
+            prep_part_mock.call_args_list,
+            [
+                mock.call(True),
+                mock.call(False),
+            ],
+        )
+        self.assertEqual(gen_mock.call_args_list, mock.call(), mock.call())
+        self.assertEqual(sign_mock.call_args_list, mock.call(), mock.call())
+        self.assertEqual(
+            store_mock.call_args_list,
+            [
+                mock.call(["metadata_sigs"]),
+                mock.call(["metadata_sigs"]),
+            ],
+        )
+
+        self.assertEqual(
+            result_paths,
+            [
+                str(self.full_payload.uri) + "-<random3>",
+                str(self.full_payload.uri) + "-<random5>",
+            ],
         )
