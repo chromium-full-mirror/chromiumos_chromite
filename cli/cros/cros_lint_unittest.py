@@ -5,6 +5,7 @@
 """This module tests the cros lint command."""
 
 import os
+from pathlib import Path
 from typing import List
 from unittest import mock
 
@@ -17,6 +18,27 @@ from chromite.scripts import cros
 
 
 # pylint: disable=protected-access
+
+
+def test_breakout_files_by_tool():
+    """Check extension<->tool mapping."""
+    assert not cros_lint._BreakoutFilesByTool([])
+    assert not cros_lint._BreakoutFilesByTool([Path("foo"), Path("blah.xxx")])
+
+    tool_map = cros_lint._BreakoutFilesByTool([Path("foo.md")])
+    items = list(tool_map.items())
+    assert len(items) == 2
+    key, value = items[0]
+    assert key is cros_lint._MarkdownLintFile
+    assert value == [Path("foo.md")]
+
+
+def test_breakout_files_by_tool_order():
+    """Verify we prefer names over extensions."""
+    tool_map = cros_lint._BreakoutFilesByTool([Path("OWNERS.css")])
+    items = list(tool_map.items())
+    assert len(items) == 2
+    assert items[0][0] is cros_lint._OwnersLintFile
 
 
 class LintCommandTest(cros_test_lib.TestCase):

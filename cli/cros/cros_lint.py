@@ -602,15 +602,16 @@ def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
     map_to_return = {}
 
     for f in files:
-        extension = f.suffix
-        for extensions, tools in _EXT_TOOL_MAP.items():
-            if extension in extensions:
+        name = f.name
+        for patterns, tools in _FILENAME_PATTERNS_TOOL_MAP.items():
+            if any(fnmatch.fnmatch(name, x) for x in patterns):
                 for tool in tools:
                     map_to_return.setdefault(tool, []).append(f)
                 break
         else:
-            for patterns, tools in _FILENAME_PATTERNS_TOOL_MAP.items():
-                if any(fnmatch.fnmatch(f.name, x) for x in patterns):
+            extension = f.suffix
+            for extensions, tools in _EXT_TOOL_MAP.items():
+                if extension in extensions:
                     for tool in tools:
                         map_to_return.setdefault(tool, []).append(f)
                     break

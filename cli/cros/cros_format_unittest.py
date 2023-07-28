@@ -43,6 +43,16 @@ def test_breakout_files_by_tool():
     assert value == [Path("foo.md")]
 
 
+def test_breakout_files_by_tool_order():
+    """Verify we prefer names over extensions."""
+    tool_map = cros_format._BreakoutFilesByTool([Path("OWNERS.css")])
+    items = list(tool_map.items())
+    assert len(items) == 1
+    key, value = items[0]
+    assert key.func == formatters.whitespace.Data.func
+    assert value == [Path("OWNERS.css")]
+
+
 def test_cli_no_files(caplog):
     """Check cros format handling with no files."""
     assert _call_cros_format([]) == 0
