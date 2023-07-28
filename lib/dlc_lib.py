@@ -13,6 +13,7 @@ import math
 import os
 import re
 import shutil
+from typing import Optional
 import zlib
 
 from chromite.lib import build_target_lib
@@ -564,6 +565,7 @@ class DlcGenerator:
         )
 
         self.meta_dir = os.path.join(self.image_dir, DLC_TMP_META_DIR)
+        osutils.SafeMakedirs(self.meta_dir)
 
         # Create path for all final artifacts.
         self.dest_image = os.path.join(self.image_dir, DLC_IMAGE)
@@ -898,8 +900,13 @@ class DlcGenerator:
             "powerwash-safe": self.ebuild_params.powerwash_safe,
         }
 
-    def GenerateVerity(self):
-        """Generate verity parameters and hashes for the image."""
+    def GenerateVerity(self, salt: Optional[str] = None):
+        """Generate verity parameters and hashes for the image.
+
+        Args:
+            salt: An optional hex string to salt verity gen. Please refer
+                to details of verity userspace tool to determine max length.
+        """
         logging.debug("Generating DLC image verity.")
         with osutils.TempDir(prefix="dlc_") as temp_dir:
             hash_tree = os.path.join(temp_dir, "hash_tree")
@@ -912,10 +919,10 @@ class DlcGenerator:
                     "verity",
                     "mode=create",
                     "alg=sha256",
-                    "payload=" + self.dest_image,
-                    "payload_blocks=" + str(blocks),
-                    "hashtree=" + hash_tree,
-                    "salt=random",
+                    f"payload={self.dest_image}",
+                    f"payload_blocks={blocks}",
+                    f"hashtree={hash_tree}",
+                    f"salt={salt if salt else 'random'}",
                 ],
                 capture_output=True,
             )

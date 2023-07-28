@@ -10,6 +10,7 @@ import os
 import string
 from unittest import mock
 
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import dlc_allowlist
 from chromite.lib import dlc_lib
@@ -695,6 +696,57 @@ class DlcGeneratorTest(
         self.assertEqual(dlc_generator.GetOptimalImageBlockSize(_BLOCK_SIZE), 1)
         self.assertEqual(
             dlc_generator.GetOptimalImageBlockSize(_BLOCK_SIZE + 1), 2
+        )
+
+    @mock.patch.object(cros_build_lib, "run", side_effect=cros_build_lib.run)
+    def testGenerateVerityRandomSalting(self, run_mock):
+        """Test GenerateVerity is salting correctly"""
+        gen = self.GetDlcGenerator()
+        osutils.WriteFile(
+            gen.dest_image,
+            "a" * _BLOCK_SIZE * 2,
+            makedirs=True,
+        )
+
+        gen.GenerateVerity()
+
+        run_mock.assert_called_with(
+            [
+                "verity",
+                "mode=create",
+                "alg=sha256",
+                f"payload={gen.dest_image}",
+                "payload_blocks=2",
+                mock.ANY,
+                "salt=random",
+            ],
+            capture_output=True,
+        )
+
+    @mock.patch.object(cros_build_lib, "run", side_effect=cros_build_lib.run)
+    def testGenerateVerityReproducibleSalting(self, run_mock):
+        """Test GenerateVerity is reproducibly salting correctly"""
+        gen = self.GetDlcGenerator()
+        osutils.WriteFile(
+            gen.dest_image,
+            "a" * _BLOCK_SIZE * 2,
+            makedirs=True,
+        )
+
+        salt = "1337D00D"
+        gen.GenerateVerity(salt)
+
+        run_mock.assert_called_with(
+            [
+                "verity",
+                "mode=create",
+                "alg=sha256",
+                f"payload={gen.dest_image}",
+                "payload_blocks=2",
+                mock.ANY,
+                f"salt={salt}",
+            ],
+            capture_output=True,
         )
 
 
