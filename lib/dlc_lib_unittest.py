@@ -519,6 +519,33 @@ class DlcGeneratorTest(
             symlinks=True,
         )
 
+    def testCreateSquashfsReproducible(self):
+        """Test that squashfs commands are run with reproducible args."""
+        self.PatchObject(os.path, "getsize", return_value=(_BLOCK_SIZE * 1))
+        truncate_mock = self.PatchObject(os, "truncate")
+        copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
+
+        gen = self.GetDlcGenerator()
+        gen.reproducible = True
+        gen.CreateSquashfsImage()
+        self.assertCommandContains(
+            [
+                "mksquashfs",
+                "-4k-align",
+                "-noappend",
+                "-mkfs-time",
+                "0",
+                "-all-time",
+                "0",
+            ]
+        )
+        truncate_mock.asset_called()
+        copy_dir_mock.assert_called_once_with(
+            partial_mock.HasString("src"),
+            partial_mock.HasString("root"),
+            symlinks=True,
+        )
+
     def testPrepareLsbRelease(self):
         """Tests that lsb-release is created correctly."""
         generator = self.GetDlcGenerator()

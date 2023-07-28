@@ -521,6 +521,7 @@ class DlcGenerator:
         sysroot: str,
         board: str,
         src_dir: str = None,
+        reproducible: bool = False,
     ):
         """Object initializer.
 
@@ -530,6 +531,8 @@ class DlcGenerator:
             board: The target board we are building for.
             src_dir: Optional path to the DLC source root directory. When
                 None, the default directory in |DLC_BUILD_DIR| is used.
+            reproducible: Generates a completely reproducible squash image that
+                produces identical bits each gen. (Only applicable to squashfs)
         """
         # Use a temporary directory to avoid having to use sudo every time we
         # write into the build directory.
@@ -538,6 +541,7 @@ class DlcGenerator:
         self.sysroot = sysroot
         self.board = board
         self.ebuild_params = ebuild_params
+        self.reproducible = reproducible
 
         build_dir = (
             DLC_BUILD_DIR_SCALED if ebuild_params.scaled else DLC_BUILD_DIR
@@ -653,16 +657,28 @@ class DlcGenerator:
             squashfs_root = os.path.join(temp_dir, "squashfs-root")
             self.SetupDlcImageFiles(squashfs_root)
 
-            cros_build_lib.run(
-                [
-                    "mksquashfs",
-                    squashfs_root,
-                    self.dest_image,
-                    "-4k-align",
-                    "-noappend",
-                ],
+            mksquashfs = [
+                "mksquashfs",
+                squashfs_root,
+                self.dest_image,
+                "-4k-align",
+                "-noappend",
+            ]
+            if self.reproducible:
+                mksquashfs.extend(
+                    [
+                        "-mkfs-time",
+                        "0",
+                        "-all-time",
+                        "0",
+                    ]
+                )
+
+            ret = cros_build_lib.run(
+                mksquashfs,
                 capture_output=True,
             )
+            logging.debug(ret.stdout)
 
             # Verity cannot create hashes for device images which are less than
             # two pages in size. So fix this squashfs image if it's too small.
