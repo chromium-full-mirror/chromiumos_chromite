@@ -125,10 +125,17 @@ class GenerateSysroot:
             packages = self.options.package.split()
         else:
             for pkg in self.options.package.split():
-                cmd = ["qdepends", "-q", "-C", pkg]
+                cmd = [
+                    "qdepends",
+                    "-q",
+                    "-C",
+                    "--depend",
+                    "--root",
+                    raw_sysroot,
+                    pkg,
+                ]
                 output = cros_build_lib.run(
                     cmd,
-                    extra_env={"ROOT": raw_sysroot},
                     capture_output=True,
                     encoding="utf-8",
                 ).stdout
