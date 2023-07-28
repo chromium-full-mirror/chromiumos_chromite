@@ -16512,7 +16512,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16554,7 +16554,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
