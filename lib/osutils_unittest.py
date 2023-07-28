@@ -10,6 +10,7 @@ import errno
 import filecmp
 import glob
 import grp
+import itertools
 import os
 from pathlib import Path
 import pwd
@@ -220,17 +221,23 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
     def testSudoWrite(self):
         """Verify that we can write a file as sudo."""
         with osutils.TempDir(sudo_rm=True) as tempdir:
-            root_owned_dir = os.path.join(tempdir, "foo")
+            root_owned_dir = Path(tempdir) / "foo"
             self.assertTrue(osutils.SafeMakedirs(root_owned_dir, sudo=True))
-            for atomic in (True, False):
-                filename = os.path.join(
-                    root_owned_dir, "bar.atomic" if atomic else "bar"
-                )
-                self.assertRaises(IOError, osutils.WriteFile, filename, "data")
 
-                osutils.WriteFile(filename, "test", atomic=atomic, sudo=True)
-                self.assertEqual("test", osutils.ReadFile(filename))
-                self.assertEqual(0, os.stat(filename).st_uid)
+            for atomic, path_to_test in itertools.product(
+                (True, False),
+                (os.path.join(root_owned_dir, "bar"), root_owned_dir / "bar"),
+            ):
+                self.assertRaises(
+                    IOError, osutils.WriteFile, path_to_test, "data"
+                )
+
+                osutils.WriteFile(
+                    path_to_test, "test", atomic=atomic, sudo=True
+                )
+                self.assertEqual("test", osutils.ReadFile(path_to_test))
+                self.assertEqual(0, os.stat(path_to_test).st_uid)
+                osutils.SafeUnlink(path_to_test, sudo=True)
 
     def testSudoWriteAppendNew(self):
         """Verify that we can write a new file as sudo when appending."""
@@ -281,21 +288,23 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         def assertMode(path, mode):
             self.assertEqual(getmode(path), mode)
 
-        path = os.path.join(self.tempdir, "file")
-        osutils.WriteFile(path, "asdf")
-        assertMode(path, 0o644)
+        for path in (os.path.join(self.tempdir, "file"), self.tempdir / "file"):
+            osutils.WriteFile(path, "asdf")
+            assertMode(path, 0o644)
 
-        osutils.WriteFile(path, "asdf", chmod=0o666)
-        assertMode(path, 0o666)
+            osutils.WriteFile(path, "asdf", chmod=0o666)
+            assertMode(path, 0o666)
 
-        osutils.WriteFile(path, "asdf", atomic=True, chmod=0o664)
-        assertMode(path, 0o664)
+            osutils.WriteFile(path, "asdf", atomic=True, chmod=0o664)
+            assertMode(path, 0o664)
 
-        osutils.WriteFile(path, "asdf", sudo=True, chmod=0o755)
-        assertMode(path, 0o755)
+            osutils.WriteFile(path, "asdf", sudo=True, chmod=0o755)
+            assertMode(path, 0o755)
 
-        osutils.WriteFile(path, "asdf", sudo=True, atomic=True, chmod=0o775)
-        assertMode(path, 0o775)
+            osutils.WriteFile(path, "asdf", sudo=True, atomic=True, chmod=0o775)
+            assertMode(path, 0o775)
+
+            osutils.SafeUnlink(path, sudo=True)
 
     def testSafeSymlink(self):
         """Test that we can create symlinks."""

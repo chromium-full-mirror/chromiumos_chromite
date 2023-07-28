@@ -265,7 +265,7 @@ def WriteFile(
             # TODO(b/236161656): Fix.
             # pylint: disable-next=consider-using-with
             write_path = tempfile.NamedTemporaryFile(
-                prefix=path, delete=False
+                prefix=str(path), delete=False
             ).name
         # TODO(b/236161656): Fix.
         # pylint: disable-next=consider-using-with,unspecified-encoding
