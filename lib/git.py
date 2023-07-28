@@ -1866,7 +1866,7 @@ def DeleteStaleLocks(git_repo):
             os.remove(p)
 
 
-def GetUrlFromRemoteOutput(remote_output: str) -> Optional[str]:
+def GetUrlFromRemoteOutput(remote_output: str) -> str:
     """Retrieve the change URL from the git remote output.
 
     The URL must begin with https://.
