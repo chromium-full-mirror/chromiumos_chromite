@@ -284,7 +284,9 @@ GROUP_BASELINE = dict(
             users={"fwupdate-drm_dp_aux", "fwupdate-drm_dp_aux-i2c", "fwupd"},
         ),
         GroupEntry(
-            group="tun", gid=413, users={"crosvm", "shill", "vpn", "wpan"}
+            group="tun",
+            gid=413,
+            users={"crosvm", "patchpaneld", "shill", "vpn", "wpan"},
         ),
         GroupEntry(group="gpio", gid=414, users={"modem"}),
         GroupEntry(group="suzy-q", gid=415, users={"chronos", "rma_fw_keeper"}),
