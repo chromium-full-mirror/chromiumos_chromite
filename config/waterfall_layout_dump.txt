@@ -138,6 +138,7 @@
     constitution-release
     coral-release
     corsola-release
+    dedede-pvs-release
     dedede-release
     drallion-release
     elm-release
@@ -350,6 +351,7 @@
   dedede-llvm-next-toolchain-tryjob
   dedede-llvm-toolchain-tryjob
   dedede-payloads-tryjob
+  dedede-pvs-release-tryjob
   dedede-release-tryjob
   deltaur-full-tryjob
   deltaur-llvm-next-toolchain-tryjob
@@ -701,6 +703,7 @@
     constitution-release-tryjob
     coral-release-tryjob
     corsola-release-tryjob
+    dedede-pvs-release-tryjob
     dedede-release-tryjob
     drallion-release-tryjob
     elm-release-tryjob
