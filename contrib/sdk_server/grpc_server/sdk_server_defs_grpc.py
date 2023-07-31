@@ -4,6 +4,7 @@
 
 """Defines classes and functions used in implementation of sdk server."""
 import datetime
+import glob
 import json
 import logging
 from logging import handlers
@@ -148,13 +149,19 @@ class TempMemLogger(logging.Logger):
 class SdkImage:
     """Chroot Image class"""
 
-    def __init__(self, path: Union[str, os.PathLike], latest: bool = False):
+    def __init__(
+        self,
+        path: Union[str, os.PathLike],
+        latest: bool = False,
+        image_type=None,
+    ):
         self.path = path
         self.latest = latest
         self.name = os.path.split(str(path).rstrip("/"))[1]
         self.last_modified = time.ctime(os.path.getmtime(path))
         self.date_created = time.ctime(os.path.getctime(path))
         self.packages = []
+        self.image_type = image_type
 
     def __str__(self):
         return self.name
@@ -184,12 +191,19 @@ class SdkSysroot(sysroot_lib.Sysroot):
         latest_path = path / "latest"
         if latest_path.exists():
             latest_target = latest_path.resolve()
-            image_obj = SdkImage(latest_target, latest=True)
+
+            type_name = glob.glob("chromiumos*.bin", root_dir=latest_target)[0]
+            image_type = constants.IMAGE_NAME_TO_TYPE[type_name]
+            image_obj = SdkImage(
+                latest_target, latest=True, image_type=image_type
+            )
             self.images.append(image_obj)
 
         for image in path.iterdir():
             if image not in (latest_target, latest_path):
-                image_obj = SdkImage(image)
+                type_name = glob.glob("chromiumos*.bin", root_dir=image)[0]
+                image_type = constants.IMAGE_NAME_TO_TYPE[type_name]
+                image_obj = SdkImage(image, latest=True, image_type=image_type)
                 self.images.append(image_obj)
 
         return self.images
@@ -343,10 +357,18 @@ class SdkChroot(
                 latest = None
                 images = []
                 for image in sysroot_obj.images:
-                    image_msg = image_pb2.Image(
-                        path=str(image.path), build_target=build_target
-                    )
+                    type_str = "IMAGE_TYPE_UNDEFINED"
+                    if image.image_type == constants.IMAGE_TYPE_FACTORY_SHIM:
+                        type_str = constants.IMAGE_TYPE_FACTORY
+                    elif image.image_type:
+                        type_str = f"IMAGE_TYPE_{image.image_type.upper()}"
 
+                    image_type = common_pb2.ImageType.Value(type_str)
+                    image_msg = image_pb2.Image(
+                        path=str(image.path),
+                        build_target=build_target,
+                        type=image_type,
+                    )
                     if image.latest:
                         latest = image_msg
                     images.append(image_msg)
@@ -906,6 +928,8 @@ class SdkChroot(
                 contents = osutils.ReadFile(tempoutput.name)
                 response = sdk_server_pb2.BuildImageResponse()
                 internal_resp = image_pb2.CreateImageResult()
+
+                process.communicate()
                 if process.returncode in VALID_RETURN_CODES:
                     json_format.Parse(contents, internal_resp)
                     response.response.CopyFrom(internal_resp)
