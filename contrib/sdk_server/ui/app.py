@@ -331,8 +331,9 @@ def build_packages():
             dryrun=flask.request.json["dryrun"],
             workon=flask.request.json["workon"],
         ),
-        packages=[package] if package else [],
     )
+    if package:
+        install_packages.packages.append(package)
 
     req = sdk_server_pb2.BuildPackagesRequest(
         create_req=create_sysroot,

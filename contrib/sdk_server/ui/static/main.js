@@ -304,7 +304,7 @@ function populatePackages(board = "") {
                             <p2 class = "col small text-danger"></p2>
                           </div>
                           <div class="col">
-                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1" 
+                            <button type="button" class="small btn btn-success btn-sm pt-0 pb-0 mt-1 mb-1 build-single" 
                             id = "` + pack.name + `-build">Build</button>
                             <button type="button" class="small btn btn-secondary btn-sm pt-0 pb-0" data-bs-toggle="modal" 
                               data-bs-target="#` + pack.name.replace("/", "-") + `-info-modal" >Info</button>
@@ -676,12 +676,13 @@ function buildSinglePackage() {
 
     now = moment()
 
+    var p = $(this)[0].id;
     $.post({
         url: "/build-packages",
 
         data: JSON.stringify({
             buildTarget: board,
-            package: $(this).parents("div")[0].id,
+            package: p.substring(0,p.length-6),
 
             chrootCurrent: false,
             replace: false,
