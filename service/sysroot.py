@@ -934,6 +934,12 @@ def BuildPackages(
                     if run_configs.bazel:
                         bazel_extra_env = {"BOARD": target.name}
                         bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
+                        # Technically, `bazel run` (which occurs next) will also
+                        # build packages if they aren't built now, so this is
+                        # redundant. However, keeping `bazel build` as a
+                        # separate step gives us a single set of consolidated
+                        # metrics, as well as faster builds through greater
+                        # parallelism.
                         cros_build_lib.run(
                             [bazel_cmd, "build"]
                             + [
