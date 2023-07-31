@@ -125,7 +125,6 @@
     atlas-release
     betty-pi-arc-release
     betty-release
-    bob-release
     brask-labstation-release
     brask-release
     brya-release
@@ -157,7 +156,6 @@
     jacuzzi64-release
     kalista-cfm-release
     kalista-release
-    kevin-release
     kukui-release
     nami-release
     nautilus-release
@@ -274,11 +272,6 @@
   betty-pi-arc-release-tryjob
   betty-release-tryjob
   bob-factory-gru-9017.B-factorybranch-tryjob
-  bob-full-tryjob
-  bob-llvm-next-toolchain-tryjob
-  bob-llvm-toolchain-tryjob
-  bob-payloads-tryjob
-  bob-release-tryjob
   brask-factory-brya-14517.B-factorybranch-tryjob
   brask-factory-brya-15231.B-factorybranch-tryjob
   brask-full-tryjob
@@ -613,12 +606,7 @@
   kalista-release-tryjob
   keeby-factory-keeby-14162.B-factorybranch-tryjob
   kevin-factory-gru-8652.B-factorybranch-tryjob
-  kevin-full-tryjob
-  kevin-llvm-next-toolchain-tryjob
-  kevin-llvm-toolchain-tryjob
   kevin-llvm-tot-toolchain-tryjob
-  kevin-payloads-tryjob
-  kevin-release-tryjob
   kukui-factory-kukui-12587.B-factorybranch-tryjob
   kukui-factory-kukui-14374.B-factorybranch-tryjob
   kukui-full-tryjob
@@ -660,7 +648,6 @@
     eve-full-tryjob
     hana-full-tryjob
     jacuzzi-full-tryjob
-    kevin-full-tryjob
     octopus-full-tryjob
     tael-full-tryjob
     tatl-full-tryjob
@@ -676,7 +663,6 @@
     atlas-release-tryjob
     betty-pi-arc-release-tryjob
     betty-release-tryjob
-    bob-release-tryjob
     brask-labstation-release-tryjob
     brask-release-tryjob
     brya-release-tryjob
@@ -708,7 +694,6 @@
     jacuzzi64-release-tryjob
     kalista-cfm-release-tryjob
     kalista-release-tryjob
-    kevin-release-tryjob
     kukui-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
