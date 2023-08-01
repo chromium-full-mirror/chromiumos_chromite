@@ -16,6 +16,7 @@ locals().update(
         "gn",
         "go",
         "json",
+        "portage_layout_conf",
         "proto",
         "python",
         "repo_manifest",

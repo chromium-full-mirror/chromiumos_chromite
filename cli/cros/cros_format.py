@@ -106,6 +106,7 @@ _FILENAME_PATTERNS_TOOL_MAP = {
             "use.mask",
         }
     ): (formatters.whitespace.Data,),
+    frozenset({"metadata/layout.conf"}): (formatters.portage_layout_conf.Data,),
     frozenset({"DIR_METADATA", "METADATA"}): (formatters.textproto.Data,),
     # TODO(build): Add a formatter for this.
     frozenset({"OWNERS*"}): (formatters.whitespace.Data,),
