@@ -10,6 +10,7 @@ cros-ide/package-lock.json
 # tsconfig.json and VSCode jsons are JSON-with-comments, which are not
 # supported by CrOS formatter (yet).
 cros-ide/tsconfig.json
+cros-ide/tools/tsconfig.json
 cros-ide/views/tsconfig.json
 cros-ide/.vscode/*.json
 

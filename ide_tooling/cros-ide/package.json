@@ -1006,6 +1006,7 @@
     "build-release": "rm -rf dist && NODE_ENV=production ts-node tools/build.ts -p tools",
     "build-tests": "rm -rf out && NODE_ENV=test ts-node --swc tools/build.ts -p tools",
     "build-all": "npm run build && npm run build-tests",
+    "check": "tsc -p . --noEmit && tsc -p views --noEmit && tsc -p tools --noEmit",
     "test": "npm run unit-test && npm run integration-test",
     "unit-test": "npm run build-tests && NODE_PATH=out/test/unit/injected_modules NODE_OPTIONS=$NODE_OPTIONS' -r source-map-support/register' jasmine --config=src/test/unit/jasmine.json",
     "integration-test": "npm run build-all && rm -rf .vscode-test/user-data && xvfb-run -a node ./out/test/integration/runTest.js",
@@ -1014,7 +1015,7 @@
     "lint-code": "gts lint",
     "lint-license": "jsgl --local .",
     "fix": "gts fix",
-    "preupload": "npm run lint && npm run test",
+    "preupload": "npm run check && npm run lint && npm run test",
     "vscode:prepublish": "npm run build-release"
   },
   "dependencies": {
