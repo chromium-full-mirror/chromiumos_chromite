@@ -39,7 +39,7 @@ export class WrapFs<T extends string> {
 
   watchSync(
     p: string,
-    listener: (eventType: string, fileName: string) => void
+    listener: (eventType: string, fileName: string | null) => void
   ) {
     fs.watch(this.realpath(p), listener);
   }

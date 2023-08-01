@@ -91,7 +91,10 @@ class BoardsPackages {
 
     source.watchSync(crosWorkonDir, (_eventType, fileName) => {
       // Multiple files can be changed. This restrictions limits the number of refreshes to one.
-      if (boards.includes(fileName) || fileName === VIRTUAL_BOARDS_HOST) {
+      if (
+        (fileName && boards.includes(fileName)) ||
+        fileName === VIRTUAL_BOARDS_HOST
+      ) {
         void vscode.commands.executeCommand(
           'chromiumide.refreshBoardsPackages'
         );

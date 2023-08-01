@@ -6,7 +6,7 @@ import 'jasmine';
 import * as fs from 'fs';
 import * as commonUtil from '../../common/common_util';
 
-const WANT_NODE_VERSION = /v14\..*/;
+const WANT_NODE_VERSION = /v16\..*/;
 
 describe('Dev environment', () => {
   it('uses proper node version following go/chromiumide-dev-guide', async () => {

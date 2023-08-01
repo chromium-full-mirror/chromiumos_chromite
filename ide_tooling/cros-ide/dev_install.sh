@@ -19,7 +19,7 @@ set -e
 
 terminal_color_clear='\033[0m'
 terminal_color_warning='\033[1;31m'
-min_node_ver=v14
+min_node_ver=v16
 
 echoWarning() {
   printf "${terminal_color_warning}%s${terminal_color_clear}\n" "$1"
