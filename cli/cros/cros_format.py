@@ -8,7 +8,6 @@ TODO: Support stdin & diffs.
 """
 
 import difflib
-import fnmatch
 import functools
 import itertools
 import logging
@@ -144,9 +143,9 @@ def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
     map_to_return = {}
 
     for f in files:
-        name = f.name
+        abs_f = f.absolute()
         for patterns, tools in _FILENAME_PATTERNS_TOOL_MAP.items():
-            if any(fnmatch.fnmatch(name, x) for x in patterns):
+            if any(abs_f.match(x) for x in patterns):
                 for tool in tools:
                     map_to_return.setdefault(tool, []).append(f)
                 break

@@ -41,6 +41,29 @@ def test_breakout_files_by_tool_order():
     assert items[0][0] is cros_lint._OwnersLintFile
 
 
+@mock.patch.dict(
+    cros_lint._FILENAME_PATTERNS_TOOL_MAP,
+    {frozenset({"dir/foo.conf"}): (mock.sentinel.tool,)},
+)
+def test_breakout_files_full_paths():
+    """Verify we match files in named subdirs."""
+    source_files = sorted(
+        Path(x)
+        for x in (
+            "dir/foo.conf",
+            "./dir/foo.conf",
+            "../dir/foo.conf",
+            "blah/dir/foo.conf",
+            "/a/b/c/d/dir/foo.conf",
+        )
+    )
+    tool_map = cros_lint._BreakoutFilesByTool(source_files)
+    items = list(tool_map.items())
+    assert len(items) == 1
+    assert items[0][0] is mock.sentinel.tool
+    assert sorted(items[0][1]) == source_files
+
+
 class LintCommandTest(cros_test_lib.TestCase):
     """Test class for our LintCommand class."""
 
