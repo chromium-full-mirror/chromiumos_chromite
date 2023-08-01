@@ -125,10 +125,13 @@ function populateHistoricLogs() {
                 allLogsHTML += logItemHTML(log.command, log.logs, now, true);
                 if(log.command == "update_chroot" && !foundUpdate){
                     foundUpdate = true
-                    $("#chrootLastUpdated").html(moment(log.time).format("MMM d, YYYY"))
+                    $("#chrootLastUpdated").html(moment(log.time, "X").format("MMM d, YYYY"))
                 }
 
             })
+            if(!foundUpdate){
+                $("#chrootLastUpdated").html($("#chrootCreated").html())
+            }
 
             if (response.length < 1) {
                 allLogsHTML = `
@@ -400,7 +403,6 @@ function populatePackages(board = "") {
 
             //Packages board dropdown selection logic
             var boardName = $('#boardSelector li a.active').html()
-            console.log(boardName)
             $('.board-selector-title').html(boardName);
             $('.board-package-list').hide()
             $('.board-image-list').hide()
@@ -758,10 +760,10 @@ function buildImage() {
 function populateChrootInfo() {
     $.post({
         url: "/chroot-info",
-
+        
         success: (response) => {
-            $("#chrootCreated").html(moment(response.date_created).format("MMM d, YYYY"))
-            $("#chrootLastUpdated").html(moment(response.date_created).format("MMM d, YYYY"))
+            format = "ddd MMM DD HH:mm:ss YYYY"
+            $("#chrootCreated").html(moment(response.dateCreated, format).format("MMM D, YYYY"))
             $("#chrootPath").html(response.path.path)
             $("#chrootVersion").html(response.version.version)
         }
