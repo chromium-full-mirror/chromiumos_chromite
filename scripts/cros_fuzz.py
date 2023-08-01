@@ -676,7 +676,8 @@ def BuildPackage(package, board, build_type):
     logging.info("Building %s using %s.", package, build_type)
     extra_env = GetBuildExtraEnv(build_type)
     command = [
-        "build_packages",
+        "cros",
+        "build-packages",
         "--board",
         board,
         "--skip-chroot-upgrade",
