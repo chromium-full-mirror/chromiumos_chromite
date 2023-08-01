@@ -167,7 +167,6 @@
     novato-release
     octopus-kernelnext-release
     octopus-release
-    ovis-release
     puff-moblab-release
     puff-release
     pyro-release
@@ -717,7 +716,6 @@
     novato-release-tryjob
     octopus-kernelnext-release-tryjob
     octopus-release-tryjob
-    ovis-release-tryjob
     puff-moblab-release-tryjob
     puff-release-tryjob
     pyro-release-tryjob
@@ -798,11 +796,6 @@
   octopus-master-factorybranch-tryjob
   octopus-payloads-tryjob
   octopus-release-tryjob
-  ovis-full-tryjob
-  ovis-llvm-next-toolchain-tryjob
-  ovis-llvm-toolchain-tryjob
-  ovis-payloads-tryjob
-  ovis-release-tryjob
   poppy-full-tryjob
   poppy-llvm-next-toolchain-tryjob
   poppy-llvm-toolchain-tryjob
