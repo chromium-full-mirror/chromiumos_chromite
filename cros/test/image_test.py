@@ -88,6 +88,7 @@ class BlockedTest(image_test_lib.ImageTestCase):
         "dev-lang/python",
         "dev-lang/tcl",
         "media-sound/pulseaudio",
+        "sys-apps/mosys",
         "x11-libs/libxklavier",
     )
 
