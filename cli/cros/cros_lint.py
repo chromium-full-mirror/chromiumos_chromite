@@ -125,12 +125,6 @@ def _ConfLintFile(path, output_format, debug, relaxed: bool, commit: str):
     if not os.path.isfile(path):
         return ret
 
-    # .conf files are used by more than upstart, so use the parent dirname
-    # to filter them.
-    parent_name = os.path.basename(os.path.dirname(os.path.realpath(path)))
-    if parent_name in {"init", "upstart"}:
-        return _UpstartLintFile(path, output_format, debug, relaxed, commit)
-
     # Check for the description and author lines present in upstart configs.
     with open(path, "rb") as file:
         tokens_to_find = {b"author", b"description"}
@@ -587,6 +581,10 @@ _FILENAME_PATTERNS_TOOL_MAP = {
     frozenset({"DIR_METADATA"}): (_DirMdLintFile, _NonExecLintFile),
     frozenset({"OWNERS*"}): (_OwnersLintFile, _NonExecLintFile),
     frozenset({"Dockerfile", "Makefile"}): (_NonExecLintFile,),
+    frozenset({"init/*.conf", "upstart/*.conf"}): (
+        _UpstartLintFile,
+        _NonExecLintFile,
+    ),
     frozenset(
         {
             ".vpython",
