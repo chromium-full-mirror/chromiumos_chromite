@@ -7725,27 +7725,6 @@
       "build_cadence": "DAILY_CADENCE"
     },
     {
-      "name": "ovis",
-      "reference_board_name": "ovis",
-      "arch": "X86_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "ovis",
-          "name": "ovis",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7254,
-          "is_active": true,
-          "is_experimental": false
-        }
-      ],
-      "rubik_target_milestone": 108,
-      "stable_target_milestone": 115,
-      "build_cadence": "DAILY_CADENCE"
-    },
-    {
       "name": "puff",
       "reference_board_name": "puff",
       "arch": "X86_INTERNAL",
