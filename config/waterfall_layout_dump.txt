@@ -175,7 +175,6 @@
     sand-release
     sarien-kernelnext-release
     sarien-release
-    scarlet-release
     skyrim-kernelnext-release
     skyrim-release
     snappy-kernelnext-release
@@ -713,7 +712,6 @@
     sand-release-tryjob
     sarien-kernelnext-release-tryjob
     sarien-release-tryjob
-    scarlet-release-tryjob
     skyrim-kernelnext-release-tryjob
     skyrim-release-tryjob
     snappy-kernelnext-release-tryjob
@@ -851,11 +849,6 @@
   sarien-payloads-tryjob
   sarien-release-tryjob
   scarlet-factory-scarlet-10211.B-factorybranch-tryjob
-  scarlet-full-tryjob
-  scarlet-llvm-next-toolchain-tryjob
-  scarlet-llvm-toolchain-tryjob
-  scarlet-payloads-tryjob
-  scarlet-release-tryjob
   sentry-factory-glados-7828.B-factorybranch-tryjob
   skyrim-factory-skyrim-15384.B-factorybranch-tryjob
   skyrim-full-tryjob

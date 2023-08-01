@@ -7317,69 +7317,6 @@
       "build_cadence": "DAILY_CADENCE"
     },
     {
-      "name": "scarlet",
-      "reference_board_name": "scarlet",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "scarlet",
-          "name": "dru",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 297,
-          "is_active": true,
-          "stable_target_milestone": 65,
-          "is_experimental": false
-        },
-        {
-          "board_name": "scarlet",
-          "name": "druwl",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 297,
-          "is_active": true,
-          "stable_target_milestone": 65,
-          "is_experimental": false
-        },
-        {
-          "board_name": "scarlet",
-          "name": "dumo",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 297,
-          "is_active": true,
-          "stable_target_milestone": 65,
-          "is_experimental": false
-        }
-      ],
-      "rubik_target_milestone": 106,
-      "stable_target_milestone": 65,
-      "build_cadence": "DAILY_CADENCE"
-    },
-    {
       "name": "skyrim",
       "reference_board_name": "skyrim",
       "arch": "X86_INTERNAL",
