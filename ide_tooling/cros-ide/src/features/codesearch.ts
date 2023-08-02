@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 import * as path from 'path';
 import * as vscode from 'vscode';
+import {chromiumRoot} from '../common/chromium/fs';
 import * as commonUtil from '../common/common_util';
 import * as ideUtil from '../ide_util';
 import * as config from '../services/config';
@@ -71,6 +72,14 @@ async function getCurrentFile(
   textEditor: vscode.TextEditor
 ): Promise<string | undefined> {
   const fullpath = textEditor.document.fileName;
+
+  const chromium = await chromiumRoot(fullpath);
+  if (chromium) {
+    const relative = path.relative(chromium + '/src', fullpath);
+    return encodeURI(
+      'https://source.chromium.org/chromium/chromium/src/+/main:' + relative
+    );
+  }
 
   // Which CodeSearch to use, options are public, internal, or gitiles.
   const csInstance = config.codeSearch.instance.get();
@@ -155,5 +164,6 @@ function searchSelection(textEditor: vscode.TextEditor) {
 
 export const TEST_ONLY = {
   openCurrentFile,
+  copyCurrentFile,
   searchSelection,
 };

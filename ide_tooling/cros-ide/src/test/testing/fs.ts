@@ -65,6 +65,27 @@ export async function buildFakeChroot(tempDir: string): Promise<Chroot> {
   return path.join(tempDir, 'chroot') as Chroot;
 }
 
+const DOT_GCLIENT = `solutions = [
+  {
+    "name": "src",
+    "url": "https://chromium.googlesource.com/chromium/src.git",
+    "managed": False,
+    "custom_deps": {},
+    "custom_vars": {},
+  },
+]
+target_os = ['chromeos']
+`;
+
+/**
+ * Make the root be recognized as the chromium root directory.
+ */
+export async function buildFakeChromium(root: string) {
+  await putFiles(root, {
+    '.gclient': DOT_GCLIENT,
+  });
+}
+
 /**
  * Returns the path to the extension root.
  * This function can be called from unit tests.

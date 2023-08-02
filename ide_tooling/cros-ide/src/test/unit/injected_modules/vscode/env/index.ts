@@ -4,19 +4,13 @@
 
 import {LogLevel} from '../log_level';
 import {UIKind} from '../ui_kind';
+import {FakeClipboard} from './clipboard';
 import type * as vscode from 'vscode';
 
 export const appHost = 'fakeAppHost' as string;
 export const appName = 'fakeAppName' as string;
 export const appRoot = 'fakeAppRoot' as string;
-export const clipboard: vscode.Clipboard = {
-  readText(): Thenable<string> {
-    throw new Error('Unimplemented in injected_modules');
-  },
-  writeText(_value: string): Thenable<void> {
-    throw new Error('Unimplemented in injected_modules');
-  },
-};
+export const clipboard: vscode.Clipboard = new FakeClipboard();
 export const isNewAppInstall = false as boolean;
 export const isTelemetryEnabled = false as boolean;
 export const language = 'en' as string;

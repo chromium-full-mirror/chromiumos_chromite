@@ -15,8 +15,10 @@ import {
 } from '../../testing';
 import {installVscodeDouble, installFakeConfigs} from '../../testing/doubles';
 import {FakeTextDocument} from '../../testing/fakes';
+import {buildFakeChromium} from '../../testing/fs';
 
-const {openCurrentFile, searchSelection} = codesearch.TEST_ONLY;
+const {copyCurrentFile, openCurrentFile, searchSelection} =
+  codesearch.TEST_ONLY;
 
 describe('CodeSearch: searching for selection', () => {
   const {vscodeSpy, vscodeEmitters} = installVscodeDouble();
@@ -136,6 +138,44 @@ describe('CodeSearch: opening current file', () => {
     expect(vscodeSpy.window.showErrorMessage).toHaveBeenCalledWith(
       'Could not run generate_cs_path: Error: not found'
     );
+  });
+
+  it('opens chromium source code on chromium code search', async () => {
+    await buildFakeChromium(temp.path);
+
+    const filepath = path.join(temp.path, 'src/ash/BUILD.gn');
+
+    const textEditor = {
+      document: {
+        fileName: filepath,
+      },
+    } as vscode.TextEditor;
+
+    await openCurrentFile(textEditor);
+
+    const expectedUri = vscode.Uri.parse(
+      'https://source.chromium.org/chromium/chromium/src/+/main:ash/BUILD.gn'
+    );
+    expect(vscodeSpy.env.openExternal).toHaveBeenCalledWith(expectedUri);
+  });
+
+  it('copies encoded URI', async () => {
+    await buildFakeChromium(temp.path);
+
+    const filepath = path.join(temp.path, 'src/fake file with spaces.md');
+
+    const textEditor = {
+      document: {
+        fileName: filepath,
+      },
+    } as vscode.TextEditor;
+
+    await copyCurrentFile(textEditor);
+
+    const expectedText =
+      'https://source.chromium.org/chromium/chromium/src/+/main:fake%20file%20with%20spaces.md';
+
+    expect(await vscode.env.clipboard.readText()).toEqual(expectedText);
   });
 
   it('shows error popup when generate_cs_link fails', async () => {

@@ -7,6 +7,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import {ProductWatcher} from '../../../../../services';
 import * as testing from '../../../../testing';
+import {buildFakeChromium} from '../../../../testing/fs';
 
 const PUBLIC_MANIFEST = `[core]
 \trepositoryformatversion = 0
@@ -176,24 +177,6 @@ describe('Chromiumos product watcher', () => {
     ]);
   });
 });
-
-const DOT_GCLIENT = `solutions = [
-  {
-    "name": "src",
-    "url": "https://chromium.googlesource.com/chromium/src.git",
-    "managed": False,
-    "custom_deps": {},
-    "custom_vars": {},
-  },
-]
-target_os = ['chromeos']
-`;
-
-async function buildFakeChromium(root: string) {
-  await testing.putFiles(root, {
-    '.gclient': DOT_GCLIENT,
-  });
-}
 
 describe('Chromium product watcher', () => {
   const tempDir = testing.tempDir();
