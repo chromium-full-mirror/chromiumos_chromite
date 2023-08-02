@@ -14,6 +14,7 @@ locals().update(
     for x in (
         "gnlint",
         "owners",
+        "portage_layout_conf",
         "shell",
         "upstart",
         "whitespace",

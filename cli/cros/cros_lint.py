@@ -463,6 +463,24 @@ def _NonExecLintFile(path, _output_format, _debug, _relaxed: bool, commit: str):
     return result
 
 
+def _PortageLayoutConfLintFile(
+    path, _output_format, _debug, _relaxed: bool, commit: str
+):
+    """Lint metadata/layout.conf files."""
+    result = cros_build_lib.CompletedProcess(
+        f'cros lint "{path}"', returncode=0
+    )
+
+    data = _get_file_data(path, commit)
+    issues = linters.portage_layout_conf.Data(data, path)
+    for issue in issues:
+        logging.error("%s: %s", path, issue)
+    if issues:
+        result.returncode = 1
+
+    return result
+
+
 def _BreakoutDataByTool(map_to_return, path):
     """Maps a tool method to the content of the |path|."""
     # Detect by content of the file itself.
@@ -506,6 +524,10 @@ _TOOL_MAP = collections.OrderedDict(
                 _UpstartLintFile,
                 _NonExecLintFile,
             ),
+        ),
+        (
+            frozenset({"metadata/layout.conf"}),
+            (_PortageLayoutConfLintFile, _NonExecLintFile),
         ),
         # Note these are defined to keep in line with cpplint.py. Technically,
         # we could include additional ones, but cpplint.py would just filter
