@@ -746,7 +746,11 @@ NB: Not all linters work with `--commit` yet.
             return dispatcher(tool, files[0])
         else:
             # Run the tool in parallel on the files.
-            return sum(parallel.RunTasksInProcessPool(dispatcher, tasks))
+            return sum(
+                parallel.RunTasksInProcessPool(
+                    dispatcher, tasks, processes=self.options.jobs
+                )
+            )
 
     def Run(self):
         with timer.Timer() as t:

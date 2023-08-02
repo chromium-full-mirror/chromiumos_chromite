@@ -83,6 +83,14 @@ class AnalyzerCommand(ABC, command.CliCommand):
             )
 
         parser.add_argument(
+            "-j",
+            "--jobs",
+            type=int,
+            default=None,
+            help="Number of files to process in parallel.",
+        )
+
+        parser.add_argument(
             "--commit",
             type=str,
             help=(

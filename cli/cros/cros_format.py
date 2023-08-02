@@ -334,7 +334,7 @@ Supported file names: %s
             ret = 0
             # Run the tool in parallel on the files.
             for task_ret, task_file in parallel.RunTasksInProcessPool(
-                dispatcher, tasks
+                dispatcher, tasks, processes=self.options.jobs
             ):
                 ret += task_ret
                 if task_file:
