@@ -357,7 +357,7 @@
           "when": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
         },
         {
-          "id": "boards-packages-v2",
+          "id": "boards-and-packages",
           "name": "Boards and Packages",
           "when": "config.chromiumide.underDevelopment.boardsAndPackagesV2"
         },

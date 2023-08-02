@@ -9,6 +9,7 @@ import * as config from '../../services/config';
 import * as bgTaskStatus from '../../ui/bg_task_status';
 import * as boilerplate from '../boilerplate';
 import * as metrics from '../metrics/metrics';
+import {BoardsAndPackages} from './boards_and_packages';
 import * as boardsPackages from './boards_packages';
 import {Coverage} from './coverage';
 import * as cppCodeCompletion from './cpp_code_completion';
@@ -110,7 +111,9 @@ export class Chromiumos implements vscode.Disposable {
         await boardsPackages.activate(this.subscriptions, chrootService);
       } else {
         this.featureName = 'boardsAndPackagesV2';
-        // TODO(oka): implement boards and packages v2.
+        ephemeralContext.subscriptions.push(
+          new BoardsAndPackages(chrootService, this.statusManager)
+        );
       }
 
       if (config.crosFormat.enabled.get()) {
