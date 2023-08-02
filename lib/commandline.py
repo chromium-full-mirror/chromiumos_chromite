@@ -372,6 +372,14 @@ class DeviceParser:
 
         if scheme == DEVICE_SCHEME_SSH:
             hostname = parsed.hostname
+            if not hostname and parsed.netloc.count(":") >= 2:
+                # Likely an IPv6 address that is missing brackets.  Remind the
+                # user to add those brackets.
+                raise ValueError(
+                    "To write an IPv6 address, you must include brackets to "
+                    "distinguish between host and port.  For example, write "
+                    "[::1]:2222 instead of ::1:2222."
+                )
             port = parsed.port
             if hostname == "localhost" and not port:
                 # Use of localhost as the actual machine is uncommon enough

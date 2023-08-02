@@ -271,6 +271,24 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             port=4500,
         )
 
+    def testSshIpv6NoBrackets(self):
+        """Test SSH with IPv6 address, no brackets.
+
+        Should fail with user-friendly message.
+        """
+        with cros_test_lib.LoggingCapturer() as logcap:
+            self._CheckDeviceParseFails("ssh://::1:2222")
+            assert logcap.LogsContain("To write an IPv6 address")
+
+    def testSshIpv6WithBrackets(self):
+        """Test SSH with an IPv6 address, all proper with the brackets."""
+        self._CheckDeviceParse(
+            "ssh://[::1]:2222",
+            scheme=commandline.DEVICE_SCHEME_SSH,
+            hostname="::1",
+            port=2222,
+        )
+
     def testEmptyServoScheme(self):
         """Test empty servo scheme."""
         # Everything should be None so the underlying programs (e.g.
