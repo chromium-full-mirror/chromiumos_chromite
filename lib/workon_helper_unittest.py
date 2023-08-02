@@ -6,6 +6,7 @@
 
 import collections
 import os
+from pathlib import Path
 from typing import Iterable
 
 from chromite.lib import build_target_lib
@@ -22,7 +23,8 @@ from chromite.lib.parser import package_info
 
 BOARD = "this_is_a_board_name"
 
-WORKON_ONLY_ATOM = "sys-apps/my-package"
+WORKON_PACKAGE_NAME = "my-package"
+WORKON_ONLY_ATOM = f"sys-apps/{WORKON_PACKAGE_NAME}"
 VERSIONED_WORKON_ATOM = "sys-apps/versioned-package"
 NOT_WORKON_ATOM = "sys-apps/not-workon-package"
 
@@ -178,6 +180,11 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         if host:
             overlay = os.path.join(self._overlay_root, HOST_OVERLAY_DIR)
             name = "host"
+            self.PatchObject(
+                build_target_lib,
+                "get_default_sysroot_path",
+                return_value=self._sysroot,
+            )
         else:
             overlay = os.path.join(self._overlay_root, BOARD_OVERLAY_DIR)
             name = BOARD
@@ -218,6 +225,248 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         else:
             self.assertNotExists(workon_path)
             self.assertNotExists(mask_path)
+
+    def testGetWorkonAtomToFailForMissingPackage(self):
+        """Check that package exists."""
+        expected_msg = "error looking up package doesnot/exist"
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.GetWorkonAtom("doesnot/exist")
+
+    def testGetWorkonAtomToFailForNonWorkonPackage(self):
+        """Check that package is workon."""
+        expected_msg = (
+            f"run 'cros workon --board {BOARD} start"
+            f" {VERSIONED_WORKON_ATOM}' first!"
+        )
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.GetWorkonAtom(VERSIONED_WORKON_ATOM)
+
+    def testGetWorkonAtomToReturnAtomForPackage(self):
+        """Return canonical atom for the workon package."""
+        helper = self.CreateHelper()
+        helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
+
+        atom = helper.GetWorkonAtom(WORKON_PACKAGE_NAME)
+        self.assertEqual(atom, WORKON_ONLY_ATOM)
+
+    def testInstallShouldFailForHostSysroot(self):
+        """Check that the target is not host before install."""
+        expected_msg = "cannot run for host. expecting board target."
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper(host=True)
+            helper.InstallPackage(WORKON_ONLY_ATOM)
+
+    def testInstallShouldFailForMissingPackage(self):
+        """Check if the package exists before install."""
+        expected_msg = "error looking up package doesnot/exist"
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.InstallPackage("doesnot/exist")
+
+    def testInstallShouldFailForNotWorkonPackage(self):
+        """Check if the package is workon before install."""
+        expected_msg = (
+            f"run 'cros workon --board {BOARD} start"
+            f" {VERSIONED_WORKON_ATOM}' first!"
+        )
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.InstallPackage(VERSIONED_WORKON_ATOM)
+
+    def testInstallToRunEmergeForWorkonPackage(self):
+        """Install should run the correct emerge."""
+        helper = self.CreateHelper()
+        helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
+
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
+        helper.InstallPackage(WORKON_ONLY_ATOM)
+
+        rc_mock.assertCommandCalled(
+            [f"emerge-{BOARD}", "--nodeps", WORKON_ONLY_ATOM], print_cmd=True
+        )
+
+    def testBuildShouldFailForHostSysroot(self):
+        """Check that the target is not host before build."""
+        expected_msg = "cannot run for host. expecting board target."
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper(host=True)
+            helper.BuildPackage(WORKON_ONLY_ATOM)
+
+    def testBuildShouldFailForMissingPackage(self):
+        """Check if the package exists before build."""
+        expected_msg = "error looking up package doesnot/exist"
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.BuildPackage("doesnot/exist")
+
+    def testBuildShouldFailForNotWorkonPackage(self):
+        """Check if the package is workon before build."""
+        expected_msg = (
+            f"run 'cros workon --board {BOARD} start"
+            f" {VERSIONED_WORKON_ATOM}' first!"
+        )
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.BuildPackage(VERSIONED_WORKON_ATOM)
+
+    def testBuildPackageToRunEbuildTestWithClean(self):
+        """Check that build runs clean test."""
+        helper = self.CreateHelper()
+        helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
+
+        tested_marker = (
+            Path(self._sysroot)
+            / "tmp"
+            / "portage"
+            / f"{WORKON_ONLY_ATOM}-9999"
+            / ".tested"
+        )
+        osutils.Touch(tested_marker, makedirs=True)
+
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
+
+        helper.BuildPackage(
+            WORKON_ONLY_ATOM,
+            clean=True,
+            test=True,
+        )
+
+        rc_mock.assertCommandCalled(
+            [
+                f"ebuild-{BOARD}",
+                os.path.join(
+                    self._overlay_root,
+                    BOARD_OVERLAY_DIR,
+                    WORKON_ONLY_ATOM,
+                    "my-package-9999.ebuild",
+                ),
+                "clean",
+                "test",
+            ],
+            print_cmd=True,
+            extra_env={
+                "FEATURES": "-noauto test",
+                "SANDBOX_WRITE": "~/chromiumos",
+                "CROS_WORKON_INPLACE": "1",
+            },
+        )
+        self.assertNotExists(tested_marker)
+
+    def testBuildPackageToRunEbuildCompileWithClean(self):
+        """Check that build runs compile."""
+        helper = self.CreateHelper()
+        helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
+
+        compiled_marker = (
+            Path(self._sysroot)
+            / "tmp"
+            / "portage"
+            / f"{WORKON_ONLY_ATOM}-9999"
+            / ".compiled"
+        )
+        osutils.Touch(compiled_marker, makedirs=True)
+
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
+
+        helper.BuildPackage(WORKON_ONLY_ATOM, clean=True, test=False)
+
+        rc_mock.assertCommandCalled(
+            [
+                f"ebuild-{BOARD}",
+                os.path.join(
+                    self._overlay_root,
+                    BOARD_OVERLAY_DIR,
+                    WORKON_ONLY_ATOM,
+                    "my-package-9999.ebuild",
+                ),
+                "clean",
+                "compile",
+            ],
+            print_cmd=True,
+            extra_env={
+                "FEATURES": "-noauto",
+                "SANDBOX_WRITE": "~/chromiumos",
+                "CROS_WORKON_INPLACE": "1",
+            },
+        )
+
+    def testBuildPackageCompileToCleanIfWorkdirIsNotSymlink(self):
+        """Check that compile runs with clean if workdir is not symlink."""
+        helper = self.CreateHelper()
+        helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
+
+        workpath = (
+            Path(self._sysroot) / "tmp" / "portage" / f"{WORKON_ONLY_ATOM}-9999"
+        )
+        (workpath / "work" / WORKON_ONLY_ATOM).mkdir(parents=True)
+
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
+
+        helper.BuildPackage(WORKON_ONLY_ATOM, clean=False, test=False)
+
+        rc_mock.assertCommandCalled(
+            [
+                f"ebuild-{BOARD}",
+                os.path.join(
+                    self._overlay_root,
+                    BOARD_OVERLAY_DIR,
+                    WORKON_ONLY_ATOM,
+                    "my-package-9999.ebuild",
+                ),
+                "clean",
+                "compile",
+            ],
+            print_cmd=True,
+            extra_env={
+                "FEATURES": "-noauto",
+                "SANDBOX_WRITE": "~/chromiumos",
+                "CROS_WORKON_INPLACE": "1",
+            },
+        )
+
+    def testScrubShouldFailForHostSysroot(self):
+        """Check that the target is not host before scrub."""
+        expected_msg = "cannot run for host. expecting board target."
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper(host=True)
+            helper.ScrubPackage(WORKON_ONLY_ATOM)
+
+    def testScrubShouldFailForMissingPackage(self):
+        """Check if the package exists for scrub."""
+        expected_msg = "error looking up package doesnot/exist"
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.ScrubPackage("doesnot/exist")
+
+    def testScrubShouldFailForNotWorkonPackage(self):
+        """Check if the package is workon for scrub."""
+        expected_msg = (
+            f"run 'cros workon --board {BOARD} start"
+            f" {VERSIONED_WORKON_ATOM}' first!"
+        )
+        with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
+            helper = self.CreateHelper()
+            helper.ScrubPackage(VERSIONED_WORKON_ATOM)
+
+    def testScrubShouldCleanAtomSourceDirectory(self):
+        """Check if the package is workon."""
+        helper = self.CreateHelper()
+        helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
+
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.AddCmdResult(["git", "clean", "-dxf"], stdout="")
+
+        helper.ScrubPackage(WORKON_ONLY_ATOM)
+
+        rc_mock.assertCommandCalled(
+            ["git", "clean", "-dxf"], cwd=self._mock_srcdir, print_cmd=False
+        )
 
     def testShouldDetectBoardNotSetUp(self):
         """Check that we complain if a board has not been previously setup."""

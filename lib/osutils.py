@@ -21,7 +21,7 @@ import shutil
 import stat
 import subprocess
 import tempfile
-from typing import Callable, Iterator, List, Optional, Union
+from typing import Callable, Iterable, Iterator, List, Optional, Union
 
 from chromite.lib import cros_build_lib
 from chromite.lib import retry_util
@@ -138,7 +138,7 @@ _VALID_WRITE_MODES = {
 
 def WriteFile(
     path: Union[Path, str],
-    content,
+    content: Union[str, Iterable[str]],
     mode="w",
     encoding=None,
     errors=None,

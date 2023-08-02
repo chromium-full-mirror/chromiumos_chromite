@@ -33,6 +33,18 @@ PackageInfo = collections.namedtuple(
 )
 
 
+# Vars that we want to pass through for the user.
+EBUILD_PASS_THROUGH_VARS = frozenset(
+    [
+        # Common test vars.
+        "GTEST_ARGS",
+        # Platform eclass vars.
+        "P2_TEST_FILTER",
+        "P2_VMODULE",
+    ]
+)
+
+
 def _IsWorkonEbuild(include_chrome, ebuild_path, ebuild_contents=None):
     """Returns True iff the ebuild at |ebuild_path| is a workon ebuild.
 
@@ -818,6 +830,149 @@ class WorkonHelper:
                 " ".join(stopped_atoms),
                 self._system,
             )
+
+    def GetWorkonAtom(self, package: str) -> str:
+        """Find the canonical atom name for the workon package.
+
+        The function finds the canonical atom name (e.g. 'sys-apps/dbus')
+        for the given workon package. The function will throw WorkonError
+        if the package does not exist or is not on the current workon list
+        for the board.
+
+        Args:
+            package: The package to check in workon list for board.
+
+        Returns:
+            The canonical portage atom corresponding to the given fragment
+            (e.g. 'sys-apps/dbus')
+        """
+        atom = self._GetCanonicalAtom(package, find_stale=False)
+
+        if not atom:
+            raise WorkonError(f"error looking up package {package}")
+
+        if not atom in self._GetWorkedOnAtoms():
+            raise WorkonError(
+                f"run 'cros workon --board {self._system} "
+                f"start {package}' first!"
+            )
+
+        return atom
+
+    def _AssertNotHost(self) -> None:
+        """Fails if the sysroot is for host."""
+        if self._sysroot == build_target_lib.get_default_sysroot_path():
+            raise WorkonError("cannot run for host. expecting board target.")
+
+    def BuildPackage(
+        self,
+        package: str,
+        clean: bool = False,
+        test: bool = False,
+    ):
+        """Build a workon package.
+
+        Args:
+            package: The name of the package to build. This must be a workon
+            else an error is raised.
+            clean: True if we want to re run configure and prepare steps.
+            test: True if we want to run tests.
+        """
+        cros_build_lib.AssertInsideChroot()
+        self._AssertNotHost()
+
+        atom = self.GetWorkonAtom(package)
+        pkgfile = self._FindEbuildForPackage(package)
+
+        if not pkgfile:
+            raise WorkonError(f"cannot find ebuild for {package}")
+
+        workpath = Path(
+            sysroot_lib.Sysroot(self._sysroot).Path(
+                "tmp", "portage", f"{atom}-9999"
+            )
+        )
+        features = os.environ.get("FEATURES", "").split()
+        features.append("-noauto")
+
+        if test:
+            features.append("test")
+            (workpath / ".tested").unlink(missing_ok=True)
+
+        workdir = workpath / "work" / f"{atom}-9999"
+
+        ebuild_vars = osutils.SourceEnvironment(
+            pkgfile, ["CROS_WORKON_OUTOFTREE_BUILD"]
+        )
+
+        if not (
+            workdir.is_symlink()
+            or ebuild_vars.get("CROS_WORKON_OUTOFTREE_BUILD", "") == "1"
+        ):
+            logging.warning("Cleaning up stale workdir: %s", workdir)
+            clean = True
+
+        if not clean:
+            (workpath / ".compiled").unlink(missing_ok=True)
+            envf = workpath / "temp" / "environment"
+            if envf.exists():
+                lines = [
+                    (
+                        f"declare -x {v}="
+                        f"{cros_build_lib.ShellQuote(os.environ.get(v, ''))}"
+                        f"{os.linesep}"
+                    )
+                    for v in EBUILD_PASS_THROUGH_VARS
+                ]
+
+                osutils.WriteFile(
+                    envf,
+                    lines,
+                    encoding="utf-8",
+                    mode="a",
+                )
+
+        cmd = [f"ebuild-{self._system}", pkgfile]
+        if clean:
+            cmd.append("clean")
+        cmd.append("test" if test else "compile")
+
+        cros_build_lib.run(
+            cmd,
+            print_cmd=True,
+            extra_env={
+                "FEATURES": " ".join(features).strip(),
+                "SANDBOX_WRITE": "~/chromiumos",
+                "CROS_WORKON_INPLACE": "1",
+            },
+        )
+
+    def InstallPackage(self, package: str):
+        """Install a workon package.
+
+        Args:
+            package: The name of the package to be installed. This must be a
+            workon else an error is raised.
+        """
+        cros_build_lib.AssertInsideChroot()
+        self._AssertNotHost()
+
+        atom = self.GetWorkonAtom(package)
+        cros_build_lib.run(
+            [f"emerge-{self._system}", "--nodeps", atom], print_cmd=True
+        )
+
+    def ScrubPackage(self, package: str):
+        """Scrub a workon package.
+
+        Args:
+            package: The name of the package to be scrubbed.
+        """
+        cros_build_lib.AssertInsideChroot()
+        self._AssertNotHost()
+
+        atom = self.GetWorkonAtom(package)
+        self.RunCommandInAtomSourceDirectory(atom, ["git", "clean", "-dxf"])
 
     def GetPackageInfo(self, packages, use_all=False, use_workon_only=False):
         """Get information about packages.
