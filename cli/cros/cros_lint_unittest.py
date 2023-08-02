@@ -42,19 +42,19 @@ def test_breakout_files_by_tool_order():
 
 
 @mock.patch.dict(
-    cros_lint._FILENAME_PATTERNS_TOOL_MAP,
-    {frozenset({"dir/foo.conf"}): (mock.sentinel.tool,)},
+    cros_lint._TOOL_MAP,
+    {frozenset({"dir/foo.ZZZ"}): (mock.sentinel.tool,)},
 )
 def test_breakout_files_full_paths():
     """Verify we match files in named subdirs."""
     source_files = sorted(
         Path(x)
         for x in (
-            "dir/foo.conf",
-            "./dir/foo.conf",
-            "../dir/foo.conf",
-            "blah/dir/foo.conf",
-            "/a/b/c/d/dir/foo.conf",
+            "dir/foo.ZZZ",
+            "./dir/foo.ZZZ",
+            "../dir/foo.ZZZ",
+            "blah/dir/foo.ZZZ",
+            "/a/b/c/d/dir/foo.ZZZ",
         )
     )
     tool_map = cros_lint._BreakoutFilesByTool(source_files)

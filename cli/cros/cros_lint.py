@@ -4,6 +4,7 @@
 
 """Run lint checks on the specified files."""
 
+import collections
 import functools
 import importlib
 import itertools
@@ -479,119 +480,139 @@ def _BreakoutDataByTool(map_to_return, path):
 
             basename = os.path.basename(result.real_command)
             if basename.startswith("python") or basename.startswith("vpython"):
-                for tool in _EXT_TOOL_MAP[frozenset({".py"})]:
+                for tool in _TOOL_MAP[_PYTHON_EXT]:
                     map_to_return.setdefault(tool, []).append(path)
             elif basename in ("sh", "dash", "bash"):
-                for tool in _EXT_TOOL_MAP[frozenset({".sh"})]:
+                for tool in _TOOL_MAP[_SHELL_EXT]:
                     map_to_return.setdefault(tool, []).append(path)
     except IOError as e:
         logging.debug("%s: reading initial data failed: %s", path, e)
 
 
-# Map file extensions to a tool function.
-_EXT_TOOL_MAP = {
-    # Note these are defined to keep in line with cpplint.py. Technically, we
-    # could include additional ones, but cpplint.py would just filter them out.
-    frozenset({".c"}): (_WhitespaceLintFile, _NonExecLintFile),
-    # Remember to change cros_format accordingly to align supported extensions.
-    # LINT.IfChange(cpp_extensions)
-    frozenset({".cc", ".cpp", ".cxx", ".h", ".hh"}): (
-        _CpplintFile,
-        _NonExecLintFile,
-    ),
-    # LINT.ThenChange(cros_format.py:cpp_extensions)
-    frozenset({".conf", ".conf.in"}): (_ConfLintFile, _NonExecLintFile),
-    frozenset({".gn", ".gni"}): (_GnlintFile, _NonExecLintFile),
-    frozenset({".json", ".jsonproto"}): (_JsonLintFile, _NonExecLintFile),
-    frozenset({".py"}): (_PylintFile,),
-    frozenset({".go"}): (_GolintFile, _NonExecLintFile),
-    frozenset({".sh"}): (_ShellLintFile,),
-    frozenset({".ebuild", ".eclass", ".bashrc"}): (
-        _GentooShellLintFile,
-        _NonExecLintFile,
-    ),
-    frozenset({".md"}): (_MarkdownLintFile, _NonExecLintFile),
-    # Yes, there's a lot of variations here.  We catch these specifically to
-    # throw errors and force people to use the single correct name.
-    frozenset(
-        {
-            ".pb",
-            ".pb.txt",
-            ".pb.text",
-            ".pbtxt",
-            ".pbtext",
-            ".protoascii",
-            ".prototxt",
-            ".prototext",
-            ".textpb",
-            ".txtpb",
-            ".textproto",
-            ".txtproto",
-        }
-    ): (
-        _TextprotoLintFile,
-        _NonExecLintFile,
-    ),
-    frozenset({".policy"}): (
-        _SeccompPolicyLintFile,
-        _WhitespaceLintFile,
-        _NonExecLintFile,
-    ),
-    frozenset({".te"}): (_WhitespaceLintFile, _NonExecLintFile),
-    frozenset(
-        {
-            ".bzl",
-            ".cfg",
-            ".config",
-            ".css",
-            ".grd",
-            ".gyp",
-            ".gypi",
-            ".htm",
-            ".html",
-            ".ini",
-            ".jpeg",
-            ".jpg",
-            ".js",
-            ".l",
-            ".mk",
-            ".patch",
-            ".png",
-            ".proto",
-            ".rules",
-            ".service",
-            ".star",
-            ".svg",
-            ".toml",
-            ".txt",
-            ".vpython",
-            ".vpython3",
-            ".xml",
-            ".xtb",
-            ".y",
-            ".yaml",
-            ".yml",
-        }
-    ): (_NonExecLintFile,),
-}
+# These are used in _BreakoutDataByTool, so add a constant to keep in sync.
+_PYTHON_EXT = frozenset({"*.py"})
+_SHELL_EXT = frozenset({"*.sh"})
 
-# Map known filenames to a tool function.
-_FILENAME_PATTERNS_TOOL_MAP = {
-    frozenset({".gn"}): (_GnlintFile, _NonExecLintFile),
-    frozenset({"DIR_METADATA"}): (_DirMdLintFile, _NonExecLintFile),
-    frozenset({"OWNERS*"}): (_OwnersLintFile, _NonExecLintFile),
-    frozenset({"Dockerfile", "Makefile"}): (_NonExecLintFile,),
-    frozenset({"init/*.conf", "upstart/*.conf"}): (
-        _UpstartLintFile,
-        _NonExecLintFile,
-    ),
-    frozenset(
-        {
-            ".vpython",
-            ".vpython3",
-        }
-    ): (_NonExecLintFile,),
-}
+# Map file names to a tool function.
+# NB: Order matters as earlier entries override later ones.
+_TOOL_MAP = collections.OrderedDict(
+    (
+        (frozenset({"DIR_METADATA"}), (_DirMdLintFile, _NonExecLintFile)),
+        (frozenset({"OWNERS*"}), (_OwnersLintFile, _NonExecLintFile)),
+        # NB: Must come before *.conf rules below.
+        (
+            frozenset({"init/*.conf", "upstart/*.conf"}),
+            (
+                _UpstartLintFile,
+                _NonExecLintFile,
+            ),
+        ),
+        # Note these are defined to keep in line with cpplint.py. Technically,
+        # we could include additional ones, but cpplint.py would just filter
+        # them out.
+        (frozenset({"*.c"}), (_WhitespaceLintFile, _NonExecLintFile)),
+        # Remember to change cros_format to align supported extensions.
+        # LINT.IfChange(cpp_extensions)
+        (
+            frozenset({"*.cc", "*.cpp", "*.cxx", "*.h", "*.hh"}),
+            (
+                _CpplintFile,
+                _NonExecLintFile,
+            ),
+        ),
+        # LINT.ThenChange(cros_format.py:cpp_extensions)
+        (frozenset({"*.conf", "*.conf.in"}), (_ConfLintFile, _NonExecLintFile)),
+        (frozenset({"*.gn", "*.gni"}), (_GnlintFile, _NonExecLintFile)),
+        (
+            frozenset({"*.json", "*.jsonproto"}),
+            (_JsonLintFile, _NonExecLintFile),
+        ),
+        (_PYTHON_EXT, (_PylintFile,)),
+        (frozenset({"*.go"}), (_GolintFile, _NonExecLintFile)),
+        (_SHELL_EXT, (_ShellLintFile,)),
+        (
+            frozenset({"*.ebuild", "*.eclass", "*.bashrc"}),
+            (
+                _GentooShellLintFile,
+                _NonExecLintFile,
+            ),
+        ),
+        (frozenset({"*.md"}), (_MarkdownLintFile, _NonExecLintFile)),
+        # Yes, there's a lot of variations here.  We catch these specifically to
+        # throw errors and force people to use the single correct name.
+        (
+            frozenset(
+                {
+                    "*.pb",
+                    "*.pb.txt",
+                    "*.pb.text",
+                    "*.pbtxt",
+                    "*.pbtext",
+                    "*.protoascii",
+                    "*.prototxt",
+                    "*.prototext",
+                    "*.textpb",
+                    "*.txtpb",
+                    "*.textproto",
+                    "*.txtproto",
+                }
+            ),
+            (
+                _TextprotoLintFile,
+                _NonExecLintFile,
+            ),
+        ),
+        (
+            frozenset({"*.policy"}),
+            (
+                _SeccompPolicyLintFile,
+                _WhitespaceLintFile,
+                _NonExecLintFile,
+            ),
+        ),
+        (frozenset({"*.te"}), (_WhitespaceLintFile, _NonExecLintFile)),
+        (
+            frozenset(
+                {
+                    "Dockerfile",
+                    "Makefile",
+                    "*.bzl",
+                    "*.cfg",
+                    "*.config",
+                    "*.css",
+                    "*.grd",
+                    "*.gyp",
+                    "*.gypi",
+                    "*.htm",
+                    "*.html",
+                    "*.ini",
+                    "*.jpeg",
+                    "*.jpg",
+                    "*.js",
+                    "*.l",
+                    "*.mk",
+                    "*.patch",
+                    "*.png",
+                    "*.proto",
+                    "*.rules",
+                    "*.service",
+                    "*.star",
+                    "*.svg",
+                    "*.toml",
+                    "*.txt",
+                    "*.vpython",
+                    "*.vpython3",
+                    "*.xml",
+                    "*.xtb",
+                    "*.y",
+                    "*.yaml",
+                    "*.yml",
+                }
+            ),
+            (_NonExecLintFile,),
+        ),
+    )
+)
 
 
 def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
@@ -600,21 +621,14 @@ def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
 
     for f in files:
         abs_f = f.absolute()
-        for patterns, tools in _FILENAME_PATTERNS_TOOL_MAP.items():
+        for patterns, tools in _TOOL_MAP.items():
             if any(abs_f.match(x) for x in patterns):
                 for tool in tools:
                     map_to_return.setdefault(tool, []).append(f)
                 break
         else:
-            extension = f.suffix
-            for extensions, tools in _EXT_TOOL_MAP.items():
-                if extension in extensions:
-                    for tool in tools:
-                        map_to_return.setdefault(tool, []).append(f)
-                    break
-            else:
-                if f.is_file():
-                    _BreakoutDataByTool(map_to_return, f)
+            if f.is_file():
+                _BreakoutDataByTool(map_to_return, f)
 
     return map_to_return
 
@@ -639,13 +653,11 @@ class LintCommand(analyzers.AnalyzerCommand):
 For some file formats, see the CrOS style guide:
 https://chromium.googlesource.com/chromiumos/docs/+/HEAD/styleguide/
 
-Supported file formats: %s
-Supported file names: %s
+Supported files: %s
 
 NB: Not all linters work with `--commit` yet.
 """ % (
-        " ".join(sorted(itertools.chain(*_EXT_TOOL_MAP))),
-        " ".join(sorted(itertools.chain(*_FILENAME_PATTERNS_TOOL_MAP))),
+        " ".join(sorted(itertools.chain(*_TOOL_MAP))),
     )
 
     # The output formats supported by cros lint.

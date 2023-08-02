@@ -7,6 +7,7 @@
 TODO: Support stdin & diffs.
 """
 
+import collections
 import difflib
 import functools
 import itertools
@@ -28,89 +29,102 @@ from chromite.utils.parser import shebang
 
 
 # These are used in _BreakoutDataByTool, so add a constant to keep in sync.
-_PYTHON_EXT = frozenset({".py", ".pyi"})
-_SHELL_EXT = frozenset({".sh"})
+_PYTHON_EXT = frozenset({"*.py", "*.pyi"})
+_SHELL_EXT = frozenset({"*.sh"})
 
-# Map file extensions to a formatter function.
-_EXT_TOOL_MAP = {
-    frozenset({".bazel", ".bzl", ".star"}): (formatters.star.Data,),
-    # Remember to change cros_lint accordingly to align supported extensions.
-    # LINT.IfChange(cpp_extensions)
-    frozenset({".c", ".cc", ".cpp", ".cxx", ".h", ".hh"}): (
-        formatters.cpp.Data,
-    ),
-    # LINT.ThenChange(cros_lint.py:cpp_extensions)
-    frozenset({".gn", ".gni"}): (formatters.gn.Data,),
-    frozenset({".go"}): (formatters.go.Data,),
-    frozenset({".json", ".jsonproto"}): (formatters.json.Data,),
-    # TODO(build): Add a formatter for this.
-    frozenset({".ebuild", ".eclass"}): (formatters.whitespace.Data,),
-    # TODO(build): Add a formatter for this.
-    frozenset({".md"}): (formatters.whitespace.Data,),
-    # TODO(build): Add a formatter for this (minijail seccomp policies).
-    frozenset({".policy"}): (formatters.whitespace.Data,),
-    frozenset({".proto"}): (formatters.proto.Data,),
-    _PYTHON_EXT: (formatters.python.Data,),
-    frozenset({".rs"}): (formatters.rust.Data,),
-    # TODO(build): Add a formatter for this.
-    _SHELL_EXT: (formatters.whitespace.Data,),
-    # TODO(build): Add a formatter for this (SELinux policies).
-    frozenset({".te"}): (formatters.whitespace.Data,),
-    # NB: We don't list all the variations in filenames as .textproto is the
-    # only one that should be used, and `cros lint` enforces that.
-    frozenset({".textproto"}): (formatters.textproto.Data,),
-    frozenset({".grd", ".svg", ".xml", ".xtb"}): (formatters.xml.Data,),
-    # TODO(build): Switch .toml to rustfmt when available.
-    # https://github.com/rust-lang/rustfmt/issues/4091
-    frozenset(
-        {
-            ".cfg",
-            ".conf",
-            ".ini",
-            ".rules",
-            ".toml",
-            ".txt",
-            ".vpython",
-            ".vpython3",
-        }
-    ): (formatters.whitespace.Data,),
-}
-
-
-# Map known filenames to a tool function.
-_FILENAME_PATTERNS_TOOL_MAP = {
-    frozenset({".gn"}): (formatters.gn.Data,),
-    frozenset({"BUILD", "WORKSPACE"}): (formatters.star.Data,),
-    # These are plain text files.
-    frozenset(
-        {
-            ".clang-format",
-            ".gitignore",
-            ".gitmodules",
-            ".vpython",
-            ".vpython3",
-            "COPYING*",
-            "LICENSE*",
-            "make.conf",
-            "make.defaults",
-            "package.accept_keywords",
-            "package.force",
-            "package.keywords",
-            "package.mask",
-            "package.provided",
-            "package.unmask",
-            "package.use",
-            "package.use.force",
-            "package.use.mask",
-            "use.force",
-            "use.mask",
-        }
-    ): (formatters.whitespace.Data,),
-    frozenset({"metadata/layout.conf"}): (formatters.portage_layout_conf.Data,),
-    frozenset({"DIR_METADATA", "METADATA"}): (formatters.textproto.Data,),
-    # TODO(build): Add a formatter for this.
-    frozenset({"OWNERS*"}): (formatters.whitespace.Data,),
-}
+# Map file names to a tool function.
+# NB: Order matters as earlier entries override later ones.
+_TOOL_MAP = collections.OrderedDict(
+    (
+        # These are plain text files.
+        (
+            frozenset(
+                {
+                    ".clang-format",
+                    ".gitignore",
+                    ".gitmodules",
+                    "COPYING*",
+                    "LICENSE*",
+                    "make.conf",
+                    "make.defaults",
+                    "package.accept_keywords",
+                    "package.force",
+                    "package.keywords",
+                    "package.mask",
+                    "package.provided",
+                    "package.unmask",
+                    "package.use",
+                    "package.use.force",
+                    "package.use.mask",
+                    "use.force",
+                    "use.mask",
+                }
+            ),
+            (formatters.whitespace.Data,),
+        ),
+        # NB: Must come before *.conf rules below.
+        (
+            frozenset({"metadata/layout.conf"}),
+            (formatters.portage_layout_conf.Data,),
+        ),
+        # TODO(build): Add a formatter for this.
+        (frozenset({"OWNERS*"}), (formatters.whitespace.Data,)),
+        (
+            frozenset({"*.bazel", "*.bzl", "*.star", "BUILD", "WORKSPACE"}),
+            (formatters.star.Data,),
+        ),
+        # Remember to change cros_lint to align supported extensions.
+        # LINT.IfChange(cpp_extensions)
+        (
+            frozenset({"*.c", "*.cc", "*.cpp", "*.cxx", "*.h", "*.hh"}),
+            (formatters.cpp.Data,),
+        ),
+        # LINT.ThenChange(cros_lint.py:cpp_extensions)
+        (frozenset({"*.gn", "*.gni"}), (formatters.gn.Data,)),
+        (frozenset({"*.go"}), (formatters.go.Data,)),
+        (frozenset({"*.json", "*.jsonproto"}), (formatters.json.Data,)),
+        # TODO(build): Add a formatter for this.
+        (frozenset({"*.ebuild", "*.eclass"}), (formatters.whitespace.Data,)),
+        # TODO(build): Add a formatter for this.
+        (frozenset({"*.md"}), (formatters.whitespace.Data,)),
+        # TODO(build): Add a formatter for this (minijail seccomp policies).
+        (frozenset({"*.policy"}), (formatters.whitespace.Data,)),
+        (frozenset({"*.proto"}), (formatters.proto.Data,)),
+        (_PYTHON_EXT, (formatters.python.Data,)),
+        (frozenset({"*.rs"}), (formatters.rust.Data,)),
+        # TODO(build): Add a formatter for this.
+        (_SHELL_EXT, (formatters.whitespace.Data,)),
+        # TODO(build): Add a formatter for this (SELinux policies).
+        (frozenset({"*.te"}), (formatters.whitespace.Data,)),
+        # NB: We don't list all the variations in filenames as .textproto is the
+        # only one that should be used, and `cros lint` enforces that.
+        (
+            frozenset({"*.textproto", "DIR_METADATA", "METADATA"}),
+            (formatters.textproto.Data,),
+        ),
+        (
+            frozenset({"*.grd", "*.svg", "*.xml", "*.xtb"}),
+            (formatters.xml.Data,),
+        ),
+        # TODO(build): Switch .toml to rustfmt when available.
+        # https://github.com/rust-lang/rustfmt/issues/4091
+        (
+            frozenset(
+                {
+                    "*.cfg",
+                    "*.conf",
+                    "*.ini",
+                    "*.rules",
+                    "*.toml",
+                    "*.txt",
+                    "*.vpython",
+                    "*.vpython3",
+                }
+            ),
+            (formatters.whitespace.Data,),
+        ),
+    )
+)
 
 
 def _BreakoutDataByTool(map_to_return, path):
@@ -130,10 +144,10 @@ def _BreakoutDataByTool(map_to_return, path):
 
             basename = os.path.basename(result.real_command)
             if basename.startswith("python") or basename.startswith("vpython"):
-                for tool in _EXT_TOOL_MAP[_PYTHON_EXT]:
+                for tool in _TOOL_MAP[_PYTHON_EXT]:
                     map_to_return.setdefault(tool, []).append(path)
             elif basename in ("sh", "dash", "bash"):
-                for tool in _EXT_TOOL_MAP[_SHELL_EXT]:
+                for tool in _TOOL_MAP[_SHELL_EXT]:
                     map_to_return.setdefault(tool, []).append(path)
     except IOError as e:
         logging.debug("%s: reading initial data failed: %s", path, e)
@@ -145,21 +159,14 @@ def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
 
     for f in files:
         abs_f = f.absolute()
-        for patterns, tools in _FILENAME_PATTERNS_TOOL_MAP.items():
+        for patterns, tools in _TOOL_MAP.items():
             if any(abs_f.match(x) for x in patterns):
                 for tool in tools:
                     map_to_return.setdefault(tool, []).append(f)
                 break
         else:
-            extension = f.suffix
-            for extensions, tools in _EXT_TOOL_MAP.items():
-                if extension in extensions:
-                    for tool in tools:
-                        map_to_return.setdefault(tool, []).append(f)
-                    break
-            else:
-                if f.is_file():
-                    _BreakoutDataByTool(map_to_return, f)
+            if f.is_file():
+                _BreakoutDataByTool(map_to_return, f)
 
     return map_to_return
 
@@ -240,11 +247,9 @@ class FormatCommand(analyzers.AnalyzerCommand):
 For some file formats, see the CrOS style guide:
 https://chromium.googlesource.com/chromiumos/docs/+/HEAD/styleguide/
 
-Supported file formats: %s
-Supported file names: %s
+Supported files: %s
 """ % (
-        " ".join(sorted(itertools.chain(*_EXT_TOOL_MAP))),
-        " ".join(sorted(itertools.chain(*_FILENAME_PATTERNS_TOOL_MAP))),
+        " ".join(sorted(itertools.chain(*_TOOL_MAP))),
     )
 
     # AnalyzerCommand overrides.
