@@ -933,8 +933,9 @@ def BuildPackages(
 
                     if run_configs.bazel:
                         bazel_extra_env = {"BOARD": target.name}
+                        bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
                         cros_build_lib.run(
-                            ["bazel", "build"]
+                            [bazel_cmd, "build"]
                             + [
                                 f"@portage//{package}:package_set"
                                 for package in packages
@@ -944,7 +945,7 @@ def BuildPackages(
                         for package in packages:
                             cros_build_lib.run(
                                 [
-                                    "bazel",
+                                    bazel_cmd,
                                     "run",
                                     f"@portage//{package}:install",
                                 ],
