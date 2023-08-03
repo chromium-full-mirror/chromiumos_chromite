@@ -45,7 +45,7 @@ def _GetProjectPath(path: Path) -> Path:
 def _get_file_data(path: Union[str, os.PathLike], commit: Optional[str]) -> str:
     """Read the file data for |path| either from disk or git |commit|."""
     if commit:
-        return git.RunGit(None, ["show", f"{commit}:./{path}"]).stdout
+        return git.GetObjectAtRev(None, f"./{path}", commit)
     else:
         return Path(path).read_text(encoding="utf-8")
 

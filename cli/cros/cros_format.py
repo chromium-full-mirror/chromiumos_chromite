@@ -193,7 +193,7 @@ def _Dispatcher(
 ) -> DispatcherResult:
     """Call |tool| on |path| and take care of coalescing exit codes."""
     if commit:
-        old_data = git.RunGit(None, ["show", f"{commit}:{path}"]).stdout
+        old_data = git.GetObjectAtRev(None, path, commit)
     else:
         try:
             old_data = osutils.ReadFile(path)
