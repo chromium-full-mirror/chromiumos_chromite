@@ -22,6 +22,7 @@ $ ebuild chromeos-default-apps-1.0.0.ebuild manifest --force
 import json
 import logging
 import os
+from typing import Any, Dict
 import urllib.request
 import xml.dom.minidom
 
@@ -35,14 +36,26 @@ from chromite.utils import pformat
 UPLOAD_URL_BASE = "gs://chromeos-localmirror-private/distfiles"
 
 
-def DownloadCrx(ext, extension, crxdir):
-    """Download .crx file from WebStore and update entry."""
-    logging.info('Extension "%s"(%s)...', extension["name"], ext)
+def DownloadCrx(ext: str, extension: Dict[str, Any], crxdir: str) -> bool:
+    """Download the extensions CRX from the Chrome web store update URL.
 
+    Args:
+        ext: The extension ID
+        extension: A key value pair containing information about the extension.
+        crxdir: The directory to save the CRX file in.
+
+    Returns:
+        True if successfully downloaded the CRX.
+    """
+    logging.info('Extension "%s" (%s)...', extension["name"], ext)
+
+    min_version = extension["min_version"] if "min_version" in extension else ""
     update_url = (
-        "%s?prodversion=90.1.1.1&acceptformat=crx3&x=id%%3D%s%%26uc"
-        % (extension["external_update_url"], ext)
+        f"{extension['external_update_url']}"
+        f"?prodversion=115.0.5790.160&acceptformat=crx3"
+        f"&x=id%3D{ext}%26v%3D{min_version}%26uc"
     )
+
     with urllib.request.urlopen(update_url) as response:
         if response.getcode() != 200:
             logging.error(
@@ -169,10 +182,6 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball):
 
         cache_crx = extension.get("cache_crx", "yes")
 
-        # Remove fields that shouldn't be in the output file.
-        for key in ("cache_crx", "child_users"):
-            extension.pop(key, None)
-
         if cache_crx == "yes":
             if not DownloadCrx(ext, extension, crxdir):
                 was_errors = True
@@ -182,6 +191,10 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball):
             cros_build_lib.Die(
                 'Unknown value for "cache_crx" %s for %s', cache_crx, ext
             )
+
+        # Remove fields that shouldn't be in the output file.
+        for key in ("cache_crx", "child_users", "min_version"):
+            extension.pop(key, None)
 
         json_file = os.path.join(jsondir, "%s.json" % ext)
         pformat.json(extension, fp=json_file)
