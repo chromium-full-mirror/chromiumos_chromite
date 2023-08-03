@@ -44,4 +44,15 @@ def Data(
     if curr_keys != sorted_keys:
         lines.sort()
 
+    # Sort values for some keys.
+    for i, line in enumerate(lines):
+        elements = line.split(" = ", 1)
+        if len(elements) != 2:
+            continue
+
+        key, value = elements
+        if key in {"eapis-banned", "eapis-deprecated", "profile-formats"}:
+            values = sorted(value.split())
+            lines[i] = f"{key} = {' '.join(values)}"
+
     return "".join(f"{x}\n" for x in lines)

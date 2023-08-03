@@ -22,6 +22,8 @@ from chromite.format import formatters
         # Blank lines.
         ("# Ok\n\n\n", "# Ok\n"),
         ("k = v\n\nz = a\n", "k = v\nz = a\n"),
+        # Sorted keys.
+        ("eapis-banned = 4 1 2\n", "eapis-banned = 1 2 4\n"),
     ),
 )
 def test_check_format(data, exp):
