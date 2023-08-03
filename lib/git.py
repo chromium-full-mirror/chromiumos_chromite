@@ -1369,7 +1369,9 @@ def LsTree(
         The list of paths from ls-tree.
     """
     output = RunGit(
-        cwd, ["ls-tree", "-r", "-z", "--", commit, "--", *files]
+        cwd,
+        ["ls-tree", "-r", "-z", "--", commit]
+        + (["--", *files] if files else []),
     ).stdout
     return [LsTreeEntry.from_line(x) for x in output.split("\0")[:-1]]
 

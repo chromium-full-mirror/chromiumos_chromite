@@ -232,6 +232,13 @@ Change-Id: %s
             ],
         )
 
+    def testLsTreeEmptyFileList(self):
+        """Tests git.LsTree with the `files` argument being empty."""
+        git.LsTree(cwd=self.fake_path, commit="HEAD")
+        self.assertCommandContains(["ls-tree", "-r", "-z"])
+        self.assertCommandContains(["--", "HEAD"])
+        self.assertCommandContains(["HEAD", "--"], expected=False)
+
     def testAddPath(self):
         git.AddPath(self.fake_path)
         self.assertCommandContains(["add"])
