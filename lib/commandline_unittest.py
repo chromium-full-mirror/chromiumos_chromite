@@ -885,7 +885,7 @@ class TestRunInsideChroot(cros_test_lib.MockTestCase):
 
         self.PatchObject(self.cmd, "TranslateToChrootArgv", _inside_args_patch)
 
-    def teardown(self):
+    def tearDown(self):
         sys.argv = self.orig_argv
 
     def _VerifyRunInsideChroot(
