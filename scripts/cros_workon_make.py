@@ -12,10 +12,17 @@ migrated to python from chromiumos/src/scripts/cros_workon_make.
 import logging
 from typing import List, Optional
 
+from chromite.third_party.opentelemetry import trace
+
 from chromite.lib import build_target_lib
+from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import workon_helper
+from chromite.utils import telemetry
+
+
+tracer = trace.get_tracer(__name__)
 
 
 def GetParser() -> commandline.ArgumentParser:
@@ -63,6 +70,13 @@ def GetParser() -> commandline.ArgumentParser:
 def main(argv: Optional[List[str]]) -> Optional[int]:
     commandline.RunInsideChroot()
 
+    chromite_config.initialize()
+    telemetry.initialize(chromite_config.TELEMETRY_CONFIG)
+    DoMain(argv)
+
+
+@tracer.start_as_current_span("scripts.cros_workon_make")
+def DoMain(argv: Optional[List[str]]) -> Optional[int]:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.Freeze()
@@ -72,6 +86,8 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     helper = workon_helper.WorkonHelper(sysroot, board)
 
     pkg = options.package
+    span = trace.get_current_span()
+    span.set_attribute("package", pkg)
 
     if options.scrub:
         logging.warning("--scrub will destroy ALL FILES unknown to git!")
