@@ -44,12 +44,6 @@ def main(argv):
 
     pytest_args = opts.pytest_args
 
-    if opts.quick:
-        if not cros_build_lib.IsInsideChroot() and opts.chroot:
-            logging.warning(
-                "Tests start up faster when run from inside the chroot."
-            )
-
     if opts.chroot:
         ensure_chroot_exists()
         re_execute_inside_chroot(argv)
