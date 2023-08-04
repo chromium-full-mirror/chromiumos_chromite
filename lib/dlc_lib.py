@@ -106,7 +106,7 @@ def CheckAndRaise(value: bool, err_msg: str) -> None:
     """Check and raises and exception with `err_msg` if `value` is False
 
     Raises:
-        Error on false `value`.
+        Error: on false `value`.
     """
     if not value:
         raise Error(err_msg)
@@ -274,21 +274,25 @@ class EbuildParams:
         )
 
     def VerifyDlcParameters(self):
-        """Verifies certain DLC parameters are valid and allowed."""
+        """Verifies certain DLC parameters are valid and allowed.
+
+        Raises:
+            Error: if non-allowlisted in various DLC options.
+        """
         if self.factory_install:
             if not dlc_allowlist.IsFactoryInstallAllowlisted(self.dlc_id):
                 err_msg = (
                     f"DLC={self.dlc_id} is not allowed to be factory installed."
                 )
                 logging.error(err_msg)
-                raise Exception(err_msg)
+                raise Error(err_msg)
         if self.powerwash_safe:
             if not dlc_allowlist.IsPowerwashSafeAllowlisted(self.dlc_id):
                 err_msg = (
                     f"DLC={self.dlc_id} is not allowed to be powerwash safe."
                 )
                 logging.error(err_msg)
-                raise Exception(err_msg)
+                raise Error(err_msg)
 
     def StoreDlcParameters(self, install_root_dir: str, sudo: bool):
         """Store DLC parameters defined in the ebuild.
@@ -443,6 +447,9 @@ class DlcMetadata:
 
         Args:
             dlc_list: A list of tuples (dlc_id, build_dir)
+
+        Raises:
+            Error: if metadata is missing/compresses badly.
         """
         # The first of ascending DLC IDs added to current metadata file, it will
         # be used to name the metadata file.
@@ -450,7 +457,7 @@ class DlcMetadata:
         for d_id, dlc_build_dir in sorted(dlc_list):
             metadata = self.LoadSrcMetadata(os.path.join(dlc_build_dir, d_id))
             if not metadata:
-                raise Exception(f"Unable to load metadata for DLC '{d_id}'.")
+                raise Error(f"Unable to load metadata for DLC '{d_id}'.")
 
             metadata_str = json.dumps(metadata, separators=(",", ":"))
             metadata_enc = f'"{d_id}":{metadata_str},'.encode("utf-8")
@@ -467,7 +474,7 @@ class DlcMetadata:
                     self._CompressionSize(self._compressobj, metadata_enc)
                     > self._max_file_size
                 ):
-                    raise Exception(
+                    raise Error(
                         f"Unable to add metadata for DLC '{d_id}' as it "
                         "exceeds the file size limit."
                     )
@@ -554,6 +561,9 @@ class DlcMetadata:
 
         Returns:
             The metadata as a dict.
+
+        Raises:
+            Error: if parsed metadata is badly formatted.
         """
         # Read the file content and decompress.
         contents = osutils.ReadFile(
@@ -571,7 +581,7 @@ class DlcMetadata:
             DLC_META_JSON_BEGIN + decompressed.rstrip(b",") + DLC_META_JSON_END
         )
         if not isinstance(parsed, dict):
-            raise Exception("The metadata file is corrupted.")
+            raise Error("The metadata file is corrupted.")
 
         return parsed
 
@@ -813,6 +823,9 @@ class DlcGenerator:
 
         Args:
             dlc_dir: The path to the mounted point during image creation.
+
+        Raises:
+            Error: if key from lsb-release is missing.
         """
         if self.board == MAGIC_BOARD:
             logging.info("Skipping lsb prep since magic board.")
@@ -828,7 +841,7 @@ class DlcGenerator:
                     app_id = line.split("=")[1]
 
         if app_id is None and self.board not in _TEST_BOARDS_ALLOWLIST:
-            raise Exception(
+            raise Error(
                 "%s does not have a valid key %s"
                 % (
                     platform_lsb_rel_path,
@@ -859,6 +872,9 @@ class DlcGenerator:
 
         Args:
             dlc_dir: The path to the mounted point during image creation.
+
+        Raises:
+            Error: if license file is missing.
         """
         license_path = os.path.join(dlc_dir, LICENSE)
         if self.board == MAGIC_BOARD:
@@ -1157,6 +1173,9 @@ def IsFactoryInstallAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
 
     Returns:
         Whether the factory installation for the DLC is allowed.
+
+    Raises:
+        Error: if factory install is not allowed.
     """
     if not IsFieldAllowed(dlc_id, dlc_build_dir, "factory-install"):
         return False
@@ -1164,7 +1183,7 @@ def IsFactoryInstallAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
     if not dlc_allowlist.IsFactoryInstallAllowlisted(dlc_id):
         err_msg = f"DLC={dlc_id} is not allowed to be factory installed."
         logging.error(err_msg)
-        raise Exception(err_msg)
+        raise Error(err_msg)
 
     return True
 
@@ -1178,6 +1197,9 @@ def IsPowerwashSafeAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
 
     Returns:
         Whether powerwash safety for the DLC is allowed.
+
+    Raises:
+        Error: if powerwash safety is not allowed.
     """
     if not IsFieldAllowed(dlc_id, dlc_build_dir, "powerwash-safe"):
         return False
@@ -1185,7 +1207,7 @@ def IsPowerwashSafeAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
     if not dlc_allowlist.IsPowerwashSafeAllowlisted(dlc_id):
         err_msg = f"DLC={dlc_id} is not allowed to be powerwash safe."
         logging.error(err_msg)
-        raise Exception(err_msg)
+        raise Error(err_msg)
 
     return True
 
@@ -1233,6 +1255,9 @@ def InstallDlcImages(
         rootfs: Path to the platform rootfs.
         stateful: Path to the platform stateful.
         src_dir: Path to the DLC source root directory.
+
+    Raises:
+        Error: in case anything goes wrong, check error message.
     """
     build_dir = os.path.join(sysroot, DLC_BUILD_DIR)
     build_dir_scaled = os.path.join(sysroot, DLC_BUILD_DIR_SCALED)
@@ -1445,7 +1470,7 @@ def InstallDlcImages(
                             os.path.join(meta_rootfs, DLC_VERITY_TABLE)
                         )
                         if not root_hexdigest:
-                            raise Exception(
+                            raise Error(
                                 f"Could not find root dm-verity digest of "
                                 f"{d_id} in dm-verity table"
                             )
@@ -1530,6 +1555,9 @@ def ValidateDlcIdentifier(name):
 
     Args:
         name: The value of the string to be validated.
+
+    Raises:
+        Error: if name is not a valid DLC identifier.
     """
     errors = []
     if not name:
@@ -1543,4 +1571,4 @@ def ValidateDlcIdentifier(name):
 
     if errors:
         msg = "%s is invalid:\n%s" % (name, "\n".join(errors))
-        raise Exception(msg)
+        raise Error(msg)
