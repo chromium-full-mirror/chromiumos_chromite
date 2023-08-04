@@ -564,7 +564,7 @@ function updateChroot() {
 }
 
 function replaceChroot() {
-    $("#replaceChrootSubmit").addClass("disabled");
+    $("#replaceSubmit").addClass("disabled");
 
     window.onbeforeunload = function () {
         return true;
@@ -586,7 +586,7 @@ function replaceChroot() {
         contentType: "application/json",
 
         success: function (response) {
-            $("#replaceChrootSubmit").removeClass("disabled");
+            $("#replaceSubmit").removeClass("disabled");
             location.reload();
             window.onbeforeunload = null;
 
@@ -610,6 +610,94 @@ function replaceChroot() {
 
     })
 }
+
+function createChroot() {
+    $("#createSubmit").addClass("disabled");
+
+    window.onbeforeunload = function () {
+        return true;
+    };
+
+    bootstrap = $("#createBootstrap").is(":checked");
+    noUseImage = $("#createNoUseImage").is(":checked");
+    version = $("createSDKVersion").value;
+
+    $.ajax({
+        url: "/replace-chroot", //can use replace route, uses the same endpoint
+        type: "POST",
+        data: JSON.stringify({
+            bootstrap: bootstrap,
+            noUseImage: noUseImage,
+            version: version
+        }),
+        dataType: "json",
+        contentType: "application/json",
+
+        success: function (response) {
+            $("#createSubmit").removeClass("disabled");
+            location.reload();
+            window.onbeforeunload = null;
+
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
+        },
+
+        error: function (xhr) {
+            console.log("failure");
+        },
+
+        xhrFields: {
+            onprogress: function (e) {
+
+                populateLiveLog(
+                    "create_chroot",
+                    e.currentTarget.response,
+                    now
+                )
+            }
+        }
+
+    })
+}
+
+function deleteChroot() {
+    $("#deleteSubmit").addClass("disabled");
+
+    window.onbeforeunload = function () {
+        return true;
+    };
+
+    $.ajax({
+        url: "/delete-chroot", //can use replace route, uses the same endpoint
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+
+        success: function (response) {
+            $("#deleteSubmit").removeClass("disabled");
+            location.reload();
+            window.onbeforeunload = null;
+
+            $("#" + now.format("x") + "status").html(`<p2 class="small text-success">Completed</p2>`)
+        },
+
+        error: function (xhr) {
+            console.log("failure");
+        },
+
+        xhrFields: {
+            onprogress: function (e) {
+
+                populateLiveLog(
+                    "delete_chroot",
+                    e.currentTarget.response,
+                    now
+                )
+            }
+        }
+
+    })
+}
+
 
 function buildPackages() {
     $("#buildPackagesSubmit").addClass("disabled");
@@ -762,10 +850,16 @@ function populateChrootInfo() {
         url: "/chroot-info",
         
         success: (response) => {
-            format = "ddd MMM DD HH:mm:ss YYYY"
-            $("#chrootCreated").html(moment(response.dateCreated, format).format("MMM D, YYYY"))
-            $("#chrootPath").html(response.path.path)
-            $("#chrootVersion").html(response.version.version)
+            if(response.ready){
+                format = "ddd MMM DD HH:mm:ss YYYY"
+                $("#chrootCreated").html(moment(response.dateCreated, format).format("MMM D, YYYY"))
+                $("#chrootLastUpdated").html($("#chrootCreated").html())
+                $("#chrootPath").html(response.path.path)
+                $("#chrootVersion").html(response.version.version)
+            
+            }else{
+                $("#createChrootModal").modal("show")
+            }
         }
     })
 }
@@ -859,7 +953,7 @@ $(document).ready(function () {
     $("#showRepo").on('click', showRepo);
     $("#repoStatusRefresh").on("click", populateRepoFiles);
     $("#updateChrootSubmit").on("click", updateChroot);
-    $("#replaceChrootSubmit").on("click", replaceChroot);
+    $("#replaceSubmit").on("click", replaceChroot);
     $("#buildPackagesSubmit").on("click", buildPackages);
     $("#buildImageSubmit").on("click", buildImage);
     $("#clearLogs").on("click", clearLogs);

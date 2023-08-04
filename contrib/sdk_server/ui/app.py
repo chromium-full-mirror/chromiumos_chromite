@@ -274,7 +274,7 @@ def update_chroot():
 
 @app.route("/replace-chroot", methods=["GET", "POST"])
 def replace_chroot():
-    """Forwards requests for replace chroot endpoint."""
+    """Forwards requests for replace and create chroot endpoints."""
     if flask.request.method != "POST":
         return flask.redirect(flask.url_for("index"))
 
@@ -291,6 +291,18 @@ def replace_chroot():
     )
 
     return flask.Response(logGenerator(client.replace_sdk, req))
+
+
+@app.route("/delete-chroot", methods=["GET", "POST"])
+def delete_sdk():
+    """Calls delete SDK endpoint."""
+
+    if flask.request.method != "POST":
+        return flask.redirect(flask.url_for("index"))
+
+    req = sdk_server_pb2.DeleteSdkRequest(request=sdk_pb2.DeleteRequest())
+
+    return flask.Response(logGenerator(client.delete_sdk, req))
 
 
 @app.route("/build-packages", methods=["GET", "POST"])
