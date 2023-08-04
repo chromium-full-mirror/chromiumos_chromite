@@ -12,7 +12,7 @@ import os
 import pickle
 import signal
 import sys
-from typing import Optional
+from typing import Callable, List, Optional
 
 from chromite.cli import command
 from chromite.lib import commandline
@@ -158,6 +158,68 @@ class BoolTest(cros_test_lib.TestCase):
         self._RunBoolTestCase("false", False)
         self._RunBoolTestCase("no", False)
         self._RunBoolTestCase("FaLse", False)
+
+
+class StandardBoolTest(cros_test_lib.TestCase):
+    """Test add_bool_argument functionality."""
+
+    def setUp(self):
+        self.parser = commandline.ArgumentParser()
+        # Use names "DT" (default-true) and "DF" (default-false). Abbreviated
+        # because the test is hard to read if boolean strings are everywhere.
+        self.parser.add_bool_argument("--dt-var", True, "Yes DT", "No DT")
+        self.parser.add_bool_argument("--df-var", False, "Yes DF", "No DF")
+
+    def add_flag(self, flag: str) -> Callable:
+        """Returns a closure that adds a bool argument using `flag`."""
+
+        def invoke() -> None:
+            self.parser.add_bool_argument(flag, True, "", "")
+
+        return invoke
+
+    def testNormalUsage(self):
+        """Test end-to-end usage with 2 args with different defaults."""
+
+        def verify(argv: List[str], dt: bool, df: bool):
+            options = self.parser.parse_args(argv)
+            self.assertEqual(options.dt_var, dt)
+            self.assertEqual(options.df_var, df)
+
+        verify([], dt=True, df=False)
+
+        verify(["--df-var"], dt=True, df=True)
+        verify(["--no-df-var"], dt=True, df=False)
+        verify(["--df-var", "--no-df-var"], dt=True, df=False)
+
+        verify(["--dt-var"], dt=True, df=False)
+        verify(["--no-dt-var"], dt=False, df=False)
+        verify(["--dt-var", "--no-dt-var"], dt=False, df=False)
+
+    def testHelpStrings(self):
+        """Test help strings are set correctly."""
+        help_string = self.parser.format_help()
+        self.assertIn("Yes DT (DEFAULT)\n", help_string)
+        self.assertIn("No DT\n", help_string)
+        self.assertIn("Yes DF\n", help_string)
+        self.assertIn("No DF (DEFAULT)\n", help_string)
+
+    def testNoPrefixRaises(self):
+        """Ensure flags that are not prefixed with `--` raise ValueError."""
+        self.assertRaises(ValueError, self.add_flag("-f"))
+        self.assertRaises(ValueError, self.add_flag("f"))
+        self.add_flag("--f")()  # OK.
+
+    def testUnderscoreRaises(self):
+        """Ensure flags incorrectly using snake_case raise ValueError."""
+        self.assertRaises(ValueError, self.add_flag("--my_flag"))
+        self.add_flag("--my-flag")()  # OK.
+
+    def testTypeEqualsBoolRaises(self):
+        """Ensure unquoted `type=bool` is rejected by regular add_argument."""
+        with self.assertRaises(ValueError) as context:
+            self.parser.add_argument("--verbose", type=bool)
+        self.assertIn("Use `add_bool_argument()`", str(context.exception))
 
 
 class DeviceParseTest(cros_test_lib.OutputTestCase):

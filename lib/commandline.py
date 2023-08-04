@@ -1189,6 +1189,19 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
                 # triggered in non-obvious ways.
                 continue
 
+    def add_argument(self, *args, **kwargs) -> argparse.Action:
+        """Override of argparse.ArgumentParser.add_argument for chromite."""
+        # Ban (unquoted) `type=bool` which only accepts the empty string for a
+        # `False` parameter value. The argparse documentation also recommends
+        # against it. The quoted, `type="bool"`, chromite extension is fine, but
+        # add_bool_argument is preferred.
+        if "type" in kwargs and kwargs["type"] == bool:
+            raise ValueError(
+                "Unquoted `add_argument(...type=bool)` is not recommended."
+                ' Use `add_bool_argument()` (preferred), or use `type="bool"`.'
+            )
+        return super().add_argument(*args, **kwargs)
+
     def add_common_argument_to_group(self, group, *args, **kwargs):
         """Adds the given argument to the group.
 
@@ -1204,6 +1217,39 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
         action = group.add_argument(*args, **kwargs)
         self._cros_defaults.setdefault(action.dest, default)
         return action
+
+    def add_bool_argument(
+        self, flag: str, default: bool, enabled_desc: str, disabled_desc: str
+    ) -> None:
+        """Adds a boolean argument conforming to chromite recommendations.
+
+        This will add both --flag and --no-flag, storing into dest="flag", and
+        with corresponding help strings. " (DEFAULT)" is appended to the help
+        string of the one that is default when no flag is provided.
+
+        See
+        https://chromium.googlesource.com/chromiumos/chromite/+/HEAD/docs/cli-guidelines.md#Boolean-Options
+
+        Args:
+            flag: The name of the flag in kebab case (e.g. "--my-bool").
+            default: The default value when no flag is provided.
+            enabled_desc: The help text to use for "--my-bool".
+            disabled_desc: The help text to use for "--no-my-bool".
+        """
+        if not flag.startswith("--"):
+            raise ValueError(f"Bool flag `{flag}` must start with `--`")
+        if "_" in flag:
+            raise ValueError(f"Bool flag `{flag}` must be kebab-case")
+        enabled_desc += " (DEFAULT)" if default else ""
+        disabled_desc += " (DEFAULT)" if not default else ""
+        flag = flag.lstrip("-")
+        dest = flag.replace("-", "_")
+        self.add_argument(
+            f"--{flag}", action="store_true", default=default, help=enabled_desc
+        )
+        self.add_argument(
+            f"--no-{flag}", action="store_false", dest=dest, help=disabled_desc
+        )
 
     def parse_args(self, args=None, namespace=None):
         """Translates OptionParser call to equivalent ArgumentParser call."""

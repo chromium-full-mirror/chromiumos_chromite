@@ -85,37 +85,22 @@ def get_parser() -> commandline.ArgumentParser:
     """Returns the cmdline argparser, populates the options and descriptions."""
     parser = commandline.ArgumentParser(description=__doc__)
 
-    def add_conforming_bool(flag: str, default: bool, desc: str, no_desc: str):
-        """Adds a boolean argument conforming to chromite recommendations.
-
-        See go/chromite-git/+/HEAD/docs/cli-guidelines.md#Boolean-Options.
-        """
-        desc += " (DEFAULT)" if default else ""
-        no_desc += " (DEFAULT)" if not default else ""
-        dest = flag.replace("-", "_")
-        parser.add_argument(
-            f"--{flag}", action="store_true", default=default, help=desc
-        )
-        parser.add_argument(
-            f"--no-{flag}", action="store_false", dest=dest, help=no_desc
-        )
-
-    add_conforming_bool(
-        "clean",
+    parser.add_bool_argument(
+        "--clean",
         False,
         "Remove the subtools chroot and re-extract the SDK.",
         "Re-use an existing subtools chroot.",
     )
 
-    add_conforming_bool(
-        "setup-chroot",
+    parser.add_bool_argument(
+        "--setup-chroot",
         True,
         "Look for a newer base SDK and set it up as a subtools SDK.",
         "Don't look for a newer base SDK and assume the chroot is setup.",
     )
 
-    add_conforming_bool(
-        "update-packages",
+    parser.add_bool_argument(
+        "--update-packages",
         True,
         "Update and install packages before looking for things to export.",
         "Only export packages already installed in the subtools SDK.",
