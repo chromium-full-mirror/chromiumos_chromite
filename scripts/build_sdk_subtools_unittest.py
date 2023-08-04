@@ -4,7 +4,6 @@
 
 """Unit tests for build_sdk_subtools."""
 
-import os
 from pathlib import Path
 from unittest import mock
 
@@ -121,11 +120,7 @@ def test_setup_sdk_invocation(run_mock, outside_chroot) -> None:
         returncode=42,
     )
 
-    # Avoid bots passing CROS_CACHEDIR via `sudo` and messing up cmd matching.
-    with mock.patch.dict("os.environ"):
-        os.environ.pop("CROS_CACHEDIR", None)
-        assert build_sdk_subtools.main() == 42
-
+    assert build_sdk_subtools.main() == 42
     assert run_mock.call_count == 2
     assert outside_chroot.called
 

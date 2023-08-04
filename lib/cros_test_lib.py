@@ -528,10 +528,6 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     Also includes additional assert helpers beyond python stdlib.
     """
 
-    # List of vars chromite is globally sensitive to and that should
-    # be suppressed for tests.
-    ENVIRON_VARIABLE_SUPPRESSIONS = ("CROS_CACHEDIR",)
-
     # The default diff is limited to 8 rows (of 80 cols).  Make this unlimited
     # so we always see the output.  If it's too much, people can use loggers or
     # pagers to scroll.
@@ -570,14 +566,8 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     def setUp(self):
         self._CheckTestEnv("%s.setUp" % (self.id(),))
 
-        self.__saved_env__ = os.environ.copy()
         self.__saved_cwd__ = os.getcwd()
         self.__saved_umask__ = os.umask(0o22)
-        for x in self.ENVIRON_VARIABLE_SUPPRESSIONS:
-            os.environ.pop(x, None)
-        # Force all log lines in tests to include ANSI color prefixes, since it
-        # can be configured per-user.
-        os.environ["NOCOLOR"] = "no"
 
         self.__global_config_patchers__ = [
             mock.patch.object(
@@ -590,7 +580,6 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     def tearDown(self):
         self._CheckTestEnv("%s.tearDown" % (self.id(),))
 
-        osutils.SetEnvironment(self.__saved_env__)
         os.chdir(self.__saved_cwd__)
         os.umask(self.__saved_umask__)
 

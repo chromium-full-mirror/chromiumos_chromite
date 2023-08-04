@@ -12,11 +12,14 @@ https://docs.pytest.org/en/latest/explanation/fixtures.html
 from __future__ import division
 
 import multiprocessing
+import os
+from unittest import mock
 
 import pytest
 
 import chromite as cr
 from chromite.lib import cidb
+from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import parallel
 from chromite.lib import retry_stats
@@ -79,9 +82,22 @@ def clear_retry_stats_manager():
 
 
 @pytest.fixture(autouse=True)
-def set_testing_environment_variable(monkeypatch):
-    """Set environment marker to relax certain strict checks for test code."""
-    monkeypatch.setenv("CHROMITE_INSIDE_PYTEST", "1")
+def set_testing_environment_variables():
+    """Sets a standard environment, and ensures often-used state is restored."""
+    # Use a `mock.patch` ContextManager to snapshot and restore the entire dict.
+    with mock.patch.dict(os.environ):
+        # Set environment marker to relax certain strict checks for test code.
+        os.environ["CHROMITE_INSIDE_PYTEST"] = "1"
+
+        # Force all log lines in tests to include ANSI color prefixes, since it
+        # can be configured per-user.
+        os.environ["NOCOLOR"] = "no"
+
+        # Clear environment variables that chromite is globally sensitive to and
+        # that should be suppressed for tests.
+        os.environ.pop(constants.SHARED_CACHE_ENVVAR, None)
+
+        yield
 
 
 @pytest.fixture
