@@ -156,14 +156,6 @@ BUILDER_NON_FAILURE_STATUSES = (
     BUILDER_STATUS_FORGIVEN,
 )
 
-# Signer status strings
-SIGNER_STATUS_PASSED = "passed"
-SIGNER_STATUS_FAILED = "failed"
-
-# Change sources
-CHANGE_SOURCE_INTERNAL = "internal"
-CHANGE_SOURCE_EXTERNAL = "external"
-
 # Exception categories, as recorded in cidb
 EXCEPTION_CATEGORY_UNKNOWN = "unknown"
 EXCEPTION_CATEGORY_BUILD = "build"
@@ -187,8 +179,6 @@ MON_STAGE_COMP_COUNT = "chromeos/cbuildbot/stage/completed_count"
 MON_STAGE_DURATION = "chromeos/cbuildbot/stage/durations"
 MON_STAGE_INSTANCE_DURATION = "chromeos/cbuildbot/stage/instance_durations"
 MON_STAGE_FAILURE_COUNT = "chromeos/cbuildbot/stage/failure_count"
-MON_FAILED_STAGE = "chromeos/chromite/cbuildbot_launch/failed_stage"
-MON_CHROOT_USED = "chromeos/cbuildbot/chroot_at_version"
 MON_REPO_SYNC_COUNT = "chromeos/cbuildbot/repo/sync_count"
 MON_REPO_SYNC_RETRY_COUNT = "chromeos/cbuildbot/repo/sync_retry_count"
 MON_REPO_SELFUPDATE_FAILURE_COUNT = (
@@ -198,15 +188,10 @@ MON_REPO_INIT_RETRY_COUNT = "chromeos/cbuildbot/repo/init_retry_count"
 MON_REPO_MANIFEST_FAILURE_COUNT = (
     "chromeos/cbuildbot/repo/manifest_failure_count"
 )
-MON_BB_RETRY_BUILD_COUNT = "chromeos/cbuildbot/buildbucket/retry_build_count"
-MON_BB_CANCEL_BATCH_BUILDS_COUNT = (
-    "chromeos/cbuildbot/buildbucket/cancel_batch_builds_count"
-)
 
 # Stage Categorization for failed stages metric.
 UNCATEGORIZED_STAGE = "Uncategorized"
 CI_INFRA_STAGE = "CI-Infra"
-TEST_INFRA_STAGE = "Test-Infra"
 PRODUCT_OS_STAGE = "Product-OS"
 PRODUCT_ANDROID_STAGE = "Product-Android"
 PRODUCT_CHROME_STAGE = "Product-Chrome"
@@ -252,9 +237,6 @@ REEXEC_API_CHROME_PRELOAD_DIR = 12
 # should be incremented, ensuring that (waterfall, builder name, build number,
 # buildbot generation) is a unique identifier of builds.
 BUILDBOT_GENERATION = 1
-
-GOOGLE_EMAIL = "@google.com"
-CHROMIUM_EMAIL = "@chromium.org"
 
 CORP_DOMAIN = "corp.google.com"
 GOLO_DOMAIN = "golo.chromium.org"
@@ -323,11 +305,6 @@ CHROMITE_PROJECT = "chromiumos/chromite"
 CHROMITE_URL = "%s/%s" % (EXTERNAL_GOB_URL, CHROMITE_PROJECT)
 CHROMIUM_SRC_PROJECT = "chromium/src"
 CHROMIUM_GOB_URL = "%s/%s.git" % (EXTERNAL_GOB_URL, CHROMIUM_SRC_PROJECT)
-CHROME_INTERNAL_PROJECT = "chrome/src-internal"
-CHROME_INTERNAL_GOB_URL = "%s/%s.git" % (
-    INTERNAL_GOB_URL,
-    CHROME_INTERNAL_PROJECT,
-)
 
 DEFAULT_MANIFEST = "default.xml"
 OFFICIAL_MANIFEST = "official.xml"
@@ -335,12 +312,6 @@ LKGM_MANIFEST = "LKGM/lkgm.xml"
 
 SHARED_CACHE_ENVVAR = "CROS_CACHEDIR"
 PARALLEL_EMERGE_STATUS_FILE_ENVVAR = "PARALLEL_EMERGE_STATUS_FILE"
-
-# These projects can be responsible for infra failures.
-INFRA_PROJECTS = (CHROMITE_PROJECT,)
-
-
-STREAK_COUNTERS = "streak_counters"
 
 PATCH_BRANCH = "patch_branch"
 STABLE_EBUILD_BRANCH = "stabilizing_branch"
@@ -429,13 +400,6 @@ VALID_CHROME_REVISIONS = [
 ]
 
 
-# Constants for uprevving Android.
-
-# Builds and validates the latest Android release.
-# TODO(b/230013833): Remove once cbuildbot is gone.
-ANDROID_REV_LATEST = "latest_release"
-VALID_ANDROID_REVISIONS = [ANDROID_REV_LATEST]
-
 # Build types supported.
 
 # These builds serve as PFQ builders.  This is being deprecated.
@@ -474,39 +438,9 @@ VALID_BUILD_TYPES = (
 
 # Build messages
 MESSAGE_TYPE_IGNORED_REASON = "ignored_reason"
-MESSAGE_TYPE_ANNOTATIONS_FINALIZED = "annotations_finalized"
 # MESSSGE_TYPE_IGNORED_REASON messages store the affected build as
 # the CIDB column message_value.
 MESSAGE_SUBTYPE_SELF_DESTRUCTION = "self_destruction"
-
-# Define HWTEST job_keyvals
-JOB_KEYVAL_DATASTORE_PARENT_KEY = "datastore_parent_key"
-JOB_KEYVAL_CIDB_BUILD_ID = "cidb_build_id"
-JOB_KEYVAL_CIDB_BUILD_STAGE_ID = "cidb_build_stage_id"
-JOB_KEYVAL_BUILD_CONFIG = "build_config"
-JOB_KEYVAL_MASTER_BUILD_CONFIG = "master_build_config"
-JOB_KEYVAL_BRANCH = "branch"
-
-
-# How many total test retries should be done for a suite.
-VM_TEST_MAX_RETRIES = 5
-# Defines VM Test types.
-SIMPLE_AU_TEST_TYPE = "pfq_suite"
-VM_SUITE_TEST_TYPE = "vm_suite"
-GCE_SUITE_TEST_TYPE = "gce_suite"
-CROS_VM_TEST_TYPE = "cros_vm_test"
-DEV_MODE_TEST_TYPE = "dev_mode_test"
-VALID_VM_TEST_TYPES = [
-    SIMPLE_AU_TEST_TYPE,
-    VM_SUITE_TEST_TYPE,
-    GCE_SUITE_TEST_TYPE,
-    CROS_VM_TEST_TYPE,
-    DEV_MODE_TEST_TYPE,
-]
-VALID_GCE_TEST_SUITES = ["gce-smoke", "gce-sanity"]
-# MoblabVM tests are suites of tests used to validate a moblab image via
-# VMTests.
-MOBLAB_VM_SMOKE_TEST_TYPE = "moblab_smoke_test"
 
 CHROMIUMOS_OVERLAY_DIR = "src/third_party/chromiumos-overlay"
 CHROMEOS_OVERLAY_DIR = "src/private-overlays/chromeos-overlay/"
@@ -530,7 +464,6 @@ SDK_VERSION_FILE = os.path.join(
 )
 SDK_VERSION_FILE_FULL_PATH = Path(SOURCE_ROOT) / SDK_VERSION_FILE
 SDK_GS_BUCKET = "chromiumos-sdk"
-RELEASE_GS_BUCKET = "chromeos-build-release-console"
 
 PUBLIC = "public"
 PRIVATE = "private"
@@ -631,13 +564,6 @@ IMAGE_SCRIPTS_TAR = "%s.tar.xz" % IMAGE_SCRIPTS_NAME
 TARGET_SYSROOT_TAR = "sysroot_%s.tar.xz" % _SlashToUnderscore(TARGET_OS_PKG)
 VM_IMAGE_NAME = "chromiumos_qemu_image"
 VM_IMAGE_BIN = "%s.bin" % VM_IMAGE_NAME
-VM_IMAGE_TAR = "%s.tar.xz" % VM_IMAGE_NAME
-VM_DISK_PREFIX = "chromiumos_qemu_disk.bin"
-VM_MEM_PREFIX = "chromiumos_qemu_mem.bin"
-VM_NUM_RETRIES = 0
-# Disabling Tast VM retries because of https://crbug.com/1098346.
-TAST_VM_NUM_RETRIES = 0
-TAST_VM_TEST_RESULTS = "tast_vm_test_results_%(attempt)s"
 BASE_GUEST_VM_DIR = "guest-vm-base"
 TEST_GUEST_VM_DIR = "guest-vm-test"
 BASE_GUEST_VM_TAR = "%s.tar.xz" % BASE_GUEST_VM_DIR
@@ -653,7 +579,6 @@ TEST_IMAGE_TAR = "%s.tar.xz" % TEST_IMAGE_NAME
 TEST_IMAGE_BIN = "%s.bin" % TEST_IMAGE_NAME
 TEST_IMAGE_GCE_TAR = ImageBinToGceTar(TEST_IMAGE_BIN)
 TEST_KEY_PRIVATE = "id_rsa"
-TEST_KEY_PUBLIC = "id_rsa.pub"
 
 BREAKPAD_DEBUG_SYMBOLS_NAME = "debug_breakpad"
 BREAKPAD_DEBUG_SYMBOLS_TAR = "%s.tar.xz" % BREAKPAD_DEBUG_SYMBOLS_NAME
@@ -741,8 +666,6 @@ IMAGE_TYPE_ACCESSORY_USBPD = "accessory_usbpd"
 IMAGE_TYPE_ACCESSORY_RWSIG = "accessory_rwsig"
 # GSC Firmware.
 IMAGE_TYPE_GSC_FIRMWARE = "gsc_firmware"
-# TODO(b/173049030): Deprecate this alias after 2021-06.
-IMAGE_TYPE_CR50_FIRMWARE = IMAGE_TYPE_GSC_FIRMWARE
 # Netboot kernel.
 IMAGE_TYPE_NETBOOT = "netboot"
 
@@ -759,8 +682,6 @@ BUILD_REPORT_JSON = "build_report.json"
 METADATA_JSON = "metadata.json"
 PARTIAL_METADATA_JSON = "partial-metadata.json"
 METADATA_TAGS = "tags"
-DELTA_SYSROOT_TAR = "delta_sysroot.tar.xz"
-DELTA_SYSROOT_BATCH = "batch"
 
 FIRMWARE_ARCHIVE_NAME = "firmware_from_source.tar.bz2"
 FPMCU_UNITTESTS_ARCHIVE_NAME = "fpmcu_unittests.tar.bz2"
@@ -769,12 +690,6 @@ FPMCU_UNITTESTS_ARCHIVE_NAME = "fpmcu_unittests.tar.bz2"
 SYNC_RETRIES = 4
 SLEEP_TIMEOUT = 30
 
-# Lab status url.
-LAB_STATUS_URL = "http://chromiumos-lab.appspot.com/current?format=json"
-
-GOLO_SMTP_SERVER = "mail.golo.chromium.org"
-
-CHROME_GARDENER = "chrome"
 # Email alias to add as reviewer in Gerrit, which GWSQ will then automatically
 # assign to the current gardener.
 CHROME_GARDENER_REVIEW_EMAIL = "chrome-os-gardeners-reviews@google.com"
@@ -794,45 +709,15 @@ EXTRA_BUCKETS_FILES_BLOCKLIST = [
     "vm_test_results_*",
 ]
 
-# AFDO common constants.
-# How long does the AFDO_record autotest have to generate the AFDO perf data.
-AFDO_GENERATE_TIMEOUT = 120 * 60
-
-# Gmail Credentials.
-GMAIL_TOKEN_CACHE_FILE = os.path.expanduser("~/.gmail_credentials")
-GMAIL_TOKEN_JSON_FILE = "/creds/refresh_tokens/chromeos_gmail_alerts"
-
-# Maximum number of boards per release group builder. This should be
-# chosen/adjusted based on expected release build times such that successive
-# builds don't overlap and create a backlog.
-MAX_RELEASE_GROUP_BOARDS = 4
-
 CHROMEOS_SERVICE_ACCOUNT = os.path.join(
     "/", "creds", "service_accounts", "service-account-chromeos.json"
 )
 
 # Buildbucket buckets
-CHROMEOS_RELEASE_BUILDBUCKET_BUCKET = "chromeos_release"
-CHROMEOS_BUILDBUCKET_BUCKET = "chromeos"
 INTERNAL_SWARMING_BUILDBUCKET_BUCKET = "general"
 
 # Milo URL
 CHROMEOS_MILO_HOST = "https://ci.chromium.org/b/"
-
-ACTIVE_BUCKETS = [
-    CHROMEOS_RELEASE_BUILDBUCKET_BUCKET,
-    CHROMEOS_BUILDBUCKET_BUCKET,
-    INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
-]
-
-# Build retry limit on buildbucket
-#
-# 2020-05-13 by engeg@: This is rarely effective, causes confusion,
-# higher bot utilization, and if the initial try was past uploading artifacts
-# then the retry is destined to fail with a difficult to parse error.
-# 2020-05-19 by seanabraham@: Leave this at zero. These retries can break
-# Chrome-wide profiling. http://b/156994019
-BUILDBUCKET_BUILD_RETRY_LIMIT = 0  # Do not change. Read the above.
 
 # TODO(nxia): consolidate all run.metadata key constants,
 # add a unit test to avoid duplicated keys in run_metadata
