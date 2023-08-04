@@ -164,13 +164,23 @@ export interface ExecOptions {
  * and `exec` option was to return an error.
  */
 export class AbnormalExitError extends Error {
-  constructor(cmd: string, args: string[], readonly exitStatus: number | null) {
+  constructor(
+    cmd: string,
+    args: string[],
+    readonly exitStatus: number | null,
+    readonly stdout: string,
+    readonly stderr: string
+  ) {
     super(
       `"${shutil.escapeArray([
         cmd,
         ...args,
       ])}" failed, exit status: ${exitStatus}`
     );
+  }
+
+  messageWithStdoutAndStderr(): string {
+    return `${this.message}\nStdout:\n${this.stdout}\nStdErr:\n${this.stderr}`;
   }
 }
 
@@ -308,7 +318,7 @@ function realExec(
         options.logger.append(remainingStderr + '\n');
       }
       if (!options.ignoreNonZeroExit && exitStatus !== 0) {
-        resolve(new AbnormalExitError(name, args, exitStatus));
+        resolve(new AbnormalExitError(name, args, exitStatus, stdout, stderr));
       }
 
       resolve({exitStatus, stdout, stderr});

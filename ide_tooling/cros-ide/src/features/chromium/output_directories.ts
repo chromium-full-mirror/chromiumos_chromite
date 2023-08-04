@@ -186,6 +186,28 @@ export function activate(
       }
     )
   );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'chromiumide.chromium.outputDirectories.viewArgsGnError',
+      async (node?: unknown) => {
+        if (node instanceof DirNode && node.gnArgsInfo.type === 'error') {
+          await vscode.window.showTextDocument(
+            await vscode.workspace.openTextDocument({
+              content: node.gnArgsInfo.error.toString(),
+            })
+          );
+
+          metrics.Metrics.send({
+            category: 'interactive',
+            group: 'chromium.outputDirectories',
+            description: 'view args.gn error',
+            name: 'chromium_outputDirectories_view_args_gn_error',
+          });
+        }
+      }
+    )
+  );
 }
 
 // Represents the base of a node in the output directory view.
@@ -209,20 +231,26 @@ type GnArgs = {
   use_goma: boolean;
 };
 
+type GnArgsInfo =
+  | {type: 'error'; error: string}
+  | {type: 'unknown'}
+  | {type: 'success'; args: GnArgs};
+
 // A `DirNode` represents an output directory.
 export class DirNode extends BaseNode {
-  readonly treeNodeContextValue = 'directory';
+  get treeNodeContextValue(): string {
+    return `type:directory,gnArgsStatus:${this.gnArgsInfo.type}`;
+  }
 
   /**
    * @param name The name of the directory, e.g., `out/Default`
    * @param isCurrent Whether or not `CURRENT_LINK_NAME` currently points to this directory.
-   * @param gnArgs Parsed GN args of this directory, or `'unknown'` (if they have not yet been
-   * parsed), or `'error'` (if they have not been parsed successfully)
+   * @param gnArgsInfo Information about the GN args of this directory.
    */
   constructor(
     name: string,
     public isCurrent: boolean,
-    public gnArgs: GnArgs | 'unknown' | 'error'
+    public gnArgsInfo: GnArgsInfo
   ) {
     super(name);
   }
@@ -242,20 +270,26 @@ export class DirNode extends BaseNode {
       this.isCurrent ? new vscode.ThemeColor('charts.green') : undefined
     );
 
-    if (this.gnArgs === 'unknown') {
-      description = 'loading gn.args...';
-    } else if (this.gnArgs === 'error') {
-      icon = new vscode.ThemeIcon(
-        'warning',
-        new vscode.ThemeColor('list.errorForeground')
-      );
-      description = 'Error: Failed to load gn.args';
-    } else if (this.gnArgs.use_goma === false) {
-      icon = new vscode.ThemeIcon(
-        'warning',
-        new vscode.ThemeColor('list.warningForeground')
-      );
-      description = 'Warning: Goma is not enabled.';
+    switch (this.gnArgsInfo.type) {
+      case 'unknown':
+        description = 'loading gn.args...';
+        break;
+      case 'error':
+        icon = new vscode.ThemeIcon(
+          'warning',
+          new vscode.ThemeColor('list.errorForeground')
+        );
+        description = 'Failed to load gn.args (right click for details)';
+        break;
+      case 'success':
+        if (!this.gnArgsInfo.args.use_goma) {
+          icon = new vscode.ThemeIcon(
+            'warning',
+            new vscode.ThemeColor('list.warningForeground')
+          );
+          description = 'Warning: Goma is not enabled.';
+        }
+        break;
     }
 
     return {
@@ -292,7 +326,13 @@ export class DirNode extends BaseNode {
       if (result instanceof common_util.CancelledError) {
         return;
       }
-      this.gnArgs = 'error';
+      this.gnArgsInfo = {
+        type: 'error',
+        error:
+          result instanceof common_util.AbnormalExitError
+            ? result.messageWithStdoutAndStderr()
+            : result.toString(),
+      };
       return;
     }
 
@@ -306,20 +346,27 @@ export class DirNode extends BaseNode {
     try {
       gnArgs = JSON.parse(result.stdout);
     } catch (error) {
-      this.gnArgs = 'error';
+      this.gnArgsInfo = {
+        type: 'error',
+        error: `Unable to parse JSON output: ${result.stdout}`,
+      };
       return;
     }
 
-    this.gnArgs = {
-      use_goma:
-        gnArgs.find(each => each.name === 'use_goma')?.current.value === 'true',
+    this.gnArgsInfo = {
+      type: 'success',
+      args: {
+        use_goma:
+          gnArgs.find(each => each.name === 'use_goma')?.current.value ===
+          'true',
+      },
     };
   }
 }
 
 // A `LinkNode` represents a link to an output directory.
 export class LinkNode extends BaseNode {
-  readonly treeNodeContextValue = 'link';
+  readonly treeNodeContextValue = 'type:link';
 
   /**
    * @param name The name of the link, e.g., `out/current_link`.
@@ -480,7 +527,7 @@ export class OutputDirectoriesDataProvider
             return;
           }
           this.outputChannel.appendLine(
-            `Read GN args of ${node.name}: ${JSON.stringify(node.gnArgs)}`
+            `Read GN args of ${node.name}: ${JSON.stringify(node.gnArgsInfo)}`
           );
           this._onDidChangeTreeData.fire(node);
         }
@@ -552,7 +599,11 @@ export class OutputDirectoriesDataProvider
           const outName = path.join(topLevelOutDirName, name);
           if (fileType === vscode.FileType.Directory) {
             nodes.push(
-              new DirNode(outName, /*isCurrent=*/ false, /*gnArgs=*/ 'unknown')
+              new DirNode(
+                outName,
+                /*isCurrent=*/ false,
+                /*gnArgsInfo=*/ {type: 'unknown'}
+              )
             );
             return;
           }

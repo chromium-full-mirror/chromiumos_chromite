@@ -47,7 +47,13 @@ export class FakeCrosfleet {
     commonUtil.ExecResult | commonUtil.AbnormalExitError
   > {
     if (!this.loggedIn) {
-      return new commonUtil.AbnormalExitError('crosfleet', ['whoami'], 1);
+      return new commonUtil.AbnormalExitError(
+        'crosfleet',
+        ['whoami'],
+        1,
+        '',
+        ''
+      );
     }
     return {exitStatus: 0, stdout: '', stderr: ''};
   }
@@ -59,7 +65,9 @@ export class FakeCrosfleet {
       return new commonUtil.AbnormalExitError(
         'crosfleet',
         ['dut', 'leases', '-json'],
-        1
+        1,
+        '',
+        ''
       );
     }
     const output: crosfleet.CrosfleetLeasesOutput = {
@@ -101,7 +109,9 @@ export class FakeCrosfleet {
       return new commonUtil.AbnormalExitError(
         'crosfleet',
         ['dut', 'lease'].concat(restArgs),
-        1
+        1,
+        '',
+        ''
       );
     }
 
@@ -131,7 +141,9 @@ export class FakeCrosfleet {
       return new commonUtil.AbnormalExitError(
         'crosfleet',
         ['dut', 'lease'].concat(restArgs),
-        1
+        1,
+        '',
+        ''
       );
     }
 

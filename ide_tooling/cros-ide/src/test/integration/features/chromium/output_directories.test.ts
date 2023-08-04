@@ -16,6 +16,11 @@ describe('OutputDirectoriesDataProvider', () => {
   const tempDir = testing.tempDir();
   const {fakeExec} = testing.installFakeExec();
 
+  const DEFAULT_ERROR = {
+    type: 'error',
+    error: 'Unable to parse JSON output: ',
+  } as const;
+
   beforeEach(() => {
     // By default, pretend that `gn args` errors.
     fakeExec.on(
@@ -91,10 +96,10 @@ describe('OutputDirectoriesDataProvider', () => {
     await dataProvider.getNodeCacheForTesting()!.gnArgsPromise;
     // This also tests that the nodes are sorted.
     expect(nodes).toEqual([
-      new DirNode('out_hatch/dir3', false, 'error'),
-      new DirNode('out_hatch/dir4', false, 'error'),
-      new DirNode('out/dir1', false, 'error'),
-      new DirNode('out/dir2', false, 'error'),
+      new DirNode('out_hatch/dir3', false, DEFAULT_ERROR),
+      new DirNode('out_hatch/dir4', false, DEFAULT_ERROR),
+      new DirNode('out/dir1', false, DEFAULT_ERROR),
+      new DirNode('out/dir2', false, DEFAULT_ERROR),
     ]);
   });
 
@@ -133,8 +138,8 @@ describe('OutputDirectoriesDataProvider', () => {
       new LinkNode('out_hatch/a_link', 'out_hatch/dir3'),
       new LinkNode('out_hatch/outside_link', null),
       new LinkNode('out/current_link', 'out/dir2'),
-      new DirNode('out_hatch/dir3', false, 'error'),
-      new DirNode('out/dir2', true, 'error'),
+      new DirNode('out_hatch/dir3', false, DEFAULT_ERROR),
+      new DirNode('out/dir2', true, DEFAULT_ERROR),
     ]);
   });
 
@@ -150,7 +155,7 @@ describe('OutputDirectoriesDataProvider', () => {
 
     let nodes = await dataProvider.getChildren();
     await dataProvider.getNodeCacheForTesting()!.gnArgsPromise;
-    expect(nodes).toEqual([new DirNode('out/dir1', false, 'error')]);
+    expect(nodes).toEqual([new DirNode('out/dir1', false, DEFAULT_ERROR)]);
 
     await fs.mkdir(path.join(tempDir.path, 'out/dir2'));
     dataProvider.refresh();
@@ -159,8 +164,8 @@ describe('OutputDirectoriesDataProvider', () => {
     await dataProvider.getNodeCacheForTesting()!.gnArgsPromise;
     // This also tests that the nodes are sorted.
     expect(nodes).toEqual([
-      new DirNode('out/dir1', false, 'error'),
-      new DirNode('out/dir2', false, 'error'),
+      new DirNode('out/dir1', false, DEFAULT_ERROR),
+      new DirNode('out/dir2', false, DEFAULT_ERROR),
     ]);
   });
 
@@ -214,7 +219,10 @@ describe('OutputDirectoriesDataProvider', () => {
       const nodes = await dataProvider.getChildren();
       await dataProvider.getNodeCacheForTesting()!.gnArgsPromise;
       expect(nodes).toEqual([
-        new DirNode('out/dir1', false, {use_goma: useGoma === true}),
+        new DirNode('out/dir1', false, {
+          type: 'success',
+          args: {use_goma: useGoma === true},
+        }),
       ]);
     });
   });

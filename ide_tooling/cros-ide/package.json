@@ -305,6 +305,11 @@
         "icon": "$(question)"
       },
       {
+        "command": "chromiumide.chromium.outputDirectories.viewArgsGnError",
+        "title": "View args.gn error",
+        "category": "Chromium"
+      },
+      {
         "command": "chromiumide.chromium.outputDirectories.editArgs",
         "title": "Edit args.gn",
         "category": "Chromium"
@@ -600,7 +605,11 @@
         },
         {
           "command": "chromiumide.chromium.outputDirectories.setCurrentLink",
-          "when": "view == chromiumide.chromium.outputDirectories && viewItem == directory"
+          "when": "view == chromiumide.chromium.outputDirectories && viewItem =~ /type:directory/"
+        },
+        {
+          "command": "chromiumide.chromium.outputDirectories.viewArgsGnError",
+          "when": "view == chromiumide.chromium.outputDirectories && viewItem =~ /type:directory/ && viewItem =~ /gnArgsStatus:error/"
         }
       ],
       "commandPalette": [
@@ -610,6 +619,10 @@
         },
         {
           "command": "chromiumide.chromium.outputDirectories.setCurrentLink",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.chromium.outputDirectories.viewArgsGnError",
           "when": "false"
         },
         {
