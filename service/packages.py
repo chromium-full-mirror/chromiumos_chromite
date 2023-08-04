@@ -1304,6 +1304,98 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
     return result
 
 
+def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
+    """Updates and uprevs the starbase artifacts ebuild.
+
+    This is factored out of uprev_starbase_artifacts for unit testing.
+    """
+
+    # Find ebuild.
+    ebuild_pattern = r"starbase-artifacts-(\d+\.\d+\.\d+)-r(\d+).ebuild$"
+    ebuild_name: str
+    ebuild_version: str
+    ebuild_revision: int
+    for file_or_dir_path in osutils.DirectoryIterator(package_path):
+        file_or_dir = str(file_or_dir_path)
+        m = re.search(ebuild_pattern, file_or_dir)
+        if m:
+            ebuild_name = file_or_dir
+            ebuild_version = m.group(1)
+            ebuild_revision = int(m.group(2))
+            break
+    else:
+        raise Error("cannot find ebuild in %s" % package_path)
+
+    # Check that the fake git refs is as expected.
+    tarfile_pattern = r"^starbase-artifacts-\d{8}-rc\d{3}.tar.zst$"
+    if not re.match(tarfile_pattern, tarfile_name):
+        raise ValueError(
+            "Pattern %s doesn't match fake git ref %s" % tarfile_pattern,
+            tarfile_name,
+        )
+
+    # Change SRC_URI in ebuild.
+    lines = []
+    found = False
+    old_ebuild_path = os.path.join(package_path, ebuild_name)
+    for line in osutils.ReadText(old_ebuild_path).splitlines():
+        if line.startswith("SRC_URI="):
+            line = 'SRC_URI="${DISTFILES}/%s"' % tarfile_name
+            found = True
+        lines.append(line)
+    if not found:
+        raise Error("SRC_URI not found in ebuild %s" % ebuild_name)
+
+    new_revision = ebuild_revision + 1
+    new_ebuild_name = "starbase-artifacts-%s-r%s.ebuild" % (
+        ebuild_version,
+        new_revision,
+    )
+    new_ebuild_path = os.path.join(package_path, new_ebuild_name)
+    osutils.WriteFile(new_ebuild_path, "\n".join(lines) + "\n")
+    osutils.SafeUnlink(old_ebuild_path)
+
+    # Update Manifest
+    portage_util.UpdateEbuildManifest(package_path)
+
+    manifest_path = os.path.join(package_path, "Manifest")
+    modified_files = [manifest_path, old_ebuild_path, new_ebuild_path]
+
+    return modified_files
+
+
+@uprevs_versioned_package("chromeos-base/starbase-artifacts")
+def uprev_starbase_artifacts(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedPackageResult:
+    """Updates the starbase-artifacts ebuild to fetch latest tar file.
+
+    The Rapid workflow that builds a new version of the starbase artifacts tar
+    file and uploads it to chromeos-localmirror-private also triggers this
+    uprev, so that the next CrOS build can pick up the new artifacts.
+
+    See: uprev_versioned_package.
+
+    Returns:
+        UprevVersionedPackageResult: The result of updating this ebuild.
+    """
+    package_path = str(
+        constants.SOURCE_ROOT.joinpath(
+            "private-overlays",
+            "overlay-midna-private",
+            "chromeos-base",
+            "starbase-artifacts",
+        )
+    )
+
+    modified_files = starbase_find_and_uprev(package_path, refs[0].ref)
+    result = uprev_lib.UprevVersionedPackageResult()
+    result.add_result(refs[0].revision, modified_files)
+    return result
+
+
 def get_best_visible(
     atom: str, build_target: Optional["build_target_lib.BuildTarget"] = None
 ) -> package_info.PackageInfo:

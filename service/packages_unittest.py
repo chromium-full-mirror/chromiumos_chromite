@@ -2564,3 +2564,56 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
         )
         output = packages.uprev_lacros_in_parallel(None, self.refs, None)
         self.assertFalse(output.uprevved)
+
+
+class UprevStarbaseArtifactsTest(cros_test_lib.RunCommandTempDirTestCase):
+    """Tests of uprev of starbase artifacts ebuild."""
+
+    package_name = "chromeos-base/starbase-artifacts"
+    version = "2.4.6"
+    revision = "111"
+    ebuild_name_format = "starbase-artifacts-%s-r%s.ebuild"
+    old_ebuild_name = ebuild_name_format % (version, revision)
+    ebuild_content_format = """# Buildable ebuild
+foo
+bar
+baz
+SRC_URI="${DISTFILES}/%s"
+zab
+rab
+oof
+"""
+
+    def test_uprev(self):
+        """Test that the ebuild is modified and uprevved."""
+
+        # Create ebuild directory.
+        directory_tree = (
+            D(self.package_name, [self.old_ebuild_name, "Manifest"]),
+        )
+        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, directory_tree)
+        package_path = os.path.join(self.tempdir, self.package_name)
+        old_ebuild_path = os.path.join(package_path, self.old_ebuild_name)
+        old_ebuild_content = self.ebuild_content_format % "to-be-clobbered"
+
+        # Create mock ebuild to be uprevved.
+        self.WriteTempFile(old_ebuild_path, old_ebuild_content)
+        tarfile_name = "starbase-artifacts-20230101-rc123.tar.zst"
+        manifest_path = os.path.join(package_path, "Manifest")
+
+        # Run the function under test.
+        modified = packages.starbase_find_and_uprev(package_path, tarfile_name)
+
+        # Check that the expected files were modified.
+        new_revision = str(int(self.revision) + 1)
+        new_ebuild_name = self.ebuild_name_format % (self.version, new_revision)
+        new_ebuild_path = os.path.join(package_path, new_ebuild_name)
+
+        self.assertEqual(modified[0], manifest_path)
+        self.assertEqual(modified[1], old_ebuild_path)
+        self.assertEqual(modified[2], new_ebuild_path)
+
+        # Check that the new ebuild file contains the expected content.
+        new_ebuild_content = self.ebuild_content_format % tarfile_name
+        found_content = osutils.ReadFile(new_ebuild_path)
+        self.assertEqual(new_ebuild_content, found_content)
