@@ -300,16 +300,17 @@ class SdkChroot(
 
     def _update_chroot_info(self):
         """Collects general information about the chroot."""
-        self.date_created = time.ctime(os.path.getctime(self.path))
-        self.version = cros_sdk_lib.GetChrootVersion(self.path)
-        self.valid_version = cros_sdk_lib.IsChrootVersionValid(self.path)
+        if Path(self.path).exists():
+            self.date_created = time.ctime(os.path.getctime(self.path))
+            self.version = cros_sdk_lib.GetChrootVersion(self.path)
+            self.valid_version = cros_sdk_lib.IsChrootVersionValid(self.path)
 
     def chroot_info(self, request, context):
         """Sends general information about the chroot via grpc."""
         path_exists = Path(self.path).exists()
         is_ready = cros_sdk_lib.IsChrootReady(self.path)
         ready = path_exists and is_ready
-
+        self._update_chroot_info()
         response = None
         if not path_exists:
             response = sdk_server_pb2.ChrootInfoResponse(ready=ready)
