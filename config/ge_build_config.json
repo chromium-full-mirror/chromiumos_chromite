@@ -349,7 +349,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7227,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "adlnrvp",
@@ -358,7 +358,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7227,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -378,7 +378,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7168,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "adlrvp",
@@ -387,7 +387,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7168,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "adlrvp",
@@ -396,7 +396,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7168,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "adlrvp",
@@ -405,7 +405,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7168,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "adlrvp",
@@ -414,7 +414,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7168,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -536,7 +536,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7204,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "asurada-connectivitynext",
@@ -545,7 +545,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7204,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "asurada-connectivitynext",
@@ -554,7 +554,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7204,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -575,7 +575,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7271,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "asurada-kernelnext",
@@ -594,7 +594,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7271,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "asurada-kernelnext",
@@ -607,7 +607,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7271,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -628,7 +628,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7266,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "asurada64",
@@ -637,7 +637,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7266,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "asurada64",
@@ -646,7 +646,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7266,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -698,7 +698,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7209,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -730,7 +730,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7177,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 102,
@@ -752,7 +752,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7272,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -772,7 +772,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -781,7 +781,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -790,7 +790,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -799,7 +799,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -808,7 +808,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -817,7 +817,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -826,7 +826,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -835,7 +835,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -844,7 +844,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -853,7 +853,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "aurora-borealis",
@@ -862,7 +862,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7184,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -1052,7 +1052,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7260,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brask-labstation",
@@ -1062,7 +1062,7 @@
           "board_id": 7260,
           "is_active": true,
           "stable_target_milestone": 114,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brask-labstation",
@@ -1071,7 +1071,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7260,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brask-labstation",
@@ -1080,7 +1080,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7260,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brask-labstation",
@@ -1089,7 +1089,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7260,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brask-labstation",
@@ -1098,7 +1098,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7260,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brask-labstation",
@@ -1107,7 +1107,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7260,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brask-labstation",
@@ -1116,7 +1116,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7260,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -1823,7 +1823,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1832,7 +1832,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1841,7 +1841,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1850,7 +1850,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1859,7 +1859,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1868,7 +1868,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1877,7 +1877,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1886,7 +1886,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1895,7 +1895,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1904,7 +1904,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1913,7 +1913,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1922,7 +1922,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1931,7 +1931,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1940,7 +1940,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1949,7 +1949,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1958,7 +1958,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1967,7 +1967,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1976,7 +1976,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1985,7 +1985,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-connectivitynext",
@@ -1994,7 +1994,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -2015,7 +2015,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2024,7 +2024,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2033,7 +2033,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2042,7 +2042,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2051,7 +2051,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2060,7 +2060,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2069,7 +2069,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2078,7 +2078,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2087,7 +2087,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2096,7 +2096,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2105,7 +2105,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2114,7 +2114,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2123,7 +2123,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2132,7 +2132,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2141,7 +2141,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2150,7 +2150,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2159,7 +2159,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2168,7 +2168,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2177,7 +2177,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2186,7 +2186,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-gki",
@@ -2195,7 +2195,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7256,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -2217,7 +2217,7 @@
           "board_id": 7229,
           "is_active": true,
           "stable_target_milestone": 120,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2226,7 +2226,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2235,7 +2235,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2244,7 +2244,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2253,7 +2253,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2262,7 +2262,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2271,7 +2271,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2280,7 +2280,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2289,7 +2289,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2299,7 +2299,7 @@
           "board_id": 7229,
           "is_active": true,
           "stable_target_milestone": 120,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2308,7 +2308,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2318,7 +2318,7 @@
           "board_id": 7229,
           "is_active": true,
           "stable_target_milestone": 120,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2327,7 +2327,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2336,7 +2336,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2345,7 +2345,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2354,7 +2354,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2364,7 +2364,7 @@
           "board_id": 7229,
           "is_active": true,
           "stable_target_milestone": 120,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2373,7 +2373,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2382,7 +2382,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2391,7 +2391,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2400,7 +2400,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2409,7 +2409,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2418,7 +2418,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2427,7 +2427,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2436,7 +2436,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2445,7 +2445,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2454,7 +2454,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2463,7 +2463,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2472,7 +2472,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-hibernate",
@@ -2481,7 +2481,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -2515,7 +2515,7 @@
           "board_id": 7230,
           "is_active": true,
           "stable_target_milestone": 116,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2535,7 +2535,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2544,7 +2544,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2553,7 +2553,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2573,7 +2573,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2593,7 +2593,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2613,7 +2613,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2633,7 +2633,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2653,7 +2653,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2673,7 +2673,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2682,7 +2682,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2702,7 +2702,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2722,7 +2722,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2742,7 +2742,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2762,7 +2762,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2782,7 +2782,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2802,7 +2802,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2822,7 +2822,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2842,7 +2842,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-kernelnext",
@@ -2851,7 +2851,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -2873,7 +2873,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2882,7 +2882,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2891,7 +2891,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2900,7 +2900,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2909,7 +2909,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2918,7 +2918,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2927,7 +2927,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2936,7 +2936,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2945,7 +2945,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2954,7 +2954,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2963,7 +2963,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2972,7 +2972,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2981,7 +2981,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2990,7 +2990,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -2999,7 +2999,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -3008,7 +3008,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -3017,7 +3017,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -3026,7 +3026,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -3035,7 +3035,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-pvs",
@@ -3044,7 +3044,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -3065,7 +3065,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7217,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-zephyr",
@@ -3074,7 +3074,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7217,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-zephyr",
@@ -3083,7 +3083,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7217,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "brya-zephyr",
@@ -3092,7 +3092,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7217,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -3697,7 +3697,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3706,7 +3706,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3715,7 +3715,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3724,7 +3724,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3733,7 +3733,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3742,7 +3742,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3751,7 +3751,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3760,7 +3760,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-arc-t",
@@ -3769,7 +3769,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -3790,7 +3790,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3799,7 +3799,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3808,7 +3808,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3817,7 +3817,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3826,7 +3826,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3835,7 +3835,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3844,7 +3844,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3853,7 +3853,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "corsola-kernelnext",
@@ -3862,7 +3862,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7257,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -4856,7 +4856,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4865,7 +4865,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4874,7 +4874,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4883,7 +4883,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4892,7 +4892,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4901,7 +4901,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4911,7 +4911,7 @@
           "board_id": 7267,
           "is_active": true,
           "stable_target_milestone": 87,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4920,7 +4920,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4929,7 +4929,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4938,7 +4938,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4947,7 +4947,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4956,7 +4956,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4965,7 +4965,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4974,7 +4974,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4983,7 +4983,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -4992,7 +4992,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5001,7 +5001,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5010,7 +5010,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5019,7 +5019,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5028,7 +5028,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5037,7 +5037,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5046,7 +5046,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5055,7 +5055,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5064,7 +5064,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5073,7 +5073,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5082,7 +5082,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5091,7 +5091,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5100,7 +5100,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5109,7 +5109,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5118,7 +5118,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5127,7 +5127,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5136,7 +5136,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5145,7 +5145,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5154,7 +5154,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5163,7 +5163,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5172,7 +5172,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5181,7 +5181,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5190,7 +5190,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5199,7 +5199,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5208,7 +5208,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5217,7 +5217,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5226,7 +5226,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5235,7 +5235,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5244,7 +5244,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5253,7 +5253,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5262,7 +5262,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5271,7 +5271,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "dedede-pvs",
@@ -5280,7 +5280,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7267,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -5376,7 +5376,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7242,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "drallion-kernelnext",
@@ -5385,7 +5385,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7242,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "drallion-kernelnext",
@@ -5394,7 +5394,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7242,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "drallion-kernelnext",
@@ -5403,7 +5403,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7242,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -5457,7 +5457,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7156,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -5478,7 +5478,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7207,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -5511,7 +5511,7 @@
           "board_id": 425,
           "is_active": true,
           "stable_target_milestone": 117,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -5597,7 +5597,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 433,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -5618,7 +5618,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 378,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -5639,7 +5639,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 328,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -5824,7 +5824,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 377,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -6132,7 +6132,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6141,7 +6141,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6150,7 +6150,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6159,7 +6159,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6179,7 +6179,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6188,7 +6188,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6197,7 +6197,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6206,7 +6206,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6215,7 +6215,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6224,7 +6224,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-arc-r",
@@ -6233,7 +6233,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 458,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -6265,7 +6265,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6284,7 +6284,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6303,7 +6303,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6312,7 +6312,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6331,7 +6331,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6351,7 +6351,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6370,7 +6370,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6379,7 +6379,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6388,7 +6388,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6407,7 +6407,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "grunt-kernelnext",
@@ -6426,7 +6426,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 417,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -6519,7 +6519,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7277,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "guybrush-arc-t",
@@ -6528,7 +6528,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7277,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "guybrush-arc-t",
@@ -6537,7 +6537,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7277,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "guybrush-arc-t",
@@ -6546,7 +6546,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7277,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -6567,7 +6567,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7221,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "guybrush-kernelnext",
@@ -6576,7 +6576,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7221,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "guybrush-kernelnext",
@@ -6585,7 +6585,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7221,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "guybrush-kernelnext",
@@ -6594,7 +6594,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7221,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -6710,7 +6710,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-arc64",
@@ -6719,7 +6719,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-arc64",
@@ -6728,7 +6728,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-arc64",
@@ -6737,7 +6737,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-arc64",
@@ -6746,7 +6746,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-arc64",
@@ -6755,7 +6755,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-arc64",
@@ -6764,7 +6764,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-arc64",
@@ -6773,7 +6773,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7157,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -6806,7 +6806,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 422,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-kernelnext",
@@ -6827,7 +6827,7 @@
           "board_id": 422,
           "is_active": true,
           "stable_target_milestone": 117,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-kernelnext",
@@ -6836,7 +6836,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 422,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-kernelnext",
@@ -6856,7 +6856,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 422,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-kernelnext",
@@ -6865,7 +6865,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 422,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-kernelnext",
@@ -6885,7 +6885,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 422,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-kernelnext",
@@ -6905,7 +6905,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 422,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hana-kernelnext",
@@ -6925,7 +6925,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 422,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -7165,7 +7165,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7174,7 +7174,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7183,7 +7183,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7192,7 +7192,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7201,7 +7201,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7210,7 +7210,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7219,7 +7219,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7228,7 +7228,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7246,7 +7246,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7264,7 +7264,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r",
@@ -7273,7 +7273,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 436,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -7294,7 +7294,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7303,7 +7303,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7312,7 +7312,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7321,7 +7321,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7330,7 +7330,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7339,7 +7339,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7348,7 +7348,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7357,7 +7357,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7366,7 +7366,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7375,7 +7375,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-arc-r-userdebug",
@@ -7384,7 +7384,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 449,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -7655,7 +7655,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7664,7 +7664,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7673,7 +7673,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7682,7 +7682,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7691,7 +7691,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7700,7 +7700,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7709,7 +7709,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7718,7 +7718,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7727,7 +7727,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7736,7 +7736,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7745,7 +7745,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7754,7 +7754,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-connectivitynext",
@@ -7763,7 +7763,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7208,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -7784,7 +7784,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7793,7 +7793,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7802,7 +7802,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7811,7 +7811,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7820,7 +7820,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7829,7 +7829,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7838,7 +7838,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7847,7 +7847,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7856,7 +7856,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7865,7 +7865,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7874,7 +7874,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7883,7 +7883,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-gki",
@@ -7892,7 +7892,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7281,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -7924,7 +7924,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -7933,7 +7933,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -7946,7 +7946,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -7955,7 +7955,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -7970,7 +7970,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -7979,7 +7979,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -7988,7 +7988,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -7997,7 +7997,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -8006,7 +8006,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -8026,7 +8026,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "hatch-kernelnext",
@@ -8046,7 +8046,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 440,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -8360,7 +8360,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8380,7 +8380,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8400,7 +8400,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8420,7 +8420,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8440,7 +8440,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8460,7 +8460,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8480,7 +8480,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8500,7 +8500,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8520,7 +8520,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8540,7 +8540,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8560,7 +8560,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8580,7 +8580,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8589,7 +8589,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8598,7 +8598,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8618,7 +8618,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi-kernelnext",
@@ -8638,7 +8638,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7172,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -8659,7 +8659,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8668,7 +8668,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8677,7 +8677,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8686,7 +8686,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8695,7 +8695,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8704,7 +8704,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8713,7 +8713,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8722,7 +8722,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8731,7 +8731,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8740,7 +8740,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8749,7 +8749,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8758,7 +8758,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8767,7 +8767,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8776,7 +8776,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8785,7 +8785,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "jacuzzi64",
@@ -8794,7 +8794,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7228,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -8869,7 +8869,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7162,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kevin-userdebug",
@@ -8878,7 +8878,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7162,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -8899,7 +8899,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 367,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -9015,7 +9015,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 442,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-arc-r",
@@ -9024,7 +9024,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 442,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-arc-r",
@@ -9033,7 +9033,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 442,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-arc-r",
@@ -9053,7 +9053,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 442,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-arc-r",
@@ -9062,7 +9062,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 442,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -9094,7 +9094,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7169,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-kernelnext",
@@ -9114,7 +9114,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7169,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-kernelnext",
@@ -9134,7 +9134,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7169,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-kernelnext",
@@ -9154,7 +9154,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7169,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "kukui-kernelnext",
@@ -9174,7 +9174,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7169,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -9467,7 +9467,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9484,7 +9484,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9504,7 +9504,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9524,7 +9524,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9533,7 +9533,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9550,7 +9550,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9567,7 +9567,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9587,7 +9587,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-kernelnext",
@@ -9604,7 +9604,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7195,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -9625,7 +9625,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9634,7 +9634,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9643,7 +9643,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9652,7 +9652,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9661,7 +9661,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9670,7 +9670,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9679,7 +9679,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9688,7 +9688,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nami-scudo",
@@ -9697,7 +9697,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7274,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -10142,7 +10142,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10151,7 +10151,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10160,7 +10160,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10169,7 +10169,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10178,7 +10178,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10187,7 +10187,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10196,7 +10196,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10205,7 +10205,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10214,7 +10214,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10223,7 +10223,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10232,7 +10232,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10241,7 +10241,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10250,7 +10250,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10259,7 +10259,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10268,7 +10268,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10277,7 +10277,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10286,7 +10286,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10295,7 +10295,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-arc-t",
@@ -10304,7 +10304,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -10325,7 +10325,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10334,7 +10334,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10343,7 +10343,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10352,7 +10352,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10361,7 +10361,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10370,7 +10370,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10379,7 +10379,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10388,7 +10388,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10397,7 +10397,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10406,7 +10406,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10415,7 +10415,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10424,7 +10424,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10433,7 +10433,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10442,7 +10442,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10451,7 +10451,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10460,7 +10460,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10469,7 +10469,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10478,7 +10478,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10487,7 +10487,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-kernelnext",
@@ -10496,7 +10496,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -10518,7 +10518,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10527,7 +10527,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10536,7 +10536,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10545,7 +10545,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10554,7 +10554,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10563,7 +10563,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10572,7 +10572,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10581,7 +10581,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10590,7 +10590,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10599,7 +10599,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10608,7 +10608,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10617,7 +10617,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10627,7 +10627,7 @@
           "board_id": 7268,
           "is_active": true,
           "stable_target_milestone": 120,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10637,7 +10637,7 @@
           "board_id": 7268,
           "is_active": true,
           "stable_target_milestone": 120,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10646,7 +10646,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10655,7 +10655,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10664,7 +10664,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10673,7 +10673,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10682,7 +10682,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "nissa-pvs",
@@ -10691,7 +10691,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -10756,7 +10756,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7178,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -11515,7 +11515,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11524,7 +11524,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11533,7 +11533,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11542,7 +11542,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11551,7 +11551,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11560,7 +11560,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11569,7 +11569,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11588,7 +11588,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11607,7 +11607,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11616,7 +11616,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11625,7 +11625,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11634,7 +11634,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11643,7 +11643,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11652,7 +11652,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11661,7 +11661,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11670,7 +11670,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11679,7 +11679,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11688,7 +11688,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11697,7 +11697,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11706,7 +11706,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11715,7 +11715,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11724,7 +11724,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11733,7 +11733,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11742,7 +11742,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11751,7 +11751,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11760,7 +11760,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11769,7 +11769,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11778,7 +11778,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11787,7 +11787,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11796,7 +11796,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11805,7 +11805,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11814,7 +11814,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11823,7 +11823,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11832,7 +11832,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11841,7 +11841,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11850,7 +11850,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11859,7 +11859,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11868,7 +11868,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11877,7 +11877,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11886,7 +11886,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11895,7 +11895,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11904,7 +11904,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11913,7 +11913,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11922,7 +11922,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11931,7 +11931,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-r",
@@ -11940,7 +11940,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7201,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -11961,7 +11961,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -11970,7 +11970,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -11979,7 +11979,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -11988,7 +11988,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -11997,7 +11997,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12006,7 +12006,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12015,7 +12015,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12024,7 +12024,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12033,7 +12033,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12042,7 +12042,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12051,7 +12051,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12060,7 +12060,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12069,7 +12069,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12078,7 +12078,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12087,7 +12087,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12096,7 +12096,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12105,7 +12105,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12114,7 +12114,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12123,7 +12123,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12132,7 +12132,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12141,7 +12141,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12150,7 +12150,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12159,7 +12159,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12168,7 +12168,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12177,7 +12177,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12186,7 +12186,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12195,7 +12195,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12204,7 +12204,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12213,7 +12213,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12222,7 +12222,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12231,7 +12231,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12240,7 +12240,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12249,7 +12249,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12258,7 +12258,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12267,7 +12267,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12276,7 +12276,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12285,7 +12285,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12294,7 +12294,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12303,7 +12303,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12312,7 +12312,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12321,7 +12321,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12330,7 +12330,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12339,7 +12339,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12348,7 +12348,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12357,7 +12357,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-arc-t",
@@ -12366,7 +12366,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -12399,7 +12399,7 @@
           "board_id": 7200,
           "is_active": true,
           "stable_target_milestone": 110,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12408,7 +12408,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12427,7 +12427,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12436,7 +12436,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12456,7 +12456,7 @@
           "board_id": 7200,
           "is_active": true,
           "stable_target_milestone": 115,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12477,7 +12477,7 @@
           "board_id": 7200,
           "is_active": true,
           "stable_target_milestone": 110,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12497,7 +12497,7 @@
           "board_id": 7200,
           "is_active": true,
           "stable_target_milestone": 120,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12517,7 +12517,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12537,7 +12537,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12556,7 +12556,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12575,7 +12575,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12595,7 +12595,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12615,7 +12615,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12635,7 +12635,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12655,7 +12655,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12674,7 +12674,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12693,7 +12693,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12712,7 +12712,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12732,7 +12732,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12752,7 +12752,7 @@
           "board_id": 7200,
           "is_active": true,
           "stable_target_milestone": 110,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12772,7 +12772,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12791,7 +12791,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12810,7 +12810,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12829,7 +12829,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12848,7 +12848,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12868,7 +12868,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12887,7 +12887,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12906,7 +12906,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12925,7 +12925,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12945,7 +12945,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12965,7 +12965,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -12984,7 +12984,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -13003,7 +13003,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -13024,7 +13024,7 @@
           "board_id": 7200,
           "is_active": true,
           "stable_target_milestone": 110,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "octopus-kernelnext",
@@ -13043,7 +13043,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7200,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -13066,7 +13066,7 @@
           "board_id": 7254,
           "is_active": true,
           "stable_target_milestone": 121,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -13255,7 +13255,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13264,7 +13264,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13273,7 +13273,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13282,7 +13282,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13291,7 +13291,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13300,7 +13300,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13309,7 +13309,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13318,7 +13318,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13327,7 +13327,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "puff-kernelnext",
@@ -13336,7 +13336,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7241,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -13473,7 +13473,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 457,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "rammus-arc-r-userdebug",
@@ -13482,7 +13482,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 457,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -13639,7 +13639,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7279,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "rex-arc-t",
@@ -13648,7 +13648,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7279,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -13785,7 +13785,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "sarien-kernelnext",
@@ -13794,7 +13794,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "sarien-kernelnext",
@@ -13814,7 +13814,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "sarien-kernelnext",
@@ -13823,7 +13823,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -13968,7 +13968,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-arc-t",
@@ -13977,7 +13977,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-arc-t",
@@ -13986,7 +13986,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-arc-t",
@@ -13995,7 +13995,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-arc-t",
@@ -14004,7 +14004,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-arc-t",
@@ -14013,7 +14013,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-arc-t",
@@ -14022,7 +14022,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-arc-t",
@@ -14031,7 +14031,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7280,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -14052,7 +14052,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14061,7 +14061,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14070,7 +14070,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14079,7 +14079,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14088,7 +14088,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14097,7 +14097,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14106,7 +14106,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14115,7 +14115,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-chausie",
@@ -14124,7 +14124,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7219,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -14145,7 +14145,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-kernelnext",
@@ -14155,7 +14155,7 @@
           "board_id": 7220,
           "is_active": true,
           "stable_target_milestone": 112,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-kernelnext",
@@ -14164,7 +14164,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-kernelnext",
@@ -14173,7 +14173,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-kernelnext",
@@ -14182,7 +14182,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-kernelnext",
@@ -14191,7 +14191,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-kernelnext",
@@ -14200,7 +14200,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "skyrim-kernelnext",
@@ -14209,7 +14209,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7220,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -14281,7 +14281,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7179,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "snappy-kernelnext",
@@ -14290,7 +14290,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7179,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "snappy-kernelnext",
@@ -14310,7 +14310,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7179,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -14365,7 +14365,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 464,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -14547,7 +14547,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7213,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-kernelnext",
@@ -14567,7 +14567,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7213,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-kernelnext",
@@ -14576,7 +14576,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7213,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-kernelnext",
@@ -14589,7 +14589,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7213,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-kernelnext",
@@ -14602,7 +14602,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7213,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -14623,7 +14623,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7240,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-userdebug",
@@ -14632,7 +14632,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7240,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-userdebug",
@@ -14641,7 +14641,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7240,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-userdebug",
@@ -14650,7 +14650,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7240,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "strongbad-userdebug",
@@ -14659,7 +14659,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7240,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -14816,7 +14816,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7189,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-arc-r",
@@ -14825,7 +14825,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7189,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-arc-r",
@@ -14834,7 +14834,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7189,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-arc-r",
@@ -14843,7 +14843,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7189,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-arc-r",
@@ -14852,7 +14852,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7189,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-arc-r",
@@ -14871,7 +14871,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7189,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-arc-r",
@@ -14880,7 +14880,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7189,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -14901,7 +14901,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7203,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-connectivitynext",
@@ -14910,7 +14910,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7203,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-connectivitynext",
@@ -14919,7 +14919,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7203,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-connectivitynext",
@@ -14928,7 +14928,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7203,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-connectivitynext",
@@ -14937,7 +14937,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7203,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-connectivitynext",
@@ -14946,7 +14946,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7203,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-connectivitynext",
@@ -14955,7 +14955,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7203,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -14980,7 +14980,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-kernelnext",
@@ -15000,7 +15000,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-kernelnext",
@@ -15013,7 +15013,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-kernelnext",
@@ -15026,7 +15026,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-kernelnext",
@@ -15035,7 +15035,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-kernelnext",
@@ -15048,7 +15048,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-kernelnext",
@@ -15057,7 +15057,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7159,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -15078,7 +15078,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7239,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-userdebug",
@@ -15087,7 +15087,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7239,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-userdebug",
@@ -15096,7 +15096,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7239,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-userdebug",
@@ -15105,7 +15105,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7239,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-userdebug",
@@ -15114,7 +15114,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7239,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-userdebug",
@@ -15123,7 +15123,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7239,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-userdebug",
@@ -15132,7 +15132,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7239,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -15153,7 +15153,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7182,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "trogdor-zephyr",
@@ -15162,7 +15162,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7182,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -15577,7 +15577,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15586,7 +15586,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15595,7 +15595,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15604,7 +15604,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15613,7 +15613,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15622,7 +15622,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15631,7 +15631,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15640,7 +15640,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15649,7 +15649,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15658,7 +15658,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15667,7 +15667,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15676,7 +15676,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15685,7 +15685,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15694,7 +15694,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15703,7 +15703,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15712,7 +15712,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15721,7 +15721,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15730,7 +15730,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15739,7 +15739,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15748,7 +15748,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15757,7 +15757,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15777,7 +15777,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15786,7 +15786,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-kernelnext",
@@ -15795,7 +15795,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 451,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -15816,7 +15816,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15825,7 +15825,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15834,7 +15834,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15843,7 +15843,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15852,7 +15852,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15861,7 +15861,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15870,7 +15870,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15879,7 +15879,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15888,7 +15888,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15897,7 +15897,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15906,7 +15906,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15915,7 +15915,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15924,7 +15924,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "volteer-scudo",
@@ -15933,7 +15933,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7275,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -16226,7 +16226,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16235,7 +16235,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16244,7 +16244,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16253,7 +16253,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16262,7 +16262,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16271,7 +16271,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16280,7 +16280,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16289,7 +16289,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16298,7 +16298,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16307,7 +16307,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16327,7 +16327,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16336,7 +16336,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16345,7 +16345,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-arc-r",
@@ -16354,7 +16354,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7161,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 103,
@@ -16375,7 +16375,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16384,7 +16384,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16393,7 +16393,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16402,7 +16402,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16411,7 +16411,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16420,7 +16420,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16429,7 +16429,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16438,7 +16438,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16447,7 +16447,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16456,7 +16456,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16465,7 +16465,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16474,7 +16474,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16483,7 +16483,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-connectivitynext",
@@ -16492,7 +16492,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7202,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -16513,7 +16513,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16522,7 +16522,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16531,7 +16531,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16566,7 +16566,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16575,7 +16575,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16584,7 +16584,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16602,7 +16602,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16611,7 +16611,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16620,7 +16620,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16629,7 +16629,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16638,7 +16638,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         },
         {
           "board_name": "zork-kernelnext",
@@ -16647,7 +16647,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 452,
           "is_active": true,
-          "is_experimental": false
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
