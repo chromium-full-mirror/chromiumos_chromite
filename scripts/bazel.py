@@ -32,6 +32,7 @@ _KNOWN_SYMLINKS = [
     "bazel-out",
     "bazel-src",
     "bazel-testlogs",
+    "@portage",
 ]
 
 # Workspaces for each project are defined here.
