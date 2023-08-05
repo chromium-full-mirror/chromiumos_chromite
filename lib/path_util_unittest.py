@@ -283,7 +283,7 @@ class TestPathResolver(cros_test_lib.MockTestCase):
 
             # Case: the cache directory.
             self.assertEqual(
-                constants.CHROOT_CACHE_ROOT,
+                str(constants.CHROOT_CACHE_ROOT),
                 resolver.ToChroot(path_util.GetCacheDir()),
             )
 
