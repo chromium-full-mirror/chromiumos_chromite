@@ -25,7 +25,6 @@ from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import upgrade_table as utable
-from chromite.scripts import merge_package_status as mps
 
 
 oper = operation.Operation("cros_portage_upgrade")
@@ -137,7 +136,6 @@ class Upgrader:
         "_args",  # Commandline arguments (all portage targets)
         "_curr_arch",  # Architecture for current board run
         "_curr_board",  # Board for current board run
-        "_curr_table",  # Package status for current board run
         "_cros_overlay",  # Path to chromiumos-overlay repo
         "_deps_graph",  # Dependency graph from portage
         "_force",  # Force upgrade even when version already exists
@@ -145,9 +143,6 @@ class Upgrader:
         "_missing_eclass_re",  # Regexp for missing eclass in equery
         "_outdated_eclass_re",  # Regexp for outdated eclass in equery
         "_emptydir",  # Path to temporary empty directory
-        "_master_archs",  # Set. Archs of tables merged into master_table
-        "_master_cnt",  # Number of tables merged into master_table
-        "_master_table",  # Merged table from all board runs
         "_no_upstream_cache",  # Boolean.  Delete upstream cache when done
         "_porttree",  # Reference to portage porttree object
         "_rdeps",  # Boolean, if True pass --root-deps=rdeps
@@ -155,10 +150,10 @@ class Upgrader:
         "_stable_repo_categories",  # Categories from profiles/categories
         "_stable_repo_stashed",  # True if portage-stable has a git stash
         "_stable_repo_status",  # git status report at start of run
-        "_targets",  # Processed list of portage targets
         "_upgrade",  # Boolean indicating upgrade requested
         "_upgrade_cnt",  # Num pkg upgrades in this run (all boards)
         "_upgrade_deep",  # Boolean indicating upgrade_deep requested
+        "_upgraded_packages",  # Upgraded packages.
         "_upstream",  # Path to upstream portage repo
         "_unstable_ok",  # Boolean to allow unstable upstream also
         "_verbose",  # Boolean
@@ -166,12 +161,9 @@ class Upgrader:
 
     def __init__(self, options):
         self._args = options.packages
-        self._targets = mps.ProcessTargets(self._args)
 
-        self._master_table = None
-        self._master_cnt = 0
-        self._master_archs = set()
         self._upgrade_cnt = 0
+        self._upgraded_packages = []
 
         self._stable_repo = os.path.join(
             options.srcroot, "third_party", self.STABLE_OVERLAY_NAME
@@ -994,53 +986,6 @@ class Upgrader:
             "[%s] %s%s%s" % (pinfo.overlay, pinfo.cpv, up_stat, action_stat)
         )
 
-    def _AppendPackageRow(self, pinfo):
-        """Add a row to status table for the package in |pinfo|."""
-        cpv = pinfo.cpv
-        upgraded_cpv = pinfo.upgraded_cpv
-
-        upgraded_ver = ""
-        if upgraded_cpv:
-            upgraded_ver = Upgrader._GetVerRevFromCpv(upgraded_cpv)
-
-        # Assemble 'depends on' and 'required by' strings.
-        depsstr = NOT_APPLICABLE
-        usedstr = NOT_APPLICABLE
-        if cpv and self._deps_graph:
-            deps_entry = self._deps_graph[cpv]
-            depslist = sorted(deps_entry["needs"].keys())  # dependencies
-            depsstr = " ".join(depslist)
-            usedset = deps_entry["provides"]  # used by
-            usedlist = sorted(p for p in usedset)
-            usedstr = " ".join(usedlist)
-
-        stable_up_ver = Upgrader._GetVerRevFromCpv(pinfo.stable_upstream_cpv)
-        if not stable_up_ver:
-            stable_up_ver = NOT_APPLICABLE
-        latest_up_ver = Upgrader._GetVerRevFromCpv(pinfo.latest_upstream_cpv)
-        if not latest_up_ver:
-            latest_up_ver = NOT_APPLICABLE
-
-        row = {
-            self._curr_table.COL_PACKAGE: pinfo.package,
-            self._curr_table.COL_SLOT: pinfo.slot,
-            self._curr_table.COL_OVERLAY: pinfo.overlay,
-            self._curr_table.COL_CURRENT_VER: pinfo.version_rev,
-            self._curr_table.COL_STABLE_UPSTREAM_VER: stable_up_ver,
-            self._curr_table.COL_LATEST_UPSTREAM_VER: latest_up_ver,
-            self._curr_table.COL_STATE: pinfo.state,
-            self._curr_table.COL_DEPENDS_ON: depsstr,
-            self._curr_table.COL_USED_BY: usedstr,
-            self._curr_table.COL_TARGET: " ".join(self._targets),
-        }
-
-        # Only include if upgrade was involved.  Table may not have this column
-        # if upgrade was not requested.
-        if upgraded_ver:
-            row[self._curr_table.COL_UPGRADED] = upgraded_ver
-
-        self._curr_table.AppendRow(row)
-
     def _UpgradePackage(self, pinfo):
         """Gathers upgrade status for pkg, performs upgrade if requested.
 
@@ -1154,8 +1099,8 @@ class Upgrader:
             # Print a quick summary of package status.
             self._PrintPackageLine(pinfo)
 
-        # Add a row to status table for this package
-        self._AppendPackageRow(pinfo)
+        # Remember this package for commit summary later on.
+        self._upgraded_packages.append(pinfo)
 
     def _ExtractUpgradedPkgs(self, upgrade_lines):
         """Extracts list of packages from standard commit |upgrade_lines|."""
@@ -1292,8 +1237,6 @@ class Upgrader:
 
     def _UpgradePackages(self, pinfolist):
         """Given a list of cpv pinfos, adds the upstream cpv to the pinfos."""
-        self._curr_table.Clear()
-
         try:
             upgrades_this_run = False
             for pinfo in pinfolist:
@@ -1794,56 +1737,25 @@ class Upgrader:
 
     def Commit(self):
         """Commit whatever has been prepared in the stable repo."""
-        # Trying to create commit message body lines that look like these:
-        # Upgraded foo/bar-1.2.3 to version 1.2.4 on x86
-        # Upgraded foo/baz to version 2 on arm AND version 3 on amd64, x86
+        # Lines for the body of the commit message.
+        commit_lines = []
+        # Overlays for upgraded packages in non-portage overlays.
+        pkg_overlays = {}
 
-        commit_lines = []  # Lines for the body of the commit message
-        pkg_overlays = (
-            {}
-        )  # Overlays for upgraded packages in non-portage overlays.
+        for pkg in sorted(self._upgraded_packages, key=lambda x: x.package):
+            upgraded_ver = self._GetVerRevFromCpv(pkg.upgraded_cpv)
+            commit_lines.append(
+                f"{UPGRADED} {pkg.package} to version {upgraded_ver}."
+            )
 
-        # Assemble hash of COL_UPGRADED column names by arch.
-        upgraded_cols = {}
-        for arch in self._master_archs:
-            tmp_col = utable.UpgradeTable.COL_UPGRADED
-            col = utable.UpgradeTable.GetColumnName(tmp_col, arch)
-            upgraded_cols[arch] = col
-
-        table = self._master_table
-        for row in table:
-            pkg = row[table.COL_PACKAGE]
-            pkg_commit_line = None
-
-            # First determine how many unique upgraded versions there are.
-            upgraded_versarch = {}
-            for arch in self._master_archs:
-                upgraded_ver = row[upgraded_cols[arch]]
-                if upgraded_ver:
-                    # This package has been upgraded for this arch.
-                    upgraded_versarch.setdefault(upgraded_ver, []).append(arch)
-
-                    # Save the overlay this package is originally from, if the
-                    # overlay is not a Portage overlay (e.g.
-                    # chromiumos-overlay).
-                    ovrly_col = utable.UpgradeTable.COL_OVERLAY
-                    ovrly_col = utable.UpgradeTable.GetColumnName(
-                        ovrly_col, arch
-                    )
-                    ovrly = row[ovrly_col]
-                    if ovrly not in (
-                        NOT_APPLICABLE,
-                        self.UPSTREAM_OVERLAY_NAME,
-                        self.STABLE_OVERLAY_NAME,
-                    ):
-                        pkg_overlays[pkg] = ovrly
-
-            if upgraded_versarch:
-                pkg_commit_line = "%s %s to " % (UPGRADED, pkg)
-                pkg_commit_line += " AND ".join(
-                    f"version {x}" for x in upgraded_versarch
-                )
-                commit_lines.append(pkg_commit_line + ".")
+            # Save the overlay this package is originally from, if the overlay
+            # is not a Portage overlay (e.g. chromiumos-overlay).
+            if pkg.overlay not in (
+                NOT_APPLICABLE,
+                self.UPSTREAM_OVERLAY_NAME,
+                self.STABLE_OVERLAY_NAME,
+            ):
+                pkg_overlays[pkg.package] = pkg.overlay
 
         if commit_lines:
             if self._amend:
@@ -1917,9 +1829,6 @@ class Upgrader:
         self._curr_board = board
         self._curr_arch = Upgrader._FindBoardArch(board)
         upgrade_mode = self._IsInUpgradeMode()
-        self._curr_table = utable.UpgradeTable(
-            self._curr_arch, upgrade=upgrade_mode, name=board
-        )
 
         if self._AnyChangesStaged():
             self._StashChanges()
@@ -1982,17 +1891,6 @@ class Upgrader:
 
         finally:
             self._DropAnyStashedChanges()
-
-        # Merge tables together after each run.
-        self._master_cnt += 1
-        self._master_archs.add(self._curr_arch)
-        if self._master_table:
-            tables = [self._master_table, self._curr_table]
-            self._master_table = mps.MergeTables(tables)
-        else:
-            self._master_table = self._curr_table
-            # pylint: disable=protected-access
-            self._master_table._arch = None
 
     def SayGoodbye(self):
         """Print any final messages to user."""

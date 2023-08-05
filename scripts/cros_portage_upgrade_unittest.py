@@ -2064,8 +2064,7 @@ class UpgradePackagesTest(CpuTestBase):
         cmdargs = []
         if upgrade:
             cmdargs.append("--upgrade")
-        table = utable.UpgradeTable("some-arch")
-        mocked_upgrader = self._MockUpgrader(cmdargs=cmdargs, _curr_table=table)
+        mocked_upgrader = self._MockUpgrader(cmdargs=cmdargs)
 
         # Replay script.
         upgrades_this_run = False
