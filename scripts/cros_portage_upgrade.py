@@ -2186,8 +2186,8 @@ def main(argv):
     #
 
     if not options.board and not options.host:
-        parser.print_usage()
-        oper.Die("Board (or host) is required.")
+        options.host = True
+        oper.Notice("Using the SDK (--host) by default for dependency checks.")
 
     if not options.packages:
         parser.print_usage()
