@@ -1842,11 +1842,9 @@ class Upgrader:
             if upgraded_versarch:
                 pkg_commit_line = "%s %s to " % (UPGRADED, pkg)
                 pkg_commit_line += " AND ".join(
-                    "version %s on %s"
-                    % (upgraded_ver, ", ".join(sorted(archlist)))
-                    for upgraded_ver, archlist in upgraded_versarch.items()
+                    f"version {x}" for x in upgraded_versarch
                 )
-                commit_lines.append(pkg_commit_line)
+                commit_lines.append(pkg_commit_line + ".")
 
         if commit_lines:
             if self._amend:
