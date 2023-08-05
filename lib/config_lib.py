@@ -22,7 +22,6 @@ CONFIG_TYPE_RELEASE = "release"
 CONFIG_TYPE_FULL = "full"
 CONFIG_TYPE_FACTORY = "factory"
 CONFIG_TYPE_PUBLIC = "public"
-CONFIG_TYPE_TOOLCHAIN = "toolchain"
 
 # DISPLAY labels are used to group related builds together in the GE UI.
 
@@ -133,19 +132,11 @@ DEFAULT_BUILD_CONFIG = "_default"
 CONFIG_TEMPLATE_BOARDS = "boards"
 CONFIG_TEMPLATE_NAME = "name"
 CONFIG_TEMPLATE_EXPERIMENTAL = "experimental"
-CONFIG_TEMPLATE_LEADER_BOARD = "leader_board"
-CONFIG_TEMPLATE_BOARD_GROUP = "board_group"
 CONFIG_TEMPLATE_BUILDER = "builder"
 CONFIG_TEMPLATE_RELEASE = "RELEASE"
 CONFIG_TEMPLATE_CONFIGS = "configs"
 CONFIG_TEMPLATE_ARCH = "arch"
-CONFIG_TEMPLATE_RELEASE_BRANCH = "release_branch"
 CONFIG_TEMPLATE_REFERENCE_BOARD_NAME = "reference_board_name"
-CONFIG_TEMPLATE_MODELS = "models"
-CONFIG_TEMPLATE_MODEL_NAME = "name"
-CONFIG_TEMPLATE_MODEL_BOARD_NAME = "board_name"
-CONFIG_TEMPLATE_MODEL_TEST_SUITES = "test_suites"
-CONFIG_TEMPLATE_MODEL_CQ_TEST_ENABLED = "cq_test_enabled"
 
 CONFIG_X86_INTERNAL = "X86_INTERNAL"
 CONFIG_X86_EXTERNAL = "X86_EXTERNAL"
@@ -1217,71 +1208,6 @@ def GetUnifiedBuildConfigAllBuilds(ge_build_config):
     return ge_build_config.get("reference_board_unified_builds", [])
 
 
-class BoardGroup:
-    """Class holds leader_boards and follower_boards for grouped boards"""
-
-    def __init__(self):
-        self.leader_boards = []
-        self.follower_boards = []
-
-    def AddLeaderBoard(self, board):
-        self.leader_boards.append(board)
-
-    def AddFollowerBoard(self, board):
-        self.follower_boards.append(board)
-
-    def __str__(self):
-        return "Leader_boards: %s Follower_boards: %s" % (
-            self.leader_boards,
-            self.follower_boards,
-        )
-
-
-def GroupBoardsByBuilderAndBoardGroup(board_list):
-    """Group boards by builder and board_group.
-
-    Args:
-        board_list: board list from the template file.
-
-    Returns:
-        builder_group_dict: maps builder to {group_n: board_group_n}
-        builder_ungrouped_dict: maps builder to a list of ungrouped boards
-    """
-    builder_group_dict = {}
-    builder_ungrouped_dict = {}
-
-    for b in board_list:
-        name = b[CONFIG_TEMPLATE_NAME]
-        # Until Lakitu is removed from GE, skip the board
-        # http://b/180437658
-        if name in GOLDENEYE_IGNORED_BOARDS:
-            continue
-        # Invalid build configs being written out with no config templates,
-        # thus the default. See https://crbug.com/1012278.
-        for config in b.get(CONFIG_TEMPLATE_CONFIGS, []):
-            board = {"name": name}
-            board.update(config)
-
-            builder = config[CONFIG_TEMPLATE_BUILDER]
-            if builder not in builder_group_dict:
-                builder_group_dict[builder] = {}
-            if builder not in builder_ungrouped_dict:
-                builder_ungrouped_dict[builder] = []
-
-            board_group = config[CONFIG_TEMPLATE_BOARD_GROUP]
-            if not board_group:
-                builder_ungrouped_dict[builder].append(board)
-                continue
-            if board_group not in builder_group_dict[builder]:
-                builder_group_dict[builder][board_group] = BoardGroup()
-            if config[CONFIG_TEMPLATE_LEADER_BOARD]:
-                builder_group_dict[builder][board_group].AddLeaderBoard(board)
-            else:
-                builder_group_dict[builder][board_group].AddFollowerBoard(board)
-
-    return (builder_group_dict, builder_ungrouped_dict)
-
-
 def GroupBoardsByBuilder(board_list):
     """Group boards by the 'builder' flag."""
     builder_to_boards_dict = {}
@@ -1300,47 +1226,6 @@ def GroupBoardsByBuilder(board_list):
             builder_to_boards_dict[builder].add(b[CONFIG_TEMPLATE_NAME])
 
     return builder_to_boards_dict
-
-
-def GetNonUniBuildLabBoardName(board):
-    """Return the board name labeled in the lab for non-unibuild."""
-    # Those special string represent special configuration used in the image,
-    # and should run on DUT without those string.
-    # We strip those string from the board so that lab can handle it correctly.
-    # NOTE: please try to keep this list in sync with the corresponding list in
-    # infra/suite_scheduler/build_lib.py
-    special_suffixes = [
-        "-arc64",  #
-        "-arc-r",  #
-        "-arc-r-userdebug",  #
-        "-arc-s",  #
-        "-arc-t",  #
-        "-arcnext",  #
-        "-arcvm",  #
-        "-connectivitynext",  #
-        "-borealis",  #
-        "-campfire",  #
-        "-cfm",  #
-        "-kernelnext",  #
-        "-kvm",  #
-        "-libcamera",  #
-        "-manatee",  #
-        "-manatee-kernelnext",  #
-        "-ndktranslation",  #
-        "-nopkvm",  #
-        "-pkvm",  #
-        "-userdebug",  #
-    ]
-    # ARM64 userspace boards use 64 suffix but can't put that in list above
-    # because of collisions with boards like kevin-arc64.
-    ARM64_BOARDS = ["kevin64", "trogdor64"]
-    for s in special_suffixes:
-        if board.endswith(s):
-            board = board[: -len(s)]
-    if board in ARM64_BOARDS:
-        # Remove '64' suffix from the board name.
-        board = board[:-2]
-    return board
 
 
 def GetArchBoardDict(ge_build_config):
@@ -1415,36 +1300,6 @@ def LoadConfigFromString(json_string):
     result.update(builds)
 
     return result
-
-
-def _DeserializeConfig(
-    build_dict, config_key, config_class, preserve_none=False
-):
-    """Deserialize config of given type inside build_dict.
-
-    Args:
-        build_dict: The build_dict to update (in place)
-        config_key: Key for the config inside build_dict.
-        config_class: The class to instantiate for the config.
-        preserve_none: If True, None values are preserved as is. By default,
-            they are dropped.
-    """
-    serialized_configs = build_dict.pop(config_key, None)
-    if serialized_configs is None:
-        if preserve_none:
-            build_dict[config_key] = None
-        return
-
-    deserialized_configs = []
-    for config_string in serialized_configs:
-        if isinstance(config_string, config_class):
-            deserialized_config = config_string
-        else:
-            # Each test config is dumped as a json string embedded in json.
-            embedded_configs = json.loads(config_string)
-            deserialized_config = config_class(**embedded_configs)
-        deserialized_configs.append(deserialized_config)
-    build_dict[config_key] = deserialized_configs
 
 
 def _CreateBuildConfig(name, default, build_dict, templates):
