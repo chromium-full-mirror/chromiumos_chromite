@@ -48,7 +48,7 @@ DEFAULT_BUILD_ROOT = os.path.join(SOURCE_ROOT, "src/build")
 TERMINA_TOOLS_DIR = os.path.join(
     CHROOT_SOURCE_ROOT, "src/platform/container-guest-tools/termina"
 )
-RULES_CROS_PATH = os.path.join(CHROOT_SOURCE_ROOT, "src/platform/rules_cros")
+RULES_CROS_PATH = Path(CHROOT_SOURCE_ROOT) / "src/platform/rules_cros"
 BAZEL_WORKSPACE_ROOT = Path(SOURCE_ROOT, "src")
 
 STATEFUL_DIR = "/mnt/stateful_partition"

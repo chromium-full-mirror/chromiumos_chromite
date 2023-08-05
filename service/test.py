@@ -252,9 +252,7 @@ def RulesCrosUnitTest() -> bool:
     Returns:
         True iff all tests passed, False otherwise.
     """
-    cmd = [
-        os.path.join(constants.RULES_CROS_PATH, "run_tests.sh"),
-    ]
+    cmd = [constants.RULES_CROS_PATH / "run_tests.sh"]
     result = cros_build_lib.run(cmd, enter_chroot=True, check=False)
 
     return result.returncode == 0
