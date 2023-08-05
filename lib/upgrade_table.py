@@ -4,10 +4,8 @@
 
 """UpgradeTable class is used in Portage package upgrade process."""
 
-from chromite.lib import table
 
-
-class UpgradeTable(table.Table):
+class UpgradeTable:
     """Class to represent upgrade data in memory, can be written to csv."""
 
     # Column names.  Note that 'ARCH' is replaced with a real arch name when
@@ -34,46 +32,3 @@ class UpgradeTable(table.Table):
     STATE_NEEDS_UPGRADE_AND_PATCHED = "needs upgrade and patched locally"
     STATE_NEEDS_UPGRADE_AND_DUPLICATED = "needs upgrade and duplicated locally"
     STATE_CURRENT = "current"
-
-    @staticmethod
-    def GetColumnName(col, arch=None):
-        """Translate from generic column name to specific given |arch|."""
-        if arch:
-            return col.replace("ARCH", arch)
-        return col
-
-    def __init__(self, arch, upgrade=False, name=None):
-        self._arch = arch
-
-        # These constants serve two roles, for csv output:
-        # 1) Restrict which column names are valid.
-        # 2) Specify the order of those columns.
-        columns = [
-            self.COL_PACKAGE,
-            self.COL_SLOT,
-            self.COL_OVERLAY,
-            self.COL_CURRENT_VER,
-            self.COL_STABLE_UPSTREAM_VER,
-            self.COL_LATEST_UPSTREAM_VER,
-            self.COL_STATE,
-            self.COL_DEPENDS_ON,
-            self.COL_USED_BY,
-            self.COL_TARGET,
-        ]
-
-        if upgrade:
-            columns.append(self.COL_UPGRADED)
-
-        table.Table.__init__(self, columns, name=name)
-
-    def __getattribute__(self, name):
-        """When accessing self.COL_*, substitute ARCH name."""
-        if name.startswith("COL_"):
-            text = getattr(UpgradeTable, name)
-            return UpgradeTable.GetColumnName(text, arch=self._arch)
-        else:
-            return object.__getattribute__(self, name)
-
-    def GetArch(self):
-        """Get the architecture associated with this UpgradeTable."""
-        return self._arch
