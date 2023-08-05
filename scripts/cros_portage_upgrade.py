@@ -110,7 +110,6 @@ class Upgrader:
     UPSTREAM_TMP_REPO += "/" + UPSTREAM_OVERLAY_NAME
 
     STABLE_OVERLAY_NAME = "portage-stable"
-    CROS_OVERLAY_NAME = "chromiumos-overlay"
     CATEGORIES_FILE = "profiles/categories"
     HOST_BOARD = "amd64-host"
     OPT_SLOTS = (
@@ -136,7 +135,6 @@ class Upgrader:
         "_args",  # Commandline arguments (all portage targets)
         "_curr_arch",  # Architecture for current board run
         "_curr_board",  # Board for current board run
-        "_cros_overlay",  # Path to chromiumos-overlay repo
         "_deps_graph",  # Dependency graph from portage
         "_force",  # Force upgrade even when version already exists
         "_local_only",  # Skip network traffic
@@ -169,10 +167,6 @@ class Upgrader:
             options.srcroot, "third_party", self.STABLE_OVERLAY_NAME
         )
         # This can exist in two spots; the tree, or the cache.
-
-        self._cros_overlay = os.path.join(
-            options.srcroot, "third_party", self.CROS_OVERLAY_NAME
-        )
 
         # Save options needed later.
         for opt in self.OPT_SLOTS:
