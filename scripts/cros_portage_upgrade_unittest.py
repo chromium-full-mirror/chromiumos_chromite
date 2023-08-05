@@ -3419,10 +3419,9 @@ class MainTest(CpuTestBase):
         self.PatchObject(cpu.Upgrader, "PrepareToRun")
         self.PatchObject(cpu.Upgrader, "RunBoard")
         self.PatchObject(cpu.Upgrader, "RunCompleted")
-        self.PatchObject(cpu.Upgrader, "WriteTableFiles")
 
         self._AssertCPUMain(
-            ["--board=any-board", "--to-csv=/dev/null", "any-package"],
+            ["--board=any-board", "any-package"],
             expect_zero=True,
         )
 
@@ -3433,7 +3432,7 @@ class MainTest(CpuTestBase):
 
         # Running with a package not set up should exit with code!=0.
         self._AssertCPUMain(
-            ["--board=any-board", "--to-csv=/dev/null", "any-package"],
+            ["--board=any-board", "any-package"],
             expect_zero=False,
         )
 
@@ -3447,7 +3446,6 @@ class MainTest(CpuTestBase):
         self.PatchObject(cpu.Upgrader, "PrepareToRun")
         self.PatchObject(cpu.Upgrader, "RunBoard")
         self.PatchObject(cpu.Upgrader, "RunCompleted")
-        self.PatchObject(cpu.Upgrader, "WriteTableFiles")
 
         self._AssertCPUMain(
             ["--board=board1:board2", "any-package"], expect_zero=True
@@ -3460,7 +3458,6 @@ class MainTest(CpuTestBase):
         self.PatchObject(cpu.Upgrader, "PrepareToRun")
         self.PatchObject(cpu.Upgrader, "RunBoard")
         self.PatchObject(cpu.Upgrader, "RunCompleted")
-        self.PatchObject(cpu.Upgrader, "WriteTableFiles")
 
         self._AssertCPUMain(
             ["--upgrade", "--board=any-board", "any-package"], expect_zero=True
@@ -3473,13 +3470,11 @@ class MainTest(CpuTestBase):
         self.PatchObject(cpu.Upgrader, "PrepareToRun")
         self.PatchObject(cpu.Upgrader, "RunBoard")
         self.PatchObject(cpu.Upgrader, "RunCompleted")
-        self.PatchObject(cpu.Upgrader, "WriteTableFiles")
 
         self._AssertCPUMain(
             [
                 "--upgrade",
                 "--board=board1:board2",
-                "--to-csv=/dev/null",
                 "any-package",
             ],
             expect_zero=True,
@@ -3492,14 +3487,12 @@ class MainTest(CpuTestBase):
         self.PatchObject(cpu.Upgrader, "PrepareToRun")
         self.PatchObject(cpu.Upgrader, "RunBoard")
         self.PatchObject(cpu.Upgrader, "RunCompleted")
-        self.PatchObject(cpu.Upgrader, "WriteTableFiles")
 
         self._AssertCPUMain(
             [
                 "--upgrade",
                 "--host",
                 "--board=board1:host:board2",
-                "--to-csv=/dev/null",
                 "any-package",
             ],
             expect_zero=True,

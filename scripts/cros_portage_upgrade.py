@@ -115,7 +115,6 @@ class Upgrader:
     HOST_BOARD = "amd64-host"
     OPT_SLOTS = (
         "amend",
-        "csv_file",
         "force",
         "no_upstream_cache",
         "rdeps",
@@ -139,7 +138,6 @@ class Upgrader:
         "_curr_board",  # Board for current board run
         "_curr_table",  # Package status for current board run
         "_cros_overlay",  # Path to chromiumos-overlay repo
-        "_csv_file",  # File path for writing csv output
         "_deps_graph",  # Dependency graph from portage
         "_force",  # Force upgrade even when version already exists
         "_local_only",  # Skip network traffic
@@ -1999,25 +1997,6 @@ class Upgrader:
             # pylint: disable=protected-access
             self._master_table._arch = None
 
-    def WriteTableFiles(self, csv=None):
-        """Write |self._master_table| to |csv| file, if requested."""
-
-        # Sort the table by package name, then slot
-        def PkgSlotSort(row):
-            return (
-                row[self._master_table.COL_PACKAGE],
-                row[self._master_table.COL_SLOT],
-            )
-
-        self._master_table.Sort(PkgSlotSort)
-
-        if csv:
-            with open(csv, "w", encoding="utf-8") as filehandle:
-                oper.Notice("Writing package status as csv to %s." % csv)
-                self._master_table.WriteCSV(filehandle)
-        elif not self._IsInUpgradeMode():
-            oper.Notice("Package status report file not requested (--to-csv).")
-
     def SayGoodbye(self):
         """Print any final messages to user."""
         if not self._IsInUpgradeMode():
@@ -2052,7 +2031,6 @@ def _CreateParser():
         "packages relative to upstream,\nwithout making any changes. "
         "In this mode, the specified packages are often high-level\n"
         'targets such as "virtual/target-os". '
-        "The --to-csv option is often used in this mode.\n"
         "The --unstable-ok option in this mode will make "
         'the upstream comparison (e.g. "needs update") be\n'
         "relative to the latest upstream version, stable or not.\n"
@@ -2072,10 +2050,9 @@ def _CreateParser():
         "\n"
         "Status report mode examples:\n"
         "> cros_portage_upgrade --board=arm-generic:x86-generic "
-        "--to-csv=cros-aebl.csv virtual/target-os\n"
+        " virtual/target-os\n"
         "> cros_portage_upgrade --unstable-ok --board=x86-mario "
-        "--to-csv=cros_test-mario virtual/target-os virtual/target-os-dev "
-        "virtual/target-os-test\n"
+        " virtual/target-os virtual/target-os-dev virtual/target-os-test\n"
         "Upgrade mode examples:\n"
         "> cros_portage_upgrade --board=arm-generic:x86-generic "
         "--upgrade sys-devel/gdb virtual/yacc\n"
@@ -2130,13 +2107,6 @@ def _CreateParser():
         type="path",
         default=os.path.join(constants.SOURCE_ROOT, "src"),
         help="Path to root src directory [default: %(default)s]",
-    )
-    parser.add_argument(
-        "--to-csv",
-        dest="csv_file",
-        type="path",
-        default=None,
-        help="File to store csv-formatted results",
     )
     parser.add_argument(
         "--upgrade",
@@ -2205,17 +2175,6 @@ def main(argv):
         parser.print_usage()
         oper.Die("The --force option requires --upgrade or --upgrade-deep.")
 
-    # If --to-csv given verify file can be opened for write.
-    if options.csv_file:
-        try:
-            osutils.WriteFile(options.csv_file, "")
-        except IOError as ex:
-            parser.print_usage()
-            oper.Die(
-                "Unable to open %s for writing: %s"
-                % (options.csv_file, str(ex))
-            )
-
     upgrader = Upgrader(options)
     upgrader.PreRunChecks()
 
@@ -2266,7 +2225,5 @@ def main(argv):
     # TODO(mtennant): Move stdout output to here, rather than as-we-go.  That
     # way it won't come out for each board.  Base it on contents of final table.
     # Make verbose-dependent?
-
-    upgrader.WriteTableFiles(csv=options.csv_file)
 
     upgrader.SayGoodbye()
