@@ -9,7 +9,6 @@ import unittest
 from unittest import mock
 
 from chromite.lib import cidb
-from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import factory
 from chromite.lib import osutils
@@ -91,9 +90,7 @@ class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
         cidb.CIDBConnectionFactory.GetCIDBConnectionForBuilder()
 
         # Expected constructor call
-        self.connection_mock.assert_called_once_with(
-            constants.CIDB_PROD_BOT_CREDS
-        )
+        self.connection_mock.assert_called_once_with(cidb.CIDB_PROD_BOT_CREDS)
         self.assertTrue(cidb.CIDBConnectionFactory.IsCIDBSetup())
         self.assertRaises(
             factory.ObjectFactoryIllegalOperation,
@@ -118,9 +115,7 @@ class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
         cidb.CIDBConnectionFactory.GetCIDBConnectionForBuilder()
 
         # Expected constructor call
-        self.connection_mock.assert_called_once_with(
-            constants.CIDB_DEBUG_BOT_CREDS
-        )
+        self.connection_mock.assert_called_once_with(cidb.CIDB_DEBUG_BOT_CREDS)
         self.assertTrue(cidb.CIDBConnectionFactory.IsCIDBSetup())
         self.assertRaises(
             factory.ObjectFactoryIllegalOperation,

@@ -45,10 +45,6 @@ DEFAULT_CHROOT_PATH = os.path.join(SOURCE_ROOT, DEFAULT_CHROOT_DIR)
 DEFAULT_OUT_DIR = Path("out")
 DEFAULT_OUT_PATH = SOURCE_ROOT / DEFAULT_OUT_DIR
 DEFAULT_BUILD_ROOT = os.path.join(SOURCE_ROOT, "src/build")
-TERMINA_TOOLS_DIR = os.path.join(
-    CHROOT_SOURCE_ROOT, "src/platform/container-guest-tools/termina"
-)
-RULES_CROS_PATH = Path(CHROOT_SOURCE_ROOT) / "src/platform/rules_cros"
 BAZEL_WORKSPACE_ROOT = Path(SOURCE_ROOT, "src")
 
 STATEFUL_DIR = "/mnt/stateful_partition"
@@ -85,22 +81,6 @@ UNITTEST_PKG_PATH = "test-packages"
 
 # Path to the lsb-release file on the device.
 LSB_RELEASE_PATH = "/etc/lsb-release"
-
-HOME_DIRECTORY = os.path.expanduser("~")
-
-# If cbuildbot is running on a bot, then the cidb access credentials will be
-# available here. This directory will not exist otherwise.
-CIDB_PROD_BOT_CREDS = os.path.join(
-    HOME_DIRECTORY, ".cidb_creds", "prod_cidb_bot"
-)
-CIDB_DEBUG_BOT_CREDS = os.path.join(
-    HOME_DIRECTORY, ".cidb_creds", "debug_cidb_bot"
-)
-
-# Crash Server upload API key.
-CRASH_API_KEY = os.path.join(
-    "/", "creds", "api_keys", "api_key-chromeos-crash-uploader"
-)
 
 # Buildbucket build status
 BUILDBUCKET_BUILDER_STATUS_CANCELED = "CANCELED"
@@ -231,18 +211,6 @@ REEXEC_API_CHROMEOS_GOMA_DIR = 11
 # Support --chrome-preload-dir
 REEXEC_API_CHROME_PRELOAD_DIR = 12
 
-# We rely on the (waterfall, builder name, build number) to uniquely identify
-# a build. However, future migrations or state wipes of the buildbot master may
-# cause it to reset its build number counter. When that happens, this value
-# should be incremented, ensuring that (waterfall, builder name, build number,
-# buildbot generation) is a unique identifier of builds.
-BUILDBOT_GENERATION = 1
-
-CORP_DOMAIN = "corp.google.com"
-GOLO_DOMAIN = "golo.chromium.org"
-CHROME_DOMAIN = "chrome." + CORP_DOMAIN
-CHROMEOS_BOT_INTERNAL = "chromeos-bot.internal"
-
 GOB_HOST = "%s.googlesource.com"
 
 EXTERNAL_GOB_INSTANCE = "chromium"
@@ -258,17 +226,6 @@ INTERNAL_GOB_HOST = GOB_HOST % INTERNAL_GOB_INSTANCE
 INTERNAL_GERRIT_HOST = GOB_HOST % INTERNAL_GERRIT_INSTANCE
 INTERNAL_GOB_URL = "https://%s" % INTERNAL_GOB_HOST
 INTERNAL_GERRIT_URL = "https://%s" % INTERNAL_GERRIT_HOST
-
-# Tests without 'cheets_CTS_', 'cheets_GTS.' prefix will not considered
-# as CTS/GTS test in chromite.lib.cts_helper
-DEFAULT_CTS_TEST_XML_MAP = {
-    "cheets_CTS_": "test_result.xml",
-    "cheets_GTS.": "test_result.xml",
-    "cheets_GTS_": "test_result.xml",
-}
-# Google Storage bucket URI to store results in.
-DEFAULT_CTS_RESULTS_GSURI = "gs://chromeos-cts-results/"
-DEFAULT_CTS_APFE_GSURI = "gs://chromeos-cts-apfe/"
 
 # List of supported Android branches.
 # TODO(b/187795616): Maybe move this to service/android.py and ask release TPgM
@@ -436,12 +393,6 @@ VALID_BUILD_TYPES = (
     GENERIC_TYPE,
 )
 
-# Build messages
-MESSAGE_TYPE_IGNORED_REASON = "ignored_reason"
-# MESSSGE_TYPE_IGNORED_REASON messages store the affected build as
-# the CIDB column message_value.
-MESSAGE_SUBTYPE_SELF_DESTRUCTION = "self_destruction"
-
 CHROMIUMOS_OVERLAY_DIR = "src/third_party/chromiumos-overlay"
 CHROMEOS_OVERLAY_DIR = "src/private-overlays/chromeos-overlay/"
 PORTAGE_STABLE_OVERLAY_DIR = "src/third_party/portage-stable"
@@ -483,12 +434,6 @@ LOGGER_DATETIME_FMT = f"{LOGGER_DATE_FMT} {LOGGER_TIME_FMT}"
 INTERNAL_PATCH_TAG = "i"
 EXTERNAL_PATCH_TAG = "e"
 PATCH_TAGS = (INTERNAL_PATCH_TAG, EXTERNAL_PATCH_TAG)
-
-GERRIT_ON_BORG_LABELS = {
-    "Code-Review": "CRVW",
-    "Commit-Queue": "COMR",
-    "Verified": "VRIF",
-}
 
 # Environment variables that should be exposed to all children processes
 # invoked via cros_build_lib.run.
@@ -709,13 +654,6 @@ EXTRA_BUCKETS_FILES_BLOCKLIST = [
     "vm_test_results_*",
 ]
 
-CHROMEOS_SERVICE_ACCOUNT = os.path.join(
-    "/", "creds", "service_accounts", "service-account-chromeos.json"
-)
-
-# Buildbucket buckets
-INTERNAL_SWARMING_BUILDBUCKET_BUCKET = "general"
-
 # Milo URL
 CHROMEOS_MILO_HOST = "https://ci.chromium.org/b/"
 
@@ -729,12 +667,6 @@ METADATA_UNSCHEDULED_SLAVES = "unscheduled_slaves"
 # List of builders marked as experimental through the tree status, not all the
 # experimental builders for a run.
 METADATA_EXPERIMENTAL_BUILDERS = "experimental_builders"
-
-# Metadata key to indicate whether a build is self-destructed.
-SELF_DESTRUCTED_BUILD = "self_destructed_build"
-
-# Metadata key to indicate whether a build is self-destructed with success.
-SELF_DESTRUCTED_WITH_SUCCESS_BUILD = "self_destructed_with_success_build"
 
 # Partition labels.
 PART_STATE = "STATE"
@@ -759,23 +691,6 @@ QUICK_PROVISION_PAYLOAD_MINIOS = "full_dev_part_MINIOS.bin.gz"
 # Mock build and stage IDs.
 MOCK_STAGE_ID = 313377
 MOCK_BUILD_ID = 31337
-
-# Topology dictionary copied from CIDB.
-TOPOLOGY_DICT = {
-    "/buildbucket/host": "cr-buildbucket.appspot.com",
-    "/chrome_swarming_proxy/host": "chromeos-swarming.appspot.com",
-    "/datastore/creds_file": (
-        "/creds/service_accounts/service-account-chromeos"
-        "-datastore-writer-prod.json"
-    ),
-    "/sheriffomatic/host": "sheriff-o-matic.appspot.com",
-    "/statsd/es_host": "104.154.79.237",
-    "/statsd/host": "104.154.79.237",
-}
-
-# Percentage of child builders that need to complete to update LKGM
-# TODO(b/232822787): Delete when cbuildbot has been removed.
-LKGM_THRESHOLD = 101
 
 # Dev key related names.
 VBOOT_DEVKEYS_DIR = os.path.join("/usr/share/vboot/devkeys")

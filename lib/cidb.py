@@ -33,6 +33,11 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
+# If cbuildbot is running on a bot, then the cidb access credentials will be
+# available here. This directory will not exist otherwise.
+CIDB_PROD_BOT_CREDS = os.path.expanduser("~/.cidb_creds/prod_cidb_bot")
+CIDB_DEBUG_BOT_CREDS = os.path.expanduser("~/.cidb_creds/debug_cidb_bot")
+
 CIDB_MIGRATIONS_DIR = constants.CHROMITE_DIR / "cidb" / "migrations"
 
 _RETRYABLE_OPERATIONAL_ERROR_CODES = frozenset(
@@ -50,6 +55,13 @@ _RETRYABLE_OPERATIONAL_ERROR_CODES = frozenset(
         2026,  # 'SSL connection error: unknown error number'
     ]
 )
+
+# We rely on the (waterfall, builder name, build number) to uniquely identify
+# a build. However, future migrations or state wipes of the buildbot master may
+# cause it to reset its build number counter. When that happens, this value
+# should be incremented, ensuring that (waterfall, builder name, build number,
+# buildbot generation) is a unique identifier of builds.
+BUILDBOT_GENERATION = 1
 
 
 def _IsRetryableException(e):
@@ -759,7 +771,7 @@ GROUP BY b.build_config
         """
         values = {
             "builder_name": builder_name,
-            "buildbot_generation": constants.BUILDBOT_GENERATION,
+            "buildbot_generation": BUILDBOT_GENERATION,
             # While waterfall is nullable all non waterfall entries show empty
             # string, sticking to the convention.
             "waterfall": "",
@@ -1478,10 +1490,10 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
 
     _CIDB_CONNECTION_TYPES = {
         CONNECTION_TYPE_PROD: memoize.Memoize(
-            lambda: CIDBConnection(constants.CIDB_PROD_BOT_CREDS)
+            lambda: CIDBConnection(CIDB_PROD_BOT_CREDS)
         ),
         CONNECTION_TYPE_DEBUG: memoize.Memoize(
-            lambda: CIDBConnection(constants.CIDB_DEBUG_BOT_CREDS)
+            lambda: CIDBConnection(CIDB_DEBUG_BOT_CREDS)
         ),
         CONNECTION_TYPE_MOCK: None,
         CONNECTION_TYPE_NONE: lambda: None,

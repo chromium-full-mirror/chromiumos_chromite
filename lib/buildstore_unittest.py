@@ -191,8 +191,8 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         result = bs.GetKilledChildBuilds(build_identifier)
         bs.cidb_conn.GetBuildMessages.assert_called_once_with(
             1,
-            message_type=constants.MESSAGE_TYPE_IGNORED_REASON,
-            message_subtype=constants.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
+            message_type=buildstore.MESSAGE_TYPE_IGNORED_REASON,
+            message_subtype=buildstore.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
         )
         self.assertEqual(result, [1234, 2341, 3412])
         bs = BuildStore(_read_from_bb=True)
@@ -217,8 +217,8 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         )
         bs.cidb_conn.InsertBuildMessage.assert_called_with(
             1234,
-            message_type=constants.MESSAGE_TYPE_IGNORED_REASON,
-            message_subtype=constants.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
+            message_type=buildstore.MESSAGE_TYPE_IGNORED_REASON,
+            message_subtype=buildstore.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
             message_value="8921795536486453567",
             board=None,
         )

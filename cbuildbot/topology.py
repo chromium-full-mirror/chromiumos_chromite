@@ -12,8 +12,6 @@ overrides of the default values.
 
 import collections
 
-from chromite.lib import constants
-
 
 BUILDBUCKET_HOST_KEY = "/buildbucket/host"
 DATASTORE_WRITER_CREDS_KEY = "/datastore/creds_file"
@@ -29,6 +27,19 @@ TOPOLOGY_DEFAULTS = {
     LUCI_LOGDOG_HOST_KEY: "luci-logdog.appspot.com",
     LUCI_MILO_HOST_KEY: "luci-milo.appspot.com",
     SHERIFFOMATIC_HOST_KEY: "sheriff-o-matic-staging.appspot.com",
+}
+
+# Topology dictionary copied from CIDB.
+TOPOLOGY_DICT = {
+    "/buildbucket/host": "cr-buildbucket.appspot.com",
+    "/chrome_swarming_proxy/host": "chromeos-swarming.appspot.com",
+    "/datastore/creds_file": (
+        "/creds/service_accounts/service-account-chromeos"
+        "-datastore-writer-prod.json"
+    ),
+    "/sheriffomatic/host": "sheriff-o-matic.appspot.com",
+    "/statsd/es_host": "104.154.79.237",
+    "/statsd/host": "104.154.79.237",
 }
 
 
@@ -58,5 +69,5 @@ topology.update(TOPOLOGY_DEFAULTS)
 
 def FetchTopology():
     """Update and unlock topology based on constant keyval store."""
-    topology.update(constants.TOPOLOGY_DICT)
+    topology.update(TOPOLOGY_DICT)
     topology.unlock()

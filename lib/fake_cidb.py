@@ -81,7 +81,7 @@ class FakeCIDBConnection:
         row = {
             "id": build_id,
             "builder_name": builder_name,
-            "buildbot_generation": constants.BUILDBOT_GENERATION,
+            "buildbot_generation": cidb.BUILDBOT_GENERATION,
             # While waterfall is nullable all non waterfall entries show empty
             # string, sticking to the convention.
             "waterfall": "",

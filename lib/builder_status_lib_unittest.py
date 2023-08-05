@@ -5,14 +5,13 @@
 """Unittests for builder_status_lib."""
 
 from chromite.lib import builder_status_lib
+from chromite.lib import buildstore
 from chromite.lib import cidb
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import failure_message_lib
 from chromite.lib import failure_message_lib_unittest
 from chromite.lib import fake_cidb
-from chromite.lib.buildstore import BuildIdentifier
-from chromite.lib.buildstore import FakeBuildStore
 
 
 stage_failure_helper = failure_message_lib_unittest.StageFailureHelper
@@ -45,19 +44,19 @@ class BuilderStatusLibTests(cros_test_lib.MockTestCase):
     def testGetSlavesAbortedBySelfDestructedMaster(self):
         """Test GetSlavesAbortedBySelfDestructedMaster with aborted slaves."""
         db = fake_cidb.FakeCIDBConnection()
-        buildstore = FakeBuildStore(db)
+        bs = buildstore.FakeBuildStore(db)
         cidb.CIDBConnectionFactory.SetupMockCidb(db)
         master_build_id = db.InsertBuild(
             "master", 1, "master", "bot_hostname", buildbucket_id=1234
         )
-        master_build_identifier = BuildIdentifier(
+        master_build_identifier = buildstore.BuildIdentifier(
             cidb_id=master_build_id, buildbucket_id=1234
         )
 
         self.assertEqual(
             set(),
             builder_status_lib.GetSlavesAbortedBySelfDestructedMaster(
-                master_build_identifier, buildstore
+                master_build_identifier, bs
             ),
         )
 
@@ -88,15 +87,17 @@ class BuilderStatusLibTests(cros_test_lib.MockTestCase):
         for slave_build_id in (12, 23):
             db.InsertBuildMessage(
                 master_build_id,
-                message_type=constants.MESSAGE_TYPE_IGNORED_REASON,
-                message_subtype=constants.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
+                message_type=buildstore.MESSAGE_TYPE_IGNORED_REASON,
+                message_subtype=buildstore.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
                 message_value=str(slave_build_id),
             )
         self.assertEqual(
             {"slave_1", "slave_2"},
             builder_status_lib.GetSlavesAbortedBySelfDestructedMaster(
-                BuildIdentifier(cidb_id=master_build_id, buildbucket_id=1234),
-                buildstore,
+                buildstore.BuildIdentifier(
+                    cidb_id=master_build_id, buildbucket_id=1234
+                ),
+                bs,
             ),
         )
 

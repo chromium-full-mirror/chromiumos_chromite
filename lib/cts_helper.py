@@ -10,8 +10,6 @@ import logging
 import os
 import shutil
 
-from chromite.lib import constants
-
 
 # TODO(pwang): Move CTS upload logic from autotest to here for consistency.
 
@@ -19,10 +17,22 @@ from chromite.lib import constants
 # Autotest test to collect list of CTS tests
 TEST_LIST_COLLECTOR = "tradefed-run-collect-tests-only"
 
+# Tests without 'cheets_CTS_', 'cheets_GTS.' prefix will not considered
+# as CTS/GTS test in chromite.lib.cts_helper
+DEFAULT_CTS_TEST_XML_MAP = {
+    "cheets_CTS_": "test_result.xml",
+    "cheets_GTS.": "test_result.xml",
+    "cheets_GTS_": "test_result.xml",
+}
+
+# Google Storage bucket URI to store results in.
+DEFAULT_CTS_RESULTS_GSURI = "gs://chromeos-cts-results/"
+DEFAULT_CTS_APFE_GSURI = "gs://chromeos-cts-apfe/"
+
 
 def isCtsTest(test_name):
     """Check if the test is CTS/GTS tests."""
-    for cts_prefix in constants.DEFAULT_CTS_TEST_XML_MAP.keys():
+    for cts_prefix in DEFAULT_CTS_TEST_XML_MAP.keys():
         if test_name.startswith(cts_prefix):
             return True
     return False
@@ -30,7 +40,7 @@ def isCtsTest(test_name):
 
 def getXMLPattern(test_name):
     """Return CTS result XML file pattern string."""
-    for cts_prefix, resultXML in constants.DEFAULT_CTS_TEST_XML_MAP.items():
+    for cts_prefix, resultXML in DEFAULT_CTS_TEST_XML_MAP.items():
         if test_name.startswith(cts_prefix):
             return resultXML
     return None
@@ -120,7 +130,7 @@ def uploadFiles(
     for xml in xml_files:
         timestamp = os.path.basename(os.path.dirname(xml))
         gs_url = os.path.join(
-            constants.DEFAULT_CTS_RESULTS_GSURI,
+            DEFAULT_CTS_RESULTS_GSURI,
             package,
             build + "-" + job_id + "_" + timestamp,
         )
@@ -135,7 +145,7 @@ def uploadFiles(
         for apfe in apfe_files:
             timestamp = os.path.splitext(os.path.basename(apfe))[0]
             gs_url = os.path.join(
-                constants.DEFAULT_CTS_APFE_GSURI,
+                DEFAULT_CTS_APFE_GSURI,
                 build,
                 apfe_id,
                 package,

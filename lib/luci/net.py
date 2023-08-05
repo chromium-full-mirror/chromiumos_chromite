@@ -8,12 +8,17 @@
 """Wrapper around httplib2 to call REST API with service account credentials."""
 
 import logging
+import os
 import urllib.parse
 
 from chromite.third_party import httplib2
 
 from chromite.lib import auth
-from chromite.lib import constants
+
+
+CHROMEOS_SERVICE_ACCOUNT = os.path.join(
+    "/", "creds", "service_accounts", "service-account-chromeos.json"
+)
 
 
 def httprequest(http, **kwargs):
@@ -105,9 +110,7 @@ def request(
     headers = (headers or {}).copy()
 
     if include_auth:
-        tok = auth.GetAccessToken(
-            service_account_json=constants.CHROMEOS_SERVICE_ACCOUNT
-        )
+        tok = auth.GetAccessToken(service_account_json=CHROMEOS_SERVICE_ACCOUNT)
         headers["Authorization"] = "Bearer %s" % tok
 
     if payload is not None:

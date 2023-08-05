@@ -17,7 +17,10 @@ from chromite.third_party.infra_libs.buildbucket.proto import (
 
 from chromite.lib import buildbucket_v2
 from chromite.lib import config_lib
-from chromite.lib import constants
+
+
+# Buildbucket buckets.
+INTERNAL_SWARMING_BUILDBUCKET_BUCKET = "general"
 
 
 class RemoteRequestFailure(Exception):
@@ -69,7 +72,7 @@ class RequestBuild:
         email_template=None,
         master_cidb_id=None,
         master_buildbucket_id=None,
-        bucket=constants.INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
+        bucket=INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
         requested_bot=None,
     ):
         """Construct the object.

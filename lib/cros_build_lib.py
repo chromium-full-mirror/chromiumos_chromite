@@ -1096,12 +1096,17 @@ def HostIsCIBuilder(fq_hostname=None, golo_only=False, gce_only=False):
         gce_only: Only return True if the host is in the Chrome GCE block.
             Defaults to False.
     """
+    CORP_DOMAIN = "corp.google.com"
+    GOLO_DOMAIN = "golo.chromium.org"
+    CHROME_DOMAIN = "chrome." + CORP_DOMAIN
+    CHROMEOS_BOT_INTERNAL = "chromeos-bot.internal"
+
     if not fq_hostname:
         fq_hostname = GetHostName(fully_qualified=True)
-    in_golo = fq_hostname.endswith("." + constants.GOLO_DOMAIN)
-    in_gce = fq_hostname.endswith(
-        "." + constants.CHROME_DOMAIN
-    ) or fq_hostname.endswith("." + constants.CHROMEOS_BOT_INTERNAL)
+    in_golo = fq_hostname.endswith("." + GOLO_DOMAIN)
+    in_gce = fq_hostname.endswith("." + CHROME_DOMAIN) or fq_hostname.endswith(
+        "." + CHROMEOS_BOT_INTERNAL
+    )
     if golo_only:
         return in_golo
     elif gce_only:

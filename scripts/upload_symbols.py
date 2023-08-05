@@ -96,6 +96,11 @@ MAX_TOTAL_ERRORS_FOR_RETRY = 6
 # Category to use for collection upload retry stats.
 UPLOAD_STATS = "UPLOAD"
 
+# Crash Server upload API key.
+CRASH_API_KEY = os.path.join(
+    "/", "creds", "api_keys", "api_key-chromeos-crash-uploader"
+)
+
 
 def BatchGenerator(iterator, batch_size):
     """Given an iterator, break into lists of size batch_size.
@@ -724,7 +729,7 @@ def main(argv):
     parser.add_argument(
         "--api_key",
         type=str,
-        default=None,
+        default=CRASH_API_KEY,
         help="full path to the API key file",
     )
 
@@ -769,12 +774,7 @@ def main(argv):
 
     # Set up the API key needed to authenticate to Crash server.
     # Allow for a local key file for testing purposes.
-    if opts.api_key:
-        api_key_file = opts.api_key
-    else:
-        api_key_file = constants.CRASH_API_KEY
-
-    api_key = osutils.ReadFile(api_key_file)
+    api_key = osutils.ReadFile(opts.api_key)
 
     # Confirm we really want the long upload.
     if not opts.yes:

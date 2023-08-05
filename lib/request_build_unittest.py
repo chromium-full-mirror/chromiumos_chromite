@@ -13,7 +13,6 @@ from chromite.third_party.infra_libs.buildbucket.proto import (
 
 from chromite.lib import buildbucket_v2
 from chromite.lib import config_lib
-from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import request_build
 
@@ -88,7 +87,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
         job = self._CreateJobMin()
 
         self.assertEqual(
-            job.bucket, constants.INTERNAL_SWARMING_BUILDBUCKET_BUCKET
+            job.bucket, request_build.INTERNAL_SWARMING_BUILDBUCKET_BUCKET
         )
         self.assertEqual(job.luci_builder, config_lib.LUCI_BUILDER_TRY)
         self.assertEqual(job.display_label, config_lib.DISPLAY_LABEL_TRYJOB)
@@ -98,7 +97,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
         self.assertEqual(
             builder_common_pb2.BuilderID(
                 project="chromeos",
-                bucket=constants.INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
+                bucket=request_build.INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
                 builder=config_lib.LUCI_BUILDER_TRY,
             ),
             body["builder"],
@@ -195,7 +194,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
         self.assertEqual(
             builder_common_pb2.BuilderID(
                 project="chromeos",
-                bucket=constants.INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
+                bucket=request_build.INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
                 builder=config_lib.LUCI_BUILDER_TRY,
             ),
             body["builder"],

@@ -18,6 +18,13 @@ from chromite.lib import failure_message_lib
 from chromite.lib import fake_cidb
 
 
+# Build messages
+MESSAGE_TYPE_IGNORED_REASON = "ignored_reason"
+# MESSSGE_TYPE_IGNORED_REASON messages store the affected build as
+# the CIDB column message_value.
+MESSAGE_SUBTYPE_SELF_DESTRUCTION = "self_destruction"
+
+
 class BuildStoreException(Exception):
     """General exception class for this module."""
 
@@ -246,10 +253,8 @@ class BuildStore:
                     int(message["message_value"])
                     for message in self.cidb_conn.GetBuildMessages(
                         build_identifier.cidb_id,
-                        message_type=constants.MESSAGE_TYPE_IGNORED_REASON,
-                        message_subtype=(
-                            constants.MESSAGE_SUBTYPE_SELF_DESTRUCTION
-                        ),
+                        message_type=MESSAGE_TYPE_IGNORED_REASON,
+                        message_subtype=MESSAGE_SUBTYPE_SELF_DESTRUCTION,
                     )
                 ]
 
@@ -345,8 +350,8 @@ class BuildStore:
     def InsertBuildMessage(
         self,
         build_id,
-        message_type=constants.MESSAGE_TYPE_IGNORED_REASON,
-        message_subtype=constants.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
+        message_type=MESSAGE_TYPE_IGNORED_REASON,
+        message_subtype=MESSAGE_SUBTYPE_SELF_DESTRUCTION,
         message_value=None,
         board=None,
     ):
@@ -772,16 +777,16 @@ class FakeBuildStore:
             m["message_value"]
             for m in self.fake_cidb.GetBuildMessages(
                 build_identifier.cidb_id,
-                message_type=constants.MESSAGE_TYPE_IGNORED_REASON,
-                message_subtype=constants.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
+                message_type=MESSAGE_TYPE_IGNORED_REASON,
+                message_subtype=MESSAGE_SUBTYPE_SELF_DESTRUCTION,
             )
         ]
 
     def InsertBuildMessage(
         self,
         build_id,
-        message_type=constants.MESSAGE_TYPE_IGNORED_REASON,
-        message_subtype=constants.MESSAGE_SUBTYPE_SELF_DESTRUCTION,
+        message_type=MESSAGE_TYPE_IGNORED_REASON,
+        message_subtype=MESSAGE_SUBTYPE_SELF_DESTRUCTION,
         message_value=None,
         board=None,
     ):

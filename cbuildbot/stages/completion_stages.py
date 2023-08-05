@@ -21,6 +21,17 @@ from chromite.lib import failures_lib
 from chromite.service import binhost as binhost_service
 
 
+# Percentage of child builders that need to complete to update LKGM
+# TODO(b/232822787): Delete when cbuildbot has been removed.
+LKGM_THRESHOLD = 101
+
+# Metadata key to indicate whether a build is self-destructed.
+SELF_DESTRUCTED_BUILD = "self_destructed_build"
+
+# Metadata key to indicate whether a build is self-destructed with success.
+SELF_DESTRUCTED_WITH_SUCCESS_BUILD = "self_destructed_with_success_build"
+
+
 def GetBuilderSuccessMap(builder_run, overall_success):
     """Get the pass/fail status of all builders.
 
@@ -293,7 +304,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         )
 
         self_destructed = self._run.attrs.metadata.GetValueWithDefault(
-            constants.SELF_DESTRUCTED_BUILD, False
+            SELF_DESTRUCTED_BUILD, False
         )
 
         self._fatal = self._IsFailureFatal(
@@ -340,7 +351,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
             # This build must be a master build if self_destructed is True.
             self_destructed_with_success = (
                 self._run.attrs.metadata.GetValueWithDefault(
-                    constants.SELF_DESTRUCTED_WITH_SUCCESS_BUILD, False
+                    SELF_DESTRUCTED_WITH_SUCCESS_BUILD, False
                 )
             )
             if self_destructed_with_success:
@@ -642,7 +653,7 @@ class UpdateChromeosLKGMStage(generic_stages.BuilderStage):
             pct_succeeded = 100.0 * (
                 (num_builds - num_failures) / float(num_builds)
             )
-            return pct_succeeded >= constants.LKGM_THRESHOLD
+            return pct_succeeded >= LKGM_THRESHOLD
         return False
 
 

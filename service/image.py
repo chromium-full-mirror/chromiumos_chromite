@@ -35,6 +35,10 @@ _IMAGE_TYPE_DESCRIPTION = {
     constants.FACTORY_IMAGE_BIN: "Chromium OS Factory install shim",
 }
 
+TERMINA_TOOLS_DIR = os.path.join(
+    constants.CHROOT_SOURCE_ROOT, "src/platform/container-guest-tools/termina"
+)
+
 
 class Error(Exception):
     """Base module error."""
@@ -520,7 +524,7 @@ def CreateGuestVm(
     assert image_dir
     chroot = chroot or chroot_lib.Chroot()
 
-    cmd = [os.path.join(constants.TERMINA_TOOLS_DIR, "termina_build_image.py")]
+    cmd = [os.path.join(TERMINA_TOOLS_DIR, "termina_build_image.py")]
 
     image_dir = chroot.chroot_path(image_dir)
 

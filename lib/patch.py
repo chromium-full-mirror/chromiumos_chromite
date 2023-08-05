@@ -25,6 +25,12 @@ from chromite.lib import git
 from chromite.lib import gob_util
 
 
+GERRIT_ON_BORG_LABELS = {
+    "Code-Review": "CRVW",
+    "Commit-Queue": "COMR",
+    "Verified": "VRIF",
+}
+
 _MAXIMUM_GERRIT_NUMBER_LENGTH = 7
 _GERRIT_CHANGE_ID_PREFIX = "I"
 _GERRIT_CHANGE_ID_LENGTH = 40
@@ -2152,13 +2158,13 @@ class GerritPatch(GerritFetchOnlyPatch):
                 approvals = []
                 for label, label_data in change["labels"].items():
                     # Skip unknown labels.
-                    if label not in constants.GERRIT_ON_BORG_LABELS:
+                    if label not in GERRIT_ON_BORG_LABELS:
                         continue
                     for review_data in label_data.get("all", []):
                         granted_on = review_data.get("date", change["created"])
                         approvals.append(
                             {
-                                "type": constants.GERRIT_ON_BORG_LABELS[label],
+                                "type": GERRIT_ON_BORG_LABELS[label],
                                 "description": label,
                                 "value": str(review_data.get("value", "0")),
                                 "grantedOn": _convert_tm(granted_on),
