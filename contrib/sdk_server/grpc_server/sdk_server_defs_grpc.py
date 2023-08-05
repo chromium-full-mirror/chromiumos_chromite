@@ -602,7 +602,7 @@ class SdkChroot(
     def _run_endpoint(self, endpoint, inputfile, outputfile):
         """calls a BAPI endpoint."""
         script = [
-            f"{constants.HOME_DIRECTORY}/chromiumos/chromite/bin/build_api",
+            constants.CHROMITE_BIN_DIR / "build_api",
             endpoint,
             "--input-json",
             inputfile,

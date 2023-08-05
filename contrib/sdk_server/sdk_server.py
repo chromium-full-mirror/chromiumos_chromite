@@ -19,16 +19,14 @@ def run_server():
     """Start grpc server of sdk server."""
     with sudo.SudoKeepAlive():
         script = [
-            f"{constants.HOME_DIRECTORY}/chromiumos/chromite/contrib/sdk_server/grpc_server/server"
+            constants.CHROMITE_DIR / "contrib/sdk_server/grpc_server/server"
         ]
         return subprocess.Popen(script)
 
 
 def run_app():
     """Start Web app of sdk server."""
-    script = [
-        f"{constants.HOME_DIRECTORY}/chromiumos/chromite/contrib/sdk_server/ui/app"
-    ]
+    script = [constants.CHROMITE_DIR / "contrib/sdk_server/ui/app"]
     return subprocess.Popen(script)
 
 
