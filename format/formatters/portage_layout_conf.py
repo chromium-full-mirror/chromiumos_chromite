@@ -28,7 +28,7 @@ def Data(
     def _normalize_key_value(line: str) -> str:
         if not line.startswith("#"):
             k, v = line.split("=", 1)
-            line = f"{k.strip()} = {v.strip()}"
+            line = f"{k.strip()} = {v.strip()}".strip()
         return line
 
     lines = [
