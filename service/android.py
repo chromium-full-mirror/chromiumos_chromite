@@ -160,7 +160,9 @@ ARTIFACTS_TO_COPY = {
             r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "bertha_x86_64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/XkbToKcmConverter"
+            r"|/org.chromium.arc.cts.helpers.apk"
+            r"|/kernel|/ramdisk.img)$"
         ),
     },
     ANDROID_VMUDC_PACKAGE: {
