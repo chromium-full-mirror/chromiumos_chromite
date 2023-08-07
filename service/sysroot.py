@@ -932,6 +932,19 @@ def BuildPackages(
                     )
 
                     if run_configs.bazel:
+                        # Bazel needs amd64-host sysroot with sdk/bootstrap
+                        # profile.
+                        cros_build_lib.run(
+                            [
+                                constants.CROSUTILS_DIR
+                                / "create_sdk_board_root",
+                                "--board",
+                                "amd64-host",
+                                "--profile",
+                                "sdk/bootstrap",
+                            ]
+                        )
+
                         bazel_extra_env = {"BOARD": target.name}
                         bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
                         # Technically, `bazel run` (which occurs next) will also
