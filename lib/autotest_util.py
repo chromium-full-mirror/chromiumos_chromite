@@ -7,9 +7,9 @@
 import os
 from typing import Optional
 
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import path_util
 from chromite.utils import matching
 
 
@@ -41,16 +41,23 @@ class AutotestTarballBuilder:
         "src/platform/tast/tools/run_tast.sh",  # Helper script to run SSP tast.
     ]
 
-    def __init__(self, archive_basedir: str, output_directory: str) -> None:
+    def __init__(
+        self,
+        archive_basedir: str,
+        output_directory: str,
+        chroot: chroot_lib.Chroot,
+    ) -> None:
         """Init function.
 
         Args:
             archive_basedir: The base directory from which the archives will be
                 created. This path should contain the `autotest` directory.
             output_directory: The directory where the archives will be written.
+            chroot: The Chroot to work with.
         """
         self.archive_basedir = archive_basedir
         self.output_directory = output_directory
+        self.chroot = chroot
 
     def BuildAutotestControlFilesTarball(self) -> Optional[str]:
         """Tar up the autotest control files.
@@ -176,7 +183,11 @@ class AutotestTarballBuilder:
         if compressed:
             compressor = cros_build_lib.CompressionType.BZIP2
             if not cros_build_lib.IsInsideChroot():
-                chroot = path_util.FromChrootPath("/")
+                # TODO(b/265885353): this utility needs to either always be run
+                # inside the chroot, or else this path needs to be more
+                # targeted to state (Chroot.out_path) vs chroot (Chroot.path)
+                # directories.
+                chroot = self.chroot.path
 
         return cros_build_lib.CreateTarball(
             tarball_path,
@@ -225,7 +236,7 @@ class AutotestTarballBuilder:
             files.extend(self._TAST_SSP_CHROOT_FILES)
         else:
             files.extend(
-                path_util.FromChrootPath(x) for x in self._TAST_SSP_CHROOT_FILES
+                self.chroot.full_path(x) for x in self._TAST_SSP_CHROOT_FILES
             )
 
         for filename in self._TAST_SSP_SOURCE_FILES:

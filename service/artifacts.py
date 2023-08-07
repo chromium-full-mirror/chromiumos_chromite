@@ -210,7 +210,7 @@ def BundleAutotestFiles(
         return {}
 
     builder = autotest_util.AutotestTarballBuilder(
-        archive_basedir, output_directory
+        archive_basedir, output_directory, chroot
     )
     results = {
         ARCHIVE_CONTROL_FILES: builder.BuildAutotestControlFilesTarball(),

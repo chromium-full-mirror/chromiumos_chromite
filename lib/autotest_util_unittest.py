@@ -8,7 +8,9 @@ import os
 from unittest import mock
 
 from chromite.lib import autotest_util
+from chromite.lib import chroot_lib
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.utils import matching
@@ -20,6 +22,8 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
     # pylint: disable=protected-access
 
     def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self._buildroot = os.path.join(self.tempdir, "buildroot")
         os.makedirs(self._buildroot)
         self._board = "test-board"
@@ -33,8 +37,12 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
                 "..",
             )
         )
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
         self.builder = autotest_util.AutotestTarballBuilder(
-            self.basedir, self.tempdir
+            self.basedir, self.tempdir, self.chroot
         )
 
     def testBuildAutotestPackagesTarball(self):
