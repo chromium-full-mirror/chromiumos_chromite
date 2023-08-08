@@ -191,6 +191,7 @@ def InstallPackage(
     version,
     destination: Union[os.PathLike, str] = None,
     service_account_json=None,
+    print_cmd: bool = True,
 ):
     """Installs a package at a given destination using cipd.
 
@@ -201,6 +202,7 @@ def InstallPackage(
             or a ref).
         destination: The folder to install the package under.
         service_account_json: The path of the service account credentials.
+        print_cmd: Whether to print the command before running it.
 
     Returns:
         The path of the package.
@@ -223,10 +225,11 @@ def InstallPackage(
         f.write(("%s %s" % (package, version)).encode("utf-8"))
         f.flush()
 
-        cros_build_lib.dbg_run(
+        cros_build_lib.run(
             [cipd_path, "ensure", "-root", destination, "-list", f.name]
             + service_account_flag,
             capture_output=True,
+            print_cmd=print_cmd,
         )
 
     return destination

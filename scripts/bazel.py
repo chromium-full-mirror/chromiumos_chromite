@@ -104,7 +104,10 @@ def _get_bazelisk() -> Path:
     """
     cipd_path = cipd.GetCIPDFromCache()
     package_path = cipd.InstallPackage(
-        cipd_path, _BAZELISK_PACKAGE, _BAZELISK_VERSION
+        cipd_path,
+        _BAZELISK_PACKAGE,
+        _BAZELISK_VERSION,
+        print_cmd=False,
     )
     return package_path / "bazelisk"
 
