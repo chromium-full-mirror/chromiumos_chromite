@@ -44,7 +44,7 @@ InstantiationWithParamNameGenerator/ParameterizedTest.
     const result = gtestTestListParser.parse(input);
     expect(result).toBeInstanceOf(gtestTestListParser.TestNameCollection);
     if (result instanceof Error) {
-      fail();
+      fail(result);
       return;
     }
 
@@ -106,5 +106,44 @@ InstantiationWithParamNameGenerator/ParameterizedTest.
     expect(result.hasSuiteAndCaseName('TestSuite.TestCase')).toBeTrue();
     expect(result.hasSuiteAndCaseName('Foo.TestP')).toBeFalse();
     expect(result.hasSuiteAndCaseName('TypedTest/0.TestCase')).toBeFalse();
+  });
+
+  it('parses Chromium browser test output', () => {
+    // Chromium browser tests all have `# TypeParam = ` and `# GetParam() = `, even though they are
+    // not necessarily parametrized nor typed.
+    //
+    // Also, it is apparently possible for a test to have some cases that are parametrized, and
+    // others that are not.
+    const input = `\
+PlatformAppBrowserTest.  # TypeParam = \n\
+  RunningAppsAreRecorded  # GetParam() = \n\
+  ActiveAppsAreRecorded  # GetParam() = \n\
+SandboxedPagesTest.  # TypeParam = \n\
+  ManifestV2DisallowsWebContent  # GetParam() = \n\
+  SandboxedPages/0  # GetParam() = 4-byte object <00-00 00-00>
+`;
+    const result = gtestTestListParser.parse(input);
+    expect(result).toBeInstanceOf(gtestTestListParser.TestNameCollection);
+    if (result instanceof Error) {
+      fail(result);
+      return;
+    }
+
+    expect(result.getFullTestNames()).toEqual(
+      new Set([
+        'PlatformAppBrowserTest.RunningAppsAreRecorded',
+        'PlatformAppBrowserTest.ActiveAppsAreRecorded',
+        'SandboxedPagesTest.ManifestV2DisallowsWebContent',
+        'SandboxedPagesTest.SandboxedPages/0',
+      ])
+    );
+    expect(result.getSuiteAndCaseNames()).toEqual(
+      new Set([
+        'PlatformAppBrowserTest.RunningAppsAreRecorded',
+        'PlatformAppBrowserTest.ActiveAppsAreRecorded',
+        'SandboxedPagesTest.ManifestV2DisallowsWebContent',
+        'SandboxedPagesTest.SandboxedPages',
+      ])
+    );
   });
 });

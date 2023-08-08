@@ -123,12 +123,8 @@ function parseLine(line: string): {
   comment: string;
 } {
   const commentIdx = line.indexOf('#');
-  let value = (commentIdx >= 0 ? line.slice(0, commentIdx) : line).trim();
-  if (value.endsWith('.')) {
-    value = value.slice(0, -1);
-  }
   return {
-    value,
+    value: (commentIdx >= 0 ? line.slice(0, commentIdx) : line).trim(),
     isIndented: line.startsWith('  '),
     comment: commentIdx >= 0 ? line.slice(commentIdx) : '',
   };
@@ -140,123 +136,105 @@ function parseLine(line: string): {
  */
 export function parse(stdout: string): TestNameCollection | Error {
   const allTestNameComponents: TestNameComponents[] = [];
-  let testNameComponents: TestNameComponents | null = null;
-  const rawLines = stdout.trim().split('\n');
-  for (let i = 0; i < rawLines.length; ++i) {
-    const rawLine = rawLines[i]!;
-    const nextRawLine = rawLines[i + 1] ?? null;
-    const {value, isIndented, comment} = parseLine(rawLine);
 
+  let parentLine: {value: string; comment: string} | null = null;
+  for (const rawLine of stdout.trim().split('\n')) {
+    const {value, isIndented, comment} = parseLine(rawLine);
     if (!isIndented) {
-      const parts = value.split('/');
-      if (parts.length === 1) {
-        // This is either a non-parameterized test, or a value-parameterized test without an
-        // instantiation name. This line contains the name of the test suite/fixture:
-        // ```
-        // TestSuite.                       // <- this line
-        //   TestCase
-        // ```
-        // ```
-        // ParameterizedTest.                // <- this line
-        //   TestCase/0  # GetParam() = ...
-        // ```
-        const suite = parts[0]!;
-        if (nextRawLine && nextRawLine.includes('# GetParam()')) {
-          testNameComponents = {
-            parameterKind: 'value',
-            instantiation: '',
-            suite,
-            case: '',
-            paramName: '',
-          };
-        } else {
-          testNameComponents = {parameterKind: 'none', suite, case: ''};
-        }
-      } else if (parts.length === 2) {
-        // This is either a value-parameterized test with an instantiation name, a typed test, or a
-        // type-parameterized test without an instantiation name:
-        // ```
-        // Instantiation/ParameterizedTest.            // <- this line
-        //   TestCase/0  # GetParam() = ...
-        // ```
-        // ```
-        // TypedTest/0.  # TypeParam = ...            // <- this line
-        //   TestCase
-        // ```
-        // ```
-        // TypeParameterizedTest/0.  # TypeParam = ... // <- this line
-        //   TestCase
-        // ```
-        if (comment.startsWith('# TypeParam')) {
-          testNameComponents = {
-            parameterKind: 'type',
-            instantiation: '',
-            suite: parts[0],
-            typeName: parts[1],
-            case: '',
-          };
-        } else {
-          testNameComponents = {
-            parameterKind: 'value',
-            instantiation: parts[0],
-            suite: parts[1],
-            case: '',
-            paramName: '',
-          };
-        }
-      } else if (parts.length === 3) {
-        // This is a type-parameterized test. This line contains the name of the instantiation, the
-        // test suite/fixture, and the type index:
-        // ```
-        // Instantiation/TypeParameterizedTest/0.  # TypeParam = ... // <- this line
-        //   TestCase
-        // ```
-        testNameComponents = {
+      parentLine = {value, comment};
+      continue;
+    }
+    if (!parentLine) {
+      continue;
+    }
+    const childLine = {value, comment};
+
+    const fullTestName = parentLine.value + childLine.value;
+    // It is important to check that the TypeParam is not just empty, but actually equals a value.
+    // Otherwise the test might not actually be typed.
+    const isTyped = parentLine.comment.match(/^# TypeParam = .+$/);
+    // It is important to check that the GetParam is not just empty, but actually equals a value.
+    // Otherwise the test might not actually be parameterized.
+    const isParameterized = childLine.comment.match(/^# GetParam\(\) = .+$/);
+
+    const createError = () =>
+      new Error(
+        `Unable to parse test list line: "${JSON.stringify(
+          childLine
+        )}" (parent line: ${JSON.stringify(
+          parentLine
+        )}), ${isTyped}, ${isParameterized})`
+      );
+
+    const parts = fullTestName.split('/');
+    if (parts.length === 1) {
+      // This is a non-parameterized test (`TestSuite.TestCase`).
+      if (isParameterized || isTyped) {
+        return createError();
+      }
+      const [suite, caseName] = parts[0]!.split('.');
+      allTestNameComponents.push({
+        parameterKind: 'none',
+        suite,
+        case: caseName,
+      });
+    } else if (parts.length === 2) {
+      // This is a value-parameterized test without an instantiation name
+      // (`ParameterizedTest.TestCase/0`), a typed test (`TypedTest/0.TestCase`), or a
+      // type-parameterized test without an instantiation name (`TypeParameterizedTest/0.TestCase`).
+      if (isTyped) {
+        const [typeName, caseName] = parts[1]!.split('.');
+        allTestNameComponents.push({
           parameterKind: 'type',
-          instantiation: parts[0],
-          suite: parts[1],
-          typeName: parts[2],
-          case: '',
-        };
+          instantiation: '',
+          suite: parts[0]!,
+          case: caseName,
+          typeName,
+        });
       } else {
-        return new Error(`Unable to parse test list line: "${rawLine}"`);
+        if (!isParameterized) {
+          return createError();
+        }
+        const [suite, caseName] = parts[0]!.split('.');
+        allTestNameComponents.push({
+          parameterKind: 'value',
+          instantiation: '',
+          suite: suite,
+          case: caseName,
+          paramName: parts[1]!,
+        });
+      }
+    } else if (parts.length === 3) {
+      // This is either a value-parameterized test with an instantiation name
+      // (`Instantiation/ParameterizedTest.TestCase/0`) or a type-parameterized test with an
+      // instantiation name (`Instantiation/TypeParameterizedTest/0.TestCase`).
+      const instantiation = parts[0]!;
+      if (isTyped) {
+        const [typeName, caseName] = parts[2]!.split('.');
+        allTestNameComponents.push({
+          parameterKind: 'type',
+          instantiation,
+          suite: parts[1]!,
+          case: caseName,
+          typeName,
+        });
+      } else {
+        if (!isParameterized) {
+          return createError();
+        }
+        const [suite, caseName] = parts[1]!.split('.');
+        allTestNameComponents.push({
+          parameterKind: 'value',
+          instantiation,
+          suite: suite,
+          case: caseName,
+          paramName: parts[2]!,
+        });
       }
     } else {
-      if (testNameComponents === null) {
-        return new Error(
-          `Unable to parse test list: Expected at least one line starting without "  " preceeding any line starting with "  ": "${rawLine}"`
-        );
-      }
-
-      const parts = value.split('/');
-      switch (testNameComponents.parameterKind) {
-        case 'none':
-        case 'type':
-          if (parts.length !== 1) {
-            return new Error(
-              `Unable to parse test list line "${rawLine}" for a ${
-                testNameComponents.parameterKind
-              } test: ${JSON.stringify(testNameComponents)}`
-            );
-          }
-          allTestNameComponents.push({...testNameComponents, case: parts[0]});
-          break;
-        case 'value':
-          if (parts.length !== 2) {
-            return new Error(
-              `Unable to parse test list line "${rawLine}" for a value-parameterized test: ${JSON.stringify(
-                testNameComponents
-              )}`
-            );
-          }
-          allTestNameComponents.push({
-            ...testNameComponents,
-            case: parts[0],
-            paramName: parts[1],
-          });
-          break;
-      }
+      return createError();
     }
   }
+
   return new TestNameCollection(allTestNameComponents);
 }
