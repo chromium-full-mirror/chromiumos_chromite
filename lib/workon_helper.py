@@ -10,7 +10,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Iterable
+from typing import Iterable, List
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -877,14 +877,13 @@ class WorkonHelper:
         result.sort()
         return result
 
-    def RunCommandInAtomSourceDirectory(self, atom, command):
+    def RunCommandInAtomSourceDirectory(self, atom, command: List[str]):
         """Run a command in the source directory of an atom.
 
         Args:
             atom: string atom to run the command in (e.g.
                 'chromeos-base/shill').
-            command: string shell command to run in the source directory of
-                |atom|.
+            command: Command to run in the source directory of |atom|.
         """
         logging.info('Running "%s" on %s', command, atom)
         ebuild_path = self._FindEbuildForPackage(atom)
@@ -894,19 +893,16 @@ class WorkonHelper:
         for info in portage_util.GetRepositoryForEbuild(
             ebuild_path, self._sysroot
         ):
-            cros_build_lib.run(
-                command, shell=True, cwd=info.srcdir, print_cmd=False
-            )
+            cros_build_lib.run(command, cwd=info.srcdir, print_cmd=False)
 
     def RunCommandInPackages(
-        self, packages, command, use_all=False, use_workon_only=False
+        self, packages, command: List[str], use_all=False, use_workon_only=False
     ):
         """Run a command in the source directory of a list of packages.
 
         Args:
             packages: list of package name fragments.
-            command: string shell command to run in the source directory of
-                |atom|.
+            command: Command to run in the source directory of |atom|.
             use_all: True iff we should ignore the package list, and instead
                 consider all possible workon-able atoms.
             use_workon_only: True iff we should ignore the package list, and

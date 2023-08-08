@@ -376,7 +376,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         file_name = "foo"
         file_path = os.path.join(self._mock_srcdir, file_name)
         self.assertNotExists(file_path)
-        helper.RunCommandInPackages([WORKON_ONLY_ATOM], "touch %s" % file_name)
+        helper.RunCommandInPackages([WORKON_ONLY_ATOM], ["touch", file_name])
         self.assertExists(file_path)
 
     def testInstalledWorkonAtoms(self):

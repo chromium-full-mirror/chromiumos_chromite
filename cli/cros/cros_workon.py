@@ -220,7 +220,7 @@ Examples:
             elif self.options.action == "iterate":
                 helper.RunCommandInPackages(
                     self.options.packages,
-                    self.options.iterate_command,
+                    ["bash", "-c", self.options.iterate_command],
                     use_all=self.options.all,
                     use_workon_only=self.options.workon_only,
                 )

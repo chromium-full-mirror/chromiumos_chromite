@@ -129,7 +129,7 @@ def main(argv):
         elif options.command == "iterate":
             helper.RunCommandInPackages(
                 options.packages,
-                options.iterate_command,
+                ["bash", "-c", options.iterate_command],
                 use_all=options.all,
                 use_workon_only=options.workon_only,
             )
