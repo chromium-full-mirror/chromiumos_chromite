@@ -8,6 +8,7 @@ import enum
 import functools
 import logging
 from pathlib import Path
+import re
 from typing import Iterable, List, Optional
 
 from chromite.lib import commandline
@@ -53,8 +54,12 @@ class Ebuild:
         return self.name.endswith("-9999.ebuild")
 
     @functools.cached_property
+    def content(self) -> str:
+        return self.path.read_text(encoding="utf-8")
+
+    @functools.cached_property
     def lines(self) -> List[str]:
-        return self.path.read_text(encoding="utf-8").strip().splitlines()
+        return self.content.strip().splitlines()
 
     def write_lines(self, lines: List[str], dryrun: bool = False) -> None:
         if dryrun:
@@ -451,6 +456,12 @@ def process_overlay(opts, mode: RunMode, overlay: Path) -> None:
     for pkg in enumerate_packages(overlay):
         logging.debug("%s: checking", pkg.cp)
 
+        if opts.grep and not any(
+            opts.grep.search(x.content) for x in pkg.iterebuilds()
+        ):
+            logging.debug("%s: ignoring due to --grep not matching", pkg.cp)
+            continue
+
         func, msg = ACTION_MAP[mode]
         if func(pkg, dryrun=opts.dryrun, force=opts.force):
             if not opts.dryrun:
@@ -475,6 +486,9 @@ def get_parser():
     parser.add_argument(
         "--force", action="store_true", help="Ignore safety checks"
     )
+    parser.add_argument(
+        "--grep", help="Only process ebuilds matching a regular expression"
+    )
     parser.add_argument("--bug-tag", default="None", help="Which bug to use")
     parser.add_argument(
         "--test-tag", default="CQ passes", help="What testing is used"
@@ -494,6 +508,8 @@ def main(argv):
     parser = get_parser()
     opts = parser.parse_args(argv)
     opts.overlays = [Path(x).resolve() for x in opts.overlays]
+    if opts.grep:
+        opts.grep = re.compile(opts.grep)
     opts.Freeze()
 
     for overlay in opts.overlays:
