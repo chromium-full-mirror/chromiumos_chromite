@@ -18,7 +18,7 @@ export class ChromiumGtest implements vscode.Disposable {
     this.testControllerRepository,
     new RunProfile(this.srcPath, this.testControllerRepository),
   ];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

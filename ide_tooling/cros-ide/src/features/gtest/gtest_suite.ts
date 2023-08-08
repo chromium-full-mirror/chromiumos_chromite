@@ -13,7 +13,7 @@ import * as parser from './parser';
 export class GtestSuite extends GtestRunnable {
   readonly testCases: GtestCase[] = [];
 
-  override dispose() {
+  override dispose(): void {
     super.dispose();
     this.testCases.splice(0);
   }

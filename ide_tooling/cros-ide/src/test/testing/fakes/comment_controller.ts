@@ -14,7 +14,7 @@ class FakeThread implements vscode.CommentThread {
     private readonly disposer: (thread: vscode.CommentThread) => void
   ) {}
 
-  dispose() {
+  dispose(): void {
     this.disposer(this);
   }
 }
@@ -60,9 +60,9 @@ export class FakeCommentController implements vscode.CommentController {
     }
   }
 
-  clearThreads() {
+  clearThreads(): void {
     this.threadsInternal = [];
   }
 
-  dispose() {}
+  dispose(): void {}
 }

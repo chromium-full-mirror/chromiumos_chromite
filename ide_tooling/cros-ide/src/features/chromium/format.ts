@@ -7,7 +7,10 @@ import * as vscode from 'vscode';
 import * as common_util from '../../common/common_util';
 import * as depotTools from '../../common/depot_tools';
 
-export function activate(context: vscode.ExtensionContext, rootPath: string) {
+export function activate(
+  context: vscode.ExtensionContext,
+  rootPath: string
+): void {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       'chromiumide.chromium.gitcl.format',

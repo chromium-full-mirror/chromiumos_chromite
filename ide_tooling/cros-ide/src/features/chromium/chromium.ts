@@ -33,7 +33,7 @@ export class Chromium implements vscode.Disposable {
       new boilerplate.ChromiumBoilerplateGenerator(path.join(this.root, 'src'))
     ),
   ];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

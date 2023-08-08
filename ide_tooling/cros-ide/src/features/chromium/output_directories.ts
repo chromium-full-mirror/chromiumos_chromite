@@ -23,7 +23,7 @@ const STATUS_BAR_TASK_ID = 'Chromium Output Directories';
 export async function createOrUpdateSymLinkToDirectory(
   targetPath: string,
   linkPath: string
-) {
+): Promise<boolean> {
   let stat: Stats | null = null;
   try {
     stat = await fs.lstat(linkPath);
@@ -51,7 +51,7 @@ export function activate(
   context: vscode.ExtensionContext,
   statusManager: bgTaskStatus.StatusManager,
   rootPath: string
-) {
+): void {
   const srcPath = path.join(rootPath, 'src');
 
   const outputChannel = vscode.window.createOutputChannel(
@@ -310,7 +310,10 @@ export class DirNode extends BaseNode {
   }
 
   // TODO(cmfcmf): Test whether this also works on Windows.
-  async readGnArgs(srcPath: string, token: vscode.CancellationToken) {
+  async readGnArgs(
+    srcPath: string,
+    token: vscode.CancellationToken
+  ): Promise<void> {
     const result = await common_util.exec(
       'gn',
       [
@@ -438,7 +441,7 @@ export class OutputDirectoriesDataProvider
    * Cancel all ongoing operations that are based on the outdated cache, then clear the cache and
    * refresh the tree view.
    */
-  refresh() {
+  refresh(): void {
     this.nodeCache?.tokenSource.cancel();
     this.nodeCache = null;
     this._onDidChangeTreeData.fire();
@@ -477,7 +480,7 @@ export class OutputDirectoriesDataProvider
     return node.asTreeItem();
   };
 
-  getParent = (_node: Node) => {
+  getParent = (_node: Node): Node | undefined => {
     // Since this is just a flat list of nodes, none of the nodes have parents.
     return undefined;
   };

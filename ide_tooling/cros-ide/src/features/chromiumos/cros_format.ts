@@ -15,7 +15,7 @@ export function activate(
   context: vscode.ExtensionContext,
   chromiumosRoot: string,
   statusManager: StatusManager
-) {
+): void {
   const outputChannel = vscode.window.createOutputChannel(
     'ChromiumIDE: Formatter'
   );
@@ -70,7 +70,9 @@ class CrosFormat implements vscode.DocumentFormattingEditProvider {
     private readonly outputChannel: vscode.OutputChannel
   ) {}
 
-  async provideDocumentFormattingEdits(document: vscode.TextDocument) {
+  async provideDocumentFormattingEdits(
+    document: vscode.TextDocument
+  ): Promise<vscode.TextEdit[] | undefined> {
     const fsPath = document.uri.fsPath;
     if (!fsPath.startsWith(this.chromiumosRoot)) {
       this.outputChannel.appendLine(`Not formatting ${fsPath}.`);

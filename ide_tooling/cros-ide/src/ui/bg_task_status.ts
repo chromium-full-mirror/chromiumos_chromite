@@ -143,17 +143,17 @@ class StatusManagerImpl implements StatusManager {
   private tasks = new Map<TaskName, TaskData>();
   private handlers: ChangeHandler[] = [];
 
-  setTask(taskName: TaskName, taskData: TaskData) {
+  setTask(taskName: TaskName, taskData: TaskData): void {
     this.tasks.set(taskName, taskData);
     this.handleChange();
   }
 
-  deleteTask(taskName: TaskName) {
+  deleteTask(taskName: TaskName): void {
     this.tasks.delete(taskName);
     this.handleChange();
   }
 
-  setStatus(taskName: TaskName, status: TaskStatus) {
+  setStatus(taskName: TaskName, status: TaskStatus): void {
     const data = this.tasks.get(taskName);
     this.setTask(taskName, {...data, status});
   }
@@ -184,12 +184,12 @@ class StatusManagerImpl implements StatusManager {
     return this.get(TaskStatus.RUNNING);
   }
 
-  onChange(handler: ChangeHandler) {
+  onChange(handler: ChangeHandler): void {
     this.handlers.push(handler);
     handler(this);
   }
 
-  handleChange() {
+  handleChange(): void {
     for (const handler of this.handlers) {
       handler(this);
     }
@@ -210,7 +210,7 @@ class StatusBarHandler {
    * If there are running tasks, then they are shown as a separate item
    * with a spinner icon.
    */
-  refresh(statusManagerImpl: StatusManagerImpl) {
+  refresh(statusManagerImpl: StatusManagerImpl): void {
     const errorTasks = statusManagerImpl.getErrorTasks();
     if (errorTasks.length) {
       this.statusBarItem.text = `$(${getIcon(TaskStatus.ERROR)}) ChromiumIDE`;

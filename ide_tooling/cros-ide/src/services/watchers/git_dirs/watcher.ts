@@ -65,7 +65,7 @@ export class GitDirsWatcher implements vscode.Disposable {
       e.removed.forEach(gitDir => this.remove(gitDir));
     }),
   ];
-  dispose() {
+  dispose(): void {
     for (const watcher of this.gitDirToHeadWatcher.values()) {
       watcher.dispose();
     }

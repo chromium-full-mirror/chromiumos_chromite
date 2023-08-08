@@ -28,7 +28,7 @@ export class Platform2Gtest implements vscode.Disposable {
     this.cfg.testControllerRepository,
     new RunProfile(this.cfg),
   ];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

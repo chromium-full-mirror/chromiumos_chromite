@@ -12,7 +12,7 @@ export class FakeClipboard implements vscode.Clipboard {
     return this.value;
   }
 
-  async writeText(value: string) {
+  async writeText(value: string): Promise<void> {
     this.value = value;
   }
 }

@@ -58,7 +58,9 @@ export class Uri implements vscode.Uri {
   toString(skipEncoding?: boolean): string {
     return this.uri.toString(skipEncoding);
   }
-  toJSON() {
+  // Unfortunately, `UriComponents` is not exported from `vscode-uri`, so we need to get it from the
+  // return type.
+  toJSON(): ReturnType<URI['toJSON']> {
     return this.uri.toJSON();
   }
 }

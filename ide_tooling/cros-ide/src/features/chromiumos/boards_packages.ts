@@ -12,7 +12,7 @@ import * as metrics from '../metrics/metrics';
 export async function activate(
   subscriptions: vscode.Disposable[],
   chrootService: services.chromiumos.ChrootService
-) {
+): Promise<void> {
   const boardPackageProvider = new BoardPackageProvider(chrootService);
   const boardsPackages = new BoardsPackages(chrootService);
 
@@ -75,7 +75,7 @@ class BoardsPackages {
   ) {}
 
   // TODO: Write a unit test for watching packages.
-  async createPackageWatches() {
+  async createPackageWatches(): Promise<void> {
     const chroot = this.chrootService.chroot;
 
     const boards = await cros.getSetupBoardsAlphabetic(chroot);
@@ -102,7 +102,7 @@ class BoardsPackages {
     });
   }
 
-  async crosWorkonStart(board: BoardItem) {
+  async crosWorkonStart(board: BoardItem): Promise<void> {
     const pkgName = await vscode.window.showInputBox({
       title: 'Package',
       placeHolder: 'package, e.g. chromeos-base/shill',
@@ -123,7 +123,7 @@ class BoardsPackages {
     await this.crosWorkon(board.name, 'start', pkgName);
   }
 
-  async crosWorkonStop(pkg: PackageItem) {
+  async crosWorkonStop(pkg: PackageItem): Promise<void> {
     metrics.send({
       category: 'interactive',
       group: 'package',
@@ -135,7 +135,11 @@ class BoardsPackages {
     await this.crosWorkon(pkg.board.name, 'stop', pkg.name);
   }
 
-  async crosWorkon(boardName: string, cmd: string, pkgName: string) {
+  async crosWorkon(
+    boardName: string,
+    cmd: string,
+    pkgName: string
+  ): Promise<void> {
     const res = await this.chrootService.exec(
       'cros_workon',
       [
@@ -160,7 +164,7 @@ class BoardsPackages {
     }
   }
 
-  async openEbuild(pkg: PackageItem) {
+  async openEbuild(pkg: PackageItem): Promise<void> {
     const res = await this.chrootService.exec(
       pkg.board.name === VIRTUAL_BOARDS_HOST
         ? 'equery'

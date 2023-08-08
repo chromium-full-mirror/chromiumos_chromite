@@ -250,14 +250,14 @@ export class TastTests implements vscode.Disposable {
     ];
   }
 
-  dispose() {
+  dispose(): void {
     for (const testCase of this.visibleTestCases.values()) {
       testCase.dispose();
     }
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 
-  static resetGlobalStateForTesting() {
+  static resetGlobalStateForTesting(): void {
     TastTests.checkPrerequisiteFailed = false;
   }
 }

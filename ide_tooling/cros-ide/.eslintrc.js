@@ -90,6 +90,10 @@ module.exports = {
         // unbound-method is not aware of expect(...), so we disable it in tests
         // (see overrides below).
         '@typescript-eslint/unbound-method': ['error', {ignoreStatic: true}],
+        '@typescript-eslint/explicit-module-boundary-types': [
+          'error',
+          {allowArgumentsExplicitlyTypedAsAny: true},
+        ],
       },
       overrides: [
         {

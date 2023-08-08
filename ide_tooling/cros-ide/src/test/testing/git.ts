@@ -15,7 +15,7 @@ export class Git {
   constructor(readonly root: string) {}
 
   /** Creates the root directory and runs `git init`. */
-  async init(opts?: {repoId?: git.RepoId}) {
+  async init(opts?: {repoId?: git.RepoId}): Promise<void> {
     await fs.promises.mkdir(this.root, {recursive: true});
     await commonUtil.execOrThrow('git', ['init', '--initial-branch=main'], {
       cwd: this.root,
@@ -30,17 +30,17 @@ export class Git {
     });
   }
 
-  async addAll() {
+  async addAll(): Promise<void> {
     await commonUtil.execOrThrow('git', ['add', '.'], {cwd: this.root});
   }
 
-  async checkout(name: string, opts?: {createBranch?: boolean}) {
+  async checkout(name: string, opts?: {createBranch?: boolean}): Promise<void> {
     const args = ['checkout', ...cond(opts?.createBranch, '-b'), name];
     await commonUtil.execOrThrow('git', args, {cwd: this.root});
   }
 
   /** Run `git branch --set-upstream-to <upstream>`. */
-  async setUpstreamTo(upstream: string) {
+  async setUpstreamTo(upstream: string): Promise<void> {
     await commonUtil.execOrThrow(
       'git',
       ['branch', '--set-upstream-to', upstream],
@@ -78,7 +78,7 @@ export class Git {
   }
 
   /** Creates cros(-internal)/main and sets main to track it. */
-  async setupCrosBranches(opts?: {internal?: boolean}) {
+  async setupCrosBranches(opts?: {internal?: boolean}): Promise<void> {
     const crosMain = opts?.internal ? 'cros-internal/main' : 'cros/main';
     await this.checkout(crosMain, {createBranch: true});
     await this.checkout('main');

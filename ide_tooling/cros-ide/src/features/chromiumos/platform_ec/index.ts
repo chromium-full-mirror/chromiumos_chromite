@@ -14,7 +14,7 @@ export function activate(
   context: vscode.ExtensionContext,
   statusManager: bgTaskStatus.StatusManager,
   chrootService: services.chromiumos.ChrootService
-) {
+): void {
   // We are using one output channel for all platform EC related tasks.
   // TODO(b:236389226): when servod is integrated, send its logs somewhere else
   const outputChannel = vscode.window.createOutputChannel(

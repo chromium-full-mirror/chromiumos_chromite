@@ -5,7 +5,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(
       {scheme: 'file', language: 'cpp'},

@@ -170,7 +170,7 @@ export class CommentThread {
   decorateVscodeCommentThread(
     vscodeCommentThread: VscodeCommentThread,
     shift: number
-  ) {
+  ): void {
     vscodeCommentThread.range = this.getVscodeRange(shift);
     vscodeCommentThread.comments = this.comments.map(comment =>
       toVscodeComment(comment)

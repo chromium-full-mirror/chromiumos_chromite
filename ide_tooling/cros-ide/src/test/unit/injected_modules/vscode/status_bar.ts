@@ -23,14 +23,14 @@ export class StatusBarItem {
     readonly priority = 1 as number | undefined
   ) {}
 
-  dispose() {}
-  show() {}
-  hide() {}
+  dispose(): void {}
+  show(): void {}
+  hide(): void {}
 }
 
 export function createStatusBarItem(
   statusBarAlignment?: StatusBarAlignment,
   priority?: number
-) {
+): StatusBarItem {
   return new StatusBarItem(statusBarAlignment, priority);
 }

@@ -5,7 +5,7 @@
 import * as vscode from 'vscode';
 import * as config from '../../../services/config';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   const statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );

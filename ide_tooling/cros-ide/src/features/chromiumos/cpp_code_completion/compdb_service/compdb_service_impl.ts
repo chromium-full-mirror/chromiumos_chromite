@@ -21,7 +21,7 @@ export class CompdbServiceImpl implements CompdbService {
     private readonly crosFs: services.chromiumos.CrosFs
   ) {}
 
-  async generate(board: string, packageInfo: PackageInfo) {
+  async generate(board: string, packageInfo: PackageInfo): Promise<void> {
     // Add 'test' USE flag so that compdb includes test files.
     // This doesn't cause tests to be run, because we don't run the src_test phase.
     const compdbPath = await this.generateInner(board, packageInfo, [

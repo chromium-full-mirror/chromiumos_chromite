@@ -34,14 +34,14 @@ export class Sink implements vscode.Disposable {
   /**
    * Append the given value to the output channel.
    */
-  append(value: string) {
+  append(value: string): void {
     this.output.append(value);
   }
 
   /**
    * Append the given value and a line feed character to the output channel.
    */
-  appendLine(value: string) {
+  appendLine(value: string): void {
     this.output.appendLine(value);
   }
 
@@ -72,11 +72,11 @@ export class Sink implements vscode.Disposable {
     }
   }
 
-  clearErrorStatus() {
+  clearErrorStatus(): void {
     this.statusManager.setStatus(GERRIT, TaskStatus.OK);
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(this.output).dispose();
   }
 }

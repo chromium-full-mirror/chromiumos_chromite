@@ -15,7 +15,7 @@ export function installChrootCommandHandler(
   name: string,
   handler: testing.Handler,
   chrootOption?: {crosSdkWorkingDir?: string}
-) {
+): void {
   const crosSdk = path.join(source, 'chromite/bin/cros_sdk');
 
   fakeExec.on(

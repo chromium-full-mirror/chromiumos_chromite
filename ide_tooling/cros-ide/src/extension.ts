@@ -191,7 +191,7 @@ class ChromiumosActivation implements vscode.Disposable {
 
   private readonly subscriptions: vscode.Disposable[] = [this.watcher];
 
-  dispose() {
+  dispose(): void {
     this.chromiumosFeatures?.dispose();
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
@@ -231,7 +231,7 @@ class ChromiumActivation implements vscode.Disposable {
 
   private readonly subscriptions: vscode.Disposable[] = [this.watcher];
 
-  dispose() {
+  dispose(): void {
     this.chromiumFeatures?.dispose();
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }

@@ -19,7 +19,7 @@ export type Event = {
  */
 export class Watcher implements vscode.Disposable {
   readonly subscriptions: vscode.Disposable[] = [];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 
@@ -47,7 +47,7 @@ export class Watcher implements vscode.Disposable {
       }
     });
     this.subscriptions.push({
-      dispose() {
+      dispose(): void {
         watcher.close();
       },
     });

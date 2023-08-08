@@ -14,7 +14,7 @@ export class GtestWorkspace implements vscode.Disposable {
   private readonly uriToGtestFile = new Map<string, GtestFile>();
   private readonly subscriptions: vscode.Disposable[] = [];
 
-  dispose() {
+  dispose(): void {
     for (const testFile of this.uriToGtestFile.values()) {
       testFile.dispose();
     }

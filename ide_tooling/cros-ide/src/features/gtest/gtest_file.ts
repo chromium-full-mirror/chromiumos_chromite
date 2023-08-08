@@ -15,7 +15,7 @@ import * as parser from './parser';
 export class GtestFile extends GtestRunnable {
   readonly testSuites: GtestSuite[] = [];
 
-  override dispose() {
+  override dispose(): void {
     super.dispose();
     this.testSuites.splice(0);
   }

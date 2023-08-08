@@ -212,7 +212,7 @@ export class Runner extends AbstractRunner {
     }
   }
 
-  protected override async doRun() {
+  protected override async doRun(): Promise<void> {
     const testCases = this.getTestCasesToRun();
     if (testCases.length === 0) {
       this.output.appendLine('No tests found to run.');

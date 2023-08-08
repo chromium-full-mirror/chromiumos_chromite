@@ -38,7 +38,7 @@ export class Chromiumos implements vscode.Disposable {
       new boilerplate.ChromiumOSBoilerplateGenerator(this.root)
     ),
   ];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

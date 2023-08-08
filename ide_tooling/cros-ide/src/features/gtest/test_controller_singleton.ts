@@ -27,7 +27,7 @@ export class TestControllerSingleton implements vscode.Disposable {
    */
   constructor(private readonly id: string, private readonly label: string) {}
 
-  dispose() {
+  dispose(): void {
     this.controller?.dispose();
     this.onDidCreateEmitter.dispose();
   }

@@ -32,7 +32,7 @@ export class ChrootService implements vscode.Disposable {
     }
   }
 
-  dispose() {
+  dispose(): void {
     if (this.setContext) {
       void vscode.commands.executeCommand(
         'setContext',

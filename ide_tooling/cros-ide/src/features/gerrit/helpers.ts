@@ -90,7 +90,7 @@ function redactPII(input: string): string {
   return input.replace(new RegExp(user, 'g'), '${USER}');
 }
 
-export function showTopLevelError(err: Error, sink: Sink) {
+export function showTopLevelError(err: Error, sink: Sink): void {
   const redacted = redactPII(`${err}`);
   sink.show({
     log: `Failed to show Gerrit changes: ${err}`,

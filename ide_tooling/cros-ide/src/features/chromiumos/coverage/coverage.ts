@@ -40,7 +40,7 @@ export class Coverage {
     );
   }
 
-  activate(context: vscode.ExtensionContext) {
+  activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'chromiumide.coverage.generate',

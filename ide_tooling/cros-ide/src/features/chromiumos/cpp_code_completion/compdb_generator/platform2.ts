@@ -168,7 +168,7 @@ export class Platform2 implements CompdbGenerator {
     }
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions).dispose();
   }
 }

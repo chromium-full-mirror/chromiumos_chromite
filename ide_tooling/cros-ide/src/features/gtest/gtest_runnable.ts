@@ -10,7 +10,7 @@ import type {GtestCase} from './gtest_case';
  * children, as well as for generating Gtest filters.
  */
 export abstract class GtestRunnable implements vscode.Disposable {
-  dispose() {
+  dispose(): void {
     for (const child of this.getChildren()) {
       child.dispose();
     }

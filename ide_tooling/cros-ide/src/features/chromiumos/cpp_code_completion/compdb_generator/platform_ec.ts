@@ -111,7 +111,7 @@ export class PlatformEc implements CompdbGenerator {
     this.generatedMode = mode;
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions).dispose();
   }
 }

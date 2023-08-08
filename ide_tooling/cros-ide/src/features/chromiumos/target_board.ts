@@ -17,7 +17,7 @@ const BOARD_CONFIG = 'chromiumide.board';
 export function activate(
   context: vscode.ExtensionContext,
   chrootService: services.chromiumos.ChrootService
-) {
+): void {
   const boardStatusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );

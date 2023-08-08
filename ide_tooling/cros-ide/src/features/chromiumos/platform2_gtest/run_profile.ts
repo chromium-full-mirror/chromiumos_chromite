@@ -27,7 +27,7 @@ export class RunProfile implements vscode.Disposable {
       this.initialize(controller);
     }),
   ];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

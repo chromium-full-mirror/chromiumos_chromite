@@ -10,7 +10,7 @@ import {flushMicrotasks} from './tasks';
  */
 export class EventReader<T> implements vscode.Disposable {
   private subscriptions: vscode.Disposable[] = [];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

@@ -5,7 +5,7 @@
 import * as vscode from 'vscode';
 import * as metrics from '../features/metrics/metrics';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   const commandLink: [string, vscode.Uri][] = [
     [
       'chromiumide.showHelpForBoardsPackages',

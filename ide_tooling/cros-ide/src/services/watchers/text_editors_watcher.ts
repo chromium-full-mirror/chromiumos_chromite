@@ -82,7 +82,7 @@ export class TextEditorsWatcher implements vscode.Disposable {
     return new TextEditorsWatcher();
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions).dispose();
   }
 }

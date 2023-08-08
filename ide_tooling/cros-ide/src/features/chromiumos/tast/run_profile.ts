@@ -22,7 +22,7 @@ export class RunProfile implements vscode.Disposable {
 
   private readonly subscriptions: vscode.Disposable[] = [];
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

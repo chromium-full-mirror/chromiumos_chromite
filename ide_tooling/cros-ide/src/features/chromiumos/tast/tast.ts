@@ -32,7 +32,7 @@ export class Tast implements vscode.Disposable {
     }
   }
 
-  dispose() {
+  dispose(): void {
     this.tastTests?.dispose();
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }

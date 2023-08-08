@@ -9,7 +9,7 @@ import * as ideUtil from '../ide_util';
 import * as config from '../services/config';
 import * as metrics from './metrics/metrics';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   const openFileCmd = vscode.commands.registerTextEditorCommand(
     'chromiumide.codeSearchOpenCurrentFile',
     (textEditor: vscode.TextEditor) => void openCurrentFile(textEditor)
@@ -42,7 +42,7 @@ function getCodeSearchToolConfig(
   };
 }
 
-async function openCurrentFile(textEditor: vscode.TextEditor) {
+async function openCurrentFile(textEditor: vscode.TextEditor): Promise<void> {
   const result = await getCurrentFile(textEditor);
   if (result) {
     void vscode.env.openExternal(vscode.Uri.parse(result));
@@ -55,7 +55,7 @@ async function openCurrentFile(textEditor: vscode.TextEditor) {
   }
 }
 
-async function copyCurrentFile(textEditor: vscode.TextEditor) {
+async function copyCurrentFile(textEditor: vscode.TextEditor): Promise<void> {
   const result = await getCurrentFile(textEditor);
   if (result) {
     void vscode.env.clipboard.writeText(result);
@@ -135,7 +135,7 @@ async function getCurrentFile(
 }
 
 // TODO: Figure out if the search should be limited to the current repo.
-function searchSelection(textEditor: vscode.TextEditor) {
+function searchSelection(textEditor: vscode.TextEditor): void {
   if (textEditor.selection.isEmpty) {
     return;
   }

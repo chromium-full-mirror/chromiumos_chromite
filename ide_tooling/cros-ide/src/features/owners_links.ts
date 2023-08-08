@@ -7,7 +7,7 @@ import * as vscode from 'vscode';
 import * as commonUtil from '../common/common_util';
 import * as metrics from './metrics/metrics';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerDocumentLinkProvider(
       {scheme: 'file', pattern: '**/*OWNERS'},
@@ -25,7 +25,7 @@ export class OwnersLink extends vscode.DocumentLink {
     super(range);
   }
 
-  resolve() {
+  resolve(): void {
     metrics.send({
       category: 'interactive',
       group: 'owners',
@@ -126,7 +126,10 @@ export class OwnersLinkProvider
     return links;
   }
 
-  resolveDocumentLink(link: OwnersLink, _token: vscode.CancellationToken) {
+  resolveDocumentLink(
+    link: OwnersLink,
+    _token: vscode.CancellationToken
+  ): OwnersLink {
     link.resolve();
     return link;
   }

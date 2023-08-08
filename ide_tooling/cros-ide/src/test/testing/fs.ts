@@ -11,7 +11,10 @@ import * as commonUtil from '../../common/common_util';
 import {Chroot} from '../../common/common_util';
 import {cleanState} from './clean_state';
 
-export async function putFiles(dir: string, files: {[name: string]: string}) {
+export async function putFiles(
+  dir: string,
+  files: {[name: string]: string}
+): Promise<void> {
   for (const [name, content] of Object.entries(files)) {
     const filePath = path.join(dir, name);
     await fs.promises.mkdir(path.dirname(filePath), {recursive: true});
@@ -80,7 +83,7 @@ target_os = ['chromeos']
 /**
  * Make the root be recognized as the chromium root directory.
  */
-export async function buildFakeChromium(root: string) {
+export async function buildFakeChromium(root: string): Promise<void> {
   await putFiles(root, {
     '.gclient': DOT_GCLIENT,
   });
@@ -119,7 +122,7 @@ export async function cachedSetup(
   init: () => Promise<void>,
   cacheKey: string,
   version = 0
-) {
+): Promise<void> {
   // Assert empty
   for (const x of await fs.promises.readdir(dir)) {
     throw new Error(`dir ${dir} must be empty, but has ${x}`);

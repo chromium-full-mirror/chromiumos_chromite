@@ -17,7 +17,11 @@ const COMMIT_MESSAGE = 'COMMIT MESSAGE';
  * in the repository (for example, SHA or 'HEAD'). `feature` is used to identify
  * the origin of the Uri in metrics.
  */
-export function commitMessageUri(dir: string, ref: string, feature: string) {
+export function commitMessageUri(
+  dir: string,
+  ref: string,
+  feature: string
+): vscode.Uri {
   return vscode.Uri.from({
     scheme: GIT_MSG_SCHEME,
     path: path.join(dir, COMMIT_MESSAGE),
@@ -29,7 +33,7 @@ export function commitMessageUri(dir: string, ref: string, feature: string) {
 export class GitDocumentProvider implements vscode.TextDocumentContentProvider {
   cache = new Map<string, string>();
 
-  activate() {
+  activate(): void {
     vscode.workspace.registerTextDocumentContentProvider(GIT_MSG_SCHEME, this);
   }
 

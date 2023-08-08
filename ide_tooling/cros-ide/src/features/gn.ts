@@ -17,7 +17,7 @@ export function activate(
   context: vscode.ExtensionContext,
   statusManager: bgTaskStatus.StatusManager,
   log: logs.LoggingBundle
-) {
+): void {
   // Format a GN file under platform2 on save
   // because cros lint requires formatting upon upload.
   context.subscriptions.push(

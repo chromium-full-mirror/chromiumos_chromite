@@ -46,7 +46,7 @@ export class TestCase implements vscode.Disposable {
     );
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 }

@@ -22,7 +22,9 @@ export async function activateExtension(): Promise<ExtensionApiForTesting> {
   return await extension.activate();
 }
 
-export async function closeDocument(document: vscode.TextDocument) {
+export async function closeDocument(
+  document: vscode.TextDocument
+): Promise<void> {
   await vscode.window.showTextDocument(document);
   await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
 }

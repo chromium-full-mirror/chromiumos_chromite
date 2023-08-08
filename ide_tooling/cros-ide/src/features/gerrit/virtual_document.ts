@@ -13,7 +13,7 @@ const SCHEME = 'gerrit';
  * The document contains fixed text, but `dir` is required,
  * because VSCode shows it in tooltips in the comments UI.
  */
-export function patchSetUri(dir: string, id: string) {
+export function patchSetUri(dir: string, id: string): vscode.Uri {
   return vscode.Uri.from({
     scheme: SCHEME,
     path: path.join(dir, 'PATCHSET_LEVEL'),
@@ -45,7 +45,7 @@ export class GerritDocumentProvider
     return `Patchset level comments on Change-Id: ${uri.query}`;
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 }

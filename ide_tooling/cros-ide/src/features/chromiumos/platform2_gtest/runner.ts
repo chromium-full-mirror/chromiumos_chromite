@@ -45,7 +45,7 @@ export class Runner extends AbstractRunner {
     'src/platform2'
   );
 
-  protected override async doRun() {
+  protected override async doRun(): Promise<void> {
     const packageToTests = await this.packageToTests();
 
     const name =

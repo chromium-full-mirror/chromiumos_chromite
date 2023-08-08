@@ -26,7 +26,9 @@ export class Packages {
    * Creates an instance of this class. If this function has been called with the same
    * parameter, it returns the cached instance.
    */
-  static getOrCreate(chrootService: services.chromiumos.ChrootService) {
+  static getOrCreate(
+    chrootService: services.chromiumos.ChrootService
+  ): Packages {
     const key = chrootService.source.root;
     const cached = Packages.instances.get(key);
     if (cached) {

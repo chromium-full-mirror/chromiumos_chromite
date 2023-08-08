@@ -13,7 +13,7 @@ export function activate(
   statusManager: bgTaskStatus.StatusManager,
   chrootService: services.chromiumos.ChrootService,
   output: vscode.OutputChannel
-) {
+): void {
   const hostTestTaskProvider = new HostTestTaskProvider(
     chrootService,
     output,

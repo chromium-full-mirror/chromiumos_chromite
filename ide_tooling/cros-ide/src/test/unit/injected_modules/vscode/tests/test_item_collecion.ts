@@ -15,11 +15,11 @@ export class TestItemCollection implements vscode.TestItemCollection {
 
   private readonly idToItem = new Map<string, vscode.TestItem>();
 
-  get size() {
+  get size(): number {
     return this.idToItem.size;
   }
 
-  add(item: vscode.TestItem) {
+  add(item: vscode.TestItem): void {
     this.idToItem.set(item.id, item);
   }
 

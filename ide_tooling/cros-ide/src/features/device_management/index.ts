@@ -23,7 +23,7 @@ export function activate(
   statusManager: bgTaskStatus.StatusManager,
   chromiumosServices: services.chromiumos.ChromiumosServiceModule,
   cipdRepository: cipd.CipdRepository
-) {
+): void {
   rsaKeyFixPermission(context.extensionUri);
 
   const output = vscode.window.createOutputChannel(

@@ -157,7 +157,7 @@ export class Analytics {
   /**
    * Send event as query. Does not wait for its response.
    */
-  send(event: metricsEvent.Event, options = this.options) {
+  send(event: metricsEvent.Event, options = this.options): void {
     if (!this.shouldSend()) {
       return;
     }
@@ -200,7 +200,7 @@ export class Analytics {
 /**
  * @deprecated Use Metrics.send instead.
  */
-export function send(event: metricsEvent.Event) {
+export function send(event: metricsEvent.Event): void {
   Metrics.send(event);
 }
 
@@ -209,7 +209,7 @@ export class Metrics {
   static analytics: Promise<Analytics> | null;
 
   /** Sends event for collecting metrics. */
-  static send(event: metricsEvent.Event) {
+  static send(event: metricsEvent.Event): void {
     if (!this.analytics) {
       this.analytics = Analytics.create();
     }

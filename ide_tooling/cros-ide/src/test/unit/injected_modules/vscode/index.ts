@@ -54,7 +54,7 @@ export function setVscode(double: {
   extensions: typeof vscode.extensions;
   window: typeof vscode.window;
   workspace: typeof vscode.workspace;
-}) {
+}): void {
   commands = double.commands;
   comments = double.comments;
   env = double.env;

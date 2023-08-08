@@ -198,7 +198,7 @@ const buildChromeDir = (
 export function activate(
   context: vscode.ExtensionContext,
   statusManager: StatusManager
-) {
+): void {
   statusManager.setTask('Ash build', {
     status: TaskStatus.OK,
     command: {

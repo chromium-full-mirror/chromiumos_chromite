@@ -11,7 +11,7 @@ export class FakeTextDocument implements vscode.TextDocument {
   get fileName(): string {
     return this.uri.fsPath;
   }
-  get isUntitled() {
+  get isUntitled(): boolean {
     return this.uri.scheme === 'untitled';
   }
 
@@ -22,7 +22,7 @@ export class FakeTextDocument implements vscode.TextDocument {
   eol = vscode.EndOfLine.LF;
 
   isDirty = false;
-  async save() {
+  async save(): Promise<boolean> {
     this.isDirty = false;
     return true;
   }

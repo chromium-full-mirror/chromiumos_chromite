@@ -17,7 +17,7 @@ export function activate(
   context: vscode.ExtensionContext,
   statusManager: bgTaskStatus.StatusManager,
   log: logs.LoggingBundle
-) {
+): void {
   const collection = vscode.languages.createDiagnosticCollection('cros-lint');
   if (vscode.window.activeTextEditor) {
     void updateDiagnosticsWrapper(

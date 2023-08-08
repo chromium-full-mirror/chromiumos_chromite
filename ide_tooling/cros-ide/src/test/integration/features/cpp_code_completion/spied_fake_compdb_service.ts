@@ -13,7 +13,7 @@ export class SpiedFakeCompdbService implements compdbService.CompdbService {
 
   constructor(private readonly source: commonUtil.Source) {}
 
-  async generate(board: string, packageInfo: PackageInfo) {
+  async generate(board: string, packageInfo: PackageInfo): Promise<void> {
     const dest = compdbService.destination(this.source, packageInfo);
     await fs.promises.mkdir(path.dirname(dest), {recursive: true});
     await fs.promises.writeFile(dest, 'fake compdb');

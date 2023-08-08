@@ -15,7 +15,7 @@ export function activate(
   subscriptions: vscode.Disposable[],
   statusManager: bgTaskStatus.StatusManager,
   chrootService: services.chromiumos.ChrootService
-) {
+): void {
   subscriptions.push(
     new CppCodeCompletion(
       [
@@ -101,7 +101,7 @@ export class CppCodeCompletion implements vscode.Disposable {
     }
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions).dispose();
   }
 
@@ -225,7 +225,7 @@ export class CppCodeCompletion implements vscode.Disposable {
     });
   }
 
-  showErrorMessage(error: compdbGenerator.ErrorDetails) {
+  showErrorMessage(error: compdbGenerator.ErrorDetails): void {
     const SHOW_LOG = 'Show Log';
     const IGNORE = 'Ignore';
 

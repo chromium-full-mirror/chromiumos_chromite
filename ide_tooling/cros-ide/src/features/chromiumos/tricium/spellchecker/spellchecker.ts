@@ -29,7 +29,7 @@ export async function activate(
   chromiumosRoot: string,
   cipdRepository: cipd.CipdRepository,
   gitDirsWatcher: services.GitDirsWatcher
-) {
+): Promise<void> {
   const outputChannel = vscode.window.createOutputChannel(
     'ChromiumIDE: Tricium'
   );

@@ -38,7 +38,7 @@ export class ChromiumosServiceModule implements vscode.Disposable {
    */
   readonly onDidUpdate = this.onDidUpdateEmitter.event;
 
-  dispose() {
+  dispose(): void {
     this.disposeServices();
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }

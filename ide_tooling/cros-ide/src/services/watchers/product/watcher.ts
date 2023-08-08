@@ -75,7 +75,7 @@ export class ProductWatcher implements vscode.Disposable {
     });
   }
 
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions).dispose();
   }
 

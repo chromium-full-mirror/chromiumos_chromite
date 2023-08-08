@@ -33,7 +33,7 @@ export class Watcher {
   private readonly subscriptions: vscode.Disposable[] = [
     this.onDidChangeEmitter,
   ];
-  dispose() {
+  dispose(): void {
     vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
   }
 

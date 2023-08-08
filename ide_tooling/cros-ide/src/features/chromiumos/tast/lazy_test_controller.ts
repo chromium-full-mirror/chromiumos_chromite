@@ -13,7 +13,7 @@ export class LazyTestController implements vscode.Disposable {
   private controller?: vscode.TestController;
   private runProfile?: RunProfile;
 
-  dispose() {
+  dispose(): void {
     this.runProfile?.dispose();
     this.controller?.dispose();
   }
