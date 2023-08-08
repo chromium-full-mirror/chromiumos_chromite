@@ -126,6 +126,10 @@ const buildChromeDir = (
   // chromium only using 1.8.4
 
   // TODO(jopalmer): Convert to commonUtil.exec
+  //
+  // TODO(cmfcmf): De-duplicate this code with the code for building tests in
+  // src/features/chromium/gtest/runner.ts. Also, this code should likely re-use the output
+  // directory management.
   const autoninja = cp.spawn('autoninja', ['-C', dir, 'chrome'], {
     cwd: vscode.workspace.workspaceFolders?.[0]?.uri.path ?? '',
     shell: false,
