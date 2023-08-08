@@ -66,7 +66,7 @@ def BuildSdkTarball(sdk_path: Path) -> Path:
     Returns:
         The path to the tarball that has been created.
     """
-    tarball_path = Path(constants.SOURCE_ROOT) / constants.SDK_TARBALL_NAME
+    tarball_path = constants.SOURCE_ROOT / constants.SDK_TARBALL_NAME
     CleanupMakeConfBoardSetup(sdk_path)
     CreateTarballForSdk(tarball_path, sdk_path)
     return tarball_path

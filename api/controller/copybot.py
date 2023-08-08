@@ -33,8 +33,7 @@ def RunCopybot(input_proto, output_proto, _config_proto):
     """Run copybot. Translate all fields in the input protobuf to CLI args."""
 
     cmd = [
-        Path(constants.SOURCE_ROOT)
-        / "src/platform/dev/contrib/copybot/copybot.py"
+        constants.SOURCE_ROOT / "src/platform/dev/contrib/copybot/copybot.py"
     ]
 
     if input_proto.topic:

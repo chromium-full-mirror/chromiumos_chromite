@@ -24,7 +24,7 @@ def test_execute(monkeypatch, tmp_path):
         test_elm,
         ["eclass", "ssalce", "abcd"],
     )
-    monkeypatch.setattr("chromite.lib.constants.SOURCE_ROOT", str(tmp_path))
+    monkeypatch.setattr("chromite.lib.constants.SOURCE_ROOT", tmp_path)
     test_output = spiderlib.SpiderOutput([], [overlay_brya, overlay_elm])
     get_eclasses_spider.execute(test_output)
     assert test_output.build_targets == []

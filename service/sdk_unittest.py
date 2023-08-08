@@ -576,10 +576,10 @@ BOOTSTRAP_FROZEN_VERSION = "%(bootstrap_version)s"
             new_tc_path,
         )
         sdk_version_path, prebuilt_path = [
-            Path(constants.SOURCE_ROOT)
+            constants.SOURCE_ROOT
             / "src/third_party/chromiumos-overlay/chromeos/binhost"
             "/host/sdk_version.conf",
-            Path(constants.SOURCE_ROOT)
+            constants.SOURCE_ROOT
             / "src/overlays/overlay-amd64-host/prebuilt.conf",
         ]
         self.assertCountEqual(modified_paths, [sdk_version_path, prebuilt_path])

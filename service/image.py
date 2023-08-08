@@ -268,7 +268,7 @@ def Build(
     logging.info("The following images will be built %s", " ".join(image_names))
 
     version_info = chromeos_version.VersionInfo(
-        version_file=Path(constants.SOURCE_ROOT) / constants.VERSION_FILE
+        version_file=constants.SOURCE_ROOT / constants.VERSION_FILE
     )
     cmd = GetBuildImageCommand(config, image_names, board)
 

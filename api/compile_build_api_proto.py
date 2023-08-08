@@ -158,7 +158,7 @@ def _GenerateFiles(
 
     targets = []
 
-    chromeos_config_path = Path(constants.SOURCE_ROOT) / "src" / "config"
+    chromeos_config_path = constants.SOURCE_ROOT / "src" / "config"
 
     with tempfile.TemporaryDirectory() as tempdir:
         if not chromeos_config_path.exists():

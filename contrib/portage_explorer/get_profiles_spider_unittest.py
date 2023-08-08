@@ -51,7 +51,7 @@ def test_execute(monkeypatch, tmp_path):
             overlay_elm_private,
         ],
     )
-    monkeypatch.setattr("chromite.lib.constants.SOURCE_ROOT", str(tmp_path))
+    monkeypatch.setattr("chromite.lib.constants.SOURCE_ROOT", tmp_path)
     get_profiles_spider.execute(test_output)
     assert test_output.build_targets[0].profile == brya_profiles["base"]
     assert test_output.build_targets[1].profile == elm_private_profiles["base"]

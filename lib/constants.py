@@ -11,17 +11,16 @@ from pathlib import Path
 THIS_FILE = Path(__file__).resolve()
 
 
-def _FindSourceRoot() -> str:
+def _FindSourceRoot() -> Path:
     """Try and find the root check out of the chromiumos tree"""
-    source_root = path = os.path.realpath(
-        os.path.join(os.path.abspath(__file__), "..", "..", "..")
-    )
+    source_root = path = THIS_FILE.parent.parent.parent
+    root = Path("/")
     while True:
-        if os.path.isdir(os.path.join(path, ".repo")):
+        if (path / ".repo").is_dir():
             return path
-        elif path == "/":
+        elif path == root:
             break
-        path = os.path.dirname(path)
+        path = path.parent
     return source_root
 
 
@@ -31,9 +30,9 @@ CHROOT_OUT_ROOT = Path("/mnt/host/out")
 CHROOT_CACHE_ROOT = Path("/var/cache/chromeos-cache")
 DEPOT_TOOLS_SUBPATH = Path("src/chromium/depot_tools")
 
-CROSUTILS_DIR = Path(SOURCE_ROOT) / "src/scripts"
+CROSUTILS_DIR = SOURCE_ROOT / "src/scripts"
 CHROMITE_DIR = THIS_FILE.parent.parent
-BRANCHED_CHROMITE_DIR = Path(SOURCE_ROOT) / "chromite"
+BRANCHED_CHROMITE_DIR = SOURCE_ROOT / "chromite"
 IS_BRANCHED_CHROMITE = CHROMITE_DIR == BRANCHED_CHROMITE_DIR
 DEPOT_TOOLS_DIR = SOURCE_ROOT / DEPOT_TOOLS_SUBPATH
 CHROMITE_BIN_SUBDIR = Path("chromite/bin")
@@ -44,8 +43,8 @@ DEFAULT_CHROOT_DIR = "chroot"
 DEFAULT_CHROOT_PATH = os.path.join(SOURCE_ROOT, DEFAULT_CHROOT_DIR)
 DEFAULT_OUT_DIR = Path("out")
 DEFAULT_OUT_PATH = SOURCE_ROOT / DEFAULT_OUT_DIR
-DEFAULT_BUILD_ROOT = Path(SOURCE_ROOT) / "src" / "build"
-BAZEL_WORKSPACE_ROOT = Path(SOURCE_ROOT, "src")
+DEFAULT_BUILD_ROOT = SOURCE_ROOT / "src" / "build"
+BAZEL_WORKSPACE_ROOT = SOURCE_ROOT / "src"
 
 STATEFUL_DIR = "/mnt/stateful_partition"
 
@@ -405,7 +404,7 @@ PRIVATE_BINHOST_CONF_DIR = os.path.join(
     CHROMEOS_PARTNER_OVERLAY_DIR, "chromeos/binhost"
 )
 HOST_PREBUILT_CONF_FILE = "src/overlays/overlay-amd64-host/prebuilt.conf"
-HOST_PREBUILT_CONF_FILE_FULL_PATH = Path(SOURCE_ROOT) / HOST_PREBUILT_CONF_FILE
+HOST_PREBUILT_CONF_FILE_FULL_PATH = SOURCE_ROOT / HOST_PREBUILT_CONF_FILE
 
 VERSION_FILE = os.path.join(
     CHROMIUMOS_OVERLAY_DIR, "chromeos/config/chromeos_version.sh"
@@ -413,7 +412,7 @@ VERSION_FILE = os.path.join(
 SDK_VERSION_FILE = os.path.join(
     PUBLIC_BINHOST_CONF_DIR, "host/sdk_version.conf"
 )
-SDK_VERSION_FILE_FULL_PATH = Path(SOURCE_ROOT) / SDK_VERSION_FILE
+SDK_VERSION_FILE_FULL_PATH = SOURCE_ROOT / SDK_VERSION_FILE
 SDK_GS_BUCKET = "chromiumos-sdk"
 
 PUBLIC = "public"

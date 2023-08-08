@@ -4,8 +4,6 @@
 
 """Spider to get all eclasses."""
 
-from pathlib import Path
-
 from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 
@@ -17,7 +15,7 @@ def execute(output: spiderlib.SpiderOutput):
         output: SpiderOutput representing the final output from all the spiders.
     """
     for overlay in output.overlays:
-        eclass_folder = Path(constants.SOURCE_ROOT) / overlay.path / "eclass"
+        eclass_folder = constants.SOURCE_ROOT / overlay.path / "eclass"
         eclasses = []
         for eclass in eclass_folder.glob("*.eclass"):
             eclass_name = eclass.stem

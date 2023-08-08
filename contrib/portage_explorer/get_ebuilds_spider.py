@@ -4,8 +4,6 @@
 
 """Spider to get all ebuilds and its package info."""
 
-from pathlib import Path
-
 from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 from chromite.lib import portage_util
@@ -23,7 +21,7 @@ def execute(output: spiderlib.SpiderOutput):
     """
     for overlay in output.overlays:
         overlay_ebuilds = []
-        overlay_path = Path(constants.SOURCE_ROOT) / overlay.path
+        overlay_path = constants.SOURCE_ROOT / overlay.path
         for ebuild in portage_util.FindEbuildsForOverlays([overlay_path]):
             ebuild_src_path = ebuild.relative_to(overlay_path)
             ebuild_category = ebuild_src_path.parents[1]

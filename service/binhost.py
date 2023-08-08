@@ -303,7 +303,7 @@ def GetBinhostConfPath(target: str, key: str, private: bool = True) -> Path:
         else constants.PUBLIC_BINHOST_CONF_DIR
     )
     conf_path = (
-        Path(constants.SOURCE_ROOT)
+        constants.SOURCE_ROOT
         / conf_dir_name
         / "target"
         / f"{target}-{key}.conf"

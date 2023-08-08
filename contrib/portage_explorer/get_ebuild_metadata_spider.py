@@ -4,8 +4,6 @@
 
 """Spider to get metadata about every ebuild."""
 
-from pathlib import Path
-
 from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 from chromite.utils import key_value_store
@@ -24,7 +22,7 @@ def execute(output: spiderlib.SpiderOutput):
     for overlay in output.overlays:
         for ebuild in overlay.ebuilds:
             md5_cache_path = (
-                Path(f"{constants.SOURCE_ROOT}")
+                constants.SOURCE_ROOT
                 / overlay.path
                 / "metadata"
                 / "md5-cache"

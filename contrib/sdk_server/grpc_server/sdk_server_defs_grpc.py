@@ -181,7 +181,7 @@ class SdkSysroot(sysroot_lib.Sysroot):
         self.get_images()
 
     def get_images(self):
-        path = Path(f"{constants.SOURCE_ROOT}/src/build/images/{self.name}")
+        path = constants.SOURCE_ROOT / "src" / "build" / "images" / self.name
         self.images = []
         latest_target = None
 

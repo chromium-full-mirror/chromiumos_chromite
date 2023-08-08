@@ -4,8 +4,6 @@
 
 """Spider to get the parent profiles a profile inherits from."""
 
-from pathlib import Path
-
 from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 
@@ -22,7 +20,7 @@ def execute(output: spiderlib.SpiderOutput):
     """
     for overlay in output.overlays:
         for profile in overlay.profiles:
-            parent_file = Path(constants.SOURCE_ROOT) / profile.path / "parent"
+            parent_file = constants.SOURCE_ROOT / profile.path / "parent"
             if parent_file.exists():
                 for line in parent_file.open(encoding="utf-8"):
                     line = line.split("#")[0].strip()

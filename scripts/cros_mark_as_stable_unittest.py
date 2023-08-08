@@ -173,10 +173,10 @@ class MarkAsStableCMDTest(cros_test_lib.MockTempDirTestCase):
         # TODO: Remove explicit --buildroot after --srcroot remove and a normal
         #       default is set.
         self._commit_options = self._parser.parse_args(
-            ["commit", "--buildroot", constants.SOURCE_ROOT]
+            ["commit", "--buildroot", str(constants.SOURCE_ROOT)]
         )
         self._push_options = self._parser.parse_args(
-            ["push", "--buildroot", constants.SOURCE_ROOT]
+            ["push", "--buildroot", str(constants.SOURCE_ROOT)]
         )
 
     def testWorkOnPush(self):

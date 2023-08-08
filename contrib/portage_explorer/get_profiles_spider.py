@@ -4,8 +4,6 @@
 
 """Spider to get all profiles and connect them to the correct board/overlay."""
 
-from pathlib import Path
-
 from chromite.contrib.portage_explorer import get_boards_spider
 from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
@@ -25,7 +23,7 @@ def execute(output: spiderlib.SpiderOutput):
     board_profiles = {}
     for overlay in output.overlays:
         overlay_profiles_path = (
-            Path(constants.SOURCE_ROOT) / overlay.path / "profiles"
+            constants.SOURCE_ROOT / overlay.path / "profiles"
         )
         for profile_path in overlay_profiles_path.glob("*/"):
             if profile_path.is_dir():

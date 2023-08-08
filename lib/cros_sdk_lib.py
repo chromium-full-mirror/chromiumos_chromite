@@ -921,9 +921,7 @@ PORTAGE_USERNAME="{user}"
 
     def print_success_summary(self):
         """Show a summary of the chroot to the user."""
-        default_chroot = (
-            Path(constants.SOURCE_ROOT) / constants.DEFAULT_CHROOT_DIR
-        )
+        default_chroot = constants.SOURCE_ROOT / constants.DEFAULT_CHROOT_DIR
         chroot_opt = ""
         if default_chroot != self.chroot_path:
             chroot_opt = f" --chroot={self.chroot_path}"

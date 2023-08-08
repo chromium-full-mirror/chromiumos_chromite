@@ -4,8 +4,6 @@
 
 """Spider to get all the use flags for all the profiles."""
 
-from pathlib import Path
-
 from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -22,7 +20,7 @@ def execute(output: spiderlib.SpiderOutput):
     for overlay in output.overlays:
         for profile in overlay.profiles:
             make_defaults_path = (
-                Path(constants.SOURCE_ROOT) / profile.path / "make.defaults"
+                constants.SOURCE_ROOT / profile.path / "make.defaults"
             )
             if make_defaults_path.exists():
                 command = (

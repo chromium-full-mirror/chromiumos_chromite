@@ -116,7 +116,7 @@ class Overlay(QueryTarget):
             if "chromeos" in all_overlays:
                 parents.append(all_overlays["chromeos"])
             for path in (
-                Path(constants.SOURCE_ROOT) / "src" / "private-overlays"
+                constants.SOURCE_ROOT / "src" / "private-overlays"
             ).glob("chromeos-*-overlay"):
                 parents.append(Overlay(path))
 

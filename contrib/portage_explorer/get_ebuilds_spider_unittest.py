@@ -31,7 +31,7 @@ def test_execute(monkeypatch, tmp_path):
         },
     )
     test_output = spiderlib.SpiderOutput([], [overlay_elm])
-    monkeypatch.setattr("chromite.lib.constants.SOURCE_ROOT", str(tmp_path))
+    monkeypatch.setattr("chromite.lib.constants.SOURCE_ROOT", tmp_path)
     get_ebuilds_spider.execute(test_output)
     assert test_output.build_targets == []
     assert test_output.overlays[0].profiles == []

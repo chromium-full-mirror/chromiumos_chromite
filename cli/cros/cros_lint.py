@@ -83,7 +83,7 @@ def _GetPythonPath():
         # module, but that's not possible currently.  We'll have to deal with
         # that at some point if we want `cros lint` to work when the dir is not
         # named 'chromite'.
-        constants.SOURCE_ROOT,
+        str(constants.SOURCE_ROOT),
     ]
 
 
