@@ -30,7 +30,6 @@ adjust-part='STATE:=1G' --  make the stateful partition 1 GB
 
 import argparse
 import os
-from pathlib import Path
 import sys
 from typing import List, Optional
 
@@ -234,7 +233,7 @@ class BuildImageCommand(command.CliCommand):
         build_shell_string_style_args(
             parser,
             "output_root",
-            Path(constants.DEFAULT_BUILD_ROOT) / "images",
+            constants.DEFAULT_BUILD_ROOT / "images",
             "Directory in which to place image result directories "
             "(named by version).",
             deprecation_note,
@@ -327,7 +326,7 @@ class BuildImageCommand(command.CliCommand):
         build_shell_string_style_args(
             group,
             "build_root",
-            Path(constants.DEFAULT_BUILD_ROOT) / "images",
+            constants.DEFAULT_BUILD_ROOT / "images",
             "Directory in which to compose the image, before copying it to "
             "output_root.",
             deprecation_note,

@@ -98,10 +98,10 @@ class BuildConfig(NamedTuple):
     boot_args: str = "noinitrd"
     enable_bootcache: bool = False
     output_root: Union[str, os.PathLike] = (
-        Path(constants.DEFAULT_BUILD_ROOT) / "images"
+        constants.DEFAULT_BUILD_ROOT / "images"
     )
     build_root: Union[str, os.PathLike] = (
-        Path(constants.DEFAULT_BUILD_ROOT) / "images"
+        constants.DEFAULT_BUILD_ROOT / "images"
     )
     enable_serial: Optional[str] = None
     kernel_loglevel: int = 7
