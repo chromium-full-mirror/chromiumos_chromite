@@ -455,6 +455,11 @@ GROUP_BASELINE = dict(
             users={"crosvm", "shadercached", "spaced"},
         ),
         GroupEntry(group="mei-access", gid=427, users={"healthd_psr"}),
+        GroupEntry(
+            group="oobe_config",
+            gid=428,
+            users={"oobe_config_save", "oobe_config_restore"},
+        ),
     )
 )
 
