@@ -405,7 +405,7 @@ def main(argv):
             # Rerun inside the SDK instead of trying to map all the paths.
             cmd = [
                 (
-                    Path(constants.CHROOT_SOURCE_ROOT)
+                    constants.CHROOT_SOURCE_ROOT
                     / "chromite"
                     / "api"
                     / "compile_build_api_proto"

@@ -209,7 +209,7 @@ def MountChrootPaths(path: Union[Path, str], out_dir: Path):
     # recursive bind at the end, we'd double bind things.
     osutils.Mount(
         constants.SOURCE_ROOT,
-        path / constants.CHROOT_SOURCE_ROOT[1:],
+        path / constants.CHROOT_SOURCE_ROOT.relative_to("/"),
         "~/chromiumos",
         osutils.MS_BIND | osutils.MS_REC,
     )
@@ -849,7 +849,7 @@ class ChrootCreator:
         """Create various dirs & simple config files."""
         # Create random empty dirs.
         for path in (
-            Path(constants.CHROOT_SOURCE_ROOT),
+            constants.CHROOT_SOURCE_ROOT,
             constants.CHROOT_OUT_ROOT,
             Path("/mnt/host/depot_tools"),
             Path("/run"),

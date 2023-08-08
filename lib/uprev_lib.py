@@ -996,7 +996,7 @@ def uprev_workon_ebuild_to_version(
     *,
     allow_downrev: bool = True,
     ref: str = "HEAD",
-    chroot_src_root: str = constants.CHROOT_SOURCE_ROOT,
+    chroot_src_root: str = str(constants.CHROOT_SOURCE_ROOT),
 ) -> UprevResult:
     """Uprev a cros-workon ebuild to a specified version.
 

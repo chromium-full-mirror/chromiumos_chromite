@@ -26,7 +26,7 @@ def _FindSourceRoot() -> str:
 
 
 SOURCE_ROOT = _FindSourceRoot()
-CHROOT_SOURCE_ROOT = "/mnt/host/source"
+CHROOT_SOURCE_ROOT = Path("/mnt/host/source")
 CHROOT_OUT_ROOT = Path("/mnt/host/out")
 CHROOT_CACHE_ROOT = "/var/cache/chromeos-cache"
 DEPOT_TOOLS_SUBPATH = Path("src/chromium/depot_tools")

@@ -406,9 +406,9 @@ class TestPathResolver(cros_test_lib.MockTestCase):
                 os.path.join(
                     constants.CHROOT_SOURCE_ROOT,
                     constants.DEFAULT_CHROOT_DIR,
-                    constants.CHROOT_SOURCE_ROOT.lstrip(os.path.sep),
+                    constants.CHROOT_SOURCE_ROOT.relative_to("/"),
                     constants.DEFAULT_CHROOT_DIR,
-                    constants.CHROOT_SOURCE_ROOT.lstrip(os.path.sep),
+                    constants.CHROOT_SOURCE_ROOT.relative_to("/"),
                     "some/path",
                 )
             ),
@@ -474,18 +474,18 @@ class TestPathResolver(cros_test_lib.MockTestCase):
             os.path.join(
                 constants.SOURCE_ROOT,
                 constants.DEFAULT_CHROOT_DIR,
-                constants.CHROOT_SOURCE_ROOT.lstrip(os.path.sep),
+                constants.CHROOT_SOURCE_ROOT.relative_to("/"),
                 constants.DEFAULT_CHROOT_DIR,
-                constants.CHROOT_SOURCE_ROOT.lstrip(os.path.sep),
+                constants.CHROOT_SOURCE_ROOT.relative_to("/"),
                 "some/path",
             ),
             resolver.FromChroot(
                 os.path.join(
                     constants.CHROOT_SOURCE_ROOT,
                     constants.DEFAULT_CHROOT_DIR,
-                    constants.CHROOT_SOURCE_ROOT.lstrip(os.path.sep),
+                    constants.CHROOT_SOURCE_ROOT.relative_to("/"),
                     constants.DEFAULT_CHROOT_DIR,
-                    constants.CHROOT_SOURCE_ROOT.lstrip(os.path.sep),
+                    constants.CHROOT_SOURCE_ROOT.relative_to("/"),
                     "some/path",
                 )
             ),
