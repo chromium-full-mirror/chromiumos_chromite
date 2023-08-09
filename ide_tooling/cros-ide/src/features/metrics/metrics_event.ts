@@ -23,6 +23,7 @@ type FeatureGroup =
   | 'device'
   | 'format'
   | 'gerrit'
+  | 'hints'
   | 'idestatus'
   | 'lint'
   | 'misc'
@@ -263,6 +264,19 @@ type GerritEvent = EventBase & {
       }
   );
 
+type HintsEvent = EventBase & {
+  group: 'hints';
+} & (
+    | {
+        category: 'background';
+        name: 'hints_show_chromiumos_workspace_warning';
+      }
+    | {
+        category: 'interactive';
+        name: 'hints_ignore_chromiumos_workspace_warning';
+      }
+  );
+
 type IdeStatusEvent = EventBase & {
   category: 'interactive';
   group: 'idestatus';
@@ -390,6 +404,7 @@ export type Event =
   | DeviceManagementEvent
   | ExtensionSuggestionEvent
   | GerritEvent
+  | HintsEvent
   | IdeStatusEvent
   | LintEvent
   | MiscEvent

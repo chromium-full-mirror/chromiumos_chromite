@@ -54,6 +54,7 @@ function newVscodeSpy() {
       'showErrorMessage',
       'showInformationMessage',
       'showInputBox',
+      'showOpenDialog',
       'showQuickPick',
       'showTextDocument',
       'showWarningMessage',

@@ -1,4 +1,4 @@
-// Copyright 2022 The ChromiumOS Authors
+// Copyright 2023 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -34,7 +34,7 @@ function hasAllWellKnownFiles(dir: string): boolean {
   return true;
 }
 
-async function isChromiumosRoot(dir: string): Promise<boolean> {
+export async function isChromiumosRoot(dir: string): Promise<boolean> {
   if (await hasStandardManifest(dir)) {
     return true;
   }
@@ -48,7 +48,9 @@ async function isChromiumosRoot(dir: string): Promise<boolean> {
 /**
  * Returns chromiumOS root containing the file or the directory.
  */
-export async function root(file: string): Promise<string | undefined> {
+export async function chromiumosRoot(
+  file: string
+): Promise<string | undefined> {
   // We don't use `repo --show-toplevel` here to make it easy to create
   // fake repos in unit tests.
   while (file !== '/') {

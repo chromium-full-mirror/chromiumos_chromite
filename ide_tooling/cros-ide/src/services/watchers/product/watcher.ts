@@ -5,9 +5,9 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import {chromiumRoot} from '../../../common/chromium/fs';
+import {chromiumosRoot} from '../../../common/chromiumos/fs';
 import * as commonUtil from '../../../common/common_util';
 import * as metrics from '../../../features/metrics/metrics';
-import * as chromiumos from './chromiumos';
 
 /**
  * Watches workspace and fires event when the status of whether the workspace
@@ -84,7 +84,7 @@ export class ProductWatcher implements vscode.Disposable {
       case 'chromium':
         return await chromiumRoot(uri.fsPath);
       case 'chromiumos':
-        return await chromiumos.root(uri.fsPath);
+        return await chromiumosRoot(uri.fsPath);
       default:
         ((_: never) => {})(this.product);
     }

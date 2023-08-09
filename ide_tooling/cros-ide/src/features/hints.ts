@@ -3,7 +3,10 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {isChromiumosRoot} from '../common/chromiumos/fs';
+import {hints} from '../services/config';
 import * as sudo from '../services/sudo';
+import {Metrics} from './metrics/metrics';
 
 /**
  * Activates the hint handlers.
@@ -14,8 +17,14 @@ import * as sudo from '../services/sudo';
  */
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
-    sudo.onDidRunSudoWithPassword(onDidRunSudoWithPassword)
+    sudo.onDidRunSudoWithPassword(onDidRunSudoWithPassword),
+    vscode.workspace.onDidChangeWorkspaceFolders(onDidChangeWorkspaceFolders)
   );
+
+  void onDidChangeWorkspaceFolders({
+    added: vscode.workspace.workspaceFolders ?? [],
+    removed: [],
+  });
 }
 
 const maxSudoPasswordIntervalInMilli = 3 * 60 * 60 * 1000; // 3 hours
@@ -51,4 +60,60 @@ function onDidRunSudoWithPassword(): void {
     }
   }
   lastDidRunSudoWithPassword = now;
+}
+
+const onDidHandleChangeWorkspaceFoldersEmitter =
+  new vscode.EventEmitter<void>();
+export const onDidHandleChangeWorkspaceFolders =
+  onDidHandleChangeWorkspaceFoldersEmitter.event;
+
+async function onDidChangeWorkspaceFolders({
+  added,
+}: vscode.WorkspaceFoldersChangeEvent): Promise<void> {
+  for (const dir of added) {
+    if (
+      hints.tooLargeWorkspace.get() &&
+      (await isChromiumosRoot(dir.uri.fsPath))
+    ) {
+      Metrics.send({
+        category: 'background',
+        group: 'hints',
+        description: 'show chromiumos workspace warning',
+        name: 'hints_show_chromiumos_workspace_warning',
+      });
+
+      const openSubdirectory = 'Open subdirectory';
+      const dontAskAgain = "Don't ask again";
+      const choice = await vscode.window.showWarningMessage(
+        'Opening the entire chromiumos directory can cause performance problem; we recommend to open a subdirectory',
+        openSubdirectory,
+        dontAskAgain
+      );
+      if (choice === openSubdirectory) {
+        const folderUri = await vscode.window.showOpenDialog({
+          defaultUri: dir.uri,
+          canSelectMany: false,
+          openLabel: 'Select',
+          canSelectFiles: false,
+          canSelectFolders: true,
+        });
+        if (folderUri) {
+          void vscode.commands.executeCommand(
+            'vscode.openFolder',
+            folderUri[0]
+          );
+        }
+      } else if (choice === dontAskAgain) {
+        await hints.tooLargeWorkspace.update(false);
+
+        Metrics.send({
+          category: 'interactive',
+          group: 'hints',
+          description: 'show chromiumos workspace warning',
+          name: 'hints_ignore_chromiumos_workspace_warning',
+        });
+      }
+    }
+  }
+  onDidHandleChangeWorkspaceFoldersEmitter.fire();
 }

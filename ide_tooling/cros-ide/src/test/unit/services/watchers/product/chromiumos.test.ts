@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import mockFs = require('mock-fs');
-import * as chromiumos from '../../../../../services/watchers/product/chromiumos';
+import {chromiumosRoot} from '../../../../../common/chromiumos/fs';
 
 describe('Chromiumos product detection', () => {
   afterEach(() => {
@@ -19,8 +19,8 @@ describe('Chromiumos product detection', () => {
       '/cros/src/platform2': {},
     });
 
-    await expectAsync(chromiumos.root('/cros')).toBeResolvedTo('/cros');
-    await expectAsync(chromiumos.root('/cros/foo/bar')).toBeResolvedTo('/cros');
+    await expectAsync(chromiumosRoot('/cros')).toBeResolvedTo('/cros');
+    await expectAsync(chromiumosRoot('/cros/foo/bar')).toBeResolvedTo('/cros');
   });
 
   it('should fail for missing well-known files and irregular manifests', async () => {
@@ -28,6 +28,6 @@ describe('Chromiumos product detection', () => {
       '/cros/.repo/manifests.git/config': 'irregular manifest',
     });
 
-    await expectAsync(chromiumos.root('/cros')).toBeResolvedTo(undefined);
+    await expectAsync(chromiumosRoot('/cros')).toBeResolvedTo(undefined);
   });
 });

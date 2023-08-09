@@ -116,6 +116,10 @@ export const gerrit = {
   enabled: new ConfigValue<boolean>('gerrit.enabled'),
 };
 
+export const hints = {
+  tooLargeWorkspace: new ConfigValue<boolean>('hints.tooLargeWorkspace'),
+};
+
 export const underDevelopment = {
   boardsAndPackagesV2: new ConfigValue<boolean>(
     'underDevelopment.boardsAndPackagesV2'

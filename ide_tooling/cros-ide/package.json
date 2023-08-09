@@ -744,6 +744,11 @@
           "markdownDescription": "Enable Gerrit comments.",
           "default": true
         },
+        "chromiumide.hints.tooLargeWorkspace": {
+          "type": "boolean",
+          "description": "Warn if very large directory is used as workspace folder",
+          "default": true
+        },
         "chromiumide.ownersFiles.links": {
           "type": "boolean",
           "description": "Make references to other OWNERS files clickable.",
