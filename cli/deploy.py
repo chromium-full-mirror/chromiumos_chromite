@@ -796,7 +796,20 @@ print(json.dumps(pkg_info))
             )
             num_processed = 0
             for slot, pkg_info in cp_slots.items():
-                if required_slot and slot != required_slot:
+                if not required_slot:
+                    logging.debug(" Including because no required_slot")
+                elif slot == required_slot:
+                    logging.debug(
+                        " Including because slot (%s) == required_slot (%s)",
+                        slot,
+                        required_slot,
+                    )
+                else:
+                    logging.debug(
+                        " Skipping because slot (%s) != required_slot (%s)",
+                        slot,
+                        required_slot,
+                    )
                     continue
 
                 num_processed += 1
