@@ -5,5 +5,6 @@
     "amodio.tsl-problem-matcher",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
+    "google.wireit"
   ]
 }

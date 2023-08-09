@@ -1015,21 +1015,134 @@
     ]
   },
   "scripts": {
-    "build": "rm -rf dist && ts-node --swc tools/build.ts -p tools",
-    "build-release": "rm -rf dist && NODE_ENV=production ts-node tools/build.ts -p tools",
-    "build-tests": "rm -rf out && NODE_ENV=test ts-node --swc tools/build.ts -p tools",
-    "build-all": "npm run build && npm run build-tests",
-    "check": "tsc -p . --noEmit && tsc -p views --noEmit && tsc -p tools --noEmit",
-    "test": "npm run unit-test && npm run integration-test",
-    "unit-test": "npm run build-tests && NODE_PATH=out/test/unit/injected_modules NODE_OPTIONS=$NODE_OPTIONS' -r source-map-support/register' jasmine --config=src/test/unit/jasmine.json",
-    "integration-test": "npm run build-all && rm -rf .vscode-test/user-data && xvfb-run -a node ./out/test/integration/runTest.js",
-    "e2e-test": "sudo true && npm run build-tests && NODE_PATH=out/test/unit/injected_modules NODE_OPTIONS=$NODE_OPTIONS' -r source-map-support/register' jasmine --config=src/test/e2e/jasmine.json",
-    "lint": "npm run lint-code && npm run lint-license",
-    "lint-code": "gts lint",
-    "lint-license": "jsgl --local .",
-    "fix": "gts fix",
-    "preupload": "npm run check && npm run lint && npm run test",
-    "vscode:prepublish": "npm run build-release"
+    "build": "wireit",
+    "build-release": "wireit",
+    "build-tests": "wireit",
+    "build-all": "wireit",
+    "check": "wireit",
+    "test": "wireit",
+    "unit-test": "wireit",
+    "integration-test": "wireit",
+    "e2e-test": "wireit",
+    "lint": "wireit",
+    "lint-code": "wireit",
+    "lint-license": "wireit",
+    "fix": "wireit",
+    "preupload": "wireit",
+    "vscode:prepublish": "wireit"
+  },
+  "wireit": {
+    "build": {
+      "command": "ts-node --swc tools/build.ts -p tools",
+      "output": [
+        "dist"
+      ]
+    },
+    "build-release": {
+      "command": "ts-node tools/build.ts -p tools",
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "output": [
+        "dist"
+      ]
+    },
+    "build-tests": {
+      "command": "ts-node --swc tools/build.ts -p tools",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "output": [
+        "out"
+      ]
+    },
+    "build-all": {
+      "dependencies": [
+        "build",
+        "build-tests"
+      ]
+    },
+    "check": {
+      "dependencies": [
+        "check-root",
+        "check-views",
+        "check-tools"
+      ]
+    },
+    "check-root": {
+      "command": "tsc -p . --noEmit",
+      "output": []
+    },
+    "check-views": {
+      "command": "tsc -p views --noEmit",
+      "output": []
+    },
+    "check-tools": {
+      "command": "tsc -p tools --noEmit",
+      "output": []
+    },
+    "lint": {
+      "dependencies": [
+        "lint-code",
+        "lint-license"
+      ]
+    },
+    "lint-code": {
+      "command": "gts lint",
+      "output": []
+    },
+    "fix": {
+      "command": "gts fix"
+    },
+    "lint-license": {
+      "command": "jsgl --local .",
+      "output": []
+    },
+    "test": {
+      "dependencies": [
+        "unit-test",
+        "integration-test"
+      ]
+    },
+    "unit-test": {
+      "command": "NODE_OPTIONS=$NODE_OPTIONS' -r source-map-support/register' jasmine --config=src/test/unit/jasmine.json --color",
+      "env": {
+        "NODE_PATH": "out/test/unit/injected_modules"
+      },
+      "dependencies": [
+        "build-tests"
+      ]
+    },
+    "e2e-test": {
+      "command": "sudo true && NODE_OPTIONS=$NODE_OPTIONS' -r source-map-support/register' jasmine --config=src/test/e2e/jasmine.json --color",
+      "env": {
+        "NODE_PATH": "out/test/unit/injected_modules"
+      },
+      "dependencies": [
+        "build-tests"
+      ]
+    },
+    "integration-test": {
+      "command": "xvfb-run -a node ./out/test/integration/runTest.js",
+      "dependencies": [
+        "build-all"
+      ],
+      "output": [
+        ".vscode-test/user-data"
+      ]
+    },
+    "preupload": {
+      "dependencies": [
+        "check",
+        "lint",
+        "test"
+      ]
+    },
+    "vscode:prepublish": {
+      "dependencies": [
+        "build-release"
+      ]
+    }
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
@@ -1092,6 +1205,7 @@
     "typescript": "^5.0.4",
     "vscode-tmgrammar-test": "^0.1.1",
     "vscode-uri": "^3.0.3",
-    "webpack": "^5.71.0"
+    "webpack": "^5.71.0",
+    "wireit": "^0.10.0"
   }
 }
