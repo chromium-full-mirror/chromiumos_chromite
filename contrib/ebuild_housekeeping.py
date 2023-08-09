@@ -207,6 +207,65 @@ def normalize(
     return False
 
 
+def eapi_7_safe(pkg: Package, ebuild: Ebuild, force: bool = False) -> bool:
+    """Try and guess whether it's safe to upgrade to EAPI=7."""
+    log_prefix = "EAPI=7 checks"
+    # If it's already upgraded, then there's no need to upgrade again.
+    if ebuild.eapi == "7":
+        return False
+
+    lines = ebuild.lines
+    issues = []
+
+    BAD_CONTENT = (
+        ("STRIP_MASK=", "7; use `dostrip -x`"),
+        (
+            "prune_libtool_files",
+            "use `find \"${ED}\" -name '*.la' -delete || die`",
+        ),
+        ("ltprune", "use `find \"${ED}\" -name '*.la' -delete || die`"),
+        ("epatch", "use `eapply` or `PATCHES=(...)`"),
+        ("epatch_user", "use `eapply_user`"),
+        ("versionator", "use `ver_xxx` helpers"),
+        ("eapi7-ver", "don't need this eclass at all"),
+        ("dohtml", "use `dodoc`"),
+        ("einstall", 'use `emake DESTDIR="${ED}" install`'),
+    )
+    for entry, replacement in BAD_CONTENT:
+        if any(entry in x for x in lines):
+            issues += [f"{entry} banned in EAPI=7; {replacement}"]
+
+    if any(
+        x.startswith("src_")
+        and not x.startswith("src_install()")
+        and not x.startswith("src_unpack()")
+        for x in lines
+    ):
+        if ebuild.eapi == "6":
+            logging.warning(
+                "%s: %s: assuming EAPI=6 -> EAPI=7 is easy; please review!",
+                pkg.cp,
+                log_prefix,
+            )
+        else:
+            issues += ["src_xxx funcs require manual review"]
+
+    for issue in issues:
+        if not force:
+            logging.error("%s: %s: skipping: %s", pkg.cp, log_prefix, issue)
+        else:
+            logging.warning(
+                "%s: %s: %s; please review!", pkg.cp, log_prefix, issue
+            )
+
+    ret = force or not bool(issues)
+    if not ret:
+        logging.error(
+            "%s: %s: use --force to upgrade anyways", pkg.cp, log_prefix
+        )
+    return ret
+
+
 def general_bump_eapi(
     pkg: Package, dryrun: bool = False, force: bool = False
 ) -> bool:
@@ -227,44 +286,14 @@ def general_bump_eapi(
         return False
     if files[0].is_symlink:
         files = [files[1], files[0]]
-    src_ebuild = files[0]
-    if src_ebuild.eapi == "7":
+    ebuild = files[0]
+
+    if not eapi_7_safe(pkg, ebuild, force=force):
         return False
 
-    lines = src_ebuild.lines
-
-    if any(
-        x.startswith("src_") and not x.startswith("src_install()")
-        for x in lines
-    ):
-        if src_ebuild.eapi == "6":
-            logging.warning(
-                "%s: %s: assuming EAPI=6 -> EAPI=7 is easy; please review!",
-                pkg.cp,
-                log_prefix,
-            )
-        else:
-            if not force:
-                logging.error(
-                    "%s: %s: skipping: has src_xxx funcs", pkg.cp, log_prefix
-                )
-                return False
-            logging.warning(
-                "%s: %s: has src_xxx funcs; please review!", pkg.cp, log_prefix
-            )
-    if any(x.startswith("STRIP_MASK=") for x in lines):
-        if not force:
-            logging.error(
-                "%s: %s: skipping: has STRIP_MASK", pkg.cp, log_prefix
-            )
-            return False
-        logging.warning(
-            "%s: %s: has STRIP_MASK; please review!", pkg.cp, log_prefix
-        )
-
     logging.notice("%s: %s", pkg.cp, log_prefix)
-    lines = ['EAPI="7"' if x.startswith("EAPI=") else x for x in lines]
-    src_ebuild.write_lines(lines, dryrun=dryrun)
+    lines = ['EAPI="7"' if x.startswith("EAPI=") else x for x in ebuild.lines]
+    ebuild.write_lines(lines, dryrun=dryrun)
 
     ebuild_bump(pkg, files, dryrun=dryrun)
     git_add(pkg, dryrun=dryrun)
@@ -281,47 +310,12 @@ def cros_workon_bump_eapi(
     if not pkg.is_workon:
         return False
     ebuild = pkg.workon_ebuild
-    if ebuild.eapi == "7":
+
+    if not eapi_7_safe(pkg, ebuild, force=force):
         return False
 
-    lines = ebuild.lines
-    if any(
-        x.startswith("src_")
-        and not x.startswith("src_install()")
-        and not x.startswith("src_unpack")
-        for x in lines
-    ):
-        if ebuild.eapi == "6":
-            logging.warning(
-                "%s: %s: assuming EAPI=6 -> EAPI=7 is easy; please review!",
-                pkg.cp,
-                log_prefix,
-            )
-        else:
-            if not force:
-                logging.error(
-                    "%s: %s: skipping: has src_xxx funcs",
-                    pkg.cp,
-                    log_prefix,
-                )
-                return False
-            logging.warning(
-                "%s: %s: has src_xxx funcs; please review!",
-                pkg.cp,
-                log_prefix,
-            )
-    if any(x.startswith("STRIP_MASK=") for x in lines):
-        if not force:
-            logging.error(
-                "%s: %s: skipping: has STRIP_MASK", pkg.cp, log_prefix
-            )
-            return False
-        logging.warning(
-            "%s: %s: has STRIP_MASK; please review!", pkg.cp, log_prefix
-        )
-
     logging.notice("%s: %s", pkg.cp, log_prefix)
-    lines = ['EAPI="7"' if x.startswith("EAPI=") else x for x in lines]
+    lines = ['EAPI="7"' if x.startswith("EAPI=") else x for x in ebuild.lines]
     ebuild.write_lines(lines, dryrun=dryrun)
 
     git_add(pkg, dryrun=dryrun)
