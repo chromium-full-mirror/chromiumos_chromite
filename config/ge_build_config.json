@@ -13067,6 +13067,15 @@
           "is_active": true,
           "stable_target_milestone": 121,
           "is_experimental": true
+        },
+        {
+          "board_name": "ovis",
+          "name": "ovis4es",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7254,
+          "is_active": true,
+          "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
