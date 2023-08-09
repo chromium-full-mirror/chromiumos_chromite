@@ -1,8 +1,8 @@
-The services directory contains common services that can be used from any
-feature. Services typically utilizes some VSCode functionalities or
-configurations to function, and when some of the configurations change, they
-should reflect the change on its own.
+# Services
 
-The difference between `common` and `services` is that `services` know about
-vscode namespace, but `common` doesn't. `services` can use `common`, but
-`common` cannot use `services`.
+New code for common utilities should be put under `common` rather than
+`services`.
+
+Historically we have been distinguishing `common` and `services` so that
+`common` doesn't use `vscode` namespace. It was convenient for unit testing, but
+now we have rich vscode doubles support and the distinction is less useful.
