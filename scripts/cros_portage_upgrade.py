@@ -20,6 +20,7 @@ from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import depgraph
+from chromite.lib import git
 from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -406,15 +407,13 @@ class Upgrader:
         """
         # This disables the vi-like output viewer for commands like 'git show'.
         extra_env = {"GIT_PAGER": "cat"}
-        cmdline = ["git"] + command
-        return cros_build_lib.run(
-            cmdline,
-            cwd=cwd,
+        return git.RunGit(
+            cwd,
+            command,
             extra_env=extra_env,
             print_cmd=self._verbose,
             stdout=stdout,
             stderr=stderr,
-            encoding="utf-8",
         )
 
     def _SplitEBuildPath(self, ebuild_path):
