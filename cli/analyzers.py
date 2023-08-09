@@ -100,6 +100,7 @@ class AnalyzerCommand(ABC, command.CliCommand):
         )
         parser.add_argument(
             "--head",
+            "--HEAD",
             dest="commit",
             action="store_const",
             const="HEAD",
