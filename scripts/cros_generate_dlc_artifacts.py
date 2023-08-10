@@ -180,7 +180,7 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
         opts: The command line arguments.
     """
     params = GenerateDlcParams(opts)
-    uri_path = opts.uri_path or params.GetURIDir()
+    uri_path = opts.uri_path or params.GetUriPath()
 
     with osutils.TempDir(prefix="dlcartifacts", sudo_rm=True) as tmpdir:
         output_dir = opts.output_dir or tmpdir
