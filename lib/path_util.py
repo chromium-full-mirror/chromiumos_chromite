@@ -86,7 +86,6 @@ class ChrootPathResolver:
         # The following are only needed if outside the chroot.
         if self._inside_chroot:
             self._chroot_path = None
-            self._chroot_link = None
             self._chroot_to_host_roots = None
             self._out_path = None
         else:
@@ -101,14 +100,6 @@ class ChrootPathResolver:
                 )
             else:
                 self._out_path = constants.DEFAULT_OUT_PATH
-
-            # The chroot link allows us to resolve paths when the chroot is
-            # symlinked to the default location. This is generally not used, but
-            # it is useful for CI for optimization purposes. We will trust them
-            # not to do something dumb, like symlink to /, but this doesn't
-            # enable that kind of behavior anyway, just allows resolving paths
-            # correctly from outside the chroot.
-            self._chroot_link = self._ReadChrootLink(self._chroot_path)
 
             # Initialize mapping of known root bind mounts.
             self._chroot_to_host_roots = (
@@ -135,35 +126,6 @@ class ChrootPathResolver:
         if source_path is None:
             return None
         return os.path.join(source_path, constants.DEFAULT_CHROOT_DIR)
-
-    def _ReadChrootLink(self, path: Optional[str]) -> Optional[str]:
-        """Convert a chroot symlink to its absolute path.
-
-        This contains defaults/edge cases assumptions for chroot paths. Not
-        recommended for non-chroot paths.
-
-        Args:
-            path: The path to resolve.
-
-        Returns:
-            The resolved path if the provided path is a symlink, None otherwise.
-        """
-        # Mainly for the "if self._source_from_path_repo:" branch in
-        # _GetChrootPath. _GetSourcePathChroot can return None, so double check
-        # it here.
-        if not path:
-            return None
-
-        abs_path = os.path.abspath(path)
-        link = osutils.ResolveSymlink(abs_path)
-
-        # ResolveSymlink returns the passed path when the path isn't a symlink.
-        # We can skip some redundant work when its falling back on the link when
-        # the chroot is not a symlink.
-        if link == abs_path:
-            return None
-
-        return link
 
     def _TranslatePath(
         self,
@@ -226,14 +188,12 @@ class ChrootPathResolver:
         # source root from the path itself.
         source_path = self._source_path
         chroot_path = self._chroot_path
-        chroot_link = self._chroot_link
 
         if self._custom_chroot_path is None and self._source_from_path_repo:
             path_repo_dir = git.FindRepoDir(path)
             if path_repo_dir is not None:
                 source_path = os.path.abspath(os.path.join(path_repo_dir, ".."))
             chroot_path = self._GetSourcePathChroot(source_path)
-            chroot_link = self._ReadChrootLink(chroot_path)
 
         # NB: This mirrors self._chroot_to_host_roots, with tweaks due to
         # per-|path| dynamic handling of |self._source_from_path_repo|. If you
@@ -241,8 +201,6 @@ class ChrootPathResolver:
         host_to_chroot_roots = (
             # Check if the path happens to be in the chroot already.
             (chroot_path, "/"),
-            # Or in the symlinked dir.
-            (chroot_link, "/"),
             # Check the cache directory.
             (self._GetCachePath(), constants.CHROOT_CACHE_ROOT),
             (self._out_path / "tmp", "/tmp"),
@@ -291,12 +249,9 @@ class ChrootPathResolver:
             new_path = self._TranslatePath(path, "/", self._chroot_path)
         else:
             # Check whether the resolved path happens to point back at the
-            # chroot, in which case trim the chroot path or link prefix and
-            # continue recursively.
+            # chroot, in which case trim the chroot path and continue
+            # recursively.
             path = self._TranslatePath(new_path, self._chroot_path, "/")
-            if path is None and self._chroot_link:
-                path = self._TranslatePath(new_path, self._chroot_link, "/")
-
             if path is not None:
                 new_path = self._GetHostPath(path)
 
