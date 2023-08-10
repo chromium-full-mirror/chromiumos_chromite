@@ -94,7 +94,6 @@ _TEST_GOLO_ARCHIVE_TEST_TARBALL_CONTENT = [
     "autotest/test_suites/control.faft_normal",
     "autotest/test_suites/control.crosbolt_perf_weekly",
     "autotest/test_suites/control.sb65-presubmit",
-    "autotest/test_suites/control.faft_flashrom",
     "autotest/test_suites/control.paygen_au_canary",
     "autotest/test_suites/control.bluetooth_stress",
     "autotest/test_suites/control.bvt-cq",
