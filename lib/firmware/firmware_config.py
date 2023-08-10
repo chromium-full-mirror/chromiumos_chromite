@@ -8,6 +8,11 @@ This module holds the firmware config objects, provides functionality to read
 the config from ap_firmware_config modules, and export it into JSON.
 """
 
+import json
+import logging
+import os
+from pathlib import Path
+import sys
 from typing import List, NamedTuple, Optional
 
 from chromite.lib.firmware import ap_firmware_config
@@ -16,6 +21,10 @@ from chromite.lib.firmware import servo_lib
 
 _CONFIG_BUILD_WORKON_PACKAGES = "BUILD_WORKON_PACKAGES"
 _CONFIG_BUILD_PACKAGES = "BUILD_PACKAGES"
+
+
+class Error(Exception):
+    """Base error class for the module."""
 
 
 class FirmwareConfig(NamedTuple):
@@ -100,3 +109,91 @@ def get_config(
         workon_packages,
         build_packages,
     )
+
+
+def export_config_as_json(
+    build_targets: Optional[List[str]] = None,
+    output_path: Optional[str] = None,
+    serial: str = None,
+):
+    """Exports config for all board:servo pairs in JSON.
+
+    Args:
+        build_targets: Names of the boards, e.g. ['dedede']. None for all
+            boards.
+        output_path: Name of the output file. None for stdout.
+        serial: Serial number of the DUT. If None, %s will be used.
+    """
+    if not serial:
+        serial = "%s"
+
+    boards = []
+    if build_targets:
+        boards = build_targets
+    else:
+        # Get the board list from config python modules in ap_firmware_config
+        ap_firmware_config_path = (
+            Path(os.path.dirname(__file__)) / "ap_firmware_config"
+        )
+        for p in ap_firmware_config_path.glob("*.py"):
+            if not p.is_file():
+                continue
+            if p.name.startswith("_"):
+                continue
+            # Remove paths, leaving only filenames, and remove .py suffixes.
+            boards.append(p.with_suffix("").name)
+    boards.sort()
+
+    if output_path:
+        logging.info("Dumping AP config to %s", output_path)
+        logging.info("List of boards: %s", ", ".join(boards))
+        logging.info("List of servos: %s", ", ".join(servo_lib.VALID_SERVOS))
+
+    output = {}
+    failed_board_servos = {}
+    for board in boards:
+        output[board] = {}
+        for servo_version in servo_lib.VALID_SERVOS + ("ssh",):
+            servo = None
+            if servo_version != "ssh":
+                servo = servo_lib.Servo(servo_version, serial)
+            # get_config() call is expected to fail for some board:servo pairs.
+            # Disable logging to avoid inconsistent error messages from config
+            # modules' get_config() calls.
+            logging.disable(logging.CRITICAL)
+            try:
+                conf = get_config(board, servo)
+            except servo_lib.UnsupportedServoVersionError:
+                failed_board_servos.setdefault(board, []).append(servo_version)
+                continue
+            finally:
+                # Reenable logging.
+                logging.disable(logging.NOTSET)
+
+            output[board][servo_version] = {
+                "dut_control_on": conf.dut_control_on,
+                "dut_control_off": conf.dut_control_off,
+                "programmer": conf.programmer,
+                "force_flashrom": conf.force_flashrom,
+                "flash_extra_flags_futility": conf.flash_extra_flags_futility,
+                "flash_extra_flags_flashrom": conf.flash_extra_flags_flashrom,
+            }
+
+    for board, servos in failed_board_servos.items():
+        logging.info("[%s] skipping servos %s", board, ", ".join(servos))
+
+    if not output_path:
+        # Print to stdout.
+        json.dump(
+            output, sys.stdout, ensure_ascii=False, indent=2, sort_keys=True
+        )
+    else:
+        # Write to a file.
+        with open(output_path, "w", encoding="utf-8") as output_file:
+            json.dump(
+                output,
+                output_file,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )

@@ -69,6 +69,22 @@ To read a specific region from DUT via SERVO on default port(9999):
   cros ap read -b $BOARD -r region -o /tmp/read-image.bin -d servo:port
 ```
 
+## Dumping config
+To dump [AP config](https://source.corp.google.com/chromeos_public/chromite/lib/firmware/ap_firmware_config) of all boards to stdout
+```
+  cros ap dump-config
+```
+
+To dump AP config of all boards into /tmp/cros-read-ap-config.json
+```
+  cros ap dump-config -o /tmp/cros-read-ap-config.json
+```
+
+To dump AP config of drallion and dedede boards:
+```
+  cros ap dump-config -o /tmp/cros-read-ap-config.json -b "drallion dedede"
+```
+
 ## Cleaning
 To unmerge firmware-related packages and clear `/build/$BOARD/firmware` directory:
 ```

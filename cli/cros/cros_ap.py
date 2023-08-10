@@ -79,6 +79,55 @@ class APCommand(command.CliCommand):
         return subcmd.Run()
 
 
+@subcommand_decorator("dump-config")
+class DumpConfigSubcommand(command.CliCommand):
+    """Dump the AP Config to a file."""
+
+    @classmethod
+    def ProcessOptions(cls, parser, options):
+        """Post process options."""
+        if options.output:
+            options.output = Path(options.output)
+
+    @classmethod
+    def AddParser(cls, parser):
+        """Adds AP DumpConfig specific CLI arguments to parser."""
+        parser.add_argument(
+            "-b",
+            "--boards",
+            default=None,
+            action="split_extend",
+            dest="boards",
+            help="Quoted, space-separated list of boards. "
+            "(default: all boards in chromite/lib/firmware/ap_firmware_config)",
+        )
+        parser.add_argument(
+            "--serial",
+            default="%s",
+            help="Serial of the servos. (default: %(default)s)",
+        )
+        parser.add_argument("-o", "--output", type="path", help="Output file.")
+        parser.epilog = """
+Dump DUT controls and programmer arguments into a provided file.
+
+To dump AP config of all boards into /tmp/cros-read-ap-config.json
+  cros ap dump-config -o /tmp/cros-read-ap-config.json
+
+To dump AP config of drallion and dedede boards:
+  cros ap dump-config -o /tmp/cros-read-ap-config.json -b "drallion dedede"
+"""
+
+    def Run(self):
+        """Perform the cros ap dump-config command."""
+        boards = None
+        if self.options.boards:
+            boards = self.options.boards
+
+        firmware_config.export_config_as_json(
+            boards, self.options.output, self.options.serial
+        )
+
+
 @subcommand_decorator("build")
 class BuildSubcommand(command.CliCommand):
     """Build the AP Firmware for the requested build target."""
