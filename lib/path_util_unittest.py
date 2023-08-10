@@ -172,7 +172,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
         )
 
 
-class TestPathResolver(cros_test_lib.MockTestCase):
+class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     """Tests of ChrootPathResolver class."""
 
     def setUp(self):
@@ -501,7 +501,7 @@ class TestPathResolver(cros_test_lib.MockTestCase):
         )
 
         self.assertEqual(
-            "foo",
+            os.path.realpath("foo"),
             resolver.FromChroot(constants.CHROOT_OUT_ROOT / "foo"),
         )
         self.assertEqual(
@@ -517,7 +517,7 @@ class TestPathResolver(cros_test_lib.MockTestCase):
         )
 
         self.assertEqual(
-            ".",
+            os.path.realpath("."),
             resolver.FromChroot("/"),
         )
         self.assertEqual(
@@ -597,6 +597,42 @@ class TestPathResolver(cros_test_lib.MockTestCase):
             str(constants.CHROOT_OUT_ROOT),
             resolver.ToChroot(source_path / constants.DEFAULT_OUT_DIR),
         )
+
+    @mock.patch(
+        "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
+    )
+    def testSymlinkedPath(self, _):
+        """Resolve a symlinked path."""
+        original_realpath = os.path.realpath
+        self.PatchObject(
+            os.path,
+            "realpath",
+            side_effect=lambda path: "/usr/wrongpath/foo"
+            if path == "/bin/foo"
+            else original_realpath(path),
+        )
+        # Double check the mock.
+        self.assertEqual("/usr/wrongpath/foo", os.path.realpath("/bin/foo"))
+
+        self.SetChrootPath(
+            None,
+            chroot_path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+        resolver = path_util.ChrootPathResolver(
+            chroot_path=self.chroot_path, out_path=self.out_path
+        )
+
+        source = Path(self.chroot_path) / "usr" / "bin" / "foo"
+        target = Path(self.chroot_path) / "bin" / "foo"
+        osutils.Touch(source, makedirs=True)
+        osutils.SafeSymlink("usr/bin", Path(self.chroot_path) / "bin")
+
+        # On inbound, translate symlinks on the host side, before chroot
+        # translation.
+        self.assertEqual("/usr/bin/foo", resolver.ToChroot(target))
+        # On outbound, only translate links after chroot translation.
+        self.assertEqual(str(source), resolver.FromChroot("/bin/foo"))
 
 
 def test_normalize_paths_to_source_root_collapsing_sub_paths():

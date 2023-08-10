@@ -257,12 +257,14 @@ class ChrootPathResolver:
 
         return new_path
 
-    def _ConvertPath(self, path, get_converted_path) -> str:
+    def _ConvertPath(self, path, get_converted_path, inbound: bool) -> str:
         """Expands |path|; if outside the chroot, applies |get_converted_path|.
 
         Args:
             path: A path to be converted.
             get_converted_path: A conversion function.
+            inbound: Whether paths are being translated into the chroot (vs out
+                of the chroot).
 
         Returns:
             An expanded and (if needed) converted path.
@@ -276,14 +278,21 @@ class ChrootPathResolver:
         # path resolution might return unusable results for file symlinks that
         # point outside the reachable space. These are edge cases in which the
         # user is expected to resolve the realpath themselves in advance.
-        expanded_path = os.path.expanduser(path)
-        if os.path.isfile(expanded_path):
-            expanded_path = os.path.join(
-                os.path.realpath(os.path.dirname(expanded_path)),
-                os.path.basename(expanded_path),
-            )
+        #
+        # And, expansion makes no sense on outbound, since the input path (an
+        # "inside chroot" path) should not be resolved using the outside-chroot
+        # filesystem.
+        if inbound:
+            expanded_path = os.path.expanduser(path)
+            if os.path.isfile(expanded_path):
+                expanded_path = os.path.join(
+                    os.path.realpath(os.path.dirname(expanded_path)),
+                    os.path.basename(expanded_path),
+                )
+            else:
+                expanded_path = os.path.realpath(expanded_path)
         else:
-            expanded_path = os.path.realpath(expanded_path)
+            expanded_path = path
 
         if self._inside_chroot:
             return expanded_path
@@ -295,11 +304,13 @@ class ChrootPathResolver:
 
     def ToChroot(self, path: Union[str, os.PathLike]) -> str:
         """Resolves current environment |path| for use in the chroot."""
-        return self._ConvertPath(path, self._GetChrootPath)
+        return self._ConvertPath(path, self._GetChrootPath, inbound=True)
 
     def FromChroot(self, path: Union[str, os.PathLike]) -> str:
         """Resolves chroot |path| for use in the current environment."""
-        return self._ConvertPath(path, self._GetHostPath)
+        return os.path.realpath(
+            self._ConvertPath(path, self._GetHostPath, inbound=False)
+        )
 
 
 def DetermineCheckout(cwd=None) -> CheckoutInfo:
