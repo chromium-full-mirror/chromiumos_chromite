@@ -122,9 +122,25 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
 
         self.StartPatcher(FindDebugDirMock(self.debug_dir))
 
+    def markAllFilesAsProcessed(self, gen_mock):
+        """Sets mock to pretend it processed all the expected ELF files.
+
+        This avoids having GenerateBreakpadSymbols return an error because not
+        all expected files were processed.
+        """
+        expected_found = list(cros_generate_breakpad_symbols.ALL_EXPECTED_FILES)
+
+        def _SetFound(*_args, **kwargs):
+            kwargs["found_files"].extend(expected_found)
+            gen_mock.side_effect = None
+            return 1
+
+        gen_mock.side_effect = _SetFound
+
     def testNormal(self, gen_mock):
         """Verify all the files we expect to get generated do"""
         with parallel_unittest.ParallelMock():
+            self.markAllFilesAsProcessed(gen_mock)
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board, sysroot=self.board_dir
             )
@@ -171,6 +187,8 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
     def testFileList(self, gen_mock):
         """Verify that file_list restricts the symbols generated"""
         with parallel_unittest.ParallelMock():
+            # Don't need markAllFilesAsProcessed since using file_list will
+            # skip the expected-files-processed check.
             call1 = (
                 os.path.join(self.board_dir, "usr/sbin/elf"),
                 os.path.join(self.debug_dir, "usr/sbin/elf.debug"),
@@ -205,6 +223,8 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
         """Verify generate_count arg works"""
         with parallel_unittest.ParallelMock():
             # Generate nothing!
+            # Don't need markAllFilesAsProcessed since using generate_count will
+            # skip the expected-files-processed check.
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board,
                 sysroot=self.board_dir,
@@ -243,12 +263,15 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board, sysroot=self.board_dir
             )
-            self.assertEqual(ret, 5)
+            # Expect 5 errors from calls plus 1 from the
+            # expected-files-processed check.
+            self.assertEqual(ret, 6)
             self.assertEqual(gen_mock.call_count, 5)
 
     def testCleaningTrue(self, gen_mock):
         """Verify behavior of clean_breakpad=True"""
         with parallel_unittest.ParallelMock():
+            self.markAllFilesAsProcessed(gen_mock)
             # Dir does not exist, and then does.
             self.assertNotExists(self.breakpad_dir)
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
@@ -278,6 +301,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
     def testCleaningFalse(self, gen_mock):
         """Verify behavior of clean_breakpad=False"""
         with parallel_unittest.ParallelMock():
+            self.markAllFilesAsProcessed(gen_mock)
             # Dir does not exist, and then does.
             self.assertNotExists(self.breakpad_dir)
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
@@ -308,6 +332,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
         """Verify files in directories of the exclusion list are excluded"""
         exclude_dirs = ["bin", "usr", "fake/dir/fake"]
         with parallel_unittest.ParallelMock():
+            self.markAllFilesAsProcessed(gen_mock)
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board, sysroot=self.board_dir, exclude_dirs=exclude_dirs
             )
@@ -322,7 +347,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board, sysroot=self.board_dir
             )
-            self.assertEqual(ret, 0)
+            self.assertEqual(ret, 1)
             self.assertIn(
                 "Not all expected files were processed successfully",
                 "\n".join(cm.output),
@@ -357,7 +382,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board, sysroot=self.board_dir
             )
-            self.assertEqual(ret, 0)
+            self.assertEqual(ret, 1)
             self.assertIn(
                 "Not all expected files were processed successfully",
                 "\n".join(cm.output),
@@ -390,7 +415,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
                 sysroot=self.board_dir,
                 ignore_expected_files=ignore_expected_files,
             )
-            self.assertEqual(ret, 0)
+            self.assertEqual(ret, 1)
             self.assertIn(
                 "Not all expected files were processed successfully",
                 "\n".join(cm.output),
@@ -517,6 +542,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         num_errors = ctypes.c_int(0)
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
             self.elf_file,
+            self.debug_file,
             breakpad_dir=self.breakpad_dir,
             strip_cfi=True,
             num_errors=num_errors,
@@ -524,59 +550,93 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(ret, self.sym_file)
         self.assertEqual(num_errors.value, 0)
         self.assertCommandArgs(
-            1, self._DUMP_SYMS_BASE_CMD + ["-c", self.elf_file]
+            1, self._DUMP_SYMS_BASE_CMD + ["-c", self.elf_file, self.debug_dir]
         )
         self.assertEqual(self.rc.call_count, 2)
         self.assertExists(self.sym_file)
 
     def testNormalElfOnly(self):
-        """Normal run -- given just an ELF"""
+        """Normal run with just an ELF will fail"""
+        num_errors = ctypes.c_int(0)
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
-            self.elf_file, breakpad_dir=self.breakpad_dir
+            self.elf_file,
+            breakpad_dir=self.breakpad_dir,
+            num_errors=num_errors,
         )
-        self.assertEqual(ret, self.sym_file)
-        self.assertCommandArgs(1, self._DUMP_SYMS_BASE_CMD + [self.elf_file])
-        self.assertEqual(self.rc.call_count, 2)
-        self.assertExists(self.sym_file)
+        self.assertEqual(ret, 1)
+        self.assertEqual(num_errors.value, 1)
+        self.assertNotExists(self.sym_file)
 
     def testNormalSudo(self):
         """Normal run where ELF is readable only by root"""
         with mock.patch.object(os, "access") as mock_access:
             mock_access.return_value = False
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
-                self.elf_file, breakpad_dir=self.breakpad_dir
+                self.elf_file, self.debug_file, breakpad_dir=self.breakpad_dir
             )
         self.assertEqual(ret, self.sym_file)
         self.assertCommandArgs(
-            1, ["sudo", "--"] + self._DUMP_SYMS_BASE_CMD + [self.elf_file]
+            1,
+            ["sudo", "--"]
+            + self._DUMP_SYMS_BASE_CMD
+            + [self.elf_file, self.debug_dir],
         )
 
-    def testLargeDebugFail(self):
-        """Running w/large .debug failed, but retry worked"""
+    def testDumpSymsFail(self):
+        """The call to dump_syms failed"""
         self.rc.AddCmdResult(
             self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir],
             returncode=1,
         )
+        num_errors = ctypes.c_int(0)
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
-            self.elf_file, self.debug_file, self.breakpad_dir
+            self.elf_file,
+            self.debug_file,
+            breakpad_dir=self.breakpad_dir,
+            num_errors=num_errors,
         )
-        self.assertEqual(ret, self.sym_file)
-        self.assertEqual(self.rc.call_count, 4)
+        self.assertEqual(ret, 1)
+        self.assertEqual(num_errors.value, 1)
+        self.assertEqual(self.rc.call_count, 2)
         self.assertCommandArgs(
             1, self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir]
         )
-        # The current fallback from _DumpExpectingSymbols() to
-        # _DumpAllowingBasicFallback() causes the first dump_syms command to get
-        # repeated.
-        self.assertCommandArgs(
-            2, self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir]
+        self.assertNotExists(self.sym_file)
+
+    def testValidationFail(self):
+        """If symbol file validation fails, return an error"""
+        BAD_SYMBOL_FILE = "MODULE OS CPU ID NAME\n"
+        self.rc.SetDefaultCmdResult(stdout=BAD_SYMBOL_FILE)
+        num_errors = ctypes.c_int(0)
+        ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
+            self.elf_file,
+            self.debug_file,
+            breakpad_dir=self.breakpad_dir,
+            strip_cfi=True,
+            num_errors=num_errors,
         )
-        self.assertCommandArgs(
-            3,
-            self._DUMP_SYMS_BASE_CMD
-            + ["-c", "-r", self.elf_file, self.debug_dir],
+        self.assertEqual(ret, 1)
+        self.assertEqual(num_errors.value, 1)
+        self.assertNotExists(self.sym_file)
+
+    def testValidationRaises(self):
+        """If symbol file validation raises an error, return an error."""
+        BAD_SYMBOL_FILE = (
+            "MODULE Linux x86 D3096ED481217FD4C16B29CD9BC208BA0 elf\n"
+            "JUNK LINE IS BAD LINE\n"
         )
-        self.assertExists(self.sym_file)
+        self.rc.SetDefaultCmdResult(stdout=BAD_SYMBOL_FILE)
+        num_errors = ctypes.c_int(0)
+        ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
+            self.elf_file,
+            self.debug_file,
+            breakpad_dir=self.breakpad_dir,
+            strip_cfi=True,
+            num_errors=num_errors,
+        )
+        self.assertEqual(ret, 1)
+        self.assertEqual(num_errors.value, 1)
+        self.assertNotExists(self.sym_file)
 
     def testForceBasicFallback(self):
         """Running with force_basic_fallback
@@ -590,15 +650,11 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
             self.elf_file,
             self.debug_file,
-            self.breakpad_dir,
+            breakpad_dir=self.breakpad_dir,
             force_basic_fallback=True,
         )
         self.assertEqual(ret, self.sym_file)
         self.assertEqual(self.rc.call_count, 2)
-        # dump_syms -v should only happen once in _DumpAllowingBasicFallback()
-        # and not in _DumpExpectingSymbols(). We don't call /usr/bin/file in
-        # _ExpectGoodSymbols() either, so there's 2 fewer commands than
-        # in testLargeDebugFail.
         self.assertCommandArgs(
             0, self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir]
         )
@@ -609,8 +665,44 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertExists(self.sym_file)
 
-    def testDebugFail(self):
-        """Running w/.debug always failed, but works w/out"""
+    def testForceBasicFallbackElfOnly(self):
+        """Running with force_basic_fallback run given just an ELF"""
+        ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
+            self.elf_file,
+            breakpad_dir=self.breakpad_dir,
+            force_basic_fallback=True,
+        )
+        self.assertEqual(ret, self.sym_file)
+        self.assertEqual(self.rc.call_count, 1)
+        self.assertCommandArgs(0, self._DUMP_SYMS_BASE_CMD + [self.elf_file])
+        self.assertExists(self.sym_file)
+
+    def testForceBasicFallbackLargeDebugFail(self):
+        """In fallback mode, running w/large .debug failed, but retry worked"""
+        self.rc.AddCmdResult(
+            self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir],
+            returncode=1,
+        )
+        ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
+            self.elf_file,
+            self.debug_file,
+            breakpad_dir=self.breakpad_dir,
+            force_basic_fallback=True,
+        )
+        self.assertEqual(ret, self.sym_file)
+        self.assertEqual(self.rc.call_count, 2)
+        self.assertCommandArgs(
+            0, self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir]
+        )
+        self.assertCommandArgs(
+            1,
+            self._DUMP_SYMS_BASE_CMD
+            + ["-c", "-r", self.elf_file, self.debug_dir],
+        )
+        self.assertExists(self.sym_file)
+
+    def testForceBasicFallbackDebugFail(self):
+        """In fallback mode, running w/.debug always fails, but works without"""
         self.rc.AddCmdResult(
             self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir],
             returncode=1,
@@ -621,32 +713,31 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
             returncode=1,
         )
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
-            self.elf_file, self.debug_file, self.breakpad_dir
+            self.elf_file,
+            self.debug_file,
+            breakpad_dir=self.breakpad_dir,
+            force_basic_fallback=True,
         )
         self.assertEqual(ret, self.sym_file)
-        self.assertEqual(self.rc.call_count, 5)
+        self.assertEqual(self.rc.call_count, 3)
         self.assertCommandArgs(
-            1, self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir]
-        )
-        # The current fallback from _DumpExpectingSymbols() to
-        # _DumpAllowingBasicFallback() causes the first dump_syms command to get
-        # repeated.
-        self.assertCommandArgs(
-            2, self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir]
+            0, self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir]
         )
         self.assertCommandArgs(
-            3,
+            1,
             self._DUMP_SYMS_BASE_CMD
             + ["-c", "-r", self.elf_file, self.debug_dir],
         )
-        self.assertCommandArgs(4, self._DUMP_SYMS_BASE_CMD + [self.elf_file])
+        self.assertCommandArgs(2, self._DUMP_SYMS_BASE_CMD + [self.elf_file])
         self.assertExists(self.sym_file)
 
-    def testCompleteFail(self):
-        """Running dump_syms always fails"""
+    def testForceBasicFallbackCompleteFail(self):
+        """In fallback mode, if dump_syms always fails, still an error"""
         self.rc.SetDefaultCmdResult(returncode=1)
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
-            self.elf_file, breakpad_dir=self.breakpad_dir
+            self.elf_file,
+            breakpad_dir=self.breakpad_dir,
+            force_basic_fallback=True,
         )
         self.assertEqual(ret, 1)
         # Make sure the num_errors flag works too.
@@ -674,8 +765,6 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual(ret, self.sym_file)
         self.assertEqual(self.rc.call_count, 3)
-        # Only one call (at the beginning of _DumpAllowingBasicFallback())
-        # to "dump_syms -v"
         self.assertCommandArgs(
             0, self._DUMP_SYMS_BASE_CMD + [ko_file, self.debug_dir]
         )
@@ -726,8 +815,6 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(ret, 0)
         self.assertEqual(self.rc.call_count, 4)
         self.assertCommandArgs(0, ["/usr/bin/file", go_binary])
-        # Only one call (at the beginning of _DumpAllowingBasicFallback())
-        # to "dump_syms -v"
         self.assertCommandArgs(
             1, self._DUMP_SYMS_BASE_CMD + [go_binary, self.debug_dir]
         )
@@ -768,8 +855,6 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(ret, 0)
         self.assertEqual(self.rc.call_count, 4)
         self.assertCommandArgs(0, ["/usr/bin/file", binary])
-        # Only one call (at the beginning of _DumpAllowingBasicFallback())
-        # to "dump_syms -v"
         self.assertCommandArgs(
             1, self._DUMP_SYMS_BASE_CMD + [binary, debug_dir]
         )

@@ -681,17 +681,14 @@ def GenerateBreakpadSymbol(
             )
             return SymbolGenerationResult.UNEXPECTED_FAILURE
 
-        # TODO(b/270240549): Remove try/except, allow exceptions to just
-        # fail the script. The try/except is just here until we are sure this
-        # will not break the build.
         try:
             if not ValidateSymbolFile(
                 temp.name, elf_file, sysroot, found_files
             ):
-                logging.warning("%s: symbol file failed validation", elf_file)
+                logging.error("%s: symbol file failed validation", elf_file)
                 return SymbolGenerationResult.UNEXPECTED_FAILURE
         except ValueError as e:
-            logging.warning(
+            logging.error(
                 "%s: symbol file failed validation due to exception %s",
                 elf_file,
                 e,
@@ -706,13 +703,6 @@ def GenerateBreakpadSymbol(
     ) as temp:
         if not force_basic_fallback and _ExpectGoodSymbols(elf_file, sysroot):
             result = _DumpExpectingSymbols()
-            # Until the EXPECTED_POOR_SYMBOLIZATION_FILES allowlist is
-            # completely set up for all boards, don't fail the build if
-            # _ExpectGoodSymbols is wrong.
-            # TODO(b/241470012): Remove the call to _DumpAllowingBasicFallback()
-            # and just error out if _DumpExpectingSymbols fails.
-            if result == SymbolGenerationResult.UNEXPECTED_FAILURE:
-                result = _DumpAllowingBasicFallback()
         else:
             result = _DumpAllowingBasicFallback()
 
@@ -899,13 +889,12 @@ def GenerateBreakpadSymbols(
             and generate_count is None
             and not always_use_basic_fallback
         ):
-            logging.warning(
+            logging.error(
                 "Not all expected files were processed successfully, "
                 "missing %s",
                 missing,
             )
-            # TODO(b/270240549): Increment bg_errors.value here once we check
-            # that this isn't going to fail any current builds.
+            bg_errors.value += 1
 
     return bg_errors.value
 
