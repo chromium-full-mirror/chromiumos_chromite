@@ -698,7 +698,7 @@ class StatefulPayloadGeneratorTest(cros_test_lib.TestCase):
     """Tests stateful payload generator."""
 
     @mock.patch.object(paygen_stateful_payload_lib, "GenerateStatefulPayload")
-    @mock.patch.object(os, "close")
+    @mock.patch.object(os, "close", side_effect=os.close)
     def testRun(self, os_close_mock, paygen_mock):
         """Tests run() function."""
         image = "/foo/image"
