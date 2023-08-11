@@ -260,7 +260,7 @@ print(json.dumps(pkg_info))
         # Separate the slot qualifier and strip off subslot binding operator
         if ":" in cp:
             cp, slot = cp.split(":")
-            for delim in ("=",):
+            for delim in ("=", "*"):
                 slot = slot.split(delim, 1)[0]
 
         # Strip version wildcards (right), comparators (left).
