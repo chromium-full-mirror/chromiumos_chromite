@@ -105,7 +105,6 @@ _TEST_GOLO_ARCHIVE_TEST_TARBALL_CONTENT = [
     "autotest/test_suites/control.kiosk_longevity",
     "autotest/test_suites/control.faft_ec_au_1",
     "autotest/test_suites/control.faft_lv4",
-    "autotest/test_suites/control.hwqual",
     "autotest/test_suites/control.power_loadtest_fast",
     "autotest/test_suites/control.bluetooth",
     "autotest/test_suites/control.bvt-tast-cq",
