@@ -105,8 +105,6 @@ class InputInsns:
                 raise MissingBoardInstructions(
                     self.board, image_type, input_insns
                 )
-
-            self.image_type = image_type
             with open(input_insns, encoding="utf-8") as fp:
                 config.read_file(fp)
 
