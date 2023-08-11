@@ -4,6 +4,7 @@
 
 """Operations to work with the SDK chroot."""
 
+import dataclasses
 import json
 import logging
 import os
@@ -21,6 +22,7 @@ from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
+from chromite.lib.parser import package_info
 from chromite.utils import key_value_store
 
 
@@ -167,6 +169,21 @@ class UpdateArguments:
             )
 
         return args
+
+
+@dataclasses.dataclass
+class UpdateResult:
+    """Result value object."""
+
+    return_code: int
+    version: Optional[int] = None
+    failed_pkgs: List[package_info.PackageInfo] = dataclasses.field(
+        default_factory=list
+    )
+
+    @property
+    def success(self):
+        return self.return_code == 0 and not self.failed_pkgs
 
 
 def Clean(
@@ -359,9 +376,13 @@ def Update(arguments: UpdateArguments) -> Optional[int]:
     features = " ".join((existing, "-separatedebug splitdebug")).strip()
     extra_env = {"FEATURES": features}
 
-    cros_build_lib.run(cmd, extra_env=extra_env)
+    # Set up the failed package status file.
+    with osutils.TempDir() as tempdir:
+        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
+        result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
+        failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
 
-    return GetChrootVersion()
+    return UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
 
 
 def _get_remote_latest_file_value(key: str) -> str:

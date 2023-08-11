@@ -13,6 +13,7 @@ from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_build_lib
+from chromite.lib import sysroot_lib
 from chromite.service import sdk
 
 
@@ -167,16 +168,17 @@ def Update(
         toolchain_changed=toolchain_changed,
     )
 
-    version = sdk.Update(args)
-
-    if version:
-        output_proto.version.version = version
-    else:
-        # This should be very rare, if ever used, but worth noting.
-        cros_build_lib.Die(
-            "No chroot version could be found. There was likely an"
-            "error creating the chroot that was not detected."
+    result = sdk.Update(args)
+    if result.success:
+        output_proto.version.version = result.version
+    elif result.failed_pkgs:
+        sysroot = sysroot_lib.Sysroot("/")
+        controller_util.retrieve_package_log_paths(
+            result.failed_pkgs, output_proto, sysroot
         )
+        return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
+    else:
+        return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
 
 @faux.all_empty

@@ -19,6 +19,7 @@ from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
+from chromite.lib.parser import package_info
 from chromite.service import sdk
 
 
@@ -439,18 +440,33 @@ class UpdateTest(cros_test_lib.RunCommandTestCase):
         # Needs to be run inside the chroot right now.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
-    def testUpdate(self):
-        """Test the update method."""
+    def testSuccess(self):
+        """Test the simple success case."""
         arguments = sdk.UpdateArguments()
         expected_args = ["--arg", "--other", "--with-value", "value"]
         expected_version = 1
         self.PatchObject(arguments, "GetArgList", return_value=expected_args)
         self.PatchObject(sdk, "GetChrootVersion", return_value=expected_version)
 
-        version = sdk.Update(arguments)
+        response = sdk.Update(arguments)
+        version = response.version
 
         self.assertCommandContains(expected_args)
         self.assertEqual(expected_version, version)
+
+    def testFailure(self):
+        """Test non-zero return code and failed package handling."""
+        pkgs = [package_info.parse(p) for p in ["foo/bar", "cat/pkg"]]
+        self.PatchObject(
+            portage_util, "ParseDieHookStatusFile", return_value=pkgs
+        )
+        expected_rc = 1
+        self.rc.SetDefaultCmdResult(returncode=expected_rc)
+
+        result = sdk.Update(sdk.UpdateArguments())
+        self.assertFalse(result.success)
+        self.assertEqual(expected_rc, result.return_code)
+        self.assertCountEqual(pkgs, result.failed_pkgs)
 
 
 class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):

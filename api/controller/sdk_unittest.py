@@ -4,12 +4,15 @@
 
 """SDK tests."""
 
+import datetime
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 from unittest import mock
 
 from chromite.api import api_config
+from chromite.api import controller
+from chromite.api.controller import controller_util
 from chromite.api.controller import sdk as sdk_controller
 from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromiumos import common_pb2
@@ -17,6 +20,9 @@ from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import osutils
+from chromite.lib import sysroot_lib
+from chromite.lib.parser import package_info
 from chromite.service import sdk as sdk_service
 
 
@@ -294,13 +300,21 @@ class SdkUnmountPathTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         patch.assert_called_once_with("/test/path")
 
 
-class SdkUpdateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
+class SdkUpdateTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
     """Update tests."""
 
     def setUp(self):
         """Setup method."""
         # We need to run the command inside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+
+        self.portage_dir = os.path.join(self.tempdir, "portage_logdir")
+        self.PatchObject(
+            sysroot_lib.Sysroot, "portage_logdir", new=self.portage_dir
+        )
+        osutils.SafeMakedirs(self.portage_dir)
 
         self.response = sdk_pb2.UpdateResponse()
 
@@ -314,6 +328,31 @@ class SdkUpdateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             added.name = target
 
         return request
+
+    def _CreatePortageLogFile(
+        self,
+        log_path: Union[str, os.PathLike],
+        pkg_info: package_info.PackageInfo,
+        timestamp: datetime.datetime,
+    ) -> str:
+        """Creates a log file to test for individual packages built by Portage.
+
+        Args:
+            log_path: The PORTAGE_LOGDIR path.
+            pkg_info: name components for log file.
+            timestamp: Timestamp used to name the file.
+        """
+        path = os.path.join(
+            log_path,
+            f"{pkg_info.category}:{pkg_info.pvr}:"
+            f'{timestamp.strftime("%Y%m%d-%H%M%S")}.log',
+        )
+        osutils.WriteFile(
+            path,
+            f"Test log file for package {pkg_info.category}/"
+            f"{pkg_info.package} written to {path}",
+        )
+        return path
 
     def testValidateOnly(self):
         """Verify a validate-only call does not execute any logic."""
@@ -338,17 +377,70 @@ class SdkUpdateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     def testSuccess(self):
         """Successful call output handling test."""
         expected_version = 1
-        self.PatchObject(sdk_service, "Update", return_value=expected_version)
+        expected_return = sdk_service.UpdateResult(
+            return_code=0, version=expected_version
+        )
+        self.PatchObject(sdk_service, "Update", return_value=expected_return)
         request = self._GetRequest()
 
         sdk_controller.Update(request, self.response, self.api_config)
 
         self.assertEqual(expected_version, self.response.version.version)
 
+    def testNonPackageFailure(self):
+        """Test output handling when the call fails."""
+        expected_return = sdk_service.UpdateResult(return_code=1)
+        self.PatchObject(sdk_service, "Update", return_value=expected_return)
+
+        rc = sdk_controller.Update(
+            self._GetRequest(), self.response, self.api_config
+        )
+        self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
+
+    def testPackageFailure(self):
+        """Test output handling when the call fails with a package failure."""
+        pkgs = ["cat/pkg-1.0-r1", "foo/bar-2.0-r1"]
+        cpvrs = [package_info.parse(pkg) for pkg in pkgs]
+        new_logs = {}
+        for i, pkg in enumerate(pkgs):
+            self._CreatePortageLogFile(
+                self.portage_dir,
+                cpvrs[i],
+                datetime.datetime(2021, 6, 9, 13, 37, 0),
+            )
+            new_logs[pkg] = self._CreatePortageLogFile(
+                self.portage_dir,
+                cpvrs[i],
+                datetime.datetime(2021, 6, 9, 16, 20, 0),
+            )
+
+        expected_return = sdk_service.UpdateResult(
+            return_code=1,
+            failed_pkgs=cpvrs,
+        )
+        self.PatchObject(sdk_service, "Update", return_value=expected_return)
+
+        rc = sdk_controller.Update(
+            self._GetRequest(), self.response, self.api_config
+        )
+        self.assertEqual(
+            controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE, rc
+        )
+        self.assertTrue(self.response.failed_package_data)
+
+        expected_failed_pkgs = [("cat", "pkg"), ("foo", "bar")]
+        failed_pkgs = []
+        for data in self.response.failed_package_data:
+            failed_pkgs.append((data.name.category, data.name.package_name))
+            package = controller_util.deserialize_package_info(data.name)
+            self.assertEqual(data.log_path.path, new_logs[package.cpvr])
+        self.assertCountEqual(expected_failed_pkgs, failed_pkgs)
+
     def testArgumentHandling(self):
         """Test the proto argument handling."""
+        expected_return = sdk_service.UpdateResult(return_code=0, version=1)
         args = sdk_service.UpdateArguments()
-        self.PatchObject(sdk_service, "Update", return_value=1)
+        self.PatchObject(sdk_service, "Update", return_value=expected_return)
         args_patch = self.PatchObject(
             sdk_service, "UpdateArguments", return_value=args
         )
