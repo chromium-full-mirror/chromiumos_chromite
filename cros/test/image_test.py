@@ -301,6 +301,7 @@ class LinkageTest(image_test_lib.ImageTestCase):
                     libraries.append(filename)
 
         ldpaths = lddtree.LoadLdpaths(image_test_lib.ROOT_A)
+        failures = []
         for to_test in itertools.chain(binaries, libraries):
             # to_test could be a symlink, we need to resolve it relative to
             # ROOT_A.
@@ -334,7 +335,7 @@ class LinkageTest(image_test_lib.ImageTestCase):
 
                 for lib in elf["needed"]:
                     if not lib in elf["libs"] or not elf["libs"][lib]["path"]:
-                        self.fail(
+                        failures.append(
                             "Fail linkage test for /%s: unresolved library %s"
                             % (
                                 os.path.relpath(
@@ -348,6 +349,8 @@ class LinkageTest(image_test_lib.ImageTestCase):
                 continue
             except IOError as e:
                 self.fail("Fail linkage test for %s: %s" % (to_test, e))
+        if failures:
+            self.fail(str(failures))
 
 
 @unittest.expectedFailure
