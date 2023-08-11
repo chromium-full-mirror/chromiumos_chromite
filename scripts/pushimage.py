@@ -98,7 +98,7 @@ class InputInsns:
         with open(input_insns, encoding="utf-8") as fp:
             config.read_file(fp)
 
-        if image_type is not None:
+        if image_type != constants.IMAGE_TYPE_RECOVERY:
             input_insns = self.GetInsnFile(image_type)
             if not os.path.exists(input_insns):
                 # This type doesn't have any signing instructions.
