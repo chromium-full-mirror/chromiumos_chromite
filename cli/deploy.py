@@ -257,10 +257,10 @@ print(json.dumps(pkg_info))
         if "[" in cp:
             cp = cp[: cp.index("[")] + cp[cp.index("]") + 1 :]
 
-        # Separate the slot qualifier and strip off subslots.
+        # Separate the slot qualifier and strip off subslot binding operator
         if ":" in cp:
             cp, slot = cp.split(":")
-            for delim in ("/", "="):
+            for delim in ("=",):
                 slot = slot.split(delim, 1)[0]
 
         # Strip version wildcards (right), comparators (left).
@@ -796,6 +796,15 @@ print(json.dumps(pkg_info))
             )
             num_processed = 0
             for slot, pkg_info in cp_slots.items():
+                if required_slot and "/" not in slot:
+                    logging.debug(
+                        " Dropping subslot from required_slot (%s) "
+                        "because package does not have a subslot (%s)",
+                        required_slot,
+                        slot,
+                    )
+                    required_slot = required_slot.split("/", 1)[0]
+
                 if not required_slot:
                     logging.debug(" Including because no required_slot")
                 elif slot == required_slot:
