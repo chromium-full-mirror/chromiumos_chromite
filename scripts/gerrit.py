@@ -958,7 +958,7 @@ class ActionSethashtags(UserAction):
         """Implement the action."""
         add, remove = process_add_remove_lists(opts.hashtags)
         helper, cl = GetGerrit(opts, opts.cl)
-        helper.SetHashtags(cl, add, remove, dryrun=opts.dryrun)
+        helper.SetHashtags(cl, list(add), list(remove), dryrun=opts.dryrun)
 
 
 class ActionDelete(_ActionSimpleParallelCLs):
