@@ -2138,7 +2138,7 @@ def _Equery(
     *args: str,
     board: Optional[str] = None,
     sysroot: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    chroot: Optional[chroot_lib.Chroot] = None,
     quiet: bool = True,
     print_cmd: bool = True,
     extra_env: Optional[Dict[str, str]] = None,
@@ -2151,7 +2151,7 @@ def _Equery(
         *args: Arguments to the equery module.
         board: The board to inspect.
         sysroot: The root directory being inspected.
-        buildroot: Source root to run commands against.
+        chroot: The chroot to work with.
         quiet: Whether to run the module in quiet mode.  This is module
             specific, so consult the documentation for behavior.
         print_cmd: Whether to print the command before running it.
@@ -2161,6 +2161,7 @@ def _Equery(
     Returns:
         A cros_build_lib.CompletedProcess object.
     """
+    chroot = chroot or chroot_lib.Chroot()
     # There is no situation where we want color or pipe detection.
     cmd = [_GetSysrootTool("equery", board, sysroot), "--no-color", "--no-pipe"]
     if quiet:
@@ -2168,10 +2169,8 @@ def _Equery(
     cmd += [module]
     cmd += args
 
-    return cros_build_lib.run(
+    return chroot.run(
         cmd,
-        enter_chroot=True,
-        cwd=buildroot,
         print_cmd=print_cmd,
         capture_output=True,
         extra_env=extra_env,
@@ -2183,39 +2182,43 @@ def _Equery(
 def _EqueryList(
     pkg_str: str,
     board: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    chroot: Optional[chroot_lib.Chroot] = None,
 ) -> cros_build_lib.CompletedProcess:
     """Executes equery list command.
 
     Args:
         pkg_str: The package name with optional category, version, and slot.
         board: The board to inspect.
-        buildroot: Source root to find overlays.
+        chroot: The chroot to work with.
 
     Returns:
         A cros_build_lib.CompletedProcess object.
     """
     return _Equery(
-        "list", pkg_str, board=board, buildroot=buildroot, check=False
+        "list",
+        pkg_str,
+        board=board,
+        chroot=chroot,
+        check=False,
     )
 
 
 def FindPackageNameMatches(
     pkg_str: str,
     board: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    chroot: Optional[chroot_lib.Chroot] = None,
 ) -> List[package_info.PackageInfo]:
     """Finds a list of installed packages matching |pkg_str|.
 
     Args:
         pkg_str: The package name with optional category, version, and slot.
         board: The board to inspect.
-        buildroot: Source root to find overlays.
+        chroot: The chroot to work with.
 
     Returns:
         An iterable of matched PackageInfo objects.
     """
-    result = _EqueryList(pkg_str, board, buildroot)
+    result = _EqueryList(pkg_str, board=board, chroot=chroot)
 
     matches = []
     if result.returncode == 0:
@@ -2241,6 +2244,7 @@ def FindEbuildForBoardPackage(
 def _EqueryWhich(
     packages_list: List[str],
     sysroot: str,
+    chroot: Optional[chroot_lib.Chroot] = None,
     include_masked: bool = False,
     extra_env: Optional[Dict[str, str]] = None,
     check: bool = False,
@@ -2251,6 +2255,7 @@ def _EqueryWhich(
         packages_list: The list of package (string) names with optional
             category, version, and slot.
         sysroot: The root directory being inspected.
+        chroot: The chroot to work with.
         include_masked: True iff we should include masked ebuilds in our query.
         extra_env: optional dictionary of extra string/string pairs to use as
             the environment of equery command.
@@ -2270,6 +2275,7 @@ def _EqueryWhich(
         "which",
         *args,
         sysroot=sysroot,
+        chroot=chroot,
         quiet=False,
         print_cmd=False,
         extra_env=extra_env,
@@ -2278,7 +2284,12 @@ def _EqueryWhich(
 
 
 def FindEbuildsForPackages(
-    packages_list, sysroot, include_masked=False, extra_env=None, check=False
+    packages_list,
+    sysroot,
+    chroot: Optional[chroot_lib.Chroot] = None,
+    include_masked=False,
+    extra_env=None,
+    check=False,
 ):
     """Returns paths to the ebuilds for the packages in |packages_list|.
 
@@ -2286,6 +2297,7 @@ def FindEbuildsForPackages(
         packages_list: The list of package (string) names with optional
             category, version, and slot.
         sysroot: The root directory being inspected.
+        chroot: The chroot to work with.
         include_masked: True iff we should include masked ebuilds in our query.
         extra_env: optional dictionary of extra string/string pairs to use as
             the environment of equery command.
@@ -2301,7 +2313,12 @@ def FindEbuildsForPackages(
         return {}
 
     result = _EqueryWhich(
-        packages_list, sysroot, include_masked, extra_env=extra_env, check=check
+        packages_list,
+        sysroot,
+        chroot=chroot,
+        include_masked=include_masked,
+        extra_env=extra_env,
+        check=check,
     )
     if result.returncode:
         return {}
@@ -2330,13 +2347,19 @@ def FindEbuildsForPackages(
 
 
 def FindEbuildForPackage(
-    pkg_str, sysroot, include_masked=False, extra_env=None, check=False
+    pkg_str,
+    sysroot,
+    chroot: Optional[chroot_lib.Chroot] = None,
+    include_masked=False,
+    extra_env=None,
+    check=False,
 ):
     """Returns a path to an ebuild responsible for package matching |pkg_str|.
 
     Args:
         pkg_str: The package name with optional category, version, and slot.
         sysroot: The root directory being inspected.
+        chroot: The chroot to work with.
         include_masked: True iff we should include masked ebuilds in our query.
         extra_env: optional dictionary of extra string/string pairs to use as
             the environment of equery command.
@@ -2347,7 +2370,12 @@ def FindEbuildForPackage(
         Path to ebuild for this package.
     """
     ebuilds_map = FindEbuildsForPackages(
-        [pkg_str], sysroot, include_masked, extra_env, check=check
+        [pkg_str],
+        sysroot,
+        chroot=chroot,
+        include_masked=include_masked,
+        extra_env=extra_env,
+        check=check,
     )
     if not ebuilds_map:
         return None
@@ -2371,7 +2399,11 @@ def FindEbuildsForOverlays(
 
 
 def _EqueryDepgraph(
-    pkg_str: str, sysroot: str, board: Optional[str], depth: int = 0
+    pkg_str: str,
+    sysroot: str,
+    board: Optional[str],
+    chroot: Optional[chroot_lib.Chroot] = None,
+    depth: int = 0,
 ) -> cros_build_lib.CompletedProcess:
     """Executes equery depgraph to find dependencies.
 
@@ -2379,6 +2411,7 @@ def _EqueryDepgraph(
         pkg_str: The package name with optional category, version, and slot.
         sysroot: The root directory being inspected.
         board: The board to inspect.
+        chroot: The chroot to work with.
         depth: The depth of the transitive dependency tree to explore. 0 for
             unlimited.
 
@@ -2391,6 +2424,7 @@ def _EqueryDepgraph(
         pkg_str,
         sysroot=sysroot,
         board=board,
+        chroot=chroot,
     )
 
 
@@ -2413,7 +2447,7 @@ def GetFlattenedDepsForPackage(
     if not pkg_str:
         raise ValueError("pkg_str must be non-empty")
 
-    result = _EqueryDepgraph(pkg_str, sysroot, board, depth)
+    result = _EqueryDepgraph(pkg_str, sysroot, board, depth=depth)
 
     return _ParseDepTreeOutput(result.stdout)
 
@@ -2441,6 +2475,7 @@ def _ParseDepTreeOutput(equery_output):
 def GetReverseDependencies(
     packages: List[str],
     sysroot: Union[str, os.PathLike] = "/",
+    chroot: Optional[chroot_lib.Chroot] = None,
     indirect: bool = False,
 ) -> List[Optional[package_info.PackageInfo]]:
     """List all reverse dependencies for the given list of packages.
@@ -2448,6 +2483,7 @@ def GetReverseDependencies(
     Args:
         packages: Packages with optional category, version, and slot.
         sysroot: The root directory being inspected.
+        chroot: The chroot to work with.
         indirect: If True, search for both the direct and indirect dependencies
             on the specified packages.
 
@@ -2470,7 +2506,12 @@ def GetReverseDependencies(
     args += packages
 
     result = _Equery(
-        "depends", *args, sysroot=str(sysroot), print_cmd=False, check=False
+        "depends",
+        *args,
+        sysroot=str(sysroot),
+        chroot=chroot,
+        print_cmd=False,
+        check=False,
     )
     return [package_info.parse(x) for x in result.stdout.strip().splitlines()]
 

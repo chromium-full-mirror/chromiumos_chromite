@@ -2106,18 +2106,19 @@ def BuildStrippedPackagesTarball(buildroot, board, package_globs, archive_dir):
     Returns:
         The file name of the output tarball, None if no package found.
     """
-    board_path = path_util.FromChrootPath(
-        os.path.join("/build", board),
-        source_path=buildroot,
+    chroot = chroot_lib.Chroot(
+        path=os.path.join(buildroot, "chroot"),
+        out_path=buildroot / constants.DEFAULT_OUT_DIR,
     )
+    board_path = chroot.full_path(os.path.join("/build", board))
     stripped_pkg_dir = os.path.join(board_path, "stripped-packages")
     tarball_paths = []
-    strip_package_path = path_util.ToChrootPath(
+    strip_package_path = chroot.chroot_path(
         constants.CHROMITE_SCRIPTS_DIR / "strip_package"
     )
     for pattern in package_globs:
         packages = portage_util.FindPackageNameMatches(
-            pattern, board, buildroot=buildroot
+            pattern, board, chroot=chroot
         )
         for cpv in packages:
             cmd = [strip_package_path, "--board", board, cpv.cpf]
