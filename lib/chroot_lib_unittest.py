@@ -5,6 +5,7 @@
 """chroot_lib unit tests."""
 
 import os
+from unittest import mock
 
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
@@ -209,13 +210,14 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
 class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
     """Chroot tests with mock run()."""
 
-    def testRun(self):
-        """Test run() method."""
-        chroot = chroot_lib.Chroot(
+    def setUp(self):
+        self.chroot = chroot_lib.Chroot(
             path=self.tempdir / "chroot", out_path=self.tempdir / "out"
         )
 
-        chroot.run(["./foo", "bar"])
+    def testRunSimple(self):
+        """With simple params."""
+        self.chroot.run(["./foo", "bar"])
         self.assertCommandContains(
             ["./foo", "bar"],
             enter_chroot=True,
@@ -228,7 +230,9 @@ class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
             extra_env={},
         )
 
-        chroot.run(["cat", "dog"], extra_env={"USE": "antigravity"})
+    def testRunExtraEnv(self):
+        """With extra_env dictionary."""
+        self.chroot.run(["cat", "dog"], extra_env={"USE": "antigravity"})
         self.assertCommandContains(
             ["cat", "dog"],
             enter_chroot=True,
@@ -239,4 +243,11 @@ class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
                 str(self.tempdir / "out"),
             ],
             extra_env={"USE": "antigravity"},
+        )
+
+    def testExtraEnvNone(self):
+        """With extra_env=None."""
+        self.chroot.run(["cat"], extra_env=None)
+        self.assertCommandContains(
+            ["cat"], enter_chroot=True, chroot_args=mock.ANY, extra_env={}
         )
