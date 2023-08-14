@@ -793,7 +793,11 @@ def create_stripped_packages_tar(
     )
     tarball_cwd = chroot.full_path(build_target.root)
     for pattern in package_globs:
-        packages = portage_util.FindPackageNameMatches(pattern, board)
+        packages = portage_util.FindPackageNameMatches(
+            pattern,
+            board,
+            quiet=False,
+        )
         for cpv in packages:
             chroot.run([strip_package_path, "--board", board, cpv.cpf])
             # Find the stripped package.

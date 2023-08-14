@@ -2184,6 +2184,7 @@ def _EqueryList(
     pkg_str: str,
     board: Optional[str] = None,
     buildroot: str = constants.SOURCE_ROOT,
+    quiet: bool = True,
 ) -> cros_build_lib.CompletedProcess:
     """Executes equery list command.
 
@@ -2191,12 +2192,18 @@ def _EqueryList(
         pkg_str: The package name with optional category, version, and slot.
         board: The board to inspect.
         buildroot: Source root to find overlays.
+        quiet: Whether to run `equery list` in quiet mode.
 
     Returns:
         A cros_build_lib.CompletedProcess object.
     """
     return _Equery(
-        "list", pkg_str, board=board, buildroot=buildroot, check=False
+        "list",
+        pkg_str,
+        board=board,
+        buildroot=buildroot,
+        quiet=quiet,
+        check=False,
     )
 
 
@@ -2204,6 +2211,7 @@ def FindPackageNameMatches(
     pkg_str: str,
     board: Optional[str] = None,
     buildroot: str = constants.SOURCE_ROOT,
+    quiet: bool = True,
 ) -> List[package_info.PackageInfo]:
     """Finds a list of installed packages matching |pkg_str|.
 
@@ -2211,11 +2219,12 @@ def FindPackageNameMatches(
         pkg_str: The package name with optional category, version, and slot.
         board: The board to inspect.
         buildroot: Source root to find overlays.
+        quiet: Whether to run `equery list` in quiet mode.
 
     Returns:
         An iterable of matched PackageInfo objects.
     """
-    result = _EqueryList(pkg_str, board, buildroot)
+    result = _EqueryList(pkg_str, board, buildroot, quiet=quiet)
 
     matches = []
     if result.returncode == 0:
