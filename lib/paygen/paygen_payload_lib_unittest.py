@@ -1146,12 +1146,12 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             "_CheckEitherImageIsMissingMiniOSPayload",
         )
         check_minios_mock.side_effect = (
-            paygen_payload_lib.MiniOSPatritionMismatchException
+            paygen_payload_lib.MiniOSPartitionMismatchException
         )
 
         # Run the test.
         with self.assertRaises(
-            paygen_payload_lib.MiniOSPatritionMismatchException
+            paygen_payload_lib.MiniOSPartitionMismatchException
         ):
             gen.Run()
 

@@ -7,6 +7,7 @@
 import logging
 import os
 import tempfile
+from typing import Optional
 
 from chromite.lib import cgpt
 from chromite.lib import constants
@@ -20,8 +21,8 @@ DLC_IMAGE = "dlc"
 CROS_IMAGE = "cros"
 
 
-def ExtractPartition(filename, partition, out_part):
-    """Extracts partition from an image file.
+def ExtractPartition(filename: str, partition: str, out_part: str) -> None:
+    """Extract partition from an image file.
 
     Args:
         filename: The image file.
@@ -39,7 +40,7 @@ def ExtractPartition(filename, partition, out_part):
     )
 
 
-def Ext2FileSystemSize(ext2_file):
+def Ext2FileSystemSize(ext2_file: str) -> int:
     """Return the size of an ext2 filesystem in bytes.
 
     Args:
@@ -65,8 +66,8 @@ def Ext2FileSystemSize(ext2_file):
     return fs_blocks * fs_blocksize
 
 
-def PatchKernel(image, kern_file):
-    """Patches a kernel with vblock from a stateful partition.
+def PatchKernel(image: str, kern_file: str) -> None:
+    """Patch a kernel with vblock from a stateful partition.
 
     Args:
         image: The stateful partition image.
@@ -87,8 +88,8 @@ def PatchKernel(image, kern_file):
         )
 
 
-def ExtractKernel(image, kern_out):
-    """Extracts the kernel from the given image.
+def ExtractKernel(image: str, kern_out: str) -> None:
+    """Extract the kernel from the given image.
 
     Args:
         image: The image containing the kernel partition.
@@ -101,13 +102,16 @@ def ExtractKernel(image, kern_out):
         PatchKernel(image, kern_out)
 
 
-def ExtractRoot(image, root_out, truncate=True):
+def ExtractRoot(image: str, root_out: str, truncate: bool = True) -> None:
     """Extract the rootfs partition from a gpt image.
 
     Args:
         image: The input image file.
         root_out: The output root partition file.
         truncate: If true, truncate the partition to the file system size.
+
+    Raises:
+        IOError: If unable to truncate the rootfs.
     """
     ExtractPartition(image, constants.PART_ROOT_A, root_out)
 
@@ -129,7 +133,7 @@ def ExtractRoot(image, root_out, truncate=True):
         raise IOError("Error truncating the rootfs to filesystem size.")
 
 
-def ExtractMiniOS(image, minios_out, part_a: bool = True):
+def ExtractMiniOS(image: str, minios_out: str, part_a: bool = True) -> None:
     """Extract the minios partition from a gpt image.
 
     Args:
@@ -144,16 +148,20 @@ def ExtractMiniOS(image, minios_out, part_a: bool = True):
     )
 
 
-def IsGptImage(image):
-    """Returns true if the image is a GPT image."""
+def IsGptImage(image: str) -> bool:
+    """Return true if the image is a GPT image.
+
+    Args:
+        image: The path to the image.
+    """
     try:
         return bool(image_lib.GetImageDiskPartitionInfo(image))
     except cros_build_lib.RunCommandError:
         return False
 
 
-def LookupImageType(image):
-    """Returns the image type given the path to an image.
+def LookupImageType(image: str) -> Optional[str]:
+    """Return the image type given the path to an image.
 
     Args:
         image: The path to a GPT or Squashfs Image.
@@ -169,8 +177,8 @@ def LookupImageType(image):
     return None
 
 
-def HasMiniOSPartitions(image):
-    """Returns true if the image has miniOS partitions.
+def HasMiniOSPartitions(image: str) -> bool:
+    """Return true if the image has miniOS partitions.
 
     Args:
         image: The path to the GPT image.
@@ -178,14 +186,15 @@ def HasMiniOSPartitions(image):
     Returns:
         True if the image has miniOS partitions.
     """
+    disk = cgpt.Disk.FromImage(image)
     try:
-        disk = cgpt.Disk.FromImage(image)
         parts = disk.GetPartitionByTypeGuid(cgpt.MINIOS_TYPE_GUID)
-        if len(parts) != 2:
-            logging.error(
-                "MiniOS should have two partitions, only found: %s", len(parts)
-            )
-            return False
-        return True
     except KeyError:
         return False
+    if len(parts) != 2:
+        logging.error(
+            "MiniOS should have two partitions, only found: %s",
+            len(parts),
+        )
+        return False
+    return True

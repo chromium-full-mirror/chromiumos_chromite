@@ -5,7 +5,7 @@
 """Hold the functions that do the real work generating payloads."""
 
 import base64
-from collections import deque
+import collections
 import datetime
 import json
 import logging
@@ -64,32 +64,43 @@ class PayloadVerificationError(Error):
     """Raised when the generated payload fails to verify."""
 
 
-class PayloadGenerationSkippedException(BaseException):
+class PayloadGenerationSkippedException(Exception):
     """Base class for reasons that payload generation might be skipped.
 
-    Inherits from BaseException instead of Exception since it is not technically
-    an error.
+    Note that sometimes this is not an error (and thus doesn't inherit from
+    Error). Callers might deliberately try to generate an impossible payload,
+    such as generating a miniOS payload for an image without a miniOS partition,
+    because that is faster than checking whether an image is miniOS-compatible
+    and then generating the payload.
     """
 
 
 class MiniOSException(PayloadGenerationSkippedException):
     """Base class for MiniOS-related exceptions."""
 
-    def return_code(self):
+    def return_code(self) -> int:
+        """Return code to use in a PayloadService.GenerationResponse.
+
+        When attempting to generate a miniOS payload, if we failed to generate,
+        it is helpful to explain what happened. Subclasses should override this
+        method to specify the failure reason.
+        """
         return payload_pb2.GenerationResponse.UNSPECIFIED
 
 
 class NoMiniOSPartitionException(MiniOSException):
     """When generating a miniOS payload for an img with no miniOS part."""
 
-    def return_code(self):
+    def return_code(self) -> int:
+        """Failure reason indicating that the image is not miniOS-compatible."""
         return payload_pb2.GenerationResponse.NOT_MINIOS_COMPATIBLE
 
 
-class MiniOSPatritionMismatchException(MiniOSException):
+class MiniOSPartitionMismatchException(MiniOSException):
     """When there is a mismatch in recovery key count for source and target."""
 
-    def return_code(self):
+    def return_code(self) -> int:
+        """Failure reason indicating a mismatch in recovery keys."""
         return payload_pb2.GenerationResponse.MINIOS_COUNT_MISMATCH
 
 
@@ -442,12 +453,12 @@ class PaygenPayload:
                         )
                 return app_id, minor_version
 
-    def _MaybeSkipPayloadGeneration(self):
+    def _MaybeSkipPayloadGeneration(self) -> None:
         """Raises an exception if paygen should be skipped for some reason.
 
         Raises:
-            NoMiniOSPartitionException: If a miniOS payload is requested when
-            either the source or target image has no miniOS payload.
+            MiniOSException: If the payload could not be generated due to a
+                miniOS issue (such as the image having no miniOS partition).
         """
         if self.payload.minios:
             try:
@@ -458,8 +469,6 @@ class PaygenPayload:
                     "parts: %s",
                     e,
                 )
-            return True
-        return False
 
     def _CheckEitherImageIsMissingMiniOSPayload(self):
         """Determines whether the source or target image has no miniOS parts.
@@ -468,7 +477,9 @@ class PaygenPayload:
         only the tgt image will be evaluated.
 
         Raises:
-            MiniOSException: One of several miniOS errors.
+            MiniOSException: If either the source or target image is missing
+                a miniOS partition, or if some other issue arose while checking
+                for a miniOS partition.
         """
         try:
             self._CheckImageHasMiniOSPartition(self.tgt_image_file)
@@ -485,18 +496,21 @@ class PaygenPayload:
             image_file: Local path to the image file.
 
         Raises:
-            MiniOSException: One of several miniOS errors.
+            MiniOSPartitionMismatchException: If there is a mismatch in the
+                recovery key count for the source and target images.
+            NoMiniOSPartitionException: If there is no miniOS partition for this
+                image.
         """
         disk = cgpt.Disk.FromImage(image_file, chroot=self.chroot)
         try:
             parts = disk.GetPartitionByTypeGuid(cgpt.MINIOS_TYPE_GUID)
-            # These are hard enforcements on miniOS partitions now to avoid
-            # payload generation when either A || B partitions aren't set.
-            if len(parts) != 2:
-                logging.info("MiniOS partition count did not match.")
-                raise MiniOSPatritionMismatchException
         except KeyError:
             raise NoMiniOSPartitionException
+        # These are hard enforcements on miniOS partitions now to avoid
+        # payload generation when either A || B partitions aren't set.
+        if len(parts) != 2:
+            logging.info("MiniOS partition count did not match.")
+            raise MiniOSPartitionMismatchException
 
     def _PreparePartitions(self, part_a: bool = True):
         """Prepares parameters related to partitions of the given image.
@@ -617,7 +631,7 @@ class PaygenPayload:
         Raises:
             cros_build_lib.RunCommandError if the command did not succeed.
         """
-        response_queue = deque()
+        response_queue = collections.deque()
 
         # The later thread's start() function.
         def _inner_run(cmd, response_queue):
