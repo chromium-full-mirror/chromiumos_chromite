@@ -8,6 +8,8 @@ Here is the pyvis documentation
 https://pyvis.readthedocs.io/en/latest/documentation.html
 """
 
+import logging
+from pathlib import Path
 from typing import Dict, Iterator, List, Set, Tuple
 
 import matplotlib.pyplot as plt  # pylint: disable=import-error
@@ -150,7 +152,9 @@ class DepVisualizer:
         # https://pyvis.readthedocs.io/en/latest/_modules/pyvis/network.html#Network.show_buttons
         net.show_buttons(filter_=["physics"])
         # Writes an HTML file with the graph on it.
-        net.write_html(f"{output_dir}/{output_name}.html")
+        out_file = f"{output_dir}/{output_name}.html"
+        net.write_html(out_file)
+        logging.info("Wrote %s.", Path(out_file).resolve())
 
     def GenerateHistograms(self, build_name: str, path: str):
         """Creates 4 histograms with dependency and rvs dependency distribution.

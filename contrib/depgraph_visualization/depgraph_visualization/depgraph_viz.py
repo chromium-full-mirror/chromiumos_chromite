@@ -4,12 +4,14 @@
 
 """Command to visualize dependency tree for a given package."""
 
+import subprocess
 import sys
 from typing import Dict, List
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
-from chromite.lib import depgraph
+from chromite.lib import cros_build_lib
+from chromite.lib import json_lib
 
 from . import visualize
 
@@ -63,24 +65,14 @@ def CreateRuntimeTree(sysroot: str, pkg_list: str) -> Dict[str, List[str]]:
     """
 
     # Setup for dependency extraction.
-    lib_argv = ["--quiet", "--pretend", "--emptytree"]
-    lib_argv += ["--sysroot=%s" % sysroot]
-    lib_argv.extend(pkg_list)
-    dep_graph = depgraph.DepGraphGenerator()
-    dep_graph.Initialize(lib_argv)
-    deps_tree, _deps_info, _bdeps_tree = dep_graph.GenDependencyTree()
-
-    # Portage returns nothing if the packages given had no dependencies.
-    # In those cases we add the given packages so that the output file has
-    # something and doesn't appear broken.
-    if deps_tree:
-        # TODO(b/236161656): Fix.
-        # pylint: disable-next=consider-using-dict-items
-        runtime_tree = {pkg: deps_tree[pkg]["deps"].keys() for pkg in deps_tree}
-    else:
-        runtime_tree = {pkg: [] for pkg in pkg_list}
-
-    return runtime_tree
+    extract_deps_argv = ["cros_extract_deps"]
+    extract_deps_argv += [f"--sysroot={sysroot}"]
+    extract_deps_argv.extend(pkg_list)
+    result = cros_build_lib.run(
+        extract_deps_argv, enter_chroot=True, stdout=subprocess.PIPE
+    )
+    deps_tree = json_lib.loads(result.stdout)
+    return {pkg: deps_tree[pkg]["deps"] for pkg in deps_tree}
 
 
 def main():
