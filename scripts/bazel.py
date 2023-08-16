@@ -55,7 +55,8 @@ def _setup_workspace(project: str):
     ):
         for path in workspace.iterdir():
             osutils.SafeSymlink(
-                path, constants.BAZEL_WORKSPACE_ROOT / path.name
+                path.relative_to(constants.BAZEL_WORKSPACE_ROOT),
+                constants.BAZEL_WORKSPACE_ROOT / path.name,
             )
             known_symlinks.add(path.name)
 
