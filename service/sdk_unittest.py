@@ -97,6 +97,27 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
         instance = sdk.CreateArguments(**kwargs)
         return instance.GetArgList()
 
+    def testGetEntryArgList(self):
+        """Test that GetEntryArgList contains all chroot-y locations."""
+
+        # Check the other flags get added when the correct argument passed.
+        self.assertListEqual(
+            [
+                "--chroot",
+                constants.DEFAULT_CHROOT_PATH,
+                "--out-dir",
+                str(constants.DEFAULT_OUT_PATH),
+                "--skip-chroot-upgrade",
+            ],
+            sdk.CreateArguments(
+                replace=True,
+                bootstrap=True,
+                sdk_version="foo",
+                skip_chroot_upgrade=True,
+                ccache_disable=True,
+            ).GetEntryArgList(),
+        )
+
     def testGetArgList(self):
         """Test the GetArgsList method."""
         # Check the variations of replace.
@@ -111,9 +132,9 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 constants.DEFAULT_CHROOT_PATH,
                 "--out-dir",
                 str(constants.DEFAULT_OUT_PATH),
+                "--skip-chroot-upgrade",
                 "--sdk-version",
                 "foo",
-                "--skip-chroot-upgrade",
             ],
             self._GetArgsList(
                 replace=False,
@@ -298,9 +319,81 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         version = sdk.Create(arguments)
-
-        self.assertCommandContains(expected_args)
         self.assertEqual(expected_version, version)
+        self.assertCommandContains(expected_args)
+
+    def runCreateExtractingCcacheCommand(self, replace, ccache_disable):
+        """Run `sdk.Create`, extracting the ccache enable/disable command."""
+        arguments = sdk.CreateArguments(
+            replace=replace, ccache_disable=ccache_disable
+        )
+        arguments.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+
+        expected_version = 1
+        self.PatchObject(sdk, "GetChrootVersion", return_value=expected_version)
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        chroot_args = arguments.GetEntryArgList()
+        version = sdk.Create(arguments)
+        self.assertEqual(expected_version, version)
+
+        found_ccache_command = None
+        for i, call_args in enumerate(self.rc.call_args_list):
+            positionals = call_args.args[0]
+            self.assertTrue(
+                partial_mock.ListContains(
+                    chroot_args, positionals, strict=True
+                ),
+                f"Call {positionals} (#{i+1}) does not contain {chroot_args}",
+            )
+
+            ccache_positional = next(
+                (
+                    x
+                    for x in positionals
+                    if isinstance(x, str) and " CCACHE_DIR=" in x
+                ),
+                None,
+            )
+
+            if not ccache_positional:
+                continue
+
+            self.assertIsNone(
+                found_ccache_command,
+                f"Found multiple ccache commands in {self.rc.call_args_list}",
+            )
+            found_ccache_command = ccache_positional
+
+        self.assertIsNotNone(
+            found_ccache_command,
+            f"No ccache invocation found in any of {self.rc.call_args_list}",
+        )
+        return found_ccache_command
+
+    def testDisablingCcacheWorks(self):
+        """Ensure we issue a ccache disable command if it's requested."""
+        ccache_command = self.runCreateExtractingCcacheCommand(
+            replace=True, ccache_disable=True
+        )
+        self.assertIn("disable=true", ccache_command)
+
+    def testCcacheIsReenabledIfDisablingIsntRequested(self):
+        """Ensure we issue a ccache enable command if it's requested."""
+        ccache_command = self.runCreateExtractingCcacheCommand(
+            replace=True, ccache_disable=False
+        )
+        self.assertIn("disable=false", ccache_command)
+
+    def testCcacheCommandIsIssuedEvenIfNoReplacementHappens(self):
+        """Check that Create enables ccache if the chroot isn't remade."""
+        ccache_command = self.runCreateExtractingCcacheCommand(
+            replace=False, ccache_disable=False
+        )
+        self.assertIn("disable=false", ccache_command)
 
     def testCreateInsideFails(self):
         """Test Create raises an error when called inside the chroot."""

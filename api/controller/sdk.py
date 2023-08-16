@@ -115,6 +115,7 @@ def Create(
 
     sdk_version = input_proto.sdk_version
     skip_chroot_upgrade = input_proto.skip_chroot_upgrade
+    ccache_disable = input_proto.ccache_disable
 
     if config.validate_only:
         return controller.RETURN_CODE_VALID_INPUT
@@ -125,6 +126,7 @@ def Create(
         chroot=chroot,
         sdk_version=sdk_version,
         skip_chroot_upgrade=skip_chroot_upgrade,
+        ccache_disable=ccache_disable,
     )
 
     version = sdk.Create(args)

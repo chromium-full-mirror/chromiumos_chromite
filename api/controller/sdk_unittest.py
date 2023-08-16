@@ -37,6 +37,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         chroot_path=None,
         sdk_version=None,
         skip_chroot_upgrade=False,
+        ccache_disable=False,
     ):
         """Helper to build a create request message."""
         request = sdk_pb2.CreateRequest()
@@ -51,6 +52,8 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             request.sdk_version = sdk_version
         if skip_chroot_upgrade:
             request.skip_chroot_upgrade = skip_chroot_upgrade
+        if ccache_disable:
+            request.ccache_disable = ccache_disable
 
         return request
 
@@ -103,6 +106,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             chroot=mock.ANY,
             sdk_version=mock.ANY,
             skip_chroot_upgrade=mock.ANY,
+            ccache_disable=mock.ANY,
         )
 
     def testTrueArguments(self):
@@ -117,6 +121,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             bootstrap=True,
             sdk_version="foo",
             skip_chroot_upgrade=True,
+            ccache_disable=True,
         )
         sdk_controller.Create(request, self.response, self.api_config)
         args_patch.assert_called_with(
@@ -125,6 +130,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             chroot=mock.ANY,
             sdk_version="foo",
             skip_chroot_upgrade=True,
+            ccache_disable=True,
         )
 
 

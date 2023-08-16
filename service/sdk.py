@@ -66,6 +66,7 @@ class CreateArguments:
         chroot: Optional["chroot_lib.Chroot"] = None,
         sdk_version: Optional[str] = None,
         skip_chroot_upgrade: Optional[bool] = False,
+        ccache_disable: bool = False,
     ):
         """Create arguments init.
 
@@ -77,12 +78,33 @@ class CreateArguments:
             sdk_version: Specific SDK version to use, e.g. 2022.01.20.073008.
             skip_chroot_upgrade: Whether to skip any chroot upgrades (using
                 the --skip-chroot-upgrade arg to cros_sdk).
+            ccache_disable: Whether ccache should be disabled after chroot
+                creation.
         """
         self.replace = replace
         self.bootstrap = bootstrap
         self.chroot = chroot or chroot_lib.Chroot()
         self.sdk_version = sdk_version
         self.skip_chroot_upgrade = skip_chroot_upgrade
+        self.ccache_disable = ccache_disable
+
+    def GetEntryArgList(self) -> List[str]:
+        """Get the list of command line arguments to simply enter the chroot.
+
+        Note that these are a subset of `GetArgList`.
+        """
+        args = [
+            "--chroot",
+            self.chroot.path,
+            "--out-dir",
+            str(self.chroot.out_path),
+        ]
+        if self.chroot.cache_dir:
+            args.extend(["--cache-dir", self.chroot.cache_dir])
+
+        if self.skip_chroot_upgrade:
+            args.append("--skip-chroot-upgrade")
+        return args
 
     def GetArgList(self) -> List[str]:
         """Get the list of the corresponding command line arguments.
@@ -100,17 +122,10 @@ class CreateArguments:
         if self.bootstrap:
             args.append("--bootstrap")
 
-        if self.chroot.cache_dir:
-            args.extend(["--cache-dir", self.chroot.cache_dir])
-
-        args.extend(["--chroot", self.chroot.path])
-        args.extend(["--out-dir", str(self.chroot.out_path)])
+        args.extend(self.GetEntryArgList())
 
         if self.sdk_version:
             args.extend(["--sdk-version", self.sdk_version])
-
-        if self.skip_chroot_upgrade:
-            args.append("--skip-chroot-upgrade")
 
         return args
 
@@ -220,10 +235,8 @@ def Create(arguments: CreateArguments) -> Optional[int]:
     """
     cros_build_lib.AssertOutsideChroot()
 
-    cmd = [constants.CHROMITE_BIN_DIR / "cros_sdk"]
-    cmd.extend(arguments.GetArgList())
-
-    cros_build_lib.run(cmd)
+    cros_sdk = constants.CHROMITE_BIN_DIR / "cros_sdk"
+    cros_build_lib.run([cros_sdk] + arguments.GetArgList())
 
     version = GetChrootVersion(arguments.chroot.path)
     if not arguments.replace:
@@ -246,6 +259,22 @@ def Create(arguments: CreateArguments) -> Optional[int]:
             logging.notice("Replacing chroot with invalid permissions.")
             arguments.replace = True
             return Create(arguments)
+
+    disable_arg = "true" if arguments.ccache_disable else "false"
+    ccache_cmd = [cros_sdk]
+    ccache_cmd.extend(arguments.GetEntryArgList())
+    ccache_cmd.extend(
+        (
+            "--",
+            "sudo"
+            " CCACHE_DIR=/var/cache/distfiles/ccache"
+            f" ccache --set-config=disable={disable_arg}",
+        )
+    )
+    if cros_build_lib.run(ccache_cmd, check=False).returncode:
+        logging.warning(
+            "ccache disable=%s command failed; ignoring", disable_arg
+        )
 
     return GetChrootVersion(arguments.chroot.path)
 
