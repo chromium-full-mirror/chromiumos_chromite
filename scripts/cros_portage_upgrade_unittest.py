@@ -566,6 +566,7 @@ class CpuTestBase(cros_test_lib.MockTempDirTestCase):
         upgrader._GenPortageEnvvars = cpu.Upgrader._GenPortageEnvvars
         upgrader._GetCatPkgFromCpv = cpu.Upgrader._GetCatPkgFromCpv
         upgrader._SplitEBuildPath = cpu.Upgrader._SplitEBuildPath
+        upgrader._EqueryWhich = cpu.Upgrader._EqueryWhich
 
         # Point to our tempdir to avoid clobbering /tmp/portage by accident.
         upgrader.UPSTREAM_TMP_REPO = upgrader._upstream = self.upstream_tmp_repo
@@ -2355,7 +2356,9 @@ class VerifyPackageTest(CpuTestBase):
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
 
         # Replay script.
-        mocked_upgrader._GetBoardCmd.return_value = "equery"
+        mocked_upgrader._EqueryBoardWhich.side_effect = (
+            cpu.Upgrader._EqueryWhich
+        )
         rc_mock.SetDefaultCmdResult(stdout=ebuild_path)
 
         # Verify.
@@ -2364,7 +2367,14 @@ class VerifyPackageTest(CpuTestBase):
         )
 
         rc_mock.assertCommandCalled(
-            ["equery", "-C", "which", "--include-masked", cpv],
+            [
+                "equery",
+                "--no-color",
+                "--no-pipe",
+                "which",
+                "--include-masked",
+                cpv,
+            ],
             check=False,
             extra_env={"ACCEPT_KEYWORDS": DEFAULT_ARCH},
             stdout=True,

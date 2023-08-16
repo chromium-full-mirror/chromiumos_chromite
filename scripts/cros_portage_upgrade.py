@@ -11,6 +11,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from typing import Dict, Optional
 
 import portage  # pylint: disable=import-error
 
@@ -442,6 +443,43 @@ class Upgrader:
 
         return envvars
 
+    @staticmethod
+    def _EqueryWhich(
+        pkg: str,
+        envvars: Dict[str, str],
+        equery: str = "equery",
+        include_masked: bool = False,
+    ) -> Optional[tuple]:
+        """Run `equery which` with common options."""
+        cmd = [equery, "--no-color", "--no-pipe", "which"]
+        if include_masked:
+            cmd += ["--include-masked"]
+        cmd += [pkg]
+        result = cros_build_lib.run(
+            cmd,
+            extra_env=envvars,
+            check=False,
+            stdout=True,
+            stderr=subprocess.STDOUT,
+            encoding="utf-8",
+        )
+        if result.returncode == 0:
+            ebuild_path = result.stdout.strip()
+            return Upgrader._SplitEBuildPath(ebuild_path)
+        else:
+            return None
+
+    def _EqueryBoardWhich(
+        self, pkg: str, envvars: Dict[str, str], include_masked: bool = False
+    ) -> Optional[tuple]:
+        """Run `equery which` (for the board)."""
+        return self._EqueryWhich(
+            pkg,
+            envvars,
+            equery=self._GetBoardCmd(self.EQUERY_CMD),
+            include_masked=include_masked,
+        )
+
     def _FindUpstreamCPV(self, pkg, unstable_ok=False):
         """Returns latest cpv in |_upstream| that matches |pkg|.
 
@@ -466,22 +504,11 @@ class Upgrader:
 
         # Point equery to the upstream source to get latest version for
         # keywords.
-        equery = ["equery", "which", pkg]
-        cmd_result = cros_build_lib.run(
-            equery,
-            extra_env=envvars,
-            check=False,
-            stdout=True,
-            stderr=subprocess.STDOUT,
-            encoding="utf-8",
-        )
-
-        if cmd_result.returncode == 0:
-            ebuild_path = cmd_result.stdout.strip()
-            (_overlay, cat, _pn, pv) = self._SplitEBuildPath(ebuild_path)
-            return os.path.join(cat, pv)
-        else:
-            return None
+        result = self._EqueryWhich(pkg, envvars)
+        if not result:
+            return result
+        (_overlay, cat, _pn, pv) = result
+        return os.path.join(cat, pv)
 
     def _GetBoardCmd(self, cmd):
         """Return the board-specific version of |cmd|, if applicable."""
@@ -520,24 +547,11 @@ class Upgrader:
     def _FindCurrentCPV(self, pkg):
         """Returns current cpv on |_curr_board| that matches |pkg|, or None."""
         envvars = self._GenPortageEnvvars(self._curr_arch, unstable_ok=False)
-
-        equery = self._GetBoardCmd(self.EQUERY_CMD)
-        cmd = [equery, "-C", "which", pkg]
-        cmd_result = cros_build_lib.run(
-            cmd,
-            check=False,
-            extra_env=envvars,
-            stdout=True,
-            stderr=subprocess.STDOUT,
-            encoding="utf-8",
-        )
-
-        if cmd_result.returncode == 0:
-            ebuild_path = cmd_result.stdout.strip()
-            (_overlay, cat, _pn, pv) = self._SplitEBuildPath(ebuild_path)
-            return os.path.join(cat, pv)
-        else:
-            return None
+        result = self._EqueryBoardWhich(pkg, envvars)
+        if not result:
+            return result
+        (_overlay, cat, _pn, pv) = result
+        return os.path.join(cat, pv)
 
     def _SetUpgradedMaskBits(self, pinfo):
         """Set pinfo.upgraded_unmasked."""
@@ -595,19 +609,10 @@ class Upgrader:
         # confidence check.
         envvars = self._GenPortageEnvvars(self._curr_arch, unstable_ok=False)
 
-        equery = self._GetBoardCmd(self.EQUERY_CMD)
-        cmd = [equery, "-C", "which", "--include-masked", cpv]
-        result = cros_build_lib.run(
-            cmd,
-            check=False,
-            extra_env=envvars,
-            stdout=True,
-            stderr=subprocess.STDOUT,
-            encoding="utf-8",
-        )
-
-        ebuild_path = result.stdout.strip()
-        (overlay, _cat, _pn, _pv) = self._SplitEBuildPath(ebuild_path)
+        result = self._EqueryBoardWhich(cpv, envvars, include_masked=True)
+        if not result:
+            return
+        (overlay, _cat, _pn, _pv) = result
         if overlay != expected_overlay:
             if was_overwrite:
                 raise RuntimeError(
@@ -621,7 +626,7 @@ class Upgrader:
                     "Upgraded ebuild for %s is not coming from %s:\n"
                     " %s\n"
                     "Please show this error to the build team."
-                    % (cpv, expected_overlay, ebuild_path)
+                    % (cpv, expected_overlay, result)
                 )
 
     def _IdentifyNeededEclass(self, cpv):
@@ -652,7 +657,7 @@ class Upgrader:
         envvars = self._GenPortageEnvvars(self._curr_arch, unstable_ok=True)
 
         equery = self._GetBoardCmd(self.EQUERY_CMD)
-        cmd = [equery, "-C", "--no-pipe", "which", cpv]
+        cmd = [equery, "--no-color", "--no-pipe", "which", cpv]
         result = cros_build_lib.run(
             cmd,
             check=False,
@@ -1588,18 +1593,9 @@ class Upgrader:
         )
         # Construct the upstream package path for each requested package.
         for pkg in self._args:
-            equery = ["equery", "which", pkg]
-            result = cros_build_lib.dbg_run(
-                equery,
-                check=False,
-                extra_env=envvars,
-                stdout=True,
-                stderr=subprocess.STDOUT,
-                encoding="utf-8",
-            )
-            if result.returncode == 0:
-                ebuild_path = result.stdout.strip()
-                (_overlay, cat, pn, _pv) = self._SplitEBuildPath(ebuild_path)
+            result = self._EqueryWhich(pkg, envvars)
+            if result:
+                (_overlay, cat, pn, _pv) = result
                 pkg_dirs.append(os.path.join(self._upstream, cat, pn))
             elif "/" in pkg:
                 # If there are no EAPI<8 packages equery will fail so provide
