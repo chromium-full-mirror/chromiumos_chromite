@@ -402,7 +402,8 @@ class Upgrader:
             stderr=stderr,
         )
 
-    def _SplitEBuildPath(self, ebuild_path):
+    @staticmethod
+    def _SplitEBuildPath(ebuild_path):
         """Split a full ebuild path into (overlay, cat, pn, pv)."""
         (ebuild_path, _ebuild) = os.path.splitext(ebuild_path)
         (ebuild_path, pv) = os.path.split(ebuild_path)
@@ -411,8 +412,9 @@ class Upgrader:
         (ebuild_path, overlay) = os.path.split(ebuild_path)
         return (overlay, cat, pn, pv)
 
+    @staticmethod
     def _GenPortageEnvvars(
-        self, arch, unstable_ok, portdir=None, portage_configroot=None
+        arch, unstable_ok, portdir=None, portage_configroot=None
     ):
         """Returns dictionary of envvars for running portage tools.
 
@@ -1090,7 +1092,8 @@ class Upgrader:
         # Remember this package for commit summary later on.
         self._upgraded_packages.append(pinfo)
 
-    def _ExtractUpgradedPkgs(self, upgrade_lines):
+    @staticmethod
+    def _ExtractUpgradedPkgs(upgrade_lines):
         """Extracts list of packages from standard commit |upgrade_lines|."""
         # Expecting message lines like this (return just package names):
         # Upgraded sys-libs/ncurses to version 5.7-r7 on amd64, arm, x86
@@ -1105,10 +1108,11 @@ class Upgrader:
 
         return sorted(pkgs)
 
-    def _CreateCommitMessage(self, upgrade_lines, remaining_lines=None):
+    @staticmethod
+    def _CreateCommitMessage(upgrade_lines, remaining_lines=None):
         """Create appropriate commit message for upgrades in |upgrade_lines|."""
         message = None
-        upgrade_pkgs = self._ExtractUpgradedPkgs(upgrade_lines)
+        upgrade_pkgs = Upgrader._ExtractUpgradedPkgs(upgrade_lines)
         upgrade_count = len(upgrade_pkgs)
         upgrade_str = "\n".join(upgrade_lines)
         if upgrade_count < 6:

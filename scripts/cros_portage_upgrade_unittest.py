@@ -560,6 +560,13 @@ class CpuTestBase(cros_test_lib.MockTempDirTestCase):
             self.assertIn(key, cpu.Upgrader.__slots__)
             upgrader.__setattr__(key, value)
 
+        # Copy over static methods.
+        upgrader._CreateCommitMessage = cpu.Upgrader._CreateCommitMessage
+        upgrader._ExtractUpgradedPkgs = cpu.Upgrader._ExtractUpgradedPkgs
+        upgrader._GenPortageEnvvars = cpu.Upgrader._GenPortageEnvvars
+        upgrader._GetCatPkgFromCpv = cpu.Upgrader._GetCatPkgFromCpv
+        upgrader._SplitEBuildPath = cpu.Upgrader._SplitEBuildPath
+
         # Point to our tempdir to avoid clobbering /tmp/portage by accident.
         upgrader.UPSTREAM_TMP_REPO = upgrader._upstream = self.upstream_tmp_repo
         upgrader._stable_repo = self.portage_stable
@@ -635,10 +642,6 @@ class CopyUpstreamTest(CpuTestBase):
         )
 
         # Replay script.
-        envvars = cpu.Upgrader._GenPortageEnvvars(
-            mocked_upgrader, mocked_upgrader._curr_arch, unstable_ok=True
-        )
-        mocked_upgrader._GenPortageEnvvars.return_value = envvars
         mocked_upgrader._GetBoardCmd.return_value = "equery"
 
         # Verify.
@@ -1007,18 +1010,10 @@ class EmergeableTest(CpuTestBase):
         self._SetUpPlayground(world=world)
 
         # Replay script.
-        envvars = cpu.Upgrader._GenPortageEnvvars(
-            mocked_upgrader, mocked_upgrader._curr_arch, unstable_ok=False
-        )
-        mocked_upgrader._GenPortageEnvvars.return_value = envvars
         mocked_upgrader._GetBoardCmd.return_value = "emerge"
 
         # Verify.
         result = cpu.Upgrader._AreEmergeable(mocked_upgrader, cpvlist)
-
-        mocked_upgrader._GenPortageEnvvars.assert_called_once_with(
-            mocked_upgrader._curr_arch, unstable_ok=False
-        )
 
         (code, _cmd, output) = result
         logging.debug(
@@ -1468,11 +1463,8 @@ class UtilityTest(CpuTestBase):
         self, arch, unstable_ok, portdir=None, portage_configroot=None
     ):
         """Testing the behavior of the Upgrader._GenPortageEnvvars method."""
-        mocked_upgrader = self._MockUpgrader()
-
-        # Verify.
         result = cpu.Upgrader._GenPortageEnvvars(
-            mocked_upgrader, arch, unstable_ok, portdir, portage_configroot
+            arch, unstable_ok, portdir, portage_configroot
         )
 
         keyw = arch
@@ -1506,10 +1498,7 @@ class UtilityTest(CpuTestBase):
 
     def _TestSplitEBuildPath(self, ebuild_path, golden_result):
         """Test the behavior of the Upgrader._SplitEBuildPath method."""
-        mocked_upgrader = self._MockUpgrader()
-
-        # Verify.
-        result = cpu.Upgrader._SplitEBuildPath(mocked_upgrader, ebuild_path)
+        result = cpu.Upgrader._SplitEBuildPath(ebuild_path)
         self.assertEqual(result, golden_result)
 
     def testSplitEBuildPath1(self):
@@ -1559,33 +1548,14 @@ class TreeInspectTest(CpuTestBase):
         mocked_upgrader = self._MockUpgrader(_curr_board=None)
 
         # Replay script.
-        envvars = cpu.Upgrader._GenPortageEnvvars(
-            mocked_upgrader,
-            mocked_upgrader._curr_arch,
-            unstable_ok,
-            portdir=self.portage_stable,
-            portage_configroot=self.eroot,
-        )
-        portage_configroot = mocked_upgrader._emptydir
-        mocked_upgrader._GenPortageEnvvars.return_value = envvars
-
         if ebuild_expect:
             ebuild_path = self.eroot + ebuild_expect
-            split_path = cpu.Upgrader._SplitEBuildPath(
-                mocked_upgrader, ebuild_path
-            )
+            split_path = cpu.Upgrader._SplitEBuildPath(ebuild_path)
             mocked_upgrader._SplitEBuildPath.return_value = split_path
 
         # Verify.
         result = cpu.Upgrader._FindUpstreamCPV(
             mocked_upgrader, pkg_arg, unstable_ok
-        )
-
-        mocked_upgrader._GenPortageEnvvars.assert_called_once_with(
-            mocked_upgrader._curr_arch,
-            unstable_ok,
-            portdir=mocked_upgrader._upstream,
-            portage_configroot=portage_configroot,
         )
 
         if ebuild_expect:
@@ -1648,25 +1618,15 @@ class TreeInspectTest(CpuTestBase):
         self._SetUpPlayground()
 
         # Replay script.
-        envvars = cpu.Upgrader._GenPortageEnvvars(
-            mocked_upgrader, mocked_upgrader._curr_arch, unstable_ok=False
-        )
-        mocked_upgrader._GenPortageEnvvars.return_value = envvars
         mocked_upgrader._GetBoardCmd.return_value = "equery"
 
         if ebuild_expect:
             ebuild_path = self.eroot + ebuild_expect
-            split_path = cpu.Upgrader._SplitEBuildPath(
-                mocked_upgrader, ebuild_path
-            )
+            split_path = cpu.Upgrader._SplitEBuildPath(ebuild_path)
             mocked_upgrader._SplitEBuildPath.return_value = split_path
 
         # Verify.
         result = cpu.Upgrader._FindCurrentCPV(mocked_upgrader, pkg_arg)
-
-        mocked_upgrader._GenPortageEnvvars.assert_called_once_with(
-            mocked_upgrader._curr_arch, unstable_ok=False
-        )
 
         if ebuild_expect:
             mocked_upgrader._SplitEBuildPath.assert_called_once_with(
@@ -2001,11 +1961,6 @@ class CheckStagedUpgradesTest(CpuTestBase):
             cmdargs=cmdargs, _stable_repo_status=repo_status
         )
 
-        def SplitPath(ebuild):
-            return cpu.Upgrader._SplitEBuildPath(mocked_upgrader, ebuild)
-
-        mocked_upgrader._SplitEBuildPath.side_effect = SplitPath
-
         # Verify.
         cpu.Upgrader._CheckStagedUpgrades(mocked_upgrader, pinfolist)
 
@@ -2027,11 +1982,6 @@ class CheckStagedUpgradesTest(CpuTestBase):
         mocked_upgrader = self._MockUpgrader(
             cmdargs=cmdargs, _stable_repo_status=repo_status
         )
-
-        def SplitPath(ebuild):
-            return cpu.Upgrader._SplitEBuildPath(mocked_upgrader, ebuild)
-
-        mocked_upgrader._SplitEBuildPath.side_effect = SplitPath
 
         # Verify.
         self.assertRaises(
@@ -2405,29 +2355,18 @@ class VerifyPackageTest(CpuTestBase):
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
 
         # Replay script.
-        envvars = cpu.Upgrader._GenPortageEnvvars(
-            mocked_upgrader, mocked_upgrader._curr_arch, unstable_ok=False
-        )
-        mocked_upgrader._GenPortageEnvvars.return_value = envvars
         mocked_upgrader._GetBoardCmd.return_value = "equery"
         rc_mock.SetDefaultCmdResult(stdout=ebuild_path)
-        split_ebuild = cpu.Upgrader._SplitEBuildPath(
-            mocked_upgrader, ebuild_path
-        )
-        mocked_upgrader._SplitEBuildPath.return_value = split_ebuild
 
         # Verify.
         cpu.Upgrader._VerifyEbuildOverlay(
             mocked_upgrader, cpv, overlay, was_overwrite
         )
 
-        mocked_upgrader._GenPortageEnvvars.assert_called_once_with(
-            mocked_upgrader._curr_arch, unstable_ok=False
-        )
         rc_mock.assertCommandCalled(
             ["equery", "-C", "which", "--include-masked", cpv],
             check=False,
-            extra_env=envvars,
+            extra_env={"ACCEPT_KEYWORDS": DEFAULT_ARCH},
             stdout=True,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
@@ -2483,13 +2422,10 @@ class VerifyPackageTest(CpuTestBase):
         # Verify.
         cpu.Upgrader._SetUpgradedMaskBits(mocked_upgrader, pinfo)
 
-        mocked_upgrader._GenPortageEnvvars.assert_called_once_with(
-            mocked_upgrader._curr_arch, unstable_ok=False
-        )
         rc_mock.assertCommandCalled(
             ["equery", "-qCN", "list", "-F", "$mask|$cpv:$slot", "-op", cpv],
             check=False,
-            extra_env={"env": "vars"},
+            extra_env={"ACCEPT_KEYWORDS": DEFAULT_ARCH},
             stdout=True,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
@@ -2529,10 +2465,7 @@ class CommitTest(CpuTestBase):
 
     def _TestExtractUpgradedPkgs(self, upgrade_lines):
         """Test Upgrader._ExtractUpgradedPkgs"""
-        mocked_upgrader = self._MockUpgrader()
-
-        # Verify.
-        return cpu.Upgrader._ExtractUpgradedPkgs(mocked_upgrader, upgrade_lines)
+        return cpu.Upgrader._ExtractUpgradedPkgs(upgrade_lines)
 
     def testExtractUpgradedPkgs(self):
         upgrade_lines = [
@@ -2569,7 +2502,7 @@ class CommitTest(CpuTestBase):
             self.assertEqual(gold_lines, mock_upgrade_lines)
             self.assertEqual(remaining_lines, mock_remaining_lines)
 
-        mocked_upgrader._CreateCommitMessage.side_effect = CreateCommit
+        mocked_upgrader._CreateCommitMessage = CreateCommit
 
         # Verify.
         cpu.Upgrader._AmendCommitMessage(mocked_upgrader, new_upgrade_lines)
@@ -2657,22 +2590,7 @@ class CommitTest(CpuTestBase):
 
     def _TestCreateCommitMessage(self, upgrade_lines):
         """Test Upgrader._CreateCommitMessage"""
-        mocked_upgrader = self._MockUpgrader()
-
-        upgrade_pkgs = cpu.Upgrader._ExtractUpgradedPkgs(
-            mocked_upgrader, upgrade_lines
-        )
-
-        def Extract(lines):
-            self.assertEqual(upgrade_lines, lines)
-            return upgrade_pkgs
-
-        mocked_upgrader._ExtractUpgradedPkgs.side_effect = Extract
-
-        # Verify.
-        result = cpu.Upgrader._CreateCommitMessage(
-            mocked_upgrader, upgrade_lines
-        )
+        result = cpu.Upgrader._CreateCommitMessage(upgrade_lines)
 
         self.assertTrue(
             ": upgraded package" in result or "Upgraded the following" in result
