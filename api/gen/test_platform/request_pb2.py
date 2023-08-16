@@ -20,7 +20,7 @@ from chromite.api.gen.test_platform.execution import param_pb2 as test__platform
 from chromite.api.gen.test_platform.common import cft_steps_config_pb2 as test__platform_dot_common_dot_cft__steps__config__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1btest_platform/request.proto\x12\rtest_platform\x1a chromite/api/test_metadata.proto\x1a\x17\x63hromiumos/common.proto\x1a$chromiumos/test/api/test_suite.proto\x1a\x31\x63hromiumos/test/api/test_execution_metadata.proto\x1a\x1egoogle/protobuf/duration.proto\x1a#test_platform/execution/param.proto\x1a+test_platform/common/cft_steps_config.proto\"\x86\x1e\n\x07Request\x12-\n\x06params\x18\x01 \x01(\x0b\x32\x1d.test_platform.Request.Params\x12\x32\n\ttest_plan\x18\x05 \x01(\x0b\x32\x1f.test_platform.Request.TestPlan\x1a\xee\x15\n\x06Params\x12M\n\x13hardware_attributes\x18\x01 \x01(\x0b\x32\x30.test_platform.Request.Params.HardwareAttributes\x12M\n\x13software_attributes\x18\x02 \x01(\x0b\x32\x30.test_platform.Request.Params.SoftwareAttributes\x12M\n\x13\x66reeform_attributes\x18\t \x01(\x0b\x32\x30.test_platform.Request.Params.FreeformAttributes\x12O\n\x15software_dependencies\x18\x03 \x03(\x0b\x32\x30.test_platform.Request.Params.SoftwareDependency\x12H\n\x11secondary_devices\x18\x0e \x03(\x0b\x32-.test_platform.Request.Params.SecondaryDevice\x12<\n\nscheduling\x18\x04 \x01(\x0b\x32(.test_platform.Request.Params.Scheduling\x12\x32\n\x05retry\x18\x05 \x01(\x0b\x32#.test_platform.Request.Params.Retry\x12\x38\n\x08metadata\x18\x06 \x01(\x0b\x32&.test_platform.Request.Params.Metadata\x12\x30\n\x04time\x18\x07 \x01(\x0b\x32\".test_platform.Request.Params.Time\x12>\n\x0b\x64\x65\x63orations\x18\x08 \x01(\x0b\x32).test_platform.Request.Params.Decorations\x12<\n\nmigrations\x18\x0c \x01(\x0b\x32(.test_platform.Request.Params.Migrations\x12\x37\n\x0f\x65xecution_param\x18\r \x01(\x0b\x32\x1e.test_platform.execution.Param\x12T\n\x17test_execution_behavior\x18\x0f \x01(\x0e\x32\x33.test_platform.Request.Params.TestExecutionBehavior\x12\x13\n\x0brun_via_cft\x18\x10 \x01(\x08\x12\x1d\n\x15schedule_via_scheduke\x18\x11 \x01(\x08\x12\x14\n\x0crun_via_trv2\x18\x12 \x01(\x08\x12?\n\x11trv2_steps_config\x18\x13 \x01(\x0b\x32$.test_platform.common.CftStepsConfig\x1a\x42\n\x12HardwareAttributes\x12\r\n\x05model\x18\x01 \x01(\t\x12\x1d\n\x15require_stable_device\x18\x02 \x01(\x08\x1a\x43\n\x12SoftwareAttributes\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x1a\x31\n\x12\x46reeformAttributes\x12\x1b\n\x13swarming_dimensions\x18\x01 \x03(\t\x1a\xaf\x01\n\x12SoftwareDependency\x12\x18\n\x0e\x63hromeos_build\x18\x03 \x01(\tH\x00\x12#\n\x19\x63hromeos_build_gcs_bucket\x18\x07 \x01(\tH\x00\x12\x1b\n\x11ro_firmware_build\x18\x04 \x01(\tH\x00\x12\x1b\n\x11rw_firmware_build\x18\x05 \x01(\tH\x00\x12\x19\n\x0flacros_gcs_path\x18\x06 \x01(\tH\x00\x42\x05\n\x03\x64\x65p\x1a\x80\x02\n\x0fSecondaryDevice\x12M\n\x13software_attributes\x18\x01 \x01(\x0b\x32\x30.test_platform.Request.Params.SoftwareAttributes\x12M\n\x13hardware_attributes\x18\x02 \x01(\x0b\x32\x30.test_platform.Request.Params.HardwareAttributes\x12O\n\x15software_dependencies\x18\x03 \x03(\x0b\x32\x30.test_platform.Request.Params.SoftwareDependency\x1a\x9e\x03\n\nScheduling\x12L\n\x0cmanaged_pool\x18\x01 \x01(\x0e\x32\x34.test_platform.Request.Params.Scheduling.ManagedPoolH\x00\x12\x18\n\x0eunmanaged_pool\x18\x02 \x01(\tH\x00\x12\x10\n\x08priority\x18\x04 \x01(\x03\x12\x12\n\nqs_account\x18\x05 \x01(\t\"\xf9\x01\n\x0bManagedPool\x12\x1c\n\x18MANAGED_POOL_UNSPECIFIED\x10\x00\x12\x13\n\x0fMANAGED_POOL_CQ\x10\x01\x12\x14\n\x10MANAGED_POOL_BVT\x10\x02\x12\x17\n\x13MANAGED_POOL_SUITES\x10\x03\x12\x14\n\x10MANAGED_POOL_CTS\x10\x04\x12\x1d\n\x19MANAGED_POOL_CTS_PERBUILD\x10\x05\x12\x1b\n\x17MANAGED_POOL_CONTINUOUS\x10\x06\x12\x1e\n\x1aMANAGED_POOL_ARC_PRESUBMIT\x10\x07\x12\x16\n\x12MANAGED_POOL_QUOTA\x10\x08\x42\x06\n\x04pool\x1a#\n\x05Retry\x12\r\n\x05\x61llow\x18\x01 \x01(\x08\x12\x0b\n\x03max\x18\x02 \x01(\x05\x1ah\n\x08Metadata\x12\x19\n\x11test_metadata_url\x18\x01 \x01(\t\x12!\n\x19\x64\x65\x62ug_symbols_archive_url\x18\x02 \x01(\t\x12\x1e\n\x16\x63ontainer_metadata_url\x18\x03 \x01(\t\x1a;\n\x04Time\x12\x33\n\x10maximum_duration\x18\x01 \x01(\x0b\x32\x19.google.protobuf.Duration\x1a\xaa\x02\n\x0b\x44\x65\x63orations\x12X\n\x10\x61utotest_keyvals\x18\x01 \x03(\x0b\x32>.test_platform.Request.Params.Decorations.AutotestKeyvalsEntry\x12\x0c\n\x04tags\x18\x02 \x03(\t\x12J\n\ttest_args\x18\x03 \x03(\x0b\x32\x37.test_platform.Request.Params.Decorations.TestArgsEntry\x1a\x36\n\x14\x41utotestKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rTestArgsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x65\n\nMigrationsJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03J\x04\x08\x03\x10\x04R\x0fuse_test_runnerR\x1a\x65nable_synchronous_offloadR\x18notificationless_offload\"Q\n\x15TestExecutionBehavior\x12\x18\n\x14\x42\x45HAVIOR_UNSPECIFIED\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x01\x12\x10\n\x0cNON_CRITICAL\x10\x02J\x04\x08\x0b\x10\x0cJ\x04\x08\n\x10\x0bR\rnotificationsR\x06legacy\x1a\x14\n\x03Tag\x12\r\n\x05value\x18\x01 \x01(\t\x1a(\n\x05Suite\x12\x0c\n\x04name\x18\x01 \x01(\tJ\x04\x08\x02\x10\x03R\x0brun_via_cft\x1a\x8e\x01\n\x04Test\x12\x38\n\x08\x61utotest\x18\x01 \x01(\x0b\x32$.test_platform.Request.Test.AutotestH\x00\x1a\x41\n\x08\x41utotest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\tB\t\n\x07harness\x1a\xe4\x02\n\x0b\x45numeration\x12S\n\x14\x61utotest_invocations\x18\x02 \x03(\x0b\x32\x35.test_platform.Request.Enumeration.AutotestInvocation\x1a\xff\x01\n\x12\x41utotestInvocation\x12(\n\x04test\x18\x01 \x01(\x0b\x32\x1a.chromite.api.AutotestTest\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\t\x12`\n\x0eresult_keyvals\x18\x04 \x03(\x0b\x32H.test_platform.Request.Enumeration.AutotestInvocation.ResultKeyvalsEntry\x1a\x34\n\x12ResultKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\xe2\x02\n\x08TestPlan\x12+\n\x05suite\x18\x01 \x03(\x0b\x32\x1c.test_platform.Request.Suite\x12)\n\x04test\x18\x02 \x03(\x0b\x32\x1b.test_platform.Request.Test\x12\x37\n\x0b\x65numeration\x18\x03 \x01(\x0b\x32\".test_platform.Request.Enumeration\x12H\n\x0ctag_criteria\x18\x04 \x01(\x0b\x32\x32.chromiumos.test.api.TestSuite.TestCaseTagCriteria\x12\x0c\n\x04seed\x18\x05 \x01(\x03\x12\x41\n\ttest_args\x18\x06 \x01(\x0b\x32..chromiumos.test.api.AutotestExecutionMetadata\x12\x14\n\x0ctotal_shards\x18\x07 \x01(\x03\x12\x14\n\x0cmax_in_shard\x18\x08 \x01(\x03J\x04\x08\x06\x10\x07J\x04\x08\x07\x10\x08\x42\x39Z7go.chromium.org/chromiumos/infra/proto/go/test_platformb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1btest_platform/request.proto\x12\rtest_platform\x1a chromite/api/test_metadata.proto\x1a\x17\x63hromiumos/common.proto\x1a$chromiumos/test/api/test_suite.proto\x1a\x31\x63hromiumos/test/api/test_execution_metadata.proto\x1a\x1egoogle/protobuf/duration.proto\x1a#test_platform/execution/param.proto\x1a+test_platform/common/cft_steps_config.proto\"\xc3\x1e\n\x07Request\x12-\n\x06params\x18\x01 \x01(\x0b\x32\x1d.test_platform.Request.Params\x12\x32\n\ttest_plan\x18\x05 \x01(\x0b\x32\x1f.test_platform.Request.TestPlan\x1a\xab\x16\n\x06Params\x12M\n\x13hardware_attributes\x18\x01 \x01(\x0b\x32\x30.test_platform.Request.Params.HardwareAttributes\x12M\n\x13software_attributes\x18\x02 \x01(\x0b\x32\x30.test_platform.Request.Params.SoftwareAttributes\x12M\n\x13\x66reeform_attributes\x18\t \x01(\x0b\x32\x30.test_platform.Request.Params.FreeformAttributes\x12O\n\x15software_dependencies\x18\x03 \x03(\x0b\x32\x30.test_platform.Request.Params.SoftwareDependency\x12H\n\x11secondary_devices\x18\x0e \x03(\x0b\x32-.test_platform.Request.Params.SecondaryDevice\x12<\n\nscheduling\x18\x04 \x01(\x0b\x32(.test_platform.Request.Params.Scheduling\x12\x32\n\x05retry\x18\x05 \x01(\x0b\x32#.test_platform.Request.Params.Retry\x12\x38\n\x08metadata\x18\x06 \x01(\x0b\x32&.test_platform.Request.Params.Metadata\x12\x30\n\x04time\x18\x07 \x01(\x0b\x32\".test_platform.Request.Params.Time\x12>\n\x0b\x64\x65\x63orations\x18\x08 \x01(\x0b\x32).test_platform.Request.Params.Decorations\x12<\n\nmigrations\x18\x0c \x01(\x0b\x32(.test_platform.Request.Params.Migrations\x12\x37\n\x0f\x65xecution_param\x18\r \x01(\x0b\x32\x1e.test_platform.execution.Param\x12T\n\x17test_execution_behavior\x18\x0f \x01(\x0e\x32\x33.test_platform.Request.Params.TestExecutionBehavior\x12\x13\n\x0brun_via_cft\x18\x10 \x01(\x08\x12\x1d\n\x15schedule_via_scheduke\x18\x11 \x01(\x08\x12\x14\n\x0crun_via_trv2\x18\x12 \x01(\x08\x12?\n\x11trv2_steps_config\x18\x13 \x01(\x0b\x32$.test_platform.common.CftStepsConfig\x1a\x42\n\x12HardwareAttributes\x12\r\n\x05model\x18\x01 \x01(\t\x12\x1d\n\x15require_stable_device\x18\x02 \x01(\x08\x1a\x43\n\x12SoftwareAttributes\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x1a\x31\n\x12\x46reeformAttributes\x12\x1b\n\x13swarming_dimensions\x18\x01 \x03(\t\x1a\xec\x01\n\x12SoftwareDependency\x12\x18\n\x0e\x63hromeos_build\x18\x03 \x01(\tH\x00\x12#\n\x19\x63hromeos_build_gcs_bucket\x18\x07 \x01(\tH\x00\x12\x1b\n\x11ro_firmware_build\x18\x04 \x01(\tH\x00\x12\x1b\n\x11rw_firmware_build\x18\x05 \x01(\tH\x00\x12\x19\n\x0flacros_gcs_path\x18\x06 \x01(\tH\x00\x12\x1f\n\x15\x61ndroid_image_version\x18\x08 \x01(\tH\x00\x12\x1a\n\x10gms_core_package\x18\t \x01(\tH\x00\x42\x05\n\x03\x64\x65p\x1a\x80\x02\n\x0fSecondaryDevice\x12M\n\x13software_attributes\x18\x01 \x01(\x0b\x32\x30.test_platform.Request.Params.SoftwareAttributes\x12M\n\x13hardware_attributes\x18\x02 \x01(\x0b\x32\x30.test_platform.Request.Params.HardwareAttributes\x12O\n\x15software_dependencies\x18\x03 \x03(\x0b\x32\x30.test_platform.Request.Params.SoftwareDependency\x1a\x9e\x03\n\nScheduling\x12L\n\x0cmanaged_pool\x18\x01 \x01(\x0e\x32\x34.test_platform.Request.Params.Scheduling.ManagedPoolH\x00\x12\x18\n\x0eunmanaged_pool\x18\x02 \x01(\tH\x00\x12\x10\n\x08priority\x18\x04 \x01(\x03\x12\x12\n\nqs_account\x18\x05 \x01(\t\"\xf9\x01\n\x0bManagedPool\x12\x1c\n\x18MANAGED_POOL_UNSPECIFIED\x10\x00\x12\x13\n\x0fMANAGED_POOL_CQ\x10\x01\x12\x14\n\x10MANAGED_POOL_BVT\x10\x02\x12\x17\n\x13MANAGED_POOL_SUITES\x10\x03\x12\x14\n\x10MANAGED_POOL_CTS\x10\x04\x12\x1d\n\x19MANAGED_POOL_CTS_PERBUILD\x10\x05\x12\x1b\n\x17MANAGED_POOL_CONTINUOUS\x10\x06\x12\x1e\n\x1aMANAGED_POOL_ARC_PRESUBMIT\x10\x07\x12\x16\n\x12MANAGED_POOL_QUOTA\x10\x08\x42\x06\n\x04pool\x1a#\n\x05Retry\x12\r\n\x05\x61llow\x18\x01 \x01(\x08\x12\x0b\n\x03max\x18\x02 \x01(\x05\x1ah\n\x08Metadata\x12\x19\n\x11test_metadata_url\x18\x01 \x01(\t\x12!\n\x19\x64\x65\x62ug_symbols_archive_url\x18\x02 \x01(\t\x12\x1e\n\x16\x63ontainer_metadata_url\x18\x03 \x01(\t\x1a;\n\x04Time\x12\x33\n\x10maximum_duration\x18\x01 \x01(\x0b\x32\x19.google.protobuf.Duration\x1a\xaa\x02\n\x0b\x44\x65\x63orations\x12X\n\x10\x61utotest_keyvals\x18\x01 \x03(\x0b\x32>.test_platform.Request.Params.Decorations.AutotestKeyvalsEntry\x12\x0c\n\x04tags\x18\x02 \x03(\t\x12J\n\ttest_args\x18\x03 \x03(\x0b\x32\x37.test_platform.Request.Params.Decorations.TestArgsEntry\x1a\x36\n\x14\x41utotestKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rTestArgsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x65\n\nMigrationsJ\x04\x08\x01\x10\x02J\x04\x08\x02\x10\x03J\x04\x08\x03\x10\x04R\x0fuse_test_runnerR\x1a\x65nable_synchronous_offloadR\x18notificationless_offload\"Q\n\x15TestExecutionBehavior\x12\x18\n\x14\x42\x45HAVIOR_UNSPECIFIED\x10\x00\x12\x0c\n\x08\x43RITICAL\x10\x01\x12\x10\n\x0cNON_CRITICAL\x10\x02J\x04\x08\x0b\x10\x0cJ\x04\x08\n\x10\x0bR\rnotificationsR\x06legacy\x1a\x14\n\x03Tag\x12\r\n\x05value\x18\x01 \x01(\t\x1a(\n\x05Suite\x12\x0c\n\x04name\x18\x01 \x01(\tJ\x04\x08\x02\x10\x03R\x0brun_via_cft\x1a\x8e\x01\n\x04Test\x12\x38\n\x08\x61utotest\x18\x01 \x01(\x0b\x32$.test_platform.Request.Test.AutotestH\x00\x1a\x41\n\x08\x41utotest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\tB\t\n\x07harness\x1a\xe4\x02\n\x0b\x45numeration\x12S\n\x14\x61utotest_invocations\x18\x02 \x03(\x0b\x32\x35.test_platform.Request.Enumeration.AutotestInvocation\x1a\xff\x01\n\x12\x41utotestInvocation\x12(\n\x04test\x18\x01 \x01(\x0b\x32\x1a.chromite.api.AutotestTest\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\t\x12`\n\x0eresult_keyvals\x18\x04 \x03(\x0b\x32H.test_platform.Request.Enumeration.AutotestInvocation.ResultKeyvalsEntry\x1a\x34\n\x12ResultKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\xe2\x02\n\x08TestPlan\x12+\n\x05suite\x18\x01 \x03(\x0b\x32\x1c.test_platform.Request.Suite\x12)\n\x04test\x18\x02 \x03(\x0b\x32\x1b.test_platform.Request.Test\x12\x37\n\x0b\x65numeration\x18\x03 \x01(\x0b\x32\".test_platform.Request.Enumeration\x12H\n\x0ctag_criteria\x18\x04 \x01(\x0b\x32\x32.chromiumos.test.api.TestSuite.TestCaseTagCriteria\x12\x0c\n\x04seed\x18\x05 \x01(\x03\x12\x41\n\ttest_args\x18\x06 \x01(\x0b\x32..chromiumos.test.api.AutotestExecutionMetadata\x12\x14\n\x0ctotal_shards\x18\x07 \x01(\x03\x12\x14\n\x0cmax_in_shard\x18\x08 \x01(\x03J\x04\x08\x06\x10\x07J\x04\x08\x07\x10\x08\x42\x39Z7go.chromium.org/chromiumos/infra/proto/go/test_platformb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'test_platform.request_pb2', globals())
@@ -35,9 +35,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY._options = None
   _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY._serialized_options = b'8\001'
   _REQUEST._serialized_start=309
-  _REQUEST._serialized_end=4155
+  _REQUEST._serialized_end=4216
   _REQUEST_PARAMS._serialized_start=420
-  _REQUEST_PARAMS._serialized_end=3218
+  _REQUEST_PARAMS._serialized_end=3279
   _REQUEST_PARAMS_HARDWAREATTRIBUTES._serialized_start=1452
   _REQUEST_PARAMS_HARDWAREATTRIBUTES._serialized_end=1518
   _REQUEST_PARAMS_SOFTWAREATTRIBUTES._serialized_start=1520
@@ -45,43 +45,43 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _REQUEST_PARAMS_FREEFORMATTRIBUTES._serialized_start=1589
   _REQUEST_PARAMS_FREEFORMATTRIBUTES._serialized_end=1638
   _REQUEST_PARAMS_SOFTWAREDEPENDENCY._serialized_start=1641
-  _REQUEST_PARAMS_SOFTWAREDEPENDENCY._serialized_end=1816
-  _REQUEST_PARAMS_SECONDARYDEVICE._serialized_start=1819
-  _REQUEST_PARAMS_SECONDARYDEVICE._serialized_end=2075
-  _REQUEST_PARAMS_SCHEDULING._serialized_start=2078
-  _REQUEST_PARAMS_SCHEDULING._serialized_end=2492
-  _REQUEST_PARAMS_SCHEDULING_MANAGEDPOOL._serialized_start=2235
-  _REQUEST_PARAMS_SCHEDULING_MANAGEDPOOL._serialized_end=2484
-  _REQUEST_PARAMS_RETRY._serialized_start=2494
-  _REQUEST_PARAMS_RETRY._serialized_end=2529
-  _REQUEST_PARAMS_METADATA._serialized_start=2531
-  _REQUEST_PARAMS_METADATA._serialized_end=2635
-  _REQUEST_PARAMS_TIME._serialized_start=2637
-  _REQUEST_PARAMS_TIME._serialized_end=2696
-  _REQUEST_PARAMS_DECORATIONS._serialized_start=2699
-  _REQUEST_PARAMS_DECORATIONS._serialized_end=2997
-  _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY._serialized_start=2894
-  _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY._serialized_end=2948
-  _REQUEST_PARAMS_DECORATIONS_TESTARGSENTRY._serialized_start=2950
-  _REQUEST_PARAMS_DECORATIONS_TESTARGSENTRY._serialized_end=2997
-  _REQUEST_PARAMS_MIGRATIONS._serialized_start=2999
-  _REQUEST_PARAMS_MIGRATIONS._serialized_end=3100
-  _REQUEST_PARAMS_TESTEXECUTIONBEHAVIOR._serialized_start=3102
-  _REQUEST_PARAMS_TESTEXECUTIONBEHAVIOR._serialized_end=3183
-  _REQUEST_TAG._serialized_start=3220
-  _REQUEST_TAG._serialized_end=3240
-  _REQUEST_SUITE._serialized_start=3242
-  _REQUEST_SUITE._serialized_end=3282
-  _REQUEST_TEST._serialized_start=3285
-  _REQUEST_TEST._serialized_end=3427
-  _REQUEST_TEST_AUTOTEST._serialized_start=3351
-  _REQUEST_TEST_AUTOTEST._serialized_end=3416
-  _REQUEST_ENUMERATION._serialized_start=3430
-  _REQUEST_ENUMERATION._serialized_end=3786
-  _REQUEST_ENUMERATION_AUTOTESTINVOCATION._serialized_start=3531
-  _REQUEST_ENUMERATION_AUTOTESTINVOCATION._serialized_end=3786
-  _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY._serialized_start=3734
-  _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY._serialized_end=3786
-  _REQUEST_TESTPLAN._serialized_start=3789
-  _REQUEST_TESTPLAN._serialized_end=4143
+  _REQUEST_PARAMS_SOFTWAREDEPENDENCY._serialized_end=1877
+  _REQUEST_PARAMS_SECONDARYDEVICE._serialized_start=1880
+  _REQUEST_PARAMS_SECONDARYDEVICE._serialized_end=2136
+  _REQUEST_PARAMS_SCHEDULING._serialized_start=2139
+  _REQUEST_PARAMS_SCHEDULING._serialized_end=2553
+  _REQUEST_PARAMS_SCHEDULING_MANAGEDPOOL._serialized_start=2296
+  _REQUEST_PARAMS_SCHEDULING_MANAGEDPOOL._serialized_end=2545
+  _REQUEST_PARAMS_RETRY._serialized_start=2555
+  _REQUEST_PARAMS_RETRY._serialized_end=2590
+  _REQUEST_PARAMS_METADATA._serialized_start=2592
+  _REQUEST_PARAMS_METADATA._serialized_end=2696
+  _REQUEST_PARAMS_TIME._serialized_start=2698
+  _REQUEST_PARAMS_TIME._serialized_end=2757
+  _REQUEST_PARAMS_DECORATIONS._serialized_start=2760
+  _REQUEST_PARAMS_DECORATIONS._serialized_end=3058
+  _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY._serialized_start=2955
+  _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY._serialized_end=3009
+  _REQUEST_PARAMS_DECORATIONS_TESTARGSENTRY._serialized_start=3011
+  _REQUEST_PARAMS_DECORATIONS_TESTARGSENTRY._serialized_end=3058
+  _REQUEST_PARAMS_MIGRATIONS._serialized_start=3060
+  _REQUEST_PARAMS_MIGRATIONS._serialized_end=3161
+  _REQUEST_PARAMS_TESTEXECUTIONBEHAVIOR._serialized_start=3163
+  _REQUEST_PARAMS_TESTEXECUTIONBEHAVIOR._serialized_end=3244
+  _REQUEST_TAG._serialized_start=3281
+  _REQUEST_TAG._serialized_end=3301
+  _REQUEST_SUITE._serialized_start=3303
+  _REQUEST_SUITE._serialized_end=3343
+  _REQUEST_TEST._serialized_start=3346
+  _REQUEST_TEST._serialized_end=3488
+  _REQUEST_TEST_AUTOTEST._serialized_start=3412
+  _REQUEST_TEST_AUTOTEST._serialized_end=3477
+  _REQUEST_ENUMERATION._serialized_start=3491
+  _REQUEST_ENUMERATION._serialized_end=3847
+  _REQUEST_ENUMERATION_AUTOTESTINVOCATION._serialized_start=3592
+  _REQUEST_ENUMERATION_AUTOTESTINVOCATION._serialized_end=3847
+  _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY._serialized_start=3795
+  _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY._serialized_end=3847
+  _REQUEST_TESTPLAN._serialized_start=3850
+  _REQUEST_TESTPLAN._serialized_end=4204
 # @@protoc_insertion_point(module_scope)
