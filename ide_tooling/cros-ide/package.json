@@ -22,10 +22,7 @@
   ],
   "activationEvents": [
     "onCommand:workbench.action.tasks.runTask",
-    "onLanguage:cpp",
-    "onLanguage:go",
-    "onLanguage:python",
-    "onLanguage:typescript"
+    "onLanguage"
   ],
   "main": "./dist/extension.js",
   "contributes": {
