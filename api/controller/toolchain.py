@@ -42,11 +42,6 @@ _TOOLCHAIN_ARTIFACT_HANDLERS = {
         toolchain_util.PrepareForBuild,
         toolchain_util.BundleArtifacts,
     ),
-    BuilderConfig.Artifacts.CHROME_CLANG_WARNINGS_FILE: _Handlers(
-        "ChromeClangWarningsFile",
-        toolchain_util.PrepareForBuild,
-        toolchain_util.BundleArtifacts,
-    ),
     BuilderConfig.Artifacts.UNVERIFIED_LLVM_PGO_FILE: _Handlers(
         "UnverifiedLlvmPgoFile",
         toolchain_util.PrepareForBuild,
