@@ -39,8 +39,6 @@ class KeysetMock(keys.Keyset):
     """Mock Keyset that mimics common loem key directory."""
 
     KEYS = (
-        "ec_data_key",
-        "ec_root_key",
         "key_ec_efs",
         "firmware_data_key",
         "installer_kernel_data_key",
