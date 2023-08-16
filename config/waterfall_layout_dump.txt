@@ -123,6 +123,7 @@
     asurada-release
     atlas-kernelnext-release
     atlas-release
+    aurora-release
     betty-pi-arc-release
     betty-release
     bob-release
@@ -252,6 +253,11 @@
   atlas-payloads-tryjob
   atlas-release-basic-tryjob
   atlas-release-tryjob
+  aurora-full-tryjob
+  aurora-llvm-next-toolchain-tryjob
+  aurora-llvm-toolchain-tryjob
+  aurora-payloads-tryjob
+  aurora-release-tryjob
   beaglebone-full-tryjob
   beaglebone-llvm-next-toolchain-tryjob
   beaglebone-llvm-toolchain-tryjob
@@ -672,6 +678,7 @@
     asurada-release-tryjob
     atlas-kernelnext-release-tryjob
     atlas-release-tryjob
+    aurora-release-tryjob
     betty-pi-arc-release-tryjob
     betty-release-tryjob
     bob-release-tryjob
