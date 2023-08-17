@@ -117,6 +117,7 @@ class DlcArtifacts:
 
     Attributes:
         image: The path to the DLC image.
+        image_name: The DLC image name.
         image_hash: The hash of the DLC image.
         meta: The path to the DLC meta.
         uri_path: The URI path (dir) where artifacts should be uploaded.
@@ -130,6 +131,11 @@ class DlcArtifacts:
         uri_path: str = None,
     ):
         self.image = image
+        self.image_name = os.path.basename(self.image)
+        if self.image_name != DLC_IMAGE:
+            err_msg = f"DLC image names should only be named {DLC_IMAGE}"
+            logging.error(err_msg)
+            raise Error(err_msg)
         if self.image:
             self.image_hash = HashFile(self.image)
         self.meta = meta

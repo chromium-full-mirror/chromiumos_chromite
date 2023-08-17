@@ -37,6 +37,32 @@ _DLC_LOADPIN_FILE_HEADER = "# LOADPIN_TRUSTED_VERITY_ROOT_DIGESTS"
 # pylint: disable=protected-access
 
 
+class DlcArtifactsTest(cros_test_lib.TempDirTestCase):
+    """Test dlc_lib DlcArtifacts."""
+
+    def testInit(self):
+        """Test init and attributes are as expected."""
+        image_path = os.path.join(self.tempdir, dlc_lib.DLC_IMAGE)
+        osutils.WriteFile(image_path, "0")
+        art = dlc_lib.DlcArtifacts(
+            image=image_path,
+            meta="some/meta",
+        )
+        self.assertEqual(art.image_name, dlc_lib.DLC_IMAGE)
+        self.assertEqual(
+            art.image_hash,
+            "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        )
+
+    def testBadNamingInit(self):
+        """Test that DLC image names are as expected."""
+        with self.assertRaises(dlc_lib.Error):
+            dlc_lib.DlcArtifacts(
+                image="not_dlc.img",
+                meta="some/meta",
+            )
+
+
 class UtilsTest(cros_test_lib.TempDirTestCase):
     """Tests dlc_lib utility functions."""
 
