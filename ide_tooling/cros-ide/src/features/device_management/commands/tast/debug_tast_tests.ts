@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as services from '../../../../services';
+import {Metrics} from '../../../metrics/metrics';
 import {CommandContext} from '../common';
 import {
   askTestNames,
@@ -27,7 +28,12 @@ export async function debugTastTests(
   context: CommandContext,
   chrootService: services.chromiumos.ChrootService
 ): Promise<DebugTastTestsResult | null | Error> {
-  // TODO(uchiaki): Send metrics. See what runTastTests does for reference.
+  Metrics.send({
+    category: 'interactive',
+    group: 'device',
+    name: 'device_management_debug_tast_tests',
+    description: 'debug Tast tests',
+  });
 
   const preTestResult = await preTestSetUp(context);
   if (!preTestResult) {

@@ -215,6 +215,7 @@ interface DeviceManagementEvent extends EventBase {
     | 'device_management_connect_to_device_ssh'
     | 'device_management_connect_to_device_vnc'
     | 'device_management_copy_hostname'
+    | 'device_management_debug_tast_tests'
     | 'device_management_delete_device'
     | 'device_management_flash_prebuilt_image'
     | 'device_management_log_in_to_crosfleet'
