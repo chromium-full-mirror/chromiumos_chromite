@@ -348,6 +348,10 @@ class PackageInfo:
         """Get a PackageInfo instance with the new, specified version."""
         return PackageInfo(self.category, self.package, version)
 
+    def with_rev0(self):
+        """Get a -r0 instance of the package."""
+        return self.with_version(self.version) if self.revision else self
+
     def to_cpv(self):
         """Get a CPV instance of this PackageInfo.
 

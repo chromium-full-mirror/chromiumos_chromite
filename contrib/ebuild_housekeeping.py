@@ -73,16 +73,11 @@ class Ebuild:
 
     @functools.cached_property
     def rev0_path(self) -> Path:
-        name = f"{self.cpv.package}-{self.cpv.version}.ebuild"
-        return self.path.with_name(name)
+        return self.path.with_name(self.cpv.with_rev0().ebuild)
 
     @functools.cached_property
     def rev_next_path(self) -> Path:
-        name = (
-            f"{self.cpv.package}-{self.cpv.version}-"
-            f"r{self.cpv.revision + 1}.ebuild"
-        )
-        return self.path.with_name(name)
+        return self.path.with_name(self.cpv.revision_bump().ebuild)
 
 
 class Package:
