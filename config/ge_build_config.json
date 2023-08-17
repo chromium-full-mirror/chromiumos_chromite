@@ -3288,6 +3288,15 @@
           "is_active": true,
           "stable_target_milestone": 114,
           "is_experimental": false
+        },
+        {
+          "board_name": "constitution",
+          "name": "intrepid",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7258,
+          "is_active": true,
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -9982,6 +9991,16 @@
         },
         {
           "board_name": "nissa",
+          "name": "gothrax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7206,
+          "is_active": true,
+          "stable_target_milestone": 120,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa",
           "name": "joxer",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -10148,6 +10167,16 @@
           "board_id": 7206,
           "is_active": true,
           "stable_target_milestone": 110,
+          "is_experimental": false
+        },
+        {
+          "board_name": "nissa",
+          "name": "yahiko",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7206,
+          "is_active": true,
+          "stable_target_milestone": 120,
           "is_experimental": false
         },
         {
