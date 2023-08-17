@@ -10,7 +10,8 @@
 # its tools don't yet support this.
 # See https://github.com/kislyuk/argcomplete/issues/364.
 argcomplete_path=$(find /usr/lib*/py*/site-packages/argcomplete \
-  -name python-argcomplete.sh | head -n 1)
+  -name python-argcomplete.sh 2>/dev/null | head -n 1)
 if [[ -n "${argcomplete_path}" ]]; then
+  # shellcheck source=/dev/null
   source "${argcomplete_path}"
 fi
