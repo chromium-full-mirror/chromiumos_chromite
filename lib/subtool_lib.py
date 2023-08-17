@@ -10,6 +10,7 @@ https://crsrc.org/o/src/config/proto/chromiumos/build/api/subtools.proto
 
 from pathlib import Path
 import re
+import shutil
 from typing import Literal, Optional
 
 from chromite.third_party.google import protobuf
@@ -46,6 +47,12 @@ SUBTOOLS_EXPORTS_GLOB = "**/*.textproto"
 # https://crsrc.org/i/go/src/go.chromium.org/luci/cipd/common/common.go
 # Diallows slashes and starting with a ".".
 _PACKAGE_NAME_RE = re.compile(r"^[a-z0-9_\-]+[a-z0-9_\-\.]*$")
+
+# Default destination path in the bundle when not specified on a PathMapping.
+_DEFAULT_DEST = "bin"
+
+# Default regex to apply to input paths when bundling.
+_DEFAULT_STRIP_PREFIX_REGEX = "^.*/"
 
 
 class Subtool:
@@ -122,11 +129,14 @@ class Subtool:
         self.metadata_dir.mkdir(exist_ok=True)
         self.bundle_dir.mkdir()
         logger.notice(
-            "Bundling subtool '%s' under %s", self.package.name, self.bundle_dir
+            "%s: Subtool bundling under %s.", self.package.name, self.bundle_dir
         )
         logger.info(self)
-        # TODO(b/277992359): Actually copy files and bundle them.
+        file_count = 0
+        for path in self.package.paths:
+            file_count += self._bundle_mapping(path)
         self.stamp("bundled").touch()
+        logger.notice("%s: Copied %d files.", self.package.name, file_count)
 
     def export(self):
         """Export the bundle, e.g., to cipd."""
@@ -160,6 +170,72 @@ class Subtool:
         # TODO(b/277992359): Validate more proto fields.
 
         self.is_valid = True
+
+    def _copy_into_bundle(
+        self, src: Path, destdir: Path, strip: re.Pattern
+    ) -> int:
+        """Copies a file on disk into the bundling folder.
+
+        Copies only files (follows symlinks). Ensures files are not clobbered.
+        Returns the number of files copied.
+        """
+        if not src.is_file():
+            return 0
+
+        # Apply the regex, and ensure the result is not an absolute path.
+        dest = destdir / strip.sub("", src.as_posix()).lstrip("/")
+        if dest.exists():
+            raise ManifestBundlingError(
+                f"{dest} exists: refusing to copy {src}.", self
+            )
+        osutils.SafeMakedirs(dest.parent)
+        logger.debug("Copy file %s -> %s.", src, dest)
+        shutil.copy2(src, dest)
+        return 1
+
+    def _check_counts(self, file_count: int) -> None:
+        """Raise an error if files violate the manifest spec."""
+        if file_count > self.package.max_files:
+            raise ManifestBundlingError(
+                f"Max file count ({self.package.max_files}) exceeded.", self
+            )
+
+    def _bundle_mapping(
+        self, mapping: subtools_pb2.SubtoolPackage.PathMapping
+    ) -> int:
+        """Bundle files for the provided `mapping`.
+
+        Returns the number of files matched.
+        """
+        subdir = mapping.dest if mapping.HasField("dest") else _DEFAULT_DEST
+        destdir = self.bundle_dir / subdir.lstrip("/")
+        strip_prefix_regex = (
+            mapping.strip_prefix_regex
+            if mapping.HasField("strip_prefix_regex")
+            else _DEFAULT_STRIP_PREFIX_REGEX
+        )
+        strip = re.compile(strip_prefix_regex)
+
+        # Any leading '/' must be stripped from the glob (pathlib only supports
+        # relative patterns when matching). Steps below effectively restore it.
+        glob = mapping.input.lstrip("/")
+
+        file_count = 0
+
+        if mapping.ebuild_filter:
+            # TODO(b/277992359): Implement.
+            pass
+        else:
+            for path in Path("/").glob(glob):
+                file_count += self._copy_into_bundle(path, destdir, strip)
+                self._check_counts(file_count)
+
+        if file_count == 0:
+            raise ManifestBundlingError(
+                f"Input field {mapping.input} matched no files.", self
+            )
+        logger.info("Glob '%s' matched %d files.", mapping.input, file_count)
+        return file_count
 
 
 class InstalledSubtools:

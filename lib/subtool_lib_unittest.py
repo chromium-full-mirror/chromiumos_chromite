@@ -4,25 +4,100 @@
 
 """Test the subtool_lib module."""
 
+import dataclasses
+import os
 from pathlib import Path
+from typing import List, Optional, Tuple, Union
 
 from chromite.third_party.google.protobuf import text_format
 import pytest
 
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
+from chromite.lib import cros_test_lib
 from chromite.lib import subtool_lib
 
 
+def path_mapping(
+    inputs: Union[Path, str, None],
+    dest: Union[Path, str, None] = None,
+    strip_regex: Union[Path, str, None] = None,
+    ebuild_filter: Optional[str] = None,
+) -> subtools_pb2.SubtoolPackage.PathMapping:
+    """Helper to make a PathMapping message from paths."""
+    return subtools_pb2.SubtoolPackage.PathMapping(
+        input=None if inputs is None else str(inputs),
+        dest=None if dest is None else str(dest),
+        strip_prefix_regex=None if strip_regex is None else str(strip_regex),
+        ebuild_filter=ebuild_filter,
+    )
+
+
 # Placeholder path PathMapping message (a path on the system to bundle).
-TEST_PATH_MAPPING = subtools_pb2.SubtoolPackage.PathMapping(
-    input="/etc/profile",
-)
+TEST_PATH_MAPPING = path_mapping("/etc/profile")
+
+
+@dataclasses.dataclass
+class FakeChrootDiskLayout:
+    """Entries in the Fake filesystem, rooted at `root`.
+
+    Normally subtools are bundled from entries in the chroot. This dataclass
+    helps configure a known disk layout created under a pytest tmp_path.
+    """
+
+    root: Path
+
+    globdir = Path("globdir")
+    twindir = Path("twindir")
+    glob_subdir = globdir / "subdir"
+    empty_subdir = globdir / "empty_subdir"
+
+    regular_file = globdir / "regular.file"
+    another_file = globdir / "another.file"
+    symlink = globdir / "symlink"
+    duplicate_file = twindir / "another.file"
+
+    subdir_file = glob_subdir / "subdir.file"
+    ebuild_owned_file = glob_subdir / "ebuild_owned.file"
+
+    @staticmethod
+    def subtree_file_structure() -> Tuple[cros_test_lib.Directory, ...]:
+        """Recursive structure with the regular files and directories."""
+        D = cros_test_lib.Directory
+        return (
+            D("twindir", ("regular.file", "another.file")),
+            D(
+                "globdir",
+                (
+                    "regular.file",
+                    "another.file",
+                    D("empty_subdir", ()),
+                    D("subdir", ("ebuild_owned.file", "subdir.file")),
+                ),
+            ),
+        )
+
+    def __getattribute__(self, name) -> Path:
+        """Return an absolute Path relative to the current `root`."""
+        return object.__getattribute__(self, "root") / object.__getattribute__(
+            self, name
+        )
 
 
 def BundleAndExport(subtool: subtool_lib.Subtool) -> None:
     """Helper to perform e2e validation on a manifest."""
     subtool.bundle()
     subtool.export()
+
+
+def bundle_result(subtool: subtool_lib.Subtool) -> List[str]:
+    """Bundles the manifest and returns the contents, sorted, as strings."""
+    subtool.bundle()
+    contents = [
+        str(child.relative_to(subtool.bundle_dir))
+        for child in subtool.bundle_dir.rglob("*")
+    ]
+    contents.sort()
+    return contents
 
 
 class Wrapper:
@@ -32,21 +107,26 @@ class Wrapper:
         proto: The proto instance to customize before creating a Subtool.
         tmp_path: Temporary path from fixture.
         work_root: Path under tmp_path for bundling.
+        fake_rootfs: Path under tmp_path holding a test filesystem tree.
     """
 
     def __init__(self, tmp_path: Path):
         """Creates a Wrapper using `tmp_path` for work."""
         self.tmp_path = tmp_path
         self.work_root = tmp_path / "work_root"
+        self.fake_rootfs = tmp_path / "fake_rootfs"
         self.proto = subtools_pb2.SubtoolPackage(
             name="my_subtool",
             type=subtools_pb2.SubtoolPackage.EXPORT_CIPD,
-            max_files=1,
+            max_files=100,
             paths=[TEST_PATH_MAPPING],
         )
 
-    def create(self) -> subtool_lib.Subtool:
+    def create(self, writes_files: bool = False) -> subtool_lib.Subtool:
         """Emits the wrapped proto message and creates a Subtool from it."""
+        # InstalledSubtools is normally responsible for making the work root.
+        if writes_files:
+            self.work_root.mkdir()
         return subtool_lib.Subtool(
             text_format.MessageToString(self.proto),
             Path("test_subtool_package.textproto"),
@@ -55,12 +135,27 @@ class Wrapper:
 
     def export_e2e(self, writes_files: bool = False) -> subtool_lib.Subtool:
         """Bundles and exports the Subtool made by `create()`."""
-        # InstalledSubtools is normally responsible for making the work root.
-        if writes_files:
-            self.work_root.mkdir()
-        subtool = self.create()
+        subtool = self.create(writes_files)
         BundleAndExport(subtool)
         return subtool
+
+    def set_paths(
+        self, paths: List[subtools_pb2.SubtoolPackage.PathMapping]
+    ) -> None:
+        """Helper to set the `paths` field on the proto."""
+        # "RepeatedCompositeFieldContainer" does not support item assignment.
+        # So `[:] = ...` fails, but it can be cleared with `del`, then extended.
+        del self.proto.paths[:]
+        self.proto.paths.extend(paths)
+
+    def create_fake_rootfs(self) -> FakeChrootDiskLayout:
+        """Creates a variety of test entries in the fake rootfs."""
+        cros_test_lib.CreateOnDiskHierarchy(
+            self.fake_rootfs, FakeChrootDiskLayout.subtree_file_structure()
+        )
+        fs = FakeChrootDiskLayout(self.fake_rootfs)
+        os.symlink(fs.regular_file, fs.symlink)
+        return fs
 
 
 @pytest.fixture(name="template_proto")
@@ -136,3 +231,141 @@ def test_clean_after_bundle_and_export(template_proto: Wrapper) -> None:
         "work_root",
         "my_subtool",
     ]
+
+
+def test_bundle_bundles_single_file(template_proto: Wrapper) -> None:
+    """Test that a boring, regular file is bundle when named exactly."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.proto.max_files = 1
+    template_proto.set_paths([path_mapping(fs.regular_file)])
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == ["bin", "bin/regular.file"]
+
+
+def test_bundle_symlinks_followed(template_proto: Wrapper) -> None:
+    """Test that a symlink in "input" is copied as a file, not a symlink."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([path_mapping(fs.symlink)])
+    subtool = template_proto.create(writes_files=True)
+    bundle_symlink_file = subtool.bundle_dir / "bin" / "symlink"
+    assert bundle_result(subtool) == ["bin", "bin/symlink"]
+    assert bundle_symlink_file.is_file()
+    assert not bundle_symlink_file.is_symlink()
+    assert fs.symlink.is_symlink()  # Consistency check.
+
+
+def test_bundle_multiple_paths(template_proto: Wrapper) -> None:
+    """Test multiple path entries."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.proto.max_files = 2
+    template_proto.set_paths(
+        [path_mapping(fs.regular_file), path_mapping(fs.another_file)]
+    )
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "bin",
+        "bin/another.file",
+        "bin/regular.file",
+    ]
+
+
+def test_bundle_bundles_glob(template_proto: Wrapper) -> None:
+    """Test non-recursive globbing."""
+    fs = template_proto.create_fake_rootfs()
+    # Validate `max_files` edge case here.
+    template_proto.proto.max_files = 2
+    template_proto.set_paths([path_mapping(fs.globdir / "*.file")])
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "bin",
+        "bin/another.file",
+        "bin/regular.file",
+    ]
+
+
+def test_bundle_max_file_count(template_proto: Wrapper) -> None:
+    """Test max file count exceeded."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.proto.max_files = 1
+    template_proto.set_paths([path_mapping(fs.globdir / "*.file")])
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        subtool.bundle()
+    assert "Max file count (1) exceeded" in str(error_info.value)
+
+
+def test_bundle_custom_destination(template_proto: Wrapper) -> None:
+    """Test a custom destination path (not /bin); multiple components."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths(
+        [path_mapping(fs.globdir / "*.file", dest="foo/bar")]
+    )
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "foo",
+        "foo/bar",
+        "foo/bar/another.file",
+        "foo/bar/regular.file",
+    ]
+
+
+def test_bundle_root_destination(template_proto: Wrapper) -> None:
+    """Test a custom destination path that is "the root"."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([path_mapping(fs.globdir / "*.file", dest="/")])
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "another.file",
+        "regular.file",
+    ]
+
+
+def test_bundle_bundles_recursive_glob(template_proto: Wrapper) -> None:
+    """Test recursive globbing."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([path_mapping(fs.globdir / "**/*.file")])
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "bin",
+        "bin/another.file",
+        "bin/ebuild_owned.file",
+        "bin/regular.file",
+        "bin/subdir.file",
+    ]
+
+
+def test_bundle_custom_strip_prefix(template_proto: Wrapper) -> None:
+    """Test a custom strip prefix."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths(
+        [path_mapping(fs.globdir / "**/*.file", strip_regex=f"^{fs.globdir}")]
+    )
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "bin",
+        "bin/another.file",
+        "bin/regular.file",
+        "bin/subdir",
+        "bin/subdir/ebuild_owned.file",
+        "bin/subdir/subdir.file",
+    ]
+
+
+def test_bundle_duplicate_files_raises_error(template_proto: Wrapper) -> None:
+    """Test that attempting to copy a file twice raises an error."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([path_mapping(fs.root / "**/another.file")])
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        subtool.bundle()
+    assert "another.file exists: refusing to copy" in str(error_info.value)
+
+
+def test_bundle_no_files_raises_error(template_proto: Wrapper) -> None:
+    """Test that a paths entry that matches nothing raises an error."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([path_mapping(fs.root / "non-existent.file")])
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        subtool.bundle()
+    assert "non-existent.file matched no files" in str(error_info.value)
