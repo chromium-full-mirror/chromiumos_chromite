@@ -10333,6 +10333,15 @@
         },
         {
           "board_name": "nissa-arc-t",
+          "name": "gothrax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7278,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-arc-t",
           "name": "joxer",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -10415,6 +10424,15 @@
         {
           "board_name": "nissa-arc-t",
           "name": "xivu360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7278,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-arc-t",
+          "name": "yahiko",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7278,
@@ -10516,6 +10534,15 @@
         },
         {
           "board_name": "nissa-kernelnext",
+          "name": "gothrax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-kernelnext",
           "name": "joxer",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -10607,6 +10634,15 @@
         {
           "board_name": "nissa-kernelnext",
           "name": "xivu360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-kernelnext",
+          "name": "yahiko",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
@@ -10709,6 +10745,15 @@
         },
         {
           "board_name": "nissa-pvs",
+          "name": "gothrax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
           "name": "joxer",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -10802,6 +10847,15 @@
         {
           "board_name": "nissa-pvs",
           "name": "xivu360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "yahiko",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
