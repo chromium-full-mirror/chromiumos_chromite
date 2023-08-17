@@ -19,6 +19,7 @@ from chromite.third_party.google.protobuf import text_format
 from chromite import ChromiteLogger
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import osutils
+from chromite.lib import portage_util
 
 
 logger = ChromiteLogger.getLogger(__name__)
@@ -53,6 +54,30 @@ _DEFAULT_DEST = "bin"
 
 # Default regex to apply to input paths when bundling.
 _DEFAULT_STRIP_PREFIX_REGEX = "^.*/"
+
+
+def get_installed_package(
+    query: str, error_context: "Subtool"
+) -> portage_util.InstalledPackage:
+    """Returns an InstalledPackage for an installed ebuild."""
+    packages = portage_util.FindPackageNameMatches(query)
+    if len(packages) != 1:
+        raise ManifestBundlingError(
+            f"Package '{query}' must match exactly one package."
+            f" Matched {len(packages)} -> {packages}.",
+            error_context,
+        )
+    logger.debug("%s matched %s", query, packages[0])
+    installed_package = portage_util.PortageDB().GetInstalledPackage(
+        packages[0].category, packages[0].pvr
+    )
+    if not installed_package:
+        atom = packages[0].atom
+        raise ManifestBundlingError(
+            f"Failed to map {query}=>{atom} to an *installed* package.",
+            error_context,
+        )
+    return installed_package
 
 
 class Subtool:
@@ -223,8 +248,13 @@ class Subtool:
         file_count = 0
 
         if mapping.ebuild_filter:
-            # TODO(b/277992359): Implement.
-            pass
+            package = get_installed_package(mapping.ebuild_filter, self)
+            for _file_type, relative_path in package.ListContents():
+                path = Path(f"/{relative_path}")
+                if not path.match(glob):
+                    continue
+                file_count += self._copy_into_bundle(path, destdir, strip)
+                self._check_counts(file_count)
         else:
             for path in Path("/").glob(glob):
                 file_count += self._copy_into_bundle(path, destdir, strip)

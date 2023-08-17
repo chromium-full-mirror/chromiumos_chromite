@@ -8,6 +8,7 @@ import dataclasses
 import os
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
+from unittest import mock
 
 from chromite.third_party.google.protobuf import text_format
 import pytest
@@ -369,3 +370,90 @@ def test_bundle_no_files_raises_error(template_proto: Wrapper) -> None:
     with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
         subtool.bundle()
     assert "non-existent.file matched no files" in str(error_info.value)
+
+
+def test_ebuild_package_not_found_raises_error(template_proto: Wrapper) -> None:
+    """Test that an invalid package name raises an error."""
+    template_proto.set_paths(
+        [path_mapping("/etc/profile", ebuild_filter="invalid-category/foo-bar")]
+    )
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        subtool.bundle()
+    assert "'invalid-category/foo-bar' must match exactly one package" in str(
+        error_info.value
+    )
+
+
+def test_ebuild_multiple_packages_raises_error(template_proto: Wrapper) -> None:
+    """Test that queries matching multiple packages raise an error."""
+    template_proto.set_paths(
+        [path_mapping("/etc/profile", ebuild_filter="binutils")]
+    )
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        subtool.bundle()
+    assert "'binutils' must match exactly one package" in str(error_info.value)
+
+
+def test_ebuild_match_real_package(template_proto: Wrapper) -> None:
+    """Test that queries can match a real package; single file."""
+    template_proto.set_paths(
+        [path_mapping("/etc/profile", ebuild_filter="sys-apps/baselayout")]
+    )
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "bin",
+        "bin/profile",
+    ]
+
+
+def test_ebuild_not_installed_raises_error(template_proto: Wrapper) -> None:
+    """Test that matching a real but uninstalled package raise an error."""
+    template_proto.set_paths(
+        [path_mapping("/etc/profile", ebuild_filter="baselayout")]
+    )
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(
+        subtool_lib.ManifestBundlingError
+    ) as error_info, mock.patch(
+        "chromite.lib.portage_util.PortageDB.GetInstalledPackage"
+    ) as mock_get_installed_package:
+        mock_get_installed_package.return_value = None
+        subtool.bundle()
+
+    assert "Failed to map baselayout=>sys-apps/baselayout" in str(
+        error_info.value
+    )
+
+
+def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
+    """Test that queries can match real package contents; glob."""
+    template_proto.set_paths(
+        # Also cover ebuild_filter + strip_prefix + dest.
+        [
+            path_mapping(
+                "/etc/init.d/*",
+                dest="/",
+                strip_regex="^.*/etc/",
+                ebuild_filter="sys-apps/baselayout",
+            )
+        ]
+    )
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "init.d",
+        "init.d/functions.sh",
+    ]
+
+
+def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
+    """Test that queries can match real package contents; recursive glob."""
+    template_proto.set_paths(
+        [path_mapping("**/*.conf", dest="/", ebuild_filter="baselayout")]
+    )
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "aliases.conf",
+        "i386.conf",
+    ]
