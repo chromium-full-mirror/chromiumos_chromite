@@ -25,6 +25,7 @@ from chromite.api.gen.chromite.api import api_pb2
 from chromite.api.gen.chromite.api import artifacts_pb2
 from chromite.api.gen.chromite.api import binhost_pb2
 from chromite.api.gen.chromite.api import build_api_pb2
+from chromite.api.gen.chromite.api import chrome_lkgm_pb2
 from chromite.api.gen.chromite.api import copybot_pb2
 from chromite.api.gen.chromite.api import depgraph_pb2
 from chromite.api.gen.chromite.api import dlc_pb2
@@ -608,6 +609,7 @@ def RegisterServices(router: Router):
     router.Register(api_pb2)
     router.Register(artifacts_pb2)
     router.Register(binhost_pb2)
+    router.Register(chrome_lkgm_pb2)
     router.Register(copybot_pb2)
     router.Register(depgraph_pb2)
     router.Register(dlc_pb2)
