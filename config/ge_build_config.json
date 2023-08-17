@@ -5917,6 +5917,92 @@
       "build_cadence": "DAILY_CADENCE"
     },
     {
+      "name": "midna",
+      "reference_board_name": "midna",
+      "arch": "UNKNOWN",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "midna",
+          "name": "aurash",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "midna",
+          "name": "brask",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "stable_target_milestone": 117,
+          "is_experimental": false
+        },
+        {
+          "board_name": "midna",
+          "name": "gaelin",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "midna",
+          "name": "gladios",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "midna",
+          "name": "kinox",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "midna",
+          "name": "kuldax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "midna",
+          "name": "lisbon",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "midna",
+          "name": "moli",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7265,
+          "is_active": true,
+          "stable_target_milestone": 117,
+          "is_experimental": false
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 117,
+      "build_cadence": "DAILY_CADENCE"
+    },
+    {
       "name": "nami",
       "reference_board_name": "nami",
       "arch": "X86_INTERNAL",
