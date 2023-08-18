@@ -7,7 +7,7 @@
 Run the specified tests.  If none are specified, we'll scan the
 tree looking for tests to run and then only run the semi-fast ones.
 
-https://docs.pytest.org/en/latest/how-to/usage.html#specifying-tests-selecting-tests
+https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 
 Examples:
 # Run all tests in a module.
