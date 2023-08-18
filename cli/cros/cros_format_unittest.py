@@ -10,6 +10,7 @@ from unittest import mock
 
 from chromite.cli.cros import cros_format
 from chromite.format import formatters
+from chromite.lib import git
 from chromite.lib import osutils
 from chromite.scripts import cros
 
@@ -200,3 +201,44 @@ def test_parse_error_xml(tmp_path) -> None:
     file = tmp_path / "foo.xml"
     file.write_bytes(b"<")
     assert _call_cros_format([str(file)]) == 1
+
+
+def _write_and_commit_space_file(file: Path) -> None:
+    """Creates a git repository with a single, committed, file at getcwd()."""
+    repo_root = Path.cwd()
+    file.write_text(" ", encoding="utf-8")
+    git.Init(repo_root)
+    git.AddPath(file)
+    git.Commit(repo_root, message="test")
+
+
+def test_commit_absolute_path(tmp_path, monkeypatch):
+    """Check handling of --commit with an absolute file path."""
+    file = tmp_path / "foo.txt"
+    monkeypatch.chdir(tmp_path)
+    _write_and_commit_space_file(file)
+    assert _call_cros_format(["--commit", "HEAD", str(file)]) == 0
+    assert "" == file.read_text(encoding="utf-8")
+
+
+def test_relative_path_in_root(tmp_path, monkeypatch):
+    """Check handling of --commit with a relative path running in repo root."""
+    file = tmp_path / "foo.txt"
+    monkeypatch.chdir(tmp_path)
+    _write_and_commit_space_file(file)
+    assert _call_cros_format(["--commit", "HEAD", "foo.txt"]) == 0
+    assert "" == file.read_text(encoding="utf-8")
+
+
+def test_relative_path_in_subdir(tmp_path, monkeypatch):
+    """Check --commit with a relative path running in sibling path."""
+    dir1 = tmp_path / "dir1"
+    dir2 = tmp_path / "dir2"
+    dir1.mkdir()
+    dir2.mkdir()
+    file = dir1 / "foo.txt"
+    monkeypatch.chdir(tmp_path)
+    _write_and_commit_space_file(file)
+    monkeypatch.chdir(dir2)
+    assert _call_cros_format(["--commit", "HEAD", "../dir1/foo.txt"]) == 0
+    assert "" == file.read_text(encoding="utf-8")

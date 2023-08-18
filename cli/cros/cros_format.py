@@ -193,7 +193,12 @@ def _Dispatcher(
 ) -> DispatcherResult:
     """Call |tool| on |path| and take care of coalescing exit codes."""
     if commit:
-        old_data = git.GetObjectAtRev(None, path, commit)
+        top_level = git.FindGitTopLevel(path.parent)
+        git_path = path.resolve().relative_to(top_level) if top_level else path
+        # Note `top_level` must be an ancestor of the current working dir. There
+        # is no need to ask GetObjectAtRev() to chdir to `top_level` first by
+        # passing it in.
+        old_data = git.GetObjectAtRev(None, git_path, commit)
     else:
         try:
             old_data = osutils.ReadFile(path)
