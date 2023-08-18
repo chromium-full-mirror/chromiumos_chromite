@@ -817,6 +817,209 @@ class TestCreateImageScriptsArchive(cros_test_lib.MockTempDirTestCase):
         )
 
 
+class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
+    """Unittests for generate_dlc_artifacts_metadata_list."""
+
+    DLC_1_ID = "dlc-1-id"
+    DLC_1_IMAGELOADER_JSON_DATA = """{
+  "critical-update": false,
+  "days-to-purge": 0,
+  "description": "",
+  "factory-install": false,
+  "fs-type": "squashfs",
+  "id": "",
+  "image-sha256-hash": "88d54cb6b5bba15a71ffda3ca75446eb453bf7fe393e3595d3bc52beb3b61711",
+  "image-type": "dlc",
+  "is-removable": true,
+  "loadpin-verity-digest": false,
+  "manifest-version": 1,
+  "mount-file-required": false,
+  "name": "",
+  "package": "package",
+  "powerwash-safe": false,
+  "pre-allocated-size": "8388608",
+  "preload-allowed": false,
+  "reserved": false,
+  "scaled": true,
+  "size": "4243456",
+  "table-sha256-hash": "5dafa30c89cef2f7f78c6b73117e234acbb9919ec3a5250d9c0a966cac09adae",
+  "use-logical-volume": true,
+  "used-by": "",
+  "version": "1.0.0"
+}"""
+
+    DLC_2_ID = "dlc-2-id"
+    DLC_2_IMAGELOADER_JSON_DATA = """{
+  "critical-update": false,
+  "days-to-purge": 0,
+  "description": "",
+  "factory-install": false,
+  "fs-type": "squashfs",
+  "id": "",
+  "image-sha256-hash": "123400000000000000000000000000000000000000000000000000000000beef",
+  "image-type": "dlc",
+  "is-removable": true,
+  "loadpin-verity-digest": false,
+  "manifest-version": 1,
+  "mount-file-required": false,
+  "name": "",
+  "package": "package",
+  "powerwash-safe": false,
+  "pre-allocated-size": "8388608",
+  "preload-allowed": false,
+  "reserved": false,
+  "scaled": true,
+  "size": "4243456",
+  "table-sha256-hash": "000000000000000000000000000000000000000000000000000000000000beef",
+  "use-logical-volume": true,
+  "used-by": "",
+  "version": "1.0.0"
+}"""
+
+    def createDlcArtifacts(
+        self, dlc_id: str, uri_prefix_data: str, imageloader_json_data: str
+    ):
+        """Creates the DLC artifacts under temporary build root.
+
+        Args:
+            dlc_id: The DLC ID.
+            uri_prefix_data: The test URI prefix path data.
+            imageloader_json_data: The test imageloader JSON data.
+        """
+        artifacts_meta_dir = os.path.join(
+            self.tempdir, dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META
+        )
+        osutils.WriteFile(
+            os.path.join(
+                artifacts_meta_dir,
+                dlc_id,
+                dlc_lib.DLC_PACKAGE,
+                dlc_lib.URI_PREFIX,
+            ),
+            uri_prefix_data,
+            makedirs=True,
+        )
+        osutils.WriteFile(
+            os.path.join(
+                artifacts_meta_dir,
+                dlc_id,
+                dlc_lib.DLC_PACKAGE,
+                dlc_lib.IMAGELOADER_JSON,
+            ),
+            imageloader_json_data,
+        )
+
+    def testGenerateDlcArtifactsMetadataList(self):
+        self.createDlcArtifacts(
+            TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
+            "gs://some/uri/prefix/for/dlc-1",
+            TestGenerateDlcArtifactsMetadataList.DLC_1_IMAGELOADER_JSON_DATA,
+        )
+        self.createDlcArtifacts(
+            TestGenerateDlcArtifactsMetadataList.DLC_2_ID,
+            "gs://some/uri/prefix/for/dlc-2",
+            TestGenerateDlcArtifactsMetadataList.DLC_2_IMAGELOADER_JSON_DATA,
+        )
+        sort_fnc = lambda x: x.image_hash
+        self.assertEqual(
+            sorted(
+                image.generate_dlc_artifacts_metadata_list(self.tempdir),
+                key=sort_fnc,
+            ),
+            sorted(
+                [
+                    # pylint: disable=line-too-long
+                    image.DlcArtifactsMetadata(
+                        image_hash="88d54cb6b5bba15a71ffda3ca75446eb453bf7fe393e3595d3bc52beb3b61711",
+                        image_name=dlc_lib.DLC_IMAGE,
+                        uri_path="gs://some/uri/prefix/for/dlc-1",
+                    ),
+                    # pylint: disable=line-too-long
+                    image.DlcArtifactsMetadata(
+                        image_hash="123400000000000000000000000000000000000000000000000000000000beef",
+                        image_name=dlc_lib.DLC_IMAGE,
+                        uri_path="gs://some/uri/prefix/for/dlc-2",
+                    ),
+                ],
+                key=sort_fnc,
+            ),
+        )
+
+    def testGenerateDlcArtifactsMetadataListExcludesMissingUriPrefixFile(self):
+        self.createDlcArtifacts(
+            TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
+            "gs://some/uri/prefix/for/dlc-1",
+            TestGenerateDlcArtifactsMetadataList.DLC_1_IMAGELOADER_JSON_DATA,
+        )
+        os.path.join(self.tempdir, dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META)
+        osutils.SafeUnlink(
+            os.path.join(
+                self.tempdir,
+                dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META,
+                TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
+                dlc_lib.DLC_PACKAGE,
+                dlc_lib.URI_PREFIX,
+            )
+        )
+        self.assertEqual(
+            image.generate_dlc_artifacts_metadata_list(self.tempdir),
+            [],
+        )
+
+    def testGenerateDlcArtifactsMetadataListExcludesMissingImageloaderJsonFile(
+        self,
+    ):
+        self.createDlcArtifacts(
+            TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
+            "gs://some/uri/prefix/for/dlc-1",
+            TestGenerateDlcArtifactsMetadataList.DLC_1_IMAGELOADER_JSON_DATA,
+        )
+        os.path.join(self.tempdir, dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META)
+        osutils.SafeUnlink(
+            os.path.join(
+                self.tempdir,
+                dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META,
+                TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
+                dlc_lib.DLC_PACKAGE,
+                dlc_lib.IMAGELOADER_JSON,
+            )
+        )
+        self.assertEqual(
+            image.generate_dlc_artifacts_metadata_list(self.tempdir),
+            [],
+        )
+
+    def testGenerateDlcArtifactsMetadataListExcludesMalformedDlcs(self):
+        self.createDlcArtifacts(
+            TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
+            "gs://some/uri/prefix/for/dlc-1",
+            "",
+        )
+        self.createDlcArtifacts(
+            TestGenerateDlcArtifactsMetadataList.DLC_2_ID,
+            "gs://some/uri/prefix/for/dlc-2",
+            TestGenerateDlcArtifactsMetadataList.DLC_2_IMAGELOADER_JSON_DATA,
+        )
+        self.assertEqual(
+            image.generate_dlc_artifacts_metadata_list(self.tempdir),
+            [
+                # pylint: disable=line-too-long
+                image.DlcArtifactsMetadata(
+                    image_hash="123400000000000000000000000000000000000000000000000000000000beef",
+                    image_name=dlc_lib.DLC_IMAGE,
+                    uri_path="gs://some/uri/prefix/for/dlc-2",
+                ),
+            ],
+        )
+
+    def testGenerateDlcArtifactsMetadataListEmptyArtifactsMetadataDirectory(
+        self,
+    ):
+        self.assertEqual(
+            image.generate_dlc_artifacts_metadata_list(self.tempdir), []
+        )
+
+
 class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
     """Unittests for copy_dlc_image."""
 

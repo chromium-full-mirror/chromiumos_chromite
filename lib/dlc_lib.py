@@ -38,6 +38,7 @@ GS_PUBLIC_READ_ACL = "public-read"
 
 DLC_BUILD_DIR = "build/rootfs/dlc"
 DLC_BUILD_DIR_SCALED = "build/rootfs/dlc-scaled"
+DLC_BUILD_DIR_ARTIFACTS_META = "build/rootfs/dlc-meta"
 DLC_FACTORY_INSTALL_DIR = "unencrypted/dlc-factory-images"
 DLC_DIR = "dlc"
 DLC_DIR_SCALED = "dlc-scaled"
@@ -59,6 +60,9 @@ EBUILD_PARAMETERS = "ebuild_parameters.json"
 IMAGELOADER_JSON = "imageloader.json"
 LICENSE = "LICENSE"
 LSB_RELEASE = "etc/lsb-release"
+URI_PREFIX = "uri-prefix"
+
+IMAGELOADER_IMAGE_SHA256_HASH_KEY = "image-sha256-hash"
 
 DLC_ID_RE = r"[a-zA-Z0-9][a-zA-Z0-9-]*"
 

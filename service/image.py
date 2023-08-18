@@ -4,8 +4,10 @@
 
 """The Image API is the entry point for image functionality."""
 
+import dataclasses
 import errno
 import glob
+import json
 import logging
 import os
 from pathlib import Path
@@ -58,6 +60,21 @@ class MissingImageError(Error):
 
 class ImageToVmError(Error):
     """Error converting the image to a vm."""
+
+
+@dataclasses.dataclass
+class DlcArtifactsMetadata:
+    """Named tuple to hold DLC artifacts metadata.
+
+    Attributes:
+        image_hash: The sha256 hash of the DLC image.
+        image_name: The DLC image name.
+        uri_path: The DLC artifacts URI path.
+    """
+
+    image_hash: str
+    image_name: str
+    uri_path: Union[str, os.PathLike]
 
 
 class BuildConfig(NamedTuple):
@@ -553,6 +570,86 @@ def CreateGuestVm(
         )
 
     return os.path.realpath(output_path)
+
+
+def generate_dlc_artifacts_metadata_list(
+    sysroot_path: str,
+) -> List[DlcArtifactsMetadata]:
+    """Generates a list of `DlcArtifacts` from base_path.
+
+    Args:
+        sysroot_path: The sysroot path of the build.
+
+    Returns:
+        A list of `DlcArtifacts`, empty if none.
+    """
+    ret = []
+
+    artifacts_meta_dir = os.path.join(
+        sysroot_path, dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META
+    )
+    if not os.path.exists(artifacts_meta_dir):
+        logging.info(
+            "The DLC artifacts metadata directory doesn't exist at %s",
+            artifacts_meta_dir,
+        )
+        return ret
+
+    dlc_re = f"({dlc_lib.DLC_ID_RE})/{dlc_lib.DLC_PACKAGE}/{dlc_lib.URI_PREFIX}"
+    pat = f"{artifacts_meta_dir}/{dlc_re}$"
+
+    for path in osutils.DirectoryIterator(artifacts_meta_dir):
+        if not path.is_file():
+            continue
+
+        m = re.search(pat, str(path))
+        if not m:
+            continue
+
+        dlc_id = m.group(1)
+        # Create variable for documentation of DLC URI file.
+        uri_prefix_path = path
+
+        dirname = path.parent
+        imageloader_json_path = dirname / dlc_lib.IMAGELOADER_JSON
+
+        if not imageloader_json_path.exists():
+            logging.error(
+                "Missing part of metadata from artifacts for DLC=%s, "
+                "skipping generation",
+                dlc_id,
+            )
+            continue
+
+        try:
+            imageloader_json = json.loads(imageloader_json_path.read_bytes())
+        except json.decoder.JSONDecodeError:
+            logging.error(
+                "Malformed imageloader json for DLC=%s, " "skipping generation",
+                dlc_id,
+            )
+            continue
+
+        image_hash = imageloader_json.get(
+            dlc_lib.IMAGELOADER_IMAGE_SHA256_HASH_KEY, None
+        )
+        if image_hash is None:
+            logging.error(
+                "Missing digest from imageloader json for DLC=%s, "
+                "skipping generation",
+                dlc_id,
+            )
+            continue
+
+        ret.append(
+            DlcArtifactsMetadata(
+                image_hash=image_hash,
+                image_name=dlc_lib.DLC_IMAGE,
+                uri_path=osutils.ReadFile(uri_prefix_path),
+            )
+        )
+
+    return ret
 
 
 def copy_dlc_image(base_path: str, output_dir: str) -> List[str]:
