@@ -9007,26 +9007,6 @@
       "build_cadence": "DAILY_CADENCE"
     },
     {
-      "name": "kevin64",
-      "reference_board_name": "kevin64",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": true,
-      "models": [
-        {
-          "board_name": "kevin64",
-          "name": "kevin",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 367,
-          "is_active": true,
-          "is_experimental": true
-        }
-      ],
-      "rubik_target_milestone": 103,
-      "build_cadence": "DAILY_CADENCE"
-    },
-    {
       "name": "kukui",
       "reference_board_name": "kukui",
       "arch": "ARM_INTERNAL",
