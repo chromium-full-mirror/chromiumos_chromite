@@ -24,20 +24,16 @@ import argparse
 import logging
 import os
 from pathlib import Path
-import shutil
 import sys
-from typing import Dict, List, Optional, Protocol, Union
+from typing import List, Optional, Protocol
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
-from chromite.lib import portage_util
-from chromite.lib import subtool_lib
 from chromite.lib import sysroot_lib
-from chromite.service import sysroot
+from chromite.service import sdk_subtools
 
 
 assert sys.version_info >= (3, 8), "build_sdk_subtools uses Python 3.8 features"
@@ -47,34 +43,15 @@ assert sys.version_info >= (3, 8), "build_sdk_subtools uses Python 3.8 features"
 # overridden by --output-dir. Note this will be a chroot.
 SUBTOOLS_OUTPUT_DIR = "amd64-subtools-host"
 
-# Version file that identifies a chroot setup as a subtools chroot.
-SUBTOOLS_CHROOT_VERSION_FILE = Path("/etc/cros_subtools_chroot_version")
-
-# Packages that the subtools builder should never rebuild. This is a superset of
-# sysroot._CRITICAL_SDK_PACKAGES.
-EXCLUDE_PACKAGES = (
-    "dev-embedded/hps-sdk",
-    "dev-lang/rust",
-    "dev-lang/go",
-    "sys-libs/glibc",
-    "sys-devel/gcc",
-    "sys-devel/binutils",
-    "sys-kernel/linux-headers",
-)
-
-# Path in subtools chroot that holds export package manifests.
-SUBTOOLS_EXPORTS_CONFIG_DIR = Path("/etc/cros/sdk-packages.d")
-
-# Path where subtools will be bundled.
-SUBTOOLS_BUNDLE_WORK_DIR = Path("/var/tmp/cros-subtools")
-
 # Flag passed to subprocesses in chroots that might not yet be set up as a
 # subtools chroot.
 _RELAUNCH_FOR_SETUP_FLAG = "--relaunch-for-setup"
 
 # Used to populate a test manifest in /etc/cros/standalone-packages.d/.
 # Ebuilds will later be updated to provide these files instead.
-_TEST_PACKAGE = SUBTOOLS_EXPORTS_CONFIG_DIR / "shellcheck.textproto"
+_TEST_PACKAGE = (
+    sdk_subtools.SUBTOOLS_EXPORTS_CONFIG_DIR / "shellcheck.textproto"
+)
 _TEST_PACKAGE_CONTENTS = """\
 # proto-file: chromiumos/build/api/subtools.proto
 # proto-message: chromiumos.build.api.SubtoolPackage
@@ -93,7 +70,6 @@ paths: [{
 class Options(Protocol):
     """Protocol to formalize commandline arguments."""
 
-    build_run_config: sysroot.BuildPackagesRunConfig
     clean: bool
     setup_chroot: bool
     update_packages: bool
@@ -176,30 +152,8 @@ def parse_args(argv: Optional[List[str]]) -> Options:
 
     parser = get_parser()
     opts: Options = parser.parse_args(argv)
-
-    # Although `BuildPackages` is not used, sharing a config allows better
-    # sharing of subcommands and concepts.
-    opts.build_run_config = sysroot.BuildPackagesRunConfig(
-        packages=opts.packages,
-        jobs=opts.jobs,
-        usepkg=False,
-        clean_build=False,
-        eclean=False,
-        rebuild_dep=False,
-    )
     opts.Freeze()
     return opts
-
-
-def _is_inside_subtools_chroot() -> bool:
-    """Returns True if we are inside subtools chroot."""
-    return SUBTOOLS_CHROOT_VERSION_FILE.exists()
-
-
-def _assert_inside_subtools_chroot() -> None:
-    """Die if not _is_inside_subtools_chroot()."""
-    if not _is_inside_subtools_chroot():
-        cros_build_lib.Die("Not in subtools SDK")
 
 
 def _setup_base_sdk(
@@ -213,99 +167,21 @@ def _setup_base_sdk(
     cros_build_lib.AssertInsideChroot()
     cros_build_lib.AssertRootUser()
 
-    # "Convert" the SDK into a subtools SDK.
-    if not _is_inside_subtools_chroot():
-        # Copy the sentinel file that chromite uses to indicate the chroot's
-        # duality. The file is copied (not moved) so that other chromite tooling
-        # continues to work.
-        shutil.copy(
-            cros_sdk_lib.CHROOT_VERSION_FILE, SUBTOOLS_CHROOT_VERSION_FILE
-        )
+    sdk_subtools.setup_base_sdk(build_target, setup_chroot)
 
     if setup_chroot:
-        logging.info("Setting up subtools SDK in %s.", build_target.root)
-        osutils.SafeMakedirs(SUBTOOLS_EXPORTS_CONFIG_DIR)
         _TEST_PACKAGE.write_text(_TEST_PACKAGE_CONTENTS, encoding="utf-8")
-
-
-def _run_system_emerge(
-    emerge_cmd: List[Union[str, Path]],
-    extra_env: Dict[str, str],
-    use_goma: bool,
-    use_remoteexec: bool,
-    reason: str,
-) -> None:
-    """Runs an emerge command, updating the live system."""
-    extra_env = extra_env.copy()
-    with osutils.TempDir() as tempdir:
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
-        with sysroot.RemoteExecution(use_goma, use_remoteexec):
-            logging.info("Merging %s now.", reason)
-            try:
-                # TODO(b/277992359): Bazel.
-                cros_build_lib.sudo_run(
-                    emerge_cmd,
-                    preserve_env=True,
-                    extra_env=extra_env,
-                )
-                logging.info("Merging %s complete.", reason)
-            except cros_build_lib.RunCommandError as e:
-                failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
-                logging.error("Merging %s failed on %s", reason, failed_pkgs)
-                raise sysroot_lib.PackageInstallError(
-                    f"Merging {reason} failed",
-                    e.result,
-                    exception=e,
-                    packages=failed_pkgs,
-                )
-
-
-def _build_sdk_packages(config: sysroot.BuildPackagesRunConfig) -> None:
-    """The BuildPackages workalike for installing into the staging SDK."""
-    _assert_inside_subtools_chroot()
-    cros_build_lib.AssertNonRootUser()
-
-    try:
-        # sysroot.BuildPackages can't (yet?) be used here, because it _only_
-        # supports cross-compilation. SDK package management is currently all
-        # handled by src/scripts/sdk_lib/make_chroot.sh (b/191307774).
-
-        emerge = [constants.CHROMITE_BIN_DIR / "parallel_emerge"]
-        extra_env = config.GetExtraEnv()
-        emerge_flags = config.GetEmergeFlags()
-        exclude_pkgs = " ".join(EXCLUDE_PACKAGES)
-        emerge_flags.extend(
-            [
-                f"--useoldpkg-atoms={exclude_pkgs}",
-                f"--rebuild-exclude={exclude_pkgs}",
-            ]
-        )
-        cmd = emerge + emerge_flags + config.GetPackages()
-        _run_system_emerge(
-            cmd,
-            extra_env,
-            config.use_goma,
-            config.use_remoteexec,
-            reason="subtools builder SDK packages",
-        )
-
-    except sysroot_lib.PackageInstallError as e:
-        cros_build_lib.Die(e)
 
 
 def _run_inside_subtools_chroot(opts: Options) -> None:
     """Steps that build_sdk_subtools performs once it is in its chroot."""
-    _assert_inside_subtools_chroot()
-
     if opts.update_packages:
-        _build_sdk_packages(opts.build_run_config)
+        try:
+            sdk_subtools.update_packages(opts.packages, opts.jobs)
+        except sysroot_lib.PackageInstallError as e:
+            cros_build_lib.Die(e)
 
-    subtools = subtool_lib.InstalledSubtools(
-        config_dir=SUBTOOLS_EXPORTS_CONFIG_DIR,
-        work_root=SUBTOOLS_BUNDLE_WORK_DIR,
-    )
-    subtools.bundle_all()
-    subtools.export_all()
+    sdk_subtools.bundle_and_export()
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
@@ -323,7 +199,7 @@ def build_sdk_subtools(opts: Options, argv: List[str]) -> int:
 
     # If the process is in the subtools chroot, we must assume it's already set
     # up (we are in it). So start building.
-    if _is_inside_subtools_chroot() and not opts.relaunch_for_setup:
+    if sdk_subtools.is_inside_subtools_chroot() and not opts.relaunch_for_setup:
         _run_inside_subtools_chroot(opts)
         return 0
 

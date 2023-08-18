@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 from typing import Iterable, Optional, TYPE_CHECKING, Union
 
+from chromite.api.gen.chromite.api import sdk_subtools_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromite.api import test_pb2
 from chromite.api.gen.chromiumos import common_pb2
@@ -243,6 +244,7 @@ def retrieve_package_log_paths(
     output_proto: Union[
         sysroot_pb2.InstallPackagesResponse,
         sysroot_pb2.InstallToolchainResponse,
+        sdk_subtools_pb2.BuildSdkSubtoolsResponse,
         test_pb2.BuildTargetUnitTestResponse,
     ],
     target_sysroot: sysroot_lib.Sysroot,

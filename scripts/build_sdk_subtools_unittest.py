@@ -12,6 +12,7 @@ import pytest
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.scripts import build_sdk_subtools
+from chromite.service import sdk_subtools
 
 
 @pytest.fixture(name="outside_chroot")
@@ -27,11 +28,11 @@ def outside_chroot_fixture():
 def mock_emerge_fixture():
     """Stubs the build_sdk_subtools emerge helper and sets it up to run."""
     with mock.patch.multiple(
-        "chromite.scripts.build_sdk_subtools",
+        "chromite.service.sdk_subtools",
         _run_system_emerge=mock.DEFAULT,
-        _is_inside_subtools_chroot=mock.DEFAULT,
+        is_inside_subtools_chroot=mock.DEFAULT,
     ) as mocks:
-        mocks["_is_inside_subtools_chroot"].return_value = True
+        mocks["is_inside_subtools_chroot"].return_value = True
         yield mocks["_run_system_emerge"]
 
 
@@ -40,6 +41,19 @@ def mock_exporter_fixture():
     """Stubs the exporter for InstalledSubtools to avoid side-effects."""
     with mock.patch("chromite.lib.subtool_lib.InstalledSubtools") as mock_lib:
         yield mock_lib
+
+
+@pytest.fixture(autouse=True)
+def build_sdk_subtools_consistency_check():
+    """Die quickly if the version file is left over in the test SDK.
+
+    This can happen if the build API entrypoint was tested on the local machine.
+    Tests in this file will fail in confusing ways if this is ever the case.
+    """
+    version_file = sdk_subtools.SUBTOOLS_CHROOT_VERSION_FILE
+    assert (
+        not version_file.exists()
+    ), f"{version_file} exists in the chroot (stray?)."
 
 
 def test_must_run_outside_sdk(caplog) -> None:
@@ -120,7 +134,7 @@ def test_chroots_into_output_dir(run_mock, outside_chroot) -> None:
 
 def test_setup_sdk_invocation(run_mock, outside_chroot) -> None:
     """Tests the SDK setup invocation, before it becomes a subtools chroot."""
-    # Fake success from cros_sdk, failure from _setup_base_sdk().
+    # Fake success from cros_sdk, failure from setup_base_sdk().
     run_mock.SetDefaultCmdResult(returncode=0)
     run_mock.AddCmdResult(
         ["sudo", "--", "build_sdk_subtools", "--relaunch-for-setup"],
