@@ -3132,6 +3132,7 @@
     ],
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"anahera\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"aviko\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"banshee\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"brya\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"brya4es\",\n  \"test_suites\": []\n}",
@@ -3179,6 +3180,7 @@
     "luci_builder": "Try",
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"anahera\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"aviko\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"banshee\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"brya\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"brya\",\n  \"name\": \"brya4es\",\n  \"test_suites\": []\n}",
