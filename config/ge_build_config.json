@@ -762,6 +762,15 @@
         },
         {
           "board_name": "brya",
+          "name": "aviko",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 459,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brya",
           "name": "banshee",
           "test_suites": [
             "sanity",
@@ -1443,6 +1452,15 @@
           "board_id": 7230,
           "is_active": true,
           "stable_target_milestone": 116,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-kernelnext",
+          "name": "aviko",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7230,
+          "is_active": true,
           "is_experimental": true
         },
         {
