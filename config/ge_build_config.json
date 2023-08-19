@@ -2130,6 +2130,15 @@
         },
         {
           "board_name": "brya-gki",
+          "name": "aviko",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7256,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-gki",
           "name": "banshee",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -2980,6 +2989,15 @@
         {
           "board_name": "brya-pvs",
           "name": "anahera",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7263,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-pvs",
+          "name": "aviko",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
