@@ -57,29 +57,8 @@ def test_process_add_remove_lists(items, exp_add, exp_remove):
     assert add == exp_add and remove == exp_remove
 
 
-DATA_PROCESS_ADD_REMOVE_LISTS_VALIDATE = (
-    # No inputs means no outputs.
-    ([], set(), set()),
-    (["u@d"], {"u@d"}, set()),
-    (["~u@d"], set(), {"u@d"}),
-)
-
-
-@pytest.mark.parametrize(
-    "items, exp_add, exp_remove", DATA_PROCESS_ADD_REMOVE_LISTS_VALIDATE
-)
-def test_process_add_remove_lists_validate(items, exp_add, exp_remove):
-    """Test process_add_remove_lists behavior with a validator."""
-    add, remove = gerrit.process_add_remove_lists(items, validate=r"^.@.$")
-    assert add == exp_add and remove == exp_remove
-
-
 def test_process_add_remove_lists_invalid():
     """Test validation errors."""
-    with pytest.raises(SystemExit) as excinfo:
-        gerrit.process_add_remove_lists(["a"], validate=r"^.@.$")
-    assert excinfo.value.code != 0
-
     # Never accept the empty string.
     with pytest.raises(SystemExit) as excinfo:
         gerrit.process_add_remove_lists([""])

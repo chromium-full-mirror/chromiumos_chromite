@@ -24,12 +24,11 @@ import shlex
 import signal
 import subprocess
 import sys
-from typing import List, Optional, Set, Tuple
+from typing import List, Set, Tuple
 
 from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import config_lib
-from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gerrit
 from chromite.lib import gob_util
@@ -202,9 +201,7 @@ def limits(cls):
     return lims
 
 
-def process_add_remove_lists(
-    items: List[str], validate: Optional[str] = None
-) -> Tuple[Set[str], Set[str]]:
+def process_add_remove_lists(items: List[str]) -> Tuple[Set[str], Set[str]]:
     """Split |items| into "add" and "remove" lists.
 
     Invalid items will cause the program to exit with an error message.
@@ -212,14 +209,11 @@ def process_add_remove_lists(
     Args:
         items: Items that begin with "~" or "-" mean "remove" while others are
             "add".
-        validate: A regular expression to validate each item.
 
     Returns:
         A tuple of sets: all the items to add and all the items to remove.
         NB: The leading "~" & "-" will automatically be stripped.
     """
-    validator = re.compile(validate) if validate else None
-
     add_list, remove_list, invalid_list = set(), set(), set()
     for item in items:
         if not item:
@@ -231,9 +225,7 @@ def process_add_remove_lists(
             remove = True
             item = item[1:]
 
-        if validator and not validator.match(item):
-            invalid_list.add(item)
-        elif remove:
+        if remove:
             remove_list.add(item)
             add_list.discard(item)
         else:
@@ -821,15 +813,16 @@ class ActionReviewers(UserAction):
         """Add arguments to this action's subparser."""
         parser.add_argument("cl", metavar="CL", help="The CL to update")
         parser.add_argument(
-            "reviewers", nargs="+", help="The reviewers to add/remove"
+            "reviewers",
+            type="email",
+            nargs="+",
+            help="The reviewers to add/remove",
         )
 
     @staticmethod
     def __call__(opts):
         """Implement the action."""
-        add_list, remove_list = process_add_remove_lists(
-            opts.reviewers, f"^{constants.EMAIL_REGEX}$"
-        )
+        add_list, remove_list = process_add_remove_lists(opts.reviewers)
 
         if add_list or remove_list:
             helper, cl = GetGerrit(opts, opts.cl)
@@ -861,6 +854,7 @@ class ActionAttentionSet(UserAction):
         parser.add_argument("cl", metavar="CL", help="The CL to update")
         parser.add_argument(
             "users",
+            type="email",
             nargs="+",
             help="The users to add/remove from attention set",
         )
@@ -868,9 +862,7 @@ class ActionAttentionSet(UserAction):
     @staticmethod
     def __call__(opts):
         """Implement the action."""
-        add_list, remove_list = process_add_remove_lists(
-            opts.users, f"^{constants.EMAIL_REGEX}$"
-        )
+        add_list, remove_list = process_add_remove_lists(opts.users)
 
         if add_list or remove_list:
             helper, cl = GetGerrit(opts, opts.cl)
@@ -1174,12 +1166,14 @@ class ActionReview(_ActionSimpleParallelCLs):
             "--reviewers",
             "--re",
             action="append",
+            type="email",
             default=[],
             help="Reviewers to add/remove",
         )
         parser.add_argument(
             "--cc",
             action="append",
+            type="email",
             default=[],
             help="People to add/remove in CC",
         )
@@ -1189,11 +1183,9 @@ class ActionReview(_ActionSimpleParallelCLs):
     def _process_one(helper, cl, opts):
         """Use |helper| to process the single |cl|."""
         add_reviewers, remove_reviewers = process_add_remove_lists(
-            opts.reviewers, f"^{constants.EMAIL_REGEX}$"
+            opts.reviewers
         )
-        add_cc, remove_cc = process_add_remove_lists(
-            opts.cc, f"^{constants.EMAIL_REGEX}$"
-        )
+        add_cc, remove_cc = process_add_remove_lists(opts.cc)
 
         # Gerrit allows people to only be in one state: CC or Reviewer.  If a
         # person is in CC and you want to move them to reviewer, you can't
