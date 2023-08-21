@@ -8,7 +8,10 @@ import logging
 import multiprocessing
 import os
 
+from chromite.third_party.opentelemetry import trace
+
 from chromite.lib import build_target_lib
+from chromite.lib import chromite_config
 from chromite.lib import chroot_util
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -17,6 +20,10 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import workon_helper
 from chromite.scripts import cros_extract_deps
+from chromite.utils import telemetry
+
+
+tracer = trace.get_tracer(__name__)
 
 
 BOARD_VIRTUAL_PACKAGES = (
@@ -157,6 +164,23 @@ def main(argv):
 
     cros_build_lib.AssertInsideChroot()
 
+    chromite_config.initialize()
+    telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
+
+    with tracer.start_as_current_span("scripts.cros_run_unit_tests") as span:
+        try:
+            inner_main(opts)
+        except KeyboardInterrupt as e:
+            span.record_exception(e)
+            span.set_status(trace.StatusCode.OK, "KeyboardInterrupt")
+            raise
+
+
+def inner_main(opts: commandline.ArgumentNamespace):
+    """The inner main to run cros unit tests."""
+
+    span = trace.get_current_span()
+
     sysroot = (
         opts.sysroot or "/"
         if opts.host
@@ -208,6 +232,16 @@ def main(argv):
             "\n  ".join(sorted(packages - pkg_with_test)),
         )
 
+    span.set_attributes(
+        {
+            "sysroot": sysroot,
+            "packages": pkg_with_test,
+            "pretend": opts.pretend,
+            "jobs": opts.jobs,
+            "empty_sysroot": opts.empty_sysroot,
+        }
+    )
+
     if not pkg_with_test:
         if opts.testable_packages_optional:
             logging.warning("No testable packages found!")
@@ -251,6 +285,7 @@ def main(argv):
             )
         except cros_build_lib.RunCommandError:
             logging.error("Failed building dependencies for unittests.")
+            span.set_status(trace.StatusCode.ERROR, "FAILED_DEPS_BUILD")
             return 1
 
     try:
@@ -264,4 +299,5 @@ def main(argv):
         )
     except cros_build_lib.RunCommandError:
         logging.error("Unittests failed.")
+        span.set_status(trace.StatusCode.ERROR, "FAILED_UNITTESTS")
         return 1

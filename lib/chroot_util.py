@@ -7,12 +7,17 @@
 import logging
 import os
 
+from chromite.third_party.opentelemetry import trace
+
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import sysroot_lib
+
+
+tracer = trace.get_tracer(__name__)
 
 
 if cros_build_lib.IsInsideChroot():
@@ -57,6 +62,7 @@ def GetEmergeCommand(sysroot=None):
     return cmd
 
 
+@tracer.start_as_current_span("chroot_util.Emerge")
 def Emerge(
     packages,
     sysroot,
@@ -81,6 +87,19 @@ def Emerge(
         cros_build_lib.RunCommandError: If emerge returns an error.
     """
     cros_build_lib.AssertInsideChroot()
+
+    span = trace.get_current_span()
+    span.set_attributes(
+        {
+            "sysroot": sysroot,
+            "packages": packages,
+            "with_deps": with_deps,
+            "rebuild_deps": rebuild_deps,
+            "use_binary": use_binary,
+            "jobs": jobs,
+        }
+    )
+
     if not packages:
         raise ValueError("No packages provided")
 
@@ -171,6 +190,7 @@ def SetupBoard(
     cros_build_lib.run(cmd)
 
 
+@tracer.start_as_current_span("chroot_util.RunUnittests")
 def RunUnittests(
     sysroot,
     packages,
@@ -197,6 +217,17 @@ def RunUnittests(
     Raises:
         RunCommandError if the unit tests failed.
     """
+    span = trace.get_current_span()
+    span.set_attributes(
+        {
+            "sysroot": sysroot,
+            "packages": packages,
+            "keep_going": keep_going,
+            "retries": retries,
+            "jobs": jobs,
+        }
+    )
+
     env = extra_env.copy() if extra_env else {}
 
     if "FEATURES" in env:
