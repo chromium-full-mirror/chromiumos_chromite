@@ -351,10 +351,57 @@ class DeployChrome:
             check: See remote.RemoteAccess.RemoteSh for details.
         """
         # TODO: Should migrate to use the remount functions in remote_access.
-        result = self.device.run(
-            MOUNT_RW_COMMAND, check=check, capture_output=True, encoding="utf-8"
-        )
-        if result.returncode and not self.device.IsDirWritable("/"):
+        result = None
+        try:
+            result = self.device.run(
+                MOUNT_RW_COMMAND,
+                capture_output=True,
+                check=check,
+                encoding="utf-8",
+            )
+        except cros_build_lib.RunCommandError as e:
+            # Remounting could fail with the following error message:
+            # "cannot remount {dev} read-write, is write-protected"
+            logging.warning("Mounting root as writable failed: %s", e.stderr)
+            if re.search(
+                r"cannot\sremount\s\S*\sread-write,\sis\swrite-protected",
+                e.stderr,
+            ):
+                # Dump debug info to help diagnose b/293204438.
+                findmnt_result = self.device.run(
+                    ["findmnt"], capture_output=True
+                )
+                logging.info("findmnt: %s", findmnt_result.stdout)
+                dmesg_result = self.device.run(["dmesg"], capture_output=True)
+                logging.info("dmesg: %s", dmesg_result.stdout)
+
+                # The device where root is mounting to could be read only.
+                # We will set the device to writable and remount again.
+                rootdev_result = self.device.run(
+                    ["rootdev"],
+                    capture_output=True,
+                    check=check,
+                    encoding="utf-8",
+                )
+                if rootdev_result.returncode == 0:
+                    device = rootdev_result.stdout.strip("\n")
+                    if device:
+                        self.device.run(
+                            ["blockdev", "--setrw", device],
+                            encoding="utf-8",
+                            check=check,
+                        )
+                result = self.device.run(
+                    MOUNT_RW_COMMAND,
+                    check=check,
+                    capture_output=True,
+                    encoding="utf-8",
+                )
+            else:
+                if check:
+                    raise e
+
+        if result and result.returncode and not self.device.IsDirWritable("/"):
             self._root_dir_is_still_readonly.set()
 
     def _EnsureTargetDir(self):
