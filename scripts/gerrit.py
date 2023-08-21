@@ -163,7 +163,7 @@ def blue(s):
     return COLOR.Color(terminal.Color.BLUE, s)
 
 
-def _run_parallel_tasks(task, *args):
+def _run_parallel_tasks(task, jobs: int, *args):
     """Small wrapper around BackgroundTaskRunner to enforce job count."""
 
     # When we run in parallel, we can hit the max requests limit.
@@ -182,7 +182,7 @@ def _run_parallel_tasks(task, *args):
             else:
                 raise
 
-    with parallel.BackgroundTaskRunner(retry, processes=CONNECTION_LIMIT) as q:
+    with parallel.BackgroundTaskRunner(retry, processes=jobs) as q:
         for arg in args:
             q.put([arg])
 
@@ -679,7 +679,7 @@ class _ActionLabeler(UserAction):
                 notify=opts.notify,
             )
 
-        _run_parallel_tasks(task, *opts.cls)
+        _run_parallel_tasks(task, opts.jobs, *opts.cls)
 
 
 class ActionLabelAutoSubmit(_ActionLabeler):
@@ -739,7 +739,7 @@ class _ActionSimpleParallelCLs(UserAction):
             helper, cl = GetGerrit(opts, arg)
             self._process_one(helper, cl, opts)
 
-        _run_parallel_tasks(task, *opts.cls)
+        _run_parallel_tasks(task, opts.jobs, *opts.cls)
 
 
 class ActionSubmit(_ActionSimpleParallelCLs):
@@ -1074,7 +1074,7 @@ class ActionCherryPick(UserAction):
                     uri = f'https://{helper.host}/c/{ret["_number"]}'
                     print(uri_lib.ShortenUri(uri))
 
-        _run_parallel_tasks(task, *opts.branches)
+        _run_parallel_tasks(task, opts.jobs, *opts.branches)
 
 
 class ActionReview(_ActionSimpleParallelCLs):
@@ -1265,7 +1265,7 @@ class ActionAccount(_ActionSimpleParallelCLs):
                     )
                     print_one(field, data)
 
-        _run_parallel_tasks(task, *opts.accounts)
+        _run_parallel_tasks(task, opts.jobs, *opts.accounts)
 
 
 class ActionConfig(UserAction):
@@ -1404,6 +1404,17 @@ def _AddCommonOptions(parser, subparser):
         default=False,
         action="store_true",
         help="Show what would be done, but do not make changes",
+    )
+    parser.add_common_argument_to_group(
+        subparser,
+        "-j",
+        "--jobs",
+        type=int,
+        default=CONNECTION_LIMIT,
+        help=(
+            "Number of connections to run in parallel. "
+            f"(default: {CONNECTION_LIMIT})"
+        ),
     )
 
 
