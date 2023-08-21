@@ -160,6 +160,7 @@
     kalista-release
     kevin-release
     kukui-release
+    midna-release
     nami-release
     nautilus-release
     nissa-release
@@ -715,6 +716,7 @@
     kalista-release-tryjob
     kevin-release-tryjob
     kukui-release-tryjob
+    midna-release-tryjob
     nami-release-tryjob
     nautilus-release-tryjob
     nissa-release-tryjob
@@ -745,6 +747,7 @@
     trogdor-release-tryjob
     volteer-release-tryjob
     zork-release-tryjob
+  midna-release-tryjob
   mistral-factory-mistral-12361.B-factorybranch-tryjob
   mistral-master-factorybranch-tryjob
   nami-factory-nami-10715.B-factorybranch-tryjob
