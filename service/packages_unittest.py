@@ -36,6 +36,7 @@ from chromite.lib.chroot_lib import Chroot
 from chromite.lib.parser import package_info
 from chromite.lib.uprev_lib import GitRef
 from chromite.service import android
+from chromite.service import dependency
 from chromite.service import packages
 
 
@@ -1986,6 +1987,37 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         self.assertTrue(result.missing_chrome_prebuilt)
         self.assertTrue(result.missing_follower_prebuilt)
         self.assertTrue(result.local_uprev)
+
+
+class GetTargetVersionTest(cros_test_lib.RunCommandTestCase):
+    """Tests for get_target_version."""
+
+    def setUp(self):
+        self.build_target = build_target_lib.BuildTarget("build_target")
+
+    def test_default_empty(self):
+        """Default behavior with mostly stub empty data."""
+
+        def GetBuildDependency(sysroot_path, board, mock_packages):
+            assert sysroot_path == self.build_target.root
+            assert board == self.build_target.name
+            assert list(mock_packages) == [
+                package_info.parse(constants.TARGET_OS_PKG)
+            ]
+            return {"package_deps": []}, {}
+
+        self.PatchObject(
+            dependency, "GetBuildDependency", side_effect=GetBuildDependency
+        )
+        ret = packages.get_target_versions(self.build_target)
+        assert ret.android_version is None
+        assert ret.android_branch is None
+        assert ret.android_target is None
+        assert ret.chrome_version is None
+        assert isinstance(ret.platform_version, str)
+        assert isinstance(ret.milestone_version, str)
+        assert isinstance(ret.full_version, str)
+        assert ret.lacros_version is None
 
 
 class UprevDrivefsTest(cros_test_lib.MockTestCase):

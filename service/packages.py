@@ -1486,6 +1486,12 @@ def get_target_versions(
     # TODO(crbug/1019770): Investigate cases where builds_chrome is true but
     # chrome_version is None.
 
+    # If no packages are set, assume virtual/target-os.  Chrome & LaCrOS aren't
+    # pulled in via any other target, and certainly wouldn't be enabled in those
+    # but not in the main OS target.
+    if not packages:
+        packages = [package_info.parse(constants.TARGET_OS_PKG)]
+
     builds_chrome = builds(constants.CHROME_CP, build_target, packages=packages)
     chrome_version = None
     if builds_chrome:
