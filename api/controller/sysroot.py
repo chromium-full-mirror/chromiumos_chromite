@@ -6,6 +6,7 @@
 
 import logging
 import os
+from pathlib import Path
 import traceback
 
 from chromite.api import controller
@@ -21,6 +22,7 @@ from chromite.lib import goma_lib
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
+from chromite.lib import remoteexec_lib
 from chromite.lib import sysroot_lib
 from chromite.service import sysroot
 
@@ -413,6 +415,15 @@ def InstallPackages(input_proto, output_proto, _config):
                     archiver_tuple.counterz_file
                 )
             output_proto.goma_artifacts.log_files[:] = archiver_tuple.log_files
+
+        if input_proto.remoteexec_config.log_dir.dir:
+            archiver = remoteexec_lib.LogsArchiver(
+                dest_dir=Path(input_proto.remoteexec_config.log_dir.dir),
+            )
+            archived_logs = archiver.archive()
+            output_proto.remoteexec_artifacts.log_files[:] = [
+                str(x) for x in archived_logs
+            ]
 
     # Return without populating the response if it is a dryrun.
     if dryrun:
