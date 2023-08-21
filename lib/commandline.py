@@ -16,6 +16,7 @@ import logging
 import optparse  # pylint: disable=deprecated-module
 import os
 from pathlib import Path
+import re
 import signal
 import sys
 from typing import List, NamedTuple, Optional
@@ -159,6 +160,21 @@ def ParseDate(value):
         # exception message and just says the value is invalid.
         logging.error("Date is expected to be in format YYYY-MM-DD.")
         raise
+
+
+def ParseEmail(value: str) -> str:
+    """Validate an e-mail address.
+
+    Args:
+        value: E-mail address.
+
+    Returns:
+        The input value.
+    """
+    if not re.fullmatch(constants.EMAIL_REGEX, value):
+        raise ValueError(f"invalid e-mail address: {value}")
+
+    return value
 
 
 def ParseTimedelta(value: str):
@@ -601,6 +617,7 @@ VALID_TYPES = {
     "bool": ParseBool,
     "cipd": ValidateCipdURL,
     "date": ParseDate,
+    "email": ParseEmail,
     "path": osutils.ExpandPath,
     "path_exists": ExistingPath,
     "dir_exists": ExistingDirectory,

@@ -14,6 +14,8 @@ import signal
 import sys
 from typing import Callable, List, Optional
 
+import pytest
+
 from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -1282,3 +1284,37 @@ class DryRunTests(cros_test_lib.TestCase):
         self.assertTrue(opts.dryrun)
         opts = parser.parse_args(["--dry-run"])
         self.assertTrue(opts.dryrun)
+
+
+# Split parameters into sep var to make test output easier to read.
+_PARSE_EMAIL_TEST_CASES = (
+    ("f@example.com", True),
+    ("vapier@google.com", True),
+    ("vapier@chromium.org", True),
+    ("", False),
+    ("f", False),
+    ("f@f", False),
+    ("f@f.f", False),
+    ("example.com", False),
+    ("@example.com", False),
+    ("!@example.com", False),
+    ("user@example.coooooooooooooooooom", False),
+)
+
+
+@pytest.mark.parametrize("email, valid", _PARSE_EMAIL_TEST_CASES)
+def test_parse_email(email: str, valid: bool) -> None:
+    """Verify argparse type='email'."""
+    parser = commandline.ArgumentParser()
+    parser.add_argument("-e", type="email")
+
+    if valid:
+        commandline.ParseEmail(email)
+        parser.parse_args(["-e", email])
+    else:
+        with pytest.raises(ValueError):
+            commandline.ParseEmail(email)
+
+        with pytest.raises(SystemExit) as excinfo:
+            parser.parse_args(["-e", email])
+        assert excinfo.value.code != 0
