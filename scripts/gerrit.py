@@ -1048,6 +1048,11 @@ class ActionCherryPick(UserAction):
             help="The destination branches",
         )
         parser.add_argument(
+            "--allow-conflicts",
+            action="store_true",
+            help="Cherry-pick the CL with conflicts.",
+        )
+        parser.add_argument(
             "cls", nargs="+", metavar="CL", help="The CLs to cherry-pick"
         )
 
@@ -1064,6 +1069,7 @@ class ActionCherryPick(UserAction):
                     branch,
                     rev=opts.rev,
                     msg=opts.msg,
+                    allow_conflicts=opts.allow_conflicts,
                     dryrun=opts.dryrun,
                     notify=opts.notify,
                 )

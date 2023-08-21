@@ -712,10 +712,22 @@ def Delete(host, change):
     FetchUrl(host, path, reqtype="DELETE", expect=204, ignore_404=False)
 
 
-def CherryPick(host, change, branch, rev="current", msg="", notify=None):
+def CherryPick(
+    host,
+    change,
+    branch,
+    rev="current",
+    msg="",
+    allow_conflicts: bool = False,
+    notify=None,
+):
     """Cherry pick a change to a branch."""
     path = "%s/revisions/%s/cherrypick" % (_GetChangePath(change), rev)
-    body = {"destination": branch, "message": msg}
+    body = {
+        "destination": branch,
+        "message": msg,
+        "allow_conflicts": allow_conflicts,
+    }
     if notify is not None:
         body["notify"] = notify
     return FetchUrlJson(host, path, reqtype="POST", body=body)

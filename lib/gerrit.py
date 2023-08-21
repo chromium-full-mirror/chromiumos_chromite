@@ -728,7 +728,14 @@ class GerritHelper:
         gob_util.Delete(self.host, self._to_changenum(change))
 
     def CherryPick(
-        self, change, branch, rev="current", msg="", dryrun=False, notify=None
+        self,
+        change,
+        branch,
+        rev: str = "current",
+        msg: str = "",
+        allow_conflicts: bool = False,
+        dryrun: bool = False,
+        notify=None,
     ):
         """Cherry pick a CL to a branch.
 
@@ -737,6 +744,7 @@ class GerritHelper:
             branch: The destination branch.
             rev: The specific revision to cherry pick back.
             msg: An additional message to include.
+            allow_conflicts: Allow cherry-picks to contain conflicts.
             dryrun: If True, don't actually set the hashtag.
             notify: Who to send notifications to.
         """
@@ -754,6 +762,7 @@ class GerritHelper:
             branch,
             rev=rev,
             msg=msg,
+            allow_conflicts=allow_conflicts,
             notify=notify,
         )
 
