@@ -954,11 +954,7 @@ def BuildPackages(
                         # metrics, as well as faster builds through greater
                         # parallelism.
                         cros_build_lib.run(
-                            [
-                                bazel_cmd,
-                                "build",
-                                "--execution_log_binary_file=/tmp/exec.log",
-                            ]
+                            [bazel_cmd, "build"]
                             + [
                                 f"@portage//{package}:package_set"
                                 for package in packages
