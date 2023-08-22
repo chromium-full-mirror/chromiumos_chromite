@@ -101,7 +101,7 @@ describe('Gerrit', () => {
             'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n',
         });
         await git.addAll();
-        await git.commit(`Second\nChange-Id: ${changeId}`);
+        await git.commit(`Second\n\nChange-Id: ${changeId}`);
       },
       'gerrit_display_a_comment'
     );
@@ -186,7 +186,7 @@ describe('Gerrit', () => {
         });
 
         await git.addAll();
-        await git.commit(`Second\nChange-Id: ${changeId}`);
+        await git.commit(`Second\n\nChange-Id: ${changeId}`);
       },
       'gerrit_displays_a_draft_comment'
     );
@@ -283,9 +283,9 @@ describe('Gerrit', () => {
           'cryptohome/crypto.h': 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n',
         });
         await git.addAll();
-        await git.commit(`Under review\nChange-Id: ${changeId}`);
+        await git.commit(`Under review\n\nChange-Id: ${changeId}`);
         await git.commit(
-          `Under review with local amend\nChange-Id: ${changeId}`,
+          `Under review with local amend\n\nChange-Id: ${changeId}`,
           {amend: true}
         );
       },
@@ -438,7 +438,7 @@ describe('Gerrit', () => {
             'ADDED 1.1\nADDED 1.2\nLine 7\n' +
             'Line 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\n',
         });
-        await git.commit(`Change\nChange-Id: ${changeId}\n`, {
+        await git.commit(`Change\n\nChange-Id: ${changeId}\n`, {
           all: true,
         });
         // Second review patchset.
@@ -448,7 +448,7 @@ describe('Gerrit', () => {
             'ADDED 1.1\nADDED 1.2\nLine 7\nADDED 2.1\nADDED 2.2\n' +
             'Line 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\n',
         });
-        await git.commit(`Amended\nChange-Id: ${changeId}\n`, {
+        await git.commit(`Amended\n\nChange-Id: ${changeId}\n`, {
           amend: true,
           all: true,
         });
@@ -542,7 +542,7 @@ describe('Gerrit', () => {
           'foo.cc': 'A\nB',
         });
         await git.addAll();
-        await git.commit(`A and B\nChange-Id: ${changeId}\n`, {
+        await git.commit(`A and B\n\nChange-Id: ${changeId}\n`, {
           all: true,
         });
       },
@@ -618,7 +618,7 @@ describe('Gerrit', () => {
           'foo.cc': 'A\nB',
         });
         await git.addAll();
-        await git.commit(`A and B\nChange-Id: ${changeId}\n`, {
+        await git.commit(`A and B\n\nChange-Id: ${changeId}\n`, {
           all: true,
         });
       },
@@ -709,7 +709,7 @@ describe('Gerrit', () => {
             Line 5`,
         });
         await git.addAll();
-        await git.commit(`First uploaded\nChange-Id: ${changeId1}`);
+        await git.commit(`First uploaded\n\nChange-Id: ${changeId1}`);
 
         // Second commit in a chain.
         await testing.putFiles(git.root, {
@@ -722,7 +722,7 @@ describe('Gerrit', () => {
             Line 5`,
         });
         await git.addAll();
-        await git.commit(`Second uploaded\nChange-Id: ${changeId2}`);
+        await git.commit(`Second uploaded\n\nChange-Id: ${changeId2}`);
       },
       'gerrit_shows_all_comments_in_a_chain'
     );
@@ -827,7 +827,7 @@ describe('Gerrit', () => {
             'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n',
         });
         await git.addAll();
-        await git.commit(`Under review\nChange-Id: ${changeId}`);
+        await git.commit(`Under review\n\nChange-Id: ${changeId}`);
         await testing.putFiles(git.root, {
           'cryptohome/cryptohome.cc': 'Line 4\nLine 5\n',
         });
@@ -892,7 +892,7 @@ describe('Gerrit', () => {
         await git.init();
         await git.commit('First');
         await git.setupCrosBranches();
-        await git.commit(`Second\nChange-Id: ${changeId}`);
+        await git.commit(`Second\n\nChange-Id: ${changeId}`);
       },
       'gerrit_does_not_throw_errors_when_the_change_is_not_in_Gerrit'
     );
@@ -947,7 +947,7 @@ describe('Gerrit', () => {
             'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n',
         });
         await git.addAll();
-        await git.commit(`Second\nChange-Id: ${changeId}`);
+        await git.commit(`Second\n\nChange-Id: ${changeId}`);
       },
       'gerrit_displays_a_comment_for_an_internal_repo'
     );
@@ -1043,7 +1043,7 @@ describe('Gerrit', () => {
         await git.commit('Mainline');
         await git.setupCrosBranches();
         await git.addAll();
-        await git.commit(`Under review\nChange-Id: ${changeId}`);
+        await git.commit(`Under review\n\nChange-Id: ${changeId}`);
       },
       'gerrit_shows_a_specific_error_when_a_commit_is_not_available_locally'
     );
@@ -1254,7 +1254,7 @@ describe('Gerrit', () => {
 `,
         });
         await git.addAll();
-        await git.commit(`foobar\nChange-Id: ${changeId}`);
+        await git.commit(`foobar\n\nChange-Id: ${changeId}`);
       },
       'gerrit_shifts_comments_correctly'
     );
@@ -1431,7 +1431,7 @@ ADD
           'foo.txt': 'A\nB\nC',
         });
         await git.addAll();
-        await git.commit(`ABC\nChange-Id: ${changeId}\n`, {
+        await git.commit(`ABC\n\nChange-Id: ${changeId}\n`, {
           all: true,
         });
       },

@@ -250,7 +250,13 @@ async function readGitLogOrThrow(gitDir: string, sink: Sink) {
   }
   const branchLog = await commonUtil.execOrThrow(
     'git',
-    ['log', `${upstreamBranch}..HEAD`],
+    [
+      'log',
+      `${upstreamBranch}..HEAD`,
+      // Change the output format to just include the commit id (%H) followed by a space and the
+      // `Change-Id` trailer value.
+      '--format=%H %(trailers:key=Change-Id,valueonly)',
+    ],
     {
       cwd: gitDir,
       logger: sink,
@@ -315,10 +321,7 @@ async function isHeadDetachedOrThrow(
 
 function parseGitLog(gitLog: string): GitLogInfo[] {
   const result: GitLogInfo[] = [];
-  // Matches the entire commit message from the line
-  // with the commit id to Gerrit's change id.
-  const messageRegex =
-    /^commit (?<commitId>[0-9a-f]+)[\s\S]*?\n\s*?Change-Id: (?<changeId>I[0-9a-z]+)/gm;
+  const messageRegex = /^(?<commitId>[0-9a-f]+) (?<changeId>I[0-9a-z]+)$/gm;
   let match: RegExpMatchArray | null;
   while ((match = messageRegex.exec(gitLog)) !== null) {
     result.push({
