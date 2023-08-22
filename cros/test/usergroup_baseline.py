@@ -460,6 +460,9 @@ GROUP_BASELINE = dict(
             gid=428,
             users={"oobe_config_save", "oobe_config_restore"},
         ),
+        GroupEntry(
+            group="mmc_service", gid=20208, users={"mmc_service", "bluetooth"}
+        ),
     )
 )
 
