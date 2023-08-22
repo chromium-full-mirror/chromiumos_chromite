@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -11,10 +10,11 @@ For Zephyr Downstreaming Rotation: go/zephyr-downstreaming-guide
 For coreboot Downstreaming Rotation: go/coreboot:downstreaming
 """
 
+import argparse
 from collections import defaultdict
 import logging
 import re
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import Callable, Dict, List, NamedTuple, Tuple
 
 from chromite.contrib.copybot_downstream_config import downstream_argparser
 from chromite.lib import config_lib
@@ -43,28 +43,23 @@ class PathDomains(NamedTuple):
 class CopybotDownstream:
     """Defines the functionality of the downstreaming review process."""
 
-    def __init__(
-        self,
-        project: str,
-        dry_run: bool = False,
-        cq_dry_run: bool = False,
-        limit: Optional[int] = None,
-        stop_at: Optional[str] = None,
-        ignore_warnings: bool = False,
-    ):
+    def __init__(self, opts: argparse.Namespace):
         """Initialize the CopybotDownstream Object.
 
         Args:
-            project: Name of the project to be acted on.
-            dry_run: If True dry-run this pass without acting on gerrit
-            cq_dry_run: If True, use CQ+1 instead of CQ+2
-            limit: Limit the number of CL's to be downstreamed
-            stop_at: Stop at the specified change(CL Number)
-            ignore_warnings: Ignore warnings and submit changes
+            opts: argparse object with the desired arguments
+                project: Name of the project to be acted on.
+                dry_run: If True dry-run this pass without acting on gerrit
+                cq_dry_run: If True, use CQ+1 instead of CQ+2
+                limit: Limit the number of CL's to be downstreamed
+                stop_at: Stop at the specified change(CL Number)
+                ignore_warnings: Ignore warnings and submit changes
+                include_dependencies: Apply CR/CQ to dependencies found
         """
         self.gerrit_helper = gerrit.GetGerritHelper(
             config_lib.GetSiteParams().EXTERNAL_REMOTE
         )
+
         # Map of functions to be called when the project in the key is
         # encountered.
         #
@@ -79,21 +74,21 @@ class CopybotDownstream:
         #        dynamic args for use in parsing
         #    Returns:
         #        List of warning strings to be printed for this CL
-        self.project = project
-        self.dry_run = dry_run
-        self.cq_dry_run = cq_dry_run
-        self.stop_at = stop_at
-        self.ignore_warnings = ignore_warnings
+        self.project = opts.project
+        self.dry_run = opts.dry_run
+        self.cq_dry_run = opts.cq_dry_run
+        self.stop_at = opts.stop_at
+        self.ignore_warnings = opts.ignore_warnings
         # dict of dicts containing CL info returned by gerrit.
         #   Key - CL Number
         #   Value - Gerrit dictionary data
         self.cl_info = {}
-        if not limit or limit > MAX_GERRIT_CHANGES:
+        if not opts.limit or opts.limit > MAX_GERRIT_CHANGES:
             logging.info(
                 "Limiting to maximum Gerrit changes (%d)", MAX_GERRIT_CHANGES
             )
-            limit = MAX_GERRIT_CHANGES
-        self.limit = limit
+            opts.limit = MAX_GERRIT_CHANGES
+        self.limit = opts.limit
         default_check_funcs = [
             [self.check_commit_message, ["\nC[Qq]-Depend:.*"]],
             [self.check_hashtags, ["copybot-skip"]],
@@ -521,11 +516,4 @@ def main(args):
     """Main entry point for CLI."""
     parser = downstream_argparser.generate_copybot_arg_parser()
     opts = parser.parse_args(args)
-    CopybotDownstream(
-        opts.project,
-        opts.dry_run,
-        opts.cq_dry_run,
-        opts.limit,
-        opts.stop_at,
-        opts.ignore_warnings,
-    ).run(opts.cmd)
+    CopybotDownstream(opts).run(opts.cmd)
