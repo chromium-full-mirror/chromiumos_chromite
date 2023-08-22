@@ -462,7 +462,7 @@ class CrOSTest:
                 "-ephemeraldevserver=true",
                 "-keyfile",
                 private_key,
-                "-maxtestfailures=3",
+                "-maxtestfailures=10",
             ]
             # Tast may make calls to gsutil during the tests. If we're outside
             # the chroot, we may not have gsutil on PATH. So push chromite's
