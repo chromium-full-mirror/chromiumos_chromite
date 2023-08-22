@@ -532,35 +532,38 @@ class DlcMetadata:
             return None
 
         for pkg in os.listdir(src_dir):
-            pkg_path = os.path.join(src_dir, pkg, DLC_TMP_META_DIR)
-            if not os.path.isdir(pkg_path):
-                continue
-            try:
-                with open(
-                    os.path.join(pkg_path, IMAGELOADER_JSON),
-                    encoding="utf-8",
-                ) as f:
-                    manifest = json.load(f)
-                table = osutils.ReadFile(
-                    os.path.join(pkg_path, DLC_VERITY_TABLE),
-                    mode="rb",
-                ).strip()
-            except Exception as e:
-                logging.error("Failed to read the source metadata: %s.", e)
-                continue
+            for pkg_path in (
+                os.path.join(src_dir, pkg, DLC_TMP_META_DIR),
+                os.path.join(src_dir, pkg),
+            ):
+                if not os.path.isdir(pkg_path):
+                    continue
+                try:
+                    with open(
+                        os.path.join(pkg_path, IMAGELOADER_JSON),
+                        encoding="utf-8",
+                    ) as f:
+                        manifest = json.load(f)
+                    table = osutils.ReadFile(
+                        os.path.join(pkg_path, DLC_VERITY_TABLE),
+                        mode="rb",
+                    ).strip()
+                except Exception as e:
+                    logging.error("Failed to read the source metadata: %s.", e)
+                    continue
 
-            if pkg != DLC_PACKAGE:
-                logging.warning(
-                    "The package name should be '%s', but getting '%s' from the"
-                    " source metadata directory %s",
-                    DLC_PACKAGE,
-                    pkg,
-                    src_dir,
-                )
-            return {
-                "manifest": manifest,
-                "table": table.decode("utf-8"),
-            }
+                if pkg != DLC_PACKAGE:
+                    logging.warning(
+                        "The package name should be '%s', but getting '%s' "
+                        "from the source metadata directory %s",
+                        DLC_PACKAGE,
+                        pkg,
+                        src_dir,
+                    )
+                return {
+                    "manifest": manifest,
+                    "table": table.decode("utf-8"),
+                }
 
     def LoadDestMetadata(self, file_id: str) -> dict:
         """Load a metadata file from the destination directory and parse it.
@@ -1235,6 +1238,57 @@ def IsLoadPinVerityDigestAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
     return IsFieldAllowed(dlc_id, dlc_build_dir, "loadpin-verity-digest")
 
 
+def InstallArtifactsMeta(sysroot: str, rootfs: str) -> None:
+    """Installs the artifacts DLC meta(data) into rootfs
+
+    Args:
+        sysroot: Path to directory containing DLC images, e.g /build/<board>.
+        rootfs: Path to the platform rootfs.
+    """
+    artifacts_meta_dir = os.path.join(sysroot, DLC_BUILD_DIR_ARTIFACTS_META)
+    if not os.path.exists(artifacts_meta_dir):
+        logging.info("Artifacts meta directory missing, ignoring.")
+        return
+
+    artifacts_meta_dlc_ids = sorted(os.listdir(artifacts_meta_dir))
+    if not artifacts_meta_dlc_ids:
+        logging.info("There are no artifacts meta DLC(s), ignoring.")
+        return
+
+    # TODO(b/290961240): Remove copying individual imageloader.json
+    # and table files after fully migrated to used the compressed
+    # metadata (replace this code with a `pass` for future usage).
+    for artifacts_meta_dlc_id in artifacts_meta_dlc_ids:
+        # Only support single package for artifacts meta DLC(s).
+        if rootfs:
+            src_path = os.path.join(
+                artifacts_meta_dir, artifacts_meta_dlc_id, DLC_PACKAGE
+            )
+            dst_path = os.path.join(
+                rootfs, DLC_META_DIR, artifacts_meta_dlc_id, DLC_PACKAGE
+            )
+            osutils.SafeMakedirs(dst_path, sudo=True)
+            # Copy the metadata files to rootfs.
+            logging.debug(
+                "Copying DLC(%s) metadata from %s to %s: ",
+                artifacts_meta_dlc_id,
+                src_path,
+                dst_path,
+            )
+            # Use sudo_run since osutils.CopyDirContents doesn't support
+            # sudo.
+            cros_build_lib.sudo_run(
+                [
+                    "cp",
+                    "-dR",
+                    src_path.rstrip("/") + "/.",
+                    dst_path,
+                ],
+                debug_level=logging.DEBUG,
+                stderr=True,
+            )
+
+
 def InstallDlcImages(
     sysroot: str,
     board: str,
@@ -1269,13 +1323,24 @@ def InstallDlcImages(
     Raises:
         Error: in case anything goes wrong, check error message.
     """
+    # Handle the artifacts meta DLC(s).
+    InstallArtifactsMeta(sysroot, rootfs)
     build_dir = os.path.join(sysroot, DLC_BUILD_DIR)
     build_dir_scaled = os.path.join(sysroot, DLC_BUILD_DIR_SCALED)
-    if not os.path.exists(build_dir) and not os.path.exists(build_dir_scaled):
+    build_dir_artifacts_meta = os.path.join(
+        sysroot, DLC_BUILD_DIR_ARTIFACTS_META
+    )
+
+    if (
+        not os.path.exists(build_dir)
+        and not os.path.exists(build_dir_scaled)
+        and not os.path.exists(build_dir_artifacts_meta)
+    ):
         logging.debug(
-            "DLC build directories (%s) (%s) do not exist, ignoring.",
+            "DLC build directories (%s) (%s) (%s) do not exist, ignoring.",
             build_dir,
             build_dir_scaled,
+            build_dir_artifacts_meta,
         )
         return
 
@@ -1531,6 +1596,13 @@ def InstallDlcImages(
     if rootfs and not dlc_id:
         logging.info("Creating compressed DLC metadata.")
         dlc_all = []
+
+        artifacts_meta_dir = os.path.join(sysroot, DLC_BUILD_DIR_ARTIFACTS_META)
+        if os.path.exists(artifacts_meta_dir):
+            dlc_all.extend(
+                (x, artifacts_meta_dir) for x in os.listdir(artifacts_meta_dir)
+            )
+
         for scaled in (False, True):
             dlc_build_dir = build_dir_scaled if scaled else build_dir
 

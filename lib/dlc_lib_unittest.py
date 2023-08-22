@@ -1216,3 +1216,80 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             f"{_DLC_LOADPIN_FILE_HEADER}\n"
             f"{root_hexdigest1}\n{root_hexdigest2}\n",
         )
+
+    def testInstallDlcImagesWithArtifactsMeta(self):
+        """Verifies InstallDlcImages with artifacts meta DLC(s)."""
+        sysroot = self.tempdir / "sysroot"
+
+        imageloader_json_data = '{"i am": "a dict"}'
+        osutils.WriteFile(
+            sysroot
+            / dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META
+            / _ID
+            / _PACKAGE
+            / dlc_lib.IMAGELOADER_JSON,
+            imageloader_json_data,
+            makedirs=True,
+        )
+
+        verity_table_data = (
+            "0 128 verity payload=ROOT_DEV hashtree=HASH_DEV hashstart=128 "
+            "alg=sha256 "
+            "root_hexdigest="
+            "beef0000c908dd6e4f6771a3146310bc7edcfe8d9794abcd34512e1a0000beef "
+            "salt="
+            "471347ffffff2f4a1cff1224ff7b04ffff68ff19ff2dffff63ff47ffffff387c"
+        )
+        osutils.WriteFile(
+            sysroot
+            / dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META
+            / _ID
+            / _PACKAGE
+            / dlc_lib.DLC_VERITY_TABLE,
+            verity_table_data,
+            makedirs=True,
+        )
+
+        foobar_file = "foobar"
+        osutils.WriteFile(
+            sysroot
+            / dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META
+            / _ID
+            / _PACKAGE
+            / foobar_file,
+            "please don't be copied",
+            makedirs=True,
+        )
+
+        output = self.tempdir / "output"
+        dlc_lib.InstallDlcImages(board=_BOARD, sysroot=sysroot, rootfs=output)
+        self.assertEqual(
+            osutils.ReadFile(
+                output
+                / dlc_lib.DLC_META_DIR
+                / _ID
+                / _PACKAGE
+                / dlc_lib.IMAGELOADER_JSON
+            ),
+            imageloader_json_data,
+        )
+        self.assertEqual(
+            osutils.ReadFile(
+                output
+                / dlc_lib.DLC_META_DIR
+                / _ID
+                / _PACKAGE
+                / dlc_lib.DLC_VERITY_TABLE
+            ),
+            verity_table_data,
+        )
+        self.assertNotExists(
+            osutils.ReadFile(
+                output / dlc_lib.DLC_META_DIR / _ID / _PACKAGE / foobar_file
+            ),
+        )
+        self.assertExists(
+            output
+            / dlc_lib.DLC_META_DIR
+            / f"{dlc_lib.DLC_META_FILE_PREFIX}{_ID}"
+        )
