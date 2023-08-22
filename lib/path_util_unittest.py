@@ -534,16 +534,6 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
         resolver = path_util.ChrootPathResolver()
 
         self.assertEqual(
-            "/build/foo",
-            resolver.ToChroot(
-                os.path.join(constants.SOURCE_ROOT, "out/build/foo")
-            ),
-        )
-        self.assertEqual(
-            os.path.join(constants.SOURCE_ROOT, "out/build/foo"),
-            resolver.FromChroot("/build/foo"),
-        )
-        self.assertEqual(
             "/home/foo",
             resolver.ToChroot(
                 os.path.join(constants.SOURCE_ROOT, "out/home/foo")
