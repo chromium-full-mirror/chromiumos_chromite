@@ -3,7 +3,6 @@
 # found in the LICENSE file.
 
 import importlib
-import importlib.util
 import logging
 import pkgutil
 from types import ModuleType

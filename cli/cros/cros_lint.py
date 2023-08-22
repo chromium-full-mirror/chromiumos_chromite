@@ -6,7 +6,8 @@
 
 import collections
 import functools
-import importlib
+import importlib.machinery
+import importlib.util
 import itertools
 import json
 import logging
