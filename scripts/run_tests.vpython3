@@ -100,15 +100,15 @@ wheel: <
 >
 
 wheel: <
-  name: "infra/python/wheels/futures-py2_py3"
+  name: "infra/python/wheels/futures-py3"
   version: "version:3.1.1"
 >
 wheel: <
-  name: "infra/python/wheels/isort-py2_py3"
-  version: "version:4.3.4"
+  name: "infra/python/wheels/isort-py3"
+  version: "version:5.10.1"
 >
 wheel: <
-  name: "infra/python/wheels/mccabe-py2_py3"
+  name: "infra/python/wheels/mccabe-py3"
   version: "version:0.6.1"
 >
 wheel: <

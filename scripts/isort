@@ -11,9 +11,12 @@
 #
 # wheel: <
 #   name: "infra/python/wheels/isort-py3"
-#   version: "version:5.8.0"
+#   version: "version:5.10.1"
 # >
 #
 # [VPYTHON:END]
 
+"""Wrapper for stable version of isort that we control."""
+
+# pylint: disable=unused-import
 import isort.__main__

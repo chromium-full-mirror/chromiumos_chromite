@@ -38,8 +38,6 @@ _EXCEPTIONS = {
     " wants 1.1.0 but scripts/run_tests.vpython3 has 2.0.1",
     "infra/python/wheels/tomli-py3: scripts/black"
     " wants 1.1.0 but scripts/run_tests.vpython3 has 2.0.1",
-    "infra/python/wheels/isort-py3: scripts/isort"
-    " wants 5.8.0 but scripts/pylint has 5.10.1",
 }
 
 _BEGIN_GUARD = "[VPYTHON:BEGIN]"
