@@ -2393,6 +2393,15 @@
         },
         {
           "board_name": "brya-hibernate",
+          "name": "aviko",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7229,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-hibernate",
           "name": "banshee",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
