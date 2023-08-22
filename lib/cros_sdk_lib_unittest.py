@@ -564,6 +564,27 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             user=TEST_USER, uid=TEST_UID, group=TEST_GROUP, gid=TEST_GID
         )
 
+    # TODO(b/297068910): Remove this when we remove the clear_state() hack.
+    def testCleanHome(self):
+        """Verify we can clean a bad /home/* path."""
+        TEST_USER = "a-test-user"
+        TEST_UID = 20100908
+        TEST_GROUP = "a-test-group"
+        TEST_GID = 9082010
+        self.PatchObject(cros_sdk_lib.ChrootCreator, "_make_chroot")
+        # The files won't be root owned, but they won't be user owned.
+        self.ExpectRootOwnedFiles()
+
+        osutils.SafeMakedirsNonRoot(
+            Path(self.chroot.path) / "home" / "chronos" / "user"
+        )
+
+        self.creater.run(
+            user=TEST_USER, uid=TEST_UID, group=TEST_GROUP, gid=TEST_GID
+        )
+        self.assertNotExists(Path(self.chroot.path) / "home" / "chronos")
+        self.assertExists(Path(self.chroot.path) / "home")
+
 
 class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
     """ChrootEnteror tests."""

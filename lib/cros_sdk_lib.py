@@ -1022,6 +1022,26 @@ PORTAGE_USERNAME="{user}"
             data += "\n\n"
         localegen.write_text(data + "en_US.UTF-8 UTF-8\n", encoding="utf-8")
 
+    def clear_state(self):
+        """Clear unexpected chroot state in chroot path.
+
+        SDK tarballs may contain stub files in /home/*, which unnecessarily
+        triggers /home state migration (MigrateStatePaths). We're removing
+        these paths from the tarball, but that takes a while to generate.
+        TODO(b/297068910): Remove this once SDK has uprev'd past
+        crrev.com/c/4808245.
+        """
+        path = Path(self.chroot.path) / "home"
+        if path.is_dir():
+            for entry in path.iterdir():
+                logging.info("/home contains: %s", entry)
+
+        osutils.EmptyDir(
+            path,
+            ignore_missing=True,
+            sudo=True,
+        )
+
     def print_success_summary(self):
         """Show a summary of the chroot to the user."""
         default_chroot = constants.SOURCE_ROOT / constants.DEFAULT_CHROOT_DIR
@@ -1073,6 +1093,7 @@ $ cros_sdk --delete%s
             self.init_group(user=user, group=group, gid=gid)
             self.init_filesystem_basic()
             self.init_etc(user=user)
+            self.clear_state()
 
         MountChrootPaths(self.chroot)
 
