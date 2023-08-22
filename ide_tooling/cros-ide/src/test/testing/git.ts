@@ -21,13 +21,18 @@ export class Git {
       cwd: this.root,
     });
     const repoId = opts?.repoId ?? 'cros';
+    const remoteName = repoId === 'chromium' ? 'origin' : repoId;
     const remoteUrl =
-      repoId === 'cros'
+      repoId === 'cros' || repoId === 'chromium'
         ? 'https://chromium.googlesource.com/foo'
         : 'https://chrome-internal.googlesource.com/foo';
-    await commonUtil.execOrThrow('git', ['remote', 'add', repoId, remoteUrl], {
-      cwd: this.root,
-    });
+    await commonUtil.execOrThrow(
+      'git',
+      ['remote', 'add', remoteName, remoteUrl],
+      {
+        cwd: this.root,
+      }
+    );
   }
 
   async addAll(): Promise<void> {

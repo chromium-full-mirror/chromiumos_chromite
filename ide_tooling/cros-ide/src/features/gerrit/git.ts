@@ -2,17 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as fs from 'fs/promises';
+import * as os from 'os';
+import * as path from 'path';
 import * as commonUtil from '../../common/common_util';
+import {envForDepotTools} from '../../common/depot_tools';
+import {underDevelopment} from '../../services/config';
 import {Sink} from './sink';
 
 /** Kind of a Git remote repository */
-export type RepoId = 'cros' | 'cros-internal';
+export type RepoId = 'cros' | 'cros-internal' | 'chromium';
 
 /** Gets the Gerrit URL for RepoId. */
 export function gerritUrl(repoId: RepoId): string {
-  return repoId === 'cros'
-    ? 'https://chromium-review.googlesource.com'
-    : 'https://chrome-internal-review.googlesource.com';
+  switch (repoId) {
+    case 'cros':
+    case 'chromium':
+      return 'https://chromium-review.googlesource.com';
+    case 'cros-internal':
+      return 'https://chrome-internal-review.googlesource.com';
+  }
 }
 
 /**
@@ -35,23 +44,34 @@ export async function getRepoId(
     });
     return;
   }
-  const [repoId, repoUrl] = gitRemote.stdout.split('\n')[0].split(/\s+/);
+  const [remoteName, repoUrl] = gitRemote.stdout.split('\n')[0].split(/\s+/);
   if (
-    (repoId === 'cros' &&
+    (remoteName === 'cros' &&
       repoUrl.startsWith('https://chromium.googlesource.com/')) ||
-    (repoId === 'cros-internal' &&
+    (remoteName === 'cros-internal' &&
       repoUrl.startsWith('https://chrome-internal.googlesource.com/'))
   ) {
-    const repoKind = repoId === 'cros' ? 'Public' : 'Internal';
-    sink.appendLine(`${repoKind} Chrome remote repo detected at ${gitDir}`);
+    const repoKind = remoteName === 'cros' ? 'Public' : 'Internal';
+    sink.appendLine(`${repoKind} ChromeOS remote repo detected at ${gitDir}`);
 
-    return repoId;
+    return remoteName;
+  }
+  if (repoUrl.startsWith('https://chromium.googlesource.com/chromium/')) {
+    if (underDevelopment.gerrit.get()) {
+      sink.appendLine(`Public Chromium remote repo detected at ${gitDir}`);
+      return 'chromium';
+    } else {
+      sink.appendLine(
+        "Support for Chromium Gerrit is still experimental. If you'd like to opt-in, enable the `chromiumide.underDevelopment.gerrit` setting in VSCode."
+      );
+      return;
+    }
   }
 
   sink.show({
     log:
       'Unknown remote repo detected: ' +
-      `id ${repoId}, url ${repoUrl}.\n` +
+      `remote name ${remoteName}, url ${repoUrl}.\n` +
       'Gerrit comments in this repo are not supported.',
     metrics: '(warning) unknown git remote result',
     noErrorStatus: true,
@@ -330,6 +350,70 @@ function parseGitLog(gitLog: string): GitLogInfo[] {
     });
   }
   return result;
+}
+
+/**
+ * Reads the change id from the currently checked-out branch using `git cl` tooling (therefore not
+ * applicable to ChromiumOS).
+ *
+ * TODO(b/295017592): Consider traversing all local upstreams to show comments of dependent changes
+ * as well.
+ */
+export async function readChangeIdsUsingGitCl(
+  gitDir: string,
+  sink: Sink
+): Promise<GitLogInfo[]> {
+  const tempPath = await fs.mkdtemp(
+    path.join(os.tmpdir(), 'chromium-ide-gerrit')
+  );
+  const jsonPath = path.join(tempPath, '/issue.json');
+  const result = await commonUtil.exec(
+    'git',
+    ['cl', 'issue', `--json=${jsonPath}`],
+    {
+      cwd: gitDir,
+      logger: sink,
+      logStdout: true,
+      env: envForDepotTools(),
+    }
+  );
+  if (result instanceof Error) {
+    sink.appendLine(result.toString());
+    return [];
+  }
+  let json: unknown;
+  try {
+    const jsonText = await fs.readFile(jsonPath, 'utf-8');
+    json = JSON.parse(jsonText);
+    await fs.rm(jsonPath);
+    await fs.rmdir(tempPath);
+  } catch (err) {
+    sink.appendLine(String(err));
+    return [];
+  }
+  if (
+    typeof json !== 'object' ||
+    json === null ||
+    !('gerrit_project' in json) ||
+    typeof json.gerrit_project !== 'string' ||
+    !('issue' in json) ||
+    typeof json.issue !== 'number'
+  ) {
+    sink.appendLine(`Unexpected JSON structure: ${JSON.stringify(json)}`);
+    return [];
+  }
+  const changeId = `${json.gerrit_project}~${json.issue}`;
+
+  const headCommitResult = await commonUtil.exec('git', ['rev-parse', 'HEAD'], {
+    cwd: gitDir,
+    logStdout: true,
+    logger: sink,
+  });
+  if (headCommitResult instanceof Error) {
+    sink.appendLine(String(headCommitResult));
+    return [];
+  }
+  return [{changeId, localCommitId: headCommitResult.stdout.trim()}];
 }
 
 /**

@@ -135,7 +135,12 @@ export class GerritComments implements vscode.Disposable {
     const repoId = await git.getRepoId(gitDir, sink);
     if (repoId === undefined) return;
     const authCookie = await auth.readAuthCookie(repoId, sink);
-    const gitLogInfos = await git.readGitLog(gitDir, sink);
+    let gitLogInfos: git.GitLogInfo[];
+    if (repoId === 'chromium') {
+      gitLogInfos = await git.readChangeIdsUsingGitCl(gitDir, sink);
+    } else {
+      gitLogInfos = await git.readGitLog(gitDir, sink);
+    }
     if (gitLogInfos.length === 0) return;
 
     // Fetch the user's account info
