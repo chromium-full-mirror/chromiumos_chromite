@@ -5,12 +5,14 @@
 """Unit tests for chromite.scripts.cbuildbot_launch."""
 
 import os
+from pathlib import Path
 import time
 from unittest import mock
 
 from chromite.cbuildbot import commands
 from chromite.cbuildbot import repository
 from chromite.lib import build_summary
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
@@ -569,7 +571,13 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(self.general)
         self.assertNotExists(self.distfiles)
         self.assertExists(self.previous_build_state)
-        m.assert_called_with(self.chroot, delete=True)
+        m.assert_called_with(
+            chroot_lib.Chroot(
+                path=self.buildroot / Path(constants.DEFAULT_CHROOT_DIR),
+                out_path=self.buildroot / constants.DEFAULT_OUT_DIR,
+            ),
+            delete=True,
+        )
 
     def testBuildrootBranchMatch(self):
         """Test CleanBuildRoot with no change in branch."""

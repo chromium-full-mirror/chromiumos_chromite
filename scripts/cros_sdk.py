@@ -524,6 +524,14 @@ def _CreateParser(sdk_latest_version, bootstrap_latest_version):
         help="Skip automatic SDK and toolchain upgrade when entering the "
         "chroot. Never guaranteed to work, especially as ToT moves forward.",
     )
+    parser.add_bool_argument(
+        "--delete-out-dir",
+        default=True,
+        enabled_desc="Delete the SDK build state along with the chroot. "
+        "Applies to --delete or --replace.",
+        disabled_desc="Don't delete the SDK build state along with the chroot. "
+        "Applies to --delete or --replace.",
+    )
 
     # Use type=str instead of type='path' to prevent the given path from being
     # transferred to absolute path automatically.
@@ -576,7 +584,7 @@ def _CreateParser(sdk_latest_version, bootstrap_latest_version):
         "--delete",
         action="store_true",
         default=False,
-        help="Delete the current SDK chroot if it exists.",
+        help="Delete the current SDK chroot and build state if they exist.",
     )
     group.add_argument(
         "--force",
@@ -801,7 +809,9 @@ def main(argv):
                         "cros_sdk was invoked with force option, continuing."
                     )
             logging.notice("Deleting chroot.")
-            cros_sdk_lib.CleanupChrootMount(chroot.path, delete=True)
+            cros_sdk_lib.CleanupChrootMount(
+                chroot, delete=True, delete_out=options.delete_out_dir
+            )
 
     # Enter a new set of namespaces.  Everything after here cannot directly
     # affect the hosts's mounts or alter LVM volumes.

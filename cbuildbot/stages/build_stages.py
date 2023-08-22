@@ -65,8 +65,11 @@ class CleanUpStage(generic_stages.BuilderStage):
 
     def _DeleteChroot(self):
         logging.info("Deleting chroot.")
-        chroot = os.path.join(self._build_root, constants.DEFAULT_CHROOT_DIR)
-        if os.path.exists(chroot):
+        chroot = chroot_lib.Chroot(
+            path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
+            out_path=self._build_root / constants.DEFAULT_OUT_DIR,
+        )
+        if os.path.exists(chroot.path):
             # At this stage, it's not safe to run the cros_sdk inside the
             # buildroot itself because we haven't sync'd yet, and the version of
             # the chromite in there might be broken. Since we've already
@@ -119,9 +122,12 @@ class CleanUpStage(generic_stages.BuilderStage):
         workspace = self._run.options.workspace
 
         logging.info("Remove Chroot.")
-        chroot_dir = os.path.join(workspace, constants.DEFAULT_CHROOT_DIR)
-        if os.path.exists(chroot_dir):
-            cros_sdk_lib.CleanupChrootMount(chroot_dir, delete=True)
+        chroot = chroot_lib.Chroot(
+            path=workspace / Path(constants.DEFAULT_CHROOT_DIR),
+            out_path=workspace / constants.DEFAULT_OUT_DIR,
+        )
+        if os.path.exists(chroot.path):
+            cros_sdk_lib.CleanupChrootMount(chroot, delete=True)
 
         logging.info("Remove all workspace files except .repo.")
         repository.ClearBuildRoot(workspace, [".repo"])
@@ -256,10 +262,11 @@ class CleanUpStage(generic_stages.BuilderStage):
                 delete_chroot = True
 
         # Clean mount points first to be safe about deleting.
-        chroot_path = os.path.join(
-            self._build_root, constants.DEFAULT_CHROOT_DIR
+        chroot = chroot_lib.Chroot(
+            path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
+            out_path=self._build_root / constants.DEFAULT_OUT_DIR,
         )
-        cros_sdk_lib.CleanupChrootMount(chroot=chroot_path)
+        cros_sdk_lib.CleanupChrootMount(chroot=chroot)
         logging.info("Build root path: %s", self._build_root)
         if not os.path.ismount(self._build_root):
             osutils.UmountTree(self._build_root)
