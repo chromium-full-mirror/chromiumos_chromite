@@ -426,17 +426,19 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
     """ChrootCreator tests."""
 
     def setUp(self):
-        self.chroot_path = self.tempdir / "chroot"
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+            cache_dir=str(self.tempdir / "cache_dir"),
+        )
         self.sdk_tarball = self.tempdir / "chroot.tar"
-        self.out_dir = self.tempdir / "out"
-        self.cache_dir = self.tempdir / "cache_dir"
 
         # We can't really verify these in any useful way atm.
         self.mount_mock = self.PatchObject(osutils, "Mount")
 
-        self.creater = cros_sdk_lib.ChrootCreator(
-            self.chroot_path, self.sdk_tarball, self.out_dir, self.cache_dir
-        )
+        self.creater = cros_sdk_lib.ChrootCreator(self.chroot, self.sdk_tarball)
 
         # Create a minimal tarball to extract during testing.
         tar_dir = self.tempdir / "tar_dir"
@@ -473,9 +475,9 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             rc_mock.assertCommandContains(
                 [
                     "--chroot",
-                    str(self.chroot_path),
+                    str(self.chroot.path),
                     "--cache_dir",
-                    str(self.cache_dir),
+                    str(self.chroot.cache_dir),
                 ]
             )
 
@@ -494,27 +496,35 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         )
 
         # Check various root files.
-        self.assertExists(self.chroot_path / "etc" / "localtime")
+        self.assertExists(Path(self.chroot.path) / "etc" / "localtime")
 
         # Check user home files.
-        user_file = self.chroot_path / "home" / "a-test-user" / ".ssh" / "foo"
+        user_file = Path(
+            self.chroot.full_path(
+                Path("/") / "home" / "a-test-user" / ".ssh" / "foo"
+            )
+        )
         self.assertExists(user_file)
         st = user_file.stat()
         self.assertEqual(st.st_uid, TEST_UID)
         self.assertEqual(st.st_gid, TEST_GID)
 
         # Check the user/group accounts.
-        db = (self.chroot_path / "etc" / "passwd").read_text(encoding="utf-8")
+        db = (Path(self.chroot.path) / "etc" / "passwd").read_text(
+            encoding="utf-8"
+        )
         self.assertStartsWith(db, f"{TEST_USER}:x:{TEST_UID}:{TEST_GID}:")
         # Make sure Python None didn't leak in.
         self.assertNotIn("None", db)
-        db = (self.chroot_path / "etc" / "group").read_text(encoding="utf-8")
+        db = (Path(self.chroot.path) / "etc" / "group").read_text(
+            encoding="utf-8"
+        )
         self.assertStartsWith(db, f"{TEST_GROUP}:x:{TEST_GID}:{TEST_USER}")
         # Make sure Python None didn't leak in.
         self.assertNotIn("None", db)
 
         # Check various /etc paths.
-        etc = self.chroot_path / "etc"
+        etc = Path(self.chroot.path) / "etc"
         self.assertExists(etc / "mtab")
         self.assertExists(etc / "hosts")
         self.assertExists(etc / "resolv.conf")
@@ -532,9 +542,13 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         )
 
         # Check /mnt/host directories.
-        self.assertTrue((self.chroot_path / "mnt" / "host" / "source").is_dir())
-        self.assertTrue((self.chroot_path / "mnt" / "host" / "out").is_dir())
-        self.assertTrue(self.out_dir.is_dir())
+        self.assertTrue(
+            (Path(self.chroot.path) / "mnt" / "host" / "source").is_dir()
+        )
+        self.assertTrue(
+            (Path(self.chroot.path) / "mnt" / "host" / "out").is_dir()
+        )
+        self.assertTrue(self.chroot.out_path.is_dir())
 
     def testExistingCompatGroup(self):
         """Verify running with an existing, but matching, group works."""

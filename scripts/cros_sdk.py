@@ -889,10 +889,8 @@ def main(argv):
             else:
                 sdk_tarball = FetchRemoteTarballs(sdk_cache, urls)
                 cros_sdk_lib.CreateChroot(
-                    Path(chroot.path),
+                    chroot,
                     Path(sdk_tarball),
-                    options.out_dir,
-                    Path(chroot.cache_dir),
                     usepkg=not options.bootstrap and not options.nousepkg,
                     chroot_upgrade=options.chroot_upgrade,
                 )
@@ -905,7 +903,7 @@ def main(argv):
         if options.enter:
             lock.read_lock()
             if not mounted:
-                cros_sdk_lib.MountChrootPaths(chroot.path, options.out_dir)
+                cros_sdk_lib.MountChrootPaths(chroot)
             ret = cros_sdk_lib.EnterChroot(
                 chroot,
                 chrome_root_mount=options.chrome_root_mount,

@@ -261,8 +261,8 @@ def IsChrootReady(chroot):
     return version is not None and version > 0
 
 
-def MountChrootPaths(path: Union[Path, str], out_dir: Path):
-    """Setup all the mounts for |path|.
+def MountChrootPaths(chroot: chroot_lib.Chroot):
+    """Setup all the mounts for the |chroot|.
 
     NB: This assumes running in a unique mount namespace.  If it is running in
     the root mount namespace, then it will probably change settings for the
@@ -273,7 +273,8 @@ def MountChrootPaths(path: Union[Path, str], out_dir: Path):
         for x in osutils.ReadFile("/proc/filesystems").splitlines()
     )
 
-    path = Path(path).resolve()
+    path = Path(chroot.path).resolve()
+    out_dir = chroot.out_path
 
     logging.debug("Mounting chroot paths at %s", path)
 
@@ -754,29 +755,24 @@ class ChrootCreator:
 
     def __init__(
         self,
-        chroot_path: Path,
+        chroot: chroot_lib.Chroot,
         sdk_tarball: Path,
-        out_dir: Path,
-        cache_dir: Path,
         usepkg: bool = True,
         chroot_upgrade: bool = True,
     ):
         """Initialize.
 
         Args:
-            chroot_path: Path where the new chroot will be created.
+            chroot: Chroot object representing the parameters for the chroot to
+                create.
             sdk_tarball: Path to a downloaded Chromium OS SDK tarball.
-            out_dir: Path to a directory that will hold build outputs.
-            cache_dir: Path to a directory that will be used for caching files.
             usepkg: If False, pass --nousepkg to cros_setup_toolchains inside
                 the chroot.
             chroot_upgrade: If True, upgrade toolchain/SDK when entering the
                 chroot.
         """
-        self.chroot_path = chroot_path
+        self.chroot = chroot
         self.sdk_tarball = sdk_tarball
-        self.out_dir = out_dir
-        self.cache_dir = cache_dir
         self.usepkg = usepkg
         self.chroot_upgrade = chroot_upgrade
 
@@ -786,9 +782,9 @@ class ChrootCreator:
         cmd = [
             self.MAKE_CHROOT,
             "--chroot",
-            str(self.chroot_path),
+            str(self.chroot.path),
             "--cache_dir",
-            str(self.cache_dir),
+            str(self.chroot.cache_dir),
         ]
 
         if not self.usepkg:
@@ -810,7 +806,7 @@ class ChrootCreator:
         """Setup the timezone info inside the chroot."""
         tz_path = Path("etc/localtime")
         host_tz = "/" / tz_path
-        chroot_tz = self.chroot_path / tz_path
+        chroot_tz = Path(self.chroot.full_path(tz_path))
         # Nuke it in case it's a broken symlink.
         osutils.SafeUnlink(chroot_tz)
         if host_tz.exists():
@@ -851,7 +847,7 @@ class ChrootCreator:
         if gid is None:
             gid = pwd.getpwnam(user).pw_gid
 
-        path = self.chroot_path / "etc" / "passwd"
+        path = Path(self.chroot.full_path(Path("/") / "etc" / "passwd"))
         lines = path.read_text(encoding="utf-8").splitlines()
 
         # Make sure the user isn't one the existing reserved ones.
@@ -869,7 +865,7 @@ class ChrootCreator:
         lines.insert(0, line)
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-        home_path = self.chroot_path / home[1:]
+        home_path = Path(self.chroot.full_path(home))
         self.init_user_home(home_path, uid, gid)
 
     def init_group(
@@ -906,7 +902,7 @@ class ChrootCreator:
         if group is None:
             group = grp.getgrgid(gid).gr_name
 
-        path = self.chroot_path / "etc" / "group"
+        path = Path(self.chroot.full_path(Path("/") / "etc" / "group"))
         lines = path.read_text(encoding="utf-8").splitlines()
 
         # Make sure the group isn't one the existing reserved ones.
@@ -934,7 +930,7 @@ class ChrootCreator:
 
     def init_user_home(self, home: Path, uid: int, gid: int):
         """Initialize the user's /home dir."""
-        shutil.copytree(self.chroot_path / "etc/skel", home)
+        shutil.copytree(Path(self.chroot.full_path("/etc/skel")), home)
 
         # TODO(build): Delete this leftover from SVN someday.
         (home / "trunk").symlink_to(constants.CHROOT_SOURCE_ROOT)
@@ -961,7 +957,7 @@ class ChrootCreator:
             Path("/mnt/host/depot_tools"),
             Path("/run"),
         ):
-            (self.chroot_path / path.relative_to("/")).mkdir(
+            (Path(self.chroot.path) / path.relative_to("/")).mkdir(
                 mode=0o755, parents=True, exist_ok=True
             )
 
@@ -970,7 +966,7 @@ class ChrootCreator:
         if user is None:
             user = os.getenv("SUDO_USER")
 
-        etc_dir = self.chroot_path / "etc"
+        etc_dir = Path(self.chroot.full_path("/etc"))
 
         # Setup some symlinks.
         mtab = etc_dir / "mtab"
@@ -1030,8 +1026,8 @@ PORTAGE_USERNAME="{user}"
         """Show a summary of the chroot to the user."""
         default_chroot = constants.SOURCE_ROOT / constants.DEFAULT_CHROOT_DIR
         chroot_opt = ""
-        if default_chroot != self.chroot_path:
-            chroot_opt = f" --chroot={self.chroot_path}"
+        if default_chroot != Path(self.chroot.path):
+            chroot_opt = f" --chroot={self.chroot.path}"
         logging.info(
             """
 All set up.  To enter the chroot, run:
@@ -1066,8 +1062,10 @@ $ cros_sdk --delete%s
         metrics_prefix = "cros_sdk_lib.ChrootCreator.run"
         with metrics_lib.timer(f"{metrics_prefix}.ExtractSdkTarball"):
             # Unpack the chroot.
-            self.chroot_path.mkdir(mode=0o755, parents=True, exist_ok=True)
-            cros_build_lib.ExtractTarball(self.sdk_tarball, self.chroot_path)
+            Path(self.chroot.path).mkdir(
+                mode=0o755, parents=True, exist_ok=True
+            )
+            cros_build_lib.ExtractTarball(self.sdk_tarball, self.chroot.path)
 
         with metrics_lib.timer(f"{metrics_prefix}.init"):
             self.init_timezone()
@@ -1076,7 +1074,7 @@ $ cros_sdk --delete%s
             self.init_filesystem_basic()
             self.init_etc(user=user)
 
-        MountChrootPaths(self.chroot_path, self.out_dir)
+        MountChrootPaths(self.chroot)
 
         self._make_chroot()
 
@@ -1144,7 +1142,9 @@ class ChrootEnteror:
 
     def _check_chroot(self) -> None:
         """Verify the chroot is usable."""
-        st = os.statvfs(Path(self.chroot.path) / "usr" / "bin" / "sudo")
+        st = os.statvfs(
+            Path(self.chroot.full_path(Path("/") / "usr" / "bin" / "sudo"))
+        )
         if st.f_flag & os.ST_NOSUID:
             cros_build_lib.Die("chroot cannot be in a nosuid mount")
 
