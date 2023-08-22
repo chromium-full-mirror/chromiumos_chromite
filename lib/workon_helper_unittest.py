@@ -19,6 +19,7 @@ from chromite.lib import sysroot_lib
 from chromite.lib import unittest_lib
 from chromite.lib import workon_helper
 from chromite.lib.parser import package_info
+from chromite.utils import os_util
 
 
 BOARD = "this_is_a_board_name"
@@ -169,7 +170,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         )
         # We do a lot of work as root. Pretend to be root so that we never have
         # to call sudo.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def CreateHelper(self, host=False):
         """Creates and returns a WorkonHelper object.

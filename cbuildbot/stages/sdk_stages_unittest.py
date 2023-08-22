@@ -22,6 +22,7 @@ from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib.buildstore import FakeBuildStore
 from chromite.lib.parser import package_info
+from chromite.utils import os_util
 
 
 class SDKBuildToolchainsStageTest(
@@ -89,7 +90,7 @@ class SDKPackageStageTest(
 
         self.buildstore = FakeBuildStore()
         # Replace sudo_run, since we don't care about sudo.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
         # Don't run CleanupMakeConfBoardSetup as it needs sudo_run.
         self.PatchObject(
             sdk_stages.SDKPackageStage, "CleanupMakeConfBoardSetup"

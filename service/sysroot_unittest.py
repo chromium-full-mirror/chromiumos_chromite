@@ -31,6 +31,7 @@ from chromite.lib import remoteexec_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import sysroot
+from chromite.utils import os_util
 
 
 class SetupBoardRunConfigTest(cros_test_lib.TestCase):
@@ -111,7 +112,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def setUp(self):
         # Avoid sudo password prompt for config writing.
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
 
         # It has to be run inside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)

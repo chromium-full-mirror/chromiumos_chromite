@@ -10,7 +10,7 @@ from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import osutils
+from chromite.utils import os_util
 
 
 pytestmark = cros_test_lib.pytestmark_inside_only
@@ -90,7 +90,7 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
     def testRunUnittests(self):
         """Tests running unit tests invoking emerge with provided flags"""
 
-        self.PatchObject(osutils, "IsRootUser", return_value=True)
+        self.PatchObject(os_util, "is_root_user", return_value=True)
         chroot_util.RunUnittests(
             sysroot="/sysroot/",
             packages=["package1", "package2"],
