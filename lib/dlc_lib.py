@@ -1331,10 +1331,13 @@ def InstallDlcImages(
         sysroot, DLC_BUILD_DIR_ARTIFACTS_META
     )
 
+    build_dir_exists = os.path.exists(build_dir)
+    build_dir_scaled_exists = os.path.exists(build_dir_scaled)
+    build_dir_artifacts_meta_exists = os.path.exists(build_dir_artifacts_meta)
     if (
-        not os.path.exists(build_dir)
-        and not os.path.exists(build_dir_scaled)
-        and not os.path.exists(build_dir_artifacts_meta)
+        not build_dir_exists
+        and not build_dir_scaled_exists
+        and not build_dir_artifacts_meta_exists
     ):
         logging.debug(
             "DLC build directories (%s) (%s) (%s) do not exist, ignoring.",
@@ -1343,6 +1346,30 @@ def InstallDlcImages(
             build_dir_artifacts_meta,
         )
         return
+
+    # Check to make sure that each DLC ID is unique from various install paths.
+    # In case it is not enforced during DLC ebuild installations.
+    legacy_dlc_ids = os.listdir(build_dir) if build_dir_exists else []
+    scaled_dlc_ids = (
+        os.listdir(build_dir_scaled) if build_dir_scaled_exists else []
+    )
+    artifacts_meta_dlc_ids = (
+        os.listdir(build_dir_artifacts_meta)
+        if build_dir_artifacts_meta_exists
+        else []
+    )
+
+    unique_dlc_set = set()
+    dupe_dlc_set = set(
+        x
+        for x in legacy_dlc_ids + scaled_dlc_ids + artifacts_meta_dlc_ids
+        if x in unique_dlc_set or unique_dlc_set.add(x)
+    )
+
+    if dupe_dlc_set:
+        err_msg = f"There are duplicate DLC IDs: {dupe_dlc_set}"
+        logging.error(err_msg)
+        raise Error(err_msg)
 
     for scaled in (False, True):
         dlc_build_dir = build_dir_scaled if scaled else build_dir

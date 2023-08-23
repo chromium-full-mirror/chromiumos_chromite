@@ -10,6 +10,8 @@ import os
 import string
 from unittest import mock
 
+import pytest
+
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import dlc_allowlist
@@ -1293,3 +1295,40 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             / dlc_lib.DLC_META_DIR
             / f"{dlc_lib.DLC_META_FILE_PREFIX}{_ID}"
         )
+
+
+@pytest.mark.parametrize("bd", (True, False))
+@pytest.mark.parametrize("bd_scaled", (True, False))
+@pytest.mark.parametrize("bd_artifacts_meta", (True, False))
+def test_install_dlc_images_duplicate_ids_sanity_check(
+    tmp_path, bd: bool, bd_scaled: bool, bd_artifacts_meta: bool
+):
+    """Verify InstallDlcImages sanity checks duplicate DLC IDs.
+
+    Args:
+        tmp_path: A pytest injected temporary path.
+        bd: True to add DLC into the DLC builder directory.
+        bd_scaled: True to add DLC into the DLC scaled builder directory.
+        bd_artifacts_meta: True to add DLC into the DLC artifacts meta builder
+            directory.
+    """
+    sysroot = tmp_path / "sysroot"
+    if bd:
+        osutils.SafeMakedirs(sysroot / dlc_lib.DLC_BUILD_DIR / _ID)
+    if bd_scaled:
+        osutils.SafeMakedirs(sysroot / dlc_lib.DLC_BUILD_DIR_SCALED / _ID)
+    if bd_artifacts_meta:
+        osutils.SafeMakedirs(
+            sysroot / dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META / _ID
+        )
+    fnc = lambda: dlc_lib.InstallDlcImages(
+        board=_BOARD,
+        sysroot=sysroot,
+    )
+    if [bd, bd_scaled, bd_artifacts_meta].count(True) > 1:
+        with pytest.raises(
+            dlc_lib.Error, match="There are duplicate DLC IDs: {'" f"{_ID}" "'}"
+        ):
+            fnc()
+    else:
+        fnc()
