@@ -315,7 +315,10 @@ async function updateDiagnostics(
     const realpath = await fs.promises.realpath(document.uri.fsPath);
 
     // Do not lint generated files, because it generates lots of useless warnings.
-    if (realpath.includes('/chroot/build/')) {
+    if (
+      realpath.includes('/chroot/build/') ||
+      realpath.includes('/out/build/')
+    ) {
       return;
     }
 
