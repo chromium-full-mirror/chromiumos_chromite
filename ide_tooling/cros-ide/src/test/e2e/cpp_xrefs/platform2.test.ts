@@ -88,6 +88,7 @@ describe('C++ xrefs in platform2', () => {
   const output = new VoidOutputChannel();
   const compdbService = new CompdbServiceImpl(output, {
     chroot: chrootService.chroot,
+    out: chrootService.out,
     source: chrootService.source,
   });
 

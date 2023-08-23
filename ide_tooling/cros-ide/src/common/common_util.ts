@@ -17,6 +17,9 @@ import type * as vscode from 'vscode'; // import type definitions only
 // Type Chroot represents the path to chroot.
 // We use nominal typing technique here. https://basarat.gitbook.io/typescript/main-1/nominaltyping
 export type Chroot = string & {_brand: 'chroot'};
+// Type CrosOut represents the path to the out directory, which may contain
+// actual directories mounted on chroot.
+export type CrosOut = string & {_brand: 'out'};
 // Type Source represents the path to ChromiumOS source.
 export type Source = string & {_brand: 'source'};
 
@@ -52,6 +55,13 @@ export function findChroot(dir: string): Chroot | undefined {
  */
 export function sourceDir(chroot: Chroot): Source {
   return path.dirname(chroot) as Source;
+}
+
+/**
+ * Returns the ChromiumOS out directory, given the path to source (chromeos root).
+ */
+export function crosOutDir(source: Source): CrosOut {
+  return path.join(source, 'out') as CrosOut;
 }
 
 class Task<T> {

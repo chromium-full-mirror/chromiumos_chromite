@@ -19,8 +19,9 @@ describe('Compdb service', () => {
   const state = testing.cleanState(async () => {
     const chroot = await testing.buildFakeChroot(tempdir.path);
     const source = commonUtil.sourceDir(chroot);
+    const out = commonUtil.crosOutDir(source);
     const output = vscode.window.createOutputChannel('fake');
-    return {chroot, source, output};
+    return {chroot, source, out, output};
   });
 
   it('generates compilation database', async () => {
@@ -74,6 +75,7 @@ describe('Compdb service', () => {
     const compdbService = new CompdbServiceImpl(state.output, {
       chroot: new cros.WrapFs(state.chroot),
       source: new cros.WrapFs(state.source),
+      out: new cros.WrapFs(state.out),
     });
     await compdbService.generate('amd64-generic', {
       sourceDir: 'src/platform2/codelab',
@@ -144,6 +146,7 @@ describe('Compdb service', () => {
     const compdbService = new CompdbServiceImpl(state.output, {
       chroot: new cros.WrapFs(state.chroot),
       source: new cros.WrapFs(state.source),
+      out: new cros.WrapFs(state.out),
     });
     await compdbService.generate('amd64-generic', {
       sourceDir: 'src/platform2/codelab',

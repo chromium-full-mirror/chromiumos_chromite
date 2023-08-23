@@ -248,7 +248,7 @@ export class Runner extends AbstractRunner {
     if (!compilationDatabase) {
       throw new Error(`failed to compile ${ebuildInstance.packageName}`);
     }
-    return path.dirname(compilationDatabase);
+    return path.dirname(compilationDatabase.path);
   }
 
   /**

@@ -11,6 +11,14 @@ import {PackageName} from '../../../../services/chromiumos';
 import {Board, HOST} from './board';
 import {CompdbError, CompdbErrorKind} from './error';
 
+/** Represents the filepath to an artifact. */
+export type Artifact = {
+  /** The base dir to the artifact. */
+  baseDir: string;
+  /** The relative path to the artifact from the base dir. */
+  path: string;
+};
+
 export class Ebuild {
   constructor(
     private readonly board: Board,
@@ -24,7 +32,7 @@ export class Ebuild {
     private readonly cancellation?: vscode.CancellationToken
   ) {}
 
-  static globalMutexMap: Map<string, commonUtil.Mutex<string | undefined>> =
+  static globalMutexMap: Map<string, commonUtil.Mutex<Artifact | undefined>> =
     new Map();
 
   private mutex() {
@@ -33,7 +41,7 @@ export class Ebuild {
     if (existing) {
       return existing;
     }
-    const mutex = new commonUtil.Mutex<string | undefined>();
+    const mutex = new commonUtil.Mutex<Artifact | undefined>();
     Ebuild.globalMutexMap.set(key, mutex);
     return mutex;
   }
@@ -46,7 +54,7 @@ export class Ebuild {
    *
    * @throws CompdbError on failure.
    */
-  async generate(): Promise<string | undefined> {
+  async generate(): Promise<Artifact | undefined> {
     return await this.mutex().runExclusive(async () => {
       await this.removeCache();
       try {
@@ -133,21 +141,32 @@ export class Ebuild {
    */
   private async removeCache() {
     for (const dir of this.buildDirs()) {
-      let cache = '';
-      try {
-        cache = path.join(dir, '.configured');
-        this.output.appendLine(`Removing cache file ${cache}`);
-        await this.crosFs.chroot.rm(cache, {force: true});
+      let firstError: Error | undefined = undefined;
+      let hasRemovedCache = false;
 
-        cache = path.join(dir, '.compiled');
-        this.output.appendLine(`Removing cache file ${cache}`);
-        await this.crosFs.chroot.rm(cache, {force: true});
-      } catch (e) {
-        throw new CompdbError({
-          kind: CompdbErrorKind.RemoveCache,
-          cache: cache,
-          reason: e as Error,
-        });
+      for (const fs of [this.crosFs.chroot, this.crosFs.out]) {
+        let cache = '';
+        try {
+          cache = path.join(dir, '.configured');
+          this.output.appendLine(`Removing cache file ${cache}`);
+          await fs.rm(cache, {force: true});
+
+          cache = path.join(dir, '.compiled');
+          this.output.appendLine(`Removing cache file ${cache}`);
+          await fs.rm(cache, {force: true});
+
+          hasRemovedCache = true;
+        } catch (e) {
+          firstError = new CompdbError({
+            kind: CompdbErrorKind.RemoveCache,
+            cache: cache,
+            reason: e as Error,
+          });
+        }
+      }
+
+      if (!hasRemovedCache) {
+        throw firstError;
       }
     }
   }
@@ -175,19 +194,27 @@ export class Ebuild {
     }
   }
 
-  private async artifactPath(): Promise<string | undefined> {
-    const candidates: Array<[Date, string]> = [];
+  private async artifactPath(): Promise<Artifact | undefined> {
+    const candidates: Array<[Date, Artifact]> = [];
     for (const dir of this.buildDirs()) {
       const file = path.join(
         dir,
         'out/Default/compile_commands_no_chroot.json'
       );
-      try {
-        const stat = await this.crosFs.chroot.stat(file);
-        candidates.push([stat.mtime, file]);
-      } catch (_e) {
-        // Ignore possible file not found error, which happens because we
-        // heuristically search for the compile commands from multiple places.
+      for (const fs of [this.crosFs.chroot, this.crosFs.out]) {
+        try {
+          const stat = await fs.stat(file);
+          candidates.push([
+            stat.mtime,
+            {
+              path: file,
+              baseDir: fs.root,
+            },
+          ]);
+        } catch (_e) {
+          // Ignore possible file not found error, which happens because we
+          // heuristically search for the compile commands from multiple places.
+        }
       }
     }
     if (candidates.length === 0) {

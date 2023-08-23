@@ -14,6 +14,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 from typing import Callable, List
 
@@ -23,13 +24,32 @@ import detect_indent
 MNT_HOST_SOURCE_RE = r"(?:\.\.(?:/\.\.)*)?/mnt/host/source/(.*)"
 
 
+def is_mount(directory: str) -> bool:
+    try:
+        subprocess.check_output(["mountpoint", directory])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
 class Converter:
     """Converts compilation database to work outside chroot"""
 
     def __init__(self, external_trunk_path: str, which: Callable[[str], str]):
         self.external_trunk_path = external_trunk_path
         self.external_chroot_path = os.path.join(external_trunk_path, "chroot")
+        self.external_out_path = os.path.join(external_trunk_path, "out")
+
+        self.build_is_mount = is_mount("/build")
+
         self.which = which
+
+    def external_filepath(self, filepath: str) -> str:
+        if filepath.startswith("/"):
+            if filepath.startswith("/build/") and self.build_is_mount:
+                return os.path.join(self.external_out_path, filepath[1:])
+            return os.path.join(self.external_chroot_path, filepath[1:])
+        return filepath
 
     def convert_filepath(self, filepath: str) -> str:
         # If out-of-tree build is enabled, source files under /mnt/host/source
@@ -53,10 +73,7 @@ class Converter:
                 return os.path.join(platform2, m[1][1:])
             return platform2
 
-        if filepath.startswith("/"):
-            return os.path.join(self.external_chroot_path, filepath[1:])
-
-        return filepath
+        return self.external_filepath(filepath)
 
     def convert_include_option(self, option: str) -> List[str]:
         """Converts include option to work outside chroot.
@@ -85,11 +102,8 @@ class Converter:
         if re.fullmatch(MNT_HOST_SOURCE_RE, filepath):
             return [converted_include]
 
-        chroot_include = "-I" + (
-            os.path.join(self.external_chroot_path, filepath[1:])
-            if filepath.startswith("/")
-            else filepath
-        )
+        chroot_include = "-I" + self.external_filepath(filepath)
+
         # chroot_include always points to the file inside chroot and might be
         # different from converted_include.
         if converted_include == chroot_include:

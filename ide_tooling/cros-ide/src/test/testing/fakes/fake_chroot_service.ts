@@ -18,10 +18,15 @@ export class FakeChrootService {
     return new WrapFs('chroot/src' as commonUtil.Source);
   }
 
+  get out(): WrapFs<commonUtil.CrosOut> {
+    return new WrapFs('out' as commonUtil.CrosOut);
+  }
+
   get crosFs(): CrosFs {
     return {
       chroot: this.chroot,
       source: this.source,
+      out: this.out,
     };
   }
 

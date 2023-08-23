@@ -76,8 +76,9 @@ export class CompdbServiceImpl implements CompdbService {
       }
     }
     try {
-      this.output.appendLine(`Copying ${artifact} to ${tempFile}`);
-      await this.crosFs.chroot.copyFile(artifact, tempFile);
+      const artifactPath = path.join(artifact.baseDir, artifact.path);
+      this.output.appendLine(`Copying ${artifactPath} to ${tempFile}`);
+      await fs.promises.copyFile(artifactPath, tempFile);
       this.output.appendLine(`Renaming ${tempFile} to ${dest}`);
       await fs.promises.rename(tempFile, dest);
     } catch (e) {

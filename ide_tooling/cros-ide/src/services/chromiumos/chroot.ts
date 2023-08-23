@@ -72,6 +72,15 @@ export class ChrootService implements vscode.Disposable {
   }
 
   /**
+   * Returns an accessor to files under out.
+   */
+  get out(): WrapFs<commonUtil.CrosOut> {
+    return new WrapFs(
+      path.join(this.chromiumosRoot, 'out') as commonUtil.CrosOut
+    );
+  }
+
+  /**
    * Returns an accessor to files under source.
    */
   get source(): WrapFs<commonUtil.Source> {
@@ -81,6 +90,7 @@ export class ChrootService implements vscode.Disposable {
   get crosFs(): CrosFs {
     return {
       chroot: this.chroot,
+      out: this.out,
       source: this.source,
     };
   }
@@ -125,6 +135,7 @@ async function showChrootNotFoundError(root: string) {
 export type CrosFs = {
   readonly chroot: WrapFs<commonUtil.Chroot>;
   readonly source: WrapFs<commonUtil.Source>;
+  readonly out: WrapFs<string>;
 };
 
 export interface ChrootExecOptions extends sudo.SudoExecOptions {
