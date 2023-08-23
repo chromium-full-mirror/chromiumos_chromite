@@ -27,7 +27,7 @@ from chromite.service import sysroot
 
 _ACCEPTED_LICENSES = "@CHROMEOS"
 
-DEFAULT_BACKTRACK = 30
+DEFAULT_BACKTRACK = 50
 
 
 def _GetGomaLogDirectory():
