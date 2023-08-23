@@ -194,8 +194,8 @@ export class Coverage {
     // TODO(ttylenda): find a cleaner way of normalizing the package name.
     const pkgPart = pkg.name.indexOf('/') === -1 ? `*/${pkg.name}` : pkg.name;
 
-    const globPattern = this.chrootService.chroot.realpath(
-      `/build/${this.getBoard()}/build/coverage_data/${pkgPart}*/*/${fileName}`
+    const globPattern = this.chrootService.source.realpath(
+      `{chroot,out}/build/${this.getBoard()}/build/coverage_data/${pkgPart}*/*/${fileName}`
     );
 
     let matches: string[];
