@@ -2,8 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as vscode from 'vscode';
+import * as commonUtil from '../../../../common/common_util';
+import {MemoryOutputChannel} from '../../../../common/memory_output_channel';
+import {TeeOutputChannel} from '../../../../common/tee_output_channel';
+import {NoBoardError, getOrSelectTargetBoard} from '../../../../ide_util';
 import * as services from '../../../../services';
 import {Metrics} from '../../../metrics/metrics';
+import {
+  createShowLogsButton,
+  diagnoseSshError,
+  showErrorMessageWithButtons,
+} from '../../diagnostic';
+import * as sshUtil from '../../ssh_util';
 import {CommandContext} from '../common';
 import {
   askTestNames,
@@ -49,6 +60,11 @@ export async function debugTastTests(
   // 2. If not, build delve inside chroot and deploy it. We can use
   //    `getOrSelectTargetBoard` in `src/ide_util.ts` for getting the `BOARD`
   //    value on the initial implementation.
+  context.output.appendLine('Start Debug Tast Tests');
+  const dutHasDelve = await ensureDutHasDelve(context, chrootService, hostname);
+  if (!dutHasDelve) {
+    return null;
+  }
 
   // TODO(uchiaki): Ensure the host has delve installed.
   // http://go/debug-tast-tests#step-2_install-the-debugger-on-your-host-machine-outside-the-chroot
@@ -89,4 +105,107 @@ async function debugSelectedTests(
 ): Promise<void | Error> {
   // TODO(uchiaki): Debug the selected tests. TODO(oka): Elaborate more about
   // it.
+}
+
+/**
+ * Checks if the DUT has the delve binary, and otherwise builds and deploys delve to the DUT.
+ * Returns false if it fails to ensure that the delve is in DUT.
+ *
+ * @param context The current command context.
+ * @param chrootService The chroot to run commands in.
+ * @param hostname DUT's IP
+ */
+async function ensureDutHasDelve(
+  context: CommandContext,
+  chrootService: services.chromiumos.ChrootService,
+  hostname: string
+): Promise<boolean> {
+  const args = sshUtil.buildSshCommand(
+    hostname,
+    context.sshIdentity,
+    [],
+    'which dlv'
+  );
+
+  const memoryOutput = new MemoryOutputChannel();
+  const result = await commonUtil.exec(args[0], args.slice(1), {
+    logger: new TeeOutputChannel(memoryOutput, context.output),
+  });
+  // DUT has the delve binary.
+  if (!(result instanceof Error)) {
+    // TODO(uchiaki): Redeploy delve if the version of delve in DUT and local ebuild mismatch.
+    context.output.appendLine(result.stdout);
+    context.output.appendLine('DUT can run dlv');
+    return true;
+  }
+
+  // SSH connection to DUT failed
+  if (result instanceof commonUtil.AbnormalExitError) {
+    if (result.exitStatus === 255) {
+      const err = diagnoseSshError(result, memoryOutput.output);
+      context.output.appendLine(err.message);
+      const message = 'SSH connection failed: ' + err.message;
+      showErrorMessageWithButtons(message, [
+        ...err.buttons,
+        createShowLogsButton(context.output),
+      ]);
+      return false;
+    }
+  }
+
+  // DUT does not have the delve binary.
+  context.output.appendLine(result.message);
+  context.output.appendLine('Try to get the device board name');
+  // TODO: Get the board name from the DUT.
+  const board = await getOrSelectTargetBoard(chrootService.chroot);
+  if (board instanceof NoBoardError) {
+    context.output.appendLine(board.message);
+    void vscode.window.showErrorMessage(board.message);
+    return false;
+  }
+  if (board === null) {
+    context.output.appendLine('board is null');
+    void vscode.window.showErrorMessage(
+      "debugging didn't start: board was not selected"
+    );
+    return false;
+  }
+
+  context.output.appendLine(`The device board name: ${board}`);
+
+  // Build delve inside chroot and deploy it to DUT.
+  return await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      cancellable: true,
+      title: 'build and deploy debugger (delve) to the device',
+    },
+    async (_progress, token): Promise<boolean> => {
+      // Install delve to "/usr/local/bin/dlv".
+      const res = await chrootService.exec(
+        'sh',
+        [
+          '-c',
+          `emerge-${board} dev-go/delve && cros deploy ${hostname} dev-go/delve --root /usr/local`,
+        ],
+        {
+          sudoReason: 'to build and deploy debugger (delve) to the device',
+          logger: context.output,
+          cancellationToken: token,
+        }
+      );
+      if (token.isCancellationRequested) {
+        return false;
+      }
+      if (res instanceof Error) {
+        context.output.append(res.message);
+        void vscode.window.showErrorMessage(
+          "debugging didn't start: failed to install the debugger (delve) to the device"
+        );
+        // TODO: Add a button to open the log. We can use `showErrorMessageWithButtons`.
+        return false;
+      }
+      return true;
+    }
+  );
 }
