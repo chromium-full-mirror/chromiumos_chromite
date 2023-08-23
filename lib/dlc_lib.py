@@ -1611,7 +1611,7 @@ def InstallDlcImages(
                 continue
 
             dlc_all.extend(
-                [(id, dlc_build_dir) for id in os.listdir(dlc_build_dir)]
+                (x, dlc_build_dir) for x in os.listdir(dlc_build_dir)
             )
 
         with DlcMetadata(
