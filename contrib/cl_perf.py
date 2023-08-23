@@ -472,6 +472,105 @@ class SwarmingOutputProcessor:
         if not csv:
             print("—" * len(first_line))
 
+    def PrintAverageBuildsStepsTable(
+        self, csv: bool = False, min_seconds: int = 10
+    ) -> None:
+        """Final processing of performance and print median result table."""
+        if csv:
+            separator = ","
+        else:
+            separator = "|"
+
+        first_line_format_str = (
+            "{:^30.30s}" + separator + separator.join(["{:^17.17s}"] * 5)
+        )
+        first_line = first_line_format_str.format(
+            "Step",
+            "Average Baseline",
+            "Stdev Baseline",
+            "Average Tested",
+            "Stdev Tested",
+            "Difference",
+        )
+        logging.notice("Printing average results (in seconds)")
+        print(first_line)
+        if not csv:
+            print("—" * len(first_line))
+
+        result_line_format_str = (
+            "{:^30.30s}"
+            + separator
+            + separator.join(["{:^17.2f}"] * 4)
+            + separator
+            + "{:^17.17s}"
+        )
+        for step in self.shared_steps:
+            baseline_average_time = statistics.mean(
+                t.steps[step] for t in self.baseline
+            )
+            tested_average_time = statistics.mean(
+                t.steps[step] for t in self.tested
+            )
+            baseline_stdev_time = statistics.pstdev(
+                t.steps[step] for t in self.baseline
+            )
+            tested_stdev_time = statistics.pstdev(
+                t.steps[step] for t in self.tested
+            )
+            if (
+                baseline_average_time < min_seconds
+                and tested_average_time < min_seconds
+            ):
+                continue
+            print(
+                result_line_format_str.format(
+                    step,
+                    baseline_average_time,
+                    baseline_stdev_time,
+                    tested_average_time,
+                    tested_stdev_time,
+                    str(
+                        round(
+                            tested_average_time * 100 / baseline_average_time, 2
+                        )
+                    )
+                    + "%",
+                )
+            )
+        # Print average time results.
+        total_baseline_average_time = statistics.mean(
+            t.total_runtime for t in self.baseline
+        )
+        total_tested_average_time = statistics.mean(
+            t.total_runtime for t in self.tested
+        )
+        total_baseline_stdev_time = statistics.pstdev(
+            t.total_runtime for t in self.baseline
+        )
+        total_tested_stdev_time = statistics.pstdev(
+            t.total_runtime for t in self.tested
+        )
+        print(
+            result_line_format_str.format(
+                "TOTAL",
+                total_baseline_average_time,
+                total_baseline_stdev_time,
+                total_tested_average_time,
+                total_tested_stdev_time,
+                str(
+                    round(
+                        total_tested_average_time
+                        * 100
+                        / total_baseline_average_time,
+                        2,
+                    )
+                )
+                + "%",
+            )
+        )
+        if not csv:
+            print("—" * len(first_line))
+
     def PrintMedianBuildsStepsTable(
         self, csv: bool = False, min_seconds: int = 10
     ) -> None:
@@ -975,6 +1074,9 @@ def process_subcommand(options: commandline.ArgumentNamespace) -> None:
         )
         if t.repeats > 2:
             swarming_results.PrintMedianBuildsStepsTable(
+                options.csv, options.min_seconds
+            )
+            swarming_results.PrintAverageBuildsStepsTable(
                 options.csv, options.min_seconds
             )
         if not options.csv:
