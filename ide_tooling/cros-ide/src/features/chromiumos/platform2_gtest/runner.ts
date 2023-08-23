@@ -24,6 +24,11 @@ const PLATFORM2_TEST_PY =
 
 const DEBUG_EXTENSION_ID = 'webfreak.debug';
 
+type BuildDirectory = {
+  baseDir: string;
+  buildDir: string;
+};
+
 /**
  * Runs gtest cases according to the given request. If debugging is requested,
  * it runs the test under gdbserver, and attaches debugger to it.
@@ -74,7 +79,7 @@ export class Runner extends AbstractRunner {
       const ebuildInstance = this.createEbuild(packageName);
 
       // Compile the package for unit test executables.
-      let buildDir: string;
+      let buildDir: BuildDirectory;
       try {
         buildDir = await this.compileOrThrow(ebuildInstance);
       } catch (e) {
@@ -239,16 +244,22 @@ export class Runner extends AbstractRunner {
   }
 
   /**
-   * Compiles the tests for the package, and returns the build directory
-   * (absolute path from chroot), under which gtest executables are located.
+   * Compiles the tests for the package, and returns the build directory (base
+   * directory such as the path to chroot and the path to the directory from the
+   * base directory), under which gtest executables are located.
    */
-  private async compileOrThrow(ebuildInstance: ebuild.Ebuild): Promise<string> {
+  private async compileOrThrow(
+    ebuildInstance: ebuild.Ebuild
+  ): Promise<BuildDirectory> {
     // generate() throws on failure.
     const compilationDatabase = await ebuildInstance.generate();
     if (!compilationDatabase) {
       throw new Error(`failed to compile ${ebuildInstance.packageName}`);
     }
-    return path.dirname(compilationDatabase.path);
+    return {
+      baseDir: compilationDatabase.baseDir,
+      buildDir: path.dirname(compilationDatabase.path),
+    };
   }
 
   /**
@@ -262,7 +273,10 @@ export class Runner extends AbstractRunner {
    * Therefore ideally we should parse the platform_pkg_tests function as a
    * shell script and collect all the executable names passed to platform_test.
    */
-  private async collectGtests(buildDir: string): Promise<GTestInfo[]> {
+  private async collectGtests({
+    baseDir,
+    buildDir,
+  }: BuildDirectory): Promise<GTestInfo[]> {
     // We consider an executable a gtest if it contains one of the following markers.
     const gtestMarker = new Set(['usr/include/gtest/gtest.h', 'libgtest.so']);
 
@@ -271,13 +285,17 @@ export class Runner extends AbstractRunner {
     // Parallelize time consuming operations.
     const listTestsOperations: Promise<void>[] = [];
 
-    for (const fileName of await this.chrootService.chroot.readdir(buildDir)) {
+    const absoluteBuildDir = path.join(baseDir, buildDir);
+
+    for (const fileName of await fs.promises.readdir(absoluteBuildDir)) {
       if (this.cancellation.isCancellationRequested) {
         return [];
       }
       const fileInChroot = path.join(buildDir, fileName);
+      const fileOutsideChroot = path.join(absoluteBuildDir, fileName);
+
       try {
-        const stat = await this.chrootService.chroot.stat(fileInChroot);
+        const stat = await fs.promises.stat(fileOutsideChroot);
         const isExecutableFile =
           (stat.mode & fs.constants.S_IXUSR) > 0 && stat.isFile();
         if (!isExecutableFile) {
@@ -460,8 +478,15 @@ export class Runner extends AbstractRunner {
       }
     );
 
+    // Sysroot may exist in the `out` directory outside chroot: b/296984596.
+    const rootOutsideChroot = fs.existsSync(
+      path.join(this.chrootService.chroot.root, sysroot)
+    )
+      ? this.chrootService.chroot.root
+      : this.chrootService.out.root;
+
     const pathSubstitutions: {[pathInChroot: string]: string} = {
-      '/': this.chrootService.chroot.root,
+      '/': rootOutsideChroot,
     };
     for (const platform2InChroot of gtestInfo.platform2Dirs) {
       pathSubstitutions[platform2InChroot] = this.platform2;
