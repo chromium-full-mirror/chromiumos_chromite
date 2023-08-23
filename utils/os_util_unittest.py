@@ -32,11 +32,8 @@ def test_root_user_checks_as_root_user(as_root_user):
     os_util.assert_root_user()
 
     assert not os_util.is_non_root_user()
-    try:
+    with pytest.raises(AssertionError):
         os_util.assert_non_root_user()
-        pytest.fail("Incorrectly asserted non-root users.")
-    except AssertionError:
-        pass
 
 
 def test_root_user_checks_as_non_root_user(as_non_root_user):
@@ -45,11 +42,8 @@ def test_root_user_checks_as_non_root_user(as_non_root_user):
     os_util.assert_non_root_user()
 
     assert not os_util.is_root_user()
-    try:
+    with pytest.raises(AssertionError):
         os_util.assert_root_user()
-        pytest.fail("Incorrectly asserted root user.")
-    except AssertionError:
-        pass
 
 
 def test_root_user_decorator_as_root(as_root_user):
