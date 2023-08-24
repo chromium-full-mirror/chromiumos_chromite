@@ -103,8 +103,7 @@ async function debugSelectedTests(
   _target: string,
   _testNames: string[]
 ): Promise<void | Error> {
-  // TODO(uchiaki): Debug the selected tests. TODO(oka): Elaborate more about
-  // it.
+  // TODO(uchiaki): Debug the selected tests.
 }
 
 /**
