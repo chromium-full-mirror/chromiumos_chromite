@@ -15,6 +15,7 @@ import sys
 from chromite.third_party.opentelemetry.sdk import resources
 
 from chromite.lib import git
+from chromite.lib import workon_helper
 from chromite.utils.telemetry import detector
 
 
@@ -263,6 +264,7 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch):
     monkeypatch.setattr(
         os.path, "getmtime", lambda _: manifest_mtime.timestamp()
     )
+    monkeypatch.setattr(workon_helper, "ListAllWorkedOnAtoms", lambda: {})
 
     sdk_detector = detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
@@ -278,8 +280,31 @@ def test_sdk_state_to_capture_empty(monkeypatch):
     """Test that Sdk detector handles None for repo dir."""
 
     monkeypatch.setattr(git, "FindRepoDir", lambda _: None)
+    monkeypatch.setattr(workon_helper, "ListAllWorkedOnAtoms", lambda: {})
 
     sdk_detector = detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
 
     assert not resource
+
+
+def test_sdk_state_to_all_workon_atoms(monkeypatch):
+    """Test that sdk state detector captures all workon packages."""
+
+    workon_atoms = {
+        "kevin": [
+            "chromeos-base/dcad",
+        ],
+        "betty": ["chromeos-base/libbrillo", "chromeos-base/chaps"],
+    }
+    monkeypatch.setattr(git, "FindRepoDir", lambda _: None)
+    monkeypatch.setattr(
+        workon_helper, "ListAllWorkedOnAtoms", lambda: workon_atoms
+    )
+
+    sdk_detector = detector.SDKSourceDetector()
+    resource = sdk_detector.detect().attributes
+
+    assert len(resource) == 2
+    assert list(resource["workon_kevin"]) == workon_atoms["kevin"]
+    assert list(resource["workon_betty"]) == workon_atoms["betty"]

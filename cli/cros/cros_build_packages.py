@@ -29,7 +29,6 @@ from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
-from chromite.lib import workon_helper
 from chromite.service import sysroot
 from chromite.utils import telemetry
 from chromite.utils import timer
@@ -533,9 +532,6 @@ def build_packages(opts: commandline.ArgumentNamespace):
             "packages": opts.packages or [],
             "workon": opts.workon is True,
             "bazel": opts.bazel is True,
-            "workon_packages": workon_helper.WorkonHelper(
-                build_target.root
-            ).ListAtoms(),
         }
     )
 

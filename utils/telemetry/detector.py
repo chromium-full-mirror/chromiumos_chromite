@@ -16,6 +16,7 @@ from typing import Sequence
 from chromite.third_party.opentelemetry.sdk import resources
 
 from chromite.lib import git
+from chromite.lib import workon_helper
 
 
 CPU_ARCHITECTURE = "cpu.architecture"
@@ -190,5 +191,10 @@ class SDKSourceDetector(resources.ResourceDetector):
             resource["manifest_sync_date"] = datetime.datetime.fromtimestamp(
                 os.path.getmtime(manifest_repo), tz=datetime.timezone.utc
             ).isoformat()
+
+        workon_atoms = workon_helper.ListAllWorkedOnAtoms()
+        if workon_atoms:
+            for board, atoms in workon_atoms.items():
+                resource[f"workon_{board}"] = atoms
 
         return resources.Resource(resource)
