@@ -239,6 +239,13 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
             any_order=True,
         )
 
+    def testTmpPermissions(self):
+        cros_sdk_lib.MountChrootPaths(self.chroot)
+
+        self.assertEqual(
+            0o1777, stat.S_IMODE(os.stat(self.chroot.out_path / "tmp").st_mode)
+        )
+
 
 class TestGetChrootVersion(cros_test_lib.MockTestCase):
     """Tests GetChrootVersion functionality."""

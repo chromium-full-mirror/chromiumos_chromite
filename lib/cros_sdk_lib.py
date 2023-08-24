@@ -312,27 +312,24 @@ def MountChrootPaths(chroot: chroot_lib.Chroot):
         None,
         osutils.MS_BIND | osutils.MS_REC,
     )
-    osutils.Mount(
-        out_dir / "tmp",
-        path / "tmp",
-        None,
-        osutils.MS_BIND | osutils.MS_REC,
-    )
-    osutils.SafeMakedirsNonRoot(out_dir / "home")
-    osutils.Mount(
-        out_dir / "home",
-        path / "home",
-        None,
-        osutils.MS_BIND | osutils.MS_REC,
-    )
-    osutils.SafeMakedirsNonRoot(out_dir / "build")
-    osutils.SafeMakedirs(path / "build")
-    osutils.Mount(
-        out_dir / "build",
-        path / "build",
-        None,
-        osutils.MS_BIND | osutils.MS_REC,
-    )
+
+    for source_dir, dest_dir, mode in (
+        ("tmp", "tmp", 0o1777),
+        ("home", "home", None),
+        ("build", "build", None),
+    ):
+        kwargs = {}
+        if mode is not None:
+            kwargs["mode"] = mode
+
+        osutils.SafeMakedirsNonRoot(out_dir / source_dir, **kwargs)
+        osutils.SafeMakedirs(path / dest_dir)
+        osutils.Mount(
+            out_dir / source_dir,
+            path / dest_dir,
+            None,
+            osutils.MS_BIND | osutils.MS_REC,
+        )
 
     defflags = (
         osutils.MS_NOSUID
