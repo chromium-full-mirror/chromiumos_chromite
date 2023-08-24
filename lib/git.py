@@ -5,6 +5,7 @@
 """Common functions for interacting with git and repo."""
 
 import collections
+import dataclasses
 import datetime
 import errno
 import fnmatch
@@ -1885,3 +1886,91 @@ def GetUrlFromRemoteOutput(remote_output: str) -> str:
     if match:
         return match["url"]
     return None
+
+
+@dataclasses.dataclass(frozen=True)
+class CommitEntry:
+    """Individual entry in git log."""
+
+    sha: str
+    author: Optional[str] = None
+    author_date: Optional[datetime.datetime] = None
+    commit: Optional[str] = None
+    commit_date: Optional[datetime.datetime] = None
+    change_id: Optional[str] = None
+
+    @classmethod
+    def ParseFuller(cls, out: str) -> Iterable["CommitEntry"]:
+        """Parse commits from git log --format=fuller --date=iso8601-strict.
+
+        The parser can parse commit entries from a git log. The method
+        expects that the log is generated with --format=fuller and --date=
+        iso8601-strict.
+
+        Args:
+            out: stdout from git log command.
+
+        Yields:
+            An instance of CommitEntry for each commit that is parsed.
+        """
+
+        def _build_entry(data, tags):
+            return CommitEntry(
+                sha=data["sha"],
+                author=data.get("Author", None),
+                author_date=datetime.datetime.fromisoformat(data["AuthorDate"])
+                if "AuthorDate" in data
+                else None,
+                commit=data.get("Commit", None),
+                commit_date=datetime.datetime.fromisoformat(data["CommitDate"])
+                if "CommitDate" in data
+                else None,
+                change_id=tags.get("Change-Id", None),
+            )
+
+        # data holds the git commit metadata while tags is used to capture
+        # the metadata added to commit message.
+        data, tags = {}, {}
+        for line in out.strip().splitlines():
+            if line.startswith("commit"):
+                # A commit entry begins with "commit". If we find the line
+                # starting with it, that indicates the start.
+                if "sha" in data:
+                    # If sha is already parsed, that means this is the start
+                    # of a new commit and we should yield the already parsed
+                    # commit.
+                    yield _build_entry(data, tags)
+
+                # Reset the data with the sha from new commit and tags to empty
+                # to begin parsing the new commit.
+                data = {"sha": line.split()[1]}
+                tags = {}
+            else:
+                match = re.match(r"^\s*(\S+):\s+(.+)$", line)
+                # Parse line expecting <key>: value format.
+                if not match:
+                    continue
+
+                if re.match(r"^\s+", line):
+                    # In fuller format, commit message begins with space. We
+                    # parse the key value pairs in message into tags to avoid
+                    # overriding the commit data.
+                    tags[match.group(1)] = match.group(2)
+                else:
+                    data[match.group(1)] = match.group(2)
+
+        if "sha" in data:
+            yield _build_entry(data, tags)
+
+
+def GetLastCommit(git_repo: os.PathLike) -> Optional[CommitEntry]:
+    """Returns the last commit on git_repo.
+
+    Args:
+        git_repo: Directory of git repository.
+
+    Returns:
+        The last commit in the repo from git log.
+    """
+    stdout = Log(git_repo, format="fuller", max_count=1, date="iso8601-strict")
+    return next(CommitEntry.ParseFuller(stdout), None)

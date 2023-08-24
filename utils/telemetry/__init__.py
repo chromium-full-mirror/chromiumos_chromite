@@ -63,6 +63,7 @@ def initialize(
             otel_resources.ProcessResourceDetector(),
             otel_resources.OTELResourceDetector(),
             detector.ProcessDetector(),
+            detector.SDKSourceDetector(),
             detector.SystemDetector(),
         ]
     )

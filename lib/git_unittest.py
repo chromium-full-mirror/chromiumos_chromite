@@ -4,6 +4,7 @@
 
 """Unit tests for chromite.lib.git and helpers for testing that module."""
 
+import datetime
 import errno
 import os
 from pathlib import Path
@@ -1188,3 +1189,136 @@ class ManifestHashTest(cros_test_lib.TestCase):
             "absence_file", ignore_missing=True
         )
         self.assertIsNone(hash_str)
+
+
+class CommitLogTest(cros_test_lib.RunCommandTestCase):
+    """Test for Commit log functionality."""
+
+    def testGetLastCommit(self):
+        sha = "1323ab4efce4f30f7e3e22f9da27a1a57fa82988"
+        commit_date = datetime.datetime.now()
+        change_id = "Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce"
+        log_output = f"""commit {sha} (HEAD -> default, origin/main, m/main)
+Author:     Clark Kent <clark.kent@dc.com>
+AuthorDate: {commit_date.isoformat()}
+Commit:     DC LUCI <dc-scoped@dc.com>
+CommitDate: {commit_date.isoformat()}
+
+    some commit message
+
+    BUG=b:12344322
+    TEST=None
+
+    Change-Id: {change_id}
+    Reviewed-by: Bruce Wayne <bruce.wayne@dc.com>
+"""
+        result = cros_build_lib.CompletedProcess(stdout=log_output)
+        self.PatchObject(git, "RunGit", return_value=result)
+
+        commit = git.GetLastCommit("git/repo/path")
+        self.assertEqual(sha, commit.sha)
+        self.assertEqual(commit_date, commit.commit_date)
+        self.assertEqual(change_id, commit.change_id)
+
+
+class CommitEntryTest(cros_test_lib.TestCase):
+    """Test CommitEntry class."""
+
+    def testParseFullerToParseGitLog(self):
+        # pylint: disable=line-too-long
+        log_output = """commit 1323ab4efce4f30f7e3e22f9da27a1a57fa82988 (HEAD -> default, origin/main, m/main)
+Author:     Clark Kent <clark.kent@dc.com>
+AuthorDate: 2023-08-23T17:41:32+00:00
+Commit:     DC LUCI <dc-scoped@dc.com>
+CommitDate: 2023-08-24T17:41:32+00:00
+
+    some commit message
+
+    BUG=b:12344322
+    TEST=None
+
+    Change-Id: Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce
+    Reviewed-by: Bruce Wayne <bruce.wayne@dc.com>
+
+"""
+        commits = list(git.CommitEntry.ParseFuller(log_output))
+
+        self.assertEqual(
+            commits,
+            [
+                git.CommitEntry(
+                    sha="1323ab4efce4f30f7e3e22f9da27a1a57fa82988",
+                    author="Clark Kent <clark.kent@dc.com>",
+                    author_date=datetime.datetime.fromisoformat(
+                        "2023-08-23T17:41:32+00:00",
+                    ),
+                    commit="DC LUCI <dc-scoped@dc.com>",
+                    commit_date=datetime.datetime.fromisoformat(
+                        "2023-08-24T17:41:32+00:00",
+                    ),
+                    change_id="Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce",
+                ),
+            ],
+        )
+
+    def testParseFullerToParseMultipleCommits(self):
+        # pylint: disable=line-too-long
+        log_output = """commit 1323ab4efce4f30f7e3e22f9da27a1a57fa82988 (HEAD -> default, origin/main, m/main)
+Author:     Clark Kent <clark.kent@dc.com>
+AuthorDate: 2023-08-23T17:41:32+00:00
+Commit:     DC LUCI <dc-scoped@dc.com>
+CommitDate: 2023-08-24T17:41:32+00:00
+
+    some commit message
+
+    BUG=b:12344322
+    TEST=None
+
+    Change-Id: Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce
+    Reviewed-by: Bruce Wayne <bruce.wayne@dc.com>
+
+commit b4c2c0bbd3d064a87be4c2505aaf54a55d1625e5
+Author:     Diana Prince <diana.prince@dc.com>
+AuthorDate: 2023-08-23T10:41:32+00:00
+Commit:     DC LUCI <dc-scoped@dc.com>
+CommitDate: 2023-08-24T15:41:32+00:00
+
+    some commit message
+
+    BUG=b:12344322
+    TEST=None
+
+    Change-Id: I22f6f0ed2084a8b9e80ccb2d3b1fc9a3ed18caf7
+    Reviewed-by: Bruce Wayne <bruce.wayne@dc.com>
+"""
+        commits = list(git.CommitEntry.ParseFuller(log_output))
+
+        self.assertEqual(
+            commits,
+            [
+                git.CommitEntry(
+                    sha="1323ab4efce4f30f7e3e22f9da27a1a57fa82988",
+                    author="Clark Kent <clark.kent@dc.com>",
+                    author_date=datetime.datetime.fromisoformat(
+                        "2023-08-23T17:41:32+00:00",
+                    ),
+                    commit="DC LUCI <dc-scoped@dc.com>",
+                    commit_date=datetime.datetime.fromisoformat(
+                        "2023-08-24T17:41:32+00:00",
+                    ),
+                    change_id="Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce",
+                ),
+                git.CommitEntry(
+                    sha="b4c2c0bbd3d064a87be4c2505aaf54a55d1625e5",
+                    author="Diana Prince <diana.prince@dc.com>",
+                    author_date=datetime.datetime.fromisoformat(
+                        "2023-08-23T10:41:32+00:00",
+                    ),
+                    commit="DC LUCI <dc-scoped@dc.com>",
+                    commit_date=datetime.datetime.fromisoformat(
+                        "2023-08-24T15:41:32+00:00",
+                    ),
+                    change_id="I22f6f0ed2084a8b9e80ccb2d3b1fc9a3ed18caf7",
+                ),
+            ],
+        )

@@ -4,6 +4,7 @@
 
 """The tests for resource detector classes."""
 
+import datetime
 import getpass
 import logging
 import os
@@ -13,6 +14,7 @@ import sys
 
 from chromite.third_party.opentelemetry.sdk import resources
 
+from chromite.lib import git
 from chromite.utils.telemetry import detector
 
 
@@ -242,3 +244,42 @@ def test_system_info_to_capture_host_type_unknown(monkeypatch):
     assert attrs[resources.OS_DESCRIPTION] == platform.platform()
     assert attrs[detector.CPU_ARCHITECTURE] == platform.machine()
     assert attrs[detector.CPU_NAME] == platform.processor()
+
+
+def test_sdk_state_to_capture_manifest_info(monkeypatch):
+    """Test that Sdk detector captures manifest sync info."""
+
+    manifest_mtime = datetime.datetime.now(tz=datetime.timezone.utc)
+    branch = git.RemoteRef("origin", "master")
+    commit = git.CommitEntry(
+        sha="commitsha",
+        commit_date=datetime.datetime.now(),
+        change_id="change-id-1",
+    )
+
+    monkeypatch.setattr(git, "FindRepoDir", lambda _: "/source/.repo")
+    monkeypatch.setattr(git, "GetTrackingBranch", lambda _: branch)
+    monkeypatch.setattr(git, "GetLastCommit", lambda _: commit)
+    monkeypatch.setattr(
+        os.path, "getmtime", lambda _: manifest_mtime.timestamp()
+    )
+
+    sdk_detector = detector.SDKSourceDetector()
+    resource = sdk_detector.detect().attributes
+
+    assert resource["manifest_branch"] == branch.ref
+    assert resource["manifest_commit_date"] == commit.commit_date.isoformat()
+    assert resource["manifest_change_id"] == commit.change_id
+    assert resource["manifest_commit_sha"] == commit.sha
+    assert resource["manifest_sync_date"] == manifest_mtime.isoformat()
+
+
+def test_sdk_state_to_capture_empty(monkeypatch):
+    """Test that Sdk detector handles None for repo dir."""
+
+    monkeypatch.setattr(git, "FindRepoDir", lambda _: None)
+
+    sdk_detector = detector.SDKSourceDetector()
+    resource = sdk_detector.detect().attributes
+
+    assert not resource

@@ -4,6 +4,7 @@
 
 """Defines the ResourceDetector to capture resource properties."""
 
+import datetime
 import getpass
 import logging
 import os
@@ -13,6 +14,8 @@ import sys
 from typing import Sequence
 
 from chromite.third_party.opentelemetry.sdk import resources
+
+from chromite.lib import git
 
 
 CPU_ARCHITECTURE = "cpu.architecture"
@@ -166,3 +169,26 @@ class MemoryInfo:
                 line,
             )
         return size * 1024
+
+
+class SDKSourceDetector(resources.ResourceDetector):
+    """Capture SDK source state."""
+
+    def detect(self) -> resources.Resource:
+        resource = {}
+
+        repo = git.FindRepoDir(".")
+        manifest_repo = Path(repo) / "manifests" if repo else None
+
+        if manifest_repo:
+            branch = git.GetTrackingBranch(manifest_repo)
+            commit = git.GetLastCommit(manifest_repo)
+            resource["manifest_branch"] = branch.ref if branch else None
+            resource["manifest_commit_date"] = commit.commit_date.isoformat()
+            resource["manifest_change_id"] = commit.change_id
+            resource["manifest_commit_sha"] = commit.sha
+            resource["manifest_sync_date"] = datetime.datetime.fromtimestamp(
+                os.path.getmtime(manifest_repo), tz=datetime.timezone.utc
+            ).isoformat()
+
+        return resources.Resource(resource)
