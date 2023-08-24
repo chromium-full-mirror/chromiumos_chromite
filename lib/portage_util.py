@@ -438,16 +438,6 @@ class EBuild:
     }
 
     @classmethod
-    def _RunCommand(cls, command, **kwargs):
-        if "capture_output" not in kwargs:
-            kwargs.setdefault("stdout", True)
-            kwargs.setdefault("stderr", True)
-        kwargs.setdefault("encoding", "utf-8")
-        return cros_build_lib.run(
-            command, print_cmd=cls.VERBOSE, **kwargs
-        ).stdout
-
-    @classmethod
     def _RunGit(cls, cwd, command, **kwargs):
         result = git.RunGit(cwd, command, print_cmd=cls.VERBOSE, **kwargs)
         return None if result is None else result.stdout
