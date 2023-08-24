@@ -363,9 +363,7 @@ def MountChrootPaths(chroot: chroot_lib.Chroot):
         )
 
     # We expose /dev so we can access loopback & USB drives for flashing.
-    osutils.Mount(
-        "/dev", path / "dev", "/dev", osutils.MS_BIND | osutils.MS_REC
-    )
+    osutils.Mount("/dev", path / "dev", None, osutils.MS_BIND | osutils.MS_REC)
 
 
 FileSystemDebugInfo = collections.namedtuple(

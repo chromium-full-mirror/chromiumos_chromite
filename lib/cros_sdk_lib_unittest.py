@@ -8,6 +8,7 @@ import errno
 import os
 from pathlib import Path
 import stat
+from unittest import mock
 
 import pytest
 
@@ -121,8 +122,9 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
         for src, dst in self.state_path_map:
             osutils.SafeMakedirsNonRoot(src / "foo")
 
-            cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
+        cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
 
+        for src, dst in self.state_path_map:
             self.assertNotExists(src / "foo")
             self.assertExists(src / "README")
             self.assertExists(dst / "foo")
@@ -132,8 +134,9 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             osutils.SafeMakedirsNonRoot(src)
             osutils.Touch(src / "README")
 
-            cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
+        cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
 
+        for src, dst in self.state_path_map:
             self.assertExists(src / "README")
             self.assertNotExists(dst / "README")
 
@@ -144,8 +147,9 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             osutils.SafeMakedirsNonRoot(dst / "foo")
             osutils.Touch(dst / "foo" / "baz")
 
-            cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
+        cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
 
+        for src, dst in self.state_path_map:
             self.assertNotExists(src / "foo")
             self.assertExists(dst / "foo")
             self.assertExists(dst / "foo" / "bar")
@@ -180,6 +184,60 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(stat.S_IMODE(st.st_mode), 0o400)
             self.assertEqual(st.st_uid, 0)
             self.assertEqual(st.st_gid, 0)
+
+
+class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
+    """Tests MountChrootPaths functionality."""
+
+    def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        chroot_path = self.tempdir / "chroot"
+        out_path = self.tempdir / "out"
+        self.chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
+        osutils.SafeMakedirsNonRoot(self.chroot.path)
+        osutils.SafeMakedirsNonRoot(self.chroot.out_path)
+
+        self.mount_mock = self.PatchObject(osutils, "Mount")
+
+    def testMounts(self):
+        cros_sdk_lib.MountChrootPaths(self.chroot)
+
+        self.mount_mock.assert_has_calls(
+            [
+                mock.call(
+                    self.chroot.out_path / "tmp",
+                    Path(self.chroot.path) / "tmp",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
+                    self.chroot.out_path / "home",
+                    Path(self.chroot.path) / "home",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
+                    self.chroot.out_path / "build",
+                    Path(self.chroot.path) / "build",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
+                    "proc", Path(self.chroot.path) / "proc", "proc", mock.ANY
+                ),
+                mock.call(
+                    "sysfs", Path(self.chroot.path) / "sys", "sysfs", mock.ANY
+                ),
+                mock.call(
+                    "/dev",
+                    Path(self.chroot.path) / "dev",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+            ],
+            any_order=True,
+        )
 
 
 class TestGetChrootVersion(cros_test_lib.MockTestCase):
