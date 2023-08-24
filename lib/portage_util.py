@@ -2130,7 +2130,6 @@ def _Equery(
     sysroot: Optional[str] = None,
     chroot: Optional[chroot_lib.Chroot] = None,
     quiet: bool = True,
-    print_cmd: bool = True,
     extra_env: Optional[Dict[str, str]] = None,
     check: bool = True,
 ) -> cros_build_lib.CompletedProcess:
@@ -2144,7 +2143,6 @@ def _Equery(
         chroot: The chroot to work with.
         quiet: Whether to run the module in quiet mode.  This is module
             specific, so consult the documentation for behavior.
-        print_cmd: Whether to print the command before running it.
         extra_env: Extra environment settings to pass down.
         check: Whether to throw an exception if the command fails.
 
@@ -2161,7 +2159,7 @@ def _Equery(
 
     return chroot.run(
         cmd,
-        print_cmd=print_cmd,
+        debug_level=logging.DEBUG,
         capture_output=True,
         extra_env=extra_env,
         check=check,
@@ -2267,7 +2265,6 @@ def _EqueryWhich(
         sysroot=sysroot,
         chroot=chroot,
         quiet=False,
-        print_cmd=False,
         extra_env=extra_env,
         check=check,
     )
@@ -2500,7 +2497,6 @@ def GetReverseDependencies(
         *args,
         sysroot=str(sysroot),
         chroot=chroot,
-        print_cmd=False,
         check=False,
     )
     return [package_info.parse(x) for x in result.stdout.strip().splitlines()]
@@ -2692,8 +2688,8 @@ def _EbuildInfo(
         result (cros_build_lib.CompletedProcess)
     """
     cmd = (_GetSysrootTool("ebuild", sysroot=sysroot), ebuild_path, "info")
-    return cros_build_lib.run(
-        cmd, capture_output=True, print_cmd=False, check=False, encoding="utf-8"
+    return cros_build_lib.dbg_run(
+        cmd, capture_output=True, check=False, encoding="utf-8"
     )
 
 
