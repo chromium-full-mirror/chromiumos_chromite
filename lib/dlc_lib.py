@@ -1255,6 +1255,10 @@ def InstallArtifactsMeta(sysroot: str, rootfs: str) -> None:
         logging.info("There are no artifacts meta DLC(s), ignoring.")
         return
 
+    logging.info(
+        "Detected artifacts meta for %d DLCs.", len(artifacts_meta_dlc_ids)
+    )
+
     # TODO(b/290961240): Remove copying individual imageloader.json
     # and table files after fully migrated to used the compressed
     # metadata (replace this code with a `pass` for future usage).
