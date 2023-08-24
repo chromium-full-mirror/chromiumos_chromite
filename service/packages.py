@@ -1362,6 +1362,9 @@ def builds(atom, build_target, packages=None):
     """Check if |build_target| builds |atom| (has it in its depgraph)."""
     cros_build_lib.AssertInsideChroot()
 
+    logging.debug(
+        "Checking if %s builds %s (packages=%s)", build_target, atom, packages
+    )
     pkgs = tuple(packages) if packages else None
     # TODO(crbug/1081828): Receive and use sysroot.
     graph, _sdk_graph = dependency.GetBuildDependency(
