@@ -7,6 +7,7 @@
 
 import json
 import os
+from pathlib import Path
 import sys
 
 import compdb_no_chroot
@@ -17,6 +18,9 @@ sys.path.insert(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", ".."),
 )
 # pylint: disable=wrong-import-position
+from chromite.lib import chroot_lib
+from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 
 
@@ -32,14 +36,24 @@ def custom_which(exe: str) -> str:
     raise Exception(f"Unexpected exe {exe}")
 
 
-class GenerateTest(cros_test_lib.TestCase):
+class GenerateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests generate()"""
 
     def testAll(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        chroot = chroot_lib.Chroot(
+            path=Path(EXT_TRUNK_PATH) / constants.DEFAULT_CHROOT_DIR,
+            out_path=Path(EXT_TRUNK_PATH) / constants.DEFAULT_OUT_DIR,
+        )
+
+        build_path = chroot.full_path("build")
+
         testdata = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "compdb_no_chroot_testdata",
         )
+
         input_dir = os.path.join(testdata, "input")
         expected_dir = os.path.join(testdata, "expected")
         for name in os.listdir(input_dir):
@@ -48,15 +62,21 @@ class GenerateTest(cros_test_lib.TestCase):
 
             expected_file = os.path.join(expected_dir, name)
             with open(expected_file, encoding="utf-8") as f:
-                expected = json.load(f)
+                s = f.read()
+                s = s.replace("<BUILD_DIR>", build_path)
+                expected = json.loads(s)
 
             got = compdb_no_chroot.generate(given, EXT_TRUNK_PATH, custom_which)
 
             try:
                 self.assertEqual(got, expected)
             except Exception as e:
-                # Update the golden file so that manual modification is not
-                # needed.
-                with open(expected_file, "w", encoding="utf-8") as outfile:
-                    json.dump(got, outfile, indent=2, sort_keys=True)
+                # You can uncomment the following code to update the golden file
+                # so that manual modification is not needed.
+                #
+                # with open(expected_file, "w", encoding="utf-8") as outfile:
+                #     s = json.dumps(got, indent=2, sort_keys=True)
+                #     s = s.replace(build_path, "<BUILD_DIR>")
+                #     outfile.write(s)
+
                 raise e
