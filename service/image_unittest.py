@@ -319,21 +319,6 @@ class BuildImageCommandTest(cros_test_lib.MockTestCase):
         }
         self.assertTrue(expected.issubset(set(cmd)))
 
-        # enable_bootcache
-        config = image.BuildConfig(enable_bootcache=True)
-        self.assertIn(
-            "--enable_bootcache",
-            image.GetBuildImageCommand(
-                config, [constants.BASE_IMAGE_BIN], "testBoard"
-            ),
-        )
-        self.assertNotIn(
-            "--enable_bootcache",
-            image.GetBuildImageCommand(
-                config, [constants.FACTORY_IMAGE_BIN], "testBoard"
-            ),
-        )
-
         # enable_serial
         cmd = image.GetBuildImageCommand(
             image.BuildConfig(enable_serial="ttyS1"),

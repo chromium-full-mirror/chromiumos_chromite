@@ -293,14 +293,6 @@ class BuildImageCommand(command.CliCommand):
         )
         build_shell_bool_style_args(
             group,
-            "enable_bootcache",
-            False,
-            "Make all bootloaders to use boot cache.",
-            deprecation_note,
-            "enable-bootcache",
-        )
-        build_shell_bool_style_args(
-            group,
             "enable_rootfs_verification",
             True,
             "Make all bootloaders use kernel based rootfs integrity checking.",
@@ -417,7 +409,6 @@ class BuildImageCommand(command.CliCommand):
             enable_serial=options.enable_serial,
             kernel_loglevel=options.kernel_loglevel,
             boot_args=options.boot_args,
-            enable_bootcache=options.enable_bootcache,
             enable_rootfs_verification=options.enable_rootfs_verification,
             build_attempt=options.build_attempt,
             build_root=options.build_root,

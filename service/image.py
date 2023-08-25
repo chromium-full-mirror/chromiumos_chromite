@@ -95,7 +95,6 @@ class BuildConfig(NamedTuple):
         adjust_partition: Adjustments to apply to partition table
             (LABEL:[+-=]SIZE) e.g. ROOT-A:+1G
         boot_args: Additional boot arguments to pass to the commandline.
-        enable_bootcache: Enable bootloaders to use boot cache.
         output_root: Directory in which to place image result directories.
         build_root: Directory in which to compose the image, before copying it
             to output_root.
@@ -115,7 +114,6 @@ class BuildConfig(NamedTuple):
     output_dir_suffix: Optional[str] = None
     adjust_partition: Optional[str] = None
     boot_args: str = "noinitrd"
-    enable_bootcache: bool = False
     output_root: Union[str, os.PathLike] = (
         constants.DEFAULT_BUILD_ROOT / "images"
     )
@@ -153,7 +151,6 @@ def GetBuildImageCommand(
     _config = config._asdict()
     if constants.FACTORY_IMAGE_BIN in image_names:
         _config["boot_args"] += " cros_factory_install"
-        _config["enable_bootcache"] = False
 
     if _config["builder_path"]:
         cmd.extend(["--builder_path", _config["builder_path"]])
@@ -161,8 +158,6 @@ def GetBuildImageCommand(
         cmd.append("--noenable_rootfs_verification")
     if _config["adjust_partition"]:
         cmd.extend(["--adjust_part", _config["adjust_partition"]])
-    if _config["enable_bootcache"]:
-        cmd.append("--enable_bootcache")
     if _config["enable_serial"]:
         cmd.extend(["--enable_serial", _config["enable_serial"]])
     cmd.extend(
