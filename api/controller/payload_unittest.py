@@ -50,6 +50,12 @@ class PayloadApiTests(
             verify=True,
             keyset="update_signer",
             dryrun=False,
+            result_path=common_pb2.ResultPath(
+                path=common_pb2.Path(
+                    path=str(self.tempdir / "results"),
+                    location=common_pb2.Path.OUTSIDE,
+                )
+            ),
         )
 
         self.minios_req = payload_pb2.GenerationRequest(
@@ -60,13 +66,22 @@ class PayloadApiTests(
             verify=True,
             keyset="update_signer",
             dryrun=False,
+            result_path=common_pb2.ResultPath(
+                path=common_pb2.Path(
+                    path=str(self.tempdir / "results"),
+                    location=common_pb2.Path.OUTSIDE,
+                )
+            ),
         )
 
         self.result = payload_pb2.GenerationResponse(
             versioned_artifacts=[
                 payload_pb2.GenerationResponse.VersionedArtifact(
                     version=1,
-                    local_path="/tmp/aohiwdadoi/delta.bin",
+                    file_path=common_pb2.Path(
+                        path="/tmp/aohiwdadoi/delta.bin",
+                        location=common_pb2.Path.INSIDE,
+                    ),
                     remote_uri="gs://something",
                 )
             ]

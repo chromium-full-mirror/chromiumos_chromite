@@ -11,6 +11,7 @@ from chromite.api import faux
 from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import payload_pb2
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_build_lib
 from chromite.lib.paygen import paygen_payload_lib
 from chromite.service import payload
@@ -169,5 +170,7 @@ def _SetGeneratePayloadOutputProto(
     for version, artifact in artifacts.items():
         versioned_artifact = output_proto.versioned_artifacts.add()
         versioned_artifact.version = version
-        versioned_artifact.local_path = artifact[0] or ""
+        if artifact[0]:
+            versioned_artifact.file_path.path = artifact[0]
+            versioned_artifact.file_path.location = common_pb2.Path.INSIDE
         versioned_artifact.remote_uri = artifact[1] or ""
