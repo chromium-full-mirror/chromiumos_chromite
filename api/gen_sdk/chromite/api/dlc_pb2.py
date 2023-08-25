@@ -16,7 +16,7 @@ from chromite.api.gen_sdk.chromite.api import sysroot_pb2 as chromite_dot_api_do
 from chromite.api.gen_sdk.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x63hromite/api/dlc.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x17\x63hromiumos/common.proto\"m\n\x1fGenerateDlcArtifactsListRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12&\n\x07sysroot\x18\x02 \x01(\x0b\x32\x15.chromite.api.Sysroot\"\xc1\x01\n GenerateDlcArtifactsListResponse\x12Q\n\rdlc_artifacts\x18\x01 \x03(\x0b\x32:.chromite.api.GenerateDlcArtifactsListResponse.DlcArtifact\x1aJ\n\x0b\x44lcArtifact\x12\x12\n\nimage_hash\x18\x01 \x01(\t\x12\x12\n\nimage_name\x18\x02 \x01(\t\x12\x13\n\x0bgs_uri_path\x18\x03 \x01(\t2\x94\x01\n\nDlcService\x12y\n\x18GenerateDlcArtifactsList\x12-.chromite.api.GenerateDlcArtifactsListRequest\x1a..chromite.api.GenerateDlcArtifactsListResponse\x1a\x0b\xc2\xed\x1a\x07\n\x03\x64lc\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x63hromite/api/dlc.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x17\x63hromiumos/common.proto\"m\n\x1fGenerateDlcArtifactsListRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12&\n\x07sysroot\x18\x02 \x01(\x0b\x32\x15.chromite.api.Sysroot\"\xcd\x01\n GenerateDlcArtifactsListResponse\x12Q\n\rdlc_artifacts\x18\x01 \x03(\x0b\x32:.chromite.api.GenerateDlcArtifactsListResponse.DlcArtifact\x1aV\n\x0b\x44lcArtifact\x12\x12\n\nimage_hash\x18\x01 \x01(\t\x12\x12\n\nimage_name\x18\x02 \x01(\t\x12\x13\n\x0bgs_uri_path\x18\x03 \x01(\t\x12\n\n\x02id\x18\x04 \x01(\t2\x94\x01\n\nDlcService\x12y\n\x18GenerateDlcArtifactsList\x12-.chromite.api.GenerateDlcArtifactsListRequest\x1a..chromite.api.GenerateDlcArtifactsListResponse\x1a\x0b\xc2\xed\x1a\x07\n\x03\x64lc\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.dlc_pb2', globals())
@@ -29,9 +29,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GENERATEDLCARTIFACTSLISTREQUEST._serialized_start=123
   _GENERATEDLCARTIFACTSLISTREQUEST._serialized_end=232
   _GENERATEDLCARTIFACTSLISTRESPONSE._serialized_start=235
-  _GENERATEDLCARTIFACTSLISTRESPONSE._serialized_end=428
+  _GENERATEDLCARTIFACTSLISTRESPONSE._serialized_end=440
   _GENERATEDLCARTIFACTSLISTRESPONSE_DLCARTIFACT._serialized_start=354
-  _GENERATEDLCARTIFACTSLISTRESPONSE_DLCARTIFACT._serialized_end=428
-  _DLCSERVICE._serialized_start=431
-  _DLCSERVICE._serialized_end=579
+  _GENERATEDLCARTIFACTSLISTRESPONSE_DLCARTIFACT._serialized_end=440
+  _DLCSERVICE._serialized_start=443
+  _DLCSERVICE._serialized_end=591
 # @@protoc_insertion_point(module_scope)

@@ -26,6 +26,7 @@ def _GenerateDlcArtifactsResponse(_input_proto, output_proto, _config):
     )
     artifact.image_name = "dlc.img"
     artifact.gs_uri_path = "gs://some/uri/prefix/for/dlc-1"
+    artifact.id = "dlc-1"
     return controller.RETURN_CODE_SUCCESS
 
 
@@ -71,3 +72,4 @@ def _parse_dlc_artifacts_to_response(
         artifact.image_hash = dlc_artifact.image_hash
         artifact.image_name = dlc_artifact.image_name
         artifact.gs_uri_path = dlc_artifact.uri_path
+        artifact.id = dlc_artifact.identifier
