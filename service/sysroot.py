@@ -947,6 +947,23 @@ def BuildPackages(
 
                         bazel_extra_env = {"BOARD": target.name}
                         bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
+                        # Generate an exec log for a single package, to help us
+                        # debug cache misses. We may eventually want to account
+                        # for the possibility that sys-lib/zlib isn't in
+                        # packages and so this means we're doing extra work,
+                        # but we won't worry about that for now.
+                        cros_build_lib.run(
+                            [
+                                bazel_cmd,
+                                "build",
+                                (
+                                    "--execution_log_binary_file="
+                                    "/tmp/bazel_build_packages_exec.log"
+                                ),
+                                "@portage//sys-lib/zlib:package_set",
+                            ],
+                            extra_env=bazel_extra_env,
+                        )
                         # Technically, `bazel run` (which occurs next) will also
                         # build packages if they aren't built now, so this is
                         # redundant. However, keeping `bazel build` as a
