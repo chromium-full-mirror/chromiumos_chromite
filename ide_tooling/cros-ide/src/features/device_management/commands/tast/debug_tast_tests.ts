@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import * as process from 'process';
 import * as vscode from 'vscode';
 import * as commonUtil from '../../../../common/common_util';
 import {MemoryOutputChannel} from '../../../../common/memory_output_channel';
@@ -66,8 +70,11 @@ export async function debugTastTests(
     return null;
   }
 
-  // TODO(uchiaki): Ensure the host has delve installed.
   // http://go/debug-tast-tests#step-2_install-the-debugger-on-your-host-machine-outside-the-chroot
+  const delveInHost = await ensureHostHasDelve(context);
+  if (!delveInHost) {
+    return null;
+  }
 
   const testNames = await askTestNames(
     context,
@@ -205,6 +212,56 @@ async function ensureDutHasDelve(
         return false;
       }
       return true;
+    }
+  );
+}
+
+/**
+ * Checks if the host machine (outside the chroot) has delve binary in '${HOME}/.cache/chromiumide/go/bin/dlv', and otherwise install it.
+ *
+ * @returns The path to delve if found or installed. undefined if failed.
+ */
+async function ensureHostHasDelve(
+  context: CommandContext
+): Promise<string | undefined> {
+  const gobin = path.join(os.homedir(), '.cache/chromiumide/go/bin');
+  const delveInstallPath = path.join(gobin, 'dlv');
+  if (fs.existsSync(delveInstallPath)) {
+    context.output.appendLine('Host can run dlv');
+    return delveInstallPath;
+  }
+
+  return await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      cancellable: true,
+      title: 'install debugger (delve) to the host machine',
+    },
+    async (_progress, token): Promise<string | undefined> => {
+      const res = await commonUtil.exec(
+        'go',
+        [
+          // TODO: Parse the ebuild file for delve and get the version to use
+          'install',
+          'github.com/go-delve/delve/cmd/dlv@v1.21.0',
+        ],
+        {
+          logger: context.output,
+          cancellationToken: token,
+          env: {...process.env, GOBIN: gobin},
+        }
+      );
+      if (token.isCancellationRequested) {
+        return undefined;
+      }
+      if (res instanceof Error) {
+        void vscode.window.showErrorMessage(
+          "debugging didn't start: failed to install the debugger (delve) to the host machine"
+        );
+        // TODO: Add a button to open the log. We can use `showErrorMessageWithButtons`.
+        return undefined;
+      }
+      return delveInstallPath;
     }
   );
 }
