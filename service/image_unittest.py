@@ -933,12 +933,14 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
                         image_hash="88d54cb6b5bba15a71ffda3ca75446eb453bf7fe393e3595d3bc52beb3b61711",
                         image_name=dlc_lib.DLC_IMAGE,
                         uri_path="gs://some/uri/prefix/for/dlc-1",
+                        identifier=TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
                     ),
                     # pylint: disable=line-too-long
                     image.DlcArtifactsMetadata(
                         image_hash="123400000000000000000000000000000000000000000000000000000000beef",
                         image_name=dlc_lib.DLC_IMAGE,
                         uri_path="gs://some/uri/prefix/for/dlc-2",
+                        identifier=TestGenerateDlcArtifactsMetadataList.DLC_2_ID,
                     ),
                 ],
                 key=sort_fnc,
@@ -1008,6 +1010,7 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
                     image_hash="123400000000000000000000000000000000000000000000000000000000beef",
                     image_name=dlc_lib.DLC_IMAGE,
                     uri_path="gs://some/uri/prefix/for/dlc-2",
+                    identifier=TestGenerateDlcArtifactsMetadataList.DLC_2_ID,
                 ),
             ],
         )

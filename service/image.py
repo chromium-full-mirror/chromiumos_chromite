@@ -70,11 +70,13 @@ class DlcArtifactsMetadata:
         image_hash: The sha256 hash of the DLC image.
         image_name: The DLC image name.
         uri_path: The DLC artifacts URI path.
+        identifier: The DLC ID.
     """
 
     image_hash: str
     image_name: str
     uri_path: Union[str, os.PathLike]
+    identifier: str
 
 
 class BuildConfig(NamedTuple):
@@ -646,6 +648,7 @@ def generate_dlc_artifacts_metadata_list(
                 image_hash=image_hash,
                 image_name=dlc_lib.DLC_IMAGE,
                 uri_path=osutils.ReadFile(uri_prefix_path),
+                identifier=dlc_id,
             )
         )
 

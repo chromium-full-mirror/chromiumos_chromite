@@ -50,6 +50,7 @@ class GenerateDlcArtifactsListTest(
                     image_hash="deadbeef",
                     image_name="dlc.img",
                     uri_path="gs://some/uri/prefix/for/dlc-1",
+                    identifier="dlc-1",
                 )
             ],
         )
