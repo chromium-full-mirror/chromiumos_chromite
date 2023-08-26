@@ -14082,6 +14082,15 @@
         },
         {
           "board_name": "rex",
+          "name": "rex_ec_ish",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7205,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "rex",
           "name": "screebo",
           "test_suites": [
             "sanity",
