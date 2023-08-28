@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {BoardOrHost} from '../../common/chromiumos/board_or_host';
 import {parseQualifiedPackageName} from '../../common/chromiumos/portage/ebuild';
 import * as cros from '../../common/cros';
 import {vscodeRegisterCommand} from '../../common/vscode/commands';
@@ -111,17 +112,27 @@ class BoardsPackages {
       return;
     }
 
-    await crosWorkon(this.context(), board.name, pkgName, 'start');
+    await crosWorkon(
+      this.context(),
+      BoardOrHost.parse(board.name),
+      pkgName,
+      'start'
+    );
   }
 
   async crosWorkonStop(pkg: PackageItem): Promise<void> {
-    await crosWorkon(this.context(), pkg.board.name, pkg.name, 'stop');
+    await crosWorkon(
+      this.context(),
+      BoardOrHost.parse(pkg.board.name),
+      pkg.name,
+      'stop'
+    );
   }
 
   async openEbuild(pkg: PackageItem): Promise<void> {
     await openEbuild(
       this.context(),
-      pkg.board.name,
+      BoardOrHost.parse(pkg.board.name),
       parseQualifiedPackageName(pkg.name)
     );
   }

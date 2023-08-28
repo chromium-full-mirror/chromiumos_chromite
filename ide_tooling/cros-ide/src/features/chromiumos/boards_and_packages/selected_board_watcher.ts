@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {BoardOrHost} from '../../../common/chromiumos/board_or_host';
 import {Breadcrumbs} from './item';
 
 /**
@@ -11,7 +12,7 @@ import {Breadcrumbs} from './item';
  */
 export class SelectedBoardWatcher implements vscode.Disposable {
   private readonly onDidChangeSelectedBoardEmitter =
-    new vscode.EventEmitter<string>();
+    new vscode.EventEmitter<BoardOrHost>();
   readonly onDidChangeSelectedBoard =
     this.onDidChangeSelectedBoardEmitter.event;
 
@@ -19,9 +20,9 @@ export class SelectedBoardWatcher implements vscode.Disposable {
     this.onDidChangeSelectedBoardEmitter,
   ];
 
-  private board: string | undefined = undefined;
+  private board: BoardOrHost | undefined = undefined;
 
-  get value(): string | undefined {
+  get value(): BoardOrHost | undefined {
     return this.board;
   }
 
@@ -35,9 +36,9 @@ export class SelectedBoardWatcher implements vscode.Disposable {
         // the selection contains only one element.
         const board = selection[0].breadcrumbs[0];
 
-        if (this.board !== board) {
-          this.board = board;
-          this.onDidChangeSelectedBoardEmitter.fire(board);
+        if (this.board?.toString() !== board) {
+          this.board = BoardOrHost.parse(board);
+          this.onDidChangeSelectedBoardEmitter.fire(this.board);
         }
       })
     );

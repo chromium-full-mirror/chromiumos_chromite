@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {BoardOrHost} from '../../../../common/chromiumos/board_or_host';
 import * as config from '../../../../services/config';
-import {VIRTUAL_BOARDS_HOST, ViewItemContext} from '../constant';
+import {ViewItemContext} from '../constant';
 import {Context} from '../context';
 import {listPackages, type Package} from '../package';
 import {Breadcrumbs} from './breadcrumbs';
@@ -16,16 +17,16 @@ export class BoardItem implements Item {
   readonly treeItem;
   readonly children: Item[] = [];
 
-  constructor(parent: Breadcrumbs, private readonly board: string) {
-    this.breadcrumbs = parent.pushed(board);
+  constructor(parent: Breadcrumbs, private readonly board: BoardOrHost) {
+    this.breadcrumbs = parent.pushed(board.toString());
 
     const treeItem = new vscode.TreeItem(
-      board,
+      board.toString(),
       vscode.TreeItemCollapsibleState.Collapsed
     );
 
-    const isHost = board === VIRTUAL_BOARDS_HOST;
-    const isDefault = config.board.get() === board;
+    const isHost = board.isHost;
+    const isDefault = config.board.get() === board.toString();
 
     treeItem.iconPath = isHost
       ? new vscode.ThemeIcon('device-desktop')

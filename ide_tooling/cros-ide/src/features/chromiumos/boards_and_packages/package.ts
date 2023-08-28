@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import {BoardOrHost} from '../../../common/chromiumos/board_or_host';
 import {CrosClient} from '../../../common/chromiumos/cros';
 import {
   ParsedPackageName,
   getQualifiedPackageName,
 } from '../../../common/chromiumos/portage/ebuild';
-import {VIRTUAL_BOARDS_HOST} from './constant';
 import {Context} from './context';
 
 export type Package = ParsedPackageName & {
@@ -20,15 +20,12 @@ export type Package = ParsedPackageName & {
  */
 export async function listPackages(
   ctx: Context,
-  boardOrHost: string
+  board: BoardOrHost
 ): Promise<Package[] | Error> {
   const crosClient = new CrosClient(
     ctx.chrootService.chromiumosRoot,
     ctx.output
   );
-
-  const board =
-    boardOrHost === VIRTUAL_BOARDS_HOST ? 'amd64-host' : boardOrHost;
 
   const allPackages = await crosClient.listAllPackages(board);
   if (allPackages instanceof Error) return allPackages;

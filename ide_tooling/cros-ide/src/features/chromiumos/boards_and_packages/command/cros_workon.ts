@@ -3,18 +3,18 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {BoardOrHost} from '../../../../common/chromiumos/board_or_host';
 import {
   ParsedPackageName,
   getQualifiedPackageName,
 } from '../../../../common/chromiumos/portage/ebuild';
 import {underDevelopment} from '../../../../services/config';
 import {Metrics} from '../../../metrics/metrics';
-import {VIRTUAL_BOARDS_HOST} from '../constant';
 import {Context} from '../context';
 
 export async function crosWorkon(
   ctx: Context,
-  board: string,
+  board: BoardOrHost,
   pkg: string | ParsedPackageName,
   action: 'start' | 'stop'
 ): Promise<void> {
@@ -29,7 +29,7 @@ export async function crosWorkon(
         description: 'cros_workon start',
         name: 'boards_and_packages_cros_workon_start',
         package: targetName,
-        board,
+        board: board.toString(),
       });
     } else {
       Metrics.send({
@@ -38,7 +38,7 @@ export async function crosWorkon(
         description: 'cros_workon stop',
         name: 'boards_and_packages_cros_workon_stop',
         package: targetName,
-        board,
+        board: board.toString(),
       });
     }
   } else {
@@ -49,7 +49,7 @@ export async function crosWorkon(
         description: 'cros_workon start',
         name: 'package_cros_workon_start',
         package: targetName,
-        board,
+        board: board.toString(),
       });
     } else {
       Metrics.send({
@@ -58,18 +58,14 @@ export async function crosWorkon(
         description: 'cros_workon stop',
         name: 'package_cros_workon_stop',
         package: targetName,
-        board,
+        board: board.toString(),
       });
     }
   }
 
   const res = await ctx.chrootService.exec(
     'cros_workon',
-    [
-      board === VIRTUAL_BOARDS_HOST ? '--host' : `--board=${board}`,
-      action,
-      targetName,
-    ],
+    [board.map(b => `--board=${b}`, '--host'), action, targetName],
     {
       logger: ctx.output,
       logStdout: true,

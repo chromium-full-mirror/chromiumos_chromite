@@ -12,7 +12,7 @@ describe('BoardOrHost', () => {
     expect(host).toEqual(BoardOrHost.HOST);
     expect(betty).toEqual(BoardOrHost.newBoard('betty'));
 
-    expect(host.toString()).toEqual('host');
+    expect(host.toString()).toEqual(BoardOrHost.HOST_AS_STRING);
     expect(betty.toString()).toEqual('betty');
   });
 
@@ -23,7 +23,7 @@ describe('BoardOrHost', () => {
 
   it('throws if board name is host', () => {
     try {
-      BoardOrHost.newBoard('host');
+      BoardOrHost.newBoard(BoardOrHost.HOST_AS_STRING);
       fail('got no error; want error');
     } catch {
       // OK

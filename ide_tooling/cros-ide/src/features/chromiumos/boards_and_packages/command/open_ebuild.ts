@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {BoardOrHost} from '../../../../common/chromiumos/board_or_host';
 import {
   ParsedPackageName,
   getQualifiedPackageName,
 } from '../../../../common/chromiumos/portage/ebuild';
 import {underDevelopment} from '../../../../services/config';
 import {Metrics} from '../../../metrics/metrics';
-import {VIRTUAL_BOARDS_HOST} from '../constant';
 import {Context} from '../context';
 
 /**
@@ -17,11 +17,11 @@ import {Context} from '../context';
  */
 export async function openEbuild(
   ctx: Context,
-  board: string,
+  board: BoardOrHost,
   pkg: ParsedPackageName
 ): Promise<void> {
   const res = await ctx.chrootService.exec(
-    board === VIRTUAL_BOARDS_HOST ? 'equery' : `equery-${board}`,
+    board.equeryExecutable(),
     ['which', '-m', getQualifiedPackageName(pkg)],
     {
       logger: ctx.output,

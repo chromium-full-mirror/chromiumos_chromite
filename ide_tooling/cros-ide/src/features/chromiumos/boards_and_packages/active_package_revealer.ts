@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {BoardOrHost} from '../../../common/chromiumos/board_or_host';
 import {ParsedPackageName} from '../../../common/chromiumos/portage/ebuild';
 import {ChrootService} from '../../../services/chromiumos';
 import {ActivePackageWatcher} from './active_package_watcher';
@@ -57,7 +58,7 @@ export class ActivePackageRevealer implements vscode.Disposable {
     );
   }
 
-  private reveal(board?: string, pkg?: ParsedPackageName): void {
+  private reveal(board?: BoardOrHost, pkg?: ParsedPackageName): void {
     if (!board || !pkg) return;
 
     if (this.revealed) return;
@@ -66,12 +67,17 @@ export class ActivePackageRevealer implements vscode.Disposable {
     // revealing a category level item for the first time requires sudo. Rather than revealing the
     // item no matter what possibly asking the user the password, we reveal the item only when it
     // will be possible without user's intereation.
-    const breadcrumbsToCategory = Breadcrumbs.from(board, pkg.category);
+    const breadcrumbsToCategory = Breadcrumbs.from(
+      board.toString(),
+      pkg.category
+    );
     if (!this.treeDataProvider.isItemInstantiated(breadcrumbsToCategory)) {
       return;
     }
 
-    void this.treeView.reveal(Breadcrumbs.from(board, pkg.category, pkg.name));
+    void this.treeView.reveal(
+      Breadcrumbs.from(board.toString(), pkg.category, pkg.name)
+    );
     this.revealed = true;
   }
 

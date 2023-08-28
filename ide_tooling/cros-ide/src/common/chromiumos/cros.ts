@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import {execSudo} from '../../services/sudo';
 import * as commonUtil from '../common_util';
+import {BoardOrHost} from './board_or_host';
 import {ParsedPackageName, parseQualifiedPackageName} from './portage/ebuild';
 
 /**
@@ -27,13 +28,15 @@ export class CrosClient {
   /**
    * Lists all the packages available for the board. Results are deduplicated and sorted.
    */
-  async listAllPackages(board: string): Promise<ParsedPackageName[] | Error> {
+  async listAllPackages(
+    board: BoardOrHost
+  ): Promise<ParsedPackageName[] | Error> {
     const args = [
       this.cros,
       'query',
       'ebuilds',
       '-b',
-      board,
+      board.toBoardName(),
       '-o',
       // Format string run against the Ebuild class in chromite/lib/build_query.py.
       '{package_info.atom}',
@@ -54,10 +57,10 @@ export class CrosClient {
    * Lists cros-workon packages for the board. Results are deduplicated and sorted by name.
    */
   async listWorkonPackages(
-    board: string,
+    board: BoardOrHost,
     options?: {all?: boolean}
   ): Promise<ParsedPackageName[] | Error> {
-    const args = [this.cros, 'workon', '-b', board, 'list'];
+    const args = [this.cros, 'workon', '-b', board.toBoardName(), 'list'];
     if (options?.all) {
       args.push('--all');
     }
