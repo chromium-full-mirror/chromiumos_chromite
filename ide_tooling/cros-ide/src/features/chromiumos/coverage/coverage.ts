@@ -6,10 +6,12 @@ import * as fs from 'fs';
 import * as util from 'util';
 import * as vscode from 'vscode';
 import glob from 'glob';
+import {getQualifiedPackageName} from '../../../common/chromiumos/portage/ebuild';
 import * as services from '../../../services';
 import * as config from '../../../services/config';
 import {StatusManager, TaskStatus} from '../../../ui/bg_task_status';
 import * as metrics from '../../metrics/metrics';
+import {Breadcrumbs} from '../boards_and_packages/item';
 import {Package} from './../boards_packages';
 import {llvmToLineFormat} from './llvm_json_parser';
 import {CoverageJson, LlvmFileCoverage} from './types';
@@ -44,8 +46,18 @@ export class Coverage {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'chromiumide.coverage.generate',
-        (pkg: Package) => {
-          void this.generateCoverage(pkg);
+        async (element: Package | Breadcrumbs) => {
+          let pkg: Package;
+          if (element instanceof Breadcrumbs) {
+            const [board, category, name] = element.breadcrumbs;
+            pkg = {
+              board: {name: board},
+              name: getQualifiedPackageName({category, name}),
+            };
+          } else {
+            pkg = element;
+          }
+
           metrics.send({
             category: 'interactive',
             group: 'coverage',
@@ -54,6 +66,8 @@ export class Coverage {
             board: pkg.board.name,
             package: pkg.name,
           });
+
+          await this.generateCoverage(pkg);
         }
       ),
       vscode.commands.registerCommand(

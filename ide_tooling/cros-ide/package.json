@@ -592,7 +592,8 @@
         },
         {
           "command": "chromiumide.openEbuild",
-          "when": "view == boards-and-packages && viewItem == package"
+          "when": "view == boards-and-packages && viewItem == package",
+          "group": "1_open"
         },
         {
           "command": "chromiumide.setDefaultBoard",
@@ -600,7 +601,8 @@
         },
         {
           "command": "chromiumide.coverage.generate",
-          "when": "view == legacy-boards-packages && viewItem == package && config.chromiumide.testCoverage.enabled"
+          "when": "(view == legacy-boards-packages || view == boards-and-packages) && viewItem == package && config.chromiumide.testCoverage.enabled",
+          "group": "5_coverage"
         },
         {
           "command": "chromiumide.coverage.showReport",

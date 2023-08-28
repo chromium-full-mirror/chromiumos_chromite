@@ -6,6 +6,7 @@ import type * as vscode from 'vscode';
 
 export {createStatusBarItem} from '../status_bar';
 export {createOutputChannel} from './output_channel';
+export {createTextEditorDecorationType} from './text_editor_decoration_type';
 export {createTreeView} from './tree_view';
 export {withProgress} from './with_progress';
 
