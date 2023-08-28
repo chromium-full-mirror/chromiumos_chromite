@@ -100,8 +100,7 @@ class CreateTarballForSdkTest(cros_test_lib.TempDirTestCase):
         # Check the contents of the tarball.
         t = self.tempdir / "extracted"
         t.mkdir(parents=True)
-        cmd = ["tar", "-C", str(t), "-xJf", str(tarball_path)]
-        cros_build_lib.run(cmd)
+        cros_build_lib.ExtractTarball(tarball_path, t)
         self.assertEqual(
             (t / "bin/example").read_text(encoding="utf-8"), "example file\n"
         )
