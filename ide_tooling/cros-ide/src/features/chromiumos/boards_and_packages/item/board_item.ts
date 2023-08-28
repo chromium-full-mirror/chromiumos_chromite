@@ -58,16 +58,29 @@ export class BoardItem implements Item {
       categoryToPackages.get(pkg.category)?.push(pkg);
     }
 
-    const categories = [...categoryToPackages.keys()];
-    categories.sort();
+    const favoriteCategories = new Set(
+      config.boardsAndPackages.favoriteCategories.get() ?? []
+    );
+
+    const categories = [...categoryToPackages.keys()].map(category => ({
+      category,
+      favorite: favoriteCategories.has(category),
+    }));
+    categories.sort((a, b) => {
+      if (a.favorite !== b.favorite) {
+        return a.favorite ? -1 : 1;
+      }
+      return a.category.localeCompare(b.category);
+    });
 
     this.children.splice(0);
 
-    for (const category of categories) {
+    for (const {category, favorite} of categories) {
       this.children.push(
         new PackageCategoryItem(
           this.breadcrumbs,
           category,
+          favorite,
           categoryToPackages.get(category)!
         )
       );

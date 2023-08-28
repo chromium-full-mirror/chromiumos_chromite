@@ -58,13 +58,18 @@ export class BoardsAndPackages implements vscode.Disposable {
     // Register handlers to refresh the view.
     this.subscriptions.push(
       config.board.onDidChange(() => this.treeDataProvider.refresh()),
+      config.boardsAndPackages.favoriteCategories.onDidChange(() =>
+        this.treeDataProvider.refresh()
+      ),
       commands.onDidExecuteCommand(command => {
         switch (command) {
           // Do nothing if the command wouldn't affect the boards and packages view, or the event
           // will be handled in other places. e.g. the default board change is handled by another
           // handler, so we do nothing for SET_DEFAULT_BOARD here.
-          case CommandName.OPEN_EBUILD:
           case CommandName.SET_DEFAULT_BOARD:
+          case CommandName.FAVORITE_ADD:
+          case CommandName.FAVORITE_DELETE:
+          case CommandName.OPEN_EBUILD:
             return;
           case CommandName.CROS_WORKON_START:
           case CommandName.CROS_WORKON_STOP:

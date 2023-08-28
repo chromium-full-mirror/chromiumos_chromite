@@ -274,4 +274,57 @@ describe('Boards and packages', () => {
       Breadcrumbs.from('host', 'chromeos-base', 'codelab'),
     ]);
   });
+
+  it('favorite categories shown first', async () => {
+    const {chromiumosRoot, boardsAndPackages} = state;
+
+    const treeDataProvider = boardsAndPackages.getTreeDataProviderForTesting();
+
+    testing.fakes.installFakeCrosClient(fakeExec, {
+      chromiumosRoot,
+      host: {
+        packages: {
+          all: ['a/x', 'b/x', 'c/x'],
+          workedOn: [],
+          allWorkon: [],
+        },
+      },
+      boards: [],
+    });
+
+    const host = Breadcrumbs.from('host');
+    const a = Breadcrumbs.from('host', 'a');
+    const b = Breadcrumbs.from('host', 'b');
+    const c = Breadcrumbs.from('host', 'c');
+
+    expect(await treeDataProvider.getChildren(undefined)).toEqual([host]);
+
+    // Lexicographically sorted by default.
+    expect(await treeDataProvider.getChildren(host)).toEqual([a, b, c]);
+
+    await vscode.commands.executeCommand(
+      'chromiumide.boardsAndPackages.favoriteAdd',
+      b
+    );
+
+    expect(await treeDataProvider.getChildren(host)).toEqual([b, a, c]);
+
+    await vscode.commands.executeCommand(
+      'chromiumide.boardsAndPackages.favoriteAdd',
+      c
+    );
+
+    expect(await treeDataProvider.getChildren(host)).toEqual([b, c, a]);
+
+    await vscode.commands.executeCommand(
+      'chromiumide.boardsAndPackages.favoriteDelete',
+      b
+    );
+
+    expect(await treeDataProvider.getChildren(host)).toEqual([c, a, b]);
+
+    await config.boardsAndPackages.favoriteCategories.update(['a', 'c']);
+
+    expect(await treeDataProvider.getChildren(host)).toEqual([a, c, b]);
+  });
 });

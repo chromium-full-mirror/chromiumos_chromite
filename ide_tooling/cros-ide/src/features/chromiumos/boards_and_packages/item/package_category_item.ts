@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {ViewItemContext} from '../constant';
 import {Context} from '../context';
 import {Package} from '../package';
 import {Breadcrumbs} from './breadcrumbs';
@@ -14,12 +15,25 @@ export class PackageCategoryItem implements Item {
   readonly treeItem;
   readonly children;
 
-  constructor(parent: Breadcrumbs, category: string, packages: Package[]) {
+  constructor(
+    parent: Breadcrumbs,
+    category: string,
+    favorite: boolean,
+    packages: Package[]
+  ) {
     this.breadcrumbs = parent.pushed(category);
     this.treeItem = new vscode.TreeItem(
       category,
       vscode.TreeItemCollapsibleState.Collapsed
     );
+
+    this.treeItem.contextValue = favorite
+      ? ViewItemContext.CATEGORY_FAVORITE
+      : ViewItemContext.CATEGORY;
+
+    if (favorite) {
+      this.treeItem.description = '☆';
+    }
 
     this.children = [];
     for (const pkg of packages) {

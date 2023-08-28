@@ -10,6 +10,9 @@ export enum ViewItemContext {
   BOARD = 'board',
   BOARD_DEFAULT = 'board-default',
   BOARD_HOST = 'board-host',
+  // Set for category item.
+  CATEGORY = 'category',
+  CATEGORY_FAVORITE = 'category-favorite',
   // Set for package name item.
   PACKAGE = 'package',
   PACKAGE_STARTED = 'package-started',

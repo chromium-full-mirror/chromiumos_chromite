@@ -116,6 +116,13 @@ export const leagcyBoardsAndPackages = {
   ),
 };
 
+export const boardsAndPackages = {
+  /** User's favorite categories. */
+  favoriteCategories: new ConfigValue<string[]>(
+    'boardsAndPackages.favoriteCategories'
+  ),
+};
+
 export const boilerplate = {
   enabled: new ConfigValue<boolean>('boilerplate.enabled'),
   guessNamespace: new ConfigValue<boolean>('boilerplate.guessNamespace'),

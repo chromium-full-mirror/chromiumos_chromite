@@ -7,5 +7,5 @@ Items form the following hierarchy. The value in parens indicates the context va
 
 - root
   - board ('board' | 'board-host' | 'board-default')
-    - package category
+    - package category ('category' | 'category-favorite')
       - package name ('package' | 'package-started' | 'package-stopped')

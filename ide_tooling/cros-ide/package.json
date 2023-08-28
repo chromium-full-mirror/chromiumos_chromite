@@ -28,6 +28,18 @@
   "contributes": {
     "commands": [
       {
+        "command": "chromiumide.boardsAndPackages.favoriteAdd",
+        "category": "CrOS",
+        "title": "Add to favorite",
+        "enablement": "config.chromiumide.underDevelopment.boardsAndPackagesV2"
+      },
+      {
+        "command": "chromiumide.boardsAndPackages.favoriteDelete",
+        "category": "CrOS",
+        "title": "Delete from favorite",
+        "enablement": "config.chromiumide.underDevelopment.boardsAndPackagesV2"
+      },
+      {
         "command": "chromiumide.chrome.build",
         "category": "CrOS",
         "title": "Build + Deploy Ash + Lacros to DUT",
@@ -585,6 +597,16 @@
           "group": "inline"
         },
         {
+          "command": "chromiumide.boardsAndPackages.favoriteAdd",
+          "when": "view == boards-and-packages && viewItem == category",
+          "group": "0_favorite"
+        },
+        {
+          "command": "chromiumide.boardsAndPackages.favoriteDelete",
+          "when": "view == boards-and-packages && viewItem == category-favorite",
+          "group": "0_favorite"
+        },
+        {
           "command": "chromiumide.crosWorkonStart",
           "when": "view == boards-and-packages && viewItem == package-stopped",
           "group": "3_workon"
@@ -641,6 +663,14 @@
         }
       ],
       "commandPalette": [
+        {
+          "command": "chromiumide.boardsAndPackages.favoriteAdd",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.boardsAndPackages.favoriteDelete",
+          "when": "false"
+        },
         {
           "command": "chromiumide.chromium.outputDirectories.editArgs",
           "when": "false"
@@ -705,6 +735,16 @@
         "chromiumide.board": {
           "type": "string",
           "description": "The board to use for generating C++ cross references and autocompletion"
+        },
+        "chromiumide.boardsAndPackages.favoriteCategories": {
+          "type": "array",
+          "description": "List of favorite portage package categories",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "chromeos-base"
+          ]
         },
         "chromiumide.legacyBoardsAndPackages.showWelcomeMessage": {
           "type": "boolean",

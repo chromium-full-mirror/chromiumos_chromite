@@ -8,11 +8,16 @@ import {vscodeRegisterCommand} from '../../../../common/vscode/commands';
 import {Context} from '../context';
 import {Breadcrumbs} from '../item';
 import {crosWorkon} from './cros_workon';
+import {addFavorite, deleteFavorite} from './favorite';
 import {openEbuild} from './open_ebuild';
 import {setDefaultBoard} from './set_default_board';
 
 export enum CommandName {
   SET_DEFAULT_BOARD = 'chromiumide.setDefaultBoard',
+
+  FAVORITE_ADD = 'chromiumide.boardsAndPackages.favoriteAdd',
+  FAVORITE_DELETE = 'chromiumide.boardsAndPackages.favoriteDelete',
+
   CROS_WORKON_START = 'chromiumide.crosWorkonStart',
   CROS_WORKON_STOP = 'chromiumide.crosWorkonStop',
   OPEN_EBUILD = 'chromiumide.openEbuild',
@@ -38,6 +43,17 @@ export class BoardsAndPackagesCommands implements vscode.Disposable {
       this.register(
         CommandName.SET_DEFAULT_BOARD,
         ({breadcrumbs: [board]}: Breadcrumbs) => setDefaultBoard(board)
+      ),
+      // Commands for category name items
+      this.register(
+        CommandName.FAVORITE_ADD,
+        ({breadcrumbs: [_board, category]}: Breadcrumbs) =>
+          addFavorite(category)
+      ),
+      this.register(
+        CommandName.FAVORITE_DELETE,
+        ({breadcrumbs: [_board, category]}: Breadcrumbs) =>
+          deleteFavorite(category)
       ),
       // Commands for package name items
       this.register(
