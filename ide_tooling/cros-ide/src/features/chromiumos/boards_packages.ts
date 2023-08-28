@@ -19,8 +19,9 @@ export async function activate(
   const boardsPackages = new BoardsPackages(chrootService);
 
   subscriptions.push(
-    vscode.commands.registerCommand('chromiumide.crosWorkonStart', board =>
-      boardsPackages.crosWorkonStart(board)
+    vscode.commands.registerCommand(
+      'chromiumide.legacyCrosWorkonStart',
+      board => boardsPackages.crosWorkonStart(board)
     ),
     vscode.commands.registerCommand('chromiumide.crosWorkonStop', board =>
       boardsPackages.crosWorkonStop(board)

@@ -158,7 +158,7 @@
         "title": "Search for selection in Code Search"
       },
       {
-        "command": "chromiumide.crosWorkonStart",
+        "command": "chromiumide.legacyCrosWorkonStart",
         "category": "CrOS",
         "title": "Start Working on a new Package",
         "icon": "$(add)",
@@ -575,7 +575,7 @@
           "group": "inline@2"
         },
         {
-          "command": "chromiumide.crosWorkonStart",
+          "command": "chromiumide.legacyCrosWorkonStart",
           "when": "view == legacy-boards-packages && viewItem =~ /^board/",
           "group": "inline"
         },
