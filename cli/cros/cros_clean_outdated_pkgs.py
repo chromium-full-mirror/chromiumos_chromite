@@ -81,7 +81,6 @@ def is_dep_satisfiable(dep: str, root_path: str, board: str) -> bool:
         sysroot=root_path,
         board=board,
         check=False,
-        print_cmd=False,
     )
     return result.returncode == 0
 
