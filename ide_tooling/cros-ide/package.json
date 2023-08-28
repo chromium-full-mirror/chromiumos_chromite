@@ -221,12 +221,6 @@
         "enablement": "config.chromiumide.testCoverage.enabled"
       },
       {
-        "command": "chromiumide.coverage.showReport",
-        "category": "CrOS",
-        "title": "Show Coverage Report",
-        "enablement": "config.chromiumide.underDevelopment.testCoverage"
-      },
-      {
         "command": "chromiumide.gerrit.internal.testAuth",
         "category": "CrOS",
         "title": "[Internal] Test Gerrit Auth",
@@ -646,10 +640,6 @@
           "group": "5_coverage"
         },
         {
-          "command": "chromiumide.coverage.showReport",
-          "when": "view == legacy-boards-packages && viewItem =~ /^package(-favorite)?$/ && config.chromiumide.underDevelopment.testCoverage"
-        },
-        {
           "command": "chromiumide.chromium.outputDirectories.editArgs",
           "when": "view == chromiumide.chromium.outputDirectories"
         },
@@ -924,11 +914,6 @@
         "chromiumide.underDevelopment.tastDebugging": {
           "type": "boolean",
           "description": "Enable tast tests debugging",
-          "default": false
-        },
-        "chromiumide.underDevelopment.testCoverage": {
-          "type": "boolean",
-          "description": "Enable Experimental Code Coverage Features",
           "default": false
         },
         "chromiumide.deviceManagement.devices": {

@@ -70,20 +70,6 @@ export class Coverage {
 
           await this.generateCoverage(pkg);
         }
-      ),
-      vscodeRegisterCommand(
-        'chromiumide.coverage.showReport',
-        (pkg: Package) => {
-          void this.showReport(pkg);
-          metrics.send({
-            category: 'interactive',
-            group: 'coverage',
-            name: 'coverage_show',
-            description: 'show coverage',
-            board: pkg.board.name,
-            package: pkg.name,
-          });
-        }
       )
     );
 
@@ -99,16 +85,6 @@ export class Coverage {
         void this.updateDecorations(editor);
       })
     );
-  }
-
-  private async showReport(pkg: Package) {
-    const index = await this.findCoverageFile(pkg, 'index.html');
-    if (!index) {
-      void vscode.window.showInformationMessage('Report not found');
-      return;
-    }
-    // TODO(ttylenda): This will not work on code-server running over SSH tunnel.
-    await vscode.env.openExternal(vscode.Uri.file(index));
   }
 
   private async generateCoverage(pkg: Package) {

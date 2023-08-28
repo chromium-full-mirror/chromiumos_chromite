@@ -42,7 +42,6 @@ async function migrateConfiguration(): Promise<void> {
     config.underDevelopment.platformEc,
     config.underDevelopment.relatedFiles,
     config.underDevelopment.systemLogViewer,
-    config.underDevelopment.testCoverage,
     config.deviceManagement.devices,
     config.metrics.collectMetrics,
     config.metrics.showMessage,

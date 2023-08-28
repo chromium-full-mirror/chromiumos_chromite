@@ -167,7 +167,6 @@ export const underDevelopment = {
   relatedFiles: new ConfigValue<boolean>('underDevelopment.relatedFiles'),
   tastDebugging: new ConfigValue<boolean>('underDevelopment.tastDebugging'),
   systemLogViewer: new ConfigValue<boolean>('underDevelopment.systemLogViewer'),
-  testCoverage: new ConfigValue<boolean>('underDevelopment.testCoverage'),
 };
 
 export const deviceManagement = {
