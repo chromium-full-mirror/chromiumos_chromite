@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.20.0 (August 2023)
+
+- GTest
+  - Various bug fixes
+- Chromium
+  - Show full error message on gn.args parse failure
+- Metrics
+  - Record active users count
+- ChromiumIDE development
+  - Improve build speed
+  - Use node 16
+
 ## 0.18.0 (July 2023)
 
 - Chromium
