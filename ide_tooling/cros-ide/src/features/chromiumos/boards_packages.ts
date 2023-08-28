@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {parseQualifiedPackageName} from '../../common/chromiumos/portage/ebuild';
 import * as cros from '../../common/cros';
 import * as ideUtil from '../../ide_util';
 import * as services from '../../services';
 import * as config from '../../services/config';
 import * as metrics from '../metrics/metrics';
+import {openEbuild} from './boards_and_packages/command/open_ebuild';
 
 export async function activate(
   subscriptions: vscode.Disposable[],
@@ -166,32 +168,14 @@ class BoardsPackages {
   }
 
   async openEbuild(pkg: PackageItem): Promise<void> {
-    const res = await this.chrootService.exec(
-      pkg.board.name === VIRTUAL_BOARDS_HOST
-        ? 'equery'
-        : `equery-${pkg.board.name}`,
-      ['which', '-m', pkg.name],
+    await openEbuild(
       {
-        logger: ideUtil.getUiLogger(),
-        logStdout: true,
-        sudoReason: 'to query ebuild path',
-      }
+        chrootService: this.chrootService,
+        output: ideUtil.getUiLogger(),
+      },
+      pkg.board.name,
+      parseQualifiedPackageName(pkg.name)
     );
-    if (res instanceof Error) {
-      void vscode.window.showErrorMessage(res.message);
-      return;
-    }
-    const relFileName = res.stdout.trim().substring('/mnt/host/source/'.length);
-    const srcRoot = this.chrootService.source;
-    const fileName = srcRoot.realpath(relFileName);
-    const document = await vscode.workspace.openTextDocument(fileName);
-    await vscode.window.showTextDocument(document);
-    metrics.send({
-      category: 'interactive',
-      group: 'package',
-      name: 'package_open_ebuild',
-      description: 'open ebuild',
-    });
   }
 }
 

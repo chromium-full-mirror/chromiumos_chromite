@@ -13,6 +13,7 @@ type Category =
 
 // Exhaustive list of feature groups.
 type FeatureGroup =
+  | 'boards_and_packages'
   | 'chromium.gtest'
   | 'chromium.outputDirectories'
   | 'codesearch'
@@ -355,6 +356,12 @@ interface PackageOpenEbuildEvent extends EventBase {
   name: 'package_open_ebuild';
 }
 
+interface BoardsAndPackagesOpenEbuildEvent extends EventBase {
+  category: 'interactive';
+  group: 'boards_and_packages';
+  name: 'boards_and_packages_open_ebuild';
+}
+
 type SpellcheckerEvent = EventBase &
   (
     | {
@@ -393,6 +400,7 @@ interface VirtualdocumentOpenDocumentEvent extends EventBase {
 // Add new Event interfaces to UAEventDeprecated (joint by or |).
 export type Event =
   | ActivateChromiumosEvent
+  | BoardsAndPackagesOpenEbuildEvent
   | ChromiumGtestEvent
   | ChromiumIdeExtensionEvent
   | ChromiumOutputDirectoriesEvent

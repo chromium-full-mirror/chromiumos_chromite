@@ -175,8 +175,7 @@
         "command": "chromiumide.openEbuild",
         "category": "CrOS",
         "title": "Open Ebuild",
-        "icon": "$(edit)",
-        "enablement": "!config.chromiumide.underDevelopment.boardsAndPackagesV2"
+        "icon": "$(edit)"
       },
       {
         "command": "chromiumide.selectBoard",
@@ -590,6 +589,10 @@
           "command": "chromiumide.openEbuild",
           "when": "view == legacy-boards-packages && viewItem == package",
           "group": "inline"
+        },
+        {
+          "command": "chromiumide.openEbuild",
+          "when": "view == boards-and-packages && viewItem == package"
         },
         {
           "command": "chromiumide.setDefaultBoard",

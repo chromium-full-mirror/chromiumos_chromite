@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import {ChrootService} from '../../../services/chromiumos';
 import {StatusManager, TaskStatus} from '../../../ui/bg_task_status';
+import {registerCommands} from './command';
 import {Breadcrumbs} from './item';
 import {BoardsAndPackagesTreeDataProvider} from './tree_data_provider';
 
@@ -32,6 +33,13 @@ export class BoardsAndPackages implements vscode.Disposable {
       ),
     });
     this.subscriptions.push(this.treeView);
+
+    this.subscriptions.push(
+      registerCommands({
+        chrootService,
+        output,
+      })
+    );
   }
 
   getTreeViewForTesting(): vscode.TreeView<Breadcrumbs> {

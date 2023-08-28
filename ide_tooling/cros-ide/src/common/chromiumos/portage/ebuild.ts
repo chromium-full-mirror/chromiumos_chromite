@@ -22,6 +22,16 @@ export function parseQualifiedPackageName(
   return {category, name};
 }
 
+/**
+ * Stringify the parsed package name.
+ */
+export function getQualifiedPackageName({
+  category,
+  name,
+}: ParsedPackageName): string {
+  return `${category}/${name}`;
+}
+
 export type EbuildPackage = ParsedPackageName & {
   // Package version (excluding revision, if any), e.g. 9999
   readonly version: string;
