@@ -13,16 +13,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import time
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    TYPE_CHECKING,
-    Union,
-)
+from typing import Union
 
 from chromite.third_party.google.protobuf import json_format
 

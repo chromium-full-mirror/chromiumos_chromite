@@ -4,19 +4,10 @@
 
 import asyncio
 import logging
-import grpc
+import grpc  # pylint: disable=import-error
 from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2
 from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2_grpc
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    TYPE_CHECKING,
-    Union,
-)
+from typing import List, Optional
 
 
 def SeekUpdate():

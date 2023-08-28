@@ -9,14 +9,10 @@ These functions send requests to the sdk server
 
 from typing import Generator, List, Optional
 
-import grpc
+import grpc  # pylint: disable=import-error
 
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2_grpc
-from chromite.contrib.sdk_server.grpc_server.chromite.api import image_pb2
-from chromite.contrib.sdk_server.grpc_server.chromite.api import sdk_pb2
-from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
-from chromite.contrib.sdk_server.grpc_server.chromiumos import common_pb2
 
 
 def cros_workon_info(

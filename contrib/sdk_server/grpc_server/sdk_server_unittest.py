@@ -5,23 +5,16 @@
 """Tests for sdk server RPCs."""
 
 import os
-import subprocess
 import tempfile
-import unittest
-import unittest.mock as mock
 
 import pytest
 
-from chromite.api import controller
 from chromite.lib import constants
 
 
 try:
     from chromite.contrib.sdk_server.grpc_server import sdk_server_defs_grpc
     from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2
-    from chromite.contrib.sdk_server.grpc_server.chromite.api import image_pb2
-    from chromite.contrib.sdk_server.grpc_server.chromite.api import sdk_pb2
-    from chromite.contrib.sdk_server.grpc_server.chromite.api import sysroot_pb2
     from chromite.contrib.sdk_server.grpc_server.chromiumos import common_pb2
 
     _MODULE_NOT_FOUND = False

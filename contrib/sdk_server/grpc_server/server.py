@@ -6,11 +6,9 @@
 import asyncio
 import atexit
 from concurrent import futures
-import logging
-import signal
 from typing import List, Optional
 
-import grpc
+import grpc  # pylint: disable=import-error
 
 from chromite.contrib.sdk_server.grpc_server import sdk_server_defs_grpc
 from chromite.contrib.sdk_server.grpc_server import sdk_server_pb2_grpc
