@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as path from 'path';
 import * as vscode from 'vscode';
 import {getCrosPath} from '../../../../../common/chromiumos/cros';
 import * as commonUtil from '../../../../../common/common_util';
@@ -170,5 +171,107 @@ chromeos-base/shill
     await reader.read();
 
     expect(started).toBeTrue();
+  });
+
+  it('reveals pacakge for active file', async () => {
+    const {chromiumosRoot, chroot, boardsAndPackages} = state;
+
+    // Prepare betty board.
+    await testing.putFiles(chroot, {
+      'build/betty/fake': 'x',
+    });
+
+    const treeView = boardsAndPackages.getTreeViewForTesting();
+
+    // Prepare cros command outputs.
+    const cros = getCrosPath(chromiumosRoot);
+    for (const board of ['amd64-host', 'betty']) {
+      fakeExec.on(
+        cros,
+        testing.exactMatch(
+          ['query', 'ebuilds', '-b', board, '-o', '{package_info.atom}'],
+          async () => `chromeos-base/codelab
+chromeos-base/shill
+dev-go/delve
+`
+        ),
+        testing.exactMatch(
+          ['workon', '-b', board, 'list'],
+          async () => 'chromeos-base/codelab\n'
+        ),
+        testing.exactMatch(
+          ['workon', '-b', board, 'list', '--all'],
+          async () => `chromeos-base/codelab
+chromeos-base/shill
+`
+        )
+      );
+    }
+
+    const textEditor = (pathFromChromiumos: string) =>
+      ({
+        document: new testing.fakes.FakeTextDocument({
+          uri: vscode.Uri.file(path.join(chromiumosRoot, pathFromChromiumos)),
+        }) as vscode.TextDocument,
+      } as vscode.TextEditor);
+
+    const codelabEbuild = textEditor(
+      'src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-0.0.1-r402.ebuild'
+    );
+
+    // Nothing happens because no board has been selected.
+    vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);
+
+    await treeView.reveal(Breadcrumbs.from('betty'));
+
+    // Still nothing happens because category item hasn't been revealed yet.
+    vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);
+
+    expect(treeView.selection).toEqual([Breadcrumbs.from('betty')]);
+
+    await treeView.reveal(Breadcrumbs.from('betty', 'chromeos-base'));
+    expect(treeView.selection).toEqual([
+      Breadcrumbs.from('betty', 'chromeos-base'),
+    ]);
+
+    const selectionChangeEventReader = new testing.EventReader(
+      treeView.onDidChangeSelection,
+      subscriptions
+    );
+
+    // Now the codelab package should be selected.
+    vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);
+    await selectionChangeEventReader.read();
+    expect(treeView.selection).toEqual([
+      Breadcrumbs.from('betty', 'chromeos-base', 'codelab'),
+    ]);
+
+    // Emulate user's manually selecting another item.
+    await treeView.reveal(Breadcrumbs.from('betty', 'dev-go', 'delve'));
+    await selectionChangeEventReader.read();
+    expect(treeView.selection).toEqual([
+      Breadcrumbs.from('betty', 'dev-go', 'delve'),
+    ]);
+
+    // Changing the active text editor, the selection comes back to codelab.
+    vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);
+    await selectionChangeEventReader.read();
+    expect(treeView.selection).toEqual([
+      Breadcrumbs.from('betty', 'chromeos-base', 'codelab'),
+    ]);
+
+    // Change the selection to host.
+    await treeView.reveal(Breadcrumbs.from('host', 'chromeos-base'));
+    await selectionChangeEventReader.read();
+    expect(treeView.selection).toEqual([
+      Breadcrumbs.from('host', 'chromeos-base'),
+    ]);
+
+    // Codelab under host should be selected now.
+    vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);
+    await selectionChangeEventReader.read();
+    expect(treeView.selection).toEqual([
+      Breadcrumbs.from('host', 'chromeos-base', 'codelab'),
+    ]);
   });
 });

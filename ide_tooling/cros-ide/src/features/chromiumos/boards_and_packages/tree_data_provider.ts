@@ -64,6 +64,13 @@ export class BoardsAndPackagesTreeDataProvider
     return item.children.map(x => x.breadcrumbs);
   }
 
+  /**
+   * @returns whether the item corresponding to the breadcrumbs has been instantiated.
+   */
+  isItemInstantiated(breadcrumbs: Breadcrumbs): boolean {
+    return searchItem(this.root, breadcrumbs) !== undefined;
+  }
+
   refresh(): void {
     this.onDidChangeTreeDataEmitter.fire();
   }

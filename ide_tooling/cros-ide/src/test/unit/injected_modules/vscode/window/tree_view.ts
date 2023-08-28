@@ -106,6 +106,7 @@ class TreeView<T> implements vscode.TreeView<T> {
     // the option `select` to `false`.
     if (options?.select !== false) {
       this.selection = [element];
+      this.onDidChangeSelectionEmitter.fire({selection: this.selection});
     }
   }
 

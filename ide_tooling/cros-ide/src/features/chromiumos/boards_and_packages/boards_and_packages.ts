@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import {ChrootService} from '../../../services/chromiumos';
 import {StatusManager, TaskStatus} from '../../../ui/bg_task_status';
+import {ActivePackageRevealer} from './active_package_revealer';
 import {BoardsAndPackagesCommands, CommandName} from './command';
 import {Breadcrumbs} from './item';
 import {BoardsAndPackagesTreeDataProvider} from './tree_data_provider';
@@ -37,12 +38,23 @@ export class BoardsAndPackages implements vscode.Disposable {
     });
     this.subscriptions.push(this.treeView);
 
+    // Register a handler to reveal the package for the active file.
+    this.subscriptions.push(
+      new ActivePackageRevealer(
+        chrootService,
+        this.treeView,
+        this.treeDataProvider
+      )
+    );
+
+    // Register commands.
     const commands = new BoardsAndPackagesCommands({
       chrootService,
       output,
     });
     this.subscriptions.push(commands);
 
+    // Register handlers to refresh the view.
     this.subscriptions.push(
       vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('chromiumide.board')) {
