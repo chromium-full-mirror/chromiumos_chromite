@@ -816,6 +816,11 @@
           "markdownDescription": "Show Code Coverage ([go/chromiumide-doc-boards-pkgs#code-coverage](http://go/chromiumide-doc-boards-pkgs#code-coverage)). Requires a reload to take effect.",
           "default": true
         },
+        "chromiumide.underDevelopment.buildAndDeploy": {
+          "type": "boolean",
+          "description": "Enable build + deploy features under development",
+          "default": false
+        },
         "chromiumide.underDevelopment.chromiumBuild": {
           "type": "boolean",
           "description": "Enable build + deploy for chromium code (incomplete)",
