@@ -43,7 +43,7 @@ export async function activate(
     }),
 
     vscodeRegisterCommand('chromiumide.dismissBoardsPkgsWelcome', async () => {
-      await config.boardsAndPackages.showWelcomeMessage.update(false);
+      await config.leagcyBoardsAndPackages.showWelcomeMessage.update(false);
       boardPackageProvider.refresh();
     }),
 
@@ -160,7 +160,7 @@ class BoardPackageProvider implements vscode.TreeDataProvider<ChrootItem> {
   async getChildren(element?: ChrootItem): Promise<ChrootItem[]> {
     // Welcome messages are shown when there are no elements, so return an empty result
     // even if there are boards in the chroot message is dismissed.
-    if (config.boardsAndPackages.showWelcomeMessage.get()) {
+    if (config.leagcyBoardsAndPackages.showWelcomeMessage.get()) {
       return [];
     }
 

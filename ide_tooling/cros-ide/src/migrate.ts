@@ -20,7 +20,7 @@ export async function migrate(): Promise<void> {
 async function migrateConfiguration(): Promise<void> {
   const configs: config.ConfigValue<unknown>[] = [
     config.board,
-    config.boardsAndPackages.showWelcomeMessage,
+    config.leagcyBoardsAndPackages.showWelcomeMessage,
     config.boilerplate.enabled,
     config.boilerplate.guessNamespace,
     config.chrome.ashBuildDir,

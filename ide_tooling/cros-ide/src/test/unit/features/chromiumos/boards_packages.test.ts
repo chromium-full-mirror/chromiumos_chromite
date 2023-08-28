@@ -92,7 +92,7 @@ describe('Boards and Packages view', () => {
       '/build/coral/x': 'x',
     });
 
-    await config.boardsAndPackages.showWelcomeMessage.update(false);
+    await config.leagcyBoardsAndPackages.showWelcomeMessage.update(false);
 
     fakes.installChrootCommandHandler(
       fakeExec,
@@ -155,11 +155,11 @@ chromeos-base/shill`
       }),
     ]);
 
-    await config.boardsAndPackages.showWelcomeMessage.update(false);
+    await config.leagcyBoardsAndPackages.showWelcomeMessage.update(false);
   });
 
   it('opens ebuild file', async () => {
-    await config.boardsAndPackages.showWelcomeMessage.update(false);
+    await config.leagcyBoardsAndPackages.showWelcomeMessage.update(false);
 
     const chrootService =
       jasmine.createSpyObj<services.chromiumos.ChrootService>(

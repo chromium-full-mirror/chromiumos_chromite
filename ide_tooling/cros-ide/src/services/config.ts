@@ -90,9 +90,9 @@ export type {ConfigValue};
 
 export const board = new ConfigValue<string>('board');
 
-export const boardsAndPackages = {
+export const leagcyBoardsAndPackages = {
   showWelcomeMessage: new ConfigValue<boolean>(
-    'boardsAndPackages.showWelcomeMessage'
+    'legacyBoardsAndPackages.showWelcomeMessage'
   ),
 };
 
