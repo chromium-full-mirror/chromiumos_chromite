@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('chromiumide.fileIdeBug', () => {
       void vscode.env.openExternal(
-        vscode.Uri.parse('http://go/cros-ide-new-bug')
+        vscode.Uri.parse('http://go/chromiumide-new-bug')
       );
     })
   );

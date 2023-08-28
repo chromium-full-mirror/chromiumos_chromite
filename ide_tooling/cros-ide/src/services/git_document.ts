@@ -75,7 +75,7 @@ export class GitDocumentProvider implements vscode.TextDocumentContentProvider {
       return this.getCommitMessageCached(uri.path, uri.query);
     }
 
-    return `Internal error in ChromiumIDE.\nReport it at http://go/cros-ide-new-bug\n\nURI: ${uri}\n`;
+    return `Internal error in ChromiumIDE.\nReport it at http://go/chromiumide-new-bug\n\nURI: ${uri}\n`;
   }
 }
 

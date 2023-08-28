@@ -9,23 +9,23 @@ export function activate(context: vscode.ExtensionContext): void {
   const commandLink: [string, vscode.Uri][] = [
     [
       'chromiumide.showHelpForBoardsPackages',
-      vscode.Uri.parse('http://go/cros-ide-doc-boards-pkgs'),
+      vscode.Uri.parse('http://go/chromiumide-doc-boards-pkgs'),
     ],
     [
       'chromiumide.showHelpForDevices',
-      vscode.Uri.parse('http://go/cros-ide-doc-device-management'),
+      vscode.Uri.parse('http://go/chromiumide-doc-device-management'),
     ],
     [
       'chromiumide.showHelpForIdeStatus',
-      vscode.Uri.parse('http://go/cros-ide-doc-ide-status'),
+      vscode.Uri.parse('http://go/chromiumide-doc-ide-status'),
     ],
     [
       'chromiumide.showHelpForGerrit',
-      vscode.Uri.parse('http://go/cros-ide-doc-gerrit'),
+      vscode.Uri.parse('http://go/chromiumide-doc-gerrit'),
     ],
     [
       'chromiumide.showHelpForLint',
-      vscode.Uri.parse('http://go/cros-ide-doc-linting'),
+      vscode.Uri.parse('http://go/chromiumide-doc-linting'),
     ],
   ];
 

@@ -797,7 +797,7 @@
         },
         "chromiumide.testCoverage.enabled": {
           "type": "boolean",
-          "markdownDescription": "Show Code Coverage ([go/cros-ide-doc-boards-pkgs#code-coverage](http://go/cros-ide-doc-boards-pkgs#code-coverage)). Requires a reload to take effect.",
+          "markdownDescription": "Show Code Coverage ([go/chromiumide-doc-boards-pkgs#code-coverage](http://go/chromiumide-doc-boards-pkgs#code-coverage)). Requires a reload to take effect.",
           "default": true
         },
         "chromiumide.underDevelopment.boardsAndPackagesV2": {

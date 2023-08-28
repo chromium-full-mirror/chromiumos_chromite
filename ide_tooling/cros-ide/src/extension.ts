@@ -264,13 +264,13 @@ function assertOutsideChroot() {
   void (async () => {
     const openDocument = 'Open document';
     const choice = await vscode.window.showWarningMessage(
-      'Support for running VSCode inside chroot is dropped in the next release that comes soon; please read go/cros-ide-quickstart and update your setup.',
+      'Support for running VSCode inside chroot is dropped in the next release that comes soon; please read go/chromiumide-quickstart and update your setup.',
       {modal: true},
       openDocument
     );
     if (choice === openDocument) {
       void vscode.env.openExternal(
-        vscode.Uri.parse('http://go/cros-ide-quickstart')
+        vscode.Uri.parse('http://go/chromiumide-quickstart')
       );
     }
   })();

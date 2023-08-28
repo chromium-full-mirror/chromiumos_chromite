@@ -225,7 +225,7 @@ async function checkForGo(): Promise<boolean> {
   );
   if (choice) {
     void vscode.env.openExternal(
-      vscode.Uri.parse('http://go/cros-ide-doc-go-not-found')
+      vscode.Uri.parse('http://go/chromiumide-doc-go-not-found')
     );
   }
   return false;

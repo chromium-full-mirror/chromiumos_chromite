@@ -132,12 +132,12 @@ export class Platform2 implements CompdbGenerator {
         case CompdbErrorKind.RunEbuild: {
           throw new ErrorDetails(
             error.details.kind,
-            'Failed to generate cross reference; see go/cros-ide-doc-compdb-failure for troubleshooting',
+            'Failed to generate cross reference; see go/chromiumide-doc-compdb-failure for troubleshooting',
             {
               label: 'Open',
               action: () => {
                 void vscode.env.openExternal(
-                  vscode.Uri.parse('http://go/cros-ide-doc-compdb-failure')
+                  vscode.Uri.parse('http://go/chromiumide-doc-compdb-failure')
                 );
               },
             }
@@ -146,12 +146,12 @@ export class Platform2 implements CompdbGenerator {
         case CompdbErrorKind.NotGenerated:
           throw new ErrorDetails(
             error.details.kind,
-            'Failed to generate cross reference: compile_commands_chroot.json was not created; file a bug on go/cros-ide-new-bug',
+            'Failed to generate cross reference: compile_commands_chroot.json was not created; file a bug on go/chromiumide-new-bug',
             {
               label: 'File a bug',
               action: () => {
                 void vscode.env.openExternal(
-                  vscode.Uri.parse('http://go/cros-ide-new-bug')
+                  vscode.Uri.parse('http://go/chromiumide-new-bug')
                 );
               },
             }

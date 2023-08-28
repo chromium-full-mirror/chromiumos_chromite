@@ -264,7 +264,7 @@ async function readGitLogOrThrow(gitDir: string, sink: Sink) {
   const upstreamBranch = await getUpstreamOrThrow(gitDir, sink);
   if (!upstreamBranch) {
     sink.appendLine(
-      'Upstream branch not found. Gerrit comments will not be shown. If you think this is an error, please file go/cros-ide-new-bug'
+      'Upstream branch not found. Gerrit comments will not be shown. If you think this is an error, please file go/chromiumide-new-bug'
     );
     return [];
   }

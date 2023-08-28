@@ -85,8 +85,8 @@ function extensionVersionIsPreRelease(version: string | undefined): string {
  * Creates a query from event for Google Analytics 4 measurement protocol, see
  * https://developers.google.com/analytics/devguides/collection/protocol/ga4
  *
- * TODO(b/281925148): update go/cros-ide-metrics document on new GA4 parameters.
- * See go/cros-ide-metrics for the memo on what values are assigned to GA parameters.
+ * TODO(b/281925148): update go/chromiumide-metrics document on new GA4 parameters.
+ * See go/chromiumide-metrics for the memo on what values are assigned to GA parameters.
  */
 export function eventToRequestBodyGA4(
   event: metricsEvent.Event,

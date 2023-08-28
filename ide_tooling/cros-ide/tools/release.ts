@@ -237,7 +237,7 @@ async function build(tempDir: string, preRelease: boolean): Promise<string> {
 
 async function buildAndUpload(preRelease: boolean, remoteBranch?: string) {
   if (!process.env.OVSX_PAT || !process.env.VSCE_PAT) {
-    throw new Error('Set OVSX_PAT and VSCE_PAT: read go/cros-ide-release');
+    throw new Error('Set OVSX_PAT and VSCE_PAT: read go/chromiumide-release');
   }
 
   await assertCleanGitStatus();

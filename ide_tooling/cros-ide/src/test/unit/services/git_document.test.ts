@@ -62,6 +62,6 @@ describe('Git document provider', () => {
   it('shows the link to file a bug', async () => {
     const uri = vscode.Uri.parse('gitmsg:///does/not/matter/no_file?HEAD');
     const doc = await state.gitDocumentProvider.provideTextDocumentContent(uri);
-    expect(doc).toContain('go/cros-ide-new-bug');
+    expect(doc).toContain('go/chromiumide-new-bug');
   });
 });
