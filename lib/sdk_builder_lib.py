@@ -54,7 +54,7 @@ def CreateTarballForSdk(tarball_path: Path, board_location: Path) -> None:
         extra_env=extra_env,
     )
     # Make the tarball readable by all users.
-    cros_build_lib.sudo_run(["chmod", "a+r", tarball_path])
+    osutils.Chmod(tarball_path, 0o644, sudo=True)
 
 
 def BuildSdkTarball(sdk_path: Path) -> Path:
