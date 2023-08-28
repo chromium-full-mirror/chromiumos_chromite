@@ -841,54 +841,6 @@ def BundleTastFiles(
     return tarball
 
 
-def GenerateCpeReport(
-    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot", output_dir: str
-) -> CpeResult:
-    """Generate CPE export.
-
-    Args:
-        chroot: The chroot where the command is being run.
-        sysroot: The sysroot whose dependencies are being reported.
-        output_dir: The path where the output files should be written.
-
-    Returns:
-        CpeResult: The CPE result instance with the full paths to the report and
-        warnings files.
-    """
-    # Call cros_extract_deps to create the report that the export produced.
-    # We'll assume the basename for the board name to match how these were built
-    # out in the old system.
-    build_target = os.path.basename(sysroot.path)
-    report_path = os.path.join(
-        output_dir, CPE_RESULT_FILE_TEMPLATE % build_target
-    )
-
-    # Build the command and its args.
-    cmd = [
-        "cros_extract_deps",
-        "--sysroot",
-        sysroot.path,
-        "--format",
-        "cpe",
-        "virtual/target-os",
-        "--output-path",
-        report_path,
-    ]
-
-    logging.info("Beginning CPE Export.")
-    result = chroot.run(cmd, capture_output=True)
-    logging.info("CPE Export Complete.")
-
-    # Write out the warnings the export produced.
-    warnings_path = os.path.join(
-        output_dir, CPE_WARNINGS_FILE_TEMPLATE % build_target
-    )
-
-    osutils.WriteFile(warnings_path, result.stderr, mode="wb")
-
-    return CpeResult(report=report_path, warnings=warnings_path)
-
-
 def BundleGceTarball(output_dir: str, image_dir: str) -> str:
     """Bundle the test image into a tarball suitable for importing into GCE.
 

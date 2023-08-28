@@ -1180,67 +1180,6 @@ class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
         cros_test_lib.VerifyTarball(tarball, sysroot_files)
 
 
-class GenerateCpeExportTest(cros_test_lib.RunCommandTempDirTestCase):
-    """GenerateCpeExport tests."""
-
-    def setUp(self):
-        self.sysroot = sysroot_lib.Sysroot("/build/board")
-        self.chroot = chroot_lib.Chroot(
-            self.tempdir / "chroot", out_path=self.tempdir / "out"
-        )
-
-        self.chroot_tempdir = self.chroot.tempdir
-        self.PatchObject(
-            self.chroot, "tempdir", return_value=self.chroot_tempdir
-        )
-
-        self.output_dir = os.path.join(self.tempdir, "output_dir")
-        osutils.SafeMakedirs(self.output_dir)
-
-        result_file = artifacts.CPE_RESULT_FILE_TEMPLATE % "board"
-        self.result_file = os.path.join(self.output_dir, result_file)
-
-        warnings_file = artifacts.CPE_WARNINGS_FILE_TEMPLATE % "board"
-        self.warnings_file = os.path.join(self.output_dir, warnings_file)
-
-    def testSuccess(self):
-        """Test success handling."""
-        # Set up warning output and the file the command would be making.
-        report = "Report."
-        warnings = "Warnings."
-        self.rc.SetDefaultCmdResult(
-            returncode=0, stdout=report, stderr=warnings
-        )
-
-        result = artifacts.GenerateCpeReport(
-            self.chroot, self.sysroot, self.output_dir
-        )
-
-        expected_cmd = [
-            "cros_extract_deps",
-            "--sysroot",
-            "/build/board",
-            "--format",
-            "cpe",
-            "virtual/target-os",
-            "--output-path",
-            self.result_file,
-        ]
-        self.assertCommandContains(
-            expected_cmd,
-            capture_output=True,
-            chroot_args=["--chroot", mock.ANY, "--out-dir", mock.ANY],
-            enter_chroot=True,
-        )
-
-        self.assertEqual(self.result_file, result.report)
-        self.assertEqual(self.warnings_file, result.warnings)
-        # We cannot assert that self.result_file exists and check contents since
-        # we are mocking  cros_extract_deps, but we verified the args to
-        # cros_extract_deps.
-        self.assertFileContents(self.warnings_file, warnings)
-
-
 class BundleGceTarballTest(cros_test_lib.MockTempDirTestCase):
     """BundleGceTarball tests."""
 
