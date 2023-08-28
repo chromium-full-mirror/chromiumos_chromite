@@ -769,24 +769,6 @@ def BundleVmFiles(
         output_proto.artifacts.add().path = archive
 
 
-def _ExportCpeReportResponse(_input_proto, _output_proto, _config):
-    """Add test cpe results to a successful response."""
-
-
-@faux.success(_ExportCpeReportResponse)
-@faux.empty_error
-@validate.require("sysroot.path")
-@validate.exists("result_path.path.path")
-@validate.validation_complete
-def ExportCpeReport(
-    _input_proto: artifacts_pb2.BundleRequest,
-    _output_proto: artifacts_pb2.BundleResponse,
-    _config: "api_config.ApiConfig",
-) -> Optional[int]:
-    """Export a CPE report."""
-    return None
-
-
 def _BundleGceTarballResponse(input_proto, output_proto, _config) -> None:
     """Add artifact tarball to a successful response."""
     output_proto.artifacts.add(
