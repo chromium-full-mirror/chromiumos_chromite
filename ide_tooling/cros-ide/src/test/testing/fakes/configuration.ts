@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as fs from 'fs';
 import * as vscode from 'vscode';
+import {readPackageJson} from '../package_json';
 
 // Fake implementation of vscode.WorkspaceConfiguration.
 // It only implements a portion of WorkspaceConfiguration used by the extension; for example, index
@@ -20,11 +20,8 @@ export class FakeWorkspaceConfiguration<T> {
     new vscode.EventEmitter<vscode.ConfigurationChangeEvent>();
   readonly onDidChange = this.onDidChangeEmitter.event;
 
-  constructor(packageJsonPath: string, section: string) {
-    this.defaults = readDefaultsFromPackageJson(
-      packageJsonPath,
-      section
-    ) as Map<string, T>;
+  constructor(section: string) {
+    this.defaults = readDefaultsFromPackageJson(section) as Map<string, T>;
   }
 
   dispose(): void {
@@ -89,32 +86,14 @@ export class FakeWorkspaceConfiguration<T> {
   }
 }
 
-interface PackageJson {
-  contributes: {
-    configuration: {
-      properties: {
-        [key: string]: {
-          type: 'string' | 'boolean' | 'array';
-          default?: unknown;
-        };
-      };
-    };
-  };
-}
-
 const implicitDefaultValues = {
   string: '',
   boolean: false,
   array: [],
 } as const;
 
-function readDefaultsFromPackageJson(
-  packageJsonPath: string,
-  section: string
-): Map<string, unknown> {
-  const packageJson = JSON.parse(
-    fs.readFileSync(packageJsonPath, {encoding: 'utf-8'})
-  ) as PackageJson;
+function readDefaultsFromPackageJson(section: string): Map<string, unknown> {
+  const packageJson = readPackageJson();
   const configs = packageJson.contributes.configuration.properties;
 
   const defaults = new Map<string, unknown>();

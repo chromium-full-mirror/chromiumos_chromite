@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'jasmine';
-import * as path from 'path';
 import * as vscode from 'vscode';
 import * as config from '../../../services/config';
 import * as fakes from '../../testing/fakes';
@@ -11,7 +10,6 @@ import {setConfigurationProviderForTesting} from '../injected_modules/vscode/wor
 
 function initFakeConfigs(): void {
   const fakeConfig = new fakes.FakeWorkspaceConfiguration(
-    path.join(__dirname, '../../../../package.json'),
     config.TEST_ONLY.CHROMIUMIDE_PREFIX
   );
 

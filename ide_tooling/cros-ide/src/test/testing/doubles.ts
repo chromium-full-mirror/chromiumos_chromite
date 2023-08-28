@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as path from 'path';
 import * as vscode from 'vscode';
 import * as config from '../../services/config';
 import * as injectedVscode from '../unit/injected_modules/vscode';
@@ -392,10 +391,7 @@ export function installFakeConfigs(
   beforeEach(() => {
     // Prepare fake config for the old prefix as well for testing migrator.
     for (const prefix of [config.TEST_ONLY.CHROMIUMIDE_PREFIX, 'cros-ide']) {
-      const fakeConfig = new fakes.FakeWorkspaceConfiguration(
-        path.join(__dirname, '../../../package.json'),
-        prefix
-      );
+      const fakeConfig = new fakes.FakeWorkspaceConfiguration(prefix);
       subscriptions.push(fakeConfig);
 
       vscodeSpy.workspace.getConfiguration

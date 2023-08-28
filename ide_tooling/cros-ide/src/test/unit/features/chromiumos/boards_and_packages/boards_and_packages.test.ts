@@ -9,25 +9,31 @@ import {Breadcrumbs} from '../../../../../features/chromiumos/boards_and_package
 import {ChrootService} from '../../../../../services/chromiumos';
 import {underDevelopment} from '../../../../../services/config';
 import * as testing from '../../../../testing';
-import {FakeStatusManager} from '../../../../testing/fakes';
+import {FakeStatusManager, VoidOutputChannel} from '../../../../testing/fakes';
 
 describe('Boards and packages', () => {
+  const {vscodeEmitters, vscodeSpy} = testing.installVscodeDouble();
+
+  testing.installFakeConfigs(vscodeSpy, vscodeEmitters);
+
   const tempDir = testing.tempDir();
 
   const {fakeExec} = testing.installFakeExec();
 
   const subscriptions: vscode.Disposable[] = [];
 
-  const originalFlagValue = underDevelopment.boardsAndPackagesV2.get();
-
   afterEach(async () => {
     vscode.Disposable.from(...subscriptions.reverse()).dispose();
     subscriptions.splice(0);
-
-    await underDevelopment.boardsAndPackagesV2.update(originalFlagValue);
   });
 
   it('supports revealing tree items from breadcrumbs', async () => {
+    await underDevelopment.boardsAndPackagesV2.update(true);
+
+    vscodeSpy.window.createOutputChannel.and.returnValue(
+      new VoidOutputChannel()
+    );
+
     const chromiumosRoot = tempDir.path;
 
     const chroot = await testing.buildFakeChroot(chromiumosRoot);
