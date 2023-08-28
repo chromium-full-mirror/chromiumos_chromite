@@ -483,8 +483,17 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         if test_extract_file:
             self.rc.assertCommandCalled(
-                ["tar", "-xJf", download_file, test_extract_file],
-                cwd=self.tempdir,
+                [
+                    "tar",
+                    "--sparse",
+                    "-xf",
+                    download_file,
+                    "--directory",
+                    str(self.tempdir),
+                    test_extract_file,
+                ],
+                capture_output=True,
+                encoding="utf-8",
             )
             move_mock.assert_called_once_with(
                 os.path.join(self.tempdir, test_extract_file), image_file

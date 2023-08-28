@@ -760,8 +760,9 @@ class PaygenPayload:
 
         # If we downloaded an archive, extract the image file from it.
         if extract_file:
-            cmd = ["tar", "-xJf", download_file, extract_file]
-            cros_build_lib.run(cmd, cwd=self.work_dir)
+            cros_build_lib.ExtractTarball(
+                download_file, self.work_dir, files_to_extract=[extract_file]
+            )
 
             # Rename it into the desired image name.
             shutil.move(os.path.join(self.work_dir, extract_file), image_file)
