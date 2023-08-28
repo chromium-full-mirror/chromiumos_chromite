@@ -51,7 +51,8 @@ pkg_files(
             # Contains utf-8 characters
             "third_party/swarming.client/example/**",
             "**/__pycache__/**",
-            ".git/**",
+            "**/.git",
+            "**/.git/**",
         ],
     ),
     attributes = pkg_attributes(
