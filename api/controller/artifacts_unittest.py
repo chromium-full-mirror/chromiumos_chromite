@@ -1040,58 +1040,6 @@ class BundleVmFilesTest(
         self.assertFalse(expected_files)
 
 
-class ExportCpeReportTest(BundleTestCase):
-    """ExportCpeReport tests."""
-
-    def testValidateOnly(self):
-        """Quick check validate only calls don't execute."""
-        patch = self.PatchObject(artifacts_svc, "GenerateCpeReport")
-
-        artifacts.ExportCpeReport(
-            self.sysroot_request, self.response, self.validate_only_config
-        )
-
-        patch.assert_not_called()
-
-    def testMockCall(self):
-        """Test a mock call does not execute logic, returns mocked value."""
-        patch = self.PatchObject(artifacts_svc, "GenerateCpeReport")
-
-        artifacts.ExportCpeReport(
-            self.sysroot_request, self.response, self.mock_call_config
-        )
-
-        patch.assert_not_called()
-        self.assertEqual(len(self.response.artifacts), 2)
-        self.assertEqual(
-            self.response.artifacts[0].artifact_path.path,
-            os.path.join(self.output_dir, "cpe_report.txt"),
-        )
-        self.assertEqual(
-            self.response.artifacts[1].artifact_path.path,
-            os.path.join(self.output_dir, "cpe_warnings.txt"),
-        )
-
-    def testSuccess(self):
-        """Test success case."""
-        expected = artifacts_svc.CpeResult(
-            report="/output/report.json", warnings="/output/warnings.json"
-        )
-        self.PatchObject(
-            artifacts_svc, "GenerateCpeReport", return_value=expected
-        )
-
-        artifacts.ExportCpeReport(
-            self.sysroot_request, self.response, self.api_config
-        )
-
-        for artifact in self.response.artifacts:
-            self.assertIn(
-                artifact.artifact_path.path,
-                [expected.report, expected.warnings],
-            )
-
-
 class BundleGceTarballTest(BundleTestCase):
     """Unittests for BundleGceTarball."""
 

@@ -769,24 +769,8 @@ def BundleVmFiles(
         output_proto.artifacts.add().path = archive
 
 
-def _ExportCpeReportResponse(input_proto, output_proto, _config):
+def _ExportCpeReportResponse(_input_proto, _output_proto, _config):
     """Add test cpe results to a successful response."""
-    output_proto.artifacts.add(
-        artifact_path=common_pb2.Path(
-            path=os.path.join(
-                input_proto.result_path.path.path, "cpe_report.txt"
-            ),
-            location=common_pb2.Path.OUTSIDE,
-        )
-    )
-    output_proto.artifacts.add(
-        artifact_path=common_pb2.Path(
-            path=os.path.join(
-                input_proto.result_path.path.path, "cpe_warnings.txt"
-            ),
-            location=common_pb2.Path.OUTSIDE,
-        )
-    )
 
 
 @faux.success(_ExportCpeReportResponse)
@@ -795,31 +779,12 @@ def _ExportCpeReportResponse(input_proto, output_proto, _config):
 @validate.exists("result_path.path.path")
 @validate.validation_complete
 def ExportCpeReport(
-    input_proto: artifacts_pb2.BundleRequest,
-    output_proto: artifacts_pb2.BundleResponse,
+    _input_proto: artifacts_pb2.BundleRequest,
+    _output_proto: artifacts_pb2.BundleResponse,
     _config: "api_config.ApiConfig",
 ) -> Optional[int]:
     """Export a CPE report."""
-    chroot = controller_util.ParseChroot(input_proto.chroot)
-    sysroot = controller_util.ParseSysroot(input_proto.sysroot)
-    output_dir = input_proto.result_path.path.path
-
-    if not sysroot.Exists(chroot=chroot):
-        logging.warning("Sysroot does not exist: %s", sysroot.path)
-        return
-
-    cpe_result = artifacts.GenerateCpeReport(chroot, sysroot, output_dir)
-
-    output_proto.artifacts.add(
-        artifact_path=common_pb2.Path(
-            path=cpe_result.report, location=common_pb2.Path.OUTSIDE
-        )
-    )
-    output_proto.artifacts.add(
-        artifact_path=common_pb2.Path(
-            path=cpe_result.warnings, location=common_pb2.Path.OUTSIDE
-        )
-    )
+    return None
 
 
 def _BundleGceTarballResponse(input_proto, output_proto, _config) -> None:
