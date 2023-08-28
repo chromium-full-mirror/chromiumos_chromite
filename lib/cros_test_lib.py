@@ -1253,12 +1253,6 @@ class MockTestCase(TestCase):
                     "testSyncWithoutException (call)",
                 },
             },
-            "lib/paygen/paygen_payload_lib_unittest.py": {
-                "PaygenPayloadLibBasicTest": {
-                    "testPrepareImageTest (call)",
-                    "testRunGeneratorCmd (call)",
-                },
-            },
         }
 
         # The contents of this variable looks like:

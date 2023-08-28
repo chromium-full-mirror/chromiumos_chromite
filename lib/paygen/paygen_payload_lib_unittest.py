@@ -380,16 +380,13 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
     def testRunGeneratorCmd(self):
         """Test the specialized command to run programs in chroot."""
-        mock_result = cros_build_lib.CompletedProcess(stdout=b"foo output")
-        run_mock = self.PatchObject(
-            cros_build_lib, "run", return_value=mock_result
-        )
-
         expected_cmd = ["cmd", "bar", "jo nes"]
+        expected_stdout = b"foo output"
+        self.rc.AddCmdResult(expected_cmd, stdout=expected_stdout)
         gen = self._GetStdGenerator(work_dir=self.tempdir)
         gen._RunGeneratorCmd(expected_cmd)
 
-        run_mock.assert_called_once_with(
+        self.rc.assertCommandCalled(
             expected_cmd,
             stdout=True,
             enter_chroot=True,
@@ -399,19 +396,21 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
 
         self.assertIn(
-            mock_result.stdout,
+            expected_stdout,
             osutils.ReadFile(
                 os.path.join(self.tempdir, "delta.log"), mode="rb"
             ),
         )
 
-        # Now run with squawk_wrap=true.
-        run_mock = self.PatchObject(
-            cros_build_lib, "run", return_value=mock_result
-        )
+    def testRunGeneratorCmdSquawk(self):
+        """Test the specialized command to run programs in chroot w/squawk."""
+        expected_cmd = ["cmd", "bar", "jo nes"]
+        expected_stdout = b"foo output"
+        self.rc.AddCmdResult(expected_cmd, stdout=expected_stdout)
+        gen = self._GetStdGenerator(work_dir=self.tempdir)
         gen._RunGeneratorCmd(expected_cmd, squawk_wrap=True)
 
-        run_mock.assert_called_once_with(
+        self.rc.assertCommandCalled(
             expected_cmd,
             stdout=True,
             enter_chroot=True,
@@ -421,7 +420,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
 
         self.assertIn(
-            mock_result.stdout,
+            expected_stdout,
             osutils.ReadFile(
                 os.path.join(self.tempdir, "delta.log"), mode="rb"
             ),
@@ -475,7 +474,6 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             download_file = image_file
 
         if test_extract_file:
-            run_mock = self.PatchObject(cros_build_lib, "run")
             move_mock = self.PatchObject(shutil, "move")
 
         # Run the test.
@@ -484,7 +482,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         copy_mock.assert_called_once_with(download_uri, download_file)
 
         if test_extract_file:
-            run_mock.assert_called_once_with(
+            self.rc.assertCommandCalled(
                 ["tar", "-xJf", download_file, test_extract_file],
                 cwd=self.tempdir,
             )
