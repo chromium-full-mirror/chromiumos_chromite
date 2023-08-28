@@ -6,15 +6,15 @@
 import asyncio
 from concurrent import futures
 import logging
+from typing import List, Optional
 
 import grpc  # pylint: disable=import-error
-from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2
-from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2_grpc as pb2_grpc
 
 from chromite.api.api_config import ApiConfig
 from chromite.api.controller import sdk as sdk_controller
 from chromite.api.gen.chromite.api import sdk_pb2
-from typing import List, Optional
+from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2
+from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2_grpc as pb2_grpc
 
 
 class UpdateService(pb2_grpc.UpdateServiceServicer):

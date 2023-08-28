@@ -221,12 +221,14 @@ def clear_logs(request: sdk_server_pb2.ClearLogsRequest):
         response = stub.clear_logs(request)
         return response
 
+
 def get_methods(request: sdk_server_pb2.MethodsRequest):
     """Sends grpc request to run the BAPI MethodGet endpoint."""
     with grpc.insecure_channel("localhost:50051") as channel:
         stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
         response = stub.get_methods(request)
         return response
+
 
 def custom_endpoint(request: sdk_server_pb2.CustomRequest):
     """Sends grpc request to run a chosen BAPI endpoint."""

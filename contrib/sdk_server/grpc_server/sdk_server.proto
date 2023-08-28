@@ -30,20 +30,18 @@ service sdk_server_service {
   rpc custom_endpoint(CustomRequest) returns (stream CustomResponse);
 }
 
-message CustomRequest{
+message CustomRequest {
   string endpoint = 1;
   string request = 2;
 }
 
-message CustomResponse{
+message CustomResponse {
   string logging_info = 1;
   string response = 2;
 }
 
-message MethodsRequest{}
-message MethodsResponse{
-  chromite.api.MethodGetResponse response = 1;
-}
+message MethodsRequest {}
+message MethodsResponse { chromite.api.MethodGetResponse response = 1; }
 
 message ClearLogsRequest {}
 message ClearLogsResponse {

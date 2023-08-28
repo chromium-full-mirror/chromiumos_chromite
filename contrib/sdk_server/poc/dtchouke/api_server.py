@@ -6,15 +6,15 @@
 import asyncio
 from concurrent import futures
 import logging
+from typing import List, Optional
 
+from chromite.third_party.google.protobuf import json_format
 import grpc  # pylint: disable=import-error
+
 from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2
 from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2_grpc
-
 from chromite.lib import cros_build_lib
-from chromite.third_party.google.protobuf import json_format
 from chromite.lib import osutils
-from typing import List, Optional
 
 
 class UpdateService(sdk_server_pb2_grpc.UpdateServiceServicer):

@@ -4,10 +4,12 @@
 
 import asyncio
 import logging
+from typing import List, Optional
+
 import grpc  # pylint: disable=import-error
+
 from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2
 from chromite.contrib.cros_sdk_server_poc import sdk_server_pb2_grpc
-from typing import List, Optional
 
 
 def SeekUpdate():
@@ -24,7 +26,9 @@ async def SeekStream() -> None:
         request = sdk_server_pb2.StreamRequest()
 
         async for response in stub.GetStream(request):
-            logging.info(f"Greeter client received from async generator: {response.num}")
+            logging.info(
+                f"Greeter client received from async generator: {response.num}"
+            )
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
