@@ -62,6 +62,9 @@ export class BoardsAndPackages implements vscode.Disposable {
       config.boardsAndPackages.favoriteCategories.onDidChange(() =>
         this.treeDataProvider.refresh()
       ),
+      config.boardsAndPackages.favoritePackages.onDidChange(() =>
+        this.treeDataProvider.refresh()
+      ),
       commands.onDidExecuteCommand(command => {
         switch (command) {
           // Do nothing if the command wouldn't affect the boards and packages view, or the event

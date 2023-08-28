@@ -598,37 +598,37 @@
         },
         {
           "command": "chromiumide.boardsAndPackages.favoriteAdd",
-          "when": "view == boards-and-packages && viewItem == category",
+          "when": "view == boards-and-packages && !(viewItem =~ /favorite$/)",
           "group": "0_favorite"
         },
         {
           "command": "chromiumide.boardsAndPackages.favoriteDelete",
-          "when": "view == boards-and-packages && viewItem == category-favorite",
+          "when": "view == boards-and-packages && viewItem =~ /favorite$/",
           "group": "0_favorite"
         },
         {
           "command": "chromiumide.crosWorkonStart",
-          "when": "view == boards-and-packages && viewItem == package-stopped",
+          "when": "view == boards-and-packages && viewItem =~ /^package-stopped/",
           "group": "3_workon"
         },
         {
           "command": "chromiumide.crosWorkonStop",
-          "when": "view == legacy-boards-packages && viewItem == package",
+          "when": "view == legacy-boards-packages && viewItem =~ /^package(-favorite)?$/",
           "group": "inline"
         },
         {
           "command": "chromiumide.crosWorkonStop",
-          "when": "view == boards-and-packages && viewItem == package-started",
+          "when": "view == boards-and-packages && viewItem =~ /^package-started/",
           "group": "3_workon"
         },
         {
           "command": "chromiumide.openEbuild",
-          "when": "view == legacy-boards-packages && viewItem == package",
+          "when": "view == legacy-boards-packages && viewItem =~ /^package(-favorite)?$/",
           "group": "inline"
         },
         {
           "command": "chromiumide.openEbuild",
-          "when": "view == boards-and-packages && viewItem == package",
+          "when": "view == boards-and-packages && viewItem =~ /^package(-favorite)?$/",
           "group": "1_open"
         },
         {
@@ -642,12 +642,12 @@
         },
         {
           "command": "chromiumide.coverage.generate",
-          "when": "(view == legacy-boards-packages || view == boards-and-packages) && viewItem == package && config.chromiumide.testCoverage.enabled",
+          "when": "(view == legacy-boards-packages || view == boards-and-packages) && viewItem =~ /^package(-favorite)?$/ && config.chromiumide.testCoverage.enabled",
           "group": "5_coverage"
         },
         {
           "command": "chromiumide.coverage.showReport",
-          "when": "view == legacy-boards-packages && viewItem == package && config.chromiumide.underDevelopment.testCoverage"
+          "when": "view == legacy-boards-packages && viewItem =~ /^package(-favorite)?$/ && config.chromiumide.underDevelopment.testCoverage"
         },
         {
           "command": "chromiumide.chromium.outputDirectories.editArgs",
@@ -745,6 +745,14 @@
           "default": [
             "chromeos-base"
           ]
+        },
+        "chromiumide.boardsAndPackages.favoritePackages": {
+          "type": "array",
+          "description": "List of favorite portage packages (e.g. chromeos-base/codelab)",
+          "items": {
+            "type": "string"
+          },
+          "default": []
         },
         "chromiumide.legacyBoardsAndPackages.showWelcomeMessage": {
           "type": "boolean",

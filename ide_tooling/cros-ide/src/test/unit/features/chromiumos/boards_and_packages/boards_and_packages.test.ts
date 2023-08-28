@@ -330,4 +330,76 @@ describe('Boards and packages', () => {
 
     expect(await treeDataProvider.getChildren(host)).toEqual([a, c, b]);
   });
+
+  it('favorite packages shown first', async () => {
+    vscodeSpy.window.showErrorMessage.and.callFake(async (message: unknown) =>
+      fail(message)
+    );
+
+    const {chromiumosRoot, boardsAndPackages} = state;
+
+    const treeView = boardsAndPackages.getTreeViewForTesting();
+    const treeDataProvider = boardsAndPackages.getTreeDataProviderForTesting();
+
+    testing.fakes.installFakeCrosClient(fakeExec, {
+      chromiumosRoot,
+      host: {
+        packages: {
+          all: ['x/a', 'x/b', 'x/c'],
+          workedOn: [],
+          allWorkon: [],
+        },
+      },
+      boards: [],
+    });
+
+    const x = Breadcrumbs.from('host', 'x');
+    const a = Breadcrumbs.from('host', 'x', 'a');
+    const b = Breadcrumbs.from('host', 'x', 'b');
+    const c = Breadcrumbs.from('host', 'x', 'c');
+
+    await treeView.reveal(a);
+    await treeView.reveal(b);
+    await treeView.reveal(c);
+    expect(treeView.selection).toEqual([c]);
+
+    const equals = (a: Breadcrumbs[], b: Breadcrumbs[]) => {
+      return a.length === b.length && a.every((x, i) => x === b[i]);
+    };
+    const expectPackages = async (want: Breadcrumbs[]) => {
+      await testing.flushMicrotasksUntil(
+        async () => equals((await treeDataProvider.getChildren(x))!, want),
+        1000
+      );
+      expect(await treeDataProvider.getChildren(x)).toEqual(want);
+    };
+
+    // Lexicographically sorted by default.
+    await expectPackages([a, b, c]);
+
+    await vscode.commands.executeCommand(
+      'chromiumide.boardsAndPackages.favoriteAdd',
+      b
+    );
+
+    await expectPackages([b, a, c]);
+
+    await vscode.commands.executeCommand(
+      'chromiumide.boardsAndPackages.favoriteAdd',
+      c
+    );
+
+    await expectPackages([b, c, a]);
+
+    await vscode.commands.executeCommand(
+      'chromiumide.boardsAndPackages.favoriteDelete',
+      b
+    );
+
+    await expectPackages([c, a, b]);
+
+    await config.boardsAndPackages.favoritePackages.update(['x/a', 'x/c']);
+
+    await expectPackages([a, c, b]);
+  });
 });

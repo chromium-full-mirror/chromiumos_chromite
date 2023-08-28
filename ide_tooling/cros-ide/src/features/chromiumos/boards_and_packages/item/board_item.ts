@@ -4,13 +4,15 @@
 
 import * as vscode from 'vscode';
 import {BoardOrHost} from '../../../../common/chromiumos/board_or_host';
+import {getQualifiedPackageName} from '../../../../common/chromiumos/portage/ebuild';
 import * as config from '../../../../services/config';
 import {ViewItemContext} from '../constant';
 import {Context} from '../context';
-import {Package, listPackages} from '../package';
+import {listPackages} from '../package';
 import {Breadcrumbs} from './breadcrumbs';
 import {Item} from './item';
 import {PackageCategoryItem} from './package_category_item';
+import {PackageWithPreference} from './package_name_item';
 
 /**
  * This class represents a board item.
@@ -78,23 +80,28 @@ export class BoardItem implements Item {
     const packages = await listPackages(ctx, this.board);
     if (packages instanceof Error) return packages;
 
-    const categoryToPackages = new Map<string, Package[]>();
+    const favoriteCategories = new Set(
+      config.boardsAndPackages.favoriteCategories.get() ?? []
+    );
+    const favoritePackages = new Set(
+      config.boardsAndPackages.favoritePackages.get() ?? []
+    );
+
+    const categoryToPackages = new Map<string, PackageWithPreference[]>();
 
     for (const pkg of packages) {
       if (!categoryToPackages.has(pkg.category)) {
         categoryToPackages.set(pkg.category, []);
       }
-      categoryToPackages.get(pkg.category)?.push(pkg);
+      const favorite = favoritePackages.has(getQualifiedPackageName(pkg));
+      categoryToPackages.get(pkg.category)?.push({favorite, ...pkg});
     }
-
-    const favoriteCategories = new Set(
-      config.boardsAndPackages.favoriteCategories.get() ?? []
-    );
 
     const categories = [...categoryToPackages.keys()].map(category => ({
       category,
       favorite: favoriteCategories.has(category),
     }));
+
     categories.sort((a, b) => {
       if (a.favorite !== b.favorite) {
         return a.favorite ? -1 : 1;
@@ -105,13 +112,17 @@ export class BoardItem implements Item {
     this.children.splice(0);
 
     for (const {category, favorite} of categories) {
+      const packages = categoryToPackages.get(category)!;
+
+      packages.sort((a, b) => {
+        if (a.favorite !== b.favorite) {
+          return a.favorite ? -1 : 1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
       this.children.push(
-        new PackageCategoryItem(
-          this.breadcrumbs,
-          category,
-          favorite,
-          categoryToPackages.get(category)!
-        )
+        new PackageCategoryItem(this.breadcrumbs, category, favorite, packages)
       );
     }
   }

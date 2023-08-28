@@ -8,4 +8,4 @@ Items form the following hierarchy. The value in parens indicates the context va
 - root
   - board ('board' | 'board-host' | 'board-default')
     - package category ('category' | 'category-favorite')
-      - package name ('package' | 'package-started' | 'package-stopped')
+      - package name ('package' | 'package-started' | 'package-stopped' | 'package-favorite' | 'package-started-favorite' | 'package-stopped-favorite')

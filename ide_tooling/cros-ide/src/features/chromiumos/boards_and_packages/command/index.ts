@@ -8,7 +8,12 @@ import {vscodeRegisterCommand} from '../../../../common/vscode/commands';
 import {Context} from '../context';
 import {Breadcrumbs} from '../item';
 import {crosWorkon} from './cros_workon';
-import {addFavorite, deleteFavorite} from './favorite';
+import {
+  addFavoriteCategory,
+  addFavoritePackage,
+  deleteFavoriteCategory,
+  deleteFavoritePackage,
+} from './favorite';
 import {openEbuild} from './open_ebuild';
 import {setDefaultBoard} from './set_default_board';
 
@@ -44,16 +49,26 @@ export class BoardsAndPackagesCommands implements vscode.Disposable {
         CommandName.SET_DEFAULT_BOARD,
         ({breadcrumbs: [board]}: Breadcrumbs) => setDefaultBoard(board)
       ),
-      // Commands for category name items
+      // Commands for category name and package name items
       this.register(
         CommandName.FAVORITE_ADD,
-        ({breadcrumbs: [_board, category]}: Breadcrumbs) =>
-          addFavorite(category)
+        async ({breadcrumbs: [_board, category, name]}: Breadcrumbs) => {
+          if (name) {
+            await addFavoritePackage({category, name});
+          } else {
+            await addFavoriteCategory(category);
+          }
+        }
       ),
       this.register(
         CommandName.FAVORITE_DELETE,
-        ({breadcrumbs: [_board, category]}: Breadcrumbs) =>
-          deleteFavorite(category)
+        async ({breadcrumbs: [_board, category, name]}: Breadcrumbs) => {
+          if (name) {
+            await deleteFavoritePackage({category, name});
+          } else {
+            await deleteFavoriteCategory(category);
+          }
+        }
       ),
       // Commands for package name items
       this.register(

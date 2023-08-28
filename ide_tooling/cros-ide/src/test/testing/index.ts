@@ -14,7 +14,7 @@ export {
 export {ThrottledJobRunner} from './parallelize';
 export {BlockingPromise} from './promises';
 export {Git} from './git';
-export {flushMicrotasks} from './tasks';
+export {flushMicrotasks, flushMicrotasksUntil} from './tasks';
 export type {Mutable} from './types';
 export {EventReader} from './events';
 

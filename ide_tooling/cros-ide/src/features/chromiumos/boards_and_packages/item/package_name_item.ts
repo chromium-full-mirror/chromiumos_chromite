@@ -9,21 +9,33 @@ import {Package} from '../package';
 import {Breadcrumbs} from './breadcrumbs';
 import {Item} from './item';
 
+export type PackageWithPreference = Package & {favorite: boolean};
+
 export class PackageNameItem implements Item {
   readonly breadcrumbs;
   readonly treeItem;
   readonly children: [] = [];
 
-  constructor(parent: Breadcrumbs, pkg: Package) {
+  constructor(parent: Breadcrumbs, pkg: PackageWithPreference) {
     this.breadcrumbs = parent.pushed(pkg.name);
 
     const treeItem = new vscode.TreeItem(pkg.name);
 
-    treeItem.contextValue = {
-      none: ViewItemContext.PACKAGE,
-      started: ViewItemContext.PACKAGE_STARTED,
-      stopped: ViewItemContext.PACKAGE_STOPPED,
-    }[pkg.workon];
+    treeItem.contextValue = pkg.favorite
+      ? {
+          none: ViewItemContext.PACKAGE_FAVORITE,
+          started: ViewItemContext.PACKAGE_STARTED_FAVORITE,
+          stopped: ViewItemContext.PACKAGE_STOPPED_FAVORITE,
+        }[pkg.workon]
+      : {
+          none: ViewItemContext.PACKAGE,
+          started: ViewItemContext.PACKAGE_STARTED,
+          stopped: ViewItemContext.PACKAGE_STOPPED,
+        }[pkg.workon];
+
+    if (pkg.favorite) {
+      treeItem.description = '☆';
+    }
 
     this.treeItem = treeItem;
   }

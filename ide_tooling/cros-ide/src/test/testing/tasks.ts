@@ -14,3 +14,27 @@ export async function flushMicrotasks(): Promise<void> {
     setImmediate(resolve);
   });
 }
+
+/**
+ * Flush microtasks until the given condition is satisfied or the timeout is reached.
+ *
+ * This method is usually not the most efficient way to achieve what you want and its use should be
+ * the last resort. For example, consider having an event emitter to your component and waiting the
+ * event in the test using EventReader.
+ *
+ * Note that the test doesn't automatically fail even if this function returns due to timeout, so
+ * the test should assert the condition after the function returns.
+ */
+export async function flushMicrotasksUntil(
+  condition: () => Promise<boolean>,
+  timeoutMillis: number
+): Promise<void> {
+  const conditionWaiter = (async () => {
+    while (!(await condition())) {
+      await flushMicrotasks();
+    }
+  })();
+  const timer = new Promise(resolve => setTimeout(resolve, timeoutMillis));
+
+  await Promise.race([conditionWaiter, timer]);
+}

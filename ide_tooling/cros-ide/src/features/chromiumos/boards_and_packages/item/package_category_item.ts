@@ -5,10 +5,9 @@
 import * as vscode from 'vscode';
 import {ViewItemContext} from '../constant';
 import {Context} from '../context';
-import {Package} from '../package';
 import {Breadcrumbs} from './breadcrumbs';
 import {Item} from './item';
-import {PackageNameItem} from './package_name_item';
+import {PackageWithPreference, PackageNameItem} from './package_name_item';
 
 export class PackageCategoryItem implements Item {
   readonly breadcrumbs;
@@ -19,7 +18,7 @@ export class PackageCategoryItem implements Item {
     parent: Breadcrumbs,
     category: string,
     favorite: boolean,
-    packages: Package[]
+    packages: PackageWithPreference[]
   ) {
     this.breadcrumbs = parent.pushed(category);
     this.treeItem = new vscode.TreeItem(

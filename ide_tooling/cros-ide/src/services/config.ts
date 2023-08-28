@@ -121,6 +121,10 @@ export const boardsAndPackages = {
   favoriteCategories: new ConfigValue<string[]>(
     'boardsAndPackages.favoriteCategories'
   ),
+  /** Qualified package names representing user's favorite packages. */
+  favoritePackages: new ConfigValue<string[]>(
+    'boardsAndPackages.favoritePackages'
+  ),
 };
 
 export const boilerplate = {

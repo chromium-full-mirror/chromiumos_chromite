@@ -17,4 +17,7 @@ export enum ViewItemContext {
   PACKAGE = 'package',
   PACKAGE_STARTED = 'package-started',
   PACKAGE_STOPPED = 'package-stopped',
+  PACKAGE_FAVORITE = 'package-favorite',
+  PACKAGE_STARTED_FAVORITE = 'package-started-favorite',
+  PACKAGE_STOPPED_FAVORITE = 'package-stopped-favorite',
 }
