@@ -1046,10 +1046,12 @@ PORTAGE_USERNAME="{user}"
 
     def print_success_summary(self):
         """Show a summary of the chroot to the user."""
-        default_chroot = constants.SOURCE_ROOT / constants.DEFAULT_CHROOT_DIR
         chroot_opt = ""
-        if default_chroot != Path(self.chroot.path):
-            chroot_opt = f" --chroot={self.chroot.path}"
+        if Path(constants.DEFAULT_CHROOT_PATH) != Path(self.chroot.path):
+            chroot_opt = (
+                f" --chroot={cros_build_lib.ShellQuote(self.chroot.path)} "
+                f"--out-dir={cros_build_lib.ShellQuote(self.chroot.out_path)}"
+            )
         logging.info(
             """
 All set up.  To enter the chroot, run:
