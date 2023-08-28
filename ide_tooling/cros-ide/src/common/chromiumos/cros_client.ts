@@ -60,7 +60,12 @@ export class CrosClient {
     board: BoardOrHost,
     options?: {all?: boolean}
   ): Promise<ParsedPackageName[] | Error> {
-    const args = [this.cros, 'workon', '-b', board.toBoardName(), 'list'];
+    const args = [
+      this.cros,
+      'workon',
+      ...board.map(b => ['-b', b], ['--host']),
+      'list',
+    ];
     if (options?.all) {
       args.push('--all');
     }

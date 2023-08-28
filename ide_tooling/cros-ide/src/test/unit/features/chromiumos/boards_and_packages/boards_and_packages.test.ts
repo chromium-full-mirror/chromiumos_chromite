@@ -75,28 +75,44 @@ describe('Boards and packages', () => {
 
     // Prepare cros command outputs.
     const cros = getCrosPath(chromiumosRoot);
-    for (const board of ['amd64-host', 'betty']) {
-      fakeExec.on(
-        cros,
-        testing.exactMatch(
-          ['query', 'ebuilds', '-b', board, '-o', '{package_info.atom}'],
-          async () => `chromeos-base/codelab
+
+    fakeExec.on(
+      cros,
+      testing.exactMatch(
+        ['query', 'ebuilds', '-b', 'betty', '-o', '{package_info.atom}'],
+        async () => `chromeos-base/codelab
 chromeos-base/shill
 dev-go/delve
 `
-        ),
-        testing.exactMatch(
-          ['workon', '-b', board, 'list'],
-          async () => 'chromeos-base/codelab\n'
-        ),
-        testing.exactMatch(
-          ['workon', '-b', board, 'list', '--all'],
-          async () => `chromeos-base/codelab
+      ),
+      testing.exactMatch(
+        ['workon', '-b', 'betty', 'list'],
+        async () => 'chromeos-base/codelab\n'
+      ),
+      testing.exactMatch(
+        ['workon', '-b', 'betty', 'list', '--all'],
+        async () => `chromeos-base/codelab
 chromeos-base/shill
 `
-        )
-      );
-    }
+      ),
+      testing.exactMatch(
+        ['query', 'ebuilds', '-b', 'amd64-host', '-o', '{package_info.atom}'],
+        async () => `chromeos-base/codelab
+chromeos-base/shill
+dev-go/delve
+`
+      ),
+      testing.exactMatch(
+        ['workon', '--host', 'list'],
+        async () => 'chromeos-base/codelab\n'
+      ),
+      testing.exactMatch(
+        ['workon', '--host', 'list', '--all'],
+        async () => `chromeos-base/codelab
+chromeos-base/shill
+`
+      )
+    );
 
     // Test existing elements can be revealed.
     await treeView.reveal(Breadcrumbs.from('host', 'chromeos-base', 'codelab'));
@@ -185,28 +201,44 @@ chromeos-base/shill
 
     // Prepare cros command outputs.
     const cros = getCrosPath(chromiumosRoot);
-    for (const board of ['amd64-host', 'betty']) {
-      fakeExec.on(
-        cros,
-        testing.exactMatch(
-          ['query', 'ebuilds', '-b', board, '-o', '{package_info.atom}'],
-          async () => `chromeos-base/codelab
+
+    fakeExec.on(
+      cros,
+      testing.exactMatch(
+        ['query', 'ebuilds', '-b', 'betty', '-o', '{package_info.atom}'],
+        async () => `chromeos-base/codelab
 chromeos-base/shill
 dev-go/delve
 `
-        ),
-        testing.exactMatch(
-          ['workon', '-b', board, 'list'],
-          async () => 'chromeos-base/codelab\n'
-        ),
-        testing.exactMatch(
-          ['workon', '-b', board, 'list', '--all'],
-          async () => `chromeos-base/codelab
+      ),
+      testing.exactMatch(
+        ['workon', '-b', 'betty', 'list'],
+        async () => 'chromeos-base/codelab\n'
+      ),
+      testing.exactMatch(
+        ['workon', '-b', 'betty', 'list', '--all'],
+        async () => `chromeos-base/codelab
 chromeos-base/shill
 `
-        )
-      );
-    }
+      ),
+      testing.exactMatch(
+        ['query', 'ebuilds', '-b', 'amd64-host', '-o', '{package_info.atom}'],
+        async () => `chromeos-base/codelab
+chromeos-base/shill
+dev-go/delve
+`
+      ),
+      testing.exactMatch(
+        ['workon', '--host', 'list'],
+        async () => 'chromeos-base/codelab\n'
+      ),
+      testing.exactMatch(
+        ['workon', '--host', 'list', '--all'],
+        async () => `chromeos-base/codelab
+chromeos-base/shill
+`
+      )
+    );
 
     const textEditor = (pathFromChromiumos: string) =>
       ({
