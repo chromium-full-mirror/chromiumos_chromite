@@ -884,7 +884,7 @@
         "chromiumide.underDevelopment.boardsAndPackagesV2": {
           "type": "boolean",
           "description": "Enable boards and packages v2",
-          "default": false
+          "default": true
         },
         "chromiumide.underDevelopment.chromiumBuild": {
           "type": "boolean",
