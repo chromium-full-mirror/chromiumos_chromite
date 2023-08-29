@@ -12,6 +12,7 @@ import * as api from './api';
 import * as auth from './auth';
 import {
   Change,
+  Comment,
   CommentThread,
   GitFileKey,
   VscodeComment,
@@ -449,6 +450,7 @@ class Gerrit implements vscode.Disposable {
       repoId,
       changeId,
       lastComment: {commentId},
+      changeNumber,
       revisionNumber,
       filePath,
     } = thread.gerritCommentThread;
@@ -456,10 +458,20 @@ class Gerrit implements vscode.Disposable {
     if (!authCookie) return;
 
     // Comment shown until real draft is fetched from Gerrit.
-    const tentativeComment: vscode.Comment = {
+    const tentativeComment: VscodeComment = {
       body: message,
       mode: vscode.CommentMode.Preview,
       author: {name: 'Draft being created'},
+      gerritComment: new Comment(repoId, changeNumber, {
+        isPublic: true,
+        author: {
+          _account_id: 0,
+        },
+        in_reply_to: commentId,
+        id: '',
+        updated: 'now',
+        message,
+      }),
     };
 
     thread.comments = [...thread.comments, tentativeComment];

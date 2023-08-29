@@ -8,7 +8,12 @@ import * as gitDocument from '../../../services/git_document';
 import * as api from '../api';
 import * as git from '../git';
 import * as virtualDocument from '../virtual_document';
-import {getCommentContextValue, toVscodeComment, Comment} from './comment';
+import {
+  getCommentContextValue,
+  toVscodeComment,
+  Comment,
+  VscodeComment,
+} from './comment';
 
 /**
  * Represents a Gerrit comment thread that belongs to a Gerrit CL.
@@ -171,23 +176,46 @@ export class CommentThread {
     vscodeCommentThread: VscodeCommentThread,
     shift: number
   ): void {
-    vscodeCommentThread.range = this.getVscodeRange(shift);
-    vscodeCommentThread.comments = this.comments.map(comment =>
-      toVscodeComment(comment)
-    );
-    vscodeCommentThread.gerritCommentThread = this; // Remember the comment thread
-    vscodeCommentThread.canReply = this.canReply;
-    const revisionNumber = this.revisionNumber;
-    if (this.unresolved) {
-      vscodeCommentThread.label = `Patchset ${revisionNumber} / Unresolved`;
-      vscodeCommentThread.collapsibleState =
-        vscode.CommentThreadCollapsibleState.Expanded;
-      vscodeCommentThread.state = vscode.CommentThreadState.Unresolved;
-    } else {
-      vscodeCommentThread.label = `Patchset ${revisionNumber} / Resolved`;
-      vscodeCommentThread.state = vscode.CommentThreadState.Resolved;
+    const range = this.getVscodeRange(shift);
+    const comments = this.comments.map(comment => toVscodeComment(comment));
+    const canReply = this.canReply;
+    const [label, collapsibleState, state] = this.unresolved
+      ? [
+          `Patchset ${this.revisionNumber} / Unresolved`,
+          vscode.CommentThreadCollapsibleState.Expanded,
+          vscode.CommentThreadState.Unresolved,
+        ]
+      : [
+          `Patchset ${this.revisionNumber} / Resolved`,
+          vscode.CommentThreadCollapsibleState.Collapsed,
+          vscode.CommentThreadState.Resolved,
+        ];
+    const contextValue = this.getContextValue();
+
+    // Update fields only when necessary so that the focus is not stolen.
+    // https://github.com/microsoft/vscode/issues/182060
+    // Use one letter variable to hopefully make repetitive code more readable.
+    const t = vscodeCommentThread;
+
+    if (!t.range.isEqual(range)) t.range = range;
+    if (
+      t.comments.length !== comments.length ||
+      !t.comments.every((c, i) =>
+        (c as VscodeComment).gerritComment.isEqual(comments[i].gerritComment)
+      )
+    ) {
+      t.comments = comments;
     }
-    vscodeCommentThread.contextValue = this.getContextValue();
+    if (t.canReply !== canReply) t.canReply = canReply;
+    if (t.label !== label) t.label = label;
+    if (t.collapsibleState !== collapsibleState) {
+      t.collapsibleState = collapsibleState;
+    }
+    if (t.state !== state) t.state = state;
+    if (t.contextValue !== contextValue) t.contextValue = contextValue;
+
+    // It's safe to update custom fields unconditionally.
+    t.gerritCommentThread = this;
   }
 
   private getDataUri(gitDir: string, filePath: string): vscode.Uri {

@@ -21,6 +21,13 @@ export class Comment {
   get commentId(): string {
     return this.commentInfo.id;
   }
+
+  isEqual(other: Comment): boolean {
+    return (
+      this.commentId === other.commentId &&
+      this.commentInfo.updated === this.commentInfo.updated
+    );
+  }
 }
 
 /** vscode.Comment extended with a reference to Comment */

@@ -49,8 +49,8 @@ export class Range implements vscode.Range {
     throw new Error('Not implemented');
   }
 
-  isEqual(_other: vscode.Range): boolean {
-    throw new Error('Not implemented');
+  isEqual(other: vscode.Range): boolean {
+    return this.start.isEqual(other.start) && this.end.isEqual(other.end);
   }
 
   union(_other: vscode.Range): vscode.Range {
