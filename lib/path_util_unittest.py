@@ -644,6 +644,35 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
         # On outbound, only translate links after chroot translation.
         self.assertEqual(str(source), resolver.FromChroot("/bin/foo"))
 
+    @mock.patch(
+        "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
+    )
+    def testNonDefaultChrootPathInsideSourcePath(self, _):
+        """Test custom chroot behavior if chroot_path is inside source_path."""
+
+        source_path = constants.SOURCE_ROOT
+        self.SetChrootPath(
+            source_path,
+            chroot_path=os.path.join(source_path, "my-special-custom-chroot"),
+        )
+        resolver = path_util.ChrootPathResolver(
+            source_from_path_repo=False,
+            chroot_path=self.chroot_path,
+            out_path=self.out_path,
+        )
+
+        from_chroot = resolver.FromChroot(os.path.join("/some/file"))
+        self.assertIn("/my-special-custom-chroot/", from_chroot)
+        self.assertEqual(
+            os.path.join(self.chroot_path, "some/file"),
+            from_chroot,
+        )
+
+        self.assertEqual(
+            os.path.join("/other/file"),
+            resolver.ToChroot(os.path.join(self.chroot_path, "other/file")),
+        )
+
 
 def test_normalize_paths_to_source_root_collapsing_sub_paths():
     """Test normalize removes sub paths."""
