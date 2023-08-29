@@ -188,7 +188,11 @@ class SDKFetcher:
             self.gs_base = f"gs://chromeos-image-archive/{self.config_name}"
 
         self.version_finder = chrome_lkgm.ChromeOSVersionFinder(
-            self.gs_ctx, self.gs_base, self.fallback_versions
+            cache_dir,
+            self.board,
+            self.fallback_versions,
+            self.chrome_src,
+            use_external_config,
         )
 
     def _HasInternalConfig(self):

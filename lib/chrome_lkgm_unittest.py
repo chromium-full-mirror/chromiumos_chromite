@@ -12,7 +12,9 @@ from chromite.lib import partial_mock
 
 
 class ChromeOSVersionFinderTest(
-    gs_unittest.AbstractGSContextTest, cros_test_lib.LoggingTestCase
+    gs_unittest.AbstractGSContextTest,
+    cros_test_lib.MockTempDirTestCase,
+    cros_test_lib.LoggingTestCase,
 ):
     """Tests the determination of which SDK version to use."""
 
@@ -33,10 +35,13 @@ class ChromeOSVersionFinderTest(
     CAT_ERROR = "CommandException: No URLs matched %s" % VERSION_BASE
 
     def setUp(self):
-        self.gs_base = "gs://chromiumos-image-archive/octopus-release"
         self.finder = chrome_lkgm.ChromeOSVersionFinder(
-            self.gs_mock, self.gs_base, 10
+            self.tempdir, self.BOARD, 10
         )
+
+    def testConfigName(self):
+        """Test config_name contains the given board name."""
+        self.assertTrue(self.BOARD in self.finder.config_name)
 
     def testFullVersionFromPlatformVersion(self):
         """Test full version calculation from the platform version."""

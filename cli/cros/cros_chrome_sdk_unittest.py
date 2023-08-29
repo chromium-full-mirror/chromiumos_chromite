@@ -1043,7 +1043,7 @@ class ClearOldItemsTest(
         self.gs_mock.SetDefaultCmdResult()
 
         self.sdk_fetcher = cros_chrome_sdk.SDKFetcher(
-            self.tempdir, None, use_external_config=True
+            self.tempdir, "", use_external_config=True
         )
 
     def testBrokenSymlinkCleared(self):
