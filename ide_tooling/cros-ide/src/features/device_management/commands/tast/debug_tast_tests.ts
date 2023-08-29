@@ -88,7 +88,13 @@ export async function debugTastTests(
   }
 
   try {
-    await debugSelectedTests(context, chrootService, target, testNames);
+    await debugSelectedTests(
+      context,
+      chrootService,
+      target,
+      testNames,
+      hostname
+    );
     showPromptWithOpenLogChoice(context, 'Tests run successfully.', false);
     return new DebugTastTestsResult();
   } catch (err) {
@@ -108,9 +114,34 @@ async function debugSelectedTests(
   _context: CommandContext,
   _chrootService: services.chromiumos.ChrootService,
   _target: string,
-  _testNames: string[]
+  _testNames: string[],
+  hostname: string
 ): Promise<void | Error> {
   // TODO(uchiaki): Debug the selected tests.
+
+  const taskType = 'shell';
+
+  // TODO: Dispose of the registration after use.
+  vscode.tasks.registerTaskProvider(taskType, {
+    provideTasks(): vscode.Task[] {
+      return [
+        new vscode.Task(
+          {type: taskType},
+          vscode.TaskScope.Workspace,
+          'prep debugger',
+          'tast',
+          new vscode.ShellExecution(
+            `cros_sdk -- /mnt/host/source/src/platform/tast-tests/tools/run_debugger.py --dut=${hostname} --current-file=\${file}`
+          ),
+          '$prep-tast-debugger'
+        ),
+      ];
+    },
+
+    resolveTask(task: vscode.Task): vscode.Task {
+      return task;
+    },
+  });
 }
 
 /**
