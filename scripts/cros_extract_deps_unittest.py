@@ -51,7 +51,6 @@ class FlattenDepTreeTest(cros_test_lib.TestCase):
                 "name": "blasterpistol",
                 "deps": [],
                 "action": "merge",
-                "cpes": [],
                 "full_name": "weapon/blasterpistol-2.1",
             },
             "deathstar/darthvader-2.3": {
@@ -65,7 +64,6 @@ class FlattenDepTreeTest(cros_test_lib.TestCase):
                     "deathstar/trooper-1.2",
                 ],
                 "action": "merge",
-                "cpes": [],
                 "full_name": "deathstar/darthvader-2.3",
             },
             "deathstar/pilot-2.3": {
@@ -75,7 +73,6 @@ class FlattenDepTreeTest(cros_test_lib.TestCase):
                 "name": "pilot",
                 "deps": [],
                 "action": "merge",
-                "cpes": [],
                 "full_name": "deathstar/pilot-2.3",
             },
             "deathstar/commander-2.3": {
@@ -85,7 +82,6 @@ class FlattenDepTreeTest(cros_test_lib.TestCase):
                 "name": "commander",
                 "deps": [],
                 "action": "merge",
-                "cpes": [],
                 "full_name": "deathstar/commander-2.3",
             },
             "deathstar/trooper-1.2": {
@@ -95,36 +91,9 @@ class FlattenDepTreeTest(cros_test_lib.TestCase):
                 "name": "trooper",
                 "deps": ["weapon/blasterpistol-2.1"],
                 "action": "merge",
-                "cpes": [],
                 "full_name": "deathstar/trooper-1.2",
             },
         }
         self.assertEqual(
             cros_extract_deps.FlattenDepTree(dep_tree), flatten_dep_tree
-        )
-
-
-class GetCPEFromCPVTest(cros_test_lib.RunCommandTestCase):
-    """Tests for cros_extract_deps.GetCPEFromCPV."""
-
-    def testGetCPEFromCPV(self):
-        """Check GetCPEFromCPV behavior."""
-        stdout = """Remote-ID:   cpe:/a:curl:curl ID: cpe
-Remote-ID:   cpe:/a:curl:libcurl ID: cpe
-Remote-ID:   cpe:/a:haxx:curl ID: cpe
-Remote-ID:   cpe:/a:haxx:libcurl ID: cpe
-Homepage:    https://curl.haxx.se/
-License:     MIT
-"""
-        self.rc.AddCmdResult(
-            ["equery", "m", "-U", "net-misc/curl"], stdout=stdout
-        )
-        self.assertEqual(
-            [
-                "cpe:/a:curl:curl:7.3.0",
-                "cpe:/a:curl:libcurl:7.3.0",
-                "cpe:/a:haxx:curl:7.3.0",
-                "cpe:/a:haxx:libcurl:7.3.0",
-            ],
-            cros_extract_deps.GetCPEFromCPV("net-misc", "curl", "7.3.0"),
         )
