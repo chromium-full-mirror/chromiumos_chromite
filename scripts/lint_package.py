@@ -16,6 +16,7 @@ from typing import List, Text
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import portage_util
 from chromite.lib import terminal
@@ -56,6 +57,15 @@ def parse_packages(
     return package_infos
 
 
+def make_relative_to_cros(file_path: str) -> Path:
+    """removes /mnt/host/source from file_paths if present."""
+    path = Path(file_path)
+    try:
+        return path.relative_to(constants.CHROOT_SOURCE_ROOT)
+    except ValueError:
+        return path
+
+
 def format_lint(lint: toolchain.LinterFinding) -> Text:
     """Formats a lint for human-readable printing.
 
@@ -80,18 +90,19 @@ def format_lint(lint: toolchain.LinterFinding) -> Text:
         background_color=terminal.Color.BLACK,
     )
     for loc in lint.locations:
+        filepath = make_relative_to_cros(loc.filepath)
         if not lines:
             location_prefix = f"\n{linter_prefix} In"
         else:
             location_prefix = "   and in"
         if loc.line_start != loc.line_end:
             lines.append(
-                f"{location_prefix} '{loc.filepath}' "
+                f"{location_prefix} '{filepath}' "
                 f"lines {loc.line_start}-{loc.line_end}:"
             )
         else:
             lines.append(
-                f"{location_prefix} '{loc.filepath}' line {loc.line_start}:"
+                f"{location_prefix} '{filepath}' line {loc.line_start}:"
             )
     message_lines = lint.message.split("\n")
     for line in message_lines:

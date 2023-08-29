@@ -54,6 +54,7 @@ import yaml  # pylint: disable=import-error
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -62,6 +63,9 @@ from chromite.lib import workon_helper
 
 # The directory under which the compiler wrapper stores clang-tidy reports.
 LINT_BASE = Path("/tmp/linting_output/clang-tidy")
+
+PLATFORM_PATH = constants.CHROOT_SOURCE_ROOT / "src/platform"
+PLATFORM2_PATH = constants.CHROOT_SOURCE_ROOT / "src/platform2"
 
 
 class TidyReplacement(NamedTuple):
@@ -195,6 +199,63 @@ class LineOffsetMap:
         return LineOffsetMap(m.start() for m in re.finditer(r"\n", data))
 
 
+def transform_filepaths(
+    file_path: str, tidy_invocation_dir: Path
+) -> Optional[Path]:
+    """Try to transform a weird path into the true path via educated guessing.
+
+    Args:
+        file_path: The file path as reported by clang tidy.
+        tidy_invocation_dir: The working directory when tidy was invoked.
+
+    Returns:
+        Path which corresponds to input and exists or None.
+    """
+
+    if not file_path:
+        return None
+    path = Path(file_path)
+
+    def replace_path(pattern: str, replacement: str) -> Optional[Path]:
+        if pattern in file_path:
+            new_path = Path(re.sub(f"(^|.*/){pattern}", replacement, file_path))
+            if new_path.exists():
+                return new_path
+        return None
+
+    possible_replacements = (
+        # .../platform2 almost always refers to platform2 regardless of prefix.
+        ("platform2", PLATFORM2_PATH),
+        # .../usr/include/ sometimes refers to things in platform or platform2.
+        ("usr/include", PLATFORM2_PATH),
+        ("usr/include", PLATFORM_PATH),
+        # .../gen/include/ sometimes refers to things in platform or platform2.
+        ("gen/include", PLATFORM2_PATH),
+        ("gen/include", PLATFORM_PATH),
+    )
+
+    for pattern, replacement in possible_replacements:
+        path_guess = replace_path(pattern, str(replacement))
+        if path_guess:
+            return path_guess.resolve()
+
+    # Rarely (e.g., in the case of missing |#include|s, clang will emit relative
+    # file paths for diagnostics.
+    if path.is_absolute():
+        if path.exists():
+            return path.resolve()
+    else:
+        from_invocation_dir = tidy_invocation_dir / path
+        if from_invocation_dir.exists():
+            return from_invocation_dir.resolve()
+
+    logging.warning(
+        "Tidy referenced a file that cannot be located: %r",
+        file_path,
+    )
+    return path
+
+
 def parse_tidy_fixes_file(
     tidy_invocation_dir: Path, yaml_data: Any
 ) -> Iterable[TidyDiagnostic]:
@@ -240,28 +301,21 @@ def parse_tidy_fixes_file(
         cached_line_offsets[file_path] = offsets
         return offsets
 
-    # Rarely (e.g., in the case of missing |#include|s, clang will emit relative
-    # file paths for diagnostics. This fixes those.
-    def makeabs(file_path: str) -> Path:
-        """Resolves a |file_path| emitted by clang-tidy to an absolute path."""
-        if not file_path:
-            return None
-        path = Path(file_path)
-        if not path.is_absolute():
-            path = tidy_invocation_dir / path
-        return path.resolve()
-
     try:
         for diag in yaml_data["Diagnostics"]:
             message = diag["DiagnosticMessage"]
             file_path = message["FilePath"]
 
-            absolute_file_path = makeabs(file_path)
+            absolute_file_path = transform_filepaths(
+                file_path, tidy_invocation_dir
+            )
             line_offsets = get_line_offsets(absolute_file_path)
 
             replacements = []
             for replacement in message.get("Replacements", ()):
-                replacement_file_path = makeabs(replacement["FilePath"])
+                replacement_file_path = transform_filepaths(
+                    replacement["FilePath"], tidy_invocation_dir
+                )
 
                 # FIXME(gbiv): This happens in practice with things like
                 # hicpp-member-init. Supporting it should be simple, but I'd
@@ -292,7 +346,9 @@ def parse_tidy_fixes_file(
                 if not note["Message"].startswith("expanded from macro "):
                     continue
 
-                absolute_note_path = makeabs(note["FilePath"])
+                absolute_note_path = transform_filepaths(
+                    note["FilePath"], tidy_invocation_dir
+                )
                 note_offsets = get_line_offsets(absolute_note_path)
                 expansion_locs.append(
                     TidyExpandedFrom(
