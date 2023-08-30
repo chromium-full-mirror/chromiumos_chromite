@@ -655,3 +655,23 @@ def PushImage(
             for uri in uris:
                 _output_proto.instructions.add().instructions_file_path = uri
     return controller.RETURN_CODE_SUCCESS
+
+
+@faux.all_empty
+@validate.validation_complete
+def SignImage(
+    _input_proto: "image_pb2.SignImageRequest",
+    _output_proto: "image_pb2.SignImageResponse",
+    _config: "api.config.ApiConfig",
+):
+    """Sign artifacts based on the given config.
+
+    Args:
+        input_proto: Input proto.
+        _output_proto: Output proto.
+        config: The API call config.
+
+    Returns:
+        A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
+    """
+    return controller.RETURN_CODE_SUCCESS

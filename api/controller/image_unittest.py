@@ -790,3 +790,21 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             request, self._GetResponse, self.api_config
         )
         self.assertEqual(rc, controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY)
+
+
+class SignImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
+    """Sign image test."""
+
+    def testValidateOnly(self):
+        """Check that a validate only call does not execute any logic."""
+        req = image_pb2.SignImageRequest()
+        resp = image_pb2.SignImageResponse()
+        rc = image_controller.SignImage(req, resp, self.validate_only_config)
+        self.assertEqual(rc, controller.RETURN_CODE_VALID_INPUT)
+
+    def testSuccess(self):
+        """Check that the endpoint finishes successfully."""
+        req = image_pb2.SignImageRequest()
+        resp = image_pb2.SignImageResponse()
+        rc = image_controller.SignImage(req, resp, self.mock_call_config)
+        self.assertEqual(rc, controller.RETURN_CODE_SUCCESS)
