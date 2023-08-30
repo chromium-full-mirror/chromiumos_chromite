@@ -809,7 +809,12 @@ def main(argv):
                     logging.warning(
                         "cros_sdk was invoked with force option, continuing."
                     )
-            logging.notice("Deleting chroot.")
+            logging.notice("Deleting chroot: %s", chroot.path)
+            logging.notice(
+                "%s output dir: %s",
+                "Deleting" if options.delete_out_dir else "Keeping",
+                chroot.out_path,
+            )
             cros_sdk_lib.CleanupChrootMount(
                 chroot, delete=True, delete_out=options.delete_out_dir
             )
