@@ -685,7 +685,7 @@ def FindDataCollectorArtifacts(
         "tts_cache",
         "dex_opt_cache",
     )
-    _ARCHES = ("arm", "arm64", "x86", "x86_64")
+    _ARCHES = ("arm", "arm64", "arm64only", "x86", "x86_64", "x64only")
     _BUILD_TYPES = ("user", "userdebug")
 
     for bucket in _BUCKETS:

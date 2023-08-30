@@ -436,7 +436,7 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
     def setupMockRuntimeDataBuild(self, android_version):
         """Helper to mock a build for runtime data."""
 
-        _ARCHS = ("arm", "arm64", "x86", "x86_64")
+        _ARCHS = ("arm", "arm64", "arm64only", "x86", "x86_64", "x64only")
         _BUILD_TYPES = ("user", "userdebug")
         _RUNTIME_DATAS = (
             "packages_reference",
@@ -531,6 +531,11 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         path5 = "gs://r/android-package/gms_core_cache_arm_userdebug_100.tar"
         path6 = "gs://r/android-package/tts_cache_arm64_user_100.tar"
         path7 = "gs://r/android-package/dex_opt_cache_x86_user_100.tar"
+        path8 = (
+            "gs://r/android-package/"
+            "packages_reference_x64only_userdebug_100.tar"
+        )
+        path9 = "gs://r/android-package/gms_core_cache_arm64only_user_100.tar"
 
         self.gs_mock.AddCmdResult(
             ["stat", "--", path0], stdout=_STAT_OUTPUT % path0
@@ -555,6 +560,12 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         )
         self.gs_mock.AddCmdResult(
             ["stat", "--", path7], stdout=_STAT_OUTPUT % path7
+        )
+        self.gs_mock.AddCmdResult(
+            ["stat", "--", path8], stdout=_STAT_OUTPUT % path8
+        )
+        self.gs_mock.AddCmdResult(
+            ["stat", "--", path9], stdout=_STAT_OUTPUT % path9
         )
 
         variables = android.FindDataCollectorArtifacts(
@@ -588,6 +599,13 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         )
         expectation6 = "gs://r/android-package/tts_cache_arm64_user_${PV}.tar"
         expectation7 = "gs://r/android-package/dex_opt_cache_x86_user_${PV}.tar"
+        expectation8 = (
+            "gs://r/android-package/"
+            "packages_reference_x64only_userdebug_${PV}.tar"
+        )
+        expectation9 = (
+            "gs://r/android-package/gms_core_cache_arm64only_user_${PV}.tar"
+        )
 
         self.assertDictEqual(
             variables,
@@ -600,6 +618,8 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
                 "ARM_USERDEBUG_GMS_CORE_CACHE": expectation5,
                 "ARM64_USER_TTS_CACHE": expectation6,
                 "X86_USER_DEX_OPT_CACHE": expectation7,
+                "X64ONLY_USERDEBUG_PACKAGES_REFERENCE": expectation8,
+                "ARM64ONLY_USER_GMS_CORE_CACHE": expectation9,
             },
         )
 
