@@ -680,6 +680,7 @@ def main(argv):
         sdk_latest_version, bootstrap_latest_version
     )
     options = parser.parse_args(argv)
+    options.out_dir = options.out_dir.resolve()
 
     # Some basic checks first, before we ask for sudo credentials.
     cros_build_lib.AssertOutsideChroot()
