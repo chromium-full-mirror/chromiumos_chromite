@@ -656,7 +656,6 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
             chroot_path=os.path.join(source_path, "my-special-custom-chroot"),
         )
         resolver = path_util.ChrootPathResolver(
-            source_from_path_repo=False,
             chroot_path=self.chroot_path,
             out_path=self.out_path,
         )
