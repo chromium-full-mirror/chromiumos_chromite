@@ -5,7 +5,6 @@
 """Common functions for interacting with git and repo."""
 
 import collections
-import dataclasses
 import datetime
 import errno
 import fnmatch
@@ -1888,8 +1887,7 @@ def GetUrlFromRemoteOutput(remote_output: str) -> str:
     return None
 
 
-@dataclasses.dataclass(frozen=True)
-class CommitEntry:
+class CommitEntry(NamedTuple):
     """Individual entry in git log."""
 
     sha: str
@@ -1918,13 +1916,17 @@ class CommitEntry:
             return CommitEntry(
                 sha=data["sha"],
                 author=data.get("Author", None),
-                author_date=datetime.datetime.fromisoformat(data["AuthorDate"])
-                if "AuthorDate" in data
-                else None,
+                author_date=(
+                    datetime.datetime.fromisoformat(data["AuthorDate"])
+                    if "AuthorDate" in data
+                    else None
+                ),
                 commit=data.get("Commit", None),
-                commit_date=datetime.datetime.fromisoformat(data["CommitDate"])
-                if "CommitDate" in data
-                else None,
+                commit_date=(
+                    datetime.datetime.fromisoformat(data["CommitDate"])
+                    if "CommitDate" in data
+                    else None
+                ),
                 change_id=tags.get("Change-Id", None),
             )
 
