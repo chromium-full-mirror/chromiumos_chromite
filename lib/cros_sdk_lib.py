@@ -443,9 +443,11 @@ def CleanupChrootMount(
         )
 
     if delete:
-        osutils.RmDir(chroot.path, ignore_missing=True, sudo=True)
+        with metrics_lib.timer("cros_sdk_lib.CleanupChrootMount.RmDir.Chroot"):
+            osutils.RmDir(chroot.path, ignore_missing=True, sudo=True)
         if delete_out:
-            osutils.RmDir(chroot.out_path, ignore_missing=True, sudo=True)
+            with metrics_lib.timer("cros_sdk_lib.CleanupChrootMount.RmDir.out"):
+                osutils.RmDir(chroot.out_path, ignore_missing=True, sudo=True)
 
 
 def MigrateStatePaths(chroot: chroot_lib.Chroot, lock: locking.FileLock):
