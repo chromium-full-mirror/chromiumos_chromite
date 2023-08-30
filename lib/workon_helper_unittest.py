@@ -483,21 +483,25 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """Check that the symlinks are regenerated when using a new sysroot."""
         # pylint: disable=protected-access
         helper = self.CreateHelper()
-        workon_link = helper._unmasked_symlink
+        workon_link = helper._masked_symlink
+        self.assertNotExists(helper._unmasked_symlink)
 
         # The link exists after starting a package.
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
         self.assertExists(workon_link)
+        self.assertNotExists(helper._unmasked_symlink)
 
         # The link exists after recreating a sysroot.
         osutils.RmDir(self._sysroot)
         osutils.SafeMakedirs(self._sysroot)
         helper = self.CreateHelper()
         self.assertExists(workon_link)
+        self.assertNotExists(helper._unmasked_symlink)
 
         # The link exists when no packages are worked on.
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
         self.assertExists(workon_link)
+        self.assertNotExists(helper._unmasked_symlink)
 
     def testCanStartSingleAtom(self):
         """Check that we can mark a single atom as being worked on."""

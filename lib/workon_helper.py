@@ -315,17 +315,19 @@ class WorkonHelper:
     def _RefreshSymlinks(self):
         """Recreates the symlinks.
 
-        This will create the three symlinks needed:
+        This will create the symlinks needed:
         * package.mask/cros-workon: list of packages to mask.
-        * package.unmask/cros-workon: list of packages to unmask.
         * package.keywords/cros-workon: list of hidden packages to accept.
         """
         if not os.path.exists(self._sysroot):
             return
 
+        # We used to generate this, but stopped as it's not actually needed.
+        # Clean up any old links that might still be around.
+        osutils.SafeUnlink(self._unmasked_symlink, sudo=True)
+
         for target, symlink in (
             (self.masked_file_path, self._masked_symlink),
-            (self.workon_file_path, self._unmasked_symlink),
             (self.workon_file_path, self._keywords_symlink),
         ):
             if not os.path.exists(target):
