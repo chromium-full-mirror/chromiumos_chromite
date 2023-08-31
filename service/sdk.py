@@ -422,8 +422,15 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
         extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
         result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
         failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
+        ret = UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
 
-    return UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
+    # Generate /usr/bin/remote_toolchain_inputs file for Reclient used by Chrome
+    # for distributed builds. go/rbe/dev/x/reclient
+    result = cros_build_lib.run(["generate_reclient_inputs"], check=False)
+    if result.returncode:
+        ret.return_code = result.returncode
+
+    return ret
 
 
 def _get_remote_latest_file_value(key: str) -> str:
