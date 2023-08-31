@@ -634,7 +634,7 @@ class ImageTestTest(
         self.assertFalse(output_proto.success)
 
 
-class PushImageTest(api_config.ApiConfigMixin):
+class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Push image test."""
 
     def _GetRequest(
@@ -658,7 +658,7 @@ class PushImageTest(api_config.ApiConfigMixin):
         )
 
     def _GetResponse(self):
-        return image_pb2.PushImageRequest()
+        return image_pb2.PushImageResponse()
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
     def testValidateOnly(self, MockPushImage):
@@ -676,7 +676,7 @@ class PushImageTest(api_config.ApiConfigMixin):
             ]
         )
         rc = image_controller.PushImage(
-            req, self.NewResponse(), self.validate_only_config
+            req, self._GetResponse(), self.validate_only_config
         )
         MockPushImage.assert_not_called()
         self.assertEqual(rc, controller.RETURN_CODE_VALID_INPUT)
@@ -775,7 +775,7 @@ class PushImageTest(api_config.ApiConfigMixin):
             ),
         )
 
-    def testCallSucceeds(self, _):
+    def testCallSucceeds(self):
         """Check that a (dry run) call is made successfully."""
         request = self._GetRequest(sign_types=[common_pb2.IMAGE_TYPE_RECOVERY])
         rc = image_controller.PushImage(
