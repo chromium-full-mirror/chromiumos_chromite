@@ -449,14 +449,29 @@ class UpdateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(expected_args)
         self.assertEqual(expected_version, version)
 
-    def testFailure(self):
+    def testDepotToolsFailure(self):
+        """Test non-zero return code when depot_tools fails."""
+        self.rc.AddCmdResult(
+            [constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"],
+            returncode=20,
+        )
+
+        result = sdk.Update(sdk.UpdateArguments())
+        self.assertFalse(result.success)
+        self.assertEqual(20, result.return_code)
+        self.assertCountEqual([], result.failed_pkgs)
+
+    def testPackageFailure(self):
         """Test non-zero return code and failed package handling."""
         pkgs = [package_info.parse(p) for p in ["foo/bar", "cat/pkg"]]
         self.PatchObject(
             portage_util, "ParseDieHookStatusFile", return_value=pkgs
         )
         expected_rc = 1
-        self.rc.SetDefaultCmdResult(returncode=expected_rc)
+        self.rc.AddCmdResult(
+            partial_mock.In(str(constants.CROSUTILS_DIR / "update_chroot.sh")),
+            returncode=expected_rc,
+        )
 
         result = sdk.Update(sdk.UpdateArguments())
         self.assertFalse(result.success)
