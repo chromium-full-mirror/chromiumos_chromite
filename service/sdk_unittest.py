@@ -230,7 +230,7 @@ class UpdateArgumentsTest(cros_test_lib.TestCase):
     def testNoToolchainTargets(self):
         """Test no toolchain boards argument."""
         self.assertEqual(
-            ["--usepkg"],
+            ["--usepkg", "--eclean"],
             self._GetArgList(build_source=False, toolchain_targets=None),
         )
 

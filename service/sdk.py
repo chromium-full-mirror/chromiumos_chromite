@@ -143,6 +143,7 @@ class UpdateArguments:
         jobs: Optional[int] = None,
         backtrack: Optional[int] = None,
         update_toolchain: bool = True,
+        eclean: bool = True,
     ):
         """Update arguments init.
 
@@ -155,12 +156,14 @@ class UpdateArguments:
             jobs: Max number of simultaneous packages to build.
             backtrack: emerge --backtrack value.
             update_toolchain: Update the toolchain?
+            eclean: Clean out old binpkgs.
         """
         self.build_source = build_source or toolchain_changed
         self.toolchain_targets = toolchain_targets
         self.jobs = jobs
         self.backtrack = backtrack
         self.update_toolchain = update_toolchain
+        self.eclean = eclean
 
     def GetArgList(self) -> List[str]:
         """Get the list of the corresponding command line arguments.
@@ -188,6 +191,11 @@ class UpdateArguments:
 
         if not self.update_toolchain:
             args += ["--skip_toolchain_update"]
+
+        if self.eclean:
+            args.append("--eclean")
+        else:
+            args.append("--noeclean")
 
         return args
 
