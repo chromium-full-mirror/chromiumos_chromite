@@ -1282,7 +1282,6 @@ class ChromeSDKCommand(command.CliCommand):
                     [
                         "cros_board",
                         "cros_sdk_version",
-                        "host_pkg_config",
                         "is_clang",
                         "target_cpu",
                         "cros_host_(cc|cxx|ld|extra_(c|cpp|cxx|ld)flags)",
@@ -1572,10 +1571,12 @@ class ChromeSDKCommand(command.CliCommand):
         env["SYSROOT"] = sysroot
 
         gn_args["target_sysroot"] = sysroot
-        gn_args.pop("pkg_config", None)
 
-        # Use Chrome's host sysroot settings for building outside chroot.
+        # Use Chrome's host sysroot settings and pkg_config for building outside
+        # the chroot.
         gn_args.pop("use_sysroot", None)
+        gn_args.pop("pkg_config", None)
+        gn_args.pop("host_pkg_config", None)
 
         # --internal == --chrome-branding + --official
         if options.chrome_branding or options.internal:
