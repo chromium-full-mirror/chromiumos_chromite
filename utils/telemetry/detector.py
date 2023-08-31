@@ -182,9 +182,9 @@ class SDKSourceDetector(resources.ResourceDetector):
         manifest_repo = Path(repo) / "manifests" if repo else None
 
         if manifest_repo:
-            branch = git.GetTrackingBranch(manifest_repo)
+            branch = git.ManifestCheckout(manifest_repo).manifest_branch
             commit = git.GetLastCommit(manifest_repo)
-            resource["manifest_branch"] = branch.ref if branch else None
+            resource["manifest_branch"] = branch if branch else None
             resource["manifest_commit_date"] = commit.commit_date.isoformat()
             resource["manifest_change_id"] = commit.change_id
             resource["manifest_commit_sha"] = commit.sha

@@ -19,6 +19,18 @@ from chromite.lib import workon_helper
 from chromite.utils.telemetry import detector
 
 
+class ManifestCheckoutMock:
+    """Mock class for git.ManifestCheckout."""
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    @property
+    def manifest_branch(self):
+        """Test value for the manifest branch."""
+        return "snapshot"
+
+
 def mock_exists(path: os.PathLike, val: bool):
     """Mock Path.exists for specified path."""
 
@@ -251,7 +263,6 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch):
     """Test that Sdk detector captures manifest sync info."""
 
     manifest_mtime = datetime.datetime.now(tz=datetime.timezone.utc)
-    branch = git.RemoteRef("origin", "master")
     commit = git.CommitEntry(
         sha="commitsha",
         commit_date=datetime.datetime.now(),
@@ -259,7 +270,7 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch):
     )
 
     monkeypatch.setattr(git, "FindRepoDir", lambda _: "/source/.repo")
-    monkeypatch.setattr(git, "GetTrackingBranch", lambda _: branch)
+    monkeypatch.setattr(git, "ManifestCheckout", ManifestCheckoutMock)
     monkeypatch.setattr(git, "GetLastCommit", lambda _: commit)
     monkeypatch.setattr(
         os.path, "getmtime", lambda _: manifest_mtime.timestamp()
@@ -269,7 +280,7 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch):
     sdk_detector = detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
 
-    assert resource["manifest_branch"] == branch.ref
+    assert resource["manifest_branch"] == "snapshot"
     assert resource["manifest_commit_date"] == commit.commit_date.isoformat()
     assert resource["manifest_change_id"] == commit.change_id
     assert resource["manifest_commit_sha"] == commit.sha
