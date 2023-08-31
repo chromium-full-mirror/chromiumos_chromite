@@ -210,11 +210,15 @@ class UpdateArgumentsTest(cros_test_lib.TestCase):
 
     def testBuildSource(self):
         """Test the build_source argument."""
-        self.assertIn("--nousepkg", self._GetArgList(build_source=True))
+        args = self._GetArgList(build_source=True)
+        self.assertIn("--nousepkg", args)
+        self.assertNotIn("--usepkg", args)
 
     def testNoBuildSource(self):
         """Test using binpkgs."""
-        self.assertNotIn("--nousepkg", self._GetArgList(build_source=False))
+        args = self._GetArgList(build_source=False)
+        self.assertNotIn("--nousepkg", args)
+        self.assertIn("--usepkg", args)
 
     def testToolchainTargets(self):
         """Test the toolchain boards argument."""
@@ -226,7 +230,8 @@ class UpdateArgumentsTest(cros_test_lib.TestCase):
     def testNoToolchainTargets(self):
         """Test no toolchain boards argument."""
         self.assertEqual(
-            [], self._GetArgList(build_source=False, toolchain_targets=None)
+            ["--usepkg"],
+            self._GetArgList(build_source=False, toolchain_targets=None),
         )
 
 

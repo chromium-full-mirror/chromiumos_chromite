@@ -140,6 +140,9 @@ class UpdateArguments:
         build_source: bool = False,
         toolchain_targets: Optional[List[str]] = None,
         toolchain_changed: bool = False,
+        jobs: Optional[int] = None,
+        backtrack: Optional[int] = None,
+        update_toolchain: bool = True,
     ):
         """Update arguments init.
 
@@ -149,9 +152,15 @@ class UpdateArguments:
                 be updated.
             toolchain_changed: Whether a toolchain change has occurred. Implies
                 build_source.
+            jobs: Max number of simultaneous packages to build.
+            backtrack: emerge --backtrack value.
+            update_toolchain: Update the toolchain?
         """
         self.build_source = build_source or toolchain_changed
         self.toolchain_targets = toolchain_targets
+        self.jobs = jobs
+        self.backtrack = backtrack
+        self.update_toolchain = update_toolchain
 
     def GetArgList(self) -> List[str]:
         """Get the list of the corresponding command line arguments.
@@ -163,11 +172,22 @@ class UpdateArguments:
 
         if self.build_source:
             args.append("--nousepkg")
+        else:
+            args.append("--usepkg")
 
         if self.toolchain_targets:
             args.extend(
                 ["--toolchain_boards", ",".join(self.toolchain_targets)]
             )
+
+        if self.jobs is not None:
+            args.append(f"--jobs={self.jobs}")
+
+        if self.backtrack is not None:
+            args.append(f"--backtrack={self.backtrack}")
+
+        if not self.update_toolchain:
+            args += ["--skip_toolchain_update"]
 
         return args
 

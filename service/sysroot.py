@@ -41,6 +41,7 @@ from chromite.lib import portage_util
 from chromite.lib import remoteexec_util
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
+from chromite.service import sdk as sdk_service
 
 
 if TYPE_CHECKING:
@@ -164,19 +165,12 @@ class SetupBoardRunConfig:
         Returns:
             The list of arguments
         """
-        args = [f"--backtrack={self.backtrack}"]
-        if self.usepkg:
-            args += ["--usepkg"]
-        else:
-            args += ["--nousepkg"]
-
-        if self.jobs:
-            args += ["--jobs", str(self.jobs)]
-
-        if not self.update_toolchain:
-            args += ["--skip-toolchain-update"]
-
-        return args
+        return sdk_service.UpdateArguments(
+            build_source=not self.usepkg,
+            jobs=self.jobs,
+            backtrack=self.backtrack,
+            update_toolchain=self.update_toolchain,
+        ).GetArgList()
 
 
 class BuildPackagesRunConfig:
