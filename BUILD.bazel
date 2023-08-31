@@ -18,18 +18,19 @@ pkg_files(
     name = "__files__",
     srcs = glob(
         [
-            "api/**",
+            #"api/**",
             "bin/**",
             "cidb/**",
             "cli/**",
             "config/**",
             # "conftest.py",
             "contrib/**",
-            "cbuildbot/**",
+            #"cbuildbot/**",
+            "cbuildbot/cbuildbot_alerts.py",
             "cros/**",
             # "docs/**",
             # ".env",
-            "format/**",
+            #"format/**",
             "infra/**",
             "__init__.py",
             "lib/**",
@@ -41,18 +42,24 @@ pkg_files(
             "PRESUBMIT.cfg",
             "sdk/**",
             "service/**",
-            "signing/**",
-            "ssh_keys/**",
-            "test/**",
+            #"signing/**",
+            #"ssh_keys/**",
+            #"test/**",
             "third_party/**",
             "utils/**",
         ],
         exclude = [
             # Contains utf-8 characters
             "third_party/swarming.client/example/**",
+            # Changes frequently in non-reproducible ways
             "**/__pycache__/**",
+            # saklein@ says this shouldn't be used during builds
+            "infra/proto/**",
+            # Exclude git repos
             "**/.git",
             "**/.git/**",
+            # Unit test changes don't need to be in the tarball
+            "**/*_unittest.py",
         ],
     ),
     attributes = pkg_attributes(
