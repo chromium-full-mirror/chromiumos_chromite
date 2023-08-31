@@ -159,7 +159,9 @@ class SetupBoardRunConfig:
         self.use_cq_prebuilts = use_cq_prebuilts
         self.backtrack = backtrack
 
-    def GetUpdateChrootArgs(self) -> List[str]:
+    def GetUpdateChrootArgs(
+        self, toolchain_target: str
+    ) -> sdk_service.UpdateArguments:
         """Create a list containing the relevant update_chroot arguments.
 
         Returns:
@@ -167,10 +169,11 @@ class SetupBoardRunConfig:
         """
         return sdk_service.UpdateArguments(
             build_source=not self.usepkg,
+            toolchain_targets=[toolchain_target],
             jobs=self.jobs,
             backtrack=self.backtrack,
             update_toolchain=self.update_toolchain,
-        ).GetArgList()
+        )
 
 
 class BuildPackagesRunConfig:
@@ -555,20 +558,13 @@ def Create(
     # Make sure the chroot is fully up to date before we start unless the
     # chroot update is explicitly disabled.
     if run_configs.update_chroot:
-        logging.info("Updating chroot.")
-        update_chroot = [
-            constants.CROSUTILS_DIR / "update_chroot",
-            "--toolchain_boards",
-            target.name,
-        ]
-        update_chroot += run_configs.GetUpdateChrootArgs()
-
-        try:
-            with tracer.start_as_current_span(
-                "service.sysroot.Create.update_chroot"
-            ):
-                cros_build_lib.run(update_chroot)
-        except cros_build_lib.RunCommandError:
+        with tracer.start_as_current_span(
+            "service.sysroot.Create.update_chroot"
+        ):
+            result = sdk_service.Update(
+                run_configs.GetUpdateChrootArgs(target.name)
+            )
+        if not result.success:
             raise UpdateChrootError(
                 "Error occurred while updating the chroot. "
                 "See the logs for more information."

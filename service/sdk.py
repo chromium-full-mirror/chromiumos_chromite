@@ -375,7 +375,7 @@ def GetChrootVersion(chroot_path: Optional[str] = None) -> Optional[int]:
     return cros_sdk_lib.GetChrootVersion(path)
 
 
-def Update(arguments: UpdateArguments) -> Optional[int]:
+def Update(arguments: UpdateArguments) -> UpdateResult:
     """Update the chroot.
 
     Args:
@@ -388,6 +388,7 @@ def Update(arguments: UpdateArguments) -> Optional[int]:
     # TODO: This should be able to be run either in or out of the chroot.
     cros_build_lib.AssertInsideChroot()
 
+    logging.info("Updating chroot.")
     cmd = [constants.CROSUTILS_DIR / "update_chroot"]
     cmd.extend(arguments.GetArgList())
 

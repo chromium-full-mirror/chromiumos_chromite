@@ -43,7 +43,7 @@ class SetupBoardRunConfigTest(cros_test_lib.TestCase):
         instance = sysroot.SetupBoardRunConfig(
             usepkg=False, jobs=None, update_toolchain=False, backtrack=1
         )
-        args = instance.GetUpdateChrootArgs()
+        args = instance.GetUpdateChrootArgs("board").GetArgList()
         self.assertIn("--backtrack=1", args)
         self.assertIn("--nousepkg", args)
         self.assertIn("--skip_toolchain_update", args)
@@ -54,7 +54,7 @@ class SetupBoardRunConfigTest(cros_test_lib.TestCase):
         instance = sysroot.SetupBoardRunConfig(
             usepkg=True, jobs=1, update_toolchain=True
         )
-        args = instance.GetUpdateChrootArgs()
+        args = instance.GetUpdateChrootArgs("board").GetArgList()
         self.assertIn("--usepkg", args)
         self.assertIn("--jobs=1", args)
         self.assertNotIn("--nousepkg", args)
