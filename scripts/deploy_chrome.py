@@ -234,14 +234,14 @@ class DeployChrome:
         )
         # Running in VMs cause make_dev_ssd's firmware confidence checks to
         # fail. Use --force to bypass the checks.
-        cmd = [
-            "/usr/share/vboot/bin/make_dev_ssd.sh",
-            "--partitions",
-            f"{KERNEL_A_PARTITION} {KERNEL_B_PARTITION}",
-            "--remove_rootfs_verification",
-            "--force",
-        ]
-        self.device.run(cmd, check=False)
+        # TODO(b/269266992): Switch back to a list.
+        cmd = (
+            "/usr/share/vboot/bin/make_dev_ssd.sh "
+            f"--partitions '{KERNEL_A_PARTITION} {KERNEL_B_PARTITION}' "
+            "--remove_rootfs_verification "
+            "--force"
+        )
+        self.device.run(cmd, shell=True, check=False)
 
         self.device.Reboot()
 
