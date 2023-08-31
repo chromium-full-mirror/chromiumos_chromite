@@ -1326,9 +1326,10 @@ def test_install_dlc_images_duplicate_ids_sanity_check(
         sysroot=sysroot,
     )
     if [bd, bd_scaled, bd_artifacts_meta].count(True) > 1:
-        with pytest.raises(
-            dlc_lib.Error, match="There are duplicate DLC IDs: {'" f"{_ID}" "'}"
-        ):
+        with cros_test_lib.LoggingCapturer() as logs:
             fnc()
+            assert logs.LogsMatch(
+                "There are duplicate DLC IDs: {'" f"{_ID}" "'}"
+            )
     else:
         fnc()

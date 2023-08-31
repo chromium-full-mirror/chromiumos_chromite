@@ -1373,8 +1373,8 @@ def InstallDlcImages(
 
     if dupe_dlc_set:
         err_msg = f"There are duplicate DLC IDs: {dupe_dlc_set}"
-        logging.error(err_msg)
-        raise Error(err_msg)
+        # TODO: Convert this to an error.
+        logging.warning(err_msg)
 
     for scaled in (False, True):
         dlc_build_dir = build_dir_scaled if scaled else build_dir
