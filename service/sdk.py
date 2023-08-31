@@ -10,7 +10,7 @@ import logging
 import os
 from pathlib import Path
 import tempfile
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
@@ -137,6 +137,7 @@ class UpdateArguments:
 
     def __init__(
         self,
+        root: Union[str, os.PathLike] = "/",
         build_source: bool = False,
         toolchain_targets: Optional[List[str]] = None,
         toolchain_changed: bool = False,
@@ -148,6 +149,7 @@ class UpdateArguments:
         """Update arguments init.
 
         Args:
+            root: The general root to operate on.  Mostly for testing.
             build_source: Whether to build the source or use prebuilts.
             toolchain_targets: The list of build targets whose toolchains should
                 be updated.
@@ -158,6 +160,7 @@ class UpdateArguments:
             update_toolchain: Update the toolchain?
             eclean: Clean out old binpkgs.
         """
+        self.root = Path(root)
         self.build_source = build_source or toolchain_changed
         self.toolchain_targets = toolchain_targets
         self.jobs = jobs
@@ -396,7 +399,8 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
     # TODO: This should be able to be run either in or out of the chroot.
     cros_build_lib.AssertInsideChroot()
 
-    logging.info("Updating chroot.")
+    logging.info("Updating chroot in %s.", arguments.root)
+
     cmd = [
         constants.CROSUTILS_DIR / "update_chroot.sh",
         "--script-is-run-only-by-chromite-and-not-users",

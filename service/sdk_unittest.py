@@ -428,7 +428,7 @@ class DeleteTest(cros_test_lib.RunCommandTestCase):
         self.assertCommandContains(["--delete", "--force", "--chroot", path])
 
 
-class UpdateTest(cros_test_lib.RunCommandTestCase):
+class UpdateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Update function tests."""
 
     def setUp(self):
@@ -437,7 +437,7 @@ class UpdateTest(cros_test_lib.RunCommandTestCase):
 
     def testSuccess(self):
         """Test the simple success case."""
-        arguments = sdk.UpdateArguments()
+        arguments = sdk.UpdateArguments(root=self.tempdir)
         expected_args = ["--arg", "--other", "--with-value", "value"]
         expected_version = 1
         self.PatchObject(arguments, "GetArgList", return_value=expected_args)
