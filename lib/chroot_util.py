@@ -160,36 +160,6 @@ def UpdateChroot(board=None, update_host_packages=True):
     )
 
 
-def SetupBoard(
-    board, update_chroot=True, update_host_packages=True, use_binary=True
-):
-    """Set up a sysroot for |board|.
-
-    This invokes UpdateChroot() with the given board values, unless
-    otherwise instructed.
-
-    Args:
-        board: Board name to set up a sysroot for.
-        update_chroot: Whether we should update the chroot first.
-        update_host_packages: Whether to update host packages in the chroot.
-        use_binary: If okay to use binary packages during the update.
-    """
-    if update_chroot:
-        UpdateChroot(board=board, update_host_packages=update_host_packages)
-
-    cmd = [
-        "setup_board",
-        "--skip-toolchain-update",
-        "--skip-chroot-upgrade",
-        "--board=%s" % board,
-    ]
-
-    if not use_binary:
-        cmd.append("--nousepkg")
-
-    cros_build_lib.run(cmd)
-
-
 @tracer.start_as_current_span("chroot_util.RunUnittests")
 def RunUnittests(
     sysroot,
