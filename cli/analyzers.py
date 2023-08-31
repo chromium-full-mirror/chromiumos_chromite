@@ -69,17 +69,19 @@ class AnalyzerCommand(ABC, command.CliCommand):
                 help="Display diff instead of fixed content",
             )
             parser.add_argument(
+                *(["-i", "--inplace"] + cls.inplace_option_aliases),
+                dest="inplace",
+                default=None,
+                action="store_true",
+                help="Fix files inplace (default)",
+            )
+            # NB: This must come after --inplace due to dest= being the same,
+            # and so --inplace's default= is used.
+            parser.add_argument(
                 "--stdout",
                 dest="inplace",
                 action="store_false",
                 help="Write to stdout",
-            )
-            parser.add_argument(
-                *(["-i", "--inplace"] + cls.inplace_option_aliases),
-                default=True,
-                action="store_true",
-                dest="inplace",
-                help="Fix files inplace (default)",
             )
 
         parser.add_argument(
@@ -123,10 +125,14 @@ class AnalyzerCommand(ABC, command.CliCommand):
         options: commandline.ArgumentNamespace,
     ) -> None:
         """Validate & post-process options before freezing."""
-        if cls.use_dryrun_options and options.dryrun and options.inplace:
-            # A dry-run should never alter files in-place.
-            logging.warning("Ignoring inplace option for dry-run.")
-            options.inplace = False
+        if cls.can_modify_files:
+            if cls.use_dryrun_options and options.dryrun:
+                if options.inplace:
+                    # A dry-run should never alter files in-place.
+                    logging.warning("Ignoring inplace option for dry-run.")
+                options.inplace = False
+            if options.inplace is None:
+                options.inplace = True
 
         # Whether a committed change is being analyzed. Note "pre-submit" is a
         # special commit passed by `pre-upload.py --pre-submit` asking to check

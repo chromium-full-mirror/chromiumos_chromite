@@ -71,3 +71,69 @@ def test_has_no_uncommitted_changes(run_mock) -> None:
     """Test handling of porcelain output when no uncommitted changes."""
     run_mock.SetDefaultCmdResult(stdout="")
     assert analyzers.HasUncommittedChanges(["/path/to/file"]) is False
+
+
+@mock.patch.multiple(
+    analyzers.AnalyzerCommand, can_modify_files=True, use_dryrun_options=True
+)
+def test_inplace_dryrun_default(caplog) -> None:
+    """Check default inplace behavior."""
+    result = process_args(["f.txt"])
+    assert result.inplace
+
+    result = process_args(["--inplace", "f.txt"])
+    assert result.inplace
+
+    result = process_args(["--check", "f.txt"])
+    assert not result.inplace
+
+    # The inplace & dry-run *defaults* should *not* warn on conflicts.
+    assert caplog.text == ""
+
+    result = process_args(["--inplace", "--check", "f.txt"])
+    assert not result.inplace
+
+    # inplace & dry-run options should warn on conflicts.
+    assert caplog.text != ""
+
+
+@mock.patch.multiple(
+    analyzers.AnalyzerCommand, can_modify_files=True, use_dryrun_options=False
+)
+def test_inplace_no_dryrun_default(caplog) -> None:
+    """Check default inplace behavior."""
+    result = process_args(["f.txt"])
+    assert result.inplace
+
+    result = process_args(["--stdout", "f.txt"])
+    assert not result.inplace
+
+    result = process_args(["--stdout", "--inplace", "f.txt"])
+    assert result.inplace
+
+    result = process_args(["--inplace", "--stdout", "f.txt"])
+    assert not result.inplace
+
+    assert caplog.text == ""
+
+
+@mock.patch.multiple(
+    analyzers.AnalyzerCommand, can_modify_files=False, use_dryrun_options=True
+)
+def test_no_inplace_dryrun_default(caplog) -> None:
+    """Make sure we don't crash when inplace isn't enabled."""
+    result = process_args(["f.txt"])
+    assert not hasattr(result, "inplace")
+
+    assert caplog.text == ""
+
+
+@mock.patch.multiple(
+    analyzers.AnalyzerCommand, can_modify_files=False, use_dryrun_options=False
+)
+def test_no_inplace_no_dryrun_default(caplog) -> None:
+    """Make sure we don't crash when these options aren't enabled."""
+    result = process_args(["f.txt"])
+    assert not hasattr(result, "inplace")
+
+    assert caplog.text == ""
