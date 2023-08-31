@@ -4,12 +4,16 @@
 
 """Unittests for the binhost.py service."""
 
+import base64
 import os
 from pathlib import Path
 import time
 
+from chromite.third_party import requests
+from chromite.third_party.google.protobuf import timestamp_pb2
 import pytest
 
+from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -24,6 +28,19 @@ from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
 from chromite.service import binhost
 from chromite.utils import gs_urls_util
+
+
+# pylint: disable=protected-access
+
+# Define constants for test cases.
+MOCK_BINHOST_ID = 1
+MOCK_BUILD_TARGET = "test_build_target"
+MOCK_DATE_STRING = "2023-07-25T08:09:14.842Z"
+MOCK_GS_BUCKET_NAME = "test_bucket"
+MOCK_GS_URI = "gs://test"
+MOCK_ID_TOKEN = "test_token"
+MOCK_PROFILE = "test_profile"
+MOCK_SNAPSHOT_SHA = "test_sha"
 
 
 class GetPrebuiltAclArgsTest(cros_test_lib.MockTempDirTestCase):
@@ -730,10 +747,14 @@ CPV: package/exclude-2
         self.assertNotIn("CPV: package/exclude-2", actual_packages_content)
 
 
-class LookupBinhostsTest(
+class GetSnapshotShasTest(
     cros_test_lib.MockTempDirTestCase, cros_test_lib.LoggingTestCase
 ):
-    """Unittests for lookup_binhosts."""
+    """The the _get_snapshot_shas function.
+
+    The _get_snapshot_shas_from_git_log function is also tested here when it is
+    called internally and the relevant functions are mocked.
+    """
 
     def setUp(self) -> None:
         self.find_repo_mock = self.PatchObject(repo_util.Repository, "MustFind")
@@ -749,11 +770,10 @@ class LookupBinhostsTest(
         """Test basic internal success case."""
         self.has_remote_mock.side_effect = (False, True)
         self.git_log_mock.side_effect = (
-            "",
             "internal-snapshot-sha1\ninternal-snapshot-sha2",
         )
 
-        result = binhost.lookup_binhosts()
+        result = binhost._get_snapshot_shas()
 
         self.git_log_mock.assert_called_with(
             os.path.join(self.tempdir, "manifest-internal"),
@@ -772,10 +792,9 @@ class LookupBinhostsTest(
         self.has_remote_mock.side_effect = (True, False)
         self.git_log_mock.side_effect = (
             "external-snapshot-sha1\nexternal-snapshot-sha2",
-            "",
         )
 
-        result = binhost.lookup_binhosts()
+        result = binhost._get_snapshot_shas()
 
         self.git_log_mock.assert_called_with(
             os.path.join(self.tempdir, "manifest"),
@@ -794,7 +813,7 @@ class LookupBinhostsTest(
         with cros_test_lib.LoggingCapturer() as logs:
             self.find_repo_mock.side_effect = repo_util.NotInRepoError()
 
-            result = binhost.lookup_binhosts()
+            result = binhost._get_snapshot_shas()
 
             self.AssertLogsContain(logs, "Unable to determine a repo directory")
             self.assertEqual([], result.external)
@@ -806,12 +825,141 @@ class LookupBinhostsTest(
             self.git_log_mock.side_effect = cros_build_lib.RunCommandError(
                 "Run Command Error."
             )
-
-            result = binhost.lookup_binhosts()
+            result = binhost._get_snapshot_shas()
 
             self.AssertLogsContain(logs, "Run Command Error.")
             self.assertEqual([], result.external)
             self.assertEqual([], result.internal)
+
+
+@pytest.fixture(scope="class")
+def mock_lookup_binhosts_response_object(request):
+    """Fixture to mock a LookupBinhostsResponse object."""
+    created_at = timestamp_pb2.Timestamp()
+    created_at.FromJsonString(MOCK_DATE_STRING)
+
+    # Construct a LookupBinhostsResponse object.
+    response = prebuilts_cloud_pb2.LookupBinhostsResponse()
+    response.binhosts.append(
+        prebuilts_cloud_pb2.LookupBinhostsResponse.Binhost(
+            binhost_id=MOCK_BINHOST_ID,
+            gs_uri=MOCK_GS_URI,
+            created_at=created_at,
+        )
+    )
+
+    # Encode the protobuf message with base64.
+    request.cls.mock_lookup_binhosts_response_object = base64.urlsafe_b64encode(
+        response.SerializeToString()
+    )
+
+
+@pytest.mark.usefixtures("mock_lookup_binhosts_response_object")
+class FetchBinhostsTest(
+    cros_test_lib.MockTestCase,
+    cros_test_lib.LoggingTestCase,
+):
+    """Tests for _fetch_binhosts."""
+
+    FETCH_BINHOSTS_MOCK_ARGS = (
+        MOCK_GS_BUCKET_NAME,
+        [MOCK_SNAPSHOT_SHA],
+        MOCK_BUILD_TARGET,
+        MOCK_PROFILE,
+        False,
+    )
+
+    def setUp(self):
+        self.requests_mock = self.PatchObject(requests, "request")
+
+    def _set_requests_mock_response(self, status_code, content):
+        """Helper function to set the mock API response."""
+        api_response = requests.models.Response()
+        api_response.status_code = status_code
+        api_response._content = content
+        self.requests_mock.return_value = api_response
+
+    def test_success(self):
+        """Test successful fetching of binhosts."""
+        self._set_requests_mock_response(
+            200, self.mock_lookup_binhosts_response_object
+        )
+
+        assert binhost._fetch_binhosts(*self.FETCH_BINHOSTS_MOCK_ARGS) == (
+            [MOCK_GS_URI]
+        )
+
+    def test_binhosts_not_found(self):
+        """Test failure case when no binhosts are found."""
+        self._set_requests_mock_response(
+            404, "No binhosts found with the given parameters"
+        )
+
+        with cros_test_lib.LoggingCapturer() as logs:
+            binhost._fetch_binhosts(*self.FETCH_BINHOSTS_MOCK_ARGS)
+            self.AssertLogsContain(
+                logs, "No suitable binhosts found in the binhost lookup service"
+            )
+
+    def test_fetching_error(self):
+        """Test failure case when there is an error while fetching binhosts."""
+        self._set_requests_mock_response(
+            400, "Unable to parse filter parameters from the request."
+        )
+
+        with cros_test_lib.LoggingCapturer() as logs:
+            binhost._fetch_binhosts(*self.FETCH_BINHOSTS_MOCK_ARGS)
+            self.AssertLogsContain(
+                logs,
+                "Error while fetching binhosts from the binhost lookup service",
+            )
+
+
+class LookupBinhostsTest(cros_test_lib.MockTestCase):
+    """Test the lookup_binhosts function."""
+
+    INTERNAL_GS_URIS = ["gs://internal/binhost1", "gs://internal/binhost2"]
+    INTERNAL_SNAPSHOT_SHAS = [
+        "internal_snapshot_sha1",
+        "internal_snapshot_sha2",
+    ]
+    EXTERNAL_GS_URIS = ["gs://external/binhost1", "gs://external/binhost2"]
+    EXTERNAL_SNAPSHOT_SHAS = [
+        "external_snapshot_sha1",
+        "external_snapshot_sha2",
+    ]
+
+    def setUp(self):
+        self.get_snapshot_shas = self.PatchObject(binhost, "_get_snapshot_shas")
+        self.fetch_binhosts = self.PatchObject(binhost, "_fetch_binhosts")
+
+    def test_internal(self):
+        """Test for internal checkout having internal and external manifests."""
+        self.get_snapshot_shas.side_effect = [
+            binhost.SnapshotShas(
+                self.EXTERNAL_SNAPSHOT_SHAS, self.INTERNAL_SNAPSHOT_SHAS
+            )
+        ]
+        self.fetch_binhosts.side_effect = (
+            self.INTERNAL_GS_URIS,
+            self.EXTERNAL_GS_URIS,
+        )
+        assert binhost.lookup_binhosts(
+            MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
+        ) == [*self.INTERNAL_GS_URIS, *self.EXTERNAL_GS_URIS]
+
+    def test_external(self):
+        """Test for external checkout only having external manifest."""
+        self.get_snapshot_shas.side_effect = [
+            binhost.SnapshotShas(self.EXTERNAL_SNAPSHOT_SHAS, [])
+        ]
+        self.fetch_binhosts.side_effect = [self.EXTERNAL_GS_URIS]
+        assert (
+            binhost.lookup_binhosts(
+                MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
+            )
+            == self.EXTERNAL_GS_URIS
+        )
 
 
 @pytest.mark.parametrize(

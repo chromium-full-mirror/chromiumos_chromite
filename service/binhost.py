@@ -4,6 +4,7 @@
 
 """The Binhost API interacts with Portage binhosts and Packages files."""
 
+import base64
 import functools
 import logging
 import os
@@ -11,6 +12,9 @@ from pathlib import Path
 import tempfile
 from typing import List, NamedTuple, Optional, TYPE_CHECKING, Union
 
+from chromite.third_party import requests
+
+from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import binpkg
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -38,6 +42,18 @@ _DEV_INSTALL_PACKAGES_FILE = "build/dev-install/package.installable"
 
 # The maximum number of binhosts to return from the lookup service.
 _MAX_BINHOSTS = 10
+
+# Parameters for the Lookup Binhosts Service endpoint.
+_PROTOCOL = "https"
+_CHROMEOS_PREBUILTS_DOMAIN = "us-central1-chromeos-prebuilts.cloudfunctions.net"
+# TODO(b/272096443): Update to the production endpoint.
+_LOOKUP_BINHOSTS_ENDPOINT = "staging-public-lookup_service-binhosts"
+
+_LOOKUP_URI = "%s://%s/%s" % (
+    _PROTOCOL,
+    _CHROMEOS_PREBUILTS_DOMAIN,
+    _LOOKUP_BINHOSTS_ENDPOINT,
+)
 
 
 class Error(Exception):
@@ -639,9 +655,87 @@ class SnapshotShas(NamedTuple):
     internal: List[Optional[str]]
 
 
-def lookup_binhosts() -> List[Optional[str]]:
-    """Call Cloud Functions to lookup BINHOSTs."""
-    # TODO(b/270985155): Implement the lookup logic.
+def _fetch_binhosts(
+    gs_bucket_name: str,
+    snapshot_shas: List[str],
+    build_target: str,
+    profile: str,
+    private: bool,
+) -> List[Optional[str]]:
+    """Call the binhost lookup service to get locations of BINHOSTs.
+
+    Args:
+        gs_bucket_name: Name of the google storage bucket which contains the
+            binhosts (e.g. "chromeos-prebuilts" in
+            gs://chromeos-prebuilts/binhosts/..).
+        snapshot_shas: List of snapshot shas of the binhosts.
+        build_target: build target (also known as board) of the binhosts.
+        profile: profile associated with the build target.
+        private: True if the binhosts are private.
+
+    Returns:
+        A list of Google Storage URIs of binhosts, sorted by created
+        time (descending).
+
+    Raises:
+        google.protobuf.message.DecodeError: When the protobuf message from the
+            API response cannot be parsed.
+    """
+    # Construct and encode the filter parameters.
+    lookup_binhosts_request = prebuilts_cloud_pb2.LookupBinhostsRequest(
+        gs_bucket_name=gs_bucket_name,
+        snapshot_shas=snapshot_shas,
+        build_target=build_target,
+        profile=profile,
+        private=private,
+    )
+    # Encode the request with base64 and convert to a string.
+    lookup_binhosts_request_encoded = base64.urlsafe_b64encode(
+        lookup_binhosts_request.SerializeToString()
+    ).decode()
+
+    response = requests.request(
+        "GET",
+        "%s://%s/%s?filter=%s"
+        % (
+            _PROTOCOL,
+            _CHROMEOS_PREBUILTS_DOMAIN,
+            _LOOKUP_BINHOSTS_ENDPOINT,
+            lookup_binhosts_request_encoded,
+        ),
+        timeout=70,
+    )
+
+    if response.status_code == 200:
+        lookup_binhosts_response = prebuilts_cloud_pb2.LookupBinhostsResponse()
+        lookup_binhosts_response.ParseFromString(
+            base64.urlsafe_b64decode(response.content)
+        )
+        # The response contains a list of binhost metadata objects which are
+        # sorted in descending order of the time they were created at.
+        return [x.gs_uri for x in lookup_binhosts_response.binhosts]
+    elif response.status_code == 404:
+        logging.warning(
+            "No suitable binhosts found in the binhost lookup service"
+        )
+    else:
+        logging.error(
+            "Error while fetching binhosts from the binhost lookup service, "
+            "status code: %i, body: %s",
+            response.status_code,
+            response.content,
+        )
+
+    return []
+
+
+def _get_snapshot_shas() -> SnapshotShas:
+    """Get snapshot SHAs for different checkout types.
+
+    Returns:
+        A SnapshotShas object with the internal, external SHAs populated based
+        on the checkout types.
+    """
     site_params = config_lib.GetSiteParams()
     snapshot_shas = SnapshotShas([], [])
 
@@ -654,23 +748,34 @@ def lookup_binhosts() -> List[Optional[str]]:
 
     # Determine the checkout types.
     manifest = repo.Manifest()
-    external = manifest.HasRemote(site_params.EXTERNAL_REMOTE)
-    internal = manifest.HasRemote(site_params.INTERNAL_REMOTE)
 
     # Get the snapshot SHAs for each checkout type.
-    snapshot_shas.external.extend(_get_snapshot_shas(site_params, not external))
-    snapshot_shas.internal.extend(_get_snapshot_shas(site_params, internal))
-
+    if manifest.HasRemote(site_params.EXTERNAL_REMOTE):
+        snapshot_shas.external.extend(
+            _get_snapshot_shas_from_git_log(site_params, False)
+        )
+    if manifest.HasRemote(site_params.INTERNAL_REMOTE):
+        snapshot_shas.internal.extend(
+            _get_snapshot_shas_from_git_log(site_params, True)
+        )
     return snapshot_shas
 
 
-def _get_snapshot_shas(
-    site_params: "config_lib.AttrDict", internal: bool
+def _get_snapshot_shas_from_git_log(
+    site_params: config_lib.AttrDict, internal: bool
 ) -> List[Optional[str]]:
     """Get the last n=_MAX_BINHOSTS snapshot SHAs using git log.
 
     We're intentionally swallowing errors related to determining the snapshot
     SHAs since the lookup service will contain logic for these error cases.
+
+    Args:
+        site_params: site parameter configs.
+        internal: Whether to get snapshot SHAs of the internal or external
+            manifest.
+
+    Returns:
+        A list of snapshot SHAs.
     """
     manifest_type = "manifest-internal" if internal else "manifest"
     manifest_dir = os.path.join(constants.SOURCE_ROOT, manifest_type)
@@ -687,3 +792,52 @@ def _get_snapshot_shas(
     except cros_build_lib.RunCommandError as e:
         logging.warning(e)
         return []
+
+
+def lookup_binhosts(
+    gs_bucket_name: str, build_target: str, profile: str
+) -> List[Optional[str]]:
+    """Get binhost locations from the binhost lookup service.
+
+    Args:
+        gs_bucket_name: Name of the google storage bucket which contains the
+            binhosts (e.g. "chromeos-prebuilts" in
+            gs://chromeos-prebuilts/binhosts/..).
+        build_target: build target (also known as board) of the binhosts.
+        profile: profile associated with the build target.
+
+    Returns:
+        A list of Google Storage URIs of binhosts, sorted by created
+        time (descending).
+    """
+    snapshot_shas = _get_snapshot_shas()
+    binhost_gs_uris = []
+
+    # Fetch internal binhosts.
+    if snapshot_shas.internal:
+        binhost_gs_uris.extend(
+            _fetch_binhosts(
+                gs_bucket_name,
+                snapshot_shas.internal,
+                build_target,
+                profile,
+                True,
+            )
+        )
+
+    # Fetch external binhosts.
+    if snapshot_shas.external:
+        binhost_gs_uris.extend(
+            _fetch_binhosts(
+                gs_bucket_name,
+                snapshot_shas.external,
+                build_target,
+                profile,
+                False,
+            )
+        )
+
+    # TODO(b/271207940): Handle use case for partners who need some external as
+    # well as internal binhosts.
+
+    return binhost_gs_uris
