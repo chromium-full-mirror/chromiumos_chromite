@@ -50,6 +50,11 @@ export async function debugTastTests(
     description: 'debug Tast tests',
   });
 
+  const targetFile = vscode.window.activeTextEditor?.document.fileName;
+  if (!targetFile) {
+    return null;
+  }
+
   const preTestResult = await preTestSetUp(context);
   if (!preTestResult) {
     return null;
@@ -88,7 +93,7 @@ export async function debugTastTests(
   }
 
   try {
-    await debugSelectedTests(context, hostname);
+    await debugSelectedTests(context, hostname, targetFile);
     // TODO: Wait to show the prompt until the tests run successfully
     showPromptWithOpenLogChoice(context, 'Tests run successfully.', false);
     return new DebugTastTestsResult();
@@ -103,7 +108,8 @@ export async function debugTastTests(
  */
 async function debugSelectedTests(
   context: CommandContext,
-  hostname: string
+  hostname: string,
+  targetFile: string
 ): Promise<void> {
   const taskType = 'shell';
 
@@ -115,9 +121,8 @@ async function debugSelectedTests(
         vscode.TaskScope.Workspace,
         'prep debugger',
         'tast',
-        // TODO: Use the file which was active when the debug command was invoked.
         new vscode.ShellExecution(
-          `cros_sdk -- /mnt/host/source/src/platform/tast-tests/tools/run_debugger.py --dut=${hostname} --current-file=\${file}`
+          `cros_sdk -- /mnt/host/source/src/platform/tast-tests/tools/run_debugger.py --dut=${hostname} --current-file=${targetFile}`
         ),
         '$prep-tast-debugger'
       );
