@@ -163,7 +163,8 @@ class UpdateArguments:
 
         if self.build_source:
             args.append("--nousepkg")
-        elif self.toolchain_targets:
+
+        if self.toolchain_targets:
             args.extend(
                 ["--toolchain_boards", ",".join(self.toolchain_targets)]
             )
