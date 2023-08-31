@@ -26,3 +26,5 @@ export type {Mutable} from './types';
 export {EventReader} from './events';
 
 export {installFakeConfigs, installVscodeDouble} from './doubles';
+
+export * as fakes from './fakes';

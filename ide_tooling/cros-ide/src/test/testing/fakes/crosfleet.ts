@@ -4,10 +4,10 @@
 
 import * as path from 'path';
 import * as dateFns from 'date-fns';
-import * as testing from '..';
 import * as cipd from '../../../common/cipd';
 import * as commonUtil from '../../../common/common_util';
 import * as crosfleet from '../../../features/device_management/crosfleet';
+import {FakeExec, exactMatch, prefixMatch} from '../fake_exec';
 
 export class FakeCrosfleet {
   private loggedIn = true;
@@ -23,23 +23,18 @@ export class FakeCrosfleet {
     this.leases = leases;
   }
 
-  install(
-    fakeExec: testing.FakeExec,
-    cipdRepository: cipd.CipdRepository
-  ): void {
+  install(fakeExec: FakeExec, cipdRepository: cipd.CipdRepository): void {
     fakeExec.on(
       path.join(cipdRepository.installDir, 'crosfleet'),
-      testing.exactMatch(['whoami'], () => this.handleWhoami())
+      exactMatch(['whoami'], () => this.handleWhoami())
     );
     fakeExec.on(
       path.join(cipdRepository.installDir, 'crosfleet'),
-      testing.exactMatch(['dut', 'leases', '-json'], () => this.handleLeases())
+      exactMatch(['dut', 'leases', '-json'], () => this.handleLeases())
     );
     fakeExec.on(
       path.join(cipdRepository.installDir, 'crosfleet'),
-      testing.prefixMatch(['dut', 'lease'], restArgs =>
-        this.handleLease(restArgs)
-      )
+      prefixMatch(['dut', 'lease'], restArgs => this.handleLease(restArgs))
     );
   }
 
@@ -187,7 +182,7 @@ export class FakeCrosfleet {
  * reset between tests.
  */
 export function installFakeCrosfleet(
-  fakeExec: testing.FakeExec,
+  fakeExec: FakeExec,
   cipdRepository: cipd.CipdRepository
 ): FakeCrosfleet {
   const fakeCrosfleet = new FakeCrosfleet();

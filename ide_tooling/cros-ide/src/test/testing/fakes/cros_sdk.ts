@@ -4,23 +4,23 @@
 
 import * as path from 'path';
 import * as commonUtil from '../../../common/common_util';
-import * as testing from '../../testing';
+import {FakeExec, Handler, prefixMatch} from '../fake_exec';
 
 /**
  * Installs a fake handler for the command invoked inside chroot.
  */
 export function installChrootCommandHandler(
-  fakeExec: testing.FakeExec,
+  fakeExec: FakeExec,
   source: commonUtil.Source,
   name: string,
-  handler: testing.Handler,
+  handler: Handler,
   chrootOption?: {crosSdkWorkingDir?: string}
 ): void {
   const crosSdk = path.join(source, 'chromite/bin/cros_sdk');
 
   fakeExec.on(
     crosSdk,
-    testing.prefixMatch(['--', name], (restArgs, options) => {
+    prefixMatch(['--', name], (restArgs, options) => {
       return handler(restArgs, options);
     })
   );
@@ -33,7 +33,7 @@ export function installChrootCommandHandler(
 
   fakeExec.on(
     'sudo',
-    testing.prefixMatch(prefix, (restArgs, options) => {
+    prefixMatch(prefix, (restArgs, options) => {
       return handler(restArgs, options);
     })
   );

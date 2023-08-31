@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 import 'jasmine';
-import * as testing from '..';
 import * as cipd from '../../../common/cipd';
+import {FakeExec, exactMatch} from '../fake_exec';
+import {tempDir as testingTempDir} from '../fs';
 
 /**
  * Installs a fake cipd executable for testing, and returns a CipdRepository
@@ -12,21 +13,19 @@ import * as cipd from '../../../common/cipd';
  *
  * This function should be called in describe.
  */
-export function installFakeCipd(
-  fakeExec: testing.FakeExec
-): cipd.CipdRepository {
-  const tempDir = testing.tempDir();
+export function installFakeCipd(fakeExec: FakeExec): cipd.CipdRepository {
+  const tempDir = testingTempDir();
   const cipdRepository = new cipd.CipdRepository(tempDir.path);
 
   beforeEach(() => {
     Object.assign(cipdRepository, new cipd.CipdRepository(tempDir.path));
     fakeExec.on(
       'cipd',
-      testing.exactMatch(['init', tempDir.path, '-force'], async () => 'ok')
+      exactMatch(['init', tempDir.path, '-force'], async () => 'ok')
     );
     fakeExec.on(
       'cipd',
-      testing.exactMatch(
+      exactMatch(
         [
           'install',
           '-root',
