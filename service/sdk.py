@@ -397,7 +397,10 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
     cros_build_lib.AssertInsideChroot()
 
     logging.info("Updating chroot.")
-    cmd = [constants.CROSUTILS_DIR / "update_chroot"]
+    cmd = [
+        constants.CROSUTILS_DIR / "update_chroot.sh",
+        "--script-is-run-only-by-chromite-and-not-users",
+    ]
     cmd.extend(arguments.GetArgList())
 
     # The sdk update uses splitdebug instead of separatedebug. Make sure
