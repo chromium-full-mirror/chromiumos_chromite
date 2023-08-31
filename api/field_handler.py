@@ -173,31 +173,14 @@ class PathHandler:
         else:
             destination = self.destination
 
-        # TODO(b/297998583): Drop this block after a fix is released in recipes.
-        if not os.path.exists(self.destination):
-            logging.info("Making destination dir: %s", self.destination)
-            osutils.SafeMakedirs(self.destination)
-
         source = self.field.path
         if direction == self.OUTSIDE and self.chroot:
             source = self.chroot.full_path(source)
-
-        assert os.path.exists(
-            source
-        ), f"The source path does not exist: {source}"
-        assert os.path.exists(
-            self.destination
-        ), f"The destination path does not exist: {self.destination}"
 
         if os.path.isfile(source):
             # File - use the old file name, just copy it into the destination.
             dest_path = os.path.join(destination, os.path.basename(source))
             copy_fn = shutil.copy
-            if os.path.exists(dest_path):
-                logging.warning(
-                    "The destination file exists, overwriting file: %s",
-                    dest_path,
-                )
         else:
             # Directory - just copy everything into the new location.
             dest_path = destination
