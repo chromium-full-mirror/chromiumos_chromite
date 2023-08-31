@@ -401,6 +401,8 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
 
     logging.info("Updating chroot in %s.", arguments.root)
 
+    cros_build_lib.ClearShadowLocks(arguments.root)
+
     cmd = [
         constants.CROSUTILS_DIR / "update_chroot.sh",
         "--script-is-run-only-by-chromite-and-not-users",
