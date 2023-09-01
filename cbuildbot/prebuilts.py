@@ -5,6 +5,7 @@
 """cbuildbot logic for uploading prebuilts and managing binhosts."""
 
 import glob
+import logging
 import os
 from pathlib import Path
 
@@ -45,6 +46,7 @@ def GetToolchainSdkPaths(build_root, is_overlay=False):
         prefix + "*.tar.*",
     )
     result = []
+    logging.debug("Searching for sdks: %s", glob_pattern)
     for tarball in sorted(glob.glob(glob_pattern)):
         name = os.path.basename(tarball).split(".", 1)[0]
         target = name[len(prefix) :]
