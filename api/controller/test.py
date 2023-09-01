@@ -116,6 +116,8 @@ def BuildTargetUnitTest(input_proto, output_proto, _config):
     code_coverage = input_proto.flags.code_coverage
     rust_code_coverage = input_proto.flags.rust_code_coverage
 
+    bazel = input_proto.flags.bazel
+
     sysroot = sysroot_lib.Sysroot(build_target.root)
 
     result = test.BuildTargetUnitTest(
@@ -127,6 +129,7 @@ def BuildTargetUnitTest(input_proto, output_proto, _config):
         rust_code_coverage=rust_code_coverage,
         testable_packages_optional=testable_packages_optional,
         filter_only_cros_workon=filter_only_cros_workon,
+        bazel=bazel,
     )
 
     if not result.success:

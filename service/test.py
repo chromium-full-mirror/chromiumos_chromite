@@ -78,6 +78,7 @@ def BuildTargetUnitTest(
     rust_code_coverage: bool = False,
     testable_packages_optional: bool = False,
     filter_only_cros_workon: bool = False,
+    bazel: bool = False,
 ) -> BuildTargetUnitTestResult:
     """Run the ebuild unit tests for the target.
 
@@ -93,10 +94,17 @@ def BuildTargetUnitTest(
             found.
         filter_only_cros_workon: Whether to filter out non-cros_workon packages
             from input package list.
+        bazel: Whether to use Bazel to run unit tests.
 
     Returns:
         BuildTargetUnitTestResult
     """
+
+    # This is not implemented for Bazel. Do nothing when building with Bazel.
+    # TODO(b/291982142): Run unit tests with Bazel if bazel==True.
+    if bazel:
+        return BuildTargetUnitTestResult(0, [])
+
     cros_build_lib.AssertInsideChroot()
     # TODO(crbug.com/960805) Move cros_run_unit_tests logic here.
     cmd = ["cros_run_unit_tests"]
