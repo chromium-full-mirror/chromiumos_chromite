@@ -7,7 +7,6 @@ import * as os from 'os';
 import * as path from 'path';
 import * as commonUtil from '../../common/common_util';
 import {envForDepotTools} from '../../common/depot_tools';
-import {underDevelopment} from '../../services/config';
 import {Sink} from './sink';
 
 /** Kind of a Git remote repository */
