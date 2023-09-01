@@ -130,7 +130,7 @@ def _WriteLinesToFile(path, lines, line_prefix, line_suffix):
         osutils.WriteFile(path, contents, makedirs=True)
 
 
-def GetWorkonPath(source_root=constants.CHROOT_SOURCE_ROOT, sub_path=None):
+def GetWorkonPath(source_root=constants.SOURCE_ROOT, sub_path=None):
     """Get the path to files related to packages we're working locally on.
 
     Args:
@@ -175,7 +175,7 @@ def _FilterWorkonOnlyEbuilds(ebuilds):
     return result
 
 
-def ListAllWorkedOnAtoms(src_root=constants.CHROOT_SOURCE_ROOT):
+def ListAllWorkedOnAtoms(src_root=constants.SOURCE_ROOT):
     """Get a list of all atoms we're currently working on.
 
     Args:
@@ -217,7 +217,7 @@ class WorkonHelper:
         sysroot,
         friendly_name=None,
         verbose=False,
-        src_root=constants.CHROOT_SOURCE_ROOT,
+        src_root=constants.SOURCE_ROOT,
     ):
         """Construct an instance.
 
