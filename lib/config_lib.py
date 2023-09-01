@@ -662,16 +662,8 @@ def DefaultSiteParameters():
             "%s/chromiumos/manifest-versions"
             % default_site_params["EXTERNAL_GOB_URL"]
         ),
-        MANIFEST_VERSIONS_GOB_URL_TEST=(
-            "%s/chromiumos/manifest-versions-test"
-            % default_site_params["EXTERNAL_GOB_URL"]
-        ),
         MANIFEST_VERSIONS_INT_GOB_URL=(
             "%s/chromeos/manifest-versions"
-            % default_site_params["INTERNAL_GOB_URL"]
-        ),
-        MANIFEST_VERSIONS_INT_GOB_URL_TEST=(
-            "%s/chromeos/manifest-versions-test"
             % default_site_params["INTERNAL_GOB_URL"]
         ),
         MANIFEST_VERSIONS_GS_URL="gs://chromeos-manifest-versions",

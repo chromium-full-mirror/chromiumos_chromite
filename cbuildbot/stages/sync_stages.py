@@ -329,21 +329,15 @@ class SyncStage(generic_stages.BuilderStage):
         self.internal = self._run.config.internal
         self.buildbucket_client = buildbucket_v2.BuildbucketV2()
 
-    def _GetManifestVersionsRepoUrl(self, internal=None, test=False):
+    def _GetManifestVersionsRepoUrl(self, internal=None):
         if internal is None:
             internal = self._run.config.internal
 
         site_params = config_lib.GetSiteParams()
         if internal:
-            if test:
-                return site_params.MANIFEST_VERSIONS_INT_GOB_URL_TEST
-            else:
-                return site_params.MANIFEST_VERSIONS_INT_GOB_URL
+            return site_params.MANIFEST_VERSIONS_INT_GOB_URL
         else:
-            if test:
-                return site_params.MANIFEST_VERSIONS_GOB_URL_TEST
-            else:
-                return site_params.MANIFEST_VERSIONS_GOB_URL
+            return site_params.MANIFEST_VERSIONS_GOB_URL
 
     def Initialize(self):
         self._InitializeRepo()
