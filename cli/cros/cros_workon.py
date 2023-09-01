@@ -151,14 +151,15 @@ Examples:
         else:
             options.build_target = None
 
-    def Run(self):
-        has_target = self.options.host or self.options.build_target
-        needs_target = self.options.action != "list-all"
+        has_target = options.host or options.build_target
+        needs_target = options.action != "list-all"
         if needs_target and not has_target:
-            cros_build_lib.Die(
-                f"{self.options.action} requires a build target or "
-                "specifying the host."
+            parser.error(
+                f"{options.action}: requires a build target or specifying the "
+                "host."
             )
+
+    def Run(self):
         chroot_args = []
         try:
             chroot_args += ["--working-dir", path_util.ToChrootPath(Path.cwd())]
