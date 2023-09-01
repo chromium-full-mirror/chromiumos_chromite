@@ -10596,6 +10596,15 @@
         },
         {
           "board_name": "nissa-arc-t",
+          "name": "pujjo1e",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7278,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-arc-t",
           "name": "pujjoteen",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -10798,6 +10807,15 @@
         {
           "board_name": "nissa-kernelnext",
           "name": "pujjo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-kernelnext",
+          "name": "pujjo1e",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7262,
