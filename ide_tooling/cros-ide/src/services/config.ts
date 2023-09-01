@@ -170,6 +170,10 @@ export const goExtension = {
     vscode.ConfigurationTarget.Workspace
   ),
   toolsGopath: new ConfigValue<string>('toolsGopath', GO_PREFIX),
+  alternateTools: new ConfigValue<{[prop: string]: string}>(
+    'alternateTools',
+    GO_PREFIX
+  ),
 };
 
 const chromeGtest = {
@@ -189,6 +193,9 @@ export const spellchecker = new ConfigValue<boolean>('spellchecker');
 export const tast = {
   enabled: new ConfigValue<boolean>('tast.enabled'),
   extraArgs: new ConfigValue<string[]>('tast.extraArgs'),
+  showGoAlternateToolsChangedMessage: new ConfigValue<boolean>(
+    'tast.showGoAlternateToolsChangedMessage'
+  ),
 };
 
 export const testCoverage = {

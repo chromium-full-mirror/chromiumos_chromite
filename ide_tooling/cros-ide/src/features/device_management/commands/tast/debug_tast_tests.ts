@@ -12,6 +12,7 @@ import {MemoryOutputChannel} from '../../../../common/memory_output_channel';
 import {TeeOutputChannel} from '../../../../common/tee_output_channel';
 import {NoBoardError, getOrSelectTargetBoard} from '../../../../ide_util';
 import * as services from '../../../../services';
+import * as config from '../../../../services/config';
 import {Metrics} from '../../../metrics/metrics';
 import {
   createShowLogsButton,
@@ -79,6 +80,28 @@ export async function debugTastTests(
   const delveInHost = await ensureHostHasDelve(context);
   if (!delveInHost) {
     return null;
+  }
+
+  const alternateTools = config.goExtension.alternateTools.get() ?? {};
+
+  if (alternateTools.dlv !== delveInHost) {
+    alternateTools.dlv = delveInHost;
+    await config.goExtension.alternateTools.update(alternateTools);
+
+    if (config.tast.showGoAlternateToolsChangedMessage.get()) {
+      const foreverDismiss = 'Never show this again';
+
+      void (async () => {
+        const choice = await vscode.window.showInformationMessage(
+          'User settings (go.alternateTools.dlv) was changed to use device-compatible debugger',
+          foreverDismiss
+        );
+
+        if (choice === foreverDismiss) {
+          await config.tast.showGoAlternateToolsChangedMessage.update(false);
+        }
+      })();
+    }
   }
 
   const testNames = await askTestNames(
@@ -154,8 +177,6 @@ async function debugSelectedTests(
     )}`
   );
 
-  // TODO: Use the delve we have set up.
-  // To do that we should update the "go.alternateTools" setting according to https://github.com/golang/vscode-go/wiki/debugging#manually-install-dlv.
   const folder =
     vscode.workspace.workspaceFolders === undefined
       ? undefined

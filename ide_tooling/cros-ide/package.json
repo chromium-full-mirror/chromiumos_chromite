@@ -823,6 +823,11 @@
           "description": "Extra args given to tast run, e.g. -var=foo=bar.",
           "default": []
         },
+        "chromiumide.tast.showGoAlternateToolsChangedMessage": {
+          "type": "boolean",
+          "description": "Show the information when the settings of go.alternateTools.dlv was changed to use device-compatible debugger",
+          "default": true
+        },
         "chromiumide.testCoverage.enabled": {
           "type": "boolean",
           "markdownDescription": "Show Code Coverage ([go/chromiumide-doc-boards-pkgs#code-coverage](http://go/chromiumide-doc-boards-pkgs#code-coverage)). Requires a reload to take effect.",
