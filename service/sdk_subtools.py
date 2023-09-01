@@ -133,6 +133,13 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
     extra_env = config.GetExtraEnv()
     emerge_flags = config.GetEmergeFlags()
     exclude_pkgs = " ".join(EXCLUDE_PACKAGES)
+
+    # "--selective=n" will cause packages explicitly named on the command line
+    # (but not their dependencies) to be replaced/rebuilt. This makes it easier
+    # for developers to test the subtool workflow when making changes to
+    # installed -9999 ebuilds.
+    emerge_flags.append("--selective=n")
+
     emerge_flags.extend(
         [
             f"--useoldpkg-atoms={exclude_pkgs}",
