@@ -184,10 +184,6 @@ def _SudoCommand():
     # Pass along current rlimit settings so we can restore them.
     cmd += [f"CHROMEOS_SUDO_RLIMITS={cros_sdk_lib.ChrootEnteror.get_rlimits()}"]
 
-    # Pass in the path to the depot_tools so that users can access them from
-    # within the chroot.
-    cmd += [f"DEPOT_TOOLS={constants.DEPOT_TOOLS_DIR}"]
-
     return cmd
 
 
