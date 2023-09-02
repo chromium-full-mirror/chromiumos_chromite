@@ -1081,20 +1081,6 @@ class ChrootCreator:
 
         osutils.Chown(home, uid, group=gid, recursive=True)
 
-    def init_filesystem_basic(self) -> None:
-        """Setup various dirs & simple config files."""
-        # Create mount point directories. NB: we don't want to translate them
-        # via chroot.full_path(), because that would map to, e.g., the source
-        # directory (/path/to/chromiumos/src) instead of the mount-point we
-        # want to create (/path/to/chromiumos/chroot/mnt/host/source).
-        for path in (
-            constants.CHROOT_SOURCE_ROOT,
-            constants.CHROOT_OUT_ROOT,
-        ):
-            (Path(self.chroot.path) / path.relative_to("/")).mkdir(
-                mode=0o755, parents=True, exist_ok=True
-            )
-
     def init_etc(self, user: Optional[str] = None) -> None:
         """Setup the /etc paths."""
         if user is None:
@@ -1234,7 +1220,6 @@ CROS_COG_WORKSPACE_ID="{cog_workspace_id}"
             self.init_timezone()
             self.init_user(user=user, uid=uid, gid=gid)
             self.init_group(user=user, group=group, gid=gid)
-            self.init_filesystem_basic()
             self.init_etc(user=user)
             self.init_var(uid=uid)
 

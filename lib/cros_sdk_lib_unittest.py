@@ -710,9 +710,6 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
 
         # Check /mnt/host directories.
         self.assertTrue(
-            (Path(self.chroot.path) / "mnt" / "host" / "source").is_dir()
-        )
-        self.assertTrue(
             (Path(self.chroot.path) / "mnt" / "host" / "out").is_dir()
         )
         self.assertTrue(self.chroot.out_path.is_dir())
