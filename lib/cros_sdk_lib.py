@@ -934,8 +934,6 @@ class ChrootCreator:
         """Initialize the user's /home dir."""
         shutil.copytree(Path(self.chroot.full_path("/etc/skel")), home)
 
-        # TODO(build): Delete this leftover from SVN someday.
-        (home / "trunk").symlink_to(constants.CHROOT_SOURCE_ROOT)
         (home / "chromiumos").symlink_to(constants.CHROOT_SOURCE_ROOT)
         (home / "depot_tools").symlink_to("/mnt/host/depot_tools")
 
