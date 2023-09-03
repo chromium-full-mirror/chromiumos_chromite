@@ -49,22 +49,6 @@ SUBTOOLS_OUTPUT_DIR = "amd64-subtools-host"
 # subtools chroot.
 _RELAUNCH_FOR_SETUP_FLAG = "--relaunch-for-setup"
 
-# Used to populate a test manifest in /etc/cros/standalone-packages.d/.
-# Ebuilds will later be updated to provide these files instead.
-_TEST_PACKAGE = (
-    sdk_subtools.SUBTOOLS_EXPORTS_CONFIG_DIR / "shellcheck.textproto"
-)
-_TEST_PACKAGE_CONTENTS = """\
-# proto-file: chromiumos/build/api/subtools.proto
-# proto-message: chromiumos.build.api.SubtoolPackage
-name: "shellcheck"
-type: EXPORT_CIPD
-max_files: 2
-paths: [{
-    input: "/usr/bin/shellcheck"
-}]
-"""
-
 
 class Options(Protocol):
     """Protocol to formalize commandline arguments."""
@@ -183,9 +167,6 @@ def _setup_base_sdk(
     cros_build_lib.AssertRootUser()
 
     sdk_subtools.setup_base_sdk(build_target, setup_chroot)
-
-    if setup_chroot:
-        _TEST_PACKAGE.write_text(_TEST_PACKAGE_CONTENTS, encoding="utf-8")
 
 
 def _run_inside_subtools_chroot(opts: Options) -> None:
