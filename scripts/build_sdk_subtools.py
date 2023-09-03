@@ -217,21 +217,26 @@ def build_sdk_subtools(opts: Options, argv: List[str]) -> int:
                 "build_sdk_subtools must be run outside the chroot."
             )
 
-    logging.info("Initializing subtools builder in %s", build_target.root)
-    subtools_chroot = os.path.join(
-        constants.DEFAULT_CHROOT_PATH, build_target.root.lstrip("/")
-    )
+    subtools_chroot = constants.DEFAULT_OUT_PATH / build_target.root.lstrip("/")
     chroot_args = ["--chroot", subtools_chroot]
+    logging.info("Initializing subtools builder in %s", subtools_chroot)
 
     if opts.setup_chroot:
         # Get an SDK. TODO(b/277992359):
         #   - Fetch an SDK version pinned by pupr rather than the default.
         #   - Should this use cros_sdk_lib directly?
 
+        # Ensure `cros_sdk` can check for a lock file on first use.
+        osutils.SafeMakedirs(subtools_chroot.parent)
+
         # Pass "--skip-chroot-upgrade": the SDK should initially be used
         # "as-is", but later steps may upgrade packages in the subtools deptree.
         cros_sdk_args = ["--create", "--skip-chroot-upgrade"]
-        cros_sdk_args += ["--delete"] if opts.clean else []
+        if opts.clean:
+            # Subtools SDKs go under out/build, so if --no-delete-out-dir isn't
+            # used, cros_sdk will try to delete the SDK it's also making.
+            cros_sdk_args += ["--delete", "--no-delete-out-dir"]
+
         cros_sdk = cros_build_lib.run(
             ["cros_sdk"] + chroot_args + cros_sdk_args,
             check=False,

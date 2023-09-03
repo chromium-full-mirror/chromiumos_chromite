@@ -15,6 +15,10 @@ from chromite.scripts import build_sdk_subtools
 from chromite.service import sdk_subtools
 
 
+# The argument passed to cros_sdk to ensure the correct SDK is being used.
+SDK_CHROOT_ARG = Path("/mnt/host/source/out/build/amd64-subtools-host")
+
+
 @pytest.fixture(name="outside_chroot")
 def outside_chroot_fixture():
     """Mocks IsInsideChroot to be False."""
@@ -75,7 +79,7 @@ def test_cros_sdk(run_mock, outside_chroot) -> None:
     assert run_mock.call_args_list[0].args[0] == [
         "cros_sdk",
         "--chroot",
-        "/mnt/host/source/chroot/build/amd64-subtools-host",
+        SDK_CHROOT_ARG,
         "--create",
         "--skip-chroot-upgrade",
     ]
@@ -100,7 +104,7 @@ def test_cros_sdk_output_dir(run_mock, outside_chroot) -> None:
     assert build_sdk_subtools.main(["--output-dir", "/foo"]) == 42
     assert outside_chroot.called
     cros_sdk_cmd = run_mock.call_args_list[0].args[0]
-    chroot_arg_index = cros_sdk_cmd.index("/mnt/host/source/chroot/foo")
+    chroot_arg_index = cros_sdk_cmd.index(Path("/mnt/host/source/out/foo"))
     assert cros_sdk_cmd[0] == "cros_sdk"
     assert cros_sdk_cmd[chroot_arg_index - 1] == "--chroot"
 
@@ -115,7 +119,7 @@ def test_chroot_required_after_cros_sdk(run_mock, outside_chroot) -> None:
     assert error_info.value.cmd == ["build_sdk_subtools", "--no-setup-chroot"]
     assert error_info.value.chroot_args == [
         "--chroot",
-        "/mnt/host/source/chroot/build/amd64-subtools-host",
+        SDK_CHROOT_ARG,
     ]
 
 
@@ -128,7 +132,7 @@ def test_chroots_into_output_dir(run_mock, outside_chroot) -> None:
     assert outside_chroot.called
     assert error_info.value.chroot_args == [
         "--chroot",
-        "/mnt/host/source/chroot/foo",
+        Path("/mnt/host/source/out/foo"),
     ]
 
 
@@ -156,7 +160,7 @@ def test_setup_sdk_invocation(run_mock, outside_chroot) -> None:
     assert sudo_run_cmd.kwargs["enter_chroot"] is True
     assert sudo_run_cmd.kwargs["chroot_args"] == [
         "--chroot",
-        "/mnt/host/source/chroot/build/amd64-subtools-host",
+        SDK_CHROOT_ARG,
     ]
     # Stop here: Actually running `--relaunch-for-setup` principally wants to
     # mutate the SDK state as root, which is too messy as a unit test.
