@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../../../common/vscode/commands';
 import * as services from '../../../services';
 import {underDevelopment} from '../../../services/config';
 import * as abandonedDevices from '../abandoned_devices';
@@ -58,62 +59,54 @@ export function registerCommands(
   };
 
   return vscode.Disposable.from(
-    vscode.commands.registerCommand(
-      'chromiumide.deviceManagement.addDevice',
-      () => addDevice(context)
+    vscodeRegisterCommand('chromiumide.deviceManagement.addDevice', () =>
+      addDevice(context)
     ),
-    vscode.commands.registerCommand(
-      'chromiumide.deviceManagement.addExistingHosts',
-      () => addExistingHostsCommand(context)
+    vscodeRegisterCommand('chromiumide.deviceManagement.addExistingHosts', () =>
+      addExistingHostsCommand(context)
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.deviceManagement.deleteDevice',
       (item?: provider.DeviceItem) => deleteDevice(context, item)
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.deviceManagement.connectToDeviceForScreen',
       (item?: provider.DeviceItem) =>
         connectToDeviceForScreen(context, /* rotate = */ false, item)
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.deviceManagement.connectToDeviceForRotatedScreen',
       (item?: provider.DeviceItem) =>
         connectToDeviceForScreen(context, /* rotate = */ true, item)
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.deviceManagement.connectToDeviceForShell',
       (item?: provider.DeviceItem) => connectToDeviceForShell(context, item)
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.deviceManagement.openSystemLogViewer',
       (item?: provider.DeviceItem) => openSystemLogViewer(context, item)
     ),
-    vscode.commands.registerCommand(
-      'chromiumide.deviceManagement.crosfleetLogin',
-      () => crosfleetLogin(context)
+    vscodeRegisterCommand('chromiumide.deviceManagement.crosfleetLogin', () =>
+      crosfleetLogin(context)
     ),
-    vscode.commands.registerCommand(
-      'chromiumide.deviceManagement.refreshLeases',
-      () => refreshLeases(context)
+    vscodeRegisterCommand('chromiumide.deviceManagement.refreshLeases', () =>
+      refreshLeases(context)
     ),
-    vscode.commands.registerCommand(
-      'chromiumide.deviceManagement.addLease',
-      () => addLease(context)
+    vscodeRegisterCommand('chromiumide.deviceManagement.addLease', () =>
+      addLease(context)
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.deviceManagement.abandonLease',
       (item?: provider.DeviceItem) => abandonLease(context, item)
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.deviceManagement.copyHostname',
       (item: provider.DeviceItem) => copyHostname(context, item)
     ),
-    vscode.commands.registerCommand(
-      'chromiumide.deviceManagement.openLogs',
-      () => {
-        output.show();
-      }
-    ),
+    vscodeRegisterCommand('chromiumide.deviceManagement.openLogs', () => {
+      output.show();
+    }),
     registerChromiumosCommands(context, chromiumosServices)
   );
 }
@@ -135,7 +128,7 @@ function registerChromiumosCommands(
     disposeSubscriptions();
 
     subscriptions.push(
-      vscode.commands.registerCommand(
+      vscodeRegisterCommand(
         'chromiumide.deviceManagement.flashPrebuiltImage',
         (item?: provider.DeviceItem) =>
           flashPrebuiltImage(context, chrootService, item)
@@ -144,14 +137,13 @@ function registerChromiumosCommands(
 
     if (chrootService) {
       subscriptions.push(
-        vscode.commands.registerCommand(
-          'chromiumide.deviceManagement.runTastTests',
-          () => runTastTests(context, chrootService)
+        vscodeRegisterCommand('chromiumide.deviceManagement.runTastTests', () =>
+          runTastTests(context, chrootService)
         )
       );
       if (underDevelopment.tastDebugging.get()) {
         subscriptions.push(
-          vscode.commands.registerCommand(
+          vscodeRegisterCommand(
             'chromiumide.deviceManagement.debugTastTests',
             () => debugTastTests(context, chrootService)
           )

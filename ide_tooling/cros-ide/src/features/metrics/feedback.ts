@@ -3,10 +3,11 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
-    vscode.commands.registerCommand('chromiumide.fileIdeBug', () => {
+    vscodeRegisterCommand('chromiumide.fileIdeBug', () => {
       void vscode.env.openExternal(
         vscode.Uri.parse('http://go/chromiumide-new-bug')
       );

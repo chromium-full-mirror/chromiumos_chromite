@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import * as sourceMapSupport from 'source-map-support';
 import * as cipd from './common/cipd';
 import * as commonUtil from './common/common_util';
+import {vscodeRegisterCommand} from './common/vscode/commands';
 import * as features from './features';
 import * as boilerplate from './features/boilerplate';
 import * as codesearch from './features/codesearch';
@@ -100,7 +101,7 @@ async function postMetricsActivate(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(ideUtil.SHOW_UI_LOG.command, () => {
+    vscodeRegisterCommand(ideUtil.SHOW_UI_LOG.command, () => {
       ideUtil.getUiLogger().show();
       metrics.send({
         category: 'interactive',

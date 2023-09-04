@@ -7,6 +7,7 @@
  */
 
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import * as ideUtil from '../../ide_util';
 import * as services from '../../services';
 import * as config from '../../services/config';
@@ -35,7 +36,7 @@ export function activate(
   updateBoardStatus(boardStatusBarItem);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('chromiumide.selectBoard', async () => {
+    vscodeRegisterCommand('chromiumide.selectBoard', async () => {
       const board = await ideUtil.selectAndUpdateTargetBoard(
         chrootService.chroot,
         {

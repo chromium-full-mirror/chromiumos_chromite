@@ -8,6 +8,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as common_util from '../../common/common_util';
 import {envForDepotTools} from '../../common/depot_tools';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import * as metrics from '../../features/metrics/metrics';
 import * as bgTaskStatus from '../../ui/bg_task_status';
 import type {Stats} from 'fs';
@@ -97,7 +98,7 @@ export function activate(
   // context.subscriptions.push(watcher);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.chromium.outputDirectories.editArgs',
       async (node?: unknown) => {
         if (node instanceof DirNode || node instanceof LinkNode) {
@@ -118,7 +119,7 @@ export function activate(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.chromium.outputDirectories.refresh',
       async () => {
         await treeDataProvider.refresh();
@@ -134,7 +135,7 @@ export function activate(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.chromium.outputDirectories.setCurrentLink',
       async (node?: unknown) => {
         if (!(node instanceof DirNode)) {
@@ -189,7 +190,7 @@ export function activate(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.chromium.outputDirectories.viewArgsGnError',
       async (node?: unknown) => {
         if (node instanceof DirNode && node.gnArgsInfo.type === 'error') {

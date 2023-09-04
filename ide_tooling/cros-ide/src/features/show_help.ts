@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../common/vscode/commands';
 import * as metrics from '../features/metrics/metrics';
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -31,7 +32,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   for (const [command, link] of commandLink) {
     context.subscriptions.push(
-      vscode.commands.registerCommand(command, () => {
+      vscodeRegisterCommand(command, () => {
         void vscode.env.openExternal(link);
         metrics.send({
           category: 'interactive',

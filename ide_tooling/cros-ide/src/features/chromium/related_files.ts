@@ -4,6 +4,7 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
@@ -13,7 +14,7 @@ export function activate(context: vscode.ExtensionContext): void {
     )
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.relatedFiles.create',
       async (uri: unknown) => {
         if (!(uri instanceof vscode.Uri)) {

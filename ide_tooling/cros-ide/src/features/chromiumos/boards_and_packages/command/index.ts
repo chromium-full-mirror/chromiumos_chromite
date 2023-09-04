@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../../../../common/vscode/commands';
 import {Context} from '../context';
 import {Breadcrumbs} from '../item';
 import {crosWorkon} from './cros_workon';
@@ -60,7 +61,7 @@ export class BoardsAndPackagesCommands implements vscode.Disposable {
     command: CommandName,
     callback: (args: Breadcrumbs) => Thenable<void>
   ): vscode.Disposable {
-    return vscode.commands.registerCommand(command, async args => {
+    return vscodeRegisterCommand(command, async args => {
       await callback(args);
       this.onDidExecuteCommandEmitter.fire(command);
     });

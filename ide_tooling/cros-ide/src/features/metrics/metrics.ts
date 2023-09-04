@@ -5,6 +5,7 @@
 import * as https from 'https';
 import * as vscode from 'vscode';
 import * as semver from 'semver';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import * as config from '../../services/config';
 import * as metricsConfig from './metrics_config';
 import * as metricsEvent from './metrics_event';
@@ -61,7 +62,7 @@ export async function activate(
   }
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('chromiumide.resetUserID', async () => {
+    vscodeRegisterCommand('chromiumide.resetUserID', async () => {
       await metricsConfig.generateValidUserId();
     })
   );

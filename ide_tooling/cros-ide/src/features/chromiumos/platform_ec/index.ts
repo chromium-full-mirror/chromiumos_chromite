@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../../../common/vscode/commands';
 import * as metrics from '../../../features/metrics/metrics';
 import * as services from '../../../services';
 import * as bgTaskStatus from '../../../ui/bg_task_status';
@@ -21,7 +22,7 @@ export function activate(
     'ChromiumIDE: Platform EC'
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(SHOW_LOG_COMMAND.command, () => {
+    vscodeRegisterCommand(SHOW_LOG_COMMAND.command, () => {
       outputChannel.show();
       metrics.send({
         category: 'interactive',

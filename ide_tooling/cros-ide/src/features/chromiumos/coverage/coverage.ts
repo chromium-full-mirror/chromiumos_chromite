@@ -7,6 +7,7 @@ import * as util from 'util';
 import * as vscode from 'vscode';
 import glob from 'glob';
 import {getQualifiedPackageName} from '../../../common/chromiumos/portage/ebuild';
+import {vscodeRegisterCommand} from '../../../common/vscode/commands';
 import * as services from '../../../services';
 import * as config from '../../../services/config';
 import {StatusManager, TaskStatus} from '../../../ui/bg_task_status';
@@ -44,7 +45,7 @@ export class Coverage {
 
   activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
-      vscode.commands.registerCommand(
+      vscodeRegisterCommand(
         'chromiumide.coverage.generate',
         async (element: Package | Breadcrumbs) => {
           let pkg: Package;
@@ -70,7 +71,7 @@ export class Coverage {
           await this.generateCoverage(pkg);
         }
       ),
-      vscode.commands.registerCommand(
+      vscodeRegisterCommand(
         'chromiumide.coverage.showReport',
         (pkg: Package) => {
           void this.showReport(pkg);

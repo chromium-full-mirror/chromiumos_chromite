@@ -4,6 +4,7 @@
 
 import * as vscode from 'vscode';
 import {JobManager} from '../../common/common_util';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import * as services from '../../services';
 import {underDevelopment} from '../../services/config';
 import * as bgTaskStatus from '../../ui/bg_task_status';
@@ -46,7 +47,7 @@ export function activate(
   if (underDevelopment.gerrit) {
     // Test auth for Gerrit
     subscriptions.push(
-      vscode.commands.registerCommand(
+      vscodeRegisterCommand(
         'chromiumide.gerrit.internal.testAuth',
         async () => {
           const authCookie = await auth.readAuthCookie('cros-internal', sink);
@@ -74,7 +75,7 @@ export function activate(
 
   const focusCommentsPanel = 'chromiumide.gerrit.focusCommentsPanel';
   subscriptions.push(
-    vscode.commands.registerCommand(focusCommentsPanel, () => {
+    vscodeRegisterCommand(focusCommentsPanel, () => {
       void vscode.commands.executeCommand(
         'workbench.action.focusCommentsPanel'
       );
@@ -101,7 +102,7 @@ export function activate(
   subscriptions.push(gerrit);
 
   subscriptions.push(
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.collapseAllCommentThreads',
       () => {
         // See https://github.com/microsoft/vscode/issues/158316 to learn more.
@@ -124,7 +125,7 @@ export function activate(
       }
     ),
     // TODO(b/268655627): Instrument this command to send metrics.
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.browseCommentThread',
       async ({
         gerritCommentThread: {
@@ -141,7 +142,7 @@ export function activate(
         )
     ),
     // TODO(b/268655627): Instrument this command to send metrics.
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.browseCommentThreadAuthor',
       async ({
         gerritCommentThread: {
@@ -152,7 +153,7 @@ export function activate(
         openExternal(repoId, `dashboard/${encodeURIComponent(authorId)}`)
     ),
     // TODO(b/268655627): Instrument this command to send metrics.
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.browseComment',
       async ({
         gerritComment: {changeNumber, commentId, repoId},
@@ -165,7 +166,7 @@ export function activate(
         )
     ),
     // TODO(b/268655627): Instrument this command to send metrics.
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.browseCommentAuthor',
       async ({gerritComment: {authorId, repoId}}: VscodeComment) =>
         openExternal(repoId, `dashboard/${encodeURIComponent(authorId)}`)
@@ -203,13 +204,13 @@ class Gerrit implements vscode.Disposable {
 
   private readonly subscriptions: vscode.Disposable[] = [
     this.commentController,
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.reply',
       async ({thread, text}: vscode.CommentReply) => {
         await this.reply(thread as VscodeCommentThread, text);
       }
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.replyAndResolve',
       async ({thread, text}: vscode.CommentReply) => {
         await this.reply(
@@ -219,7 +220,7 @@ class Gerrit implements vscode.Disposable {
         );
       }
     ),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.gerrit.replyAndUnresolve',
       async ({thread, text}: vscode.CommentReply) => {
         await this.reply(

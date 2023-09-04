@@ -4,6 +4,7 @@
 
 import * as vscode from 'vscode';
 import {JobManager} from '../../../common/common_util';
+import {vscodeRegisterCommand} from '../../../common/vscode/commands';
 import {GitDirsWatcher} from '../../../services';
 import * as api from '../api';
 import * as auth from '../auth';
@@ -62,12 +63,9 @@ export class GerritComments implements vscode.Disposable {
         this.requestRefresh();
       }),
       // TODO(b/268655627): Instrument this command to send metrics.
-      vscode.commands.registerCommand(
-        'chromiumide.gerrit.refreshComments',
-        () => {
-          this.requestRefresh();
-        }
-      )
+      vscodeRegisterCommand('chromiumide.gerrit.refreshComments', () => {
+        this.requestRefresh();
+      })
     );
   }
 

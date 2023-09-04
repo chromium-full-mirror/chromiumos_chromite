@@ -69,6 +69,17 @@ module.exports = {
           'vscode.workspace.getConfiguration should not be called directly; ' +
           'use services/configs.ts instead',
       },
+      {
+        selector:
+          'MemberExpression' +
+          '[object.type="MemberExpression"]' +
+          '[object.object.name="vscode"]' +
+          '[object.property.name="commands"]' +
+          '[property.name="registerCommand"]',
+        message:
+          'vscode.commands.registerCommand should not be called directly; ' +
+          'use vscodeRegisterCommand instead',
+      },
     ],
     // Disallow variables called `namespace`, because they mess up Gerrit's
     // syntax highlighting.

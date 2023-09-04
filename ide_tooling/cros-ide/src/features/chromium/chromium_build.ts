@@ -5,6 +5,7 @@
 import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import * as config from '../../services/config';
 import {StatusManager, TaskStatus} from '../../ui/bg_task_status';
 
@@ -238,29 +239,26 @@ export function activate(
     onSaveFn();
   });
 
-  const buildCommand = vscode.commands.registerCommand(
-    'chromiumide.chrome.build',
-    () => {
-      buildChromeDir(
-        config.chrome.ashBuildDir.get(),
-        'ash',
-        config.chrome.dutName.get(),
-        config.board.get(),
-        statusManager
-      );
-      buildChromeDir(
-        'out_device_lacros/Release',
-        'lacros',
-        config.chrome.dutName.get(),
-        config.board.get(),
-        statusManager
-      );
-    }
-  );
+  const buildCommand = vscodeRegisterCommand('chromiumide.chrome.build', () => {
+    buildChromeDir(
+      config.chrome.ashBuildDir.get(),
+      'ash',
+      config.chrome.dutName.get(),
+      config.board.get(),
+      statusManager
+    );
+    buildChromeDir(
+      'out_device_lacros/Release',
+      'lacros',
+      config.chrome.dutName.get(),
+      config.board.get(),
+      statusManager
+    );
+  });
 
   context.subscriptions.push(buildCommand);
 
-  const watchBuildCommand = vscode.commands.registerCommand(
+  const watchBuildCommand = vscodeRegisterCommand(
     'chromiumide.chrome.watchBuild',
     () => {
       // In order to determine if we need to immediately kick off a new build after an old one has

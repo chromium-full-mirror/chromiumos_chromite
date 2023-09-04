@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import {parseQualifiedPackageName} from '../../common/chromiumos/portage/ebuild';
 import * as cros from '../../common/cros';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import * as ideUtil from '../../ide_util';
 import * as services from '../../services';
 import * as config from '../../services/config';
@@ -20,37 +21,30 @@ export async function activate(
   const boardsPackages = new BoardsPackages(chrootService);
 
   subscriptions.push(
-    vscode.commands.registerCommand(
-      'chromiumide.legacyCrosWorkonStart',
-      board => boardsPackages.crosWorkonStart(board)
+    vscodeRegisterCommand('chromiumide.legacyCrosWorkonStart', board =>
+      boardsPackages.crosWorkonStart(board)
     ),
-    vscode.commands.registerCommand('chromiumide.crosWorkonStop', board =>
+    vscodeRegisterCommand('chromiumide.crosWorkonStop', board =>
       boardsPackages.crosWorkonStop(board)
     ),
-    vscode.commands.registerCommand('chromiumide.openEbuild', board =>
+    vscodeRegisterCommand('chromiumide.openEbuild', board =>
       boardsPackages.openEbuild(board)
     ),
 
-    vscode.commands.registerCommand('chromiumide.refreshBoardsPackages', () =>
+    vscodeRegisterCommand('chromiumide.refreshBoardsPackages', () =>
       boardPackageProvider.refresh()
     ),
 
-    vscode.commands.registerCommand(
-      'chromiumide.setDefaultBoard',
-      (board: Board) => {
-        if (board) {
-          void config.board.update(board.name);
-        }
+    vscodeRegisterCommand('chromiumide.setDefaultBoard', (board: Board) => {
+      if (board) {
+        void config.board.update(board.name);
       }
-    ),
+    }),
 
-    vscode.commands.registerCommand(
-      'chromiumide.dismissBoardsPkgsWelcome',
-      async () => {
-        await config.boardsAndPackages.showWelcomeMessage.update(false);
-        boardPackageProvider.refresh();
-      }
-    ),
+    vscodeRegisterCommand('chromiumide.dismissBoardsPkgsWelcome', async () => {
+      await config.boardsAndPackages.showWelcomeMessage.update(false);
+      boardPackageProvider.refresh();
+    }),
 
     vscode.window.registerTreeDataProvider(
       'legacy-boards-packages',

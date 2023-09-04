@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import {vscodeRegisterCommand} from '../common/vscode/commands';
 import * as metrics from '../features/metrics/metrics';
 
 /**
@@ -22,7 +23,7 @@ const STATUS_TREE_ITEM_CLICKED = 'chromiumide.status-tree-item-clicked';
 export function activate(context: vscode.ExtensionContext): StatusManager {
   const showIdeStatusCommand = 'chromiumide.showIdeStatus';
   context.subscriptions.push(
-    vscode.commands.registerCommand(showIdeStatusCommand, () => {
+    vscodeRegisterCommand(showIdeStatusCommand, () => {
       void vscode.commands.executeCommand('chromiumide-status.focus');
       metrics.send({
         category: 'interactive',
@@ -31,7 +32,7 @@ export function activate(context: vscode.ExtensionContext): StatusManager {
         name: 'idestatus_show_ide_status',
       });
     }),
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       STATUS_TREE_ITEM_CLICKED,
       (
         taskName: string,

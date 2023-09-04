@@ -4,6 +4,7 @@
 
 import * as vscode from 'vscode';
 import * as commonUtil from '../../../common/common_util';
+import {vscodeRegisterCommand} from '../../../common/vscode/commands';
 import * as services from '../../../services';
 import * as bgTaskStatus from '../../../ui/bg_task_status';
 import {TaskStatus} from '../../../ui/bg_task_status';
@@ -43,7 +44,7 @@ export class CppCodeCompletion implements vscode.Disposable {
 
   private readonly subscriptions: vscode.Disposable[] = [
     this.output,
-    vscode.commands.registerCommand(SHOW_LOG_COMMAND.command, () => {
+    vscodeRegisterCommand(SHOW_LOG_COMMAND.command, () => {
       this.output.show();
       metrics.send({
         category: 'interactive',
@@ -52,21 +53,18 @@ export class CppCodeCompletion implements vscode.Disposable {
         description: 'show cpp log',
       });
     }),
-    vscode.commands.registerCommand(
-      'chromiumide.cppxrefs.forceGenerate',
-      async () => {
-        const document = vscode.window.activeTextEditor?.document;
+    vscodeRegisterCommand('chromiumide.cppxrefs.forceGenerate', async () => {
+      const document = vscode.window.activeTextEditor?.document;
 
-        if (!document) {
-          void vscode.window.showErrorMessage(
-            'No file is open; open the file to compile and return the command'
-          );
-          return;
-        }
-        await this.maybeGenerate(document, true);
-        this.onDidMaybeGenerateEmitter.fire();
+      if (!document) {
+        void vscode.window.showErrorMessage(
+          'No file is open; open the file to compile and return the command'
+        );
+        return;
       }
-    ),
+      await this.maybeGenerate(document, true);
+      this.onDidMaybeGenerateEmitter.fire();
+    }),
     vscode.window.onDidChangeActiveTextEditor(async editor => {
       if (editor?.document) {
         await this.maybeGenerate(editor.document);

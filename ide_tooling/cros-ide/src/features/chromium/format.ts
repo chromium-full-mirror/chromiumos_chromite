@@ -6,13 +6,14 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as common_util from '../../common/common_util';
 import * as depotTools from '../../common/depot_tools';
+import {vscodeRegisterCommand} from '../../common/vscode/commands';
 
 export function activate(
   context: vscode.ExtensionContext,
   rootPath: string
 ): void {
   context.subscriptions.push(
-    vscode.commands.registerCommand(
+    vscodeRegisterCommand(
       'chromiumide.chromium.gitcl.format',
       async (sourceControl: unknown) => {
         await vscode.window.withProgress(

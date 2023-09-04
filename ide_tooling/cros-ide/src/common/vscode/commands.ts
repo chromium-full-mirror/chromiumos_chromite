@@ -16,6 +16,8 @@ export function vscodeRegisterCommand(
   callback: (...args: any[]) => any | Promise<any>
 ): vscode.Disposable {
   return vscode.Disposable.from(
+    // This is the only place vscode.commands.registerCommand can be used.
+    // eslint-disable-next-line no-restricted-syntax
     vscode.commands.registerCommand(command, async (...args) => {
       try {
         return await callback(...args);
