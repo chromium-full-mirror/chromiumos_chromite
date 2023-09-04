@@ -24,13 +24,13 @@ def GetBuilderClass(name):
     """Locate the builder class with |name|.
 
     Examples:
-      If you want to create a new SimpleBuilder, you'd do:
-      cls = builders.GetBuilderClass('simple_builders.SimpleBuilder')
-      builder = cls(...)
+        If you want to create a new SimpleBuilder, you'd do:
+        cls = builders.GetBuilderClass('simple_builders.SimpleBuilder')
+        builder = cls(...)
 
-      If you want a site specific builder class, do:
-      cls = builders.GetBuilderClass('config.my_builders.MyBuilder')
-      builder = cls(...)
+        If you want a site specific builder class, do:
+        cls = builders.GetBuilderClass('config.my_builders.MyBuilder')
+        builder = cls(...)
 
     Args:
         name: The base name of the builder class.

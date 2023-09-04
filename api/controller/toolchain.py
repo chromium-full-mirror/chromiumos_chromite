@@ -13,10 +13,10 @@ from chromite.api import controller
 from chromite.api import faux
 from chromite.api import validate
 from chromite.api.controller import controller_util
+from chromite.api.gen.chromite.api import artifacts_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
-from chromite.api.gen.chromite.api.artifacts_pb2 import PrepareForBuildResponse
-from chromite.api.gen.chromiumos.builder_config_pb2 import BuilderConfig
-from chromite.api.gen.chromiumos.common_pb2 import PackageInfo
+from chromite.api.gen.chromiumos import builder_config_pb2
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_build_lib
 from chromite.lib import toolchain as toolchain_lib
 from chromite.lib import toolchain_util
@@ -25,6 +25,11 @@ from chromite.service import toolchain
 
 if TYPE_CHECKING:
     from chromite.api import api_config
+
+
+PrepareForBuildResponse = artifacts_pb2.PrepareForBuildResponse
+BuilderConfig = builder_config_pb2.BuilderConfig
+PackageInfo = common_pb2.PackageInfo
 
 # TODO(b/229665884): Move the implementation details for most/all endpoints to:
 #   chromite/services/toolchain.py

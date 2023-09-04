@@ -10,21 +10,20 @@ import stat
 
 from chromite.third_party.google.protobuf.field_mask_pb2 import FieldMask
 
-from chromite.api.gen.config.replication_config_pb2 import (
-    FILE_TYPE_JSON,
-    FILE_TYPE_OTHER,
-    FileReplicationRule,
-    REPLICATION_TYPE_COPY,
-    REPLICATION_TYPE_FILTER,
-    ReplicationConfig,
-    StringReplacementRule,
-)
+from chromite.api.gen.config import replication_config_pb2
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import replication_lib
 
 
 D = cros_test_lib.Directory
+FILE_TYPE_JSON = replication_config_pb2.FILE_TYPE_JSON
+FILE_TYPE_OTHER = replication_config_pb2.FILE_TYPE_OTHER
+FileReplicationRule = replication_config_pb2.FileReplicationRule
+REPLICATION_TYPE_COPY = replication_config_pb2.REPLICATION_TYPE_COPY
+REPLICATION_TYPE_FILTER = replication_config_pb2.REPLICATION_TYPE_FILTER
+ReplicationConfig = replication_config_pb2.ReplicationConfig
+StringReplacementRule = replication_config_pb2.StringReplacementRule
 
 
 class ReplicateTest(cros_test_lib.MockTempDirTestCase):

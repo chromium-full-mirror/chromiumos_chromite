@@ -15,12 +15,7 @@ from chromite.third_party.google.protobuf.field_mask_pb2 import FieldMask
 import pytest
 
 import chromite as cr
-from chromite.api.gen.config.replication_config_pb2 import (
-    FILE_TYPE_JSON,
-    FileReplicationRule,
-    REPLICATION_TYPE_FILTER,
-    ReplicationConfig,
-)
+from chromite.api.gen.config import replication_config_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
 from chromite.lib import constants
@@ -41,6 +36,10 @@ from chromite.service import packages
 
 
 D = cros_test_lib.Directory
+FILE_TYPE_JSON = replication_config_pb2.FILE_TYPE_JSON
+FileReplicationRule = replication_config_pb2.FileReplicationRule
+REPLICATION_TYPE_FILTER = replication_config_pb2.REPLICATION_TYPE_FILTER
+ReplicationConfig = replication_config_pb2.ReplicationConfig
 
 
 class UprevAndroidTest(cros_test_lib.RunCommandTestCase):

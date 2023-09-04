@@ -9,12 +9,7 @@ import os
 
 from chromite.third_party.google.protobuf import json_format
 
-from chromite.api.gen.config.replication_config_pb2 import (
-    FILE_TYPE_OTHER,
-    FileReplicationRule,
-    REPLICATION_TYPE_COPY,
-    ReplicationConfig,
-)
+from chromite.api.gen.config import replication_config_pb2
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -22,6 +17,10 @@ from chromite.scripts import replication_util
 
 
 D = cros_test_lib.Directory
+FILE_TYPE_OTHER = replication_config_pb2.FILE_TYPE_OTHER
+FileReplicationRule = replication_config_pb2.FileReplicationRule
+REPLICATION_TYPE_COPY = replication_config_pb2.REPLICATION_TYPE_COPY
+ReplicationConfig = replication_config_pb2.ReplicationConfig
 
 
 class RunTest(cros_test_lib.MockTempDirTestCase):

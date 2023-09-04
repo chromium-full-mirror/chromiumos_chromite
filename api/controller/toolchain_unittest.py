@@ -12,8 +12,8 @@ from chromite.api.controller import toolchain
 from chromite.api.gen.chromite.api import artifacts_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
+from chromite.api.gen.chromiumos import builder_config_pb2
 from chromite.api.gen.chromiumos import common_pb2
-from chromite.api.gen.chromiumos.builder_config_pb2 import BuilderConfig
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -23,6 +23,8 @@ from chromite.service import toolchain as toolchain_service
 
 
 # pylint: disable=protected-access
+
+BuilderConfig = builder_config_pb2.BuilderConfig
 
 
 class UpdateEbuildWithAFDOArtifactsTest(
@@ -463,12 +465,14 @@ class GetToolchainsForBoardTest(
         )
 
 
-class SetupToolchainsTest(cros_test_lib.MockTestCase,
-                          api_config.ApiConfigMixin):
+class SetupToolchainsTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
     """Unit tests for ToolchainService.SetupToolchains."""
+
     def setUp(self) -> None:
         self.response = toolchain_pb2.SetupToolchainsResponse()
-        self.chroot = common_pb2.Chroot(path='/path/to/chroot')
+        self.chroot = common_pb2.Chroot(path="/path/to/chroot")
 
     def test_outside_chroot(self) -> None:
         """Test the behavior if run from outside the chroot."""
@@ -499,11 +503,13 @@ class SetupToolchainsTest(cros_test_lib.MockTestCase,
             boards=[
                 common_pb2.BuildTarget(name="amd64-generic"),
                 common_pb2.BuildTarget(name="arm-generic"),
-            ])
+            ],
+        )
         toolchain.SetupToolchains(
             request,
             self.response,
             self.api_config,
         )
         service_mock.assert_called_once_with(
-            include_boards=["amd64-generic", "arm-generic"], )
+            include_boards=["amd64-generic", "arm-generic"],
+        )

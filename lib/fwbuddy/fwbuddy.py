@@ -490,6 +490,7 @@ class FwBuddy:
         logging.notice("Extracting firmware contents to: %s...", directory)
         result = cros_build_lib.run(
             ["tar", "-xf", self.archive_path, f"--directory={directory}"],
+            check=False,
             capture_output=True,
             encoding="utf-8",
         )

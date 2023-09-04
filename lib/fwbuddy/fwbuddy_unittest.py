@@ -10,11 +10,10 @@
 
 
 import builtins
-from subprocess import CompletedProcess
 
 import pytest
 
-from chromite.lib import cros_build_lib
+from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib.fwbuddy import fwbuddy
 
@@ -187,13 +186,11 @@ def test_download(setup):
     assert f.archive_path == f"{fwbuddy.TMP_STORAGE_FOLDER}/path"
 
 
-def test_extract(setup, monkeypatch):
-    mock_response = CompletedProcess([], 0)
-    monkeypatch.setattr(
-        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
-    )
+def test_extract(setup, run_mock: cros_test_lib.RunCommandMock):
+    run_mock.SetDefaultCmdResult(0)
     # Ap image path extraction with firmware_type
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
+    f.archive_path = "/unused"
     f.extract("tmp")
     assert f.ap_path == "tmp/image-galtic.serial.bin"
 
@@ -201,25 +198,21 @@ def test_extract(setup, monkeypatch):
     f = fwbuddy.FwBuddy(
         "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed"
     )
+    f.archive_path = "/unused"
     f.extract("tmp")
     assert f.ap_path == "tmp/image-galtic.bin"
     assert f.ec_path == "tmp/galtic/ec.bin"
 
     # Some error while extracting archive contents.
-    mock_response = CompletedProcess([], 1, stderr="some error")
-    monkeypatch.setattr(
-        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
-    )
+    run_mock.SetDefaultCmdResult(1, stderr="some error")
     with pytest.raises(fwbuddy.FwBuddyException):
         f.extract()
 
 
-def test_export_firmware_image(setup, monkeypatch):
-    mock_response = CompletedProcess([], 0)
-    monkeypatch.setattr(
-        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
-    )
+def test_export_firmware_image(setup, run_mock: cros_test_lib.RunCommandMock):
+    run_mock.SetDefaultCmdResult(0)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
+    f.archive_path = "/unused"
     # Unsupported chip
     f.extract("tmp")
     with pytest.raises(fwbuddy.FwBuddyException):
@@ -232,10 +225,7 @@ def test_export_firmware_image(setup, monkeypatch):
 
     # Some failure while exporting
     f.extract("tmp")
-    mock_response = CompletedProcess([], 1)
-    monkeypatch.setattr(
-        cros_build_lib, "run", lambda *_, **kwargs,: mock_response
-    )
+    run_mock.SetDefaultCmdResult(1)
     with pytest.raises(fwbuddy.FwBuddyException):
         f.export_firmware_image("tmp", "EC")
 

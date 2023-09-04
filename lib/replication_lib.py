@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import shutil
+from typing import List
 
 from chromite.api.gen.config import replication_config_pb2
 from chromite.lib import constants
@@ -16,14 +17,16 @@ from chromite.utils import field_mask_util
 from chromite.utils import pformat
 
 
-def _ValidateFileReplicationRule(rule):
+def _ValidateFileReplicationRule(
+    rule: replication_config_pb2.FileReplicationRule,
+):
     """Raises an error if a FileReplicationRule is invalid.
 
     For example, checks that if REPLICATION_TYPE_FILTER, destination_fields
     are specified.
 
     Args:
-        rule: (FileReplicationRule) The rule to validate.
+        rule: The rule to validate.
     """
     if rule.file_type == replication_config_pb2.FILE_TYPE_JSON:
         if (
@@ -73,13 +76,16 @@ def _ValidateFileReplicationRule(rule):
         )
 
 
-def _ApplyStringReplacementRules(destination_path, rules):
+def _ApplyStringReplacementRules(
+    destination_path: str,
+    rules: List[replication_config_pb2.StringReplacementRule],
+):
     """Read the file at destination path, apply rules, and write a new file.
 
     Args:
-        destination_path: (str) Path to the destination file to read. The new
-            file will also be written at this path.
-        rules: (list[StringReplacementRule]) Rules to apply. Must not be empty.
+        destination_path: Path to the destination file to read. The new file
+            will also be written at this path.
+        rules: Rules to apply. Must not be empty.
     """
     assert rules
 
@@ -93,12 +99,11 @@ def _ApplyStringReplacementRules(destination_path, rules):
     osutils.WriteFile(destination_path, dst_data)
 
 
-def Replicate(replication_config):
+def Replicate(replication_config: replication_config_pb2.ReplicationConfig):
     """Run the replication described in replication_config.
 
     Args:
-        replication_config: (ReplicationConfig) Describes the replication to
-            run.
+        replication_config: Describes the replication to run.
     """
     # Validate all rules before any of them are run, to decrease chance of
     # ending with a partial replication.
