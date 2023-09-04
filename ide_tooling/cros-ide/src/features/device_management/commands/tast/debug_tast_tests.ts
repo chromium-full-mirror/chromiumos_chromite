@@ -116,7 +116,7 @@ export async function debugTastTests(
   }
 
   try {
-    await debugSelectedTests(context, hostname, targetFile);
+    await debugSelectedTests(context, hostname, testNames);
     // TODO: Wait to show the prompt until the tests run successfully
     showPromptWithOpenLogChoice(context, 'Tests run successfully.', false);
     return new DebugTastTestsResult();
@@ -132,12 +132,11 @@ export async function debugTastTests(
 async function debugSelectedTests(
   context: CommandContext,
   hostname: string,
-  targetFile: string
+  testNames: string[]
 ): Promise<void> {
+  const dlvPort = 2345;
   const taskType = 'shell';
-
-  // TODO: Dispose of the registration after use.
-  vscode.tasks.registerTaskProvider(taskType, {
+  const prepDebuggerTaskProvider = vscode.tasks.registerTaskProvider(taskType, {
     provideTasks(): vscode.Task[] {
       const task = new vscode.Task(
         {type: taskType},
@@ -145,7 +144,9 @@ async function debugSelectedTests(
         'prep debugger',
         'tast',
         new vscode.ShellExecution(
-          `cros_sdk -- /mnt/host/source/src/platform/tast-tests/tools/run_debugger.py --dut=${hostname} --current-file=${targetFile}`
+          `cros_sdk tast run -attachdebugger=local:${dlvPort} ${hostname} ${testNames.join(
+            ' '
+          )}`
         ),
         '$prep-tast-debugger'
       );
@@ -158,6 +159,7 @@ async function debugSelectedTests(
     },
   });
 
+  // TODO: Extract this part as a function, so that it's easy to understand the construct of creating a provider and then immediately disposing it after its use.
   // See https://github.com/golang/vscode-go/wiki/debugging#launchjson-attributes
   // for the meaning of the fields.
   const debugConfiguration: vscode.DebugConfiguration = {
@@ -165,7 +167,7 @@ async function debugSelectedTests(
     type: 'go',
     request: 'attach',
     mode: 'remote',
-    port: 2345, // port number is hard-coded in run_debugger.py
+    port: dlvPort,
     host: '127.0.0.1',
     appVersion: 2,
     preLaunchTask: 'tast: prep debugger',
@@ -185,6 +187,7 @@ async function debugSelectedTests(
   // TODO(b:298299866): The bug that the debug fails if the user changes the focus after starting debug tests.
   // It doesn't work if the folder is specified to undefined.
   await vscode.debug.startDebugging(folder, debugConfiguration);
+  prepDebuggerTaskProvider.dispose();
 }
 
 /**
