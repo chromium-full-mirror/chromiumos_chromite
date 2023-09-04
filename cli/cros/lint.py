@@ -26,10 +26,8 @@ import tokenize
 from typing import Optional, Tuple
 
 import astroid
-
-# pylint: enable=unused-import
+from pylint import config
 import pylint.checkers
-from pylint.config import ConfigurationMixIn
 import pylint.interfaces
 
 from chromite.utils import memoize
@@ -107,7 +105,7 @@ def _PylintrcConfig(config_file, section, opts):
         A pylint configuration object. Use option_value('...') to read.
     """
 
-    class ConfigReader(ConfigurationMixIn):
+    class ConfigReader(config.ConfigurationMixIn):
         """Dynamic config file reader."""
 
         name = section
@@ -1257,6 +1255,72 @@ class FormatStringChecker(pylint.checkers.BaseChecker):
             self.add_message(
                 "R9100", node=node, line=node.lineno, col_offset=node.col_offset
             )
+
+
+class ModuleOnlyImportsChecker(pylint.checkers.BaseChecker):
+    """Checks module members are not imported directly per go/pystyle#imports.
+
+    Inspired by github.com/Enforcer/pylint_google_style_guide_imports_enforcing.
+    """
+
+    __implements__ = pylint.interfaces.IAstroidChecker
+
+    # pylint: disable=class-missing-docstring,multiple-statements
+    class _MessageR9170:
+        pass
+
+    # pylint: enable=class-missing-docstring,multiple-statements
+
+    priority = -1
+    msgs = {
+        "R9170": (
+            '"%(name)s" shouldn\'t be imported from %(module)s directly.',
+            ("import-modules-only"),
+            _MessageR9170,
+        ),
+    }
+    options = ()
+    EXCLUSIONS = frozenset(
+        {
+            "typing",
+            "typing_extensions",
+            "pathlib",
+            "collections.abc",
+            "__future__",
+        }
+    )
+
+    def visit_importfrom(self, node: astroid.nodes.ImportFrom):
+        """Visit an import node."""
+        try:
+            imported = node.do_import_module()
+        except astroid.AstroidImportError:
+            # Files that have import statements in `try` blocks will trip up
+            # pylint here if those statements throw. Skip those imports.
+            return
+
+        if imported.name in self.EXCLUSIONS:
+            return
+
+        for name, _ in node.names:
+            _, result = imported.lookup(name)
+            if not result:
+                # Probably this is another module - fine.
+                continue
+            if isinstance(result[0], astroid.nodes.Module):
+                continue
+
+            # Allow submodules.
+            try:
+                imported.import_module(name, relative_only=True)
+            except astroid.AstroidImportError:
+                self.add_message(
+                    "R9170",
+                    node=node,
+                    line=node.lineno,
+                    col_offset=node.col_offset,
+                    args={"name": name, "module": imported.name},
+                )
 
 
 def register(linter):

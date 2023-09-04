@@ -7,7 +7,7 @@
 import collections
 import io
 import os
-from typing import Iterable, NamedTuple, Optional
+from typing import Iterable, List, NamedTuple, Optional
 
 import astroid
 
@@ -1100,6 +1100,84 @@ class CommentCheckerTest(CheckerTestCase):
             self.results = []
             self.checker._visit_comment(0, comment)
             self.assertLintFailed(expected=("R9250",))
+
+
+class ImportCheckerTest(CheckerTestCase):
+    """Tests for ModuleOnlyImportsChecker module"""
+
+    CHECKER = lint.ModuleOnlyImportsChecker
+
+    def checkImport(
+        self,
+        module: str,
+        members: List[str],
+        member_is_module: Optional[bool] = False,
+        fail_lookup: Optional[bool] = False,
+        is_submodule: Optional[bool] = False,
+    ) -> None:
+        """Simulate a lint of an import line.
+
+        E.g., `import $module` or `from $module import $members`.
+        """
+
+        class Result(TestNode):
+            """Mock result for astroid.nodes.ImportFrom.do_import_module."""
+
+            def lookup(self, member):
+                if fail_lookup:
+                    return (member, None)
+                if member_is_module:
+                    item = astroid.nodes.Module(name=member)
+                else:
+                    item = TestNode(name=member)
+                return (member, [item])
+
+            # pylint: disable-next=unused-argument
+            def import_module(self, name, relative_only):
+                if is_submodule:
+                    return
+                raise astroid.AstroidImportError()
+
+        class TestImportFromNode(TestNode):
+            """TestNode that offers a do_import_module implementation."""
+
+            def do_import_module(self):
+                return Result(name=module)
+
+        names = [(member, None) for member in members]
+        node = TestImportFromNode(name=module, names=names)
+        self.results = []
+        self.checker.visit_importfrom(node)
+
+    def testGoodImportNoMembers(self):
+        """Verify we accept `import os`."""
+        self.checkImport("os", [])
+        self.assertLintPassed()
+
+    def testGoodImportMember(self):
+        """Verify we accept `from pylint import config`."""
+        self.checkImport("pylint", ["config"], member_is_module=True)
+        self.assertLintPassed()
+
+    def testExcludedImport(self):
+        """Verify we accept `from typing import List`"""
+        self.checkImport("typing", ["List"])
+        self.assertLintPassed()
+
+    def testMemberLookupFailure(self):
+        """Verify a member that fails lookup is treated as a module."""
+        self.checkImport("unittest", ["mock"], fail_lookup=True)
+        self.assertLintPassed()
+
+    def testSubmodule(self):
+        """Verify we accept submodules."""
+        self.checkImport("utils.telemetry", ["config"], is_submodule=True)
+        self.assertLintPassed()
+
+    def testBadImport(self):
+        """Verify we reject `from unittest.mock import patch`"""
+        self.checkImport("unittest.mock", ["patch"], member_is_module=False)
+        self.assertLintFailed(expected=("R9170",))
 
 
 class EncodingCheckerTest(CheckerTestCase):
