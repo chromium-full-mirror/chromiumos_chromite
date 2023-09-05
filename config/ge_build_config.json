@@ -14865,12 +14865,12 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7261,
           "is_active": true,
-          "stable_target_milestone": 119,
+          "stable_target_milestone": 167,
           "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 119,
+      "stable_target_milestone": 167,
       "build_cadence": "DAILY_CADENCE"
     },
     {
