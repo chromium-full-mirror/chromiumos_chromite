@@ -33,13 +33,12 @@ describe('CnsFileCache', () => {
         }),
       });
       const cache = new CnsFileCache(new VoidOutputChannel(), FAKE_CACHE_DIR);
-      spyOn(fakeExec, 'exec');
       jasmine.clock().mockDate(new Date(19999));
 
       const result = await cache.getCachedFile(FAKE_CNS_FILE, {seconds: 10});
 
       expect(result).toEqual(FAKE_CACHED_FILE);
-      expect(fakeExec.exec).not.toHaveBeenCalled();
+      expect(fakeExec).not.toHaveBeenCalled();
     });
 
     it('re-downloads the file when it is already cached but time to refresh', async () => {
@@ -50,13 +49,14 @@ describe('CnsFileCache', () => {
         }),
       });
       const cache = new CnsFileCache(new VoidOutputChannel(), FAKE_CACHE_DIR);
-      spyOn(fakeExec, 'exec');
       jasmine.clock().mockDate(new Date(20001));
+
+      fakeExec.installStdout('fileutil', jasmine.anything(), '');
 
       const result = await cache.getCachedFile(FAKE_CNS_FILE, {seconds: 10});
 
       expect(result).toEqual(FAKE_CACHED_FILE);
-      expect(fakeExec.exec).toHaveBeenCalledOnceWith(
+      expect(fakeExec).toHaveBeenCalledOnceWith(
         'fileutil',
         ['cp', '-f', FAKE_CNS_FILE, FAKE_CACHED_FILE],
         jasmine.any(Object)
@@ -68,11 +68,13 @@ describe('CnsFileCache', () => {
         [FAKE_CACHE_DIR]: {},
       });
       const cache = new CnsFileCache(undefined, FAKE_CACHE_DIR);
-      spyOn(fakeExec, 'exec');
+
+      fakeExec.installStdout('fileutil', jasmine.anything(), '');
+
       const result = await cache.getCachedFile(FAKE_CNS_FILE, {seconds: 10});
 
       expect(result).toEqual(FAKE_CACHED_FILE);
-      expect(fakeExec.exec).toHaveBeenCalledOnceWith(
+      expect(fakeExec).toHaveBeenCalledOnceWith(
         'fileutil',
         ['cp', '-f', FAKE_CNS_FILE, FAKE_CACHED_FILE],
         jasmine.any(Object)

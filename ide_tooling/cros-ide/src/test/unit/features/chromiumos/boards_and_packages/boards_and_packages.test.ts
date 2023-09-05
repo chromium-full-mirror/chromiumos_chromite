@@ -4,7 +4,6 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
-import {getCrosPath} from '../../../../../common/chromiumos/cros_client';
 import * as commonUtil from '../../../../../common/common_util';
 import {BoardsAndPackages} from '../../../../../features/chromiumos/boards_and_packages';
 import {Breadcrumbs} from '../../../../../features/chromiumos/boards_and_packages/item';
@@ -74,45 +73,30 @@ describe('Boards and packages', () => {
     expect(treeView.title).toEqual('Boards and Packages');
 
     // Prepare cros command outputs.
-    const cros = getCrosPath(chromiumosRoot);
-
-    fakeExec.on(
-      cros,
-      testing.exactMatch(
-        ['query', 'ebuilds', '-b', 'betty', '-o', '{package_info.atom}'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-dev-go/delve
-`
-      ),
-      testing.exactMatch(
-        ['workon', '-b', 'betty', 'list'],
-        async () => 'chromeos-base/codelab\n'
-      ),
-      testing.exactMatch(
-        ['workon', '-b', 'betty', 'list', '--all'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-`
-      ),
-      testing.exactMatch(
-        ['query', 'ebuilds', '-b', 'amd64-host', '-o', '{package_info.atom}'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-dev-go/delve
-`
-      ),
-      testing.exactMatch(
-        ['workon', '--host', 'list'],
-        async () => 'chromeos-base/codelab\n'
-      ),
-      testing.exactMatch(
-        ['workon', '--host', 'list', '--all'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-`
-      )
-    );
+    testing.fakes.installFakeCrosClient(fakeExec, {
+      chromiumosRoot,
+      host: {
+        packages: {
+          all: ['chromeos-base/codelab', 'chromeos-base/shill', 'dev-go/delve'],
+          workedOn: ['chromeos-base/codelab'],
+          allWorkon: ['chromeos-base/codelab', 'chromeos-base/shill'],
+        },
+      },
+      boards: [
+        {
+          name: 'betty',
+          packages: {
+            all: [
+              'chromeos-base/codelab',
+              'chromeos-base/shill',
+              'dev-go/delve',
+            ],
+            workedOn: ['chromeos-base/codelab'],
+            allWorkon: ['chromeos-base/codelab', 'chromeos-base/shill'],
+          },
+        },
+      ],
+    });
 
     // Test existing elements can be revealed.
     await treeView.reveal(Breadcrumbs.from('host', 'chromeos-base', 'codelab'));
@@ -200,45 +184,30 @@ chromeos-base/shill
     const treeView = boardsAndPackages.getTreeViewForTesting();
 
     // Prepare cros command outputs.
-    const cros = getCrosPath(chromiumosRoot);
-
-    fakeExec.on(
-      cros,
-      testing.exactMatch(
-        ['query', 'ebuilds', '-b', 'betty', '-o', '{package_info.atom}'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-dev-go/delve
-`
-      ),
-      testing.exactMatch(
-        ['workon', '-b', 'betty', 'list'],
-        async () => 'chromeos-base/codelab\n'
-      ),
-      testing.exactMatch(
-        ['workon', '-b', 'betty', 'list', '--all'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-`
-      ),
-      testing.exactMatch(
-        ['query', 'ebuilds', '-b', 'amd64-host', '-o', '{package_info.atom}'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-dev-go/delve
-`
-      ),
-      testing.exactMatch(
-        ['workon', '--host', 'list'],
-        async () => 'chromeos-base/codelab\n'
-      ),
-      testing.exactMatch(
-        ['workon', '--host', 'list', '--all'],
-        async () => `chromeos-base/codelab
-chromeos-base/shill
-`
-      )
-    );
+    testing.fakes.installFakeCrosClient(fakeExec, {
+      chromiumosRoot,
+      host: {
+        packages: {
+          all: ['chromeos-base/codelab', 'chromeos-base/shill', 'dev-go/delve'],
+          workedOn: ['chromeos-base/codelab'],
+          allWorkon: ['chromeos-base/codelab', 'chromeos-base/shill'],
+        },
+      },
+      boards: [
+        {
+          name: 'betty',
+          packages: {
+            all: [
+              'chromeos-base/codelab',
+              'chromeos-base/shill',
+              'dev-go/delve',
+            ],
+            workedOn: ['chromeos-base/codelab'],
+            allWorkon: ['chromeos-base/codelab', 'chromeos-base/shill'],
+          },
+        },
+      ],
+    });
 
     const textEditor = (pathFromChromiumos: string) =>
       ({

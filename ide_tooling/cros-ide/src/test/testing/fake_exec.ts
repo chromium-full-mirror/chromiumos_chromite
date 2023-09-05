@@ -6,8 +6,11 @@ import {
   ExecOptions,
   ExecResult,
   setExecForTesting,
+  exec as commonUtilExec,
 } from '../../common/common_util';
 import {cleanState} from './clean_state';
+
+type ExecType = typeof commonUtilExec;
 
 /**
  * Returns execution result or undefined if args is not handled.
@@ -58,8 +61,23 @@ export function lazyHandler(f: () => Handler): Handler {
   };
 }
 
-export class FakeExec {
-  handlers: Map<string, Handler[]> = new Map();
+/**
+ * FakeExec class is an extension of a jasmine spy object that provides utilities to install canned
+ * responses.
+ */
+export class FakeExec
+  // Spy interface is a hybrid type and is a callable. We omit the callable from the interface here
+  // because a class cannot be a callable. It's presumably OK since test code wouldn't call on a
+  // spy.
+  implements Pick<jasmine.Spy<ExecType>, 'calls' | 'withArgs' | 'and'>
+{
+  readonly handlers: Map<string, Handler[]> = new Map();
+
+  constructor(private readonly spy: jasmine.Spy<ExecType>) {}
+
+  /**
+   * @deprecated install handlers via standard jasmine methods on spy object.
+   */
   on(name: string, ...handle: Handler[]): FakeExec {
     if (!this.handlers.has(name)) {
       this.handlers.set(name, []);
@@ -67,7 +85,7 @@ export class FakeExec {
     this.handlers.get(name)!.push(...handle);
     return this;
   }
-  async exec(
+  async fakeExec(
     name: string,
     args: string[],
     options: ExecOptions = {}
@@ -84,6 +102,50 @@ export class FakeExec {
     }
     throw new Error(`${name} ${args.join(' ')}: not handled`);
   }
+
+  /**
+   * Installs fixed stdout. The last optional parameter is if given used to match the options given
+   * to exec.
+   */
+  installStdout(
+    name: jasmine.Expected<string>,
+    args: jasmine.Expected<string[]>,
+    stdout: string,
+    options?: jasmine.Expected<ExecOptions>
+  ): void {
+    this.installCallback(name, args, () => stdout, options);
+  }
+
+  /**
+   * Installs a callback. If the callback returns a string, it's converted to a successful result
+   * with the stdout being the returned string and stderr empty. The last optional parameter is if
+   * given used to match the options given to exec.
+   */
+  installCallback(
+    name: jasmine.Expected<string>,
+    args: jasmine.Expected<string[]>,
+    callback: (
+      name: string,
+      args: string[],
+      options?: ExecOptions
+    ) => Promise<Awaited<ReturnType<ExecType>> | string> | string,
+    options: jasmine.Expected<ExecOptions> = jasmine.anything()
+  ): void {
+    this.withArgs(name, args, options).and.callFake(
+      async (name, args, options) => {
+        const res = await callback(name, args, options);
+        if (typeof res === 'string') {
+          return {exitStatus: 0, stdout: res, stderr: ''};
+        }
+        return res;
+      }
+    );
+  }
+
+  // jasmine.Spy APIs follow.
+  readonly calls = this.spy.calls;
+  readonly withArgs = this.spy.withArgs.bind(this.spy);
+  readonly and = this.spy.and;
 }
 
 /**
@@ -92,15 +154,19 @@ export class FakeExec {
  * Calling this function replaces commonUtil.exec with a fake, and returns a
  * handler to it. It internally uses cleanState to create fresh instances per
  * test.
- *
- * TODO(oka): Consider replacing FakeExec with a standard Jasmine spy object.
  */
 export function installFakeExec(): {fakeExec: FakeExec} {
-  const fakeExec = new FakeExec();
+  const fakeExec = new FakeExec(jasmine.createSpy('exec'));
 
   const state = cleanState(() => {
-    Object.assign(fakeExec, new FakeExec()); // clear handlers
-    return {undo: setExecForTesting((...args) => fakeExec.exec(...args))};
+    const exec = jasmine.createSpy('exec', commonUtilExec);
+
+    const fe = new FakeExec(exec);
+    Object.assign(fakeExec, fe); // clear handlers
+
+    exec.and.callFake(fe.fakeExec.bind(fe));
+
+    return {undo: setExecForTesting(exec)};
   });
   afterEach(() => {
     state.undo();

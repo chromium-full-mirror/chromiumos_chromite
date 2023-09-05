@@ -7,6 +7,7 @@ export {installFakeCipd} from './cipd';
 export {FakeCommands} from './commands';
 export {FakeWorkspaceConfiguration} from './configuration';
 export {FakeCrosfleet, installFakeCrosfleet} from './crosfleet';
+export {installFakeCrosClient} from './cros_client';
 export {installChrootCommandHandler} from './cros_sdk';
 export {Memento} from './memento';
 export {ConsoleOutputChannel, VoidOutputChannel} from './output_channel';
