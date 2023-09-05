@@ -30,6 +30,7 @@ def _write_comment(
     comment_lines = textwrap.wrap(
         comment,
         break_on_hyphens=False,
+        break_long_words=False,
         initial_indent=line_start_str,
         subsequent_indent=line_start_str,
         width=LINE_LENGTH,

@@ -70,6 +70,15 @@ EXPECTATIONS = [
   # Why is this indented?
 """,
     ),
+    # Test we don't break up long URIs.  Leave it to the author to figure out.
+    (
+        """\
+# https://chromium.googlesource.com/infra/infra/+/HEAD/recipes/recipe_modules/recipe_autoroller/api.py
+""",
+        """\
+# https://chromium.googlesource.com/infra/infra/+/HEAD/recipes/recipe_modules/recipe_autoroller/api.py
+""",
+    ),
 ]
 
 
