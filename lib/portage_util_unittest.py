@@ -1808,7 +1808,9 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
             ("HOMEPAGE", "http://example.com\n"),
             ("LICENSE", "GPL-2\n"),
             ("PF", "package-1\n"),
+            ("PROVIDES", "x86_64: libsystem_api.so\n"),
             ("repository", "portage-stable\n"),
+            ("REQUIRES", "x86_64: libc++.so.1 libc++abi.so.1 libc.so.6\n"),
             ("SIZE", "123\n"),
         )
         for path, data in content:
@@ -1822,6 +1824,9 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
         self.assertEqual("GPL-2", pkg.license)
         self.assertEqual("package-1", pkg.pf)
         self.assertEqual("portage-stable", pkg.repository)
+        self.assertEqual(
+            "x86_64: libc++.so.1 libc++abi.so.1 libc.so.6", pkg.requires
+        )
         self.assertEqual("123", pkg.size)
 
     def testIncompletePackage(self):

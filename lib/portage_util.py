@@ -1631,6 +1631,10 @@ class InstalledPackage:
         return self._ReadField("LICENSE")
 
     @property
+    def requires(self):
+        return self._ReadField("REQUIRES")
+
+    @property
     def pf(self):
         return self._ReadField("PF")
 
