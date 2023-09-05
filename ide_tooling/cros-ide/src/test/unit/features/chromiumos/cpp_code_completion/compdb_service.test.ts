@@ -26,43 +26,38 @@ describe('Compdb service', () => {
   });
 
   it('generates compilation database', async () => {
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'env',
-      testing.exactMatch(
-        [
-          'USE=compdb_only test',
-          'ebuild-amd64-generic',
-          '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild',
-          'clean',
-          'compile',
-        ],
-        async () => {
-          // Generate compilation database
-          await testing.putFiles(state.chroot, {
-            '/build/amd64-generic/tmp/portage/chromeos-base/codelab-9999/work/build/out/Default/compile_commands_no_chroot.json':
-              '[]',
-          });
-          return '';
-        }
-      )
+      [
+        'USE=compdb_only test',
+        'ebuild-amd64-generic',
+        '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild',
+        'clean',
+        'compile',
+      ],
+      async () => {
+        // Generate compilation database
+        await testing.putFiles(state.chroot, {
+          '/build/amd64-generic/tmp/portage/chromeos-base/codelab-9999/work/build/out/Default/compile_commands_no_chroot.json':
+            '[]',
+        });
+        return '';
+      }
     );
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'env',
-      testing.exactMatch(
-        [
-          'ACCEPT_KEYWORDS=~*',
-          'equery-amd64-generic',
-          'which',
-          '=chromeos-base/codelab-9999',
-        ],
-        async () => {
-          return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild';
-        }
-      )
+      [
+        'ACCEPT_KEYWORDS=~*',
+        'equery-amd64-generic',
+        'which',
+        '=chromeos-base/codelab-9999',
+      ],
+      () =>
+        '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild'
     );
 
     await fs.promises.mkdir(path.join(state.source, 'src/platform2/codelab'), {
@@ -92,43 +87,38 @@ describe('Compdb service', () => {
   });
 
   it('can update symlink to readonly file', async () => {
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'env',
-      testing.exactMatch(
-        [
-          'USE=compdb_only test',
-          'ebuild-amd64-generic',
-          '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild',
-          'clean',
-          'compile',
-        ],
-        async () => {
-          // Generate compilation database
-          await testing.putFiles(state.chroot, {
-            '/build/amd64-generic/tmp/portage/chromeos-base/codelab-9999/work/build/out/Default/compile_commands_no_chroot.json':
-              '[]',
-          });
-          return '';
-        }
-      )
+      [
+        'USE=compdb_only test',
+        'ebuild-amd64-generic',
+        '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild',
+        'clean',
+        'compile',
+      ],
+      async () => {
+        // Generate compilation database
+        await testing.putFiles(state.chroot, {
+          '/build/amd64-generic/tmp/portage/chromeos-base/codelab-9999/work/build/out/Default/compile_commands_no_chroot.json':
+            '[]',
+        });
+        return '';
+      }
     );
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'env',
-      testing.exactMatch(
-        [
-          'ACCEPT_KEYWORDS=~*',
-          'equery-amd64-generic',
-          'which',
-          '=chromeos-base/codelab-9999',
-        ],
-        async () => {
-          return '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild';
-        }
-      )
+      [
+        'ACCEPT_KEYWORDS=~*',
+        'equery-amd64-generic',
+        'which',
+        '=chromeos-base/codelab-9999',
+      ],
+      () =>
+        '/mnt/host/source/src/third_party/chromiumos-overlay/chromeos-base/codelab/codelab-9999.ebuild'
     );
 
     await fs.promises.mkdir(path.join(state.source, 'src/platform2/codelab'), {

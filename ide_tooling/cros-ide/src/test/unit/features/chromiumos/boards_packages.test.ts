@@ -12,7 +12,6 @@ import * as config from '../../../../services/config';
 import {
   buildFakeChroot,
   cleanState,
-  exactMatch,
   installFakeExec,
   putFiles,
   tempDir,
@@ -43,16 +42,15 @@ describe('Boards and Packages view', () => {
   it('shows a message when starting work on a non existing package', async () => {
     vscodeSpy.window.showInputBox.and.resolveTo('no-such-package');
 
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',
-      exactMatch(['--board=eve', 'start', 'no-such-package'], async () => {
-        return {
-          stdout: '',
-          stderr: 'could not find the package',
-          exitStatus: 1,
-        };
+      ['--board=eve', 'start', 'no-such-package'],
+      async () => ({
+        stdout: '',
+        stderr: 'could not find the package',
+        exitStatus: 1,
       })
     );
     const chrootService = services.chromiumos.ChrootService.maybeCreate(
@@ -67,13 +65,12 @@ describe('Boards and Packages view', () => {
   });
 
   it('shows a message if cros_workon is not found', async () => {
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',
-      exactMatch(['--board=eve', 'stop', 'shill'], async () => {
-        return new Error('cros_workon not found');
-      })
+      ['--board=eve', 'stop', 'shill'],
+      async () => new Error('cros_workon not found')
     );
     const chrootService = services.chromiumos.ChrootService.maybeCreate(
       state.source
@@ -97,22 +94,20 @@ describe('Boards and Packages view', () => {
 
     await config.boardsAndPackages.showWelcomeMessage.update(false);
 
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',
-      exactMatch(['--board=coral', 'list'], async () => {
-        return `chromeos-base/cryptohome
-chromeos-base/shill`;
-      })
+      ['--board=coral', 'list'],
+      () => `chromeos-base/cryptohome
+chromeos-base/shill`
     );
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',
-      exactMatch(['--host', 'list'], async () => {
-        return 'chromeos-base/libbrillo';
-      })
+      ['--host', 'list'],
+      () => 'chromeos-base/libbrillo'
     );
 
     const bpProvider = new BoardPackageProvider(

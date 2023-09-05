@@ -19,11 +19,12 @@ describe('chroot service exec', () => {
     const source = tempDir.path as commonUtil.Source;
     const cros = services.chromiumos.ChrootService.maybeCreate(source, false)!;
 
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       source,
       'echo',
-      testing.exactMatch(['1'], async () => '1\n')
+      ['1'],
+      async () => '1\n'
     );
     const res = (await cros.exec('echo', ['1'], {
       sudoReason: 'to echo',
@@ -37,10 +38,11 @@ describe('chroot service exec', () => {
     const source = tempDir.path as commonUtil.Source;
     const cros = services.chromiumos.ChrootService.maybeCreate(source, false)!;
 
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       source,
       'false',
+      jasmine.anything(),
       async () => new Error('failed')
     );
 

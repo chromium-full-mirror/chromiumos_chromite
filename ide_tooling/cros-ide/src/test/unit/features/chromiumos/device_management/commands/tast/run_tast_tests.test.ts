@@ -17,7 +17,7 @@ import * as testing from '../../../../../../testing';
 import {
   FakeTextDocument,
   VoidOutputChannel,
-  legacyInstallChrootCommandHandler,
+  installChrootCommandHandler,
 } from '../../../../../../testing/fakes';
 import {FakeDeviceRepository} from '../../fake_device_repository';
 import {FakeSshServer} from '../../fake_ssh_server';
@@ -76,11 +76,12 @@ func ChromeFixture(ctx context.Context, s *testing.State) {}`,
       .and.resolveTo('example.ChromeFixture');
 
     // Prepare external command responses.
-    legacyInstallChrootCommandHandler(
+    installChrootCommandHandler(
       fakeExec,
       chromiumos,
       'tast',
-      testing.prefixMatch([], async args => {
+      jasmine.anything(),
+      async args => {
         switch (args[0]) {
           case 'list':
             return 'example.ChromeFixture\n';
@@ -88,7 +89,7 @@ func ChromeFixture(ctx context.Context, s *testing.State) {}`,
             return ''; // OK
         }
         return new Error(`unsupported: tast ${args}`);
-      })
+      }
     );
 
     // Test.

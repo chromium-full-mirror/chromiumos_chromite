@@ -93,22 +93,20 @@ describe('Test coverage', () => {
 
     let coverageGenerated = false;
 
-    testing.fakes.legacyInstallChrootCommandHandler(
+    testing.fakes.installChrootCommandHandler(
       fakeExec,
       chromiumosRoot,
       'env',
-      testing.exactMatch(
-        [
-          'USE=coverage',
-          'cros_run_unit_tests',
-          '--board=betty',
-          '--packages=chromeos-base/codelab',
-        ],
-        async () => {
-          coverageGenerated = true;
-          return '';
-        }
-      )
+      [
+        'USE=coverage',
+        'cros_run_unit_tests',
+        '--board=betty',
+        '--packages=chromeos-base/codelab',
+      ],
+      () => {
+        coverageGenerated = true;
+        return '';
+      }
     );
 
     const pkg: Package = {

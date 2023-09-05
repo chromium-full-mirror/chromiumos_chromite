@@ -25,14 +25,12 @@ gs://chromeos-image-archive/xyz-release/R99-9901.0.0/
 gs://chromeos-image-archive/xyz-release/garbage.txt
 `;
 
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       tempDir.path as commonUtil.Source,
       'gsutil',
-      testing.exactMatch(
-        ['ls', 'gs://chromeos-image-archive/xyz-release/'],
-        async () => FAKE_STDOUT
-      )
+      ['ls', 'gs://chromeos-image-archive/xyz-release/'],
+      () => FAKE_STDOUT
     );
 
     const versions = await prebuiltUtil.listPrebuiltVersions(

@@ -5,42 +5,7 @@
 import * as path from 'path';
 import * as commonUtil from '../../../common/common_util';
 import {arrayWithPrefixAnd} from '../../unit/testing/jasmine/asymmetric_matcher';
-import {FakeExec, Handler, prefixMatch} from '../fake_exec';
-
-/**
- * Installs a fake handler for the command invoked inside chroot.
- *
- * @deprecated use installChrootCommandHandler.
- */
-export function legacyInstallChrootCommandHandler(
-  fakeExec: FakeExec,
-  source: commonUtil.Source,
-  name: string,
-  handler: Handler,
-  chrootOption?: {crosSdkWorkingDir?: string}
-): void {
-  const crosSdk = path.join(source, 'chromite/bin/cros_sdk');
-
-  fakeExec.on(
-    crosSdk,
-    prefixMatch(['--', name], (restArgs, options) => {
-      return handler(restArgs, options);
-    })
-  );
-
-  const prefix = ['--askpass', '--', crosSdk];
-  if (chrootOption?.crosSdkWorkingDir) {
-    prefix.push('--working-dir', chrootOption.crosSdkWorkingDir);
-  }
-  prefix.push('--', name);
-
-  fakeExec.on(
-    'sudo',
-    prefixMatch(prefix, (restArgs, options) => {
-      return handler(restArgs, options);
-    })
-  );
-}
+import {FakeExec} from '../fake_exec';
 
 /**
  * Installs a fake handler for the command invoked inside chroot.
@@ -55,7 +20,7 @@ export function installChrootCommandHandler(
   callback: (
     args: string[],
     options?: commonUtil.ExecOptions
-  ) => ReturnType<typeof commonUtil.exec> | string,
+  ) => Promise<Awaited<ReturnType<typeof commonUtil.exec>> | string> | string,
   chrootOption?: {crosSdkWorkingDir?: string}
 ): void {
   const crosSdk = path.join(source, 'chromite/bin/cros_sdk');

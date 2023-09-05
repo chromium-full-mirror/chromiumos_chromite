@@ -8,10 +8,7 @@ export {FakeCommands} from './commands';
 export {FakeWorkspaceConfiguration} from './configuration';
 export {FakeCrosfleet, installFakeCrosfleet} from './crosfleet';
 export {installFakeCrosClient} from './cros_client';
-export {
-  legacyInstallChrootCommandHandler,
-  installChrootCommandHandler,
-} from './cros_sdk';
+export {installChrootCommandHandler} from './cros_sdk';
 export {Memento} from './memento';
 export {ConsoleOutputChannel, VoidOutputChannel} from './output_channel';
 export {installFakeSudo} from './sudo';

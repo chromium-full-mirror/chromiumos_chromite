@@ -55,20 +55,18 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
-      testing.exactMatch(
-        ['--os', 'ec', 'bloonchipper', 'rw'],
-        async _options => {
-          await testing.putFiles(state.source, {
-            'src/platform/ec/compile_commands.json':
-              'compile commands for bloonchipper:RW (Makefile)',
-          });
-          return '';
-        }
-      ),
+      ['--os', 'ec', 'bloonchipper', 'rw'],
+      async () => {
+        await testing.putFiles(state.source, {
+          'src/platform/ec/compile_commands.json':
+            'compile commands for bloonchipper:RW (Makefile)',
+        });
+        return '';
+      },
       {
         crosSdkWorkingDir: '/mnt/host/source/src/platform/ec',
       }
@@ -91,20 +89,18 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
-      testing.exactMatch(
-        ['--os', 'ec', 'bloonchipper', 'ro'],
-        async _options => {
-          await testing.putFiles(state.source, {
-            'src/platform/ec/compile_commands.json':
-              'compile commands for bloonchipper:RO (Makefile)',
-          });
-          return '';
-        }
-      ),
+      ['--os', 'ec', 'bloonchipper', 'ro'],
+      async () => {
+        await testing.putFiles(state.source, {
+          'src/platform/ec/compile_commands.json':
+            'compile commands for bloonchipper:RO (Makefile)',
+        });
+        return '';
+      },
       {
         crosSdkWorkingDir: '/mnt/host/source/src/platform/ec',
       }
@@ -128,17 +124,18 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
-      testing.exactMatch(['--os', 'ec', 'dartmonkey', 'ro'], async _options => {
+      ['--os', 'ec', 'dartmonkey', 'ro'],
+      async () => {
         await testing.putFiles(state.source, {
           'src/platform/ec/compile_commands.json':
             'compile commands for dartmonkey:RO (Makefile)',
         });
         return '';
-      }),
+      },
       {
         crosSdkWorkingDir: '/mnt/host/source/src/platform/ec',
       }
@@ -161,20 +158,18 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.legacyInstallChrootCommandHandler(
+    fakes.installChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
-      testing.exactMatch(
-        ['--os', 'zephyr', 'dartmonkey', 'ro'],
-        async _options => {
-          await testing.putFiles(state.source, {
-            'src/platform/ec/compile_commands.json':
-              'compile commands for dartmonkey:RO (Zephyr)',
-          });
-          return '';
-        }
-      ),
+      ['--os', 'zephyr', 'dartmonkey', 'ro'],
+      async () => {
+        await testing.putFiles(state.source, {
+          'src/platform/ec/compile_commands.json':
+            'compile commands for dartmonkey:RO (Zephyr)',
+        });
+        return '';
+      },
       {
         crosSdkWorkingDir: '/mnt/host/source/src/platform/ec',
       }
