@@ -4,7 +4,7 @@
 
 import 'jasmine';
 import * as cipd from '../../../common/cipd';
-import {FakeExec, exactMatch} from '../fake_exec';
+import {FakeExec} from '../fake_exec';
 import {tempDir as testingTempDir} from '../fs';
 
 /**
@@ -19,22 +19,17 @@ export function installFakeCipd(fakeExec: FakeExec): cipd.CipdRepository {
 
   beforeEach(() => {
     Object.assign(cipdRepository, new cipd.CipdRepository(tempDir.path));
-    fakeExec.on(
+    fakeExec.installStdout('cipd', ['init', tempDir.path, '-force'], 'ok');
+    fakeExec.installStdout(
       'cipd',
-      exactMatch(['init', tempDir.path, '-force'], async () => 'ok')
-    );
-    fakeExec.on(
-      'cipd',
-      exactMatch(
-        [
-          'install',
-          '-root',
-          tempDir.path,
-          'chromiumos/infra/crosfleet/${platform}',
-          'prod',
-        ],
-        async () => 'ok'
-      )
+      [
+        'install',
+        '-root',
+        tempDir.path,
+        'chromiumos/infra/crosfleet/${platform}',
+        'prod',
+      ],
+      'ok'
     );
   });
 
