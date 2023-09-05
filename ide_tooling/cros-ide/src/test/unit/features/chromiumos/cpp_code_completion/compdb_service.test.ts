@@ -26,7 +26,7 @@ describe('Compdb service', () => {
   });
 
   it('generates compilation database', async () => {
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'env',
@@ -48,7 +48,7 @@ describe('Compdb service', () => {
         }
       )
     );
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'env',
@@ -92,7 +92,7 @@ describe('Compdb service', () => {
   });
 
   it('can update symlink to readonly file', async () => {
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'env',
@@ -114,7 +114,7 @@ describe('Compdb service', () => {
         }
       )
     );
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'env',

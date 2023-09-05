@@ -93,7 +93,7 @@ describe('Test coverage', () => {
 
     let coverageGenerated = false;
 
-    testing.fakes.installChrootCommandHandler(
+    testing.fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       chromiumosRoot,
       'env',

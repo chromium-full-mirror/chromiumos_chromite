@@ -25,7 +25,7 @@ gs://chromeos-image-archive/xyz-release/R99-9901.0.0/
 gs://chromeos-image-archive/xyz-release/garbage.txt
 `;
 
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       tempDir.path as commonUtil.Source,
       'gsutil',

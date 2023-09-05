@@ -43,7 +43,7 @@ describe('Boards and Packages view', () => {
   it('shows a message when starting work on a non existing package', async () => {
     vscodeSpy.window.showInputBox.and.resolveTo('no-such-package');
 
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',
@@ -67,7 +67,7 @@ describe('Boards and Packages view', () => {
   });
 
   it('shows a message if cros_workon is not found', async () => {
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',
@@ -97,7 +97,7 @@ describe('Boards and Packages view', () => {
 
     await config.boardsAndPackages.showWelcomeMessage.update(false);
 
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',
@@ -106,7 +106,7 @@ describe('Boards and Packages view', () => {
 chromeos-base/shill`;
       })
     );
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'cros_workon',

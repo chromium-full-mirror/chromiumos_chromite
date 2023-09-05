@@ -149,13 +149,12 @@ describe('Boards and packages', () => {
       fakeExec,
       chromiumosRoot,
       'cros_workon',
-      testing.exactMatch(
-        ['--board=betty', 'start', 'chromeos-base/codelab'],
-        async () => {
-          started = true;
-          return '';
-        }
-      )
+      ['--board=betty', 'start', 'chromeos-base/codelab'],
+      args => {
+        expect(args.length).toBe(3);
+        started = true;
+        return '';
+      }
     );
 
     const reader = new testing.EventReader(

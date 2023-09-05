@@ -19,7 +19,7 @@ describe('chroot service exec', () => {
     const source = tempDir.path as commonUtil.Source;
     const cros = services.chromiumos.ChrootService.maybeCreate(source, false)!;
 
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       source,
       'echo',
@@ -37,7 +37,7 @@ describe('chroot service exec', () => {
     const source = tempDir.path as commonUtil.Source;
     const cros = services.chromiumos.ChrootService.maybeCreate(source, false)!;
 
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       source,
       'false',

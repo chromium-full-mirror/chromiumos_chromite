@@ -17,7 +17,7 @@ import * as testing from '../../../../../../testing';
 import {
   FakeTextDocument,
   VoidOutputChannel,
-  installChrootCommandHandler,
+  legacyInstallChrootCommandHandler,
 } from '../../../../../../testing/fakes';
 import {FakeDeviceRepository} from '../../fake_device_repository';
 import {FakeSshServer} from '../../fake_ssh_server';
@@ -76,7 +76,7 @@ func ChromeFixture(ctx context.Context, s *testing.State) {}`,
       .and.resolveTo('example.ChromeFixture');
 
     // Prepare external command responses.
-    installChrootCommandHandler(
+    legacyInstallChrootCommandHandler(
       fakeExec,
       chromiumos,
       'tast',

@@ -55,7 +55,7 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
@@ -91,7 +91,7 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
@@ -128,7 +128,7 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
@@ -161,7 +161,7 @@ describe('platform2 compdb generator', () => {
     expect(await state.generator.shouldGenerate(document)).toEqual(
       compdbGenerator.ShouldGenerateResult.Yes
     );
-    fakes.installChrootCommandHandler(
+    fakes.legacyInstallChrootCommandHandler(
       fakeExec,
       state.source,
       'util/clangd_config.py',
