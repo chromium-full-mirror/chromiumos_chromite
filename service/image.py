@@ -383,7 +383,7 @@ def Build(
                 "To run the image in a virtual machine, use:\n"
                 f"  cros_vm --start --image-path={image_path} --board={board}\n"
             )
-        logging.info(msg)
+        logging.notice(msg)
 
     return build_result
 
