@@ -27,17 +27,17 @@ describe('OutputDirectoriesDataProvider', () => {
     await config.paths.depotTools.update('/opt/custom_depot_tools');
 
     // By default, pretend that `gn args` finishes, but returns invalid JSON.
-    fakeExec.on(
-      'gn',
-      testing.prefixMatch(['args'], async (args, options) => {
-        expect(options.cwd).toBe(tempDir.path);
-        expect(options.env).toBeTruthy();
-        expect(options.env!.PATH).toEqual(
-          jasmine.stringMatching('^/opt/custom_depot_tools:.*/depot_tools')
-        );
-        return {exitStatus: 0, stdout: 'invalid json here', stderr: ''};
-      })
-    );
+    fakeExec.and.callFake(async (name, args, options) => {
+      expect(name).toEqual('gn');
+      expect(args[0]).toEqual('args');
+
+      expect(options?.cwd).toBe(tempDir.path);
+      expect(options?.env).toBeTruthy();
+      expect(options?.env!.PATH).toEqual(
+        jasmine.stringMatching('^/opt/custom_depot_tools:.*/depot_tools')
+      );
+      return {exitStatus: 0, stdout: 'invalid json here', stderr: ''};
+    });
   });
 
   it('ignores files that are named like output directories', async () => {
@@ -213,23 +213,18 @@ describe('OutputDirectoriesDataProvider', () => {
       await fs.mkdir(path.join(tempDir.path, 'out'));
       await fs.mkdir(path.join(tempDir.path, 'out/dir1'));
 
-      fakeExec.handlers.set('gn', []);
-      fakeExec.on(
+      fakeExec.installStdout(
         'gn',
-        testing.exactMatch(
-          [
-            'args',
-            path.join(tempDir.path, 'out', 'dir1'),
-            '--list',
-            '--short',
-            '--overrides-only',
-            '--json',
-          ],
-          async options => {
-            expect(options.cwd).toBe(tempDir.path);
-            return JSON.stringify(testCase.gnArgs);
-          }
-        )
+        [
+          'args',
+          path.join(tempDir.path, 'out', 'dir1'),
+          '--list',
+          '--short',
+          '--overrides-only',
+          '--json',
+        ],
+        JSON.stringify(testCase.gnArgs),
+        jasmine.objectContaining({cwd: tempDir.path})
       );
 
       const dataProvider = new OutputDirectoriesDataProvider(
