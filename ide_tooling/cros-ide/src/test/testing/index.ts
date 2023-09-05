@@ -3,14 +3,7 @@
 // found in the LICENSE file.
 
 export {cleanState} from './clean_state';
-export {
-  FakeExec,
-  type Handler,
-  exactMatch,
-  installFakeExec,
-  lazyHandler,
-  prefixMatch,
-} from './fake_exec';
+export {FakeExec, installFakeExec} from './fake_exec';
 export {
   buildFakeChroot,
   cachedSetup,
