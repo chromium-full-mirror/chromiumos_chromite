@@ -141,15 +141,19 @@ export class GerritComments implements vscode.Disposable {
     }
     if (gitLogInfos.length === 0) return;
 
-    // Fetch the user's account info
-    const myAccountInfo = await this.client.fetchMyAccountInfoOrThrow(
-      repoId,
-      authCookie
-    );
-    if (!myAccountInfo) {
-      sink.appendLine('Calling user info could not be fetched from Gerrit');
-      // Don't skip here, because we want to show public information
-      // even when authentication has failed
+    // Fetch the user's account info. Don't return on failure, because we want to show public
+    // information even when authentication has failed.
+    let myAccountInfo;
+    try {
+      myAccountInfo = await this.client.fetchMyAccountInfoOrThrow(
+        repoId,
+        authCookie
+      );
+      if (!myAccountInfo) {
+        sink.appendLine('User account info is missing in Gerrit; continuing');
+      }
+    } catch (e) {
+      sink.appendLine(`Failed to fetch user account info: ${e}; continuing`);
     }
 
     const changes: Change[] = [];

@@ -456,7 +456,22 @@ class Gerrit implements vscode.Disposable {
       filePath,
     } = thread.gerritCommentThread;
     const authCookie = await auth.readAuthCookie(repoId, this.sink);
-    if (!authCookie) return;
+    if (!authCookie) {
+      void (async () => {
+        const choice = await vscode.window.showErrorMessage(
+          'Failed to read auth cookie; confirm your .gitcookies is properly set up and you can run repo upload',
+          'Open document'
+        );
+        if (choice) {
+          await vscode.env.openExternal(
+            vscode.Uri.parse(
+              'https://www.chromium.org/chromium-os/developer-guide/gerrit-guide'
+            )
+          );
+        }
+      })();
+      return;
+    }
 
     // Comment shown until real draft is fetched from Gerrit.
     const tentativeComment: VscodeComment = {
