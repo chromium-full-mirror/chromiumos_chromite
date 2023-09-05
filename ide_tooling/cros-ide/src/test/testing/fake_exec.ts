@@ -4,7 +4,6 @@
 
 import {
   ExecOptions,
-  ExecResult,
   setExecForTesting,
   exec as commonUtilExec,
 } from '../../common/common_util';
@@ -23,14 +22,6 @@ export class FakeExec
   implements Pick<jasmine.Spy<ExecType>, 'calls' | 'withArgs' | 'and'>
 {
   constructor(private readonly spy: jasmine.Spy<ExecType>) {}
-
-  async fakeExec(
-    name: string,
-    args: string[],
-    _options: ExecOptions = {}
-  ): Promise<ExecResult | Error> {
-    throw new Error(`${name} ${args.join(' ')}: not handled`);
-  }
 
   /**
    * Installs fixed stdout. The last optional parameter is if given used to match the options given
@@ -93,7 +84,9 @@ export function installFakeExec(): {fakeExec: FakeExec} {
     const fe = new FakeExec(exec);
     Object.assign(fakeExec, fe); // clear handlers
 
-    exec.and.callFake(fe.fakeExec.bind(fe));
+    exec.and.callFake((name, args) => {
+      throw new Error(`${name} ${args.join(' ')}: not handled`);
+    });
 
     return {undo: setExecForTesting(exec)};
   });
