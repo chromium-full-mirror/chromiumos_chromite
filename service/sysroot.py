@@ -948,9 +948,9 @@ def BuildPackages(
                                 "build",
                                 (
                                     "--execution_log_binary_file="
-                                    "/tmp/bazel_build_packages_exec.log"
+                                    "/tmp/bazel_build_appcryptnss_exec.log"
                                 ),
-                                "@portage//sys-libs/zlib:package_set",
+                                "@portage//app-crypt/nss:package_set",
                             ],
                             extra_env=bazel_extra_env,
                         )
