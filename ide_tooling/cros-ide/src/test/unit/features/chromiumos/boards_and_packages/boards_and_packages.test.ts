@@ -4,7 +4,7 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
-import {getCrosPath} from '../../../../../common/chromiumos/cros';
+import {getCrosPath} from '../../../../../common/chromiumos/cros_client';
 import * as commonUtil from '../../../../../common/common_util';
 import {BoardsAndPackages} from '../../../../../features/chromiumos/boards_and_packages';
 import {Breadcrumbs} from '../../../../../features/chromiumos/boards_and_packages/item';

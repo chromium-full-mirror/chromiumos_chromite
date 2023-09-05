@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import {BoardOrHost} from '../../../common/chromiumos/board_or_host';
-import {CrosClient} from '../../../common/chromiumos/cros';
+import {CrosClient} from '../../../common/chromiumos/cros_client';
 import {
   ParsedPackageName,
   getQualifiedPackageName,
