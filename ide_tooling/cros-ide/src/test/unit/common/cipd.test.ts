@@ -4,7 +4,6 @@
 
 import 'jasmine';
 import * as cipd from '../../../common/cipd';
-import * as common_util from '../../../common/common_util';
 import * as config from '../../../services/config';
 import * as testing from '../../testing';
 import * as fakes from '../../testing/fakes';
@@ -25,7 +24,11 @@ describe('CIPD repository', () => {
   const {fakeExec} = testing.installFakeExec();
 
   it('returns an error on failing to run CLI', async () => {
-    fakeExec.on('cipd', async () => new Error('failed to run cipd'));
+    fakeExec.installCallback(
+      'cipd',
+      jasmine.anything(),
+      async () => new Error('failed to run cipd')
+    );
 
     const cipdRepository = new cipd.CipdRepository();
     await expectAsync(
@@ -37,14 +40,14 @@ describe('CIPD repository', () => {
     await config.paths.depotTools.update('/opt/custom_depot_tools');
 
     let capturedPath: string | undefined = '';
-    fakeExec.on(
+    fakeExec.installCallback(
       'cipd',
-      async (_args: string[], options: common_util.ExecOptions) => {
+      jasmine.anything(),
+      async (_name, _args, options) => {
         capturedPath = options?.env?.PATH;
         return 'ok';
       }
     );
-
     const cipdRepository = new cipd.CipdRepository();
 
     await expectAsync(

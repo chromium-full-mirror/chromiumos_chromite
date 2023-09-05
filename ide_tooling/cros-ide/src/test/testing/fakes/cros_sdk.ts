@@ -34,18 +34,11 @@ export function installChrootCommandHandler(
   const sudoCrosSdkPrefix = ['sudo', '--askpass', '--', ...crosSdkPrefix];
 
   for (const prefix of [crosSdkPrefix, sudoCrosSdkPrefix]) {
-    fakeExec
-      .withArgs(
-        prefix[0],
-        arrayWithPrefixAnd(prefix.slice(1), argsMatcher),
-        jasmine.anything()
-      )
-      .and.callFake(async (_name, args, options) => {
-        const res = await callback(args.slice(prefix.slice(1).length), options);
-        if (typeof res === 'string') {
-          return {exitStatus: 0, stdout: res, stderr: ''};
-        }
-        return res;
-      });
+    fakeExec.installCallback(
+      prefix[0],
+      arrayWithPrefixAnd(prefix.slice(1), argsMatcher),
+      (_name, args, options) =>
+        callback(args.slice(prefix.slice(1).length), options)
+    );
   }
 }

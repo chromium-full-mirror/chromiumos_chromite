@@ -9,7 +9,6 @@ import * as config from '../../../services/config';
 import {
   buildFakeChroot,
   cleanState,
-  exactMatch,
   installFakeExec,
   tempDir,
 } from '../../testing';
@@ -112,11 +111,10 @@ describe('CodeSearch: opening current file', () => {
       'https://source.chromium.org/chromiumos/chromiumos/codesearch/+/HEAD:' +
       'src/platform2/cros-disks/archive_mounter.cc;l=41';
 
-    fakeExec.on(
+    fakeExec.installStdout(
       path.join(temp.path, 'chromite/contrib/generate_cs_path'),
-      exactMatch(state.generateCsPathInvocation, async () => {
-        return CS_LINK;
-      })
+      state.generateCsPathInvocation,
+      CS_LINK
     );
 
     await openCurrentFile(state.fakeTextEditor);
@@ -126,11 +124,10 @@ describe('CodeSearch: opening current file', () => {
   });
 
   it('shows error popup when generate_cs_link cannot be found', async () => {
-    fakeExec.on(
+    fakeExec.installCallback(
       path.join(temp.path, 'chromite/contrib/generate_cs_path'),
-      exactMatch(state.generateCsPathInvocation, async () => {
-        return Error('not found');
-      })
+      state.generateCsPathInvocation,
+      async () => new Error('not found')
     );
 
     await openCurrentFile(state.fakeTextEditor);
@@ -179,11 +176,10 @@ describe('CodeSearch: opening current file', () => {
   });
 
   it('shows error popup when generate_cs_link fails', async () => {
-    fakeExec.on(
+    fakeExec.installCallback(
       path.join(temp.path, 'chromite/contrib/generate_cs_path'),
-      exactMatch(state.generateCsPathInvocation, async () => {
-        return {stdout: '', stderr: 'error msg', exitStatus: 1};
-      })
+      state.generateCsPathInvocation,
+      async () => ({stdout: '', stderr: 'error msg', exitStatus: 1})
     );
 
     await openCurrentFile(state.fakeTextEditor);
