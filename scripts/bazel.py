@@ -8,6 +8,7 @@ This wrapper sets up necessary symlinks for the workspace, ensures Bazelisk via
 CIPD, and executes it.  It's also the right home for gathering any telemetry on
 users' Bazel commands.
 """
+
 import argparse
 import logging
 import os

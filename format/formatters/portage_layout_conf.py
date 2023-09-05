@@ -4,7 +4,6 @@
 
 """Provides utility for formatting Portage metadata/layout.conf."""
 
-
 import os
 from typing import Optional, Union
 

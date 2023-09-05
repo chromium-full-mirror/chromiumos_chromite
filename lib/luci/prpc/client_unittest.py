@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 """Unit tests for client.py."""
+
 # pylint: disable=unused-argument
 
 import contextlib

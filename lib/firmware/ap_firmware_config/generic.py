@@ -5,6 +5,7 @@
 # TODO: Name the build target.
 
 """{Build Target} configs."""
+
 from typing import List, Optional
 
 from chromite.lib.firmware import servo_lib

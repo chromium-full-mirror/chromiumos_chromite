@@ -7,6 +7,7 @@
 Handle all firmware builder related functionality.  Currently no service module
 exists: all of the work is done here.
 """
+
 import logging
 import os
 import tempfile

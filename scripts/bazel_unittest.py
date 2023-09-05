@@ -4,7 +4,6 @@
 
 """Tests for bazel launcher."""
 
-
 from chromite.scripts import bazel
 
 

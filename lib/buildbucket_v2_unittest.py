@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 """Unit tests for buildbucket_v2."""
+
 from datetime import date
 from datetime import datetime
 

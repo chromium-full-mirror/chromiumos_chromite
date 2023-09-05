@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 """Unittests for strip_package.py"""
+
 import os
 
 from chromite.lib import build_target_lib

@@ -22,6 +22,19 @@ from chromite.format.formatters import python
         ("#\n#!/\n#\n", "#!/\n"),
         ("#!/\n\n# foo\n", "#!/\n# foo\n"),
         ('# foo\n#\n"""."""\n', '# foo\n\n"""."""\n'),
+        # Trim blank lines after module docstring.
+        (
+            '"""module\n\nblah\n"""\n\n\nimport foo\n',
+            '"""module\n\nblah\n"""\n\nimport foo\n',
+        ),
+        # Don't crash if docstring is the entire module.
+        ('"""module\n\nblah\n"""\n', '"""module\n\nblah\n"""\n'),
+        # Don't crash if docstring isn't found.
+        ('"""one-line"""\n', '"""one-line"""\n'),
+        (
+            '"""one-line"""\n\n\n\nFOO = """\nblah\n"""\nBAR = 1\n',
+            '"""one-line"""\n\nFOO = """\nblah\n"""\nBAR = 1\n',
+        ),
     ),
 )
 def test_check_custom_format(data, exp):

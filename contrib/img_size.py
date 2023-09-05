@@ -7,6 +7,7 @@
 Example:
     ./img-size /path/to/baseline.bin /path/to/target.bin cat/pkg-a cat/pkg-b
 """
+
 import argparse
 import collections
 from pathlib import Path

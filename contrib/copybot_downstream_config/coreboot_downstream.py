@@ -8,6 +8,7 @@ See go/copybot
 
 For coreboot Downstreaming Rotation: go/coreboot:downstreaming
 """
+
 from typing import Callable, List, Tuple
 
 from chromite.contrib import copybot_downstream

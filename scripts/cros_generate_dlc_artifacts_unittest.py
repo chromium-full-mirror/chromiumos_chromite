@@ -4,7 +4,6 @@
 
 """Unit tests for cros_generate_dlc_artifacts."""
 
-
 from unittest import mock
 
 import pytest

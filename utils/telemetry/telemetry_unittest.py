@@ -4,7 +4,6 @@
 
 """Test the telemetry module."""
 
-
 from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
 from chromite.third_party.opentelemetry.sdk.trace import export
 

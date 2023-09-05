@@ -4,7 +4,6 @@
 
 """Artifacts service tests."""
 
-
 import json
 import os
 import shutil

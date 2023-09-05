@@ -4,7 +4,6 @@
 
 """Test the telemetry config."""
 
-
 import configparser
 
 from chromite.lib import cros_test_lib

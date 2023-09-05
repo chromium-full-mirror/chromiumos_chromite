@@ -4,17 +4,6 @@
 
 """Configuration options for cbuildbot boards."""
 
-#
-# Define assorted constants describing various sets of boards.
-#
-
-# Base per-board configuration.
-# Every board must appear in exactly 1 of the following sets.
-
-#
-# Define assorted constants describing various sets of boards.
-#
-
 # Base per-board configuration.
 # Every board must appear in exactly 1 of the following sets.
 

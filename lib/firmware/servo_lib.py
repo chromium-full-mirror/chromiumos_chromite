@@ -8,6 +8,7 @@ This module keeps a list of all valid servos, and provides utility functions
 to simplify checking whether a given servo name has a property, such as being a
 CCD/servo v4/servo micro.
 """
+
 from typing import List, NamedTuple
 
 

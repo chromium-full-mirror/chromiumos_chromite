@@ -4,7 +4,6 @@
 
 """Toolchain service tests."""
 
-
 from collections import defaultdict
 import os
 from pathlib import Path

@@ -19,6 +19,7 @@ Notes:
   Branched builds are scheduled based on the function
   chromeos_config.BranchScheduleConfig()
 """
+
 # pylint: enable=line-too-long
 
 import sys

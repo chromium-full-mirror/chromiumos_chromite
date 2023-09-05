@@ -57,11 +57,38 @@ def _custom_format_data(data: str) -> str:
     for i, line in enumerate(lines):
         if line and not line.startswith("#"):
             if line.startswith('"""'):
-                # Clean up the content around the module docstring.
+                oneliner = line.endswith('"""')
+
+                # Clean up the content before the module docstring.
                 while i and lines[i - 1] in ("", "#"):
                     i -= 1
                 _trim_blank_comments(i)
-                lines.insert(i, "")
+                if i:
+                    lines.insert(i, "")
+                    i += 1
+
+                # Move past the first line of the docstring.
+                i += 1
+
+                # Find the end of the module docstring.
+                if not oneliner:
+                    try:
+                        i = lines.index('"""', i) + 1
+                    except ValueError:
+                        break
+                # Clean up blank lines after the module docstring.
+                if i < len(lines):
+                    _trim_blank_comments(i)
+                    lines.insert(i, "")
+
+                    # If the next group is a class/func, give it room.  This
+                    # isn't normally because it means the code doesn't import
+                    # any modules, but defines classes & funcs, but it happens
+                    # a little for our core stub modules (e.g. common Error's).
+                    i += 1
+                    if lines[i].startswith(("class ", "def ")):
+                        lines.insert(i, "")
+
             break
 
     return "\n".join(lines) + "\n" if lines else ""
