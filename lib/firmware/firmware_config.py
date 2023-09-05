@@ -75,7 +75,7 @@ def get_config(
     else:
         dut_control_on = []
         dut_control_off = []
-        programmer = "host"
+        programmer = "internal"
         force_flashrom = getattr(module, "DEPLOY_SSH_FORCE_FLASHROM", False)
 
     flash_extra_flags_futility = []

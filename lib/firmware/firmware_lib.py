@@ -340,7 +340,7 @@ def _build_flash_ssh_cmds(
             "futility",
             "update",
             "-p",
-            "host",
+            "internal",
             "-i",
             os.path.join(tmp, os.path.basename(path)),
         ]
@@ -350,7 +350,7 @@ def _build_flash_ssh_cmds(
         flash_cmd += [
             "flashrom",
             "-p",
-            "host",
+            "internal",
             "-w",
             os.path.join(tmp, os.path.basename(path)),
         ]
@@ -538,7 +538,7 @@ def _build_read_ssh_cmds(
     flash_cmd += (
         ssh_port
         + ssh_parameters
-        + ["flashrom", "-p", "host", "-r", remote_path]
+        + ["flashrom", "-p", "internal", "-r", remote_path]
     )
     if region:
         flash_cmd += ["-i", region]
