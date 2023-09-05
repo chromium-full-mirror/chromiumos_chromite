@@ -148,8 +148,17 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
     )
 
 
-def bundle_and_export() -> None:
-    """Searches for configured subtools, bundles, and exports them."""
+def bundle_and_export(
+    use_production: bool = False,
+    export_filter: Optional[List[str]] = None,
+) -> subtool_lib.InstalledSubtools:
+    """Searches for configured subtools, bundles, and exports them.
+
+    Args:
+        use_production: Whether to export subtools to production environments.
+        export_filter: If provided, exports only subtools whose `name` proto
+            field value is in the list. If None, exports everything.
+    """
     assert_inside_subtools_chroot()
 
     subtools = subtool_lib.InstalledSubtools(
@@ -157,4 +166,5 @@ def bundle_and_export() -> None:
         work_root=SUBTOOLS_BUNDLE_WORK_DIR,
     )
     subtools.bundle_all()
-    subtools.export_all()
+    subtools.export(use_production, export_filter)
+    return subtools

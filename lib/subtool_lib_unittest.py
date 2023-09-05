@@ -7,14 +7,16 @@
 import dataclasses
 import os
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Dict, Iterator, List, Optional, Tuple, Union
 from unittest import mock
 
 from chromite.third_party.google.protobuf import text_format
 import pytest
 
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import partial_mock
 from chromite.lib import subtool_lib
 
 
@@ -35,6 +37,9 @@ def path_mapping(
 
 # Placeholder path PathMapping message (a path on the system to bundle).
 TEST_PATH_MAPPING = path_mapping("/etc/profile")
+
+# Path used in unittests to refer to the cipd executable.
+FAKE_CIPD_PATH = "/no_cipd_in_unittests"
 
 
 @dataclasses.dataclass
@@ -84,10 +89,10 @@ class FakeChrootDiskLayout:
         )
 
 
-def BundleAndExport(subtool: subtool_lib.Subtool) -> None:
+def bundle_and_export(subtool: subtool_lib.Subtool) -> None:
     """Helper to perform e2e validation on a manifest."""
     subtool.bundle()
-    subtool.export()
+    subtool.export(use_production=False, cipd_path=FAKE_CIPD_PATH)
 
 
 def bundle_result(subtool: subtool_lib.Subtool) -> List[str]:
@@ -99,6 +104,32 @@ def bundle_result(subtool: subtool_lib.Subtool) -> List[str]:
     ]
     contents.sort()
     return contents
+
+
+def set_run_results(
+    run_mock: cros_test_lib.RunCommandMock,
+    cipd: Optional[Dict[str, int]] = None,
+    equery: Optional[Dict[str, str]] = None,
+) -> None:
+    """Set fake results for run calls in the test.
+
+    Args:
+        run_mock: The RunCommandMock test fixture.
+        cipd: Map of cipd commands and the process return code.
+        equery: Map of equery commands and the standard output.
+    """
+    cipd_results = cipd or {"create": 0}
+    equery_stdout = equery or {"belongs": "some-category/some-package-0.1-r2\n"}
+    for cmd, result in cipd_results.items():
+        run_mock.AddCmdResult(
+            partial_mock.InOrder([FAKE_CIPD_PATH, cmd]), returncode=result
+        )
+    for cmd, stdout in equery_stdout.items():
+        run_mock.AddCmdResult(
+            partial_mock.InOrder(["equery", cmd]),
+            returncode=0 if stdout else 1,
+            stdout=stdout,
+        )
 
 
 class Wrapper:
@@ -134,10 +165,18 @@ class Wrapper:
             self.work_root,
         )
 
+    def write_to_dir(self, config_dir="config_dir") -> Path:
+        """Writes the current proto to $name.textproto in tmp/$config_dir."""
+        config_path = self.tmp_path / config_dir
+        config_path.mkdir(exist_ok=True)
+        proto_path = config_path / f"{self.proto.name}.textproto"
+        proto_path.write_text(text_format.MessageToString(self.proto))
+        return config_path
+
     def export_e2e(self, writes_files: bool = False) -> subtool_lib.Subtool:
         """Bundles and exports the Subtool made by `create()`."""
         subtool = self.create(writes_files)
-        BundleAndExport(subtool)
+        bundle_and_export(subtool)
         return subtool
 
     def set_paths(
@@ -160,9 +199,9 @@ class Wrapper:
 
 
 @pytest.fixture(name="template_proto")
-def template_proto_fixture(tmp_path) -> Wrapper:
+def template_proto_fixture(tmp_path: Path) -> Iterator[Wrapper]:
     """Helper to build a test proto with meaningful defaults."""
-    return Wrapper(tmp_path)
+    yield Wrapper(tmp_path)
 
 
 def test_invalid_textproto() -> None:
@@ -172,13 +211,30 @@ def test_invalid_textproto() -> None:
         "notafield: invalid\n", Path("invalid.txtproto"), Path("/i/am/unused")
     )
     with pytest.raises(subtool_lib.ManifestInvalidError) as error_info:
-        BundleAndExport(subtool)
+        bundle_and_export(subtool)
     assert (
         '"chromiumos.build.api.SubtoolPackage" has no field named "notafield"'
         in str(error_info.value)
     )
     assert error_info.value.__cause__.GetLine() == 1
     assert error_info.value.__cause__.GetColumn() == 1
+
+
+def test_subtool_properties(template_proto: Wrapper) -> None:
+    """Test that property values are meaningful."""
+    default_subtool = template_proto.create()
+    assert (
+        default_subtool.bundle_dir
+        == template_proto.work_root / "my_subtool" / "bundle"
+    )
+    assert default_subtool.cipd_package == "chromiumos/infra/tools/my_subtool"
+    assert "my_subtool" in default_subtool.summary
+
+    # Test overriding the default CIPD prefix.
+    template_proto.proto.cipd_prefix = "elsewhere"
+    assert template_proto.create().cipd_package == "elsewhere/my_subtool"
+    template_proto.proto.cipd_prefix = "elsewhere/"
+    assert template_proto.create().cipd_package == "elsewhere/my_subtool"
 
 
 def test_error_on_invalid_name(template_proto: Wrapper) -> None:
@@ -199,10 +255,7 @@ def test_error_on_missing_paths(template_proto: Wrapper) -> None:
 
 def test_loads_all_configs(template_proto: Wrapper) -> None:
     """Test that InstalledSubtools globs protos from `config_dir`."""
-    config_dir = template_proto.tmp_path / "config_dir"
-    config_dir.mkdir()
-    proto_path = config_dir / "test_subtool_package.textproto"
-    proto_path.write_text(text_format.MessageToString(template_proto.proto))
+    config_dir = template_proto.write_to_dir("config_dir")
     subtools = subtool_lib.InstalledSubtools(
         config_dir, template_proto.work_root
     )
@@ -216,15 +269,21 @@ def test_clean_before_bundle(template_proto: Wrapper) -> None:
     assert not template_proto.work_root.exists()
 
 
-def test_bundle_and_export(template_proto: Wrapper) -> None:
+def test_bundle_and_export(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
     """Test that stamp files are created upon a successful end-to-end export."""
+    set_run_results(run_mock)
     template_proto.export_e2e(writes_files=True)
     assert (template_proto.work_root / "my_subtool" / ".bundled").exists()
     assert (template_proto.work_root / "my_subtool" / ".exported").exists()
 
 
-def test_clean_after_bundle_and_export(template_proto: Wrapper) -> None:
+def test_clean_after_bundle_and_export(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
     """Test that clean cleans, leaving only the root metadata dir."""
+    set_run_results(run_mock)
     subtool = template_proto.export_e2e(writes_files=True)
     subtool.clean()
     assert template_proto.work_root.exists()
@@ -457,3 +516,89 @@ def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
         "aliases.conf",
         "i386.conf",
     ]
+
+
+@mock.patch("chromite.lib.subtool_lib.Subtool.export")
+def test_export_filter(mock_export: mock.Mock, template_proto: Wrapper) -> None:
+    """Test that InstalledSubtools filters exports."""
+    for name in [f"subtool{i}" for i in range(5)]:
+        template_proto.proto.name = name
+        config_dir = template_proto.write_to_dir()
+    subtools = subtool_lib.InstalledSubtools(
+        config_dir, template_proto.work_root
+    )
+    # Export nothing.
+    subtools.export(use_production=False, export_filter=[])
+    assert mock_export.call_count == 0
+
+    # Export all.
+    mock_export.reset_mock()
+    subtools.export(use_production=False)
+    assert mock_export.call_count == 5
+
+    # Export some.
+    mock_export.reset_mock()
+    subtools.export(
+        use_production=False,
+        export_filter=["subtool1", "subtool3", "not-a-subtool"],
+    )
+    assert mock_export.call_count == 2
+
+
+def test_export_successful(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test that an export invokes cipd properly."""
+    set_run_results(run_mock)
+    subtool = template_proto.export_e2e(writes_files=True)
+    run_mock.assertCommandCalled(
+        [
+            FAKE_CIPD_PATH,
+            "create",
+            "-name",
+            "chromiumos/infra/tools/my_subtool",
+            "-in",
+            subtool.bundle_dir,
+            "-tag",
+            "builder_source:sdk_subtools",
+            "-tag",
+            "ebuild_source:some-category/some-package-0.1-r2",
+            "-ref",
+            "latest",
+            "-service-url",
+            "https://chrome-infra-packages-dev.appspot.com",
+        ],
+        capture_output=True,
+    )
+
+
+def test_export_fails_cipd(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test that a CIPD create failure propagates an exception."""
+    set_run_results(run_mock, cipd={"create": 1})
+    with pytest.raises(cros_build_lib.RunCommandError) as error_info:
+        template_proto.export_e2e(writes_files=True)
+    assert f"command: {FAKE_CIPD_PATH} create" in str(error_info.value)
+
+
+def test_export_no_ebuilds(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test when bundle contents correspond to multiple ebuilds."""
+    set_run_results(run_mock, equery={"belongs": "a/b-0.1\nc/d-0.2-r3\n"})
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        template_proto.export_e2e(writes_files=True)
+    assert "Bundle cannot be attributed" in str(error_info.value)
+    assert "Candidates: ['a/b-0.1', 'c/d-0.2-r3']" in str(error_info.value)
+
+
+def test_export_too_many_ebuilds(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test when no bundle contents can be matched to an ebuild."""
+    set_run_results(run_mock, equery={"belongs": ""})
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        template_proto.export_e2e(writes_files=True)
+    assert "Bundle cannot be attributed" in str(error_info.value)
+    assert "Candidates: []" in str(error_info.value)

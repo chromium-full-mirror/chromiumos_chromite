@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 import pprint
 import tempfile
-from typing import Union
+from typing import Dict, Iterable, Optional, Union
 import urllib.parse
 
 from chromite.third_party import httplib2
@@ -45,6 +45,9 @@ CIPD_CLIENT_SHA256 = (
 CHROME_INFRA_PACKAGES_API_BASE = (
     "https://chrome-infra-packages.appspot.com/prpc/cipd.Repository/"
 )
+
+
+STAGING_SERVICE_URL = "https://chrome-infra-packages-dev.appspot.com"
 
 
 class Error(Exception):
@@ -189,7 +192,7 @@ def InstallPackage(
     cipd_path,
     package,
     version,
-    destination: Union[os.PathLike, str] = None,
+    destination: Optional[Union[os.PathLike, str]] = None,
     service_account_json=None,
     print_cmd: bool = True,
 ):
@@ -235,7 +238,15 @@ def InstallPackage(
     return destination
 
 
-def CreatePackage(cipd_path, package, in_dir, tags, refs, cred_path=None):
+def CreatePackage(
+    cipd_path: Union[os.PathLike, str],
+    package: str,
+    in_dir: Union[os.PathLike, str],
+    tags: Dict[str, str],
+    refs: Iterable[str],
+    cred_path: Optional[Union[os.PathLike, str]] = None,
+    service_url: Optional[str] = None,
+) -> None:
     """Create (build and register) a package using cipd.
 
     Args:
@@ -245,6 +256,8 @@ def CreatePackage(cipd_path, package, in_dir, tags, refs, cred_path=None):
         tags: A mapping of tags to apply to the package.
         refs: An Iterable of refs to apply to the package.
         cred_path: The path of the service account credentials.
+        service_url: If provided, overrides the default CIPD backend URL. E.g.,
+            `STAGING_SERVICE_URL` will use staging.
     """
     args = [
         cipd_path,
@@ -260,5 +273,7 @@ def CreatePackage(cipd_path, package, in_dir, tags, refs, cred_path=None):
         args.extend(["-ref", ref])
     if cred_path:
         args.extend(["-service-account-json", cred_path])
+    if service_url:
+        args.extend(["-service-url", service_url])
 
     cros_build_lib.run(args, capture_output=True)

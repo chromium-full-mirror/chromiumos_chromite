@@ -21,12 +21,12 @@ those specific packages rather than all of virtual/target-sdk-subtools.
 """
 
 import argparse
-import logging
 import os
 from pathlib import Path
 import sys
 from typing import List, Optional, Protocol
 
+import chromite
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -37,6 +37,8 @@ from chromite.service import sdk_subtools
 
 
 assert sys.version_info >= (3, 8), "build_sdk_subtools uses Python 3.8 features"
+
+logger = chromite.ChromiteLogger.getLogger(__name__)
 
 
 # Affects where building occurs (e.g. /build/amd64-subtools-host) if not
@@ -60,9 +62,6 @@ type: EXPORT_CIPD
 max_files: 2
 paths: [{
     input: "/usr/bin/shellcheck"
-},{
-    input: "/usr/share/doc/*/LICENSE.gz"
-    ebuild_filter: "dev-util/shellcheck"
 }]
 """
 
@@ -73,9 +72,11 @@ class Options(Protocol):
     clean: bool
     setup_chroot: bool
     update_packages: bool
+    production: bool
     relaunch_for_setup: bool
     output_dir: Path
     packages: List[str]
+    export: List[str]
     jobs: int
 
     def Freeze(self) -> None:
@@ -107,11 +108,26 @@ def get_parser() -> commandline.ArgumentParser:
         "Only export packages already installed in the subtools SDK.",
     )
 
+    parser.add_bool_argument(
+        "--production",
+        False,
+        "Use production environments for subtool exports.",
+        "Use staging environments for subtool exports.",
+    )
+
     parser.add_argument(
         "--output-dir",
         type=osutils.ExpandPath,
         metavar="PATH",
         help=f"Extract SDK and build in chroot (e.g. {SUBTOOLS_OUTPUT_DIR}).",
+    )
+
+    parser.add_argument(
+        "--export",
+        nargs="+",
+        default=[],
+        metavar="BUNDLE",
+        help="Packages to export (e.g. to CIPD). May require auth.",
     )
 
     parser.add_argument(
@@ -181,7 +197,14 @@ def _run_inside_subtools_chroot(opts: Options) -> None:
         except sysroot_lib.PackageInstallError as e:
             cros_build_lib.Die(e)
 
-    sdk_subtools.bundle_and_export()
+    installed = sdk_subtools.bundle_and_export(opts.production, opts.export)
+    if not installed.subtools:
+        logger.warn("No subtools available.")
+    elif not opts.export:
+        logger.notice(
+            "Use --export to export a package. Available:%s",
+            "".join(f"\n\t{x.summary}" for x in installed.subtools),
+        )
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
@@ -219,7 +242,7 @@ def build_sdk_subtools(opts: Options, argv: List[str]) -> int:
 
     subtools_chroot = constants.DEFAULT_OUT_PATH / build_target.root.lstrip("/")
     chroot_args = ["--chroot", subtools_chroot]
-    logging.info("Initializing subtools builder in %s", subtools_chroot)
+    logger.info("Initializing subtools builder in %s", subtools_chroot)
 
     if opts.setup_chroot:
         # Get an SDK. TODO(b/277992359):

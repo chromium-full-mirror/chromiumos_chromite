@@ -11,18 +11,19 @@ https://crsrc.org/o/src/config/proto/chromiumos/build/api/subtools.proto
 from pathlib import Path
 import re
 import shutil
-from typing import Literal, Optional
+from typing import List, Literal, Optional, Set
 
 from chromite.third_party.google import protobuf
 from chromite.third_party.google.protobuf import text_format
 
-from chromite import ChromiteLogger
+import chromite
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
+from chromite.lib import cipd
 from chromite.lib import osutils
 from chromite.lib import portage_util
 
 
-logger = ChromiteLogger.getLogger(__name__)
+logger = chromite.ChromiteLogger.getLogger(__name__)
 
 
 class Error(Exception):
@@ -54,6 +55,9 @@ _DEFAULT_DEST = "bin"
 
 # Default regex to apply to input paths when bundling.
 _DEFAULT_STRIP_PREFIX_REGEX = "^.*/"
+
+# Default CIPD prefix when unspecified.
+_DEFAULT_CIPD_PREFIX = "chromiumos/infra/tools"
 
 
 def get_installed_package(
@@ -104,6 +108,12 @@ class Subtool:
         self.work_root = work_root
         self.is_valid: Optional[bool] = None
         self.parse_error: Optional[text_format.ParseError] = None
+
+        # Set of c/p-v-r strings that provided the bundle contents.
+        self._source_ebuilds: Set[str] = set()
+        # Paths bundled, but not yet attributed to a source ebuild.
+        self._unmatched_paths: List[str] = []
+
         try:
             text_format.Parse(message, self.package)
         except text_format.ParseError as e:
@@ -137,17 +147,32 @@ class Subtool:
         """Path (under metadata) holding files to form the exported bundle."""
         return self._work_dir() / "bundle"
 
+    @property
+    def cipd_package(self) -> str:
+        """Full path to the CIPD package name."""
+        prefix = (
+            self.package.cipd_prefix
+            if self.package.HasField("cipd_prefix")
+            else _DEFAULT_CIPD_PREFIX
+        )
+        return f"{prefix.rstrip('/')}/{self.package.name}"
+
+    @property
+    def summary(self) -> str:
+        """A one-line summary describing this package."""
+        return f"{self.package.name} (http://go/cipd/p/{self.cipd_package})"
+
     def stamp(self, kind: Literal["bundled", "exported"]) -> Path:
         """Returns the path to a "stamp" file that tracks export progress."""
         return self.metadata_dir / f".{kind}"
 
-    def clean(self):
+    def clean(self) -> None:
         """Resets export progress and removes the temporary bundle tree."""
         self.stamp("bundled").unlink(missing_ok=True)
         self.stamp("exported").unlink(missing_ok=True)
         osutils.RmDir(self.bundle_dir, ignore_missing=True)
 
-    def bundle(self):
+    def bundle(self) -> None:
         """Collect and bundle files described in `package` in the work dir."""
         self._validate()
         self.clean()
@@ -158,20 +183,36 @@ class Subtool:
         )
         logger.info(self)
         file_count = 0
+        self._source_ebuilds = set()
+        self._unmatched_paths = []
         for path in self.package.paths:
             file_count += self._bundle_mapping(path)
-        self.stamp("bundled").touch()
         logger.notice("%s: Copied %d files.", self.package.name, file_count)
+        # TODO(b/277992359): Lddtree, hashing, licenses.
+        self.stamp("bundled").touch()
 
-    def export(self):
+    def export(self, use_production: bool, cipd_path: str) -> None:
         """Export the bundle, e.g., to cipd."""
         self._validate()
         if not self.stamp("bundled").exists():
             raise ManifestBundlingError("Bundling incomplete.", self)
-        # TODO(b/277992359): Actually export something.
+        self._match_ebuilds()
+        tags = {
+            "builder_source": "sdk_subtools",
+            "ebuild_source": ",".join(self._source_ebuilds),
+        }
+        refs = ["latest"]
+        cipd.CreatePackage(
+            cipd_path,
+            self.cipd_package,
+            self.bundle_dir,
+            tags,
+            refs,
+            service_url=None if use_production else cipd.STAGING_SERVICE_URL,
+        )
         self.stamp("exported").touch()
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validate fields in the proto."""
         if self.is_valid:
             # Note this does not worry about validity invalidation, e.g., due to
@@ -255,10 +296,16 @@ class Subtool:
                     continue
                 file_count += self._copy_into_bundle(path, destdir, strip)
                 self._check_counts(file_count)
+            if file_count:
+                self._source_ebuilds.add(package.package_info.cpvr)
         else:
             for path in Path("/").glob(glob):
-                file_count += self._copy_into_bundle(path, destdir, strip)
+                added_files = self._copy_into_bundle(path, destdir, strip)
+                if not added_files:
+                    continue
+                file_count += added_files
                 self._check_counts(file_count)
+                self._unmatched_paths.append(str(path))
 
         if file_count == 0:
             raise ManifestBundlingError(
@@ -266,6 +313,26 @@ class Subtool:
             )
         logger.info("Glob '%s' matched %d files.", mapping.input, file_count)
         return file_count
+
+    def _match_ebuilds(self) -> None:
+        """Match up unmatched paths to the package names that provided them."""
+        if self._unmatched_paths:
+            ebuilds = portage_util.FindPackageNamesForFiles(
+                *self._unmatched_paths
+            )
+            # Assume all files were matched, and that it is not an error for any
+            # file to not be matched to a package.
+            self._unmatched_paths = []
+            self._source_ebuilds.update(e.cpvr for e in ebuilds)
+        if len(self._source_ebuilds) != 1:
+            # TODO(b/277992359): Support this with an extra proto field.
+            candidates = sorted(self._source_ebuilds)
+            raise ManifestBundlingError(
+                "Bundle cannot be attributed to exactly one package."
+                f" Candidates: {candidates}",
+                self,
+            )
+        logger.notice("Contents provided by %s", self._source_ebuilds)
 
 
 class InstalledSubtools:
@@ -299,7 +366,16 @@ class InstalledSubtools:
         for subtool in self.subtools:
             subtool.bundle()
 
-    def export_all(self) -> None:
-        """Read .textprotos and export valid bundles in `work_root`."""
+    def export(
+        self, use_production: bool, export_filter: Optional[List[str]] = None
+    ) -> None:
+        """Read .textprotos and export valid bundles in `work_root`.
+
+        Args:
+            use_production: Whether to export to production environments.
+            export_filter: If provided, only export subtools with these names.
+        """
+        cipd_path = cipd.GetCIPDFromCache()
         for subtool in self.subtools:
-            subtool.export()
+            if export_filter is None or subtool.package.name in export_filter:
+                subtool.export(use_production, cipd_path)

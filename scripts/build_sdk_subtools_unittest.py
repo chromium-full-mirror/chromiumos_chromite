@@ -188,10 +188,28 @@ def test_skip_package_update(mock_emerge) -> None:
 
 
 def test_invokes_exporter(mock_emerge, mock_exporter) -> None:
-    """Tests that the exporter is invoked."""
+    """The exporter is invoked to bundle, but to export [] by default."""
     assert build_sdk_subtools.main([]) == 0
     assert mock_emerge.call_count == 1
     assert mock_exporter.called
     installed_subtools = mock_exporter.return_value
     assert installed_subtools.bundle_all.called
-    assert installed_subtools.export_all.called
+    installed_subtools.export.assert_called_once_with(False, [])
+
+
+def test_export_option(mock_emerge, mock_exporter) -> None:
+    """Tests that the exporter is invoked with provided exports."""
+    cmdline = ["--export", "subtool1", "subtool2", "--", "dev-some/package"]
+    assert build_sdk_subtools.main(cmdline) == 0
+    assert mock_emerge.call_args.args[0][-1] == "dev-some/package"
+    installed_subtools = mock_exporter.return_value
+    installed_subtools.export.assert_called_once_with(
+        False, ["subtool1", "subtool2"]
+    )
+
+
+def test_production_option(mock_emerge, mock_exporter) -> None:
+    """Tests that --production is passed to the exporter."""
+    assert build_sdk_subtools.main(["--production"]) == 0
+    assert mock_emerge.call_count == 1
+    mock_exporter.return_value.export.assert_called_once_with(True, [])

@@ -2147,6 +2147,28 @@ class FindEbuildTest(cros_test_lib.RunCommandTestCase):
         )
 
 
+class FindPackageNamesForFilesTest(cros_test_lib.RunCommandTestCase):
+    """Tests for FindPackageNamesForFiles."""
+
+    belongs_cmd = ["equery", "--no-color", "--no-pipe", "--quiet", "belongs"]
+
+    def testFindPackageNamesForFilesSimple(self):
+        self.rc.AddCmdResult(
+            self.belongs_cmd + ["/some/file"],
+            stdout="some-category/some-package-0.2-r2\n",
+        )
+        packages = portage_util.FindPackageNamesForFiles("/some/file")
+        expected = package_info.PackageInfo(
+            "some-category", "some-package", "0.2", 2
+        )
+        self.assertEqual(packages, [expected])
+
+    def testFindPackageNamesForFilesNoResults(self):
+        self.rc.AddCmdResult(self.belongs_cmd + ["/some/file"], stdout="")
+        packages = portage_util.FindPackageNamesForFiles("/some/file")
+        self.assertEqual(packages, [])
+
+
 _EQUERY_OUTPUT_CORPUS = """
 
 virtual/editor-0:

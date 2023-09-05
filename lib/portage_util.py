@@ -2219,6 +2219,16 @@ def FindPackageNameMatches(
     return matches
 
 
+def FindPackageNamesForFiles(*args: str) -> List[package_info.PackageInfo]:
+    """Finds the list of packages that own the files in |args|.
+
+    Returns:
+        An iterable of matched PackageInfo objects.
+    """
+    result = _Equery("belongs", quiet=True, check=False, *args)
+    return [package_info.parse(x) for x in result.stdout.strip().splitlines()]
+
+
 def FindEbuildForBoardPackage(
     pkg_str: str, board: str, buildroot: str = constants.SOURCE_ROOT
 ):
