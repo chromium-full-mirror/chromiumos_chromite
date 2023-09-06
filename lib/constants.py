@@ -226,28 +226,9 @@ INTERNAL_GERRIT_HOST = GOB_HOST % INTERNAL_GERRIT_INSTANCE
 INTERNAL_GOB_URL = "https://%s" % INTERNAL_GOB_HOST
 INTERNAL_GERRIT_URL = "https://%s" % INTERNAL_GERRIT_HOST
 
-# List of supported Android branches.
-# TODO(b/187795616): Maybe move this to service/android.py and ask release TPgM
-# to update that file on release branches.
-ANDROID_PI_BUILD_BRANCH = "git_pi-arc"
-ANDROID_RVC_BUILD_BRANCH = "git_rvc-arc"
-ANDROID_VMRVC_BUILD_BRANCH = "git_rvc-arc"
-ANDROID_VMSC_BUILD_BRANCH = "git_sc-arc-dev"
-ANDROID_VMTM_BUILD_BRANCH = "git_tm-arc"
-ANDROID_VMUDC_BUILD_BRANCH = "git_master-arc-dev"
-
-# The bucket where we save Android artifacts indefinitely, to ensure any old
-# Android versions in the commit history can be built.
-# TODO(b/187795616): Move somewhere else once the following is gone.
-ARC_BUCKET_URL = "gs://chromeos-arc-images/builds"
-
-# URL template to Android symbols, used by release builders.
+# No longer relevant; just here to make cbuildbot unittests happy.
 # TODO(b/230013833): Remove once cbuildbot is gone.
-ANDROID_SYMBOLS_URL_TEMPLATE = (
-    ARC_BUCKET_URL
-    + "/%(branch)s-linux-%(target)s_%(arch)s-%(variant)s/%(version)s"
-    "/%(target)s_%(arch)s-symbols-%(version)s.zip"
-)
+ANDROID_SYMBOLS_URL_TEMPLATE = ""
 ANDROID_SYMBOLS_FILE = "android-symbols.zip"
 
 GOB_COOKIE_PATH = os.path.expanduser("~/.git-credential-cache/cookie")

@@ -226,12 +226,12 @@ def GetAndroidBranchForPackage(android_package: str) -> str:
         The corresponding Android branch e.g. 'git_rvc-arc'
     """
     mapping = {
-        ANDROID_PI_PACKAGE: constants.ANDROID_PI_BUILD_BRANCH,
-        ANDROID_RVC_PACKAGE: constants.ANDROID_RVC_BUILD_BRANCH,
-        ANDROID_VMRVC_PACKAGE: constants.ANDROID_VMRVC_BUILD_BRANCH,
-        ANDROID_VMSC_PACKAGE: constants.ANDROID_VMSC_BUILD_BRANCH,
-        ANDROID_VMTM_PACKAGE: constants.ANDROID_VMTM_BUILD_BRANCH,
-        ANDROID_VMUDC_PACKAGE: constants.ANDROID_VMUDC_BUILD_BRANCH,
+        ANDROID_PI_PACKAGE: "git_pi-arc",
+        ANDROID_RVC_PACKAGE: "git_rvc-arc",
+        ANDROID_VMRVC_PACKAGE: "git_rvc-arc",
+        ANDROID_VMSC_PACKAGE: "git_sc-arc-dev",
+        ANDROID_VMTM_PACKAGE: "git_tm-arc",
+        ANDROID_VMUDC_PACKAGE: "git_master-arc-dev",
     }
     try:
         return mapping[android_package]
