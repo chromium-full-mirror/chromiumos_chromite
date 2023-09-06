@@ -48,11 +48,9 @@ export class OwnedDeviceRepository implements vscode.Disposable {
 
   constructor() {
     this.subscriptions.push(
-      // TODO: fire the event only when relevant configs are changed.
-      // eslint-disable-next-line no-restricted-syntax
-      vscode.workspace.onDidChangeConfiguration(() => {
-        this.onDidChangeEmitter.fire();
-      })
+      config.deviceManagement.devices.onDidChange(() =>
+        this.onDidChangeEmitter.fire()
+      )
     );
   }
 
