@@ -868,7 +868,10 @@ class ChrootCreator:
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
         home_path = Path(self.chroot.full_path(home))
-        self.init_user_home(home_path, uid, gid)
+        # If |home_path| exists, a chroot has already been established for this
+        # tree. Skip reestablishing.
+        if not home_path.exists():
+            self.init_user_home(home_path, uid, gid)
 
     def init_group(
         self,
