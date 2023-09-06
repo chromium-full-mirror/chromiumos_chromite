@@ -266,11 +266,11 @@ class CopybotDownstream:
 
         Returns:
             A list of Gerrit CL dicts to downstream, including those which
-            have the {project}-downstream topic and the CLs to which they
+            have the {project}-downstream hashtag and the CLs to which they
             are related.
         """
         copybot_downstream_cls = self.gerrit_helper.Query(
-            topic=f"{self.project}-downstream",
+            hashtag=f"{self.project}-downstream",
             status="open",
             raw=True,
             verbose=True,
@@ -469,7 +469,7 @@ class CopybotDownstream:
         """Remove user from attention set on merged CLs."""
 
         cls_to_modify = self.gerrit_helper.Query(
-            topic=f"{self.project}-downstream",
+            hashtag=f"{self.project}-downstream",
             status="merged",
             attention="me",
             raw=True,
