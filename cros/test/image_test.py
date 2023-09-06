@@ -98,6 +98,7 @@ class BlockedTest(image_test_lib.ImageTestCase):
         "/usr/bin/perl",
         "/usr/bin/python",
         "/usr/bin/tclsh",
+        "/usr/share/kdump/boot/kdump-image",
     )
 
     BLOCKED_DIRS = ("/usr/share/locale",)
