@@ -245,11 +245,11 @@ class DeployChrome:
 
         self.device.Reboot()
 
-        # Now that the machine has been rebooted, we need to kill Chrome again.
-        self._KillAshChromeIfNeeded()
-
         # Make sure the rootfs is writable now.
         self._MountRootfsAsWritable(check=True)
+
+        # Now that the machine has been rebooted, we need to kill Chrome again.
+        self._KillAshChromeIfNeeded()
 
         return True
 
