@@ -7,12 +7,26 @@
 This script is meant to be used in generated wrapper scripts, not used directly.
 """
 
+import logging
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
+from chromite.third_party.opentelemetry import trace
+
+from chromite.lib import build_query
+from chromite.lib import chromite_config
 from chromite.lib import commandline
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import osutils
+from chromite.lib import portage_util
+from chromite.lib import sysroot_lib
+from chromite.lib.parser import package_info
+from chromite.utils import telemetry
+
+
+tracer = trace.get_tracer(__name__)
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -53,12 +67,65 @@ def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
     return opts
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
-    """Main."""
-    commandline.RunInsideChroot()
+@tracer.start_as_current_span("portage_cmd_wrapper.parse_pkgs")
+def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
+    """Parse packages from a command."""
+    span = trace.get_current_span()
+    span.update_name(f"portage_cmd_wrapper.{command[0]}.parse_pkgs")
 
-    opts = parse_arguments(argv)
+    pkg_fragments = set()
+    for arg in command[1:]:
+        if arg.startswith("-"):
+            # Skip --arguments.
+            continue
 
+        try:
+            pkg = package_info.parse(arg)
+        except ValueError:
+            # e.g. /some/path.
+            continue
+
+        if pkg.cpvr or pkg.atom:
+            # We have at least an atom, that's good enough.
+            yield pkg.cpvr or pkg.atom
+        else:
+            # The fragment gets parsed as the package name.
+            pkg_fragments.add(pkg.package)
+
+    if pkg_fragments:
+        ebuilds = build_query.Query(build_query.Ebuild, board=build_target_name)
+        for ebuild in ebuilds:
+            if ebuild.package_info.package in pkg_fragments:
+                yield ebuild.package_info.cpvr
+
+
+# TODO: Find a better name and a reusable location for this.
+@tracer.start_as_current_span("portage_cmd_wrapper.sudo_run_cmd")
+def sudo_run_cmd_with_failed_pkg_parsing(command, extra_env):
+    """Wrapper for sudo_run that adds CROS_METRICS_DIR usage."""
+    span = trace.get_current_span()
+    span.update_name(f"portage_cmd_wrapper.{command[0]}.sudo_run_cmd")
+
+    extra_env = extra_env.copy()
+    with osutils.TempDir() as tempdir:
+        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
+        try:
+            return cros_build_lib.sudo_run(
+                command,
+                preserve_env=True,
+                extra_env=extra_env,
+            )
+        except cros_build_lib.RunCommandError as e:
+            raise sysroot_lib.PackageInstallError(
+                "Merging board packages failed",
+                e.result,
+                exception=e,
+                packages=portage_util.ParseDieHookStatusFile(tempdir),
+            )
+
+
+@tracer.start_as_current_span("portage_cmd_wrapper.execute_cmd")
+def execute_cmd(opts: commandline.ArgumentNamespace) -> int:
     extra_env = {
         "CHOST": opts.chost,
         "PORTAGE_CONFIGROOT": opts.sysroot,
@@ -75,11 +142,48 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
         os.environ["SANDBOX_ON"] = "0"
     os.environ.pop("LD_PRELOAD", None)
 
-    result = cros_build_lib.sudo_run(
-        opts.command,
-        preserve_env=True,
-        extra_env=extra_env,
-        check=False,
+    pkgs = []
+    if opts.command[0] == "emerge":
+        pkgs = list(parse_pkgs(opts.command, opts.build_target))
+
+    span = trace.get_current_span()
+    span.update_name(f"portage_cmd_wrapper.{opts.command[0]}.execute_cmd")
+    span.set_attributes(
+        {
+            "executable": opts.command[0],
+            "command": opts.command,
+            "build_target": opts.build_target,
+            "extra_env": [f"{k}={v}" for k, v in extra_env.items()],
+            "packages": pkgs,
+        }
     )
 
-    return result.returncode
+    return sudo_run_cmd_with_failed_pkg_parsing(
+        opts.command, extra_env
+    ).returncode
+
+
+@tracer.start_as_current_span("portage_cmd_wrapper.main")
+def main(argv: Optional[List[str]]) -> Optional[int]:
+    """Main."""
+    commandline.RunInsideChroot()
+
+    opts = parse_arguments(argv)
+
+    span = trace.get_current_span()
+    span.update_name(f"portage_cmd_wrapper.{opts.command[0]}.main")
+
+    telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
+
+    try:
+        return execute_cmd(opts)
+    except cros_build_lib.RunCommandError as e:
+        logging.error(e)
+        logging.error("Error running %s.", opts.command[0])
+        logging.error(
+            "Full command: %s", cros_build_lib.CmdToStr(e.result.args)
+        )
+        # sysroot_lib.PackageInstallError is a subclass of RunCommandError.
+        if hasattr(e, "failed_packages"):
+            logging.error("Failed Packages: %s", " ".join(e.failed_packages))
+        return e.result.returncode
