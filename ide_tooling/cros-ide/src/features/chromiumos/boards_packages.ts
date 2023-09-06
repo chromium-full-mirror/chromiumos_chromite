@@ -54,13 +54,9 @@ export async function activate(
   );
 
   subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration(
-      (e: vscode.ConfigurationChangeEvent) => {
-        if (e.affectsConfiguration('chromiumide.board')) {
-          boardPackageProvider.refresh();
-        }
-      }
-    )
+    config.board.onDidChange(() => {
+      boardPackageProvider.refresh();
+    })
   );
 
   await boardsPackages.createPackageWatches();

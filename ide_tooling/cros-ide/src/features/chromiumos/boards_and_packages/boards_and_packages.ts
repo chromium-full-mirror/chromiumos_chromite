@@ -4,6 +4,7 @@
 
 import * as vscode from 'vscode';
 import {ChrootService} from '../../../services/chromiumos';
+import * as config from '../../../services/config';
 import {StatusManager, TaskStatus} from '../../../ui/bg_task_status';
 import {ActivePackageRevealer} from './active_package_revealer';
 import {BoardsAndPackagesCommands, CommandName} from './command';
@@ -56,11 +57,7 @@ export class BoardsAndPackages implements vscode.Disposable {
 
     // Register handlers to refresh the view.
     this.subscriptions.push(
-      vscode.workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration('chromiumide.board')) {
-          this.treeDataProvider.refresh();
-        }
-      }),
+      config.board.onDidChange(() => this.treeDataProvider.refresh()),
       commands.onDidExecuteCommand(command => {
         switch (command) {
           // Do nothing if the command wouldn't affect the boards and packages view, or the event

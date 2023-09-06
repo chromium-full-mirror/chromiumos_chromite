@@ -84,6 +84,26 @@ class ConfigValue<T> {
       .getConfiguration(prefix)
       .update(this.section, value, target);
   }
+
+  /**
+   * Registers a listener that is called whenever the config was affected and may have been changed.
+   */
+  readonly onDidChange: vscode.Event<T> = (
+    listener,
+    thisArgs?,
+    disposables?
+  ) => {
+    if (thisArgs) {
+      listener = listener.bind(thisArgs);
+    }
+    const disposable = vscode.workspace.onDidChangeConfiguration(e => {
+      const section = this.prefix + '.' + this.section;
+      if (!e.affectsConfiguration(section)) return;
+      listener(this.get());
+    });
+    if (disposables) disposables.push(disposable);
+    return disposable;
+  };
 }
 
 export type {ConfigValue};

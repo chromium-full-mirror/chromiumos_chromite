@@ -14,8 +14,6 @@ import * as services from '../../services';
 import * as config from '../../services/config';
 import * as metrics from '../metrics/metrics';
 
-const BOARD_CONFIG = 'chromiumide.board';
-
 export function activate(
   context: vscode.ExtensionContext,
   chrootService: services.chromiumos.ChrootService
@@ -26,13 +24,9 @@ export function activate(
   boardStatusBarItem.command = 'chromiumide.selectBoard';
 
   context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration(
-      (e: vscode.ConfigurationChangeEvent) => {
-        if (e.affectsConfiguration(BOARD_CONFIG)) {
-          updateBoardStatus(boardStatusBarItem);
-        }
-      }
-    )
+    config.board.onDidChange(() => {
+      updateBoardStatus(boardStatusBarItem);
+    })
   );
   updateBoardStatus(boardStatusBarItem);
 
