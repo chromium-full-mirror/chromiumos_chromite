@@ -63,15 +63,15 @@ def get_parser() -> commandline.ArgumentParser:
     group.add_argument(
         "--skip-toolchain-update",
         dest="update_toolchain",
-        action="store_true",
-        default=False,
+        action="store_false",
+        default=True,
         help="Don't update toolchain automatically.",
     )
     group.add_argument(
         "--skip_toolchain_update",
         dest="update_toolchain",
-        action="store_true",
-        default=False,
+        action="store_false",
+        default=True,
         deprecated=deprecated % "--skip-toolchain-update",
         help=argparse.SUPPRESS,
     )
