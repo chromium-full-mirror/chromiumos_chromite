@@ -146,13 +146,15 @@ async function debugSelectedTests(
 ): Promise<void> {
   const dlvPort = 2345;
   const taskType = 'shell';
+  const taskName = 'prep debugger';
+  const taskSource = 'tast';
   const prepDebuggerTaskProvider = vscode.tasks.registerTaskProvider(taskType, {
     provideTasks(): vscode.Task[] {
       const task = new vscode.Task(
         {type: taskType},
         vscode.TaskScope.Workspace,
-        'prep debugger',
-        'tast',
+        taskName,
+        taskSource,
         new vscode.ShellExecution(
           `cros_sdk tast run -attachdebugger=local:${dlvPort} ${hostname} ${testNames.join(
             ' '
@@ -169,7 +171,16 @@ async function debugSelectedTests(
     },
   });
 
-  // TODO: Extract this part as a function, so that it's easy to understand the construct of creating a provider and then immediately disposing it after its use.
+  await startDebugging(context, dlvPort, taskName, taskSource);
+  prepDebuggerTaskProvider.dispose();
+}
+
+async function startDebugging(
+  context: CommandContext,
+  dlvPort: number,
+  taskName: string,
+  taskSource: string
+): Promise<void> {
   // See https://github.com/golang/vscode-go/wiki/debugging#launchjson-attributes
   // for the meaning of the fields.
   const debugConfiguration: vscode.DebugConfiguration = {
@@ -180,7 +191,7 @@ async function debugSelectedTests(
     port: dlvPort,
     host: '127.0.0.1',
     appVersion: 2,
-    preLaunchTask: 'tast: prep debugger',
+    preLaunchTask: `${taskSource}: ${taskName}`,
   };
 
   context.output.appendLine(
@@ -189,15 +200,11 @@ async function debugSelectedTests(
     )}`
   );
 
-  const folder =
-    vscode.workspace.workspaceFolders === undefined
-      ? undefined
-      : vscode.workspace.workspaceFolders[0];
+  const folder = vscode.workspace.workspaceFolders?.[0];
 
   // TODO(b:298299866): The bug that the debug fails if the user changes the focus after starting debug tests.
   // It doesn't work if the folder is specified to undefined.
   await vscode.debug.startDebugging(folder, debugConfiguration);
-  prepDebuggerTaskProvider.dispose();
 }
 
 function getDlvEbuildVersion(
