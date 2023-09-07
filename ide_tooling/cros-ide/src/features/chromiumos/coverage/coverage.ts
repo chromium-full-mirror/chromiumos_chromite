@@ -11,9 +11,8 @@ import {vscodeRegisterCommand} from '../../../common/vscode/commands';
 import * as services from '../../../services';
 import * as config from '../../../services/config';
 import {StatusManager, TaskStatus} from '../../../ui/bg_task_status';
-import * as metrics from '../../metrics/metrics';
+import {Metrics} from '../../metrics/metrics';
 import {Breadcrumbs} from '../boards_and_packages/item';
-import {Package} from './../boards_packages';
 import {llvmToLineFormat} from './llvm_json_parser';
 import {CoverageJson, LlvmFileCoverage} from './types';
 
@@ -47,28 +46,21 @@ export class Coverage {
     context.subscriptions.push(
       vscodeRegisterCommand(
         'chromiumide.coverage.generate',
-        async (element: Package | Breadcrumbs) => {
-          let pkg: Package;
-          if (element instanceof Breadcrumbs) {
-            const [board, category, name] = element.breadcrumbs;
-            pkg = {
-              board: {name: board},
-              name: getQualifiedPackageName({category, name}),
-            };
-          } else {
-            pkg = element;
-          }
+        async (element: Breadcrumbs) => {
+          const [board, category, name] = element.breadcrumbs;
 
-          metrics.send({
+          const qpn = getQualifiedPackageName({category, name});
+
+          Metrics.send({
             category: 'interactive',
             group: 'coverage',
             name: 'coverage_generate',
             description: 'generate coverage',
-            board: pkg.board.name,
-            package: pkg.name,
+            board,
+            package: qpn,
           });
 
-          await this.generateCoverage(pkg);
+          await this.generateCoverage(board, qpn);
         }
       )
     );
@@ -87,15 +79,15 @@ export class Coverage {
     );
   }
 
-  private async generateCoverage(pkg: Package) {
+  private async generateCoverage(board: string, qualifiedPackageName: string) {
     this.statusManager.setStatus(COVERAGE_TASK_ID, TaskStatus.RUNNING);
     const res = await this.chrootService.exec(
       'env',
       [
         'USE=coverage',
         'cros_run_unit_tests',
-        `--board=${pkg.board.name}`,
-        `--packages=${pkg.name}`,
+        `--board=${board}`,
+        `--packages=${qualifiedPackageName}`,
       ],
       {
         logger: this.output,
@@ -133,7 +125,7 @@ export class Coverage {
     }
 
     if (sendMetrics) {
-      metrics.send({
+      Metrics.send({
         category: 'background',
         group: 'coverage',
         name: 'coverage_show_background',
@@ -179,11 +171,11 @@ export class Coverage {
   }
 
   private async findCoverageFile(
-    pkg: Package,
+    pkgName: string,
     fileName: string
   ): Promise<string | undefined> {
     // TODO(ttylenda): find a cleaner way of normalizing the package name.
-    const pkgPart = pkg.name.indexOf('/') === -1 ? `*/${pkg.name}` : pkg.name;
+    const pkgPart = pkgName.indexOf('/') === -1 ? `*/${pkgName}` : pkgName;
 
     const globPattern = this.chrootService.source.realpath(
       `{chroot,out}/build/${this.getBoard()}/build/coverage_data/${pkgPart}*/*/${fileName}`
@@ -204,8 +196,7 @@ export class Coverage {
   private async readPkgCoverage(
     pkgName: string
   ): Promise<CoverageJson | undefined> {
-    const pkg = {name: pkgName, board: {name: this.getBoard()}};
-    const coverageJson = await this.findCoverageFile(pkg, 'coverage.json');
+    const coverageJson = await this.findCoverageFile(pkgName, 'coverage.json');
     this.output.appendLine('Reading coverage from: ' + coverageJson);
     if (!coverageJson) {
       return undefined;

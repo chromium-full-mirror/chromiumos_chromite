@@ -10,7 +10,6 @@ import * as bgTaskStatus from '../../ui/bg_task_status';
 import * as boilerplate from '../boilerplate';
 import * as metrics from '../metrics/metrics';
 import {BoardsAndPackages} from './boards_and_packages';
-import * as boardsPackages from './boards_packages';
 import {Coverage} from './coverage';
 import * as cppCodeCompletion from './cpp_code_completion';
 import * as crosFormat from './cros_format';
@@ -106,15 +105,10 @@ export class Chromiumos implements vscode.Disposable {
         chrootService
       );
 
-      if (!config.underDevelopment.boardsAndPackagesV2.get()) {
-        this.featureName = 'boardsPackages';
-        await boardsPackages.activate(this.subscriptions, chrootService);
-      } else {
-        this.featureName = 'boardsAndPackagesV2';
-        ephemeralContext.subscriptions.push(
-          new BoardsAndPackages(chrootService, this.statusManager)
-        );
-      }
+      this.featureName = 'boardsAndPackages';
+      ephemeralContext.subscriptions.push(
+        new BoardsAndPackages(chrootService, this.statusManager)
+      );
 
       if (config.crosFormat.enabled.get()) {
         crosFormat.activate(ephemeralContext, this.root, this.statusManager);

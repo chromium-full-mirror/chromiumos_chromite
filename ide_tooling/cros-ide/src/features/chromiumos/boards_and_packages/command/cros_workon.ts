@@ -8,7 +8,6 @@ import {
   ParsedPackageName,
   getQualifiedPackageName,
 } from '../../../../common/chromiumos/portage/ebuild';
-import {underDevelopment} from '../../../../services/config';
 import {Metrics} from '../../../metrics/metrics';
 import {Context} from '../context';
 
@@ -21,46 +20,24 @@ export async function crosWorkon(
   const targetName =
     typeof pkg === 'string' ? pkg : getQualifiedPackageName(pkg);
 
-  if (underDevelopment.boardsAndPackagesV2.get()) {
-    if (action === 'start') {
-      Metrics.send({
-        category: 'interactive',
-        group: 'boards_and_packages',
-        description: 'cros_workon start',
-        name: 'boards_and_packages_cros_workon_start',
-        package: targetName,
-        board: board.toString(),
-      });
-    } else {
-      Metrics.send({
-        category: 'interactive',
-        group: 'boards_and_packages',
-        description: 'cros_workon stop',
-        name: 'boards_and_packages_cros_workon_stop',
-        package: targetName,
-        board: board.toString(),
-      });
-    }
+  if (action === 'start') {
+    Metrics.send({
+      category: 'interactive',
+      group: 'boards_and_packages',
+      description: 'cros_workon start',
+      name: 'boards_and_packages_cros_workon_start',
+      package: targetName,
+      board: board.toString(),
+    });
   } else {
-    if (action === 'start') {
-      Metrics.send({
-        category: 'interactive',
-        group: 'package',
-        description: 'cros_workon start',
-        name: 'package_cros_workon_start',
-        package: targetName,
-        board: board.toString(),
-      });
-    } else {
-      Metrics.send({
-        category: 'interactive',
-        group: 'package',
-        description: 'cros_workon stop',
-        name: 'package_cros_workon_stop',
-        package: targetName,
-        board: board.toString(),
-      });
-    }
+    Metrics.send({
+      category: 'interactive',
+      group: 'boards_and_packages',
+      description: 'cros_workon stop',
+      name: 'boards_and_packages_cros_workon_stop',
+      package: targetName,
+      board: board.toString(),
+    });
   }
 
   const res = await ctx.chrootService.exec(

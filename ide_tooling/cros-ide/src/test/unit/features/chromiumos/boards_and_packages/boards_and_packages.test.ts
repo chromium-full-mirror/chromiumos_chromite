@@ -31,8 +31,6 @@ describe('Boards and packages', () => {
   });
 
   const state = testing.cleanState(async () => {
-    await config.underDevelopment.boardsAndPackagesV2.update(true);
-
     vscodeSpy.window.createOutputChannel.and.returnValue(
       new VoidOutputChannel()
     );

@@ -29,7 +29,6 @@ type FeatureGroup =
   | 'lint'
   | 'misc'
   | 'owners'
-  | 'package'
   | 'spellchecker'
   | 'tast'
   // 'virtualdocument' should be used in features that rely on virtual documents,
@@ -342,20 +341,6 @@ interface OwnersEvent extends EventBase {
   name: 'owners_clicked_file_or_link';
 }
 
-interface PackageCrosWorkonEvent extends EventBase {
-  category: 'interactive';
-  group: 'package';
-  name: 'package_cros_workon_start' | 'package_cros_workon_stop';
-  package: string;
-  board: string;
-}
-
-interface PackageOpenEbuildEvent extends EventBase {
-  category: 'interactive';
-  group: 'package';
-  name: 'package_open_ebuild';
-}
-
 type BoardsAndPackagesOpenEbuildEvent = EventBase & {
   group: 'boards_and_packages';
 } & (
@@ -436,8 +421,6 @@ export type Event =
   | LintEvent
   | MiscEvent
   | OwnersEvent
-  | PackageCrosWorkonEvent
-  | PackageOpenEbuildEvent
   | SpellcheckerEvent
   | TargetBoardEvent
   | TastEvent

@@ -8,7 +8,6 @@ import {
   ParsedPackageName,
   getQualifiedPackageName,
 } from '../../../../common/chromiumos/portage/ebuild';
-import {underDevelopment} from '../../../../services/config';
 import {Metrics} from '../../../metrics/metrics';
 import {Context} from '../context';
 
@@ -39,19 +38,10 @@ export async function openEbuild(
   const document = await vscode.workspace.openTextDocument(fileName);
   await vscode.window.showTextDocument(document);
 
-  if (underDevelopment.boardsAndPackagesV2.get()) {
-    Metrics.send({
-      category: 'interactive',
-      group: 'boards_and_packages',
-      name: 'boards_and_packages_open_ebuild',
-      description: 'open ebuild',
-    });
-  } else {
-    Metrics.send({
-      category: 'interactive',
-      group: 'package',
-      name: 'package_open_ebuild',
-      description: 'open ebuild',
-    });
-  }
+  Metrics.send({
+    category: 'interactive',
+    group: 'boards_and_packages',
+    name: 'boards_and_packages_open_ebuild',
+    description: 'open ebuild',
+  });
 }

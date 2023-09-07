@@ -5,7 +5,6 @@
 import * as vscode from 'vscode';
 import * as commonUtil from '../../../../../common/common_util';
 import {Breadcrumbs} from '../../../../../features/chromiumos/boards_and_packages/item';
-import {Package} from '../../../../../features/chromiumos/boards_packages';
 import {Coverage} from '../../../../../features/chromiumos/coverage';
 import * as services from '../../../../../services';
 import * as config from '../../../../../services/config';
@@ -109,11 +108,10 @@ describe('Test coverage', () => {
       }
     );
 
-    const pkg: Package = {
-      board: {name: 'betty'},
-      name: 'chromeos-base/codelab',
-    };
-    await vscode.commands.executeCommand('chromiumide.coverage.generate', pkg);
+    await vscode.commands.executeCommand(
+      'chromiumide.coverage.generate',
+      Breadcrumbs.from('betty', 'chromeos-base', 'codelab')
+    );
     expect(coverageGenerated).toBeTrue();
     expect(statusManager.getStatus('Code Coverage')).toEqual(TaskStatus.OK);
 
