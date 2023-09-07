@@ -938,7 +938,6 @@ class ChrootCreator:
         shutil.copytree(Path(self.chroot.full_path("/etc/skel")), home)
 
         (home / "chromiumos").symlink_to(constants.CHROOT_SOURCE_ROOT)
-        (home / "depot_tools").symlink_to("/mnt/host/depot_tools")
 
         bash_profile = home / ".bash_profile"
         osutils.Touch(bash_profile)
