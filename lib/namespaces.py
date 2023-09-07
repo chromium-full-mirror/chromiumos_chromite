@@ -411,8 +411,11 @@ def SimpleUnshare(
 
 
 def ReExecuteWithNamespace(
-    argv: List[str], preserve_env: bool = False, network: bool = False
-):
+    argv: List[str],
+    preserve_env: bool = False,
+    network: bool = False,
+    clear_saved_id: bool = False,
+) -> None:
     """Re-execute as root so we can unshare resources.
 
     Args:
@@ -420,6 +423,8 @@ def ReExecuteWithNamespace(
         preserve_env: If True, preserve existing environment variables when
             running as root user.
         network: If False, disable access to the network.
+        clear_saved_id: Whether to clear the saved-uid & saved-gid.  Retaining
+            will allow code to switch back to root via e.g. os.setuid() calls.
     """
     # Re-run the command as a root user in order to create the namespaces.
     # Ideally, we can rework this logic to swap to the root user in a way that
@@ -432,6 +437,6 @@ def ReExecuteWithNamespace(
     uid = int(os.environ.pop("SUDO_UID"))
     user = os.environ.pop("SUDO_USER")
     os.initgroups(user, gid)
-    os.setresgid(gid, gid, gid)
-    os.setresuid(uid, uid, uid)
+    os.setresgid(gid, gid, gid if clear_saved_id else -1)
+    os.setresuid(uid, uid, uid if clear_saved_id else -1)
     os.environ["USER"] = user

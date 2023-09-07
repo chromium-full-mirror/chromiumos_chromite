@@ -116,8 +116,7 @@ class CreateUserNsTests(cros_test_lib.TestCase):
 class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):
     """Tests for ReExecuteWithNamespace()."""
 
-    def testReExecuteWithNamespace(self):
-        """Verify SimpleUnshare is called and the non-root user is restored."""
+    def setUp(self):
         self.PatchDict(
             os.environ,
             {
@@ -126,6 +125,9 @@ class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):
                 "SUDO_USER": "testuser",
             },
         )
+
+    def testReExecuteWithNamespace(self):
+        """Verify SimpleUnshare is called and the non-root user is restored."""
         run_as_root_user_mock = self.PatchObject(commandline, "RunAsRootUser")
         simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
         os_initgroups_mock = self.PatchObject(os, "initgroups")
@@ -133,6 +135,25 @@ class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):
         os_setresuid_mock = self.PatchObject(os, "setresuid")
 
         namespaces.ReExecuteWithNamespace([], preserve_env=True)
+
+        run_as_root_user_mock.assert_called_once_with([], preserve_env=True)
+        simple_unshare_mock.assert_called_once_with(net=True, pid=True)
+        os_initgroups_mock.assert_called_once_with("testuser", 123)
+        os_setresgid_mock.assert_called_once_with(123, 123, -1)
+        os_setresuid_mock.assert_called_once_with(456, 456, -1)
+        self.assertEqual("testuser", os.environ["USER"])
+
+    def testClearSavedId(self):
+        """Verify clear_saved_id works."""
+        run_as_root_user_mock = self.PatchObject(commandline, "RunAsRootUser")
+        simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
+        os_initgroups_mock = self.PatchObject(os, "initgroups")
+        os_setresgid_mock = self.PatchObject(os, "setresgid")
+        os_setresuid_mock = self.PatchObject(os, "setresuid")
+
+        namespaces.ReExecuteWithNamespace(
+            [], preserve_env=True, clear_saved_id=True
+        )
 
         run_as_root_user_mock.assert_called_once_with([], preserve_env=True)
         simple_unshare_mock.assert_called_once_with(net=True, pid=True)
