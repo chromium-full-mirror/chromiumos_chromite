@@ -5,7 +5,6 @@
 """Hostname utilities."""
 
 import logging
-import platform
 import socket
 
 
@@ -75,5 +74,5 @@ def host_is_ci_builder(fq_hostname=None, golo_only=False, gce_only=False):
 def is_google_host():
     """Checks if the code is running on google host."""
 
-    hostname = platform.node()
+    hostname = get_host_name(fully_qualified=True)
     return hostname.endswith(GOOGLE_HOSTNAME_SUFFIX)

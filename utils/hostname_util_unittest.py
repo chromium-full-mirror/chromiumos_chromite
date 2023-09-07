@@ -4,7 +4,6 @@
 
 """Unit tests for hostname_util."""
 
-import platform
 import socket
 from unittest import mock
 
@@ -18,19 +17,19 @@ def test_google_host_to_be_true_for_valid_hosts(monkeypatch):
     for suffix in hostname_util.GOOGLE_HOSTNAME_SUFFIX:
         m = mock.Mock(return_value=f"something{suffix}")
         # pylint: disable=cell-var-from-loop
-        monkeypatch.setattr(platform, "node", m)
+        monkeypatch.setattr(hostname_util, "get_host_name", m)
 
         assert hostname_util.is_google_host()
-        m.assert_called_once()
+        m.assert_called_once_with(fully_qualified=True)
 
 
 def test_google_host_to_be_false_for_invalid_hosts(monkeypatch):
     """Test that is_google_host returns true for invalid host."""
     m = mock.Mock(return_value="some.host.com")
-    monkeypatch.setattr(platform, "node", m)
+    monkeypatch.setattr(hostname_util, "get_host_name", m)
 
     assert not hostname_util.is_google_host()
-    m.assert_called_once()
+    m.assert_called_once_with(fully_qualified=True)
 
 
 class TestGetHostname(cros_test_lib.MockTestCase):
