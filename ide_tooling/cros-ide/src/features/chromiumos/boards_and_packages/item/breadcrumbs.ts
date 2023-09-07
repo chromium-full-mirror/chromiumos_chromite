@@ -2,24 +2,55 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+type BreadcrumbsIdentity = string;
+const IDENTITY_SEPARATOR = '/';
+
+function identity(breadcrumbs: readonly string[]): BreadcrumbsIdentity {
+  return breadcrumbs.join(IDENTITY_SEPARATOR);
+}
+
 /**
- * Immutable data structure representing breadcrumbs to reach a tree item
- * from the root node.
+ * Immutable data structure representing breadcrumbs to reach a tree item from the root node. It is
+ * guaranteed that two Breadcrumbs instances representing the same breadcrumbs are identical and can
+ * be used as a key of Set or Map.
  */
 export class Breadcrumbs {
-  /** The empty breadcrumbs. */
-  static readonly EMPTY = new this([]);
+  private static readonly knownBreadcrumbs = new Map<
+    BreadcrumbsIdentity,
+    Breadcrumbs
+  >();
+
+  private constructor(readonly breadcrumbs: readonly string[]) {
+    if (Breadcrumbs.knownBreadcrumbs.has(identity(breadcrumbs))) {
+      throw new Error(
+        `Internal error: same breadcrumbs (${breadcrumbs}) already exist; make sure to create the instance with Breadcrumbs.from()`
+      );
+    }
+  }
 
   /** Creates a breadcrumbs from the strings. */
   static from(...breadcrumbs: string[]): Breadcrumbs {
-    return new this(breadcrumbs);
+    for (const b in breadcrumbs) {
+      if (b.includes(IDENTITY_SEPARATOR)) {
+        throw new Error(
+          `Internal error: breadcrumb ${b} shouldn't contain ${IDENTITY_SEPARATOR}`
+        );
+      }
+    }
+    const id = identity(breadcrumbs);
+    const existing = this.knownBreadcrumbs.get(id);
+    if (existing) return existing;
+    const res = new this(breadcrumbs);
+    this.knownBreadcrumbs.set(id, res);
+    return res;
   }
 
-  private constructor(readonly breadcrumbs: readonly string[]) {}
+  /** The empty breadcrumbs. */
+  static readonly EMPTY = Breadcrumbs.from();
 
   /** Returns a new Breadcrumbs. */
   pushed(token: string): Breadcrumbs {
-    return new Breadcrumbs([...this.breadcrumbs, token]);
+    return Breadcrumbs.from(...this.breadcrumbs, token);
   }
 
   /** Returns whether the breadcrumbs starts with the prefix. */
@@ -42,8 +73,8 @@ export class Breadcrumbs {
    * empty breadcrumbs.
    */
   parent(): Breadcrumbs {
-    return new Breadcrumbs(
-      this.breadcrumbs.slice(0, this.breadcrumbs.length - 1)
+    return Breadcrumbs.from(
+      ...this.breadcrumbs.slice(0, this.breadcrumbs.length - 1)
     );
   }
 }

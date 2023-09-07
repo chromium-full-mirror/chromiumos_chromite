@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import * as commonUtil from '../../../../../common/common_util';
 import {BoardsAndPackages} from '../../../../../features/chromiumos/boards_and_packages';
 import {Breadcrumbs} from '../../../../../features/chromiumos/boards_and_packages/item';
+import {BoardItem} from '../../../../../features/chromiumos/boards_and_packages/item/board_item';
 import {ChrootService} from '../../../../../services/chromiumos';
 import * as config from '../../../../../services/config';
 import * as testing from '../../../../testing';
@@ -25,8 +26,8 @@ describe('Boards and packages', () => {
   const subscriptions: vscode.Disposable[] = [];
 
   afterEach(async () => {
-    vscode.Disposable.from(...subscriptions.reverse()).dispose();
-    subscriptions.splice(0);
+    vscode.Disposable.from(...subscriptions.splice(0).reverse()).dispose();
+    BoardItem.clearCacheForTesting();
   });
 
   const state = testing.cleanState(async () => {
@@ -104,7 +105,7 @@ describe('Boards and packages', () => {
       Breadcrumbs.from('betty', 'chromeos-base', 'codelab')
     );
     await expectAsync(
-      treeView.reveal(Breadcrumbs.from('betty', 'chromeos-base', 'not-exist'))
+      treeView.reveal(Breadcrumbs.from('betty', 'not-exist', 'not-exist'))
     ).toBeRejected();
 
     // Test context values.
@@ -222,7 +223,13 @@ describe('Boards and packages', () => {
     // Nothing happens because no board has been selected.
     vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);
 
+    const selectionChangeEventReader = new testing.EventReader(
+      treeView.onDidChangeSelection,
+      subscriptions
+    );
+
     await treeView.reveal(Breadcrumbs.from('betty'));
+    await selectionChangeEventReader.read();
 
     // Still nothing happens because category item hasn't been revealed yet.
     vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);
@@ -233,11 +240,7 @@ describe('Boards and packages', () => {
     expect(treeView.selection).toEqual([
       Breadcrumbs.from('betty', 'chromeos-base'),
     ]);
-
-    const selectionChangeEventReader = new testing.EventReader(
-      treeView.onDidChangeSelection,
-      subscriptions
-    );
+    await selectionChangeEventReader.read();
 
     // Now the codelab package should be selected.
     vscodeEmitters.window.onDidChangeActiveTextEditor.fire(codelabEbuild);

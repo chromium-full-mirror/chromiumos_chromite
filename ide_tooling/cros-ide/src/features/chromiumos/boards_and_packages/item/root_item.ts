@@ -30,7 +30,7 @@ export class RootItem implements Item {
     this.children.splice(0);
 
     for (const board of boards.concat([BoardOrHost.HOST])) {
-      this.children.push(new BoardItem(this.breadcrumbs, board));
+      this.children.push(BoardItem.create(this.breadcrumbs, board));
     }
   }
 }

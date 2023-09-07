@@ -7,17 +7,46 @@ import {BoardOrHost} from '../../../../common/chromiumos/board_or_host';
 import * as config from '../../../../services/config';
 import {ViewItemContext} from '../constant';
 import {Context} from '../context';
-import {listPackages, type Package} from '../package';
+import {Package, listPackages} from '../package';
 import {Breadcrumbs} from './breadcrumbs';
 import {Item} from './item';
 import {PackageCategoryItem} from './package_category_item';
 
+/**
+ * This class represents a board item.
+ *
+ * Created class instances are cached so that it is guaranteed that two instances of this class
+ * representing the same board item are identical, allowing already computed children of the item to
+ * be shown while the children of the item are being recomputed.
+ *
+ * Tests that would use this class should clear the global cache before each test using
+ * `clearCacheForTesting`.
+ */
 export class BoardItem implements Item {
   readonly breadcrumbs;
   readonly treeItem;
   readonly children: Item[] = [];
 
-  constructor(parent: Breadcrumbs, private readonly board: BoardOrHost) {
+  private static readonly knownBoardItems = new Map<
+    Breadcrumbs,
+    Map<BoardOrHost, BoardItem>
+  >();
+
+  static create(parent: Breadcrumbs, board: BoardOrHost): BoardItem {
+    const existing = this.knownBoardItems.get(parent)?.get(board);
+    if (existing) return existing;
+    const res = new this(parent, board);
+    if (!this.knownBoardItems.has(parent)) {
+      this.knownBoardItems.set(parent, new Map());
+    }
+    this.knownBoardItems.get(parent)!.set(board, res);
+    return res;
+  }
+
+  private constructor(
+    parent: Breadcrumbs,
+    private readonly board: BoardOrHost
+  ) {
     this.breadcrumbs = parent.pushed(board.toString());
 
     const treeItem = new vscode.TreeItem(
@@ -85,5 +114,9 @@ export class BoardItem implements Item {
         )
       );
     }
+  }
+
+  static clearCacheForTesting(): void {
+    this.knownBoardItems.clear();
   }
 }

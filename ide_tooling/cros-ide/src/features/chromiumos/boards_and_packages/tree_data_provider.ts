@@ -7,12 +7,14 @@ import {ChrootService} from '../../../services/chromiumos';
 import {Breadcrumbs, searchItem, RootItem, Item} from './item';
 
 export class BoardsAndPackagesTreeDataProvider
-  implements vscode.TreeDataProvider<Breadcrumbs>
+  implements vscode.TreeDataProvider<Breadcrumbs>, vscode.Disposable
 {
   private onDidChangeTreeDataEmitter = new vscode.EventEmitter<
     Breadcrumbs | undefined | null | void
   >();
   readonly onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
+
+  private disposed = false;
 
   private readonly root = new RootItem();
 
@@ -49,6 +51,8 @@ export class BoardsAndPackagesTreeDataProvider
   async getChildren(
     breadcrumbs?: Breadcrumbs | undefined
   ): Promise<Breadcrumbs[]> {
+    if (this.disposed) return [];
+
     const item = breadcrumbs ? searchItem(this.root, breadcrumbs)! : this.root;
 
     const ctx = {
@@ -57,7 +61,7 @@ export class BoardsAndPackagesTreeDataProvider
     };
 
     const error = await item.refreshChildren(ctx);
-    if (error instanceof Error) {
+    if (error instanceof Error && !this.disposed) {
       void vscode.window.showErrorMessage(error.message);
     }
 
@@ -73,5 +77,10 @@ export class BoardsAndPackagesTreeDataProvider
 
   refresh(): void {
     this.onDidChangeTreeDataEmitter.fire();
+  }
+
+  dispose(): void {
+    this.disposed = true;
+    this.onDidChangeTreeDataEmitter.dispose();
   }
 }

@@ -4,17 +4,27 @@
 
 import path from 'path';
 
-/** An immutable data class representing ChromeOS's board or host. */
+/**
+ * An immutable data class representing ChromeOS's board or host. It is guaranteed that two
+ * instances of this class representing the same board or host are identical, so this class can be
+ * used as the key of Set or Map.
+ */
 export class BoardOrHost {
   /** String representation of host. Calling toString() to host returns it. */
   static readonly HOST_AS_STRING = 'host';
+
+  private static readonly knownBoards = new Map<string, BoardOrHost>();
 
   /** The unique instance representing the host. */
   static readonly HOST = new this({isHost: true});
 
   /** Creates an instance representing a board. The board name must not be "host". */
   static newBoard(name: string): BoardOrHost {
-    return new this({isHost: false, board: name});
+    const existing = this.knownBoards.get(name);
+    if (existing) return existing;
+    const res = new this({isHost: false, board: name});
+    this.knownBoards.set(name, res);
+    return res;
   }
 
   /** Parses string representation of BoardOrHost. */
@@ -33,6 +43,11 @@ export class BoardOrHost {
     ) {
       throw new Error(
         `Internal error: invalid board name ${boardOrHost.board}`
+      );
+    }
+    if (BoardOrHost.knownBoards.has(this.toString())) {
+      throw new Error(
+        `Internal error: same BoardOrHost object was created for ${this.toString()}`
       );
     }
   }

@@ -20,7 +20,7 @@ export class FakeWorkspaceConfiguration<T> {
     new vscode.EventEmitter<vscode.ConfigurationChangeEvent>();
   readonly onDidChange = this.onDidChangeEmitter.event;
 
-  constructor(section: string) {
+  constructor(private readonly section: string) {
     this.defaults = readDefaultsFromPackageJson(section) as Map<string, T>;
   }
 
@@ -82,7 +82,9 @@ export class FakeWorkspaceConfiguration<T> {
     } else {
       values.set(section, value);
     }
-    this.onDidChangeEmitter.fire({affectsConfiguration: () => true});
+    this.onDidChangeEmitter.fire({
+      affectsConfiguration: s => s === this.section + '.' + section,
+    });
   }
 }
 

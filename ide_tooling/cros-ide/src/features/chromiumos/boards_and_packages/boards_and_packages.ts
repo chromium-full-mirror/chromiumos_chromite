@@ -33,6 +33,7 @@ export class BoardsAndPackages implements vscode.Disposable {
       chrootService,
       output
     );
+    this.subscriptions.push(this.treeDataProvider);
 
     this.treeView = vscode.window.createTreeView('boards-and-packages', {
       treeDataProvider: this.treeDataProvider,
