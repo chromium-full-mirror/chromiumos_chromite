@@ -85,8 +85,8 @@ def test_otel_span_translation(monkeypatch):
     tspan.ParseFromString(log_request.log_event[0].source_extension)
 
     assert tspan.name == span.name
-    assert tspan.start_time_millis == int(span.start_time / 10e6)
-    assert tspan.end_time_millis == int(span.end_time / 10e6)
+    assert tspan.start_time_millis == int(span.start_time / 1e6)
+    assert tspan.end_time_millis == int(span.end_time / 1e6)
 
 
 def test_otel_span_translation_with_anonymization(monkeypatch):

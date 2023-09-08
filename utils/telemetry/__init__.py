@@ -32,7 +32,7 @@ automatically enabled after the notice has been displayed for 10 times.
 # The version keeps track of telemetry changes in chromite. Update this each
 # time there are changes to `chromite.utils.telemetry` or telemetry collection
 # changes in chromite.
-_TELEMETRY_VERSION = "1"
+_TELEMETRY_VERSION = "2"
 _DEFAULT_RESOURCE = otel_resources.Resource.create(
     {
         otel_resources.SERVICE_NAME: "chromite",

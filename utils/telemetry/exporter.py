@@ -154,7 +154,7 @@ class ClearcutSpanExporter(export.SpanExporter):
         events = []
         for e in data.events:
             event = trace_span_pb2.TraceSpan.Event()
-            event.event_time_millis = int(e.timestamp / 10e6)
+            event.event_time_millis = int(e.timestamp / 1e6)
             event.name = e.name
             event.attributes.MergeFrom(self._translate_attributes(e.attributes))
             events.append(event)
@@ -277,8 +277,8 @@ class ClearcutSpanExporter(export.SpanExporter):
                     f"0x{trace_api.format_span_id(data.parent.span_id)}"
                 )
 
-        span.start_time_millis = int(data.start_time / 10e6)
-        span.end_time_millis = int(data.end_time / 10e6)
+        span.start_time_millis = int(data.start_time / 1e6)
+        span.end_time_millis = int(data.end_time / 1e6)
         span.span_kind = self._translate_kind(data.kind)
         span.instrumentation_scope.MergeFrom(
             self._translate_instrumentation_scope(data)
