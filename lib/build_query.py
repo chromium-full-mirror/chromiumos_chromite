@@ -86,7 +86,9 @@ class Overlay(QueryTarget):
         self.path = Path(path)
 
     @classmethod
-    def find_all(cls, board=None, overlays=constants.BOTH_OVERLAYS):
+    def find_all(
+        cls, board=None, overlays=constants.BOTH_OVERLAYS
+    ) -> Iterator[Overlay]:
         for overlay_path in portage_util.FindOverlays(overlays, board=board):
             yield cls(overlay_path)
 
