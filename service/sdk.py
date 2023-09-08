@@ -509,10 +509,10 @@ def _uprev_local_sdk_version_file(
     )
 
 
-def _uprev_local_host_prebuilts_file(
+def _uprev_local_host_prebuilts_files(
     binhost_gs_bucket: str, binhost_version: str
-) -> bool:
-    """Update the local amd64-host prebuilt file (but don't commit the change).
+) -> List[Path]:
+    """Update the local amd64-host prebuilt files (but don't commit changes).
 
     Args:
         binhost_gs_bucket: The bucket containing prebuilt files (including
@@ -524,26 +524,33 @@ def _uprev_local_host_prebuilts_file(
             "chroot-2023.03.14.159265".
 
     Returns:
-        True if changes were made, else False.
+        A list of files that were actually modified, if any.
     """
     if not gs.PathIsGs(binhost_gs_bucket):
         raise ValueError(
             "binhost_gs_bucket doesn't look like a gs path: %s"
             % binhost_gs_bucket
         )
-    logging.info(
-        "Updating amd64-host prebuilt file (%s)",
-        constants.HOST_PREBUILT_CONF_FILE_FULL_PATH,
-    )
-    new_binhost = "%(bucket)s/board/amd64-host/%(version)s/packages/" % {
-        "bucket": binhost_gs_bucket.rstrip("/"),
-        "version": binhost_version,
-    }
-    return key_value_store.UpdateKeyInLocalFile(
-        constants.HOST_PREBUILT_CONF_FILE_FULL_PATH,
-        "FULL_BINHOST",
-        new_binhost,
-    )
+    bucket = binhost_gs_bucket.rstrip("/")
+    modified_paths = []
+    for conf_path, new_binhost_value in (
+        (
+            constants.HOST_PREBUILT_CONF_FILE_FULL_PATH,
+            f"{bucket}/board/amd64-host/{binhost_version}/packages/",
+        ),
+        (
+            constants.MAKE_CONF_AMD64_HOST_FILE_FULL_PATH,
+            f"{bucket}/host/amd64/amd64-host/{binhost_version}/packages/",
+        ),
+    ):
+        logging.info("Updating amd64-host prebuilt file (%s)", conf_path)
+        if key_value_store.UpdateKeyInLocalFile(
+            conf_path,
+            "FULL_BINHOST",
+            new_binhost_value,
+        ):
+            modified_paths.append(conf_path)
+    return modified_paths
 
 
 def uprev_sdk_and_prebuilts(
@@ -565,8 +572,9 @@ def uprev_sdk_and_prebuilts(
     if _uprev_local_sdk_version_file(sdk_version, toolchain_tarball_template):
         modified_paths.append(constants.SDK_VERSION_FILE_FULL_PATH)
     binhost_version = f"chroot-{sdk_version}"
-    if _uprev_local_host_prebuilts_file(binhost_gs_bucket, binhost_version):
-        modified_paths.append(constants.HOST_PREBUILT_CONF_FILE_FULL_PATH)
+    modified_paths.extend(
+        _uprev_local_host_prebuilts_files(binhost_gs_bucket, binhost_version)
+    )
     return modified_paths
 
 

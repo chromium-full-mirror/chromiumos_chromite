@@ -7,6 +7,7 @@
 import contextlib
 import errno
 import io
+import logging
 import os
 from pathlib import Path
 import re
@@ -207,7 +208,7 @@ def UpdateKeyInLocalFile(
         current_lines = osutils.ReadFile(filepath).splitlines()
     except FileNotFoundError:
         current_lines = []
-        print(f"Creating new file {filepath}")
+        logging.info("Creating new file %s", filepath)
 
     # Scan current lines, copy all vars to new_lines, change the line with
     # |key|.
@@ -227,11 +228,13 @@ def UpdateKeyInLocalFile(
             continue
         # Replace the line with our new line.
         found = True
-        print(f"Updating {file_key}={file_value} to {key}={value}")
+        logging.info(
+            "Updating %s=%s to %s=%s", file_key, file_value, key, value
+        )
         made_changes |= file_value != value
         new_lines.append(new_keyval_line)
     if not found:
-        print(f"Adding new variable {key}={value}")
+        logging.info("Adding new variable %s=%s", key, value)
         made_changes = True
         new_lines.append(new_keyval_line)
 

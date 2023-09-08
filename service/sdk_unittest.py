@@ -656,12 +656,60 @@ BOOTSTRAP_FROZEN_VERSION = "%(bootstrap_version)s"
         'chroot-%(version)s/packages/"\n'
     )
 
+    # Contents of make.conf.amd64-host. Intended to be %-interpolated.
+    # pylint: disable=line-too-long
+    _make_conf_amd64_template = """# See "man make.conf" for the available options.
+
+# Common settings across all sdks.
+source /mnt/host/source/src/third_party/chromiumos-overlay/chromeos/config/make.conf.common
+
+# Pull in definition of at least { CHOST, [BOARD_OVERLAY] }
+source make.conf.board_setup
+
+# We initialize PORTDIR_OVERLAY here to clobber any redefinitions elsewhere.
+# This has to be the first overlay so crossdev finds the correct gcc and
+# glibc ebuilds.
+PORTDIR_OVERLAY="
+  /usr/local/portage/crossdev
+  /mnt/host/source/src/third_party/toolchains-overlay
+  /mnt/host/source/src/third_party/chromiumos-overlay
+  /mnt/host/source/src/third_party/eclass-overlay
+  /mnt/host/source/src/overlays/overlay-amd64-host
+"
+
+# Where to store built packages.
+PKGDIR="/var/lib/portage/pkgs"
+
+PORT_LOGDIR="/var/log/portage"
+
+FULL_BINHOST="gs://chromeos-prebuilt/host/amd64/amd64-host/chroot-%(version)s/packages/"
+PORTAGE_BINHOST="$FULL_BINHOST"
+
+GENTOO_MIRRORS="https://commondatastorage.googleapis.com/chromeos-localmirror"
+GENTOO_MIRRORS="$GENTOO_MIRRORS https://commondatastorage.googleapis.com/chromeos-mirror/gentoo"
+
+# Remove all .la files for non-plugin libraries.
+# Remove Gentoo init files since we use upstart.
+# Remove logrotate.d files since we don't use logrotate.
+INSTALL_MASK="
+  /usr/lib*/*.la
+  /etc/init.d /etc/conf.d
+  /etc/logrotate.d
+"
+PKG_INSTALL_MASK="${INSTALL_MASK}"
+
+source make.conf.host_setup
+"""
+
     def setUp(self):
         self._write_file_patch = self.PatchObject(osutils, "WriteFile")
 
         def _read_file_response(filepath: str) -> str:
             """Mock responses for osutils.ReadFile based on input filepath."""
-            self.assertIn(filepath.name, ("sdk_version.conf", "prebuilt.conf"))
+            self.assertIn(
+                filepath.name,
+                ("sdk_version.conf", "prebuilt.conf", "make.conf.amd64-host"),
+            )
             if filepath.name == "sdk_version.conf":
                 return self._sdk_version_file_template % {
                     "sdk_version": self._old_version,
@@ -670,6 +718,10 @@ BOOTSTRAP_FROZEN_VERSION = "%(bootstrap_version)s"
                 }
             if filepath.name == "prebuilt.conf":
                 return self._prebuilt_file_template % {
+                    "version": self._old_version
+                }
+            if filepath.name == "make.conf.amd64-host":
+                return self._make_conf_amd64_template % {
                     "version": self._old_version
                 }
             raise ValueError(f"Unexpected path in mock ReadFile: {filepath}")
@@ -694,16 +746,16 @@ BOOTSTRAP_FROZEN_VERSION = "%(bootstrap_version)s"
             new_version,
             new_tc_path,
         )
-        sdk_version_path, prebuilt_path = [
-            constants.SOURCE_ROOT
-            / "src/third_party/chromiumos-overlay/chromeos/binhost"
-            "/host/sdk_version.conf",
-            constants.SOURCE_ROOT
-            / "src/overlays/overlay-amd64-host/prebuilt.conf",
-        ]
-        self.assertCountEqual(modified_paths, [sdk_version_path, prebuilt_path])
+        self.assertCountEqual(
+            modified_paths,
+            [
+                constants.SDK_VERSION_FILE_FULL_PATH,
+                constants.HOST_PREBUILT_CONF_FILE_FULL_PATH,
+                constants.MAKE_CONF_AMD64_HOST_FILE_FULL_PATH,
+            ],
+        )
         self._write_file_patch.assert_any_call(
-            sdk_version_path,
+            constants.SDK_VERSION_FILE_FULL_PATH,
             self._sdk_version_file_template
             % {
                 "sdk_version": new_version,
@@ -712,6 +764,10 @@ BOOTSTRAP_FROZEN_VERSION = "%(bootstrap_version)s"
             },
         )
         self._write_file_patch.assert_any_call(
-            prebuilt_path,
+            constants.HOST_PREBUILT_CONF_FILE_FULL_PATH,
             self._prebuilt_file_template % {"version": new_version},
+        )
+        self._write_file_patch.assert_any_call(
+            constants.MAKE_CONF_AMD64_HOST_FILE_FULL_PATH,
+            self._make_conf_amd64_template % {"version": new_version},
         )

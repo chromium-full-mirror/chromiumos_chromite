@@ -386,6 +386,10 @@ PRIVATE_BINHOST_CONF_DIR = os.path.join(
 )
 HOST_PREBUILT_CONF_FILE = "src/overlays/overlay-amd64-host/prebuilt.conf"
 HOST_PREBUILT_CONF_FILE_FULL_PATH = SOURCE_ROOT / HOST_PREBUILT_CONF_FILE
+MAKE_CONF_AMD64_HOST_FILE = os.path.join(
+    CHROMIUMOS_OVERLAY_DIR, "chromeos/config/make.conf.amd64-host"
+)
+MAKE_CONF_AMD64_HOST_FILE_FULL_PATH = SOURCE_ROOT / MAKE_CONF_AMD64_HOST_FILE
 
 VERSION_FILE = os.path.join(
     CHROMIUMOS_OVERLAY_DIR, "chromeos/config/chromeos_version.sh"
