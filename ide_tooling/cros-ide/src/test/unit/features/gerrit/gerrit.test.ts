@@ -1546,7 +1546,6 @@ ADD
         packageJson.contributes.menus[group].find(e => e.command === name)!
           .when,
         {
-          'config.chromiumide.underDevelopment.gerrit': true,
           comment: comment.contextValue!,
         }
       );

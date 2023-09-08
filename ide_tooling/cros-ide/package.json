@@ -428,7 +428,7 @@
         {
           "command": "chromiumide.gerrit.editDraft",
           "group": "inline@2",
-          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<draft>/ && !(comment =~ /<editing>/)"
+          "when": "comment =~ /<draft>/ && !(comment =~ /<editing>/)"
         },
         {
           "command": "chromiumide.gerrit.browseComment",
@@ -444,22 +444,22 @@
         {
           "command": "chromiumide.gerrit.editDraftReply",
           "group": "inline@1",
-          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/"
+          "when": "comment =~ /<editing>/"
         },
         {
           "command": "chromiumide.gerrit.editDraftReplyAndResolve",
           "group": "inline@2",
-          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/ && comment =~ /<unresolved>/"
+          "when": "comment =~ /<editing>/ && comment =~ /<unresolved>/"
         },
         {
           "command": "chromiumide.gerrit.editDraftReplyAndUnresolve",
           "group": "inline@3",
-          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/ && comment =~ /<resolved>/"
+          "when": "comment =~ /<editing>/ && comment =~ /<resolved>/"
         },
         {
           "command": "chromiumide.gerrit.editDraftCancel",
           "group": "inline@4",
-          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/"
+          "when": "comment =~ /<editing>/"
         }
       ],
       "editor/context": [
@@ -914,11 +914,6 @@
         "chromiumide.underDevelopment.chromiumBuild": {
           "type": "boolean",
           "description": "Enable build + deploy for chromium code (incomplete)",
-          "default": false
-        },
-        "chromiumide.underDevelopment.gerrit": {
-          "type": "boolean",
-          "description": "Enable gerrit features that are under development",
           "default": false
         },
         "chromiumide.underDevelopment.platform2GtestDebugging": {
