@@ -1451,7 +1451,7 @@
           "board_id": 459,
           "is_active": true,
           "stable_target_milestone": 115,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "brya",
