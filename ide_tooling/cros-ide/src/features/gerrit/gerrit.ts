@@ -20,6 +20,7 @@ import {
 import * as git from './git';
 import * as helpers from './helpers';
 import {DiffHunksClient, GerritComments} from './model';
+import {EditingStatus} from './model/editing_status';
 import {Sink} from './sink';
 import * as virtualDocument from './virtual_document';
 
@@ -183,6 +184,7 @@ class Gerrit implements vscode.Disposable {
 
   private readonly gerritComments: GerritComments;
   private readonly gerritCommands: GerritCommands;
+  private readonly editingStatus: EditingStatus;
 
   constructor(
     private readonly sink: Sink,
@@ -200,8 +202,12 @@ class Gerrit implements vscode.Disposable {
       onDidHandleEventForTestingEmitter.fire();
     });
 
+    this.editingStatus = new EditingStatus();
+    this.subscriptions.push(this.editingStatus);
+
     this.gerritCommands = new GerritCommands({
       sink,
+      editingStatus: this.editingStatus,
       getCommentThread: (
         comment: VscodeComment
       ): VscodeCommentThread | undefined => {
@@ -213,9 +219,31 @@ class Gerrit implements vscode.Disposable {
     this.subscriptions.push(this.gerritCommands);
 
     this.subscriptions.push(
+      this.editingStatus.onDidChange(async e => {
+        // Don't reflect the comments state to UI until the real comments are fetched, if drafts are
+        // updated. The handler to update the draft modifies the VSCode thread the comment belongs
+        // to for the user to see immediate feedback until the real updated comment if fetched. If
+        // we call `this.showChanges` here, the tentative comment will be discarded by the
+        // pre-update comments currently known by the extension.
+        if (e.reason === 'update-draft') {
+          return;
+        }
+        // Otherwise, reflect the editing status change to the UI.
+        for (const gitDir of this.changes.keys()) {
+          for (const thread of this.commentThreads(gitDir)) {
+            if (thread.lastComment.commentId === e.id) {
+              await this.showChanges(gitDir);
+              onDidHandleEventForTestingEmitter.fire();
+            }
+          }
+        }
+      }),
       this.gerritCommands.onDidExecuteCommand(async e => {
         switch (e) {
           case CommandName.DISCARD_DRAFT:
+          case CommandName.EDIT_DRAFT_REPLY:
+          case CommandName.EDIT_DRAFT_REPLY_AND_RESOLVE:
+          case CommandName.EDIT_DRAFT_REPLY_AND_UNRESOLVE:
           case CommandName.REPLY:
           case CommandName.REPLY_AND_RESOLVE:
           case CommandName.REPLY_AND_UNRESOLVE:
@@ -349,7 +377,11 @@ class Gerrit implements vscode.Disposable {
         const existingThread = threadIdToVscodeCommentThread.get(id);
 
         if (existingThread) {
-          commentThread.decorateVscodeCommentThread(existingThread, shift);
+          commentThread.decorateVscodeCommentThread(
+            existingThread,
+            shift,
+            this.editingStatus.has(commentThread.lastComment.commentId)
+          );
           continue;
         }
 

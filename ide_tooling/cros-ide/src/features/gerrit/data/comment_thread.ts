@@ -168,16 +168,19 @@ export class CommentThread {
       []
     ) as VscodeCommentThread;
 
-    this.decorateVscodeCommentThread(vscodeCommentThread, shift);
+    this.decorateVscodeCommentThread(vscodeCommentThread, shift, false);
     return vscodeCommentThread;
   }
 
   decorateVscodeCommentThread(
     vscodeCommentThread: VscodeCommentThread,
-    shift: number
+    shift: number,
+    editing: boolean
   ): void {
     const range = this.getVscodeRange(shift);
-    const comments = this.comments.map(comment => toVscodeComment(comment));
+    const comments = this.comments.map((comment, i) =>
+      toVscodeComment(comment, editing && i === this.comments.length - 1)
+    );
     const canReply = this.canReply;
     const [label, collapsibleState, state] = this.unresolved
       ? [
@@ -200,9 +203,13 @@ export class CommentThread {
     if (!t.range.isEqual(range)) t.range = range;
     if (
       t.comments.length !== comments.length ||
-      !t.comments.every((c, i) =>
-        (c as VscodeComment).gerritComment.isEqual(comments[i].gerritComment)
-      )
+      !t.comments.every((c, i) => {
+        const c2 = comments[i];
+        return (
+          (c as VscodeComment).gerritComment.isEqual(c2.gerritComment) &&
+          c.contextValue === c2.contextValue
+        );
+      })
     ) {
       t.comments = comments;
     }
@@ -264,7 +271,10 @@ export class CommentThread {
    * resolved/unresolved indicates whether the thread is resolved or not.
    */
   private getContextValue(): string {
-    const publicOrDraft = getCommentContextValue(this.firstComment.commentInfo);
+    const publicOrDraft = getCommentContextValue(
+      this.firstComment.commentInfo,
+      /* editing = */ false
+    );
     const resolvedOrNot = this.lastComment.commentInfo.unresolved
       ? '<unresolved>'
       : '<resolved>';

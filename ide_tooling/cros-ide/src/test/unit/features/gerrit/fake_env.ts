@@ -154,14 +154,15 @@ export class FakeGerrit {
     this.httpsPutSpy.and.callFake(async (url, postData, options) => {
       expect(options).toEqual(this.reqOpts);
 
-      const createDraftRegex = new RegExp(
-        `${this.baseUrl}/a/changes/([^/]+)/revisions/([^/]+)/drafts`
+      const createOrUpdateDraftRegex = new RegExp(
+        `^${this.baseUrl}/a/changes/([^/]+)/revisions/([^/]+)/drafts(?:/([^/]+))?$`
       );
-      const m = createDraftRegex.exec(url);
+      const m = createOrUpdateDraftRegex.exec(url);
       if (!m) throw new Error(`Unexpected URL: ${url}`);
 
       const changeId = m[1];
       const revisionId = m[2];
+      const draftIdToUpdate = m[3];
 
       const req = postData as api.CommentInput;
 
@@ -195,10 +196,20 @@ export class FakeGerrit {
         inReplyTo: req.in_reply_to,
       });
 
-      const newDraftComments: api.BaseCommentInfo[] = [
-        ...(changeInfo.drafts?.[req.path] ?? []),
-        commentInfo,
-      ];
+      const newDraftComments = [...(changeInfo.drafts?.[req.path] ?? [])];
+
+      if (draftIdToUpdate) {
+        const draftToUpdate = changeInfo.drafts?.[req.path]?.find(
+          x => x.id === draftIdToUpdate
+        );
+        expect(draftToUpdate)
+          .withContext(`draft with id ${draftIdToUpdate}`)
+          .toBeDefined();
+
+        newDraftComments.splice(newDraftComments.indexOf(draftToUpdate!), 1);
+      }
+
+      newDraftComments.push(commentInfo);
 
       changeInfo.drafts = {
         ...(changeInfo.drafts ?? {}),

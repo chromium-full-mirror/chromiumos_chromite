@@ -6,10 +6,15 @@ import * as vscode from 'vscode';
 import {vscodeRegisterCommand} from '../../../common/vscode/commands';
 import {VscodeComment, VscodeCommentThread} from '../data';
 import {CommandContext} from './context';
-import {discardDraft, reply} from './draft';
+import {discardDraft, reply, updateDraft} from './draft';
 
 export enum CommandName {
   DISCARD_DRAFT = 'chromiumide.gerrit.discardDraft',
+  EDIT_DRAFT = 'chromiumide.gerrit.editDraft',
+  EDIT_DRAFT_CANCEL = 'chromiumide.gerrit.editDraftCancel',
+  EDIT_DRAFT_REPLY = 'chromiumide.gerrit.editDraftReply',
+  EDIT_DRAFT_REPLY_AND_RESOLVE = 'chromiumide.gerrit.editDraftReplyAndResolve',
+  EDIT_DRAFT_REPLY_AND_UNRESOLVE = 'chromiumide.gerrit.editDraftReplyAndUnresolve',
   REPLY = 'chromiumide.gerrit.reply',
   REPLY_AND_RESOLVE = 'chromiumide.gerrit.replyAndResolve',
   REPLY_AND_UNRESOLVE = 'chromiumide.gerrit.replyAndUnresolve',
@@ -55,13 +60,36 @@ export class GerritCommands implements vscode.Disposable {
       ),
       this.register(CommandName.DISCARD_DRAFT, (comment: VscodeComment) =>
         discardDraft(ctx, comment)
+      ),
+      this.register(
+        CommandName.EDIT_DRAFT,
+        ({gerritComment: {commentId}}: VscodeComment) =>
+          ctx.editingStatus.add(commentId, 'start-edit')
+      ),
+      this.register(
+        CommandName.EDIT_DRAFT_CANCEL,
+        ({gerritComment: {commentId}}: VscodeComment) =>
+          ctx.editingStatus.delete(commentId, 'cancel-edit')
+      ),
+      this.register(CommandName.EDIT_DRAFT_REPLY, (comment: VscodeComment) =>
+        updateDraft(ctx, comment)
+      ),
+      this.register(
+        CommandName.EDIT_DRAFT_REPLY_AND_RESOLVE,
+        (comment: VscodeComment) =>
+          updateDraft(ctx, comment, /* unresolved = */ false)
+      ),
+      this.register(
+        CommandName.EDIT_DRAFT_REPLY_AND_UNRESOLVE,
+        (comment: VscodeComment) =>
+          updateDraft(ctx, comment, /* unresolved = */ true)
       )
     );
   }
 
   private register<T>(
     command: CommandName,
-    callback: (args: T) => Thenable<void>
+    callback: (args: T) => Thenable<void> | void
   ): vscode.Disposable {
     return vscodeRegisterCommand(command, async (args: T) => {
       await callback(args);

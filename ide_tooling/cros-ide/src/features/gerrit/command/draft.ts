@@ -111,6 +111,90 @@ export async function discardDraft(
   thread.comments = thread.comments.slice(0, thread.comments.length - 1);
 }
 
+export async function updateDraft(
+  ctx: CommandContext,
+  comment: VscodeComment,
+  unresolved?: boolean
+): Promise<void> {
+  const thread = ctx.getCommentThread(comment);
+  if (!thread) return;
+
+  const {
+    repoId,
+    changeId,
+    lastComment: {
+      commentId,
+      commentInfo: {
+        in_reply_to: inReplyTo,
+        updated,
+        unresolved: currentUnresolved,
+      },
+    },
+    changeNumber,
+    revisionNumber,
+    filePath,
+  } = thread.gerritCommentThread;
+
+  if (unresolved === undefined) {
+    unresolved = currentUnresolved;
+  }
+
+  const authCookie = await getAuthCookie(ctx, repoId);
+  if (!authCookie) return;
+
+  const message =
+    typeof comment.body === 'string' ? comment.body : comment.body.value;
+
+  try {
+    await api.updateDraftOrThrow(
+      repoId,
+      authCookie,
+      changeId,
+      revisionNumber.toString(),
+      commentId,
+      {
+        message,
+        id: commentId,
+        path: filePath,
+        in_reply_to: inReplyTo,
+        unresolved,
+      },
+      ctx.sink
+    );
+  } catch (e) {
+    const message = `Failed to update draft: ${e}`;
+    ctx.sink.show({
+      log: message,
+      metrics: message,
+      noErrorStatus: true,
+    });
+    void vscode.window.showErrorMessage(message);
+    return;
+  }
+
+  thread.comments = [
+    ...thread.comments.slice(0, thread.comments.length - 1),
+    // Comment shown until real draft is fetched from Gerrit.
+    {
+      body: new vscode.MarkdownString(message),
+      mode: vscode.CommentMode.Preview,
+      author: {name: 'Draft being created'},
+      gerritComment: new Comment(repoId, changeNumber, {
+        isPublic: true,
+        author: {
+          _account_id: 0,
+        },
+        in_reply_to: inReplyTo,
+        id: commentId,
+        updated,
+        message,
+      }),
+    } as VscodeComment,
+  ];
+
+  ctx.editingStatus.delete(commentId, 'update-draft');
+}
+
 async function getAuthCookie(
   ctx: CommandContext,
   repoId: RepoId

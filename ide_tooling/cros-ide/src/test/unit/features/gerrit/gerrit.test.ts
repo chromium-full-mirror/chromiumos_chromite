@@ -14,6 +14,7 @@ import {TaskStatus} from '../../../../ui/bg_task_status';
 import * as testing from '../../../testing';
 import {FakeStatusManager, VoidOutputChannel} from '../../../testing/fakes';
 import {FakeCommentController} from '../../../testing/fakes/comment_controller';
+import {readPackageJson} from '../../../testing/package_json';
 import {
   AUTHOR,
   changeInfo,
@@ -147,7 +148,7 @@ describe('Gerrit', () => {
     expect(threads[0].comments[0].body).toEqual(
       new vscode.MarkdownString('Unresolved comment on the added line.')
     );
-    expect(threads[0].comments[0].contextValue).toEqual('<public>');
+    expect(threads[0].comments[0].contextValue).toEqual('<public><unresolved>');
 
     expect(state.statusBarItem.show).toHaveBeenCalled();
     expect(state.statusBarItem.hide).not.toHaveBeenCalled();
@@ -245,9 +246,9 @@ describe('Gerrit', () => {
     expect(comments[0].body).toEqual(
       new vscode.MarkdownString('Resolved comment on the added line.')
     );
-    expect(comments[0].contextValue).toEqual('<public>');
+    expect(comments[0].contextValue).toEqual('<public><resolved>');
     expect(comments[1].body).toEqual(new vscode.MarkdownString('Draft reply.'));
-    expect(comments[1].contextValue).toEqual('<draft>');
+    expect(comments[1].contextValue).toEqual('<draft><unresolved>');
 
     expect(state.statusBarItem.show).toHaveBeenCalled();
     expect(state.statusBarItem.hide).not.toHaveBeenCalled();
@@ -1534,6 +1535,136 @@ ADD
     );
     await completeShowChangeEvents.read();
     expect(threads[0].comments.length).toEqual(1);
+
+    const packageJson = readPackageJson();
+    const isCommandEnabled = (
+      group: keyof typeof packageJson.contributes.menus,
+      name: string,
+      comment: vscode.Comment
+    ) =>
+      testing.evaluateWhenClause(
+        packageJson.contributes.menus[group].find(e => e.command === name)!
+          .when,
+        {
+          'config.chromiumide.underDevelopment.gerrit': true,
+          comment: comment.contextValue!,
+        }
+      );
+
+    // Draft comments should be editable.
+    expect(
+      isCommandEnabled(
+        'comments/comment/title',
+        'chromiumide.gerrit.editDraft',
+        threads[1].comments[1]
+      )
+    ).toBeTrue();
+
+    // Start editing.
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraft',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+
+    expect(threads[1].comments[1].mode).toEqual(vscode.CommentMode.Editing);
+    // The button to start editing is no longer shown.
+    expect(
+      isCommandEnabled(
+        'comments/comment/title',
+        'chromiumide.gerrit.editDraft',
+        threads[1].comments[1]
+      )
+    ).toBeFalse();
+
+    // The cancel button should be shown.
+    expect(
+      isCommandEnabled(
+        'comments/comment/context',
+        'chromiumide.gerrit.editDraftCancel',
+        threads[1].comments[1]
+      )
+    ).toBeTrue();
+
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraftCancel',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+
+    expect(threads[1].comments[1].mode).toEqual(vscode.CommentMode.Preview);
+    // The button to start editing is shown again.
+    expect(
+      isCommandEnabled(
+        'comments/comment/title',
+        'chromiumide.gerrit.editDraft',
+        threads[1].comments[1]
+      )
+    ).toBeTrue();
+
+    // Start editing again.
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraft',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+
+    // The UI allows the user to directly edit the comment body; emulate it.
+    threads[1].comments[1].body = 'still unresolved';
+
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraftReply',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+    expect(threads[1].comments[1]).toEqual(
+      jasmine.objectContaining({
+        body: new vscode.MarkdownString('still unresolved'),
+        contextValue: '<draft><unresolved>',
+      })
+    );
+
+    // Test the reply and resolve command.
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraft',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+
+    threads[1].comments[1].body = 'now resolved';
+
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraftReplyAndResolve',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+    expect(threads[1].comments[1]).toEqual(
+      jasmine.objectContaining({
+        body: new vscode.MarkdownString('now resolved'),
+        contextValue: '<draft><resolved>',
+      })
+    );
+
+    // Test the reply and unresolve command.
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraft',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+
+    threads[1].comments[1].body = 'actually unresolved';
+
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.editDraftReplyAndUnresolve',
+      threads[1].comments[1]
+    );
+    await completeShowChangeEvents.read();
+    expect(threads[1].comments[1]).toEqual(
+      jasmine.objectContaining({
+        body: new vscode.MarkdownString('actually unresolved'),
+        contextValue: '<draft><unresolved>',
+      })
+    );
   });
 });
 

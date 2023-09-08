@@ -6,6 +6,12 @@ import * as vscode from 'vscode';
 import * as api from '../api';
 import * as git from '../git';
 import * as helpers from '../helpers';
+import {
+  CommentContextValue,
+  CommentEditState,
+  CommentPublicity,
+  CommentResolveState,
+} from './context_value';
 
 /** Gerrit comment */
 export class Comment {
@@ -25,7 +31,7 @@ export class Comment {
   isEqual(other: Comment): boolean {
     return (
       this.commentId === other.commentId &&
-      this.commentInfo.updated === this.commentInfo.updated
+      this.commentInfo.updated === other.commentInfo.updated
     );
   }
 }
@@ -42,15 +48,18 @@ export interface VscodeComment extends vscode.Comment {
 /**
  * Turns Comment into VscodeComment.
  */
-export function toVscodeComment(comment: Comment): VscodeComment {
+export function toVscodeComment(
+  comment: Comment,
+  editing: boolean
+): VscodeComment {
   const c = comment.commentInfo;
   return {
     author: {name: api.accountName(c.author)},
     label:
       (c.isPublic ? '' : 'Draft / ') + helpers.formatGerritTimestamp(c.updated),
     body: new vscode.MarkdownString(c.message),
-    mode: vscode.CommentMode.Preview,
-    contextValue: getCommentContextValue(c),
+    mode: editing ? vscode.CommentMode.Editing : vscode.CommentMode.Preview,
+    contextValue: getCommentContextValue(c, editing),
     gerritComment: comment,
   };
 }
@@ -61,17 +70,20 @@ export function toVscodeComment(comment: Comment): VscodeComment {
  * within `when` clauses of the package.json file.
  */
 export function getCommentContextValue(
-  c: api.CommentInfo | null | undefined
-): string {
-  // Used to indicate a comment is public and can be linked to.
-  const publicComment = '<public>';
+  c: api.CommentInfo | null | undefined,
+  editing: boolean
+): CommentContextValue {
+  const publicity = c?.isPublic
+    ? CommentPublicity.Public
+    : CommentPublicity.Draft;
 
-  // Used to indicate a comment is a draft, and can't be linked to.
-  const draftComment = '<draft>';
+  const resolveState = c?.unresolved
+    ? CommentResolveState.Unresolved
+    : CommentResolveState.Resolved;
 
-  if (c === null || c === undefined) {
-    return draftComment;
-  }
+  const editState = editing
+    ? CommentEditState.Editing
+    : CommentEditState.NoEditing;
 
-  return c.isPublic ? publicComment : draftComment;
+  return `${publicity}${resolveState}${editState}`;
 }

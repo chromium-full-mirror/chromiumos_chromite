@@ -113,7 +113,8 @@ export type CommentRange = {
  * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#comment-input
  */
 export type CommentInput = {
-  in_reply_to: string;
+  id?: string;
+  in_reply_to?: string;
   path: string;
   message: string;
   unresolved?: boolean;
@@ -161,4 +162,28 @@ export async function deleteDraftOrThrow(
   const options = {headers: {cookie: authCookie}};
 
   await Https.deleteOrThrow(url, options, sink);
+}
+
+/**
+ * Update a draft on Gerrit. Throws an error if the request is not fulfilled.
+ */
+export async function updateDraftOrThrow(
+  repoId: git.RepoId,
+  authCookie: string | undefined,
+  changeId: string,
+  revisionId: string,
+  draftId: string,
+  req: CommentInput,
+  sink: Sink
+): Promise<BaseCommentInfo> {
+  const urlBase = git.gerritUrl(repoId);
+  const url = `${urlBase}/a/changes/${encodeURIComponent(
+    changeId
+  )}/revisions/${encodeURIComponent(revisionId)}/drafts/${draftId}`;
+
+  const options =
+    authCookie !== undefined ? {headers: {cookie: authCookie}} : undefined;
+
+  const res = await Https.putJsonOrThrow(url, req, options, sink);
+  return parseResponse(res);
 }

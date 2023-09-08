@@ -15,6 +15,13 @@ type MenuItem = {
   group: string;
 };
 
+type MenuItemKey =
+  | 'comments/comment/context'
+  | 'comments/comment/title'
+  | 'comments/commentThread/context'
+  | 'comments/commentThread/title'
+  | 'view/item/context';
+
 export type PackageJson = {
   contributes: {
     configuration: {
@@ -31,9 +38,7 @@ export type PackageJson = {
         name: string;
       }[];
     };
-    menus: {
-      'view/item/context': MenuItem[];
-    };
+    menus: Record<MenuItemKey, MenuItem[]>;
   };
 };
 

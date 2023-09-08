@@ -261,6 +261,35 @@
         "icon": "$(trash)"
       },
       {
+        "command": "chromiumide.gerrit.editDraft",
+        "category": "CrOS",
+        "title": "Edit draft comment",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "chromiumide.gerrit.editDraftCancel",
+        "category": "CrOS",
+        "title": "Cancel"
+      },
+      {
+        "command": "chromiumide.gerrit.editDraftReply",
+        "category": "CrOS",
+        "title": "Save draft",
+        "enablement": "!commentIsEmpty"
+      },
+      {
+        "command": "chromiumide.gerrit.editDraftReplyAndResolve",
+        "category": "CrOS",
+        "title": "Save and Resolve",
+        "enablement": "!commentIsEmpty"
+      },
+      {
+        "command": "chromiumide.gerrit.editDraftReplyAndUnresolve",
+        "category": "CrOS",
+        "title": "Save and Unresolve",
+        "enablement": "!commentIsEmpty"
+      },
+      {
         "command": "chromiumide.gerrit.replyAndResolve",
         "category": "CrOS",
         "title": "Save and Resolve",
@@ -397,13 +426,40 @@
           "when": "comment =~ /<draft>/"
         },
         {
+          "command": "chromiumide.gerrit.editDraft",
+          "group": "inline@2",
+          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<draft>/ && !(comment =~ /<editing>/)"
+        },
+        {
           "command": "chromiumide.gerrit.browseComment",
-          "group": "inline@1",
+          "group": "inline@3",
           "when": "comment =~ /<public>/"
         },
         {
           "command": "chromiumide.gerrit.browseCommentAuthor",
-          "group": "inline@2"
+          "group": "inline@4"
+        }
+      ],
+      "comments/comment/context": [
+        {
+          "command": "chromiumide.gerrit.editDraftReply",
+          "group": "inline@1",
+          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraftReplyAndResolve",
+          "group": "inline@2",
+          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/ && comment =~ /<unresolved>/"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraftReplyAndUnresolve",
+          "group": "inline@3",
+          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/ && comment =~ /<resolved>/"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraftCancel",
+          "group": "inline@4",
+          "when": "config.chromiumide.underDevelopment.gerrit && comment =~ /<editing>/"
         }
       ],
       "editor/context": [
@@ -663,6 +719,26 @@
         },
         {
           "command": "chromiumide.gerrit.discardDraft",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraft",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraftCancel",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraftReply",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraftReplyAndResolve",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.gerrit.editDraftReplyAndUnresolve",
           "when": "false"
         },
         {
