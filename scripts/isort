@@ -7,7 +7,7 @@
 # network to see if there are any updates.
 
 # [VPYTHON:BEGIN]
-# python_version: "3.8"
+# python_version: "3.11"
 #
 # wheel: <
 #   name: "infra/python/wheels/isort-py3"
