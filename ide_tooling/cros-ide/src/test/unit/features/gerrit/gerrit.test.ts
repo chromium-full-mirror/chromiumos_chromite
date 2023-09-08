@@ -10,7 +10,6 @@ import * as gerrit from '../../../../features/gerrit/gerrit';
 import {POLL_INTERVAL_MILLIS} from '../../../../features/gerrit/model/gerrit_comments';
 import * as metrics from '../../../../features/metrics/metrics';
 import {GitDirsWatcher} from '../../../../services';
-import {underDevelopment} from '../../../../services/config';
 import {TaskStatus} from '../../../../ui/bg_task_status';
 import * as testing from '../../../testing';
 import {FakeStatusManager, VoidOutputChannel} from '../../../testing/fakes';
@@ -57,8 +56,6 @@ describe('Gerrit', () => {
   testing.installFakeConfigs(vscodeSpy, vscodeEmitters);
 
   const state = testing.cleanState(async () => {
-    await underDevelopment.gerrit.update(true);
-
     const state = {
       statusBarItem: jasmine.createSpyObj<vscode.StatusBarItem>(
         'statusBarItem',

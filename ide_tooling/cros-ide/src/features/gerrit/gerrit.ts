@@ -6,7 +6,6 @@ import * as vscode from 'vscode';
 import {JobManager} from '../../common/common_util';
 import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import * as services from '../../services';
-import {underDevelopment} from '../../services/config';
 import * as bgTaskStatus from '../../ui/bg_task_status';
 import * as metrics from '../metrics/metrics';
 import * as api from './api';
@@ -43,35 +42,6 @@ export function activate(
   const sink = new Sink(statusManager, subscriptions);
 
   subscriptions.push(new virtualDocument.GerritDocumentProvider());
-
-  if (underDevelopment.gerrit) {
-    // Test auth for Gerrit
-    subscriptions.push(
-      vscodeRegisterCommand(
-        'chromiumide.gerrit.internal.testAuth',
-        async () => {
-          const authCookie = await auth.readAuthCookie('cros-internal', sink);
-
-          const client = new api.RawGerritClient();
-          // Fetch from some internal Gerrit change
-          const infos: api.FilePathToBaseCommentInfos | undefined =
-            await client.fetchOrThrow(
-              'cros-internal',
-              'changes/I6743130cd3a84635a66f54f81fa839060f3fcb39/comments',
-              authCookie
-            );
-          const out = infos && JSON.stringify(infos);
-          sink.appendLine(
-            '[Internal] Output for the Gerrit auth test:\n' + out
-          );
-          // Judge that the auth has succeeded if the output is a valid JSON
-          void vscode.window.showInformationMessage(
-            out && JSON.parse(out) ? 'Auth succeeded!' : 'Auth failed!'
-          );
-        }
-      )
-    );
-  }
 
   const focusCommentsPanel = 'chromiumide.gerrit.focusCommentsPanel';
   subscriptions.push(

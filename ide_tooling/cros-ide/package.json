@@ -204,13 +204,6 @@
         "enablement": "config.chromiumide.testCoverage.enabled"
       },
       {
-        "command": "chromiumide.gerrit.internal.testAuth",
-        "category": "CrOS",
-        "title": "[Internal] Test Gerrit Auth",
-        "icon": "$(bug)",
-        "enablement": "config.chromiumide.underDevelopment.gerrit"
-      },
-      {
         "command": "chromiumide.gerrit.refreshComments",
         "category": "CrOS",
         "title": "Refresh Comments",
@@ -811,11 +804,6 @@
         "chromiumide.underDevelopment.chromiumBuild": {
           "type": "boolean",
           "description": "Enable build + deploy for chromium code (incomplete)",
-          "default": false
-        },
-        "chromiumide.underDevelopment.gerrit": {
-          "type": "boolean",
-          "description": "Enable new features for Gerrit (under development)",
           "default": false
         },
         "chromiumide.underDevelopment.platform2GtestDebugging": {

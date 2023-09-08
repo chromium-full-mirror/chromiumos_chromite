@@ -153,7 +153,6 @@ export const hints = {
 
 export const underDevelopment = {
   chromiumBuild: new ConfigValue<boolean>('underDevelopment.chromiumBuild'),
-  gerrit: new ConfigValue<boolean>('underDevelopment.gerrit'),
   platform2GtestDebugging: new ConfigValue<boolean>(
     'underDevelopment.platform2GtestDebugging'
   ),
