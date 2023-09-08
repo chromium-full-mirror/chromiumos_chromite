@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as https from 'https';
 import * as api from '../../../../features/gerrit/api';
 import * as git from '../../../../features/gerrit/git';
 import {Https} from '../../../../features/gerrit/https';
@@ -34,11 +35,12 @@ const CHROME_INTERNAL_GERRIT =
 
 /** Fluent helper for creating mocking `http.getOrThrow`. */
 export class FakeGerrit {
-  private readonly httpsGetSpy;
-  private readonly httpsPutSpy;
+  private readonly httpsGetSpy: jasmine.Spy<typeof Https.getOrThrow>;
+  private readonly httpsDeleteSpy: jasmine.Spy<typeof Https.deleteOrThrow>;
+  private readonly httpsPutSpy: jasmine.Spy<typeof Https.putJsonOrThrow>;
 
-  private readonly baseUrl;
-  private readonly reqOpts;
+  private readonly baseUrl: string;
+  private readonly reqOpts: https.RequestOptions;
 
   private readonly idToChangeInfo = new Map<
     string,
@@ -64,9 +66,10 @@ export class FakeGerrit {
     this.httpsGetSpy = spyOn(Https, 'getOrThrow')
       .withArgs(`${this.baseUrl}/a/accounts/me`, this.reqOpts)
       .and.resolveTo(apiString(opts?.accountsMe));
-
+    this.httpsDeleteSpy = spyOn(Https, 'deleteOrThrow');
     this.httpsPutSpy = spyOn(Https, 'putJsonOrThrow');
 
+    this.registerFakeDelete();
     this.registerFakePut();
   }
 
@@ -97,6 +100,54 @@ export class FakeGerrit {
       );
 
     return this;
+  }
+
+  private registerFakeDelete(): void {
+    this.httpsDeleteSpy.and.callFake(async (url, options): Promise<void> => {
+      expect(options).toEqual(this.reqOpts);
+
+      const deleteDraftRegex = new RegExp(
+        `${this.baseUrl}/a/changes/([^/]+)/revisions/([^/]+)/drafts/([^/]+)`
+      );
+      const m = deleteDraftRegex.exec(url);
+      if (!m) throw new Error(`unexpected URL: ${url}`);
+
+      const changeId = m[1];
+      const revisionId = m[2];
+      const commentId = m[3];
+
+      const changeInfo = this.idToChangeInfo.get(changeId);
+      if (!changeInfo) throw new Error(`Unknown change id: ${changeId}`);
+
+      if (!changeInfo.drafts) {
+        throw new Error(`draft comments not found in change ${changeId}`);
+      }
+
+      for (const [key, drafts] of Object.entries(changeInfo.drafts)) {
+        const draftToDelete = drafts.find(x => x.id === commentId);
+        if (!draftToDelete) continue;
+
+        const wantRevisionId = changeInfo.info?.revisions?.[
+          draftToDelete.commit_id!
+        ]?._number as number;
+        expect(revisionId).toEqual(wantRevisionId.toString());
+
+        const i = drafts.indexOf(draftToDelete);
+        const newComments = [...drafts.slice(0, i), ...drafts.slice(i + 1)];
+        const newChangeInfo = {
+          ...changeInfo,
+          drafts: {
+            ...changeInfo.drafts,
+            [key]: newComments,
+          },
+        };
+        this.idToChangeInfo.set(changeId, newChangeInfo);
+
+        return;
+      }
+
+      throw new Error(`draft comment with id ${commentId} not found`);
+    });
   }
 
   private registerFakePut(): void {

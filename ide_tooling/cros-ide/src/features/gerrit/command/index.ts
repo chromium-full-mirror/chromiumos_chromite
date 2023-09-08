@@ -4,11 +4,12 @@
 
 import * as vscode from 'vscode';
 import {vscodeRegisterCommand} from '../../../common/vscode/commands';
-import {VscodeCommentThread} from '../data';
+import {VscodeComment, VscodeCommentThread} from '../data';
 import {CommandContext} from './context';
-import {reply} from './draft';
+import {discardDraft, reply} from './draft';
 
 export enum CommandName {
+  DISCARD_DRAFT = 'chromiumide.gerrit.discardDraft',
   REPLY = 'chromiumide.gerrit.reply',
   REPLY_AND_RESOLVE = 'chromiumide.gerrit.replyAndResolve',
   REPLY_AND_UNRESOLVE = 'chromiumide.gerrit.replyAndUnresolve',
@@ -51,6 +52,9 @@ export class GerritCommands implements vscode.Disposable {
             text,
             /* unresolved = */ true
           )
+      ),
+      this.register(CommandName.DISCARD_DRAFT, (comment: VscodeComment) =>
+        discardDraft(ctx, comment)
       )
     );
   }

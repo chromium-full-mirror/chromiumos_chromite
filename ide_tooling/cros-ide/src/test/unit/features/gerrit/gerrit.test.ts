@@ -1526,6 +1526,14 @@ ADD
     expect(threads[0].contextValue).toMatch(/<unresolved>/);
     expect(threads[1].contextValue).toMatch(/<unresolved>/);
     expect(threads[2].contextValue).toMatch(/<resolved>/);
+
+    // Draft comments can be discarded.
+    await vscode.commands.executeCommand(
+      'chromiumide.gerrit.discardDraft',
+      threads[0].comments[1]
+    );
+    await completeShowChangeEvents.read();
+    expect(threads[0].comments.length).toEqual(1);
   });
 });
 

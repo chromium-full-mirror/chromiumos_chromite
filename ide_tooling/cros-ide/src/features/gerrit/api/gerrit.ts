@@ -141,3 +141,24 @@ export async function createDraftOrThrow(
   const res = await Https.putJsonOrThrow(url, req, options, sink);
   return parseResponse(res);
 }
+
+/**
+ * Deletes a draft from Gerrit. Throws an error if the request is not fulfilled.
+ */
+export async function deleteDraftOrThrow(
+  repoId: git.RepoId,
+  authCookie: string,
+  changeId: string,
+  revisionId: string,
+  commentId: string,
+  sink: Sink
+): Promise<void> {
+  const urlBase = git.gerritUrl(repoId);
+  const url = `${urlBase}/a/changes/${encodeURIComponent(
+    changeId
+  )}/revisions/${encodeURIComponent(revisionId)}/drafts/${commentId}`;
+
+  const options = {headers: {cookie: authCookie}};
+
+  await Https.deleteOrThrow(url, options, sink);
+}

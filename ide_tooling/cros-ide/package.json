@@ -251,6 +251,12 @@
         "enablement": "!commentIsEmpty"
       },
       {
+        "command": "chromiumide.gerrit.discardDraft",
+        "category": "CrOS",
+        "title": "Discard draft comment",
+        "icon": "$(trash)"
+      },
+      {
         "command": "chromiumide.gerrit.replyAndResolve",
         "category": "CrOS",
         "title": "Save and Resolve",
@@ -381,6 +387,11 @@
         }
       ],
       "comments/comment/title": [
+        {
+          "command": "chromiumide.gerrit.discardDraft",
+          "group": "inline@1",
+          "when": "comment =~ /<draft>/"
+        },
         {
           "command": "chromiumide.gerrit.browseComment",
           "group": "inline@1",
@@ -634,6 +645,10 @@
         },
         {
           "command": "chromiumide.deviceManagement.copyHostname",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.gerrit.discardDraft",
           "when": "false"
         },
         {

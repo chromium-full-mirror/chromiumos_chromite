@@ -36,6 +36,40 @@ export class Https {
   }
 
   /**
+   * Sends a delete request.
+   *
+   * Throws an error if the response is not successful (the status code is not 2xx).
+   */
+  static async deleteOrThrow(
+    url: string,
+    options: https.RequestOptions,
+    sink: Sink
+  ): Promise<void> {
+    sink.appendLine(`DELETE ${url}`);
+
+    return new Promise((resolve, reject) => {
+      https
+        .request(url, {...options, method: 'DELETE'}, res => {
+          if (
+            !res.statusCode ||
+            res.statusCode < 200 ||
+            300 <= res.statusCode
+          ) {
+            reject(new Error(`DELETE ${url}: status code: ${res.statusCode}`));
+            return;
+          }
+          const body: Uint8Array[] = [];
+          res.on('data', data => body.push(data));
+          res.on('end', () => {
+            resolve();
+          });
+        })
+        .on('error', reject)
+        .end();
+    });
+  }
+
+  /**
    * Sends PUT request over https.
    *
    * Returns the response if it is successful (200).

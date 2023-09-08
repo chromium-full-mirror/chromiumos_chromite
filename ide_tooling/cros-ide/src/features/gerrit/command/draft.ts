@@ -6,6 +6,7 @@ import * as vscode from 'vscode';
 import * as api from '../api';
 import * as auth from '../auth';
 import {Comment, VscodeComment, VscodeCommentThread} from '../data';
+import {RepoId} from '../git';
 import {CommandContext} from './context';
 
 export async function reply(
@@ -22,23 +23,8 @@ export async function reply(
     revisionNumber,
     filePath,
   } = thread.gerritCommentThread;
-  const authCookie = await auth.readAuthCookie(repoId, ctx.sink);
-  if (!authCookie) {
-    void (async () => {
-      const choice = await vscode.window.showErrorMessage(
-        'Failed to read auth cookie; confirm your .gitcookies is properly set up and you can run repo upload',
-        'Open document'
-      );
-      if (choice) {
-        await vscode.env.openExternal(
-          vscode.Uri.parse(
-            'https://www.chromium.org/chromium-os/developer-guide/gerrit-guide'
-          )
-        );
-      }
-    })();
-    return;
-  }
+  const authCookie = await getAuthCookie(ctx, repoId);
+  if (!authCookie) return;
 
   // Comment shown until real draft is fetched from Gerrit.
   const tentativeComment: VscodeComment = {
@@ -84,4 +70,67 @@ export async function reply(
     });
     void vscode.window.showErrorMessage(message);
   }
+}
+
+export async function discardDraft(
+  ctx: CommandContext,
+  comment: VscodeComment
+): Promise<void> {
+  const thread = ctx.getCommentThread(comment);
+  if (!thread) return;
+  const {
+    repoId,
+    changeId,
+    lastComment: {commentId},
+    revisionNumber,
+  } = thread.gerritCommentThread;
+
+  const authCookie = await getAuthCookie(ctx, repoId);
+  if (!authCookie) return;
+
+  try {
+    await api.deleteDraftOrThrow(
+      repoId,
+      authCookie,
+      changeId,
+      revisionNumber.toString(),
+      commentId,
+      ctx.sink
+    );
+  } catch (e) {
+    const message = `Failed to discard draft: ${e}`;
+    ctx.sink.show({
+      log: message,
+      metrics: message,
+      noErrorStatus: true,
+    });
+    void vscode.window.showErrorMessage(message);
+    return;
+  }
+
+  thread.comments = thread.comments.slice(0, thread.comments.length - 1);
+}
+
+async function getAuthCookie(
+  ctx: CommandContext,
+  repoId: RepoId
+): Promise<string | undefined> {
+  const authCookie = await auth.readAuthCookie(repoId, ctx.sink);
+  if (!authCookie) {
+    void (async () => {
+      const choice = await vscode.window.showErrorMessage(
+        'Failed to read auth cookie; confirm your .gitcookies is properly set up and you can run repo upload',
+        'Open document'
+      );
+      if (choice) {
+        await vscode.env.openExternal(
+          vscode.Uri.parse(
+            'https://www.chromium.org/chromium-os/developer-guide/gerrit-guide'
+          )
+        );
+      }
+    })();
+    return undefined;
+  }
+  return authCookie;
 }

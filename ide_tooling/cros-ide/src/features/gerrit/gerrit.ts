@@ -181,7 +181,8 @@ class Gerrit implements vscode.Disposable {
     }),
   ];
 
-  private readonly gerritComments;
+  private readonly gerritComments: GerritComments;
+  private readonly gerritCommands: GerritCommands;
 
   constructor(
     private readonly sink: Sink,
@@ -199,14 +200,22 @@ class Gerrit implements vscode.Disposable {
       onDidHandleEventForTestingEmitter.fire();
     });
 
-    const gerritCommands = new GerritCommands({
+    this.gerritCommands = new GerritCommands({
       sink,
+      getCommentThread: (
+        comment: VscodeComment
+      ): VscodeCommentThread | undefined => {
+        return [...this.gitDirToThreadIdToVscodeCommentThread.values()]
+          .flatMap(threads => [...threads.values()])
+          .find(thread => thread.comments.includes(comment));
+      },
     });
-    this.subscriptions.push(gerritCommands);
+    this.subscriptions.push(this.gerritCommands);
 
     this.subscriptions.push(
-      gerritCommands.onDidExecuteCommand(async e => {
+      this.gerritCommands.onDidExecuteCommand(async e => {
         switch (e) {
+          case CommandName.DISCARD_DRAFT:
           case CommandName.REPLY:
           case CommandName.REPLY_AND_RESOLVE:
           case CommandName.REPLY_AND_UNRESOLVE:
