@@ -1496,6 +1496,8 @@ ADD
       thread: threads[0],
       text: 'still unresolved',
     });
+    await completeShowChangeEvents.read();
+
     // Unresolve comment.
     await vscodeSpy.commands.executeCommand(
       'chromiumide.gerrit.replyAndUnresolve',
@@ -1504,6 +1506,8 @@ ADD
         text: 'unresolve',
       }
     );
+    await completeShowChangeEvents.read();
+
     // Resolve comment.
     await vscodeSpy.commands.executeCommand(
       'chromiumide.gerrit.replyAndResolve',
@@ -1512,10 +1516,6 @@ ADD
         text: 'resolve',
       }
     );
-
-    // Receive event for each draft update.
-    await completeShowChangeEvents.read();
-    await completeShowChangeEvents.read();
     await completeShowChangeEvents.read();
 
     // Draft comments are added to the view.

@@ -9,10 +9,9 @@ import * as services from '../../services';
 import * as bgTaskStatus from '../../ui/bg_task_status';
 import * as metrics from '../metrics/metrics';
 import * as api from './api';
-import * as auth from './auth';
+import {CommandName, GerritCommands} from './command';
 import {
   Change,
-  Comment,
   CommentThread,
   GitFileKey,
   VscodeComment,
@@ -174,32 +173,6 @@ class Gerrit implements vscode.Disposable {
 
   private readonly subscriptions: vscode.Disposable[] = [
     this.commentController,
-    vscodeRegisterCommand(
-      'chromiumide.gerrit.reply',
-      async ({thread, text}: vscode.CommentReply) => {
-        await this.reply(thread as VscodeCommentThread, text);
-      }
-    ),
-    vscodeRegisterCommand(
-      'chromiumide.gerrit.replyAndResolve',
-      async ({thread, text}: vscode.CommentReply) => {
-        await this.reply(
-          thread as VscodeCommentThread,
-          text,
-          /* unresolved = */ false
-        );
-      }
-    ),
-    vscodeRegisterCommand(
-      'chromiumide.gerrit.replyAndUnresolve',
-      async ({thread, text}: vscode.CommentReply) => {
-        await this.reply(
-          thread as VscodeCommentThread,
-          text,
-          /* unresolved = */ true
-        );
-      }
-    ),
     vscode.workspace.onDidSaveTextDocument(async document => {
       this.gitDiffHunksClient.evictCacheForDocument(document);
       // Avoid performing many git operations concurrently.
@@ -225,6 +198,22 @@ class Gerrit implements vscode.Disposable {
       await this.showChanges(gitDir, changes);
       onDidHandleEventForTestingEmitter.fire();
     });
+
+    const gerritCommands = new GerritCommands({
+      sink,
+    });
+    this.subscriptions.push(gerritCommands);
+
+    this.subscriptions.push(
+      gerritCommands.onDidExecuteCommand(async e => {
+        switch (e) {
+          case CommandName.REPLY:
+          case CommandName.REPLY_AND_RESOLVE:
+          case CommandName.REPLY_AND_UNRESOLVE:
+            await this.gerritComments.refresh();
+        }
+      })
+    );
   }
 
   /**
@@ -412,86 +401,7 @@ class Gerrit implements vscode.Disposable {
     this.statusBar.show();
   }
 
-  private async reply(
-    thread: VscodeCommentThread,
-    message: string,
-    unresolved?: boolean
-  ): Promise<void> {
-    const {
-      repoId,
-      changeId,
-      lastComment: {commentId},
-      changeNumber,
-      revisionNumber,
-      filePath,
-    } = thread.gerritCommentThread;
-    const authCookie = await auth.readAuthCookie(repoId, this.sink);
-    if (!authCookie) {
-      void (async () => {
-        const choice = await vscode.window.showErrorMessage(
-          'Failed to read auth cookie; confirm your .gitcookies is properly set up and you can run repo upload',
-          'Open document'
-        );
-        if (choice) {
-          await vscode.env.openExternal(
-            vscode.Uri.parse(
-              'https://www.chromium.org/chromium-os/developer-guide/gerrit-guide'
-            )
-          );
-        }
-      })();
-      return;
-    }
-
-    // Comment shown until real draft is fetched from Gerrit.
-    const tentativeComment: VscodeComment = {
-      body: message,
-      mode: vscode.CommentMode.Preview,
-      author: {name: 'Draft being created'},
-      gerritComment: new Comment(repoId, changeNumber, {
-        isPublic: true,
-        author: {
-          _account_id: 0,
-        },
-        in_reply_to: commentId,
-        id: '',
-        updated: 'now',
-        message,
-      }),
-    };
-
-    thread.comments = [...thread.comments, tentativeComment];
-    thread.canReply = false;
-
-    try {
-      await api.createDraftOrThrow(
-        repoId,
-        authCookie,
-        changeId,
-        revisionNumber.toString(),
-        {
-          in_reply_to: commentId,
-          path: filePath,
-          message,
-          unresolved,
-        },
-        this.sink
-      );
-    } catch (e) {
-      const err = e as Error;
-      const message = `Failed to create draft: ${err}`;
-      this.sink.show({
-        log: message,
-        metrics: message,
-        noErrorStatus: true,
-      });
-      void vscode.window.showErrorMessage(message);
-    }
-
-    await this.gerritComments.refresh();
-  }
-
   dispose(): void {
-    vscode.Disposable.from(...this.subscriptions.reverse()).dispose();
+    vscode.Disposable.from(...this.subscriptions.splice(0).reverse()).dispose();
   }
 }
