@@ -26,6 +26,9 @@ from chromite.lib import gerrit
 MAX_GERRIT_CHANGES = 225
 REVIEWER_KEY_TEXT = "Original-Reviewed-by"
 AUTHOR_KEY_TEXT = "Original-Signed-off-by"
+COPYBOT_SERVICE_ACCOUNT = (
+    "chromeos-ci-prod@chromeos-bot.iam.gserviceaccount.com"
+)
 
 CONTRIBUTOR_FILTERS = {
     "authors": AUTHOR_KEY_TEXT,
@@ -261,22 +264,86 @@ class CopybotDownstream:
                 )
         return warning_strings
 
-    def _find_cls_to_downstream(self) -> List[Dict]:
-        """Find all CLs to downstream for the given project.
+    def _get_relation_chain_and_info(self) -> Tuple[List[str], Dict]:
+        """Gets an ordered list of CLs to downstream and detailed info on each.
+
+        Also applies the limit set in self.opts.
 
         Returns:
-            A list of Gerrit CL dicts to downstream, including those which
-            have the {project}-downstream hashtag and the CLs to which they
-            are related.
+            A list of Gerrit CL numbers to downstream
+            A dictionary of CL detailed info with CL number as key
         """
-        copybot_downstream_cls = self.gerrit_helper.Query(
+        all_cls = self.gerrit_helper.Query(
             hashtag=f"{self.project}-downstream",
             status="open",
             raw=True,
             verbose=True,
             convert_results=False,
         )
-        return copybot_downstream_cls
+
+        logging.debug(
+            "CLs found in search (%d total): %s",
+            len(all_cls),
+            [cl["_number"] for cl in all_cls],
+        )
+
+        # Build a set of all CL numbers
+        cl_numbers_set = {cl["_number"] for cl in all_cls}
+
+        # Check if any CLs are NOT owned by the Copybot user
+        for cl in all_cls:
+            if cl["owner"]["email"] != COPYBOT_SERVICE_ACCOUNT:
+                raise RuntimeError(
+                    f"CL {cl['_number']} is not owned by the Copybot service "
+                    "account. Please investigate and re-run script."
+                )
+
+        # Take an arbitrary CL number and query its related CLs, which should
+        # yield the downstreaming relation chain, including itself. Reverse this
+        # list so index 0 is the bottom of the stack (most-depended-upon CL).
+        logging.debug(
+            "Using %s as arbitrary starting point", all_cls[0]["_number"]
+        )
+        relation_chain = self._get_related_cls(all_cls[0]["_number"])
+        relation_chain.reverse()
+
+        # Remove all in this chain from the set. If it doesn't exist, ignore
+        # but log it
+        for cl_num in relation_chain:
+            if cl_num not in cl_numbers_set:
+                logging.warning(
+                    "CL %s is in relation chain but wasn't in initial search "
+                    "results",
+                    cl_num,
+                )
+            cl_numbers_set.discard(cl_num)
+
+        if len(cl_numbers_set) > 0:
+            # If this is true, there are CL(s) present that are not part of the
+            # relation chain. This is weird. Report an error and stop.
+
+            raise RuntimeError(
+                "Found CL(s) that belong to a different relation chain: "
+                f"{sorted(cl_numbers_set)}"
+            )
+
+        if self.limit:
+            # Applying the limit here saves a lot of Gerrit API calls
+            logging.debug(
+                "CLs before applying limit (%d total): %s",
+                len(relation_chain),
+                relation_chain,
+            )
+
+            relation_chain = relation_chain[: self.limit]
+
+        # Get info on all CLs in relation chain
+        cl_info = {
+            cl_num: self.gerrit_helper.GetChangeDetail(cl_num, verbose=True)
+            for cl_num in relation_chain
+        }
+
+        return relation_chain, cl_info
 
     def _check_cl(
         self,
@@ -293,11 +360,7 @@ class CopybotDownstream:
             If empty, that means there are no problems.
         """
         warnings = []
-        logging.info("Processing %s", downstream_candidate_cl["_number"])
-        logging.debug(
-            "change info:\n\t%s",
-            "\n\t".join(f"{k}:{v}" for k, v in downstream_candidate_cl.items()),
-        )
+        logging.debug("Checking %s", downstream_candidate_cl["_number"])
         for func, extra_args in self.check_funcs:
             tmp_warnings = func(downstream_candidate_cl, extra_args)
             if tmp_warnings:
@@ -331,7 +394,7 @@ class CopybotDownstream:
             if self.check_hashtags(self.cl_info[change_num], ["copybot-skip"]):
                 continue
             filtered_cls.append(change_num)
-        return filtered_cls[: self.limit]
+        return filtered_cls
 
     def _get_related_cls(self, change_number: str) -> List[str]:
         """Get the list of related CLs for the passed in CL number.
@@ -413,50 +476,33 @@ class CopybotDownstream:
     def cmd_downstream(self):
         """Downstream copybot project CLs."""
 
-        copybot_downstream_cls = self._find_cls_to_downstream()
+        cls_to_downstream, self.cl_info = self._get_relation_chain_and_info()
 
-        if not copybot_downstream_cls:
+        if len(cls_to_downstream) == 0:
             logging.info("No %s CLs to downstream!", self.project)
             return 0
 
         all_warnings = defaultdict(list)
-        cls_to_downstream = []
-
-        for change in copybot_downstream_cls:
-            logging.debug("Top level Change: %s", change["_number"])
-            if change["_number"] not in cls_to_downstream:
-                cls_to_downstream.append(change["_number"])
-                self.cl_info[change["_number"]] = change
-                logging.debug("\tAdded to list")
-            for related_change_number in self._get_related_cls(
-                change["_number"]
-            ):
-                logging.debug("\trelated Change: %s", related_change_number)
-                if related_change_number in cls_to_downstream:
-                    logging.debug(
-                        "\t\tSkipping this one since it already exists"
-                    )
-                    continue
-                self.cl_info[
-                    related_change_number
-                ] = self.gerrit_helper.GetChangeDetail(
-                    related_change_number, verbose=True
-                )
-                cls_to_downstream.append(related_change_number)
 
         for change_num, change in self.cl_info.items():
             warnings = self._check_cl(change)
             if warnings:
                 all_warnings[change_num] = warnings
 
-        # CL dependencies come in with newest first, so do reverse.
-        cls_to_downstream.reverse()
         result = self._handle_checks_results(all_warnings)
         if result != 0:
             return result
+
+        logging.debug(
+            "cls_to_downstream before filtering (%d total): %s",
+            len(cls_to_downstream),
+            cls_to_downstream,
+        )
+
         cls_to_downstream = self._filter_cls(cls_to_downstream)
         logging.info(
-            "Downstreaming the following CLs:\n%s",
+            "Downstreaming the following CLs (%d total):\n%s",
+            len(cls_to_downstream),
             "\n".join(str(change_num) for change_num in cls_to_downstream),
         )
 
