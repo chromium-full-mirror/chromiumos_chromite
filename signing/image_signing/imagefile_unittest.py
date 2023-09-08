@@ -63,7 +63,7 @@ SAMPLE_KERNEL_CONFIG = (
     "root_hexdigest=9999999999999999999999999999999999999999 "
     'salt=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" '
     "noinitrd cros_debug vt.global_cursor_default=0 kern_guid=%U "
-    "add_efi_memmap noresume noswap i915.modeset=1 tpm_tis.force=1 "
+    "add_efi_memmap noresume i915.modeset=1 tpm_tis.force=1 "
     "tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off "
 )
 SAMPLE_VERITY_OUTPUT = (
@@ -503,7 +503,7 @@ class TestCalculateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
             "root_hexdigest=9999999999999999999999999999999999999999 "
             "salt=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
             'bbbb" noinitrd cros_debug vt.global_cursor_default=0 kern_guid=%U '
-            "add_efi_memmap noresume noswap i915.modeset=1 "
+            "add_efi_memmap noresume i915.modeset=1 "
             "tpm_tis.force=1 tpm_tis.interrupts=0 nmi_watchdog=panic,lapic "
             "disablevmx=off",
             rootfs_hash.calculated_kernel_cmdline.Format(),
@@ -573,7 +573,7 @@ class TestCalculateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
             "hashtree=PARTUUID=%U/PARTNROFF=1 hashstart=3891200 alg=sha1 "
             'root_hexdigest=9999999999999999999999999999999999999999" noinitrd '
             "cros_debug vt.global_cursor_default=0 kern_guid=%U add_efi_memmap "
-            "noresume noswap i915.modeset=1 tpm_tis.force=1 "
+            "noresume i915.modeset=1 tpm_tis.force=1 "
             "tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off",
             rootfs_hash.calculated_kernel_cmdline.Format(),
         )
@@ -649,7 +649,7 @@ class TestUpdateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
             'dm_verity.max_bios=-1 dm_verity.dev_wait=1 dm="1 vroot none ro '
             '1,0 800 verity alg=sha1" noinitrd cros_debug '
             "vt.global_cursor_default=0 kern_guid=%U add_efi_memmap "
-            "noresume noswap i915.modeset=1 tpm_tis.force=1 "
+            "noresume i915.modeset=1 tpm_tis.force=1 "
             "tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off"
         )
         expected_calls = [
@@ -689,7 +689,7 @@ class TestUpdateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
             'dm_verity.max_bios=-1 dm_verity.dev_wait=1 dm="1 vroot none ro '
             '1,0 800 verity alg=sha1" noinitrd cros_debug '
             "vt.global_cursor_default=0 kern_guid=%U add_efi_memmap "
-            "noresume noswap i915.modeset=1 tpm_tis.force=1 "
+            "noresume i915.modeset=1 tpm_tis.force=1 "
             "tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off"
         )
         expected_calls = [
