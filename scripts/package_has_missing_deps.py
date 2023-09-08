@@ -15,9 +15,10 @@ Example:
 import argparse
 import collections
 import os
+from pathlib import Path
 import pprint
 import sys
-from typing import Dict, List, Optional, Set, Union
+from typing import List, Optional, Set, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -54,6 +55,9 @@ class DotSoResolver:
         self.sdk_db = portage_util.PortageDB()
         self.db = self.sdk_db if root == "/" else portage_util.PortageDB(root)
         self.provided_libs_cache = {}
+
+        # Lazy initialize since it might not be needed.
+        self.lib_to_package_map = None
 
     def get_package(
         self, query: str, from_sdk=False
@@ -134,24 +138,33 @@ class DotSoResolver:
                 provided_libs.update(self.provided_libs(pkg))
         return provided_libs
 
-    def lib_to_package_map(self) -> Dict[str, Set[str]]:
-        """Return dict mapping libraries to packages."""
-        lookup = collections.defaultdict(set)
-        for pkg in self.db.InstalledPackages():
-            cpvr = f"{pkg.category}/{pkg.pf}"
-            # Packages with bundled libs for internal use and/or standaline
-            # binary packages.
-            if f"{pkg.category}/{pkg.package}" in (
-                "app-emulation/qemu",
-                "chromeos-base/aosp-frameworks-ml-nn-vts",
-                "chromeos-base/factory",
-                "chromeos-base/signingtools-bin",
-                "sys-devel/gcc-bin",
-            ):
-                continue
-            for lib in set(self.provided_libs(pkg)):
-                lookup[lib].add(cpvr)
-        return lookup
+    def lib_to_package(self, lib_filename: str = None) -> Set[str]:
+        """Return a set of packages that contain the library."""
+        if self.lib_to_package_map is None:
+            lookup = collections.defaultdict(set)
+            for pkg in self.db.InstalledPackages():
+                cpvr = f"{pkg.category}/{pkg.pf}"
+                # Packages with bundled libs for internal use and/or standaline
+                # binary packages.
+                if f"{pkg.category}/{pkg.package}" in (
+                    "app-emulation/qemu",
+                    "chromeos-base/aosp-frameworks-ml-nn-vts",
+                    "chromeos-base/factory",
+                    "chromeos-base/signingtools-bin",
+                    "sys-devel/gcc-bin",
+                ):
+                    continue
+                for lib in set(self.provided_libs(pkg)):
+                    lookup[lib].add(cpvr)
+            self.lib_to_package_map = lookup
+        else:
+            lookup = self.lib_to_package_map
+        if not lib_filename:
+            return set()
+        try:
+            return lookup[lib_filename]
+        except KeyError:
+            return set()
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -166,6 +179,14 @@ def get_parser() -> commandline.ArgumentParser:
         "--build-target",
         default=cros_build_lib.GetDefaultBoard(),
         help="ChromeOS board (Uses the SDK if not specified)",
+    )
+
+    parser.add_argument(
+        "-i",
+        "--build-info",
+        default=None,
+        type=Path,
+        help="Path to build-info folder post src_install",
     )
 
     parser.add_argument(
@@ -190,14 +211,15 @@ def parse_arguments(argv: List[str]) -> argparse.Namespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
-    if len(opts.package) == 1:
+    if opts.build_info and opts.package:
+        raise Exception("Do not specify a package when setting --board-info")
+    if opts.build_info or len(opts.package) == 1:
         opts.jobs = 1
     return opts
 
 
 def check_package(
-    package,
-    lib_to_package: Dict[str, List[str]],
+    package: portage_util.InstalledPackage,
     implicit: Set[str],
     resolver: DotSoResolver,
     match: bool,
@@ -226,7 +248,7 @@ def check_package(
         if match:
             missing = set()
             for lib in unsatisfied:
-                missing.update(lib_to_package[lib])
+                missing.update(resolver.lib_to_package(lib))
             if missing:
                 print(f"'{cpvr}' needs: ", end="")
                 pprint.pprint(missing)
@@ -248,12 +270,14 @@ def main(argv: Optional[List[str]]):
 
     failed = False
     resolver = DotSoResolver(board, root)
-    lib_to_package = {}
-    if opts.match:
-        lib_to_package = resolver.lib_to_package_map()
 
     if not opts.package:
-        packages = resolver.db.InstalledPackages()
+        if opts.build_info:
+            packages = [
+                portage_util.InstalledPackage(resolver.db, opts.build_info)
+            ]
+        else:
+            packages = resolver.db.InstalledPackages()
     else:
         packages = [resolver.get_package(p) for p in opts.package]
 
@@ -266,7 +290,6 @@ def main(argv: Optional[List[str]]):
         for package in packages:
             if not check_package(
                 package,
-                lib_to_package,
                 implicit,
                 resolver,
                 opts.match,
@@ -274,9 +297,12 @@ def main(argv: Optional[List[str]]):
             ):
                 failed = True
     else:
+        if opts.match:
+            # Pre initialize the map before starting jobs.
+            resolver.lib_to_package()
         for ret in parallel.RunTasksInProcessPool(
             lambda p: check_package(
-                p, lib_to_package, implicit, resolver, opts.match, opts.debug
+                p, implicit, resolver, opts.match, opts.debug
             ),
             [[p] for p in packages],
             opts.jobs,
