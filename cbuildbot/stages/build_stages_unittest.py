@@ -14,6 +14,7 @@ from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import build_stages
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.lib import build_summary
+from chromite.lib import buildstore
 from chromite.lib import cidb
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -26,7 +27,7 @@ from chromite.lib import parallel
 from chromite.lib import parallel_unittest
 from chromite.lib import partial_mock
 from chromite.lib import path_util
-from chromite.lib.buildstore import FakeBuildStore
+from chromite.utils import hostname_util
 
 
 # pylint: disable=too-many-ancestors
@@ -64,7 +65,7 @@ class InitSDKTest(_RunAbstractStageTestCase):
             self.tempdir, "buildroot", constants.CHROMITE_BIN_SUBDIR, "cros_sdk"
         )
         self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
+        self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
 
     def ConstructStage(self):
@@ -111,7 +112,7 @@ class UpdateSDKTest(_RunAbstractStageTestCase):
     """Test UpdateSDKStage."""
 
     def ConstructStage(self):
-        self.buildstore = FakeBuildStore()
+        self.buildstore = buildstore.FakeBuildStore()
         return build_stages.UpdateSDKStage(
             self._run, self.buildstore, self._current_board
         )
@@ -160,7 +161,7 @@ class SetupBoardTest(_RunAbstractStageTestCase):
             commands, "SetupToolchains"
         )
         self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
+        self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
 
         # Prevent the setup_board tempdir path from being translated because it
@@ -245,7 +246,7 @@ class UprevStageTest(generic_stages_unittest.AbstractStageTestCase):
 
         self._Prepare()
         self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
+        self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
 
     def ConstructStage(self):
@@ -326,7 +327,7 @@ class BuildPackagesStageTest(
         self._update_metadata = False
         self._mock_configurator = None
         self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
+        self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
 
     def ConstructStage(self):
@@ -582,7 +583,7 @@ EC (RW) version: reef_v1.1.5909-bd1f0c9
             "_ShouldEnableGoma",
             return_value=True,
         )
-        self.PatchObject(cros_build_lib, "HostIsCIBuilder", return_value=True)
+        self.PatchObject(hostname_util, "host_is_ci_builder", return_value=True)
         self._Prepare("amd64-generic-full")
         # Set stub dir name to enable goma.
         with osutils.TempDir() as goma_dir:
@@ -622,7 +623,7 @@ class BuildImageStageTest(BuildPackagesStageTest):
 
     def setUp(self):
         self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
+        self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
 
     def ConstructStage(self):
@@ -676,7 +677,7 @@ class CleanUpStageTest(generic_stages_unittest.StageTestCase):
 
     def setUp(self):
         self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
+        self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
 
         self.fake_db.InsertBuild(

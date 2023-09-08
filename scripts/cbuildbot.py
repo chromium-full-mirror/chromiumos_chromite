@@ -26,6 +26,7 @@ from chromite.cbuildbot import repository
 from chromite.cbuildbot import topology
 from chromite.cbuildbot.stages import completion_stages
 from chromite.lib import builder_status_lib
+from chromite.lib import buildstore
 from chromite.lib import cgroups
 from chromite.lib import cidb
 from chromite.lib import cleanup
@@ -43,7 +44,7 @@ from chromite.lib import sudo
 from chromite.lib import tee
 from chromite.lib import timeout_util
 from chromite.lib import ts_mon_config
-from chromite.lib.buildstore import BuildStore
+from chromite.utils import hostname_util
 
 
 _DEFAULT_LOG_DIR = "cbuildbot_logs"
@@ -155,7 +156,7 @@ def _RunBuildStagesWrapper(options, site_config, build_config):
         builder_run = cbuildbot_run.BuilderRun(
             options, site_config, build_config, manager
         )
-        buildstore = BuildStore()
+        build_store = buildstore.BuildStore()
         if metadata_dump_dict:
             builder_run.attrs.metadata.UpdateWithDict(metadata_dump_dict)
 
@@ -166,9 +167,9 @@ def _RunBuildStagesWrapper(options, site_config, build_config):
             else:
                 builder_cls_name = "simple_builders.SimpleBuilder"
             builder_cls = builders.GetBuilderClass(builder_cls_name)
-            builder = builder_cls(builder_run, buildstore)
+            builder = builder_cls(builder_run, build_store)
         else:
-            builder = builders.Builder(builder_run, buildstore)
+            builder = builders.Builder(builder_run, build_store)
 
         try:
             if not builder.Run():
@@ -1116,7 +1117,7 @@ def main(argv):
     if (
         options.buildbot
         and not options.debug
-        and not cros_build_lib.HostIsCIBuilder()
+        and not hostname_util.host_is_ci_builder()
     ):
         # --buildbot can only be used on a real builder, unless it's debug.
         cros_build_lib.Die("This host is not a supported build machine.")

@@ -13,9 +13,9 @@ from typing import Optional
 from chromite.lib import chromeos_version
 from chromite.lib import commandline
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import gerrit
 from chromite.lib import gob_util
+from chromite.utils import hostname_util
 
 
 # Gerrit hashtag for the LKGM Uprev CLs.
@@ -383,9 +383,9 @@ def main(argv):
     # We need to know the account used by the builder to upload git CLs when
     # listing up CLs.
     user_email = ""
-    if cros_build_lib.HostIsCIBuilder(golo_only=True):
+    if hostname_util.host_is_ci_builder(golo_only=True):
         user_email = "chromeos-commit-bot@chromium.org"
-    elif cros_build_lib.HostIsCIBuilder(gce_only=True):
+    elif hostname_util.host_is_ci_builder(gce_only=True):
         user_email = "3su6n15k.default@developer.gserviceaccount.com"
     else:
         raise LKGMFileNotFound("Failed to determine an appropriate user email.")

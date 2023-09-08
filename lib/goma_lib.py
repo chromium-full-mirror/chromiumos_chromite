@@ -20,6 +20,7 @@ from chromite.cbuildbot import goma_util
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
+from chromite.utils import hostname_util
 
 
 class GomaApproach(NamedTuple):
@@ -238,7 +239,7 @@ class Goma:
 
         self._AddCommonExtraEnv(result)
 
-        if cros_build_lib.HostIsCIBuilder():
+        if hostname_util.host_is_ci_builder():
             result["GOMA_GCE_SERVICE_ACCOUNT"] = "default"
             result["GCE_METADATA_HOST"] = os.environ.get(
                 "GCE_METADATA_HOST", ""
@@ -269,7 +270,7 @@ class Goma:
 
         self._AddCommonExtraEnv(result)
 
-        if cros_build_lib.HostIsCIBuilder():
+        if hostname_util.host_is_ci_builder():
             result["GOMA_GCE_SERVICE_ACCOUNT"] = "default"
 
         if self.goma_cache:
@@ -540,7 +541,7 @@ class LogsArchiver:
             "ninja_log.%s.%s.%s.%d"
             % (
                 getpass.getuser(),
-                cros_build_lib.GetHostName(),
+                hostname_util.get_host_name(),
                 ninja_log_mtime.strftime("%Y%m%d-%H%M%S"),
                 pid,
             ),

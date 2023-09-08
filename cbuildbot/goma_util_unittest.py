@@ -16,6 +16,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib import osutils
+from chromite.utils import hostname_util
 
 
 class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
@@ -63,7 +64,7 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
         )
 
         self.PatchObject(
-            cros_build_lib, "GetHostName", lambda: "stub-host-name"
+            hostname_util, "get_host_name", lambda: "stub-host-name"
         )
         copy_log = []
         self.PatchObject(
@@ -147,7 +148,7 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
         )
 
         self.PatchObject(
-            cros_build_lib, "GetHostName", lambda: "stub-host-name"
+            hostname_util, "get_host_name", lambda: "stub-host-name"
         )
         copy_log = []
         self.PatchObject(
@@ -235,7 +236,7 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
         osutils.WriteFile(os.path.join(self.tempdir, "ninja_exit"), "0")
 
         self.PatchObject(
-            cros_build_lib, "GetHostName", lambda: "stub-host-name"
+            hostname_util, "get_host_name", lambda: "stub-host-name"
         )
         copy_log = []
         self.PatchObject(

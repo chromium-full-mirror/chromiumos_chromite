@@ -15,6 +15,7 @@ import pytest  # pylint: disable=import-error
 from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.builders import simple_builders
+from chromite.lib import buildstore
 from chromite.lib import cgroups
 from chromite.lib import chromeos_version
 from chromite.lib import cidb
@@ -26,8 +27,8 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import partial_mock
 from chromite.lib import sudo
-from chromite.lib.buildstore import FakeBuildStore
 from chromite.scripts import cbuildbot
+from chromite.utils import hostname_util
 
 
 # pylint: disable=protected-access
@@ -97,7 +98,7 @@ class RunBuildStagesTest(
         self.bot_id = self.build_config.name
         self.build_config["master"] = False
         self.build_config["important"] = False
-        self.buildstore = FakeBuildStore()
+        self.buildstore = buildstore.FakeBuildStore()
 
         # Use the cbuildbot parser to create properties and populate default
         # values.
@@ -493,6 +494,6 @@ class FullInterfaceTest(cros_test_lib.MockTempDirTestCase):
         Buildbot should quite if run in a non-CIBuilder without
         both debug and remote.
         """
-        if not cros_build_lib.HostIsCIBuilder():
+        if not hostname_util.host_is_ci_builder():
             with self.assertRaises(cros_build_lib.DieSystemExit):
                 self.assertMain(["--buildbot", "amd64-generic-full"])

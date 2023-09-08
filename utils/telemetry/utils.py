@@ -5,19 +5,8 @@
 """Provides utility classes and functions."""
 
 import getpass
-import platform
 import re
 from typing import Optional, Pattern, Sequence, Tuple
-
-
-ALLOWED_HOSTNAME_SUFFIX = (".google.com", ".googler.com", ".googlers.com")
-
-
-def is_google_host():
-    """Checks if the code is running on google host."""
-
-    hostname = platform.node()
-    return hostname.endswith(ALLOWED_HOSTNAME_SUFFIX)
 
 
 class Anonymizer:

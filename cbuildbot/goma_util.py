@@ -16,6 +16,7 @@ import shlex
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
+from chromite.utils import hostname_util
 
 
 _GOMA_COMPILER_PROXY_LOG_URL_TEMPLATE = (
@@ -56,7 +57,7 @@ class GomaLogUploader:
             today = datetime.date.today()
         self.dest_path = "%s/%s" % (
             today.strftime("%Y/%m/%d"),
-            cros_build_lib.GetHostName(),
+            hostname_util.get_host_name(),
         )
         self._remote_dir = "gs://%s/%s" % (
             GomaLogUploader._BUCKET,
@@ -263,7 +264,7 @@ class GomaLogUploader:
             "ninja_log.%s.%s.%s.%d"
             % (
                 getpass.getuser(),
-                cros_build_lib.GetHostName(),
+                hostname_util.get_host_name(),
                 ninja_log_mtime.strftime("%Y%m%d-%H%M%S"),
                 pid,
             ),

@@ -19,10 +19,10 @@ from chromite.cbuildbot import topology_unittest
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.cbuildbot.stages import report_stages
 from chromite.lib import alerts
+from chromite.lib import buildstore
 from chromite.lib import chromeos_version
 from chromite.lib import cidb
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import failure_message_lib_unittest
 from chromite.lib import fake_cidb
 from chromite.lib import gs_unittest
@@ -31,7 +31,7 @@ from chromite.lib import osutils
 from chromite.lib import results_lib
 from chromite.lib import retry_stats
 from chromite.lib import toolchain
-from chromite.lib.buildstore import FakeBuildStore
+from chromite.utils import hostname_util
 
 
 # pylint: disable=protected-access
@@ -43,7 +43,7 @@ class BuildReexecutionStageTest(generic_stages_unittest.AbstractStageTestCase):
 
     def setUp(self):
         self.fake_db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.fake_db)
+        self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
         build_id = self.fake_db.InsertBuild(
             "builder name", 1, "build config", "bot hostname"
@@ -87,7 +87,7 @@ class ConfigDumpStageTest(generic_stages_unittest.AbstractStageTestCase):
     """Tests that ConfigDumpStage runs without syntax error."""
 
     def setUp(self):
-        self.buildstore = FakeBuildStore()
+        self.buildstore = buildstore.FakeBuildStore()
 
     def ConstructStage(self):
         return report_stages.ConfigDumpStage(self._run, self.buildstore)
@@ -104,7 +104,7 @@ class SlaveFailureSummaryStageTest(
 
     def setUp(self):
         self.db = mock.MagicMock()
-        self.buildstore = FakeBuildStore(self.db)
+        self.buildstore = buildstore.FakeBuildStore(self.db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.db)
         self._Prepare(build_id=1)
 
@@ -147,7 +147,7 @@ class BuildStartStageTest(generic_stages_unittest.AbstractStageTestCase):
 
     def setUp(self):
         self.db = fake_cidb.FakeCIDBConnection()
-        self.buildstore = FakeBuildStore(self.db)
+        self.buildstore = buildstore.FakeBuildStore(self.db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.db)
         retry_stats.SetupStats()
 
@@ -246,7 +246,7 @@ class AbstractReportStageTestCase(
         # mock requirements can replace this with a separate call to
         # SetupMockCidb
         self.mock_cidb = mock.MagicMock()
-        self.buildstore = FakeBuildStore(self.mock_cidb)
+        self.buildstore = buildstore.FakeBuildStore(self.mock_cidb)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.mock_cidb)
 
         # Setup topology for unittests
@@ -376,7 +376,7 @@ class ReportStageTest(AbstractReportStageTestCase):
     def testWriteTagMetadata(self):
         """Test that WriteTagMetadata writes expected keys correctly."""
         self.PatchObject(
-            cros_build_lib, "GetHostName", return_value="cros-wimpy2"
+            hostname_util, "get_host_name", return_value="cros-wimpy2"
         )
         report_stages.WriteTagMetadata(self._run)
         tags_dict = self._run.attrs.metadata.GetValue(constants.METADATA_TAGS)

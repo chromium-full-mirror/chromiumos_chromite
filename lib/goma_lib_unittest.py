@@ -17,6 +17,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib import goma_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.utils import hostname_util
 
 
 class GomaTest(cros_test_lib.TempDirTestCase, cros_test_lib.RunCommandTestCase):
@@ -302,7 +303,7 @@ class TestLogsArchiver(cros_test_lib.MockTempDirTestCase):
 
         username = getpass.getuser()
         pid = os.getpid()
-        hostname = cros_build_lib.GetHostName()
+        hostname = hostname_util.get_host_name()
         ninjalog_filename = "ninja_log.%s.%s.20170821-120000.%d.gz" % (
             username,
             hostname,

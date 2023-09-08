@@ -10,6 +10,7 @@ import os
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import image_lib
+from chromite.utils import hostname_util
 
 
 # LSB keys:
@@ -125,7 +126,7 @@ def _ParseArguments(argv):
 
     # If the auserver or devserver isn't specified or is set to blank, set it
     # to the host's hostname.
-    hostname = cros_build_lib.GetHostName(fully_qualified=True)
+    hostname = hostname_util.get_host_name(fully_qualified=True)
 
     if not opts.auserver:
         opts.auserver = "http://%s:8080/update" % hostname

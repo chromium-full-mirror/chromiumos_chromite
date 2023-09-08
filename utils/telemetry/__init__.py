@@ -12,10 +12,10 @@ from chromite.third_party.opentelemetry.sdk import resources as otel_resources
 from chromite.third_party.opentelemetry.sdk import trace as otel_trace
 from chromite.third_party.opentelemetry.sdk.trace import export as otel_export
 
+from chromite.utils import hostname_util
 from chromite.utils.telemetry import config
 from chromite.utils.telemetry import detector
 from chromite.utils.telemetry import exporter
-from chromite.utils.telemetry import utils
 
 
 NOTICE = """
@@ -84,7 +84,7 @@ def initialize(
             otel_export.BatchSpanProcessor(otel_export.ConsoleSpanExporter())
         )
 
-    if not utils.is_google_host():
+    if not hostname_util.is_google_host():
         return
 
     cfg = config.Config(config_file)

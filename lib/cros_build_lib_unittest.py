@@ -13,7 +13,6 @@ import os
 from pathlib import Path
 import shutil
 import signal
-import socket
 import subprocess
 from unittest import mock
 
@@ -1201,69 +1200,6 @@ class TestAssertNonRootUserCheck(cros_test_lib.MockTestCase):
         """Verify AssertRootUser raises an exception"""
         self.assertRaises(
             cros_build_lib.DieSystemExit, cros_build_lib.AssertRootUser
-        )
-
-
-class TestGetHostname(cros_test_lib.MockTestCase):
-    """Tests GetHostName & GetHostDomain functionality."""
-
-    def setUp(self):
-        self.gethostname_mock = self.PatchObject(
-            socket, "gethostname", return_value="m!!n"
-        )
-        self.gethostbyaddr_mock = self.PatchObject(
-            socket,
-            "gethostbyaddr",
-            return_value=(
-                "m!!n.google.com",
-                (
-                    "cow",
-                    "bar",
-                ),
-                ("127.0.0.1.a",),
-            ),
-        )
-
-    def testGetHostNameNonQualified(self):
-        """Verify non-qualified behavior"""
-        self.assertEqual(cros_build_lib.GetHostName(), "m!!n")
-
-    def testGetHostNameFullyQualified(self):
-        """Verify fully qualified behavior"""
-        self.assertEqual(
-            cros_build_lib.GetHostName(fully_qualified=True), "m!!n.google.com"
-        )
-
-    def testGetHostNameBadDns(self):
-        """Do not fail when the user's dns is bad"""
-        self.gethostbyaddr_mock.side_effect = socket.gaierror(
-            "should be caught"
-        )
-        self.assertEqual(cros_build_lib.GetHostName(), "m!!n")
-
-    def testGetHostDomain(self):
-        """Verify basic behavior"""
-        self.assertEqual(cros_build_lib.GetHostDomain(), "google.com")
-
-    def testHostIsCIBuilder(self):
-        """Test HostIsCIBuilder."""
-        fq_hostname_golo = "test.golo.chromium.org"
-        fq_hostname_gce_1 = "test.chromeos-bot.internal"
-        fq_hostname_gce_2 = "test.chrome.corp.google.com"
-        fq_hostname_invalid = "test"
-        self.assertTrue(cros_build_lib.HostIsCIBuilder(fq_hostname_golo))
-        self.assertTrue(cros_build_lib.HostIsCIBuilder(fq_hostname_gce_1))
-        self.assertTrue(cros_build_lib.HostIsCIBuilder(fq_hostname_gce_2))
-        self.assertFalse(cros_build_lib.HostIsCIBuilder(fq_hostname_invalid))
-        self.assertFalse(
-            cros_build_lib.HostIsCIBuilder(
-                fq_hostname=fq_hostname_golo, gce_only=True
-            )
-        )
-        self.assertFalse(
-            cros_build_lib.HostIsCIBuilder(
-                fq_hostname=fq_hostname_gce_1, golo_only=True
-            )
         )
 
 

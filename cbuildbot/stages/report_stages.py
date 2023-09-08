@@ -29,6 +29,7 @@ from chromite.lib import results_lib
 from chromite.lib import retry_stats
 from chromite.lib import toolchain
 from chromite.lib import uri_lib
+from chromite.utils import hostname_util
 from chromite.utils import key_value_store
 
 
@@ -54,7 +55,7 @@ def WriteBasicMetadata(builder_run):
 
     metadata = {
         # Data for this build.
-        "bot-hostname": cros_build_lib.GetHostName(fully_qualified=True),
+        "bot-hostname": hostname_util.get_host_name(fully_qualified=True),
         "build-number": builder_run.buildnumber,
         "builder-name": builder_run.GetBuilderName(),
         "bot-config": builder_run.config["name"],
@@ -81,7 +82,7 @@ def WriteTagMetadata(builder_run):
     # proof of concept, so far.
     tags = {
         "bot_config": builder_run.config["name"],
-        "bot_hostname": cros_build_lib.GetHostName(fully_qualified=True),
+        "bot_hostname": hostname_util.get_host_name(fully_qualified=True),
         "build_id": build_id,
         "build_number": builder_run.buildnumber,
         "builder_name": builder_run.GetBuilderName(),
