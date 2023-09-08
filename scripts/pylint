@@ -57,13 +57,6 @@
 #   version: "version:4.0.1"
 # >
 #
-# # Pylint extensions.
-#
-# wheel: <
-#   name: "infra/python/wheels/pylint-quotes-py3"
-#   version: "version:0.2.3"
-# >
-#
 # # Pylint dependencies.
 # # NB: Keep in sync with scripts/run_tests.vpython3.
 #
