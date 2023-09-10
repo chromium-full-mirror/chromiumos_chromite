@@ -415,29 +415,6 @@ class SetupBoardStage(generic_stages.BoardSpecificBuilderStage, InitSDKStage):
         )
 
 
-class BuildSDKBoardStage(
-    generic_stages.BoardSpecificBuilderStage, InitSDKStage
-):
-    """Stage responsible for building packages and the SDK board."""
-
-    option_name = "build"
-    category = constants.CI_INFRA_STAGE
-
-    def PerformStage(self):
-        # Build the SDK board.
-        chroot_args = None
-        if self._run.options.cache_dir:
-            chroot_args = ["--cache-dir", self._run.options.cache_dir]
-
-        commands.BuildSDKBoard(
-            self._build_root,
-            self._current_board,
-            force=self._run.config.board_replace,
-            extra_env=self._portage_extra_env,
-            chroot_args=chroot_args,
-        )
-
-
 class BuildPackagesStage(
     generic_stages.BoardSpecificBuilderStage, generic_stages.ArchivingStageMixin
 ):

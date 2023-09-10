@@ -353,14 +353,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 len(config["boards"]),
                 "Config %s has duplicate boards." % build_name,
             )
-            if config["builder_class_name"] in (
-                "sdk_builders.ChrootSdkBuilder",
-                "misc_builders.RefreshPackagesBuilder",
-            ):
-                self.assertTrue(
-                    len(config["boards"]) >= 1,
-                    "Config %s requires 1 or more boards." % build_name,
-                )
 
     def testOverlaySettings(self):
         """Verify overlays and push_overlays have legal values."""

@@ -174,7 +174,6 @@ CI_INFRA_STAGE = "CI-Infra"
 PRODUCT_OS_STAGE = "Product-OS"
 PRODUCT_ANDROID_STAGE = "Product-Android"
 PRODUCT_CHROME_STAGE = "Product-Chrome"
-PRODUCT_TOOLCHAIN_STAGE = "Product-Toolchain"
 
 
 # Re-execution API constants.

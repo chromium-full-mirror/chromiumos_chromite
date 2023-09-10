@@ -359,35 +359,6 @@ def LegacySetupBoard(
     )
 
 
-def BuildSDKBoard(
-    buildroot: str,
-    board: str,
-    force: bool = False,
-    extra_env: Dict[str, str] = None,
-    chroot_args: Dict = None,
-):
-    """Wrapper around setup_host_board.
-
-    Args:
-        board: The name of the board.
-        buildroot: The buildroot of the current build.
-        force: Whether to remove existing sysroot if it exists.
-        extra_env: A dictionary of environment variables to set.
-        chroot_args: The args to the chroot.
-    """
-    cmd = ["./build_sdk_board", "--board", board]
-    if force:
-        cmd.append("--force")
-
-    RunBuildScript(
-        buildroot,
-        cmd,
-        extra_env=extra_env,
-        enter_chroot=True,
-        chroot_args=chroot_args,
-    )
-
-
 def SetupToolchains(
     buildroot,
     usepkg=True,
