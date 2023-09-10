@@ -825,43 +825,6 @@ def SpecialtyBuilders(site_config):
     )
 
     site_config.AddWithoutTemplate(
-        "chromiumos-sdk",
-        site_config.templates.full,
-        # The amd64-host has to be last as that is when the toolchains
-        # are bundled up for inclusion in the sdk.
-        boards=["arm-generic", "amd64-generic"],
-        display_label=config_lib.DISPLAY_LABEL_UTILITY,
-        build_type=constants.CHROOT_BUILDER_TYPE,
-        builder_class_name="sdk_builders.ChrootSdkBuilder",
-        use_sdk=False,
-        prebuilts=constants.PUBLIC,
-        build_timeout=18 * 60 * 60,
-        description="Build the SDK and all the cross-compilers",
-        doc=(
-            "https://dev.chromium.org/chromium-os/build/builder-overview#"
-            "TOC-Continuous"
-        ),
-        schedule="with 30m interval",
-    )
-
-    site_config.AddWithoutTemplate(
-        "chromiumos-sdk-llvm-next",
-        site_config.templates.full,
-        boards=["arm-generic", "amd64-generic"],
-        display_label=config_lib.DISPLAY_LABEL_UTILITY,
-        build_type=constants.CHROOT_BUILDER_TYPE,
-        builder_class_name="sdk_builders.ChrootSdkBuilder",
-        use_sdk=False,
-        useflags=config_lib.append_useflags(["llvm-next"]),
-        # Do not store artifacts in gs://chromiumos-sdk.
-        debug=True,
-        prebuilts=constants.PUBLIC,
-        description="Build the SDK with llvm-next",
-        # Once every day. 8 AM UTC is 1 AM PST.
-        schedule="0 8 * * *",
-    )
-
-    site_config.AddWithoutTemplate(
         "config-updater",
         site_config.templates.internal,
         site_config.templates.infra_builder,

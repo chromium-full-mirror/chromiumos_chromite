@@ -113,8 +113,6 @@
     eve-release
 
 == utility ==
-  chromiumos-sdk
-  chromiumos-sdk-llvm-next
   config-updater
   luci-scheduler-updater
 
@@ -131,8 +129,6 @@
   brya-factory-brya-14909.124.B-factorybranch-tryjob
   brya-factory-brya-15231.B-factorybranch-tryjob
   cherry-factory-cherry-14455.B-factorybranch-tryjob
-  chromiumos-sdk-llvm-next-tryjob
-  chromiumos-sdk-tryjob
   config-updater-tryjob
   constitution-factory-brya-15231.B-factorybranch-tryjob
   coral-factory-coral-10122.B-factorybranch-tryjob

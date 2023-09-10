@@ -101,11 +101,6 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
             options, site_config, build_config, self._manager
         )
 
-    def testRunStagesChrootBuilder(self):
-        """Verify RunStages for CHROOT_BUILDER_TYPE builders"""
-        builder_run = self._initConfig("chromiumos-sdk")
-        simple_builders.SimpleBuilder(builder_run, self.buildstore).RunStages()
-
     def testRunStagesDefaultBuild(self):
         """Verify RunStages for standard board builders"""
         builder_run = self._initConfig("amd64-generic-full")
