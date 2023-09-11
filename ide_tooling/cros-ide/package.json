@@ -461,7 +461,7 @@
         },
         {
           "command": "chromiumide.boardsAndPackages.favoriteAdd",
-          "when": "view == boards-and-packages && !(viewItem =~ /favorite$/)",
+          "when": "view == boards-and-packages && viewItem =~ /^(category|package)/ && !(viewItem =~ /favorite$/)",
           "group": "0_favorite"
         },
         {
@@ -471,7 +471,7 @@
         },
         {
           "command": "chromiumide.boardsAndPackages.openEbuild",
-          "when": "view == boards-and-packages && viewItem =~ /^package(-favorite)?$/",
+          "when": "view == boards-and-packages && viewItem =~ /^package/",
           "group": "1_open"
         },
         {

@@ -6,12 +6,15 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commonUtil from '../../../../../common/common_util';
 import {BoardsAndPackages} from '../../../../../features/chromiumos/boards_and_packages';
+import {CommandName} from '../../../../../features/chromiumos/boards_and_packages/command';
+import {ViewItemContext} from '../../../../../features/chromiumos/boards_and_packages/constant';
 import {Breadcrumbs} from '../../../../../features/chromiumos/boards_and_packages/item';
 import {BoardItem} from '../../../../../features/chromiumos/boards_and_packages/item/board_item';
 import {ChrootService} from '../../../../../services/chromiumos';
 import * as config from '../../../../../services/config';
 import * as testing from '../../../../testing';
 import {FakeStatusManager, VoidOutputChannel} from '../../../../testing/fakes';
+import {readPackageJson} from '../../../../testing/package_json';
 
 describe('Boards and packages', () => {
   const {vscodeEmitters, vscodeSpy} = testing.installVscodeDouble();
@@ -402,5 +405,63 @@ describe('Boards and packages', () => {
     await config.boardsAndPackages.favoritePackages.update(['x/b', 'x/w']);
 
     await expectPackages([w, b, a, c]);
+  });
+
+  it('context menus are shown conditionally per context', () => {
+    const packageJson = readPackageJson();
+
+    for (const [command, contextValue, wantShown] of [
+      // workon start/stop commands
+      [CommandName.CROS_WORKON_START, ViewItemContext.PACKAGE_STOPPED, true],
+      [
+        CommandName.CROS_WORKON_START,
+        ViewItemContext.PACKAGE_STOPPED_FAVORITE,
+        true,
+      ],
+      [CommandName.CROS_WORKON_START, ViewItemContext.PACKAGE_STARTED, false],
+      [CommandName.CROS_WORKON_START, ViewItemContext.PACKAGE, false],
+      [CommandName.CROS_WORKON_STOP, ViewItemContext.PACKAGE_STARTED, true],
+      [
+        CommandName.CROS_WORKON_STOP,
+        ViewItemContext.PACKAGE_STARTED_FAVORITE,
+        true,
+      ],
+      [CommandName.CROS_WORKON_STOP, ViewItemContext.PACKAGE_STOPPED, false],
+      [CommandName.CROS_WORKON_STOP, ViewItemContext.PACKAGE, false],
+      // add/delete favorite commands
+      [CommandName.FAVORITE_ADD, ViewItemContext.BOARD, false],
+      [CommandName.FAVORITE_ADD, ViewItemContext.PACKAGE, true],
+      [CommandName.FAVORITE_ADD, ViewItemContext.PACKAGE_FAVORITE, false],
+      [CommandName.FAVORITE_ADD, ViewItemContext.CATEGORY, true],
+      [CommandName.FAVORITE_ADD, ViewItemContext.CATEGORY_FAVORITE, false],
+      [CommandName.FAVORITE_DELETE, ViewItemContext.BOARD, false],
+      [CommandName.FAVORITE_DELETE, ViewItemContext.PACKAGE, false],
+      [CommandName.FAVORITE_DELETE, ViewItemContext.PACKAGE_FAVORITE, true],
+      [CommandName.FAVORITE_DELETE, ViewItemContext.CATEGORY, false],
+      [CommandName.FAVORITE_DELETE, ViewItemContext.CATEGORY_FAVORITE, true],
+      // open ebuild
+      [CommandName.OPEN_EBUILD, ViewItemContext.PACKAGE, true],
+      [CommandName.OPEN_EBUILD, ViewItemContext.PACKAGE_FAVORITE, true],
+      [CommandName.OPEN_EBUILD, ViewItemContext.PACKAGE_STARTED, true],
+      [CommandName.OPEN_EBUILD, ViewItemContext.CATEGORY, false],
+      // set default board
+      [CommandName.SET_DEFAULT_BOARD, ViewItemContext.BOARD, true],
+      [CommandName.SET_DEFAULT_BOARD, ViewItemContext.BOARD_HOST, false],
+      [CommandName.SET_DEFAULT_BOARD, ViewItemContext.BOARD_DEFAULT, false],
+      [CommandName.SET_DEFAULT_BOARD, ViewItemContext.CATEGORY, false],
+    ] as const)
+      expect(
+        testing.evaluateWhenClause(
+          packageJson.contributes.menus['view/item/context'].find(
+            x => x.command === command
+          )!.when,
+          {
+            view: 'boards-and-packages',
+            viewItem: contextValue,
+          }
+        )
+      )
+        .withContext(`command ${command} under context ${contextValue}`)
+        .toEqual(wantShown);
   });
 });

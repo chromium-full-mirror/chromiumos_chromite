@@ -9,6 +9,12 @@ function packageJsonFilepath(): string {
   return path.join(__dirname, '../../../package.json');
 }
 
+type MenuItem = {
+  command: string;
+  when: string;
+  group: string;
+};
+
 export type PackageJson = {
   contributes: {
     configuration: {
@@ -24,6 +30,9 @@ export type PackageJson = {
         id: string;
         name: string;
       }[];
+    };
+    menus: {
+      'view/item/context': MenuItem[];
     };
   };
 };
