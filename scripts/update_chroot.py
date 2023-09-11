@@ -77,7 +77,7 @@ def get_parser() -> commandline.ArgumentParser:
     )
     group.add_argument(
         "--toolchain-boards",
-        default="",
+        nargs="+",
         help="Extra toolchains to setup for the specified boards.",
     )
     group.add_argument(
