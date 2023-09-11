@@ -1807,6 +1807,7 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
             ("CATEGORY", "category-1\n"),
             ("HOMEPAGE", "http://example.com\n"),
             ("LICENSE", "GPL-2\n"),
+            ("NEEDED", "/usr/sbin/bootlockboxd libmetrics.so,libhwsec.so\n"),
             ("PF", "package-1\n"),
             ("PROVIDES", "x86_64: libsystem_api.so\n"),
             ("repository", "portage-stable\n"),
@@ -1822,6 +1823,10 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
         self.assertEqual("category-1", pkg.category)
         self.assertEqual("http://example.com", pkg.homepage)
         self.assertEqual("GPL-2", pkg.license)
+        self.assertEqual(
+            {"/usr/sbin/bootlockboxd": ["libmetrics.so", "libhwsec.so"]},
+            pkg.needed,
+        )
         self.assertEqual("package-1", pkg.pf)
         self.assertEqual("portage-stable", pkg.repository)
         self.assertEqual(

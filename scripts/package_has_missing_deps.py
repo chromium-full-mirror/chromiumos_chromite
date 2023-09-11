@@ -80,7 +80,16 @@ class DotSoResolver:
 
     def get_required_libs(self, package) -> Set[str]:
         """Return a set of required .so files."""
-        return set(env_to_libs(package.requires or ""))
+        requires = package.requires
+        if requires is not None:
+            return set(env_to_libs(package.requires))
+        # Fallback to needed if requires is not available.
+        aggregate = set()
+        needed = package.needed
+        if needed is not None:
+            for libs in needed.values():
+                aggregate.update(libs)
+        return aggregate
 
     def get_deps(self, package):
         """Return a list of dependencies."""
@@ -125,11 +134,31 @@ class DotSoResolver:
         self.provided_libs_cache[cpvr] = libs
         return libs
 
+    def cache_libs_from_build(
+        self, package: portage_util.InstalledPackage, image_dir: Path
+    ):
+        """Populate the provided_libs_cache for the package from the image dir.
+
+        When using build-info, CONTENTS might not be available yet. so provide
+        alternative using the destination directory of the ebuild.
+        """
+
+        cpvr = f"{package.category}/{package.pf}"
+        libs = set()
+        for _, _, files in os.walk(image_dir):
+            for file in files:
+                if file.endswith(".so") or ".so." in file:
+                    libs.add(os.path.basename(file))
+        self.provided_libs_cache[cpvr] = libs
+
     def get_provided_from_all_deps(
         self, package: portage_util.InstalledPackage
     ) -> Set[str]:
         """Return a set of .so files provided by the immediate dependencies."""
         provided_libs = set()
+        # |package| may not actually be installed yet so manually add it to the
+        # since a package can depend on its own libs.
+        provided_libs.update(self.provided_libs(package))
         deps = self.get_deps(package)
         for dep in deps:
             info = package_info.parse(dep)
@@ -190,6 +219,14 @@ def get_parser() -> commandline.ArgumentParser:
     )
 
     parser.add_argument(
+        "-x",
+        "--image",
+        default=None,
+        type=Path,
+        help="Path to image folder post src_install (${D} if unspecified)",
+    )
+
+    parser.add_argument(
         "--match",
         default=False,
         action="store_true",
@@ -212,7 +249,9 @@ def parse_arguments(argv: List[str]) -> argparse.Namespace:
     parser = get_parser()
     opts = parser.parse_args(argv)
     if opts.build_info and opts.package:
-        raise Exception("Do not specify a package when setting --board-info")
+        parser.error("Do not specify a package when setting --board-info")
+    if opts.image and not opts.build_info:
+        parser.error("--image requires --board-info")
     if opts.build_info or len(opts.package) == 1:
         opts.jobs = 1
     return opts
@@ -273,9 +312,11 @@ def main(argv: Optional[List[str]]):
 
     if not opts.package:
         if opts.build_info:
-            packages = [
-                portage_util.InstalledPackage(resolver.db, opts.build_info)
-            ]
+            pkg = portage_util.InstalledPackage(resolver.db, opts.build_info)
+            image_path = opts.image or os.environ.get("D")
+            if image_path:
+                resolver.cache_libs_from_build(pkg, Path(image_path))
+            packages = [pkg]
         else:
             packages = resolver.db.InstalledPackages()
     else:

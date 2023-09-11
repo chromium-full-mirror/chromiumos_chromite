@@ -1647,6 +1647,23 @@ class InstalledPackage:
         return self._ReadField("SIZE")
 
     @property
+    def needed(self):
+        """Returns a mapping of files to the libraries they need."""
+        needed = self._ReadField("NEEDED")
+        if needed is None:
+            return needed
+        # Example:
+        #   /usr/sbin/bootlockboxd libmetrics.so,libhwsec.so,...
+        #   /usr/sbin/bootlockboxtool libbootlockbox-client.so,...
+        #   ...
+        mapping = {}
+        for line in needed.split("\n"):
+            parts = line.split(" ", 1)
+            if len(parts) > 1:
+                mapping[parts[0]] = parts[1].split(",") if parts[1] else []
+        return mapping
+
+    @property
     def package_info(self):
         if not self._pkg_info:
             self._pkg_info = package_info.parse(f"{self.category}/{self.pf}")
