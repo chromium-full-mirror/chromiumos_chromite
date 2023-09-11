@@ -113,17 +113,17 @@ describe('Boards and packages', () => {
     const codelab = await treeDataProvider.getTreeItem(
       Breadcrumbs.from('betty', 'chromeos-base', 'codelab')
     );
-    expect(codelab.contextValue).toEqual('package-started');
+    expect(codelab.contextValue).toEqual(ViewItemContext.PACKAGE_STARTED);
     expect(codelab.description).toEqual('(workon)');
 
     const shill = await treeDataProvider.getTreeItem(
       Breadcrumbs.from('betty', 'chromeos-base', 'shill')
     );
-    expect(shill.contextValue).toEqual('package-stopped');
+    expect(shill.contextValue).toEqual(ViewItemContext.PACKAGE_STOPPED);
     const delve = await treeDataProvider.getTreeItem(
       Breadcrumbs.from('betty', 'dev-go', 'delve')
     );
-    expect(delve.contextValue).toEqual('package');
+    expect(delve.contextValue).toEqual(ViewItemContext.PACKAGE);
   });
 
   it('refreshes when default board changes', async () => {

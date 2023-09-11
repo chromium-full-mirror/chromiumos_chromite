@@ -451,32 +451,32 @@
       "view/item/context": [
         {
           "command": "chromiumide.boardsAndPackages.crosWorkonStart",
-          "when": "view == boards-and-packages && viewItem =~ /^package-stopped/",
+          "when": "view == boards-and-packages && viewItem =~ /<package>/ && viewItem =~ /<stopped>/",
           "group": "3_workon"
         },
         {
           "command": "chromiumide.boardsAndPackages.crosWorkonStop",
-          "when": "view == boards-and-packages && viewItem =~ /^package-started/",
+          "when": "view == boards-and-packages && viewItem =~ /<package>/ && viewItem =~ /<started>/",
           "group": "3_workon"
         },
         {
           "command": "chromiumide.boardsAndPackages.favoriteAdd",
-          "when": "view == boards-and-packages && viewItem =~ /^(category|package)/ && !(viewItem =~ /favorite$/)",
+          "when": "view == boards-and-packages && viewItem =~ /(<category>|<package>)/ && !(viewItem =~ /<favorite>/)",
           "group": "0_favorite"
         },
         {
           "command": "chromiumide.boardsAndPackages.favoriteDelete",
-          "when": "view == boards-and-packages && viewItem =~ /favorite$/",
+          "when": "view == boards-and-packages && viewItem =~ /<favorite>/",
           "group": "0_favorite"
         },
         {
           "command": "chromiumide.boardsAndPackages.openEbuild",
-          "when": "view == boards-and-packages && viewItem =~ /^package/",
+          "when": "view == boards-and-packages && viewItem =~ /<package>/",
           "group": "1_open"
         },
         {
           "command": "chromiumide.boardsAndPackages.setDefaultBoard",
-          "when": "view == boards-and-packages && viewItem == board",
+          "when": "view == boards-and-packages && viewItem =~ /<board>/ && !(viewItem =~ /(<host>|<default>)/)",
           "group": "1_set"
         },
         {
