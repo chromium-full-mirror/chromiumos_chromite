@@ -29,6 +29,21 @@ from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 
 
+VIRTUALS = {
+    "virtual/libcrypt": ("sys-libs/libxcrypt",),
+    "virtual/libelf": ("dev-libs/elfutils", "sys-freebsd/freebsd-lib"),
+    "virtual/libiconv": ("dev-libs/libiconv",),
+    "virtual/libintl": ("dev-libs/libintl",),
+    "virtual/libudev": (
+        "sys-apps/systemd-utils",
+        "sys-fs/udev",
+        "sys-fs/eudev",
+        "sys-apps/systemd",
+    ),
+    "virtual/libusb": ("dev-libs/libusb", "sys-freebsd/freebsd-lib"),
+}
+
+
 def env_to_libs(var: str) -> List[str]:
     """Converts value of REQUIRES to a list of .so files.
 
@@ -91,12 +106,36 @@ class DotSoResolver:
                 aggregate.update(libs)
         return aggregate
 
-    def get_deps(self, package):
-        """Return a list of dependencies."""
+    def get_deps(self, package) -> List[portage_util.InstalledPackage]:
+        """Return a list of dependencies.
+
+        This expands the virtuals listed below.
+        """
         cpvr = f"{package.category}/{package.pf}"
-        return portage_util.GetFlattenedDepsForPackage(
+        expanded = []
+        deps = []
+        for dep in portage_util.GetFlattenedDepsForPackage(
             cpvr, board=self.board, depth=1
-        )
+        ):
+            info = package_info.parse(dep)
+            if not info:
+                continue
+
+            cp = info.cp
+            if cp in VIRTUALS:
+                expanded += VIRTUALS[cp]
+                continue
+
+            pkg = self.db.GetInstalledPackage(info.category, info.pvr)
+            if pkg:
+                deps.append(pkg)
+
+        for dep in expanded:
+            pkg = self.get_package(dep)
+            if pkg:
+                deps.append(pkg)
+
+        return deps
 
     def get_implicit_libs(self):
         """Return a set of .so files that are provided by the system."""
@@ -159,12 +198,8 @@ class DotSoResolver:
         # |package| may not actually be installed yet so manually add it to the
         # since a package can depend on its own libs.
         provided_libs.update(self.provided_libs(package))
-        deps = self.get_deps(package)
-        for dep in deps:
-            info = package_info.parse(dep)
-            pkg = self.db.GetInstalledPackage(info.category, info.pvr)
-            if pkg:
-                provided_libs.update(self.provided_libs(pkg))
+        for pkg in self.get_deps(package):
+            provided_libs.update(self.provided_libs(pkg))
         return provided_libs
 
     def lib_to_package(self, lib_filename: str = None) -> Set[str]:
