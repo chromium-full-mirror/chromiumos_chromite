@@ -17,6 +17,7 @@ export {Git} from './git';
 export {flushMicrotasks, flushMicrotasksUntil} from './tasks';
 export type {Mutable} from './types';
 export {EventReader} from './events';
+export {evaluateWhenClause} from './when_clause';
 
 export {installFakeConfigs, installVscodeDouble} from './doubles';
 
