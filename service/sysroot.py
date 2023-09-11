@@ -954,29 +954,17 @@ def BuildPackages(
                             ],
                             extra_env=bazel_extra_env,
                         )
-                        # Technically, `bazel run` (which occurs next) will also
-                        # build packages if they aren't built now, so this is
-                        # redundant. However, keeping `bazel build` as a
-                        # separate step gives us a single set of consolidated
-                        # metrics, as well as faster builds through greater
-                        # parallelism.
+
                         cros_build_lib.run(
-                            [bazel_cmd, "build"]
-                            + [
-                                f"@portage//{package}:package_set"
-                                for package in packages
-                            ],
-                            extra_env=bazel_extra_env,
+                            [
+                                constants.SOURCE_ROOT
+                                / "src/bazel/portage/tools"
+                                / "install_packages_to_sysroot.py",
+                                "--board",
+                                target.name,
+                            ]
+                            + packages
                         )
-                        for package in packages:
-                            cros_build_lib.run(
-                                [
-                                    bazel_cmd,
-                                    "run",
-                                    f"@portage//{package}:install",
-                                ],
-                                extra_env=bazel_extra_env,
-                            )
                     else:
                         cros_build_lib.sudo_run(
                             emerge_cmd + emerge_flags + packages,
