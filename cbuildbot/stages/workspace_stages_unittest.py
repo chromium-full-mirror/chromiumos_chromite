@@ -570,7 +570,7 @@ class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
 
         self.assertEqual(self.rc.call_count, 1)
         self.rc.assertCommandCalled(
-            ["./update_chroot", "--toolchain_boards", "board"],
+            ["./update_chroot"],
             enter_chroot=True,
             chroot_args=["--cache-dir", "/cache"],
             extra_env={
@@ -597,7 +597,7 @@ class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
 
         self.assertEqual(self.rc.call_count, 1)
         self.rc.assertCommandCalled(
-            ["./update_chroot", "--toolchain_boards", "board"],
+            ["./update_chroot"],
             enter_chroot=True,
             chroot_args=["--cache-dir", "/cache"],
             extra_env={

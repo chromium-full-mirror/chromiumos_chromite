@@ -501,7 +501,6 @@ class WorkspaceUpdateSDKStage(WorkspaceStageBase):
             self._build_root,
             usepkg=not self._latest_toolchain,
             extra_env=self._portage_extra_env,
-            toolchain_boards=self._run.config.boards,
             chroot_args=["--cache-dir", self._run.options.cache_dir],
         )
 
