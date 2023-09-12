@@ -8,7 +8,7 @@ import sys
 from typing import Optional
 
 
-assert sys.version_info >= (3, 8), "Chromite requires Python 3.8+"
+assert sys.version_info >= (3, 6), "Chromite requires Python 3.6+"
 
 # Set a custom logging class inside this module that provides the NOTICE level.
 NOTICE = 25
