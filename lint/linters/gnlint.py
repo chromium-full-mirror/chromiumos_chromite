@@ -63,6 +63,7 @@
 
 import json
 import logging
+import os
 import re
 import subprocess
 from typing import Dict, List, NamedTuple
@@ -817,6 +818,57 @@ def GnLintOrderingWithinTarget(gndata):
     return ret
 
 
+# List aliases we want people using for install_path.
+INSTALL_PATH_ALIASES = {
+    # executable
+    "/bin": "bin",
+    "/usr/bin": "bin",
+    "/sbin": "sbin",
+    "/usr/sbin": "sbin",
+    # shared_library
+    "/usr/lib": "lib",
+    "/usr/lib64": "lib",
+    # static_library
+    "/usr/local/lib": "lib",
+    # install_config
+    "/etc/dbus-1/system.d": "dbus_system_d",
+    "/usr/share/dbus-1/system-services": "dbus_system_services",
+    "/usr/share/minijail": "minijail_conf",
+    "/usr/share/policy": "seccomp_policy",
+    "/usr/lib/tmpfiles.d": "tmpfilesd",
+    "/usr/lib/tmpfiles.d/on-demand": "tmpfiled_ondemand",
+    "/etc/init": "upstart",
+}
+
+
+def GnLintInstallPathAlias(gndata):
+    """Flag aliases that people should be using for install_path."""
+    ret = []
+
+    def CheckNode(node):
+        child = node.get("child", [])
+        if len(child) != 2:
+            return
+        name = child[0].get("value")
+        if name != "install_path":
+            return
+        install_path = GetNodeValue(child[1])
+        install_normpath = os.path.normpath(install_path)
+        if install_normpath not in INSTALL_PATH_ALIASES.keys():
+            return
+        alt = INSTALL_PATH_ALIASES[install_normpath]
+        ret.append(
+            Issue(
+                node.get("location"),
+                f'CrOS uses the alias "{alt}" instead of "{install_path}" for'
+                "install_path",
+            )
+        )
+
+    WalkGn(CheckNode, gndata)
+    return ret
+
+
 def ParseOptions(options, name=None):
     """Parse out the linter settings from |options|.
 
@@ -881,6 +933,7 @@ _ALL_LINTERS = {
     "GnLintSourceFileNames": GnLintSourceFileNames,
     "GnLintPkgConfigs": GnLintPkgConfigs,
     "GnLintOrderingWithinTarget": GnLintOrderingWithinTarget,
+    "GnLintInstallPathAlias": GnLintInstallPathAlias,
 }
 
 

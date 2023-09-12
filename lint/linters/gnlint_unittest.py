@@ -150,6 +150,53 @@ def CreateTestData(flag_name, operator, value):
     }
 
 
+def CreateInstallPathTestData(target, value):
+    """creates data for testing simple assignment for install_path.
+
+    the assigned literal is set to be the error location when an error is
+    expected for the input.
+    """
+    # <target>("test") {
+    #   install_path = <value>
+    # }
+    return {
+        "child": [
+            {
+                "child": [
+                    {
+                        "child": [
+                            {
+                                "type": "LITERAL",
+                                "value": '"test"',
+                            }
+                        ],
+                    },
+                    {
+                        "child": [
+                            {
+                                "child": [
+                                    {
+                                        "type": "IDENTIFIER",
+                                        "value": "install_path",
+                                    },
+                                    {"type": "LITERAL", "value": value},
+                                ],
+                                "type": "LITERAL",
+                                "value": "=",
+                                "location": STUB_ERROR_LOCATION,
+                            }
+                        ],
+                        "type": "BLOCK",
+                    },
+                ],
+                "type": "FUNCTION",
+                "value": target,
+            }
+        ],
+        "type": "BLOCK",
+    }
+
+
 class GnLintTests(LintTestCase):
     """Tests of various gn linters."""
 
@@ -595,4 +642,70 @@ class GnLintTests(LintTestCase):
                 }
             ],
             is_bad_input=False,
+        )
+
+    def testGnLintInstallPathAlias(self):
+        """Verify GnLintInstallPathAlias catches full path instead of alias."""
+        self._CheckLinter(
+            linters.gnlint.GnLintInstallPathAlias,
+            [
+                # executable
+                CreateInstallPathTestData("executable", "bin"),
+                CreateInstallPathTestData("executable", "sbin"),
+                # shared_liabary
+                CreateInstallPathTestData("shared_library", "lib"),
+                # shared_library
+                CreateInstallPathTestData("static_library", "lib"),
+                # install_config
+                CreateInstallPathTestData("install_config", "dbus_system_d"),
+                CreateInstallPathTestData(
+                    "install_config", "dbus_system_services"
+                ),
+                CreateInstallPathTestData("install_config", "miniail_conf"),
+                CreateInstallPathTestData("install_config", "seccomp_policy"),
+                CreateInstallPathTestData("install_config", "tmpfilesd"),
+                CreateInstallPathTestData(
+                    "install_config", "tmpfiled_ondemand"
+                ),
+                CreateInstallPathTestData("install_config", "upstart"),
+                # absolute path
+                CreateInstallPathTestData("install_config", "/test/path"),
+            ],
+            is_bad_input=False,
+        )
+        self._CheckLinter(
+            linters.gnlint.GnLintInstallPathAlias,
+            [
+                # executable
+                CreateInstallPathTestData("executable", "/bin"),
+                CreateInstallPathTestData("executable", "/usr/bin"),
+                CreateInstallPathTestData("executable", "/sbin"),
+                CreateInstallPathTestData("executable", "/usr/sbin"),
+                # shared_liabary
+                CreateInstallPathTestData("shared_library", "/usr/lib"),
+                CreateInstallPathTestData("shared_library", "/usr/lib64"),
+                # shared_library
+                CreateInstallPathTestData("static_library", "/usr/local/lib"),
+                # install_config
+                CreateInstallPathTestData(
+                    "install_config", "/etc/dbus-1/system.d"
+                ),
+                CreateInstallPathTestData(
+                    "install_config", "/usr/share/dbus-1/system-services"
+                ),
+                CreateInstallPathTestData(
+                    "install_config", "/usr/share/minijail"
+                ),
+                CreateInstallPathTestData(
+                    "install_config", "/usr/share/policy"
+                ),
+                CreateInstallPathTestData(
+                    "install_config", "/usr/lib/tmpfiles.d"
+                ),
+                CreateInstallPathTestData(
+                    "install_config", "/usr/lib/tmpfiles.d/on-demand"
+                ),
+                CreateInstallPathTestData("install_config", "/etc/init"),
+                CreateInstallPathTestData("install_config", "/etc/init/"),
+            ],
         )
