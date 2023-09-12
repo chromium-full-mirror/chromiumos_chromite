@@ -956,8 +956,6 @@ class ChrootCreator:
         for path in (
             constants.CHROOT_SOURCE_ROOT,
             constants.CHROOT_OUT_ROOT,
-            Path("/mnt/host/depot_tools"),
-            Path("/run"),
         ):
             (Path(self.chroot.path) / path.relative_to("/")).mkdir(
                 mode=0o755, parents=True, exist_ok=True
