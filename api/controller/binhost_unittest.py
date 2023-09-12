@@ -53,8 +53,8 @@ class GetBinhostsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         """GetBinhosts calls service with correct args."""
         # pylint: disable=line-too-long
         binhost_list = [
-            "gs://cr-prebuilt/board/amd64-generic/paladin-R66-17.0.0-rc2/packages/",
-            "gs://cr-prebuilt/board/eve/paladin-R66-17.0.0-rc2/packages/",
+            f"{constants.TRASH_BUCKET}/board/amd64-generic/paladin-R66-17.0.0-rc2/packages/",
+            f"{constants.TRASH_BUCKET}/board/eve/paladin-R66-17.0.0-rc2/packages/",
         ]
         # pylint: enable=line-too-long
         get_binhost = self.PatchObject(

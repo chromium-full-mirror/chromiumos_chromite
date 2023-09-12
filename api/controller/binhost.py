@@ -41,7 +41,7 @@ def _GetBinhostsResponse(_input_proto, output_proto, _config):
     """Add fake binhosts to a successful response."""
     new_binhost = output_proto.binhosts.add()
     new_binhost.uri = (
-        "gs://cr-prebuilt/board/amd64-generic/"
+        f"{constants.TRASH_BUCKET}/board/amd64-generic/"
         "paladin-R66-17.0.0-rc2/packages/"
     )
     new_binhost.package_index = "Packages"
