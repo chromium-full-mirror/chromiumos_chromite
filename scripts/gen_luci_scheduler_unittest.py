@@ -4,7 +4,6 @@
 
 """Test gen_luci_scheduler."""
 
-from chromite.config import chromeos_config
 from chromite.lib import config_lib
 from chromite.lib import config_lib_unittest
 from chromite.lib import cros_test_lib
@@ -21,9 +20,7 @@ class GenLuciSchedulerTest(cros_test_lib.MockTestCase):
     def testSanityAgainstProd(self):
         """Test we can generate a luci scheduler config with live data."""
         # If it runs without crashing, we pass.
-        gen_luci_scheduler.genLuciSchedulerConfig(
-            config_lib.GetConfig(), chromeos_config.BranchScheduleConfig()
-        )
+        gen_luci_scheduler.genLuciSchedulerConfig(config_lib.GetConfig())
 
     def testGenSchedulerJob(self):
         """Test the job creation helper."""
@@ -231,31 +228,6 @@ job {
             ],
         )
 
-        default_config = config_lib.GetConfig().GetDefault()
-
-        branch_configs = [
-            default_config.derive(
-                name="branch_tester",
-                luci_builder="TestBuilder",
-                display_label="TestLabel",
-                schedule="run daily",
-                schedule_branch="test-branch",
-            ),
-            default_config.derive(
-                name="branch_tester_triggered",
-                luci_builder="TestBuilder",
-                display_label="TestLabel",
-                schedule="run daily",
-                schedule_branch="test-branch",
-                triggered_gitiles=[
-                    [
-                        "gitiles_url_a",
-                        ["ref_a", "ref_b"],
-                    ]
-                ],
-            ),
-        ]
-
         expected = """# Defines buckets on luci-scheduler.appspot.com.
 #
 # For schema of this file and documentation see ProjectConfig message in
@@ -297,7 +269,6 @@ trigger {
     refs: "ref_b"
   }
   triggers: "build_triggered_a"
-  triggers: "test-branch-branch_tester_triggered"
 }
 
 trigger {
@@ -388,47 +359,7 @@ job {
     properties: "cbb_extra_args:[\\"--buildbot\\"]"
   }
 }
-
-job {
-  id: "test-branch-branch_tester"
-  realm: "cbb-jobs"
-  acl_sets: "default"
-  schedule: "run daily"
-  buildbucket: {
-    server: "cr-buildbucket.appspot.com"
-    bucket: "general"
-    builder: "TestBuilder"
-    tags: "cbb_branch:test-branch"
-    tags: "cbb_config:branch_tester"
-    tags: "cbb_display_label:TestLabel"
-    properties: "cbb_branch:test-branch"
-    properties: "cbb_config:branch_tester"
-    properties: "cbb_display_label:TestLabel"
-    properties: "cbb_extra_args:[\\"--buildbot\\"]"
-  }
-}
-
-job {
-  id: "test-branch-branch_tester_triggered"
-  realm: "cbb-jobs"
-  acl_sets: "default"
-  schedule: "run daily"
-  buildbucket: {
-    server: "cr-buildbucket.appspot.com"
-    bucket: "general"
-    builder: "TestBuilder"
-    tags: "cbb_branch:test-branch"
-    tags: "cbb_config:branch_tester_triggered"
-    tags: "cbb_display_label:TestLabel"
-    properties: "cbb_branch:test-branch"
-    properties: "cbb_config:branch_tester_triggered"
-    properties: "cbb_display_label:TestLabel"
-    properties: "cbb_extra_args:[\\"--buildbot\\"]"
-  }
-}
 """
-        result = gen_luci_scheduler.genLuciSchedulerConfig(
-            site_config, branch_configs
-        )
+        result = gen_luci_scheduler.genLuciSchedulerConfig(site_config)
 
         self.assertEqual(result, expected)

@@ -15,16 +15,12 @@ Changes to chromite/config/luci-scheduler.cfg will be autodeployed:
 Notes:
   Normal builds are scheduled based on the builder values for
   'schedule' and 'triggered_gitiles' in config/chromeos_config.py.
-
-  Branched builds are scheduled based on the function
-  chromeos_config.BranchScheduleConfig()
 """
 
 # pylint: enable=line-too-long
 
 import sys
 
-from chromite.config import chromeos_config
 from chromite.lib import commandline
 from chromite.lib import config_lib
 
@@ -170,12 +166,11 @@ trigger {
     }
 
 
-def genLuciSchedulerConfig(site_config, branch_config):
+def genLuciSchedulerConfig(site_config):
     """Generate a luciSchedulerConfig as a string.
 
     Args:
         site_config: A config_lib.SiteConfig instance.
-        branch_config: A list of BuildConfig instances to schedule.
 
     Returns:
         The complete scheduler configuration contents as a string.
@@ -189,9 +184,7 @@ def genLuciSchedulerConfig(site_config, branch_config):
     jobs = []
 
     # Order the configs consistently.
-    configs = [
-        site_config[name] for name in sorted(site_config)
-    ] + branch_config
+    configs = [site_config[name] for name in sorted(site_config)]
 
     for config in configs:
         # Populate jobs.
@@ -249,11 +242,9 @@ def main(argv):
     options.Freeze()
 
     site_config = config_lib.GetConfig()
-    branch_config = chromeos_config.BranchScheduleConfig()
-
     with (
         open(options.file_out, "w", encoding="utf-8")
         if options.file_out
         else sys.stdout
     ) as fh:
-        fh.write(genLuciSchedulerConfig(site_config, branch_config))
+        fh.write(genLuciSchedulerConfig(site_config))
