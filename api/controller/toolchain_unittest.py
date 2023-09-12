@@ -68,9 +68,11 @@ class PrepareForBuildTest(
             toolchain,
             "_TOOLCHAIN_ARTIFACT_HANDLERS",
             {
-                BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE: (
+                BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE: (
                     toolchain._Handlers(
-                        "UnverifiedChromeLlvmOrderfile", self.prep, self.bundle
+                        "UnverifiedChromeBenchmarkAfdoFile",
+                        self.prep,
+                        self.bundle,
                     )
                 ),
             },
@@ -105,20 +107,20 @@ class PrepareForBuildTest(
     def testAcceptsNone(self):
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
-                BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE
+                BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
             ],
             chroot=None,
             sysroot=None,
         )
         toolchain.PrepareForBuild(request, self.response, self.api_config)
         self.prep.assert_called_once_with(
-            "UnverifiedChromeLlvmOrderfile", None, "", "", {}, {}
+            "UnverifiedChromeBenchmarkAfdoFile", None, "", "", {}, {}
         )
 
     def testHandlesUnknownInputArtifacts(self):
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
-                BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE
+                BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
             ],
             chroot=None,
             sysroot=None,
@@ -131,24 +133,24 @@ class PrepareForBuildTest(
         )
         toolchain.PrepareForBuild(request, self.response, self.api_config)
         self.prep.assert_called_once_with(
-            "UnverifiedChromeLlvmOrderfile", None, "", "", {}, {}
+            "UnverifiedChromeBenchmarkAfdoFile", None, "", "", {}, {}
         )
 
     def testPassesProfileInfo(self):
         # pylint: disable=line-too-long
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
-                BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE
+                BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
             ],
             chroot=None,
             sysroot=None,
             input_artifacts=[
                 BuilderConfig.Artifacts.InputArtifactInfo(
-                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE,
+                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE,
                     input_artifact_gs_locations=["path1", "path2"],
                 ),
                 BuilderConfig.Artifacts.InputArtifactInfo(
-                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE,
+                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE,
                     input_artifact_gs_locations=["path3"],
                 ),
             ],
@@ -160,12 +162,12 @@ class PrepareForBuildTest(
         # pylint: enable=line-too-long
         toolchain.PrepareForBuild(request, self.response, self.api_config)
         self.prep.assert_called_once_with(
-            "UnverifiedChromeLlvmOrderfile",
+            "UnverifiedChromeBenchmarkAfdoFile",
             None,
             "",
             "",
             {
-                "UnverifiedChromeLlvmOrderfile": [
+                "UnverifiedChromeBenchmarkAfdoFile": [
                     "gs://path1",
                     "gs://path2",
                     "gs://path3",
@@ -181,17 +183,17 @@ class PrepareForBuildTest(
         # pylint: disable=line-too-long
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
-                BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE
+                BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
             ],
             chroot=None,
             sysroot=None,
             input_artifacts=[
                 BuilderConfig.Artifacts.InputArtifactInfo(
-                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE,
+                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE,
                     input_artifact_gs_locations=["path1", "path2"],
                 ),
                 BuilderConfig.Artifacts.InputArtifactInfo(
-                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE,
+                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE,
                     input_artifact_gs_locations=["path3"],
                 ),
             ],
@@ -206,12 +208,12 @@ class PrepareForBuildTest(
         # pylint: enable=line-too-long
         toolchain.PrepareForBuild(request, self.response, self.api_config)
         self.prep.assert_called_once_with(
-            "UnverifiedChromeLlvmOrderfile",
+            "UnverifiedChromeBenchmarkAfdoFile",
             None,
             "",
             "",
             {
-                "UnverifiedChromeLlvmOrderfile": [
+                "UnverifiedChromeBenchmarkAfdoFile": [
                     "gs://path1",
                     "gs://path2",
                     "gs://path3",
@@ -228,17 +230,17 @@ class PrepareForBuildTest(
         # pylint: disable=line-too-long
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
-                BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE
+                BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
             ],
             chroot=None,
             sysroot=None,
             input_artifacts=[
                 BuilderConfig.Artifacts.InputArtifactInfo(
-                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE,
+                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE,
                     input_artifact_gs_locations=["path1", "path2"],
                 ),
                 BuilderConfig.Artifacts.InputArtifactInfo(
-                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE,
+                    input_artifact_type=BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE,
                     input_artifact_gs_locations=["path3"],
                 ),
             ],
@@ -246,12 +248,12 @@ class PrepareForBuildTest(
         # pylint: enable=line-too-long
         toolchain.PrepareForBuild(request, self.response, self.api_config)
         self.prep.assert_called_once_with(
-            "UnverifiedChromeLlvmOrderfile",
+            "UnverifiedChromeBenchmarkAfdoFile",
             None,
             "",
             "",
             {
-                "UnverifiedChromeLlvmOrderfile": [
+                "UnverifiedChromeBenchmarkAfdoFile": [
                     "gs://path1",
                     "gs://path2",
                     "gs://path3",
@@ -280,9 +282,11 @@ class BundleToolchainTest(
             toolchain,
             "_TOOLCHAIN_ARTIFACT_HANDLERS",
             {
-                BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE: (
+                BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE: (
                     toolchain._Handlers(
-                        "UnverifiedChromeLlvmOrderfile", self.prep, self.bundle
+                        "UnverifiedChromeBenchmarkAfdoFile",
+                        self.prep,
+                        self.bundle,
                     )
                 ),
             },
@@ -313,7 +317,7 @@ class BundleToolchainTest(
     def testValidateOnly(self):
         """Sanity check that a validate only call does not execute any logic."""
         request = self._GetRequest(
-            [BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE]
+            [BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE]
         )
         toolchain.BundleArtifacts(
             request, self.response, self.validate_only_config
@@ -321,18 +325,17 @@ class BundleToolchainTest(
         self.bundle.assert_not_called()
 
     def testSetsArtifactsInfo(self):
-        request = self._GetRequest(
-            [BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE]
+        artifact_type = (
+            BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
         )
+        request = self._GetRequest([artifact_type])
         self.bundle.return_value = ["artifact.txt", "empty", "does_not_exist"]
         toolchain.BundleArtifacts(request, self.response, self.api_config)
         self.assertEqual(1, len(self.response.artifacts_info))
         self.assertEqual(
             self.response.artifacts_info[0],
             toolchain_pb2.ArtifactInfo(
-                artifact_type=(
-                    BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE
-                ),
+                artifact_type=artifact_type,
                 artifacts=[
                     artifacts_pb2.Artifact(path=self.bundle.return_value[0])
                 ],

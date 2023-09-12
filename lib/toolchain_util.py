@@ -46,9 +46,6 @@ class PrepareForBuildReturn:
 # operations from chromite, including access to GS buckets.
 # Need to use build API and recipes to communicate to GS buckets in
 # the future.
-ORDERFILE_GS_URL_UNVETTED = (
-    "gs://chromeos-toolchain-artifacts/orderfile/unvetted"
-)
 BENCHMARK_AFDO_GS_URL = (
     "gs://chromeos-toolchain-artifacts/afdo/unvetted/benchmark"
 )
@@ -154,8 +151,7 @@ CWPProfileVersion = collections.namedtuple(
 
 MERGED_PROFILE_NAME_REGEX = r"""
       ^chromeos-chrome
-      -(?:orderfile|amd64|arm)                   # prefix for either orderfile
-                                                 # or release profile.
+      -(?:amd64|arm)                             # prefix for release profile.
       # CWP parts
       -(?:\w+)                                   # Profile type
       -(\d+)                                     # Major
@@ -169,8 +165,7 @@ MERGED_PROFILE_NAME_REGEX = r"""
       \.(\d+)                                    # Build
       \.(\d+)                                    # Patch
       -r(\d+)                                    # Revision
-      (?:\.orderfile|-redacted\.afdo)            # suffix for either orderfile
-                                                 # or release profile.
+      -redacted\.afdo                            # suffix for release profile.
       (?:\.xz)?$
 """
 
@@ -179,14 +174,10 @@ CHROME_PERF_AFDO_FILE = "%(package)s-%(arch)s-%(versionnorev)s.perf.data"
 CHROME_BENCHMARK_AFDO_FILE = "%s%s" % (CHROME_ARCH_VERSION, AFDO_SUFFIX)
 CHROME_DEBUG_BINARY_NAME = "%s.debug" % CHROME_ARCH_VERSION
 
-PROCESS_SCRIPT = os.path.join(
-    TOOLCHAIN_UTILS_PATH, "orderfile/post_process_orderfile.py"
-)
 CHROME_BINARY_PATH = (
     "/var/cache/chromeos-chrome/chrome-src-internal/"
     "src/out_{board}/Release/chrome"
 )
-INPUT_ORDERFILE_PATH = "/build/{board}/opt/google/chrome/chrome.orderfile.txt"
 
 
 class Error(Exception):
@@ -279,12 +270,12 @@ def _ParseCWPProfileName(profile_name):
 def _ParseMergedProfileName(
     artifact_name: str,
 ) -> Tuple[BenchmarkProfileVersion, CWPProfileVersion]:
-    """Parse the name of an orderfile or a release profile for Chrome.
+    """Parse the name of a release profile for Chrome.
 
     Examples:
-        With input: profile_name='chromeos-chrome-orderfile
+        With input: profile_name='chromeos-chrome-amd64
         -field-77-3809.38-1562580965
-        -benchmark-77.0.3849.0_rc-r1.orderfile.xz'
+        -benchmark-77.0.3849.0_rc-r1.afdo.xz'
         the function returns:
         (
             BenchmarkProfileVersion(
@@ -299,7 +290,7 @@ def _ParseMergedProfileName(
         )
 
     Args:
-        artifact_name: The name of an orderfile, or a release AFDO profile.
+        artifact_name: The name of a release AFDO profile.
 
     Returns:
         A tuple of (BenchmarkProfileVersion, CWPProfileVersion)
@@ -664,50 +655,6 @@ class _CommonPrepareBundle:
         logging.info("%s is not found in the ebuild: %s", variable, ebuild)
         return None
 
-    def _GetOrderfileName(self) -> str:
-        """Get the name of the orderfile.
-
-        Returns:
-            The orderfile base name derived from the GoB release AFDO.
-
-        Raises:
-            ValueError if self.profile is not set.
-        """
-        if not self.profile:
-            raise ValueError(
-                "Profile name is not set. "
-                "Is 'chrome_cwp_profile' missing in profile_info?"
-            )
-        artifact_version = self._GetArtifactVersionInGob(
-            profile_arch=self.profile
-        )
-        logging.info("Orderfile artifact version = %s", artifact_version)
-        benchmark_afdo, cwp_afdo = _ParseMergedProfileName(artifact_version)
-        profile_type = self.profile
-        if self.profile in ("", "atom", "bigcore"):
-            # Keep "field" as the default and backward compatible type.
-            profile_type = "field"
-        combined_name = _GetCombinedAFDOName(
-            cwp_afdo, profile_type, benchmark_afdo
-        )
-        return f"chromeos-chrome-orderfile-{combined_name}"
-
-    def _FindLatestOrderfileArtifact(self, gs_urls: Iterable[str]) -> str:
-        """Find the latest Ordering file artifact in a bucket.
-
-        Args:
-            gs_urls: List of full gs:// directory paths to check.
-
-        Returns:
-            The path of the latest eligible ordering file artifact.
-
-        Raises:
-            See _FindLatestAFDOArtifact.
-        """
-        return self._FindLatestAFDOArtifact(
-            gs_urls, self._ValidOrderfileVersion
-        )
-
     def _FindLatestAFDOArtifact(
         self,
         gs_urls: Iterable[str],
@@ -756,10 +703,6 @@ class _CommonPrepareBundle:
             Returns:
                 Files matching the branch.
             """
-            profile_type = self.profile
-            if self.profile in ("", "atom", "bigcore"):
-                # Keep "field" as the default and backward compatible type.
-                profile_type = "field"
             cwp_afdo_pattern = re.compile(rf"R{branch}")
             # Search by the arch and branch number.
             bench_afdo_pattern = re.compile(rf"chromeos-chrome-{arch}-{branch}")
@@ -768,18 +711,12 @@ class _CommonPrepareBundle:
             # checking 100 branch we have to ignore
             # "-field-100-*-benchmark-101-" profiles which are going to come
             # from main.
-            orderfile_pattern = re.compile(
-                rf"chromeos-chrome-orderfile-{profile_type}-[0-9\-.]+-"
-                rf"benchmark-{branch}"
-            )
             results = []
             for x in all_files:
                 x_name = os.path.basename(x.url)
-                # Filter in CWP, benchmark AFDO and Orderfiles.
-                if (
-                    cwp_afdo_pattern.match(x_name)
-                    or orderfile_pattern.match(x_name)
-                    or bench_afdo_pattern.match(x_name)
+                # Filter in CWP and benchmark AFDO.
+                if cwp_afdo_pattern.match(x_name) or bench_afdo_pattern.match(
+                    x_name
                 ):
                     results.append(x)
 
@@ -902,8 +839,7 @@ class _CommonPrepareBundle:
                     "Unable to update %s in the ebuild", [x.sub for x in want]
                 )
                 raise UpdateEbuildWithAFDOArtifactsError(
-                    "Ebuild file does not have appropriate marker for "
-                    "AFDO/orderfile."
+                    "Ebuild file does not have appropriate marker for AFDO."
                 )
 
         CPV = info.CPV
@@ -937,20 +873,6 @@ class _CommonPrepareBundle:
             self.chroot.run(cmd)
 
         return CPV
-
-    @staticmethod
-    def _ValidOrderfileVersion(url):
-        """Convert the given URL to a version for rank comparison."""
-        try:
-            bench, cwp = _ParseMergedProfileName(os.path.basename(url))
-            if bench.is_merged:
-                raise ValueError(
-                    "-merged should not appear in orderfile or release AFDO "
-                    "name."
-                )
-            return bench, cwp
-        except ProfilesNameHelperError:
-            return None
 
     @staticmethod
     def _ValidBenchmarkProfileVersion(name):
@@ -1421,54 +1343,6 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         logging.info("Build needed: No %s found. %s does not exist", key, path)
         return PrepareForBuildReturn.NEEDED
 
-    def _PrepareUnverifiedChromeLlvmOrderfile(self):
-        """Prepare to build an unverified ordering file."""
-        return self._CommonPrepareBasedOnGsPathExists(
-            name=(
-                self._GetOrderfileName() + ".orderfile" + XZ_COMPRESSION_SUFFIX
-            ),
-            url=ORDERFILE_GS_URL_UNVETTED,
-            key="UnverifiedChromeLlvmOrderfile",
-        )
-
-    def _PrepareVerifiedChromeLlvmOrderfile(self):
-        """Prepare to verify an unvetted ordering file."""
-        ret = PrepareForBuildReturn.NEEDED
-        # We will look for the input artifact in the given path, but we only
-        # check for the vetted artifact in the first location given.
-        locations = self.input_artifacts.get(
-            "UnverifiedChromeLlvmOrderfile", [ORDERFILE_GS_URL_UNVETTED]
-        )
-        path = self._FindLatestOrderfileArtifact(locations)
-        loc, name = os.path.split(path)
-
-        # If not given as an input_artifact, the vetted location is determined
-        # from the first location given for the unvetted artifact.
-        vetted_loc = self.input_artifacts.get(
-            "VerifiedChromeLlvmOrderfile", [None]
-        )[0]
-        if not vetted_loc:
-            vetted_loc = os.path.join(os.path.dirname(locations[0]), "vetted")
-        vetted_path = os.path.join(vetted_loc, name)
-        if self.gs_context.Exists(vetted_path):
-            # The latest unverified ordering file has already been verified.
-            logging.info('Pointless build: "%s" exists.', vetted_path)
-            ret = PrepareForBuildReturn.POINTLESS
-
-        # If we don't have an SDK, then we cannot update the manifest.
-        if self.chroot:
-            self._PatchEbuild(
-                self._GetEbuildInfo(constants.CHROME_PN),
-                {
-                    "UNVETTED_ORDERFILE": os.path.splitext(name)[0],
-                    "UNVETTED_ORDERFILE_LOCATION": loc,
-                },
-                uprev=True,
-            )
-        else:
-            logging.info("No chroot: not patching ebuild.")
-        return ret
-
     def _PrepareChromeClangWarningsFile(self):
         # We always build this artifact.
         return PrepareForBuildReturn.NEEDED
@@ -1836,9 +1710,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
     def Bundle(self):
         return self._bundle_func()
 
-    def _CheckArguments(
-        self, input_orderfile: Path, chrome_binary: Path
-    ) -> None:
+    def _CheckArguments(self, chrome_binary: Path) -> None:
         """Make sure the arguments received are correct."""
         if not os.path.isdir(self.output_dir):
             raise BundleArtifactsHandlerError(
@@ -1853,128 +1725,6 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             raise BundleArtifactsHandlerError(
                 f"'{chrome_binary_path_outside}' chrome binary does not exist"
             )
-
-        chrome_orderfile_path_outside = self.chroot.full_path(
-            self.sysroot_path, input_orderfile
-        )
-        if not os.path.exists(chrome_orderfile_path_outside):
-            raise BundleArtifactsHandlerError(
-                "No orderfile generated in the builder. "
-                f"Expected '{chrome_orderfile_path_outside}'"
-            )
-
-    def _GenerateChromeNM(
-        self, orderfile_name: Path, chrome_binary: Path
-    ) -> Path:
-        """Generate symbols by running nm command on Chrome binary.
-
-        This command runs inside chroot.
-        """
-        cmd = ["llvm-nm", "-n", chrome_binary]
-        result_inchroot = os.path.join(
-            self.chroot.chroot_path(self.chroot.tmp), orderfile_name + ".nm"
-        )
-        result_out_chroot = os.path.join(
-            self.chroot.tmp, orderfile_name + ".nm"
-        )
-
-        try:
-            self.chroot.run(cmd, stdout=result_out_chroot)
-        except cros_build_lib.RunCommandError:
-            raise BundleArtifactsHandlerError(
-                f"Unable to run {cmd} to get nm on Chrome binary"
-            )
-
-        # Return path inside chroot
-        return result_inchroot
-
-    def _PostProcessOrderfile(
-        self,
-        input_orderfile: Path,
-        chrome_nm: Path,
-        output_orderfile_name: Path,
-    ) -> Path:
-        """Use toolchain script to do post-process on the orderfile.
-
-        This command runs inside chroot.
-
-        Args:
-            input_orderfile: Chroot path to the input orderfile.
-            chrome_nm: Chroot path to the chrome symbols file.
-            output_orderfile_name: Basename of the output orderfile.
-
-        Returns:
-            Chroot path to the generated orderfile.
-
-        Raises:
-            BundleArtifactsHandlerError if generation fails.
-        """
-        output_orderfile_path = os.path.join(
-            self.chroot.chroot_path(self.chroot.tmp),
-            output_orderfile_name + ".orderfile",
-        )
-        cmd = [
-            PROCESS_SCRIPT,
-            "--chrome",
-            chrome_nm,
-            "--input",
-            input_orderfile,
-            "--output",
-            output_orderfile_path,
-        ]
-
-        try:
-            self.chroot.run(
-                cmd,
-                check=True,
-                capture_output=True,
-            )
-        except cros_build_lib.RunCommandError as e:
-            raise BundleArtifactsHandlerError(
-                f"Unable to run %s to process orderfile {cmd} "
-                f"with error: {e.stdout} {e.stderr}."
-            )
-
-        return output_orderfile_path
-
-    def _BundleUnverifiedChromeLlvmOrderfile(self) -> List[Path]:
-        """Bundle to build an unverified ordering file."""
-        input_orderfile = INPUT_ORDERFILE_PATH.format(board=self.build_target)
-        chrome_binary = CHROME_BINARY_PATH.format(board=self.build_target)
-        self._CheckArguments(input_orderfile, chrome_binary)
-
-        orderfile_name = self._GetOrderfileName()
-        chrome_nm = self._GenerateChromeNM(orderfile_name, chrome_binary)
-        orderfile = self._PostProcessOrderfile(
-            input_orderfile, chrome_nm, orderfile_name
-        )
-        tarballs = _CompressAFDOFiles(
-            [chrome_nm, orderfile],
-            self.chroot.tmp,
-            self.output_dir,
-            XZ_COMPRESSION_SUFFIX,
-        )
-        return tarballs
-
-    def _BundleVerifiedChromeLlvmOrderfile(self):
-        """Bundle vetted ordering file."""
-        orderfile_name = self._GetArtifactVersionInEbuild(
-            constants.CHROME_PN, "UNVETTED_ORDERFILE"
-        )
-        if not orderfile_name:
-            raise BundleArtifactsHandlerError(
-                "Could not find UNVETTED_ORDERFILE version in "
-                f"{constants.CHROME_PN}"
-            )
-        orderfile_name += XZ_COMPRESSION_SUFFIX
-
-        # Strip the leading / from sysroot_path.
-        orderfile_path = self.chroot.full_path(
-            self.sysroot_path, "opt/google/chrome", orderfile_name
-        )
-        verified_orderfile = os.path.join(self.output_dir, orderfile_name)
-        shutil.copy2(orderfile_path, verified_orderfile)
-        return [verified_orderfile]
 
     def _BundleChromeClangWarningsFile(self):
         """Bundle clang-tidy warnings file."""

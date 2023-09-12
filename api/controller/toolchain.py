@@ -37,16 +37,6 @@ PackageInfo = common_pb2.PackageInfo
 
 _Handlers = collections.namedtuple("_Handlers", ["name", "prepare", "bundle"])
 _TOOLCHAIN_ARTIFACT_HANDLERS = {
-    BuilderConfig.Artifacts.UNVERIFIED_CHROME_LLVM_ORDERFILE: _Handlers(
-        "UnverifiedChromeLlvmOrderfile",
-        toolchain_util.PrepareForBuild,
-        toolchain_util.BundleArtifacts,
-    ),
-    BuilderConfig.Artifacts.VERIFIED_CHROME_LLVM_ORDERFILE: _Handlers(
-        "VerifiedChromeLlvmOrderfile",
-        toolchain_util.PrepareForBuild,
-        toolchain_util.BundleArtifacts,
-    ),
     BuilderConfig.Artifacts.UNVERIFIED_LLVM_PGO_FILE: _Handlers(
         "UnverifiedLlvmPgoFile",
         toolchain_util.PrepareForBuild,
