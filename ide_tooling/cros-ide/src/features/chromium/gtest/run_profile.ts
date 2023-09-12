@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import * as config from '../../../services/config';
 import {GtestWorkspace} from '../../gtest/gtest_workspace';
 import {TestControllerSingleton} from '../../gtest/test_controller_singleton';
 import {Runner} from './runner';
@@ -34,14 +35,14 @@ export class RunProfile implements vscode.Disposable {
   }
 
   private initialize(controller: vscode.TestController) {
-    this.subscriptions.push(
-      controller.createRunProfile(
-        'gtest',
-        vscode.TestRunProfileKind.Run,
-        this.runHandler.bind(this, controller),
-        /* isDefault = */ true
-      )
+    const runProfile = controller.createRunProfile(
+      'gtest',
+      vscode.TestRunProfileKind.Run,
+      this.runHandler.bind(this, controller),
+      /* isDefault = */ true
     );
+    runProfile.configureHandler = this.configureHandler.bind(this);
+    this.subscriptions.push(runProfile);
   }
 
   private async runHandler(
@@ -57,5 +58,22 @@ export class RunProfile implements vscode.Disposable {
       this.gtestWorkspace
     );
     await runner.run();
+  }
+
+  private configureHandler() {
+    // VSCode does not support async configure handlers, thus ignore the Promise result.
+    void this.asyncConfigureHandler();
+  }
+
+  private async asyncConfigureHandler() {
+    const result = await vscode.window.showQuickPick(['yes', 'no'], {
+      canPickMany: false,
+      title: 'Run tests in parallel',
+    });
+    if (result === 'yes') {
+      await config.chrome.gtest.botMode.update(true);
+    } else if (result === 'no') {
+      await config.chrome.gtest.botMode.update(false);
+    }
   }
 }
