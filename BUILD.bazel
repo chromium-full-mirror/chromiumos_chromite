@@ -80,3 +80,18 @@ pkg_tar(
     extension = "tar.zst",
     visibility = ["@//bazel:internal"],
 )
+
+# The following targets should ideally be defined elsewhere.
+# However, if we added third_party/BUILD.bazel, for example, then the glob
+# above would exclude them.
+py_library(
+    name = "elftools",
+    srcs = glob(["third_party/pyelftools/elftools/**/*.py"]),
+)
+
+py_binary(
+    name = "lddtree",
+    srcs = ["third_party/lddtree.py"],
+    visibility = ["//visibility:public"],
+    deps = [":elftools"],
+)
