@@ -167,13 +167,8 @@ def main(argv):
     chromite_config.initialize()
     telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
 
-    with tracer.start_as_current_span("scripts.cros_run_unit_tests") as span:
-        try:
-            inner_main(opts)
-        except KeyboardInterrupt as e:
-            span.record_exception(e)
-            span.set_status(trace.StatusCode.OK, "KeyboardInterrupt")
-            raise
+    with tracer.start_as_current_span("scripts.cros_run_unit_tests"):
+        inner_main(opts)
 
 
 def inner_main(opts: commandline.ArgumentNamespace):

@@ -559,7 +559,3 @@ def build_packages(opts: commandline.ArgumentNamespace):
         span.record_exception(e)
         span.set_status(status.StatusCode.ERROR, str(e))
         cros_build_lib.Die(e)
-    except KeyboardInterrupt as e:
-        span.record_exception(e)
-        span.set_status(status.StatusCode.OK)
-        raise

@@ -16,6 +16,7 @@ from chromite.utils import hostname_util
 from chromite.utils.telemetry import config
 from chromite.utils.telemetry import detector
 from chromite.utils.telemetry import exporter
+from chromite.utils.telemetry import trace
 
 
 NOTICE = """
@@ -32,7 +33,7 @@ automatically enabled after the notice has been displayed for 10 times.
 # The version keeps track of telemetry changes in chromite. Update this each
 # time there are changes to `chromite.utils.telemetry` or telemetry collection
 # changes in chromite.
-_TELEMETRY_VERSION = "2"
+_TELEMETRY_VERSION = "3"
 _DEFAULT_RESOURCE = otel_resources.Resource.create(
     {
         otel_resources.SERVICE_NAME: "chromite",
@@ -76,7 +77,9 @@ def initialize(
 
     resource = detected_resource.merge(_DEFAULT_RESOURCE)
     otel_trace_api.set_tracer_provider(
-        otel_trace.TracerProvider(resource=resource)
+        trace.ChromiteTracerProvider(
+            otel_trace.TracerProvider(resource=resource)
+        )
     )
 
     if debug:
