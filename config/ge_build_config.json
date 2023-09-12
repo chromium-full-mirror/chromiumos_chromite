@@ -221,22 +221,6 @@
       "stable_target_milestone": 122
     },
     {
-      "name": "nissa-cbx",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": true,
-          "leader_board": false,
-          "board_group": "",
-          "arch": "UNKNOWN",
-          "board_variant": "cbx",
-          "build_cadence": "DAILY_CADENCE"
-        }
-      ],
-      "rubik_target_milestone": 108,
-      "stable_target_milestone": 118
-    },
-    {
       "name": "novato",
       "configs": [
         {
@@ -10335,6 +10319,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true,
+          "stable_target_milestone": 120,
           "is_experimental": false
         },
         {
@@ -10737,6 +10722,217 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
+      "build_cadence": "DAILY_CADENCE"
+    },
+    {
+      "name": "nissa-cbx",
+      "reference_board_name": "nissa-cbx",
+      "arch": "UNKNOWN",
+      "builder": "RELEASE",
+      "experimental": true,
+      "models": [
+        {
+          "board_name": "nissa-cbx",
+          "name": "craask",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "craaskbowl",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "craaskino",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "craaskvin",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "craasneto",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "gothrax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "joxer",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "nereid",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "nirwen",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "nivviks",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "pujjo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "pujjo1e",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "pujjoteen",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "uldren",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "uldren360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "xivu",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "xivu360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "yahiko",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "yavijo",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "yaviks",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "yavilla",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-cbx",
+          "name": "yavilly",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7290,
+          "is_active": true,
+          "is_experimental": true
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 118,
+      "board_variant": "cbx",
       "build_cadence": "DAILY_CADENCE"
     },
     {
