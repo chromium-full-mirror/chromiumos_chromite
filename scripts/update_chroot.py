@@ -14,6 +14,7 @@ from typing import List, Optional
 from chromite.lib import commandline
 from chromite.service import sdk as sdk_service
 from chromite.service import sysroot
+from chromite.utils import timer
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -95,6 +96,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
+@timer.timed("Elapsed time (update_chroot)")
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     commandline.RunInsideChroot()
 
