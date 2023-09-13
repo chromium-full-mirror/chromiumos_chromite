@@ -63,7 +63,7 @@ export class GerritCommands implements vscode.Disposable {
     command: CommandName,
     callback: (args: T) => Thenable<void>
   ): vscode.Disposable {
-    return vscodeRegisterCommand(command, async args => {
+    return vscodeRegisterCommand(command, async (args: T) => {
       await callback(args);
       this.onDidExecuteCommandEmitter.fire(command);
     });

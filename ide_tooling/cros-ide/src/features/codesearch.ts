@@ -5,15 +5,18 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import {chromiumRoot} from '../common/chromium/fs';
 import * as commonUtil from '../common/common_util';
-import {vscodeRegisterCommand} from '../common/vscode/commands';
+import {
+  vscodeRegisterCommand,
+  vscodeRegisterTextEditorCommand,
+} from '../common/vscode/commands';
 import * as ideUtil from '../ide_util';
 import * as config from '../services/config';
 import * as metrics from './metrics/metrics';
 
 export function activate(context: vscode.ExtensionContext): void {
-  const openFileCmd = vscode.commands.registerTextEditorCommand(
+  const openFileCmd = vscodeRegisterTextEditorCommand(
     'chromiumide.codeSearchOpenCurrentFile',
-    (textEditor: vscode.TextEditor) => void openCurrentFile(textEditor)
+    (textEditor: vscode.TextEditor) => openCurrentFile(textEditor)
   );
 
   // Used to open files from the explorer sidebar.
@@ -25,12 +28,12 @@ export function activate(context: vscode.ExtensionContext): void {
       void openFiles(allSelectedFiles)
   );
 
-  const copyFileCmd = vscode.commands.registerTextEditorCommand(
+  const copyFileCmd = vscodeRegisterTextEditorCommand(
     'chromiumide.codeSearchCopyCurrentFile',
-    (textEditor: vscode.TextEditor) => void copyCurrentFile(textEditor)
+    (textEditor: vscode.TextEditor) => copyCurrentFile(textEditor)
   );
 
-  const searchSelectionCmd = vscode.commands.registerTextEditorCommand(
+  const searchSelectionCmd = vscodeRegisterTextEditorCommand(
     'chromiumide.codeSearchSearchForSelection',
     (textEditor: vscode.TextEditor) => searchSelection(textEditor)
   );

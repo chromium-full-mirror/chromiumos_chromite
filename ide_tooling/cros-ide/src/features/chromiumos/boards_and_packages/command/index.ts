@@ -93,7 +93,7 @@ export class BoardsAndPackagesCommands implements vscode.Disposable {
     command: CommandName,
     callback: (args: Breadcrumbs) => Thenable<void>
   ): vscode.Disposable {
-    return vscodeRegisterCommand(command, async args => {
+    return vscodeRegisterCommand(command, async (args: Breadcrumbs) => {
       await callback(args);
       this.onDidExecuteCommandEmitter.fire(command);
     });

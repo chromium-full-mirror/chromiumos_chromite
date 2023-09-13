@@ -91,6 +91,17 @@ module.exports = {
           'vscode.commands.registerCommand should not be called directly; ' +
           'use vscodeRegisterCommand instead',
       },
+      {
+        selector:
+          'MemberExpression' +
+          '[object.type="MemberExpression"]' +
+          '[object.object.name="vscode"]' +
+          '[object.property.name="commands"]' +
+          '[property.name="registerTextEditorCommand"]',
+        message:
+          'vscode.commands.registerTextEditorCommand should not be called ' +
+          'directly; use vscodeRegisterTextEditorCommand instead',
+      },
     ],
     // Disallow variables called `namespace`, because they mess up Gerrit's
     // syntax highlighting.
