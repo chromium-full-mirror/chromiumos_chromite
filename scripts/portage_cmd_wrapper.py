@@ -170,11 +170,17 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
 
     opts = parse_arguments(argv)
 
+    if opts.command[0] != "equery":
+        # There's a *lot* more equery calls than any other command. Specifically
+        # lots of parallel executions in cros clean-outdated-packages.
+        # Nothing wrong with those usages, but it's pretty noisy for our data
+        # given it's not one we're currently concerned about. So for now, just
+        # skip all equery invocations.
+        chromite_config.initialize()
+        telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
+
     span = trace.get_current_span()
     span.update_name(f"portage_cmd_wrapper.{opts.command[0]}.main")
-
-    chromite_config.initialize()
-    telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
 
     try:
         return execute_cmd(opts)
