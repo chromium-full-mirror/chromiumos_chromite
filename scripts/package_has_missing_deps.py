@@ -198,7 +198,8 @@ class DotSoResolver:
 
     def get_implicit_libs(self):
         """Return a set of .so files that are provided by the system."""
-        implicit_libs = set()
+        # libstdc++ comes from the toolchain so always ignore it.
+        implicit_libs = {"libstdc++.so", "libstdc++.so.6"}
         for dep, from_sdk in (
             ("cross-aarch64-cros-linux-gnu/glibc", True),
             ("cross-armv7a-cros-linux-gnueabihf/glibc", True),
