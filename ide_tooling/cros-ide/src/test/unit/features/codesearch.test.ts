@@ -16,7 +16,7 @@ import {installVscodeDouble, installFakeConfigs} from '../../testing/doubles';
 import {FakeTextDocument} from '../../testing/fakes';
 import {buildFakeChromium} from '../../testing/fs';
 
-const {copyCurrentFile, openCurrentFile, searchSelection} =
+const {copyCurrentFile, openCurrentFile, openFiles, searchSelection} =
   codesearch.TEST_ONLY;
 
 describe('CodeSearch: searching for selection', () => {
@@ -189,5 +189,103 @@ describe('CodeSearch: opening current file', () => {
     expect(vscodeSpy.window.showErrorMessage).toHaveBeenCalledWith(
       'generate_cs_path returned an error: error msg'
     );
+  });
+});
+
+describe('CodeSearch: open files', () => {
+  const {vscodeSpy, vscodeEmitters} = installVscodeDouble();
+  installFakeConfigs(vscodeSpy, vscodeEmitters);
+  const {fakeExec} = installFakeExec();
+  const temp = tempDir();
+
+  const state = cleanState(async () => {
+    await buildFakeChroot(temp.path);
+
+    const filepathA = path.join(
+      temp.path,
+      'chromiumos/src/platform2/cros-disks/archive_mounter.cc'
+    );
+    const filepathB = path.join(
+      temp.path,
+      'chromiumos/src/platform2/cros-disks/archive_mounter.h'
+    );
+
+    return {
+      fakeCodeSearchToolConfig: {
+        executable: '/mnt/host/source/chromite/contrib/generate_cs_path',
+        cwd: '/tmp',
+      },
+      filepathA,
+      filepathB,
+      eitherFilePath() {
+        return {
+          asymmetricMatch: function (path: unknown) {
+            return path === filepathA || path === filepathB;
+          },
+          jasmineToString: function () {
+            return `<either ${filepathA} or ${filepathB}>`;
+          },
+        };
+      },
+    };
+  });
+
+  beforeEach(async () => {
+    await config.codeSearch.instance.update('public');
+  });
+
+  it('opens browser window', async () => {
+    const CS_LINK_A =
+      'https://source.chromium.org/chromiumos/chromiumos/codesearch/+/HEAD:' +
+      'src/platform2/cros-disks/archive_mounter.cc';
+    const CS_LINK_B =
+      'https://source.chromium.org/chromiumos/chromiumos/codesearch/+/HEAD:' +
+      'src/platform2/cros-disks/archive_mounter.h';
+    fakeExec.installCallback(
+      path.join(temp.path, 'chromite/contrib/generate_cs_path'),
+      ['--show', '--public', state.eitherFilePath()],
+      (name, args, _options) => {
+        const filepath = args.slice(-1)[0];
+        if (filepath === state.filepathA) {
+          return CS_LINK_A;
+        } else if (filepath === state.filepathB) {
+          return CS_LINK_B;
+        }
+        throw new Error('not reached');
+      }
+    );
+
+    await openFiles([
+      vscode.Uri.file(state.filepathA),
+      vscode.Uri.file(state.filepathB),
+    ]);
+
+    expect(vscodeSpy.env.openExternal).toHaveBeenCalledWith(
+      vscode.Uri.parse(CS_LINK_A)
+    );
+    expect(vscodeSpy.env.openExternal).toHaveBeenCalledWith(
+      vscode.Uri.parse(CS_LINK_B)
+    );
+  });
+
+  it('opens chromium source code on chromium code search', async () => {
+    await buildFakeChromium(temp.path);
+
+    const filepathA = path.join(temp.path, 'src/ash/BUILD.gn');
+    const filepathB = path.join(temp.path, 'src/ash/OWNERS');
+
+    await openFiles([vscode.Uri.file(filepathA), vscode.Uri.file(filepathB)]);
+
+    const expectedUris = [
+      vscode.Uri.parse(
+        'https://source.chromium.org/chromium/chromium/src/+/main:ash/BUILD.gn'
+      ),
+      vscode.Uri.parse(
+        'https://source.chromium.org/chromium/chromium/src/+/main:ash/OWNERS'
+      ),
+    ];
+    for (const expectedUri of expectedUris) {
+      expect(vscodeSpy.env.openExternal).toHaveBeenCalledWith(expectedUri);
+    }
   });
 });

@@ -173,6 +173,10 @@
         "title": "Open in Code Search"
       },
       {
+        "command": "chromiumide.codeSearchOpen",
+        "title": "Open in Code Search"
+      },
+      {
         "command": "chromiumide.codeSearchCopyCurrentFile",
         "category": "CrOS",
         "title": "Copy Code Search URL to clipboard"
@@ -420,6 +424,12 @@
           "group": "navigation"
         }
       ],
+      "explorer/context": [
+        {
+          "command": "chromiumide.codeSearchOpen",
+          "group": "6_copypath"
+        }
+      ],
       "scm/title": [
         {
           "command": "chromiumide.chromium.gitcl.format",
@@ -621,6 +631,10 @@
         },
         {
           "command": "chromiumide.boardsAndPackages.setDefaultBoard",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.codeSearchOpen",
           "when": "false"
         },
         {

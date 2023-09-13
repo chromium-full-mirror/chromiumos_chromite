@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import {chromiumRoot} from '../common/chromium/fs';
 import * as commonUtil from '../common/common_util';
+import {vscodeRegisterCommand} from '../common/vscode/commands';
 import * as ideUtil from '../ide_util';
 import * as config from '../services/config';
 import * as metrics from './metrics/metrics';
@@ -13,6 +14,15 @@ export function activate(context: vscode.ExtensionContext): void {
   const openFileCmd = vscode.commands.registerTextEditorCommand(
     'chromiumide.codeSearchOpenCurrentFile',
     (textEditor: vscode.TextEditor) => void openCurrentFile(textEditor)
+  );
+
+  // Used to open files from the explorer sidebar.
+  const openFilesCmd = vscodeRegisterCommand(
+    'chromiumide.codeSearchOpen',
+    // `clickedFile` corresponds to the file in the explorer sidebar that the right-click happened
+    // on. `allSelectedFiles` contains all selected files, including `clickedFile`.
+    (clickedFile: vscode.Uri, allSelectedFiles: vscode.Uri[]) =>
+      void openFiles(allSelectedFiles)
   );
 
   const copyFileCmd = vscode.commands.registerTextEditorCommand(
@@ -25,7 +35,12 @@ export function activate(context: vscode.ExtensionContext): void {
     (textEditor: vscode.TextEditor) => searchSelection(textEditor)
   );
 
-  context.subscriptions.push(openFileCmd, searchSelectionCmd, copyFileCmd);
+  context.subscriptions.push(
+    openFileCmd,
+    openFilesCmd,
+    searchSelectionCmd,
+    copyFileCmd
+  );
 }
 
 function getCodeSearchToolConfig(
@@ -51,6 +66,29 @@ async function openCurrentFile(textEditor: vscode.TextEditor): Promise<void> {
       group: 'codesearch',
       name: 'codesearch_open_current_file',
       description: 'open current file',
+    });
+  }
+}
+
+async function openFiles(allSelectedFiles: vscode.Uri[]): Promise<void> {
+  const urls = await Promise.all(
+    allSelectedFiles.map((uri: vscode.Uri) =>
+      getCodeSearchUrl(uri.fsPath, null)
+    )
+  );
+  let opened = false;
+  for (const url of urls) {
+    if (url) {
+      opened = true;
+      void vscode.env.openExternal(vscode.Uri.parse(url));
+    }
+  }
+  if (opened) {
+    metrics.Metrics.send({
+      category: 'interactive',
+      group: 'codesearch',
+      name: 'codesearch_open_files',
+      description: 'open files from explorer sidebar',
     });
   }
 }
@@ -177,6 +215,7 @@ function searchSelection(textEditor: vscode.TextEditor): void {
 
 export const TEST_ONLY = {
   openCurrentFile,
+  openFiles,
   copyCurrentFile,
   searchSelection,
 };

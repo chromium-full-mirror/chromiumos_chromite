@@ -140,7 +140,10 @@ type CodesearchEvent = EventBase & {
       }
     | {
         category: 'interactive';
-        name: 'codesearch_copy_current_file' | 'codesearch_open_current_file';
+        name:
+          | 'codesearch_copy_current_file'
+          | 'codesearch_open_current_file'
+          | 'codesearch_open_files';
       }
     | {
         category: 'interactive';
