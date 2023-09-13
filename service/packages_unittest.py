@@ -456,9 +456,9 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, file_layout)
 
-        package_path = os.path.join(self.tempdir, self.package)
+        package_path = self.tempdir / self.package
 
-        ebuild_path = os.path.join(package_path, self.ebuild)
+        ebuild_path = package_path / self.ebuild
         self.WriteTempFile(ebuild_path, 'KEYWORDS="*"\n')
 
         result = uprev_lib.uprev_ebuild_from_pin(
@@ -477,13 +477,11 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
             "unexpected version number: %s" % mod.new_version,
         )
 
-        old_ebuild_path = os.path.join(
-            package_path, self.ebuild_template % self.version
+        old_ebuild_path = package_path / (self.ebuild_template % self.version)
+        new_ebuild_path = package_path / (
+            self.ebuild_template % self.new_version
         )
-        new_ebuild_path = os.path.join(
-            package_path, self.ebuild_template % self.new_version
-        )
-        manifest_path = os.path.join(package_path, "Manifest")
+        manifest_path = package_path / "Manifest"
 
         expected_modified_files = [
             old_ebuild_path,
@@ -504,9 +502,9 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, file_layout)
 
-        package_path = os.path.join(self.tempdir, self.package)
+        package_path = self.tempdir / self.package
 
-        ebuild_path = os.path.join(package_path, self.ebuild)
+        ebuild_path = package_path / self.ebuild
         self.WriteTempFile(ebuild_path, 'KEYWORDS="*"\n')
 
         result = uprev_lib.uprev_ebuild_from_pin(
@@ -525,13 +523,9 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
             "unexpected version number: %s" % mod.new_version,
         )
 
-        old_ebuild_path = os.path.join(
-            package_path, self.ebuild_template % self.version
-        )
-        new_ebuild_path = os.path.join(
-            package_path, "package-%s-r2.ebuild" % self.version
-        )
-        manifest_path = os.path.join(package_path, "Manifest")
+        old_ebuild_path = package_path / (self.ebuild_template % self.version)
+        new_ebuild_path = package_path / ("package-%s-r2.ebuild" % self.version)
+        manifest_path = package_path / "Manifest"
 
         expected_modified_files = [
             old_ebuild_path,

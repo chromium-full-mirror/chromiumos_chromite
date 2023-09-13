@@ -6,6 +6,7 @@
 
 import builtins
 import os
+from pathlib import Path
 from unittest import mock
 
 from chromite.lib import cros_test_lib
@@ -87,13 +88,13 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         ebuild = os.path.join(
             self.mock_android_dir, self.android_package + "-%s.ebuild"
         )
-        self.unstable = ebuild % "9999"
+        self.unstable = Path(ebuild % "9999")
         self.old_version = "25"
-        self.old = ebuild % ("%s-r1" % self.old_version)
+        self.old = Path(ebuild % ("%s-r1" % self.old_version))
         self.old2_version = "50"
-        self.old2 = ebuild % ("%s-r1" % self.old2_version)
+        self.old2 = Path(ebuild % ("%s-r1" % self.old2_version))
         self.new_version = "100"
-        self.new = ebuild % ("%s-r1" % self.new_version)
+        self.new = Path(ebuild % ("%s-r1" % self.new_version))
 
         osutils.WriteFile(self.unstable, self.unstable_data, makedirs=True)
         osutils.WriteFile(self.old, self.stable_data, makedirs=True)
@@ -144,7 +145,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
             f"chromeos-base/{self.android_package}-{self.new_version}-r1",
         )
         self.assertEqual(
-            files_to_add, [self.new, os.path.join(package_dir, "Manifest")]
+            files_to_add, [str(self.new), os.path.join(package_dir, "Manifest")]
         )
         self.assertEqual(files_to_remove, [self.old2])
 

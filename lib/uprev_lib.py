@@ -920,7 +920,7 @@ def get_stable_ebuild_version(
 
 
 def uprev_ebuild_from_pin(
-    package_path: str, version_no_rev: str, chroot: Chroot
+    package_path: Union[str, os.PathLike], version_no_rev: str, chroot: Chroot
 ) -> UprevVersionedPackageResult:
     """Changes the package ebuild's version to match the version pin file.
 
@@ -936,7 +936,7 @@ def uprev_ebuild_from_pin(
         The uprev result.
     """
     package = os.path.basename(package_path)
-    package_src_path = os.path.join(constants.SOURCE_ROOT, package_path)
+    package_src_path = constants.SOURCE_ROOT / package_path
 
     stable_ebuild = None
     unstable_ebuild = None
@@ -961,8 +961,8 @@ def uprev_ebuild_from_pin(
     new_ebuild_path = os.path.join(
         package_path, "%s-%s.ebuild" % (package, version)
     )
-    new_ebuild_src_path = os.path.join(constants.SOURCE_ROOT, new_ebuild_path)
-    manifest_src_path = os.path.join(package_src_path, "Manifest")
+    new_ebuild_src_path = constants.SOURCE_ROOT / new_ebuild_path
+    manifest_src_path = package_src_path / "Manifest"
 
     portage_util.EBuild.MarkAsStable(
         unstable_ebuild.ebuild_path, new_ebuild_src_path, {}
