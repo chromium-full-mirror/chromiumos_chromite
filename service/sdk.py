@@ -405,6 +405,8 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
 
     cros_sdk_lib.RunChrootVersionHooks()
 
+    portage_util.RegenDependencyCache(jobs=arguments.jobs)
+
     # Make sure depot_tools is bootstrapped, so that it can build Chrome.
     logging.info("Bootstrapping depot_tools")
     result = cros_build_lib.run(
