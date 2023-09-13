@@ -162,6 +162,11 @@ class Subtool:
         """A one-line summary describing this package."""
         return f"{self.package.name} (http://go/cipd/p/{self.cipd_package})"
 
+    @property
+    def source_packages(self) -> List[str]:
+        """The list of packages that contributed files during bundling."""
+        return sorted(self._source_ebuilds)
+
     def stamp(self, kind: Literal["bundled", "exported"]) -> Path:
         """Returns the path to a "stamp" file that tracks export progress."""
         return self.metadata_dir / f".{kind}"
@@ -175,20 +180,10 @@ class Subtool:
     def bundle(self) -> None:
         """Collect and bundle files described in `package` in the work dir."""
         self._validate()
-        self.clean()
-        self.metadata_dir.mkdir(exist_ok=True)
-        self.bundle_dir.mkdir()
-        logger.notice(
-            "%s: Subtool bundling under %s.", self.package.name, self.bundle_dir
-        )
-        logger.info(self)
-        file_count = 0
-        self._source_ebuilds = set()
-        self._unmatched_paths = []
-        for path in self.package.paths:
-            file_count += self._bundle_mapping(path)
-        logger.notice("%s: Copied %d files.", self.package.name, file_count)
-        # TODO(b/277992359): Lddtree, hashing, licenses.
+        self._collect_files()
+        self._match_ebuilds()
+        self._collect_licenses()
+        # TODO(b/277992359): Lddtree, hashing.
         self.stamp("bundled").touch()
 
     def export(self, use_production: bool, cipd_path: str) -> None:
@@ -196,10 +191,9 @@ class Subtool:
         self._validate()
         if not self.stamp("bundled").exists():
             raise ManifestBundlingError("Bundling incomplete.", self)
-        self._match_ebuilds()
         tags = {
             "builder_source": "sdk_subtools",
-            "ebuild_source": ",".join(self._source_ebuilds),
+            "ebuild_source": ",".join(self.source_packages),
         }
         refs = ["latest"]
         cipd.CreatePackage(
@@ -314,6 +308,23 @@ class Subtool:
         logger.info("Glob '%s' matched %d files.", mapping.input, file_count)
         return file_count
 
+    def _collect_files(self) -> None:
+        """Collect files described by the package manifest in the work dir."""
+        self.clean()
+        self.metadata_dir.mkdir(exist_ok=True)
+        self.bundle_dir.mkdir()
+        logger.notice(
+            "%s: Subtool bundling under %s.", self.package.name, self.bundle_dir
+        )
+        # Emit the full .textproto to debug logs.
+        logger.debug(self)
+        file_count = 0
+        self._source_ebuilds = set()
+        self._unmatched_paths = []
+        for path in self.package.paths:
+            file_count += self._bundle_mapping(path)
+        logger.notice("%s: Copied %d files.", self.package.name, file_count)
+
     def _match_ebuilds(self) -> None:
         """Match up unmatched paths to the package names that provided them."""
         if self._unmatched_paths:
@@ -326,13 +337,17 @@ class Subtool:
             self._source_ebuilds.update(e.cpvr for e in ebuilds)
         if len(self._source_ebuilds) != 1:
             # TODO(b/277992359): Support this with an extra proto field.
-            candidates = sorted(self._source_ebuilds)
             raise ManifestBundlingError(
                 "Bundle cannot be attributed to exactly one package."
-                f" Candidates: {candidates}",
+                f" Candidates: {self.source_packages}",
                 self,
             )
-        logger.notice("Contents provided by %s", self._source_ebuilds)
+        logger.notice("Contents provided by %s", self.source_packages)
+
+    def _collect_licenses(self) -> None:
+        """Generates a license file from `source_packages`."""
+        logger.notice("%s: Collecting licenses.", self.package.name)
+        # TODO(b/297978537): Implement.
 
 
 class InstalledSubtools:

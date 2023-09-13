@@ -95,9 +95,17 @@ def bundle_and_export(subtool: subtool_lib.Subtool) -> None:
     subtool.export(use_production=False, cipd_path=FAKE_CIPD_PATH)
 
 
-def bundle_result(subtool: subtool_lib.Subtool) -> List[str]:
-    """Bundles the manifest and returns the contents, sorted, as strings."""
-    subtool.bundle()
+def bundle_result(
+    subtool: subtool_lib.Subtool, has_ebuild_match: bool = False
+) -> List[str]:
+    """Collects files and returns the contents, sorted, as strings."""
+    if has_ebuild_match:
+        subtool.bundle()
+    else:
+        # Skip the _match_ebuilds step because for tests that use entries from a
+        # fake filesystem that won't map to ebuilds.
+        with mock.patch("chromite.lib.subtool_lib.Subtool._match_ebuilds"):
+            subtool.bundle()
     contents = [
         str(child.relative_to(subtool.bundle_dir))
         for child in subtool.bundle_dir.rglob("*")
@@ -461,10 +469,11 @@ def test_ebuild_match_real_package(template_proto: Wrapper) -> None:
         [path_mapping("/etc/profile", ebuild_filter="sys-apps/baselayout")]
     )
     subtool = template_proto.create(writes_files=True)
-    assert bundle_result(subtool) == [
+    assert bundle_result(subtool, has_ebuild_match=True) == [
         "bin",
         "bin/profile",
     ]
+    assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
 
 def test_ebuild_not_installed_raises_error(template_proto: Wrapper) -> None:
@@ -500,10 +509,11 @@ def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
         ]
     )
     subtool = template_proto.create(writes_files=True)
-    assert bundle_result(subtool) == [
+    assert bundle_result(subtool, has_ebuild_match=True) == [
         "init.d",
         "init.d/functions.sh",
     ]
+    assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
 
 def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
@@ -512,10 +522,11 @@ def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
         [path_mapping("**/*.conf", dest="/", ebuild_filter="baselayout")]
     )
     subtool = template_proto.create(writes_files=True)
-    assert bundle_result(subtool) == [
+    assert bundle_result(subtool, has_ebuild_match=True) == [
         "aliases.conf",
         "i386.conf",
     ]
+    assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
 
 @mock.patch("chromite.lib.subtool_lib.Subtool.export")
