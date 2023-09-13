@@ -21,6 +21,7 @@ from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import cipd
 from chromite.lib import osutils
 from chromite.lib import portage_util
+from chromite.licensing import licenses_lib
 
 
 logger = chromite.ChromiteLogger.getLogger(__name__)
@@ -44,6 +45,10 @@ class ManifestBundlingError(Error):
 
 # Default glob to find export package manifests under the config_dir.
 SUBTOOLS_EXPORTS_GLOB = "**/*.textproto"
+
+# Path (relative to the bundle root) of the license file generated from the
+# licenses of input files.
+LICENSE_FILE = Path("license.html.gz")
 
 # Valid names. A stricter version of `packageNameRe` in
 # https://crsrc.org/i/go/src/go.chromium.org/luci/cipd/common/common.go
@@ -346,8 +351,25 @@ class Subtool:
 
     def _collect_licenses(self) -> None:
         """Generates a license file from `source_packages`."""
+        packages = self.source_packages
+        if not packages:
+            # Avoid putting a useless file into the bundle in this case. But it
+            # is only hit when _match_ebuilds is skipped (in tests).
+            return
+
         logger.notice("%s: Collecting licenses.", self.package.name)
-        # TODO(b/297978537): Implement.
+        # TODO(b/297978537): Use portage_util.GetFlattenedDepsForPackage to get
+        # a full depgraph.
+        licensing = licenses_lib.Licensing(
+            sysroot="/", package_fullnames=packages, gen_licenses=True
+        )
+        licensing.LoadPackageInfo()
+        licensing.ProcessPackageLicenses()
+        # NOTE(b/297978537): Location of license files in the bundle is not
+        # yet configurable. Dump it in the package root.
+        licensing.GenerateHTMLLicenseOutput(
+            self.bundle_dir / LICENSE_FILE, compress_output=True
+        )
 
 
 class InstalledSubtools:

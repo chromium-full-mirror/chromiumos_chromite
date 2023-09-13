@@ -1188,7 +1188,7 @@ def CompressionExtToType(file_name: Union[Path, str]) -> CompressionType:
     return _COMP_EXT.get(ext, CompressionType.NONE)
 
 
-def CompressFile(infile, outfile):
+def CompressFile(infile, outfile) -> CompletedProcess:
     """Compress a file using compressor specified by |outfile| suffix.
 
     Args:
@@ -1199,10 +1199,10 @@ def CompressFile(infile, outfile):
     comp_type = CompressionExtToType(outfile)
     assert comp_type and comp_type != CompressionType.NONE
     comp = FindCompressor(comp_type)
-    run([comp, "-c", infile], stdout=outfile)
+    return run([comp, "-c", infile], stdout=outfile)
 
 
-def UncompressFile(infile, outfile):
+def UncompressFile(infile, outfile) -> CompletedProcess:
     """Uncompress a file using compressor specified by |infile| suffix.
 
     Args:
@@ -1213,7 +1213,7 @@ def UncompressFile(infile, outfile):
     comp_type = CompressionExtToType(infile)
     assert comp_type and comp_type != CompressionType.NONE
     comp = FindCompressor(comp_type)
-    run([comp, "-dc", infile], stdout=outfile)
+    return run([comp, "-dc", infile], stdout=outfile)
 
 
 class TarballError(RunCommandError):

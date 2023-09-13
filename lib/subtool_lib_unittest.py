@@ -18,6 +18,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
 from chromite.lib import subtool_lib
+from chromite.licensing import licenses_lib
 
 
 def path_mapping(
@@ -40,6 +41,9 @@ TEST_PATH_MAPPING = path_mapping("/etc/profile")
 
 # Path used in unittests to refer to the cipd executable.
 FAKE_CIPD_PATH = "/no_cipd_in_unittests"
+
+# Fake package used when mocking results of `equery belongs`.
+FAKE_BELONGS_PACKAGE = "some-category/some-package-0.1-r2"
 
 
 @dataclasses.dataclass
@@ -127,7 +131,7 @@ def set_run_results(
         equery: Map of equery commands and the standard output.
     """
     cipd_results = cipd or {"create": 0}
-    equery_stdout = equery or {"belongs": "some-category/some-package-0.1-r2\n"}
+    equery_stdout = equery or {"belongs": f"{FAKE_BELONGS_PACKAGE}\n"}
     for cmd, result in cipd_results.items():
         run_mock.AddCmdResult(
             partial_mock.InOrder([FAKE_CIPD_PATH, cmd]), returncode=result
@@ -209,7 +213,14 @@ class Wrapper:
 @pytest.fixture(name="template_proto")
 def template_proto_fixture(tmp_path: Path) -> Iterator[Wrapper]:
     """Helper to build a test proto with meaningful defaults."""
-    yield Wrapper(tmp_path)
+    # Skip license generation for the fake some-category/... package. It will
+    # match no licenses and raise an exception from licenses_lib.
+    with mock.patch.object(
+        licenses_lib,
+        "SKIPPED_CATEGORIES",
+        [FAKE_BELONGS_PACKAGE.split("/", maxsplit=1)[0]],
+    ):
+        yield Wrapper(tmp_path)
 
 
 def test_invalid_textproto() -> None:
@@ -472,8 +483,15 @@ def test_ebuild_match_real_package(template_proto: Wrapper) -> None:
     assert bundle_result(subtool, has_ebuild_match=True) == [
         "bin",
         "bin/profile",
+        str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
+    # Verify the license bundling put something meaningful into the license file
+    # by looking for sys-apps/baselayout's GPL-2 license preamble.
+    contents = cros_build_lib.UncompressFile(
+        subtool.bundle_dir / subtool_lib.LICENSE_FILE, True
+    ).stdout
+    assert b"Gentoo Package Stock License GPL-2" in contents
 
 
 def test_ebuild_not_installed_raises_error(template_proto: Wrapper) -> None:
@@ -512,6 +530,7 @@ def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
     assert bundle_result(subtool, has_ebuild_match=True) == [
         "init.d",
         "init.d/functions.sh",
+        str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
@@ -525,6 +544,7 @@ def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
     assert bundle_result(subtool, has_ebuild_match=True) == [
         "aliases.conf",
         "i386.conf",
+        str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
