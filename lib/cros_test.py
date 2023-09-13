@@ -95,6 +95,8 @@ class CrOSTest:
             self.chrome_test_deploy_target_dir = None
         self.staging_dir = None
 
+        self.clean = opts.clean
+
         self._device = device.Device.Create(opts)
 
     def __del__(self):
@@ -657,7 +659,7 @@ class CrOSTest:
             )
 
         # Cleanup.
-        if files:
+        if self.clean and files:
             self._device.run(["rm", "-rf", DEST_BASE])
 
         return result
@@ -913,6 +915,14 @@ def ParseCommandLine(argv):
         default=False,
         help="Save a snapshot of the VM on test failure to "
         "results-dest-dir.",
+    )
+    parser.add_bool_argument(
+        "--clean",
+        default=True,
+        enabled_desc="Clean up the deployed files after running the test. "
+        "Only supported for --remote-cmd tests",
+        disabled_desc="Do not clean up the deployed files after running the "
+        "test. Only supported for --remote-cmd tests",
     )
 
     opts = parser.parse_args(argv)

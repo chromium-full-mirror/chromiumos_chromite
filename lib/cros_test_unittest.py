@@ -466,6 +466,24 @@ class CrOSTesterMiscTests(CrOSTesterBase):
         )
         self.assertCommandContains(["rm", "-rf"], expected=False)
 
+    def testRunDeviceCmdWithNoClean(self):
+        """Verify a run device command call with --no-clean."""
+        self._tester = self.createTester(opts=["--no-clean"])
+
+        self._tester.remote_cmd = True
+        self._tester.files = [self.TempFilePath("crypto_unittests")]
+        osutils.Touch(self._tester.files[0], mode=0o700)
+        self._tester.args = [
+            "crypto_unittests",
+        ]
+
+        self._tester.Run()
+
+        # No command to remove the target directory.
+        self.assertCommandContains(
+            ["rm", "-rf", "/usr/local/cros_test"], expected=False
+        )
+
     def testHostCmd(self):
         """Verify running a host command."""
         self._tester.host_cmd = True
