@@ -23,8 +23,8 @@ ANDROID_RVC_PACKAGE = "android-container-rvc"
 ANDROID_VMRVC_PACKAGE = "android-vm-rvc"
 ANDROID_VMSC_PACKAGE = "android-vm-sc"
 ANDROID_VMTM_PACKAGE = "android-vm-tm"
-# U uses master until the U branch is cut.
-ANDROID_VMUDC_PACKAGE = "android-vm-master"
+# V uses master until the V branch is cut.
+ANDROID_VMVIC_PACKAGE = "android-vm-master"
 
 
 # Supported Android build targets for each package. Maps from *_TARGET variables
@@ -69,9 +69,9 @@ ANDROID_PACKAGE_TO_BUILD_TARGETS = {
         "ARM64_USERDEBUG_TARGET": "bertha_arm64-userdebug",
         "X86_64_USERDEBUG_TARGET": "bertha_x86_64-userdebug",
     },
-    ANDROID_VMUDC_PACKAGE: {
-        "ARM64_USERDEBUG_TARGET": "bertha_arm64-userdebug",
-        "X86_64_USERDEBUG_TARGET": "bertha_x86_64-userdebug",
+    ANDROID_VMVIC_PACKAGE: {
+        "ARM64_USERDEBUG_TARGET": "bertha_arm64-trunk_staging-userdebug",
+        "X86_64_USERDEBUG_TARGET": "bertha_x86_64-trunk_staging-userdebug",
     },
 }
 
@@ -165,14 +165,14 @@ ARTIFACTS_TO_COPY = {
             r"|/kernel|/ramdisk.img)$"
         ),
     },
-    ANDROID_VMUDC_PACKAGE: {
+    ANDROID_VMVIC_PACKAGE: {
         # For XkbToKcmConverter, see the comment in pi-arc targets.
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
-        "bertha_arm64-userdebug": (
+        "bertha_arm64-trunk_staging-userdebug": (
             r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
         ),
-        "bertha_x86_64-userdebug": (
+        "bertha_x86_64-trunk_staging-userdebug": (
             r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
         ),
     },
@@ -231,7 +231,7 @@ def GetAndroidBranchForPackage(android_package: str) -> str:
         ANDROID_VMRVC_PACKAGE: "git_rvc-arc",
         ANDROID_VMSC_PACKAGE: "git_sc-arc-dev",
         ANDROID_VMTM_PACKAGE: "git_tm-arc",
-        ANDROID_VMUDC_PACKAGE: "git_master-arc-dev",
+        ANDROID_VMVIC_PACKAGE: "git_main-arc-dev",
     }
     try:
         return mapping[android_package]
