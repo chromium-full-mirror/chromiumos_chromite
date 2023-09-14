@@ -80,6 +80,8 @@ class TidyReplacement(NamedTuple):
     end_line: int
     start_char: int
     end_char: int
+    start_offset: int
+    end_offset: int
 
 
 class TidyExpandedFrom(NamedTuple):
@@ -338,6 +340,8 @@ def parse_tidy_fixes_file(
                         end_line=line_offsets.get_line_number(end_offset),
                         start_char=line_offsets.get_line_offset(start_offset),
                         end_char=line_offsets.get_line_offset(end_offset),
+                        start_offset=start_offset,
+                        end_offset=end_offset,
                     )
                 )
 

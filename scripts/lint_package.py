@@ -8,11 +8,13 @@ Currently support is provided for both general and differential linting of C++
 with Clang Tidy and Rust with Cargo Clippy for all packages within platform2.
 """
 
+import collections
 import json
+import logging
 import os
 from pathlib import Path
 import sys
-from typing import List, Text
+from typing import DefaultDict, Dict, Iterable, List, Optional, Text, Tuple
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -24,6 +26,9 @@ from chromite.lib import workon_helper
 from chromite.lib.parser import package_info
 from chromite.service import toolchain
 from chromite.utils import file_util
+
+
+PLATFORM2_PATH = constants.CHROOT_SOURCE_ROOT / "src/platform2"
 
 
 def parse_packages(
@@ -64,6 +69,170 @@ def make_relative_to_cros(file_path: str) -> Path:
         return path.relative_to(constants.CHROOT_SOURCE_ROOT)
     except ValueError:
         return path
+
+
+def process_fixes_by_file(
+    lint: toolchain.LinterFinding, file_lengths: Dict[Path, int]
+) -> Optional[DefaultDict[Path, List[toolchain.SuggestedFix]]]:
+    """Get fixes grouped by file if all the fixes apply to valid files.
+
+    If any fixes modify invalid files this returns None.
+    """
+    if not lint.suggested_fixes:
+        return None
+
+    new_fixes_by_file: DefaultDict[
+        Path, List[toolchain.SuggestedFix]
+    ] = collections.defaultdict(list)
+    for fix in lint.suggested_fixes:
+        filepath = Path(fix.location.filepath)
+        # These are files that we locate, and are usually generated files.
+        if filepath.is_absolute():
+            logging.warning(
+                "Skipped applying fix due to invalid path: %s", filepath
+            )
+            return None
+        # Make sure this file exists in platform2
+        file_in_platform2 = PLATFORM2_PATH / filepath
+        if not file_in_platform2.exists():
+            logging.warning(
+                "Skipped applying fix due to invalid path: %s", filepath
+            )
+            return None
+        if file_in_platform2 not in file_lengths:
+            file_lengths[file_in_platform2] = len(
+                file_in_platform2.read_text(encoding="utf-8")
+            )
+        if fix.location.end_offset > file_lengths[file_in_platform2]:
+            logging.warning(
+                "Skipped applying fix due to out of bounds change to: %s",
+                filepath,
+            )
+            return None
+        new_fixes_by_file[file_in_platform2].append(fix)
+
+    return new_fixes_by_file
+
+
+def get_noconflict_fixes(
+    lints: List[toolchain.LinterFinding],
+) -> Tuple[
+    DefaultDict[Path, List[toolchain.SuggestedFix]],
+    List[toolchain.LinterFinding],
+]:
+    """Get a conflict free set of replacements to apply for each file.
+
+    Fixes will not be included in results if they:
+        A) include a replacement to a path which does not exist
+        B) include a replacement to a path outside of platform2
+        C) include a replacement to file location that exceeds the file size
+        D) overlap a previous replacement.
+
+    Args:
+        lints: List of lints to aggregate suggested fixes from.
+
+    Returns:
+        A tuple including:
+          0) the mapping of paths to a list of their suggested fixes
+          1) the list of lints which were fixed
+    """
+    fixes_by_file: DefaultDict[
+        Path, List[toolchain.SuggestedFix]
+    ] = collections.defaultdict(list)
+    lints_fixed = []
+    file_lengths = {}
+    for lint in lints:
+        new_fixes_by_file = process_fixes_by_file(lint, file_lengths)
+        if not new_fixes_by_file:
+            continue
+        files_with_overlap = set(
+            filepath
+            for filepath, new_fixes in new_fixes_by_file.items()
+            if has_overlap(fixes_by_file[filepath], new_fixes)
+        )
+        if files_with_overlap:
+            logging.warning(
+                "Skipped applying fix for %s due to conflicts in:\n\t%s.",
+                lint.name,
+                "\n\t".join(files_with_overlap),
+            )
+        else:
+            for filepath, new_fixes in new_fixes_by_file.items():
+                fixes_by_file[filepath].extend(new_fixes)
+            lints_fixed.append(lint)
+
+    return fixes_by_file, lints_fixed
+
+
+def has_overlap(
+    prior_fixes: List[toolchain.SuggestedFix],
+    new_fixes: List[toolchain.SuggestedFix],
+) -> bool:
+    """Check if new fixes have overlapping ranges with a prior replacement.
+
+    Note: this implementation is n^2, but the amount of lints in a single file
+    is experimentally pretty small, so optimizing this is probably not a large
+    concern.
+    """
+    for new in new_fixes:
+        for old in prior_fixes:
+            if (
+                (old.location.start_offset <= new.location.start_offset)
+                and (new.location.start_offset <= old.location.end_offset)
+            ) or (
+                (old.location.start_offset <= new.location.end_offset)
+                and (new.location.end_offset <= old.location.end_offset)
+            ):
+                return True
+    return False
+
+
+def apply_edits(content: Text, fixes: List[toolchain.SuggestedFix]) -> Text:
+    """Modify a file by applying a list of fixes."""
+
+    # We need to be able to apply fixes in reverse order within a file to
+    # preserve code locations.
+    def fix_sort_key(fix: toolchain.SuggestedFix) -> int:
+        return fix.location.start_offset
+
+    pieces = []
+    content_end = len(content)
+    for fix in sorted(fixes, key=fix_sort_key, reverse=True):
+        pieces += [
+            content[fix.location.end_offset : content_end],
+            fix.replacement,
+        ]
+        content_end = fix.location.start_offset
+    pieces.append(content[:content_end])
+
+    return "".join(reversed(pieces))
+
+
+def apply_fixes(
+    lints: List[toolchain.LinterFinding],
+) -> Tuple[List[toolchain.LinterFinding], Iterable[Path]]:
+    """Modify files in Platform2 to apply suggested fixes from linter findings.
+
+    Some fixes which cannot be applied cleanly will be discarded (see the
+        `get_noconflict_fixes_by_file` description for more details).
+
+    Args:
+        lints: LinterFindings to apply potential fixes from.
+
+    Returns:
+        A tuple including:
+          0) The list of lints which were fixed
+          1) The list of files which were modified
+    """
+
+    fixes_by_file, lints_fixed = get_noconflict_fixes(lints)
+
+    for filepath, fixes in fixes_by_file.items():
+        file_content = filepath.read_text(encoding="utf-8")
+        rewrite = apply_edits(file_content, fixes)
+        filepath.write_text(rewrite, encoding="utf-8")
+
+    return lints_fixed, fixes_by_file.keys()
 
 
 def format_lint(lint: toolchain.LinterFinding) -> Text:
@@ -183,6 +352,11 @@ def get_arg_parser() -> commandline.ArgumentParser:
         "emerge.",
     )
     parser.add_argument(
+        "--apply-fixes",
+        action="store_true",
+        help="Apply suggested fixes from linters.",
+    )
+    parser.add_argument(
         "--differential",
         action="store_true",
         help="only lint lines touched by the last commit",
@@ -263,6 +437,11 @@ def main(argv: List[str]) -> None:
             packages, build_target.root, opts.differential
         )
         if opts.fetch_only:
+            if opts.apply_fixes:
+                logging.warning(
+                    "Apply fixes with fetch_only may lead to fixes being"
+                    " applied incorrectly if source files have changed!"
+                )
             if opts.host or opts.board:
                 roots = [build_target.root]
             else:
@@ -292,8 +471,27 @@ def main(argv: List[str]) -> None:
     else:
         formatted_output = "\n".join(format_lint(l) for l in lints)
 
+    if opts.apply_fixes:
+        fixed_lints, modified_files = apply_fixes(lints)
+        if opts.json:
+            formatted_fixes_inner = ",\n".join(
+                json_format_lint(l) for l in lints
+            )
+            formatted_fixes = f"[{formatted_fixes_inner}]"
+        else:
+            formatted_fixes = "\n".join(format_lint(l) for l in fixed_lints)
+
     with file_util.Open(opts.output, "w") as output_file:
         output_file.write(formatted_output)
         if not opts.json:
             output_file.write(f"\nFound {len(lints)} lints.")
+        if opts.apply_fixes:
+            output_file.write("\n\n\n--------- Fixed Problems ---------\n\n")
+            output_file.write(formatted_fixes)
+            if not opts.json:
+                output_file.write(
+                    f"\nFixed {len(fixed_lints)}/{len(lints)} lints."
+                )
+            output_file.write("\n\n\n--------- Modified Files ---------\n\n")
+            output_file.write("\n".join(str(f) for f in modified_files))
         output_file.write("\n")

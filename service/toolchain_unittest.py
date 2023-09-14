@@ -4,7 +4,7 @@
 
 """Toolchain service tests."""
 
-from collections import defaultdict
+import collections
 import os
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Text
@@ -34,7 +34,9 @@ class MockBuildLinter(toolchain.BuildLinter):
         self.packages = [] if packages is None else packages
         self.package_atoms = packages
 
-        self.artifacts = defaultdict(lambda: defaultdict(list))
+        self.artifacts = collections.defaultdict(
+            lambda: collections.defaultdict(list)
+        )
         self.artifacts_base = os.path.join(self.tempdir, "artifacts")
 
     def add_artifact(self, artifact: MockArtifact):
@@ -310,7 +312,11 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                 name="lint1",
                 message="body1",
                 locations=tuple(
-                    [toolchain.CodeLocation("", "", 0, 0, None, None)]
+                    [
+                        toolchain.CodeLocation(
+                            "", "", 0, 0, None, None, None, None
+                        )
+                    ]
                 ),
                 linter="clang_tidy",
                 suggested_fixes=tuple(),
@@ -320,7 +326,11 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                 name="lint2",
                 message="body2",
                 locations=tuple(
-                    [toolchain.CodeLocation("", "", 0, 0, None, None)]
+                    [
+                        toolchain.CodeLocation(
+                            "", "", 0, 0, None, None, None, None
+                        )
+                    ]
                 ),
                 linter="clang_tidy",
                 suggested_fixes=tuple(),
@@ -330,7 +340,11 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                 name="lint3",
                 message="body3",
                 locations=tuple(
-                    [toolchain.CodeLocation("", "", 0, 0, None, None)]
+                    [
+                        toolchain.CodeLocation(
+                            "", "", 0, 0, None, None, None, None
+                        )
+                    ]
                 ),
                 linter="clang_tidy",
                 suggested_fixes=tuple(),
@@ -340,7 +354,11 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                 name="lint4",
                 message="body4",
                 locations=tuple(
-                    [toolchain.CodeLocation("", "", 0, 0, None, None)]
+                    [
+                        toolchain.CodeLocation(
+                            "", "", 0, 0, None, None, None, None
+                        )
+                    ]
                 ),
                 linter="clang_tidy",
                 suggested_fixes=tuple(),
@@ -490,6 +508,8 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                         line_end=1,
                         col_start=None,
                         col_end=None,
+                        start_offset=None,
+                        end_offset=None,
                     ),
                 ),
                 linter="iwyu",
@@ -523,6 +543,8 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                         line_end=1,
                         col_start=None,
                         col_end=None,
+                        start_offset=None,
+                        end_offset=None,
                     ),
                 ),
                 linter="iwyu",
@@ -555,6 +577,8 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                         line_end=11,
                         col_start=None,
                         col_end=None,
+                        start_offset=None,
+                        end_offset=None,
                     ),
                 ),
                 linter="iwyu",

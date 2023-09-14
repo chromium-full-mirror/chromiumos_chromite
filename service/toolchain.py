@@ -51,8 +51,10 @@ class CodeLocation(NamedTuple):
     contents: str
     line_start: int
     line_end: int
-    col_start: int
-    col_end: int
+    col_start: Optional[int]
+    col_end: Optional[int]
+    start_offset: Optional[int]
+    end_offset: Optional[int]
 
 
 class SuggestedFix(NamedTuple):
@@ -76,7 +78,7 @@ class LinterFinding(NamedTuple):
 def emerge_and_upload_lints(board: str, start_time: int) -> str:
     """Lints all platform2 packages, returns the GS bucket uploaded to."""
     cros_build_lib.run(
-        ["build_packages", "--board", board],
+        ["cros build-packages", "--board", board],
         extra_env={"WITH_TIDY": "tricium"},
     )
 
@@ -373,6 +375,8 @@ class BuildLinter:
                         contents="",
                         col_start=None,
                         col_end=None,
+                        start_offset=None,
+                        end_offset=None,
                     )
                 )
             findings_tuples.append(
@@ -441,10 +445,8 @@ class BuildLinter:
             for replacement in diag.replacements:
                 contents_to_replace = self._try_to_get_file_contents(
                     diag.file_path,
-                    replacement.start_line,
-                    replacement.end_line,
-                    replacement.start_char,
-                    replacement.end_char,
+                    replacement.start_offset,
+                    replacement.end_offset,
                 )
                 fix_location = CodeLocation(
                     filepath=filepath,
@@ -453,6 +455,8 @@ class BuildLinter:
                     line_end=replacement.end_line,
                     col_start=replacement.start_char,
                     col_end=replacement.end_char,
+                    start_offset=replacement.start_offset,
+                    end_offset=replacement.end_offset,
                 )
                 suggested_fix = SuggestedFix(
                     replacement=replacement.new_text, location=fix_location
@@ -473,6 +477,8 @@ class BuildLinter:
                     # parsing scripts
                     col_start=None,
                     col_end=None,
+                    start_offset=None,
+                    end_offset=None,
                 )
             ]
             finding = LinterFinding(
@@ -544,6 +550,8 @@ class BuildLinter:
                     contents="",
                     col_start=None,
                     col_end=None,
+                    start_offset=None,
+                    end_offset=None,
                 )
                 yield LinterFinding(
                     message=message,
@@ -665,6 +673,8 @@ class BuildLinter:
                         contents="",
                         col_start=None,
                         col_end=None,
+                        start_offset=None,
+                        end_offset=None,
                     )
                     findings.append(
                         LinterFinding(
@@ -803,11 +813,23 @@ class BuildLinter:
     def _try_to_get_file_contents(
         self,
         path: Text,
-        line_start: int,
-        line_end: int,
-        col_start: int = None,
-        col_end: int = None,
-    ):
+        offset_start: int,
+        offset_end: int,
+    ) -> Text:
+        """Attempt to get the contents of a file.
+
+        If we fail because the file does not exist, we return the empty string.
+        """
+        if offset_start is not None and offset_end is not None:
+            try:
+                contents = Path(path).read_text(encoding="utf-8")
+            except (FileNotFoundError, IsADirectoryError):
+                return ""
+        return contents[offset_start:offset_end]
+
+    def _try_to_get_lines(
+        self, path: Text, line_start: int, line_end: int
+    ) -> Text:
         """Attempt to get the contents of a file.
 
         If we fail because the file does not exist, we return the empty string.
@@ -818,12 +840,7 @@ class BuildLinter:
         except (FileNotFoundError, IsADirectoryError):
             return ""
         # Note: line numbers are 1 indexed
-        lines = file_contents[line_start - 1 : line_end]
-        if lines and col_start is not None and col_end is not None:
-            if col_start < len(lines[0]):
-                lines[0] = lines[0][col_start:]
-                lines[-1] = lines[-1][: col_end + 1]
-        return "\n".join(lines)
+        return "\n".join(file_contents[line_start - 1 : line_end])
 
 
 def setup_toolchains(include_boards: List[str] = None) -> None:
