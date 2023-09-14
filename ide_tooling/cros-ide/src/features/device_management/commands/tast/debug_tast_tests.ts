@@ -148,6 +148,7 @@ async function debugSelectedTests(
   const taskType = 'shell';
   const taskName = 'prep debugger';
   const taskSource = 'tast';
+  const extraArgs = config.tast.extraArgs.get();
   const prepDebuggerTaskProvider = vscode.tasks.registerTaskProvider(taskType, {
     provideTasks(): vscode.Task[] {
       const task = new vscode.Task(
@@ -156,9 +157,9 @@ async function debugSelectedTests(
         taskName,
         taskSource,
         new vscode.ShellExecution(
-          `cros_sdk tast run -attachdebugger=local:${dlvPort} ${hostname} ${testNames.join(
+          `cros_sdk tast run -failfortests -attachdebugger=local:${dlvPort} ${extraArgs.join(
             ' '
-          )}`
+          )} ${hostname} ${testNames.join(' ')}`
         ),
         '$prep-tast-debugger'
       );
