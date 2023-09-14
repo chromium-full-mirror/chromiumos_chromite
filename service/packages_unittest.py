@@ -10,14 +10,15 @@ import os
 import re
 from unittest import mock
 
+from chromite.third_party.google.protobuf import field_mask_pb2
 from chromite.third_party.google.protobuf import json_format
-from chromite.third_party.google.protobuf.field_mask_pb2 import FieldMask
 import pytest
 
 import chromite as cr
 from chromite.api.gen.config import replication_config_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -27,9 +28,7 @@ from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import uprev_lib
-from chromite.lib.chroot_lib import Chroot
 from chromite.lib.parser import package_info
-from chromite.lib.uprev_lib import GitRef
 from chromite.service import android
 from chromite.service import dependency
 from chromite.service import packages
@@ -63,7 +62,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         ]
 
         result = packages.uprev_android(
-            "android/package", Chroot(), build_targets=build_targets
+            "android/package", chroot_lib.Chroot(), build_targets=build_targets
         )
         self.assertCommandContains(
             [
@@ -85,7 +84,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
 
         packages.uprev_android(
             "android/package",
-            Chroot(),
+            chroot_lib.Chroot(),
             android_build_branch="android-build-branch",
         )
         self.assertCommandContains(
@@ -101,7 +100,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         self._mock_successful_uprev()
 
         packages.uprev_android(
-            "android/package", Chroot(), android_version="7123456"
+            "android/package", chroot_lib.Chroot(), android_version="7123456"
         )
         self.assertCommandContains(
             [
@@ -115,7 +114,9 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         """Test specifying skip_commit option."""
         self._mock_successful_uprev()
 
-        packages.uprev_android("android/package", Chroot(), skip_commit=True)
+        packages.uprev_android(
+            "android/package", chroot_lib.Chroot(), skip_commit=True
+        )
         self.assertCommandContains(
             [
                 "cros_mark_android_as_stable",
@@ -134,7 +135,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
             build_target_lib.BuildTarget(t) for t in ["foo", "bar"]
         ]
         result = packages.uprev_android(
-            "android/package", Chroot(), build_targets=build_targets
+            "android/package", chroot_lib.Chroot(), build_targets=build_targets
         )
 
         self.assertCommandContains(
@@ -151,7 +152,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
             partial_mock.In("cros_mark_android_as_stable"),
             stdout='foo\nbar\n{"revved": false}\n',
         )
-        result = packages.uprev_android("android/package", Chroot())
+        result = packages.uprev_android("android/package", chroot_lib.Chroot())
 
         self.assertFalse(result.revved)
 
@@ -168,7 +169,7 @@ class UprevAndroidLKGBTest(cros_test_lib.MockTestCase):
                 "chromeos-base/" + android_package, strict=False
             )
             build_targets = [build_target_lib.BuildTarget("foo")]
-            chroot = Chroot()
+            chroot = chroot_lib.Chroot()
 
             packages.uprev_versioned_package(cpv, build_targets, [], chroot)
 
@@ -193,7 +194,9 @@ class UprevAndroidLKGBTest(cros_test_lib.MockTestCase):
             ),
         )
 
-        result = packages.uprev_android_lkgb("android-package", [], Chroot())
+        result = packages.uprev_android_lkgb(
+            "android-package", [], chroot_lib.Chroot()
+        )
 
         self.assertListEqual(
             result.modified,
@@ -219,7 +222,9 @@ class UprevAndroidLKGBTest(cros_test_lib.MockTestCase):
             return_value=packages.UprevAndroidResult(revved=False),
         )
 
-        result = packages.uprev_android_lkgb("android-package", [], Chroot())
+        result = packages.uprev_android_lkgb(
+            "android-package", [], chroot_lib.Chroot()
+        )
 
         self.assertListEqual(result.modified, [])
 
@@ -270,13 +275,13 @@ class UprevECUtilsTest(cros_test_lib.MockTestCase):
             assert cpv is not None
             build_targets = [build_target_lib.BuildTarget("foo")]
             refs = [
-                GitRef(
+                uprev_lib.GitRef(
                     path="/platform/ec",
                     ref="main",
                     revision="123",
                 )
             ]
-            chroot = Chroot()
+            chroot = chroot_lib.Chroot()
 
             result = packages.uprev_versioned_package(
                 cpv, build_targets, refs, chroot
@@ -425,7 +430,7 @@ class UprevsVersionedPackageTest(cros_test_lib.MockTestCase):
         self.PatchObject(self, "uprev_category_package")
 
         cpv = package_info.SplitCPV("category/package", strict=False)
-        packages.uprev_versioned_package(cpv, [], [], Chroot())
+        packages.uprev_versioned_package(cpv, [], [], chroot_lib.Chroot())
 
         # TODO(crbug/1065172): Invalid assertion that was previously mocked.
         # patch.assert_called()
@@ -435,7 +440,7 @@ class UprevsVersionedPackageTest(cros_test_lib.MockTestCase):
         cpv = package_info.SplitCPV("does-not/exist", strict=False)
 
         with self.assertRaises(packages.UnknownPackageError):
-            packages.uprev_versioned_package(cpv, [], [], Chroot())
+            packages.uprev_versioned_package(cpv, [], [], chroot_lib.Chroot())
 
 
 class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
@@ -462,7 +467,7 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
         self.WriteTempFile(ebuild_path, 'KEYWORDS="*"\n')
 
         result = uprev_lib.uprev_ebuild_from_pin(
-            package_path, self.new_version, chroot=Chroot()
+            package_path, self.new_version, chroot=chroot_lib.Chroot()
         )
         self.assertEqual(
             len(result.modified),
@@ -510,7 +515,7 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
         self.WriteTempFile(ebuild_path, 'KEYWORDS="*"\n')
 
         result = uprev_lib.uprev_ebuild_from_pin(
-            package_path, self.version, chroot=Chroot()
+            package_path, self.version, chroot=chroot_lib.Chroot()
         )
         self.assertEqual(
             len(result.modified),
@@ -551,7 +556,7 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
 
         with self.assertRaises(uprev_lib.EbuildUprevError):
             uprev_lib.uprev_ebuild_from_pin(
-                package_path, self.new_version, chroot=Chroot()
+                package_path, self.new_version, chroot=chroot_lib.Chroot()
             )
 
     def test_multiple_stable_ebuilds(self):
@@ -574,7 +579,7 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
 
         with self.assertRaises(uprev_lib.EbuildUprevError):
             uprev_lib.uprev_ebuild_from_pin(
-                package_path, self.new_version, chroot=Chroot()
+                package_path, self.new_version, chroot=chroot_lib.Chroot()
             )
 
     def test_multiple_unstable_ebuilds(self):
@@ -591,7 +596,7 @@ class UprevEbuildFromPinTest(cros_test_lib.RunCommandTempDirTestCase):
 
         with self.assertRaises(uprev_lib.EbuildUprevError):
             uprev_lib.uprev_ebuild_from_pin(
-                package_path, self.new_version, chroot=Chroot()
+                package_path, self.new_version, chroot=chroot_lib.Chroot()
             )
 
 
@@ -653,7 +658,7 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
                     destination_path=self.public_config_path,
                     file_type=FILE_TYPE_JSON,
                     replication_type=REPLICATION_TYPE_FILTER,
-                    destination_fields=FieldMask(paths=["a"]),
+                    destination_fields=field_mask_pb2.FieldMask(paths=["a"]),
                 )
             ]
         )
@@ -690,13 +695,13 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
     def test_replicate_private_config(self):
         """Basic replication test."""
         refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/chromeos/overlays/overlay-coral-private",
                 ref="main",
                 revision="123",
             )
         ]
-        chroot = Chroot()
+        chroot = chroot_lib.Chroot()
         result = packages.replicate_private_config(
             _build_targets=None, refs=refs, chroot=chroot
         )
@@ -760,7 +765,7 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
                     destination_path=modified_destination_path,
                     file_type=FILE_TYPE_JSON,
                     replication_type=REPLICATION_TYPE_FILTER,
-                    destination_fields=FieldMask(paths=["a"]),
+                    destination_fields=field_mask_pb2.FieldMask(paths=["a"]),
                 )
             ]
         )
@@ -770,14 +775,14 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
         )
 
         refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/chromeos/overlays/overlay-coral-private",
                 ref="main",
                 revision="123",
             )
         ]
         result = packages.replicate_private_config(
-            _build_targets=None, refs=refs, chroot=Chroot()
+            _build_targets=None, refs=refs, chroot=chroot_lib.Chroot()
         )
 
         self.assertEqual(len(result.modified), 1)
@@ -795,14 +800,14 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
                     destination_path=self.public_config_path,
                     file_type=FILE_TYPE_JSON,
                     replication_type=REPLICATION_TYPE_FILTER,
-                    destination_fields=FieldMask(paths=["a"]),
+                    destination_fields=field_mask_pb2.FieldMask(paths=["a"]),
                 ),
                 FileReplicationRule(
                     source_path=self.private_config_path,
                     destination_path=self.public_config_path,
                     file_type=FILE_TYPE_JSON,
                     replication_type=REPLICATION_TYPE_FILTER,
-                    destination_fields=FieldMask(paths=["a"]),
+                    destination_fields=field_mask_pb2.FieldMask(paths=["a"]),
                 ),
             ]
         )
@@ -813,7 +818,7 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
         )
 
         refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/chromeos/overlays/overlay-coral-private",
                 ref="main",
                 revision="123",
@@ -824,7 +829,7 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
             "Expected at most one build_config.json destination path.",
         ):
             packages.replicate_private_config(
-                _build_targets=None, refs=refs, chroot=Chroot()
+                _build_targets=None, refs=refs, chroot=chroot_lib.Chroot()
             )
 
     def test_replicate_private_config_generated_files_incorrect(self):
@@ -834,13 +839,13 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
         )
 
         refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/chromeos/overlays/overlay-coral-private",
                 ref="main",
                 revision="123",
             )
         ]
-        chroot = Chroot()
+        chroot = chroot_lib.Chroot()
 
         with self.assertRaisesRegex(
             packages.GeneratedCrosConfigFilesError,
@@ -859,8 +864,8 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
 
         with self.assertRaisesRegex(ValueError, "Expected exactly one ref"):
             refs = [
-                GitRef(path="a", ref="main", revision="1"),
-                GitRef(path="a", ref="main", revision="2"),
+                uprev_lib.GitRef(path="a", ref="main", revision="1"),
+                uprev_lib.GitRef(path="a", ref="main", revision="2"),
             ]
             packages.replicate_private_config(
                 _build_targets=None, refs=refs, chroot=None
@@ -875,7 +880,7 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
             % self.replication_config_path,
         ):
             refs = [
-                GitRef(
+                uprev_lib.GitRef(
                     path="/chromeos/overlays/overlay-coral-private",
                     ref="main",
                     revision="123",
@@ -890,7 +895,7 @@ class ReplicatePrivateConfigTest(cros_test_lib.RunCommandTempDirTestCase):
         with self.assertRaisesRegex(
             ValueError, "ref.path must match the pattern"
         ):
-            refs = [GitRef(path="a/b/c", ref="main", revision="123")]
+            refs = [uprev_lib.GitRef(path="a/b/c", ref="main", revision="123")]
             packages.replicate_private_config(
                 _build_targets=None, refs=refs, chroot=None
             )
@@ -1081,7 +1086,7 @@ class FindFingerprintsTest(cros_test_lib.RunCommandTempDirTestCase):
             self.tempdir,
             "src/build/images/test-board/latest/cheets-fingerprint.txt",
         )
-        self.chroot = Chroot(
+        self.chroot = chroot_lib.Chroot(
             path=self.tempdir / "chroot", out_path=self.tempdir / "out"
         )
         osutils.WriteFile(
@@ -1666,7 +1671,7 @@ def test_uprev_chrome_all_files_already_exist(
         overlay.add_package(stable_pkg)
 
     git_refs = [
-        GitRef(
+        uprev_lib.GitRef(
             path="/foo", ref=f"refs/tags/{new_version}", revision="stubcommit"
         )
     ]
@@ -2024,7 +2029,7 @@ class UprevDrivefsTest(cros_test_lib.MockTestCase):
 
     def setUp(self):
         self.refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/chromeos/platform/drivefs-google3/",
                 ref="refs/tags/drivefs_45.0.2",
                 revision="123",
@@ -2132,7 +2137,9 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         for f, contents in json_files.items():
             self.WriteTempFile(os.path.join(self.metadata_dir, f), contents)
 
-        returned_output = packages.uprev_kernel_afdo(None, [], Chroot())
+        returned_output = packages.uprev_kernel_afdo(
+            None, [], chroot_lib.Chroot()
+        )
 
         package_root = os.path.join(
             constants.SOURCE_ROOT,
@@ -2179,7 +2186,9 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         for f, contents in json_files.items():
             self.WriteTempFile(os.path.join(self.metadata_dir, f), contents)
 
-        returned_output = packages.uprev_kernel_afdo(None, [], Chroot())
+        returned_output = packages.uprev_kernel_afdo(
+            None, [], chroot_lib.Chroot()
+        )
         self.assertFalse(returned_output.uprevved)
 
     def test_uprev_kernel_afdo_empty_file(self):
@@ -2194,7 +2203,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         with self.assertRaisesRegex(
             json.decoder.JSONDecodeError, "Expecting value"
         ):
-            packages.uprev_kernel_afdo(None, [], Chroot())
+            packages.uprev_kernel_afdo(None, [], chroot_lib.Chroot())
 
     def test_uprev_kernel_afdo_manifest_raises(self):
         """Test manifest update raises."""
@@ -2215,7 +2224,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
         )
 
         with self.assertRaises(uprev_lib.EbuildManifestError):
-            packages.uprev_kernel_afdo(None, [], Chroot())
+            packages.uprev_kernel_afdo(None, [], chroot_lib.Chroot())
 
 
 # TODO(chenghaoyang): Shouldn't use uprev_workon_ebuild_to_version.
@@ -2223,7 +2232,9 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
     """Tests for uprev_perfetto."""
 
     def setUp(self):
-        self.refs = [GitRef(path="/foo", ref="refs/tags/v12.0", revision="123")]
+        self.refs = [
+            uprev_lib.GitRef(path="/foo", ref="refs/tags/v12.0", revision="123")
+        ]
         self.MOCK_PERFETTO_EBUILD_PATH = "perfetto-12.0-r1.ebuild"
         self.MOCK_PERFETTO_PROTO_EBUILD_PATH = "perfetto-protos-12.0-r1.ebuild"
 
@@ -2326,7 +2337,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
     def test_revision_bump_trunk(self):
         """Test revision bump on receiving non-versioned trunk refs."""
         refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/foo", ref="refs/heads/main", revision="0123456789abcdef"
             )
         ]
@@ -2356,7 +2367,7 @@ class UprevLacrosTest(cros_test_lib.MockTestCase):
 
     def setUp(self):
         self.refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/lacros", ref="refs/heads/main", revision="123.456.789.0"
             )
         ]
@@ -2458,7 +2469,7 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
 
     def setUp(self):
         self.refs = [
-            GitRef(
+            uprev_lib.GitRef(
                 path="/lacros", revision="abc123", ref="refs/tags/123.456.789.0"
             )
         ]
