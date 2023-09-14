@@ -115,14 +115,6 @@ ANDROID_TEST_ZIP = "test_zip"
 # Zip file of vendor partitions used by Brillo device.
 ANDROID_VENDOR_PARTITION_ZIP = "vendor_partitions"
 
-# Zip file of native tests used by Android devices.
-ANDROID_NATIVETESTS_ZIP = "nativetests"
-ANDROID_CONTINUOUS_NATIVE_TESTS_ZIP = "continuous_native_tests"
-ANDROID_CONTINUOUS_INSTRUMENTATION_TESTS_ZIP = (
-    "continuous_instrumentation_tests"
-)
-ANDROID_CTS_ZIP = "android-cts"
-
 # Zip file including all target files and images
 ANDROID_TARGET_FILES_ZIP = "target_files"
 
