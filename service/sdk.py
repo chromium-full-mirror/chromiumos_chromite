@@ -580,24 +580,24 @@ def uprev_sdk_and_prebuilts(
     return modified_paths
 
 
-def BuildPrebuilts(chroot: "chroot_lib.Chroot", board: str = ""):
-    """Builds the binary packages that compose the Chromium OS SDK.
+def BuildPrebuilts(board: str = ""):
+    """Builds the binary packages that compose the ChromiumOS SDK.
 
     Args:
-        chroot: The chroot in which to run the build.
         board: The name of the SDK build target to build packages for.
+
+    Raises:
+        cros_build_lib.DieSystemExit: If called from outside the chroot.
     """
+    cros_build_lib.AssertInsideChroot()
     cmd = ["./build_sdk_board"]
     if board:
         cmd.append(f"--board={board}")
-    chroot.run(
-        cmd,
-        check=True,
-    )
+    cros_build_lib.run(cmd, check=True)
 
 
 def BuildSdkTarball(chroot: "chroot_lib.Chroot") -> Path:
-    """Create a tarball previously built (e.g. by BuildPrebuilts) SDK.
+    """Create a tarball of a previously built (e.g. by BuildPrebuilts) SDK.
 
     Args:
         chroot: The chroot that contains the built SDK.

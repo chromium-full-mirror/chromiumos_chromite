@@ -270,9 +270,14 @@ def Clean(input_proto, _output_proto, _config):
 @faux.all_empty
 @validate.validation_complete
 def BuildPrebuilts(input_proto, _output_proto, _config):
-    """Build the binary packages that comprise the Chromium OS SDK."""
-    chroot = controller_util.ParseChroot(input_proto.chroot)
-    sdk.BuildPrebuilts(chroot, board=input_proto.build_target.name)
+    """Build the binary packages that comprise the Chromium OS SDK.
+
+    Raises:
+        cros_build_lib.Die: If called from outside the chroot. The RPC proto
+            definition guarantees that it should run inside.
+    """
+    cros_build_lib.AssertInsideChroot()
+    sdk.BuildPrebuilts(board=input_proto.build_target.name)
 
 
 @faux.success(_BinhostCLs)
