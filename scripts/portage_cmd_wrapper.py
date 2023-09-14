@@ -173,6 +173,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     span = trace.get_current_span()
     span.update_name(f"portage_cmd_wrapper.{opts.command[0]}.main")
 
+    chromite_config.initialize()
     telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
 
     try:
