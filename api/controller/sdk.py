@@ -5,6 +5,7 @@
 """SDK chroot operations."""
 
 import os
+from pathlib import Path
 from typing import Dict, TYPE_CHECKING, Union
 
 from chromite.api import controller
@@ -13,6 +14,7 @@ from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_build_lib
+from chromite.lib import path_util
 from chromite.lib import sysroot_lib
 from chromite.service import sdk
 
@@ -269,15 +271,28 @@ def Clean(input_proto, _output_proto, _config):
 
 @faux.all_empty
 @validate.validation_complete
-def BuildPrebuilts(input_proto, _output_proto, _config):
-    """Build the binary packages that comprise the Chromium OS SDK.
-
-    Raises:
-        cros_build_lib.Die: If called from outside the chroot. The RPC proto
-            definition guarantees that it should run inside.
-    """
-    cros_build_lib.AssertInsideChroot()
-    sdk.BuildPrebuilts(board=input_proto.build_target.name)
+def BuildPrebuilts(input_proto, output_proto, _config):
+    """Build the binary packages that comprise the Chromium OS SDK."""
+    chroot = controller_util.ParseChroot(input_proto.chroot)
+    host_path, target_path = sdk.BuildPrebuilts(
+        chroot,
+        board=input_proto.build_target.name,
+    )
+    # Convert paths to OUTSIDE, rather than using the ResultPath, to avoid
+    # unnecessary copying of several-gigabyte directories, and because
+    # ResultPath doesn't support returning multiple directories.
+    chroot_path_resolver = path_util.ChrootPathResolver(
+        chroot_path=Path(input_proto.chroot.path),
+        out_path=Path(input_proto.chroot.out_path),
+    )
+    output_proto.host_prebuilts_path.path = str(
+        chroot_path_resolver.FromChroot(host_path),
+    )
+    output_proto.host_prebuilts_path.location = common_pb2.Path.OUTSIDE
+    output_proto.target_prebuilts_path.path = str(
+        chroot_path_resolver.FromChroot(target_path),
+    )
+    output_proto.target_prebuilts_path.location = common_pb2.Path.OUTSIDE
 
 
 @faux.success(_BinhostCLs)

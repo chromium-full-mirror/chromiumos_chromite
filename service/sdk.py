@@ -580,20 +580,36 @@ def uprev_sdk_and_prebuilts(
     return modified_paths
 
 
-def BuildPrebuilts(board: str = ""):
+def BuildPrebuilts(
+    chroot: chroot_lib.Chroot, board: str = ""
+) -> Tuple[Path, Path]:
     """Builds the binary packages that compose the ChromiumOS SDK.
 
     Args:
+        chroot: The chroot in which to run the build.
         board: The name of the SDK build target to build packages for.
 
+    Returns:
+        A tuple (host_prebuilts_dir, target_prebuilts_dir), where each is an
+        absolute path INSIDE the chroot to the directory containing prebuilts
+        for the given board (or for the default SDK board).
+
     Raises:
-        cros_build_lib.DieSystemExit: If called from outside the chroot.
+        FileNotFoundError: If either of the expected return paths is not found
+            after running `build_sdk_board`.
     """
-    cros_build_lib.AssertInsideChroot()
     cmd = ["./build_sdk_board"]
     if board:
         cmd.append(f"--board={board}")
-    cros_build_lib.run(cmd, check=True)
+    chroot.run(cmd, check=True)
+    host_prebuilts_dir = Path("/var/lib/portage/pkgs")
+    target_prebuilts_dir = (
+        Path("/build") / (board or constants.CHROOT_BUILDER_BOARD) / "packages"
+    )
+    for path in (host_prebuilts_dir, target_prebuilts_dir):
+        if not chroot.has_path(path):
+            raise FileNotFoundError(path)
+    return (host_prebuilts_dir, target_prebuilts_dir)
 
 
 def BuildSdkTarball(chroot: "chroot_lib.Chroot") -> Path:
