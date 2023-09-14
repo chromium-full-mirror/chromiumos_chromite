@@ -112,6 +112,7 @@ def sudo_run_cmd_with_failed_pkg_parsing(command, extra_env):
         try:
             return cros_build_lib.sudo_run(
                 command,
+                print_cmd=False,
                 preserve_env=True,
                 extra_env=extra_env,
             )
@@ -185,12 +186,4 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     try:
         return execute_cmd(opts)
     except cros_build_lib.RunCommandError as e:
-        logging.error(e)
-        logging.error("Error running %s.", opts.command[0])
-        logging.error(
-            "Full command: %s", cros_build_lib.CmdToStr(e.result.args)
-        )
-        # sysroot_lib.PackageInstallError is a subclass of RunCommandError.
-        if hasattr(e, "failed_packages"):
-            logging.error("Failed Packages: %s", " ".join(e.failed_packages))
-        return e.result.returncode
+        return e.returncode
