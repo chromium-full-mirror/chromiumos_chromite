@@ -251,7 +251,12 @@ def _CommitAndPush(manifest_repo, git_url, buildspec, contents, dryrun):
     filename = os.path.join(manifest_repo, buildspec)
     assert not os.path.exists(filename)
 
-    git.CreatePushBranch(PUSH_BRANCH, manifest_repo, sync=False)
+    git.CreatePushBranch(
+        PUSH_BRANCH,
+        manifest_repo,
+        sync=False,
+        remote_push_branch=git.RemoteRef("origin", "main"),
+    )
     osutils.WriteFile(filename, contents, makedirs=True)
 
     git.RunGit(manifest_repo, ["add", "-A"])
