@@ -7,6 +7,7 @@
 import dataclasses
 import os
 from pathlib import Path
+import re
 from typing import Dict, Iterator, List, Optional, Tuple, Union
 from unittest import mock
 
@@ -100,9 +101,16 @@ def bundle_and_export(subtool: subtool_lib.Subtool) -> None:
 
 
 def bundle_result(
-    subtool: subtool_lib.Subtool, has_ebuild_match: bool = False
+    subtool: subtool_lib.Subtool, has_ebuild_match: bool = False, sed: str = "/"
 ) -> List[str]:
-    """Collects files and returns the contents, sorted, as strings."""
+    """Collects files and returns the contents, sorted, as strings.
+
+    Args:
+        subtool: The subtool to bundle.
+        has_ebuild_match: Whether inputs can be mapped with equery belongs.
+        sed: A sed-like script of the form "pattern/repl" to filter out unstable
+            components from path strings (e.g. version numbers or extensions).
+    """
     if has_ebuild_match:
         subtool.bundle()
     else:
@@ -110,12 +118,14 @@ def bundle_result(
         # fake filesystem that won't map to ebuilds.
         with mock.patch("chromite.lib.subtool_lib.Subtool._match_ebuilds"):
             subtool.bundle()
-    contents = [
-        str(child.relative_to(subtool.bundle_dir))
-        for child in subtool.bundle_dir.rglob("*")
-    ]
-    contents.sort()
-    return contents
+
+    pattern, repl = sed.split("/")
+
+    def clean(child: Path) -> str:
+        s = str(child.relative_to(subtool.bundle_dir))
+        return re.sub(pattern, repl, s) if pattern else s
+
+    return sorted(clean(x) for x in subtool.bundle_dir.rglob("*"))
 
 
 def set_run_results(
@@ -547,6 +557,22 @@ def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
         str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
+
+
+def test_lddtree_bundling(template_proto: Wrapper) -> None:
+    """Test that dynamic ELFs are wrapped with lddtree in the bundle."""
+    template_proto.set_paths([path_mapping("/bin/cat")])
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool, has_ebuild_match=True, sed="[0-9]/#") == [
+        "bin",
+        "bin/cat",
+        "bin/cat.elf",
+        "lib",
+        "lib/ld-linux-x##-##.so.#",
+        "lib/libc.so.#",
+        str(subtool_lib.LICENSE_FILE),
+    ]
+    assert subtool.source_packages[0].startswith("sys-apps/coreutils-")
 
 
 @mock.patch("chromite.lib.subtool_lib.Subtool.export")

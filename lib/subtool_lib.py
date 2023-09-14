@@ -13,12 +13,14 @@ import re
 import shutil
 from typing import List, Literal, Optional, Set
 
+from chromite.third_party import lddtree
 from chromite.third_party.google import protobuf
 from chromite.third_party.google.protobuf import text_format
 
 import chromite
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import cipd
+from chromite.lib import filetype
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.licensing import licenses_lib
@@ -50,6 +52,9 @@ SUBTOOLS_EXPORTS_GLOB = "**/*.textproto"
 # licenses of input files.
 LICENSE_FILE = Path("license.html.gz")
 
+# Standard set of arguments passed to all `lddtree` invocations.
+LDDTREE_ARGS = ["--libdir", "/lib", "--bindir", "/bin", "--generate-wrappers"]
+
 # Valid names. A stricter version of `packageNameRe` in
 # https://crsrc.org/i/go/src/go.chromium.org/luci/cipd/common/common.go
 # Diallows slashes and starting with a ".".
@@ -63,6 +68,9 @@ _DEFAULT_STRIP_PREFIX_REGEX = "^.*/"
 
 # Default CIPD prefix when unspecified.
 _DEFAULT_CIPD_PREFIX = "chromiumos/infra/tools"
+
+# Allow the FileTypeDecoder to keep its cache, for files rooted at "/".
+_FILETYPE_DECODER = filetype.FileTypeDecoder()
 
 
 def get_installed_package(
@@ -188,7 +196,7 @@ class Subtool:
         self._collect_files()
         self._match_ebuilds()
         self._collect_licenses()
-        # TODO(b/277992359): Lddtree, hashing.
+        # TODO(b/277992359): hashing.
         self.stamp("bundled").touch()
 
     def export(self, use_production: bool, cipd_path: str) -> None:
@@ -254,8 +262,22 @@ class Subtool:
                 f"{dest} exists: refusing to copy {src}.", self
             )
         osutils.SafeMakedirs(dest.parent)
+
+        if _FILETYPE_DECODER.GetType(str(src)) == "binary/elf/dynamic-bin":
+            return self._lddtree_into_bundle(src, dest.parent)
+
         logger.debug("Copy file %s -> %s.", src, dest)
         shutil.copy2(src, dest)
+        return 1
+
+    def _lddtree_into_bundle(self, elf: Path, destdir: Path) -> int:
+        """Copies a dynamic elf into the bundle."""
+        # Output of the main script is always `bin`, so avoid `bin/bin`.
+        if destdir.name == "bin":
+            destdir = destdir.parent
+        lddtree.main(LDDTREE_ARGS + ["--copy-to-tree", str(destdir), str(elf)])
+        # The globbing is done already, so there's no big concern about
+        # accidentally bundling the entire filesystem. Count as "1 file".
         return 1
 
     def _check_counts(self, file_count: int) -> None:
