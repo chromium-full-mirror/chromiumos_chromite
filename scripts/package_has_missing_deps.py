@@ -72,6 +72,7 @@ VIRTUALS = {
     "virtual/opengles": (
         "media-libs/img-ddk",
         "media-libs/img-ddk-bin",
+        "media-libs/libglvnd",
         "media-libs/mali-drivers-bin",
         "media-libs/mali-drivers-bifrost",
         "media-libs/mali-drivers-bifrost-bin",
