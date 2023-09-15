@@ -5,6 +5,7 @@
 """The tracing library that provides the Tracer."""
 
 import os
+import sys
 from typing import Optional
 
 from chromite.third_party.opentelemetry import trace as otel_trace_api
@@ -97,7 +98,7 @@ def initialize(
 
     if not cfg.trace_config.has_enabled():
         if cfg.root_config.notice_countdown > -1:
-            print(NOTICE)
+            print(NOTICE, file=sys.stderr)
             cfg.root_config.update(
                 notice_countdown=cfg.root_config.notice_countdown - 1
             )

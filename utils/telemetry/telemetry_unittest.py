@@ -99,7 +99,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
 
     cfg = config.Config(config_file)
     assert len(processors) == 0
-    assert capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.root_config.notice_countdown == 9
 
 
@@ -122,7 +122,7 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     cfg = config.Config(config_file)
     assert len(processors) == 1
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
-    assert capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.root_config.notice_countdown == 9
 
 
@@ -151,7 +151,7 @@ def test_initialize_to_update_enabled_on_count_down_complete(
     assert (
         processors[0].span_exporter.__class__ == exporter.ClearcutSpanExporter
     )
-    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "AUTO"
 
@@ -178,7 +178,7 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
 
     cfg = config.Config(config_file)
     assert len(processors) == 0
-    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert not cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "USER"
 
@@ -208,7 +208,7 @@ def test_initialize_to_enable_telemetry_based_on_optin(
     assert (
         processors[0].span_exporter.__class__ == exporter.ClearcutSpanExporter
     )
-    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "USER"
 
@@ -235,6 +235,6 @@ def test_initialize_to_disable_telemetry_based_on_optin(
 
     cfg = config.Config(config_file)
     assert len(processors) == 0
-    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert not cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "USER"
