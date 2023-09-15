@@ -7,7 +7,7 @@
 from __future__ import division
 
 import os
-from pathlib import Path
+import pathlib
 from unittest import mock
 
 import pytest
@@ -158,9 +158,9 @@ class FindChromeEbuildsTest(cros_test_lib.TempDirTestCase):
 
     def test_find_all(self):
         unstable, stables = uprev_lib.find_chrome_ebuilds(self.tempdir)
-        self.assertEqual(Path(self.unstable), unstable.ebuild_path)
+        self.assertEqual(self.unstable, unstable.ebuild_path)
         self.assertCountEqual(
-            [Path(self.best_stable), Path(self.old_stable)],
+            [self.best_stable, self.old_stable],
             [stable.ebuild_path for stable in stables],
         )
 
@@ -224,7 +224,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
             self.stable_chrome_version, self.new_chrome_version
         )
         self.assertCountEqual(
-            [Path(self.stable_path), Path(new_path)], manager.modified_ebuilds
+            [self.stable_path, new_path], manager.modified_ebuilds
         )
         self.assertExists(new_path)
         self.assertNotExists(self.stable_path)
@@ -247,7 +247,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         )
 
         self.assertCountEqual(
-            [Path(self.stable_path), Path(new_path)], manager.modified_ebuilds
+            [self.stable_path, new_path], manager.modified_ebuilds
         )
         self.assertExists(new_path)
         self.assertNotExists(self.stable_path)
@@ -538,7 +538,7 @@ def test_get_stable_ebuild_version(overlay_stack, monkeypatch):
 
     monkeypatch.setattr(uprev_lib, "SRC_ROOT", overlay.path)
     stable_version = uprev_lib.get_stable_ebuild_version(
-        Path(unstable_package.category) / unstable_package.package,
+        pathlib.Path(unstable_package.category) / unstable_package.package,
     )
 
     assert stable_version == stable_package.package_info.version
@@ -568,7 +568,7 @@ def test_get_stable_ebuild_version_2_stable_ebuilds(overlay_stack, monkeypatch):
     monkeypatch.setattr(uprev_lib, "SRC_ROOT", overlay.path)
     with pytest.raises(uprev_lib.TooManyStableEbuildsError):
         _ = uprev_lib.get_stable_ebuild_version(
-            Path(unstable_package.category) / unstable_package.package,
+            pathlib.Path(unstable_package.category) / unstable_package.package,
         )
 
 
@@ -584,7 +584,7 @@ def test_get_stable_ebuild_version_no_unstable(overlay_stack, monkeypatch):
     monkeypatch.setattr(uprev_lib, "SRC_ROOT", overlay.path)
     with pytest.raises(uprev_lib.NoUnstableEbuildError):
         _ = uprev_lib.get_stable_ebuild_version(
-            Path(stable_package.category) / stable_package.package,
+            pathlib.Path(stable_package.category) / stable_package.package,
         )
 
 
@@ -605,7 +605,7 @@ def test_non_workon_fails_uprev_workon_ebuild_to_version(
     monkeypatch.setattr(uprev_lib, "SRC_ROOT", overlay.path)
     with pytest.raises(uprev_lib.EbuildUprevError):
         uprev_lib.uprev_workon_ebuild_to_version(
-            Path(unstable_package.category) / unstable_package.package,
+            pathlib.Path(unstable_package.category) / unstable_package.package,
             target_version="1",
             chroot=None,
             chroot_src_root=overlay.path,
@@ -638,7 +638,7 @@ def test_simple_uprev_workon_ebuild_to_version(overlay_stack, monkeypatch):
 
     monkeypatch.setattr(uprev_lib, "SRC_ROOT", overlay.path)
     res = uprev_lib.uprev_workon_ebuild_to_version(
-        Path(unstable_package.category) / unstable_package.package,
+        pathlib.Path(unstable_package.category) / unstable_package.package,
         target_version="1",
         chroot=None,
         chroot_src_root=overlay.path,

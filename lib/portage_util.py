@@ -416,6 +416,9 @@ class EBuild:
     """Wrapper class for information about an ebuild."""
 
     VERBOSE = False
+    _PACKAGE_VERSION_PATTERN = re.compile(
+        r".*-(([0-9][0-9a-z_.]*)(-r[0-9]+)?)[.]ebuild"
+    )
     _WORKON_COMMIT_PATTERN = re.compile(r"^CROS_WORKON_COMMIT=")
 
     # TODO(crbug.com/1125947): Drop CROS_WORKON_BLACKLIST.  We can do this once
@@ -524,11 +527,7 @@ class EBuild:
         git_commit_cmd = ["commit", "-a", "-m", message]
         cls._RunGit(overlay, git_commit_cmd)
 
-    def __init__(
-        self,
-        path: Union[str, os.PathLike],
-        subdir_support: bool = False,
-    ):
+    def __init__(self, path, subdir_support=False):
         """Sets up data about an ebuild from its path.
 
         Args:
@@ -536,17 +535,20 @@ class EBuild:
             subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
                 branches older than 10363.0.0.
         """
-        self.ebuild_path = Path(path).absolute()
         self.subdir_support = subdir_support
-        self.package_info = package_info.parse(self.ebuild_path)
 
-        self.overlay = self.ebuild_path.parents[2]
-        self.category = self.package_info.category
-        self.pkgname = self.package_info.package
-        self.version = self.package_info.vr
-        self.version_no_rev = self.package_info.version
-        self.current_revision = self.package_info.revision
-        self.package = self.package_info.atom
+        self.overlay, self.category, self.pkgname, filename = path.rsplit(
+            "/", 3
+        )
+        m = self._PACKAGE_VERSION_PATTERN.match(filename)
+        if not m:
+            raise EBuildVersionFormatError(filename)
+        self.version, self.version_no_rev, revision = m.groups()
+        if revision is not None:
+            self.current_revision = int(revision.replace("-r", ""))
+        else:
+            self.current_revision = 0
+        self.package = "%s/%s" % (self.category, self.pkgname)
 
         self._ebuild_path_no_version = os.path.join(
             os.path.dirname(path), self.pkgname
@@ -559,6 +561,7 @@ class EBuild:
             self._ebuild_path_no_version,
             WORKON_EBUILD_SUFFIX,
         )
+        self.ebuild_path = path
 
         self.is_workon = False
         self.is_stable = False

@@ -6,7 +6,6 @@
 
 import base64
 import os
-from pathlib import Path
 from textwrap import dedent
 from unittest import mock
 
@@ -41,27 +40,23 @@ class CrosMarkChromeAsStable(cros_test_lib.MockTempDirTestCase):
         ebuild = os.path.join(
             self.mock_chrome_dir, constants.CHROME_PN + "-%s.ebuild"
         )
-        self.unstable = Path(ebuild % "9999")
+        self.unstable = ebuild % "9999"
         self.sticky_branch = "8.0.224"
         self.sticky_version = "%s.503" % self.sticky_branch
-        self.sticky = Path(ebuild % self.sticky_version)
+        self.sticky = ebuild % self.sticky_version
         self.sticky_rc_version = "%s.504" % self.sticky_branch
-        self.sticky_rc = Path(ebuild % (self.sticky_rc_version + "_rc-r1"))
+        self.sticky_rc = ebuild % (self.sticky_rc_version + "_rc-r1")
         self.latest_stable_version = "8.0.300.1"
-        self.latest_stable = Path(
-            ebuild % (self.latest_stable_version + "_rc-r2")
-        )
+        self.latest_stable = ebuild % (self.latest_stable_version + "_rc-r2")
         self.tot_stable_version = "9.0.305.0"
-        self.tot_stable = Path(ebuild % (self.tot_stable_version + "_alpha-r1"))
+        self.tot_stable = ebuild % (self.tot_stable_version + "_alpha-r1")
 
         self.sticky_new_rc_version = "%s.520" % self.sticky_branch
-        self.sticky_new_rc = Path(
-            ebuild % (self.sticky_new_rc_version + "_rc-r1")
-        )
+        self.sticky_new_rc = ebuild % (self.sticky_new_rc_version + "_rc-r1")
         self.latest_new_version = "9.0.305.1"
-        self.latest_new = Path(ebuild % (self.latest_new_version + "_rc-r1"))
+        self.latest_new = ebuild % (self.latest_new_version + "_rc-r1")
         self.tot_new_version = "9.0.306.0"
-        self.tot_new = Path(ebuild % (self.tot_new_version + "_alpha-r1"))
+        self.tot_new = ebuild % (self.tot_new_version + "_alpha-r1")
 
         osutils.WriteFile(self.unstable, unstable_data)
         osutils.WriteFile(self.sticky, stable_data)
@@ -309,8 +304,8 @@ class CrosMarkChromeAsStable(cros_test_lib.MockTempDirTestCase):
 
         git_mock.assert_has_calls(
             [
-                mock.call(package_dir, ["add", str(new_ebuild_path)]),
-                mock.call(package_dir, ["rm", str(old_ebuild_path)]),
+                mock.call(package_dir, ["add", new_ebuild_path]),
+                mock.call(package_dir, ["rm", old_ebuild_path]),
             ]
         )
         commit_mock.assert_called_with(

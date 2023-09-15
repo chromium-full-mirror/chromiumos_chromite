@@ -108,8 +108,8 @@ inherit cros-workon superpower
 
     def testParseEBuildPath(self):
         """Test with ebuild with revision number."""
-        basedir = self.tempdir / "cat" / "test_package"
-        fake_ebuild_path = basedir / "test_package-0.0.1-r1.ebuild"
+        basedir = os.path.join(self.tempdir, "cat", "test_package")
+        fake_ebuild_path = os.path.join(basedir, "test_package-0.0.1-r1.ebuild")
         fake_ebuild = self._MakeFakeEbuild(fake_ebuild_path)
 
         self.assertEqual(fake_ebuild.category, "cat")
@@ -134,8 +134,8 @@ inherit cros-workon superpower
 
     def testParseEBuildPathNoRevisionNumber(self):
         """Test with ebuild without revision number."""
-        basedir = self.tempdir / "cat" / "test_package"
-        fake_ebuild_path = basedir / "test_package-9999.ebuild"
+        basedir = os.path.join(self.tempdir, "cat", "test_package")
+        fake_ebuild_path = os.path.join(basedir, "test_package-9999.ebuild")
         fake_ebuild = self._MakeFakeEbuild(fake_ebuild_path)
 
         self.assertEqual(fake_ebuild.category, "cat")
@@ -651,7 +651,7 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
     unstable_ebuild_changed = False
 
     def setUp(self):
-        self.overlay = self.tempdir / "overlay"
+        self.overlay = os.path.join(self.tempdir, "overlay")
         package_name_no_version = os.path.join(
             self.overlay, "category/test_package/test_package"
         )

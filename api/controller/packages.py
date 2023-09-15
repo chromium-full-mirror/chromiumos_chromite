@@ -54,7 +54,7 @@ def Uprev(input_proto, output_proto, _config):
         cros_build_lib.Die(e)
 
     for path in modified_ebuilds:
-        output_proto.modified_ebuilds.add().path = str(path)
+        output_proto.modified_ebuilds.add().path = path
 
     for package in revved_packages:
         pkg_info = package_info.parse(package)

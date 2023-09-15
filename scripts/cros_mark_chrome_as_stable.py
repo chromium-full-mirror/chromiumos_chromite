@@ -213,14 +213,12 @@ class ChromeEBuild(portage_util.EBuild):
 
     def __init__(self, path):
         portage_util.EBuild.__init__(self, path)
-        re_match = self.chrome_version_re.match(
-            str(self.ebuild_path_no_revision)
-        )
+        re_match = self.chrome_version_re.match(self.ebuild_path_no_revision)
         if re_match:
             self.chrome_version = re_match.group(1)
 
     def __str__(self):
-        return str(self.ebuild_path)
+        return self.ebuild_path
 
 
 def FindChromeCandidates(package_dir):
@@ -439,7 +437,7 @@ def MarkChromeEBuildAsStable(
 
     git.RunGit(package_dir, ["add", new_ebuild_path])
     if stable_candidate and not stable_candidate.IsSticky():
-        git.RunGit(package_dir, ["rm", str(stable_candidate.ebuild_path)])
+        git.RunGit(package_dir, ["rm", stable_candidate.ebuild_path])
 
     portage_util.EBuild.CommitChange(
         _GIT_COMMIT_MESSAGE
