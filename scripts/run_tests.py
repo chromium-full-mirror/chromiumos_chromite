@@ -152,6 +152,7 @@ def get_parser():
     parser = commandline.ArgumentParser(
         description=__doc__,
         epilog="To see the help output for pytest:\n$ %(prog)s -- --help",
+        default_log_level="notice",
     )
     parser.add_argument(
         "-j",
