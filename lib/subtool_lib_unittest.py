@@ -123,6 +123,8 @@ def bundle_result(
 
     def clean(child: Path) -> str:
         s = str(child.relative_to(subtool.bundle_dir))
+        # Decouple from whatever extension licensing uses.
+        s = re.sub(r"^license\..*", "<license>", s)
         return re.sub(pattern, repl, s) if pattern else s
 
     return sorted(clean(x) for x in subtool.bundle_dir.rglob("*"))
@@ -491,9 +493,9 @@ def test_ebuild_match_real_package(template_proto: Wrapper) -> None:
     )
     subtool = template_proto.create(writes_files=True)
     assert bundle_result(subtool, has_ebuild_match=True) == [
+        "<license>",
         "bin",
         "bin/profile",
-        str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
     # Verify the license bundling put something meaningful into the license file
@@ -538,9 +540,9 @@ def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
     )
     subtool = template_proto.create(writes_files=True)
     assert bundle_result(subtool, has_ebuild_match=True) == [
+        "<license>",
         "init.d",
         "init.d/functions.sh",
-        str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
@@ -552,9 +554,9 @@ def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
     )
     subtool = template_proto.create(writes_files=True)
     assert bundle_result(subtool, has_ebuild_match=True) == [
+        "<license>",
         "aliases.conf",
         "i386.conf",
-        str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
@@ -564,13 +566,13 @@ def test_lddtree_bundling(template_proto: Wrapper) -> None:
     template_proto.set_paths([path_mapping("/bin/cat")])
     subtool = template_proto.create(writes_files=True)
     assert bundle_result(subtool, has_ebuild_match=True, sed="[0-9]/#") == [
+        "<license>",
         "bin",
         "bin/cat",
         "bin/cat.elf",
         "lib",
         "lib/ld-linux-x##-##.so.#",
         "lib/libc.so.#",
-        str(subtool_lib.LICENSE_FILE),
     ]
     assert subtool.source_packages[0].startswith("sys-apps/coreutils-")
 
