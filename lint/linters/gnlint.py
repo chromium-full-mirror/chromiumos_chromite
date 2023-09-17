@@ -218,7 +218,7 @@ def FindAllLiteralAssignments(node, target_variable_names, operators=None):
 ANY_CONFIGS = ["configs", "public_configs", "all_dependent_configs"]
 
 
-def GnLintLibFlags(gndata):
+def GnLintLibFlags(gndata, _gn_path=""):
     """-lfoo flags belong in 'libs' and not 'ldflags'.
 
     Args:
@@ -248,7 +248,7 @@ def GnLintLibFlags(gndata):
     return issues
 
 
-def GnLintVisibilityFlags(gndata):
+def GnLintVisibilityFlags(gndata, _gn_path=""):
     """Packages should not change -fvisibility settings.
 
     Args:
@@ -289,7 +289,7 @@ def GnLintVisibilityFlags(gndata):
     return issues
 
 
-def GnLintDefineFlags(gndata):
+def GnLintDefineFlags(gndata, _gn_path=""):
     """-D flags should be in 'defines', not cflags.
 
     Args:
@@ -317,7 +317,7 @@ def GnLintDefineFlags(gndata):
     return issues
 
 
-def GnLintDefines(gndata):
+def GnLintDefines(gndata, _gn_path=""):
     """Flags in 'defines' should have valid names.
 
     Args:
@@ -366,7 +366,7 @@ def GnLintDefines(gndata):
     return issues
 
 
-def GnLintCommonTesting(gndata):
+def GnLintCommonTesting(gndata, _gn_path=""):
     """Packages should use //common-mk:test instead of -lgtest/-lgmock.
 
     Args:
@@ -402,7 +402,7 @@ def IsFunctionNode(node):
     return node.get("type") == "FUNCTION"
 
 
-def GnLintStaticSharedLibMixing(gndata):
+def GnLintStaticSharedLibMixing(gndata, _gn_path=""):
     """Static libs linked into shared libs need special PIC handling.
 
     Normally static libs are built using PIE because they only get linked into
@@ -518,7 +518,7 @@ OPTIONS_RE = re.compile(r"^\s*#.*\bgnlint:\s*([^\n;]+)", flags=re.MULTILINE)
 UNITTEST_SOURCE_RE = re.compile(r"_unittest\.(cc|c|h)$")
 
 
-def GnLintSourceFileNames(gndata):
+def GnLintSourceFileNames(gndata, _gn_path=""):
     """Enforce various filename conventions."""
 
     ret = []
@@ -572,7 +572,7 @@ KNOWN_PC_FILES = {
 KNOWN_PC_LIBS = frozenset(KNOWN_PC_FILES.keys())
 
 
-def GnLintPkgConfigs(gndata):
+def GnLintPkgConfigs(gndata, _gn_path=""):
     """Use pkg-config files for known libs instead of adding to libs."""
     ret = []
 
@@ -607,7 +607,7 @@ KNOWN_BAD_PC_LIBS = {
 }
 
 
-def GnLintLibraries(gndata):
+def GnLintLibraries(gndata, _gn_path=""):
     """Flag libraries that people shouldn't be using."""
     ret = []
 
@@ -647,7 +647,7 @@ def IsConditionNode(node):
     return node.get("type") == "CONDITION"
 
 
-def GnLintOrderingWithinTarget(gndata):
+def GnLintOrderingWithinTarget(gndata, _gn_path=""):
     """Enforce the order of identifiers within a target."""
     ret = []
     checked_function = {
@@ -841,7 +841,7 @@ INSTALL_PATH_ALIASES = {
 }
 
 
-def GnLintInstallPathAlias(gndata):
+def GnLintInstallPathAlias(gndata, _gn_path=""):
     """Flag aliases that people should be using for install_path."""
     ret = []
 
@@ -867,6 +867,60 @@ def GnLintInstallPathAlias(gndata):
 
     WalkGn(CheckNode, gndata)
     return ret
+
+
+def GnLintDepsOtherProjectDirectly(gndata, gn_path):
+    """Packages should not depend on directly targets from other projects."""
+
+    def RemapProjectName(target, name):
+        """Workaround(remapping) process to avoid false alarm.
+
+        "platform_camera" is used for dep in platform/camera.
+        Since a folder name-based linter, remapping is required for
+        platform/camera using different path than the folder name.
+        """
+        return (
+            {
+                "platform": {
+                    "camera": "platform_camera",
+                },
+            }
+            .get(target, {})
+            .get(name, project_name)
+        )
+
+    def CheckNode(node):
+        for n in ExtractLiteralAssignment(node, ["deps"]):
+            dep = GetNodeValue(n)
+            if (
+                dep.startswith("//")
+                and not dep.startswith("//common-mk")
+                and not dep.startswith("//" + project_name)
+            ):
+                issues.append(
+                    Issue(
+                        n.get("location"),
+                        "do not directly depending on targets from other "
+                        "projects.",
+                    )
+                )
+
+    issues = []
+    for target in ("platform", "platform2"):
+        try:
+            i = gn_path.parts.index(target)
+        except ValueError:
+            continue
+
+        try:
+            project_name = gn_path.parts[i + 1]
+        except IndexError:
+            continue
+
+        project_name = RemapProjectName(target, project_name)
+        WalkGn(CheckNode, gndata)
+
+    return issues
 
 
 def ParseOptions(options, name=None):
@@ -934,6 +988,7 @@ _ALL_LINTERS = {
     "GnLintPkgConfigs": GnLintPkgConfigs,
     "GnLintOrderingWithinTarget": GnLintOrderingWithinTarget,
     "GnLintInstallPathAlias": GnLintInstallPathAlias,
+    "GnLintDepsOtherProjectDirectly": GnLintDepsOtherProjectDirectly,
 }
 
 
@@ -969,7 +1024,7 @@ def RunLinters(name, gndata, settings=None):
         issues += settings.issues
 
     for linter_name, linter in FindLinters(settings.skip).items():
-        for result in linter(gndata):
+        for result in linter(gndata, name):
             issues.append(
                 LintResult(
                     linter=linter_name,

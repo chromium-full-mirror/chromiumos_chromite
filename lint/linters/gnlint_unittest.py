@@ -5,6 +5,7 @@
 """Unittests for gnlint."""
 
 import logging
+from pathlib import Path
 
 from chromite.lib import cros_test_lib
 from chromite.lint import linters
@@ -23,7 +24,7 @@ STUB_ERROR_LOCATION = {
 class LintTestCase(cros_test_lib.TestCase):
     """Helper for running linters."""
 
-    def _CheckLinter(self, functor, inputs, is_bad_input=True):
+    def _CheckLinter(self, functor, inputs, gn_path=None, is_bad_input=True):
         """Make sure |functor| rejects or accepts every input in |inputs|.
 
         When is_bad_input is true, the expected error location in the input
@@ -31,12 +32,12 @@ class LintTestCase(cros_test_lib.TestCase):
         not have it as the location of the node.
         """
         # First run a sanity check.
-        ret = functor(self.STUB_DATA)
+        ret = functor(self.STUB_DATA, gn_path)
         self.assertEqual(ret, [])
 
         # Then run through all the bad inputs.
         for x in inputs:
-            ret = functor(x)
+            ret = functor(x, gn_path)
             if is_bad_input:
                 self.assertNotEqual(ret, [])
                 for e in ret:
@@ -55,11 +56,11 @@ class UtilityTests(cros_test_lib.MockTestCase):
             "CheckGnFile",
             return_value=[
                 linters.gnlint.LintResult(
-                    "LintFunc", "foo.gn", None, "msg!", logging.ERROR
+                    "LintFunc", Path("foo.gn"), None, "msg!", logging.ERROR
                 ),
             ],
         )
-        linters.gnlint.Data("", "foo.gn")
+        linters.gnlint.Data("", Path("foo.gn"))
 
 
 class FilesystemUtilityTests(cros_test_lib.TestCase):
@@ -68,7 +69,7 @@ class FilesystemUtilityTests(cros_test_lib.TestCase):
     def testCheckGnFile(self):
         """Check CheckGnFile tails down correctly."""
         content = "# gn file\n"
-        ret = linters.gnlint.CheckGnData(content, "asdf.gn")
+        ret = linters.gnlint.CheckGnData(content, Path("asdf.gn"))
         self.assertEqual(ret, [])
 
     def testGnFileOption(self):
@@ -80,11 +81,11 @@ class FilesystemUtilityTests(cros_test_lib.TestCase):
         )
         gn_options = "#gnlint: disable=GnLintVisibilityFlags\n"
         ret = linters.gnlint.CheckGnData(
-            static_library_with_visibility_flag, "asdf.gn"
+            static_library_with_visibility_flag, Path("asdf.gn")
         )
         self.assertEqual(len(ret), 1)
         ret = linters.gnlint.CheckGnData(
-            gn_options + static_library_with_visibility_flag, "asdf.gn"
+            gn_options + static_library_with_visibility_flag, Path("asdf.gn")
         )
         self.assertEqual(ret, [])
 
@@ -191,6 +192,63 @@ def CreateInstallPathTestData(target, value):
                 ],
                 "type": "FUNCTION",
                 "value": target,
+            }
+        ],
+        "type": "BLOCK",
+    }
+
+
+def CreateDepsTestData(value):
+    """creates data for testing simple assignment for deps.
+
+    the assigned list is set to be the error location when an error is
+    expected for the input.
+    """
+    # static_library("test") {
+    #   deps = [ <value> ]
+    # }
+    if not isinstance(value, list):
+        value = [value]
+    value_list = []
+    for item in value:
+        value_list.append(
+            {
+                "location": STUB_ERROR_LOCATION,
+                "type": "LITERAL",
+                "value": item,
+            }
+        )
+    return {
+        "child": [
+            {
+                "child": [
+                    {
+                        "child": [
+                            {
+                                "type": "LITERAL",
+                                "value": '"test"',
+                            }
+                        ],
+                    },
+                    {
+                        "child": [
+                            {
+                                "child": [
+                                    {
+                                        "type": "IDENTIFIER",
+                                        "value": "deps",
+                                    },
+                                    {"child": value_list, "type": "LIST"},
+                                ],
+                                "type": "BINARY",
+                                "value": "=",
+                            }
+                        ],
+                        "type": "BLOCK",
+                    },
+                ],
+                "type": "FUNCTION",
+                "value": "static_library",
             }
         ],
         "type": "BLOCK",
@@ -708,4 +766,43 @@ class GnLintTests(LintTestCase):
                 CreateInstallPathTestData("install_config", "/etc/init"),
                 CreateInstallPathTestData("install_config", "/etc/init/"),
             ],
+        )
+
+    def testGnLintDepsOtherProjectDirectly(self):
+        """Verify GnLintDepsOtherProjectDirectly catches bad inputs.
+
+        Disallow dependency from other project directly.
+        """
+        self._CheckLinter(
+            linters.gnlint.GnLintDepsOtherProjectDirectly,
+            [
+                CreateDepsTestData(['"test1"', '"test2"']),
+                CreateDepsTestData(['"//common-mk"', '"test"']),
+                CreateDepsTestData(['"test"', '"//test_project"']),
+            ],
+            gn_path=Path("platform2/test_project/BUILD.gn"),
+            is_bad_input=False,
+        )
+        self._CheckLinter(
+            linters.gnlint.GnLintDepsOtherProjectDirectly,
+            [
+                CreateDepsTestData(['"//platform_camera', '"test"']),
+            ],
+            gn_path=Path("platform/camera/BUILD.gn"),
+            is_bad_input=False,
+        )
+        self._CheckLinter(
+            linters.gnlint.GnLintDepsOtherProjectDirectly,
+            [
+                CreateDepsTestData(['"//test2_project"', '"test"']),
+                CreateDepsTestData(['"//test_project"', '"//test2_project"']),
+            ],
+            gn_path=Path("platform2/test_project/BUILD.gn"),
+        )
+        self._CheckLinter(
+            linters.gnlint.GnLintDepsOtherProjectDirectly,
+            [
+                CreateDepsTestData(['"//platform_camera"', '"test"']),
+            ],
+            gn_path=Path("platform2/camera/BUILD.gn"),
         )
