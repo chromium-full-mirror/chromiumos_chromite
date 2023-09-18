@@ -11459,13 +11459,13 @@
     ],
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"aurash\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"brask\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"brask\",\n  \"test_suites\": [\n    \"au\"\n  ]\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"gaelin\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"gladios\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"kinox\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"kuldax\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"lisbon\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"moli\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"moli\",\n  \"test_suites\": [\n    \"au\"\n  ]\n}"
     ]
   },
   "midna-release-tryjob": {
@@ -11488,13 +11488,13 @@
     "luci_builder": "Try",
     "models": [
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"aurash\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"brask\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"brask\",\n  \"test_suites\": [\n    \"au\"\n  ]\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"gaelin\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"gladios\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"kinox\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"kuldax\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"lisbon\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"moli\",\n  \"test_suites\": []\n}"
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"midna\",\n  \"name\": \"moli\",\n  \"test_suites\": [\n    \"au\"\n  ]\n}"
     ],
     "paygen": false,
     "push_image": false,
