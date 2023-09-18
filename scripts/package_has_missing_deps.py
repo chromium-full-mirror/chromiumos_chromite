@@ -307,6 +307,14 @@ def get_parser() -> commandline.ArgumentParser:
     )
 
     parser.add_argument(
+        "--no-default-board",
+        dest="board",
+        const=None,
+        action="store_const",
+        help="Ignore the default board",
+    )
+
+    parser.add_argument(
         "-i",
         "--build-info",
         default=None,
