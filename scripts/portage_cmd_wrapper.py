@@ -122,7 +122,7 @@ def sudo_run_cmd_with_failed_pkg_parsing(command, extra_env):
                 e.result,
                 exception=e,
                 packages=portage_util.ParseDieHookStatusFile(tempdir),
-            )
+            ) from e
 
 
 @tracer.start_as_current_span("portage_cmd_wrapper.execute_cmd")

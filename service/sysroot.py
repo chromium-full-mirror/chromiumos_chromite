@@ -980,7 +980,7 @@ def BuildPackages(
                     e.result,
                     exception=e,
                     packages=failed_pkgs,
-                )
+                ) from e
 
         if run_configs.install_debug_symbols:
             logging.info("Fetching the debug symbols.")

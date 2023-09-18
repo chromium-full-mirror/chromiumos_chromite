@@ -107,7 +107,7 @@ def _run_system_emerge(
                     e.result,
                     exception=e,
                     packages=failed_pkgs,
-                )
+                ) from e
 
 
 def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
