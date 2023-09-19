@@ -7,7 +7,6 @@
 This script is meant to be used in generated wrapper scripts, not used directly.
 """
 
-import logging
 import os
 from pathlib import Path
 from typing import Iterable, List, Optional
@@ -100,12 +99,8 @@ def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
 
 
 # TODO: Find a better name and a reusable location for this.
-@tracer.start_as_current_span("portage_cmd_wrapper.sudo_run_cmd")
 def sudo_run_cmd_with_failed_pkg_parsing(command, extra_env):
     """Wrapper for sudo_run that adds CROS_METRICS_DIR usage."""
-    span = trace.get_current_span()
-    span.update_name(f"portage_cmd_wrapper.{command[0]}.sudo_run_cmd")
-
     extra_env = extra_env.copy()
     with osutils.TempDir() as tempdir:
         extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
@@ -125,8 +120,12 @@ def sudo_run_cmd_with_failed_pkg_parsing(command, extra_env):
             ) from e
 
 
-@tracer.start_as_current_span("portage_cmd_wrapper.execute_cmd")
-def execute_cmd(opts: commandline.ArgumentNamespace) -> int:
+@tracer.start_as_current_span("portage_cmd_wrapper.execute")
+def execute(opts: commandline.ArgumentNamespace) -> int:
+    """Execute the command."""
+    span = trace.get_current_span()
+    span.update_name(f"portage_cmd_wrapper.{opts.command[0]}.execute")
+
     extra_env = {
         "CHOST": opts.chost,
         "PORTAGE_CONFIGROOT": opts.sysroot,
@@ -143,12 +142,7 @@ def execute_cmd(opts: commandline.ArgumentNamespace) -> int:
         os.environ["SANDBOX_ON"] = "0"
     os.environ.pop("LD_PRELOAD", None)
 
-    pkgs = []
-    if opts.command[0] == "emerge":
-        pkgs = list(parse_pkgs(opts.command, opts.build_target))
-
-    span = trace.get_current_span()
-    span.update_name(f"portage_cmd_wrapper.{opts.command[0]}.execute_cmd")
+    pkgs = list(parse_pkgs(opts.command, opts.build_target))
     span.set_attributes(
         {
             "executable": opts.command[0],
@@ -164,26 +158,16 @@ def execute_cmd(opts: commandline.ArgumentNamespace) -> int:
     ).returncode
 
 
-@tracer.start_as_current_span("portage_cmd_wrapper.main")
 def main(argv: Optional[List[str]]) -> Optional[int]:
     """Main."""
     commandline.RunInsideChroot()
 
     opts = parse_arguments(argv)
 
-    if opts.command[0] != "equery":
-        # There's a *lot* more equery calls than any other command. Specifically
-        # lots of parallel executions in cros clean-outdated-packages.
-        # Nothing wrong with those usages, but it's pretty noisy for our data
-        # given it's not one we're currently concerned about. So for now, just
-        # skip all equery invocations.
-        chromite_config.initialize()
-        telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
-
-    span = trace.get_current_span()
-    span.update_name(f"portage_cmd_wrapper.{opts.command[0]}.main")
+    chromite_config.initialize()
+    telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
 
     try:
-        return execute_cmd(opts)
+        return execute(opts)
     except cros_build_lib.RunCommandError as e:
         return e.returncode
