@@ -658,9 +658,10 @@ def PushImage(
 
 
 @faux.all_empty
+@validate.eq("result_path.path.location", common_pb2.Path.Location.OUTSIDE)
 @validate.validation_complete
 def SignImage(
-    _input_proto: "image_pb2.SignImageRequest",
+    input_proto: "image_pb2.SignImageRequest",
     _output_proto: "image_pb2.SignImageResponse",
     _config: "api.config.ApiConfig",
 ):
@@ -674,4 +675,9 @@ def SignImage(
     Returns:
         A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
     """
+    image.SignImage(
+        input_proto.signing_configs,
+        Path(input_proto.result_path.path.path),
+        input_proto.docker_image,
+    )
     return controller.RETURN_CODE_SUCCESS

@@ -797,7 +797,14 @@ class SignImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
     def testValidateOnly(self):
         """Check that a validate only call does not execute any logic."""
-        req = image_pb2.SignImageRequest()
+        req = image_pb2.SignImageRequest(
+            result_path=common_pb2.ResultPath(
+                path=common_pb2.Path(
+                    path="/path/to/outside",
+                    location=common_pb2.Path.OUTSIDE,
+                )
+            )
+        )
         resp = image_pb2.SignImageResponse()
         rc = image_controller.SignImage(req, resp, self.validate_only_config)
         self.assertEqual(rc, controller.RETURN_CODE_VALID_INPUT)

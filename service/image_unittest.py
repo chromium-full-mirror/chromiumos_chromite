@@ -9,6 +9,7 @@ import glob
 import os
 from pathlib import Path
 
+from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
@@ -1321,3 +1322,44 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
                     )
                 )
             )
+
+
+class TestSignImage(cros_test_lib.MockTempDirTestCase):
+    """Unittests for SignImage."""
+
+    def test(self):
+        """Test sign image."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        result_dir = Path("/path/to/out")
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        image.SignImage(
+            signing_pb2.BuildTargetSigningConfigs(),
+            result_dir,
+            "signing:latest",
+        )
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "-v",
+                "/dev:/dev",
+                "-v",
+                f"{self.tempdir}:/in",
+                "-v",
+                f"{result_dir}:/out",
+                "signing:latest",
+                "-i",
+                "/in/proto.bin",
+                "-o",
+                "/out",
+            ]
+        )

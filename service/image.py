@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Iterable, List, NamedTuple, Optional, Union
+from typing import Iterable, List, NamedTuple, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
@@ -26,6 +26,10 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
+
+
+if TYPE_CHECKING:
+    from chromite.api.gen.chromiumos import signing_pb2
 
 
 PARALLEL_EMERGE_STATUS_FILE_NAME = "status_file"
@@ -966,3 +970,62 @@ def create_image_scripts_archive(
     files = [os.path.basename(f) for f in files]
     cros_build_lib.CreateTarball(tarball_path, image_dir, inputs=files)
     return tarball_path
+
+
+def SignImage(
+    signing_configs: "signing_pb2.BuildTargetSigningConfigs",
+    result_path: Path,
+    docker_image: str,
+) -> None:
+    """Sign artifacts based on the given config.
+
+    Args:
+        signing_configs: Config for each artifact to sign.
+        result_path: Path to place the signed artifacts in.
+        docker_image: docker image to run.
+    """
+    # First, verify that the docker image exists.
+    try:
+        cros_build_lib.run(
+            ["docker", "inspect", "--type=image", docker_image], check=True
+        )
+    except Exception:
+        # TODO (b/295358776) error handling
+        raise
+    # Everything is going to live in a temp dir to be copied over to docker.
+    with osutils.TempDir() as tempdir:
+        # Serialize the proto to a file.
+        osutils.WriteFile(
+            os.path.join(tempdir, "proto.bin"),
+            signing_configs.SerializeToString(),
+            mode="wb",
+        )
+        # TODO (b/295358776) Copy all the paths from the configs into the
+        # temp dir.
+
+        # Invoke the docker container to sign the artifacts.
+        cros_build_lib.run(
+            [
+                "docker",
+                "run",
+                # We must run in privileged mode to support /dev/loop*.
+                "--privileged",
+                # Mount the `/dev` directory on the host into `/dev` in the
+                # container.
+                "-v",
+                "/dev:/dev",
+                # Mount the input dir as a volume.
+                "-v",
+                f"{tempdir}:/in",
+                # Mount the output dir as a volume.
+                "-v",
+                f"{result_path}:/out",
+                # Specify the image (and tag).
+                docker_image,
+                # Args that are passed in to the entrypoint.
+                "-i",
+                "/in/proto.bin",
+                "-o",
+                "/out",
+            ]
+        )
