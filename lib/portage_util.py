@@ -5,8 +5,6 @@
 """Routines and classes for working with Portage overlays and ebuilds."""
 
 import collections
-import dataclasses
-import enum
 import errno
 import functools
 import glob
@@ -18,7 +16,6 @@ from pathlib import Path
 import re
 import shutil
 from typing import (
-    Callable,
     Dict,
     Iterable,
     Iterator,
@@ -2846,133 +2843,6 @@ def ParseDieHookStatusFile(metrics_dir: str) -> List[package_info.PackageInfo]:
             cpv, _phase = line.split()
             failed_pkgs.append(package_info.parse(cpv))
         return failed_pkgs
-
-
-class ErrorKind(enum.Enum):
-    """The category for the portage error."""
-
-    UNKNOWN = 0
-    MULTI_VERSION_CONFLICT = 1
-    EBUILD_MASKED = 2
-    EBUILD_MISSING = 3
-    EBUILD_MISSING_FOR_USE_FLAG = 4
-    DEPENDENCY_UNSATISFIABLE = 5
-    ARGUMENT_MISSING = 6
-    SIGNAL = 7
-    USE_FLAG_UNSATIFIABLE = 8
-
-
-# FAILURE_ERROR_REGEX elements hold (filter fn, extract fn, error kind).
-# filter fn returns True if |error kind| is detected in the provided string.
-# extract fn returns (CPV, error reason) from the provided string.
-FAILURE_ERROR_REGEX: Iterable[
-    Tuple[Callable[[str], bool], Callable[[str], Tuple[str, str]], ErrorKind]
-] = [
-    (
-        lambda t: t.find(
-            # pylint: disable=line-too-long
-            "Multiple package instances within a single package slot have been pulled"
-        )
-        >= 0,
-        lambda t: re.findall(
-            r"(\S+)[\S ]+\n\n((?:(?:[ ]{2}[\S ]+\n)+|\n)+)", t
-        ),
-        ErrorKind.MULTI_VERSION_CONFLICT,
-    ),
-    (
-        lambda t: re.match(
-            r"All ebuilds that could satisfy \"\S+\" for \S+ have been masked",
-            t,
-        ),
-        lambda t: re.findall(r"-\s(\S+?)(?:::\S+)* \(([\S ]+)\)", t),
-        ErrorKind.EBUILD_MASKED,
-    ),
-    (
-        lambda t: t.find("died with <Signal") >= 0,
-        lambda t: re.findall(r"died with <(\S*)Signals.([\s\S]+?)>;", t),
-        ErrorKind.SIGNAL,
-    ),
-    (
-        lambda t: re.match(
-            # pylint: disable=line-too-long
-            r"The ebuild selected to satisfy \"\S+\" for \S+ has unmet requirements.",
-            t,
-        ),
-        lambda t: re.findall(
-            r"- (\S+)[\S ]+\n\n((?:(?:[ ]{2}[\S ]+\n)+|\n)+)", t
-        ),
-        ErrorKind.USE_FLAG_UNSATIFIABLE,
-    ),
-    (
-        lambda t: t.find("emerge: there are no ebuilds to satisfy ") >= 0,
-        lambda t: re.findall(r"\"(\S+)\" for \S+(\S*)", t),
-        ErrorKind.DEPENDENCY_UNSATISFIABLE,
-    ),
-    (
-        lambda t: t.find(
-            "emerge: there are no ebuilds built with USE flags to satisfy"
-        )
-        >= 0,
-        lambda t: re.findall(r"\"(\S+?)(?::=\S+){0,1}\" for \S+(\S*)", t),
-        ErrorKind.EBUILD_MISSING_FOR_USE_FLAG,
-    ),
-    (
-        lambda t: re.match(
-            # pylint: disable=line-too-long
-            r"FileNotFoundError:.*?No such file or directory:.*?(\S+?)\\.ebuild",
-            t,
-        ),
-        lambda t: re.findall(
-            # pylint: disable=line-too-long
-            r"FileNotFoundError:.*?No such file or directory:.*?(\S+?)\\.ebuild",
-            t,
-        ),
-        ErrorKind.EBUILD_MISSING,
-    ),
-]
-
-
-@dataclasses.dataclass(frozen=True)
-class PortageError:
-    """Represents an individual error raised by portage."""
-
-    kind: ErrorKind
-    cpv: str = ""
-    reason: str = ""
-
-
-def AnalyzeEmergeFailure(stdout: str, stderr: str) -> List[PortageError]:
-    """Returns a list of `PortageError` by analysing the command output.
-
-    Args:
-        stdout: stdout from the command
-        stderr: stderr from the command run
-
-    Returns:
-        List of `PortageError` instances.
-    """
-    out = set()
-
-    # Portage writes errors prefixed with !!!. These can be used to split the
-    # stderr into potential error blocks to be further parsed for error
-    # details.
-    segments = stderr.split("\n\n!!!")
-    segments.extend(stdout.split("\n\n!!!"))
-
-    for segment in segments:
-        s = segment.strip()
-        for filterFn, extractFn, kind in FAILURE_ERROR_REGEX:
-            if filterFn(s):
-                for cpv, reason in extractFn(s):
-                    out.add(
-                        PortageError(
-                            kind=kind,
-                            cpv=cpv.strip(),
-                            reason=reason.strip(),
-                        )
-                    )
-
-    return list(out)
 
 
 def HasPrebuilt(atom, board=None, extra_env=None):
