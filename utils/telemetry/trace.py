@@ -62,9 +62,15 @@ class ChromiteSpan(otel_trace_api.Span):
         timestamp: Optional[int] = None,
         escaped: bool = False,
     ) -> None:
-        if hasattr(exception, "failed_packages"):
-            failed_packages = getattr(exception, "failed_packages")
-            self.set_attribute("failed_packages", failed_packages)
+        # Create a mutable dict from the passed attributes or create a new dict
+        # if empty or null. This ensures that the passed dict is not mutated.
+        attributes = dict(attributes or {})
+        if hasattr(exception, "failed_packages") and isinstance(
+            exception.failed_packages, list
+        ):
+            attributes["failed_packages"] = [
+                str(f) for f in exception.failed_packages
+            ]
 
         self._inner.record_exception(
             exception,

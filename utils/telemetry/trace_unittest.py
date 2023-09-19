@@ -115,9 +115,13 @@ def test_chromite_span_to_capture_failed_packages_in_context():
         exporter.spans[0].status.description
         == "ExceptionWithFailedPackages: testing"
     )
-    assert list(exporter.spans[0].attributes["failed_packages"]) == [
+    assert list(exporter.spans[0].events[0].attributes["failed_packages"]) == [
         "dev-python/boto"
     ]
+    assert (
+        exporter.spans[0].events[0].attributes["exception.type"]
+        == "ExceptionWithFailedPackages"
+    )
 
 
 def test_chromite_span_to_capture_failed_packages_as_decorator():
@@ -146,6 +150,10 @@ def test_chromite_span_to_capture_failed_packages_as_decorator():
         exporter.spans[0].status.description
         == "ExceptionWithFailedPackages: testing"
     )
-    assert list(exporter.spans[0].attributes["failed_packages"]) == [
+    assert list(exporter.spans[0].events[0].attributes["failed_packages"]) == [
         "dev-python/boto"
     ]
+    assert (
+        exporter.spans[0].events[0].attributes["exception.type"]
+        == "ExceptionWithFailedPackages"
+    )
