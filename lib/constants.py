@@ -225,9 +225,14 @@ INTERNAL_GERRIT_HOST = GOB_HOST % INTERNAL_GERRIT_INSTANCE
 INTERNAL_GOB_URL = "https://%s" % INTERNAL_GOB_HOST
 INTERNAL_GERRIT_URL = "https://%s" % INTERNAL_GERRIT_HOST
 
-# No longer relevant; just here to make cbuildbot unittests happy.
+# URL template to Android symbols, used by factory builders which still run
+# cbuildbot as of time of writing..
 # TODO(b/230013833): Remove once cbuildbot is gone.
-ANDROID_SYMBOLS_URL_TEMPLATE = ""
+ANDROID_SYMBOLS_URL_TEMPLATE = (
+    "gs://chromeos-arc-images/builds"
+    "/%(branch)s-linux-%(target)s_%(arch)s-%(variant)s/%(version)s"
+    "/%(target)s_%(arch)s-symbols-%(version)s.zip"
+)
 ANDROID_SYMBOLS_FILE = "android-symbols.zip"
 
 GOB_COOKIE_PATH = os.path.expanduser("~/.git-credential-cache/cookie")
