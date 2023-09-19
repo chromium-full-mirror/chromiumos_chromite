@@ -41,11 +41,13 @@ _BASH_COMPLETION_DIR = (
 # chroot state throughout the chroot tree; we'll migrate contents from the old
 # path (prefixed at the "chroot" base) to the new path (prefixed at the "output
 # directory" base).
-# TODO(b/265885353): add paths as we migrate state.
 _CHROOT_STATE_MIGRATIONS = (
     ("tmp", "tmp"),
     ("home", "home"),
     ("build", "build"),
+    ("var/cache", "sdk/cache"),
+    ("var/log", "sdk/logs"),
+    ("var/tmp", "sdk/tmp"),
 )
 
 
@@ -325,9 +327,12 @@ def MountChrootPaths(chroot: chroot_lib.Chroot):
         ("tmp", "tmp", 0o1777),
         ("home", "home", None),
         ("build", "build", None),
+        ("sdk/cache", "var/cache", None),
         # We ensure /run/lock is backed by the out_dir filesystem, because the
         # /run tmpfs is not shared between cros_sdk instances.
         ("sdk/lock", "run/lock", 0o1777),
+        ("sdk/logs", "var/log", None),
+        ("sdk/tmp", "var/tmp", 0o1777),
     ):
         kwargs = {}
         if mode is not None:
@@ -1010,19 +1015,6 @@ class ChrootCreator:
                 mode=0o755, parents=True, exist_ok=True
             )
 
-        # Create edb cache stub directories.
-        edb_cache_dep = self.chroot.full_path(
-            constants.CHROOT_EDB_CACHE_ROOT / "dep"
-        )
-        osutils.SafeMakedirs(edb_cache_dep, mode=0o2775)
-        # Set users/groups.
-        osutils.Chown(
-            edb_cache_dep,
-            constants.PORTAGE_UID,
-            group=constants.PORTAGE_GID,
-            recursive=True,
-        )
-
     def init_etc(self, user: Optional[str] = None):
         """Setup the /etc paths."""
         if user is None:
@@ -1070,6 +1062,38 @@ PORTAGE_USERNAME="{user}"
         bash_completion_d = etc_dir / "bash_completion.d"
         bash_completion_d.mkdir(mode=0o755, parents=True, exist_ok=True)
         (bash_completion_d / "cros").symlink_to(f"{_BASH_COMPLETION_DIR}/cros")
+
+    def init_var(self):
+        """Handle /var contents from SDK tarball."""
+        for chroot_path, out_path in (
+            ("var/cache", "sdk/cache"),
+            ("var/log", "sdk/logs"),
+        ):
+            src_dir = Path(self.chroot.path) / chroot_path
+            dst_dir = self.chroot.out_path / out_path
+            # out/ destination exists already? Then we're not doing a clean
+            # unpack, and we assume the destination is already set up.
+            if dst_dir.exists():
+                continue
+            # chroot source didn't have this path? Then skip it.
+            if not src_dir.exists():
+                continue
+
+            osutils.SafeMakedirsNonRoot(dst_dir)
+            osutils.MoveDirContents(src_dir, dst_dir)
+
+        # Create edb cache stub directories.
+        edb_cache_dep = self.chroot.full_path(
+            constants.CHROOT_EDB_CACHE_ROOT / "dep"
+        )
+        osutils.SafeMakedirs(edb_cache_dep, mode=0o2775)
+        # Set users/groups.
+        osutils.Chown(
+            edb_cache_dep,
+            constants.PORTAGE_UID,
+            group=constants.PORTAGE_GID,
+            recursive=True,
+        )
 
     def print_success_summary(self):
         """Show a summary of the chroot to the user."""
@@ -1124,6 +1148,7 @@ $ cros_sdk --delete%s
             self.init_group(user=user, group=group, gid=gid)
             self.init_filesystem_basic()
             self.init_etc(user=user)
+            self.init_var()
 
         MountChrootPaths(self.chroot)
 

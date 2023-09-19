@@ -108,11 +108,18 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             chroot_path / ".chroot_lock", "chroot lock"
         )
 
-        # TODO(b/265885353): fill map as we migrate state paths.
         self.state_path_map = (
             (Path(self.chroot.path) / "tmp", self.chroot.out_path / "tmp"),
             (Path(self.chroot.path) / "home", self.chroot.out_path / "home"),
             (Path(self.chroot.path) / "build", self.chroot.out_path / "build"),
+            (
+                Path(self.chroot.path) / "var" / "cache",
+                self.chroot.out_path / "sdk" / "cache",
+            ),
+            (
+                Path(self.chroot.path) / "var" / "log",
+                self.chroot.out_path / "sdk" / "logs",
+            ),
         )
 
     def _crossdevice_rename(self, src, dst):
@@ -241,8 +248,26 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
                     osutils.MS_BIND | osutils.MS_REC,
                 ),
                 mock.call(
+                    self.chroot.out_path / "sdk" / "cache",
+                    Path(self.chroot.path) / "var" / "cache",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
                     self.chroot.out_path / "sdk" / "lock",
                     Path(self.chroot.path) / "run" / "lock",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "logs",
+                    Path(self.chroot.path) / "var" / "log",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "tmp",
+                    Path(self.chroot.path) / "var" / "tmp",
                     None,
                     osutils.MS_BIND | osutils.MS_REC,
                 ),
@@ -602,6 +627,16 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                         D("skel", (D(".ssh", ("foo",)),)),
                     ),
                 ),
+                D(
+                    "var",
+                    (
+                        D(
+                            "cache",
+                            (D("edb", ("counter",)),),
+                        ),
+                        D("log", (D("portage", ()),)),
+                    ),
+                ),
             ),
         )
         (tar_dir / "etc/passwd").write_text(
@@ -702,6 +737,19 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(edb_dep_path.is_dir())
         self.assertEqual(edb_dep_path.stat().st_uid, 250)
         self.assertEqual(edb_dep_path.stat().st_gid, 250)
+
+        # Check chroot/var/ directories.
+        var = Path(self.chroot.path) / "var"
+        # Mount points exist in chroot.
+        self.assertTrue((var / "cache").is_dir())
+        self.assertTrue((var / "log").is_dir())
+        # Sub-directory contents get copied over to out/.
+        self.assertTrue(
+            (self.chroot.out_path / "sdk" / "logs" / "portage").is_dir()
+        )
+        self.assertExists(
+            self.chroot.out_path / "sdk" / "cache" / "edb" / "counter"
+        )
 
     def testExistingCompatGroup(self):
         """Verify running with an existing, but matching, group works."""
