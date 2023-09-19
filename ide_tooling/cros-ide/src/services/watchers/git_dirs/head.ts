@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commonUtil from '../../../common/common_util';
+import {Metrics} from '../../../features/metrics/metrics';
 
 export type Event = {
   /**
@@ -34,9 +35,12 @@ export class Watcher implements vscode.Disposable {
     // If the git repository does not have any commit (the state just after
     // git init), the directory doesn't exist and we cannot watch it.
     if (!fs.existsSync(gitLogs)) {
-      void this.showErrorGloballyOnce(
-        new Error('.git/logs not found; the repository has no commit?')
-      );
+      Metrics.send({
+        group: 'git_watcher',
+        category: 'error',
+        name: 'git_watcher_no_commit',
+        description: 'No commit found on a git repository',
+      });
       return;
     }
     const watcher = fs.watch(gitLogs, (_event, filename) => {

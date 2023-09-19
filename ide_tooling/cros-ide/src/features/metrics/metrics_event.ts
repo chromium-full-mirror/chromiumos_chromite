@@ -24,6 +24,7 @@ type FeatureGroup =
   | 'device'
   | 'format'
   | 'gerrit'
+  | 'git_watcher'
   | 'hints'
   | 'idestatus'
   | 'lint'
@@ -268,6 +269,12 @@ type GerritEvent = EventBase & {
       }
   );
 
+type GitWatcherEvent = EventBase & {
+  group: 'git_watcher';
+  category: 'error';
+  name: 'git_watcher_no_commit';
+};
+
 type HintsEvent = EventBase & {
   group: 'hints';
 } & (
@@ -419,6 +426,7 @@ export type Event =
   | DeviceManagementEvent
   | ExtensionSuggestionEvent
   | GerritEvent
+  | GitWatcherEvent
   | HintsEvent
   | IdeStatusEvent
   | LintEvent
