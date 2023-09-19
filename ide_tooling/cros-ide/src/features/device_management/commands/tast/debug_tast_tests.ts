@@ -304,8 +304,9 @@ async function ensureDutHasDelve(
     board = (await deviceClient.readLsbRelease()).board;
   } catch (err) {
     context.output.appendLine(`${err}`);
-    void vscode.window.showErrorMessage(
-      "debugging didn't start: failed to get board information from DUT"
+    showErrorMessageWithButtons(
+      "debugging didn't start: failed to get board information from DUT",
+      [createShowLogsButton(context.output)]
     );
     return false;
   }
@@ -338,10 +339,10 @@ async function ensureDutHasDelve(
       }
       if (res instanceof Error) {
         context.output.append(res.message);
-        void vscode.window.showErrorMessage(
-          "debugging didn't start: failed to install the debugger (delve) to the device"
+        showErrorMessageWithButtons(
+          "debugging didn't start: failed to install the debugger (delve) to the device",
+          [createShowLogsButton(context.output)]
         );
-        // TODO: Add a button to open the log. We can use `showErrorMessageWithButtons`.
         return false;
       }
       return true;
@@ -396,10 +397,11 @@ async function ensureHostHasDelve(
         return undefined;
       }
       if (res instanceof Error) {
-        void vscode.window.showErrorMessage(
-          "debugging didn't start: failed to install the debugger (delve) to the host machine"
+        context.output.append(res.message);
+        showErrorMessageWithButtons(
+          "debugging didn't start: failed to install the debugger (delve) to the host machine",
+          [createShowLogsButton(context.output)]
         );
-        // TODO: Add a button to open the log. We can use `showErrorMessageWithButtons`.
         return undefined;
       }
       return delveInstallPath;
