@@ -55,27 +55,29 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
         help="The optional output directory to put metadata into",
     )
 
-    parser.add_argument(
+    parser.add_bool_argument(
         "--upload",
-        action="store_true",
-        help="Upload the DLC artifacts to google buckets",
+        default=False,
+        enabled_desc="Upload the DLC artifacts to google buckets",
+        disabled_desc="Do not upload the DLC artifacts to google buckets",
     )
     parser.add_argument(
         "--uri-path",
         type="gs_path",
         help="The override for DLC image URI, check dlc_lib for default",
     )
-    parser.add_argument(
+    parser.add_bool_argument(
         "--upload-dry-run",
-        action="store_true",
-        help="Dry run without actual upload",
+        default=False,
+        enabled_desc="Dry run without actual upload",
+        disabled_desc="Ignored",
     )
 
-    # Salt for randomness DLC image randomness.
-    parser.add_argument(
-        "--disable-randomness",
-        action="store_true",
-        help="To disable randomizing hashes when generating DLC images",
+    parser.add_bool_argument(
+        "--reproducible-image",
+        default=False,
+        enabled_desc="To generate reproducible DLC images",
+        disabled_desc="To generate randomized DLC images",
     )
 
     # DLC required fields.
@@ -192,10 +194,10 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
             sysroot="",
             board=dlc_lib.MAGIC_BOARD,
             ebuild_params=params,
-            reproducible=opts.disable_randomness,
+            reproducible=opts.reproducible_image,
             license_file=opts.license,
         ).ExternalGenerateDLC(
-            tmpdir, _SHORT_SALT if opts.disable_randomness else None
+            tmpdir, _SHORT_SALT if opts.reproducible_image else None
         )
         logging.debug("Generated DLC artifacts: %s", artifacts.StringJSON())
 
