@@ -80,6 +80,14 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
         disabled_desc="To generate randomized DLC images",
     )
 
+    # Enable powerwash safety for this DLC.
+    parser.add_bool_argument(
+        "--powerwash-safety",
+        default=False,
+        enabled_desc="Enable powerwash safety feature for this DLC",
+        disabled_desc="Disable powerwash safety feature for this DLC",
+    )
+
     # DLC required fields.
     parser.add_argument(
         "--id",
@@ -149,6 +157,7 @@ def GenerateDlcParams(
         fullnamerev="",
         scaled=True,
         loadpin_verity_digest=False,
+        powerwash_safe=opts.powerwash_safety,
     )
     params.VerifyDlcParameters()
     return params

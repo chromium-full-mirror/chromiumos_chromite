@@ -27,6 +27,7 @@ def test_upload_dlc_artifacts(dry_run):
 @pytest.mark.parametrize("name", ((""), ("<some-name>")))
 @pytest.mark.parametrize("description", ((""), ("<some-description>")))
 @pytest.mark.parametrize("version", ("<some-version>",))
+@pytest.mark.parametrize("powerwash_safety", (True, False))
 @mock.patch.object(dlc_lib, "EbuildParams")
 def test_generate_dlc_params(
     mock_ebuild_params,
@@ -35,6 +36,7 @@ def test_generate_dlc_params(
     name,
     description,
     version,
+    powerwash_safety,
     tmp_path,
 ):
     """Tests out GenerateDlcParams"""
@@ -54,6 +56,7 @@ def test_generate_dlc_params(
         *(["--name", f"{name}"] if name else []),
         *(["--description", f"{description}"] if description else []),
         *(["--version", f"{version}"] if version else []),
+        "--powerwash-safety" if powerwash_safety else "--no-powerwash-safety",
     ]
     opts = cros_generate_dlc_artifacts.ParseArguments(argv)
     cros_generate_dlc_artifacts.GenerateDlcParams(opts)
@@ -71,4 +74,5 @@ def test_generate_dlc_params(
         fullnamerev="",
         scaled=True,
         loadpin_verity_digest=False,
+        powerwash_safe=powerwash_safety,
     )
