@@ -4,7 +4,7 @@
 
 """File to hold DLC allowlists for review require fields."""
 
-from itertools import chain
+import itertools
 import re
 from typing import Pattern, Tuple
 
@@ -21,7 +21,7 @@ DLC_FACTORY_INSTALL = (r"sample-dlc",)
 DLC_FACTORY_INSTALL_RE = (r"modem-fw-dlc[-a-zA-Z0-9]+",)
 
 # Add DLC ID that requires powerwash safety.
-DLC_POWERWASH_SAFE = () + DLC_FACTORY_INSTALL
+DLC_POWERWASH_SAFE = (r"prebuilt-test-dlc",) + DLC_FACTORY_INSTALL
 
 # Add DLC ID that requires powerwash safety with regex matching.
 DLC_POWERWASH_SAFE_RE = ()
@@ -31,7 +31,7 @@ DLC_FACTORY_INSTALL_RE_COMPILED = tuple(
     re.compile(pat) for pat in DLC_FACTORY_INSTALL_RE
 )
 DLC_POWERWASH_SAFE_RE_COMPILED = tuple(
-    chain(
+    itertools.chain(
         (re.compile(pat) for pat in DLC_POWERWASH_SAFE_RE),
         DLC_FACTORY_INSTALL_RE_COMPILED,
     )

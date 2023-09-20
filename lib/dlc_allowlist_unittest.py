@@ -66,6 +66,9 @@ class DlcAllowlistTest(cros_test_lib.TestCase):
         """Test the IsPowerwashSafeAllowlisted function."""
         self.assertTrue(dlc_allowlist.IsPowerwashSafeAllowlisted("sample-dlc"))
         self.assertTrue(
+            dlc_allowlist.IsPowerwashSafeAllowlisted("prebuilt-test-dlc")
+        )
+        self.assertTrue(
             dlc_allowlist.IsPowerwashSafeAllowlisted("modem-fw-dlc-foo")
         )
         self.assertTrue(
