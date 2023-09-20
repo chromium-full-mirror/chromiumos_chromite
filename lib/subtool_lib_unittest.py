@@ -5,6 +5,7 @@
 """Test the subtool_lib module."""
 
 import dataclasses
+import json
 import os
 from pathlib import Path
 import re
@@ -94,10 +95,12 @@ class FakeChrootDiskLayout:
         )
 
 
-def bundle_and_export(subtool: subtool_lib.Subtool) -> None:
+def bundle_and_upload(subtool: subtool_lib.Subtool) -> None:
     """Helper to perform e2e validation on a manifest."""
     subtool.bundle()
-    subtool.export(use_production=False, cipd_path=FAKE_CIPD_PATH)
+    subtool.prepare_upload()
+    uploader = subtool_lib.BundledSubtools([subtool.metadata_dir])
+    uploader.upload(use_production=False)
 
 
 def bundle_result(
@@ -198,9 +201,9 @@ class Wrapper:
         return config_path
 
     def export_e2e(self, writes_files: bool = False) -> subtool_lib.Subtool:
-        """Bundles and exports the Subtool made by `create()`."""
+        """Bundles and uploads the Subtool made by `create()`."""
         subtool = self.create(writes_files)
-        bundle_and_export(subtool)
+        bundle_and_upload(subtool)
         return subtool
 
     def set_paths(
@@ -220,6 +223,13 @@ class Wrapper:
         fs = FakeChrootDiskLayout(self.fake_rootfs)
         os.symlink(fs.regular_file, fs.symlink)
         return fs
+
+
+@pytest.fixture(autouse=True)
+def use_fake_cipd() -> Iterator:
+    with mock.patch("chromite.lib.cipd.GetCIPDFromCache") as get_cipd:
+        get_cipd.return_value = FAKE_CIPD_PATH
+        yield
 
 
 @pytest.fixture(name="template_proto")
@@ -242,7 +252,7 @@ def test_invalid_textproto() -> None:
         "notafield: invalid\n", Path("invalid.txtproto"), Path("/i/am/unused")
     )
     with pytest.raises(subtool_lib.ManifestInvalidError) as error_info:
-        bundle_and_export(subtool)
+        bundle_and_upload(subtool)
     assert (
         '"chromiumos.build.api.SubtoolPackage" has no field named "notafield"'
         in str(error_info.value)
@@ -300,17 +310,37 @@ def test_clean_before_bundle(template_proto: Wrapper) -> None:
     assert not template_proto.work_root.exists()
 
 
-def test_bundle_and_export(
+def test_bundle_prepare_upload(template_proto: Wrapper) -> None:
+    """Test that preparing for upload creates the expected metadata file."""
+    subtool = template_proto.create(writes_files=True)
+    subtool.bundle()
+    subtool.prepare_upload()
+    with (
+        template_proto.work_root / "my_subtool" / "subtool_upload.json"
+    ).open() as fp:
+        metadata_dict = json.load(fp)
+
+    cipd_dict = metadata_dict["cipd_package"]
+    assert metadata_dict["upload_metadata_version"] >= 1
+    # NOTE: If the assertions here need updating due to failures, it probably
+    # indicates that upload_metadata_version should be incremented.
+    assert cipd_dict["package"] == "chromiumos/infra/tools/my_subtool"
+    assert "latest" in cipd_dict["refs"]
+    assert cipd_dict["tags"]["builder_source"] == "sdk_subtools"
+    assert "ebuild_source" in cipd_dict["tags"]
+
+
+def test_bundle_and_upload(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test that stamp files are created upon a successful end-to-end export."""
     set_run_results(run_mock)
     template_proto.export_e2e(writes_files=True)
     assert (template_proto.work_root / "my_subtool" / ".bundled").exists()
-    assert (template_proto.work_root / "my_subtool" / ".exported").exists()
+    assert (template_proto.work_root / "my_subtool" / ".uploaded").exists()
 
 
-def test_clean_after_bundle_and_export(
+def test_clean_after_bundle_and_upload(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test that clean cleans, leaving only the root metadata dir."""
@@ -577,37 +607,36 @@ def test_lddtree_bundling(template_proto: Wrapper) -> None:
     assert subtool.source_packages[0].startswith("sys-apps/coreutils-")
 
 
-@mock.patch("chromite.lib.subtool_lib.Subtool.export")
-def test_export_filter(mock_export: mock.Mock, template_proto: Wrapper) -> None:
-    """Test that InstalledSubtools filters exports."""
+@mock.patch("chromite.lib.subtool_lib.Subtool.prepare_upload")
+def test_upload_filter(mock_upload: mock.Mock, template_proto: Wrapper) -> None:
+    """Test that InstalledSubtools filters uploads."""
     for name in [f"subtool{i}" for i in range(5)]:
         template_proto.proto.name = name
         config_dir = template_proto.write_to_dir()
     subtools = subtool_lib.InstalledSubtools(
         config_dir, template_proto.work_root
     )
-    # Export nothing.
-    subtools.export(use_production=False, export_filter=[])
-    assert mock_export.call_count == 0
+    # Upload nothing.
+    subtools.prepare_uploads(upload_filter=[])
+    assert mock_upload.call_count == 0
 
-    # Export all.
-    mock_export.reset_mock()
-    subtools.export(use_production=False)
-    assert mock_export.call_count == 5
+    # Upload all.
+    mock_upload.reset_mock()
+    subtools.prepare_uploads()
+    assert mock_upload.call_count == 5
 
-    # Export some.
-    mock_export.reset_mock()
-    subtools.export(
-        use_production=False,
-        export_filter=["subtool1", "subtool3", "not-a-subtool"],
+    # Upload some.
+    mock_upload.reset_mock()
+    subtools.prepare_uploads(
+        upload_filter=["subtool1", "subtool3", "not-a-subtool"],
     )
-    assert mock_export.call_count == 2
+    assert mock_upload.call_count == 2
 
 
-def test_export_successful(
+def test_upload_successful(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
-    """Test that an export invokes cipd properly."""
+    """Test that an upload invokes cipd properly."""
     set_run_results(run_mock)
     subtool = template_proto.export_e2e(writes_files=True)
     run_mock.assertCommandCalled(
@@ -631,7 +660,7 @@ def test_export_successful(
     )
 
 
-def test_export_fails_cipd(
+def test_upload_fails_cipd(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test that a CIPD create failure propagates an exception."""
@@ -661,3 +690,14 @@ def test_export_too_many_ebuilds(
         template_proto.export_e2e(writes_files=True)
     assert "Bundle cannot be attributed" in str(error_info.value)
     assert "Candidates: []" in str(error_info.value)
+
+
+def test_upload_skips_empty_metadata(tmp_path: Path, caplog):
+    """Ensure uploading quietly skips a path with empty metadata."""
+    # It's currently an error for an "unbundled" path to be provided to
+    # BundledSubtools: the json file must exist. But the upload logic must be
+    # robust to "old" metadata. That's tested here by testing an empty, but
+    # valid, JSON file.
+    (tmp_path / subtool_lib.UPLOAD_METADATA_FILE).write_bytes(b"{}")
+    subtool_lib.BundledSubtools([tmp_path]).upload(False)
+    assert "No valid cipd_package in bundle metadata. Skipping." in caplog.text

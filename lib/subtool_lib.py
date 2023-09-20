@@ -8,10 +8,13 @@ Loads and interprets subtools export manifests defined by the proto at
 https://crsrc.org/o/src/config/proto/chromiumos/build/api/subtools.proto
 """
 
+import dataclasses
+import json
+import logging
 from pathlib import Path
 import re
 import shutil
-from typing import List, Literal, Optional, Set
+from typing import Any, Dict, List, Literal, Optional, Set
 
 from chromite.third_party import lddtree
 from chromite.third_party.google import protobuf
@@ -55,6 +58,9 @@ LICENSE_FILE = Path("license.html.gz")
 # Standard set of arguments passed to all `lddtree` invocations.
 LDDTREE_ARGS = ["--libdir", "/lib", "--bindir", "/bin", "--generate-wrappers"]
 
+# Path (relative to the metadata work dir) of serialized upload metadata.
+UPLOAD_METADATA_FILE = Path("subtool_upload.json")
+
 # Valid names. A stricter version of `packageNameRe` in
 # https://crsrc.org/i/go/src/go.chromium.org/luci/cipd/common/common.go
 # Diallows slashes and starting with a ".".
@@ -71,6 +77,56 @@ _DEFAULT_CIPD_PREFIX = "chromiumos/infra/tools"
 
 # Allow the FileTypeDecoder to keep its cache, for files rooted at "/".
 _FILETYPE_DECODER = filetype.FileTypeDecoder()
+
+
+@dataclasses.dataclass
+class CipdMetadata:
+    """Structure of a `cipd_package` in serialized metadata.
+
+    This is reconstructed from JSON, so should not reference other classes.
+    Optional members can be added, but should never be removed or added in a way
+    that assumes their presence, because they may be serialized by old branches.
+
+    IMPORTANT: Always include type annotations, or you'll get a class variable
+    per PEP0526, and it will be omitted from serialization.
+
+    Attributes:
+        package: The CIPD package prefix.
+        tags: Tags to associate with the package upload.
+        refs: Refs to associate with the package upload.
+    """
+
+    package: str = ""
+    tags: Dict[str, str] = dataclasses.field(default_factory=dict)
+    refs: List[str] = dataclasses.field(default_factory=list)
+
+
+@dataclasses.dataclass
+class UploadMetadata:
+    """Structure of the serialized upload metadata.
+
+    This is reconstructed as a Dict. Essentially it maps keys to a metadata
+    subtype. Members should not be removed and the reader must be able to handle
+    any prior structure.
+
+    IMPORTANT: Always include type annotations.
+
+    Attributes:
+        upload_metadata_version: Version of the upload metadata file structure.
+            Increment this when making changes that require the ToT uploader to
+            change logic for files produced on old branches.
+        cipd_package: Metadata for uploading a CIPD package.
+    """
+
+    upload_metadata_version: int = 1
+    cipd_package: CipdMetadata = dataclasses.field(default_factory=CipdMetadata)
+
+    @staticmethod
+    def from_dict(d: Dict[str, Dict[str, Any]]) -> "UploadMetadata":
+        metadata = UploadMetadata()
+        # Fields are never removed, and all have default values, so just unpack.
+        metadata.cipd_package = CipdMetadata(**d.get("cipd_package", {}))
+        return metadata
 
 
 def get_installed_package(
@@ -103,8 +159,8 @@ class Subtool:
     Attributes:
         manifest_path: The source .textproto, used for debug output.
         package: The parsed protobuf message.
-        work_root: Root path in which to build bundles for export.
-        is_valid: Set after validation to indicate an export may be attempted.
+        work_root: Root path in which to build bundles for upload.
+        is_valid: Set after validation to indicate an upload may be attempted.
         parse_error: Protobuf parse error held until validation.
     """
 
@@ -147,7 +203,7 @@ class Subtool:
         )
 
     def _work_dir(self) -> Path:
-        """Returns the path under work_root for creating files for export."""
+        """Returns the path under work_root for creating files for upload."""
         return self.work_root / self.package.name
 
     @property
@@ -180,14 +236,15 @@ class Subtool:
         """The list of packages that contributed files during bundling."""
         return sorted(self._source_ebuilds)
 
-    def stamp(self, kind: Literal["bundled", "exported"]) -> Path:
+    def stamp(self, kind: Literal["bundled", "uploaded"]) -> Path:
         """Returns the path to a "stamp" file that tracks export progress."""
         return self.metadata_dir / f".{kind}"
 
     def clean(self) -> None:
         """Resets export progress and removes the temporary bundle tree."""
         self.stamp("bundled").unlink(missing_ok=True)
-        self.stamp("exported").unlink(missing_ok=True)
+        (self.metadata_dir / UPLOAD_METADATA_FILE).unlink(missing_ok=True)
+        self.stamp("uploaded").unlink(missing_ok=True)
         osutils.RmDir(self.bundle_dir, ignore_missing=True)
 
     def bundle(self) -> None:
@@ -199,25 +256,26 @@ class Subtool:
         # TODO(b/277992359): hashing.
         self.stamp("bundled").touch()
 
-    def export(self, use_production: bool, cipd_path: str) -> None:
-        """Export the bundle, e.g., to cipd."""
+    def prepare_upload(self) -> None:
+        """Prepares metadata required to upload the bundle, e.g., to cipd."""
         self._validate()
         if not self.stamp("bundled").exists():
             raise ManifestBundlingError("Bundling incomplete.", self)
-        tags = {
+
+        metadata = UploadMetadata()
+        metadata.cipd_package.package = self.cipd_package
+        metadata.cipd_package.refs = ["latest"]
+        metadata.cipd_package.tags = {
             "builder_source": "sdk_subtools",
             "ebuild_source": ",".join(self.source_packages),
         }
-        refs = ["latest"]
-        cipd.CreatePackage(
-            cipd_path,
-            self.cipd_package,
-            self.bundle_dir,
-            tags,
-            refs,
-            service_url=None if use_production else cipd.STAGING_SERVICE_URL,
-        )
-        self.stamp("exported").touch()
+        metadata_path = self.metadata_dir / UPLOAD_METADATA_FILE
+        with metadata_path.open("w", encoding="utf-8") as fp:
+            json.dump(dataclasses.asdict(metadata), fp)
+
+        logger.notice("%s: Wrote %s.", self.package.name, metadata_path)
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Contents: `%s`", metadata_path.read_text())
 
     def _validate(self) -> None:
         """Validate fields in the proto."""
@@ -425,16 +483,56 @@ class InstalledSubtools:
         for subtool in self.subtools:
             subtool.bundle()
 
-    def export(
-        self, use_production: bool, export_filter: Optional[List[str]] = None
-    ) -> None:
-        """Read .textprotos and export valid bundles in `work_root`.
+    def prepare_uploads(
+        self, upload_filter: Optional[List[str]] = None
+    ) -> List[Path]:
+        """Read .textprotos and prepares valid bundles in `work_root`.
 
         Args:
-            use_production: Whether to export to production environments.
-            export_filter: If provided, only export subtools with these names.
+            upload_filter: If provided, only upload subtools with these names.
         """
-        cipd_path = cipd.GetCIPDFromCache()
+        prepared_bundles: List[Path] = []
         for subtool in self.subtools:
-            if export_filter is None or subtool.package.name in export_filter:
-                subtool.export(use_production, cipd_path)
+            if upload_filter is None or subtool.package.name in upload_filter:
+                subtool.prepare_upload()
+                prepared_bundles.append(subtool.metadata_dir)
+        return prepared_bundles
+
+
+class BundledSubtools:
+    """Wraps a list of paths with pre-bundled subtools."""
+
+    def __init__(self, bundles: List[Path]):
+        """Creates and initializes a BundledSubtools wrapper."""
+        self.bundles = bundles
+        self.cipd_path = cipd.GetCIPDFromCache()
+
+    def upload(self, use_production: bool) -> None:
+        """Uploads each valid, bundled subtool.
+
+        Args:
+            use_production: Whether to upload to production environments.
+        """
+        for bundle in self.bundles:
+            self._upload_bundle(bundle, use_production)
+
+    def _upload_bundle(self, path: Path, use_production: bool) -> None:
+        """Uploads a single bundle."""
+        with (path / UPLOAD_METADATA_FILE).open("rb") as fp:
+            cipd_package = UploadMetadata.from_dict(json.load(fp)).cipd_package
+
+        if not cipd_package.package:
+            logger.warning(
+                "%s: No valid cipd_package in bundle metadata. Skipping.", path
+            )
+            return
+
+        cipd.CreatePackage(
+            self.cipd_path,
+            cipd_package.package,
+            path / "bundle",
+            cipd_package.tags,
+            cipd_package.refs,
+            service_url=None if use_production else cipd.STAGING_SERVICE_URL,
+        )
+        (path / ".uploaded").touch()

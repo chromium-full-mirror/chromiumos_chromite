@@ -6,7 +6,7 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -148,16 +148,18 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
     )
 
 
-def bundle_and_export(
-    use_production: bool = False,
-    export_filter: Optional[List[str]] = None,
-) -> subtool_lib.InstalledSubtools:
-    """Searches for configured subtools, bundles, and exports them.
+def bundle_and_prepare_upload(
+    upload_filter: Optional[List[str]] = None,
+) -> Tuple[List[Path], subtool_lib.InstalledSubtools]:
+    """Searches for configured subtools, bundles, and prepares upload metadata.
 
     Args:
-        use_production: Whether to export subtools to production environments.
-        export_filter: If provided, exports only subtools whose `name` proto
-            field value is in the list. If None, exports everything.
+        upload_filter: If provided, uploads only subtools whose `name` proto
+            field value is in the list. If None, uploads everything.
+
+    Returns:
+        A tuple: the list of upload metadata paths, and the InstalledSubtools
+            that created them.
     """
     assert_inside_subtools_chroot()
 
@@ -166,5 +168,24 @@ def bundle_and_export(
         work_root=SUBTOOLS_BUNDLE_WORK_DIR,
     )
     subtools.bundle_all()
-    subtools.export(use_production, export_filter)
+    return (subtools.prepare_uploads(upload_filter), subtools)
+
+
+def upload_prepared_bundles(use_production: bool, bundles: List[Path]) -> None:
+    """Uploads the pre-bundled subtools at each of the provided paths.
+
+    Args:
+        use_production: Whether to upload to production environments.
+        bundles: The list of bundled metadata paths to upload.
+    """
+    subtools = subtool_lib.BundledSubtools(bundles)
+    subtools.upload(use_production)
+
+
+def bundle_and_upload(
+    use_production: bool = False, upload_filter: Optional[List[str]] = None
+) -> subtool_lib.InstalledSubtools:
+    """Helper to bundle and upload from within the chroot."""
+    (bundles, subtools) = bundle_and_prepare_upload(upload_filter)
+    upload_prepared_bundles(use_production, bundles)
     return subtools

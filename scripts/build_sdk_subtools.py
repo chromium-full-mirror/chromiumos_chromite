@@ -14,7 +14,7 @@ non-toolchain packages in the subtools deptree that have updated revisions or
 changed USE flags will be rebuilt, along with reverse dependencies.
 
 Packages (e.g. an ebuild) provide manifests that describes how files, once
-installed, are to be bundled and exported.
+installed, are to be bundled and uploaded.
 
 If packages are specified in the command line, only consider the deptree from
 those specific packages rather than all of virtual/target-sdk-subtools.
@@ -76,7 +76,7 @@ class Options(Protocol):
     relaunch_for_setup: bool
     output_dir: Path
     packages: List[str]
-    export: List[str]
+    upload: List[str]
     jobs: int
 
     def Freeze(self) -> None:
@@ -111,8 +111,8 @@ def get_parser() -> commandline.ArgumentParser:
     parser.add_bool_argument(
         "--production",
         False,
-        "Use production environments for subtool exports.",
-        "Use staging environments for subtool exports.",
+        "Use production environments for subtool uploads.",
+        "Use staging environments for subtool uploads.",
     )
 
     parser.add_argument(
@@ -123,11 +123,11 @@ def get_parser() -> commandline.ArgumentParser:
     )
 
     parser.add_argument(
-        "--export",
+        "--upload",
         nargs="+",
         default=[],
         metavar="BUNDLE",
-        help="Packages to export (e.g. to CIPD). May require auth.",
+        help="Packages to upload (e.g. to CIPD). May require auth.",
     )
 
     parser.add_argument(
@@ -197,12 +197,12 @@ def _run_inside_subtools_chroot(opts: Options) -> None:
         except sysroot_lib.PackageInstallError as e:
             cros_build_lib.Die(e)
 
-    installed = sdk_subtools.bundle_and_export(opts.production, opts.export)
+    installed = sdk_subtools.bundle_and_upload(opts.production, opts.upload)
     if not installed.subtools:
         logger.warn("No subtools available.")
-    elif not opts.export:
+    elif not opts.upload:
         logger.notice(
-            "Use --export to export a package. Available:%s",
+            "Use --upload to upload a package. Available:%s",
             "".join(f"\n\t{x.summary}" for x in installed.subtools),
         )
 

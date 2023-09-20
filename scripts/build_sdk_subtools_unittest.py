@@ -43,8 +43,12 @@ def mock_emerge_fixture():
 @pytest.fixture(name="mock_exporter", autouse=True)
 def mock_exporter_fixture():
     """Stubs the exporter for InstalledSubtools to avoid side-effects."""
-    with mock.patch("chromite.lib.subtool_lib.InstalledSubtools") as mock_lib:
-        yield mock_lib
+    with mock.patch(
+        "chromite.lib.subtool_lib.InstalledSubtools"
+    ) as installed, mock.patch(
+        "chromite.lib.subtool_lib.BundledSubtools"
+    ) as bundled:
+        yield {"installed": installed, "bundled": bundled}
 
 
 @pytest.fixture(autouse=True)
@@ -187,29 +191,29 @@ def test_skip_package_update(mock_emerge) -> None:
     assert mock_emerge.call_count == 0
 
 
-def test_invokes_exporter(mock_emerge, mock_exporter) -> None:
-    """The exporter is invoked to bundle, but to export [] by default."""
+def test_invokes_uploader(mock_emerge, mock_exporter) -> None:
+    """The exporter is invoked to bundle, but to upload [] by default."""
     assert build_sdk_subtools.main([]) == 0
     assert mock_emerge.call_count == 1
-    assert mock_exporter.called
-    installed_subtools = mock_exporter.return_value
+    assert mock_exporter["installed"].called
+    installed_subtools = mock_exporter["installed"].return_value
     assert installed_subtools.bundle_all.called
-    installed_subtools.export.assert_called_once_with(False, [])
+    installed_subtools.prepare_uploads.assert_called_once_with([])
 
 
-def test_export_option(mock_emerge, mock_exporter) -> None:
-    """Tests that the exporter is invoked with provided exports."""
-    cmdline = ["--export", "subtool1", "subtool2", "--", "dev-some/package"]
+def test_upload_option(mock_emerge, mock_exporter) -> None:
+    """Tests that the exporter is invoked with provided uploads."""
+    cmdline = ["--upload", "subtool1", "subtool2", "--", "dev-some/package"]
     assert build_sdk_subtools.main(cmdline) == 0
     assert mock_emerge.call_args.args[0][-1] == "dev-some/package"
-    installed_subtools = mock_exporter.return_value
-    installed_subtools.export.assert_called_once_with(
-        False, ["subtool1", "subtool2"]
+    installed_subtools = mock_exporter["installed"].return_value
+    installed_subtools.prepare_uploads.assert_called_once_with(
+        ["subtool1", "subtool2"]
     )
 
 
 def test_production_option(mock_emerge, mock_exporter) -> None:
-    """Tests that --production is passed to the exporter."""
+    """Tests that --production is passed to the uploader."""
     assert build_sdk_subtools.main(["--production"]) == 0
     assert mock_emerge.call_count == 1
-    mock_exporter.return_value.export.assert_called_once_with(True, [])
+    mock_exporter["bundled"].return_value.upload.assert_called_once_with(True)
