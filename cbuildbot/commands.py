@@ -1181,7 +1181,10 @@ def GenerateDebugTarball(
     archive_name="debug.tgz",
     chroot_compression=True,
 ):
-    """Generates a debug tarball in the archive_dir.
+    """Generates a debug tarball in the archive_dir, in or out of the chroot.
+
+    Generates a debug tarball in the archive_dir. Invokes the appropriate
+    algorithm based on whether we're inside or outside of the chroot.
 
     Args:
         buildroot: The root directory where the build occurs.
@@ -1195,6 +1198,46 @@ def GenerateDebugTarball(
     Returns:
         The filename of the created debug tarball.
     """
+    func = (
+        GenerateDebugTarballInsideChroot
+        if cros_build_lib.IsInsideChroot()
+        else GenerateDebugTarballOutsideChroot
+    )
+
+    return func(
+        buildroot,
+        board,
+        archive_path,
+        gdb_symbols,
+        archive_name,
+        chroot_compression,
+    )
+
+
+def GenerateDebugTarballInsideChroot(
+    buildroot,
+    board,
+    archive_path,
+    gdb_symbols,
+    archive_name="debug.tgz",
+    chroot_compression=True,
+):
+    """Generates a debug tarball in the archive_dir, from inside the chroot.
+
+    Args:
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine
+        archive_path: Directory where tarball should be stored.
+        gdb_symbols: Include *.debug files for debugging core files with gdb.
+        archive_name: Name of the tarball to generate.
+        chroot_compression: Whether to use compression tools in the chroot if
+            they're available.
+
+    Returns:
+        The filename of the created debug tarball.
+    """
+    cros_build_lib.AssertInsideChroot()
+
     # Generate debug tarball. This needs to run as root because some of the
     # symbols are only readable by root.
     board_dir = path_util.FromChrootPath(
@@ -1230,6 +1273,108 @@ def GenerateDebugTarball(
         inputs=inputs,
         extra_args=extra_args,
     )
+
+    # Fix permissions and ownership on debug tarball.
+    cros_build_lib.sudo_run(["chown", str(os.getuid()), debug_tarball])
+    os.chmod(debug_tarball, 0o644)
+
+    return os.path.basename(debug_tarball)
+
+
+def GenerateDebugTarballOutsideChroot(
+    buildroot,
+    board,
+    archive_path,
+    gdb_symbols,
+    archive_name="debug.tgz",
+    chroot_compression=True,
+):
+    """Generates a debug tarball in the archive_dir, from outside the chroot.
+
+    Args:
+        buildroot: The root directory where the build occurs.
+        board: Board type that was built on this machine
+        archive_path: Directory where tarball should be stored.
+        gdb_symbols: Include *.debug files for debugging core files with gdb.
+        archive_name: Name of the tarball to generate.
+        chroot_compression: Whether to use compression tools in the chroot if
+            they're available.
+
+    Returns:
+        The filename of the created debug tarball.
+    """
+    cros_build_lib.AssertOutsideChroot()
+
+    # Originally this called cros_build_lib.CreateTarball(), but ToT changes to
+    # paths within the chroot meant we stopped being able to execute outside the
+    # chroot. Since cbuildbot code is going away shortly anyway, we've done a
+    # quick-fix to call tar directly rather than updating
+    # cros_build_lib.CreateTarball() to support `enter_chroot`.
+
+    # Generate debug tarball. This needs to run as root because some of the
+    # symbols are only readable by root.
+    board_dir = os.path.join(os.path.sep, "build", board, "usr", "lib")
+    debug_tarball = os.path.join(archive_path, archive_name)
+    extra_args = []
+    inputs = []
+
+    if gdb_symbols:
+        extra_args = [
+            "--exclude",
+            os.path.join("debug", constants.AUTOTEST_BUILD_PATH),
+            "--exclude",
+            "debug/tests",
+        ]
+        inputs = ["debug"]
+    else:
+        inputs = ["debug/breakpad"]
+
+    # Find the compression utility to use, and get its inside-chroot path.
+    compression_chroot = None
+    if chroot_compression:
+        compression_chroot = os.path.join(buildroot, "chroot")
+
+    compression = cros_build_lib.CompressionExtToType(debug_tarball)
+    compressor = cros_build_lib.FindCompressor(
+        compression, chroot=compression_chroot
+    )
+    if compressor.startswith("/bin/"):
+        compressor = "/usr" + compressor
+    try:
+        compressor = path_util.ToChrootPath(compressor)
+    except ValueError as e:
+        if not e.args[0].startswith("Path is not reachable from the chroot"):
+            raise
+
+    # Invoke tar inside the chroot, creating a file in the chroot's `out` dir
+    # that we'll be able to access from outside the chroot.
+    temp_debug_tarball = constants.DEFAULT_OUT_PATH / archive_name
+    chroot_temp_debug_tarball = path_util.ToChrootPath(temp_debug_tarball)
+
+    cros_build_lib.sudo_run(
+        [
+            "tar",
+            f"--directory={board_dir}",
+        ]
+        + extra_args
+        + [
+            "--sparse",
+            "--hole-detection=raw",
+            "--use-compress-program",
+            compressor,
+            "-c",
+            "-f",
+            chroot_temp_debug_tarball,
+        ]
+        + inputs,
+        enter_chroot=True,
+    )
+
+    if temp_debug_tarball != debug_tarball:
+        # Move the tarball out of the `out` dir to the archive location.
+        # shutil.move() doesn't handle moving across mounts, so copy/delete.
+        shutil.copy(temp_debug_tarball, debug_tarball)
+        os.remove(temp_debug_tarball)
 
     # Fix permissions and ownership on debug tarball.
     cros_build_lib.sudo_run(["chown", str(os.getuid()), debug_tarball])

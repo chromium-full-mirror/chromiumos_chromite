@@ -765,27 +765,51 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
 class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
     """Tests related to building tarball artifacts."""
 
-    def setUp(self):
-        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+    def tearDown(self):
+        if cros_build_lib.IsOutsideChroot():
+            board_path = os.path.join(os.path.sep, "/", "build", self._board)
+            cros_build_lib.sudo_run(
+                ["rm", "-rf", board_path], enter_chroot=True
+            )
 
+    def setUp(self):
         self._board = "test-board"
         self._buildroot = os.path.join(self.tempdir, "buildroot")
-        self._debug_base = path_util.FromChrootPath(
-            os.path.join(os.path.sep, "build", self._board, "usr", "lib"),
-            source_path=self._buildroot,
+        self._debug_base = os.path.join(
+            os.path.sep, "/", "build", self._board, "usr", "lib"
         )
 
-        self._files = [
-            "debug/s1",
-            "debug/breakpad/b1",
-            "debug/tests/t1",
-            "debug/stuff/nested/deep",
-            "debug/usr/local/build/autotest/a1",
+        self._file_data = [
+            ("debug", "s1"),
+            ("debug/breakpad", "b1"),
+            ("debug/tests", "t1"),
+            ("debug/stuff/nested", "deep"),
+            ("debug/usr/local/build/autotest", "a1"),
         ]
-
-        cros_test_lib.CreateOnDiskHierarchy(self._debug_base, self._files)
+        self._files = [dir + os.sep + file for dir, file in self._file_data]
 
         self._tarball_dir = self.tempdir
+
+        if cros_build_lib.IsInsideChroot():
+            cros_test_lib.CreateOnDiskHierarchy(self._debug_base, self._files)
+        else:
+            # We need to create directories inside the chroot, since that's
+            # where GenerateDebugTarball() will look for them.
+            dirs_to_make = [
+                os.path.join(os.path.sep, self._debug_base, dir)
+                for dir, _ in self._file_data
+            ]
+            cros_build_lib.sudo_run(
+                ["mkdir", "-p"] + dirs_to_make, enter_chroot=True
+            )
+
+            files_to_touch = [
+                os.path.join(os.path.sep, self._debug_base, file)
+                for file in self._files
+            ]
+            cros_build_lib.sudo_run(
+                ["touch"] + files_to_touch, enter_chroot=True
+            )
 
     def testGenerateDebugTarballGdb(self):
         """Test the simplest case."""
