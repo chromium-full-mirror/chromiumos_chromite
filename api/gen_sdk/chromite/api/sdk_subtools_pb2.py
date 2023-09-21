@@ -16,7 +16,7 @@ from chromite.api.gen_sdk.chromite.api import sysroot_pb2 as chromite_dot_api_do
 from chromite.api.gen_sdk.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x63hromite/api/sdk_subtools.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x17\x63hromiumos/common.proto\"=\n\x17\x42uildSdkSubtoolsRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\"X\n\x18\x42uildSdkSubtoolsResponse\x12<\n\x13\x66\x61iled_package_data\x18\x01 \x03(\x0b\x32\x1f.chromite.api.FailedPackageData2\x8d\x01\n\x12SdkSubtoolsService\x12\x61\n\x10\x42uildSdkSubtools\x12%.chromite.api.BuildSdkSubtoolsRequest\x1a&.chromite.api.BuildSdkSubtoolsResponse\x1a\x14\xc2\xed\x1a\x10\n\x0csdk_subtools\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x63hromite/api/sdk_subtools.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x1a\x63hromite/api/sysroot.proto\x1a\x17\x63hromiumos/common.proto\"=\n\x17\x42uildSdkSubtoolsRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\"\x80\x01\n\x18\x42uildSdkSubtoolsResponse\x12<\n\x13\x66\x61iled_package_data\x18\x01 \x03(\x0b\x32\x1f.chromite.api.FailedPackageData\x12&\n\x0c\x62undle_paths\x18\x02 \x03(\x0b\x32\x10.chromiumos.Path\"Z\n\x18\x45xportSdkSubtoolsRequest\x12\x16\n\x0euse_production\x18\x01 \x01(\x08\x12&\n\x0c\x62undle_paths\x18\x02 \x03(\x0b\x32\x10.chromiumos.Path\"\x1b\n\x19\x45xportSdkSubtoolsResponse2\xfb\x01\n\x12SdkSubtoolsService\x12\x61\n\x10\x42uildSdkSubtools\x12%.chromite.api.BuildSdkSubtoolsRequest\x1a&.chromite.api.BuildSdkSubtoolsResponse\x12l\n\x11\x45xportSdkSubtools\x12&.chromite.api.ExportSdkSubtoolsRequest\x1a\'.chromite.api.ExportSdkSubtoolsResponse\"\x06\xc2\xed\x1a\x02\x10\x02\x1a\x14\xc2\xed\x1a\x10\n\x0csdk_subtools\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.sdk_subtools_pb2', globals())
@@ -26,10 +26,16 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api'
   _SDKSUBTOOLSSERVICE._options = None
   _SDKSUBTOOLSSERVICE._serialized_options = b'\302\355\032\020\n\014sdk_subtools\020\001'
+  _SDKSUBTOOLSSERVICE.methods_by_name['ExportSdkSubtools']._options = None
+  _SDKSUBTOOLSSERVICE.methods_by_name['ExportSdkSubtools']._serialized_options = b'\302\355\032\002\020\002'
   _BUILDSDKSUBTOOLSREQUEST._serialized_start=132
   _BUILDSDKSUBTOOLSREQUEST._serialized_end=193
-  _BUILDSDKSUBTOOLSRESPONSE._serialized_start=195
-  _BUILDSDKSUBTOOLSRESPONSE._serialized_end=283
-  _SDKSUBTOOLSSERVICE._serialized_start=286
-  _SDKSUBTOOLSSERVICE._serialized_end=427
+  _BUILDSDKSUBTOOLSRESPONSE._serialized_start=196
+  _BUILDSDKSUBTOOLSRESPONSE._serialized_end=324
+  _EXPORTSDKSUBTOOLSREQUEST._serialized_start=326
+  _EXPORTSDKSUBTOOLSREQUEST._serialized_end=416
+  _EXPORTSDKSUBTOOLSRESPONSE._serialized_start=418
+  _EXPORTSDKSUBTOOLSRESPONSE._serialized_end=445
+  _SDKSUBTOOLSSERVICE._serialized_start=448
+  _SDKSUBTOOLSSERVICE._serialized_end=699
 # @@protoc_insertion_point(module_scope)
