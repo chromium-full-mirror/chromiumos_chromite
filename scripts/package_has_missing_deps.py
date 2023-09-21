@@ -229,7 +229,9 @@ class DotSoResolver:
             if typ == package.DIR:
                 continue
             filename = os.path.basename(path)
-            if filename.endswith(".so") or ".so." in filename:
+            if filename.endswith(".so") or (
+                ".so." in filename and not filename.endswith(".debug")
+            ):
                 libs.add(filename)
         self.provided_libs_cache[cpvr] = libs
         return libs
@@ -247,7 +249,9 @@ class DotSoResolver:
         libs = set()
         for _, _, files in os.walk(image_dir):
             for file in files:
-                if file.endswith(".so") or ".so." in file:
+                if file.endswith(".so") or (
+                    ".so." in file and not file.endswith(".debug")
+                ):
                     libs.add(os.path.basename(file))
         self.provided_libs_cache[cpvr] = libs
 
