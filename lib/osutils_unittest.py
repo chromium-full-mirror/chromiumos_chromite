@@ -1213,7 +1213,7 @@ class MountOverlayTest(cros_test_lib.MockTempDirTestCase):
             umount_call.assert_any_call(self.mergeddir, cleanup=cleanup)
 
 
-class IterateMountPointsTests(cros_test_lib.TempDirTestCase):
+class IterateMountPointsTests(cros_test_lib.MockTempDirTestCase):
     """Test for IterateMountPoints function."""
 
     def setUp(self):
@@ -1227,22 +1227,68 @@ class IterateMountPointsTests(cros_test_lib.TempDirTestCase):
 weird\040system /mnt/weirdo unknown ro 0 0
 tmpfs /mnt/spaced\040dir tmpfs ro 0 0
 tmpfs /mnt/\134 tmpfs ro 0 0
+/dev/mapper/some-root / ext4 rw,relatime,errors=remount-ro 0 0
+/dev/mapper/some-root / ext4 ro,relatime,errors=remount-ro 0 0
 """,
         )
 
     def testOkay(self):
+        """Test IterateMountPoints() with some basic entries."""
         r = list(osutils.IterateMountPoints(self.proc_mount))
-        self.assertEqual(len(r), 7)
-        self.assertEqual(r[0].source, "/dev/loop0")
-        self.assertEqual(r[1].destination, "/mnt/dir_1")
-        self.assertEqual(r[2].filesystem, "vfat")
-        self.assertEqual(r[3].options, "ro,relatime")
+        assert len(r) == 9
+        assert r[0].source == "/dev/loop0"
+        assert r[1].destination == "/mnt/dir_1"
+        assert r[2].filesystem == "vfat"
+        assert r[3].options == "ro,relatime"
 
     def testEscape(self):
+        """Test IterateMountPoints() with some escaped characters."""
         r = list(osutils.IterateMountPoints(self.proc_mount))
-        self.assertEqual(r[4].source, "weird system")
-        self.assertEqual(r[5].destination, "/mnt/spaced dir")
-        self.assertEqual(r[6].destination, "/mnt/\\")
+        assert r[4].source == "weird system"
+        assert r[5].destination == "/mnt/spaced dir"
+        assert r[6].destination == "/mnt/\\"
+
+    def testIsMounted(self):
+        """Test IsMounted() on a variety of mtab entries."""
+        self.PatchObject(osutils.IsMounted, "__defaults__", (self.proc_mount,))
+
+        assert osutils.IsMounted("/mnt/dir_1")
+        assert osutils.IsMounted("/mnt/dir_3")
+        assert osutils.IsMounted("/mnt/dir_8")
+        assert osutils.IsMounted("/mnt/dir_12")
+        assert osutils.IsMounted("/mnt/weirdo")
+        assert osutils.IsMounted("/mnt/spaced dir")
+        assert osutils.IsMounted("/mnt/\\")
+        assert osutils.IsMounted("/")
+        assert not osutils.IsMounted("/mnt/spaced")
+        assert not osutils.IsMounted("dir")
+        assert not osutils.IsMounted("")
+
+    def testIsMountedReadOnly(self):
+        """Test IsMountedReadOnly() on a variety of mtab entries."""
+        self.PatchObject(
+            osutils.IsMountedReadOnly, "__defaults__", (self.proc_mount,)
+        )
+
+        assert not osutils.IsMountedReadOnly("/mnt/dir_1")
+        assert osutils.IsMountedReadOnly("/mnt/dir_3")
+        assert not osutils.IsMountedReadOnly("/mnt/dir_8")
+        assert not osutils.IsMountedReadOnly("/mnt/dir_12")
+        assert osutils.IsMountedReadOnly("/mnt/weirdo")
+        assert osutils.IsMountedReadOnly("/mnt/spaced dir")
+        assert osutils.IsMountedReadOnly("/mnt/\\")
+        assert osutils.IsMountedReadOnly("/")
+        assert not osutils.IsMountedReadOnly("/mnt/spaced")
+        assert not osutils.IsMountedReadOnly("dir")
+        assert not osutils.IsMountedReadOnly("")
+
+    def testIsMountedReadonlyEmpty(self):
+        """Test IsMountedReadOnly() on an empty mtab."""
+        mounts = self.tempdir / "empty"
+        mounts.touch()
+
+        for mount in ("", "/", "/mnt/dir_1"):
+            assert not osutils.IsMountedReadOnly(mount, proc_file=mounts)
 
 
 class ResolveSymlinkInRootTest(cros_test_lib.TempDirTestCase):

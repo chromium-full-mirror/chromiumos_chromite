@@ -1468,10 +1468,9 @@ def UmountTree(
     # which reverse sorting cannot handle.
     path = os.path.realpath(path).rstrip("/") + "/"
     mounts = [
-        mtab.destination
-        for mtab in IterateMountPoints()
-        if mtab.destination.startswith(path)
-        or mtab.destination == path.rstrip("/")
+        x.destination
+        for x in IterateMountPoints()
+        if x.destination.startswith(path) or x.destination == path.rstrip("/")
     ]
 
     for mount_pt in reversed(mounts):
@@ -1797,7 +1796,7 @@ MountInfo = collections.namedtuple(
 )
 
 
-def IterateMountPoints(proc_file="/proc/mounts"):
+def IterateMountPoints(proc_file: Union[os.PathLike, str] = "/proc/mounts"):
     """Iterate over all mounts as reported by "/proc/mounts".
 
     Args:
@@ -1818,14 +1817,35 @@ def IterateMountPoints(proc_file="/proc/mounts"):
             yield mtab
 
 
-def IsMounted(path):
+def IsMounted(
+    path: Union[os.PathLike, str],
+    proc_file: Union[os.PathLike, str] = "/proc/mounts",
+) -> bool:
     """Determine if |path| is already mounted or not."""
-    path = os.path.realpath(path).rstrip("/")
-    mounts = [mtab.destination for mtab in IterateMountPoints()]
+    path = str(Path(path).resolve())
+    mounts = [x.destination for x in IterateMountPoints(proc_file=proc_file)]
     if path in mounts:
         return True
 
     return False
+
+
+def IsMountedReadOnly(
+    path: Union[os.PathLike, str],
+    proc_file: Union[os.PathLike, str] = "/proc/mounts",
+) -> bool:
+    """Determine if |path| is mounted read-only."""
+    path = str(Path(path).resolve())
+    mounts = [
+        x
+        for x in IterateMountPoints(proc_file=proc_file)
+        if x.destination == path
+    ]
+    if not mounts:
+        return False
+
+    # There can be multiple stacked mounts. Check the last one.
+    return "ro" in mounts[-1].options.split(",")
 
 
 def ResolveSymlinkInRoot(
