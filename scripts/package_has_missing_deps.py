@@ -14,6 +14,7 @@ Example:
 
 import argparse
 import collections
+import logging
 import os
 from pathlib import Path
 import pprint
@@ -172,6 +173,7 @@ class DotSoResolver:
                 continue
             if info.pv and info.pv != dep_info.pv:
                 continue
+            logging.debug("query: %s: matched %s", query, dep_info.cpvr)
             yield package
 
     def get_required_libs(self, package) -> Set[str]:
@@ -198,6 +200,7 @@ class DotSoResolver:
         for dep in portage_util.GetFlattenedDepsForPackage(
             cpvr, board=self.board, depth=1
         ):
+            logging.debug("%s: found package dependency: %s", cpvr, dep)
             info = package_info.parse(dep)
             if not info:
                 continue
@@ -210,6 +213,8 @@ class DotSoResolver:
             pkg = self.db.GetInstalledPackage(info.category, info.pvr)
             if pkg:
                 deps.append(pkg)
+            else:
+                logging.warning("%s: could not find installed %s", cpvr, dep)
 
         for dep in expanded:
             deps.extend(self.get_packages(dep))
@@ -281,6 +286,11 @@ class DotSoResolver:
         # since a package can depend on its own libs.
         provided_libs.update(self.provided_libs(package))
         for pkg in self.get_deps(package):
+            logging.debug(
+                "%s: loading libs from dependency %s",
+                package.package_info.cpvr,
+                pkg.package_info.cpvr,
+            )
             provided_libs.update(self.provided_libs(pkg))
         return provided_libs
 
@@ -397,25 +407,25 @@ def check_package(
     provided = resolver.get_provided_from_all_deps(package)
     if debug:
         print("provided")
-        pprint.pprint(provided)
+        pprint.pprint(sorted(provided))
 
     available = provided.union(implicit)
     required = resolver.get_required_libs(package)
     if debug:
         print("required")
-        pprint.pprint(required)
+        pprint.pprint(sorted(required))
     unsatisfied = required - available
     if unsatisfied:
         cpvr = package.package_info.cpvr
         print(f"'{cpvr}' missing deps for: ", end="")
-        pprint.pprint(unsatisfied)
+        pprint.pprint(sorted(unsatisfied))
         if match:
             missing = set()
             for lib in unsatisfied:
                 missing.update(resolver.lib_to_package(lib))
             if missing:
                 print(f"'{cpvr}' needs: ", end="")
-                pprint.pprint(missing)
+                pprint.pprint(sorted(missing))
         return False
     return True
 
