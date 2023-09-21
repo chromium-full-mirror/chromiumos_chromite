@@ -77,6 +77,11 @@ def process_fixes_by_file(
     """Get fixes grouped by file if all the fixes apply to valid files.
 
     If any fixes modify invalid files this returns None.
+
+    Args:
+        lint: LinterFinding to get fixes from
+        file_lengths: dictionary of previously determined file lengths which
+            may be modified with additional entries
     """
     if not lint.suggested_fixes:
         return None
@@ -357,6 +362,11 @@ def get_arg_parser() -> commandline.ArgumentParser:
         help="Apply suggested fixes from linters.",
     )
     parser.add_argument(
+        "--filter-names",
+        help="Only keep lints if the name contains one of the provided filters",
+        action="append",
+    )
+    parser.add_argument(
         "--differential",
         action="store_true",
         help="only lint lines touched by the last commit",
@@ -420,6 +430,13 @@ def parse_args(argv: List[str]):
     return opts
 
 
+def filter_lints(
+    lints: List[toolchain.LinterFinding], names_filters: List[Text]
+) -> List[toolchain.LinterFinding]:
+    """Filter linter finding by name."""
+    return [l for l in lints if any(f in l.name for f in names_filters)]
+
+
 def main(argv: List[str]) -> None:
     cros_build_lib.AssertInsideChroot()
     opts = parse_args(argv)
@@ -465,6 +482,9 @@ def main(argv: List[str]) -> None:
                 use_iwyu=opts.iwyu,
             )
 
+    if opts.filter_names:
+        lints = filter_lints(lints, opts.filter_names)
+
     if opts.json:
         formatted_output_inner = ",\n".join(json_format_lint(l) for l in lints)
         formatted_output = f"[{formatted_output_inner}]"
@@ -493,5 +513,5 @@ def main(argv: List[str]) -> None:
                     f"\nFixed {len(fixed_lints)}/{len(lints)} lints."
                 )
             output_file.write("\n\n\n--------- Modified Files ---------\n\n")
-            output_file.write("\n".join(str(f) for f in modified_files))
+            output_file.write("\n".join(str(f) for f in sorted(modified_files)))
         output_file.write("\n")

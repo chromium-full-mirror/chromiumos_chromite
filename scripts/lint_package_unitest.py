@@ -83,3 +83,30 @@ class TestApplyFixes(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(
             lint_package.apply_edits(prior_contents, edits), expected
         )
+
+    def testFilterLints(self):
+        names_filters = ["spam", "foo"]
+        keep_lints = [
+            toolchain.LinterFinding(name, "", [], "", [], None)
+            for name in (
+                "spam_this",
+                "please-spam-me",
+                "spam",
+                "foo_this",
+                "please-foo-me",
+                "foo",
+                "please-spam-foo-ok?",
+            )
+        ]
+        discard_lints = [
+            toolchain.LinterFinding(name, "", [], "", [], None)
+            for name in ("abc", "", "hello_world")
+        ]
+
+        self.assertListEqual(
+            keep_lints, lint_package.filter_lints(keep_lints, names_filters)
+        )
+
+        self.assertEqual(
+            lint_package.filter_lints(discard_lints, names_filters), []
+        )
