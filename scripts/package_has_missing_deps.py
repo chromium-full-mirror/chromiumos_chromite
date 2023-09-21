@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 import pprint
 import sys
-from typing import List, Optional, Set, Union
+from typing import Iterable, List, Optional, Set, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -156,10 +156,10 @@ class DotSoResolver:
             self._db_packges = self.db.InstalledPackages()
         return self._db_packges
 
-    def get_package(
+    def get_packages(
         self, query: str, from_sdk=False
-    ) -> Optional[portage_util.InstalledPackage]:
-        """Try to find an InstalledPackage for the provided package string"""
+    ) -> Iterable[portage_util.InstalledPackage]:
+        """Find matching InstalledPackage(s) for the |query|."""
         packages = self.sdk_db_packages if from_sdk else self.db_packages
         info = package_info.parse(query)
         for package in packages:
@@ -172,8 +172,7 @@ class DotSoResolver:
                 continue
             if info.pv and info.pv != dep_info.pv:
                 continue
-            return package
-        return None
+            yield package
 
     def get_required_libs(self, package) -> Set[str]:
         """Return a set of required .so files."""
@@ -213,9 +212,7 @@ class DotSoResolver:
                 deps.append(pkg)
 
         for dep in expanded:
-            pkg = self.get_package(dep)
-            if pkg:
-                deps.append(pkg)
+            deps.extend(self.get_packages(dep))
 
         return deps
 
@@ -232,10 +229,8 @@ class DotSoResolver:
             ("sys-libs/libcxx", False),
             ("sys-libs/llvm-libunwind", False),
         ):
-            pkg = self.get_package(dep, from_sdk)
-            if not pkg:
-                continue
-            implicit_libs.update(self.provided_libs(pkg))
+            for pkg in self.get_packages(dep, from_sdk):
+                implicit_libs.update(self.provided_libs(pkg))
         return implicit_libs
 
     def provided_libs(self, package: portage_util.InstalledPackage) -> Set[str]:
@@ -450,7 +445,9 @@ def main(argv: Optional[List[str]]):
         else:
             packages = resolver.db.InstalledPackages()
     else:
-        packages = [resolver.get_package(p) for p in opts.package]
+        packages = []
+        for pkg in opts.package:
+            packages.extend(resolver.get_packages(pkg))
 
     implicit = resolver.get_implicit_libs()
     if opts.debug:
