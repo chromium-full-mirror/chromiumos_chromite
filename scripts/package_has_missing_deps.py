@@ -128,17 +128,39 @@ class DotSoResolver:
         self.chroot = chroot if chroot else chroot_lib.Chroot()
 
         self.sdk_db = portage_util.PortageDB()
+        self._sdk_db_packges = None
         self.db = self.sdk_db if root == "/" else portage_util.PortageDB(root)
+        self._db_packges = None
         self.provided_libs_cache = {}
 
         # Lazy initialize since it might not be needed.
         self.lib_to_package_map = None
 
+    @property
+    def sdk_db_packages(self):
+        """Cache sdk_db.InstalledPackages().
+
+        We won't be modifying it, so it's safe for us to reuse the results.
+        """
+        if self._sdk_db_packges is None:
+            self._sdk_db_packges = self.sdk_db.InstalledPackages()
+        return self._sdk_db_packges
+
+    @property
+    def db_packages(self):
+        """Cache db.InstalledPackages().
+
+        We won't be modifying it, so it's safe for us to reuse the results.
+        """
+        if self._db_packges is None:
+            self._db_packges = self.db.InstalledPackages()
+        return self._db_packges
+
     def get_package(
         self, query: str, from_sdk=False
     ) -> Optional[portage_util.InstalledPackage]:
         """Try to find an InstalledPackage for the provided package string"""
-        packages = (self.sdk_db if from_sdk else self.db).InstalledPackages()
+        packages = self.sdk_db_packages if from_sdk else self.db_packages
         info = package_info.parse(query)
         for package in packages:
             if info.package != package.package:
