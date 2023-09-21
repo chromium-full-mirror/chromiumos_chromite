@@ -25,7 +25,6 @@ from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
-from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 
@@ -189,18 +188,66 @@ class DotSoResolver:
                 aggregate.update(libs)
         return aggregate
 
-    def get_deps(self, package) -> List[portage_util.InstalledPackage]:
+    def get_deps(
+        self, package: portage_util.InstalledPackage
+    ) -> Set[portage_util.InstalledPackage]:
         """Return a list of dependencies.
 
         This expands the virtuals listed below.
         """
         cpvr = f"{package.category}/{package.pf}"
         expanded = []
-        deps = []
-        for dep in portage_util.GetFlattenedDepsForPackage(
-            cpvr, board=self.board, depth=1
-        ):
-            logging.debug("%s: found package dependency: %s", cpvr, dep)
+        deps = set()
+
+        # Handling ||() nodes is difficult.  Be lazy and expand all of them.
+        # We could compare against the installed db to try and find a match,
+        # but this seems easiest for now as our PortageDB API doesn't support
+        # these kind of primitives yet.
+        def _anyof_reduce(choices: List[str]) -> str:
+            """Reduce ||() nodes."""
+
+            def _flatten(eles):
+                for e in eles:
+                    if isinstance(e, tuple):
+                        yield from _flatten(e)
+                    else:
+                        yield e
+
+            citer = _flatten(choices)
+            ret = next(citer)
+            package_dependencies.extend(citer)
+            return ret
+
+        package_dependencies = []
+        package_dependencies.extend(
+            package.depend.reduce(anyof_reduce=_anyof_reduce)
+        )
+        package_dependencies.extend(
+            package.rdepend.reduce(anyof_reduce=_anyof_reduce)
+        )
+
+        for fulldep in package_dependencies:
+            # Preclean the atom.  We can only handle basic forms like
+            # CATEGORY/PF, not the full dependency specification.  See the
+            # ebuild(5) man page for more details.
+            dep = fulldep
+
+            # Ignore blockers.
+            if dep.startswith("!"):
+                logging.debug("%s: ignoring blocker: %s", cpvr, dep)
+                continue
+
+            # Rip off the SLOT spec.
+            dep = dep.split(":", 1)[0]
+            # Rip off any USE flag constraints.
+            dep = dep.split("[", 1)[0]
+            # Trim leading & trailing version ranges.
+            dep = dep.lstrip("<>=~").rstrip("*")
+
+            logging.debug(
+                "%s: found package dependency: %s -> %s", cpvr, fulldep, dep
+            )
+
             info = package_info.parse(dep)
             if not info:
                 continue
@@ -210,14 +257,19 @@ class DotSoResolver:
                 expanded += VIRTUALS[cp]
                 continue
 
-            pkg = self.db.GetInstalledPackage(info.category, info.pvr)
-            if pkg:
-                deps.append(pkg)
+            pkgs = self.db.GetInstalledPackage(info.category, info.pvr)
+            if not pkgs:
+                pkgs = list(self.get_packages(info.atom))
+            else:
+                pkgs = [pkgs]
+
+            if pkgs:
+                deps.update(pkgs)
             else:
                 logging.warning("%s: could not find installed %s", cpvr, dep)
 
         for dep in expanded:
-            deps.extend(self.get_packages(dep))
+            deps.update(self.get_packages(dep))
 
         return deps
 
@@ -460,33 +512,19 @@ def main(argv: Optional[List[str]]):
             packages.extend(resolver.get_packages(pkg))
 
     implicit = resolver.get_implicit_libs()
-    if opts.debug:
-        print("implicit")
-        pprint.pprint(implicit)
 
-    if opts.jobs == 1:
-        for package in packages:
-            if not check_package(
-                package,
-                implicit,
-                resolver,
-                opts.match,
-                opts.debug,
-            ):
-                failed = True
-    else:
-        if opts.match:
-            # Pre initialize the map before starting jobs.
-            resolver.lib_to_package()
-        for ret in parallel.RunTasksInProcessPool(
-            lambda p: check_package(
-                p, implicit, resolver, opts.match, opts.debug
-            ),
-            [[p] for p in packages],
-            opts.jobs,
+    if opts.match:
+        # Pre initialize the map before starting jobs.
+        resolver.lib_to_package()
+    for package in packages:
+        if not check_package(
+            package,
+            implicit,
+            resolver,
+            opts.match,
+            opts.debug,
         ):
-            if not ret:
-                failed = True
+            failed = True
 
     if failed:
         sys.exit(1)
