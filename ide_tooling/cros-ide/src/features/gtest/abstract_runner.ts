@@ -18,9 +18,8 @@ export abstract class AbstractRunner {
 
   protected readonly output = {
     append: (x: string): void =>
-      this.testRun.appendOutput(x.replace(/\n/g, '\r\n')),
-    appendLine: (x: string): void =>
-      this.testRun.appendOutput((x + '\n').replace(/\n/g, '\r\n')),
+      this.testRun.appendOutput(x.replace(/\r?\n/g, '\r\n')),
+    appendLine: (x: string): void => this.output.append(x + '\n'),
   };
 
   async run(): Promise<void> {
