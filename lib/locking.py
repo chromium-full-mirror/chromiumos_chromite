@@ -299,15 +299,13 @@ class FileLock(_Lock):
                     ["chmod", "666", self.path], print_cmd=False
                 )
 
-        # If we're on py3.4 and this attribute is exposed, use it to close
-        # the threading race between open and fcntl setting; this is
-        # extremely paranoid code, but might as well.
-        cloexec = getattr(os, "O_CLOEXEC", 0)
         # There exist race conditions where the lock may be created by
         # root, thus denying subsequent accesses from others. To prevent
         # this, we create the lock with mode 0o666.
         with osutils.UmaskContext(000):
-            return os.open(self.path, os.W_OK | os.O_CREAT | cloexec, 0o666)
+            return os.open(
+                self.path, os.W_OK | os.O_CREAT | os.O_CLOEXEC, 0o666
+            )
 
 
 class ProcessLock(_Lock):
@@ -399,17 +397,7 @@ class PipeLock:
     """
 
     def __init__(self):
-        # TODO(vapier): Simplify this when we're Python 3 only.
-        # pylint: disable=using-constant-test
-        pipe2 = getattr(os, "pipe2", None)
-        if pipe2:
-            cloexec = getattr(os, "O_CLOEXEC", 0)
-            # Pylint-1.7 is unable to handle this conditional logic.
-            # pylint: disable=not-callable
-            pipes = pipe2(cloexec)
-        else:
-            pipes = os.pipe()
-        self.read_fd, self.write_fd = pipes
+        self.read_fd, self.write_fd = os.pipe2(os.O_CLOEXEC)
 
     def Wait(self, size=1):
         """Read |size| bytes from the pipe.
