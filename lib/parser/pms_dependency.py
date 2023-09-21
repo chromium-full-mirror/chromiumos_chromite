@@ -40,12 +40,13 @@ class Node(NamedTuple):
 
     name: str
 
+    # pylint: disable=unused-argument
     def reduce(
         self,
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ):  # pylint: disable=unused-argument
+    ) -> List[str]:
         return [self.name]
 
     def __str__(self):
@@ -63,7 +64,7 @@ class RootNode:
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ):
+    ) -> List[str]:
         return list(
             _dedupe_in_order(
                 x
@@ -84,7 +85,7 @@ class AllOfNode(RootNode):
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ):
+    ) -> List[str]:
         ret = super().reduce(use_flags, anyof_reduce, flatten_allof)
         if not flatten_allof:
             ret = (tuple(ret),)
@@ -102,7 +103,7 @@ class AnyOfNode(RootNode):
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ):
+    ) -> List[str]:
         choices = super().reduce(use_flags, anyof_reduce, False)
         if anyof_reduce:
             return [anyof_reduce(choices)]
@@ -134,7 +135,7 @@ class UseNode(RootNode):
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ):
+    ) -> List[str]:
         if use_flags is None:
             use_flags = []
 

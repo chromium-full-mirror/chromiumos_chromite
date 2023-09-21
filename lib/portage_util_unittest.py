@@ -1805,12 +1805,14 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
         content = (
             ("package-1.ebuild", "EAPI=1"),
             ("CATEGORY", "category-1\n"),
+            ("DEPEND", "dev-libs/foo !dev-libs/bar >=sys-apps/pkg-12:0/0\n"),
             ("HOMEPAGE", "http://example.com\n"),
             ("LICENSE", "GPL-2\n"),
             ("NEEDED", "/usr/sbin/bootlockboxd libmetrics.so,libhwsec.so\n"),
             ("PF", "package-1\n"),
             ("PROVIDES", "x86_64: libsystem_api.so\n"),
             ("repository", "portage-stable\n"),
+            ("RDEPEND", ">=sys-apps/pkg-12:0/0\n"),
             ("REQUIRES", "x86_64: libc++.so.1 libc++abi.so.1 libc.so.6\n"),
             ("SIZE", "123\n"),
         )
@@ -1820,7 +1822,12 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
     def testOutOfDBPackage(self):
         """Verify InstalledPackage instance can be created w/o a PortageDB."""
         pkg = portage_util.InstalledPackage(None, self.tempdir)
+        self.assertEqual([], pkg.bdepend.reduce())
         self.assertEqual("category-1", pkg.category)
+        self.assertEqual(
+            ["dev-libs/foo", "!dev-libs/bar", ">=sys-apps/pkg-12:0/0"],
+            pkg.depend.reduce(),
+        )
         self.assertEqual("http://example.com", pkg.homepage)
         self.assertEqual("GPL-2", pkg.license)
         self.assertEqual(
@@ -1828,6 +1835,7 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
             pkg.needed,
         )
         self.assertEqual("package-1", pkg.pf)
+        self.assertEqual([">=sys-apps/pkg-12:0/0"], pkg.rdepend.reduce())
         self.assertEqual("portage-stable", pkg.repository)
         self.assertEqual(
             "x86_64: libc++.so.1 libc++abi.so.1 libc.so.6", pkg.requires

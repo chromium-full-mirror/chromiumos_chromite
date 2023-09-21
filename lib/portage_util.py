@@ -35,6 +35,7 @@ from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib.parser import package_info
+from chromite.lib.parser import pms_dependency
 from chromite.utils import key_value_store
 from chromite.utils import pms
 
@@ -1618,6 +1619,29 @@ class InstalledPackage:
             self._fields[field_name] = value
         return self._fields[field_name]
 
+    def _read_depend_field(self, field_name: str) -> pms_dependency.RootNode:
+        """Read a dependency field.
+
+        NB: We don't reduce for the caller.  While the package manager will
+        flatten USE conditionals like flag?(), it retains ||().  This has been
+        a bit of a debate upstream as to what's "correct", but it's hard for the
+        PM to guess what the ebuild ended up actually using at build time, and
+        what it plans on doing at runtime.  We too will defer the flattening to
+        the caller to try and evaluate what's best.
+
+        A lazy implementation would just call `.reduce()` on the result and hope
+        for the best, and most of the time it probably would be correct.  Either
+        way, it really needs the complete installed state (e.g. PortageDB) to be
+        able to produce a better answer.
+        """
+        value = self._ReadField(field_name)
+        if not value:
+            # Returning an empty node rather than None makes callers easier to
+            # implement, and we probably will never care about "file exists at
+            # all" vs "file existed but was empty".
+            return pms_dependency.RootNode()
+        return pms_dependency.parse(value)
+
     @property
     def category(self):
         return self._ReadField("CATEGORY")
@@ -1669,6 +1693,21 @@ class InstalledPackage:
             self._pkg_info = package_info.parse(f"{self.category}/{self.pf}")
 
         return self._pkg_info
+
+    @property
+    def depend(self) -> pms_dependency.RootNode:
+        """The packages we built against."""
+        return self._read_depend_field("DEPEND")
+
+    @property
+    def rdepend(self) -> pms_dependency.RootNode:
+        """The packages we need to run with."""
+        return self._read_depend_field("RDEPEND")
+
+    @property
+    def bdepend(self) -> pms_dependency.RootNode:
+        """The packages we compiled with."""
+        return self._read_depend_field("BDEPEND")
 
     def ListContents(self):
         """List of files and directories installed by this package.
