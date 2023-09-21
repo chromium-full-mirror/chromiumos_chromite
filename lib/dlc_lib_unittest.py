@@ -1297,6 +1297,149 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
         )
 
 
+class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
+    """Tests dlc_lib powerwash safety related functions."""
+
+    def constructDlc(self, dlc_id: str, rootfs: str, powerwash_safe: bool):
+        """Constructs the DLC in given rootfs
+
+        Args:
+            dlc_id: The DLC ID to construct.
+            rootfs: The rootfs to construct DLC in.
+            powerwash_safe: Boolean indicating if powerwash safety.
+        """
+        p = os.path.join(
+            rootfs, dlc_lib.DLC_META_DIR, dlc_id, dlc_lib.DLC_PACKAGE
+        )
+        osutils.SafeMakedirs(p)
+        with open(
+            os.path.join(p, dlc_lib.IMAGELOADER_JSON), "w", encoding="utf-8"
+        ) as fp:
+            json.dump({dlc_lib.POWERWASH_SAFE_KEY: powerwash_safe}, fp)
+
+    def testMissingMeta(self):
+        """Test missing meta rootfs for UniquePowerwashSafeDlcsInRootfs."""
+        with self.assertRaises(dlc_lib.Error) as e:
+            dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir)
+        self.assertEqual(
+            str(e.exception),
+            "Missing metadata path: "
+            f"{os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)}",
+        )
+
+    def testEmpty(self):
+        """Test empty meta rootfs for UniquePowerwashSafeDlcsInRootfs."""
+        osutils.SafeMakedirs(os.path.join(self.tempdir, dlc_lib.DLC_META_DIR))
+        self.assertEqual(
+            dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
+            set(),
+        )
+
+    def testInvalidDlc(self):
+        """Test invalid DLC in rootfs for unique set."""
+        self.constructDlc("-foo", self.tempdir, True)
+        with self.assertRaises(dlc_lib.Error) as e:
+            dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir)
+        self.assertEqual(
+            str(e.exception),
+            "-foo is invalid:\n"
+            "Must start with alphanumeric character.\n"
+            "Must only use alphanumeric and - (dash).",
+        )
+
+    def testPowerwashSafeDlc(self):
+        """Test rootfs with powerwash safe DLC for unique set"""
+        self.constructDlc("foo", self.tempdir, True)
+        self.assertEqual(
+            dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
+            {"foo"},
+        )
+
+    def testPowerwashSafeDlcs(self):
+        """Test rootfs with powerwash safe DLCs for unique set."""
+        self.constructDlc("foo", self.tempdir, True)
+        self.constructDlc("bar", self.tempdir, True)
+        self.assertEqual(
+            dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
+            {"foo", "bar"},
+        )
+
+    def testNoPowerwashSafeDlcs(self):
+        """Test rootfs with no powerwash safe DLCs for unique set."""
+        self.constructDlc("foo", self.tempdir, False)
+        self.constructDlc("bar", self.tempdir, False)
+        self.assertEqual(
+            dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
+            set(),
+        )
+
+    def testMixedPowerwashSafeDlcs(self):
+        """Test rootfs with mixed powerwash safe DLCs for unique set."""
+        self.constructDlc("foo", self.tempdir, True)
+        self.constructDlc("bar", self.tempdir, False)
+        self.assertEqual(
+            dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
+            {"foo"},
+        )
+
+    def testCreationOfPowerwashSafeFileInEmptyMetaRootfs(self):
+        """Test empty rootfs for powerwash safe file creation."""
+        osutils.SafeMakedirs(os.path.join(self.tempdir, dlc_lib.DLC_META_DIR))
+        dlc_lib.CreatePowerwashSafeFileInRootfs(self.tempdir)
+        powerwash_safe_file_content = osutils.ReadFile(
+            os.path.join(
+                self.tempdir,
+                dlc_lib.DLC_META_DIR,
+                dlc_lib.DLC_META_POWERWASH_SAFE_FILE,
+            )
+        )
+        self.assertEqual(
+            powerwash_safe_file_content,
+            "",
+        )
+
+    def testCreationOfPowerwashSafeFileInRootfsWithDlc(self):
+        """Test rootfs with powerwash safe DLC for meta file creation."""
+        self.constructDlc("foo", self.tempdir, True)
+        dlc_lib.CreatePowerwashSafeFileInRootfs(self.tempdir)
+        powerwash_safe_file_content = osutils.ReadFile(
+            os.path.join(
+                self.tempdir,
+                dlc_lib.DLC_META_DIR,
+                dlc_lib.DLC_META_POWERWASH_SAFE_FILE,
+            )
+        )
+        self.assertEqual(
+            powerwash_safe_file_content,
+            "foo",
+        )
+
+    def testCreationOfPowerwashSafeFileInRootfsWithMixedDlc(self):
+        """Test rootfs with mixed powerwash safe DLC for meta file creation."""
+        self.constructDlc("hello", self.tempdir, True)
+        self.constructDlc("there", self.tempdir, False)
+        self.constructDlc("world", self.tempdir, True)
+        self.constructDlc("a", self.tempdir, True)
+        dlc_lib.CreatePowerwashSafeFileInRootfs(self.tempdir)
+        powerwash_safe_file_content = osutils.ReadFile(
+            os.path.join(
+                self.tempdir,
+                dlc_lib.DLC_META_DIR,
+                dlc_lib.DLC_META_POWERWASH_SAFE_FILE,
+            )
+        )
+        self.assertEqual(
+            powerwash_safe_file_content,
+            "\n".join(
+                {
+                    "hello",
+                    "world",
+                    "a",
+                }
+            ),
+        )
+
+
 @pytest.mark.parametrize("bd", (True, False))
 @pytest.mark.parametrize("bd_scaled", (True, False))
 @pytest.mark.parametrize("bd_artifacts_meta", (True, False))

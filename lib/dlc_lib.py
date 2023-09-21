@@ -13,7 +13,7 @@ import math
 import os
 import re
 import shutil
-from typing import Optional
+from typing import Optional, Set
 import zlib
 
 from chromite.lib import build_target_lib
@@ -53,6 +53,7 @@ DLC_META_FILE_PREFIX = "_metadata_"
 DLC_META_FILE_SIZE_LIMIT = 4096
 DLC_META_JSON_BEGIN = b"{"
 DLC_META_JSON_END = b"}"
+DLC_META_POWERWASH_SAFE_FILE = "_powerwash_safe_"
 DLC_PACKAGE = "package"
 DLC_TMP_META_DIR = "meta"
 DLC_UID = 20118
@@ -61,6 +62,7 @@ EBUILD_PARAMETERS = "ebuild_parameters.json"
 IMAGELOADER_JSON = "imageloader.json"
 LICENSE = "LICENSE"
 LSB_RELEASE = "etc/lsb-release"
+POWERWASH_SAFE_KEY = "powerwash-safe"
 URI_PREFIX = "uri-prefix"
 
 IMAGELOADER_IMAGE_SHA256_HASH_KEY = "image-sha256-hash"
@@ -115,6 +117,70 @@ def CheckAndRaise(value: bool, err_msg: str) -> None:
     """
     if not value:
         raise Error(err_msg)
+
+
+def UniquePowerwashSafeDlcsInRootfs(rootfs: str) -> Set[str]:
+    """Generates the DLC IDs that are powerwash safe.
+
+    Args:
+        rootfs: Path to the platform rootfs.
+
+    Returns:
+        A set of DLC IDs that are powerwash safe.
+
+    Raises:
+        Error: if rootfs DLC meta paths are malformed.
+    """
+    unique_powerwash_safe_dlc_ids = set()
+
+    rootfs_meta_path = os.path.join(rootfs, DLC_META_DIR)
+    CheckAndRaise(
+        os.path.exists(rootfs_meta_path),
+        f"Missing metadata path: {rootfs_meta_path}",
+    )
+    for dlc_id in os.listdir(rootfs_meta_path):
+        rootfs_meta_json_path = os.path.join(
+            rootfs_meta_path, dlc_id, DLC_PACKAGE, IMAGELOADER_JSON
+        )
+        if not os.path.exists(rootfs_meta_json_path):
+            continue
+        ValidateDlcIdentifier(dlc_id)
+        if GetValueInJsonFile(
+            json_path=rootfs_meta_json_path,
+            key=POWERWASH_SAFE_KEY,
+            default_value=False,
+        ):
+            unique_powerwash_safe_dlc_ids.add(dlc_id)
+
+    return unique_powerwash_safe_dlc_ids
+
+
+def CreatePowerwashSafeFileInRootfs(rootfs: str) -> None:
+    """Creates the powerwash safe file in given rootfs.
+
+    Args:
+        rootfs: Path to the platform rootfs.
+
+    Raises:
+        Error: if rootfs DLC meta paths are malformed.
+    """
+    unique_powerwash_safe_dlc_ids = UniquePowerwashSafeDlcsInRootfs(rootfs)
+    # Print list as powerwash-safe DLC list should not grow indefinitely.
+    logging.info(
+        "Creating powerwash safe metadata file containing %d DLCs: %s",
+        len(unique_powerwash_safe_dlc_ids),
+        unique_powerwash_safe_dlc_ids,
+    )
+    rootfs_meta_ps_file_path = os.path.join(
+        rootfs, DLC_META_DIR, DLC_META_POWERWASH_SAFE_FILE
+    )
+    # Create even if empty.
+    osutils.WriteFile(
+        rootfs_meta_ps_file_path,
+        "\n".join(unique_powerwash_safe_dlc_ids),
+        makedirs=True,
+        sudo=True,
+    )
 
 
 class DlcArtifacts:
@@ -1622,6 +1688,12 @@ def InstallDlcImages(
                         "rootfs value was not provided. Copying metadata "
                         "skipped."
                     )
+
+    # This read from rootfs directly, which should now hold all the installed
+    # metadata. For cleanup, redirect metadata installations into a secondary
+    # temporary rootfs path.
+    if rootfs and not dlc_id:
+        CreatePowerwashSafeFileInRootfs(rootfs)
 
     # Skip creating compressed metadata when installing a single DLC (e.g. for
     # `cros deploy`).
