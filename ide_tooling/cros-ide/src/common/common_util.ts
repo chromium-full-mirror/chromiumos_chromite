@@ -296,36 +296,31 @@ function realExec(
       command.stdin.end();
     }
 
-    let remainingStdout = '';
-    let remainingStderr = '';
+    command.stdout.setEncoding('utf-8');
+    command.stderr.setEncoding('utf-8');
+
     let stdout = '';
     let stderr = '';
-    command.stdout.on('data', data => {
+    let lastChar = '';
+    command.stdout.on('data', (data: string) => {
       if (options.logger && options.logStdout) {
-        remainingStdout += data;
-        const i = remainingStdout.lastIndexOf('\n');
-        options.logger.append(remainingStdout.substring(0, i + 1));
-        remainingStdout = remainingStdout.substring(i + 1);
+        options.logger.append(data);
+        lastChar = data[data.length - 1];
       }
       stdout += data;
     });
 
-    command.stderr.on('data', data => {
+    command.stderr.on('data', (data: string) => {
       if (options.logger) {
-        remainingStderr += data;
-        const i = remainingStderr.lastIndexOf('\n');
-        options.logger.append(remainingStderr.substring(0, i + 1));
-        remainingStderr = remainingStderr.substring(i + 1);
+        options.logger.append(data);
+        lastChar = data[data.length - 1];
       }
       stderr += data;
     });
 
     command.on('close', exitStatus => {
-      if (options.logger && options.logStdout && remainingStdout) {
-        options.logger.append(remainingStdout + '\n');
-      }
-      if (options.logger && remainingStderr) {
-        options.logger.append(remainingStderr + '\n');
+      if (options.logger && lastChar !== '' && lastChar !== '\n') {
+        options.logger.append('\n');
       }
       if (!options.ignoreNonZeroExit && exitStatus !== 0) {
         resolve(new AbnormalExitError(name, args, exitStatus, stdout, stderr));
@@ -336,6 +331,9 @@ function realExec(
 
     // 'error' happens when the command is not available
     command.on('error', err => {
+      if (options.logger && lastChar !== '' && lastChar !== '\n') {
+        options.logger.append('\n');
+      }
       resolve(new ProcessError(name, args, err));
     });
 

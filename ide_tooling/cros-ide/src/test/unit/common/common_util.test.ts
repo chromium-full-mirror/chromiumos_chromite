@@ -174,11 +174,10 @@ describe('Logging exec', () => {
     );
     assert(!(res instanceof Error));
     assert.strictEqual(res.stdout, 'foo');
-    assert.deepStrictEqual(logs.split('\n').sort(), [
-      '',
-      'bar',
-      'foo',
+    assert.deepStrictEqual(logs.split('\n'), [
       "sh -c 'echo -n foo; echo -n bar 1>&2;'",
+      'foobar',
+      '',
     ]);
   });
 
