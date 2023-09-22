@@ -487,6 +487,7 @@ def check_package(
 
 def main(argv: Optional[List[str]]):
     """Main."""
+    commandline.RunInsideChroot()
     opts = parse_arguments(argv)
     opts.Freeze()
 
