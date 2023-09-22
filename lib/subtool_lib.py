@@ -9,6 +9,7 @@ https://crsrc.org/o/src/config/proto/chromiumos/build/api/subtools.proto
 """
 
 import dataclasses
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -82,6 +83,9 @@ _DEFAULT_STRIP_PREFIX_REGEX = "^.*/"
 # Default CIPD prefix when unspecified.
 _DEFAULT_CIPD_PREFIX = "chromiumos/infra/tools"
 
+# Digest from hashlib to use for hashing files and accumulating hashes.
+_DIGEST = "sha1"
+
 
 @dataclasses.dataclass
 class CipdMetadata:
@@ -131,6 +135,50 @@ class UploadMetadata:
         # Fields are never removed, and all have default values, so just unpack.
         metadata.cipd_package = CipdMetadata(**d.get("cipd_package", {}))
         return metadata
+
+
+def _extract_build_id(file: Path) -> Optional[str]:
+    """Runs `readelf -n` to extract a Build ID as a hex string."""
+    BUILD_ID_PATTERN = re.compile("^    Build ID: *([0-9a-f]+)", re.MULTILINE)
+    result = cros_build_lib.run(
+        ["readelf", "-n", file], capture_output=True, encoding="utf-8"
+    ).stdout
+    match = BUILD_ID_PATTERN.search(result)
+    return match.group(1) if match else None
+
+
+def extract_hash(file: Path, file_type: str) -> str:
+    """Extract build-id from an ELF binary, falling back to a file hash.
+
+    Args:
+        file: The file to hash.
+        file_type: The result of filetype.FileTypeDecoder.GetType for `file`.
+
+    Returns:
+        A hexadecimal string: either the Build ID or file hash.
+    """
+    if file_type.startswith("binary/elf"):
+        build_id = _extract_build_id(file)
+        # Only accept BuildID that are at least 64-bit. 160-bit is also common.
+        if build_id and len(build_id) >= 8:
+            return build_id
+        logger.warning(
+            "%s is binary/elf but BuildID is bad. Falling back to %s hash",
+            file,
+            _DIGEST,
+        )
+    else:
+        logger.debug("Hashing %s with %s", file, _DIGEST)
+
+    # TODO(build): Use hashlib.file_digest in Python 3.11.
+    BUFSIZE = 256 * 1024
+    hasher = hashlib.new(_DIGEST)
+    with open(file, "rb") as fp:
+        buf = fp.read(BUFSIZE)
+        while buf:
+            hasher.update(buf)
+            buf = fp.read(BUFSIZE)
+    return hasher.hexdigest()
 
 
 def get_installed_package(
@@ -196,6 +244,12 @@ class Subtool:
         self._source_ebuilds: Set[str] = set()
         # Paths bundled, but not yet attributed to a source ebuild.
         self._unmatched_paths: List[str] = []
+
+        # Running digest of accumulated hashes from file contents, maps the
+        # destination file to its hash. Not all destination files may be hashed:
+        # only the ones whose hashes we care about. Hash is either a 16- or 40-
+        # character hex string.
+        self._content_hashes: Dict[str, str] = {}
 
         try:
             text_format.Parse(message, self.package)
@@ -282,6 +336,7 @@ class Subtool:
         metadata.cipd_package.tags = {
             "builder_source": "sdk_subtools",
             "ebuild_source": ",".join(self.source_packages),
+            "subtools_hash": self._calculate_digest(),
         }
         metadata_path = self.metadata_dir / UPLOAD_METADATA_FILE
         with metadata_path.open("w", encoding="utf-8") as fp:
@@ -290,6 +345,14 @@ class Subtool:
         logger.notice("%s: Wrote %s.", self.package.name, metadata_path)
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Contents: `%s`", metadata_path.read_text())
+
+    def _calculate_digest(self) -> str:
+        """Calculates the digest of the bundled contents."""
+        hasher = hashlib.new(_DIGEST)
+        # Sort by path before hashing.
+        for _, hash_string in sorted(self._content_hashes.items()):
+            hasher.update(bytes.fromhex(hash_string))
+        return hasher.hexdigest()
 
     def _validate(self) -> None:
         """Validate fields in the proto."""
@@ -334,11 +397,15 @@ class Subtool:
                 f"{dest} exists: refusing to copy {src}.", self
             )
         osutils.SafeMakedirs(dest.parent)
+        file_type = self.get_file_type(src)
+        hash_string = extract_hash(src, file_type)
+        self._content_hashes[str(dest)] = hash_string
+        logger.debug("subtools_hash(%s) = '%s'", src, hash_string)
 
-        if self.get_file_type(src) == "binary/elf/dynamic-bin":
+        if file_type == "binary/elf/dynamic-bin":
             return self._lddtree_into_bundle(src, dest.parent)
 
-        logger.debug("Copy file %s -> %s.", src, dest)
+        logger.debug("Copy file %s -> %s (hash=%s).", src, dest, hash_string)
         shutil.copy2(src, dest)
         return 1
 

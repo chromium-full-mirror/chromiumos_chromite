@@ -20,6 +20,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
 from chromite.lib import subtool_lib
+from chromite.lib import unittest_lib
 from chromite.licensing import licenses_lib
 
 
@@ -639,6 +640,10 @@ def test_upload_successful(
     """Test that an upload invokes cipd properly."""
     set_run_results(run_mock)
     subtool = template_proto.export_e2e(writes_files=True)
+    # pylint: disable-next=protected-access
+    expected_hash = subtool._calculate_digest()
+    # Hash should be a 160-bit hex string.
+    assert re.fullmatch("[0-9a-f]{40}", expected_hash)
     run_mock.assertCommandCalled(
         [
             FAKE_CIPD_PATH,
@@ -651,6 +656,8 @@ def test_upload_successful(
             "builder_source:sdk_subtools",
             "-tag",
             "ebuild_source:some-category/some-package-0.1-r2",
+            "-tag",
+            f"subtools_hash:{expected_hash}",
             "-ref",
             "latest",
             "-service-url",
@@ -692,7 +699,7 @@ def test_export_too_many_ebuilds(
     assert "Candidates: []" in str(error_info.value)
 
 
-def test_upload_skips_empty_metadata(tmp_path: Path, caplog):
+def test_upload_skips_empty_metadata(tmp_path: Path, caplog) -> None:
     """Ensure uploading quietly skips a path with empty metadata."""
     # It's currently an error for an "unbundled" path to be provided to
     # BundledSubtools: the json file must exist. But the upload logic must be
@@ -701,3 +708,29 @@ def test_upload_skips_empty_metadata(tmp_path: Path, caplog):
     (tmp_path / subtool_lib.UPLOAD_METADATA_FILE).write_bytes(b"{}")
     subtool_lib.BundledSubtools([tmp_path]).upload(False)
     assert "No valid cipd_package in bundle metadata. Skipping." in caplog.text
+
+
+def test_extract_hash_from_elf(tmp_path: Path) -> None:
+    """Test a build ID can be extracted from an elf file."""
+    abc = tmp_path / "abc"
+    unittest_lib.BuildELF(
+        str(abc), build_id="0xaaaaaaaa11111111bbbbbbbb22222222cccccccc"
+    )
+    file_type = subtool_lib.Subtool.get_file_type(abc)
+    assert file_type == "binary/elf/dynamic-so"
+    assert (
+        subtool_lib.extract_hash(abc, file_type)
+        == "aaaaaaaa11111111bbbbbbbb22222222cccccccc"
+    )
+
+
+def test_extract_hash_from_data(tmp_path: Path) -> None:
+    """Test a build ID can be extracted from a non-elf file."""
+    abc = tmp_path / "abc"
+    abc.write_text("hashme")
+    file_type = subtool_lib.Subtool.get_file_type(abc)
+    assert file_type == "text/oneline"
+    assert (
+        subtool_lib.extract_hash(abc, file_type)
+        == "fb78992e561929a6967d5328f49413fa99048d06"
+    )

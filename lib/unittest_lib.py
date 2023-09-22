@@ -5,6 +5,7 @@
 """Unittest-only utility functions library."""
 
 import os
+from typing import List, Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -16,13 +17,14 @@ class BuildELFError(Exception):
 
 
 def BuildELF(
-    filename,
-    defined_symbols=None,
-    undefined_symbols=None,
-    used_libs=None,
-    executable=False,
-    static=False,
-):
+    filename: str,
+    defined_symbols: Optional[List[str]] = None,
+    undefined_symbols: Optional[List[str]] = None,
+    used_libs: Optional[List[str]] = None,
+    executable: bool = False,
+    static: bool = False,
+    build_id: Optional[str] = None,
+) -> None:
     """Builds a dynamic ELF with the provided import and exports.
 
     Compiles and links a dynamic program that exports some functions, as
@@ -39,6 +41,8 @@ def BuildELF(
             'libbz2.so.1.0'.
         executable: Whether the file has a main() function.
         static: Whether the file is statically linked (implies executable=True).
+        build_id: If provided, argument for the --build-id linker arg. E.g. the
+            string "0xabcd1234" will set an explicit Build ID.
     """
     if defined_symbols is None:
         defined_symbols = []
@@ -84,6 +88,8 @@ int main() {
         cmd += ["-shared", "-fPIC"]
     if static:
         cmd += ["-static"]
+    if build_id is not None:
+        cmd += [f"-Wl,--build-id={build_id}"]
     cmd += ["-L.", "-Wl,-rpath=./"]
     cmd += ["-l%s" % lib for lib in used_libs]
     try:
