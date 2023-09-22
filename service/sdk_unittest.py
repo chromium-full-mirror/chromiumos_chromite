@@ -434,6 +434,8 @@ class UpdateTest(cros_test_lib.RunCommandTempDirTestCase):
     def setUp(self):
         # Needs to be run inside the chroot right now.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+        # Don't bother trying to remount root read-write.
+        self.PatchObject(osutils, "IsMountedReadOnly", return_value=False)
 
     def testSuccess(self):
         """Test the simple success case."""

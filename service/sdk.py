@@ -401,6 +401,11 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
 
     logging.info("Updating chroot in %s.", arguments.root)
 
+    with cros_sdk_lib.ChrootReadWrite():
+        return _Update(arguments)
+
+
+def _Update(arguments: UpdateArguments) -> UpdateResult:
     cros_build_lib.ClearShadowLocks(arguments.root)
 
     cros_sdk_lib.RunChrootVersionHooks()

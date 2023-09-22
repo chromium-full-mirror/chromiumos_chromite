@@ -4,6 +4,7 @@
 
 """Sysroot service unittest."""
 
+import contextlib
 import datetime
 import operator
 import os
@@ -22,6 +23,7 @@ from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import goma_lib
 from chromite.lib import gs
@@ -138,6 +140,11 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(sysroot, "_CreateSysrootSkeleton")
         self.PatchObject(sysroot, "_InstallConfigs")
         self.PatchObject(sysroot, "_InstallPortageConfigs")
+        self.PatchObject(
+            cros_sdk_lib,
+            "ChrootReadWrite",
+            side_effect=contextlib.contextmanager(lambda path="": (yield)),
+        )
 
         # Make sure we have a board we haven't setup to avoid triggering the
         # existing sysroot logic. That is entirely unrelated to the chroot
@@ -168,6 +175,11 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(sysroot, "_CreateSysrootSkeleton")
         self.PatchObject(sysroot, "_InstallConfigs")
         self.PatchObject(sysroot, "_InstallPortageConfigs")
+        self.PatchObject(
+            cros_sdk_lib,
+            "ChrootReadWrite",
+            side_effect=contextlib.contextmanager(lambda path="": (yield)),
+        )
 
         delete_patch = self.PatchObject(sysroot_lib.Sysroot, "Delete")
 
