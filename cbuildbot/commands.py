@@ -1351,13 +1351,12 @@ def GenerateDebugTarballOutsideChroot(
     temp_debug_tarball = constants.DEFAULT_OUT_PATH / archive_name
     chroot_temp_debug_tarball = path_util.ToChrootPath(temp_debug_tarball)
 
-    cros_build_lib.sudo_run(
+    RunBuildScript(
+        buildroot,
         [
             "tar",
             f"--directory={board_dir}",
-        ]
-        + extra_args
-        + [
+            *extra_args,
             "--sparse",
             "--hole-detection=raw",
             "--use-compress-program",
@@ -1365,9 +1364,10 @@ def GenerateDebugTarballOutsideChroot(
             "-c",
             "-f",
             chroot_temp_debug_tarball,
-        ]
-        + inputs,
+            *inputs,
+        ],
         enter_chroot=True,
+        sudo=True,
     )
 
     if temp_debug_tarball != debug_tarball:
