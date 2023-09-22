@@ -312,34 +312,38 @@ def CreateNetNs():
             raise
 
 
-def CreateUserNs() -> None:
+def CreateUserNs(new_uid: int = 0, new_gid: int = 0) -> None:
     """Start a user namespace
 
     This will create a new user namespace and move the current process into it.
     It will fail if the current process is multi-threaded.
 
     In the new user namespace, the current process will:
-    - have UID=GID=0, which is mapped to the original UID/GID in the original
-      user namespace
+    - have specified new UID/GID
     - have all capabilities (with the namespace)
 
     This function is useful when you want to enter other namespaces (e.g. mount
     namespace) without root privileges.
+
+    Args:
+        new_uid: UID that will be mapped to the UID in the original namespace.
+        new_gid: GID that will be mapped to the GID in the original namespace.
     """
     orig_uid = os.getuid()
     orig_gid = os.getgid()
 
     Unshare(CLONE_NEWUSER)
 
-    # Set up a UID/GID mapping that maps the original UID/GID to UID=GID=0 in
-    # the new user namespace. The order of writing these files matters.
+    # Set up a UID/GID mapping that maps the original UID/GID to the requested
+    # UID and GID in the new user namespace. The order of writing these files
+    # matters.
     # See `man 1 user_namespaces` for details.
     with open("/proc/self/setgroups", "w", encoding="utf-8") as f:
         f.write("deny")
     with open("/proc/self/uid_map", "w", encoding="utf-8") as f:
-        f.write("0 %d 1\n" % orig_uid)
+        f.write(f"{new_uid} {orig_uid} 1\n")
     with open("/proc/self/gid_map", "w", encoding="utf-8") as f:
-        f.write("0 %d 1\n" % orig_gid)
+        f.write(f"{new_gid} {orig_gid} 1\n")
 
 
 def SimpleUnshare(
