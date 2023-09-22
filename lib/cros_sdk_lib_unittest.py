@@ -730,7 +730,7 @@ class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
         # We can't really verify these in any useful way atm.
         self.mount_mock = self.PatchObject(osutils, "Mount")
 
-        self.enteror = cros_sdk_lib.ChrootEnteror(self.chroot)
+        self.enteror = cros_sdk_lib.ChrootEnteror(self.chroot, read_only=False)
 
         self.sysctl_vm_max_map_count = self.tempdir / "vm_max_map_count"
         self.PatchObject(

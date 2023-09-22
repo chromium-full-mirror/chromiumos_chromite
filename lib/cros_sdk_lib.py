@@ -1181,6 +1181,7 @@ class ChrootEnteror:
         chrome_root_mount: Optional[Path] = None,
         cmd: Optional[List[str]] = None,
         cwd: Optional[Path] = None,
+        read_only: bool = False,
     ):
         """Initialize.
 
@@ -1189,10 +1190,12 @@ class ChrootEnteror:
             chrome_root_mount: Where to mount |chrome_root| inside the chroot.
             cmd: Program to run inside the chroot.
             cwd: Directory to change to before running |additional_args|.
+            read_only: Whether to mount the chroot read-only.
         """
         self.chroot = chroot
         self.chrome_root_mount = chrome_root_mount
         self.cmd = cmd
+        self.read_only = read_only
 
         if cwd and not cwd.is_absolute():
             cwd = Path(chroot.chroot_path(cwd))
@@ -1299,7 +1302,11 @@ class ChrootEnteror:
             self.set_rlimits(os.environ.pop("CHROMEOS_SUDO_RLIMITS"))
         self._setup_rlimit_nproc()
         self._setup_vm_max_map_count()
-        return self._enter_chroot(cmd=cmd, cwd=cwd)
+        if self.read_only:
+            with ChrootReadOnly(path=self.chroot.path):
+                return self._enter_chroot(cmd=cmd, cwd=cwd)
+        else:
+            return self._enter_chroot(cmd=cmd, cwd=cwd)
 
 
 def EnterChroot(*args, **kwargs) -> cros_build_lib.CompletedProcess:

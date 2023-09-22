@@ -532,6 +532,12 @@ def _CreateParser(sdk_latest_version, bootstrap_latest_version):
         disabled_desc="Don't delete the SDK build state along with the chroot. "
         "Applies to --delete or --replace.",
     )
+    parser.add_bool_argument(
+        "--read-only",
+        default=False,
+        enabled_desc="Mount the SDK read-only.",
+        disabled_desc="Mount the SDK read/write.",
+    )
 
     # Use type=str instead of type='path' to prevent the given path from being
     # transferred to absolute path automatically.
@@ -915,5 +921,6 @@ def main(argv):
                 chrome_root_mount=options.chrome_root_mount,
                 cwd=options.working_dir,
                 cmd=options.commands,
+                read_only=options.read_only,
             )
             sys.exit(ret.returncode)
