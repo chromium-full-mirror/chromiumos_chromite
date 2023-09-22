@@ -453,7 +453,7 @@ def check_package(
 ) -> bool:
     """Returns false if the package has missing dependencies"""
     if not package:
-        print("missing package")
+        print("Package not installed")
         return False
 
     provided = resolver.get_provided_from_all_deps(package)
@@ -469,14 +469,17 @@ def check_package(
     unsatisfied = required - available
     if unsatisfied:
         cpvr = package.package_info.cpvr
-        print(f"'{cpvr}' missing deps for: ", end="")
+        print(
+            f"'{cpvr}': Package is linked against libraries that are not "
+            "listed as dependencies in the ebuild:"
+        )
         pprint.pprint(sorted(unsatisfied))
         if match:
             missing = set()
             for lib in unsatisfied:
                 missing.update(resolver.lib_to_package(lib))
             if missing:
-                print(f"'{cpvr}' needs: ", end="")
+                print(f"'{cpvr}': needs the following added to DEPEND/RDEPEND:")
                 pprint.pprint(sorted(missing))
         return False
     return True
@@ -527,6 +530,12 @@ def main(argv: Optional[List[str]]):
             failed = True
 
     if failed:
+        print(
+            """\
+For more information about DEPEND vs. RDEPEND in ebuilds see:
+https://chromium.googlesource.com/chromiumos/docs/+/HEAD/portage/\
+ebuild_faq.md#dependency-types"""
+        )
         sys.exit(1)
 
 
