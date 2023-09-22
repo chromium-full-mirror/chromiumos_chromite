@@ -14,6 +14,7 @@ import {GtestCase} from '../../gtest/gtest_case';
 import * as gtestTestListParser from '../../gtest/gtest_test_list_parser';
 import {GtestWorkspace} from '../../gtest/gtest_workspace';
 import * as metrics from '../../metrics/metrics';
+import * as autoninja from '../autoninja';
 import * as outputDirectories from '../output_directories';
 import * as testLauncherSummaryParser from './test_launcher_summary_parser';
 
@@ -105,28 +106,12 @@ export class Runner extends AbstractRunner {
   private async buildTestTargets(
     testTargetNames: string[]
   ): Promise<Error | void> {
-    const result = await commonUtil.exec(
-      // TODO(cmfcmf): Support Windows
-      // TODO(cmfcmf): We should probably specify the full path to depot tools here(?)
-      'autoninja',
+    return autoninja.runAutoninja(
       ['-C', outputDirectories.CURRENT_LINK_NAME, ...testTargetNames],
-      {
-        cancellationToken: this.cancellation,
-        cwd: this.srcPath,
-        logger: this.output,
-        logStdout: true,
-        env: {
-          ...depotTools.envForDepotTools(),
-          // Force ninja to use colored output for things like error messages.
-          // https://github.com/ninja-build/ninja/issues/2196#issuecomment-1262923451
-          // https://github.com/ninja-build/ninja/blob/36843d387cb0621c1a288179af223d4f1410be73/src/line_printer.cc#L60-L63
-          CLICOLOR_FORCE: '1',
-        },
-      }
+      this.srcPath,
+      this.output,
+      this.cancellation
     );
-    if (result instanceof Error) {
-      return result;
-    }
   }
 
   /**
