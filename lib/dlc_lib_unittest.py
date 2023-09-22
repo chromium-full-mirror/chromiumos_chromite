@@ -1429,14 +1429,8 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             )
         )
         self.assertEqual(
-            powerwash_safe_file_content,
-            "\n".join(
-                {
-                    "hello",
-                    "world",
-                    "a",
-                }
-            ),
+            set(powerwash_safe_file_content.splitlines()),
+            {"hello", "world", "a"},
         )
 
 
