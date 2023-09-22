@@ -11,6 +11,7 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import treeKill from 'tree-kill';
 import * as shutil from './shutil';
 import type * as vscode from 'vscode'; // import type definitions only
 
@@ -157,6 +158,14 @@ export interface ExecOptions {
    * Allows interrupting a command execution.
    */
   cancellationToken?: vscode.CancellationToken;
+
+  /**
+   * Whether to kill the entire process tree when cancelling the operation. Defaults to `false`.
+   *
+   * TODO(b/301574822): Consider removing this option and instead default to `true` for all
+   * commands.
+   */
+  treeKillWhenCancelling?: boolean;
 
   /**
    * Current working directory of the child process.
@@ -347,13 +356,27 @@ function realExec(
 
     if (options.cancellationToken !== undefined) {
       const cancel = () => {
-        command.kill();
-        resolve(new CancelledError(name, args));
+        if (
+          options.treeKillWhenCancelling !== true ||
+          command.pid === undefined ||
+          command.exitCode !== null
+        ) {
+          command.kill();
+          resolve(new CancelledError(name, args));
+        } else {
+          treeKill(command.pid, err => {
+            if (err) {
+              // Fallback to just killing the command in case of an error.
+              command.kill();
+            }
+            resolve(new CancelledError(name, args));
+          });
+        }
       };
       if (options.cancellationToken.isCancellationRequested) {
         cancel();
       } else {
-        options.cancellationToken.onCancellationRequested(cancel);
+        options.cancellationToken.onCancellationRequested(() => cancel());
       }
     }
   });

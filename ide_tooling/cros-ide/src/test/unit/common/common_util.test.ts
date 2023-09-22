@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import assert from 'assert';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -204,6 +205,36 @@ describe('Logging exec', () => {
     canceller.cancel();
     const res = await process;
     assert(res instanceof commonUtil.CancelledError);
+  });
+
+  it('supports killing the process tree when cancelling', async () => {
+    const MARKER = crypto.randomUUID() + crypto.randomUUID();
+    async function countRunning() {
+      const psAux = await commonUtil.exec('ps', ['ax', '-o', 'command']);
+      assert(!(psAux instanceof Error));
+      return psAux.stdout.match(new RegExp(MARKER, 'g'))?.length ?? 0;
+    }
+
+    expect(await countRunning()).toBe(0);
+
+    const tokenSource = new vscode.CancellationTokenSource();
+    const promise = commonUtil.exec(
+      'python3',
+      [
+        '-c',
+        `import os; os.popen("python3 -c 'import time; time.sleep(10) # ${MARKER}'").read();`,
+      ],
+      {
+        treeKillWhenCancelling: true,
+        cancellationToken: tokenSource.token,
+      }
+    );
+    expect(promise).toBeInstanceOf(Promise);
+    expect(await countRunning()).toBe(2);
+
+    tokenSource.cancel();
+    expect(await promise).toBeInstanceOf(commonUtil.CancelledError);
+    expect(await countRunning()).toBe(0);
   });
 
   it('changes the directory if cwd is specified', async () => {

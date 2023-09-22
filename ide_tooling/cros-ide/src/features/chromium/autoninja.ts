@@ -80,6 +80,7 @@ export async function runAutoninja(
     cwd,
     logger,
     logStdout: true,
+    treeKillWhenCancelling: config.underDevelopment.autoninjaImprovements.get(),
     env: {
       ...depotTools.envForDepotTools(),
 
