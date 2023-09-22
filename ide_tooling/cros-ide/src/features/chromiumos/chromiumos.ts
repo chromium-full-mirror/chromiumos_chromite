@@ -13,6 +13,7 @@ import {BoardsAndPackages} from './boards_and_packages';
 import {Coverage} from './coverage';
 import * as cppCodeCompletion from './cpp_code_completion';
 import * as crosFormat from './cros_format';
+import * as ebuildLinkProvider from './ebuild_link_provider';
 import {Platform2Gtest} from './platform2_gtest';
 import * as platformEc from './platform_ec';
 import * as targetBoard from './target_board';
@@ -91,6 +92,10 @@ export class Chromiumos implements vscode.Disposable {
         this.cipdRepository,
         gitDirsWatcher
       );
+    }
+
+    if (config.ebuildSupport.enabled.get()) {
+      ebuildLinkProvider.activate(ephemeralContext, this.root);
     }
 
     const chrootService = services.chromiumos.ChrootService.maybeCreate(

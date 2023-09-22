@@ -17,6 +17,7 @@ export {CommentThreadCollapsibleState} from './comment_thread_collapsible_state'
 export {CommentThreadState} from './comment_thread_state';
 export {ConfigurationTarget} from './configuration';
 export {Disposable} from './disposable';
+export {DocumentLink} from './document_link';
 export {EndOfLine} from './end_of_line';
 export {EventEmitter} from './event';
 export {ExtensionMode} from './extension_mode';
