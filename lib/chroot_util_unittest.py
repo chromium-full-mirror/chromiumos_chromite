@@ -111,6 +111,6 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
             extra_env={
                 "USE": "chrome_internal coverage",
                 "FEATURES": "noclean test",
-                "PKGDIR": "/sysroot/test-packages",
+                "PKGDIR": "/sysroot/tmp/test-packages",
             },
         )

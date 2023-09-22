@@ -76,7 +76,7 @@ SDK_OVERLAYS_OUTPUT = "tmp/sdk-overlays"
 SDK_TARBALL_NAME = "built-sdk.tar.xz"
 
 AUTOTEST_BUILD_PATH = "usr/local/build/autotest"
-UNITTEST_PKG_PATH = "test-packages"
+UNITTEST_PKG_PATH = "tmp/test-packages"
 
 # Path to the lsb-release file on the device.
 LSB_RELEASE_PATH = "/etc/lsb-release"
