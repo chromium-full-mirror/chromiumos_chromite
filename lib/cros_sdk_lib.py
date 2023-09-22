@@ -1300,3 +1300,116 @@ class ChrootEnteror:
 def EnterChroot(*args, **kwargs) -> cros_build_lib.CompletedProcess:
     """Convenience method."""
     return ChrootEnteror(*args, **kwargs).run()
+
+
+class _ChrootWritable:
+    """A context manager for ensuring the Chroot mount writability."""
+
+    def __init__(self, writable: bool, path: Union[str, os.PathLike] = "/"):
+        self._want_read_only = not writable
+        self._chroot_path = path
+        self._needs_remount = False
+
+    def __enter__(self):
+        assert osutils.IsMounted(self._chroot_path)
+        self._needs_remount = (
+            osutils.IsMountedReadOnly(self._chroot_path) != self._want_read_only
+        )
+
+        if self._needs_remount:
+            self._remount(read_only=self._want_read_only)
+
+    def __exit__(self, _type, _value, _traceback):
+        if self._needs_remount:
+            # Path mounts may change (e.g., pivot_root on chroot entry), which
+            # means the path mount looks different by the time we exit. Just
+            # ignore it.
+            if not osutils.IsMounted(self._chroot_path):
+                return
+
+            self._remount(read_only=not self._want_read_only)
+
+    def _remount(self, read_only: bool) -> None:
+        """Perform the remount operation.
+
+        Args:
+            read_only: if True, remount read-only; otherwise, remount
+                read/write.
+        """
+        try:
+            ro = osutils.MS_RDONLY if read_only else 0
+            osutils.Mount(
+                None,
+                self._chroot_path,
+                None,
+                osutils.MS_REMOUNT | osutils.MS_BIND | ro,
+            )
+        except PermissionError:
+            # Try via sudo instead.
+            ro = "ro" if read_only else "rw"
+            cros_build_lib.sudo_run(
+                [
+                    "mount",
+                    "-o",
+                    ",".join(("remount", "bind", ro)),
+                    self._chroot_path,
+                ]
+            )
+
+
+class ChrootReadWrite(_ChrootWritable):
+    """Context manager for ensuring the Chroot mount is read/write.
+
+    Operations that need to update the main chroot mount (i.e., the contents of
+    |Chroot.path|, not |Chroot.out_path|) may require the chroot be mounted in a
+    writable state. Such operations should be performed within this
+    ChrootReadWrite context manager.
+
+    If the chroot is already mounted read/write, then this context manager is a
+    no-op.
+
+    Note: carefully consider whether you really want to mount the chroot
+    read/write. Most writable state should go into |Chroot.out_path|, such that
+    we can avoid writing to |Chroot.path| most of the time.
+
+    Examples:
+
+        # Perform some chroot updates. The chroot may already be writable, but
+        # we document it anyway.
+        with ChrootReadWrite():
+            PerformChrootUpdates()
+
+        # Perform some chroot updates on chroot entry. The chroot is mounted
+        # read-only, and we want it read/write only for the Update operations.
+        with ChrootReadOnly():
+            ...
+            with ChrootReadWrite():
+                # Do a few maintenance steps read/write:
+                PerformChrootUpdates()
+            # Back to regular SDK shell, read-only.
+    """
+
+    def __init__(self, path: Union[str, os.PathLike] = "/"):
+        """Initialize a ChrootReadWrite context manager.
+
+        Args:
+            path: The chroot mount point.
+        """
+        super().__init__(writable=True, path=path)
+
+
+class ChrootReadOnly(_ChrootWritable):
+    """Context manager for ensuring the Chroot mount is read-only.
+
+    Most code should assume that the chroot may be mounted read-only on chroot
+    entry, and so should be using a ChrootReadWrite manager for operations
+    where we need a writable chroot. See ChrootReadWrite for more info.
+    """
+
+    def __init__(self, path: Union[str, os.PathLike] = "/"):
+        """Initialize a ChrootReadOnly context manager.
+
+        Args:
+            path: The chroot mount point.
+        """
+        super().__init__(writable=False, path=path)

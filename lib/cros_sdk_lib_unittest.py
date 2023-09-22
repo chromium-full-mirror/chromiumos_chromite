@@ -846,3 +846,272 @@ def test_require_outside_decorator_outside_chroot(chroot_version_file: Path):
         pass
 
     outside()
+
+
+class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
+    """Tests for ChrootReadWrite and ChrootReadOnly context managers."""
+
+    def fake_mount(self, _source, target, _fstype, flags, _data=""):
+        if target in self.ro_map:
+            ro = flags & osutils.MS_RDONLY != 0
+            self.ro_map[target] = ro
+
+    def fake_is_mounted(self, target):
+        return target in self.ro_map
+
+    def fake_is_mounted_readonly(self, target):
+        return self.ro_map.get(target, False)
+
+    def fake_run_mount(self, *args, **_kwargs):
+        mount_options = args[0][4]
+        mount_point = args[0][5]
+        ro = "rw" not in mount_options.split(",")
+        self.ro_map[mount_point] = ro
+
+    def setUp(self):
+        self.ro_map = {}
+
+        self.mount_mock = self.PatchObject(
+            osutils, "Mount", side_effect=self.fake_mount
+        )
+        self.is_mounted_mock = self.PatchObject(
+            osutils, "IsMounted", side_effect=self.fake_is_mounted
+        )
+        self.read_only_mock = self.PatchObject(
+            osutils,
+            "IsMountedReadOnly",
+            side_effect=self.fake_is_mounted_readonly,
+        )
+        self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        self.rc_mock.AddCmdResult(
+            ["sudo", "--", "mount", "-o", mock.ANY, mock.ANY],
+            side_effect=self.fake_run_mount,
+        )
+
+    def testReadWrite_BadMount(self):
+        """Test with a path that's not mounted."""
+        assert not osutils.IsMounted("/some/path")
+
+        with pytest.raises(AssertionError):
+            with cros_sdk_lib.ChrootReadWrite("/some/path"):
+                pass
+
+        self.mount_mock.assert_not_called()
+
+    def testReadWrite_RenamedMount(self):
+        """Test with a path that's modified within the context manager."""
+        self.ro_map["/path/to/chroot"] = True
+        assert osutils.IsMounted("/path/to/chroot")
+        assert osutils.IsMountedReadOnly("/path/to/chroot")
+        assert not osutils.IsMounted("/")
+
+        with cros_sdk_lib.ChrootReadWrite("/path/to/chroot"):
+            assert not osutils.IsMountedReadOnly("/path/to/chroot")
+
+            # Imitate a pivot_root.
+            self.ro_map.pop("/path/to/chroot")
+            self.ro_map["/"] = False
+
+            assert not osutils.IsMounted("/path/to/chroot")
+            assert osutils.IsMounted("/")
+            assert not osutils.IsMountedReadOnly("/")
+
+        assert self.mount_mock.call_count == 1
+        # We lost track of the changed root mount, but that's the best we can
+        # do. We only expect this to happen for the outermost chroot entry, so
+        # this leakage should be short-lived (until we tear down the mount
+        # namespace).
+        assert osutils.IsMounted("/")
+        assert not osutils.IsMountedReadOnly("/")
+
+    def testReadWrite_WritableRoot(self):
+        """Read-write context when root is already writable."""
+        self.ro_map["/"] = False
+        assert osutils.IsMounted("/")
+        assert not osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadWrite():
+            assert not osutils.IsMountedReadOnly("/")
+
+        assert not osutils.IsMountedReadOnly("/")
+        self.mount_mock.assert_not_called()
+
+    def testReadWrite_ReadonlyRoot(self):
+        """Read-write context when root is read-only."""
+        self.ro_map["/"] = True
+        assert osutils.IsMounted("/")
+        assert osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadWrite():
+            assert not osutils.IsMountedReadOnly("/")
+
+        assert osutils.IsMountedReadOnly("/")
+        assert self.mount_mock.call_args_list == [
+            mock.call(None, "/", None, osutils.MS_REMOUNT | osutils.MS_BIND),
+            mock.call(
+                None,
+                "/",
+                None,
+                osutils.MS_REMOUNT | osutils.MS_BIND | osutils.MS_RDONLY,
+            ),
+        ]
+
+    def testReadWrite_Stacked(self):
+        """Stacked read/write on a writable root."""
+        self.ro_map["/"] = False
+        assert osutils.IsMounted("/")
+        assert not osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadWrite():
+            with cros_sdk_lib.ChrootReadWrite():
+                assert not osutils.IsMountedReadOnly("/")
+            assert not osutils.IsMountedReadOnly("/")
+
+        assert not osutils.IsMountedReadOnly("/")
+        self.mount_mock.assert_not_called()
+
+    def testReadWrite_StackedReadOnly(self):
+        """Stacked read/write on a read-only root."""
+        self.ro_map["/"] = True
+        assert osutils.IsMounted("/")
+        assert osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadWrite():
+            with cros_sdk_lib.ChrootReadWrite():
+                assert not osutils.IsMountedReadOnly("/")
+            assert not osutils.IsMountedReadOnly("/")
+
+        assert osutils.IsMountedReadOnly("/")
+        assert self.mount_mock.call_count == 2
+
+    def testReadOnly_BadMount(self):
+        """Test with a path that's not mounted."""
+        assert not osutils.IsMounted("/some/path")
+
+        with pytest.raises(AssertionError):
+            with cros_sdk_lib.ChrootReadOnly("/some/path"):
+                pass
+
+        self.mount_mock.assert_not_called()
+
+    def testReadOnly_ReadOnlyRoot(self):
+        """Read-only context when root is already read-only."""
+        self.ro_map["/"] = True
+        assert osutils.IsMounted("/")
+        assert osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadOnly():
+            assert osutils.IsMountedReadOnly("/")
+
+        assert osutils.IsMountedReadOnly("/")
+        self.mount_mock.assert_not_called()
+
+    def testReadOnly_WritableRoot(self):
+        """Read-only context when root is read/write."""
+        self.ro_map["/"] = False
+        assert osutils.IsMounted("/")
+        assert not osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadOnly():
+            assert osutils.IsMountedReadOnly("/")
+
+        assert not osutils.IsMountedReadOnly("/")
+        assert self.mount_mock.call_args_list == [
+            mock.call(
+                None,
+                "/",
+                None,
+                osutils.MS_REMOUNT | osutils.MS_BIND | osutils.MS_RDONLY,
+            ),
+            mock.call(
+                None,
+                "/",
+                None,
+                osutils.MS_REMOUNT | osutils.MS_BIND,
+            ),
+        ]
+
+    def testReadOnly_Stacked(self):
+        """Stacked read-only on a read-only root."""
+        self.ro_map["/"] = True
+        assert osutils.IsMounted("/")
+        assert osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadOnly():
+            with cros_sdk_lib.ChrootReadOnly():
+                assert osutils.IsMountedReadOnly("/")
+            assert osutils.IsMountedReadOnly("/")
+
+        assert osutils.IsMountedReadOnly("/")
+        self.mount_mock.assert_not_called()
+
+    def testReadOnly_StackedWritable(self):
+        """Stacked read-only on a writable root."""
+        self.ro_map["/"] = False
+        assert osutils.IsMounted("/")
+        assert not osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadOnly():
+            with cros_sdk_lib.ChrootReadOnly():
+                assert osutils.IsMountedReadOnly("/")
+            assert osutils.IsMountedReadOnly("/")
+
+        assert not osutils.IsMountedReadOnly("/")
+        assert self.mount_mock.call_count == 2
+
+    def testStacked_WriteRead(self):
+        """Stacked writable and read-only."""
+        self.ro_map["/"] = True
+        assert osutils.IsMounted("/")
+        assert osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadWrite():
+            assert not osutils.IsMountedReadOnly("/")
+            with cros_sdk_lib.ChrootReadOnly():
+                assert osutils.IsMountedReadOnly("/")
+            assert not osutils.IsMountedReadOnly("/")
+
+        assert osutils.IsMountedReadOnly("/")
+        assert self.mount_mock.call_count == 4
+
+    def testStacked_ReadWrite(self):
+        """Stacked read-only and writable."""
+        self.ro_map["/"] = False
+        assert osutils.IsMounted("/")
+        assert not osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadOnly():
+            assert osutils.IsMountedReadOnly("/")
+            with cros_sdk_lib.ChrootReadWrite():
+                assert not osutils.IsMountedReadOnly("/")
+            assert osutils.IsMountedReadOnly("/")
+
+        assert not osutils.IsMountedReadOnly("/")
+        assert self.mount_mock.call_count == 4
+
+    def testNonRoot(self):
+        """Test the non-root flow."""
+
+        def non_root_mount(self, *args):
+            raise PermissionError("Fake Mount permission failure")
+
+        self.PatchObject(osutils, "Mount", side_effect=non_root_mount)
+
+        self.ro_map["/"] = True
+        assert osutils.IsMounted("/")
+        assert osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadOnly():
+            assert osutils.IsMountedReadOnly("/")
+
+        with cros_sdk_lib.ChrootReadWrite():
+            assert not osutils.IsMountedReadOnly("/")
+
+        self.rc_mock.assertCommandContains(
+            ["sudo", "--", "mount", "-o", "remount,bind,rw", "/"],
+        )
+        self.rc_mock.assertCommandContains(
+            ["sudo", "--", "mount", "-o", "remount,bind,ro", "/"],
+        )
+        assert self.rc_mock.call_count == 2
+        assert osutils.IsMountedReadOnly("/")
