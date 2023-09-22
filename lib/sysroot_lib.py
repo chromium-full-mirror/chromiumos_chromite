@@ -649,15 +649,6 @@ class Sysroot:
             **args,
         )
 
-        # Create a link to the debug symbols in the chroot so that gdb can
-        # detect them.
-        debug_symlink = os.path.join("/usr/lib/debug", self.path.lstrip("/"))
-        sysroot_debug = self.Path("usr/lib/debug")
-        osutils.SafeMakedirs(os.path.dirname(debug_symlink), sudo=True)
-        osutils.SafeMakedirs(os.path.dirname(sysroot_debug), sudo=True)
-
-        osutils.SafeSymlink(sysroot_debug, debug_symlink, sudo=True)
-
     def InstallMakeConf(self) -> None:
         """Make sure the make.conf file exists and is up to date."""
         config_file = _GetMakeConfGenericPath()
