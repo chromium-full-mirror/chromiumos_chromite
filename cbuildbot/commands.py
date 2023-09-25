@@ -1347,10 +1347,9 @@ def GenerateDebugTarballOutsideChroot(
         if not e.args[0].startswith("Path is not reachable from the chroot"):
             raise
 
-    # Invoke tar inside the chroot, creating a file in the chroot's `out` dir
+    # Invoke tar inside the chroot, creating a file in the chroot's `/tmp` dir
     # that we'll be able to access from outside the chroot.
-    temp_debug_tarball = constants.DEFAULT_OUT_PATH / archive_name
-    chroot_temp_debug_tarball = path_util.ToChrootPath(temp_debug_tarball)
+    chroot_temp_debug_tarball = os.path.join("/tmp", archive_name)
 
     RunBuildScript(
         buildroot,
@@ -1371,8 +1370,23 @@ def GenerateDebugTarballOutsideChroot(
         sudo=True,
     )
 
+    # 15483.0.0 is when crrev/c/4522313 landed, and so is the version where we
+    # can rely on out/tmp being available outside the chroot. The content from
+    # that CL landed and was reverted a few times previously, so if we ever get
+    # a Cbuildbot-based branch that got made while we were landing and
+    # reverting before that CL, we may need to get more granular, but since
+    # CBuildbot is disappearing shortly, this should be enough for our needs.
+    first_version_with_outdir = "15483.0.0"
+    dir_containing_tmp = (
+        "out"
+        if IsBuildRootAfterLimit(buildroot, first_version_with_outdir)
+        else "chroot"
+    )
+    temp_debug_tarball = (
+        os.path.join(buildroot, dir_containing_tmp) + chroot_temp_debug_tarball
+    )
     if temp_debug_tarball != debug_tarball:
-        # Move the tarball out of the `out` dir to the archive location.
+        # Move the tarball out of the `/tmp` dir to the archive location.
         # shutil.move() doesn't handle moving across mounts, so copy/delete.
         shutil.copy(temp_debug_tarball, debug_tarball)
         os.remove(temp_debug_tarball)
