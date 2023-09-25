@@ -23,11 +23,18 @@ from chromite.third_party.google.protobuf import text_format
 import chromite
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import cipd
-from chromite.lib import filetype
+from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.licensing import licenses_lib
 
+
+try:
+    # The filetype module imports `magic` which is available in the SDK, glinux
+    # and vpython environments, but not on bots outside the SDK.
+    from chromite.lib import filetype
+except ImportError:
+    cros_build_lib.AssertOutsideChroot()
 
 logger = chromite.ChromiteLogger.getLogger(__name__)
 
@@ -74,9 +81,6 @@ _DEFAULT_STRIP_PREFIX_REGEX = "^.*/"
 
 # Default CIPD prefix when unspecified.
 _DEFAULT_CIPD_PREFIX = "chromiumos/infra/tools"
-
-# Allow the FileTypeDecoder to keep its cache, for files rooted at "/".
-_FILETYPE_DECODER = filetype.FileTypeDecoder()
 
 
 @dataclasses.dataclass
@@ -163,6 +167,16 @@ class Subtool:
         is_valid: Set after validation to indicate an upload may be attempted.
         parse_error: Protobuf parse error held until validation.
     """
+
+    # Allow the FileTypeDecoder to keep its cache, for files rooted at "/".
+    _FILETYPE_DECODER: Optional["filetype.FileTypeDecoder"] = None
+
+    @classmethod
+    def get_file_type(cls, path: Path) -> str:
+        """Gets the type of `path` using FileTypeDecoder."""
+        if not cls._FILETYPE_DECODER:
+            cls._FILETYPE_DECODER = filetype.FileTypeDecoder()
+        return cls._FILETYPE_DECODER.GetType(str(path))
 
     def __init__(self, message: str, path: Path, work_root: Path):
         """Loads from a .textpoto file contents.
@@ -321,7 +335,7 @@ class Subtool:
             )
         osutils.SafeMakedirs(dest.parent)
 
-        if _FILETYPE_DECODER.GetType(str(src)) == "binary/elf/dynamic-bin":
+        if self.get_file_type(src) == "binary/elf/dynamic-bin":
             return self._lddtree_into_bundle(src, dest.parent)
 
         logger.debug("Copy file %s -> %s.", src, dest)
