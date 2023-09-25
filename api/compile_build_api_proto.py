@@ -161,7 +161,7 @@ def _GenerateFiles(
         dir_subset: The subset of the proto to compile.
         protoc_bin_path: The protoc command to use.
     """
-    logging.info("Generating files to %s.", output)
+    logging.info("Generating %s files to %s.", protoc_version, output)
     osutils.SafeMakedirs(output)
 
     targets = []
@@ -247,14 +247,7 @@ def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion):
     else:
         sub = "from chromite.api.gen.\\1 import \\2_pb2 as \\3"
 
-    from_sed = [
-        "sed",
-        "-i",
-        "/%(address)s/!s/%(find)s/%(sub)s/g"
-        % {"address": address, "find": find, "sub": sub},
-    ]
-
-    seds = [from_sed]
+    seds = [f"/{address}/!s/{find}/{sub}/g"]
 
     if protoc_version is ProtocVersion.CHROMITE:
         # We also need to change the google.protobuf imports to point directly
@@ -266,37 +259,23 @@ def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion):
         g_p_address = "^from google.protobuf"
         g_p_find = r"from \([^ ]*\) import \(.*\)$"
         g_p_sub = "from chromite.third_party.\\1 import \\2"
-        google_protobuf_sed = [
-            "sed",
-            "-i",
-            "/%(address)s/s/%(find)s/%(sub)s/g"
-            % {"address": g_p_address, "find": g_p_find, "sub": g_p_sub},
-        ]
-        seds.append(google_protobuf_sed)
+        seds.append(f"/{g_p_address}/s/{g_p_find}/{g_p_sub}/")
 
     if protoc_version is ProtocVersion.CHROMITE_PYI:
         # Workaround https://github.com/protocolbuffers/protobuf/issues/11402
         # until cl/560557754 in in the protoc version used.
-        untyped_empty_slot_list = [
-            "sed",
-            "-E",
-            "-i",
-            "s/(^ *__slots__ = )\\[]/\\1()/",
-        ]
+        untyped_empty_slot_list = "s/\\(^ *__slots__ = \\)\\[]/\\1()/"
 
         # Suppress errors on GRPC options field numbers using ClassVar outside
         # of a class body. See b/297782342.
-        ignore_class_var_in_file_scope = [
-            "sed",
-            "-i",
-            "s/^[A-Z_]*: _ClassVar\\[int]/&  # type: ignore/",
-        ]
+        ignore_class_var_in_file_scope = (
+            "s/^[A-Z_]*: _ClassVar\\[int]/&  # type: ignore/"
+        )
         seds.extend((untyped_empty_slot_list, ignore_class_var_in_file_scope))
 
     pb2 = list(directory.rglob(f"*_pb2.{protoc_version.get_suffix()}"))
     if pb2:
-        for sed in seds:
-            cros_build_lib.dbg_run(sed + pb2)
+        cros_build_lib.dbg_run(["sed", "-i", ";".join(seds)] + pb2)
 
 
 def CompileProto(
