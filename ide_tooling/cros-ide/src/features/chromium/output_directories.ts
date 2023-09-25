@@ -6,11 +6,10 @@ import assert from 'assert';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as common_util from '../../common/common_util';
-import {envForDepotTools} from '../../common/depot_tools';
 import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import {Metrics} from '../../features/metrics/metrics';
 import * as bgTaskStatus from '../../ui/bg_task_status';
+import * as gnArgs from './gn_args';
 import type {Stats} from 'fs';
 
 export const CURRENT_LINK_NAME = `out${path.sep}current_link`;
@@ -227,19 +226,6 @@ abstract class BaseNode {
   abstract asTreeItem(): vscode.TreeItem;
 }
 
-// This type represents the subset of GN args that we keep track of. Currently, we only keep track
-// of whether Goma, Siso, or Reclient are enabled or not.
-type GnArgs = {
-  use_goma: boolean;
-  use_siso: boolean;
-  use_remoteexec: boolean;
-};
-
-type GnArgsInfo =
-  | {type: 'error'; error: string}
-  | {type: 'unknown'}
-  | {type: 'success'; args: GnArgs};
-
 // A `DirNode` represents an output directory.
 export class DirNode extends BaseNode {
   get treeNodeContextValue(): string {
@@ -254,7 +240,7 @@ export class DirNode extends BaseNode {
   constructor(
     name: string,
     public isCurrent: boolean,
-    public gnArgsInfo: GnArgsInfo
+    public gnArgsInfo: gnArgs.GnArgsInfo
   ) {
     super(name);
   }
@@ -316,72 +302,11 @@ export class DirNode extends BaseNode {
     };
   }
 
-  // TODO(cmfcmf): Test whether this also works on Windows.
   async readGnArgs(
     srcPath: string,
     token: vscode.CancellationToken
   ): Promise<void> {
-    const result = await common_util.exec(
-      'gn',
-      [
-        'args',
-        path.join(srcPath, this.name),
-        '--list',
-        '--short',
-        '--overrides-only',
-        '--json',
-      ],
-      {
-        cwd: srcPath,
-        env: envForDepotTools(),
-        cancellationToken: token,
-      }
-    );
-    if (result instanceof Error) {
-      if (result instanceof common_util.CancelledError) {
-        return;
-      }
-      this.gnArgsInfo = {
-        type: 'error',
-        error:
-          result instanceof common_util.AbnormalExitError
-            ? result.messageWithStdoutAndStderr()
-            : result.toString(),
-      };
-      return;
-    }
-
-    // TODO(cmfcmf): It would be nice to validate at runtime that the JSON actually follows this
-    // schema.
-    let gnArgs: Array<{
-      current: {value: string};
-      default: {value: string};
-      name: string;
-    }>;
-    try {
-      gnArgs = JSON.parse(result.stdout);
-    } catch (error) {
-      this.gnArgsInfo = {
-        type: 'error',
-        error: `Unable to parse JSON output: ${result.stdout}`,
-      };
-      return;
-    }
-
-    this.gnArgsInfo = {
-      type: 'success',
-      args: {
-        use_goma:
-          gnArgs.find(each => each.name === 'use_goma')?.current.value ===
-          'true',
-        use_siso:
-          gnArgs.find(each => each.name === 'use_siso')?.current.value ===
-          'true',
-        use_remoteexec:
-          gnArgs.find(each => each.name === 'use_remoteexec')?.current.value ===
-          'true',
-      },
-    };
+    this.gnArgsInfo = await gnArgs.readGnArgs(srcPath, this.name, token);
   }
 }
 
