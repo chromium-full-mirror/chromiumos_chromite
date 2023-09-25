@@ -4862,7 +4862,7 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"sasukette\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"storo\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"storo360\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"taranza\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"taranza\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"waddledee\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"waddledoo\",\n  \"test_suites\": []\n}"
     ]
@@ -4931,7 +4931,7 @@
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"sasukette\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"storo\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"storo360\",\n  \"test_suites\": []\n}",
-      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"taranza\",\n  \"test_suites\": []\n}",
+      "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"taranza\",\n  \"test_suites\": [\n    \"sanity\",\n    \"bvt-inline\",\n    \"bvt-tast-cq\",\n    \"bvt-installer\",\n    \"bvt-arc\",\n    \"au\",\n    \"bvt-cq\",\n    \"bvt-perbuild\",\n    \"bvt-tast-informational\"\n  ]\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"waddledee\",\n  \"test_suites\": []\n}",
       "{\n  \"enable_skylab\": true,\n  \"lab_board_name\": \"dedede-pvs\",\n  \"name\": \"waddledoo\",\n  \"test_suites\": []\n}"
     ],
