@@ -66,14 +66,34 @@ export async function readGnArgs(
     current: {value: string};
     default: {value: string};
     name: string;
-  }>;
+  }> | null = null;
   try {
     gnArgs = JSON.parse(result.stdout);
   } catch (error) {
-    return {
-      type: 'error',
-      error: `Unable to parse JSON output (${error}): ${result.stdout}`,
-    };
+    // Sometimes the command may print additional warnings before the actual JSON output. Retry
+    // parsing from the first occurrence of `[`.
+  }
+  if (gnArgs === null) {
+    const arrayStartIdx = result.stdout.indexOf('[');
+    if (arrayStartIdx === -1) {
+      return {
+        type: 'error',
+        error: `Unable to parse JSON output: ${result.stdout}`,
+      };
+    }
+
+    try {
+      warnings.push(result.stdout.slice(0, arrayStartIdx).trim());
+      gnArgs = JSON.parse(result.stdout.slice(arrayStartIdx));
+      if (!Array.isArray(gnArgs)) {
+        throw new Error('Expected an array.');
+      }
+    } catch (error) {
+      return {
+        type: 'error',
+        error: `Unable to parse JSON output (${error}): ${result.stdout}`,
+      };
+    }
   }
 
   const args = {

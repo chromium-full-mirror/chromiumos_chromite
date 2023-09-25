@@ -116,4 +116,106 @@ describe('gn args', () => {
       });
     });
   }
+
+  const STDOUT_WITH_WARNING = `\
+WARNING at //build/toolchain/cros/BUILD.gn:237:44: Build argument has no effect.
+    toolchain_args.needs_gomacc_path_arg = false
+                                           ^----
+The variable "needs_gomacc_path_arg" was set as a build argument
+but never appeared in a declare_args() block in any buildfile.
+
+To view all possible args, run "gn args --list <out_dir>"
+
+The build continued as if that argument was unspecified.
+
+[ {
+   "current": {
+      "value": "true"
+   },
+   "name": "use_siso"
+} ]`;
+
+  it('can parse output if JSON is preceded by a warning', async () => {
+    fakeExec.installStdout(
+      'gn',
+      [
+        'args',
+        path.join(tempDir.path, 'out', 'dir1'),
+        '--list',
+        '--short',
+        '--overrides-only',
+        '--json',
+      ],
+      STDOUT_WITH_WARNING,
+      jasmine.objectContaining({cwd: tempDir.path})
+    );
+
+    const tokenSource = new CancellationTokenSource();
+    const args = await gnArgs.readGnArgs(
+      tempDir.path,
+      'out/dir1',
+      tokenSource.token
+    );
+    expect(args).toEqual({
+      type: 'success',
+      warnings: [
+        jasmine.stringMatching(/^WARNING at [/][/]build.*was unspecified[.]$/s),
+      ],
+      args: {use_goma: false, use_remoteexec: false, use_siso: true},
+    });
+  });
+
+  it('fails to parse invalid JSON', async () => {
+    fakeExec.installStdout(
+      'gn',
+      [
+        'args',
+        path.join(tempDir.path, 'out', 'dir1'),
+        '--list',
+        '--short',
+        '--overrides-only',
+        '--json',
+      ],
+      'not actually json',
+      jasmine.objectContaining({cwd: tempDir.path})
+    );
+
+    const tokenSource = new CancellationTokenSource();
+    const args = await gnArgs.readGnArgs(
+      tempDir.path,
+      'out/dir1',
+      tokenSource.token
+    );
+    expect(args).toEqual({
+      type: 'error',
+      error: jasmine.stringContaining('Unable to parse JSON output'),
+    });
+  });
+
+  it('fails to parse invalid JSON even if it has `[`', async () => {
+    fakeExec.installStdout(
+      'gn',
+      [
+        'args',
+        path.join(tempDir.path, 'out', 'dir1'),
+        '--list',
+        '--short',
+        '--overrides-only',
+        '--json',
+      ],
+      'not actually json [ "it looks like json starts here, but this is a lie and still invalid"',
+      jasmine.objectContaining({cwd: tempDir.path})
+    );
+
+    const tokenSource = new CancellationTokenSource();
+    const args = await gnArgs.readGnArgs(
+      tempDir.path,
+      'out/dir1',
+      tokenSource.token
+    );
+    expect(args).toEqual({
+      type: 'error',
+      error: jasmine.stringContaining('Unable to parse JSON output'),
+    });
+  });
 });
