@@ -44,7 +44,8 @@ export class DebugTastTestsResult {
  */
 export async function debugTastTests(
   context: CommandContext,
-  chrootService: services.chromiumos.ChrootService
+  chrootService: services.chromiumos.ChrootService,
+  homedir = os.homedir()
 ): Promise<DebugTastTestsResult | null | Error> {
   Metrics.send({
     category: 'interactive',
@@ -80,7 +81,11 @@ export async function debugTastTests(
     return null;
   }
 
-  const delveInHost = await ensureHostHasDelve(context, dlvEbuildVersion);
+  const delveInHost = await ensureHostHasDelve(
+    context,
+    dlvEbuildVersion,
+    homedir
+  );
   if (!delveInHost) {
     return null;
   }
@@ -352,9 +357,10 @@ async function ensureDutHasDelve(
  */
 async function ensureHostHasDelve(
   context: CommandContext,
-  dlvEbuildVersion: string
+  dlvEbuildVersion: string,
+  homedir: string
 ): Promise<string | undefined> {
-  const gobin = path.join(os.homedir(), '.cache/chromiumide/go/bin');
+  const gobin = path.join(homedir, '.cache/chromiumide/go/bin');
   const delveInstallPath = path.join(gobin, 'dlv');
   if (fs.existsSync(delveInstallPath)) {
     const res = await commonUtil.exec(delveInstallPath, ['version'], {

@@ -37,6 +37,11 @@ GOOGLE_RELEASE=14901.0.0
 CHROMEOS_RELEASE_UNIBUILD=1
 `;
 
+const DLV_VERSION = `Delve Debugger
+Version: 1.21.0
+Build: $Id: fec0d226b2c2cce1567d5f59169660cf61dc1efe $
+`;
+
 /**
  * Fake SSH server that handles exec requests.
  */
@@ -64,6 +69,11 @@ export class FakeSshServer implements vscode.Disposable {
             switch (info.command) {
               case 'cat /etc/lsb-release':
                 channel.write(LSB_RELEASE);
+                channel.exit(0);
+                channel.end();
+                break;
+              case 'dlv version':
+                channel.write(DLV_VERSION);
                 channel.exit(0);
                 channel.end();
                 break;

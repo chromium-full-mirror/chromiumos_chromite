@@ -9,7 +9,7 @@ import * as fakes from '../../testing/fakes';
 import {setConfigurationProviderForTesting} from '../injected_modules/vscode/workspace/configuration';
 
 function initFakeConfigs(): void {
-  const fakeConfig = new fakes.FakeWorkspaceConfiguration(
+  const fakeConfig = fakes.FakeWorkspaceConfiguration.fromSection(
     config.TEST_ONLY.CHROMIUMIDE_PREFIX
   );
 

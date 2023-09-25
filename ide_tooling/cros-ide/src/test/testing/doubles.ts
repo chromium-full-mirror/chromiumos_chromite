@@ -391,8 +391,10 @@ export function installFakeConfigs(
   beforeEach(() => {
     // Prepare fake config for the old prefix as well for testing migrator.
     for (const prefix of [config.TEST_ONLY.CHROMIUMIDE_PREFIX, 'cros-ide']) {
-      const fakeConfig = new fakes.FakeWorkspaceConfiguration(prefix);
-      subscriptions.push(fakeConfig);
+      const fakeConfig = fakes.FakeWorkspaceConfiguration.fromSection(
+        prefix,
+        subscriptions
+      );
 
       vscodeSpy.workspace.getConfiguration
         .withArgs(prefix)

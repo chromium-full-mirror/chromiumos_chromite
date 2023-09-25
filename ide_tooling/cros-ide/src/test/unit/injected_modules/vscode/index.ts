@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as debugModule from './debug';
 import * as envModule from './env';
 import * as extensionsModule from './extensions';
+import * as tasksModule from './tasks';
 import * as testsModule from './tests';
 import * as windowModule from './window';
 import * as workspaceModule from './workspace';
@@ -39,10 +41,12 @@ export type {TreeItemLabel} from './tree_item_label';
 export {UIKind} from './ui_kind';
 export {Uri} from './uri';
 
+export const debug = debugModule;
 export let commands = {};
 export let comments = {};
 export let env = envModule;
 export let extensions = extensionsModule;
+export const tasks = tasksModule;
 export const tests = testsModule;
 export let window = windowModule;
 export let workspace = workspaceModule;

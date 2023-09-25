@@ -9,7 +9,6 @@ import {readPackageJson} from '../package_json';
 // It only implements a portion of WorkspaceConfiguration used by the extension; for example, index
 // signature is not implemented.
 export class FakeWorkspaceConfiguration<T> {
-  private readonly defaults: Map<string, T>;
   private readonly values = {
     [vscode.ConfigurationTarget.Global]: new Map<string, T>(),
     [vscode.ConfigurationTarget.Workspace]: new Map<string, T>(),
@@ -20,8 +19,30 @@ export class FakeWorkspaceConfiguration<T> {
     new vscode.EventEmitter<vscode.ConfigurationChangeEvent>();
   readonly onDidChange = this.onDidChangeEmitter.event;
 
-  constructor(private readonly section: string) {
-    this.defaults = readDefaultsFromPackageJson(section) as Map<string, T>;
+  private constructor(
+    private readonly section: string,
+    private readonly defaults: ReadonlyMap<string, T>
+  ) {}
+
+  static fromSection<T>(
+    section: string,
+    subscriptions?: vscode.Disposable[]
+  ): vscode.WorkspaceConfiguration & FakeWorkspaceConfiguration<T> {
+    return this.fromDefaults(
+      section,
+      readDefaultsFromPackageJson(section) as Map<string, T>,
+      subscriptions
+    );
+  }
+
+  static fromDefaults<T>(
+    section: string,
+    defaults: ReadonlyMap<string, T>,
+    subscriptions?: vscode.Disposable[]
+  ): vscode.WorkspaceConfiguration & FakeWorkspaceConfiguration<T> {
+    const res = new this(section, defaults);
+    subscriptions?.push(res);
+    return res as vscode.WorkspaceConfiguration & FakeWorkspaceConfiguration<T>;
   }
 
   dispose(): void {
