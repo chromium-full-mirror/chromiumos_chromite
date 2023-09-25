@@ -30,7 +30,6 @@ from chromite.cbuildbot import trybot_patch_pool
 from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import buildbucket_v2
-from chromite.lib import chromeos_version
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -123,10 +122,10 @@ class WorkspaceStageBase(generic_stages.BuilderStage):
         Returns:
             manifest-version.VersionInfo object based on the workspace checkout.
         """
-        return chromeos_version.VersionInfo.from_repo(self._build_root)
+        return commands.GetBuildrootVersionInfo(self._build_root)
 
     def AfterLimit(self, limit):
-        """Is worksapce version newer than cutoff limit?
+        """Is workspace version newer than cutoff limit?
 
         Args:
             limit: String version of format '123.0.0'
@@ -134,8 +133,7 @@ class WorkspaceStageBase(generic_stages.BuilderStage):
         Returns:
             bool: True if workspace has newer version than limit.
         """
-        version_info = self.GetWorkspaceVersionInfo()
-        return version_info > chromeos_version.VersionInfo(limit)
+        return commands.IsBuildRootAfterLimit(self._build_root, limit)
 
     # Standardize manifest_versions paths for workspaces.
 

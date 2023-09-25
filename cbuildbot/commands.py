@@ -21,6 +21,7 @@ from typing import Dict
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
+from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -2564,3 +2565,33 @@ def GetTargetChromiteApiVersion(buildroot, validate_version=True):
         )
 
     return major, minor
+
+
+def GetBuildrootVersionInfo(build_root: str) -> chromeos_version.VersionInfo:
+    """Fetch the ChromeOS version info for a checkout.
+
+    Only valid after the build_root has been synced.
+
+    Args:
+        build_root: Absolute path to the root of the checkout in question.
+
+    Returns:
+        VersionInfo object based on the checkout at build_root.
+    """
+    return chromeos_version.VersionInfo.from_repo(build_root)
+
+
+def IsBuildRootAfterLimit(build_root: str, limit: str) -> bool:
+    """Check whether the build_root version is newer than the given version.
+
+    Only valid after the build_root has been synced.
+
+    Args:
+        build_root: Absolute path to the root of the checkout in question.
+        limit: String version of the format '123.0.0'.
+
+    Returns:
+        True if the build_root has a newer version than `limit`.
+    """
+    version_info = GetBuildrootVersionInfo(build_root)
+    return version_info > chromeos_version.VersionInfo(limit)
