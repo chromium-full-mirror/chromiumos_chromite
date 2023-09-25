@@ -79,16 +79,16 @@ export function installFakeExec(): {fakeExec: FakeExec} {
   const fakeExec = new FakeExec(jasmine.createSpy('exec'));
 
   const state = cleanState(() => {
-    const exec = jasmine.createSpy('exec', commonUtilExec);
+    const {realExec, undo} = setExecForTesting((...args) => spiedExec(...args));
+    const spiedExec = jasmine.createSpy('exec', realExec);
 
-    const fe = new FakeExec(exec);
-    Object.assign(fakeExec, fe); // clear handlers
+    Object.assign(fakeExec, new FakeExec(spiedExec)); // clear handlers
 
-    exec.and.callFake((name, args) => {
+    spiedExec.and.callFake((name, args) => {
       throw new Error(`${name} ${args.join(' ')}: not handled`);
     });
 
-    return {undo: setExecForTesting(exec)};
+    return {undo};
   });
   afterEach(() => {
     state.undo();

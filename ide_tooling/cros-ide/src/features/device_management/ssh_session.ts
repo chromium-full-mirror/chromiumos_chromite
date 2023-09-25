@@ -5,7 +5,6 @@
 import * as net from 'net';
 import * as vscode from 'vscode';
 import * as commonUtil from '../../common/common_util';
-import * as netUtil from '../../common/net_util';
 import {SshIdentity} from './ssh_identity';
 import * as sshUtil from './ssh_util';
 
@@ -13,7 +12,7 @@ import * as sshUtil from './ssh_util';
  * Represents an active SSH session of a device. It can be used to manage SSH sessions
  * for different hosts.
  */
-export class SshSession {
+export class SshSession implements vscode.Disposable {
   // This CancellationToken is cancelled on disposal of this session.
   private readonly canceller = new vscode.CancellationTokenSource();
 
@@ -25,21 +24,30 @@ export class SshSession {
     this.canceller,
   ];
 
+  /**
+   * Creates a new SSH session. On failure starting SSH connection, it reports the error and
+   * returns undefined.
+   */
   static async create(
     hostname: string,
     sshIdentity: SshIdentity,
     output: vscode.OutputChannel,
     forwardPort: number
-  ): Promise<SshSession> {
+  ): Promise<SshSession | undefined> {
     const newSession = new SshSession(forwardPort);
 
-    await startSshConnection(
+    const success = await startSshConnection(
       hostname,
       forwardPort,
       output,
       newSession.canceller.token,
       sshIdentity
     );
+
+    if (!success) {
+      newSession.dispose();
+      return undefined;
+    }
     return newSession;
   }
 
@@ -57,38 +65,16 @@ export class SshSession {
 }
 
 /**
- * Runs the given function during an active SSH tunnel. This is useful for running one or more SSH
- * commands that require a tunnel, e.g. `cros flash` to access an SSH-configured device outside of
- * chroot.
+ * Starts SSH connection. It does error handling on its own and returns whether the operation was
+ * successful or not.
  */
-export async function withSshTunnel<T>(
-  hostname: string,
-  sshIdentity: SshIdentity,
-  output: vscode.OutputChannel,
-  action: (forwardedPort: number) => Promise<T>
-): Promise<T> {
-  const forwardPort = await netUtil.findUnusedPort();
-  const sshSession = await SshSession.create(
-    hostname,
-    sshIdentity,
-    output,
-    forwardPort
-  );
-
-  try {
-    return await action(forwardPort);
-  } finally {
-    sshSession.dispose();
-  }
-}
-
 async function startSshConnection(
   hostname: string,
   forwardPort: number,
   output: vscode.OutputChannel,
   token: vscode.CancellationToken,
   sshIdentity: SshIdentity
-): Promise<void> {
+): Promise<boolean> {
   const startTunnelAndWait = createTunnelAndWait(
     hostname,
     forwardPort,
@@ -101,10 +87,13 @@ async function startSshConnection(
   // Wait until connection with server starts, or fails to start.
   try {
     await Promise.race([startTunnelAndWait, checkTunnelIsUp]);
-  } catch (err: unknown) {
+  } catch (e) {
+    const err = e as Error;
     void vscode.window.showErrorMessage(`SSH server failed: ${err}`);
-    return;
+    output.appendLine(`SSH server failed: ${err}\n${err.stack}`);
+    return false;
   }
+  return true;
 }
 
 /**

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import * as netUtil from '../../../common/net_util';
 import * as abandonedDevices from '../abandoned_devices';
 import * as crosfleet from '../crosfleet';
 import * as repository from '../device_repository';
@@ -127,4 +128,46 @@ export function showInputBoxWithSuggestions(
 
     picker.show();
   });
+}
+
+/**
+ * Ensures SSH connection and returns the port for the connection. Returns undefined on failure.
+ */
+export async function ensureSshSession(
+  context: CommandContext,
+  hostname: string
+): Promise<number | undefined> {
+  // Check if we can reuse existing session
+  let okToReuseSession = false;
+  const existingSession = context.sshSessions.get(hostname);
+
+  if (existingSession) {
+    // If tunnel is not up, then do not reuse the session
+    const isPortUsed = await netUtil.isPortUsed(existingSession.forwardPort);
+
+    if (isPortUsed) {
+      okToReuseSession = true;
+    } else {
+      existingSession.dispose();
+    }
+  }
+
+  if (existingSession && okToReuseSession) {
+    return existingSession.forwardPort;
+  }
+
+  // Create new ssh session.
+  const port = await netUtil.findUnusedPort();
+
+  const newSession = await ssh.SshSession.create(
+    hostname,
+    context.sshIdentity,
+    context.output,
+    port
+  );
+  if (!newSession) return undefined;
+  newSession.onDidDispose(() => context.sshSessions.delete(hostname));
+  context.sshSessions.set(hostname, newSession);
+
+  return port;
 }

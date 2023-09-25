@@ -42,6 +42,10 @@ describe('runTastTests', () => {
     const port = sshServer.listenPort;
     const hostname = `localhost:${port}`;
 
+    fakeExec
+      .withArgs('ssh', jasmine.anything(), jasmine.anything())
+      .and.callThrough();
+
     const deviceRepository = FakeDeviceRepository.create([
       {hostname: hostname, category: DeviceCategory.OWNED},
       {hostname: 'other', category: DeviceCategory.OWNED},
@@ -96,6 +100,7 @@ func ChromeFixture(ctx context.Context, s *testing.State) {}`,
     const result = await runTastTests(
       {
         deviceRepository,
+        sshIdentity: sshServer.sshIdentity,
         sshSessions: new Map(),
         output: new VoidOutputChannel() as vscode.OutputChannel,
       } as CommandContext,

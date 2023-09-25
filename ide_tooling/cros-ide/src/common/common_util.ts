@@ -266,12 +266,20 @@ let execPtr = realExec;
 
 /**
  * Tests shouldn't directly call this function. Use installFakeExec instead.
+ *
+ * @returns real exec function and the function to undo this operation.
  */
-export function setExecForTesting(fakeExec: typeof exec): () => void {
+export function setExecForTesting(fakeExec: typeof exec): {
+  realExec: typeof exec;
+  undo: () => void;
+} {
   const original = execPtr;
   execPtr = fakeExec;
-  return () => {
-    execPtr = original;
+  return {
+    realExec,
+    undo: () => {
+      execPtr = original;
+    },
   };
 }
 

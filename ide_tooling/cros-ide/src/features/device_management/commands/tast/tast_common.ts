@@ -3,12 +3,14 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import * as netUtil from '../../../../common/net_util';
 import * as services from '../../../../services';
 import {ChrootService} from '../../../../services/chromiumos';
 import * as parser from '../../../chromiumos/tast/parser';
-import * as ssh from '../../ssh_session';
-import {CommandContext, promptKnownHostnameIfNeeded} from '../common';
+import {
+  CommandContext,
+  ensureSshSession,
+  promptKnownHostnameIfNeeded,
+} from '../common';
 
 /**
  * Lays the foundation for running Tast tests. It involes parsing the active document for test
@@ -32,6 +34,7 @@ export async function preTestSetUp(context: CommandContext): Promise<null | {
   if (!hostname) return null;
 
   const port = await ensureSshSession(context, hostname);
+  if (!port) return null;
 
   return {hostname, testCase, port};
 }
@@ -63,44 +66,6 @@ function findTestCase(): parser.ParsedTestCase | undefined {
   })();
 
   return undefined;
-}
-
-async function ensureSshSession(
-  context: CommandContext,
-  hostname: string
-): Promise<number> {
-  // Check if we can reuse existing session
-  let okToReuseSession = false;
-  const existingSession = context.sshSessions.get(hostname);
-
-  if (existingSession) {
-    // If tunnel is not up, then do not reuse the session
-    const isPortUsed = await netUtil.isPortUsed(existingSession.forwardPort);
-
-    if (isPortUsed) {
-      okToReuseSession = true;
-    } else {
-      existingSession.dispose();
-    }
-  }
-
-  if (existingSession && okToReuseSession) {
-    return existingSession.forwardPort;
-  }
-
-  // Create new ssh session.
-  const port = await netUtil.findUnusedPort();
-
-  const newSession = await ssh.SshSession.create(
-    hostname,
-    context.sshIdentity,
-    context.output,
-    port
-  );
-  newSession.onDidDispose(() => context.sshSessions.delete(hostname));
-  context.sshSessions.set(hostname, newSession);
-
-  return port;
 }
 
 export async function askTestNames(

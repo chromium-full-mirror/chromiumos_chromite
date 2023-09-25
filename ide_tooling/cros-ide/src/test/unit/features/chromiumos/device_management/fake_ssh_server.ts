@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 import * as ssh from 'ssh2';
+import {SshIdentity} from '../../../../../features/device_management/ssh_identity';
+import type * as vscode from 'vscode';
 
 const FAKE_SSH_HOST_KEY = `-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
@@ -38,7 +40,7 @@ CHROMEOS_RELEASE_UNIBUILD=1
 /**
  * Fake SSH server that handles exec requests.
  */
-export class FakeSshServer {
+export class FakeSshServer implements vscode.Disposable {
   private readonly server: ssh.Server;
 
   constructor() {
@@ -72,13 +74,15 @@ export class FakeSshServer {
                 break;
             }
           });
+          session.on('shell', accept => accept());
+        });
+
+        client.on('tcpip', accept => {
+          const channel = accept();
+          channel.write('SSH-2.0-fake\r\n');
         });
       });
     });
-  }
-
-  dispose(): void {
-    this.server.close();
   }
 
   listen(listenPort?: number): Promise<void> {
@@ -89,5 +93,18 @@ export class FakeSshServer {
 
   get listenPort(): number {
     return this.server.address().port;
+  }
+
+  /** SSH identity that can be used to connect to this server. */
+  get sshIdentity(): SshIdentity {
+    return {
+      get filePaths(): string[] {
+        return [];
+      },
+    } as SshIdentity;
+  }
+
+  dispose(): void {
+    this.server.close();
   }
 }
