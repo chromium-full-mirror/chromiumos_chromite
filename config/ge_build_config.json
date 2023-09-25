@@ -12715,7 +12715,7 @@
       "reference_board_name": "octopus-arc-t",
       "arch": "UNKNOWN",
       "builder": "RELEASE",
-      "experimental": true,
+      "experimental": false,
       "models": [
         {
           "board_name": "octopus-arc-t",
@@ -12724,7 +12724,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12733,7 +12733,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12742,7 +12742,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12751,7 +12751,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12760,7 +12760,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12769,7 +12769,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12778,7 +12778,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12787,7 +12787,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12796,7 +12796,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12805,7 +12805,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12814,7 +12814,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12823,7 +12823,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12832,7 +12832,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12841,7 +12841,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12850,7 +12850,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12859,7 +12859,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12868,7 +12868,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12877,7 +12877,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12886,7 +12886,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12895,7 +12895,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12904,7 +12904,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12913,7 +12913,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12922,7 +12922,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12931,7 +12931,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12940,7 +12940,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12949,7 +12949,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12958,7 +12958,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12967,7 +12967,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12976,7 +12976,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12985,7 +12985,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -12994,7 +12994,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13003,7 +13003,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13012,7 +13012,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13021,7 +13021,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13030,7 +13030,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13039,7 +13039,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13048,7 +13048,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13057,7 +13057,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13066,7 +13066,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13075,7 +13075,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13084,7 +13084,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13093,7 +13093,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13102,7 +13102,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13111,7 +13111,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13120,7 +13120,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
@@ -13129,7 +13129,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
