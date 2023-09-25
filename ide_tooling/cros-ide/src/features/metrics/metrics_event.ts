@@ -122,6 +122,7 @@ type ChromiumOutputDirectoriesEvent = EventBase & {
           | 'chromium_outputDirectories_change_output_directory'
           | 'chromium_outputDirectories_edit_args_gn'
           | 'chromium_outputDirectories_view_args_gn_error'
+          | 'chromium_outputDirectories_view_args_gn_warnings'
           | 'chromium_outputDirectories_refresh';
       }
   );

@@ -332,6 +332,11 @@
         "category": "Chromium"
       },
       {
+        "command": "chromiumide.chromium.outputDirectories.viewArgsGnWarnings",
+        "title": "View args.gn warnings",
+        "category": "Chromium"
+      },
+      {
         "command": "chromiumide.chromium.outputDirectories.editArgs",
         "title": "Edit args.gn",
         "category": "Chromium"
@@ -662,6 +667,10 @@
         {
           "command": "chromiumide.chromium.outputDirectories.viewArgsGnError",
           "when": "view == chromiumide.chromium.outputDirectories && viewItem =~ /type:directory/ && viewItem =~ /gnArgsStatus:error/"
+        },
+        {
+          "command": "chromiumide.chromium.outputDirectories.viewArgsGnWarnings",
+          "when": "view == chromiumide.chromium.outputDirectories && viewItem =~ /type:directory/ && viewItem =~ /gnArgsHasWarnings/"
         }
       ],
       "commandPalette": [
@@ -703,6 +712,10 @@
         },
         {
           "command": "chromiumide.chromium.outputDirectories.viewArgsGnError",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.chromium.outputDirectories.viewArgsGnWarnings",
           "when": "false"
         },
         {

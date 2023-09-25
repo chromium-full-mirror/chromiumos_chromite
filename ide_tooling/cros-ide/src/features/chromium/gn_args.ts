@@ -18,7 +18,7 @@ export type GnArgs = {
 export type GnArgsInfo =
   | {type: 'error'; error: string}
   | {type: 'unknown'}
-  | {type: 'success'; args: GnArgs};
+  | {type: 'success'; warnings: string[]; args: GnArgs};
 
 // TODO(cmfcmf): Test whether this also works on Windows.
 export async function readGnArgs(
@@ -58,6 +58,8 @@ export async function readGnArgs(
     };
   }
 
+  const warnings: string[] = [];
+
   // TODO(cmfcmf): It would be nice to validate at runtime that the JSON actually follows this
   // schema.
   let gnArgs: Array<{
@@ -84,8 +86,15 @@ export async function readGnArgs(
       'true',
   };
 
+  if (!args.use_goma && !args.use_siso && !args.use_remoteexec) {
+    warnings.push(
+      'Neither Goma, Siso, nor Reclient is enabled. Your builds will compile on your local machine only.'
+    );
+  }
+
   return {
     type: 'success',
+    warnings,
     args,
   };
 }

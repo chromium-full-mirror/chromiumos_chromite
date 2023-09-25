@@ -209,6 +209,38 @@ export function activate(
       }
     )
   );
+
+  context.subscriptions.push(
+    vscodeRegisterCommand(
+      'chromiumide.chromium.outputDirectories.viewArgsGnWarnings',
+      async (node?: unknown) => {
+        if (
+          node instanceof DirNode &&
+          node.gnArgsInfo.type === 'success' &&
+          node.gnArgsInfo.warnings.length > 0
+        ) {
+          await vscode.window.showTextDocument(
+            await vscode.workspace.openTextDocument({
+              content: `${
+                node.gnArgsInfo.warnings.length
+              } warning(s) found:\n\n${node.gnArgsInfo.warnings
+                .map(
+                  (warning, idx) => `######## Warning ${idx + 1}: ${warning}`
+                )
+                .join('\n\n')}`,
+            })
+          );
+
+          metrics.Metrics.send({
+            category: 'interactive',
+            group: 'chromium.outputDirectories',
+            description: 'view args.gn warnings',
+            name: 'chromium_outputDirectories_view_args_gn_warnings',
+          });
+        }
+      }
+    )
+  );
 }
 
 // Represents the base of a node in the output directory view.
@@ -229,7 +261,11 @@ abstract class BaseNode {
 // A `DirNode` represents an output directory.
 export class DirNode extends BaseNode {
   get treeNodeContextValue(): string {
-    return `type:directory,gnArgsStatus:${this.gnArgsInfo.type}`;
+    return `type:directory,gnArgsStatus:${this.gnArgsInfo.type}${
+      this.gnArgsInfo.type === 'success' && this.gnArgsInfo.warnings.length > 0
+        ? ',gnArgsHasWarnings'
+        : ''
+    }`;
   }
 
   /**
@@ -272,16 +308,12 @@ export class DirNode extends BaseNode {
         description = 'Failed to load gn.args (right click for details)';
         break;
       case 'success':
-        if (
-          !this.gnArgsInfo.args.use_goma &&
-          !this.gnArgsInfo.args.use_siso &&
-          !this.gnArgsInfo.args.use_remoteexec
-        ) {
+        if (this.gnArgsInfo.warnings.length > 0) {
           icon = new vscode.ThemeIcon(
             'warning',
             new vscode.ThemeColor('list.warningForeground')
           );
-          description = 'Warning: Goma/Siso/Reclient is not enabled.';
+          description = `${this.gnArgsInfo.warnings.length} warning(s) found (right click for details)`;
         }
         break;
     }

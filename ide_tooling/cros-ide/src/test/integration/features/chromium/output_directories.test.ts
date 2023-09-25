@@ -179,40 +179,20 @@ describe('OutputDirectoriesDataProvider', () => {
 
   for (const testCase of [
     {
-      name: 'shows warning if neither goma or siso is enabled',
+      name: 'shows warning if code is compiled locally',
       gnArgs: [{name: 'foo_bar', current: {value: 'true'}}],
       wantIcon: 'warning',
+      wantWarnings: [
+        'Neither Goma, Siso, nor Reclient is enabled. Your builds will compile on your local machine only.',
+      ],
       wantArgs: {use_siso: false, use_goma: false, use_remoteexec: false},
     },
     {
-      name: 'shows warning if goma is explicitly disabled',
-      gnArgs: [{name: 'use_goma', current: {value: 'false'}}],
-      wantIcon: 'warning',
-      wantArgs: {use_siso: false, use_goma: false, use_remoteexec: false},
-    },
-    {
-      name: 'shows warning if siso is explicitly disabled',
-      gnArgs: [{name: 'use_siso', current: {value: 'false'}}],
-      wantIcon: 'warning',
-      wantArgs: {use_siso: false, use_goma: false, use_remoteexec: false},
-    },
-    {
-      name: 'shows no warning if goma is enabled',
+      name: 'shows no warning if code is compiled in the cloud',
       gnArgs: [{name: 'use_goma', current: {value: 'true'}}],
       wantIcon: 'file-directory',
+      wantWarnings: [],
       wantArgs: {use_siso: false, use_goma: true, use_remoteexec: false},
-    },
-    {
-      name: 'shows no warning if siso is enabled',
-      gnArgs: [{name: 'use_siso', current: {value: 'true'}}],
-      wantIcon: 'file-directory',
-      wantArgs: {use_siso: true, use_goma: false, use_remoteexec: false},
-    },
-    {
-      name: 'shows no warning if reclient is enabled',
-      gnArgs: [{name: 'use_remoteexec', current: {value: 'true'}}],
-      wantIcon: 'file-directory',
-      wantArgs: {use_siso: false, use_goma: false, use_remoteexec: true},
     },
   ]) {
     it(`queries GN args correctly and ${testCase.name}`, async () => {
@@ -245,6 +225,7 @@ describe('OutputDirectoriesDataProvider', () => {
         new DirNode('out/dir1', false, {
           type: 'success',
           args: testCase.wantArgs,
+          warnings: testCase.wantWarnings,
         }),
       ]);
       const treeItem = dataProvider.getTreeItem(nodes[0])!;
