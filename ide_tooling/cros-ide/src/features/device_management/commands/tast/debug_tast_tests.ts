@@ -66,12 +66,6 @@ export async function debugTastTests(
 
   const target = `localhost:${port}`;
 
-  // TODO(uchiaki): Ensure the target DUT has delve installed.
-  // http://go/debug-tast-tests#step-1_confirm-that-your-dut-can-run-delve
-  // 1. Check if the target has the dlv binary.
-  // 2. If not, build delve inside chroot and deploy it. We can use
-  //    `getOrSelectTargetBoard` in `src/ide_util.ts` for getting the `BOARD`
-  //    value on the initial implementation.
   context.output.appendLine('Start Debug Tast Tests');
 
   const dlvEbuildVersion = getDlvEbuildVersion(chrootService) ?? '1.21.0';
@@ -86,7 +80,6 @@ export async function debugTastTests(
     return null;
   }
 
-  // http://go/debug-tast-tests#step-2_install-the-debugger-on-your-host-machine-outside-the-chroot
   const delveInHost = await ensureHostHasDelve(context, dlvEbuildVersion);
   if (!delveInHost) {
     return null;
@@ -243,6 +236,7 @@ function parseDlvVersion(out: string): string | undefined {
 /**
  * Checks if the DUT has the delve binary (the version of delve is same as ebuild), and otherwise builds and deploys delve to the DUT.
  * Returns false if it fails to ensure that the delve is in DUT.
+ * https://go/debug-tast-tests#step-1_confirm-that-your-dut-can-run-delve
  *
  * @param context The current command context.
  * @param chrootService The chroot to run commands in.
@@ -352,6 +346,7 @@ async function ensureDutHasDelve(
 
 /**
  * Checks if the host machine (outside the chroot) has delve binary in '${HOME}/.cache/chromiumide/go/bin/dlv'  (the version of delve is same as ebuild), and otherwise install it.
+ * https://go/debug-tast-tests#step-2_install-the-debugger-on-your-host-machine-outside-the-chroot
  *
  * @returns The path to delve if found or installed. undefined if failed.
  */
