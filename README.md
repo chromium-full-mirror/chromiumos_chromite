@@ -12,7 +12,7 @@ developer guides at
 [external (first)](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md)
 and then [goto/chromeos-building](http://goto/chromeos-building) for internal.
 The
-[Gerrit starter guide](https://sites.google.com/a/google.com/android/development/repo-gerrit-git-workflow)
+[Gerrit starter guide](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/git_and_gerrit_intro.md)
 may also be helpful. You should flash a built image on a test device (Ask around
 for one!).
 
@@ -55,10 +55,10 @@ functionality that needs to be strictly maintained as much as possible.
 
 CBuildBot is the collection of entire code that runs on both the parent and the
 child build machines. It kicks off the individual stages in a particular build.
-It is a configurable bot that builds ChromeOS. More details on CBuildBot can be
-found in
-[this tech talk](https://drive.google.com/a/google.com/file/d/0BwPS_JpKyELWR2k0Z3JSWUhPSEE/view)
-([slides](https://docs.google.com/presentation/d/1nUZFCAADgPp48SmrAFZVV_ngR27BdhKjL32nyu_hbOo/edit#slide=id.i0)).
+It is a configurable bot that builds ChromeOS.
+
+This project is heavily deprecated as everything has moved to LUCI recipes and
+the BuildAPI interface. Do not use this project for anything new.
 
 ### chromite/cbuildbot/builders
 
@@ -79,15 +79,22 @@ Additional documentation.
 
 Code here is expected to be imported whenever necessary throughout Chromite.
 
+A notable exception: see [chromite/utils](#chromite_utils).
+
 ### chromite/scripts
 
 Unlike lib, code in scripts will not and should not be imported anywhere.
 Instead they are executed as required in the build process. Each executable is
-linked to either `wrapper.py` or `virtualenv_wrapper.py`. Some of these links
-are in `chromite/bin`. The wrapper figures out the directory of the executable
-script and the `$PYTHONPATH`. Finally, it invokes the correct Python
-installation by moving up the directory structure to find which git repo is
-making the call.
+linked to either `wrapper3.py` or `vpython_wrapper.py`. Some of these links
+are in `chromite/bin`. When we want to make the tool available to developers
+(e.g. in `$PATH`), we put the symlink under `bin/`. If it's more "internal"
+usage, then we use `scripts/`.
+
+The wrapper figures out the directory of the executable script and the
+`$PYTHONPATH`. Finally, it invokes the correct Python installation by moving up
+the directory structure to find which git repo is making the call.
+
+Do not use `virtualenv_wrapper.py` in new code.
 
 ### chromite/service
 
