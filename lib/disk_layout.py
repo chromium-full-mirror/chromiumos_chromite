@@ -1582,7 +1582,15 @@ class DiskLayout:
             ]
 
         if metadata.get("hybrid_mbr"):
-            lines += ["install_hybrid_mbr ${target}"]
+            # TODO(b/302183858): The viking board is using type=firmware
+            # instead of type=efi for the efi partition.
+            if not efi_partitions:
+                efi_partitions = self._getPartitionsByType(
+                    partitions, "firmware"
+                )
+            lines += [
+                "install_hybrid_mbr ${target} %d" % efi_partitions[0]["num"]
+            ]
         lines += ["${GPT} show ${target}"]
 
         if self._HasExternalGpt(partitions):
