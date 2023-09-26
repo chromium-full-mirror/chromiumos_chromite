@@ -5,7 +5,10 @@
 """Unittests for prctl.py module."""
 
 import ctypes
+import errno
 import signal
+
+import pytest
 
 from chromite.utils import prctl
 
@@ -17,3 +20,19 @@ def test_pdeathsig():
     arg2 = ctypes.c_int(0)
     assert prctl.prctl(prctl.Option.GET_PDEATHSIG, ctypes.byref(arg2)) == 0
     assert arg2.value == signal.SIGQUIT
+
+
+def test_prctl_error():
+    """Check PrctlError handling."""
+    e = prctl.PrctlError(prctl.Option.SET_PDEATHSIG, -1)
+    assert "SET_PDEATHSIG" in str(e)
+    assert "SET_PDEATHSIG" in e.msg
+
+    e = prctl.PrctlError(prctl.Option.SET_PDEATHSIG, -1, errno=errno.EINVAL)
+    assert "EINVAL" in e.msg
+    assert e.errno == errno.EINVAL
+
+    with pytest.raises(prctl.PrctlError) as excinfo:
+        prctl.prctl(prctl.Option.SET_PDEATHSIG, 1000)
+    assert excinfo.value.option == prctl.Option.SET_PDEATHSIG
+    assert excinfo.value.prargs == [1000, 0, 0, 0]
