@@ -8,7 +8,7 @@ If no argument is provided it will check all installed packages. It takes the
 BOARD environment variable into account.
 
 Example:
-    package_hash_missing_deps.py --board=amd64-generic --match \
+    package_has_missing_deps.py --board=amd64-generic --match \
         chromeos-base/cryptohome
 """
 
