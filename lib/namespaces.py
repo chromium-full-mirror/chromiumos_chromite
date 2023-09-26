@@ -23,7 +23,7 @@ from chromite.lib import commandline
 from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import process_util
-from chromite.lib import proctitle
+from chromite.utils import proctitle_util
 
 
 CLONE_FILES = 0x00000400
@@ -192,7 +192,7 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> None:
     # It is only allowed to fork once too.
     pid = os.fork()
     if pid:
-        proctitle.settitle("pid ns", "external init")
+        proctitle_util.settitle("pid ns", "external init")
 
         # We forward termination signals to the child and trust the child to
         # respond sanely. Later, ExitAsStatus propagates the exit status back
@@ -241,7 +241,7 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> None:
 
         pid = os.fork()
         if pid:
-            proctitle.settitle("pid ns", "init")
+            proctitle_util.settitle("pid ns", "init")
 
             # We forward termination signals to the child and trust the child to
             # respond sanely. Later, ExitAsStatus propagates the exit status
