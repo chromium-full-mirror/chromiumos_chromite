@@ -131,6 +131,22 @@
       "stable_target_milestone": 90
     },
     {
+      "name": "dedede-pvs-lab",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": true,
+          "leader_board": false,
+          "board_group": "",
+          "arch": "UNKNOWN",
+          "board_variant": "pvs-lab",
+          "build_cadence": "DAILY_CADENCE"
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 120
+    },
+    {
       "name": "goroh",
       "configs": [
         {
