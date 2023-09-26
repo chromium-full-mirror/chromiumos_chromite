@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18\x63hromiumos/signing.proto\x12\nchromiumos\x1a\x17\x63hromiumos/common.proto\"\xec\x01\n\rSigningConfig\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\x0e\n\x06keyset\x18\x02 \x01(\t\x12)\n\nimage_type\x18\x03 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x14\n\x0crecovery_zip\x18\x04 \x01(\x08\x12\x1a\n\x12\x65nsure_no_password\x18\x05 \x01(\x08\x12\x17\n\x0f\x66irmware_update\x18\x06 \x01(\x08\x12\x13\n\x0binput_files\x18\x07 \x03(\t\x12\x14\n\x0coutput_names\x18\x08 \x03(\t\x12\x14\n\x0c\x61rchive_path\x18\t \x01(\t\"d\n\x18\x42uildTargetSigningConfig\x12\x14\n\x0c\x62uild_target\x18\x01 \x01(\t\x12\x32\n\x0fsigning_configs\x18\x02 \x03(\x0b\x32\x19.chromiumos.SigningConfig\"g\n\x19\x42uildTargetSigningConfigs\x12J\n\x1c\x62uild_target_signing_configs\x18\x01 \x03(\x0b\x32$.chromiumos.BuildTargetSigningConfigBY\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18\x63hromiumos/signing.proto\x12\nchromiumos\x1a\x17\x63hromiumos/common.proto\"\xa3\x02\n\rSigningConfig\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\x0e\n\x06keyset\x18\x02 \x01(\t\x12$\n\x07\x63hannel\x18\n \x01(\x0e\x32\x13.chromiumos.Channel\x12\x0f\n\x07version\x18\x0b \x01(\t\x12)\n\nimage_type\x18\x03 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x14\n\x0crecovery_zip\x18\x04 \x01(\x08\x12\x1a\n\x12\x65nsure_no_password\x18\x05 \x01(\x08\x12\x17\n\x0f\x66irmware_update\x18\x06 \x01(\x08\x12\x13\n\x0binput_files\x18\x07 \x03(\t\x12\x14\n\x0coutput_names\x18\x08 \x03(\t\x12\x14\n\x0c\x61rchive_path\x18\t \x01(\t\"d\n\x18\x42uildTargetSigningConfig\x12\x14\n\x0c\x62uild_target\x18\x01 \x01(\t\x12\x32\n\x0fsigning_configs\x18\x02 \x03(\x0b\x32\x19.chromiumos.SigningConfig\"g\n\x19\x42uildTargetSigningConfigs\x12J\n\x1c\x62uild_target_signing_configs\x18\x01 \x03(\x0b\x32$.chromiumos.BuildTargetSigningConfigBY\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.signing_pb2', globals())
@@ -23,9 +23,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumos'
   _SIGNINGCONFIG._serialized_start=66
-  _SIGNINGCONFIG._serialized_end=302
-  _BUILDTARGETSIGNINGCONFIG._serialized_start=304
-  _BUILDTARGETSIGNINGCONFIG._serialized_end=404
-  _BUILDTARGETSIGNINGCONFIGS._serialized_start=406
-  _BUILDTARGETSIGNINGCONFIGS._serialized_end=509
+  _SIGNINGCONFIG._serialized_end=357
+  _BUILDTARGETSIGNINGCONFIG._serialized_start=359
+  _BUILDTARGETSIGNINGCONFIG._serialized_end=459
+  _BUILDTARGETSIGNINGCONFIGS._serialized_start=461
+  _BUILDTARGETSIGNINGCONFIGS._serialized_end=564
 # @@protoc_insertion_point(module_scope)
