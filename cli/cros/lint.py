@@ -18,6 +18,7 @@ as many/few checkers as we want in this one module.
 """
 
 import collections
+import io
 import itertools
 import os
 import re
@@ -1104,7 +1105,11 @@ class SourceChecker(pylint.checkers.BaseChecker):
     def visit_module(self, node):
         """Called when the whole file has been read"""
         with node.stream() as stream:
-            st = os.fstat(stream.fileno())
+            st = None
+            try:
+                st = os.fstat(stream.fileno())
+            except io.UnsupportedOperation:
+                pass
             self._check_shebang(node, stream, st)
             self._check_encoding(stream)
             self._check_module_name(node)
@@ -1114,15 +1119,17 @@ class SourceChecker(pylint.checkers.BaseChecker):
         """Verify the shebang is version specific"""
         stream.seek(0)
 
-        mode = st.st_mode
-        executable = bool(mode & 0o0111)
+        executable = False
+        if st:
+            mode = st.st_mode
+            executable = bool(mode & 0o0111)
 
         shebang = stream.readline()
         if shebang[0:2] != b"#!":
             if executable:
                 self.add_message("R9201")
             return
-        elif not executable:
+        elif st and not executable:
             self.add_message("R9202")
 
         if shebang.strip() not in (
