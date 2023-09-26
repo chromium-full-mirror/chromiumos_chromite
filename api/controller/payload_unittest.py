@@ -9,6 +9,7 @@ from chromite.api import controller
 from chromite.api.controller import payload
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib.paygen import paygen_payload_lib
 
@@ -171,3 +172,33 @@ class PayloadApiTests(
             response_code,
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
         )
+
+    def testLocalSigningSuccess(self):
+        """Test a local signing paygen request."""
+        patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
+        patch.return_value.Run.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
+        }
+
+        req = self.req
+        req.use_local_signing = True
+        req.docker_image = (
+            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        )
+
+        res = payload.GeneratePayload(self.req, self.result, self.api_config)
+        self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
+
+    def testLocalSigningFailure(self):
+        """Test a local signing paygen request."""
+        patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
+        patch.return_value.Run.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
+        }
+
+        req = self.req
+        req.use_local_signing = True
+
+        # No docker image, will fail.
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            payload.GeneratePayload(self.req, self.result, self.api_config)

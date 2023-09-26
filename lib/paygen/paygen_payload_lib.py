@@ -113,6 +113,8 @@ class PaygenSigner:
         work_dir,
         private_key=None,
         payload_build=None,
+        local_signing=False,
+        docker_image=None,
     ):
         """Initializer.
 
@@ -121,6 +123,8 @@ class PaygenSigner:
             work_dir: A working directory inside the chroot.
             private_key: The private keys to sign the payload with.
             payload_build: The build defined for the payload.
+            local_signing: Use the new local signing prototype.
+            docker_image: Docker image to use for local signing.
         """
         self.public_key = None
 
@@ -128,23 +132,20 @@ class PaygenSigner:
         self._work_dir = work_dir
         self._private_key = private_key
         self._payload_build = payload_build
+        self._local_signing = local_signing
+        self._docker_image = docker_image
 
         self._signer = None
         self._Initialize()
 
     def _Initialize(self):
         """Initializes based on which bucket the payload is supposed to go."""
-        if (
-            self._payload_build
-            and self._payload_build.bucket == gspaths.ChromeosReleases.BUCKET
-        ):
-            logging.info("Using GCS signer.")
-            # Using the official buckets, so sign it with official signers.
-            self._signer = (
-                signer_payloads_client.SignerPayloadsClientGoogleStorage(
-                    self._chroot, self._payload_build, self._work_dir
-                )
+        if self._local_signing:
+            logging.info("Using local signer (prototype).")
+            self._signer = signer_payloads_client.LocalSignerPayloadsClient(
+                self._docker_image, self._payload_build, self._work_dir
             )
+
             # We set the private key to None, so we don't accidentally use a
             # valid passed private key to verify the image.
             if self._private_key:
@@ -153,22 +154,43 @@ class PaygenSigner:
                 )
             self._private_key = None
         else:
-            logging.info("Using local private key.")
-            # Otherwise use a private key for signing and verifying the payload.
-            # If no private_key was provided, use a test key.
-            if not self._private_key:
-                self._private_key = (
-                    constants.CHROMITE_DIR / "ssh_keys" / "testing_rsa"
+            if (
+                self._payload_build
+                and self._payload_build.bucket
+                == gspaths.ChromeosReleases.BUCKET
+            ):
+                logging.info("Using GCS signer.")
+                # Using the official buckets, so sign it with official signers.
+                self._signer = (
+                    signer_payloads_client.SignerPayloadsClientGoogleStorage(
+                        self._chroot, self._payload_build, self._work_dir
+                    )
                 )
-            self._signer = (
-                signer_payloads_client.UnofficialSignerPayloadsClient(
-                    self._chroot, self._private_key, self._work_dir
+                # We set the private key to None, so we don't accidentally use a
+                # valid passed private key to verify the image.
+                if self._private_key:
+                    logging.warning(
+                        "A private key should not be passed for official "
+                        "builds."
+                    )
+                self._private_key = None
+            else:
+                logging.info("Using local private key.")
+                # Otherwise use a private key for signing and verifying the
+                # payload. If no private_key was provided, use a test key.
+                if not self._private_key:
+                    self._private_key = (
+                        constants.CHROMITE_DIR / "ssh_keys" / "testing_rsa"
+                    )
+                self._signer = (
+                    signer_payloads_client.UnofficialSignerPayloadsClient(
+                        self._chroot, self._private_key, self._work_dir
+                    )
                 )
-            )
 
-        if self._private_key and self._signer:
-            self.public_key = os.path.join(self._work_dir, "public_key.pem")
-            self._signer.ExtractPublicKey(self.public_key)
+            if self._private_key and self._signer:
+                self.public_key = os.path.join(self._work_dir, "public_key.pem")
+                self._signer.ExtractPublicKey(self.public_key)
 
     def GetHashSignatures(self, *args, **kwargs):
         """Wrapper to forward into signer."""

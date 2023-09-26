@@ -4,7 +4,7 @@
 
 """The payload API is the entry point for payload functionality."""
 
-from copy import deepcopy
+import copy
 import re
 from typing import Dict, Optional, Tuple, Union
 
@@ -53,6 +53,8 @@ class PayloadConfig:
         verify: bool = True,
         upload: bool = True,
         cache_dir: Optional[str] = None,
+        use_local_signing: bool = False,
+        signing_docker_image: str = None,
     ):
         """Init method, sets up all the paths and configuration.
 
@@ -65,6 +67,8 @@ class PayloadConfig:
             verify: If delta is made, verify the integrity of the payload.
             upload: Whether the payload generation results should be uploaded.
             cache_dir: The cache dir for paygen to use or None for default.
+            use_local_signing: Whether to use local signing.
+            signing_docker_image: Docker image to use for local signing.
         """
 
         # Set when we call GeneratePayload on this object.
@@ -79,6 +83,13 @@ class PayloadConfig:
         self.delta_type = "delta" if self.src_image else "full"
         self.image_type = _ImageTypeToStr(tgt_image.image_type)
         self.cache_dir = cache_dir
+        self.use_local_signing = use_local_signing
+        self.signing_docker_image = signing_docker_image
+
+        if self.use_local_signing and not self.signing_docker_image:
+            raise ValueError(
+                "local signing enabled but no docker image specified"
+            )
 
         # This block ensures that we have paths to the correct perm of images.
         src_image_path = None
@@ -104,7 +115,7 @@ class PayloadConfig:
             elif isinstance(self.tgt_image, payload_pb2.DLCImage):
                 src_image_path = _GenDLCImageGSPath(self.src_image)
 
-        payload_build = deepcopy(tgt_image_path.build)
+        payload_build = copy.deepcopy(tgt_image_path.build)
         payload_build.bucket = dest_bucket
 
         self.payload = gspaths.Payload(
@@ -142,6 +153,8 @@ class PayloadConfig:
                 chroot=self.chroot,
                 work_dir=temp_dir,
                 payload_build=self.payload.build,
+                local_signing=self.use_local_signing,
+                docker_image=self.signing_docker_image,
             )
             self.paygen = paygen_payload_lib.PaygenPayload(
                 self.chroot,

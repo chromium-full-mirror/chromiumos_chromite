@@ -96,6 +96,11 @@ def GeneratePayload(
             tgt_image,
         )
 
+    if input_proto.use_local_signing and not input_proto.docker_image:
+        cros_build_lib.Die(
+            "local signing enabled but no docker image specified"
+        )
+
     # Find the value of bucket or default to 'chromeos-releases'.
     destination_bucket = input_proto.bucket or "chromeos-releases"
 

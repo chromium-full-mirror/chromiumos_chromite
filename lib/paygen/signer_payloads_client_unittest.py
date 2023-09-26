@@ -10,6 +10,8 @@ import shutil
 import tempfile
 from unittest import mock
 
+from chromite.api.gen.chromiumos import common_pb2
+from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -20,6 +22,7 @@ from chromite.lib import remote_access
 from chromite.lib.paygen import gslock
 from chromite.lib.paygen import gspaths
 from chromite.lib.paygen import signer_payloads_client
+from chromite.service import image
 
 
 pytestmark = cros_test_lib.pytestmark_inside_only
@@ -584,3 +587,111 @@ class UnofficialPayloadSignerTest(cros_test_lib.TempDirTestCase):
         signatures = self._client.GetHashSignatures(hashes, keyset)
 
         self.assertEqual(signatures, expected_sigs)
+
+
+class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
+    """Test suite for the class LocalSignerPayloadsClient."""
+
+    def setUp(self):
+        """Setup for tests, and store off some standard expected values."""
+        self._docker_image = (
+            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        )
+
+    def createStandardClient(self):
+        """Test helper method to create a client with standard arguments."""
+
+        client = signer_payloads_client.LocalSignerPayloadsClient(
+            docker_image=self._docker_image,
+            build=gspaths.Build(
+                channel="dev-channel",
+                board="foo-board",
+                version="foo-version",
+                bucket="foo-bucket",
+            ),
+            work_dir=self.tempdir,
+        )
+        return client
+
+    def testWorkDir(self):
+        """Test that the work_dir is generated/passed correctly."""
+        client = self.createStandardClient()
+        self.assertIsNotNone(client._work_dir)
+
+    def testCreateArchive(self):
+        """Test that we can correctly archive up hash values for the signer."""
+
+        client = self.createStandardClient()
+
+        tmp_dir = None
+        hashes = [b"Hash 1", b"Hash 2", b"Hash 3"]
+
+        try:
+            with tempfile.NamedTemporaryFile() as archive_file:
+                hash_filenames = client._CreateArchive(
+                    archive_file.name, hashes
+                )
+
+                # Make sure the archive file created exists
+                self.assertExists(archive_file.name)
+
+                tmp_dir = tempfile.mkdtemp()
+
+                cmd = ["tar", "-xjf", archive_file.name]
+                cros_build_lib.run(cmd, stdout=True, stderr=True, cwd=tmp_dir)
+
+                # Check that the expected (and only the expected) contents are
+                # present.
+                extracted_file_names = os.listdir(tmp_dir)
+                self.assertEqual(len(extracted_file_names), len(hash_filenames))
+                for name in hash_filenames:
+                    self.assertTrue(name in extracted_file_names)
+
+                # Make sure each file has the expected contents
+                for h, hash_name in zip(hashes, hash_filenames):
+                    with open(os.path.join(tmp_dir, hash_name), "rb") as f:
+                        self.assertEqual([h], f.readlines())
+
+        finally:
+            # Clean up at the end of the test
+            if tmp_dir:
+                shutil.rmtree(tmp_dir)
+
+    @mock.patch.object(image, "SignImage")
+    def testGetHashSignaturesMockSignImage(
+        self, mock_sign_image: mock.MagicMock
+    ):
+        client = self.createStandardClient()
+
+        hashes = [b"Hash 1", b"Hash 2", b"Hash 3"]
+        client.GetHashSignatures(hashes)
+
+        expected_signing_config = signing_pb2.BuildTargetSigningConfigs(
+            build_target_signing_configs=[
+                signing_pb2.BuildTargetSigningConfig(
+                    build_target="foo-board",
+                    signing_configs=[
+                        signing_pb2.SigningConfig(
+                            keyset="update_signer",
+                            channel=common_pb2.CHANNEL_DEV,
+                            version="foo-version",
+                            input_files=[
+                                "0.payload.hash",
+                                "1.payload.hash",
+                                "2.payload.hash",
+                            ],
+                            output_names=["@BASENAME@.@KEYSET@.signed"],
+                            archive_path=os.path.join(
+                                client._work_dir, "hashes"
+                            ),
+                        )
+                    ],
+                )
+            ]
+        )
+        mock_sign_image.assert_called_with(
+            expected_signing_config,
+            client._work_dir,
+            mock.ANY,
+            self._docker_image,
+        )

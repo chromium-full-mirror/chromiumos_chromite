@@ -244,6 +244,20 @@ class PaygenSignerTest(PaygenLibTest):
         )
         self.assertEqual(signer._private_key, "some-foo-private-key")
 
+    def testSetupLocalSigner(self):
+        """Tests that local signer is being setup properly."""
+        signer = paygen_payload_lib.PaygenSigner(
+            chroot=chroot_lib.Chroot(),
+            work_dir="/foo",
+            payload_build=self.full_payload.build,
+            local_signing=True,
+        )
+
+        self.assertIsInstance(
+            signer._signer,
+            signer_payloads_client.LocalSignerPayloadsClient,
+        )
+
 
 class PaygenPayloadLibBasicTest(PaygenLibTest):
     """PaygenPayloadLib basic (and quick) testing."""

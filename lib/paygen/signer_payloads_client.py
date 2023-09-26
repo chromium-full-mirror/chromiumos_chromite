@@ -12,7 +12,10 @@ import subprocess
 import tempfile
 import threading
 import time
+from typing import List
 
+from chromite.api.gen.chromite.api import payload_pb2
+from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -21,6 +24,7 @@ from chromite.lib import osutils
 from chromite.lib.paygen import filelib
 from chromite.lib.paygen import gslock
 from chromite.lib.paygen import gspaths
+from chromite.service import image
 
 
 # How long to sleep between polling GS to see if signer results are present.
@@ -497,3 +501,111 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
             signatures.append([osutils.ReadFile(signature_file, mode="rb")])
 
         return signatures
+
+
+class LocalSignerPayloadsClient:
+    """Implements the local signer interface for payloads."""
+
+    def __init__(
+        self, docker_image: str, build: payload_pb2.Build, work_dir: str
+    ):
+        self._docker_image = docker_image
+        self._build = build
+        self._work_dir = work_dir
+
+    def _CreateArchive(self, archive_file: str, hashes: List[str]) -> List[str]:
+        """Take the hash strings and bundle them in the signer request format.
+
+        Take the contents of an array of strings, and put them into a specified
+        file in .tar.bz2 format. Each string is named with a specified name in
+        the tar file.
+
+        The number of hashes and number of hash_names must be equal. The
+        archive_file will be created or overridden as needed. It's up to
+        the caller to ensure it's cleaned up.
+
+        Args:
+            archive_file: Name of file to put the tar contents into.
+            hashes: List of hashes to sign.
+
+        Returns:
+            List of filenames where the hashes are stored.
+        """
+        try:
+            tmp_dir = tempfile.mkdtemp(dir=self._work_dir)
+
+            hash_filenames = []
+            # Copy hash files into tmp_dir with standard hash names.
+            for i, h in enumerate(hashes):
+                hash_filename = f"{i}.payload.hash"
+                hash_filenames.append(hash_filename)
+                osutils.WriteFile(
+                    os.path.join(tmp_dir, hash_filename), h, mode="wb"
+                )
+
+            cmd = ["tar", "-cjf", archive_file] + hash_filenames
+            cros_build_lib.run(cmd, stdout=True, stderr=True, cwd=tmp_dir)
+            return hash_filenames
+        finally:
+            # Cleanup.
+            shutil.rmtree(tmp_dir)
+
+    def GetHashSignatures(self, hashes, keysets=("update_signer",)):
+        """Take an arbitrary list of hash files, and get them signed.
+
+        Args:
+            hashes: A list of hash values to be signed by the signer as bytes.
+                They are all expected to be 32 bytes in length.
+            keysets: list of keysets to have the hashes signed with. The default
+                is almost certainly what you want. These names must match valid
+                keysets on the signer.
+
+        Returns:
+            A list of lists of signatures as bytes in the order of the |hashes|.
+            The list of signatures will correspond to the list of keysets passed
+            in.
+
+            hashes, keysets=['update_signer', 'update_signer-v2'] ->
+                hashes[0]                                  hashes[1] ...
+            [ [sig_update_signer, sig_update_signer-v2], [...],    ... ]
+
+            Returns None if the process failed.
+        """
+        channel = self._build.channel.replace("-channel", "")
+        channel = f"CHANNEL_{channel.upper()}"
+
+        # Create and upload the archive of hashes to sign.
+        archive_path = os.path.join(self._work_dir, "hashes")
+        hash_filenames = self._CreateArchive(archive_path, hashes)
+
+        signing_configs = []
+        for keyset in keysets:
+            signing_configs.append(
+                signing_pb2.SigningConfig(
+                    keyset=keyset,
+                    channel=channel,
+                    # TODO(b/299105459): Figure out what to pass for image_type.
+                    version=self._build.version,
+                    input_files=hash_filenames,
+                    output_names=["@BASENAME@.@KEYSET@.signed"],
+                    archive_path=archive_path,
+                )
+            )
+
+        config = signing_pb2.BuildTargetSigningConfigs(
+            build_target_signing_configs=[
+                signing_pb2.BuildTargetSigningConfig(
+                    build_target=self._build.board,
+                    signing_configs=signing_configs,
+                )
+            ]
+        )
+        result_dir = tempfile.mkdtemp(dir=self._work_dir)
+        image.SignImage(
+            config,
+            self._work_dir,
+            result_dir,
+            self._docker_image,
+        )
+
+        # TODO(b/299105459): Use results.
