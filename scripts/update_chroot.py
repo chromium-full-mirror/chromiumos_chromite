@@ -83,6 +83,7 @@ def get_parser() -> commandline.ArgumentParser:
     )
     group.add_argument(
         "--toolchain_boards",
+        nargs="+",
         deprecated=deprecated % "--toolchain-boards",
         help=argparse.SUPPRESS,
     )
