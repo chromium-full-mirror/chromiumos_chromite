@@ -8,9 +8,6 @@ import os
 import sys
 from typing import Optional
 
-from chromite.utils.telemetry import config
-from chromite.utils.telemetry import trace
-
 
 NOTICE = """
 To help improve the quality of this product, we collect de-identified usage data
@@ -53,6 +50,12 @@ def initialize(
         debug: Indicates if the traces should be exported to console.
         enable: Indicates if the traces should be enabled.
     """
+
+    # Importing this inside the function to avoid performance overhead from the
+    # global package import.
+    from chromite.utils.telemetry import config
+    from chromite.utils.telemetry import trace
+
     cfg = config.Config(config_file)
     if enable is not None:
         cfg.trace_config.update(enabled=enable, reason="USER")

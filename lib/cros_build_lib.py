@@ -31,6 +31,7 @@ from chromite.lib import osutils
 from chromite.lib import signals
 from chromite.utils import hostname_util
 from chromite.utils import os_util
+from chromite.utils.telemetry import trace
 
 
 STRICT_SUDO = False
@@ -52,6 +53,9 @@ _SHELL_ESCAPE_CHARS = r"\"`$"
 # The number of files is larger than this, we will use -T option
 # and files to be added may not show up to the command line.
 _THRESHOLD_TO_USE_T_FOR_TAR = 50
+
+
+tracer = trace.get_tracer(__name__)
 
 
 def ShellQuote(s):
@@ -567,6 +571,7 @@ class _Popen(subprocess.Popen):
         return self._lock_breaker(self.wait, *args, **kwargs)
 
 
+@tracer.start_as_current_span("lib.cros_build_lib.run")
 # pylint: disable=redefined-builtin
 def run(
     cmd,
@@ -691,6 +696,7 @@ def run(
     popen_stderr = None
     stdin = None
     cmd_result = CompletedProcess()
+    span = trace.get_current_span()
 
     # Force the timeout to float; in the process, if it's not convertible,
     # a self-explanatory exception will be thrown.
@@ -834,6 +840,19 @@ def run(
         if cwd:
             log += " in %s" % (cwd,)
         logging.log(debug_level, "%s", log)
+
+    if span.is_recording():
+        span.set_attributes(
+            {
+                "cmd": CmdToStr(cmd),
+                "dryrun": dryrun,
+                "cwd": str(cwd),
+                "executable": str(executable),
+            }
+        )
+
+        tracecontext = trace.extract_tracecontext()
+        env.update(tracecontext)
 
     cmd_result.args = cmd
 
