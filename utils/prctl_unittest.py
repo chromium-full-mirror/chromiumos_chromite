@@ -13,13 +13,18 @@ import pytest
 from chromite.utils import prctl
 
 
-def test_pdeathsig():
+def test_prctl_raw():
     """Check basic functionality with PDEATHSIG option."""
+    orig = prctl.get_pdeathsig()
+
     # This should be safe to play with as we should exit before the parent.
     assert prctl.prctl(prctl.Option.SET_PDEATHSIG, signal.SIGQUIT) == 0
     arg2 = ctypes.c_int(0)
     assert prctl.prctl(prctl.Option.GET_PDEATHSIG, ctypes.byref(arg2)) == 0
     assert arg2.value == signal.SIGQUIT
+
+    # Restore the setting.
+    prctl.set_pdeathsig(orig)
 
 
 def test_prctl_error():
@@ -36,3 +41,12 @@ def test_prctl_error():
         prctl.prctl(prctl.Option.SET_PDEATHSIG, 1000)
     assert excinfo.value.option == prctl.Option.SET_PDEATHSIG
     assert excinfo.value.prargs == [1000, 0, 0, 0]
+
+
+def test_pdeathsig():
+    """Check pdeathsig helpers."""
+    orig = prctl.get_pdeathsig()
+    assert prctl.set_pdeathsig(signal.SIGINT) is None
+    assert prctl.get_pdeathsig() == signal.SIGINT
+    # Restore the setting.
+    prctl.set_pdeathsig(orig)

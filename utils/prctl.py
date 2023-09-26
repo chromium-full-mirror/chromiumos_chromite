@@ -15,7 +15,7 @@ from typing import List, Optional
 class Option(enum.IntEnum):
     """Known prctl options."""
 
-    # arg2 is input.
+    # arg2 is int* input.
     SET_PDEATHSIG = 1
 
     # arg2 is int* output.
@@ -109,3 +109,29 @@ def prctl(
         raise PrctlError(option, ret, [arg2, arg3, arg4, arg5], c_errno)
 
     return ret
+
+
+def _set_int(option: Option, value: int) -> None:
+    """Helper for functions that have a single input integer."""
+    ret = prctl(option, value)
+    if ret:
+        raise PrctlError(option, ret, [value])
+
+
+def _get_int(option: Option) -> int:
+    """Helper for functions that have a single output integer."""
+    value = ctypes.c_int(0)
+    ret = prctl(option, ctypes.byref(value))
+    if ret:
+        raise PrctlError(option, ret)
+    return value.value
+
+
+def set_pdeathsig(value: int) -> None:
+    """SET_PDEATHSIG wrapper."""
+    _set_int(Option.SET_PDEATHSIG, value)
+
+
+def get_pdeathsig() -> int:
+    """GET_PDEATHSIG wrapper."""
+    return _get_int(Option.GET_PDEATHSIG)
