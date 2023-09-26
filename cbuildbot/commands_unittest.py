@@ -798,7 +798,7 @@ class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
         # It's non-trivially difficult to make this unit test actually work
         # outside the chroot and the Cbuildbot code will go away in early 2023Q4
         # so just don't try to test if we're outside the chroot.
-        if cros_build_lib.IsInsideChroot():
+        if not cros_build_lib.IsInsideChroot():
             return
 
         commands.GenerateDebugTarball(
