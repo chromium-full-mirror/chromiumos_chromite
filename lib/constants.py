@@ -28,6 +28,7 @@ SOURCE_ROOT = _FindSourceRoot()
 CHROOT_SOURCE_ROOT = Path("/mnt/host/source")
 CHROOT_OUT_ROOT = Path("/mnt/host/out")
 CHROOT_CACHE_ROOT = Path("/var/cache/chromeos-cache")
+CHROOT_EDB_CACHE_ROOT = Path("/var/cache/edb")
 DEPOT_TOOLS_SUBPATH = Path("src/chromium/depot_tools")
 
 CROSUTILS_DIR = SOURCE_ROOT / "src/scripts"
@@ -47,6 +48,10 @@ DEFAULT_BUILD_ROOT = SOURCE_ROOT / "src" / "build"
 BAZEL_WORKSPACE_ROOT = SOURCE_ROOT / "src"
 
 STATEFUL_DIR = "/mnt/stateful_partition"
+
+# User ID and group ID for "portage".
+PORTAGE_UID = 250
+PORTAGE_GID = 250
 
 # These constants are defined and used in the die_hook that logs failed
 # packages: 'cros_log_failed_packages' in profiles/base/profile.bashrc in

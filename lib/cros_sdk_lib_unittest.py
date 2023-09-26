@@ -565,11 +565,10 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         self.assertExists(Path(self.chroot.path) / "etc" / "localtime")
 
         # Check user home files.
-        user_file = Path(
-            self.chroot.full_path(
-                Path("/") / "home" / "a-test-user" / ".ssh" / "foo"
-            )
+        user_file = (
+            Path(self.chroot.path) / "home" / "a-test-user" / ".ssh" / "foo"
         )
+
         self.assertExists(user_file)
         st = user_file.stat()
         self.assertEqual(st.st_uid, TEST_UID)
@@ -615,6 +614,10 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             (Path(self.chroot.path) / "mnt" / "host" / "out").is_dir()
         )
         self.assertTrue(self.chroot.out_path.is_dir())
+        edb_dep_path = Path(self.chroot.path) / "var" / "cache" / "edb" / "dep"
+        self.assertTrue(edb_dep_path.is_dir())
+        self.assertEqual(edb_dep_path.stat().st_uid, 250)
+        self.assertEqual(edb_dep_path.stat().st_gid, 250)
 
     def testExistingCompatGroup(self):
         """Verify running with an existing, but matching, group works."""

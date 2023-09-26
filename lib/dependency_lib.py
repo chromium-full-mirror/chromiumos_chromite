@@ -45,7 +45,9 @@ def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
 
     cache_file_relpath = os.path.relpath(fixed_path, "/")
 
-    edb_cache_file_path = os.path.join("/var/cache/edb/dep", cache_file_relpath)
+    edb_cache_file_path = str(
+        constants.CHROOT_EDB_CACHE_ROOT / "dep" / cache_file_relpath
+    )
     md5_cache_file_path = os.path.join(
         overlay_head, "metadata", "md5-cache", category, package_name
     )

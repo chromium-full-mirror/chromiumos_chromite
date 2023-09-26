@@ -739,7 +739,13 @@ class ChrootUpdater:
 
 
 class ChrootCreator:
-    """Creates a new chroot from a given SDK."""
+    """Creates a new chroot from a given SDK.
+
+    Note: For the lifetime of this class, no paths are mounted in the chroot.
+    Thus, some standard path conversion functions like path_util.FromChrootPath
+    and chroot.full_path might return paths that don't exist. Instead, use
+    self._from_chroot_path().
+    """
 
     MAKE_CHROOT = os.path.join(
         constants.SOURCE_ROOT, "src/scripts/sdk_lib/make_chroot.sh"
@@ -808,11 +814,30 @@ class ChrootCreator:
         except cros_build_lib.RunCommandError as e:
             cros_build_lib.Die("Creating chroot failed!\n%s", e)
 
+    def _from_chroot_path(self, inside_path: Path) -> Path:
+        """Convert a path inside the chroot to a host-absolute path.
+
+        In most contexts we would use `path_util.FromChrootPath()` or
+        `self.chroot.full_path()`. However, those functions assume that chroot
+        paths have been mounted, which is not true during chroot creation.
+
+        Args:
+            inside_path: An absolute path within the chroot, such as "/build".
+
+        Returns:
+            An absolute path outside the chroot, such as "/my/chroot/build".
+
+        Raises:
+            ValueError: If inside_path is not absolute. (Raised by
+                Path.relative_to()).
+        """
+        return Path(self.chroot.path) / inside_path.relative_to("/")
+
     def init_timezone(self):
         """Setup the timezone info inside the chroot."""
         tz_path = Path("etc/localtime")
         host_tz = "/" / tz_path
-        chroot_tz = Path(self.chroot.full_path(tz_path))
+        chroot_tz = self._from_chroot_path(host_tz)
         # Nuke it in case it's a broken symlink.
         osutils.SafeUnlink(chroot_tz)
         if host_tz.exists():
@@ -853,7 +878,7 @@ class ChrootCreator:
         if gid is None:
             gid = pwd.getpwnam(user).pw_gid
 
-        path = Path(self.chroot.full_path(Path("/") / "etc" / "passwd"))
+        path = self._from_chroot_path(Path("/etc/passwd"))
         lines = path.read_text(encoding="utf-8").splitlines()
 
         # Make sure the user isn't one the existing reserved ones.
@@ -871,7 +896,7 @@ class ChrootCreator:
         lines.insert(0, line)
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-        home_path = Path(self.chroot.full_path(home))
+        home_path = self._from_chroot_path(Path(home))
         # If |home_path| exists, a chroot has already been established for this
         # tree. Skip reestablishing.
         if not home_path.exists():
@@ -911,7 +936,7 @@ class ChrootCreator:
         if group is None:
             group = grp.getgrgid(gid).gr_name
 
-        path = Path(self.chroot.full_path(Path("/") / "etc" / "group"))
+        path = self._from_chroot_path(Path("/etc/group"))
         lines = path.read_text(encoding="utf-8").splitlines()
 
         # Make sure the group isn't one the existing reserved ones.
@@ -939,7 +964,7 @@ class ChrootCreator:
 
     def init_user_home(self, home: Path, uid: int, gid: int):
         """Initialize the user's /home dir."""
-        shutil.copytree(Path(self.chroot.full_path("/etc/skel")), home)
+        shutil.copytree(self._from_chroot_path(Path("/etc/skel")), home)
 
         (home / "chromiumos").symlink_to(constants.CHROOT_SOURCE_ROOT)
 
@@ -955,22 +980,29 @@ class ChrootCreator:
         osutils.Chown(home, user=uid, group=gid, recursive=True)
 
     def init_filesystem_basic(self):
-        """Create various dirs & simple config files."""
-        # Create random empty dirs.
-        for path in (
-            constants.CHROOT_SOURCE_ROOT,
-            constants.CHROOT_OUT_ROOT,
+        """Setup various dirs & simple config files."""
+        # Create files.
+        edb_cache_dep = constants.CHROOT_EDB_CACHE_ROOT / "dep"
+        for path, mode in (
+            (constants.CHROOT_SOURCE_ROOT, 0o755),
+            (constants.CHROOT_OUT_ROOT, 0o755),
+            (edb_cache_dep, 0o2775),
         ):
-            (Path(self.chroot.path) / path.relative_to("/")).mkdir(
-                mode=0o755, parents=True, exist_ok=True
-            )
+            osutils.SafeMakedirs(self._from_chroot_path(path), mode=mode)
+        # Set users/groups.
+        osutils.Chown(
+            self._from_chroot_path(edb_cache_dep),
+            constants.PORTAGE_UID,
+            group=constants.PORTAGE_GID,
+            recursive=True,
+        )
 
     def init_etc(self, user: Optional[str] = None):
         """Setup the /etc paths."""
         if user is None:
             user = os.getenv("SUDO_USER")
 
-        etc_dir = Path(self.chroot.full_path("/etc"))
+        etc_dir = self._from_chroot_path(Path("/etc"))
 
         # Setup some symlinks.
         mtab = etc_dir / "mtab"

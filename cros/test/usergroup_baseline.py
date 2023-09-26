@@ -6,6 +6,8 @@
 
 from typing import NamedTuple, Set
 
+from chromite.lib import constants
+
 
 class UserEntry(NamedTuple):
     """User details matching typical account database (e.g. /etc/passwd).
@@ -78,7 +80,12 @@ USER_BASELINE = dict(
             home="/home/goofy",
             shell="/bin/bash",
         ),
-        UserEntry(user="portage", uid=250, gid=250, home="/var/tmp/portage"),
+        UserEntry(
+            user="portage",
+            uid=constants.PORTAGE_UID,
+            gid=constants.PORTAGE_GID,
+            home="/var/tmp/portage",
+        ),
         UserEntry(
             user="chronos",
             encpasswd="x",
@@ -219,7 +226,9 @@ GROUP_BASELINE = dict(
         GroupEntry(group="brltty", gid=240, users={"chronos"}),
         GroupEntry(group="modem", gid=241, users={"shill"}),
         GroupEntry(group="goofy", gid=248, users={"goofy"}),
-        GroupEntry(group="portage", gid=250, users={"portage"}),
+        GroupEntry(
+            group="portage", gid=constants.PORTAGE_GID, users={"portage"}
+        ),
         GroupEntry(
             group="preserve",
             gid=253,
