@@ -1389,7 +1389,7 @@ def GenerateDebugTarballOutsideChroot(
         # Move the tarball out of the `/tmp` dir to the archive location.
         # shutil.move() doesn't handle moving across mounts, so copy/delete.
         shutil.copy(temp_debug_tarball, debug_tarball)
-        os.remove(temp_debug_tarball)
+        osutils.SafeUnlink(temp_debug_tarball, sudo=True)
 
     # Fix permissions and ownership on debug tarball.
     cros_build_lib.sudo_run(["chown", str(os.getuid()), debug_tarball])
