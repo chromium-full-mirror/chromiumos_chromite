@@ -27,6 +27,12 @@ class Option(enum.IntEnum):
     # arg2 is char* output.
     GET_NAME = 16
 
+    # arg2 is int input.
+    SET_NO_NEW_PRIVS = 38
+
+    # arg2 is int* output.
+    GET_NO_NEW_PRIVS = 39
+
 
 class Error(Exception):
     """Base class for errors in this module."""
@@ -136,7 +142,7 @@ def _get_int(option: Option) -> int:
 def _set_str(option: Option, value: str) -> None:
     """Helper for functions that have a single input string."""
     c_str = ctypes.create_string_buffer(value.encode("utf-8"))
-    ret = _set_int(option, ctypes.byref(c_str))
+    ret = prctl(option, ctypes.byref(c_str))
     if ret:
         raise PrctlError(option, ret, [value])
 
@@ -169,3 +175,16 @@ def get_name() -> str:
     """GET_NAME (thread name) wrapper."""
     # Return is 16 bytes, and it's always NUL terminated.
     return _get_str(Option.GET_NAME, 16)
+
+
+def set_no_new_privs(value: int = 1) -> None:
+    """SET_NO_NEW_PRIVS wrapper."""
+    _set_int(Option.SET_NO_NEW_PRIVS, value)
+
+
+def get_no_new_privs() -> int:
+    """GET_NO_NEW_PRIVS wrapper."""
+    ret = prctl(Option.GET_NO_NEW_PRIVS)
+    if ret not in (0, 1):
+        raise PrctlError(Option.GET_NO_NEW_PRIVS, ret)
+    return ret
