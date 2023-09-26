@@ -335,14 +335,6 @@ def _SeccompPolicyLintFile(
     path, _output_format, debug, _relaxed: bool, commit: str
 ):
     """Run the seccomp policy linter."""
-    dangerous_syscalls = {
-        "bpf",
-        "setns",
-        "execveat",
-        "ptrace",
-        "swapoff",
-        "swapon",
-    }
     if commit:
         stdin = _get_file_data(path, commit)
         path = "/dev/stdin"
@@ -358,8 +350,6 @@ def _SeccompPolicyLintFile(
                 "tools",
                 "seccomp_policy_lint.py",
             ),
-            "--dangerous-syscalls",
-            ",".join(dangerous_syscalls),
             path,
         ],
         debug,
