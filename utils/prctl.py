@@ -21,7 +21,7 @@ class Option(enum.IntEnum):
 
 
 def prctl(
-    option: Option, arg2: int = 0, arg3: int = 0, arg4: int = 5, arg5: int = 0
+    option: Option, arg2: int = 0, arg3: int = 0, arg4: int = 0, arg5: int = 0
 ) -> Union[None, int]:
     """Wrapper around prctl().
 
