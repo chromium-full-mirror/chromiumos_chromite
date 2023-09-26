@@ -106,6 +106,47 @@ class SubdirectorySet(enum.Enum):
         return subdirs
 
 
+def check_upstream_changes(repo: Path) -> None:
+    """Ensures the checked-out branch at `repo` includes the upstream HEAD."""
+    branch = git.GetCurrentBranch(repo)
+    if branch:
+        upstream = git.GetTrackingBranchViaGitConfig(
+            repo, branch, for_checkout=False
+        )
+        if not upstream:
+            cros_build_lib.Die("Failed to get upstream for %s.", repo)
+    else:
+        # Detached head.
+        branch = "HEAD"
+        upstream = git.RemoteRef("cros", "refs/heads/main")
+    remote_head = git.RunGit(
+        repo,
+        ["ls-remote", upstream.remote, upstream.ref],
+    ).stdout.split(maxsplit=1)[0]
+    logging.notice(
+        "Ensuring proto dir contains %s from %s",
+        upstream.ref,
+        upstream.remote,
+    )
+    branches = git.RunGit(
+        repo,
+        ["branch", "--contains", remote_head, branch],
+        print_cmd=True,
+        check=False,
+    )
+    # Git emits the branch name if the commit is in the history. Otherwise, the
+    # commit is either not found (git exits with an error - 129), or missing
+    # from the branch. In either case, there is no output to stdout.
+    if not branches.stdout:
+        cros_build_lib.Die(
+            "The checked-out branch (%s) at %s is missing the remote head.\n"
+            "Please repo sync (and rebase), or skip this check by passing"
+            " --no-check-upstream-proto-changes-included.",
+            branch,
+            repo,
+        )
+
+
 def InstallProtoc(protoc_version: ProtocVersion) -> Path:
     """Install protoc from CIPD."""
     if protoc_version is ProtocVersion.SDK:
@@ -311,6 +352,14 @@ def CompileProto(
 def GetParser():
     """Build the argument parser."""
     parser = commandline.ArgumentParser(description=__doc__)
+    parser.add_bool_argument(
+        "--check-upstream-proto-changes-included",
+        True,
+        "Check whether the checked-out proto branch includes changes"
+        " from refs/heads/main on the remote.",
+        "Skip the check that validates whether upstream proto changes"
+        " are included in the current branch.",
+    )
     standard_group = parser.add_argument_group(
         "Committed Bindings",
         description="Options for generating the bindings in chromite/api/.",
@@ -418,6 +467,10 @@ def main(argv):
             return 0
 
     if ProtocVersion.CHROMITE in opts.protoc_version:
+        # Validate here to avoid checking again inside the chroot.
+        if opts.check_upstream_proto_changes_included:
+            check_upstream_changes(ProtocVersion.CHROMITE.get_proto_dir())
+
         # Compile the chromite bindings.
         try:
             CompileProto(protoc_version=ProtocVersion.CHROMITE)
