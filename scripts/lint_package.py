@@ -72,7 +72,9 @@ def make_relative_to_cros(file_path: str) -> Path:
 
 
 def process_fixes_by_file(
-    lint: toolchain.LinterFinding, file_lengths: Dict[Path, int]
+    lint: toolchain.LinterFinding,
+    file_lengths: Dict[Path, int],
+    allowed_subdirs: Optional[List[Text]],
 ) -> Optional[DefaultDict[Path, List[toolchain.SuggestedFix]]]:
     """Get fixes grouped by file if all the fixes apply to valid files.
 
@@ -82,6 +84,7 @@ def process_fixes_by_file(
         lint: LinterFinding to get fixes from
         file_lengths: dictionary of previously determined file lengths which
             may be modified with additional entries
+        allowed_subdirs: subdirectories in platform2 that we can modify or none
     """
     if not lint.suggested_fixes:
         return None
@@ -93,6 +96,12 @@ def process_fixes_by_file(
         filepath = Path(fix.location.filepath)
         # These are files that we locate, and are usually generated files.
         if filepath.is_absolute():
+            logging.warning(
+                "Skipped applying fix due to invalid path: %s", filepath
+            )
+            return None
+        # Check if file is in an allowed subdirectory.
+        if allowed_subdirs and filepath.parts[0] not in allowed_subdirs:
             logging.warning(
                 "Skipped applying fix due to invalid path: %s", filepath
             )
@@ -121,6 +130,7 @@ def process_fixes_by_file(
 
 def get_noconflict_fixes(
     lints: List[toolchain.LinterFinding],
+    allowed_subdirs: Optional[List[Text]],
 ) -> Tuple[
     DefaultDict[Path, List[toolchain.SuggestedFix]],
     List[toolchain.LinterFinding],
@@ -135,6 +145,7 @@ def get_noconflict_fixes(
 
     Args:
         lints: List of lints to aggregate suggested fixes from.
+        allowed_subdirs: subdirectories in platform2 that we can modify or none
 
     Returns:
         A tuple including:
@@ -147,7 +158,9 @@ def get_noconflict_fixes(
     lints_fixed = []
     file_lengths = {}
     for lint in lints:
-        new_fixes_by_file = process_fixes_by_file(lint, file_lengths)
+        new_fixes_by_file = process_fixes_by_file(
+            lint, file_lengths, allowed_subdirs
+        )
         if not new_fixes_by_file:
             continue
         files_with_overlap = set(
@@ -215,6 +228,7 @@ def apply_edits(content: Text, fixes: List[toolchain.SuggestedFix]) -> Text:
 
 def apply_fixes(
     lints: List[toolchain.LinterFinding],
+    allowed_subdirs: Optional[List[Text]],
 ) -> Tuple[List[toolchain.LinterFinding], Iterable[Path]]:
     """Modify files in Platform2 to apply suggested fixes from linter findings.
 
@@ -223,6 +237,7 @@ def apply_fixes(
 
     Args:
         lints: LinterFindings to apply potential fixes from.
+        allowed_subdirs: subdirectories in platform2 that we can modify or none
 
     Returns:
         A tuple including:
@@ -230,7 +245,7 @@ def apply_fixes(
           1) The list of files which were modified
     """
 
-    fixes_by_file, lints_fixed = get_noconflict_fixes(lints)
+    fixes_by_file, lints_fixed = get_noconflict_fixes(lints, allowed_subdirs)
 
     for filepath, fixes in fixes_by_file.items():
         file_content = filepath.read_text(encoding="utf-8")
@@ -367,6 +382,11 @@ def get_arg_parser() -> commandline.ArgumentParser:
         action="append",
     )
     parser.add_argument(
+        "--restrict-fix-subdirs",
+        help="Only fix lints if all fixes are in the given directories",
+        action="append",
+    )
+    parser.add_argument(
         "--differential",
         action="store_true",
         help="only lint lines touched by the last commit",
@@ -408,6 +428,7 @@ def get_arg_parser() -> commandline.ArgumentParser:
         nargs="*",
         help="package(s) to emerge and retrieve lints for",
     )
+
     return parser
 
 
@@ -426,6 +447,12 @@ def parse_args(argv: List[str]):
     # A board must be specified unless we are in fetch-only mode
     if not (opts.fetch_only or opts.board or opts.host):
         parser.error("Emerge mode requires either --board or --host.")
+
+    # Require apply_fix for flags that only affect this mode
+    if opts.restrict_fix_subdirs and not opts.apply_fixes:
+        parser.error(
+            "--restrict-fix-subdirs is meaningless if fixes aren't applied"
+        )
 
     return opts
 
@@ -492,7 +519,9 @@ def main(argv: List[str]) -> None:
         formatted_output = "\n".join(format_lint(l) for l in lints)
 
     if opts.apply_fixes:
-        fixed_lints, modified_files = apply_fixes(lints)
+        fixed_lints, modified_files = apply_fixes(
+            lints, opts.restrict_fix_subdirs
+        )
         if opts.json:
             formatted_fixes_inner = ",\n".join(
                 json_format_lint(l) for l in lints
