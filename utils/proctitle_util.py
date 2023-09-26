@@ -15,9 +15,11 @@ try:
     from setproctitle import getproctitle
     from setproctitle import setproctitle
 except ImportError:
-    # Module not available -> can't do anything.
-    getproctitle = lambda: None
-    setproctitle = lambda _x: None
+    # Module not available -> use basic prctl API.
+    from chromite.utils import prctl
+
+    getproctitle = prctl.get_name
+    setproctitle = prctl.set_name
 
 
 # Used with the settitle helper below.

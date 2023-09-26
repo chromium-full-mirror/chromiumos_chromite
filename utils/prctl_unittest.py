@@ -50,3 +50,13 @@ def test_pdeathsig():
     assert prctl.get_pdeathsig() == signal.SIGINT
     # Restore the setting.
     prctl.set_pdeathsig(orig)
+
+
+def test_name():
+    """Check (thread) name helpers."""
+    assert prctl.set_name("foo") is None
+    assert prctl.get_name() == "foo"
+
+    # Check truncation.
+    assert prctl.set_name("1234567890" * 3) is None
+    assert prctl.get_name() == "123456789012345"

@@ -21,6 +21,12 @@ class Option(enum.IntEnum):
     # arg2 is int* output.
     GET_PDEATHSIG = 2
 
+    # arg2 is char* input.
+    SET_NAME = 15
+
+    # arg2 is char* output.
+    GET_NAME = 16
+
 
 class Error(Exception):
     """Base class for errors in this module."""
@@ -127,6 +133,23 @@ def _get_int(option: Option) -> int:
     return value.value
 
 
+def _set_str(option: Option, value: str) -> None:
+    """Helper for functions that have a single input string."""
+    c_str = ctypes.create_string_buffer(value.encode("utf-8"))
+    ret = _set_int(option, ctypes.byref(c_str))
+    if ret:
+        raise PrctlError(option, ret, [value])
+
+
+def _get_str(option: Option, length: int) -> str:
+    """Helper for functions that have a single output string."""
+    c_str = ctypes.create_string_buffer(length)
+    ret = prctl(Option.GET_NAME, ctypes.byref(c_str))
+    if ret:
+        raise PrctlError(option, ret)
+    return c_str.value.decode("utf-8")
+
+
 def set_pdeathsig(value: int) -> None:
     """SET_PDEATHSIG wrapper."""
     _set_int(Option.SET_PDEATHSIG, value)
@@ -135,3 +158,14 @@ def set_pdeathsig(value: int) -> None:
 def get_pdeathsig() -> int:
     """GET_PDEATHSIG wrapper."""
     return _get_int(Option.GET_PDEATHSIG)
+
+
+def set_name(name: str) -> None:
+    """SET_NAME (thread name) wrapper."""
+    _set_str(Option.SET_NAME, name)
+
+
+def get_name() -> str:
+    """GET_NAME (thread name) wrapper."""
+    # Return is 16 bytes, and it's always NUL terminated.
+    return _get_str(Option.GET_NAME, 16)
