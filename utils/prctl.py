@@ -38,7 +38,10 @@ def prctl(
         print(arg2.value)
     """
     libc_name = ctypes.util.find_library("c")
-    libc = ctypes.CDLL(libc_name)
+    libc = ctypes.CDLL(libc_name, use_errno=True)
+
+    # Clear the errno so the caller can determine whether this call failed.
+    ctypes.set_errno(0)
 
     # NB: It's safe to call prctl with unused args as they'll get ignored, and
     # it's safer to explicitly specify a default of 0 rather than leave whatever
