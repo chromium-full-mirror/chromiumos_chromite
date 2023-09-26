@@ -2,21 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""The tracing library that provides the Tracer."""
+"""The chromite telemetry library."""
 
 import os
 import sys
 from typing import Optional
 
-from chromite.third_party.opentelemetry import trace as otel_trace_api
-from chromite.third_party.opentelemetry.sdk import resources as otel_resources
-from chromite.third_party.opentelemetry.sdk import trace as otel_trace
-from chromite.third_party.opentelemetry.sdk.trace import export as otel_export
-
-from chromite.utils import hostname_util
 from chromite.utils.telemetry import config
-from chromite.utils.telemetry import detector
-from chromite.utils.telemetry import exporter
 from chromite.utils.telemetry import trace
 
 
@@ -31,26 +23,22 @@ In order to opt-in, please run `cros telemetry --enable`. The telemetry will be
 automatically enabled after the notice has been displayed for 10 times.
 """
 
+SERVICE_NAME = "chromite"
 # The version keeps track of telemetry changes in chromite. Update this each
 # time there are changes to `chromite.utils.telemetry` or telemetry collection
 # changes in chromite.
-_TELEMETRY_VERSION = "3"
-_DEFAULT_RESOURCE = otel_resources.Resource.create(
-    {
-        otel_resources.SERVICE_NAME: "chromite",
-        "telemetry.version": _TELEMETRY_VERSION,
-    }
-)
+TELEMETRY_VERSION = "3"
 
 
 def initialize(
     config_file: os.PathLike, debug: bool = False, enable: Optional[bool] = None
 ):
-    """Initialize opentelemetry library.
+    """Initialize chromite telemetry.
 
-    The function initialized the opentelemetry library for trace collection. It
-    collects the resource information, initializes the TraceProvider and based
-    on enrollment and host enables or disables publishing of traces.
+    The function accepts a config path and handles the initialization of
+    chromite telemetry. It also handles the user enrollment. A notice is
+    displayed to the user if no selection is made regarding telemetry enrollment
+    until the countdown runs out and the user is auto enrolled.
 
     Examples:
         from chromite.lib import chromite_config
@@ -65,38 +53,15 @@ def initialize(
         debug: Indicates if the traces should be exported to console.
         enable: Indicates if the traces should be enabled.
     """
-
-    detected_resource = otel_resources.get_aggregated_resources(
-        [
-            otel_resources.ProcessResourceDetector(),
-            otel_resources.OTELResourceDetector(),
-            detector.ProcessDetector(),
-            detector.SDKSourceDetector(),
-            detector.SystemDetector(),
-        ]
-    )
-
-    resource = detected_resource.merge(_DEFAULT_RESOURCE)
-    otel_trace_api.set_tracer_provider(
-        trace.ChromiteTracerProvider(
-            otel_trace.TracerProvider(resource=resource)
-        )
-    )
-
-    if debug:
-        otel_trace_api.get_tracer_provider().add_span_processor(
-            otel_export.BatchSpanProcessor(otel_export.ConsoleSpanExporter())
-        )
-
-    if not hostname_util.is_google_host():
-        return
-
     cfg = config.Config(config_file)
     if enable is not None:
         cfg.trace_config.update(enabled=enable, reason="USER")
         cfg.flush()
 
-    if not cfg.trace_config.has_enabled():
+    if (
+        not cfg.trace_config.has_enabled()
+        and trace.TRACEPARENT_ENVVAR not in os.environ
+    ):
         if cfg.root_config.notice_countdown > -1:
             print(NOTICE, file=sys.stderr)
             cfg.root_config.update(
@@ -107,7 +72,4 @@ def initialize(
 
         cfg.flush()
 
-    if cfg.trace_config.enabled:
-        otel_trace_api.get_tracer_provider().add_span_processor(
-            otel_export.BatchSpanProcessor(exporter.ClearcutSpanExporter())
-        )
+    trace.initialize(enabled=cfg.trace_config.enabled, debug=debug)

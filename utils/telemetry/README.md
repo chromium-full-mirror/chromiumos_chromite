@@ -9,6 +9,10 @@ The Build team is actively working on instrumenting frequently used code paths
 in Chromite. Currently supported code paths include:
 
 - chromite/bin/build_packages
+- chromite/cli/cros/cros_build_packages
+- emerge-$board
+- cros_run_unit_test
+- chromite/scripts/cros_workon_make
 
 We intend to expand to the following code paths in 2023:
 
@@ -32,11 +36,9 @@ In the script you wish to instrument, you will want to add the following lines
 of code:
 
 ```python
-from chromite.third_party.opentelemetry import trace
-
 from chromite.utils import telemetry
 
-tracer = trace.get_tracer(__name__)
+tracer = telemetry.get_tracer(__name__)
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     commandline.RunInsideChroot()
@@ -50,9 +52,9 @@ under `service/`, `lib/`, or any other relevant chromite code path. Each
 instrumented file will need a reference to a `Tracer` object.
 
 ```python
-from chromite.third_party.opentelemetry import trace
+from chromite.utils import telemetry
 
-tracer = trace.get_tracer(__name__)
+tracer = telemetry.get_tracer(__name__)
 
 @tracer.start_as_current_span("chromite.lib.my_important_method")
 def my_important_method():
@@ -62,9 +64,9 @@ def my_important_method():
 or
 
 ```python
-from chromite.third_party.opentelemetry import trace
+from chromite.utils import telemetry
 
-tracer = trace.get_tracer(__name__)
+tracer = telemetry.get_tracer(__name__)
 
 def my_important_method():
     with tracer.start_as_current_span("my_important_method.do_thing") as span:

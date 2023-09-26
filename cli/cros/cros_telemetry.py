@@ -8,7 +8,7 @@ import logging
 
 from chromite.cli import command
 from chromite.lib import chromite_config
-from chromite.utils import telemetry
+from chromite.utils.telemetry import config
 
 
 @command.command_decorator("telemetry")
@@ -37,13 +37,13 @@ class TelemetryCommand(command.CliCommand):
 
     def _UpdateTelemetry(self, enable: bool):
         chromite_config.initialize()
-        cfg = telemetry.config.Config(chromite_config.TELEMETRY_CONFIG)
+        cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
         cfg.trace_config.update(enabled=enable, reason="USER")
         cfg.flush()
 
     def _ShowTelemetry(self):
         chromite_config.initialize()
-        cfg = telemetry.config.Config(chromite_config.TELEMETRY_CONFIG)
+        cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
 
         if cfg.trace_config.has_enabled():
             print(f"enabled = {cfg.trace_config.enabled}")

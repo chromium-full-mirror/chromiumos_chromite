@@ -4,6 +4,9 @@
 
 """Test the telemetry module."""
 
+import os
+
+from chromite.third_party.opentelemetry import trace as trace_api
 from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
 from chromite.third_party.opentelemetry.sdk.trace import export
 
@@ -238,3 +241,53 @@ def test_initialize_to_disable_telemetry_based_on_optin(
     assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert not cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "USER"
+
+
+def test_initialize_to_set_parent_from_traceparent_env(monkeypatch, tmp_path):
+    parent = {
+        "traceparent": "00-6e9d1daccc58d878b74c78b363ed2cf8-65d3ef7761438b6f-01"
+    }
+    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
+    monkeypatch.setattr(os, "environ", parent)
+
+    config_file = tmp_path / "telemetry.cfg"
+    cfg = config.Config(config_file)
+    cfg.trace_config.update(enabled=False, reason="USER")
+    cfg.flush()
+
+    telemetry.initialize(config_file=config_file)
+
+    with trace_api.get_tracer(__name__).start_as_current_span("test") as span:
+        ctx = span.get_span_context()
+        assert (
+            trace_api.format_trace_id(ctx.trace_id)
+            == "6e9d1daccc58d878b74c78b363ed2cf8"
+        )
+        assert (
+            trace_api.format_span_id(span.parent.span_id) == "65d3ef7761438b6f"
+        )
+
+
+def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
+    capsys, monkeypatch, tmp_path
+):
+    """Test initialize to skip notice if run with tracecontext."""
+    parent = {
+        "traceparent": "00-6e9d1daccc58d878b74c78b363ed2cf8-65d3ef7761438b6f-01"
+    }
+    config_file = tmp_path / "telemetry.cfg"
+    processors = []
+    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
+    monkeypatch.setattr(os, "environ", parent)
+    monkeypatch.setattr(
+        trace_sdk.TracerProvider,
+        "add_span_processor",
+        _spy_add_span_processor(processors),
+    )
+
+    telemetry.initialize(config_file, debug=False)
+
+    cfg = config.Config(config_file)
+    assert len(processors) == 0
+    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert cfg.root_config.notice_countdown == 10
