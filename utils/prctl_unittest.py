@@ -7,21 +7,13 @@
 import ctypes
 import signal
 
-from chromite.lib import cros_test_lib
 from chromite.utils import prctl
 
 
-class PrctlTests(cros_test_lib.TestCase):
-    """Tests for prctl()."""
-
-    def test_pdeathsig(self):
-        """Check basic functionality with PDEATHSIG option."""
-        # This should be safe to play with as we should exit before the parent.
-        self.assertEqual(
-            0, prctl.prctl(prctl.Option.SET_PDEATHSIG, signal.SIGQUIT)
-        )
-        arg2 = ctypes.c_int(0)
-        self.assertEqual(
-            0, prctl.prctl(prctl.Option.GET_PDEATHSIG, ctypes.byref(arg2))
-        )
-        self.assertEqual(signal.SIGQUIT, arg2.value)
+def test_pdeathsig():
+    """Check basic functionality with PDEATHSIG option."""
+    # This should be safe to play with as we should exit before the parent.
+    assert prctl.prctl(prctl.Option.SET_PDEATHSIG, signal.SIGQUIT) == 0
+    arg2 = ctypes.c_int(0)
+    assert prctl.prctl(prctl.Option.GET_PDEATHSIG, ctypes.byref(arg2)) == 0
+    assert arg2.value == signal.SIGQUIT
