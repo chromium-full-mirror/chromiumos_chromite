@@ -31,7 +31,7 @@ export class PackageCategoryItem implements Item {
       : ViewItemContext.CATEGORY;
 
     if (favorite) {
-      this.treeItem.description = '☆';
+      this.treeItem.description = '★';
     }
 
     this.children = [];

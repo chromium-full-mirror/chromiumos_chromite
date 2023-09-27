@@ -35,9 +35,9 @@ export class PackageNameItem implements Item {
 
     if (pkg.favorite) {
       if (pkg.workon === 'started') {
-        treeItem.description = '☆ (workon)';
+        treeItem.description = '★ (workon)';
       } else {
-        treeItem.description = '☆';
+        treeItem.description = '★';
       }
     } else if (pkg.workon === 'started') {
       treeItem.description = '(workon)';
