@@ -33,21 +33,55 @@ IGNORED_REPOSITORIES = frozenset(["crossdev", "toolchains"])
 # matches "dev-lang/python-exec-conf".
 # This list only applies to SDK packages.
 SYSTEM_PACKAGES = {
+    # Do not delete sudo.
     "app-admin/sudo",
+    # Compression utils/algos used by portage.
     "app-arch/",
+    # CAs must be installed to establish a secure connection.
     "app-misc/ca-certificates",
+    # ELF utils used by portage.
     "app-misc/pax-utils",
+    # Do not delete shells.
     "app-shells/",
+    # Python is required for our scripts.
     "dev-lang/python",
-    "dev-libs/",
+    # Basic crypto primitives used by python, curl, etc… to download binpkgs
+    # from the network.
+    "dev-libs/openssl",
+    # Used by Python to parse XML files.
+    "dev-libs/expat",
+    # Used by curl.
+    "net-libs/nghttp2",
+    # Needed by compiler & friends (for math).
+    "dev-libs/gmp",
+    # Needed by compiler & friends (for math).
+    "dev-libs/mpc",
+    # Needed by compiler & friends (for math).
+    "dev-libs/mpfr",
+    # Needed by compiler (llvm).
+    "dev-libs/libedit",
+    # Needed by compiler (llvm).
+    "dev-libs/libffi",
+    # Used by libselinux which is used by a lot of system tools (e.g. tar &
+    # coreutils).
+    "dev-libs/libpcre2",
+    # Needed by compiler (llvm).
+    "dev-libs/libxml2",
+    # Portage requires git to install packages.
     "dev-vcs/",
+    # net-dns packages needed for DNS resolution.
     "net-dns/c-ares",
     "net-dns/libidn2",
+    # net-misc includes SSH, curl, etc. Could potentially exclude less.
     "net-misc/",
+    # sys-* categories are generally system-important. Could be potentially
+    # broken down into individual packages.
     "sys-apps/",
     "sys-devel/",
     "sys-libs/",
+    # Portage uses `ps`.
     "sys-process/procps",
+    # Many CrOS packages use chromite-sdk but do not depend on it.
     "chromeos-base/chromite-sdk",
 }
 # pylint: disable=protected-access
