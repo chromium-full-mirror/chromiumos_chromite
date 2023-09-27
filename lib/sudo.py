@@ -5,6 +5,7 @@
 """Helper methods and classes related to managing sudo."""
 
 import errno
+import io
 import logging
 import os
 import signal
@@ -39,9 +40,16 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
 
     @staticmethod
     def _IdentifyTTY():
+        fileno = None
         for source in (sys.stdin, sys.stdout, sys.stderr):
             try:
-                return os.ttyname(source.fileno())
+                fileno = source.fileno()
+            except io.UnsupportedOperation:
+                # Ignore pseudo files.
+                continue
+
+            try:
+                return os.ttyname(fileno)
             except EnvironmentError as e:
                 if e.errno not in (errno.EINVAL, errno.ENOTTY):
                     raise
