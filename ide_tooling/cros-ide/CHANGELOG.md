@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.22.0 (September 2023)
+
+- Boards and packages view V2
+  - All the packages are shown in hierarchy
+  - The package for an active file is automatically revealed
+  - You can add category or package items to favorite for them to be shown first
+- Gerrit integration
+  - Chromium repository
+  - Editing and discarding draft comments
+- Tast tests
+  - Debugging Tast tests
+
 ## 0.20.0 (August 2023)
 
 - GTest
