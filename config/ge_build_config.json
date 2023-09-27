@@ -12942,19 +12942,43 @@
         {
           "board_name": "octopus-arc-t",
           "name": "bobba360",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "casta",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
@@ -12969,172 +12993,400 @@
         {
           "board_name": "octopus-arc-t",
           "name": "dorp",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "droid",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "fleex",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "foob",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "foob360",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "garfour",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "garg",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "garg360",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "grabbiter",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "laser14",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "lick",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "meep",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "mimrock",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "nospike",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "orbatrix",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "phaser",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "phaser360",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "sparky",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "sparky360",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
@@ -13239,28 +13491,64 @@
         {
           "board_name": "octopus-arc-t",
           "name": "vorticon",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "vortininja",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         },
         {
           "board_name": "octopus-arc-t",
           "name": "yorp",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7255,
           "is_active": true,
+          "stable_target_milestone": 119,
           "is_experimental": false
         }
       ],
