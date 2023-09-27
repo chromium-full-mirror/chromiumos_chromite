@@ -198,6 +198,16 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirsNonRoot(self.chroot.path)
         osutils.SafeMakedirsNonRoot(self.chroot.out_path)
 
+        osutils.WriteFile(
+            chroot_path / "etc" / "passwd", "passwd contents", makedirs=True
+        )
+        osutils.WriteFile(
+            chroot_path / "etc" / "group", "group contents", makedirs=True
+        )
+        osutils.WriteFile(
+            chroot_path / "etc" / "shadow", "shadow contents", makedirs=True
+        )
+
         self.mount_mock = self.PatchObject(osutils, "Mount")
 
     def testMounts(self):
@@ -234,6 +244,63 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
                     Path(self.chroot.path) / "dev",
                     None,
                     osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "passwd",
+                    Path(self.chroot.path) / "etc" / "passwd",
+                    None,
+                    osutils.MS_BIND,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "group",
+                    Path(self.chroot.path) / "etc" / "group",
+                    None,
+                    osutils.MS_BIND,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "shadow",
+                    Path(self.chroot.path) / "etc" / "shadow",
+                    None,
+                    osutils.MS_BIND,
+                ),
+            ],
+            any_order=True,
+        )
+
+    def testPasswdExists(self):
+        """If out/ already has passwd contents, we should still mount OK."""
+        osutils.WriteFile(
+            self.chroot.out_path / "sdk" / "passwd",
+            "preexisting passwd",
+            makedirs=True,
+        )
+
+        cros_sdk_lib.MountChrootPaths(self.chroot)
+
+        self.assertEqual(
+            "preexisting passwd",
+            osutils.ReadFile(self.chroot.out_path / "sdk" / "passwd"),
+        )
+
+        self.mount_mock.assert_has_calls(
+            [
+                mock.call(
+                    self.chroot.out_path / "sdk" / "passwd",
+                    Path(self.chroot.path) / "etc" / "passwd",
+                    None,
+                    osutils.MS_BIND,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "group",
+                    Path(self.chroot.path) / "etc" / "group",
+                    None,
+                    osutils.MS_BIND,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "shadow",
+                    Path(self.chroot.path) / "etc" / "shadow",
+                    None,
+                    osutils.MS_BIND,
                 ),
             ],
             any_order=True,
@@ -518,6 +585,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                         D("env.d", ()),
                         "passwd",
                         "group",
+                        "shadow",
                         D("skel", (D(".ssh", ("foo",)),)),
                     ),
                 ),
@@ -529,6 +597,10 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         (tar_dir / "etc/group").write_text(
             "root::0\nusers::100\n", encoding="utf-8"
         )
+        (tar_dir / "etc/shadow").write_text(
+            "root:*:10770:0:::::\n", encoding="utf-8"
+        )
+
         osutils.Touch(tar_dir / self.creater.DEFAULT_TZ, makedirs=True)
         cros_build_lib.CreateTarball(self.sdk_tarball, tar_dir)
 
@@ -605,6 +677,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             "en_US.UTF-8 UTF-8",
             (etc / "locale.gen").read_text(encoding="utf-8"),
         )
+        self.assertExists(etc / "shadow")
 
         # Check /mnt/host directories.
         self.assertTrue(

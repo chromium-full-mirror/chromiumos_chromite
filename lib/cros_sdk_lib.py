@@ -331,6 +331,31 @@ def MountChrootPaths(chroot: chroot_lib.Chroot):
             osutils.MS_BIND | osutils.MS_REC,
         )
 
+    # Bind mount a few /etc files, so sysroots can add their own users/groups.
+    for src, dst in (
+        ("sdk/passwd", "etc/passwd"),
+        ("sdk/group", "etc/group"),
+        ("sdk/shadow", "etc/shadow"),
+    ):
+        if not (out_dir / src).exists():
+            # Grab a unique lock here, as we only need fine-grained coverage
+            # over these passwd/group/shadow files, in the infrequent
+            # (first-time initialization) case that they haven't been copied
+            # over before.
+            with locking.FileLock(
+                out_dir / ".passwd_lock",
+                "passwd lock",
+                blocking_timeout=30,
+            ) as lock:
+                lock.write_lock()
+                # Check again now that we have the lock. If it exists now, we
+                # lost the race, but that's OK.
+                if (out_dir / src).exists():
+                    break
+                osutils.SafeMakedirsNonRoot((out_dir / src).parent)
+                shutil.copy2(path / dst, out_dir / src)
+        osutils.Mount(out_dir / src, path / dst, None, osutils.MS_BIND)
+
     defflags = (
         osutils.MS_NOSUID
         | osutils.MS_NODEV
