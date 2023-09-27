@@ -861,7 +861,7 @@ def GnLintInstallPathAlias(gndata, _gn_path=""):
             Issue(
                 node.get("location"),
                 f'CrOS uses the alias "{alt}" instead of "{install_path}" for'
-                "install_path",
+                " install_path",
             )
         )
 
