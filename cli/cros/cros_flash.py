@@ -10,8 +10,10 @@ from chromite.cli import command
 from chromite.cli import flash
 from chromite.cli.cros import cros_chrome_sdk
 from chromite.lib import commandline
+from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import path_util
+from chromite.lib import sudo
 from chromite.utils import timer
 
 
@@ -260,7 +262,7 @@ Examples:
         logging.notice("CrOS SDK version: %s", full_version)
         return full_version
 
-    def Run(self):
+    def _Flash(self):
         """Perform the cros flash command."""
         try:
             with timer.Timer() as t:
@@ -293,3 +295,19 @@ Examples:
                 self.options.device.raw,
             )
             raise
+
+    def Run(self):
+        """Run the cros flash command inside sudo wrappers."""
+        # In most (all?) cases, "cros flash" requires sudo.  Ensure that sudo
+        # is cached here ahead of everything, because
+        # operation.ProgressBarOperation, which is run in RunParallelSteps,
+        # can interfere with prompting for the sudo password.
+        # TODO(b/302557861): stop using `losetup`.
+
+        previous_strict_sudo = cros_build_lib.STRICT_SUDO
+        try:
+            cros_build_lib.STRICT_SUDO = True
+            with sudo.SudoKeepAlive():
+                self._Flash()
+        finally:
+            cros_build_lib.STRICT_SUDO = previous_strict_sudo

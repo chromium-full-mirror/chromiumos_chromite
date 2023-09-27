@@ -6,7 +6,7 @@
 
 import abc
 import enum
-from io import BytesIO
+import io
 import logging
 import os
 import re
@@ -624,7 +624,7 @@ class RawPartitionUpdater(PartitionUpdaterBase):
         )
 
     def _WriteToTarget(
-        self, source: Union[int, BytesIO], decompress_command: List[str]
+        self, source: Union[int, io.BytesIO], decompress_command: List[str]
     ) -> None:
         """Writes bytes source to the target device on DUT.
 
