@@ -974,6 +974,7 @@ def create_image_scripts_archive(
 
 def SignImage(
     signing_configs: "signing_pb2.BuildTargetSigningConfigs",
+    archive_dir: Union[str, Path],
     result_path: Path,
     docker_image: str,
 ) -> None:
@@ -981,6 +982,8 @@ def SignImage(
 
     Args:
         signing_configs: Config for each artifact to sign.
+        archive_dir: Path to dir containing input artifacts.
+            Path must exist on the host.
         result_path: Path to place the signed artifacts in.
         docker_image: docker image to run.
     """
@@ -1017,6 +1020,9 @@ def SignImage(
                 # Mount the input dir as a volume.
                 "-v",
                 f"{tempdir}:/in",
+                # Mount the archive dir as a volume.
+                "-v",
+                f"{archive_dir}:/archive_dir",
                 # Mount the output dir as a volume.
                 "-v",
                 f"{result_path}:/out",
@@ -1025,6 +1031,8 @@ def SignImage(
                 # Args that are passed in to the entrypoint.
                 "-i",
                 "/in/proto.bin",
+                "--archive-dir",
+                "/archive_dir",
                 "-o",
                 "/out",
             ]

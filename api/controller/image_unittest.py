@@ -792,18 +792,21 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(rc, controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY)
 
 
-class SignImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
+class SignImageTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
     """Sign image test."""
 
     def testValidateOnly(self):
         """Check that a validate only call does not execute any logic."""
         req = image_pb2.SignImageRequest(
+            archive_dir=str(self.tempdir),
             result_path=common_pb2.ResultPath(
                 path=common_pb2.Path(
                     path="/path/to/outside",
                     location=common_pb2.Path.OUTSIDE,
                 )
-            )
+            ),
         )
         resp = image_pb2.SignImageResponse()
         rc = image_controller.SignImage(req, resp, self.validate_only_config)

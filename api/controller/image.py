@@ -659,6 +659,8 @@ def PushImage(
 
 @faux.all_empty
 @validate.eq("result_path.path.location", common_pb2.Path.Location.OUTSIDE)
+@validate.require("archive_dir")
+@validate.exists("archive_dir")
 @validate.validation_complete
 def SignImage(
     input_proto: "image_pb2.SignImageRequest",
@@ -677,6 +679,7 @@ def SignImage(
     """
     image.SignImage(
         input_proto.signing_configs,
+        input_proto.archive_dir,
         Path(input_proto.result_path.path.path),
         input_proto.docker_image,
     )

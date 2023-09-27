@@ -1339,6 +1339,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
 
         image.SignImage(
             signing_pb2.BuildTargetSigningConfigs(),
+            "/tmp/temp-dir-archives/",
             result_dir,
             "signing:latest",
         )
@@ -1355,10 +1356,14 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 "-v",
                 f"{self.tempdir}:/in",
                 "-v",
+                "/tmp/temp-dir-archives/:/archive_dir",
+                "-v",
                 f"{result_dir}:/out",
                 "signing:latest",
                 "-i",
                 "/in/proto.bin",
+                "--archive-dir",
+                "/archive_dir",
                 "-o",
                 "/out",
             ]
