@@ -68,7 +68,6 @@ def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
 
 def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
     """Parse packages from a command."""
-
     pkg_fragments = set()
     for arg in command[1:]:
         if arg.startswith("-"):
@@ -152,9 +151,8 @@ def execute(opts: commandline.ArgumentNamespace) -> int:
         }
     )
 
-    return sudo_run_cmd_with_failed_pkg_parsing(
-        opts.command, extra_env
-    ).returncode
+    result = sudo_run_cmd_with_failed_pkg_parsing(opts.command, extra_env)
+    return result.returncode
 
 
 def main(argv: Optional[List[str]]) -> Optional[int]:
@@ -170,3 +168,6 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
         return execute(opts)
     except cros_build_lib.RunCommandError as e:
         return e.returncode
+    except KeyboardInterrupt:
+        # No stack trace.
+        return 1
