@@ -125,8 +125,6 @@ export async function debugTastTests(
 
   try {
     await debugSelectedTests(context, hostname, testNames);
-    // TODO: Wait to show the prompt until the tests run successfully
-    showPromptWithOpenLogChoice(context, 'Tests run successfully.', false);
     return new DebugTastTestsResult();
   } catch (err) {
     showPromptWithOpenLogChoice(context, 'Failed to run tests.', true);
@@ -136,6 +134,8 @@ export async function debugTastTests(
 
 /**
  * Debug all of the selected tests.
+ * This doesn't wait for the completion of the debugging, but returns immediately after the command
+ * to start debugging run.
  */
 async function debugSelectedTests(
   context: CommandContext,
