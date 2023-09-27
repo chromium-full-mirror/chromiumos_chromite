@@ -806,3 +806,43 @@ class GnLintTests(LintTestCase):
             ],
             gn_path=Path("platform2/camera/BUILD.gn"),
         )
+
+    def testGnLintNoIfDefinedUseVars(self):
+        """Verify GnLintNoIfDefinedUseVars catches bad inputs."""
+        self._CheckLinter(
+            linters.gnlint.GnLintNoIfDefinedUseVars,
+            [
+                {
+                    "child": [
+                        {
+                            "begin_token": "(",
+                            "child": [
+                                {
+                                    "accessor_kind": "member",
+                                    "child": [
+                                        {
+                                            "location": STUB_ERROR_LOCATION,
+                                            "type": "IDENTIFIER",
+                                            "value": "kernel_5_15",
+                                        }
+                                    ],
+                                    "location": STUB_ERROR_LOCATION,
+                                    "type": "ACCESSOR",
+                                    "value": "use",
+                                }
+                            ],
+                            "end": {
+                                "location": STUB_ERROR_LOCATION,
+                                "type": "END",
+                                "value": ")",
+                            },
+                            "location": STUB_ERROR_LOCATION,
+                            "type": "LIST",
+                        }
+                    ],
+                    "location": STUB_ERROR_LOCATION,
+                    "type": "FUNCTION",
+                    "value": "defined",
+                },
+            ],
+        )

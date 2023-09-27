@@ -366,6 +366,38 @@ def GnLintDefines(gndata, _gn_path=""):
     return issues
 
 
+def GnLintNoIfDefinedUseVars(gndata, _gn_path=""):
+    """Ban use of 'if (defined(use.xxx) ...'.
+
+    Args:
+        gndata: A dict representing a token tree.
+
+    Returns:
+        List of detected Issue.
+    """
+
+    def CheckNode(node):
+        if not IsFunctionNode(node):
+            return
+
+        if node["value"] != "defined":
+            return
+
+        child = node["child"][0]["child"][0]
+        if child["type"] == "ACCESSOR" and child["value"] == "use":
+            issues.append(
+                Issue(
+                    node.get("location"),
+                    "never use 'defined(use.xxx)'; declare all flags in "
+                    "common-mk/platform2.py:_IUSE",
+                )
+            )
+
+    issues = []
+    WalkGn(CheckNode, gndata)
+    return issues
+
+
 def GnLintCommonTesting(gndata, _gn_path=""):
     """Packages should use //common-mk:test instead of -lgtest/-lgmock.
 
@@ -989,6 +1021,7 @@ _ALL_LINTERS = {
     "GnLintOrderingWithinTarget": GnLintOrderingWithinTarget,
     "GnLintInstallPathAlias": GnLintInstallPathAlias,
     "GnLintDepsOtherProjectDirectly": GnLintDepsOtherProjectDirectly,
+    "GnLintNoIfDefinedUseVars": GnLintNoIfDefinedUseVars,
 }
 
 
