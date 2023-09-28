@@ -156,6 +156,7 @@ def GetArtifacts(
         in_proto.ArtifactType.DEBUG_SYMBOLS: sysroot.BundleDebugSymbols,
         in_proto.ArtifactType.FUZZER_SYSROOT: sysroot.CreateFuzzerSysroot,
         in_proto.ArtifactType.SYSROOT_ARCHIVE: sysroot.ArchiveSysroot,
+        in_proto.ArtifactType.BAZEL_PERFORMANCE_ARTIFACTS: sysroot.CollectBazelPerformanceArtifacts,
     }
     # pylint: enable=line-too-long
 

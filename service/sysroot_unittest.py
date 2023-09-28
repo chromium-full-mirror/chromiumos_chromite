@@ -1372,6 +1372,58 @@ class BundleDebugSymbolsTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(tar_file.endswith("/output_dir/debug.tgz"))
 
 
+def test_CollectBazelPerformanceArtifacts(monkeypatch, tmp_path):
+    """CollectBazelPerformanceArtifacts copies the known set of files."""
+    # Configure {chroot,out,syroot}_path.
+    tempdir = tmp_path
+    chroot_path = tempdir / "chroot_dir"
+    out_path = tempdir / "out_dir"
+    sysroot_path = chroot_path / "build" / "target"
+
+    # Simulate being outside the chroot.
+    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: False)
+
+    osutils.SafeMakedirs(sysroot_path)
+
+    # Create output dir.
+    output_dir = os.path.join(tempdir, "output_dir")
+    osutils.SafeMakedirs(output_dir)
+
+    # Create chroot, sysroot, and build_target objs.
+    chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
+    target_sysroot = sysroot_lib.Sysroot(path=sysroot_path)
+    build_target = build_target_lib.BuildTarget("target")
+
+    # Create Bazel performance files for testing
+    sysroot_bazel_files = (
+        sysroot.BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
+        sysroot.BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
+        sysroot.BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+        sysroot.BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
+    )
+    created_files = [
+        chroot_path / file[1:] if file[0] == "/" else file
+        for file in sysroot_bazel_files
+    ]
+    for created_file in created_files:
+        osutils.Touch(created_file, makedirs=True)
+
+    expected_files = [
+        tempdir / os.path.basename(file) for file in sysroot_bazel_files
+    ]
+
+    # Collect the files and confirm we got what we expected
+    archived_files = sysroot.CollectBazelPerformanceArtifacts(
+        chroot,
+        target_sysroot,
+        build_target,
+        tempdir,
+    )
+    for expected_file in expected_files:
+        assert str(expected_file) in archived_files
+        assert expected_file.exists()
+
+
 class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
     """Unittests for remote execution context manager."""
 

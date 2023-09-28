@@ -212,6 +212,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         common_pb2.ArtifactsByService.Sysroot.ArtifactType.DEBUG_SYMBOLS: sysroot_service.BundleDebugSymbols,
         common_pb2.ArtifactsByService.Sysroot.ArtifactType.FUZZER_SYSROOT: sysroot_service.CreateFuzzerSysroot,
         common_pb2.ArtifactsByService.Sysroot.ArtifactType.SYSROOT_ARCHIVE: sysroot_service.ArchiveSysroot,
+        common_pb2.ArtifactsByService.Sysroot.ArtifactType.BAZEL_PERFORMANCE_ARTIFACTS: sysroot_service.CollectBazelPerformanceArtifacts,
     }
 
     # pylint: enable=line-too-long

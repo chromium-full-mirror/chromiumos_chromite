@@ -81,6 +81,10 @@ _PACKAGE_LIST = List[Optional[str]]
 BACKTRACK_DEFAULT = 10
 
 SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
+BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE = "/tmp/appcryptnss_command.profile.gz"
+BAZEL_APPCRYPTNSS_EXEC_LOG_FILE = "/tmp/bazel_build_appcryptnss_exec.log"
+BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
+BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec.log"
 
 
 class Error(Exception):
@@ -976,7 +980,7 @@ def BuildPackages(
                                     "build",
                                     (
                                         "--execution_log_binary_file="
-                                        "/tmp/bazel_build_appcryptnss_exec.log"
+                                        + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
                                     ),
                                     "--execution_log_sort=false",
                                     "@portage//"
@@ -1459,6 +1463,43 @@ def BundleBreakpadSymbols(
             )
             return None
     return tarball_path
+
+
+def CollectBazelPerformanceArtifacts(
+    chroot: "chroot_lib.Chroot",
+    _sysroot_class: sysroot_lib.Sysroot,
+    _build_target: "build_target_lib.BuildTarget",
+    output_dir: str,
+) -> List[Path]:
+    """Copy Bazel performance artifacts into output_dir for importing into GCS.
+
+    Copy the known set of Bazel performance artifacts into output_dir, so they
+    can be uploaded to GCS.
+
+    Args:
+        chroot: The chroot class used for these artifacts.
+        output_dir: The path to write artifacts to.
+
+    Returns:
+        A List of string paths to the output Bazel performance artifacts.
+    """
+    chroot_raw_artifacts = [
+        BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
+        BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
+        BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+        BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
+    ]
+    raw_artifacts = [
+        chroot.path + artifact for artifact in chroot_raw_artifacts
+    ]
+
+    osutils.SafeMakedirs(output_dir)
+    existing_artifacts = [Path(r) for r in raw_artifacts if Path(r).exists()]
+    archive_paths = [
+        shutil.copy2(existing_artifact, Path(output_dir))
+        for existing_artifact in existing_artifacts
+    ]
+    return archive_paths
 
 
 # A SymbolFileTuple is a data object that contains:
