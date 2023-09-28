@@ -74,6 +74,7 @@ export class BoardsAndPackages implements vscode.Disposable {
           case CommandName.FAVORITE_ADD:
           case CommandName.FAVORITE_DELETE:
           case CommandName.OPEN_EBUILD:
+          case CommandName.BUILD:
             return;
           case CommandName.CROS_WORKON_START:
           case CommandName.CROS_WORKON_STOP:

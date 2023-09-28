@@ -532,14 +532,19 @@
       ],
       "view/item/context": [
         {
+          "command": "chromiumide.boardsAndPackages.build",
+          "when": "config.chromiumide.underDevelopment.buildAndDeploy && view == boards-and-packages && viewItem =~ /<package>/",
+          "group": "3_build"
+        },
+        {
           "command": "chromiumide.boardsAndPackages.crosWorkonStart",
           "when": "view == boards-and-packages && viewItem =~ /<package>/ && viewItem =~ /<stopped>/",
-          "group": "3_workon"
+          "group": "3_build"
         },
         {
           "command": "chromiumide.boardsAndPackages.crosWorkonStop",
           "when": "view == boards-and-packages && viewItem =~ /<package>/ && viewItem =~ /<started>/",
-          "group": "3_workon"
+          "group": "3_build"
         },
         {
           "command": "chromiumide.boardsAndPackages.favoriteAdd",
@@ -724,6 +729,10 @@
         },
         {
           "command": "chromiumide.cppxrefs.forceGenerate",
+          "when": "false"
+        },
+        {
+          "command": "chromiumide.deviceManagement.build",
           "when": "false"
         },
         {

@@ -176,7 +176,7 @@ describe('Boards and packages', () => {
     expect(started).toBeTrue();
   });
 
-  it('reveals pacakge for active file', async () => {
+  it('reveals package for active file', async () => {
     const {chromiumosRoot, chroot, boardsAndPackages} = state;
 
     // Prepare betty board.
@@ -411,6 +411,9 @@ describe('Boards and packages', () => {
     const packageJson = readPackageJson();
 
     for (const [command, contextValue, wantShown] of [
+      // build commands
+      [CommandName.BUILD, ViewItemContext.CATEGORY, false],
+      [CommandName.BUILD, ViewItemContext.PACKAGE, true],
       // workon start/stop commands
       [CommandName.CROS_WORKON_START, ViewItemContext.PACKAGE_STOPPED, true],
       [
@@ -456,6 +459,7 @@ describe('Boards and packages', () => {
             x => x.command === command
           )!.when,
           {
+            'config.chromiumide.underDevelopment.buildAndDeploy': true,
             view: 'boards-and-packages',
             viewItem: contextValue,
           }
@@ -463,5 +467,29 @@ describe('Boards and packages', () => {
       )
         .withContext(`command ${command} under context ${contextValue}`)
         .toEqual(wantShown);
+  });
+
+  it('offers command to build the package', async () => {
+    let built = false;
+    testing.fakes.installChrootCommandHandler(
+      fakeExec,
+      state.chromiumosRoot,
+      'emerge-betty',
+      ['chromeos-base/codelab'],
+      () => {
+        built = true;
+        return '';
+      }
+    );
+
+    await vscode.commands.executeCommand(
+      'chromiumide.boardsAndPackages.build',
+      Breadcrumbs.from('betty', 'chromeos-base', 'codelab')
+    );
+
+    expect(built).toBeTrue();
+    expect(vscodeSpy.window.showInformationMessage).toHaveBeenCalledOnceWith(
+      'chromeos-base/codelab has been built for betty'
+    );
   });
 });

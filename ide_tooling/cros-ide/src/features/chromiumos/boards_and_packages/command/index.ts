@@ -7,6 +7,7 @@ import {BoardOrHost} from '../../../../common/chromiumos/board_or_host';
 import {vscodeRegisterCommand} from '../../../../common/vscode/commands';
 import {Context} from '../context';
 import {Breadcrumbs} from '../item';
+import {build} from './build';
 import {crosWorkon} from './cros_workon';
 import {
   addFavoriteCategory,
@@ -26,6 +27,7 @@ export enum CommandName {
   CROS_WORKON_START = 'chromiumide.boardsAndPackages.crosWorkonStart',
   CROS_WORKON_STOP = 'chromiumide.boardsAndPackages.crosWorkonStop',
   OPEN_EBUILD = 'chromiumide.boardsAndPackages.openEbuild',
+  BUILD = 'chromiumide.boardsAndPackages.build',
 }
 
 /**
@@ -72,9 +74,9 @@ export class BoardsAndPackagesCommands implements vscode.Disposable {
       ),
       // Commands for package name items
       this.register(
-        CommandName.OPEN_EBUILD,
+        CommandName.BUILD,
         ({breadcrumbs: [board, category, name]}: Breadcrumbs) =>
-          openEbuild(ctx, BoardOrHost.parse(board), {category, name})
+          build(ctx, BoardOrHost.parse(board), {category, name})
       ),
       this.register(
         CommandName.CROS_WORKON_START,
@@ -85,6 +87,11 @@ export class BoardsAndPackagesCommands implements vscode.Disposable {
         CommandName.CROS_WORKON_STOP,
         ({breadcrumbs: [board, category, name]}: Breadcrumbs) =>
           crosWorkon(ctx, BoardOrHost.parse(board), {category, name}, 'stop')
+      ),
+      this.register(
+        CommandName.OPEN_EBUILD,
+        ({breadcrumbs: [board, category, name]}: Breadcrumbs) =>
+          openEbuild(ctx, BoardOrHost.parse(board), {category, name})
       )
     );
   }
