@@ -65,6 +65,23 @@ SECONDARY_GPT_BYTES = (
     SIZE_OF_PARTITION_ENTRY_ARRAY_BYTES + SIZE_OF_GPT_HEADER * MAX_SECTOR_SIZE
 )
 
+# Valid partition types.
+VALID_PARTITION_TYPES = {
+    # keep-sorted start
+    "blank",
+    "bootloader",
+    "data",
+    "efi",
+    "firmware",
+    "kernel",
+    "minios",
+    "nand",
+    "reserved",
+    "rootfs",
+    "ubi",
+    # keep-sorted end
+}
+
 
 def ParseHumanNumber(operand: Union[str, int]) -> int:
     """Parse a human friendly number
@@ -513,6 +530,12 @@ class DiskLayout:
 
                     if part.get("num") == "metadata" and "type" not in part:
                         part["type"] = "blank"
+
+                    if part["type"] not in VALID_PARTITION_TYPES:
+                        raise InvalidLayoutError(
+                            f"Unknown partition type '{part['type']}' "
+                            f"in layout {layout_name}"
+                        )
 
                     if part["type"] != "blank":
                         for s in ("num", "label"):
