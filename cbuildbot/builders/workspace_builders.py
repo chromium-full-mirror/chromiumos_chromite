@@ -100,6 +100,11 @@ class FactoryBranchBuilder(generic_builders.Builder):
         )
 
         self._RunStage(
+            workspace_stages.WorkspaceLinkMountPathsStage,
+            build_root=self._run.options.workspace,
+        )
+
+        self._RunStage(
             workspace_stages.WorkspaceUpdateSDKStage,
             build_root=self._run.options.workspace,
         )

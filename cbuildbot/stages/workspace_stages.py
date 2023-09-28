@@ -18,9 +18,12 @@ Also, the initial sync will usually take about 40 minutes, so performance should
 be considered carefully.
 """
 
+import dataclasses
 import logging
 import os
+from pathlib import Path
 import re
+from typing import Tuple
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import cbuildbot_run
@@ -485,6 +488,167 @@ class WorkspaceInitSDKStage(WorkspaceStageBase):
 
         post_ver = cros_sdk_lib.GetChrootVersion(chroot_path)
         cbuildbot_alerts.PrintBuildbotStepText(post_ver)
+
+
+@dataclasses.dataclass
+class MountPathInfo:
+    """Simple object to hold data about where a chroot path gets mounted.
+
+    Attributes:
+        chroot_path: The absolute path inside the chroot that gets mounted.
+        old_style_path: The host-absolute path to which the chroot_path was
+            mounted for older branches.
+        new_style_path: The host-absolute path to which the chroot_path is
+            mounted for new branches (and tip-of-tree).
+    """
+
+    chroot_path: Path
+    old_style_path: Path
+    new_style_path: Path
+
+
+class WorkspaceLinkMountPathsStage(WorkspaceStageBase):
+    """Stage that sets up symlinks to let us access new-style mount paths.
+
+    Paths inside the chroot are accessible from outside the chroot via
+    well-known mount paths. However, in 2023 several of those mount paths have
+    changed.
+
+    This causes a problem when cbuildbot tries to convert an inside-path to a
+    host-absolute path for a workspace branch. Cbuildbot runs from tip-of-tree,
+    so it will return the new-style mounted path, even if the workspace branch's
+    chroot still uses old-style mounting logic.
+
+    This stage solves that problem by creating symlinks from the new-style mount
+    paths to the old-style paths. That way, if tip-of-tree cbuildbot reports
+    that a file should be found at a new-style location, it will work even if
+    the file is actually mounted to the old-style location.
+
+    This is a quick fix, because workspace builders are expected to be fully
+    deleted in 2023.
+
+    This class currently ignores `/out` mounting, because cbuildbot doesn't seem
+    to rely on `/out`, and because the symlink would need to somehow contain
+    other symlinks, which seems gnarly. `/out` mounting was added in 15439.0.0;
+    see http://crrev.com/c/4477625.
+    """
+
+    category = constants.CI_INFRA_STAGE
+
+    def __init__(self, *args, **kwargs) -> None:
+        """Set up attributes needed for this class."""
+        # super().__init__() must come first, since it creates self._build_root.
+        super().__init__(*args, **kwargs)
+
+        self.chroot_path = Path(self._build_root) / constants.DEFAULT_CHROOT_DIR
+        self.out_path = Path(self._build_root) / constants.DEFAULT_OUT_DIR
+
+        self._required_mount_paths: Tuple[MountPathInfo] = (
+            # Previously, /tmp in the chroot was mounted at ${CHROOT}/tmp.
+            # Since 15483.0.0, it has been mounted at ${OUT}/tmp.
+            # See https://crrev.com/c/4522313.
+            MountPathInfo(
+                chroot_path=Path("/tmp"),
+                old_style_path=self.chroot_path / "tmp",
+                new_style_path=self.out_path / "tmp",
+            ),
+            # Previously, /home in the chroot was mounted at ${CHROOT}/home.
+            # Since 15588.0.0, it has been mounted at ${OUT}/home.
+            # See https://crrev.com/c/4522314.
+            MountPathInfo(
+                chroot_path=Path("/home"),
+                old_style_path=self.chroot_path / "home",
+                new_style_path=self.out_path / "home",
+            ),
+            # Previously, /build in the chroot was mounted at ${CHROOT}/build.
+            # Since 15613, it has been mounted at ${OUT}/build.
+            # See https://crrev.com/c/4808858.
+            MountPathInfo(
+                chroot_path=Path("/build"),
+                old_style_path=self.chroot_path / "build",
+                new_style_path=self.out_path / "build",
+            ),
+        )
+
+    def PerformStage(self) -> None:
+        """Create the symlinks, and prove that they worked right."""
+        self._CreateOutDir()
+        self._CreateLinks()
+        self._VerifyLinks()
+
+    def _CreateOutDir(self) -> None:
+        """Make an out-dir next to the workspace chroot, if it doesn't exist."""
+        osutils.SafeMakedirs(self.out_path)
+
+    def _CreateLinks(self) -> None:
+        """Create the symlinks."""
+        for mount_path in self._required_mount_paths:
+            self._CreateLink(mount_path)
+
+    def _CreateLink(self, mount_path: MountPathInfo) -> None:
+        """Create a link from the new-style path pointing to the old-style path.
+
+        If the new-style mount path already exists, assume that the workspace
+        branch is already mounting to that new path, so return early.
+
+        If the old-style mount path doesn't already exist, create it so that the
+        symlink target will definitely exist.
+        """
+        if mount_path.new_style_path.exists():
+            return
+        if not mount_path.old_style_path.exists():
+            osutils.SafeMakedirs(mount_path.old_style_path)
+        osutils.SafeSymlink(
+            mount_path.old_style_path, mount_path.new_style_path
+        )
+
+    def _VerifyLinks(self) -> None:
+        """Prove that all the symlinks work as expected.
+
+        Factory builders take a long time to run, sometimes over 10 hours. It
+        would be unfortunate to wait 10 hours before we discover that our
+        builders can't find chroot files at the expected location.
+        """
+        for mount_path in self._required_mount_paths:
+            self._VerifyLink(mount_path)
+
+    def _VerifyLink(self, mount_path: MountPathInfo) -> None:
+        """Prove that the symlink for the given mount path works as expected.
+
+        Create a file in the chroot, and then try to find it at the new-style
+        location. Then, just to be double-sure, also use
+        path_util.FromChrootPath() to make sure we'll actually find it in
+        practice.
+
+        No need to double down with chroot.full_path(), since it uses the same
+        logic.
+
+        Raises:
+            FileNotFoundError: If we couldn't find a newly created file in any
+                of the required mount paths.
+        """
+        _filename = "find_me"
+
+        # Create the file inside the SDK.
+        inside_path = mount_path.chroot_path / _filename
+        commands.RunBuildScript(
+            self._build_root,
+            ["touch", str(inside_path)],
+            sudo=True,
+            enter_chroot=True,
+        )
+
+        # Try to find the file in the directory that we mounted.
+        new_style_filepath = mount_path.new_style_path / _filename
+        if not new_style_filepath.exists():
+            raise FileNotFoundError(new_style_filepath)
+
+        # Try to find the file where path_util thinks it should be.
+        path_util_filepath = path_util.FromChrootPath(
+            inside_path, source_path=self._build_root
+        )
+        if not Path(path_util_filepath).exists():
+            raise FileNotFoundError(path_util_filepath)
 
 
 class WorkspaceUpdateSDKStage(WorkspaceStageBase):

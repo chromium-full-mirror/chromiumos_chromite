@@ -13,11 +13,11 @@ from chromite.cbuildbot.builders import workspace_builders
 from chromite.cbuildbot.stages import branch_archive_stages
 from chromite.cbuildbot.stages import workspace_stages
 from chromite.config import chromeos_config
+from chromite.lib import buildstore
 from chromite.lib import config_lib
 from chromite.lib import config_lib_unittest
 from chromite.lib import cros_test_lib
 from chromite.lib import parallel
-from chromite.lib.buildstore import FakeBuildStore
 from chromite.scripts import cbuildbot
 
 
@@ -77,7 +77,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
     """Tests for the main code paths in simple_builders.SimpleBuilder"""
 
     def setUp(self):
-        self.buildstore = FakeBuildStore()
+        self.buildstore = buildstore.FakeBuildStore()
 
         self.buildroot = os.path.join(self.tempdir, "buildroot")
         self.workspace = os.path.join(self.tempdir, "workspace")
@@ -233,6 +233,10 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
                     build_root=self.workspace,
                 ),
                 mock.call(
+                    workspace_stages.WorkspaceLinkMountPathsStage,
+                    build_root=self.workspace,
+                ),
+                mock.call(
                     workspace_stages.WorkspaceUpdateSDKStage,
                     build_root=self.workspace,
                 ),
@@ -288,6 +292,10 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             [
                 mock.call(
                     workspace_stages.WorkspaceInitSDKStage,
+                    build_root=self.workspace,
+                ),
+                mock.call(
+                    workspace_stages.WorkspaceLinkMountPathsStage,
                     build_root=self.workspace,
                 ),
                 mock.call(
@@ -347,6 +355,10 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
                 ),
                 mock.call(
                     workspace_stages.WorkspaceInitSDKStage,
+                    build_root=self.workspace,
+                ),
+                mock.call(
+                    workspace_stages.WorkspaceLinkMountPathsStage,
                     build_root=self.workspace,
                 ),
                 mock.call(

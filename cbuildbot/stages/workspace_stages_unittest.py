@@ -5,6 +5,7 @@
 """Unittests for workspace stages."""
 
 import os
+from pathlib import Path
 from unittest import mock
 
 from chromite.cbuildbot import commands
@@ -40,6 +41,7 @@ class WorkspaceStageBase(
         self.workspace = os.path.join(self.tempdir, "workspace")
         # Make it a 'repo' for chroot path conversions.
         osutils.SafeMakedirs(os.path.join(self.workspace, ".repo"))
+        osutils.SafeMakedirs(os.path.join(self.workspace, "chroot"))
 
         self.from_repo_mock = self.PatchObject(
             chromeos_version.VersionInfo, "from_repo"
@@ -548,6 +550,44 @@ class WorkspaceInitSDKStageTest(WorkspaceStageBase):
             },
             cwd=self.workspace,
         )
+
+
+class WorkspaceLinkMountPathsStageTest(WorkspaceStageBase):
+    """Test the WorkspaceLinkMountPathsStage."""
+
+    def ConstructStage(self) -> workspace_stages.WorkspaceLinkMountPathsStage:
+        """Set up a new stage to run."""
+        return workspace_stages.WorkspaceLinkMountPathsStage(
+            self._run, self.buildstore, build_root=self.workspace
+        )
+
+    def testRunStage(self) -> None:
+        """Make sure the stage is at least runnable."""
+        self._Prepare(
+            "test-factorybranch",
+            site_config=workspace_builders_unittest.CreateMockSiteConfig(),
+        )
+        with self.PatchObject(Path, "exists", return_value=True):
+            self.RunStage()
+
+        # Assert that some expected things happen.
+        for path in (
+            Path(self.workspace) / "out",
+            Path(self.workspace) / "out" / "tmp",
+            Path(self.workspace) / "out" / "build",
+            Path(self.workspace) / "out" / "home",
+            Path(self.workspace) / "chroot" / "tmp",
+            Path(self.workspace) / "chroot" / "build",
+            Path(self.workspace) / "chroot" / "home",
+        ):
+            self.assertTrue(path.exists())
+
+        for touch_file in ("/tmp/find_me", "/home/find_me", "/build/find_me"):
+            self.rc.assertCommandCalled(
+                ["sudo", "--", "touch", touch_file],
+                enter_chroot=True,
+                cwd=self.workspace,
+            )
 
 
 class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
