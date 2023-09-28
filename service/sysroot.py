@@ -935,7 +935,7 @@ def BuildPackages(
                             ]
                         )
 
-                        bazel_extra_env = {"BOARD": target.name}
+                        extra_env["BOARD"] = target.name
                         bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
                         # Generate an exec log for a single package, to help us
                         # debug cache misses. We may eventually want to account
@@ -953,7 +953,7 @@ def BuildPackages(
                                 "--execution_log_sort=false",
                                 "@portage//app-crypt/nss:package_set",
                             ],
-                            extra_env=bazel_extra_env,
+                            extra_env=extra_env,
                         )
 
                         cros_build_lib.run(
@@ -964,7 +964,8 @@ def BuildPackages(
                                 "--board",
                                 target.name,
                             ]
-                            + packages
+                            + packages,
+                            extra_env=extra_env,
                         )
                     else:
                         cros_build_lib.sudo_run(
