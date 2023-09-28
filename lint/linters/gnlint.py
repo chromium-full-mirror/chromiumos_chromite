@@ -955,6 +955,27 @@ def GnLintDepsOtherProjectDirectly(gndata, gn_path):
     return issues
 
 
+def GnLintDepsRelativePath(gndata, _gn_path=""):
+    """Packages should not depend on targets using relative paths."""
+
+    def CheckNode(node):
+        for n in ExtractLiteralAssignment(node, ["deps"]):
+            dep = GetNodeValue(n)
+            if dep.startswith(".."):
+                issues.append(
+                    Issue(
+                        n.get("location"),
+                        "do not use relative path to depend on targets from "
+                        "other projects.",
+                    )
+                )
+
+    issues = []
+    WalkGn(CheckNode, gndata)
+
+    return issues
+
+
 def ParseOptions(options, name=None):
     """Parse out the linter settings from |options|.
 
@@ -1022,6 +1043,7 @@ _ALL_LINTERS = {
     "GnLintInstallPathAlias": GnLintInstallPathAlias,
     "GnLintDepsOtherProjectDirectly": GnLintDepsOtherProjectDirectly,
     "GnLintNoIfDefinedUseVars": GnLintNoIfDefinedUseVars,
+    "GnLintDepsRelativePath": GnLintDepsRelativePath,
 }
 
 

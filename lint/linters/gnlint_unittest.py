@@ -846,3 +846,24 @@ class GnLintTests(LintTestCase):
                 },
             ],
         )
+
+    def testGnLintDepsRelativePath(self):
+        """Verify GnLintDepsRelativePath catches bad inputs.
+
+        Disallow relative path to depend on other project.
+        """
+        self._CheckLinter(
+            linters.gnlint.GnLintDepsRelativePath,
+            [
+                CreateDepsTestData(['"//common-mk"', '"test"']),
+            ],
+            is_bad_input=False,
+        )
+        self._CheckLinter(
+            linters.gnlint.GnLintDepsRelativePath,
+            [
+                CreateDepsTestData(
+                    ['"//common-mk"', '"test"', '"../other_project/targets"']
+                ),
+            ],
+        )
