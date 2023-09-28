@@ -66,11 +66,8 @@ def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
     return opts
 
 
-@tracer.start_as_current_span("portage_cmd_wrapper.parse_pkgs")
 def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
     """Parse packages from a command."""
-    span = trace.get_current_span()
-    span.update_name(f"portage_cmd_wrapper.{command[0]}.parse_pkgs")
 
     pkg_fragments = set()
     for arg in command[1:]:
@@ -142,7 +139,9 @@ def execute(opts: commandline.ArgumentNamespace) -> int:
         os.environ["SANDBOX_ON"] = "0"
     os.environ.pop("LD_PRELOAD", None)
 
-    pkgs = list(parse_pkgs(opts.command, opts.build_target))
+    with tracer.start_as_current_span("portage_cmd_wrapper.parse_pkgs"):
+        pkgs = list(parse_pkgs(opts.command, opts.build_target))
+
     span.set_attributes(
         {
             "executable": opts.command[0],
