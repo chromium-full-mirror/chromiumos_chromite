@@ -1366,5 +1366,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 "/archive_dir",
                 "-o",
                 "/out",
+                "-p",
+                "out_proto.bin",
             ]
         )

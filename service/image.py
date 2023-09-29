@@ -1035,5 +1035,7 @@ def SignImage(
                 "/archive_dir",
                 "-o",
                 "/out",
+                "-p",
+                "out_proto.bin",
             ]
         )
