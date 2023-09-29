@@ -284,7 +284,7 @@ class MockedCallResults:
 
         Args:
             args: A list containing the positional args an invocation must have
-                forZ it to match the internal result.  The list can contain
+                for it to match the internal result.  The list can contain
                 instances of meta-args (such as IgnoreArg, Regex, In, etc.).
                 Positional argument matching is always *strict*, meaning extra
                 positional arguments in the invocation are not allowed.
