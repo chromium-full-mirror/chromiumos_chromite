@@ -12,14 +12,26 @@ Example:
         chromeos-base/cryptohome
 """
 
+from __future__ import annotations
+
 import argparse
 import collections
 import logging
 import os
 from pathlib import Path
 import pprint
+import re
 import sys
-from typing import Iterable, List, Optional, Set, Union
+from typing import (
+    Generic,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Set,
+    TypeVar,
+    Union,
+)
 
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -104,15 +116,40 @@ VIRTUALS = {
 }
 
 
-def env_to_libs(var: str) -> List[str]:
-    """Converts value of REQUIRES to a list of .so files.
+T = TypeVar("T")
 
-    For example:
-      "arm_32: libRSSupport.so libblasV8.so libc.so ..."
-    Becomes:
-      ["libRSSupport.so", "libblasV8.so", "libc.so", ...]
-    """
-    return [x for x in var.split() if not x.endswith(":")]
+
+class ResultSet(Generic[T], NamedTuple):
+    """Represent separate but related sets for the build target and sdk."""
+
+    target: Set[T]
+    sdk: Set[T]
+
+
+def is_sdk_path(path: str) -> bool:
+    """Match paths for files built for the SDK/builder."""
+    return bool(
+        re.match(
+            "|".join(
+                (
+                    r"/usr/src/chromeos-kernel-[^/]+/build"
+                    r"/build/bin"
+                    r"/build/libexec",
+                )
+            ),
+            path,
+        )
+    )
+
+
+def is_guest_os_path(path: str) -> bool:
+    """Match paths belonging to a guest OS."""
+    return bool(
+        re.match(
+            r"/opt/google/(?:vms|containers)",
+            path,
+        )
+    )
 
 
 class DotSoResolver:
@@ -135,6 +172,7 @@ class DotSoResolver:
 
         # Lazy initialize since it might not be needed.
         self.lib_to_package_map = None
+        self.sdk_lib_to_package_map = None
 
     @property
     def sdk_db_packages(self):
@@ -175,29 +213,31 @@ class DotSoResolver:
             logging.debug("query: %s: matched %s", query, dep_info.cpvr)
             yield package
 
-    def get_required_libs(self, package) -> Set[str]:
-        """Return a set of required .so files."""
-        requires = package.requires
-        if requires is not None:
-            return set(env_to_libs(package.requires))
-        # Fallback to needed if requires is not available.
-        aggregate = set()
+    # TODO Re-enable the lint after we upgrade to Python 3.9 or later.
+    # pylint: disable-next=unsubscriptable-object
+    def get_required_libs(self, package) -> ResultSet[str]:
+        """Return sets of required .so files for the target and the SDK."""
+        sdk = set()
+        target = set()
         needed = package.needed
         if needed is not None:
-            for libs in needed.values():
-                aggregate.update(libs)
-        return aggregate
+            for file, libs in needed.items():
+                if is_sdk_path(file):
+                    sdk.update(libs)
+                elif not is_guest_os_path(file):
+                    target.update(libs)
+        return ResultSet(target, sdk)
 
+    # TODO Re-enable the lint after we upgrade to Python 3.9 or later.
+    # pylint: disable-next=unsubscriptable-object
     def get_deps(
         self, package: portage_util.InstalledPackage
-    ) -> Set[portage_util.InstalledPackage]:
-        """Return a list of dependencies.
+    ) -> ResultSet[portage_util.InstalledPackage]:
+        """Returns two lists of dependencies.
 
-        This expands the virtuals listed below.
+        This expands the virtuals listed in VIRTUALS.
         """
         cpvr = f"{package.category}/{package.pf}"
-        expanded = []
-        deps = set()
 
         # Handling ||() nodes is difficult.  Be lazy and expand all of them.
         # We could compare against the installed db to try and find a match,
@@ -225,53 +265,69 @@ class DotSoResolver:
         package_dependencies.extend(
             package.rdepend.reduce(anyof_reduce=_anyof_reduce)
         )
+        package_build_dependencies = []
+        package_build_dependencies.extend(
+            package.bdepend.reduce(anyof_reduce=_anyof_reduce)
+        )
 
-        for fulldep in package_dependencies:
-            # Preclean the atom.  We can only handle basic forms like
-            # CATEGORY/PF, not the full dependency specification.  See the
-            # ebuild(5) man page for more details.
-            dep = fulldep
+        def _clean_deps(raw_deps: List[str], from_sdk=False) -> Set[str]:
+            deps = set()
+            expanded = []
+            for fulldep in raw_deps:
+                # Preclean the atom.  We can only handle basic forms like
+                # CATEGORY/PF, not the full dependency specification.  See the
+                # ebuild(5) man page for more details.
+                dep = fulldep
 
-            # Ignore blockers.
-            if dep.startswith("!"):
-                logging.debug("%s: ignoring blocker: %s", cpvr, dep)
-                continue
+                # Ignore blockers.
+                if dep.startswith("!"):
+                    logging.debug("%s: ignoring blocker: %s", cpvr, dep)
+                    continue
 
-            # Rip off the SLOT spec.
-            dep = dep.split(":", 1)[0]
-            # Rip off any USE flag constraints.
-            dep = dep.split("[", 1)[0]
-            # Trim leading & trailing version ranges.
-            dep = dep.lstrip("<>=~").rstrip("*")
+                # Rip off the SLOT spec.
+                dep = dep.split(":", 1)[0]
+                # Rip off any USE flag constraints.
+                dep = dep.split("[", 1)[0]
+                # Trim leading & trailing version ranges.
+                dep = dep.lstrip("<>=~").rstrip("*")
 
-            logging.debug(
-                "%s: found package dependency: %s -> %s", cpvr, fulldep, dep
-            )
+                logging.debug(
+                    "%s: found package dependency: %s -> %s", cpvr, fulldep, dep
+                )
 
-            info = package_info.parse(dep)
-            if not info:
-                continue
+                info = package_info.parse(dep)
+                if not info:
+                    continue
 
-            cp = info.cp
-            if cp in VIRTUALS:
-                expanded += VIRTUALS[cp]
-                continue
+                cp = info.cp
+                if cp in VIRTUALS:
+                    expanded += VIRTUALS[cp]
+                    continue
 
-            pkgs = self.db.GetInstalledPackage(info.category, info.pvr)
-            if not pkgs:
-                pkgs = list(self.get_packages(info.atom))
-            else:
-                pkgs = [pkgs]
+                pkgs = (
+                    self.sdk_db if from_sdk else self.db
+                ).GetInstalledPackage(info.category, info.pvr)
+                if not pkgs:
+                    pkgs = list(self.get_packages(info.atom, from_sdk))
+                else:
+                    pkgs = [pkgs]
 
-            if pkgs:
-                deps.update(pkgs)
-            else:
-                logging.warning("%s: could not find installed %s", cpvr, dep)
+                if pkgs:
+                    deps.update(pkgs)
+                else:
+                    logging.warning(
+                        "%s: could not find installed %s", cpvr, dep
+                    )
 
-        for dep in expanded:
-            deps.update(self.get_packages(dep))
+            for dep in expanded:
+                deps.update(self.get_packages(dep))
 
-        return deps
+            return deps
+
+        return ResultSet(
+            target=_clean_deps(package_dependencies),
+            sdk=_clean_deps(package_build_dependencies, from_sdk=True),
+        )
 
     def get_implicit_libs(self):
         """Return a set of .so files that are provided by the system."""
@@ -329,28 +385,48 @@ class DotSoResolver:
                     libs.add(os.path.basename(file))
         self.provided_libs_cache[cpvr] = libs
 
+    # TODO Re-enable the lint after we upgrade to Python 3.9 or later.
+    # pylint: disable-next=unsubscriptable-object
     def get_provided_from_all_deps(
         self, package: portage_util.InstalledPackage
-    ) -> Set[str]:
-        """Return a set of .so files provided by the immediate dependencies."""
-        provided_libs = set()
-        # |package| may not actually be installed yet so manually add it to the
-        # since a package can depend on its own libs.
-        provided_libs.update(self.provided_libs(package))
-        for pkg in self.get_deps(package):
-            logging.debug(
-                "%s: loading libs from dependency %s",
-                package.package_info.cpvr,
-                pkg.package_info.cpvr,
-            )
-            provided_libs.update(self.provided_libs(pkg))
-        return provided_libs
+    ) -> ResultSet[str]:
+        """Return sets of .so files provided by the immediate dependencies."""
 
-    def lib_to_package(self, lib_filename: str = None) -> Set[str]:
+        def _expand_to_libs(
+            packages: Set[portage_util.InstalledPackage],
+        ) -> Set[str]:
+            provided_libs = set()
+            # |package| may not actually be installed yet so manually add it too
+            # since a package can depend on its own libs.
+            provided_libs.update(self.provided_libs(package))
+            for pkg in packages:
+                logging.debug(
+                    "%s: loading libs from dependency %s",
+                    package.package_info.cpvr,
+                    pkg.package_info.cpvr,
+                )
+                provided_libs.update(self.provided_libs(pkg))
+            return provided_libs
+
+        deps, sdk_deps = self.get_deps(package)
+        return ResultSet(
+            target=_expand_to_libs(deps), sdk=_expand_to_libs(sdk_deps)
+        )
+
+    def lib_to_package(
+        self, lib_filename: str = None, from_sdk=False
+    ) -> Set[str]:
         """Return a set of packages that contain the library."""
-        if self.lib_to_package_map is None:
+        lookup = (
+            self.sdk_lib_to_package_map if from_sdk else self.lib_to_package_map
+        )
+        if lookup is None:
             lookup = collections.defaultdict(set)
-            for pkg in self.db.InstalledPackages():
+            for pkg in (
+                self.sdk_db.InstalledPackages()
+                if from_sdk
+                else self.db.InstalledPackages()
+            ):
                 cpvr = f"{pkg.category}/{pkg.pf}"
                 # Packages with bundled libs for internal use and/or standaline
                 # binary packages.
@@ -364,9 +440,14 @@ class DotSoResolver:
                     continue
                 for lib in set(self.provided_libs(pkg)):
                     lookup[lib].add(cpvr)
-            self.lib_to_package_map = lookup
-        else:
-            lookup = self.lib_to_package_map
+            if self.board is None:
+                self.sdk_lib_to_package_map = lookup
+                self.lib_to_package_map = lookup
+            elif from_sdk:
+                self.sdk_lib_to_package_map = lookup
+            else:
+                self.lib_to_package_map = lookup
+
         if not lib_filename:
             return set()
         try:
@@ -456,19 +537,21 @@ def check_package(
         print("Package not installed")
         return False
 
-    provided = resolver.get_provided_from_all_deps(package)
+    provided, sdk_provided = resolver.get_provided_from_all_deps(package)
     if debug:
         print("provided")
         pprint.pprint(sorted(provided))
 
     available = provided.union(implicit)
-    required = resolver.get_required_libs(package)
+    sdk_available = sdk_provided.union(implicit)
+    required, sdk_required = resolver.get_required_libs(package)
     if debug:
         print("required")
         pprint.pprint(sorted(required))
     unsatisfied = required - available
+    sdk_unsatisfied = sdk_required - sdk_available
+    cpvr = package.package_info.cpvr
     if unsatisfied:
-        cpvr = package.package_info.cpvr
         print(
             f"'{cpvr}': Package is linked against libraries that are not "
             "listed as dependencies in the ebuild:"
@@ -477,12 +560,25 @@ def check_package(
         if match:
             missing = set()
             for lib in unsatisfied:
-                missing.update(resolver.lib_to_package(lib))
+                missing.update(resolver.lib_to_package(lib, from_sdk=False))
             if missing:
                 print(f"'{cpvr}': needs the following added to DEPEND/RDEPEND:")
                 pprint.pprint(sorted(missing))
-        return False
-    return True
+    if sdk_unsatisfied:
+        print(
+            f"'{cpvr}': Package is linked against sdk libraries that are not "
+            "listed as build dependencies in the ebuild:"
+        )
+        pprint.pprint(sorted(sdk_unsatisfied))
+        if match:
+            missing = set()
+            for lib in sdk_unsatisfied:
+                missing.update(resolver.lib_to_package(lib, from_sdk=True))
+            if missing:
+                print(f"'{cpvr}': needs the following added to BDEPEND:")
+                pprint.pprint(sorted(missing))
+
+    return not unsatisfied and not sdk_unsatisfied
 
 
 def main(argv: Optional[List[str]]):
