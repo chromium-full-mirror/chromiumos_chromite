@@ -502,7 +502,17 @@ class BuildPackagesCommand(command.CliCommand):
         telemetry.initialize(
             chromite_config.TELEMETRY_CONFIG, debug=self.options.debug
         )
-        build_packages(self.options)
+        try:
+            build_packages(self.options)
+        except sysroot_lib.PackageInstallError as e:
+            try:
+                with urllib.request.urlopen(
+                    "https://chromiumos-status.appspot.com/current?format=raw"
+                ) as request:
+                    logging.notice("Tree Status: %s", request.read().decode())
+            except urllib.error.HTTPError:
+                pass
+            cros_build_lib.Die(e)
 
 
 @tracer.start_as_current_span("cli.cros.cros_build_packages.build_packages")
@@ -537,25 +547,13 @@ def build_packages(opts: commandline.ArgumentNamespace):
 
     board_root = sysroot_lib.Sysroot(build_target.root)
 
-    try:
-        # TODO(xcl): Update run_configs to have a common base set of configs for
-        # setup_board and cros build-packages.
-        if not opts.skip_setup_board:
-            sysroot.SetupBoard(
-                build_target,
-                accept_licenses=opts.accept_licenses,
-                run_configs=opts.setup_board_run_config,
-            )
+    # TODO(xcl): Update run_configs to have a common base set of configs for
+    # setup_board and cros build-packages.
+    if not opts.skip_setup_board:
+        sysroot.SetupBoard(
+            build_target,
+            accept_licenses=opts.accept_licenses,
+            run_configs=opts.setup_board_run_config,
+        )
 
-        sysroot.BuildPackages(build_target, board_root, opts.build_run_config)
-    except sysroot_lib.PackageInstallError as e:
-        try:
-            with urllib.request.urlopen(
-                "https://chromiumos-status.appspot.com/current?format=raw"
-            ) as request:
-                logging.notice("Tree Status: %s", request.read().decode())
-        except urllib.error.HTTPError:
-            pass
-        span.record_exception(e)
-        span.set_status(status.StatusCode.ERROR, str(e))
-        cros_build_lib.Die(e)
+    sysroot.BuildPackages(build_target, board_root, opts.build_run_config)
