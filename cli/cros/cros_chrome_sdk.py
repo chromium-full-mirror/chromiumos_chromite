@@ -807,12 +807,24 @@ class SDKFetcher:
                     target_tc = metadata["toolchain-tuple"][0]
                 elif build_report and "toolchains" in build_report:
                     target_tc = build_report["toolchains"][0]
+                else:
+                    cros_build_lib.Die(
+                        "Toolchains not found in metadata or build report.\n"
+                        f"Metadata: {json.dumps(metadata)}\n"
+                        f"Build report: {json.dumps(build_report)}"
+                    )
 
             if not toolchain_url:
                 if "toolchain-url" in metadata:
                     toolchain_url = metadata["toolchain-url"]
                 elif build_report and "toolchainUrl" in build_report:
                     toolchain_url = build_report["toolchainUrl"]
+                else:
+                    cros_build_lib.Die(
+                        "Toolchain URL not found in metadata or build report.\n"
+                        f"Metadata: {json.dumps(metadata)}\n"
+                        f"Build report: {json.dumps(build_report)}"
+                    )
 
         # Fetch Arm32 toolchain for NaCl in Arm64 builds.
         if target_tc == self.ARM64_TUPLE:
