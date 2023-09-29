@@ -578,6 +578,9 @@ class WorkspaceLinkMountPathsStage(WorkspaceStageBase):
 
     def _CreateOutDir(self) -> None:
         """Make an out-dir next to the workspace chroot, if it doesn't exist."""
+        if self.out_path.exists():
+            return
+        logging.info("Creating out_path at %s", self.out_path)
         osutils.SafeMakedirs(self.out_path)
 
     def _CreateLinks(self) -> None:
@@ -595,9 +598,26 @@ class WorkspaceLinkMountPathsStage(WorkspaceStageBase):
         symlink target will definitely exist.
         """
         if mount_path.new_style_path.exists():
+            logging.info(
+                "New-style mount path already exists: %s",
+                mount_path.new_style_path,
+            )
             return
         if not mount_path.old_style_path.exists():
+            logging.info(
+                "Creating old-style mount path as a symlink target: %s",
+                mount_path.old_style_path,
+            )
+            parent = mount_path.old_style_path.parent
+            logging.info(
+                "Stats of parent dir %s: %s", parent, str(parent.stat())
+            )
             osutils.SafeMakedirs(mount_path.old_style_path)
+        logging.info(
+            "Creating symlink at %s pointing to %s",
+            mount_path.new_style_path,
+            mount_path.old_style_path,
+        )
         osutils.SafeSymlink(
             mount_path.old_style_path, mount_path.new_style_path
         )
