@@ -21,7 +21,6 @@ import urllib.error
 import urllib.request
 
 from chromite.third_party.opentelemetry import trace
-from chromite.third_party.opentelemetry.trace import status
 
 from chromite.cli import command
 from chromite.lib import build_target_lib
@@ -448,7 +447,9 @@ class BuildPackagesCommand(command.CliCommand):
         parser: commandline.ArgumentParser,
         options: commandline.ArgumentNamespace,
     ):
-        options.parser = parser
+        if not options.board:
+            # Not supplied and no default set.
+            parser.error("--board is required")
 
         if options.chrome:
             options.internal_chrome = True
@@ -518,20 +519,6 @@ class BuildPackagesCommand(command.CliCommand):
 @tracer.start_as_current_span("cli.cros.cros_build_packages.build_packages")
 def build_packages(opts: commandline.ArgumentNamespace):
     span = trace.get_current_span()
-
-    # If the opts.board is not set, then it means user hasn't specified a
-    # default board in 'src/scripts/.default_board' and didn't specify it as
-    # input argument.
-    if not opts.board:
-        span.add_event(
-            "exception",
-            attributes={
-                "exception.type": "ArgumentMissingError",
-                "exception.message": "--board is required",
-            },
-        )
-        span.set_status(status.StatusCode.ERROR)
-        opts.parser.error("--board is required")
 
     build_target = build_target_lib.BuildTarget(
         opts.board, build_root=opts.sysroot
