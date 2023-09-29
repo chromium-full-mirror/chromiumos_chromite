@@ -367,6 +367,7 @@ def NeedsChromeSource(input_proto, output_proto, _config):
     compile_source = (
         input_proto.install_request.flags.compile_source
         or input_proto.install_request.flags.toolchain_changed
+        or input_proto.install_request.flags.bazel
     )
     pkgs = [
         controller_util.deserialize_package_info(pi)
