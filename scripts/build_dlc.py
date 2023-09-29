@@ -178,6 +178,14 @@ def GetParser():
         action="store_true",
         help="DLC will be powerwash safe. (Only on LVM supported devices)",
     )
+    # Arguments groups don't support `add_bool_argument` yet.
+    one_dlc.add_argument(
+        "--use-logical-volume",
+        default=False,
+        action="store_true",
+        help="DLC will use logical volumes on LVM stateful partition "
+        "migrated devices. (scaled option takes precedence)",
+    )
     return parser
 
 
@@ -267,6 +275,7 @@ def main(argv):
             fullnamerev=opts.fullnamerev,
             scaled=opts.scaled,
             powerwash_safe=opts.powerwash_safe,
+            use_logical_volume=opts.use_logical_volume,
         )
         params.VerifyDlcParameters()
         params.StoreDlcParameters(

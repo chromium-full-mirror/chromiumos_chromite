@@ -126,6 +126,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             "reserved": False,
             "critical_update": False,
             "scaled": True,
+            "use_logical_volume": True,
         }
 
     def testGetParamsPath(self):
@@ -178,6 +179,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         fullnamerev=_FULLNAME_REV,
         scaled=False,
         powerwash_safe=False,
+        use_logical_volume=False,
     ):
         """Tests EbuildParams JSON values"""
         self.assertDictEqual(
@@ -201,6 +203,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
                 "fullnamerev": fullnamerev,
                 "scaled": scaled,
                 "powerwash_safe": powerwash_safe,
+                "use_logical_volume": use_logical_volume,
             },
         )
 
@@ -225,6 +228,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         fullnamerev=_FULLNAME_REV,
         scaled=False,
         powerwash_safe=False,
+        use_logical_volume=False,
     ) -> dlc_lib.EbuildParams:
         """Creates and Stores DLC params at install_root_dir"""
         params = dlc_lib.EbuildParams(
@@ -246,6 +250,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             fullnamerev=fullnamerev,
             scaled=scaled,
             powerwash_safe=powerwash_safe,
+            use_logical_volume=use_logical_volume,
         )
         params.StoreDlcParameters(install_root_dir=install_root_dir, sudo=False)
         return params
@@ -704,7 +709,7 @@ class DlcGeneratorTest(
             content = gen.GetImageloaderJsonContent("", "", 100)
 
             self.assertEqual(content["scaled"], pr[0])
-            self.assertEqual(content["use-logical-volume"], pr[0])
+            self.assertEqual(content["use-logical-volume"], pr[0] or pr[1])
 
     def testVerifyImageSize(self):
         """Test that VerifyImageSize throws exception on errors only."""

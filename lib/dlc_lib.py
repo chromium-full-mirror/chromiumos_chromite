@@ -286,6 +286,8 @@ class EbuildParams:
             dm-verity digest.
         scaled: (bool) DLC will be fed through scaling design.
         powerwash_safe: (bool) DLC will be powerwash safe.
+        use_logical_volume: (bool) DLC will use logical volumes on LVM stateful
+            partition migrated devices.
     """
 
     def __init__(
@@ -308,6 +310,7 @@ class EbuildParams:
         loadpin_verity_digest=False,
         scaled=False,
         powerwash_safe=False,
+        use_logical_volume=False,
     ):
         """Initializes the object.
 
@@ -334,6 +337,7 @@ class EbuildParams:
         self.loadpin_verity_digest = loadpin_verity_digest
         self.scaled = scaled
         self.powerwash_safe = powerwash_safe
+        self.use_logical_volume = use_logical_volume
 
     def GetUriPath(self) -> str:
         """Retrieves the DLC image URI path based on field values"""
@@ -1101,9 +1105,13 @@ class DlcGenerator:
             "critical-update": self.ebuild_params.critical_update,
             "loadpin-verity-digest": self.ebuild_params.loadpin_verity_digest,
             "scaled": self.ebuild_params.scaled,
-            # Initial rollout is to have all scaled DLCs use logical volumes on
-            # devices that support LVM stateful.
-            "use-logical-volume": self.ebuild_params.scaled,
+            # All scaled enabled DLCs will by default use logical volume, even
+            # when usage of logical volumes are force disabled.
+            # Legacy DLCs are allowed to use logical volumes as well.
+            "use-logical-volume": (
+                self.ebuild_params.scaled
+                or self.ebuild_params.use_logical_volume
+            ),
             "powerwash-safe": self.ebuild_params.powerwash_safe,
         }
 

@@ -75,4 +75,5 @@ def test_generate_dlc_params(
         scaled=True,
         loadpin_verity_digest=False,
         powerwash_safe=powerwash_safety,
+        use_logical_volume=True,
     )
