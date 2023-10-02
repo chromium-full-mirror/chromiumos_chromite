@@ -222,7 +222,7 @@ describe('Logging exec', () => {
       'python3',
       [
         '-c',
-        `import os; os.popen("python3 -c 'import time; time.sleep(10) # ${MARKER}'").read();`,
+        `import os; os.popen("python3 -c 'import time; time.sleep(10) # ${MARKER}'").read(); # ${MARKER}`,
       ],
       {
         treeKillWhenCancelling: true,
