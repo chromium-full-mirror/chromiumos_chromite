@@ -295,14 +295,14 @@ class CalculateRootfsHash:
 
         cmd = [
             "verity",
-            "mode=create",
-            "alg=%s" % alg,
-            "payload=%s" % loop_rootfs,
-            "payload_blocks=%d" % rootfs_blocks,
-            "hashtree=%s" % self._file.name,
+            "--mode=create",
+            "--alg=%s" % alg,
+            "--payload=%s" % loop_rootfs,
+            "--payload_blocks=%d" % rootfs_blocks,
+            "--hashtree=%s" % self._file.name,
         ]
         if salt:
-            cmd.append("salt=%s" % salt.value)
+            cmd.append("--salt=%s" % salt.value)
         target_template = cros_build_lib.sudo_run(
             cmd, print_cmd=False, capture_output=True, encoding="utf-8"
         ).stdout

@@ -1148,12 +1148,12 @@ class DlcGenerator:
             result = cros_build_lib.run(
                 [
                     "verity",
-                    "mode=create",
-                    "alg=sha256",
-                    f"payload={self.dest_image}",
-                    f"payload_blocks={blocks}",
-                    f"hashtree={hash_tree}",
-                    f"salt={salt if salt else 'random'}",
+                    "--mode=create",
+                    "--alg=sha256",
+                    f"--payload={self.dest_image}",
+                    f"--payload_blocks={blocks}",
+                    f"--hashtree={hash_tree}",
+                    f"--salt={salt if salt else 'random'}",
                 ],
                 capture_output=True,
             )

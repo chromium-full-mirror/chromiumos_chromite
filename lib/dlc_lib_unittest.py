@@ -808,12 +808,12 @@ class DlcGeneratorTest(
         run_mock.assert_called_with(
             [
                 "verity",
-                "mode=create",
-                "alg=sha256",
-                f"payload={gen.dest_image}",
-                "payload_blocks=2",
+                "--mode=create",
+                "--alg=sha256",
+                f"--payload={gen.dest_image}",
+                "--payload_blocks=2",
                 mock.ANY,
-                "salt=random",
+                "--salt=random",
             ],
             capture_output=True,
         )
@@ -834,12 +834,12 @@ class DlcGeneratorTest(
         run_mock.assert_called_with(
             [
                 "verity",
-                "mode=create",
-                "alg=sha256",
-                f"payload={gen.dest_image}",
-                "payload_blocks=2",
+                "--mode=create",
+                "--alg=sha256",
+                f"--payload={gen.dest_image}",
+                "--payload_blocks=2",
                 mock.ANY,
-                f"salt={salt}",
+                f"--salt={salt}",
             ],
             capture_output=True,
         )
