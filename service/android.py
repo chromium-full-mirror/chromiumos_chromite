@@ -79,17 +79,10 @@ ANDROID_PACKAGE_TO_BUILD_TARGETS = {
 # Regex patterns of artifacts to copy for each branch and build target.
 ARTIFACTS_TO_COPY = {
     ANDROID_PI_PACKAGE: {
-        # Roll XkbToKcmConverter with system image. It's a host executable and
-        # doesn't depend on the target as long as it's pi-arc branch. The
-        # converter is ARC specific and not a part of Android SDK. Having a
-        # custom target like SDK_TOOLS might be better in the long term, but
-        # let's use one from ARM or X86 target as there's no other similar
-        # executables right now.  We put it in two buckets because we have
-        # separate ACLs for arm and x86.  http://b/128405786
         "apps": "org.chromium.arc.cachebuilder.jar",
-        "cheets_arm-user": r"(\.zip|/XkbToKcmConverter)$",
-        "cheets_arm64-user": r"(\.zip|/XkbToKcmConverter)$",
-        "cheets_x86-user": r"(\.zip|/XkbToKcmConverter)$",
+        "cheets_arm-user": r"\.zip$",
+        "cheets_arm64-user": r"\.zip$",
+        "cheets_x86-user": r"\.zip$",
         "cheets_x86_64-user": r"\.zip$",
         "cheets_arm-userdebug": r"\.zip$",
         "cheets_arm64-userdebug": r"\.zip$",
@@ -99,81 +92,64 @@ ARTIFACTS_TO_COPY = {
         "sdk_cheets_x86_64-userdebug": r"\.zip$",
     },
     ANDROID_RVC_PACKAGE: {
-        # For XkbToKcmConverter, see the comment in pi-arc targets.
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
         "apps": "org.chromium.arc.cachebuilder.jar",
-        "cheets_arm64-user": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-        "cheets_x86_64-user": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
-        ),
+        "cheets_arm64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
+        "cheets_x86_64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
         "cheets_arm64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "cheets_x86_64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
     },
     ANDROID_VMRVC_PACKAGE: {
-        # For XkbToKcmConverter, see the comment in pi-arc targets.
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
         "apps": "org.chromium.arc.cachebuilder.jar",
-        "bertha_arm64-user": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-        "bertha_x86_64-user": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
-        ),
+        "bertha_arm64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
+        "bertha_x86_64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
         "bertha_arm64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "bertha_x86_64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
     },
     ANDROID_VMSC_PACKAGE: {
-        # For XkbToKcmConverter, see the comment in pi-arc targets.
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
         "bertha_arm64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "bertha_x86_64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
     },
     ANDROID_VMTM_PACKAGE: {
-        # For XkbToKcmConverter, see the comment in pi-arc targets.
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
         "apps": "org.chromium.arc.cachebuilder.jar",
-        "bertha_arm64-user": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-        "bertha_x86_64-user": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
-        ),
+        "bertha_arm64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
+        "bertha_x86_64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
         "bertha_arm64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "bertha_x86_64-userdebug": (
-            r"(\.zip|/XkbToKcmConverter"
+            r"(\.zip"
             r"|/org.chromium.arc.cts.helpers.apk"
             r"|/kernel|/ramdisk.img)$"
         ),
     },
     ANDROID_VMVIC_PACKAGE: {
-        # For XkbToKcmConverter, see the comment in pi-arc targets.
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
         "bertha_arm64-trunk_staging-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "bertha_x86_64-trunk_staging-userdebug": (
-            r"(\.zip|/XkbToKcmConverter" r"|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
     },
 }
