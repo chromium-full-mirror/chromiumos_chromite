@@ -410,7 +410,12 @@ describe('Boards and packages', () => {
   it('context menus are shown conditionally per context', () => {
     const packageJson = readPackageJson();
 
+    const generateCoverage = 'chromiumide.coverage.generate';
     for (const [command, contextValue, wantShown] of [
+      // generate coverage
+      [generateCoverage, ViewItemContext.CATEGORY, false],
+      [generateCoverage, ViewItemContext.PACKAGE, true],
+      [generateCoverage, ViewItemContext.PACKAGE_STARTED_FAVORITE, true],
       // build commands
       [CommandName.BUILD, ViewItemContext.CATEGORY, false],
       [CommandName.BUILD, ViewItemContext.PACKAGE, true],
@@ -459,6 +464,7 @@ describe('Boards and packages', () => {
             x => x.command === command
           )!.when,
           {
+            'config.chromiumide.testCoverage.enabled': true,
             'config.chromiumide.underDevelopment.buildAndDeploy': true,
             view: 'boards-and-packages',
             viewItem: contextValue,

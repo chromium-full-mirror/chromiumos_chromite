@@ -658,7 +658,7 @@
         },
         {
           "command": "chromiumide.coverage.generate",
-          "when": "view == boards-and-packages && viewItem =~ /^package(-favorite)?$/ && config.chromiumide.testCoverage.enabled",
+          "when": "view == boards-and-packages && viewItem =~ /<package>/ && config.chromiumide.testCoverage.enabled",
           "group": "5_coverage"
         },
         {
