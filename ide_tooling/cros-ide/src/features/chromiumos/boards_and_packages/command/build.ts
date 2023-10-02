@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as os from 'os';
 import * as vscode from 'vscode';
 import {BoardOrHost} from '../../../../common/chromiumos/board_or_host';
 import {
@@ -21,7 +22,8 @@ export async function build(
 ): Promise<void> {
   const qpn = getQualifiedPackageName(pkg);
 
-  const args = [board.suffixedExecutable('emerge'), qpn];
+  const nproc = os.cpus().length.toString();
+  const args = [board.suffixedExecutable('emerge'), qpn, '--jobs', nproc];
 
   await vscode.window.withProgress(
     {
