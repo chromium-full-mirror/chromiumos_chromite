@@ -30,16 +30,18 @@ from chromite.utils import memoize
 # pylint: disable=line-too-long
 # CIPD client to download.
 #
-# This is version "git_revision:78137bc2d58ebea680b6d513a3d7f6a8d25aa643".
-#
-# To switch to another version:
-#   1. Find it in CIPD Web UI, e.g.
-#      https://chrome-infra-packages.appspot.com/p/infra/tools/cipd/linux-amd64/+/latest
-#   2. Look up SHA256 there.
+# Preferred way to switch to another version:
+#   1. Look up the version of CIPD that depot_tools is using:
+#      https://crsrc.org/d/cipd_client_version
+#      -> should look like "git_revision:(hex-string)".
+#   2. Find it in CIPD Web UI, e.g.,
+#      https://chrome-infra-packages.appspot.com/p/infra/tools/cipd/linux-amd64/+/git_revision:(hex-string)
+#   3. Use the SHA256 field shown there.
 # pylint: enable=line-too-long
 CIPD_CLIENT_PACKAGE = "infra/tools/cipd/linux-amd64"
 CIPD_CLIENT_SHA256 = (
-    "b431c29c9fa132d4f7d6e86f053af02d490b51d742b4f01ea55618a5365d357d"
+    # This is version "git_revision:6e9be28a4c4e3a804f400dc6c2ed08b866f0a38b".
+    "93cfdb346920b4bd13e55d6e981182daebec3991f4aa482154f834485a8aae94"
 )
 
 CHROME_INFRA_PACKAGES_API_BASE = (
