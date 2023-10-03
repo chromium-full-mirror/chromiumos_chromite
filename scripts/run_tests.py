@@ -69,8 +69,9 @@ def main(argv):
     jobs = opts.jobs
     if jobs is None:
         # Default to running in a single process under --quickstart. User args
-        # can still override this.
-        jobs = 0 if opts.quick else os.cpu_count()
+        # can still override this. Cap it at 64 by default to prevent the
+        # overhead from spawning too many nodes.
+        jobs = 0 if opts.quick else min(os.cpu_count(), 64)
     pytest_args = ["-n", str(jobs)] + pytest_args
 
     # Check the environment.  https://crbug.com/1015450
