@@ -5,7 +5,7 @@
 """Sysroot service unittest."""
 
 import datetime
-from operator import attrgetter
+import operator
 import os
 from pathlib import Path
 import shutil
@@ -16,6 +16,7 @@ from chromite.third_party.opentelemetry import context as otel_context
 from chromite.third_party.opentelemetry import trace
 import pytest
 
+from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -795,6 +796,33 @@ class BuildPackagesTest(
                 "Error getting the binhost age",
             )
 
+    def testPackageIndexes(self):
+        """Test that package_indexes are passed to portage."""
+        pkg_indexes = [
+            binpkg.PackageIndexInfo(
+                build_target=build_target_lib.BuildTarget("board"),
+                snapshot_sha="A",
+                location="gs://AAAA",
+            ),
+            binpkg.PackageIndexInfo(
+                build_target=build_target_lib.BuildTarget("board"),
+                snapshot_sha="B",
+                location="gs://BBBB",
+            ),
+            binpkg.PackageIndexInfo(
+                build_target=build_target_lib.BuildTarget("board"),
+                snapshot_sha="C",
+                location="gs://fake/binhost",
+            ),
+        ]
+        config = sysroot.BuildPackagesRunConfig(package_indexes=pkg_indexes)
+
+        sysroot.BuildPackages(self.target, self.sysroot, config)
+
+        self.assertCommandContains(
+            ["PORTAGE_BINHOST=gs://fake/binhost gs://AAAA gs://BBBB"]
+        )
+
     def testEcleanBinpkgs(self):
         """Test that eclean is called with the expected packages."""
 
@@ -940,9 +968,11 @@ STACK CFI 1234
 
         # Sort symbol_files and expected_output_files by the relative_path
         # attribute.
-        symbol_files = sorted(symbol_files, key=attrgetter("relative_path"))
+        symbol_files = sorted(
+            symbol_files, key=operator.attrgetter("relative_path")
+        )
         expected_symbol_files = sorted(
-            expected_symbol_files, key=attrgetter("relative_path")
+            expected_symbol_files, key=operator.attrgetter("relative_path")
         )
         # Compare the files to the expected files. This verifies the size and
         # contents, and on failure shows the full contents.

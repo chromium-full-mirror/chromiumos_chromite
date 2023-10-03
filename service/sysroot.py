@@ -860,20 +860,32 @@ def BuildPackages(
 
     extra_env = run_configs.GetExtraEnv()
     extra_env["PKGDIR"] = f"{sysroot.path}/packages"
+
+    # Get and update the list of binhosts to pass along to portage.
+    portage_binhost = portage_util.PortageqEnvvar(
+        "PORTAGE_BINHOST", target.name
+    )
+    binhosts = portage_binhost.strip().split()
+    # TODO(b/302386659): Remove use of package_indexes and use lookup service
+    # when it launches.
+    if run_configs.package_indexes:
+        # Binhosts specified by package_indexes are fetched from GCP using the
+        # lookup service prototype.
+        fetched_binhosts = [
+            x.location
+            for x in run_configs.package_indexes
+            if x.location not in binhosts
+        ]
+        binhosts.extend(fetched_binhosts)
+    extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
+    _LogBinhostAge(binhosts, date_threshold=30)
+
     with osutils.TempDir() as tempdir, cpupower_helper.ModifyCpuGovernor(
         run_configs.autosetgov, run_configs.autosetgov_sticky
     ):
         extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
 
         cros_build_lib.ClearShadowLocks(sysroot.path)
-
-        portage_binhost = portage_util.PortageqEnvvar(
-            "PORTAGE_BINHOST", target.name
-        )
-        logging.info("PORTAGE_BINHOST: %s", portage_binhost)
-
-        binhosts = portage_binhost.strip().split()
-        _LogBinhostAge(binhosts, date_threshold=30)
 
         # Before running any emerge operations, regenerate the Portage
         # dependency cache in parallel.
