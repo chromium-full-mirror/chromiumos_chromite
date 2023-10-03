@@ -21,6 +21,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
 from chromite.lib import subtool_lib
 from chromite.lib import unittest_lib
+from chromite.lib.parser import package_info
 from chromite.licensing import licenses_lib
 
 
@@ -512,7 +513,16 @@ def test_ebuild_multiple_packages_raises_error(template_proto: Wrapper) -> None:
         [path_mapping("/etc/profile", ebuild_filter="binutils")]
     )
     subtool = template_proto.create(writes_files=True)
-    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+    fake_matches = [
+        package_info.parse(p)
+        for p in ["sys-devel/binutils-2.39-r3", "cross-foo/binutils-0.1"]
+    ]
+    with pytest.raises(
+        subtool_lib.ManifestBundlingError
+    ) as error_info, mock.patch(
+        "chromite.lib.portage_util.FindPackageNameMatches"
+    ) as mock_find_package_name_matches:
+        mock_find_package_name_matches.return_value = fake_matches
         subtool.bundle()
     assert "'binutils' must match exactly one package" in str(error_info.value)
 
