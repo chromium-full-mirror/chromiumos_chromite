@@ -75,6 +75,8 @@ FACTORY_SHIM = DEFAULT.union(
     {
         "/opt/google/chrome",
         "/opt/google/containers",
+        # TODO(b/303350519): Remove this mask once out of rootfs.
+        "/opt/google/modemfwd-firmware",
         "/opt/google/vms",
         "/usr/lib64/dri",
         "/usr/lib/dri",
