@@ -137,27 +137,36 @@ def bundle_result(
 
 def set_run_results(
     run_mock: cros_test_lib.RunCommandMock,
-    cipd: Optional[Dict[str, int]] = None,
-    equery: Optional[Dict[str, str]] = None,
+    cipd: Optional[Dict[str, cros_build_lib.CompletedProcess]] = None,
+    equery: Optional[Dict[str, cros_build_lib.CompletedProcess]] = None,
 ) -> None:
     """Set fake results for run calls in the test.
 
     Args:
         run_mock: The RunCommandMock test fixture.
-        cipd: Map of cipd commands and the process return code.
-        equery: Map of equery commands and the standard output.
+        cipd: Map of cipd commands and corresponding run results.
+        equery: Map of equery commands and corresponding run results.
     """
-    cipd_results = cipd or {"create": 0}
-    equery_stdout = equery or {"belongs": f"{FAKE_BELONGS_PACKAGE}\n"}
+    cipd_results = cipd or {
+        "create": cros_build_lib.CompletedProcess(),
+        "search": cros_build_lib.CompletedProcess(),
+    }
+    equery_results = equery or {
+        "belongs": cros_build_lib.CompletedProcess(
+            stdout=f"{FAKE_BELONGS_PACKAGE}\n"
+        )
+    }
     for cmd, result in cipd_results.items():
         run_mock.AddCmdResult(
-            partial_mock.InOrder([FAKE_CIPD_PATH, cmd]), returncode=result
+            partial_mock.InOrder([FAKE_CIPD_PATH, cmd]),
+            returncode=result.returncode or 0,
+            stdout=result.stdout or "",
         )
-    for cmd, stdout in equery_stdout.items():
+    for cmd, result in equery_results.items():
         run_mock.AddCmdResult(
             partial_mock.InOrder(["equery", cmd]),
-            returncode=0 if stdout else 1,
-            stdout=stdout,
+            returncode=result.returncode or 0,
+            stdout=result.stdout or "",
         )
 
 
@@ -698,13 +707,31 @@ def test_upload_successful(
         ],
         capture_output=True,
     )
+    run_mock.assertCommandContains([FAKE_CIPD_PATH, "search"])
+    run_mock.assertCommandContains([FAKE_CIPD_PATH, "create"])
+
+
+def test_upload_skipped_when_all_tags_match_instance(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test no upload attempt if CIPD search reports instance with same tags."""
+    search_result = "Instances:\n  some/package:instance-hash\n"
+    set_run_results(
+        run_mock,
+        cipd={"search": cros_build_lib.CompletedProcess(stdout=search_result)},
+    )
+    template_proto.export_e2e(writes_files=True)
+    run_mock.assertCommandContains([FAKE_CIPD_PATH, "search"])
+    run_mock.assertCommandContains([FAKE_CIPD_PATH, "create"], expected=False)
 
 
 def test_upload_fails_cipd(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test that a CIPD create failure propagates an exception."""
-    set_run_results(run_mock, cipd={"create": 1})
+    set_run_results(
+        run_mock, cipd={"create": cros_build_lib.CompletedProcess(returncode=1)}
+    )
     with pytest.raises(cros_build_lib.RunCommandError) as error_info:
         template_proto.export_e2e(writes_files=True)
     assert f"command: {FAKE_CIPD_PATH} create" in str(error_info.value)
@@ -714,7 +741,14 @@ def test_export_no_ebuilds(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test when bundle contents correspond to multiple ebuilds."""
-    set_run_results(run_mock, equery={"belongs": "a/b-0.1\nc/d-0.2-r3\n"})
+    set_run_results(
+        run_mock,
+        equery={
+            "belongs": cros_build_lib.CompletedProcess(
+                stdout="a/b-0.1\nc/d-0.2-r3\n"
+            )
+        },
+    )
     with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
         template_proto.export_e2e(writes_files=True)
     assert "Bundle cannot be attributed" in str(error_info.value)
@@ -725,7 +759,10 @@ def test_export_too_many_ebuilds(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test when no bundle contents can be matched to an ebuild."""
-    set_run_results(run_mock, equery={"belongs": ""})
+    set_run_results(
+        run_mock,
+        equery={"belongs": cros_build_lib.CompletedProcess(returncode=1)},
+    )
     with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
         template_proto.export_e2e(writes_files=True)
     assert "Bundle cannot be attributed" in str(error_info.value)

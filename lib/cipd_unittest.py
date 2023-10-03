@@ -6,6 +6,7 @@
 
 import hashlib
 import json
+from pathlib import Path
 from unittest import mock
 
 from chromite.third_party import httplib2
@@ -77,3 +78,104 @@ class CipdCacheTest(cros_test_lib.MockTempDirTestCase):
         # the internal caching logic (which is handled by lib.cache_unittest
         # already).
         self.assertTrue(path.startswith(str(self.tempdir)))
+
+
+def test_get_instance_id(run_mock: cros_test_lib.RunCommandMock) -> None:
+    """Validate the command creation and processing of GetInstanceID."""
+    run_mock.SetDefaultCmdResult(
+        stdout="""\
+Packages:
+  some/package:-V4koaHp92NryA4-caFteRpED8nsWY8z7PyZq5a7CXQC
+"""
+    )
+    expected = ["/cipd.fake", "resolve", "some/package", "-version", "version"]
+    kwargs = {"capture_output": True, "encoding": "utf-8"}
+
+    assert (
+        cipd.GetInstanceID("/cipd.fake", "some/package", "version")
+        == "-V4koaHp92NryA4-caFteRpED8nsWY8z7PyZq5a7CXQC"
+    )
+    run_mock.assertCommandCalled(expected, **kwargs)
+
+    cipd.GetInstanceID(
+        "/cipd.fake",
+        "some/package",
+        "version",
+        service_account_json="/creds.json",
+    )
+    run_mock.assertCommandCalled(
+        expected + ["-service-account-json", "/creds.json"], **kwargs
+    )
+
+
+def test_search_instances(run_mock: cros_test_lib.RunCommandMock) -> None:
+    """Validate the command creation and processing of search_instances."""
+    run_mock.SetDefaultCmdResult(
+        stdout="""\
+Instances:
+  some/package:nn9mIcZ_6_OymZEJylQtv0OlH0hhR_1BCrt4egbjiasC
+  some/package:-V4koaHp92NryA4-caFteRpED8nsWY8z7PyZq5a7CXQC
+"""
+    )
+    assert cipd.search_instances(
+        "/cipd.fake", "some/package", {"tag1": "value1"}
+    ) == [
+        "nn9mIcZ_6_OymZEJylQtv0OlH0hhR_1BCrt4egbjiasC",
+        "-V4koaHp92NryA4-caFteRpED8nsWY8z7PyZq5a7CXQC",
+    ]
+    run_mock.assertCommandCalled(
+        ["/cipd.fake", "search", "some/package", "-tag", "tag1:value1"],
+        capture_output=True,
+        encoding="utf-8",
+    )
+
+
+def test_install_package(run_mock: cros_test_lib.RunCommandMock) -> None:
+    """Validate the command created by InstallPackage"""
+    cipd.InstallPackage(
+        "/cipd.fake", "some/package", "version-ref", destination="/destination"
+    )
+    run_mock.assertCommandContains(
+        [
+            "/cipd.fake",
+            "ensure",
+            "-root",
+            Path("/destination/some/package"),
+            "-list",
+            # Ignore the temporary file arg.
+        ]
+    )
+
+
+def test_create_package(run_mock: cros_test_lib.RunCommandMock) -> None:
+    """Validate the command created by CreatePackage."""
+    cipd.CreatePackage(
+        "/cipd.fake",
+        "some/package",
+        "input/bundle",
+        tags={"tag1": "value1", "tag2": "value2"},
+        refs=["latest"],
+        cred_path="/creds.json",
+        service_url=cipd.STAGING_SERVICE_URL,
+    )
+    run_mock.assertCommandCalled(
+        [
+            "/cipd.fake",
+            "create",
+            "-name",
+            "some/package",
+            "-in",
+            "input/bundle",
+            "-tag",
+            "tag1:value1",
+            "-tag",
+            "tag2:value2",
+            "-ref",
+            "latest",
+            "-service-account-json",
+            "/creds.json",
+            "-service-url",
+            "https://chrome-infra-packages-dev.appspot.com",
+        ],
+        capture_output=True,
+    )

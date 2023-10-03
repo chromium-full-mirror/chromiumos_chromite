@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 import pprint
 import tempfile
-from typing import Dict, Iterable, Optional, Union
+from typing import Dict, Iterable, List, Optional, Union
 import urllib.parse
 
 from chromite.third_party import httplib2
@@ -162,6 +162,27 @@ def GetCIPDFromCache():
     return ref.path
 
 
+def _shared_cipd_args(
+    tags: Optional[Dict[str, str]] = None,
+    refs: Optional[Iterable[str]] = None,
+    cred_path: Optional[Union[os.PathLike, str]] = None,
+    service_url: Optional[str] = None,
+) -> List[Union[os.PathLike, str]]:
+    """Creates a list of cipd args shared by multiple subcommands."""
+    ret: List[Union[os.PathLike, str]] = []
+    if tags:
+        for key, value in tags.items():
+            ret.extend(["-tag", f"{key}:{value}"])
+    if refs:
+        for ref in refs:
+            ret.extend(["-ref", ref])
+    if cred_path:
+        ret.extend(["-service-account-json", cred_path])
+    if service_url:
+        ret.extend(["-service-url", service_url])
+    return ret
+
+
 def GetInstanceID(cipd_path, package, version, service_account_json=None):
     """Get the latest instance ID for ref latest.
 
@@ -174,19 +195,32 @@ def GetInstanceID(cipd_path, package, version, service_account_json=None):
     Returns:
         A string instance ID.
     """
-    service_account_flag = []
-    if service_account_json:
-        service_account_flag = ["-service-account-json", service_account_json]
-
     result = cros_build_lib.run(
         [cipd_path, "resolve", package, "-version", version]
-        + service_account_flag,
+        + _shared_cipd_args(cred_path=service_account_json),
         capture_output=True,
         encoding="utf-8",
     )
     # An example output of resolve is like:
     #   Packages:\n package:instance_id
     return result.stdout.splitlines()[-1].split(":")[-1]
+
+
+def search_instances(
+    cipd_path: Union[os.PathLike, str],
+    package: str,
+    tags: Dict[str, str],
+    cred_path: Optional[Union[os.PathLike, str]] = None,
+    service_url: Optional[str] = None,
+) -> List[str]:
+    """Search for instances of `package` in cipd with the given `tags`."""
+    cmd = [cipd_path, "search", package] + _shared_cipd_args(
+        tags, [], cred_path, service_url
+    )
+    result = cros_build_lib.run(cmd, capture_output=True, encoding="utf-8")
+    # An example output of search is like:
+    #   Instances:\n  package:instance_id1\n  package:instance_id2
+    return [x.split(":")[-1] for x in result.stdout.splitlines()[1:]]
 
 
 @memoize.Memoize
@@ -222,17 +256,13 @@ def InstallPackage(
 
     destination = Path(destination) / package
 
-    service_account_flag = []
-    if service_account_json:
-        service_account_flag = ["-service-account-json", service_account_json]
-
     with tempfile.NamedTemporaryFile() as f:
         f.write(("%s %s" % (package, version)).encode("utf-8"))
         f.flush()
 
         cros_build_lib.run(
             [cipd_path, "ensure", "-root", destination, "-list", f.name]
-            + service_account_flag,
+            + _shared_cipd_args(cred_path=service_account_json),
             capture_output=True,
             print_cmd=print_cmd,
         )
@@ -268,14 +298,6 @@ def CreatePackage(
         package,
         "-in",
         in_dir,
-    ]
-    for key, value in tags.items():
-        args.extend(["-tag", "%s:%s" % (key, value)])
-    for ref in refs:
-        args.extend(["-ref", ref])
-    if cred_path:
-        args.extend(["-service-account-json", cred_path])
-    if service_url:
-        args.extend(["-service-url", service_url])
+    ] + _shared_cipd_args(tags, refs, cred_path, service_url)
 
     cros_build_lib.run(args, capture_output=True)

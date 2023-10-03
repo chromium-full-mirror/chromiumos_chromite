@@ -612,12 +612,30 @@ class BundledSubtools:
             )
             return
 
+        service_url = None if use_production else cipd.STAGING_SERVICE_URL
+        instances = cipd.search_instances(
+            self.cipd_path,
+            cipd_package.package,
+            cipd_package.tags,
+            service_url=service_url,
+        )
+        if instances:
+            logger.notice(
+                "%s: ebuild and hash match instance %s. Not uploading.",
+                cipd_package.package,
+                instances,
+            )
+            return
+
+        # NOTE: This will not create a new instance in CIPD if the hash of the
+        # bundle contents matches an existing instance. In that case, CIPD will
+        # still add the provided tags to the existing instance.
         cipd.CreatePackage(
             self.cipd_path,
             cipd_package.package,
             path / "bundle",
             cipd_package.tags,
             cipd_package.refs,
-            service_url=None if use_production else cipd.STAGING_SERVICE_URL,
+            service_url=service_url,
         )
         (path / ".uploaded").touch()
