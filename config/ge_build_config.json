@@ -64,37 +64,6 @@
       "stable_target_milestone": 98
     },
     {
-      "name": "novato",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "vm builds",
-          "arch": "X86_INTERNAL",
-          "build_cadence": "DAILY_CADENCE"
-        }
-      ],
-      "rubik_target_milestone": 107,
-      "stable_target_milestone": 62
-    },
-    {
-      "name": "novato-arc64",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "vm builds",
-          "arch": "X86_INTERNAL",
-          "board_variant": "arc64",
-          "build_cadence": "DAILY_CADENCE"
-        }
-      ],
-      "rubik_target_milestone": 107,
-      "stable_target_milestone": 62
-    },
-    {
       "name": "reven",
       "configs": [
         {
