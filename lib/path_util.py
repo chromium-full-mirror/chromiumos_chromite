@@ -105,6 +105,7 @@ class ChrootPathResolver:
                 ("/var/cache", self._out_path / "sdk" / "cache"),
                 ("/var/log", self._out_path / "sdk" / "logs"),
                 ("/var/tmp", self._out_path / "sdk" / "tmp"),
+                ("/usr/local/bin", self._out_path / "sdk" / "bin"),
                 (constants.CHROOT_OUT_ROOT, self._out_path),
             )
 
@@ -208,6 +209,7 @@ class ChrootPathResolver:
             (self._out_path / "sdk" / "cache", "/var/cache"),
             (self._out_path / "sdk" / "logs", "/var/log"),
             (self._out_path / "sdk" / "tmp", "/var/tmp"),
+            (self._out_path / "sdk" / "bin", "/usr/local/bin"),
             (self._out_path, constants.CHROOT_OUT_ROOT),
             # Check the current SDK checkout tree.
             (source_path, constants.CHROOT_SOURCE_ROOT),

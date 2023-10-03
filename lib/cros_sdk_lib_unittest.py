@@ -113,6 +113,10 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             (Path(self.chroot.path) / "home", self.chroot.out_path / "home"),
             (Path(self.chroot.path) / "build", self.chroot.out_path / "build"),
             (
+                Path(self.chroot.path) / "usr" / "local" / "bin",
+                self.chroot.out_path / "sdk" / "bin",
+            ),
+            (
                 Path(self.chroot.path) / "var" / "cache",
                 self.chroot.out_path / "sdk" / "cache",
             ),
@@ -243,6 +247,12 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
                 mock.call(
                     self.chroot.out_path / "build",
                     Path(self.chroot.path) / "build",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
+                    self.chroot.out_path / "sdk" / "bin",
+                    Path(self.chroot.path) / "usr" / "local" / "bin",
                     None,
                     osutils.MS_BIND | osutils.MS_REC,
                 ),
