@@ -10,7 +10,7 @@ from typing import Optional, Pattern, Sequence, Tuple
 
 
 class Anonymizer:
-    """Redact the personally indentifiable information."""
+    """Redact the personally identifiable information."""
 
     def __init__(
         self, replacements: Optional[Sequence[Tuple[Pattern[str], str]]] = None
