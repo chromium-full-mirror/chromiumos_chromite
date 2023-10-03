@@ -102,6 +102,7 @@ class ChrootPathResolver:
                 ("/tmp", self._out_path / "tmp"),
                 ("/home", self._out_path / "home"),
                 ("/build", self._out_path / "build"),
+                ("/run/lock", self._out_path / "sdk" / "lock"),
                 (constants.CHROOT_OUT_ROOT, self._out_path),
             )
 
@@ -202,6 +203,7 @@ class ChrootPathResolver:
             (self._out_path / "tmp", "/tmp"),
             (self._out_path / "home", "/home"),
             (self._out_path / "build", "/build"),
+            (self._out_path / "sdk" / "lock", "/run/lock"),
             (self._out_path, constants.CHROOT_OUT_ROOT),
             # Check the current SDK checkout tree.
             (source_path, constants.CHROOT_SOURCE_ROOT),
