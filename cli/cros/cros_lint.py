@@ -337,7 +337,6 @@ def _SeccompPolicyLintFile(
     """Run the seccomp policy linter."""
     if commit:
         stdin = _get_file_data(path, commit)
-        path = "/dev/stdin"
     else:
         stdin = ""
     return _ToolRunCommand(
@@ -350,7 +349,9 @@ def _SeccompPolicyLintFile(
                 "tools",
                 "seccomp_policy_lint.py",
             ),
+            "--assume-filename",
             path,
+            "/dev/stdin" if commit else path,
         ],
         debug,
         input=stdin,
