@@ -157,4 +157,5 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     _setup_workspace(opts.project)
 
     bazelisk = _get_bazelisk()
+    os.environ["CHROMITE_BAZEL_WRAPPER"] = "1"
     os.execv(bazelisk, [bazelisk, *bazel_args])
