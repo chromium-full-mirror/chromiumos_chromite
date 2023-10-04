@@ -871,6 +871,11 @@
           "description": "Format files with 'cros format'",
           "default": true
         },
+        "chromiumide.ebuildSupport.enabled": {
+          "type": "boolean",
+          "description": "Enable features for ChromeOS EBuilds",
+          "default": false
+        },
         "chromiumide.gerrit.enabled": {
           "type": "boolean",
           "markdownDescription": "Enable Gerrit comments.",

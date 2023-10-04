@@ -143,6 +143,10 @@ export const crosFormat = {
   enabled: new ConfigValue<boolean>('crosFormat.enabled'),
 };
 
+export const ebuildSupport = {
+  enabled: new ConfigValue<boolean>('ebuildSupport.enabled'),
+};
+
 export const gerrit = {
   enabled: new ConfigValue<boolean>('gerrit.enabled'),
 };
