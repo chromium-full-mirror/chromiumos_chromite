@@ -34,6 +34,11 @@ def GetParser():
         help="The build target that is being checked.",
     )
     parser.add_argument(
+        "--depgraph-root-packages",
+        action="split_extend",
+        help="Search the depgraph starting at these packages.",
+    )
+    parser.add_argument(
         "--output",
         type="path",
         required=True,
@@ -112,7 +117,11 @@ def main(argv):
         ]
         if board:
             args.append("--board=%s" % board)
-        args.extend("=%s" % best.cpvr for best in bests.values())
+        if opts.depgraph_root_packages:
+            args += [f"--reinstall-atoms={x.cp}" for x in bests.values()]
+            args += opts.depgraph_root_packages
+        else:
+            args.extend("=%s" % best.cpvr for best in bests.values())
 
         generator = depgraph.DepGraphGenerator()
         logging.debug(

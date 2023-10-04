@@ -2884,7 +2884,7 @@ def ParseDieHookStatusFile(metrics_dir: str) -> List[package_info.PackageInfo]:
         return failed_pkgs
 
 
-def HasPrebuilt(atom, board=None, extra_env=None):
+def HasPrebuilt(atom, board=None, extra_env=None, depgraph_root_packages=None):
     """Check if the atom's best visible version has a prebuilt available."""
     cmd = [
         os.path.join(
@@ -2894,6 +2894,9 @@ def HasPrebuilt(atom, board=None, extra_env=None):
     ]
     if board:
         cmd += ["--build-target", board]
+
+    if depgraph_root_packages:
+        cmd += ["--depgraph-root-packages", " ".join(depgraph_root_packages)]
 
     if logging.getLogger().isEnabledFor(logging.DEBUG):
         cmd += ["--debug"]
