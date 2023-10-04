@@ -82,7 +82,6 @@ FACTORY_SHIM = DEFAULT.union(
         "/usr/share/chromeos-assets/[^i]*",
         "/usr/share/chromeos-assets/i[^m]*",
         "/usr/share/fonts",
-        "/usr/share/locale",
         "/usr/share/mime",
         "/usr/share/oem",
         "/usr/share/sounds",
