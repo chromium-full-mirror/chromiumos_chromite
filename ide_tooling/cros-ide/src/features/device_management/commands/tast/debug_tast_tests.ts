@@ -16,11 +16,7 @@ import * as services from '../../../../services';
 import * as config from '../../../../services/config';
 import {Metrics} from '../../../metrics/metrics';
 import {DeviceClient} from '../../device_client';
-import {
-  createShowLogsButton,
-  diagnoseSshError,
-  showErrorMessageWithButtons,
-} from '../../diagnostic';
+import {diagnoseSshError} from '../../diagnostic';
 import * as sshUtil from '../../ssh_util';
 import {CommandContext} from '../common';
 import {
@@ -282,10 +278,7 @@ async function ensureDutHasDelve(
       const err = diagnoseSshError(result, memoryOutput.output);
       context.output.appendLine(err.message);
       const message = 'SSH connection failed: ' + err.message;
-      showErrorMessageWithButtons(message, [
-        ...err.buttons,
-        createShowLogsButton(context.output),
-      ]);
+      showPromptWithOpenLogChoice(context, message, true);
       return false;
     }
   }
@@ -303,9 +296,10 @@ async function ensureDutHasDelve(
     board = (await deviceClient.readLsbRelease()).board;
   } catch (err) {
     context.output.appendLine(`${err}`);
-    showErrorMessageWithButtons(
+    showPromptWithOpenLogChoice(
+      context,
       "debugging didn't start: failed to get board information from DUT",
-      [createShowLogsButton(context.output)]
+      true
     );
     return false;
   }
@@ -338,9 +332,10 @@ async function ensureDutHasDelve(
       }
       if (res instanceof Error) {
         context.output.append(res.message);
-        showErrorMessageWithButtons(
+        showPromptWithOpenLogChoice(
+          context,
           "debugging didn't start: failed to install the debugger (delve) to the device",
-          [createShowLogsButton(context.output)]
+          true
         );
         return false;
       }
@@ -399,9 +394,10 @@ async function ensureHostHasDelve(
       }
       if (res instanceof Error) {
         context.output.append(res.message);
-        showErrorMessageWithButtons(
+        showPromptWithOpenLogChoice(
+          context,
           "debugging didn't start: failed to install the debugger (delve) to the host machine",
-          [createShowLogsButton(context.output)]
+          true
         );
         return undefined;
       }
