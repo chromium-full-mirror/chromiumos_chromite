@@ -88,7 +88,6 @@ FACTORY_SHIM = DEFAULT.union(
         "/usr/share/fonts",
         "/usr/share/mime",
         "/usr/share/oem",
-        "/usr/share/sounds",
         "/usr/share/zoneinfo",
     }
 )
