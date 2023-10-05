@@ -22,6 +22,7 @@ type FeatureGroup =
   | 'cppxrefs'
   | 'debugging'
   | 'device'
+  | 'ebuild'
   | 'format'
   | 'gerrit'
   | 'git_watcher'
@@ -245,6 +246,16 @@ type ExtensionSuggestionEvent = EventBase & {
       }
   );
 
+type EbuildEvent = EventBase & {
+  group: 'ebuild';
+} & {
+  category: 'background';
+  name:
+    | 'show_portage_predefined_read_only_variable_hover'
+    | 'show_ebuild_defined_variable_hover';
+  variable: string;
+};
+
 type GerritEvent = EventBase & {
   group: 'gerrit';
 } & (
@@ -426,6 +437,7 @@ export type Event =
   | DebuggingEvent
   | DeviceManagementEvent
   | ExtensionSuggestionEvent
+  | EbuildEvent
   | GerritEvent
   | GitWatcherEvent
   | HintsEvent

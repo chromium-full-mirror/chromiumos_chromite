@@ -16,6 +16,7 @@ import * as crosFormat from './cros_format';
 import * as ebuildLinkProvider from './ebuild_link_provider';
 import {Platform2Gtest} from './platform2_gtest';
 import * as platformEc from './platform_ec';
+import * as portageReference from './portage_reference';
 import * as targetBoard from './target_board';
 import {Tast} from './tast';
 import * as tricium from './tricium';
@@ -96,6 +97,7 @@ export class Chromiumos implements vscode.Disposable {
 
     if (config.ebuildSupport.enabled.get()) {
       ebuildLinkProvider.activate(ephemeralContext, this.root);
+      portageReference.activate(ephemeralContext);
     }
 
     const chrootService = services.chromiumos.ChrootService.maybeCreate(
