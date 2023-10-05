@@ -547,6 +547,29 @@ def test_ebuild_match_real_package(template_proto: Wrapper) -> None:
     assert b"Gentoo Package Stock License GPL-2" in contents
 
 
+def test_bundle_idempontence(template_proto: Wrapper) -> None:
+    """Ensure generating twice (with licensing) is idempotent."""
+    template_proto.set_paths(
+        [path_mapping("/etc/profile", ebuild_filter="sys-apps/baselayout")]
+    )
+
+    def create_glob_and_concat() -> bytes:
+        """Glob and concatenate all files in the bundle."""
+        subtool = template_proto.create(writes_files=True)
+        assert "<license>" in bundle_result(subtool, has_ebuild_match=True)
+        data: List[bytes] = []
+        for entry in subtool.bundle_dir.rglob("*"):
+            if entry.is_file():
+                data.append(entry.read_bytes())
+        return b"".join(data)
+
+    first_data = create_glob_and_concat()
+    # Move the first work dir out of the way so another can be made.
+    template_proto.work_root.rename(template_proto.work_root.parent / ".first")
+    second_data = create_glob_and_concat()
+    assert first_data == second_data, "Bundle not idempontent."
+
+
 def test_ebuild_not_installed_raises_error(template_proto: Wrapper) -> None:
     """Test that matching a real but uninstalled package raise an error."""
     template_proto.set_paths(

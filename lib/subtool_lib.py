@@ -60,8 +60,12 @@ class ManifestBundlingError(Error):
 SUBTOOLS_EXPORTS_GLOB = "**/*.textproto"
 
 # Path (relative to the bundle root) of the license file generated from the
-# licenses of input files.
-LICENSE_FILE = Path("license.html.gz")
+# licenses of input files. Note the suffix determines the compressor. If GZIP
+# is used, the `--no-name` argument must also be passed. Otherwise gzip will
+# include the random name of the temporary file and a timestamp in its header,
+# which defeats idempotence. This is important to ensure CIPD can de-dupe
+# identical uploads.
+LICENSE_FILE = Path("license.html.zst")
 
 # Standard set of arguments passed to all `lddtree` invocations.
 LDDTREE_ARGS = ["--libdir", "/lib", "--bindir", "/bin", "--generate-wrappers"]
