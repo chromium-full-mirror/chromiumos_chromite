@@ -1190,7 +1190,7 @@ class ChrootEnteror:
         self.cmd = cmd
 
         if cwd and not cwd.is_absolute():
-            cwd = Path(path_util.ToChrootPath(cwd))
+            cwd = Path(chroot.chroot_path(cwd))
         self.cwd = cwd
 
     def _check_chroot(self) -> None:
