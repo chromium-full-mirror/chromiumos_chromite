@@ -657,14 +657,93 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             if tmp_dir:
                 shutil.rmtree(tmp_dir)
 
+    def testReadSignatures(self):
+        client = self.createStandardClient()
+
+        keysets = ["keyseta", "keysetb"]
+        for keyset in keysets:
+            for i in range(3):
+                signature_file = f"{i}.payload.hash.{keyset}.signed.bin"
+                with open(
+                    os.path.join(self.tempdir, signature_file), mode="wb+"
+                ) as f:
+                    f.write(bytes(f"{i}-{keyset}", "utf-8"))
+
+        artifact_name = lambda n: f"{n}.payload.hash.{keyset}.signed.bin"
+        archive_artifacts = []
+        for keyset in keysets:
+            archive_artifacts.append(
+                signing_pb2.ArchiveArtifacts(
+                    keyset=keyset,
+                    signed_artifacts=[
+                        signing_pb2.SignedArtifact(
+                            status=signing_pb2.STATUS_SUCCESS,
+                            signed_artifact_name=artifact_name(i),
+                        )
+                        for i in range(3)
+                    ],
+                )
+            )
+        signing_response = signing_pb2.BuildTargetSignedArtifacts(
+            archive_artifacts=archive_artifacts
+        )
+
+        signatures = client._ReadSignatures(
+            self.tempdir, keysets, signing_response
+        )
+        b = lambda s: bytes(s, "utf-8")
+        self.assertEqual(
+            signatures,
+            [
+                [b("0-keyseta"), b("0-keysetb")],
+                [b("1-keyseta"), b("1-keysetb")],
+                [b("2-keyseta"), b("2-keysetb")],
+            ],
+        )
+
     @mock.patch.object(image, "SignImage")
     def testGetHashSignaturesMockSignImage(
         self, mock_sign_image: mock.MagicMock
     ):
         client = self.createStandardClient()
 
+        expected_signature_files = [
+            f"{i}.payload.hash.update_signer.signed.bin" for i in range(3)
+        ]
+        os.mkdir(os.path.join(self.tempdir, "result_dir"))
+        for i, signature_file in enumerate(expected_signature_files):
+            with open(
+                os.path.join(self.tempdir, "result_dir", signature_file),
+                mode="wb+",
+            ) as f:
+                f.write(bytes("abcd" * (i + 1), "utf-8"))
+
+        artifact_name = lambda n: f"{n}.payload.hash.update_signer.signed.bin"
+        mock_sign_image.return_value = signing_pb2.BuildTargetSignedArtifacts(
+            archive_artifacts=[
+                signing_pb2.ArchiveArtifacts(
+                    keyset="update_signer",
+                    signed_artifacts=[
+                        signing_pb2.SignedArtifact(
+                            status=signing_pb2.STATUS_SUCCESS,
+                            signed_artifact_name=artifact_name(i),
+                        )
+                        for i in range(3)
+                    ],
+                )
+            ]
+        )
+
         hashes = [b"Hash 1", b"Hash 2", b"Hash 3"]
-        client.GetHashSignatures(hashes)
+        signatures = client.GetHashSignatures(hashes)
+        self.assertEqual(
+            signatures,
+            [
+                [bytes("abcd", "utf-8")],
+                [bytes("abcdabcd", "utf-8")],
+                [bytes("abcdabcdabcd", "utf-8")],
+            ],
+        )
 
         expected_signing_config = signing_pb2.BuildTargetSigningConfigs(
             build_target_signing_configs=[
@@ -692,6 +771,6 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
         mock_sign_image.assert_called_with(
             expected_signing_config,
             client._work_dir,
-            mock.ANY,
+            os.path.join(client._work_dir, "result_dir"),
             self._docker_image,
         )

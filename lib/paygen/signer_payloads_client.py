@@ -6,6 +6,7 @@
 
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import subprocess
@@ -550,7 +551,55 @@ class LocalSignerPayloadsClient:
             # Cleanup.
             shutil.rmtree(tmp_dir)
 
-    def GetHashSignatures(self, hashes, keysets=("update_signer",)):
+    def _ReadSignatures(
+        self,
+        result_dir: Path,
+        keysets: List[str],
+        signing_response: "signing_pb2.BuildTargetSignedArtifacts",
+    ) -> List[List[str]]:
+        """Read hash signatures from the signed files.
+
+        Args:
+            result_dir: The directory signed files are located in.
+            keysets: List of keysets the the hashes were signed with.
+            signing_response: Results of local signing.
+
+        Returns:
+            A list of lists of signatures as bytes in the order of the |hashes|.
+            The list of signatures will correspond to the list of keysets passed
+            in.
+
+            hashes, keysets=['update_signer', 'update_signer-v2'] ->
+                hashes[0]                                  hashes[1] ...
+            [ [sig_update_signer, sig_update_signer-v2], [...],    ... ]
+        """
+        signatures_by_keyset = {keyset: [] for keyset in keysets}
+
+        # TODO(b/299105459): Handle failures.
+        for signed_artifacts in signing_response.archive_artifacts:
+            for signed_artifact in sorted(
+                signed_artifacts.signed_artifacts,
+                key=lambda s: s.signed_artifact_name,
+            ):
+                signature_filename = os.path.join(
+                    result_dir, signed_artifact.signed_artifact_name
+                )
+
+                logging.info("reading %s", signature_filename)
+                with open(signature_filename, mode="rb") as signature_file:
+                    signature = signature_file.read()
+                    signatures_by_keyset[signed_artifacts.keyset].append(
+                        signature
+                    )
+
+        signatures = []
+        for keyset in keysets:
+            signatures.append(signatures_by_keyset[keyset])
+        return [list(l) for l in zip(*signatures)]
+
+    def GetHashSignatures(
+        self, hashes, keysets=("update_signer",)
+    ) -> List[List[str]]:
         """Take an arbitrary list of hash files, and get them signed.
 
         Args:
@@ -600,12 +649,15 @@ class LocalSignerPayloadsClient:
                 )
             ]
         )
-        result_dir = tempfile.mkdtemp(dir=self._work_dir)
-        image.SignImage(
+        result_dir = os.path.join(self._work_dir, "result_dir")
+        os.makedirs(result_dir, exist_ok=True)
+
+        signing_response = image.SignImage(
             config,
             self._work_dir,
             result_dir,
             self._docker_image,
         )
+        # TODO(b/299105459): Handle failures.
 
-        # TODO(b/299105459): Use results.
+        return self._ReadSignatures(result_dir, keysets, signing_response)
