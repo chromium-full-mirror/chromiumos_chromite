@@ -15,6 +15,7 @@ from chromite.api.controller import image as image_controller
 from chromite.api.gen.chromite.api import image_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromiumos import common_pb2
+from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -812,9 +813,41 @@ class SignImageTest(
         rc = image_controller.SignImage(req, resp, self.validate_only_config)
         self.assertEqual(rc, controller.RETURN_CODE_VALID_INPUT)
 
-    def testSuccess(self):
+    @mock.patch.object(image_controller.image, "SignImage")
+    def testSuccess(self, mock_sign_image: mock.MagicMock):
         """Check that the endpoint finishes successfully."""
-        req = image_pb2.SignImageRequest()
+        docker_image = "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        req = image_pb2.SignImageRequest(
+            archive_dir=str(self.tempdir),
+            result_path=common_pb2.ResultPath(
+                path=common_pb2.Path(
+                    path="/tmp/result_path",
+                    location=common_pb2.Path.Location.OUTSIDE,
+                )
+            ),
+            docker_image=docker_image,
+        )
         resp = image_pb2.SignImageResponse()
-        rc = image_controller.SignImage(req, resp, self.mock_call_config)
+
+        build_target_signed_artifacts = signing_pb2.BuildTargetSignedArtifacts(
+            archive_artifacts=[
+                signing_pb2.ArchiveArtifacts(
+                    input_archive_name="foo",
+                )
+            ]
+        )
+        mock_sign_image.return_value = build_target_signed_artifacts
+
+        rc = image_controller.SignImage(req, resp, self.api_config)
         self.assertEqual(rc, controller.RETURN_CODE_SUCCESS)
+        self.assertEqual(
+            resp,
+            image_pb2.SignImageResponse(
+                output_archive_dir=str(self.tempdir),
+                signed_artifacts=build_target_signed_artifacts,
+            ),
+        )
+
+        mock_sign_image.assert_called_with(
+            mock.ANY, str(self.tempdir), Path("/tmp/result_path"), docker_image
+        )

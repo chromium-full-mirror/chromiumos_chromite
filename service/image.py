@@ -13,8 +13,9 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Iterable, List, NamedTuple, Optional, TYPE_CHECKING, Union
+from typing import Iterable, List, NamedTuple, Optional, Union
 
+from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
@@ -26,10 +27,6 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
-
-
-if TYPE_CHECKING:
-    from chromite.api.gen.chromiumos import signing_pb2
 
 
 PARALLEL_EMERGE_STATUS_FILE_NAME = "status_file"
@@ -977,7 +974,7 @@ def SignImage(
     archive_dir: Union[str, Path],
     result_path: Path,
     docker_image: str,
-) -> None:
+) -> signing_pb2.BuildTargetSignedArtifacts:
     """Sign artifacts based on the given config.
 
     Args:
@@ -986,6 +983,9 @@ def SignImage(
             Path must exist on the host.
         result_path: Path to place the signed artifacts in.
         docker_image: docker image to run.
+
+    Returns:
+        Information about the signed artifacts.
     """
     # First, verify that the docker image exists.
     try:
@@ -1039,3 +1039,7 @@ def SignImage(
                 "out_proto.bin",
             ]
         )
+    output = signing_pb2.BuildTargetSignedArtifacts()
+    with open(os.path.join(result_path, "out_proto.bin"), "rb") as f:
+        output.ParseFromString(f.read())
+    return output

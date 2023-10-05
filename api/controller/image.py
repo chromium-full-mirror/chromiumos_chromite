@@ -664,23 +664,25 @@ def PushImage(
 @validate.validation_complete
 def SignImage(
     input_proto: "image_pb2.SignImageRequest",
-    _output_proto: "image_pb2.SignImageResponse",
+    output_proto: "image_pb2.SignImageResponse",
     _config: "api.config.ApiConfig",
 ):
     """Sign artifacts based on the given config.
 
     Args:
         input_proto: Input proto.
-        _output_proto: Output proto.
+        output_proto: Output proto.
         config: The API call config.
 
     Returns:
         A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
     """
-    image.SignImage(
+    signed_artifacts = image.SignImage(
         input_proto.signing_configs,
         input_proto.archive_dir,
         Path(input_proto.result_path.path.path),
         input_proto.docker_image,
     )
+    output_proto.signed_artifacts.CopyFrom(signed_artifacts)
+    output_proto.output_archive_dir = input_proto.archive_dir
     return controller.RETURN_CODE_SUCCESS

@@ -1332,12 +1332,27 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             osutils.TempDir, "__enter__", return_value=self.tempdir
         )
-        result_dir = Path("/path/to/out")
+        result_dir = os.path.join(self.tempdir, "out")
+        os.mkdir(result_dir)
+        # Write temp file as if it were written by docker, we'll make sure
+        # we're reading and returning it correctly.
+        expected_signed_artifacts = signing_pb2.BuildTargetSignedArtifacts(
+            archive_artifacts=[
+                signing_pb2.ArchiveArtifacts(
+                    input_archive_name="foo",
+                )
+            ]
+        )
+        osutils.WriteFile(
+            os.path.join(result_dir, "out_proto.bin"),
+            expected_signed_artifacts.SerializeToString(),
+            mode="wb",
+        )
 
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc.SetDefaultCmdResult()
 
-        image.SignImage(
+        signed_artifacts = image.SignImage(
             signing_pb2.BuildTargetSigningConfigs(),
             "/tmp/temp-dir-archives/",
             result_dir,
@@ -1370,3 +1385,4 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 "out_proto.bin",
             ]
         )
+        self.assertEqual(signed_artifacts, expected_signed_artifacts)
