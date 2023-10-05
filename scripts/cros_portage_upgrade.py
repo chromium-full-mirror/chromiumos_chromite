@@ -868,8 +868,8 @@ class Upgrader:
         # Read in entire ebuild.
         content = osutils.ReadFile(ebuild_path)
 
-        # Set PYTHON_COMPAT to "( python3_{6..12} )".
-        content = re.sub(python_regexp, r"\1 python3_{6..12} \2", content)
+        # Set PYTHON_COMPAT to "( python3_{8..12} )".
+        content = re.sub(python_regexp, r"\1 python3_{8..12} \2", content)
 
         # Write ebuild file back out.
         osutils.WriteFile(ebuild_path, content)
