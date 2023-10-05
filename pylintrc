@@ -138,7 +138,7 @@ disable=
     invalid-name,
     locally-disabled,
     locally-enabled,
-    missing-docstring,
+    missing-function-docstring,
     no-member,
     no-else-break,
     no-else-continue,

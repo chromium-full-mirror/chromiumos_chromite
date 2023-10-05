@@ -130,11 +130,9 @@ class EncodingChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable=class-missing-docstring,multiple-statements
+    # pylint: disable-next=multiple-statements
     class _MessageR9150:
         pass
-
-    # pylint: enable=class-missing-docstring,multiple-statements
 
     name = "encoding_checker"
     priority = -1
@@ -257,11 +255,9 @@ class MonkeypatchChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable=class-missing-docstring,multiple-statements
+    # pylint: disable-next=multiple-statements
     class _MessageR9160:
         pass
-
-    # pylint: enable=class-missing-docstring,multiple-statements
 
     name = "monkeypatch_checker"
     priority = -1
@@ -334,10 +330,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable=class-missing-docstring,multiple-statements
-    class _MessageCP001:
-        pass
-
+    # pylint: disable-next=multiple-statements
     class _MessageCP002:
         pass
 
@@ -392,8 +385,6 @@ class DocStringChecker(pylint.checkers.BaseChecker):
     class _MessageCP019:
         pass
 
-    # pylint: enable=class-missing-docstring,multiple-statements
-
     # All the sections we recognize (and in this order).
     VALID_FUNC_SECTIONS = ("Examples", "Args", "Returns", "Yields", "Raises")
     VALID_CLASS_SECTIONS = ("Examples", "Attributes")
@@ -406,16 +397,6 @@ class DocStringChecker(pylint.checkers.BaseChecker):
     priority = -1
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
-        "C9001": (
-            "Modules should have docstrings (even a one liner)",
-            ("module-missing-docstring"),
-            _MessageCP001,
-        ),
-        "C9002": (
-            "Classes should have docstrings (even a one liner)",
-            ("class-missing-docstring"),
-            _MessageCP002,
-        ),
         "C9003": (
             "Trailing whitespace in docstring: " + MSG_ARGS,
             ("docstring-trailing-whitespace"),
@@ -550,25 +531,24 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     def visit_module(self, node):
         """Verify module docstrings"""
-        if node.doc:
-            self._check_common(node)
-        else:
-            # Ignore stub __init__.py files.
-            if os.path.basename(node.file) == "__init__.py":
-                return
-            self.add_message("C9001", node=node)
+        if not node.doc:
+            # pylint's missing-module-docstring handles this for us.
+            return
+
+        self._check_common(node)
 
     def visit_classdef(self, node):
         """Verify class docstrings"""
-        if node.doc:
-            lines = node.doc.split("\n")
-            self._check_common(node, lines)
-            sections = self._parse_docstring_sections(node, lines)
-            self._check_section_lines(
-                node, lines, sections, self.VALID_CLASS_SECTIONS
-            )
-        else:
-            self.add_message("C9002", node=node, line=node.fromlineno)
+        if not node.doc:
+            # pylint's missing-class-docstring handles this for us.
+            return
+
+        lines = node.doc.split("\n")
+        self._check_common(node, lines)
+        sections = self._parse_docstring_sections(node, lines)
+        self._check_section_lines(
+            node, lines, sections, self.VALID_CLASS_SECTIONS
+        )
 
     def _docstring_indent(self, node):
         """How much a |node|'s docstring should be indented"""
@@ -1038,7 +1018,7 @@ class SourceChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable=class-missing-docstring,multiple-statements
+    # pylint: disable-next=multiple-statements
     class _MessageR9200:
         pass
 
@@ -1056,8 +1036,6 @@ class SourceChecker(pylint.checkers.BaseChecker):
 
     class _MessageR9206:
         pass
-
-    # pylint: enable=class-missing-docstring,multiple-statements
 
     name = "source_checker"
     priority = -1
@@ -1188,11 +1166,9 @@ class CommentChecker(pylint.checkers.BaseTokenChecker):
 
     __implements__ = pylint.interfaces.ITokenChecker
 
-    # pylint: disable=class-missing-docstring,multiple-statements
+    # pylint: disable-next=multiple-statements
     class _MessageR9250:
         pass
-
-    # pylint: enable=class-missing-docstring,multiple-statements
 
     name = "comment_checker"
     priority = -1
@@ -1232,11 +1208,9 @@ class FormatStringChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable=class-missing-docstring,multiple-statements
+    # pylint: disable-next=multiple-statements
     class _MessageR9100:
         pass
-
-    # pylint: enable=class-missing-docstring,multiple-statements
 
     name = "format_string_checker"
     priority = -1
@@ -1272,11 +1246,9 @@ class ModuleOnlyImportsChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable=class-missing-docstring,multiple-statements
+    # pylint: disable-next=multiple-statements
     class _MessageR9170:
         pass
-
-    # pylint: enable=class-missing-docstring,multiple-statements
 
     priority = -1
     msgs = {

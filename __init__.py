@@ -2,6 +2,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Chromite base module.
+
+Keep this to a minimum as every chromite import will automatically load it.
+"""
+
 import functools
 import logging
 import sys
