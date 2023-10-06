@@ -1422,7 +1422,6 @@ def has_prebuilt(
     atom: str,
     build_target: "build_target_lib.BuildTarget" = None,
     useflags: Union[Iterable[str], str] = None,
-    depgraph_root_packages: Optional[List[package_info.PackageInfo]] = None,
 ) -> bool:
     """Check if a prebuilt exists.
 
@@ -1432,7 +1431,6 @@ def has_prebuilt(
             SDK if not provided.
         useflags: Any additional USE flags that should be set. May be a string
             of properly formatted USE flags, or an iterable of individual flags.
-        depgraph_root_packages: Packages to generate the depgraph from.
 
     Returns:
         True if there is an available prebuilt, False otherwise.
@@ -1449,12 +1447,7 @@ def has_prebuilt(
         existing = os.environ.get("USE", "")
         final_flags = "%s %s" % (existing, new_flags)
         extra_env = {"USE": final_flags.strip()}
-    return portage_util.HasPrebuilt(
-        atom,
-        board=board,
-        extra_env=extra_env,
-        depgraph_root_packages=depgraph_root_packages,
-    )
+    return portage_util.HasPrebuilt(atom, board=board, extra_env=extra_env)
 
 
 def builds(atom, build_target, packages=None):
@@ -1525,7 +1518,6 @@ def needs_chrome_source(
                 chrome_cpvr,
                 build_target=build_target,
                 useflags=useflags,
-                depgraph_root_packages=packages,
             )
             if not has_chrome_prebuilt:
                 pkgs_needing_prebuilts.append(chrome_cpvr)
@@ -1534,10 +1526,7 @@ def needs_chrome_source(
             if not builds_pkg:
                 continue
             prebuilt = has_prebuilt(
-                pkg,
-                build_target=build_target,
-                useflags=useflags,
-                depgraph_root_packages=packages,
+                pkg, build_target=build_target, useflags=useflags
             )
             has_follower_prebuilts &= prebuilt
             if not prebuilt:

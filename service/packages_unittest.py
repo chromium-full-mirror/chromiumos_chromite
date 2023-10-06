@@ -927,10 +927,7 @@ class HasPrebuiltTest(cros_test_lib.MockTestCase):
 
         packages.has_prebuilt("cat/pkg-1.2.3", useflags="useflag")
         patch.assert_called_with(
-            "cat/pkg-1.2.3",
-            board=None,
-            extra_env={"USE": "useflag"},
-            depgraph_root_packages=None,
+            "cat/pkg-1.2.3", board=None, extra_env={"USE": "useflag"}
         )
 
     def test_env_use_flags(self):
@@ -945,27 +942,7 @@ class HasPrebuiltTest(cros_test_lib.MockTestCase):
         packages.has_prebuilt("cat/pkg-1.2.3", useflags=new_flags)
         expected = "%s %s" % (existing_flags, new_flags)
         patch.assert_called_with(
-            "cat/pkg-1.2.3",
-            board=None,
-            extra_env={"USE": expected},
-            depgraph_root_packages=None,
-        )
-
-    def test_depgraph_root_packages(self):
-        """Test root depgraph packages."""
-        # We don't really care about the result, just the package handling.
-        patch = self.PatchObject(portage_util, "HasPrebuilt", return_value=True)
-        os.unsetenv("USE")
-
-        depgraph_pkgs = ["virtual/target-os"]
-        packages.has_prebuilt(
-            "cat/pkg-1.2.3", depgraph_root_packages=depgraph_pkgs
-        )
-        patch.assert_called_with(
-            "cat/pkg-1.2.3",
-            board=None,
-            extra_env=mock.ANY,
-            depgraph_root_packages=depgraph_pkgs,
+            "cat/pkg-1.2.3", board=None, extra_env={"USE": expected}
         )
 
 
