@@ -22,6 +22,13 @@ _INCLUDE_RE = re.compile(
 # Current version of our owners repo.
 _SHARED_OWNERS_BRANCH = "v1"
 
+# Known bots that have shared owners settings.
+_KNOWN_BOTS = {
+    "3su6n15k.default@developer.gserviceaccount.com",
+    "chromeos-ci-prod@chromeos-bot.iam.gserviceaccount.com",
+    "chromeos-ci-release@chromeos-bot.iam.gserviceaccount.com",
+}
+
 
 def lint_data(path: Union[str, os.PathLike], data: str) -> bool:
     """Run basic checks on |data|.
@@ -33,7 +40,8 @@ def lint_data(path: Union[str, os.PathLike], data: str) -> bool:
     Returns:
         True if everything passed.
     """
-    ret = linters.whitespace.Data(data, Path(path))
+    path = Path(path)
+    ret = linters.whitespace.Data(data, path)
 
     lines = data.splitlines()
 
@@ -51,6 +59,21 @@ def lint_data(path: Union[str, os.PathLike], data: str) -> bool:
             ret = False
             logging.error(
                 '%s:%i: no leading whitespace allowed: "%s"', path, i, line
+            )
+
+        if not lstrip:
+            continue
+
+        # We don't want people listing bot accounts directly.
+        # Unless it's explicitly the bots/ tree in the shared owners repo.
+        owner = lstrip.split()[0]
+        if owner in _KNOWN_BOTS and path.parent.name != "bots":
+            ret = False
+            logging.error(
+                '%s:%i: use go/cros-shared-owners for bot accounts: "%s"',
+                path,
+                i,
+                owner,
             )
 
         m = _INCLUDE_RE.match(lstrip)

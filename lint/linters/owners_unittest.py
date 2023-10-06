@@ -53,6 +53,8 @@ BAD_DATA = (
     "include chromeos/owners:v1:/OWNERS\n"
     "include chromiumos/owners:v1:/foo/OWNERS\n"
     "include chromeos/owners:v1:/foo/OWNERS\n",
+    # Bots listed directly.
+    "3su6n15k.default@developer.gserviceaccount.com\n",
 )
 
 
