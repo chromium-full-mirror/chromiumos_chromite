@@ -13,6 +13,7 @@ locals().update(
     (x, lazy_loader.ForFunctions(f"chromite.lint.linters.{x}"))
     for x in (
         "gnlint",
+        "make_defaults",
         "owners",
         "portage_layout_conf",
         "shell",

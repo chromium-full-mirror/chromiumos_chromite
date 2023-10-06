@@ -455,6 +455,24 @@ def _NonExecLintFile(path, _output_format, _debug, _relaxed: bool, commit: str):
     return result
 
 
+def _MakeDefaultsLintFile(
+    path, _output_format, _debug, _relaxed: bool, commit: str
+):
+    """Lint make.defaults files."""
+    result = cros_build_lib.CompletedProcess(
+        f'cros lint "{path}"', returncode=0
+    )
+
+    data = _get_file_data(path, commit)
+    issues = linters.make_defaults.Data(data)
+    for issue in issues:
+        logging.error("%s: %s", path, issue)
+    if issues:
+        result.returncode = 1
+
+    return result
+
+
 def _PortageLayoutConfLintFile(
     path, _output_format, _debug, _relaxed: bool, commit: str
 ):
@@ -550,6 +568,10 @@ _TOOL_MAP = collections.OrderedDict(
                 _GentooShellLintFile,
                 _NonExecLintFile,
             ),
+        ),
+        (
+            frozenset({"make.defaults"}),
+            (_WhitespaceLintFile, _NonExecLintFile, _MakeDefaultsLintFile),
         ),
         (frozenset({"*.md"}), (_MarkdownLintFile, _NonExecLintFile)),
         # Yes, there's a lot of variations here.  We catch these specifically to
