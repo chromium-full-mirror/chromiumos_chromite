@@ -33,21 +33,6 @@
       "stable_target_milestone": 111
     },
     {
-      "name": "brya",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "",
-          "arch": "X86_INTERNAL",
-          "build_cadence": "DAILY_CADENCE"
-        }
-      ],
-      "rubik_target_milestone": 108,
-      "stable_target_milestone": 100
-    },
-    {
       "name": "bubs",
       "configs": [
         {
@@ -6306,10 +6291,22 @@
         {
           "board_name": "nissa",
           "name": "craaskana",
-          "cq_test_enabled": false,
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": true,
           "release_builder_test_pool": "bvt",
           "board_id": 7206,
           "is_active": true,
+          "stable_target_milestone": 121,
           "is_experimental": false
         },
         {
