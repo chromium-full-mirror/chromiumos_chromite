@@ -446,6 +446,46 @@ obj /file bd1b4ffa168f50b0d45571dae51eefc7 1611355468""",
             )
             self.assertEqual(lic["contents"], result)
 
+    def testFilterLicenseFileCandidates(self) -> None:
+        """Ensure license patterns are applied properly to `find` output."""
+        EXPECTED_LICENSES = """\
+path/to/copyright
+a/copyright.txt
+llvm/copyright.regex
+copying_rules
+license.txt
+licence.md
+license.rst
+licenses-3.6.json
+LICENSE
+LICENSE.gz
+LICENSES_FILE
+LICENSE-LLVM.TXT
+libatomic_ops/licensing.rtf
+ja-ipafonts/ipa_font_license_agreement_v1.0.txt
+rake/MIT-LICENSE
+PKG-INFO
+a/GPL_DIR/license.txt"""
+        SAMPLE_FIND_OUTPUT = f"""\
+{EXPECTED_LICENSES}
+ExclusionsStartHere
+.git/refs/heads/licensing
+license.gpl
+License.o
+license.py
+License.dyn_hi
+License.dyn_o
+LicenseExceptionId.hi
+LicenseExceptionId.hs
+Licenses.hs
+libraries/Cabal/license-list-data/licenses-3.6.json
+"""
+
+        self.assertEqual(
+            licenses_lib.FilterLicenseFileCandidates(SAMPLE_FIND_OUTPUT),
+            EXPECTED_LICENSES.splitlines(),
+        )
+
     def testReadUnknownEncodedFile(self):
         """Validate the fix for crbug.com/654894."""
         bad_license = os.path.join(self.tempdir, "license.rtf")

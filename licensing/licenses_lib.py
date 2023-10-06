@@ -68,7 +68,7 @@ SKIPPED_LICENSES = [
     "Proprietary-Binary",
 ]
 
-LICENSE_NAMES_REGEX = [
+LICENSE_BASENAMES_REGEX = [
     r"^copyright$",
     r"^copyright[.]txt$",
     r"^copyright[.]regex$",  # llvm
@@ -81,6 +81,26 @@ LICENSE_NAMES_REGEX = [
     # some python packages
     # (netifaces, unittest2)
 ]
+
+# Patterns to never classify as a license file. Unlike LICENSE_BASENAMES_REGEX,
+# the patterns here are applied to the full path relative to the work dir root.
+# Exclusions found this way are logged. We also skip `.git`, but don't log it.
+LICENSE_PATHS_EXCLUDE_REGEX = (
+    # We never want a GPL license when looking for copyright attribution, so we
+    # skip things like license.gpl. Only check the basename.
+    r"[^/]*GPL[^/]*$",
+    # Skip files that are likely source code or object files generated from
+    # source code. E.g., license.py, license.o, etc.
+    r"\.py$",
+    r"\.o$",
+    # Haskell source and object files.
+    r"\.hs$",
+    r"\.hi$",
+    r"\.dyn_hi$",
+    r"\.dyn_o$",
+    # This folder contains json files listing every license known to Cabal.
+    r"Cabal/license-list-data",
+)
 
 # Any license listed here found in the ebuild will make the code look for
 # license files inside the package source code in order to get copyright
@@ -466,7 +486,7 @@ class PackageInfo:
         we don't look for).
 
         Otherwise, we scan the unpacked source code for what looks like license
-        files as defined in LICENSE_NAMES_REGEX.
+        files as defined in LICENSE_BASENAMES_REGEX.
 
         Raises:
             AssertionError: on runtime errors
@@ -529,30 +549,10 @@ class PackageInfo:
         # dev-libs/libatomic_ops-7.2d/work/gc-7.2/libatomic_ops/doc/LICENSING.txt
         #
         # pylint: enable=line-too-long
-        args = ["find", src_dir, "-type", "f"]
+        # Use "%P" to truncate results to look like this: swig-2.0.4/COPYRIGHT
+        args = ["find", src_dir, "-type", "f", "-printf", "%P\\n"]
         result = cros_build_lib.run(args, stdout=True, encoding="utf-8")
-        # Truncate results to look like this: swig-2.0.4/COPYRIGHT
-        files = [
-            x[len(src_dir) :].lstrip("/") for x in result.stdout.splitlines()
-        ]
-        license_files = []
-        for name in files:
-            # When we scan a source tree managed by git, this can contain
-            # license files that are not part of the source. Exclude those.
-            # (e.g. .git/refs/heads/licensing)
-            if ".git/" in name:
-                continue
-            basename = os.path.basename(name)
-            # Looking for license.* brings up things like license.gpl, and we
-            # never want a GPL license when looking for copyright attribution,
-            # so we skip them here. We also skip regexes that can return
-            # license.py (seen in some code).
-            if re.search(r".*GPL.*", basename) or re.search(r"\.py$", basename):
-                continue
-            for regex in LICENSE_NAMES_REGEX:
-                if re.search(regex, basename, re.IGNORECASE):
-                    license_files.append(name)
-                    break
+        license_files = FilterLicenseFileCandidates(result.stdout)
 
         if not license_files:
             if need_copyright_attribution:
@@ -1648,6 +1648,30 @@ def ListInstalledPackages(sysroot, all_packages=False):
             )
 
     return packages
+
+
+def FilterLicenseFileCandidates(stdout: str) -> List[str]:
+    """Returns the subset of files in `stdout` that look like licenses."""
+    license_files: List[str] = []
+    basename_include_pattern = re.compile(
+        "|".join(f"({x})" for x in LICENSE_BASENAMES_REGEX), re.IGNORECASE
+    )
+    path_exclude_pattern = re.compile(
+        "|".join(f"({x})" for x in LICENSE_PATHS_EXCLUDE_REGEX), re.IGNORECASE
+    )
+    for path in stdout.splitlines():
+        # When we scan a source tree managed by git, this can contain license
+        # files that are not part of the source. Exclude those.
+        # (e.g. .git/refs/heads/licensing)
+        if ".git/" in path:
+            continue
+        basename = os.path.basename(path)
+        if basename_include_pattern.search(basename):
+            if path_exclude_pattern.search(path):
+                logging.info("Ignoring %s (matches exclude regex).", path)
+            else:
+                license_files.append(path)
+    return license_files
 
 
 def ReadUnknownEncodedFile(file_path, logging_text=None):
