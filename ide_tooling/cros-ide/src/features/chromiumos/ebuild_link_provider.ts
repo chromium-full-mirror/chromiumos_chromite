@@ -53,7 +53,6 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
     // TODO(b:303398643): support third_party (non chromeos-base)
     let localName = lnMatch[1];
     // Sometimes we also need to strip leading "../"
-    // TODO(b:303398643): test the logic here
     if (localName.startsWith('../')) {
       localName = localName.substring(3);
     }

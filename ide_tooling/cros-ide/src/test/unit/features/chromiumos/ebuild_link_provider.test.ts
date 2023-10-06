@@ -6,15 +6,8 @@ import * as vscode from 'vscode';
 import {EbuildLinkProvider} from '../../../../features/chromiumos/ebuild_link_provider';
 import {FakeCancellationToken, FakeTextDocument} from '../../../testing/fakes';
 
-const SIMPLE_LOCALNAME = `
-EAPI=7
-CROS_WORKON_USE_VCSID="1"
-CROS_WORKON_LOCALNAME="platform2"
-CROS_WORKON_PROJECT="chromiumos/platform2"
-CROS_WORKON_OUTOFTREE_BUILD=1
-CROS_WORKON_SUBTREE="common-mk biod .gn"
-PLATFORM_SUBDIR="biod"
-`;
+const csBase =
+  'http://source.corp.google.com/h/chromium/chromiumos/codesearch/+/main:';
 
 function documentLink(
   range: vscode.Range,
@@ -41,6 +34,16 @@ function openFolderCmdUri(path: string): vscode.Uri {
 
 describe('Ebuild Link Provider', () => {
   it('extracts links', async () => {
+    const SIMPLE_LOCALNAME = `
+EAPI=7
+CROS_WORKON_USE_VCSID="1"
+CROS_WORKON_LOCALNAME="platform2"
+CROS_WORKON_PROJECT="chromiumos/platform2"
+CROS_WORKON_OUTOFTREE_BUILD=1
+CROS_WORKON_SUBTREE="common-mk biod .gn"
+PLATFORM_SUBDIR="biod"
+`;
+
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: SIMPLE_LOCALNAME});
 
@@ -49,21 +52,19 @@ describe('Ebuild Link Provider', () => {
       new FakeCancellationToken()
     );
 
-    const rangeLocalname = new vscode.Range(3, 23, 3, 32);
+    const rangeLocalName = new vscode.Range(3, 23, 3, 32);
     const rangeCommonMk = new vscode.Range(6, 21, 6, 30);
     const rangeBiod = new vscode.Range(6, 31, 6, 35);
     const rangeGn = new vscode.Range(6, 36, 6, 39);
-    const csBase =
-      'http://source.corp.google.com/h/chromium/chromiumos/codesearch/+/main:';
 
     expect(documentLinks).toEqual([
       documentLink(
-        rangeLocalname,
+        rangeLocalName,
         vscode.Uri.parse(csBase + 'src/platform2'),
         'Open src/platform2 in CodeSearch'
       ),
       documentLink(
-        rangeLocalname,
+        rangeLocalName,
         openFolderCmdUri('/path/to/cros/src/platform2'),
         'Open src/platform2 in New VS Code Window'
       ),
@@ -96,6 +97,39 @@ describe('Ebuild Link Provider', () => {
         rangeGn,
         openFolderCmdUri('/path/to/cros/src/platform2/.gn'),
         'Open src/platform2/.gn in New VS Code Window'
+      ),
+    ]);
+  });
+
+  it('handles local name with leading two dots', async () => {
+    const TPM_EBUILD = `
+EAPI="7"
+CROS_WORKON_PROJECT="chromiumos/platform/tpm"
+CROS_WORKON_LOCALNAME="../third_party/tpm"
+
+inherit cros-sanitizers cros-workon toolchain-funcs
+`;
+
+    const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
+    const textDocument = new FakeTextDocument({text: TPM_EBUILD});
+
+    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+      textDocument,
+      new FakeCancellationToken()
+    );
+
+    const rangeLocalName = new vscode.Range(3, 23, 3, 41);
+
+    expect(documentLinks).toEqual([
+      documentLink(
+        rangeLocalName,
+        vscode.Uri.parse(csBase + 'src/third_party/tpm'),
+        'Open src/third_party/tpm in CodeSearch'
+      ),
+      documentLink(
+        rangeLocalName,
+        openFolderCmdUri('/path/to/cros/src/third_party/tpm'),
+        'Open src/third_party/tpm in New VS Code Window'
       ),
     ]);
   });
