@@ -132,8 +132,8 @@ def is_sdk_path(path: str) -> bool:
         re.match(
             "|".join(
                 (
-                    r"/usr/src/chromeos-kernel-[^/]+/build"
-                    r"/build/bin"
+                    r"/usr/src/chromeos-kernel-[^/]+/build",
+                    r"/build/bin",
                     r"/build/libexec",
                 )
             ),
