@@ -116,6 +116,21 @@
       "stable_target_milestone": 122
     },
     {
+      "name": "brya",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": true,
+          "leader_board": true,
+          "board_group": "",
+          "arch": "X86_INTERNAL",
+          "build_cadence": "DAILY_CADENCE"
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 100
+    },
+    {
       "name": "bubs",
       "configs": [
         {
