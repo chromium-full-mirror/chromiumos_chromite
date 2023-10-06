@@ -15470,7 +15470,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7218,
           "is_active": true,
-          "stable_target_milestone": 112,
+          "stable_target_milestone": 117,
           "is_experimental": false
         },
         {
