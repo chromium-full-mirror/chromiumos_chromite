@@ -19,6 +19,7 @@ from typing import List, Optional
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
@@ -1458,6 +1459,8 @@ after fixing the license."""
         output_template=TMPL,
         entry_template=ENTRY_TMPL,
         license_template=SHARED_LICENSE_TMPL,
+        os_version: Optional[str] = None,
+        milestone_version: Optional[str] = None,
         compress_output=False,
     ):
         """Generate the combined html license file.
@@ -1467,6 +1470,8 @@ after fixing the license."""
             output_template: template for the entire HTML file.
             entry_template: template for per package entries.
             license_template: template for shared license entries.
+            os_version: OS version.
+            milestone_version: Milestone version.
             compress_output: whether to compress based on suffix of output_file.
         """
         self.entry_template = ReadUnknownEncodedFile(entry_template)
@@ -1506,6 +1511,32 @@ after fixing the license."""
             }
             licenses_txt += [self.EvaluateTemplate(license_template, env)]
 
+        if self.placeholder:
+            if not os_version:
+                os_version = "1000.10.0"
+            if not milestone_version:
+                milestone_version = "100"
+        reciprocal_txt = ""
+        if os_version and milestone_version:
+            env = {
+                "chromeos-manifest-link": gs.GsUrlToHttp(
+                    "gs://chromeos-manifest-versions/buildspecs/"
+                    f"{milestone_version}/{os_version}.xml"
+                ),
+                "chromiumos-manifest-link": gs.GsUrlToHttp(
+                    "gs://chromiumos-manifest-versions/buildspecs/"
+                    f"{milestone_version}/{os_version}.xml"
+                ),
+                "os-version": os_version,
+                "milestone-version": milestone_version,
+            }
+            reciprocal_txt = self.EvaluateTemplate(
+                osutils.ReadFile(
+                    os.path.join(SCRIPT_DIR, "about_credits_reciprocal.tmpl")
+                ),
+                env,
+            )
+
         file_template = ReadUnknownEncodedFile(output_template)
         tainted_warning = ""
         if self.tainted_pkgs:
@@ -1531,6 +1562,7 @@ after fixing the license."""
             "entries": "\n".join(sorted_license_txt),
             "licenses": "\n".join(licenses_txt),
             "placeholder": _PLACEHOLDER_BANNER if self.placeholder else "",
+            "reciprocal-license-statement": reciprocal_txt,
         }
         contents = self.EvaluateTemplate(file_template, env).encode("utf-8")
         if not compress_output:

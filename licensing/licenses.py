@@ -114,6 +114,14 @@ def get_parser() -> commandline.ArgumentParser:
     )
 
     parser.add_argument(
+        "--os-version",
+        help="Overall OS version when building CrOS images.",
+    )
+    parser.add_argument(
+        "--milestone-version",
+        help="Overall OS milestone when building CrOS images.",
+    )
+    parser.add_argument(
         "-p",
         "--package",
         action="append",
@@ -193,5 +201,8 @@ def main(args):
 
     if opts.output:
         licensing.GenerateHTMLLicenseOutput(
-            opts.output, compress_output=opts.compress_output
+            opts.output,
+            os_version=opts.os_version,
+            milestone_version=opts.milestone_version,
+            compress_output=opts.compress_output,
         )
