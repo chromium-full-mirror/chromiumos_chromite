@@ -33,6 +33,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import gerrit
 from chromite.lib import gob_util
 from chromite.lib import parallel
+from chromite.lib import patch
 from chromite.lib import retry_util
 from chromite.lib import terminal
 from chromite.lib import uri_lib
@@ -553,7 +554,7 @@ class ActionDeps(_ActionSearchQuery):
             PrintCls(opts, transitives_raw)
 
     @staticmethod
-    def _ProcessDeps(opts, querier, cl, deps, required):
+    def _ProcessDeps(opts, querier, cl, deps):
         """Yields matching dependencies for a patch"""
         # We need to query the change to guarantee that we have a .gerrit_number
         for dep in deps:
@@ -566,22 +567,11 @@ class ActionDeps(_ActionSearchQuery):
             # TODO(phobbs) this should maybe catch network errors.
             changes = querier(dep.ToGerritQueryText(), helper=helper)
 
-            # Handle empty results.  If we found a commit that was pushed
-            # directly (e.g. a bot commit), then gerrit won't know about it.
-            if not changes:
-                if required:
-                    logging.error(
-                        "CL %s depends on %s which cannot be found",
-                        cl,
-                        dep.ToGerritQueryText(),
-                    )
-                continue
-
             # Our query might have matched more than one result. This can come
-            # up when CQ-DEPEND uses a Gerrit Change-Id, but that Change-Id
+            # up when Cq-Depend uses a Gerrit Change-Id, but that Change-Id
             # shows up across multiple repos/branches. We blindly check all of
             # them in the hopes that all open ones are what the user wants, but
-            # then again the CQ-DEPEND syntax itself is unable to differentiate.
+            # then again the Cq-Depend syntax itself is unable to differentiate.
             # *shrug*
             if len(changes) > 1:
                 logging.warning(
@@ -595,11 +585,11 @@ class ActionDeps(_ActionSearchQuery):
 
     @classmethod
     def _Children(cls, opts, querier, cl):
-        """Yields the Gerrit dependencies of a patch"""
-        for change in cls._ProcessDeps(
-            opts, querier, cl, cl.GerritDependencies(), False
-        ):
-            yield change
+        """Yields the Gerrit and Cq-Depend dependencies of a patch."""
+        yield from cls._ProcessDeps(opts, querier, cl, cl.GerritDependencies())
+        yield from cls._ProcessDeps(
+            opts, querier, cl, patch.GetPaladinDeps(cl.commit_message)
+        )
 
 
 class ActionInspect(_ActionSearchQuery):
