@@ -12,7 +12,7 @@ import os
 import pickle
 import signal
 import sys
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 import pytest
 
@@ -269,6 +269,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
 
     _ALL_SCHEMES = (
         commandline.DeviceScheme.FILE,
+        commandline.DeviceScheme.SCP,
         commandline.DeviceScheme.SERVO,
         commandline.DeviceScheme.SSH,
         commandline.DeviceScheme.USB,
@@ -277,7 +278,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
     def _CheckDeviceParse(
         self,
         device_input: str,
-        scheme: Optional[commandline.DeviceScheme] = None,
+        scheme: Optional[Union[commandline.DeviceScheme, List]] = None,
         username: Optional[str] = None,
         hostname: Optional[str] = None,
         port: Optional[int] = None,
@@ -296,9 +297,11 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             serial: Expected serial number.
         """
         parser = commandline.ArgumentParser()
+        if isinstance(scheme, commandline.DeviceScheme):
+            scheme = [scheme]
         parser.add_argument("device", type=commandline.DeviceParser(scheme))
         device = parser.parse_args([device_input]).device
-        self.assertEqual(device.scheme, scheme)
+        self.assertIn(device.scheme, scheme)
         self.assertEqual(device.username, username)
         self.assertEqual(device.hostname, hostname)
         self.assertEqual(device.port, port)
@@ -320,6 +323,58 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
     def testNoDevice(self):
         """Verify that an empty device specification fails."""
         self._CheckDeviceParseFails("")
+
+    def testScpAndFileScheme(self):
+        """Test scp and file scheme device specification."""
+        self._CheckDeviceParse(
+            "192.168.1.200:/tmp_dest",
+            scheme=[
+                commandline.DeviceScheme.SCP,
+                commandline.DeviceScheme.FILE,
+            ],
+            hostname="192.168.1.200",
+            path="/tmp_dest",
+        )
+        self._CheckDeviceParse(
+            "folder/tmp_src",
+            scheme=[
+                commandline.DeviceScheme.SCP,
+                commandline.DeviceScheme.FILE,
+            ],
+            path="folder/tmp_src",
+        )
+        self._CheckDeviceParse(
+            "./tmp_src",
+            scheme=[
+                commandline.DeviceScheme.SCP,
+                commandline.DeviceScheme.FILE,
+            ],
+            path="./tmp_src",
+        )
+        self._CheckDeviceParse(
+            "../tmp_src",
+            scheme=[
+                commandline.DeviceScheme.SCP,
+                commandline.DeviceScheme.FILE,
+            ],
+            path="../tmp_src",
+        )
+
+    def testScpSchemeCombination(self):
+        """Test scp scheme with valid/invalid scheme combination."""
+        self._CheckDeviceParse(
+            "192.168.1.200:/tmp_dest",
+            scheme=commandline.DeviceScheme.SCP,
+            hostname="192.168.1.200",
+            path="/tmp_dest",
+        )
+        self._CheckDeviceParseFails(
+            "192.168.1.200:/tmp_dest",
+            schemes=[
+                commandline.DeviceScheme.SCP,
+                commandline.DeviceScheme.SSH,
+            ],
+        )
 
     def testSshScheme(self):
         """Verify that SSH scheme-only device specification fails."""

@@ -21,7 +21,7 @@ import re
 import signal
 import sys
 import types
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, Union
 import urllib.parse
 
 from chromite.lib import constants
@@ -38,6 +38,7 @@ class DeviceScheme(enum.IntEnum):
     """An enum for device scheme type."""
 
     FILE = enum.auto()
+    SCP = enum.auto()
     SERVO = enum.auto()
     SSH = enum.auto()
     USB = enum.auto()
@@ -283,7 +284,10 @@ class DeviceParser:
         )
     """
 
-    def __init__(self, schemes):
+    def __init__(
+        self,
+        schemes: Optional[Union[DeviceScheme, List]] = None,
+    ):
         """Initializes the parser.
 
         See the class comments for usage examples.
@@ -291,7 +295,7 @@ class DeviceParser:
         Args:
             schemes: A scheme or list of schemes to accept.
         """
-        self.schemes = (
+        self.schemes = set(
             [schemes] if isinstance(schemes, DeviceScheme) else schemes
         )
         # Provide __name__ for argparse to print on failure, or else it will use
@@ -348,6 +352,28 @@ class DeviceParser:
                 % (device.scheme.name.lower(), value)
             )
 
+    def _CheckScpScheme(self) -> bool:
+        """Verifies that scp scheme is used and with valid schemes.
+
+        Checks that DeviceParser for scp has no ssh scheme.
+        ssh scheme cannot be used with scp scheme.
+
+        Returns:
+            Whether scp scheme is used.
+
+        Raises:
+            ValueError: |DeviceParser| has invalid scheme combination.
+        """
+        if DeviceScheme.SCP in self.schemes:
+            conflicting_schemes = {DeviceScheme.SCP, DeviceScheme.SSH}
+            if self.schemes & conflicting_schemes == conflicting_schemes:
+                raise ValueError(
+                    "Unable to handle ambiguous URI with both SSH & SCP"
+                )
+            return True
+        else:
+            return False
+
     def _ParseDevice(self, value):
         """Parse a device argument.
 
@@ -378,8 +404,9 @@ class DeviceParser:
             or "." in parsed.scheme
             or parsed.scheme == "localhost"
         ):
-            # Default to a file scheme for absolute paths, SSH scheme otherwise.
-            if value and value[0] == "/":
+            # Default to a file scheme for absolute paths and start with '.',
+            # ssh scheme otherwise.
+            if value and value[0] in ("/", "."):
                 scheme = DeviceScheme.FILE
             else:
                 # urlparse won't provide hostname/username/port unless a scheme
@@ -387,7 +414,13 @@ class DeviceParser:
                 parsed = urllib.parse.urlparse(
                     "%s://%s" % (DeviceScheme.SSH.name.lower(), value)
                 )
-                scheme = DeviceScheme.SSH
+                if self._CheckScpScheme():
+                    if value and ":/" in value:
+                        scheme = DeviceScheme.SCP
+                    else:
+                        scheme = DeviceScheme.FILE
+                else:
+                    scheme = DeviceScheme.SSH
         else:
             try:
                 scheme = DeviceScheme[parsed.scheme.upper()]
@@ -418,11 +451,25 @@ class DeviceParser:
                 )
             if not hostname:
                 raise ValueError('Hostname is required for device "%s"' % value)
+
             return Device(
                 scheme=scheme,
                 username=parsed.username,
                 hostname=hostname,
                 port=port,
+                raw=value,
+            )
+        elif scheme == DeviceScheme.SCP:
+            hostname = parsed.hostname
+            path = parsed.path
+            if not hostname:
+                raise ValueError(f'Hostname is required for device "{value}"')
+
+            return Device(
+                scheme=scheme,
+                username=parsed.username,
+                hostname=hostname,
+                path=path,
                 raw=value,
             )
         elif scheme == DeviceScheme.USB:
