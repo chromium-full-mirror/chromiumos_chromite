@@ -4,6 +4,8 @@
 
 """Payload operations."""
 
+from unittest import mock
+
 from chromite.api import api_config
 from chromite.api import controller
 from chromite.api.controller import payload
@@ -12,6 +14,7 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib.paygen import paygen_payload_lib
+from chromite.service import payload as payload_service
 
 
 class PayloadApiTests(
@@ -171,6 +174,35 @@ class PayloadApiTests(
         self.assertEqual(
             response_code,
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
+        )
+
+    def testLocalSigningSuccessMock(self):
+        """Test a local signing paygen request inits with the right values."""
+        patch = self.PatchObject(payload_service, "PayloadConfig")
+        patch.return_value.GeneratePayload.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
+        }
+
+        req = self.req
+        req.use_local_signing = True
+        req.docker_image = (
+            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        )
+
+        res = payload.GeneratePayload(self.req, self.result, self.api_config)
+        self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
+
+        patch.assert_called_with(
+            mock.ANY,  # chroot
+            mock.ANY,  # target image
+            mock.ANY,  # source image
+            mock.ANY,  # dest bucket
+            mock.ANY,  # minios
+            mock.ANY,  # verify
+            upload=mock.ANY,
+            cache_dir=mock.ANY,
+            use_local_signing=True,
+            signing_docker_image=req.docker_image,
         )
 
     def testLocalSigningSuccess(self):
