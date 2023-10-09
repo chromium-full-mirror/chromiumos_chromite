@@ -283,24 +283,29 @@ def MountChrootPaths(chroot: chroot_lib.Chroot):
     # mounts in the parent mount namespace will propagate down (like unmounts).
     osutils.Mount(None, "/", None, osutils.MS_REC | osutils.MS_SLAVE)
 
-    # Prepare for pivot_root(2). `man 2 pivot_root` says new_root must be a
-    # mount point.
-    # And make it private so we can make changes without it propagating back
-    # out.
-    osutils.Mount(
-        path,
-        path,
-        None,
-        osutils.MS_BIND | osutils.MS_REC | osutils.MS_PRIVATE,
-    )
+    # If the mount path is already mounted, make it private so we can make
+    # changes without it propagating back out.
+    for info in osutils.IterateMountPoints():
+        if info.destination == str(path):
+            osutils.Mount(None, path, None, osutils.MS_REC | osutils.MS_PRIVATE)
+            break
 
     # The source checkout must be mounted first.  We'll be mounting paths into
-    # the chroot, and that chroot lives inside SOURCE_ROOT, so if we did the
-    # recursive bind at the end, we'd double bind things.
+    # the chroot, and that chroot may live inside SOURCE_ROOT, so if we did
+    # the recursive bind at the end, we'd double bind things.
     osutils.Mount(
         constants.SOURCE_ROOT,
         path / constants.CHROOT_SOURCE_ROOT.relative_to("/"),
         "~/chromiumos",
+        osutils.MS_BIND | osutils.MS_REC,
+    )
+
+    # Prepare for pivot_root(2). `man 2 pivot_root` says new_root must be a
+    # mount point.
+    osutils.Mount(
+        path,
+        path,
+        None,
         osutils.MS_BIND | osutils.MS_REC,
     )
 

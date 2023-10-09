@@ -216,6 +216,12 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
         self.mount_mock.assert_has_calls(
             [
                 mock.call(
+                    Path(self.chroot.path),
+                    Path(self.chroot.path),
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
                     self.chroot.out_path / "tmp",
                     Path(self.chroot.path) / "tmp",
                     None,
