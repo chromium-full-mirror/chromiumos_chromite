@@ -963,7 +963,7 @@ def BuildPackages(
                                     "/tmp/bazel_build_appcryptnss_exec.log"
                                 ),
                                 "--execution_log_sort=false",
-                                "@portage//app-crypt/nss:package_set",
+                                "@portage//target/app-crypt/nss:package_set",
                             ],
                             extra_env=extra_env,
                         )
