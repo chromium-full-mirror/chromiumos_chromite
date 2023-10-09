@@ -300,4 +300,4 @@ def CreatePackage(
         in_dir,
     ] + _shared_cipd_args(tags, refs, cred_path, service_url)
 
-    cros_build_lib.run(args, capture_output=True)
+    cros_build_lib.dbg_run(args)

@@ -158,7 +158,7 @@ def test_create_package(run_mock: cros_test_lib.RunCommandMock) -> None:
         cred_path="/creds.json",
         service_url=cipd.STAGING_SERVICE_URL,
     )
-    run_mock.assertCommandCalled(
+    run_mock.assertCommandContains(
         [
             "/cipd.fake",
             "create",
@@ -176,6 +176,5 @@ def test_create_package(run_mock: cros_test_lib.RunCommandMock) -> None:
             "/creds.json",
             "-service-url",
             "https://chrome-infra-packages-dev.appspot.com",
-        ],
-        capture_output=True,
+        ]
     )

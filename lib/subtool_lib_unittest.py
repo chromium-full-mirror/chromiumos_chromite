@@ -686,7 +686,7 @@ def test_upload_successful(
     expected_hash = subtool._calculate_digest()
     # Hash should be a 160-bit hex string.
     assert re.fullmatch("[0-9a-f]{40}", expected_hash)
-    run_mock.assertCommandCalled(
+    run_mock.assertCommandContains(
         [
             FAKE_CIPD_PATH,
             "create",
@@ -704,8 +704,7 @@ def test_upload_successful(
             "latest",
             "-service-url",
             "https://chrome-infra-packages-dev.appspot.com",
-        ],
-        capture_output=True,
+        ]
     )
     run_mock.assertCommandContains([FAKE_CIPD_PATH, "search"])
     run_mock.assertCommandContains([FAKE_CIPD_PATH, "create"])
