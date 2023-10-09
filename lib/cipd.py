@@ -213,11 +213,29 @@ def search_instances(
     cred_path: Optional[Union[os.PathLike, str]] = None,
     service_url: Optional[str] = None,
 ) -> List[str]:
-    """Search for instances of `package` in cipd with the given `tags`."""
+    """Search for instances of `package` in cipd with the given `tags`.
+
+    Returns:
+        Ths list of Instance IDs matching the search. An empty list if there is
+        no match, or no package exists at the given location, or the client does
+        not have permission to read that location.
+    """
     cmd = [cipd_path, "search", package] + _shared_cipd_args(
         tags, [], cred_path, service_url
     )
-    result = cros_build_lib.run(cmd, capture_output=True, encoding="utf-8")
+    result = cros_build_lib.run(
+        cmd, capture_output=True, encoding="utf-8", check=False
+    )
+    package_missing = f"""Error: prefix "{package}" doesn't exist"""
+    if result.returncode == 1 and result.stderr.startswith(package_missing):
+        # We never want an error to propagate simply because a prefix is being
+        # used for the first time, but other errors should propagate. Also note
+        # that a "package missing" error is indistinguishable from a permissions
+        # issue where the client does not have read permissions on that prefix.
+        return []
+
+    result.check_returncode()
+
     # An example output of search is like:
     #   Instances:\n  package:instance_id1\n  package:instance_id2
     return [x.split(":")[-1] for x in result.stdout.splitlines()[1:]]

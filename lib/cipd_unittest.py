@@ -10,8 +10,10 @@ from pathlib import Path
 from unittest import mock
 
 from chromite.third_party import httplib2
+import pytest
 
 from chromite.lib import cipd
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
@@ -127,7 +129,41 @@ Instances:
         ["/cipd.fake", "search", "some/package", "-tag", "tag1:value1"],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
+
+
+def test_search_instances_no_matches(
+    run_mock: cros_test_lib.RunCommandMock,
+) -> None:
+    """Validate search_instances when package exists, no instances are found."""
+    run_mock.SetDefaultCmdResult(stdout="No matching instances.\n")
+    assert cipd.search_instances("/cipd.fake", "some/package", {}) == []
+
+
+def test_search_instances_no_prefix(
+    run_mock: cros_test_lib.RunCommandMock,
+) -> None:
+    """Validate search_instances when no package exists (or no permission)."""
+    run_mock.SetDefaultCmdResult(
+        returncode=1,
+        stderr="""\
+Error: prefix "some/package" doesn't exist or "user:foo@bar.com" is not allowed\
+ to see it, run `cipd auth-login` to login or relogin.
+""",
+    )
+    assert cipd.search_instances("/cipd.fake", "some/package", {}) == []
+
+
+def test_search_instances_other_error(
+    run_mock: cros_test_lib.RunCommandMock,
+) -> None:
+    """Validate search_instances when an unanticipated cipd error occurs."""
+    test_error = "Error: (cipd test) something bad."
+    run_mock.SetDefaultCmdResult(returncode=1, stderr=test_error)
+    with pytest.raises(cros_build_lib.CalledProcessError) as error_info:
+        cipd.search_instances("/cipd.fake", "some/package", {})
+    assert test_error in str(error_info.value)
 
 
 def test_install_package(run_mock: cros_test_lib.RunCommandMock) -> None:
