@@ -1315,7 +1315,10 @@ def CreateTarball(
         cmd += list(inputs)
         rc_input = None
 
-    rc_func = sudo_run if sudo else run
+    if sudo:
+        rc_func = functools.partial(sudo_run, preserve_env=True)
+    else:
+        rc_func = run
 
     # If tar fails with status 1, retry twice. Once after timeout seconds and
     # again 2*timeout seconds after that.
