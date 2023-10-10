@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as path from 'path';
 import {BoardOrHost} from '../../../../../common/chromiumos/board_or_host';
 import {
   Platform2Package,
   platform2TestWorkingDirectory,
+  parsePlatform2EbuildOrThrow,
 } from '../../../../../common/chromiumos/portage/platform2';
 
 describe('platform2TestWorkingDirectory works for', () => {
@@ -66,4 +68,27 @@ describe('platform2TestWorkingDirectory works for', () => {
       expect(got).toEqual(tc.want);
     });
   }
+});
+
+describe('parsePlatform2EbuildOrThrow works for', () => {
+  it(' testing ebuild', async () => {
+    const parsedPackage = await parsePlatform2EbuildOrThrow(
+      path.join(
+        __dirname,
+        '../../../../../../src/test/testdata/portage/portage-9999.ebuild'
+      )
+    );
+    expect(parsedPackage).toEqual({
+      // EbuildPackage (and ParsedPackageName) contents.
+      category: 'testdata',
+      name: 'portage',
+      version: '9999',
+      revision: undefined,
+
+      platformSubdir: '',
+      crosWorkonDestdir: ['${S}/platform2', '${S}/aosp/system/keymaster'],
+      crosWorkonOutoftreeBuild: undefined,
+      crosWorkonLocalname: ['platform2'],
+    });
+  });
 });

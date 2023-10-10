@@ -94,7 +94,7 @@ export async function parsePlatform2EbuildOrThrow(
 
   const mapping = new Map<string, EbuildValue>();
   for (const {name, value} of assignments) {
-    mapping.set(name, value);
+    mapping.set(name.name, value);
   }
 
   let platformSubdir = '';
@@ -111,7 +111,7 @@ export async function parsePlatform2EbuildOrThrow(
     if (v?.kind === 'string') {
       crosWorkonDestdir = v.value;
     } else if (v?.kind === 'array') {
-      crosWorkonDestdir = v.value;
+      crosWorkonDestdir = v.value.map(sv => sv.value);
     }
   }
 
@@ -129,7 +129,7 @@ export async function parsePlatform2EbuildOrThrow(
     if (v?.kind === 'string') {
       crosWorkonLocalname = [v.value];
     } else if (v?.kind === 'array') {
-      crosWorkonLocalname = v.value;
+      crosWorkonLocalname = v.value.map(sv => sv.value);
     }
   }
 
