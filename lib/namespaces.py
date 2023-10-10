@@ -23,6 +23,7 @@ from chromite.lib import commandline
 from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import process_util
+from chromite.utils import os_util
 from chromite.utils import proctitle_util
 
 
@@ -423,8 +424,8 @@ def ReExecuteWithNamespace(
         preserve_env: If True, preserve existing environment variables when
             running as root user.
         network: If False, disable access to the network.
-        clear_saved_id: Whether to clear the saved-uid & saved-gid.  Retaining
-            will allow code to switch back to root via e.g. os.setuid() calls.
+        clear_saved_id: Whether to clear the saved-uid & saved-gid.  See
+            os_util.switch_to_sudo_user.
     """
     # Re-run the command as a root user in order to create the namespaces.
     # Ideally, we can rework this logic to swap to the root user in a way that
@@ -433,10 +434,4 @@ def ReExecuteWithNamespace(
 
     SimpleUnshare(net=not network, pid=True)
     # We got our namespaces, so switch back to the non-root user.
-    gid = int(os.environ.pop("SUDO_GID"))
-    uid = int(os.environ.pop("SUDO_UID"))
-    user = os.environ.pop("SUDO_USER")
-    os.initgroups(user, gid)
-    os.setresgid(gid, gid, gid if clear_saved_id else -1)
-    os.setresuid(uid, uid, uid if clear_saved_id else -1)
-    os.environ["USER"] = user
+    os_util.switch_to_sudo_user(clear_saved_id=clear_saved_id)

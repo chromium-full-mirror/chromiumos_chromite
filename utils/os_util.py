@@ -75,3 +75,25 @@ def require_non_root_user(_reason):
         return wrapper
 
     return outer
+
+
+def switch_to_sudo_user(
+    clear_saved_id: bool = False,
+) -> None:
+    """Switch back to the user that ran sudo.
+
+    This assumes the current user is root and was invoked via sudo.
+
+    Args:
+        clear_saved_id: Whether to clear the saved-uid & saved-gid.  Retaining
+            will allow code to switch back to root via e.g. os.setuid() calls.
+    """
+    # NB: This assumes HOME was already initialized to the sudo user's home.
+    # See commandline.RunAsRootUser that handles this.
+    gid = int(os.environ.pop("SUDO_GID"))
+    uid = int(os.environ.pop("SUDO_UID"))
+    user = os.environ.pop("SUDO_USER")
+    os.initgroups(user, gid)
+    os.setresgid(gid, gid, gid if clear_saved_id else -1)
+    os.setresuid(uid, uid, uid if clear_saved_id else -1)
+    os.environ["USER"] = user
