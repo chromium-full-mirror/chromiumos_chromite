@@ -315,7 +315,7 @@ def GetBinhostConfPath(target: str, key: str, private: bool = True) -> Path:
 def RegenBuildCache(
     chroot: "chroot_lib.Chroot",
     overlay_type: str,
-    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+    buildroot: Union[str, Path] = constants.SOURCE_ROOT,
 ) -> List[str]:
     """Regenerate the Build Cache for the given target.
 

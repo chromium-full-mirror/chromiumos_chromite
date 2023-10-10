@@ -14,6 +14,7 @@ import html
 import json
 import logging
 import os
+from pathlib import Path
 import re
 from typing import List, Optional
 
@@ -905,7 +906,7 @@ def _GetLicenseDirectories(
     board: Optional[str] = None,
     sysroot: Optional[str] = None,
     dir_set: str = _BOTH_DIRS,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: Path = constants.SOURCE_ROOT,
 ) -> List[str]:
     """Get the "licenses" directories for all matching overlays.
 

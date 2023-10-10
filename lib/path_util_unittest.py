@@ -731,7 +731,7 @@ def test_normalize_paths_to_source_root_formatting_directory_paths(tmp_path):
             str(ab_cd_file),
             str(bar_baz_dir) + "/",
         ],
-        source_root=str(tmp_path),
+        source_root=tmp_path,
     )
     assert actual_paths == expected_paths
 

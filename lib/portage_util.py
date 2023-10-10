@@ -41,6 +41,14 @@ from chromite.utils import key_value_store
 from chromite.utils import pms
 
 
+# Type used for buildroot arguments. Typically this comes from constants such as
+# constants.SOURCE_ROOT, but can also be passed as a string (e.g.
+# cbuildbot/stages/generic_stages.py). Note this must be hashable for use with
+# functools.lru_cache (cannot be os.PathLike).
+# TODO(build): Replace BuildrootType with just `Path`.
+BuildrootType = Union[Path, str]
+
+
 # The parsed output of running `ebuild <ebuild path> info`.
 RepositoryInfoTuple = collections.namedtuple(
     "RepositoryInfoTuple", ("srcdir", "project")
@@ -121,7 +129,7 @@ class SourceDirectoryDoesNotExistError(Error, FileNotFoundError):
 
 
 @functools.lru_cache(maxsize=None)
-def _GetKnownOverlays(buildroot: Union[str, os.PathLike]) -> Dict[str, Dict]:
+def _GetKnownOverlays(buildroot: BuildrootType) -> Dict[str, Dict]:
     """Return the list of overlays for a buildroot irrespective of board.
 
     Find all the overlays for a buildroot and cache the result since finding the
@@ -170,7 +178,7 @@ def _GetKnownOverlays(buildroot: Union[str, os.PathLike]) -> Dict[str, Dict]:
 @functools.lru_cache(maxsize=None)
 def _ListOverlays(
     board: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: BuildrootType = constants.SOURCE_ROOT,
 ) -> List:
     """Return the list of overlays to use for a given buildbot.
 
@@ -241,7 +249,7 @@ def _ListOverlays(
 def FindOverlays(
     overlay_type: str,
     board: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: BuildrootType = constants.SOURCE_ROOT,
 ) -> List:
     """Return the list of overlays to use for a given buildbot.
 
@@ -293,7 +301,7 @@ def FindOverlayFile(
     filename: str,
     overlay_type: str = constants.BOTH_OVERLAYS,
     board: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: BuildrootType = constants.SOURCE_ROOT,
 ) -> Optional[str]:
     """Attempt to find a file in the overlay directories.
 
@@ -323,7 +331,7 @@ def ReadOverlayFile(
     filename: str,
     overlay_type: str = constants.BOTH_OVERLAYS,
     board: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: BuildrootType = constants.SOURCE_ROOT,
 ) -> Optional[str]:
     """Attempt to open a file in the overlay directories.
 
@@ -2287,7 +2295,7 @@ def FindPackageNamesForFiles(*args: str) -> List[package_info.PackageInfo]:
 
 
 def FindEbuildForBoardPackage(
-    pkg_str: str, board: str, buildroot: str = constants.SOURCE_ROOT
+    pkg_str: str, board: str, buildroot: BuildrootType = constants.SOURCE_ROOT
 ):
     """Returns a path to an ebuild for a particular board."""
     cmd = [f"equery-{board}", "which", pkg_str]
@@ -2576,7 +2584,7 @@ def GetReverseDependencies(
 def _Qlist(
     args: List[str],
     board: Optional[str] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: BuildrootType = constants.SOURCE_ROOT,
 ) -> cros_build_lib.CompletedProcess:
     """Run qlist with the given args.
 
@@ -2668,7 +2676,7 @@ def _EmergeBoard(
     package: str,
     board: Optional[str] = None,
     sysroot: Optional[Union[str, os.PathLike]] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: BuildrootType = constants.SOURCE_ROOT,
     set_empty_root: bool = False,
 ) -> cros_build_lib.CompletedProcess:
     """Call emerge board to get dependences of package.
@@ -2703,7 +2711,7 @@ def GetPackageDependencies(
     package: str,
     board: Optional[str] = None,
     sysroot: Optional[Union[str, os.PathLike]] = None,
-    buildroot: str = constants.SOURCE_ROOT,
+    buildroot: BuildrootType = constants.SOURCE_ROOT,
     set_empty_root: bool = False,
 ) -> List[str]:
     """Returns the depgraph list of packages for a board and package."""

@@ -854,7 +854,7 @@ class Sysroot:
         package_indexes: List["PackageIndexInfo"] = None,
         expanded_binhost_inheritance: bool = False,
         use_cq_prebuilts: bool = False,
-        source_root: str = constants.SOURCE_ROOT,
+        source_root: Path = constants.SOURCE_ROOT,
     ) -> str:
         """Returns the binhost configuration.
 
@@ -936,7 +936,7 @@ PORTAGE_BINHOST="$FULL_BINHOST"
         builder_type: str,
         board: Union[str, None],
         expanded_binhost_inheritance: bool,
-        source_root: str,
+        source_root: Path,
     ) -> List[str]:
         config = []
         (binhost_public, binhost_internal) = self._ContinuousBinhosts(
@@ -970,7 +970,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
         builder_type: str,
         board: Union[str, None],
         expanded_binhost_inheritance: bool,
-        source_root: str,
+        source_root: Path,
     ) -> Tuple[Optional[str], Optional[str]]:
         """Returns the postsubmit or CQ binhost to use."""
         boards = []

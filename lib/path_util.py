@@ -418,7 +418,7 @@ def FromChrootPath(
 
 
 def normalize_paths_to_source_root(
-    source_paths: List[str], source_root: str = constants.SOURCE_ROOT
+    source_paths: List[str], source_root: Path = constants.SOURCE_ROOT
 ) -> List[str]:
     """Return the "normalized" list of source paths relative to |source_root|.
 
