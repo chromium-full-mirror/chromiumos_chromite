@@ -76,8 +76,6 @@ _FIND_TEST_BIN_CMD = "find %s -maxdepth 1 -executable -type f" % (
     _CHROME_TEST_BIN_DIR
 )
 
-DF_COMMAND = "df -k %s"
-
 # This constants are related to an experiment of running compressed ash chrome
 # to save rootfs space. See b/247397013
 COMPRESSED_ASH_SERVICE = "mount-ash-chrome"
@@ -181,7 +179,7 @@ class DeployChrome:
         return self.device.IfFileExists(COMPRESSED_ASH_PATH)
 
     def _GetRemoteMountFree(self, remote_dir):
-        result = self.device.run(DF_COMMAND % remote_dir)
+        result = self.device.run(["df", "-k", remote_dir])
         line = result.stdout.splitlines()[1]
         value = line.split()[3]
         multipliers = {
