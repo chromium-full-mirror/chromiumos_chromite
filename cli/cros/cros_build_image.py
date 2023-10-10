@@ -29,7 +29,9 @@ adjust-part='STATE:=1G' --  make the stateful partition 1 GB
 """
 
 import argparse
+import logging
 import os
+from pathlib import Path
 import sys
 from typing import List, Optional
 
@@ -38,6 +40,7 @@ from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import namespaces
+from chromite.lib import path_util
 from chromite.service import image
 from chromite.utils import timer
 
@@ -420,7 +423,12 @@ class BuildImageCommand(command.CliCommand):
         )
 
     def Run(self):
-        commandline.RunInsideChroot()
+        chroot_args = []
+        try:
+            chroot_args += ["--working-dir", path_util.ToChrootPath(Path.cwd())]
+        except ValueError:
+            logging.warning("Unable to translate CWD to a chroot path.")
+        commandline.RunInsideChroot(self, chroot_args=chroot_args)
 
         # Make sure we run with network disabled to prevent leakage.
         namespaces.ReExecuteWithNamespace(sys.argv, preserve_env=True)
