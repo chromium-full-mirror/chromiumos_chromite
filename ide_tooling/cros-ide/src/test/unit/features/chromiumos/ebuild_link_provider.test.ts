@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
+import dedent from 'dedent';
 import {EbuildLinkProvider} from '../../../../features/chromiumos/ebuild_link_provider';
 import {FakeCancellationToken, FakeTextDocument} from '../../../testing/fakes';
 
@@ -34,15 +35,15 @@ function openFolderCmdUri(path: string): vscode.Uri {
 
 describe('Ebuild Link Provider', () => {
   it('extracts links', async () => {
-    const SIMPLE_LOCALNAME = `
-EAPI=7
-CROS_WORKON_USE_VCSID="1"
-CROS_WORKON_LOCALNAME="platform2"
-CROS_WORKON_PROJECT="chromiumos/platform2"
-CROS_WORKON_OUTOFTREE_BUILD=1
-CROS_WORKON_SUBTREE="common-mk biod .gn"
-PLATFORM_SUBDIR="biod"
-`;
+    const SIMPLE_LOCALNAME = dedent`# copyright
+        EAPI=7
+        CROS_WORKON_USE_VCSID="1"
+        CROS_WORKON_LOCALNAME="platform2"
+        CROS_WORKON_PROJECT="chromiumos/platform2"
+        CROS_WORKON_OUTOFTREE_BUILD=1
+        CROS_WORKON_SUBTREE="common-mk biod .gn"
+        PLATFORM_SUBDIR="biod"
+        `;
 
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: SIMPLE_LOCALNAME});
@@ -102,13 +103,13 @@ PLATFORM_SUBDIR="biod"
   });
 
   it('handles local name with leading two dots', async () => {
-    const TPM_EBUILD = `
-EAPI="7"
-CROS_WORKON_PROJECT="chromiumos/platform/tpm"
-CROS_WORKON_LOCALNAME="../third_party/tpm"
+    const TPM_EBUILD = dedent`# copyright
+        EAPI="7"
+        CROS_WORKON_PROJECT="chromiumos/platform/tpm"
+        CROS_WORKON_LOCALNAME="../third_party/tpm"
 
-inherit cros-sanitizers cros-workon toolchain-funcs
-`;
+        inherit cros-sanitizers cros-workon toolchain-funcs
+        `;
 
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: TPM_EBUILD});

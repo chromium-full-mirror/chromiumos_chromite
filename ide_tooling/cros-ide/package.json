@@ -1345,6 +1345,7 @@
     "@vscode/test-electron": "^2.3.3",
     "@vscode/vsce": "^2.19.0",
     "copy-webpack-plugin": "^10.2.4",
+    "dedent": "^1.5.1",
     "esbuild": "^0.18.4",
     "eslint": "^8.45.0",
     "eslint-plugin-import": "^2.26.0",
