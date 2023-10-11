@@ -19,7 +19,7 @@ from chromite.api.gen_sdk.chromiumos.test.api import test_harness_pb2 as chromiu
 from chromite.api.gen_sdk.chromiumos.test.api import test_case_metadata_pb2 as chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*chromiumos/test/api/test_case_result.proto\x12\x13\x63hromiumos.test.api\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1d\x63hromiumos/storage_path.proto\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\x1a,chromiumos/test/api/test_case_metadata.proto\"\xb9\x07\n\x0eTestCaseResult\x12\x36\n\x0ctest_case_id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestCase.Id\x12\x30\n\x0fresult_dir_path\x18\x02 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x38\n\x04pass\x18\x03 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.PassH\x00\x12\x38\n\x04\x66\x61il\x18\x04 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.FailH\x00\x12:\n\x05\x63rash\x18\x05 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.CrashH\x00\x12:\n\x05\x61\x62ort\x18\x06 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.AbortH\x00\x12\x38\n\x04skip\x18\x07 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.SkipH\x00\x12=\n\x07not_run\x18\x08 \x01(\x0b\x32*.chromiumos.test.api.TestCaseResult.NotRunH\x00\x12\x38\n\x04warn\x18\x0f \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.WarnH\x00\x12\x0e\n\x06reason\x18\t \x01(\t\x12\x36\n\x0ctest_harness\x18\n \x01(\x0b\x32 .chromiumos.test.api.TestHarness\x12.\n\nstart_time\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12+\n\x08\x64uration\x18\x0c \x01(\x0b\x32\x19.google.protobuf.Duration\x12\r\n\x05retry\x18\r \x01(\x08\x12\x41\n\x12test_case_metadata\x18\x0e \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x12\x39\n\x06\x65rrors\x18\x10 \x03(\x0b\x32).chromiumos.test.api.TestCaseResult.Error\x1a\x18\n\x05\x45rror\x12\x0f\n\x07message\x18\x01 \x01(\t\x1a\x0b\n\tArtifacts\x1a\x06\n\x04Pass\x1a\x06\n\x04\x46\x61il\x1a\x07\n\x05\x43rash\x1a\x07\n\x05\x41\x62ort\x1a\x06\n\x04Skip\x1a\x08\n\x06NotRun\x1a\x06\n\x04WarnB\t\n\x07verdictB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*chromiumos/test/api/test_case_result.proto\x12\x13\x63hromiumos.test.api\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1d\x63hromiumos/storage_path.proto\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\x1a,chromiumos/test/api/test_case_metadata.proto\"\xfd\x06\n\x0eTestCaseResult\x12\x36\n\x0ctest_case_id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestCase.Id\x12\x30\n\x0fresult_dir_path\x18\x02 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x38\n\x04pass\x18\x03 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.PassH\x00\x12\x38\n\x04\x66\x61il\x18\x04 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.FailH\x00\x12:\n\x05\x63rash\x18\x05 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.CrashH\x00\x12:\n\x05\x61\x62ort\x18\x06 \x01(\x0b\x32).chromiumos.test.api.TestCaseResult.AbortH\x00\x12\x38\n\x04skip\x18\x07 \x01(\x0b\x32(.chromiumos.test.api.TestCaseResult.SkipH\x00\x12=\n\x07not_run\x18\x08 \x01(\x0b\x32*.chromiumos.test.api.TestCaseResult.NotRunH\x00\x12\x0e\n\x06reason\x18\t \x01(\t\x12\x36\n\x0ctest_harness\x18\n \x01(\x0b\x32 .chromiumos.test.api.TestHarness\x12.\n\nstart_time\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12+\n\x08\x64uration\x18\x0c \x01(\x0b\x32\x19.google.protobuf.Duration\x12\r\n\x05retry\x18\r \x01(\x08\x12\x41\n\x12test_case_metadata\x18\x0e \x01(\x0b\x32%.chromiumos.test.api.TestCaseMetadata\x12\x39\n\x06\x65rrors\x18\x10 \x03(\x0b\x32).chromiumos.test.api.TestCaseResult.Error\x1a\x18\n\x05\x45rror\x12\x0f\n\x07message\x18\x01 \x01(\t\x1a\x0b\n\tArtifacts\x1a\x06\n\x04Pass\x1a\x06\n\x04\x46\x61il\x1a\x07\n\x05\x43rash\x1a\x07\n\x05\x41\x62ort\x1a\x06\n\x04Skip\x1a\x08\n\x06NotRunB\t\n\x07verdictJ\x04\x08\x0f\x10\x10\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.test_case_result_pb2', globals())
@@ -28,23 +28,21 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
   _TESTCASERESULT._serialized_start=287
-  _TESTCASERESULT._serialized_end=1240
-  _TESTCASERESULT_ERROR._serialized_start=1132
-  _TESTCASERESULT_ERROR._serialized_end=1156
-  _TESTCASERESULT_ARTIFACTS._serialized_start=1158
-  _TESTCASERESULT_ARTIFACTS._serialized_end=1169
-  _TESTCASERESULT_PASS._serialized_start=1171
-  _TESTCASERESULT_PASS._serialized_end=1177
-  _TESTCASERESULT_FAIL._serialized_start=1179
-  _TESTCASERESULT_FAIL._serialized_end=1185
-  _TESTCASERESULT_CRASH._serialized_start=1187
-  _TESTCASERESULT_CRASH._serialized_end=1194
-  _TESTCASERESULT_ABORT._serialized_start=1196
-  _TESTCASERESULT_ABORT._serialized_end=1203
-  _TESTCASERESULT_SKIP._serialized_start=1205
-  _TESTCASERESULT_SKIP._serialized_end=1211
-  _TESTCASERESULT_NOTRUN._serialized_start=1213
-  _TESTCASERESULT_NOTRUN._serialized_end=1221
-  _TESTCASERESULT_WARN._serialized_start=1223
-  _TESTCASERESULT_WARN._serialized_end=1229
+  _TESTCASERESULT._serialized_end=1180
+  _TESTCASERESULT_ERROR._serialized_start=1074
+  _TESTCASERESULT_ERROR._serialized_end=1098
+  _TESTCASERESULT_ARTIFACTS._serialized_start=1100
+  _TESTCASERESULT_ARTIFACTS._serialized_end=1111
+  _TESTCASERESULT_PASS._serialized_start=1113
+  _TESTCASERESULT_PASS._serialized_end=1119
+  _TESTCASERESULT_FAIL._serialized_start=1121
+  _TESTCASERESULT_FAIL._serialized_end=1127
+  _TESTCASERESULT_CRASH._serialized_start=1129
+  _TESTCASERESULT_CRASH._serialized_end=1136
+  _TESTCASERESULT_ABORT._serialized_start=1138
+  _TESTCASERESULT_ABORT._serialized_end=1145
+  _TESTCASERESULT_SKIP._serialized_start=1147
+  _TESTCASERESULT_SKIP._serialized_end=1153
+  _TESTCASERESULT_NOTRUN._serialized_start=1155
+  _TESTCASERESULT_NOTRUN._serialized_end=1163
 # @@protoc_insertion_point(module_scope)
