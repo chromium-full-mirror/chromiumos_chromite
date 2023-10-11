@@ -201,7 +201,7 @@ class BuildImageTest(
             )
             self.AssertLogsContain(
                 logs,
-                f"cros_vm --start --image-path={base_image_path} --board=board",
+                f"cros vm --start --image-path={base_image_path} --board=board",
                 inverted=True,
             )
             # Dev Image summary text.
@@ -218,7 +218,7 @@ class BuildImageTest(
             )
             self.AssertLogsContain(
                 logs,
-                f"cros_vm --start --image-path={dev_image_path} --board=board",
+                f"cros vm --start --image-path={dev_image_path} --board=board",
             )
             # Test Image summary text.
             self.AssertLogsContain(
@@ -234,7 +234,7 @@ class BuildImageTest(
             )
             self.AssertLogsContain(
                 logs,
-                f"cros_vm --start --image-path={test_image_path} --board=board",
+                f"cros vm --start --image-path={test_image_path} --board=board",
             )
 
 
