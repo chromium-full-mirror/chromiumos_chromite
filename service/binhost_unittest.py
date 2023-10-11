@@ -237,7 +237,7 @@ class GetPrebuiltsRootTest(cros_test_lib.MockTempDirTestCase):
         self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
         self.build_target = build_target_lib.BuildTarget("foo")
 
-        self.root = self.chroot.full_path(self.sysroot.Path("packages"))
+        self.root = self.chroot.full_path(self.sysroot.JoinPath("packages"))
         osutils.SafeMakedirs(self.root)
 
     def testGetPrebuiltsRoot(self):

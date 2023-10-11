@@ -316,10 +316,10 @@ class Sysroot:
         # Read config from _MAKE_CONF which also pulls in config from
         # _MAKE_CONF_BOARD_SETUP, but only write any config overrides directly
         # to _MAKE_CONF_BOARD_SETUP.
-        self._config_file_read = self.Path(_MAKE_CONF)
-        self._config_file_write = self.Path(_MAKE_CONF_BOARD_SETUP)
+        self._config_file_read = self.JoinPath(_MAKE_CONF)
+        self._config_file_write = self.JoinPath(_MAKE_CONF_BOARD_SETUP)
 
-        self._cache_file = self.Path(_CACHE_PATH)
+        self._cache_file = self.JoinPath(_CACHE_PATH)
         self._cache_file_lock = self._cache_file + ".lock"
 
     def __eq__(self, other):
@@ -343,10 +343,12 @@ class Sysroot:
 
         return os.path.exists(self.path)
 
-    def Path(self, *args: str) -> str:
+    def JoinPath(self, *args: str) -> str:
         """Helper to build out a path within the sysroot.
 
         Pass args as if calling os.path.join().
+
+        TODO(build): Remove this method once self.path is a pathlib.Path.
 
         Args:
             *args: path components to join.
@@ -550,7 +552,7 @@ class Sysroot:
             return os.path.join(
                 _wrapper_dir, "%s-%s" % (command, friendly_name)
             )
-        return self.Path("build", "bin", command)
+        return self.JoinPath("build", "bin", command)
 
     def CreateAllWrappers(self, friendly_name: str = None) -> None:
         """Creates all the wrappers.
@@ -652,7 +654,7 @@ class Sysroot:
     def InstallMakeConf(self) -> None:
         """Make sure the make.conf file exists and is up to date."""
         config_file = _GetMakeConfGenericPath()
-        osutils.SafeSymlink(config_file, self.Path(_MAKE_CONF), sudo=True)
+        osutils.SafeSymlink(config_file, self.JoinPath(_MAKE_CONF), sudo=True)
 
     def InstallMakeConfBoard(
         self,
@@ -677,7 +679,7 @@ class Sysroot:
         board_conf = self.GenerateBoardMakeConf(
             accepted_licenses=accepted_licenses
         )
-        make_conf_path = self.Path(_MAKE_CONF_BOARD)
+        make_conf_path = self.JoinPath(_MAKE_CONF_BOARD)
         osutils.WriteFile(make_conf_path, board_conf, sudo=True)
 
         # Once make.conf.board has been generated, generate the binhost config.
@@ -709,7 +711,7 @@ class Sysroot:
         Only works inside the chroot.
         """
         make_user = _GetChrootMakeConfUserPath()
-        link_path = self.Path(_MAKE_CONF_USER)
+        link_path = self.JoinPath(_MAKE_CONF_USER)
         if not os.path.exists(link_path):
             osutils.SafeSymlink(make_user, link_path, sudo=True)
 
@@ -1019,8 +1021,8 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
     def CreateSkeleton(self) -> None:
         """Creates a sysroot skeleton."""
         needed_dirs = [
-            self.Path("etc", "portage", "hooks"),
-            self.Path("etc", "portage", "profile"),
+            self.JoinPath("etc", "portage", "hooks"),
+            self.JoinPath("etc", "portage", "profile"),
             "/usr/local/bin",
         ]
         for d in needed_dirs:
@@ -1028,7 +1030,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
 
         # Create links for portage hooks.
         for filename in (constants.CROSUTILS_DIR / "hooks").glob("*"):
-            linkpath = self.Path(
+            linkpath = self.JoinPath(
                 "etc",
                 "portage",
                 "hooks",
@@ -1114,7 +1116,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
             # Make the temporary directory in the same folder as the sysroot
             # were deleting to avoid crossing disks, mounts, etc. that'd cause
             # us to synchronously copy the entire thing before we delete it.
-            cwd = os.path.normpath(self.Path(".."))
+            cwd = os.path.normpath(self.JoinPath(".."))
             try:
                 result = cros_build_lib.sudo_run(
                     ["mktemp", "-d", "-p", cwd],
@@ -1162,7 +1164,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
     def get_sdk_provided_packages(self) -> Iterable[package_info.PackageInfo]:
         """Find all packages provided by the SDK (i.e. package.provided)."""
         # Look at packages in package.provided.
-        sdk_file_path = self.Path(
+        sdk_file_path = self.JoinPath(
             "etc", "portage", "profile", "package.provided"
         )
         for line in osutils.ReadFile(sdk_file_path).splitlines():

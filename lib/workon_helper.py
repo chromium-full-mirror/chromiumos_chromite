@@ -890,7 +890,7 @@ class WorkonHelper:
             raise WorkonError(f"cannot find ebuild for {package}")
 
         workpath = Path(
-            sysroot_lib.Sysroot(self._sysroot).Path(
+            sysroot_lib.Sysroot(self._sysroot).JoinPath(
                 "tmp", "portage", f"{atom}-9999"
             )
         )

@@ -160,7 +160,7 @@ def GetPrebuiltsRoot(
     Returns:
         Absolute path to the root directory with the target's prebuilt archives.
     """
-    root = chroot.full_path(sysroot.Path("packages"))
+    root = chroot.full_path(sysroot.JoinPath("packages"))
     _ValidatePrebuiltsRoot(build_target, root)
     return root
 

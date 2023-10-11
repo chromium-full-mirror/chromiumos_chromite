@@ -792,7 +792,7 @@ def _FindAutotestMetadataFile(
     This file is installed during the chromeos-base/autotest ebuild.
     """
     return chroot.full_path(
-        sysroot.Path(
+        sysroot.JoinPath(
             "usr", "local", "build", "autotest", "autotest_metadata.pb"
         )
     )
@@ -806,7 +806,7 @@ def _FindTastLocalMetadataFile(
     This file is installed during the tast-bundle eclass.
     """
     return chroot.full_path(
-        sysroot.Path("usr", "share", "tast", "metadata", "local", "cros.pb")
+        sysroot.JoinPath("usr", "share", "tast", "metadata", "local", "cros.pb")
     )
 
 
@@ -818,7 +818,7 @@ def _FindTastLocalPrivateMetadataFile(
     This file is installed during the tast-bundle eclass.
     """
     return chroot.full_path(
-        sysroot.Path(
+        sysroot.JoinPath(
             "build", "share", "tast", "metadata", "local", "crosint.pb"
         )
     )

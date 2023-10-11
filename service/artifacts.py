@@ -96,7 +96,7 @@ def BuildFirmwareArchive(
     Returns:
         The archive file path if created, None otherwise.
     """
-    firmware_root = chroot.full_path(sysroot.Path("firmware"))
+    firmware_root = chroot.full_path(sysroot.JoinPath("firmware"))
     if not os.path.exists(firmware_root):
         return None
 
@@ -149,7 +149,7 @@ def BundleFpmcuUnittests(
         The archive file path if created, None otherwise.
     """
     fpmcu_unittests_root = chroot.full_path(
-        sysroot.Path(
+        sysroot.JoinPath(
             "firmware",
             "chromeos-fpmcu-unittests",
         )
@@ -820,7 +820,7 @@ def BundleTastFiles(
         Path of the generated tarball, or None if there is no private test
             bundles.
     """
-    cwd = chroot.full_path(sysroot.Path("build"))
+    cwd = chroot.full_path(sysroot.JoinPath("build"))
 
     dirs = []
     for d in ("libexec/tast", "share/tast"):

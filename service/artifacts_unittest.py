@@ -1165,7 +1165,8 @@ class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
         )
 
         cros_test_lib.CreateOnDiskHierarchy(
-            self.chroot.full_path(self.sysroot.Path("build")), sysroot_files
+            self.chroot.full_path(self.sysroot.JoinPath("build")),
+            sysroot_files,
         )
 
         tarball = artifacts.BundleTastFiles(
