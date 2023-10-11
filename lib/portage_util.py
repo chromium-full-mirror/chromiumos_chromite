@@ -3053,7 +3053,7 @@ def PortageqEnvvar(
         allow_undefined=allow_undefined,
         chroot=chroot,
     )
-    return result[variable]
+    return result.get(variable)
 
 
 def PortageqEnvvars(

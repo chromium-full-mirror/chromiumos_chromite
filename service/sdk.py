@@ -401,6 +401,9 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
 
     logging.info("Updating chroot in %s.", arguments.root)
 
+    portage_binhost = portage_util.PortageqEnvvar("PORTAGE_BINHOST")
+    logging.info("PORTAGE_BINHOST: %s", portage_binhost)
+
     with cros_sdk_lib.ChrootReadWrite():
         return _Update(arguments)
 
