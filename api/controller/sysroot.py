@@ -14,6 +14,7 @@ from chromite.api import faux
 from chromite.api import metrics
 from chromite.api import validate
 from chromite.api.controller import controller_util
+from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -317,7 +318,11 @@ def InstallToolchain(input_proto, output_proto, _config):
 @validate.require_each("use_flags", ["flag"])
 @validate.validation_complete
 @metrics_lib.collect_metrics
-def InstallPackages(input_proto, output_proto, _config):
+def InstallPackages(
+    input_proto: sysroot_pb2.InstallPackagesRequest,
+    output_proto: sysroot_pb2.InstallPackagesResponse,
+    _config: "api_config.ApiConfig",
+):
     """Install packages into a sysroot, building as necessary and permitted."""
     compile_source = (
         input_proto.flags.compile_source or input_proto.flags.toolchain_changed
@@ -358,6 +363,11 @@ def InstallPackages(input_proto, output_proto, _config):
     # Use Bazel to build packages.
     bazel = input_proto.flags.bazel
 
+    # Lite build restricts the set of packages that will be built.
+    bazel_lite = (
+        input_proto.bazel_targets == sysroot_pb2.InstallPackagesRequest.LITE
+    )
+
     if not target_sysroot.IsToolchainInstalled():
         cros_build_lib.Die("Toolchain must first be installed.")
 
@@ -378,6 +388,7 @@ def InstallPackages(input_proto, output_proto, _config):
         backtrack=DEFAULT_BACKTRACK,
         workon=workon,
         bazel=bazel,
+        bazel_lite=bazel_lite,
     )
 
     try:

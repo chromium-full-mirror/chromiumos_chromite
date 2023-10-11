@@ -208,6 +208,7 @@ class BuildPackagesRunConfig:
         debug_version: bool = True,
         backtrack: int = BACKTRACK_DEFAULT,
         bazel: bool = False,
+        bazel_lite: bool = False,
     ):
         """Init method.
 
@@ -250,6 +251,8 @@ class BuildPackagesRunConfig:
                 packages.
             backtrack: emerge --backtrack value.
             bazel: Whether to use Bazel to build packages.
+            bazel_lite: Whether to perform lite Bazel build, which limits
+                the set of target packages.
         """
         self.usepkg = usepkg
         self.install_debug_symbols = install_debug_symbols
@@ -278,6 +281,7 @@ class BuildPackagesRunConfig:
         self.debug_version = debug_version
         self.backtrack = backtrack
         self.bazel = bazel
+        self.bazel_lite = bazel_lite
 
     def GetUseFlags(self) -> Optional[str]:
         """Get the use flags as a single string."""
@@ -924,7 +928,19 @@ def BuildPackages(
             logging.info("Merging board packages now.")
             try:
                 with metrics_lib.timer(f"{metrics_prefix}.emerge"):
-                    packages = run_configs.GetPackages()
+                    # In a lite build we change the set of packages passed to
+                    # install_packages_to_sysroot.py
+                    # TODO(b:303161688): Choose more packages. Options:
+                    #  - a list of selected packages
+                    #  - dependencies of chromeos-chrome
+                    #  - all packages except chromeos-chrome and
+                    #    packages which depend on it
+                    packages = (
+                        ["chromeos-base/metrics"]
+                        if run_configs.bazel and run_configs.bazel_lite
+                        else run_configs.GetPackages()
+                    )
+
                     span = trace.get_current_span()
                     span.set_attributes(
                         {
@@ -935,6 +951,10 @@ def BuildPackages(
                     )
 
                     if run_configs.bazel:
+                        logging.info(
+                            "Building packages with Bazel: %s.", packages
+                        )
+
                         # Bazel needs amd64-host sysroot with sdk/bootstrap
                         # profile.
                         cros_build_lib.run(
@@ -950,25 +970,32 @@ def BuildPackages(
 
                         extra_env["BOARD"] = target.name
                         bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
-                        # Generate an exec log for a single package, to help us
-                        # debug cache misses. We may eventually want to account
-                        # for the possibility that sys-lib/zlib isn't in
-                        # packages and so this means we're doing extra work,
-                        # but we won't worry about that for now.
-                        cros_build_lib.run(
-                            [
-                                bazel_cmd,
-                                "build",
-                                (
-                                    "--execution_log_binary_file="
-                                    "/tmp/bazel_build_appcryptnss_exec.log"
-                                ),
-                                "--execution_log_sort=false",
-                                "@portage//target/app-crypt/nss:package_set",
-                            ],
-                            extra_env=extra_env,
-                        )
 
+                        if not run_configs.bazel_lite:
+                            # Generate an exec log for a single package,
+                            # to help us debug cache misses. We may eventually
+                            # want to account for the possibility that
+                            # sys-lib/zlib isn't in packages and so this means
+                            # we're doing extra work, but we won't worry
+                            # about that for now.
+                            cros_build_lib.run(
+                                [
+                                    bazel_cmd,
+                                    "build",
+                                    (
+                                        "--execution_log_binary_file="
+                                        "/tmp/bazel_build_appcryptnss_exec.log"
+                                    ),
+                                    "--execution_log_sort=false",
+                                    "@portage//"
+                                    + "target/app-crypt/nss:package_set",
+                                ],
+                                extra_env=extra_env,
+                            )
+
+                        # TODO(b:303161688): We may want to skip installing
+                        # to sysroot entirely in the case of lite build
+                        # because we don't build images anyway.
                         cros_build_lib.run(
                             [
                                 constants.SOURCE_ROOT

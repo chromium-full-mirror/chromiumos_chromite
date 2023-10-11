@@ -438,6 +438,14 @@ class BuildPackagesCommand(command.CliCommand):
             deprecation_note,
         )
 
+        build_shell_bool_style_args(
+            group,
+            "bazel_lite",
+            False,
+            "Perform lite build with a limited set of packages.",
+            deprecation_note,
+        )
+
         parser.add_argument("packages", nargs="*", help="Packages to build.")
         return parser
 
@@ -493,6 +501,7 @@ class BuildPackagesCommand(command.CliCommand):
             debug_version=options.withdebug,
             backtrack=options.backtrack,
             bazel=options.bazel,
+            bazel_lite=options.bazel_lite,
         )
 
     @timer.timed("Elapsed time (cros build-packages)")
