@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   ParsedEbuild,
   parseEbuildOrThrow,
@@ -34,51 +36,55 @@ describe('Ebuild parser', () => {
       },
     },
     {
-      name: 'parses realistic example',
-      content: `
-# Copyright 2019 The ChromiumOS Authors
-# Distributed under the terms of the GNU General Public License v2
-
-a=1 # comment
-B=2#3
-C= # empty#
-D=()
-
-E=(foo) #
-
-# Some real examples follow.
-
-CROS_WORKON_LOCALNAME="platform2"
-CROS_WORKON_DESTDIR="\${S}/platform2"
-CROS_WORKON_SUBTREE="common-mk codelab .gn"
-
-CROS_WORKON_DESTDIR=("\${S}/platform2" "\${S}/aosp/system/keymaster")
-
-CROS_WORKON_DESTDIR_2=(
-\t"\${S}/platform/ec"
-\t"\${S}/third_party/cryptoc"
-\t"\${S}/third_party/eigen3"
-\t"\${S}/third_party/boringssl"
+      name: 'parses one-str-variable file without quotes',
+      content: 'a=foo\n',
+      want: {
+        assignments: [
+          {
+            name: 'a',
+            value: str('foo'),
+          },
+        ],
+      },
+    },
+    {
+      name: 'parses one-str-variable file with quotes',
+      content: 'b="bar"\n',
+      want: {
+        assignments: [
+          {
+            name: 'b',
+            value: str('bar'),
+          },
+        ],
+      },
+    },
+    {
+      name: 'parses one-arr-variable file',
+      content: `c=(
+\t"foo"
+\t"bar"
+\t"baz"
 )
-
-inherit cros-workon platform
-
-KEYWORDS="~*"
-IUSE=""
-
-DEPEND="\${RDEPEND}
-\tx11-drivers/opengles-headers"
-
-src_install() {
-  platform_src_install
-
-  dobin "\${OUT}"/codelab
-}
-
-platform_pkg_test() {
-  platform_test "run" "\${OUT}/codelab_test"
-}
 `,
+      want: {
+        assignments: [
+          {
+            name: 'c',
+            value: arr(['foo', 'bar', 'baz']),
+          },
+        ],
+      },
+    },
+    {
+      name: 'parses realistic example',
+      content: fs.readFileSync(
+        path.join(
+          __dirname,
+          '../../../../../../src/test/testdata/portage/testing-9999.ebuild'
+        ),
+        'utf8'
+      ),
       want: {
         assignments: [
           {
