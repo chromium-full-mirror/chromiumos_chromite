@@ -637,7 +637,7 @@ CHROME_GARDENER_REVIEW_EMAIL = "chrome-os-gardeners-reviews@google.com"
 
 # Email validation regex. Not quite fully compliant with RFC 2822, but good
 # approximation.
-EMAIL_REGEX = r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}"
+EMAIL_REGEX = r"[A-Za-z0-9._%~+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}"
 
 # Blocklist of files not allowed to be uploaded into the Partner Project Google
 # Storage Buckets:
