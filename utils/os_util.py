@@ -11,6 +11,14 @@ import sys
 from typing import Optional
 
 
+class Error(Exception):
+    """Base error class for the module."""
+
+
+class UnknownNonRootUserError(Error):
+    """Unable to identify the non-root user."""
+
+
 def is_root_user() -> bool:
     """Returns True if the user has root privileges.
 
@@ -97,3 +105,15 @@ def switch_to_sudo_user(
     os.setresgid(gid, gid, gid if clear_saved_id else -1)
     os.setresuid(uid, uid, uid if clear_saved_id else -1)
     os.environ["USER"] = user
+
+
+def non_root_home() -> Path:
+    """Get the home directory for the relevant non-root user."""
+    if is_non_root_user():
+        return Path("~").expanduser()
+
+    sudo_user = os.environ.get("SUDO_USER")
+    if sudo_user:
+        return Path(f"~{sudo_user}").expanduser()
+
+    raise UnknownNonRootUserError("Unable to identify the non-root user.")

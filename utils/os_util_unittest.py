@@ -5,6 +5,7 @@
 """Tests for os_util.py."""
 
 import os
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -139,6 +140,33 @@ def test_switch_to_sudo_user_cleared(as_root_user, switch_to_sudo_user_mock):
     os.initgroups.assert_called_once_with("testuser", 123)
     os.setresgid.assert_called_once_with(123, 123, 123)
     os.setresuid.assert_called_once_with(456, 456, 456)
+
+
+def test_non_root_user_home_as_root(as_root_user, monkeypatch, tmp_path: Path):
+    """Test non-root-user-home as root user."""
+    user = "user"
+    user_home = tmp_path / "home" / user
+    user_home.mkdir(parents=True)
+
+    def expanduser(self, *_args, **_kwargs):
+        """expanduser patch."""
+        assert str(self) == f"~{user}"
+        return user_home
+
+    monkeypatch.setattr(Path, "expanduser", expanduser)
+    monkeypatch.setenv("SUDO_USER", user)
+
+    assert user_home == os_util.non_root_home()
+
+
+def test_non_root_user_home_as_root_not_found(as_root_user, monkeypatch):
+    """Test non-root-user-home as root user when no user found."""
+    env = os.environ.copy()
+    env.pop("SUDO_USER", None)
+    monkeypatch.setattr(os, "environ", env)
+
+    with pytest.raises(os_util.UnknownNonRootUserError):
+        os_util.non_root_home()
 
 
 # pylint: enable=unused-argument
