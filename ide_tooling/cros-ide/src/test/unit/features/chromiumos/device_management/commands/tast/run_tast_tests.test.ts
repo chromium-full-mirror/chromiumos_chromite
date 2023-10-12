@@ -70,6 +70,6 @@ func ChromeFixture(ctx context.Context, s *testing.State) {}
       ChrootService.maybeCreate(chromiumos, /* setContext = */ false)!
     );
 
-    expect(result).toEqual(new RunTastTestsResult());
+    expect(result).toEqual(new RunTastTestsResult(true));
   });
 });

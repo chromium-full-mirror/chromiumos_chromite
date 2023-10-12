@@ -20,7 +20,7 @@ import {
  * Represents the result of the call to runTastTests.
  */
 export class RunTastTestsResult {
-  constructor() {}
+  constructor(readonly success: boolean) {}
 }
 
 /**
@@ -63,14 +63,14 @@ export async function runTastTests(
   try {
     await runSelectedTestsOrThrow(context, chrootService, target, testNames);
     showPromptWithOpenLogChoice(context, 'Tests run successfully.', false);
-    return new RunTastTestsResult();
+    return new RunTastTestsResult(true);
   } catch (err) {
     if (err instanceof vscode.CancellationError) {
       showPromptWithOpenLogChoice(context, 'Cancelled running tests.', true);
     } else {
       showPromptWithOpenLogChoice(context, 'Failed to run tests.', true);
     }
-    throw err;
+    return new RunTastTestsResult(false);
   }
 }
 
