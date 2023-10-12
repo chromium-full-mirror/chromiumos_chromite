@@ -255,6 +255,26 @@ def ChromiteUnitTest() -> bool:
     return result.returncode == 0
 
 
+def BazelTest() -> bool:
+    """Run Bazel tests.
+
+    Returns:
+        True iff all tests passed, False otherwise.
+    """
+    cmd = [
+        constants.CHROMITE_BIN_DIR / "bazel",
+        "test",
+        "--build_tests_only",
+        "--keep_going",
+        "--test_output=errors",
+        "//bazel/...",
+    ]
+    result = cros_build_lib.run(
+        cmd, cwd=constants.BAZEL_WORKSPACE_ROOT, check=False
+    )
+    return result.returncode == 0
+
+
 def RulesCrosUnitTest() -> bool:
     """Run rules_cros unittests.
 

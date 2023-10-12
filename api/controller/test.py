@@ -339,6 +339,17 @@ def ChromitePytest(_input_proto, _output_proto, _config):
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
+def BazelTest(_input_proto, _output_proto, _config):
+    """Run the Bazel tests."""
+    if test.BazelTest():
+        return controller.RETURN_CODE_SUCCESS
+    else:
+        return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
+
+
+@faux.empty_success
+@faux.empty_completed_unsuccessfully_error
+@validate.validation_complete
 def RulesCrosUnitTest(_input_proto, _output_proto, _config):
     """Run the rules_cros unit tests."""
     if test.RulesCrosUnitTest():

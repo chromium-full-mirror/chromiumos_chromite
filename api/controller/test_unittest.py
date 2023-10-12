@@ -505,6 +505,21 @@ class ChromiteUnitTestTest(
         self.assertEqual(self.rc.call_count, 1)
 
 
+class BazelTestTest(
+    cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin
+):
+    """Tests for the BazelTest function."""
+
+    def testBazelTest(self):
+        """Call BazelTest with mocked cros_build_lib.run."""
+        test_controller.BazelTest(
+            test_pb2.BazelTestRequest(),
+            test_pb2.BazelTestResponse(),
+            self.api_config,
+        )
+        self.assertEqual(self.rc.call_count, 1)
+
+
 class CrosSigningTestTest(
     cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin
 ):
