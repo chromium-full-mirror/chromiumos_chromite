@@ -97,12 +97,15 @@ class FakeChrootDiskLayout:
         )
 
 
-def bundle_and_upload(subtool: subtool_lib.Subtool) -> None:
+def bundle_and_upload(
+    subtool: subtool_lib.Subtool, dryrun: bool = False
+) -> subtool_lib.BundledSubtools:
     """Helper to perform e2e validation on a manifest."""
     subtool.bundle()
     subtool.prepare_upload()
     uploader = subtool_lib.BundledSubtools([subtool.metadata_dir])
-    uploader.upload(use_production=False)
+    uploader.upload(use_production=False, dryrun=dryrun)
+    return uploader
 
 
 def bundle_result(
@@ -791,6 +794,22 @@ def test_search_excludes_hash_with_revision_only(
     assert get_cipd_search_tag_keys(run_mock) == set(
         ("builder_source", "ebuild_source")
     )
+
+
+def test_upload_dryrun_builds_package(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test upload with dryrun skips "create" and reports package built."""
+    set_run_results(run_mock)
+    uploader = bundle_and_upload(
+        template_proto.create(writes_files=True), dryrun=True
+    )
+    run_mock.assertCommandContains([FAKE_CIPD_PATH, "search"])
+    run_mock.assertCommandContains([FAKE_CIPD_PATH, "create"], expected=False)
+    run_mock.assertCommandContains([FAKE_CIPD_PATH, "pkg-build"])
+    assert uploader.built_packages == [
+        Path(template_proto.work_root / "my_subtool" / "my_subtool.zip")
+    ]
 
 
 def test_upload_fails_cipd(

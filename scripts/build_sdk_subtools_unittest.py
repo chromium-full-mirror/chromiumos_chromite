@@ -216,4 +216,27 @@ def test_production_option(mock_emerge, mock_exporter) -> None:
     """Tests that --production is passed to the uploader."""
     assert build_sdk_subtools.main(["--production"]) == 0
     assert mock_emerge.call_count == 1
-    mock_exporter["bundled"].return_value.upload.assert_called_once_with(True)
+    mock_exporter["bundled"].return_value.upload.assert_called_once_with(
+        True, dryrun=False
+    )
+
+
+def test_dry_run_option(mock_emerge, mock_exporter) -> None:
+    """Tests that --dry-run is passed to the uploader."""
+    assert build_sdk_subtools.main(["--dry-run"]) == 0
+    assert mock_emerge.call_count == 1
+    mock_exporter["bundled"].return_value.upload.assert_called_once_with(
+        False, dryrun=True
+    )
+    installed_subtools = mock_exporter["installed"].return_value
+    # With no --upload on --dry-run, all uploads should be prepared (no filter).
+    installed_subtools.prepare_uploads.assert_called_once_with(None)
+
+
+def test_dry_run_option_with_upload(mock_emerge, mock_exporter) -> None:
+    """When specified, --upload should be used for --dry-run."""
+    assert build_sdk_subtools.main(["--dry-run", "--upload", "subtool1"]) == 0
+    assert mock_emerge.call_count == 1
+    installed_subtools = mock_exporter["installed"].return_value
+    # With --upload and --dry-run, ensure filter is used.
+    installed_subtools.prepare_uploads.assert_called_once_with(["subtool1"])

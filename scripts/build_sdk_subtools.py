@@ -18,6 +18,9 @@ installed, are to be bundled and uploaded.
 
 If packages are specified in the command line, only consider the deptree from
 those specific packages rather than all of virtual/target-sdk-subtools.
+
+A --dry-run is available which has local side-effects. Packages are built and
+bundled, but there will be no attempt to upload / distribute them.
 """
 
 import argparse
@@ -60,6 +63,7 @@ class Options(Protocol):
     relaunch_for_setup: bool
     output_dir: Path
     packages: List[str]
+    dryrun: bool
     upload: List[str]
     jobs: int
 
@@ -69,7 +73,7 @@ class Options(Protocol):
 
 def get_parser() -> commandline.ArgumentParser:
     """Returns the cmdline argparser, populates the options and descriptions."""
-    parser = commandline.ArgumentParser(description=__doc__)
+    parser = commandline.ArgumentParser(description=__doc__, dryrun=True)
 
     parser.add_bool_argument(
         "--clean",
@@ -177,13 +181,26 @@ def _run_inside_subtools_chroot(opts: Options) -> None:
         except sysroot_lib.PackageInstallError as e:
             cros_build_lib.Die(e)
 
-    installed = sdk_subtools.bundle_and_upload(opts.production, opts.upload)
-    if not installed.subtools:
+    # When dry-running, prepare everything when --upload not specified.
+    upload_filter = None if opts.dryrun and not opts.upload else opts.upload
+    (bundle_paths, prepared_subtools) = sdk_subtools.bundle_and_prepare_upload(
+        upload_filter
+    )
+    packaged_subtools = sdk_subtools.upload_prepared_bundles(
+        opts.production, bundle_paths, dryrun=opts.dryrun
+    )
+
+    if not prepared_subtools.subtools:
         logger.warn("No subtools available.")
     elif not opts.upload:
         logger.notice(
-            "Use --upload to upload a package. Available:%s",
-            "".join(f"\n\t{x.summary}" for x in installed.subtools),
+            "Use --upload to build/upload a package. Available:%s",
+            "".join(f"\n\t{x.summary}" for x in prepared_subtools.subtools),
+        )
+    if packaged_subtools.built_packages:
+        logger.notice(
+            "Built packages:%s",
+            "".join(f"\n\t{x}" for x in packaged_subtools.built_packages),
         )
 
 

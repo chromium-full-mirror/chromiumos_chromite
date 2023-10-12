@@ -319,3 +319,28 @@ def CreatePackage(
     ] + _shared_cipd_args(tags, refs, cred_path, service_url)
 
     cros_build_lib.dbg_run(args)
+
+
+def build_package(
+    cipd_path: Union[os.PathLike, str], package: str, in_dir: Path, out: Path
+) -> None:
+    """Build (pkg-build) a package using cipd.
+
+    Args:
+        cipd_path: Path to a cipd executable. GetCIPDFromCache can give this.
+        package: A package name.
+        in_dir: The directory to create the package from.
+        out: Path to write the final package to.
+    """
+    args = [
+        cipd_path,
+        "pkg-build",
+        "-name",
+        package,
+        "-in",
+        in_dir,
+        "-out",
+        out,
+    ]
+
+    cros_build_lib.dbg_run(args)

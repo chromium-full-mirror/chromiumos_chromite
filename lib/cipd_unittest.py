@@ -214,3 +214,22 @@ def test_create_package(run_mock: cros_test_lib.RunCommandMock) -> None:
             "https://chrome-infra-packages-dev.appspot.com",
         ]
     )
+
+
+def test_build_package(run_mock: cros_test_lib.RunCommandMock) -> None:
+    """Validate the command created by build_package."""
+    cipd.build_package(
+        "/cipd.fake", "some/package", Path("input/bundle"), Path("/out.zip")
+    )
+    run_mock.assertCommandContains(
+        [
+            "/cipd.fake",
+            "pkg-build",
+            "-name",
+            "some/package",
+            "-in",
+            Path("input/bundle"),
+            "-out",
+            Path("/out.zip"),
+        ]
+    )

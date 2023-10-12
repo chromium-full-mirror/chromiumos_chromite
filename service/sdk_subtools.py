@@ -180,21 +180,19 @@ def bundle_and_prepare_upload(
     return (subtools.prepare_uploads(upload_filter), subtools)
 
 
-def upload_prepared_bundles(use_production: bool, bundles: List[Path]) -> None:
+def upload_prepared_bundles(
+    use_production: bool, bundles: List[Path], dryrun: bool = False
+) -> subtool_lib.BundledSubtools:
     """Uploads the pre-bundled subtools at each of the provided paths.
 
     Args:
         use_production: Whether to upload to production environments.
         bundles: The list of bundled metadata paths to upload.
+        dryrun: Build what would be uploaded, but don't upload it.
+
+    Returns:
+        The `BundledSubtools` that captures the result of the upload step.
     """
     subtools = subtool_lib.BundledSubtools(bundles)
-    subtools.upload(use_production)
-
-
-def bundle_and_upload(
-    use_production: bool = False, upload_filter: Optional[List[str]] = None
-) -> subtool_lib.InstalledSubtools:
-    """Helper to bundle and upload from within the chroot."""
-    (bundles, subtools) = bundle_and_prepare_upload(upload_filter)
-    upload_prepared_bundles(use_production, bundles)
+    subtools.upload(use_production, dryrun=dryrun)
     return subtools

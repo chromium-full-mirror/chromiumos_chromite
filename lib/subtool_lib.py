@@ -628,23 +628,34 @@ class InstalledSubtools:
 
 
 class BundledSubtools:
-    """Wraps a list of paths with pre-bundled subtools."""
+    """Wraps a list of paths with pre-bundled subtools.
+
+    Attributes:
+        bundles: Bundled paths, with the `bundle` file tree and metadata.
+        cipd_path: Path to the cipd binary, defaulting to the pin in cipd.py.
+        built_packages: Updated with a path when the upload process creates a
+            local .zip rather than performing an upload.
+    """
 
     def __init__(self, bundles: List[Path]):
         """Creates and initializes a BundledSubtools wrapper."""
         self.bundles = bundles
         self.cipd_path = cipd.GetCIPDFromCache()
+        self.built_packages: List[Path] = []
 
-    def upload(self, use_production: bool) -> None:
+    def upload(self, use_production: bool, dryrun: bool = False) -> None:
         """Uploads each valid, bundled subtool.
 
         Args:
             use_production: Whether to upload to production environments.
+            dryrun: Build what would be uploaded, but don't upload it.
         """
         for bundle in self.bundles:
-            self._upload_bundle(bundle, use_production)
+            self._upload_bundle(bundle, use_production, dryrun)
 
-    def _upload_bundle(self, path: Path, use_production: bool) -> None:
+    def _upload_bundle(
+        self, path: Path, use_production: bool, dryrun: bool
+    ) -> None:
         """Uploads a single bundle."""
         with (path / UPLOAD_METADATA_FILE).open("rb") as fp:
             cipd_package = UploadMetadata.from_dict(json.load(fp)).cipd_package
@@ -671,6 +682,19 @@ class BundledSubtools:
                 cipd_package.package,
                 instances,
             )
+            # In dry-run, continue to build a package after emitting the notice.
+            if not dryrun:
+                return
+
+        if dryrun:
+            out = path / f"{path.name}.zip"
+            cipd.build_package(
+                self.cipd_path,
+                cipd_package.package,
+                path / "bundle",
+                out,
+            )
+            self.built_packages.append(out)
             return
 
         # NOTE: This will not create a new instance in CIPD if the hash of the
