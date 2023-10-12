@@ -50,7 +50,7 @@ func ChromeFixture(ctx context.Context, s *testing.State) {}
 `,
         },
         tastListResult: 'example.ChromeFixture\n',
-        testToPick: 'example.ChromeFixture',
+        testsToPick: ['example.ChromeFixture'],
       },
       subscriptions
     );

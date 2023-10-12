@@ -26,7 +26,7 @@ export type Config = {
   /** Fake result of the `tast list` command. */
   tastListResult: string | Error;
   /** Name of the Tast test to pick from the listed tests. */
-  testToPick: string;
+  testsToPick: string[];
 };
 
 /**
@@ -41,7 +41,7 @@ export async function prepareCommonFakes(
   config: Config,
   subscriptions: vscode.Disposable[]
 ): Promise<CommandContext> {
-  const {chromiumos, activeTextEditor, tastListResult, testToPick} = config;
+  const {chromiumos, activeTextEditor, tastListResult, testsToPick} = config;
 
   // Prepare a fake chroot.
   await testing.buildFakeChroot(chromiumos);
@@ -76,8 +76,8 @@ export async function prepareCommonFakes(
     .withArgs([hostname, 'other'], jasmine.anything())
     .and.resolveTo(hostname);
   vscodeSpy.window.showQuickPick
-    .withArgs(jasmine.arrayContaining([testToPick]), jasmine.anything())
-    .and.resolveTo(testToPick);
+    .withArgs(jasmine.arrayContaining(testsToPick), jasmine.anything())
+    .and.resolveTo(testsToPick);
 
   // Prepare external command responses.
   testing.fakes.installChrootCommandHandler(
