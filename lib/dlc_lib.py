@@ -882,9 +882,25 @@ class DlcGenerator:
                 )
                 os.truncate(self.dest_image, self._BLOCK_SIZE * 2)
 
+            # Verify that the generated squashfs is valid and compressed
+            # correctly without any corruption.
+            # Refer to b/303628900 for details.
+            squashfs_out = os.path.join(temp_dir, "squashfs-out")
+            ret = cros_build_lib.run(
+                [
+                    "unsquashfs",
+                    "-d",
+                    squashfs_out,
+                    self.dest_image,
+                ],
+                capture_output=True,
+            )
+            logging.debug(ret.stdout)
+
             # We changed the ownership and permissions of the squashfs_root
             # directory. Now we need to remove it manually.
             osutils.RmDir(squashfs_root, sudo=True)
+            osutils.RmDir(squashfs_out, sudo=True)
 
     def SetupDlcImageFiles(self, dlc_dir: str):
         """Prepares the directory dlc_dir with all the files a DLC needs.

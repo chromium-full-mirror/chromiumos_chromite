@@ -576,6 +576,12 @@ class DlcGeneratorTest(
 
         self.GetDlcGenerator().CreateSquashfsImage()
         self.assertCommandContains(["mksquashfs", "-4k-align", "-noappend"])
+        self.assertCommandContains(
+            [
+                "unsquashfs",
+                "-d",
+            ]
+        )
         copy_dir_mock.assert_called_once_with(
             partial_mock.HasString("src"),
             partial_mock.HasString("root"),
@@ -590,6 +596,12 @@ class DlcGeneratorTest(
 
         self.GetDlcGenerator().CreateSquashfsImage()
         self.assertCommandContains(["mksquashfs", "-4k-align", "-noappend"])
+        self.assertCommandContains(
+            [
+                "unsquashfs",
+                "-d",
+            ]
+        )
         truncate_mock.asset_called()
         copy_dir_mock.assert_called_once_with(
             partial_mock.HasString("src"),
@@ -615,6 +627,12 @@ class DlcGeneratorTest(
                 "0",
                 "-all-time",
                 "0",
+            ]
+        )
+        self.assertCommandContains(
+            [
+                "unsquashfs",
+                "-d",
             ]
         )
         truncate_mock.asset_called()
