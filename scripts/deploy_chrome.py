@@ -238,12 +238,12 @@ class DeployChrome:
         self.device.Reboot()
 
         # Make sure the rootfs is writable now.
-        self._MountRootfsAsWritable(check=True)
+        self._MountRootfsAsWritable(run_diagnostics=True)
 
         # Now that the machine has been rebooted, we need to kill Chrome again.
         self._KillAshChromeIfNeeded()
 
-        return True
+        return self.device.IsDirWritable("/")
 
     def _CheckUiJobStarted(self):
         # status output is in the format:
@@ -333,7 +333,7 @@ class DeployChrome:
             )
             raise DeployFailure(msg)
 
-    def _MountRootfsAsWritable(self, check=False):
+    def _MountRootfsAsWritable(self, check=False, run_diagnostics=False):
         """Mounts the rootfs as writable.
 
         If the command fails and the root dir is not writable then this function
@@ -341,24 +341,23 @@ class DeployChrome:
 
         Args:
             check: See remote.RemoteAccess.RemoteSh for details.
+            run_diagnostics: Run additional diagnostics if mounting fails.
         """
         # TODO: Should migrate to use the remount functions in remote_access.
-        result = None
-        try:
-            result = self.device.run(
-                MOUNT_RW_COMMAND,
-                capture_output=True,
-                check=check,
-                encoding="utf-8",
-            )
-        except cros_build_lib.RunCommandError as e:
-            # Remounting could fail with the following error message:
-            # "cannot remount {dev} read-write, is write-protected"
-            logging.warning("Mounting root as writable failed: %s", e.stderr)
-            if re.search(
-                r"cannot\sremount\s\S*\sread-write,\sis\swrite-protected",
-                e.stderr,
-            ):
+        result = self.device.run(
+            MOUNT_RW_COMMAND,
+            capture_output=True,
+            check=check,
+            encoding="utf-8",
+        )
+
+        if not self.device.IsDirWritable("/"):
+            if result and result.returncode:
+                logging.warning(
+                    "Mounting root as writable failed: %s", result.stderr
+                )
+
+            if run_diagnostics:
                 # Dump debug info to help diagnose b/293204438.
                 findmnt_result = self.device.run(
                     ["findmnt"], capture_output=True
@@ -367,34 +366,9 @@ class DeployChrome:
                 dmesg_result = self.device.run(["dmesg"], capture_output=True)
                 logging.info("dmesg: %s", dmesg_result.stdout)
 
-                # The device where root is mounting to could be read only.
-                # We will set the device to writable and remount again.
-                rootdev_result = self.device.run(
-                    ["rootdev"],
-                    capture_output=True,
-                    check=check,
-                    encoding="utf-8",
-                )
-                if rootdev_result.returncode == 0:
-                    device = rootdev_result.stdout.strip("\n")
-                    if device:
-                        self.device.run(
-                            ["blockdev", "--setrw", device],
-                            encoding="utf-8",
-                            check=check,
-                        )
-                result = self.device.run(
-                    MOUNT_RW_COMMAND,
-                    check=check,
-                    capture_output=True,
-                    encoding="utf-8",
-                )
-            else:
-                if check:
-                    raise e
-
-        if result and result.returncode and not self.device.IsDirWritable("/"):
             self._root_dir_is_still_readonly.set()
+        else:
+            self._root_dir_is_still_readonly.clear()
 
     def _EnsureTargetDir(self):
         """Ensures that the target directory exists on the remote device."""
@@ -732,7 +706,26 @@ class DeployChrome:
             if self.options.noremove_rootfs_verification:
                 logging.warning("Skipping disable rootfs verification.")
             elif not self._DisableRootfsVerification():
-                logging.warning("Failed to disable rootfs verification.")
+                # A writable rootfs might not be needed if
+                # 1) Deploy chrome to stateful partition with mount option.
+                # 2) Deploy lacros without modifying /etc/chrome_dev.conf.
+                if self.options.mount:
+                    logging.warning(
+                        "Failed to disable rootfs verification. "
+                        "Continue as --mount is set."
+                    )
+                elif (
+                    self.options.lacros and not self.options.modify_config_file
+                ):
+                    logging.warning(
+                        "Failed to disable rootfs verification. "
+                        "Continue as --lacros is set and "
+                        "--skip-modifying-config-file is unset."
+                    )
+                else:
+                    raise DeployFailure(
+                        "Failed to disable rootfs verification."
+                    )
 
             # If the target dir is still not writable (i.e. the user opted out
             # or the command failed), abort.
