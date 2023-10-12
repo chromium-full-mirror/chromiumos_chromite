@@ -61,23 +61,29 @@ export async function runTastTests(
   }
 
   try {
-    await runSelectedTests(context, chrootService, target, testNames);
+    await runSelectedTestsOrThrow(context, chrootService, target, testNames);
     showPromptWithOpenLogChoice(context, 'Tests run successfully.', false);
     return new RunTastTestsResult();
   } catch (err) {
-    showPromptWithOpenLogChoice(context, 'Failed to run tests.', true);
+    if (err instanceof vscode.CancellationError) {
+      showPromptWithOpenLogChoice(context, 'Cancelled running tests.', true);
+    } else {
+      showPromptWithOpenLogChoice(context, 'Failed to run tests.', true);
+    }
     throw err;
   }
 }
 
 /**
  * Runs all of the selected tests.
+ *
  * @param context The current command context.
  * @param chrootService The chroot to run commands in.
  * @param target The target to run the `tast list` command on.
  * @param testNames The names of the tests to run.
+ * @throws Error if test doesn't pass. CancellationError in particular on cancellation.
  */
-async function runSelectedTests(
+async function runSelectedTestsOrThrow(
   context: CommandContext,
   chrootService: services.chromiumos.ChrootService,
   target: string,
@@ -108,7 +114,7 @@ async function runSelectedTests(
         }
       );
       if (token.isCancellationRequested) {
-        return;
+        throw new vscode.CancellationError();
       }
       // Handle response errors.
       if (res instanceof Error) {
