@@ -24,6 +24,7 @@ from typing import List, Tuple
 import urllib.parse
 
 from chromite.cbuildbot import cbuildbot_alerts
+from chromite.lib import chromite_config
 from chromite.lib import chroot_lib
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -540,9 +541,16 @@ def _CreateParser(
     )
     parser.add_bool_argument(
         "--read-only",
-        default=False,
+        default=None,
         enabled_desc="Mount the SDK read-only.",
-        disabled_desc="Mount the SDK read/write.",
+        disabled_desc="Do not mount the SDK read-only. "
+        "This is default, but see also --read-only-sticky.",
+    )
+    parser.add_bool_argument(
+        "--read-only-sticky",
+        default=False,
+        enabled_desc="Remember the --[no-]read-only setting for future runs.",
+        disabled_desc="Leave --[no-]read-only stickiness alone.",
     )
 
     # Use type=str instead of type='path' to prevent the given path from being
@@ -705,12 +713,36 @@ def _FinalizeOptions(
     # Make sure we will download if we plan to create.
     options.download |= options.create
 
+    if options.read_only is None and options.read_only_sticky:
+        parser.error(
+            "Specifying --read-only-sticky without --read-only or "
+            "--no-read-only does not make sense."
+        )
+
+    chromite_config.initialize()
+    ro_cfg = chromite_config.SDK_READONLY_STICKY_CONFIG
+    if options.read_only is None:
+        # Defer to sticky configuration file only if --read-only/--no-read-only
+        # were not provided.
+        options.read_only = ro_cfg.exists()
+
     options.Freeze()
 
     if options.reclient_dir and not options.reproxy_cfg_file:
         parser.error("--reclient-dir requires --reproxy-cfg-file")
     if not options.reclient_dir and options.reproxy_cfg_file:
         parser.error("--reproxy-cfg-file only makes sense with --reclient-dir")
+
+    if options.read_only_sticky:
+        # Notify the user when toggling stickiness.
+        if options.read_only:
+            if not ro_cfg.exists():
+                logging.warning("Making cros_sdk --read-only sticky")
+            ro_cfg.touch()
+        else:
+            if ro_cfg.exists():
+                logging.warning("Making cros_sdk --no-read-only sticky")
+                ro_cfg.unlink()
 
 
 def main(argv):

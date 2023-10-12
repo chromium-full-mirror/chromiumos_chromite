@@ -7,11 +7,12 @@
 import os
 import re
 import sys
-from typing import List
+from typing import List, Optional
 from unittest import mock
 
 import pytest  # type: ignore
 
+from chromite.lib import chromite_config
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -215,6 +216,7 @@ def test_commands(command: str):
     (
         ["--delete", "--enter"],
         ["--force"],  # without --delete
+        ["--read-only-sticky"],  # without --[no-]read-only
     ),
 )
 def test_conflicting_args(arglist: List[str]):
@@ -267,3 +269,86 @@ def test_chroot_not_ready():
 
     assert options.create
     assert options.enter
+
+
+@pytest.mark.parametrize(
+    ["arglist", "confcontents", "expect_ro"],
+    [
+        ([], None, False),  # no args; no conf; default read-only=False
+        ([], "1", True),  # no args; conf is "1"; read-only=True
+        (
+            [],
+            "garbage",
+            True,
+        ),  # no args; conf is garbage, but contents are ignored
+        (["--read-only"], "1", True),  # --read-only arg always wins
+        (["--read-only"], "garbage", True),  # --read-only arg always wins
+        (
+            ["--no-read-only"],
+            "garbage",
+            False,
+        ),  # --no-read-only arg always wins
+        (["--no-read-only"], "1", False),  # --no-read-only arg always wins
+        ([], "    0   \n", True),  # conf contents are ignored
+    ],
+)
+def test_readonly_configuration(
+    monkeypatch,
+    tmp_path,
+    arglist: List[str],
+    confcontents: Optional[str],
+    expect_ro: bool,
+):
+    """Test read-only configuration file and flags."""
+    conf_file = tmp_path / "readonlyconf"
+    if confcontents is not None:
+        conf_file.write_text(confcontents)
+    monkeypatch.setattr(
+        chromite_config, "SDK_READONLY_STICKY_CONFIG", conf_file
+    )
+
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(arglist)
+    cros_sdk._FinalizeOptions(parser, options, commands)
+    assert options.read_only == expect_ro
+
+
+@pytest.mark.parametrize(
+    ["orig_contents", "arglist", "expect_conf_exists"],
+    (
+        (None, [], False),
+        (None, ["--read-only"], False),
+        (None, ["--no-read-only"], False),
+        ("0", ["--read-only"], True),
+        ("1", ["--no-read-only"], True),
+        (None, ["--read-only", "--read-only-sticky"], True),
+        (None, ["--no-read-only", "--read-only-sticky"], False),
+        ("0", ["--read-only", "--read-only-sticky"], True),
+        ("1", ["--no-read-only", "--read-only-sticky"], False),
+    ),
+)
+def test_readonly_sticky(
+    monkeypatch,
+    tmp_path,
+    orig_contents: Optional[str],
+    arglist: List[str],
+    expect_conf_exists: bool,
+):
+    """Test that we write expected read-only-sticky contents.
+
+    orig_contents: Optional pre-existing contents of the configuration file.
+    arglist: The cros_sdk argument list to test.
+    expect_conf_exists: Whether we expect the conf file to exist.
+    """
+    conf_file = tmp_path / "readonlyconf"
+    if orig_contents is not None:
+        conf_file.write_text(orig_contents)
+    monkeypatch.setattr(
+        chromite_config, "SDK_READONLY_STICKY_CONFIG", conf_file
+    )
+
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(arglist)
+    cros_sdk._FinalizeOptions(parser, options, commands)
+
+    assert conf_file.exists() == expect_conf_exists
