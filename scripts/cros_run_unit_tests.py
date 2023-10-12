@@ -7,7 +7,6 @@
 import logging
 import multiprocessing
 import os
-from typing import Set
 
 from chromite.third_party.opentelemetry import trace
 
@@ -150,27 +149,6 @@ def determine_packages(sysroot, virtual_packages):
     )
 
 
-def install_test_deps(board: str, pkgs: Set[str]):
-    """Installs test dependencies of given packages.
-
-    Certain packages require extra dependencies when they are built with
-    USE=test. We need to install these dependencies without actually building
-    the depending packages with `test` enabled.
-
-    Args:
-        board: board where the deps will be installed.
-        pkgs: A set of portage packages in the form category/package_name.
-    """
-    if not pkgs:
-        return
-    logging.info("Installing test-only dependencies of %s", pkgs)
-    emerge_cmd = "emerge"
-    if board:
-        emerge_cmd += f"-{board}"
-    cmd = [emerge_cmd, "--with-test-deps", "y", "--onlydeps"] + list(pkgs)
-    cros_build_lib.run(cmd)
-
-
 def get_keep_going():
     """Check if should enable keep_going parameter.
 
@@ -269,8 +247,6 @@ def inner_main(opts: commandline.ArgumentNamespace):
     if opts.pretend:
         print("\n".join(sorted(pkg_with_test)))
         return 0
-
-    install_test_deps(opts.board, pkg_with_test)
 
     env = {}
     if opts.nowithdebug:
