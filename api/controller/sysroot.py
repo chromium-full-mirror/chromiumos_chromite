@@ -11,10 +11,10 @@ import traceback
 
 from chromite.api import controller
 from chromite.api import faux
+from chromite.api import metrics
 from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromiumos import common_pb2
-from chromite.api.metrics import deserialize_metrics_log
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
@@ -430,7 +430,9 @@ def InstallPackages(input_proto, output_proto, _config):
         return controller.RETURN_CODE_SUCCESS
 
     # Read metric events log and pipe them into output_proto.events.
-    deserialize_metrics_log(output_proto.events, prefix=build_target.name)
+    metrics.deserialize_metrics_log(
+        output_proto.events, prefix=build_target.name
+    )
 
 
 def _LogBinhost(board):
