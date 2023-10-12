@@ -10,6 +10,7 @@ captures all input arguments, and forwards them to the try binary.
 """
 
 import argparse
+import os
 from pathlib import Path
 import re
 import sys
@@ -17,6 +18,7 @@ from typing import List
 
 from chromite.cli import command
 from chromite.lib import cipd
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 
 
@@ -64,7 +66,18 @@ For help, run `cros try help` (with no hyphens).
             The return code of the completed try process.
         """
         cmd = [str(try_bin)] + args
-        p = cros_build_lib.run(cmd, check=False, stderr=True, encoding="utf-8")
+        # TODO(b/266233948): Drop this hack if the underlying binary stops
+        # relying on depot_tools being at the front of the PATH.
+        path = os.pathsep.join(
+            (str(constants.DEPOT_TOOLS_DIR), os.getenv("PATH"))
+        )
+        p = cros_build_lib.run(
+            cmd,
+            check=False,
+            stderr=True,
+            encoding="utf-8",
+            extra_env={"PATH": path},
+        )
         # Modify usage messages to refer to double-dash flags ('--foo').
         # The gobin's usage messages are sent to stderr and contain 'usage:'.
         if "usage:" in p.stderr:

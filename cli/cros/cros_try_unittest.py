@@ -9,12 +9,20 @@ from typing import List
 
 from chromite.cli.cros import cros_try
 from chromite.lib import cipd
+from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.scripts import cros
 
 
 MOCK_TRY_DIR = Path("/tmp/try")
 MOCK_TRY_BIN = MOCK_TRY_DIR / "try"
+
+
+class StringStartsWith(str):
+    """String-like object that matches a prefix."""
+
+    def __eq__(self, other):
+        return other.startswith(self)
 
 
 class TryCommandTest(cros_test_lib.RunCommandTestCase):
@@ -25,6 +33,9 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
         self._cipd_install_patch = self.PatchObject(
             cipd, "InstallPackage", return_value=MOCK_TRY_DIR
         )
+        self._extra_env = {
+            "PATH": StringStartsWith(str(constants.DEPOT_TOOLS_DIR) + ":"),
+        }
 
     def runCrosTry(self, try_args: List[str]):
         """Simulate running the `cros try` command with the specified args."""
@@ -38,6 +49,7 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
             check=False,
             stderr=True,
             encoding="utf-8",
+            extra_env=self._extra_env,
         )
 
     def testExitCode(self):
@@ -81,4 +93,5 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
             check=False,
             stderr=True,
             encoding="utf-8",
+            extra_env=self._extra_env,
         )
