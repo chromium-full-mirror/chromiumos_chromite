@@ -74,6 +74,12 @@ VIRTUALS = {
     "virtual/libelf": ("dev-libs/elfutils", "sys-freebsd/freebsd-lib"),
     "virtual/libiconv": ("dev-libs/libiconv",),
     "virtual/libintl": ("dev-libs/libintl",),
+    "virtual/libgudev": (
+        "dev-libs/libgudev",
+        "sys-apps/systemd",
+        "sys-fs/eudev",
+        "sys-fs/udev",
+    ),
     "virtual/libudev": (
         "sys-apps/systemd-utils",
         "sys-fs/udev",
