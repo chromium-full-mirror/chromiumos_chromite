@@ -180,7 +180,7 @@ class QueryCommand(command.CliCommand):
             "query_target",
             choices=list(QUERY_TARGETS.values()),
             metavar=f"{{{','.join(QUERY_TARGETS)}}}",
-            type=lambda x: QUERY_TARGETS[x],
+            type=QUERY_TARGETS.get,
             help="Target type to query.",
         )
         parser.add_argument(

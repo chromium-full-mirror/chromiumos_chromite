@@ -6,6 +6,8 @@
 
 from unittest import mock
 
+import pytest
+
 from chromite.cli.cros import cros_query
 from chromite.lib import build_query
 from chromite.lib import commandline
@@ -144,3 +146,12 @@ baseboard-malteer-private base ohea
 malteer-private base ohea
 """
     )
+
+
+def test_query_bad_positional():
+    """Test a bad positional arg."""
+    # argparse should gracefully catch this, instead of throwing some other
+    # exception.
+    with pytest.raises(SystemExit):
+        # "board" is a misspelling of "boards".
+        _run_cros_query(["board"])
