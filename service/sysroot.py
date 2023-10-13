@@ -556,8 +556,9 @@ def Create(
     run_configs.regen_configs = run_configs.regen_configs and sysroot.Exists()
 
     # Make sure the chroot is fully up to date before we start unless the
-    # chroot update is explicitly disabled.
-    if run_configs.update_chroot:
+    # chroot update is explicitly disabled, or we're only regenerating the
+    # configs.
+    if run_configs.update_chroot and not run_configs.regen_configs:
         with tracer.start_as_current_span(
             "service.sysroot.Create.update_chroot"
         ):
