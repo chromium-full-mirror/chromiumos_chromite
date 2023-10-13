@@ -4,8 +4,11 @@
 
 import * as vscode from 'vscode';
 import dedent from 'dedent';
-import {EbuildLinkProvider} from '../../../../features/chromiumos/ebuild_link_provider';
-import {FakeCancellationToken, FakeTextDocument} from '../../../testing/fakes';
+import {EbuildLinkProvider} from '../../../../../features/chromiumos/ebuild/ebuild_link_provider';
+import {
+  FakeCancellationToken,
+  FakeTextDocument,
+} from '../../../../testing/fakes';
 
 const csBase =
   'http://source.corp.google.com/h/chromium/chromiumos/codesearch/+/main:';

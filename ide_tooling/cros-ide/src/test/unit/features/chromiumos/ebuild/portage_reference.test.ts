@@ -7,8 +7,11 @@ import {
   EBUILD_DEFINED_VARIABLES_HOVER_STRING,
   PORTAGE_PREDEFINED_READ_ONLY_VARIABLES_HOVER_STRING,
   PortageReferenceHoverProvider,
-} from '../../../../features/chromiumos/portage_reference';
-import {FakeCancellationToken, FakeTextDocument} from '../../../testing/fakes';
+} from '../../../../../features/chromiumos/ebuild/portage_reference';
+import {
+  FakeCancellationToken,
+  FakeTextDocument,
+} from '../../../../testing/fakes';
 
 const SIMPLE_EBUILD = `
 EAPI=7

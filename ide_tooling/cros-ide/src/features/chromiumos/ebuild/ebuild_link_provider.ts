@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 import * as vscode from 'vscode';
-import * as parse from '../../common/chromiumos/portage/parse';
+import * as parse from '../../../common/chromiumos/portage/parse';
 
 export function activate(
   context: vscode.ExtensionContext,
