@@ -199,7 +199,6 @@ class BuildPackagesRunConfig:
         internal_chrome: bool = False,
         clean_build: bool = False,
         eclean: bool = True,
-        rebuild_dep: bool = True,
         jobs: Optional[int] = None,
         local_pkg: bool = False,
         dev_image: bool = True,
@@ -241,7 +240,6 @@ class BuildPackagesRunConfig:
             clean_build: Perform a clean build; delete sysroot if it exists
                 before building.
             eclean: Run eclean to delete old binpkgs.
-            rebuild_dep: Rebuild dependencies.
             jobs: How many packages to build in parallel at maximum.
             local_pkg: Bootstrap from local packages instead of remote packages.
             dev_image: Build useful developer friendly utilities.
@@ -272,7 +270,6 @@ class BuildPackagesRunConfig:
         self.internal_chrome = internal_chrome
         self.clean_build = clean_build
         self.eclean = eclean
-        self.rebuild_dep = rebuild_dep
         self.jobs = jobs
         self.local_pkg = local_pkg
         self.dev_image = dev_image
@@ -486,11 +483,6 @@ class BuildPackagesRunConfig:
 
         if self.jobs:
             flags.append(f"--jobs={self.jobs}")
-
-        if self.rebuild_dep:
-            # TODO(vapier): Purge the rebuild_dep logic and --rebuild options
-            # from various scripts & APIs.
-            logging.warning("Ignore rebuild dependency request")
 
         return flags
 

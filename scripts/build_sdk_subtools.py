@@ -156,7 +156,6 @@ def get_parser() -> commandline.ArgumentParser:
     #  * --rebuild_revdeps=no: don't rebuild reverse dependencies.
     #  * --skip-toolchain-update? Likely no - the SDK is our toolchain.
     #  * --withdebugsymbols
-    #  * --rebuild=no "Automatically rebuild dependencies"
     #  * --backtrack
     #  * --bazel  "Use Bazel to build packages"
 

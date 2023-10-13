@@ -125,7 +125,6 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
         usepkg=False,
         clean_build=False,
         eclean=False,
-        rebuild_dep=False,
     )
 
     emerge = [constants.CHROMITE_BIN_DIR / "parallel_emerge"]

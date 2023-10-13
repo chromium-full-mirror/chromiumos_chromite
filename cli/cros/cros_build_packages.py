@@ -351,21 +351,6 @@ class BuildPackagesCommand(command.CliCommand):
         )
         build_shell_bool_style_args(
             group,
-            "rebuild",
-            True,
-            "Automatically rebuild dependencies.",
-            deprecation_note,
-        )
-        # TODO(b/218522717): Remove the --nonorebuild argument support.
-        group.add_argument(
-            "--nonorebuild",
-            action="store_true",
-            dest="rebuild",
-            deprecated=deprecation_note % "--rebuild",
-            help=argparse.SUPPRESS,
-        )
-        build_shell_bool_style_args(
-            group,
             "expandedbinhosts",
             True,
             "Allow expanded binhost inheritance.",
@@ -492,7 +477,6 @@ class BuildPackagesCommand(command.CliCommand):
             internal_chrome=options.internal,
             clean_build=options.cleanbuild,
             eclean=options.eclean,
-            rebuild_dep=options.rebuild,
             jobs=options.jobs,
             local_pkg=options.reuse_pkgs_from_local_boards,
             dev_image=options.withdev,
