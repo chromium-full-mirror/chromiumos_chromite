@@ -41,6 +41,8 @@ SYSTEM_PACKAGES = {
     "app-misc/ca-certificates",
     # ELF utils used by portage.
     "app-misc/pax-utils",
+    # Do not delete eclean and friends.
+    "app-portage/gentoolkit",
     # Do not delete shells.
     "app-shells/",
     # Packages listed in virtual/target-sdk-nobdeps aren't reinstalled.
