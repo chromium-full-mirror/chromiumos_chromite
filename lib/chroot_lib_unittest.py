@@ -251,3 +251,13 @@ class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(
             ["cat"], enter_chroot=True, chroot_args=mock.ANY, extra_env={}
         )
+
+    def testChrootArgs(self):
+        """With additional supplied chroot_args."""
+        self.chroot.run(["cat"], chroot_args=["--no-read-only"])
+        self.assertCommandContains(
+            ["cat"],
+            enter_chroot=True,
+            chroot_args=self.chroot.get_enter_args() + ["--no-read-only"],
+            extra_env={},
+        )

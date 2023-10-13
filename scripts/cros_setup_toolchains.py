@@ -18,6 +18,7 @@ from chromite.third_party import lddtree
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import toolchain
@@ -1412,7 +1413,9 @@ def CreatePackages(targets_wanted, output_dir, root="/"):
     # b/282231712: Stash temporary path structure at |root|, so we have control
     # over cross-device linking. The default base directory (/tmp) might be on
     # a different filesystem/mount, so hard links won't work.
-    with osutils.TempDir(base_dir=root, prefix="create-packages") as tempdir:
+    with cros_sdk_lib.ChrootReadWrite(), osutils.TempDir(
+        base_dir=root, prefix="create-packages"
+    ) as tempdir:
         logging.debug("Using tempdir: %s", tempdir)
 
         # We have to split the root generation from the compression stages.
@@ -1559,15 +1562,16 @@ def main(argv):
 
         Crossdev.Load(options.reconfig)
         root = options.sysroot or "/"
-        UpdateToolchains(
-            options.usepkg,
-            options.deleteold,
-            options.hostonly,
-            options.reconfig,
-            targets_wanted,
-            boards_wanted,
-            root=root,
-        )
-        Crossdev.Save()
+        with cros_sdk_lib.ChrootReadWrite():
+            UpdateToolchains(
+                options.usepkg,
+                options.deleteold,
+                options.hostonly,
+                options.reconfig,
+                targets_wanted,
+                boards_wanted,
+                root=root,
+            )
+            Crossdev.Save()
 
     return 0

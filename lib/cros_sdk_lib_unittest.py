@@ -967,6 +967,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
     def testReadWrite_RenamedMount(self):
         """Test with a path that's modified within the context manager."""
         self.ro_map["/path/to/chroot"] = True
+        self.PatchObject(cros_sdk_lib, "IsChrootReady", return_value=True)
         assert osutils.IsMounted("/path/to/chroot")
         assert osutils.IsMountedReadOnly("/path/to/chroot")
         assert not osutils.IsMounted("/")

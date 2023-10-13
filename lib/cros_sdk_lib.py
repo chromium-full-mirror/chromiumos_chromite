@@ -1338,6 +1338,9 @@ class _ChrootWritable:
         self._needs_remount = False
 
     def __enter__(self):
+        # This context manager doesn't make sense outside the chroot.
+        assert IsChrootReady(self._chroot_path)
+
         assert osutils.IsMounted(self._chroot_path)
         self._needs_remount = (
             osutils.IsMountedReadOnly(self._chroot_path) != self._want_read_only

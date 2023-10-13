@@ -189,10 +189,11 @@ class Chroot:
     ) -> cros_build_lib.CompletedProcess:
         # Merge provided |extra_env| with self.env.
         extra_env = {**self.env, **(kwargs.pop("extra_env", None) or {})}
+        chroot_args = self.get_enter_args() + kwargs.pop("chroot_args", [])
         return func(
             cmd,
             enter_chroot=True,
-            chroot_args=self.get_enter_args(),
+            chroot_args=chroot_args,
             extra_env=extra_env,
             **kwargs,
         )

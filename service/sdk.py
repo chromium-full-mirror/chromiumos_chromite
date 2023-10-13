@@ -610,7 +610,11 @@ def BuildPrebuilts(
     cmd = ["./build_sdk_board"]
     if board:
         cmd.append(f"--board={board}")
-    chroot.run(cmd, check=True)
+
+    # --no-read-only: build_sdk_board updates various SDK build cache files
+    # which otherwise tend to be read-only.
+    chroot.run(cmd, check=True, chroot_args=["--no-read-only"])
+
     host_prebuilts_dir = Path("/var/lib/portage/pkgs")
     target_prebuilts_dir = (
         Path("/build") / (board or constants.CHROOT_BUILDER_BOARD) / "packages"
