@@ -52,8 +52,6 @@ POST_KILL_WAIT = 2
 POST_UNLOCK_WAIT = 3
 
 MOUNT_RW_COMMAND = "mount -o remount,rw /"
-LSOF_COMMAND_CHROME = "lsof %s/chrome"
-LSOF_COMMAND = "lsof %s"
 DBUS_RELOAD_COMMAND = "killall -HUP dbus-daemon"
 LAST_LOGIN_COMMAND = "bootstat_get_last login-prompt-visible"
 UNLOCK_PASSWORD_COMMAND = "python -m uinput.cros_type_keys $'%s\\n'"
@@ -204,7 +202,7 @@ class DeployChrome:
 
     def _ChromeFileInUse(self):
         result = self.device.run(
-            LSOF_COMMAND_CHROME % (self.options.target_dir,),
+            ["lsof", f"{self.options.target_dir}/chrome"],
             check=False,
             capture_output=True,
         )
@@ -653,7 +651,7 @@ class DeployChrome:
             # If there is a failure, check if some process is using the
             # mount_dir.
             result = self.device.run(
-                LSOF_COMMAND % (self.options.mount_dir,),
+                ["lsof", self.options.mount_dir],
                 check=False,
                 capture_output=True,
                 encoding="utf-8",

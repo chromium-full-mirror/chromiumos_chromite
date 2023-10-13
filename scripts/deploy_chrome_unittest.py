@@ -245,7 +245,7 @@ class DeployChromeMock(partial_mock.PartialMock):
         self.rsh_mock.SetDefaultCmdResult(0)
         self.MockMountCmd(1)
         self.rsh_mock.AddCmdResult(
-            deploy_chrome.LSOF_COMMAND_CHROME % (deploy_chrome._CHROME_DIR,), 1
+            ["lsof", f"{deploy_chrome._CHROME_DIR}/chrome"], 1
         )
 
         self.rsh_mock.AddCmdResult(
@@ -441,7 +441,7 @@ class TestMountTarget(DeployTest):
             stderr="Target is Busy",
         )
         self.deploy_mock.rsh_mock.AddCmdResult(
-            deploy_chrome.LSOF_COMMAND % (mount_dir,),
+            ["lsof", mount_dir],
             returncode=0,
             stdout="process " + mount_dir,
         )
@@ -455,9 +455,7 @@ class TestMountTarget(DeployTest):
             expected=False,
         )
         # Check for lsof command being called.
-        self.deploy_mock.rsh_mock.assertCommandContains(
-            (deploy_chrome.LSOF_COMMAND % (mount_dir,))
-        )
+        self.deploy_mock.rsh_mock.assertCommandContains(["lsof", mount_dir])
 
 
 class TestUiJobStarted(DeployTest):
