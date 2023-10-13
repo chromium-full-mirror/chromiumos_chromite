@@ -15,22 +15,54 @@ export type EbuildStrValue = {
   range: vscode.Range;
 };
 
-export type EbuildValue =
-  | EbuildStrValue
-  | {
-      kind: 'array';
-      value: EbuildStrValue[];
-      range: vscode.Range; // Range of the array including '(' and ')'.
-    };
+export type EbuildArrayValue = {
+  kind: 'array';
+  value: EbuildStrValue[];
+  range: vscode.Range; // Range of the array including '(' and ')'.
+};
+
+export type EbuildValue = EbuildStrValue | EbuildArrayValue;
 
 type EbuildAssignment = {
   name: EbuildVarName;
   value: EbuildValue;
 };
 
-export type ParsedEbuild = {
-  assignments: EbuildAssignment[];
-};
+export class ParsedEbuild {
+  constructor(readonly assignments: readonly EbuildAssignment[]) {}
+
+  // Return the last assignment if there are multiple matches.
+  getValue(variableName: string): EbuildValue | undefined {
+    return this.assignments
+      .slice()
+      .reverse()
+      .find((x: EbuildAssignment) => x.name.name === variableName)?.value;
+  }
+
+  // Return the value assigned to the variable as an array, casted to a singleton array if initial
+  // value is a string.
+  // Use the last assignment if there are multiple matches.
+  getAsStringValues(variableName: string): EbuildStrValue[] | undefined {
+    const value = this.getValue(variableName);
+    return value ? (value.kind === 'array' ? value.value : [value]) : undefined;
+  }
+
+  // Return the string value assigned to the variable, casted to a singleton array if initial value
+  // is a string.
+  // Use the last assignment if there are multiple matches.
+  getString(variableName: string): string | undefined {
+    const value = this.getValue(variableName);
+    return value && value.kind === 'string' ? value.value : undefined;
+  }
+
+  // Return the value assigned to the variable as a primitive string array (without the ranges),
+  // casted to a singleton array if initial value is a string.
+  // Use the last assignment if there are multiple matches.
+  getAsStrings(variableName: string): string[] | undefined {
+    const values = this.getAsStringValues(variableName);
+    return values ? values.map(sv => sv.value) : undefined;
+  }
+}
 
 function indexToPositions(content: string): vscode.Position[] {
   const positions: vscode.Position[] = [];
@@ -86,9 +118,7 @@ export function parseEbuildOrThrow(content: string): ParsedEbuild {
     });
   }
 
-  return {
-    assignments,
-  };
+  return new ParsedEbuild(assignments);
 }
 
 class Scanner {

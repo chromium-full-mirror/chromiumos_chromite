@@ -9,7 +9,7 @@ import {
   ParsedEbuildFilepath,
   ebuildDefinedVariables,
 } from './ebuild';
-import {EbuildValue, parseEbuildOrThrow} from './parse';
+import {parseEbuildOrThrow} from './parse';
 
 export type Platform2Package = EbuildPackage & {
   // PLATFORM_SUBDIR the ebuild file defines.
@@ -88,48 +88,21 @@ export async function parsePlatform2EbuildOrThrow(
 
   const content = await fs.promises.readFile(ebuildFilepath, 'utf8');
 
-  const {assignments} = parseEbuildOrThrow(content);
+  const parsedEbuild = parseEbuildOrThrow(content);
 
-  const mapping = new Map<string, EbuildValue>();
-  for (const {name, value} of assignments) {
-    mapping.set(name.name, value);
-  }
+  const platformSubdir = parsedEbuild.getString('PLATFORM_SUBDIR') ?? '';
 
-  let platformSubdir = '';
-  {
-    const v = mapping.get('PLATFORM_SUBDIR');
-    if (v?.kind === 'string') {
-      platformSubdir = v.value;
-    }
-  }
+  const crosWorkonDestdir: string[] = parsedEbuild.getAsStrings(
+    'CROS_WORKON_DESTDIR'
+  ) ?? [''];
 
-  let crosWorkonDestdir = [''];
-  {
-    const v = mapping.get('CROS_WORKON_DESTDIR');
-    if (v?.kind === 'string') {
-      crosWorkonDestdir = [v.value];
-    } else if (v?.kind === 'array') {
-      crosWorkonDestdir = v.value.map(sv => sv.value);
-    }
-  }
+  const crosWorkonOutoftreeBuild: string | undefined = parsedEbuild.getString(
+    'CROS_WORKON_OUTOFTREE_BUILD'
+  );
 
-  let crosWorkonOutoftreeBuild: string | undefined;
-  {
-    const v = mapping.get('CROS_WORKON_OUTOFTREE_BUILD');
-    if (v?.kind === 'string') {
-      crosWorkonOutoftreeBuild = v.value;
-    }
-  }
-
-  let crosWorkonLocalname = [pkg.name];
-  {
-    const v = mapping.get('CROS_WORKON_LOCALNAME');
-    if (v?.kind === 'string') {
-      crosWorkonLocalname = [v.value];
-    } else if (v?.kind === 'array') {
-      crosWorkonLocalname = v.value.map(sv => sv.value);
-    }
-  }
+  const crosWorkonLocalname = parsedEbuild.getAsStrings(
+    'CROS_WORKON_LOCALNAME'
+  ) ?? [pkg.name];
 
   return {
     ...pkg,

@@ -39,20 +39,17 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
       // in-progress file has open parenthesis or quotes).
       return [];
     }
-    const assignments = parsedEbuild.assignments;
 
-    // Support only one (the first) localname assignment.
-    const localnameAssignment = assignments.find(
-      assignment => assignment.name.name === CROS_WORKON_LOCALNAME
+    // Support only one (the last) localname assignment.
+    // Cast string-type value to array for unified handling later.
+    const localnames = parsedEbuild.getAsStringValues(
+      CROS_WORKON_LOCALNAME,
+      true
     );
-    if (!localnameAssignment) {
+    if (!localnames) {
       return links;
     }
 
-    const localnames =
-      localnameAssignment.value.kind === 'string'
-        ? [localnameAssignment.value]
-        : localnameAssignment.value.value;
     // CROS_WORKON_LOCALNAME points to file paths relative to src/ if the
     // package is in the chromeos-base category; otherwise they're relative
     // to src/third_party/.
@@ -67,18 +64,15 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
       links.push(...this.createLinks(localname.range, `src/${path}`));
     }
 
-    // Support only one (the first) subtree assignment.
-    const subtreeAssignment = assignments.find(
-      assignment => assignment.name.name === CROS_WORKON_SUBTREE
+    // Support only one (the last) subtree assignment.
+    // Cast string-type value to array for unified handling later.
+    const subtreesPerLocalname = parsedEbuild.getAsStringValues(
+      CROS_WORKON_SUBTREE,
+      true
     );
-    if (!subtreeAssignment) {
+    if (!subtreesPerLocalname) {
       return links;
     }
-
-    const subtreesPerLocalname =
-      subtreeAssignment.value.kind === 'string'
-        ? [subtreeAssignment.value]
-        : subtreeAssignment.value.value;
 
     // Length of subtrees should be the same as number of localname paths.
     // Do not generate link for any of them if it does not match.
@@ -90,8 +84,8 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
       [parse.EbuildStrValue, string]
     >((x, i) => [x, pathsFromSrc[i]])) {
       let subtreeMatch: RegExpMatchArray | null;
-      const DIR_NAME_RE = /[^ ]+/g;
-      while ((subtreeMatch = DIR_NAME_RE.exec(subtrees.value)) !== null) {
+      const dirNameRe = /[^ ]+/g;
+      while ((subtreeMatch = dirNameRe.exec(subtrees.value)) !== null) {
         if (subtreeMatch.index !== undefined) {
           const subtree = subtreeMatch[0];
           const start = new vscode.Position(

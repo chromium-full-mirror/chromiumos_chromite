@@ -11,7 +11,7 @@ E=(foo) #
 # Some real examples follow.
 
 CROS_WORKON_LOCALNAME="platform2"
-CROS_WORKON_DESTDIR="${S}/platform2"
+CROS_WORKON_DESTDIR_1="${S}/platform2"
 CROS_WORKON_SUBTREE="common-mk codelab .gn"
 
 CROS_WORKON_DESTDIR=("${S}/platform2" "${S}/aosp/system/keymaster")
