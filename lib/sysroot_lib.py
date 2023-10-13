@@ -106,6 +106,9 @@ unset PKG_CONFIG_PATH
 # See https://github.com/pkgconf/pkgconf/issues/264
 export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include:{sysroot}/usr/include"
 
+# https://github.com/pkgconf/pkgconf/issues/205
+export PKG_CONFIG_FDO_SYSROOT_RULES=1
+
 # Use full path to bypass automated wrapper checks that block `pkg-config`.
 # https://crbug.com/985180
 exec /usr/bin/pkg-config "$@"
