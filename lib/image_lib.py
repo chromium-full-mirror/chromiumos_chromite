@@ -1131,7 +1131,7 @@ def CreateBuildDir(
     osutils.SafeMakedirs(output_dir)
     osutils.SafeSymlink(image_dir, symlink_dir)
 
-    return [build_dir, output_dir, symlink_dir]
+    return (build_dir, output_dir, symlink_dir)
 
 
 def IsSquashfsImage(path):

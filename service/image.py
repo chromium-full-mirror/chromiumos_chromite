@@ -130,7 +130,7 @@ class BuildConfig(NamedTuple):
 # TODO(b/232566937): Remove the argument generation function, once the
 # build_image.sh is removed.
 def GetBuildImageCommand(
-    config: BuildConfig, image_names: List[str], board: str
+    config: BuildConfig, image_names: Iterable[str], board: str
 ) -> List[Union[str, os.PathLike]]:
     """Get the build_image command for the configuration.
 
