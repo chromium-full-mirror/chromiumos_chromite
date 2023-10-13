@@ -71,7 +71,6 @@ _UMOUNT_DIR_IF_MOUNTPOINT_CMD = (
 )
 _BIND_TO_FINAL_DIR_CMD = "mount --rbind %s %s"
 _SET_MOUNT_FLAGS_CMD = "mount -o remount,exec,suid %s"
-_MKDIR_P_CMD = "mkdir -p --mode 0775 %s"
 _FIND_TEST_BIN_CMD = "find %s -maxdepth 1 -executable -type f" % (
     _CHROME_TEST_BIN_DIR
 )
@@ -643,7 +642,7 @@ class DeployChrome:
         logging.info("Mounting Chrome...")
 
         # Create directory if does not exist.
-        self.device.run(_MKDIR_P_CMD % self.options.mount_dir)
+        self.device.mkdir(self.options.mount_dir, mode=0o775)
         try:
             # Umount the existing mount on mount_dir if present first.
             self.device.run(
