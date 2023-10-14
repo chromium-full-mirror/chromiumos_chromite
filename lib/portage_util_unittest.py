@@ -507,42 +507,6 @@ CROS_WORKON_LOCALNAME=%s
         self.assertEqual(info.srcdirs, fake_paths)
         self.assertEqual(info.subtrees, fake_paths)
 
-    def testParseArrayWorkonVariablesWithSrcpaths(self):
-        """Tests if ebuilds with CROS_WORKON_SRCPATH are handled correctly."""
-        fake_projects = ["my_project1", "", ""]
-        fake_srcpaths = ["", "path/to/src", "path/to/other/src"]
-        fake_localnames = ["foo", "bar", "bas"]
-        # The test content is formatted using the same function that
-        # formats ebuild output, ensuring that we can parse our own
-        # products.
-        fake_ebuild_contents = """
-CROS_WORKON_PROJECT=%s
-CROS_WORKON_SRCPATH=%s
-CROS_WORKON_LOCALNAME=%s
-    """ % (
-            portage_util.EBuild.FormatBashArray(fake_projects),
-            portage_util.EBuild.FormatBashArray(fake_srcpaths),
-            portage_util.EBuild.FormatBashArray(fake_localnames),
-        )
-        info = self._MockParseWorkonVariables(
-            fake_projects, fake_srcpaths, fake_localnames, fake_ebuild_contents
-        )
-        self.assertEqual(info.projects, fake_projects)
-        fake_paths = []
-        for srcpath, localname in zip(fake_srcpaths, fake_localnames):
-            if srcpath:
-                path = os.path.realpath(
-                    os.path.join(self.tempdir, "src", srcpath)
-                )
-            else:
-                path = os.path.realpath(
-                    os.path.join(self.tempdir, "platform", localname)
-                )
-            fake_paths.append(path)
-
-        self.assertEqual(info.srcdirs, fake_paths)
-        self.assertEqual(info.subtrees, fake_paths)
-
     def testParseArrayWorkonVariablesWithSubtrees(self):
         """Tests if ebuilds with CROS_WORKON_SUBTREE are handled correctly."""
         fake_project = "my_project1"

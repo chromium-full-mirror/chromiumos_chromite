@@ -91,15 +91,13 @@ class WorkonPackageInfo:
         cp: The package name (e.g. chromeos-base/power_manager).
         pkg_mtime: The modification time of the installed package.
         projects: The project(s) associated with the package.
-        full_srcpaths: The brick source path(s) associated with the package.
         src_ebuild_mtime: The modification time of the source ebuild.
     """
 
-    def __init__(self, cp, mtime, projects, full_srcpaths, src_ebuild_mtime):
+    def __init__(self, cp, mtime, projects, src_ebuild_mtime):
         self.cp = cp
         self.pkg_mtime = int(mtime)
         self.projects = projects
-        self.full_srcpaths = full_srcpaths
         self.src_ebuild_mtime = src_ebuild_mtime
 
 
@@ -136,7 +134,7 @@ def ListWorkonPackagesInfo(sysroot):
     vdb_path = os.path.join(sysroot.path, portage_util.VDB_PATH)
 
     for overlay in overlays:
-        for filename, projects, srcpaths in portage_util.GetWorkonProjectMap(
+        for filename, projects in portage_util.GetWorkonProjectMap(
             overlay, packages
         ):
             # chromeos-base/power_manager/power_manager-9999
@@ -165,7 +163,7 @@ def ListWorkonPackagesInfo(sysroot):
             # Write info into the results dictionary, overwriting any previous
             # values. This ensures that overlays override appropriately.
             results[cp] = WorkonPackageInfo(
-                cp, pkg_mtime, projects, srcpaths, src_ebuild_mtime
+                cp, pkg_mtime, projects, src_ebuild_mtime
             )
 
     return list(results.values())
@@ -189,12 +187,6 @@ def WorkonProjectsMonitor(projects):
     return ModificationTimeMonitor(project_path_pairs)
 
 
-def WorkonSrcpathsMonitor(srcpaths):
-    """Returns a monitor for srcpath modification times."""
-    # This class handles generators, so zip() is safe.
-    return ModificationTimeMonitor(zip(srcpaths, srcpaths))
-
-
 def ListModifiedWorkonPackages(sysroot):
     """List the workon packages that need to be rebuilt.
 
@@ -208,14 +200,11 @@ def ListModifiedWorkonPackages(sysroot):
     # Get mtimes for all projects and source paths associated with our packages.
     all_projects = [p for info in packages for p in info.projects]
     project_mtimes = WorkonProjectsMonitor(all_projects).GetModificationTimes()
-    all_srcpaths = [s for info in packages for s in info.full_srcpaths]
-    srcpath_mtimes = WorkonSrcpathsMonitor(all_srcpaths).GetModificationTimes()
 
     for info in packages:
         mtime = int(
             max(
                 [project_mtimes.get(p, 0) for p in info.projects]
-                + [srcpath_mtimes.get(s, 0) for s in info.full_srcpaths]
                 + [info.src_ebuild_mtime]
             )
         )
@@ -245,7 +234,6 @@ def main(argv):
     commandline.RunInsideChroot()
     logging.getLogger().setLevel(logging.INFO)
     flags = _ParseArguments(argv)
-    sysroot = None
     if flags.board:
         sysroot = build_target_lib.get_default_sysroot_path(flags.board)
     elif flags.host:

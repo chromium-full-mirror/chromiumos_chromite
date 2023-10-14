@@ -56,8 +56,6 @@ export function platform2TestWorkingDirectory(
     } else {
       pathbase += '/src/third_party';
     }
-    // Omit the if-statement for CROS_WORKON_SRCPATH here, because no ebuilds set
-    // the variable.
     const path = `${pathbase}/${pkg.crosWorkonLocalname[0]}`;
 
     s = path;
