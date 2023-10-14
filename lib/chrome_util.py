@@ -469,6 +469,7 @@ _COPY_PATHS_LACROS = (
     Path("*.pak", optional=True),
     Path("icudtl.dat", optional=True),
     Path("icudtl.dat.hash", optional=True),
+    Path("metadata.json", optional=True),
     Path("snapshot_blob.bin", optional=True),
     Path("swiftshader/", optional=True),
     Path("crashpad_handler", exe=True, optional=True),
