@@ -105,11 +105,11 @@ export async function parsePlatform2EbuildOrThrow(
     }
   }
 
-  let crosWorkonDestdir: string | string[] = '';
+  let crosWorkonDestdir = [''];
   {
     const v = mapping.get('CROS_WORKON_DESTDIR');
     if (v?.kind === 'string') {
-      crosWorkonDestdir = v.value;
+      crosWorkonDestdir = [v.value];
     } else if (v?.kind === 'array') {
       crosWorkonDestdir = v.value.map(sv => sv.value);
     }
