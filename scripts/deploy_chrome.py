@@ -52,7 +52,7 @@ POST_KILL_WAIT = 2
 POST_UNLOCK_WAIT = 3
 
 MOUNT_RW_COMMAND = "mount -o remount,rw /"
-LAST_LOGIN_COMMAND = "bootstat_get_last login-prompt-visible"
+LAST_LOGIN_COMMAND = ["bootstat_get_last", "login-prompt-visible"]
 UNLOCK_PASSWORD_COMMAND = "python -m uinput.cros_type_keys $'%s\\n'"
 
 _ANDROID_DIR = "/system/chrome"
