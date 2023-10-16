@@ -2143,8 +2143,7 @@
     "schedule": "  0 12 * * *",
     "slave_configs": [
       "eve-release"
-    ],
-    "sync_chrome": true
+    ]
   },
   "master-release-tryjob": {
     "_template": "release",
@@ -2158,8 +2157,7 @@
     "slave_configs": [
       "eve-release-tryjob"
     ],
-    "suite_scheduling": false,
-    "sync_chrome": true
+    "suite_scheduling": false
   },
   "mistral-factory-mistral-12361.B-factorybranch": {
     "_template": "factorybranch",
