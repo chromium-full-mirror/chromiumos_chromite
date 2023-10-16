@@ -24,6 +24,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import partial_mock
+from chromite.lib import portage_util
 from chromite.lib import terminal
 from chromite.lib import timeout_util
 from chromite.utils import memoize
@@ -572,7 +573,14 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
         self.__global_config_patchers__ = [
             mock.patch.object(
                 cros_build_lib, "GetDefaultBoard", return_value=None
-            )
+            ),
+            mock.patch.object(
+                portage_util,
+                "_GetSysrootTool",
+                side_effect=lambda tool, board, sysroot: (
+                    f"{tool}-{board}" if board else tool
+                ),
+            ),
         ]
         for p in self.__global_config_patchers__:
             p.start()
