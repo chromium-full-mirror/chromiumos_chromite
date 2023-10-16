@@ -935,6 +935,11 @@ class EBuild:
             raise Error if there are errors with extracting/validating data
             required for constructing SourceInfo.
         """
+        if self.cros_workon_vars is None:
+            if self.is_workon:
+                raise Error(f"{self.ebuild_path} missing workon vars")
+            return SourceInfo(projects=[], srcdirs=[], subdirs=[], subtrees=[])
+
         localnames = self.cros_workon_vars.localname
         projects = self.cros_workon_vars.project
         srcpaths = self.cros_workon_vars.srcpath
