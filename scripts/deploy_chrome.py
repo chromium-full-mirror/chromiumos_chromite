@@ -52,7 +52,6 @@ POST_KILL_WAIT = 2
 POST_UNLOCK_WAIT = 3
 
 MOUNT_RW_COMMAND = "mount -o remount,rw /"
-DBUS_RELOAD_COMMAND = "killall -HUP dbus-daemon"
 LAST_LOGIN_COMMAND = "bootstat_get_last login-prompt-visible"
 UNLOCK_PASSWORD_COMMAND = "python -m uinput.cros_type_keys $'%s\\n'"
 
@@ -534,7 +533,7 @@ class DeployChrome:
         # won't pick up major changes (bus type, logging, etc.), but all we care
         # about is getting the latest policy from /opt/google/chrome/dbus so
         # that Chrome will be authorized to take ownership of its service names.
-        self.device.run(DBUS_RELOAD_COMMAND, check=False)
+        self.device.run(["killall", "-HUP", "dbus-daemon"], check=False)
 
         if self.options.startui and self._stopped_ui:
             last_login = self._GetLastLogin()
