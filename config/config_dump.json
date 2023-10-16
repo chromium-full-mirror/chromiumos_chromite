@@ -14,7 +14,6 @@
     "build_type": "pfq",
     "builder_class_name": null,
     "chrome_rev": null,
-    "chrome_sdk": false,
     "chromeos_official": false,
     "chroot_replace": true,
     "debug": false,

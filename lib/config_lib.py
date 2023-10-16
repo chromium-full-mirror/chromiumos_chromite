@@ -501,8 +501,6 @@ def DefaultSettings():
         binhost_base_url=None,
         # Enable rootfs verification on the image.
         rootfs_verification=True,
-        # Build the Chrome SDK.
-        chrome_sdk=False,
         # ==================================================================
         # Workspace related options.
         # Which branch should WorkspaceSyncStage checkout, if run.
