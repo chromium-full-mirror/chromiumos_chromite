@@ -620,17 +620,18 @@ def BuildPrebuilts(
     return (host_prebuilts_dir, target_prebuilts_dir)
 
 
-def BuildSdkTarball(chroot: "chroot_lib.Chroot") -> Path:
+def BuildSdkTarball(chroot: "chroot_lib.Chroot", sdk_version: str) -> Path:
     """Create a tarball of a previously built (e.g. by BuildPrebuilts) SDK.
 
     Args:
         chroot: The chroot that contains the built SDK.
+        sdk_version: The version to be included as BUILD_ID in /etc/os-release.
 
     Returns:
         The path at which the SDK tarball has been created.
     """
     sdk_path = Path(chroot.full_path("build/amd64-host"))
-    return sdk_builder_lib.BuildSdkTarball(sdk_path)
+    return sdk_builder_lib.BuildSdkTarball(sdk_path, sdk_version)
 
 
 def CreateManifestFromSdk(sdk_path: Path, dest_dir: Path) -> Path:

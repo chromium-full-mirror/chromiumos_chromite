@@ -45,6 +45,7 @@ def _BuildSdkTarballResponse(_input_proto, output_proto, _config):
 
 @faux.success(_BuildSdkTarballResponse)
 @validate.require("chroot")
+@validate.require("sdk_version")
 @validate.validation_complete
 def BuildSdkTarball(
     input_proto: "sdk_pb2.BuildSdkTarballRequest",
@@ -52,7 +53,11 @@ def BuildSdkTarball(
     _config: "api_config.ApiConfig",
 ) -> None:
     chroot = controller_util.ParseChroot(input_proto.chroot)
-    output_proto.sdk_tarball_path.path = str(sdk.BuildSdkTarball(chroot))
+    tarball_path = sdk.BuildSdkTarball(
+        chroot=chroot,
+        sdk_version=input_proto.sdk_version,
+    )
+    output_proto.sdk_tarball_path.path = str(tarball_path)
     output_proto.sdk_tarball_path.location = common_pb2.Path.OUTSIDE
 
 

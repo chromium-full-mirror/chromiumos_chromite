@@ -29,9 +29,10 @@ class BuildSdkTarballTest(cros_test_lib.MockTestCase):
     def testSuccess(self):
         builder_lib = self.PatchObject(sdk_builder_lib, "BuildSdkTarball")
         chroot = chroot_lib.Chroot("/test/chroot", out_path="/test/out")
-        sdk.BuildSdkTarball(chroot)
+        sdk.BuildSdkTarball(chroot, "FAKE_VERSION")
         builder_lib.assert_called_with(
-            Path(chroot.full_path("/build/amd64-host"))
+            Path(chroot.full_path("/build/amd64-host")),
+            "FAKE_VERSION",
         )
 
 
