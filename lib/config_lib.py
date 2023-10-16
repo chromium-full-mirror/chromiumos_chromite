@@ -503,9 +503,6 @@ def DefaultSettings():
         rootfs_verification=True,
         # Build the Chrome SDK.
         chrome_sdk=False,
-        # If chrome_sdk is set to True, this determines whether we attempt to
-        # build Chrome itself with the generated SDK.
-        chrome_sdk_build_chrome=False,
         # ==================================================================
         # Workspace related options.
         # Which branch should WorkspaceSyncStage checkout, if run.

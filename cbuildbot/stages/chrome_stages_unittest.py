@@ -80,16 +80,6 @@ class SimpleChromeArtifactsStage(
             "_ArchiveChromeEbuildEnv",
             autospec=True,
         )
-        self.PatchObject(
-            chrome_stages.TestSimpleChromeWorkflowStage,
-            "_VerifyChromeDeployed",
-            autospec=True,
-        )
-        self.PatchObject(
-            chrome_stages.TestSimpleChromeWorkflowStage,
-            "_VerifySDKEnvironment",
-            autospec=True,
-        )
         self.RunStage()
 
     def testChromeEnvironment(self):
