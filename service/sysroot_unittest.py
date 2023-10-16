@@ -33,6 +33,7 @@ from chromite.lib import portage_util
 from chromite.lib import remoteexec_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
+from chromite.service import sdk
 from chromite.service import sysroot
 from chromite.utils import os_util
 
@@ -171,6 +172,25 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         sysroot.Create(target, config, None)
 
         self.assertCommandContains([script_loc])
+
+    def test_update_chroot_failure(self):
+        """Test failure handling when update chroot fails."""
+        failed_pkgs = [
+            package_info.parse("foo/bar-1.2-r3"),
+            package_info.parse("cat/pkg-1.2-r3"),
+        ]
+        result = sdk.UpdateResult(return_code=1, failed_pkgs=failed_pkgs)
+        self.PatchObject(sdk, "Update", return_value=result)
+
+        try:
+            sysroot.Create(
+                self.unbuilt_target, sysroot.SetupBoardRunConfig(), None
+            )
+            self.fail("Should have raised an UpdateChrootError.")
+        except sysroot.UpdateChrootError as e:
+            self.assertSequenceEqual(
+                sorted(failed_pkgs), sorted(e.failed_packages)
+            )
 
     def testForce(self):
         """Test the force flag."""

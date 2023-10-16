@@ -106,6 +106,10 @@ class NotInChrootError(Error):
 class UpdateChrootError(Error):
     """Error occurred when running update chroot."""
 
+    def __init__(self, *args, failed_packages):
+        super().__init__(*args)
+        self.failed_packages = failed_packages
+
 
 class SetupBoardRunConfig:
     """Value object for full setup board run configurations."""
@@ -565,11 +569,12 @@ def Create(
             result = sdk_service.Update(
                 run_configs.GetUpdateChrootArgs(target.name)
             )
-        if not result.success:
-            raise UpdateChrootError(
-                "Error occurred while updating the chroot. "
-                "See the logs for more information."
-            )
+            if not result.success:
+                raise UpdateChrootError(
+                    "Error occurred while updating the chroot. "
+                    "See the logs for more information.",
+                    failed_packages=result.failed_pkgs,
+                )
 
     # Delete old sysroot to force a fresh start if requested.
     if sysroot.Exists() and run_configs.force:
