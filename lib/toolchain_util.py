@@ -22,7 +22,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import gob_util
 from chromite.lib import gs
 from chromite.lib import osutils
-from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 from chromite.utils import pformat
 
@@ -1347,23 +1346,6 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         # We always build this artifact.
         return PrepareForBuildReturn.NEEDED
 
-    def _PrepareUnverifiedLlvmPgoFile(self):
-        # If we have a chroot, make sure that the toolchain is set up to
-        # generate the artifact.  Raise an error if we know it will fail.
-        if self.chroot:
-            llvm_pkg = "sys-devel/llvm"
-            use_flags = portage_util.GetInstalledPackageUseFlags(llvm_pkg)[
-                llvm_pkg
-            ]
-            if "llvm_pgo_generate" not in use_flags:
-                raise PrepareForBuildHandlerError(
-                    "sys-devel/llvm lacks llvm_pgo_generate: %s"
-                    % sorted(use_flags)
-                )
-
-        # Always build this artifact.
-        return PrepareForBuildReturn.NEEDED
-
     def _UnverifiedAfdoFileExists(self):
         """Check if the unverified AFDO benchmark file exists.
 
@@ -1769,78 +1751,6 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             for file_name in files
             if os.path.basename(dir_name) == "raw_profiles"
         ]
-
-    def _BundleUnverifiedLlvmPgoFile(self):
-        """Bundle the unverified PGO profile for llvm."""
-        # What is the PackageInfo for the compiler?
-        llvm_pkg = portage_util.FindPackageNameMatches("sys-devel/llvm")[0]
-
-        files = []
-        # Find all of the raw profile data.
-        datadir = self.chroot.full_path(
-            self.sysroot_path, "build", "coverage_data"
-        )
-        profiles = self._GetProfileNames(datadir)
-        if not profiles:
-            raise BundleArtifactsHandlerError(
-                "No raw profiles found in %s" % datadir
-            )
-
-        # Capture the clang version.
-        clang_version_str = (
-            self.chroot.sudo_run(
-                ["clang", "--version"],
-                stdout=True,
-                encoding="utf-8",
-            )
-            .stdout.splitlines()[0]
-            .strip()
-        )
-        # TODO(crbug.com/1132918): There's a git-r3 bug that caused the LLVM
-        #   build failed to find the upstream URL, so use the string contains
-        #   the local path to clang source instead.
-        match = re.search(
-            r"(?:llvm-project|clang) ([A-Fa-f0-9]{40})\)$", clang_version_str
-        )
-        if not match:
-            raise BundleArtifactsHandlerError(
-                "Can't recognize the version string %s" % clang_version_str
-            )
-        head_sha = match.group(1)
-        profdata_base = "%s-%s" % (llvm_pkg.pvr, head_sha)
-        metadata_path = os.path.join(
-            self.output_dir, profdata_base + ".llvm_metadata.json"
-        )
-        pformat.json({"head_sha": head_sha}, fp=metadata_path, compact=True)
-        files.append(metadata_path)
-        metadata_path = os.path.join(self.output_dir, "llvm_metadata.json")
-        pformat.json({"head_sha": head_sha}, fp=metadata_path, compact=True)
-        files.append(metadata_path)
-
-        # Create a tarball with the merged profile data. The name will be of the
-        # form '{llvm-package-pv}-{clang-head_sha}.llvm_profdata.tar.zx.
-        with self.chroot.tempdir() as tempdir:
-            raw_list = os.path.join(tempdir, "profraw_list")
-            osutils.WriteFile(raw_list, "\n".join(profiles))
-            basename = "%s.llvm.profdata" % profdata_base
-            merged_path = os.path.join(tempdir, basename)
-            self.chroot.sudo_run(
-                [
-                    "llvm-profdata",
-                    "merge",
-                    "-f",
-                    self.chroot.chroot_path(raw_list),
-                    "-output",
-                    self.chroot.chroot_path(merged_path),
-                ],
-                cwd=tempdir,
-            )
-            artifact = os.path.join(self.output_dir, "%s.tar.xz" % basename)
-            cros_build_lib.CreateTarball(
-                artifact, cwd=tempdir, inputs=[basename]
-            )
-            files.append(artifact)
-        return files
 
     def _BundleUnverifiedChromeBenchmarkPerfFile(self):
         """Bundle the unverified Chrome benchmark perf.data file.

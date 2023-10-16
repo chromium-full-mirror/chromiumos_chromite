@@ -24,7 +24,6 @@ from chromite.lib import gob_util
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import partial_mock
-from chromite.lib import portage_util
 from chromite.lib import toolchain_util
 from chromite.lib.parser import package_info
 
@@ -1278,51 +1277,6 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.assertEqual([artifact], self.obj.Bundle())
         self.copy2.assert_called_once_with(mock.ANY, artifact)
-
-    def testBundleUnverifiedLlvmPgoFile(self, llvm_path="llvm-project"):
-        self.SetUpBundle("UnverifiedLlvmPgoFile")
-        llvm_version = "10.0_pre377782_p20200113-r14"
-        llvm_clang_sha = "a21beccea2020f950845cbb68db663d0737e174c"
-        llvm_pkg = package_info.parse("sys-devel/llvm-%s" % llvm_version)
-        self.PatchObject(
-            self.obj,
-            "_GetProfileNames",
-            return_value=[
-                self.chroot.full_path(
-                    self.sysroot,
-                    "build",
-                    "coverage_data",
-                    "sys-libs",
-                    "libcxxabi",
-                    "raw_profiles",
-                    "libcxxabi-10.0_pre3_1673101222_0.profraw",
-                )
-            ],
-        )
-        self.PatchObject(
-            portage_util, "FindPackageNameMatches", return_value=[llvm_pkg]
-        )
-        self.rc.AddCmdResult(
-            partial_mock.In("clang"),
-            returncode=0,
-            stdout=(
-                f"Chromium OS {llvm_version} clang version 10.0.0 "
-                f"(/path/to/{llvm_path} {llvm_clang_sha})"
-            ),
-        )
-        base = f"{llvm_pkg.pvr}-{llvm_clang_sha}"
-        artifacts = [
-            os.path.join(self.outdir, x)
-            for x in (
-                f"{base}.llvm_metadata.json",
-                "llvm_metadata.json",
-                f"{base}.llvm.profdata.tar.xz",
-            )
-        ]
-        self.assertEqual(artifacts, self.obj.Bundle())
-
-    def testBundleUnverifiedLlvmPgoFileWorkaround(self):
-        self.testBundleUnverifiedLlvmPgoFile("clang")
 
     def testBundleUnverifiedChromeBenchmarkPerfFile(self):
         self.SetUpBundle("UnverifiedChromeBenchmarkPerfFile")
