@@ -455,7 +455,7 @@ def MarkChromeEBuildAsStable(
 def GetParser():
     """Return a command line parser."""
     parser = commandline.ArgumentParser(description=__doc__)
-    parser.add_argument("-b", "--boards")
+    parser.add_argument("-b", "--boards", action="split_extend", default=[])
     parser.add_argument(
         "-c", "--chrome_url", default=constants.CHROMIUM_GOB_URL
     )
@@ -574,7 +574,7 @@ def main(argv):
         if options.boards:
             cros_mark_as_stable.CleanStalePackages(
                 options.srcroot,
-                options.boards.split(":"),
+                options.boards,
                 [chrome_version_atom],
             )
 
