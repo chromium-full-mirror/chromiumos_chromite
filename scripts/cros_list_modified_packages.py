@@ -242,6 +242,7 @@ def _ParseArguments(argv):
 
 
 def main(argv):
+    commandline.RunInsideChroot()
     logging.getLogger().setLevel(logging.INFO)
     flags = _ParseArguments(argv)
     sysroot = None
