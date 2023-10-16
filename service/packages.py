@@ -194,7 +194,7 @@ def uprev_android(
         f"--android_package={android_package}",
     ]
     if build_targets:
-        command.append(f'--boards={":".join(bt.name for bt in build_targets)}')
+        command.append(f'--boards={" ".join(bt.name for bt in build_targets)}')
     if android_build_branch:
         command.append(f"--android_build_branch={android_build_branch}")
     if android_version:

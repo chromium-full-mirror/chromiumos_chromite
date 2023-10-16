@@ -278,7 +278,7 @@ def _CommitChange(message, android_package_dir, files_to_add, files_to_remove):
 def GetParser():
     """Creates the argument parser."""
     parser = commandline.ArgumentParser()
-    parser.add_argument("-b", "--boards")
+    parser.add_argument("-b", "--boards", action="split_extend", default=[])
     parser.add_argument(
         "--android_bucket_url",
         default=android.ANDROID_BUCKET_URL,
@@ -384,7 +384,7 @@ def main(argv):
             )
         if options.boards:
             cros_mark_as_stable.CleanStalePackages(
-                options.srcroot, options.boards.split(":"), [android_atom]
+                options.srcroot, options.boards, [android_atom]
             )
 
         output["android_atom"] = android_atom

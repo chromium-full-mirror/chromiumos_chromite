@@ -68,7 +68,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
             [
                 "cros_mark_android_as_stable",
                 "--android_package=android/package",
-                "--boards=foo:bar",
+                "--boards=foo bar",
             ]
         )
         self.assertCommandContains(["emerge-foo"])
@@ -139,7 +139,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         )
 
         self.assertCommandContains(
-            ["cros_mark_android_as_stable", "--boards=foo:bar"]
+            ["cros_mark_android_as_stable", "--boards=foo bar"]
         )
         self.assertCommandContains(["emerge-foo"], expected=False)
         self.assertCommandContains(["emerge-bar"], expected=False)
