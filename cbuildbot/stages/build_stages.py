@@ -21,7 +21,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import failures_lib
 from chromite.lib import git
-from chromite.lib import goma_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import path_util
@@ -452,10 +451,7 @@ class BuildPackagesStage(
     def VerifyChromeBinpkg(self, packages):
         # Sanity check: If we didn't check out Chrome (and we're running on
         # ToT), we should be building Chrome from a binary package.
-        if (
-            not self._run.options.managed_chrome
-            and self._run.manifest_branch in ("main", "master")
-        ):
+        if self._run.manifest_branch in ("main", "master"):
             commands.VerifyBinpkg(
                 self._build_root,
                 self._current_board,
@@ -480,62 +476,6 @@ class BuildPackagesStage(
         logging.info("Sucessfully extract packages under test")
         self.board_runattrs.SetParallel("packages_under_test", packages)
 
-    def _IsGomaEnabledOnlyForLogs(self):
-        # HACK: our ninja log uploading bits for Chromium are pretty closely
-        # tied to goma's logging bits. In latest-toolchain builds, these logs
-        # are useful, but actually using goma isn't, since it just does local
-        # fallbacks.
-        return self._latest_toolchain
-
-    def _ShouldEnableGoma(self):
-        # Enable goma if 1) chrome actually needs to be built, or we want to use
-        # goma to build regular packages 2) not latest_toolchain (because
-        # toolchain prebuilt package may not be available for goma,
-        # crbug.com/728971) and 3) goma is available.
-        return self._run.options.managed_chrome and self._run.options.goma_dir
-
-    def _SetupGomaIfNecessary(self):
-        """Sets up goma envs if necessary.
-
-        Updates related env vars, and returns args to chroot.
-
-        Returns:
-            args which should be provided to chroot in order to enable goma.
-            If goma is unusable or disabled, None is returned.
-        """
-        if not self._ShouldEnableGoma():
-            return None
-
-        # TODO(crbug.com/751010): Revisit to enable DepsCache for non-chrome-pfq
-        # bots, too.
-        use_goma_deps_cache = self._run.config.name.endswith("chrome-pfq")
-        goma_approach = goma_lib.GomaApproach(
-            "?cros", "goma.chromium.org", True
-        )
-        goma = goma_lib.Goma(
-            self._run.options.goma_dir,
-            stage_name=self.StageNamePrefix() if use_goma_deps_cache else None,
-            chromeos_goma_dir=self._run.options.chromeos_goma_dir,
-            chroot_dir=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
-            out_dir=self._build_root / Path(constants.DEFAULT_OUT_DIR),
-            goma_approach=goma_approach,
-        )
-
-        # Set USE_GOMA env var so that chrome is built with goma.
-        if not self._IsGomaEnabledOnlyForLogs():
-            self._portage_extra_env["USE_GOMA"] = "true"
-        self._portage_extra_env.update(goma.GetChrootExtraEnv())
-
-        # Keep GOMA_TMP_DIR for Report stage to upload logs.
-        self._run.attrs.metadata.UpdateWithDict(
-            {"goma_tmp_dir": str(goma.goma_tmp_dir)}
-        )
-
-        # Mount goma directory and service account json file (if necessary)
-        # into chroot.
-        chroot_args = ["--goma_dir", str(goma.chromeos_goma_dir)]
-        return chroot_args
-
     def PerformStage(self):
         packages = self.GetListOfPackagesToBuild()
         self.VerifyChromeBinpkg(packages)
@@ -543,10 +483,8 @@ class BuildPackagesStage(
             self.RecordPackagesUnderTest()
 
         # Set up goma. Use goma iff chrome needs to be built.
-        chroot_args = self._SetupGomaIfNecessary()
-        run_goma = bool(chroot_args)
+        chroot_args = []
         if self._run.options.cache_dir:
-            chroot_args = chroot_args or []
             chroot_args += ["--cache-dir", self._run.options.cache_dir]
 
         # Disable revdep logic on full and release builders. These builders
@@ -576,7 +514,6 @@ class BuildPackagesStage(
                 noretry=self._run.config.nobuildretry,
                 chroot_args=chroot_args,
                 extra_env=self._portage_extra_env,
-                run_goma=run_goma,
                 disable_revdep_logic=clean_build,
             )
         except failures_lib.PackageBuildFailure as ex:
