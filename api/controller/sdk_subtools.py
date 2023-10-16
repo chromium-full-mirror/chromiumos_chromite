@@ -44,9 +44,7 @@ def BuildSdkSubtools(
     sdk_subtools.setup_base_sdk(build_target, setup_chroot=True, sudo=True)
 
     try:
-        # Use shellcheck as a placeholder for testing. Eventually this will be
-        # a virtual package target.
-        sdk_subtools.update_packages(["dev-util/shellcheck"])
+        sdk_subtools.update_packages(["virtual/target-sdk-subtools"])
     except sysroot_lib.PackageInstallError as e:
         if not e.failed_packages:
             # No packages to report, so just exit with an error code.
