@@ -13,6 +13,7 @@ from xml.etree import ElementTree
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
+from chromite.cbuildbot import cros_mark_chrome_as_stable
 from chromite.cbuildbot import lkgm_manager
 from chromite.cbuildbot import manifest_version
 from chromite.cbuildbot import patch_series
@@ -28,7 +29,6 @@ from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import patch as cros_patch
 from chromite.lib import timeout_util
-from chromite.scripts import cros_mark_chrome_as_stable
 
 
 class PatchChangesStage(generic_stages.BuilderStage):
