@@ -1383,6 +1383,7 @@ def uprev_starbase_artifacts(
     """
     package_path = str(
         constants.SOURCE_ROOT.joinpath(
+            "src",
             "private-overlays",
             "project-starline-private",
             "chromeos-base",
