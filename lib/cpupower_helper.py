@@ -66,7 +66,7 @@ def _AutoSetGovStickyConfigUpdate(perf_governor: bool, sticky: bool) -> None:
 
     if not perf_governor:
         logging.info("Future runs will respect --autosetgov")
-        osutils.SafeUnlink(chromite_config.AUTO_SET_GOV_CONFIG)
+        osutils.SafeUnlink(chromite_config.AUTO_SET_GOV_CONFIG, sudo=True)
     elif not chromite_config.AUTO_SET_GOV_CONFIG.exists():
         logging.info("Future runs will *always* use --autosetgov")
         chromite_config.initialize()

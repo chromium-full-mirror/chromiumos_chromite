@@ -6,23 +6,31 @@
 
 import os
 
+import pytest
+
 from chromite.lib import chromite_config
 from chromite.lib import osutils
 
 
-def test_chromite_config_created(monkeypatch, tmp_path):
+@pytest.fixture(name="chromite_config_dir")
+def chromite_config_dir_fixture(monkeypatch, tmp_path):
     d = tmp_path / ".config" / "chromite"
     monkeypatch.setattr(chromite_config, "DIR", d)
 
+    for cfg_name, cfg_file in chromite_config.ALL_CONFIGS.items():
+        monkeypatch.setattr(chromite_config, cfg_name, d / cfg_file)
+
+    yield d
+
+
+def test_chromite_config_created(chromite_config_dir):
     chromite_config.initialize()
-    assert os.path.exists(d)
+    assert os.path.exists(chromite_config_dir)
 
 
-def test_chromite_config_chowns_to_non_root(monkeypatch, tmp_path):
-    d = tmp_path / ".config" / "chromite"
-    monkeypatch.setattr(chromite_config, "DIR", d)
-    osutils.SafeMakedirs(d, sudo=True, user="root")
-    assert d.owner() == "root"
+def test_chromite_config_chowns_to_non_root(chromite_config_dir):
+    osutils.SafeMakedirs(chromite_config_dir, sudo=True, user="root")
+    assert chromite_config_dir.owner() == "root"
 
     chromite_config.initialize()
-    assert d.owner() != "root"
+    assert chromite_config_dir.owner() != "root"

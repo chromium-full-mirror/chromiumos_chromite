@@ -44,6 +44,8 @@ DIR = XDG_CONFIG_HOME / "chromite"
 # respective modules that actually use the config file, but having the list be
 # here helps act as a clearing house and get a sense of project-wide naming
 # conventions, and to try and prevent conflicts.
+# Files that cannot be created automatically on initialize need to handle the
+# possibility the file is owned by root as appropriate.
 
 CHROME_SDK_BASHRC = DIR / "chrome_sdk.bashrc"
 
@@ -55,6 +57,15 @@ AUTO_COP_CONFIG_OFF = DIR / "autocop-off"
 
 TELEMETRY_CONFIG = DIR / "telemetry.cfg"
 
+# Mapping of names to constants to simplify unit test mocking.
+ALL_CONFIGS = {
+    "AUTO_COP_CONFIG_OFF": AUTO_COP_CONFIG_OFF.name,
+    "AUTO_SET_GOV_CONFIG": AUTO_SET_GOV_CONFIG.name,
+    "CHROME_SDK_BASHRC": CHROME_SDK_BASHRC.name,
+    "GERRIT_CONFIG": GERRIT_CONFIG.name,
+    "TELEMETRY_CONFIG": TELEMETRY_CONFIG.name,
+}
+
 
 def initialize():
     """Initialize the config dir for use.
@@ -63,3 +74,14 @@ def initialize():
     creating new config files with default content.
     """
     osutils.SafeMakedirsNonRoot(DIR)
+
+    # Files that can safely be created as empty files. They will be owned by the
+    # non-root user if possible, and otherwise chowned to the non-root user at
+    # first opportunity.
+    for current in (GERRIT_CONFIG, TELEMETRY_CONFIG):
+        if not current.exists():
+            current.touch()
+        if current.owner() == "root":
+            usr = os_util.get_non_root_user()
+            if usr:
+                osutils.Chown(current, usr)

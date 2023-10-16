@@ -43,17 +43,12 @@ class TestCpuGovernorSwitch(
         )
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, cpu_policy_files)
 
-        self.config_file = (
-            self.tempdir
-            / config_dir_name
-            / chromite_config.AUTO_SET_GOV_CONFIG.name
-        )
-        self.PatchObject(
-            chromite_config, "DIR", new=self.tempdir / config_dir_name
-        )
-        self.PatchObject(
-            chromite_config, "AUTO_SET_GOV_CONFIG", new=self.config_file
-        )
+        cfg_dir = self.tempdir / config_dir_name
+        self.config_file = cfg_dir / chromite_config.AUTO_SET_GOV_CONFIG.name
+        self.PatchObject(chromite_config, "DIR", new=cfg_dir)
+        for cfg_name, cfg_file in chromite_config.ALL_CONFIGS.items():
+            self.PatchObject(chromite_config, cfg_name, cfg_dir / cfg_file)
+
         self.PatchObject(cpupower_helper, "_CPU_PATH", new=self.tempdir / "cpu")
 
         self.cpu0_available_gov = Path(
@@ -210,17 +205,11 @@ class TestNoCpuGovernors(
         cpu_policy_files = (D(config_dir_name, ()),)
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, cpu_policy_files)
 
-        self.config_file = (
-            self.tempdir
-            / config_dir_name
-            / chromite_config.AUTO_SET_GOV_CONFIG.name
-        )
-        self.PatchObject(
-            chromite_config, "DIR", new=self.tempdir / config_dir_name
-        )
-        self.PatchObject(
-            chromite_config, "AUTO_SET_GOV_CONFIG", new=self.config_file
-        )
+        cfg_dir = self.tempdir / config_dir_name
+        self.config_file = cfg_dir / chromite_config.AUTO_SET_GOV_CONFIG.name
+        self.PatchObject(chromite_config, "DIR", new=cfg_dir)
+        for cfg_name, cfg_file in chromite_config.ALL_CONFIGS.items():
+            self.PatchObject(chromite_config, cfg_name, cfg_dir / cfg_file)
         self.PatchObject(cpupower_helper, "_CPU_PATH", new=self.tempdir / "cpu")
 
     def testNoCpuGovernorFile(self):
