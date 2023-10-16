@@ -225,10 +225,11 @@ class Subtool:
 
     @classmethod
     def get_file_type(cls, path: Path) -> str:
-        """Gets the type of `path` using FileTypeDecoder."""
+        """Gets the type of `path` using FileTypeDecoder, following symlinks."""
         if not cls._FILETYPE_DECODER:
             cls._FILETYPE_DECODER = filetype.FileTypeDecoder()
-        return cls._FILETYPE_DECODER.GetType(str(path))
+        # Resolve symlinks (to avoid type=inode/symlink).
+        return cls._FILETYPE_DECODER.GetType(str(path.resolve()))
 
     def __init__(self, message: str, path: Path, work_root: Path):
         """Loads from a .textpoto file contents.
@@ -409,7 +410,13 @@ class Subtool:
         if file_type == "binary/elf/dynamic-bin":
             return self._lddtree_into_bundle(src, dest.parent)
 
-        logger.debug("Copy file %s -> %s (hash=%s).", src, dest, hash_string)
+        logger.debug(
+            "Copy file %s -> %s (type=%s, hash=%s).",
+            src,
+            dest,
+            file_type,
+            hash_string,
+        )
         shutil.copy2(src, dest)
         return 1
 

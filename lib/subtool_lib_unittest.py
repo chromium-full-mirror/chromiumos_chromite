@@ -636,13 +636,20 @@ def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
 
 def test_lddtree_bundling(template_proto: Wrapper) -> None:
     """Test that dynamic ELFs are wrapped with lddtree in the bundle."""
-    template_proto.set_paths([path_mapping("/bin/cat")])
+    # Verify that both binaries and symlinks to binaries are wrapped with
+    # lddtree (bin/foo.elf will be missing if not).
+    template_proto.fake_rootfs.mkdir()
+    symcat = template_proto.fake_rootfs / "symcat"
+    symcat.symlink_to("/bin/cat")
+    template_proto.set_paths([path_mapping("/bin/cat"), path_mapping(symcat)])
     subtool = template_proto.create(writes_files=True)
     assert bundle_result(subtool, has_ebuild_match=True, sed="[0-9]/#") == [
         "<license>",
         "bin",
         "bin/cat",
         "bin/cat.elf",
+        "bin/symcat",
+        "bin/symcat.elf",
         "lib",
         "lib/ld-linux-x##-##.so.#",
         "lib/libc.so.#",
