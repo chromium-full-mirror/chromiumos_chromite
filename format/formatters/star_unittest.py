@@ -37,17 +37,20 @@ SPECIALIZED_OUTPUT = """cc_library(
     ],
 )
 """
+LOAD_PREFIX = """load("@rules_cc//cc:defs.bzl", "cc_library")
+
+"""
 
 
 @pytest.mark.parametrize(
     "path,exp",
     (
         ("config.star", UNSPECIALIZED_OUTPUT),
-        ("BUILD", SPECIALIZED_OUTPUT),
-        ("BUILD.bazel", SPECIALIZED_OUTPUT),
+        ("BUILD", LOAD_PREFIX + SPECIALIZED_OUTPUT),
+        ("BUILD.bazel", LOAD_PREFIX + SPECIALIZED_OUTPUT),
         ("WORKSPACE", SPECIALIZED_OUTPUT),
         ("WORKSPACE.bazel", SPECIALIZED_OUTPUT),
-        ("defs.bzl", UNSPECIALIZED_OUTPUT),
+        ("defs.bzl", LOAD_PREFIX + UNSPECIALIZED_OUTPUT),
     ),
 )
 def test_path_specialization(path, exp):

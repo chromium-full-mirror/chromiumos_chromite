@@ -39,7 +39,13 @@ def Data(
     """
     cmd = [_find_buildifier()]
     if path is not None:
-        cmd.append(f"--path={path}")
+        cmd.extend(
+            [
+                f"--path={path}",
+                "--warnings=all",
+                "--lint=fix",
+            ]
+        )
     result = cros_build_lib.run(
         cmd,
         capture_output=True,
