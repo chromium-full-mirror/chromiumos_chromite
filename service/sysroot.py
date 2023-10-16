@@ -41,6 +41,7 @@ from chromite.lib import portage_util
 from chromite.lib import remoteexec_util
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
+from chromite.service import binhost as binhost_service
 from chromite.service import sdk as sdk_service
 
 
@@ -877,6 +878,16 @@ def BuildPackages(
         binhosts.extend(fetched_binhosts)
     extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
     _LogBinhostAge(binhosts, date_threshold=30)
+    try:
+        fetched_binhosts = binhost_service.lookup_binhosts(
+            target.name, target.profile
+        )
+        logging.info(
+            "Binhosts fetched from the lookup service: %s", fetched_binhosts
+        )
+    # Do not block on any exceptions thrown from the lookup service.
+    except Exception as e:
+        logging.info("Lookup service error: %s", e)
 
     with osutils.TempDir() as tempdir, cpupower_helper.ModifyCpuGovernor(
         run_configs.autosetgov, run_configs.autosetgov_sticky
