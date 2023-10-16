@@ -162,7 +162,6 @@ class SimpleChromeArtifactsStage(
 ):
     """Archive Simple Chrome artifacts."""
 
-    option_name = "chrome_sdk"
     config_name = "chrome_sdk"
     category = constants.PRODUCT_CHROME_STAGE
 

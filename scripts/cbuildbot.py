@@ -504,16 +504,6 @@ def _CreateParser():
         help="Disable cbuildbots usage of cgroups.",
     )
     group.add_remote_option(
-        "--nochromesdk",
-        action="store_false",
-        dest="chrome_sdk",
-        default=True,
-        help=(
-            "Don't run the ChromeSDK stage which builds "
-            "Chrome outside of the chroot."
-        ),
-    )
-    group.add_remote_option(
         "--noprebuilts",
         action="store_false",
         dest="prebuilts",

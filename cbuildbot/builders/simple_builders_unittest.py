@@ -88,7 +88,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         # values.
         parser = cbuildbot._CreateParser()
         argv = (
-            ["-r", self.buildroot, "--buildbot", "--debug", "--nochromesdk"]
+            ["-r", self.buildroot, "--buildbot", "--debug"]
             + (extra_argv if extra_argv else [])
             + [bot_id]
         )

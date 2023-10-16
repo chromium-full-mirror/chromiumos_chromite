@@ -691,13 +691,6 @@ List Examples:
             help="Use the latest toolchain.",
         )
         how_group.add_argument(
-            "--nochromesdk",
-            dest="passthrough",
-            action="append_option",
-            help="Don't run the ChromeSDK stage which builds "
-            "Chrome outside of the chroot.",
-        )
-        how_group.add_argument(
             "--timeout",
             dest="passthrough",
             action="append_option_value",
