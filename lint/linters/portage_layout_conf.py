@@ -7,6 +7,8 @@
 import os
 from typing import Dict, Iterable, List, Optional, Union
 
+from chromite.lib import constants
+from chromite.lib import portage_util
 from chromite.utils import key_value_store
 
 
@@ -45,6 +47,41 @@ def _check_masters(settings: Dict[str, str]) -> Iterable[str]:
 
     if repo_name in unique:
         yield f"'{key}' must not contain itself: {repo_name}"
+
+    overlays = portage_util.FindOverlays(constants.BOTH_OVERLAYS)
+    for current in value:
+        if current.endswith("-private"):
+            # Make sure the public overlay is listed if it exists.
+            public = current[: -len("-private")]
+            if public in value:
+                # The public overlay is already listed.
+                continue
+
+            overlay = [
+                x for x in overlays if portage_util.GetOverlayName(x) == public
+            ]
+            if not overlay:
+                # The public overlay doesn't exist.
+                continue
+
+            yield (
+                f"{key}: '{current}' (private) is listed, so "
+                f"'{public}' (public) must be listed too."
+            )
+        else:
+            # Make sure private overlays are listed after their public
+            # counterparts.
+            private = f"{current}-private"
+            if private not in value:
+                continue
+
+            public_idx = value.index(current)
+            private_idx = value.index(private)
+            if private_idx < public_idx:
+                yield (
+                    f"{key}: '{current}' (public) must be listed before "
+                    f"'{private}' (private)"
+                )
 
 
 # All the profile-formats that portage supports.

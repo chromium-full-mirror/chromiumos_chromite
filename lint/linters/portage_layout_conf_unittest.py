@@ -4,10 +4,12 @@
 
 """Test the portage_layout_conf module."""
 
+import os
 from typing import List, Optional
 
 import pytest
 
+from chromite.lib import portage_util
 from chromite.lint import linters
 
 
@@ -98,7 +100,7 @@ def test_eapis_banned():
     assert _get("0 1 2 3 4 5 6 6")
 
 
-def test_masters():
+def test_masters(monkeypatch):
     """Verify masters works correctly."""
 
     def _get(
@@ -111,12 +113,30 @@ def test_masters():
             settings["repo-name"] = repo_name
         return list(linters.portage_layout_conf._check_masters(settings))
 
+    # Setup overlays for public/private checks.
+    repo_names = (
+        "portage-stable",
+        "chromiumos",
+        "eclass_overlay",
+        "foo",
+        "foo-private",
+        "only-private",
+    )
+    monkeypatch.setattr(
+        portage_util,
+        "FindOverlays",
+        lambda *_args, **_kwargs: [f"/overlays/{x}" for x in repo_names],
+    )
+    monkeypatch.setattr(portage_util, "GetOverlayName", os.path.basename)
+
     # Handle missing key gracefully.
     assert _get()
 
     # Check valid values.
     assert not _get("portage-stable chromiumos eclass-overlay")
     assert not _get("portage-stable chromiumos eclass-overlay something else")
+    assert not _get("portage-stable chromiumos eclass-overlay foo foo-private")
+    assert not _get("portage-stable chromiumos eclass-overlay only-private")
 
     # Handle empty key.
     assert _get("")
@@ -130,6 +150,12 @@ def test_masters():
 
     # Reject self-inclusion.
     assert _get("portage-stable chromiumos eclass-overlay foo", "foo")
+
+    # Reject private-then-public.
+    assert _get("portage-stable chromiumos eclass-overlay foo-private foo")
+
+    # Reject private overlays listed without existing public overlay.
+    assert _get("portage-stable chromiumos eclass-overlay foo-private")
 
 
 def test_profile_formats():
