@@ -235,6 +235,13 @@ class Wrapper:
         os.symlink(fs.regular_file, fs.symlink)
         return fs
 
+    def load_upload_metadata_json(self) -> Dict:
+        """Loads the JSON metadata passed to the upload phase as a dict."""
+        with (
+            self.work_root / self.proto.name / subtool_lib.UPLOAD_METADATA_FILE
+        ).open(mode="rb") as fp:
+            return json.load(fp)
+
 
 @pytest.fixture(autouse=True)
 def use_fake_cipd() -> Iterator:
@@ -326,10 +333,7 @@ def test_bundle_prepare_upload(template_proto: Wrapper) -> None:
     subtool = template_proto.create(writes_files=True)
     subtool.bundle()
     subtool.prepare_upload()
-    with (
-        template_proto.work_root / "my_subtool" / "subtool_upload.json"
-    ).open() as fp:
-        metadata_dict = json.load(fp)
+    metadata_dict = template_proto.load_upload_metadata_json()
 
     cipd_dict = metadata_dict["cipd_package"]
     assert metadata_dict["upload_metadata_version"] >= 1
@@ -743,25 +747,30 @@ def test_upload_fails_cipd(
     assert f"command: {FAKE_CIPD_PATH} create" in str(error_info.value)
 
 
-def test_export_no_ebuilds(
+def test_export_multiple_ebuilds(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test when bundle contents correspond to multiple ebuilds."""
+    # Use the "fake" some-category/ packages to skip attempts to find licenses.
+    fake_belongs_package2 = "some-category/other-pkg-0.1-r3"
     set_run_results(
         run_mock,
         equery={
             "belongs": cros_build_lib.CompletedProcess(
-                stdout="a/b-0.1\nc/d-0.2-r3\n"
+                stdout=f"{FAKE_BELONGS_PACKAGE}\n{fake_belongs_package2}\n"
             )
         },
     )
-    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
-        template_proto.export_e2e(writes_files=True)
-    assert "Bundle cannot be attributed" in str(error_info.value)
-    assert "Candidates: ['a/b-0.1', 'c/d-0.2-r3']" in str(error_info.value)
+    template_proto.export_e2e(writes_files=True)
+    metadata_dict = template_proto.load_upload_metadata_json()
+    cipd_tags = metadata_dict["cipd_package"]["tags"]
+    assert (
+        cipd_tags["ebuild_source"]
+        == "some-category/other-pkg-0.1-r3,some-category/some-package-0.1-r2"
+    )
 
 
-def test_export_too_many_ebuilds(
+def test_export_no_ebuilds(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test when no bundle contents can be matched to an ebuild."""
@@ -772,7 +781,6 @@ def test_export_too_many_ebuilds(
     with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
         template_proto.export_e2e(writes_files=True)
     assert "Bundle cannot be attributed" in str(error_info.value)
-    assert "Candidates: []" in str(error_info.value)
 
 
 def test_upload_skips_empty_metadata(tmp_path: Path, caplog) -> None:

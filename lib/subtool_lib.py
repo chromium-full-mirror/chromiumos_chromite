@@ -512,12 +512,9 @@ class Subtool:
             # file to not be matched to a package.
             self._unmatched_paths = []
             self._source_ebuilds.update(e.cpvr for e in ebuilds)
-        if len(self._source_ebuilds) != 1:
-            # TODO(b/277992359): Support this with an extra proto field.
+        if not self._source_ebuilds:
             raise ManifestBundlingError(
-                "Bundle cannot be attributed to exactly one package."
-                f" Candidates: {self.source_packages}",
-                self,
+                "Bundle cannot be attributed to at least one package.", self
             )
         logger.notice("Contents provided by %s", self.source_packages)
 
