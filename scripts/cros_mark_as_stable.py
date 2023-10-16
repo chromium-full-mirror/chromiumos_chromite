@@ -252,7 +252,11 @@ def GetParser():
         "--all", action="store_true", help="Mark all packages as stable."
     )
     parser.add_argument(
-        "-b", "--boards", default="", help="Colon-separated list of boards."
+        "-b",
+        "--boards",
+        action="split_extend",
+        default=[],
+        help="List of boards.",
     )
     parser.add_argument(
         "--drop_file", help="File to list packages that were revved."
@@ -478,7 +482,7 @@ def _WorkOnCommit(
         )
         if os.path.exists(chroot_path):
             CleanStalePackages(
-                options.buildroot, options.boards.split(":"), new_package_atoms
+                options.buildroot, options.boards, new_package_atoms
             )
         if options.drop_file:
             osutils.WriteFile(options.drop_file, " ".join(revved_packages))
