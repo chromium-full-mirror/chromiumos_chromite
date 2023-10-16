@@ -11,7 +11,6 @@ from chromite.cbuildbot.builders import generic_builders
 from chromite.cbuildbot.stages import android_stages
 from chromite.cbuildbot.stages import artifact_stages
 from chromite.cbuildbot.stages import build_stages
-from chromite.cbuildbot.stages import chrome_stages
 from chromite.cbuildbot.stages import completion_stages
 from chromite.cbuildbot.stages import report_stages
 from chromite.cbuildbot.stages import scheduler_stages
@@ -186,7 +185,6 @@ class SimpleBuilder(generic_builders.Builder):
         self._RunStage(build_stages.UpdateSDKStage)
         self._RunStage(build_stages.RegenPortageCacheStage)
         self.RunSetupBoard()
-        self._RunStage(chrome_stages.SyncChromeStage)
         self._RunStage(android_stages.AndroidMetadataStage)
 
     def RunBuildStages(self):

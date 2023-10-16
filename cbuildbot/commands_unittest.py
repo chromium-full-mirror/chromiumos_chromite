@@ -1414,31 +1414,3 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
             self.tempdir, self._TEST_BOARD, self.tempdir
         )
         self.assertEqual(tarball_rel_path, None)
-
-
-class MarkChromeAsStableTest(cros_test_lib.RunCommandTempDirTestCase):
-    """MarkChromeAsStable tests."""
-
-    def testUprevSpec(self):
-        """Verify handling of chrome_rev=spec."""
-        buildroot = self.tempdir
-        board = "bored"
-        chromite_bindir = os.path.join(buildroot, "chromite", "bin")
-
-        self.rc.AddCmdResult(
-            partial_mock.In(
-                os.path.join(chromite_bindir, "cros_mark_chrome_as_stable")
-            ),
-            stdout=(
-                "CHROME_VERSION_ATOM=chromeos-base/chromeos-chrome-123_alpha-r1"
-            ),
-        )
-
-        ret = commands.MarkChromeAsStable(
-            buildroot,
-            "main",
-            constants.CHROME_REV_SPEC,
-            [board],
-            chrome_version="HEAD",
-        )
-        assert ret == "chromeos-base/chromeos-chrome-123_alpha-r1"

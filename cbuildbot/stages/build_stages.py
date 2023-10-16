@@ -42,7 +42,6 @@ class CleanUpStage(generic_stages.BuilderStage):
 
     def _CleanChroot(self):
         logging.info("Cleaning chroot.")
-        commands.CleanupChromeKeywordsFile(self._boards, self._build_root)
         path_resolver = path_util.ChrootPathResolver(
             source_path=self._build_root
         )

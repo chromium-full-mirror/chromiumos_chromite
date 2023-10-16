@@ -33,7 +33,6 @@ from chromite.lib import portage_util
 from chromite.lib import retry_util
 from chromite.lib import sysroot_lib
 from chromite.lib import timeout_util
-from chromite.lib.parser import package_info
 from chromite.lib.paygen import filelib
 from chromite.scripts import pushimage
 from chromite.service import artifacts as artifacts_service
@@ -41,12 +40,6 @@ from chromite.utils import pformat
 
 
 _PACKAGE_FILE = "%(buildroot)s/src/scripts/cbuildbot_package.list"
-_CHROME_KEYWORDS_CHROOT_FILE = (
-    "/build/%(board)s/etc/portage/package.accept_keywords/chrome"
-)
-_CHROME_UNMASK_CHROOT_FILE = (
-    "/build/%(board)s/etc/portage/package.unmask/chrome"
-)
 _FACTORY_SHIM = "factory_shim"
 FACTORY_PACKAGE_CHROOT_PATH = "/build/%(board)s/usr/local/factory"
 # Filename for tarball containing factory project specific files.
@@ -896,104 +889,6 @@ def ArchiveFile(file_to_archive, archive_dir):
         os.chmod(archived_file, 0o644)
 
     return filename
-
-
-class ChromeIsPinnedUprevError(failures_lib.InfrastructureFailure):
-    """Raised when we try to uprev while chrome is pinned."""
-
-    def __init__(self, new_chrome_atom):
-        """Initialize a ChromeIsPinnedUprevError.
-
-        Args:
-            new_chrome_atom: The chrome atom that we failed to uprev to, due to
-                chrome being pinned.
-        """
-        msg = (
-            "Failed up uprev to chrome version %s as chrome was pinned."
-            % new_chrome_atom
-        )
-        super().__init__(msg)
-        self.new_chrome_atom = new_chrome_atom
-
-
-def MarkChromeAsStable(
-    buildroot, tracking_branch, chrome_rev, boards, chrome_version=None
-):
-    """Returns portage atom for the revved chrome ebuild - see man emerge."""
-    extra_env = None
-    chroot_args = None
-
-    command = [
-        "cros_mark_chrome_as_stable",
-        "--tracking_branch=%s" % tracking_branch,
-    ]
-    if boards:
-        command.append("--boards=%s" % " ".join(boards))
-    if chrome_version:
-        command.append("--force_version=%s" % chrome_version)
-
-    portage_atom_string = RunBuildScript(
-        buildroot,
-        command + [chrome_rev],
-        chromite_cmd=True,
-        stdout=True,
-        enter_chroot=True,
-        chroot_args=chroot_args,
-        extra_env=extra_env,
-        encoding="utf-8",
-    ).stdout.rstrip()
-    chrome_atom = None
-    if portage_atom_string:
-        chrome_atom = portage_atom_string.splitlines()[-1].partition("=")[-1]
-    if not chrome_atom:
-        logging.info("Found nothing to rev.")
-        return None
-
-    for board in boards:
-        # If we're using a version of Chrome other than the latest one, we need
-        # to unmask it manually.
-        if chrome_rev != constants.CHROME_REV_LATEST:
-            data = f"={chrome_atom}\n"
-            atom = package_info.parse(chrome_atom)
-            for package in constants.OTHER_CHROME_PACKAGES:
-                data += f"={package}-{atom.vr}\n"
-
-            for cfg_file in (
-                _CHROME_KEYWORDS_CHROOT_FILE,
-                _CHROME_UNMASK_CHROOT_FILE,
-            ):
-                cfg_file = path_util.FromChrootPath(
-                    cfg_file % {"board": board},
-                    source_path=buildroot,
-                )
-                osutils.WriteFile(cfg_file, data, makedirs=True, sudo=True)
-
-        # Sanity check: We should always be able to merge the version of
-        # Chrome we just unmasked.
-        try:
-            cros_build_lib.run(
-                ["emerge-%s" % board, "-p", "--quiet", "=%s" % chrome_atom],
-                enter_chroot=True,
-            )
-        except cros_build_lib.RunCommandError:
-            logging.error(
-                "Cannot emerge-%s =%s\nIs Chrome pinned to an older version?",
-                board,
-                chrome_atom,
-            )
-            raise ChromeIsPinnedUprevError(chrome_atom)
-
-    return chrome_atom
-
-
-def CleanupChromeKeywordsFile(boards, buildroot):
-    """Cleans chrome uprev artifact if it exists."""
-    for board in boards:
-        keywords_file = path_util.FromChrootPath(
-            _CHROME_KEYWORDS_CHROOT_FILE % {"board": board},
-            source_path=buildroot,
-        )
-        osutils.SafeUnlink(keywords_file, sudo=True)
 
 
 def UprevPackages(buildroot, boards, overlay_type, workspace=None):
