@@ -179,7 +179,6 @@ def GeneralTemplates(site_config):
         # Full builds are test builds to show that we can build from scratch,
         # so use settings to build from scratch, and archive the results.
         usepkg_build_packages=False,
-        chrome_sdk=True,
         build_timeout=12 * 60 * 60,
         display_label=config_lib.DISPLAY_LABEL_FULL,
         build_type=constants.FULL_TYPE,
@@ -255,7 +254,6 @@ def GeneralTemplates(site_config):
         ),
         git_sync=False,
         description="Release Builds (canary) (internal)",
-        chrome_sdk=True,
         doc=(
             "https://dev.chromium.org/chromium-os/build/builder-overview#"
             "TOC-Canaries"
@@ -278,8 +276,6 @@ def GeneralTemplates(site_config):
         "factory",
         site_config.templates.release_common,
         display_label=config_lib.DISPLAY_LABEL_FACTORY,
-        chrome_sdk=False,
-        chrome_sdk_build_chrome=False,
         description="Factory Builds",
         factory_toolkit=True,
         images=["test", "factory_install"],
@@ -609,7 +605,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
             master=True,
             slave_configs=[],
             sync_chrome=True,
-            chrome_sdk=False,
             # Because PST is 8 hours from UTC, these times are the same in both.
             # But daylight savings time is NOT adjusted for
             schedule=schedule,
@@ -781,7 +776,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
                     )
                     site_config[config_name].apply(
                         _GetConfigValues(board),
-                        chrome_sdk_build_chrome=False,
                     )
                     _AssignToMaster(site_config[config_name])
 

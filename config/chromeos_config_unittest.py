@@ -444,16 +444,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 "Config %s: has unexpected build_type value." % build_name,
             )
 
-    def testSyncToChromeSdk(self):
-        """Verify none of the configs build chrome sdk but don't sync chrome."""
-        for build_name, config in self.site_config.items():
-            if config["sync_chrome"] is not None and not config["sync_chrome"]:
-                self.assertFalse(
-                    config["chrome_sdk"],
-                    "Config %s: has chrome_sdk but not sync_chrome."
-                    % build_name,
-                )
-
     def testValidUnifiedMasterConfig(self):
         """Make sure any unified master configurations are valid."""
         for build_name, config in self.site_config.items():

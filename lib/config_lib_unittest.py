@@ -34,8 +34,6 @@ def MockSiteConfig():
         boards=["amd64-generic"],
         display_label="MockLabel",
         build_type="canary",
-        chrome_sdk=True,
-        chrome_sdk_build_chrome=False,
         description="LegacyRelease",
         doc="http://mock_url/",
         images=["base", "test"],

@@ -15,7 +15,7 @@
     "builder_class_name": null,
     "chrome_rev": null,
     "chrome_sdk": false,
-    "chrome_sdk_build_chrome": true,
+    "chrome_sdk_build_chrome": false,
     "chromeos_official": false,
     "chroot_replace": true,
     "debug": false,
@@ -99,7 +99,6 @@
       "build_timeout": 43200,
       "build_type": "generic",
       "builder_class_name": "workspace_builders.FactoryBranchBuilder",
-      "chrome_sdk_build_chrome": false,
       "chromeos_official": true,
       "description": "TOT builder to build a factory branch.",
       "display_label": "factory",
@@ -134,7 +133,6 @@
       "archive_build_debug": true,
       "build_timeout": 43200,
       "build_type": "full",
-      "chrome_sdk": true,
       "description": "Full Builds",
       "display_label": "full",
       "doc": "https://dev.chromium.org/chromium-os/build/builder-overview#TOC-Continuous",
@@ -156,7 +154,6 @@
       "binhost_key": "RELEASE_BINHOST",
       "build_timeout": 64800,
       "build_type": "canary",
-      "chrome_sdk": true,
       "chromeos_official": true,
       "description": "Release Builds (canary) (internal)",
       "display_label": "release",
@@ -2144,7 +2141,6 @@
   "master-release": {
     "_template": "release",
     "boards": [],
-    "chrome_sdk": false,
     "master": true,
     "schedule": "  0 12 * * *",
     "slave_configs": [
@@ -2155,7 +2151,6 @@
   "master-release-tryjob": {
     "_template": "release",
     "boards": [],
-    "chrome_sdk": false,
     "debug": true,
     "debug_cidb": true,
     "display_label": "tryjob",
