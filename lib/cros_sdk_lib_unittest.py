@@ -679,10 +679,6 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             "/mnt/host/source/chromite/sdk/etc/bash_completion.d/cros",
             os.readlink(etc / "bash_completion.d" / "cros"),
         )
-        self.assertIn(
-            "en_US.UTF-8 UTF-8",
-            (etc / "locale.gen").read_text(encoding="utf-8"),
-        )
         self.assertExists(etc / "shadow")
 
         # Check /mnt/host directories.

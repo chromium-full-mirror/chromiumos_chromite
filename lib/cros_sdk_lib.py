@@ -1065,19 +1065,6 @@ PORTAGE_USERNAME="{user}"
         bash_completion_d.mkdir(mode=0o755, parents=True, exist_ok=True)
         (bash_completion_d / "cros").symlink_to(f"{_BASH_COMPLETION_DIR}/cros")
 
-        # Select a small set of locales for the user if they haven't done so
-        # already.  This makes glibc upgrades cheap by only generating a small
-        # set of locales.  The ones listed here are basically for the buildbots
-        # which always assume these are available.  This works in conjunction
-        # with `cros_sdk --enter`.
-        # http://crosbug.com/20378
-        localegen = etc_dir / "locale.gen"
-        osutils.Touch(localegen)
-        data = localegen.read_text(encoding="utf-8").rstrip()
-        if data:
-            data += "\n\n"
-        localegen.write_text(data + "en_US.UTF-8 UTF-8\n", encoding="utf-8")
-
     def print_success_summary(self):
         """Show a summary of the chroot to the user."""
         chroot_opt = ""
