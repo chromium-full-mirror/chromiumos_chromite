@@ -1352,6 +1352,11 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc.SetDefaultCmdResult()
 
+        os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
+        os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_IP"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_ROOT"] = "127.0.0.1:12345"
+
         signed_artifacts = image.SignImage(
             signing_pb2.BuildTargetSigningConfigs(),
             "/tmp/temp-dir-archives/",
@@ -1366,6 +1371,8 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 "docker",
                 "run",
                 "--privileged",
+                "--network",
+                "host",
                 "-v",
                 "/dev:/dev",
                 "-v",
@@ -1374,6 +1381,14 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 "/tmp/temp-dir-archives/:/archive_dir",
                 "-v",
                 f"{result_dir}:/out",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-env",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-env",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-env",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
                 "signing:latest",
                 "-i",
                 "/in/proto.bin",
@@ -1386,3 +1401,40 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
             ]
         )
         self.assertEqual(signed_artifacts, expected_signed_artifacts)
+
+    def testMissingEnv(self):
+        """Test sign image."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        result_dir = os.path.join(self.tempdir, "out")
+        os.mkdir(result_dir)
+        # Write temp file as if it were written by docker, we'll make sure
+        # we're reading and returning it correctly.
+        expected_signed_artifacts = signing_pb2.BuildTargetSignedArtifacts(
+            archive_artifacts=[
+                signing_pb2.ArchiveArtifacts(
+                    input_archive_name="foo",
+                )
+            ]
+        )
+        osutils.WriteFile(
+            os.path.join(result_dir, "out_proto.bin"),
+            expected_signed_artifacts.SerializeToString(),
+            mode="wb",
+        )
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
+        os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_ROOT"] = "127.0.0.1:12345"
+
+        with self.assertRaises(image.InvalidArgumentError):
+            image.SignImage(
+                signing_pb2.BuildTargetSigningConfigs(),
+                "/tmp/temp-dir-archives/",
+                result_dir,
+                "signing:latest",
+            )

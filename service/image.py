@@ -42,6 +42,12 @@ TERMINA_TOOLS_DIR = os.path.join(
     constants.CHROOT_SOURCE_ROOT, "src/platform/container-guest-tools/termina"
 )
 
+_LUCI_AUTH_ENV_VARIABLES = [
+    "GCE_METADATA_HOST",
+    "GCE_METADATA_IP",
+    "GCE_METADATA_ROOT",
+]
+
 
 class Error(Exception):
     """Base module error."""
@@ -969,6 +975,34 @@ def create_image_scripts_archive(
     return tarball_path
 
 
+def _get_auth_args() -> List[str]:
+    """Get the set of LUCI Auth properties off the environment."""
+    # Check required env variables present.
+    if any(
+        x not in os.environ for x in ["LUCI_CONTEXT", *_LUCI_AUTH_ENV_VARIABLES]
+    ):
+        raise InvalidArgumentError(
+            "Environment is missing required LUCI auth variables"
+        )
+    args = []
+    # First, we need LUCI_CONTEXT.
+    luci_context_location = os.environ.get("LUCI_CONTEXT")
+    luci_context_filename = os.path.basename(luci_context_location)
+    # Mount the file location as a volume.
+    args.extend(
+        ["-v", f"{luci_context_location}:/tmp/luci/{luci_context_filename}"]
+    )
+    # Env variable for its location.
+    args.extend(
+        ["-env", f"LUCI_CONTEXT=/tmp/luci-context/{luci_context_filename}"]
+    )
+    # Next, pipe in all the auth env variables.
+    for variable in _LUCI_AUTH_ENV_VARIABLES:
+        args.extend(["-env", f"{variable}={os.environ.get(variable)}"])
+
+    return args
+
+
 def SignImage(
     signing_configs: "signing_pb2.BuildTargetSigningConfigs",
     archive_dir: Union[str, Path],
@@ -1006,6 +1040,8 @@ def SignImage(
         # TODO (b/295358776) Copy all the paths from the configs into the
         # temp dir.
 
+        auth_args = _get_auth_args()
+
         # Invoke the docker container to sign the artifacts.
         cros_build_lib.run(
             [
@@ -1013,6 +1049,10 @@ def SignImage(
                 "run",
                 # We must run in privileged mode to support /dev/loop*.
                 "--privileged",
+                # Use the hosts networking stack so it has access to the luci
+                # auth proxy.
+                "--network",
+                "host",
                 # Mount the `/dev` directory on the host into `/dev` in the
                 # container.
                 "-v",
@@ -1026,6 +1066,9 @@ def SignImage(
                 # Mount the output dir as a volume.
                 "-v",
                 f"{result_path}:/out",
+                # Specify all the volumes and env variables to pipe in for
+                # luci auth.
+                *auth_args,
                 # Specify the image (and tag).
                 docker_image,
                 # Args that are passed in to the entrypoint.
