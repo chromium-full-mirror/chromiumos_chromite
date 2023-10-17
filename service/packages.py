@@ -1324,27 +1324,35 @@ def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
             ebuild_revision = int(m.group(2))
             break
     else:
-        raise Error("cannot find ebuild in %s" % package_path)
+        raise Error(f"Cannot find ebuild in {package_path}")
+    logging.info(
+        "Found ebuild %s, version %s, rev %s",
+        ebuild_name,
+        ebuild_version,
+        ebuild_revision,
+    )
 
     # Check that the fake git refs is as expected.
     tarfile_pattern = r"^starbase-artifacts-\d{8}-rc\d{3}.tar.zst$"
     if not re.match(tarfile_pattern, tarfile_name):
         raise ValueError(
-            "Pattern %s doesn't match fake git ref %s" % tarfile_pattern,
-            tarfile_name,
+            f"Pattern {tarfile_pattern} "
+            f"doesn't match fake git ref {tarfile_name}"
         )
 
     # Change SRC_URI in ebuild.
     lines = []
-    found = False
+    new_line = None
     old_ebuild_path = os.path.join(package_path, ebuild_name)
     for line in osutils.ReadText(old_ebuild_path).splitlines():
         if line.startswith("SRC_URI="):
-            line = 'SRC_URI="${DISTFILES}/%s"' % tarfile_name
-            found = True
-        lines.append(line)
-    if not found:
-        raise Error("SRC_URI not found in ebuild %s" % ebuild_name)
+            new_line = 'SRC_URI="${DISTFILES}/%s"' % tarfile_name
+            logging.info("Replacing %s with %s", line, new_line)
+            lines.append(new_line)
+        else:
+            lines.append(line)
+    if not new_line:
+        raise Error(f"SRC_URI not found in ebuild {ebuild_name}")
 
     new_revision = ebuild_revision + 1
     new_ebuild_name = "starbase-artifacts-%s-r%s.ebuild" % (
@@ -1361,6 +1369,7 @@ def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
     manifest_path = os.path.join(package_path, "Manifest")
     modified_files = [manifest_path, old_ebuild_path, new_ebuild_path]
 
+    logging.info("Modified files: %s", modified_files)
     return modified_files
 
 
@@ -1391,6 +1400,7 @@ def uprev_starbase_artifacts(
         )
     )
 
+    logging.info("Starbase uprev: refs[0] = %s", refs[0])
     modified_files = starbase_find_and_uprev(package_path, refs[0].ref)
     result = uprev_lib.UprevVersionedPackageResult()
     result.add_result(refs[0].revision, modified_files)
