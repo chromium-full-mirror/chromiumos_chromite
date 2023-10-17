@@ -5,8 +5,10 @@
 """Utilities around the os module."""
 
 import functools
+import getpass
 import os
 from pathlib import Path
+import pwd
 import sys
 from typing import Optional
 
@@ -112,8 +114,30 @@ def non_root_home() -> Path:
     if is_non_root_user():
         return Path("~").expanduser()
 
-    sudo_user = os.environ.get("SUDO_USER")
-    if sudo_user:
-        return Path(f"~{sudo_user}").expanduser()
+    non_root_user = get_non_root_user()
+    if non_root_user:
+        return Path(f"~{non_root_user}").expanduser()
 
     raise UnknownNonRootUserError("Unable to identify the non-root user.")
+
+
+def get_non_root_user() -> Optional[str]:
+    """Returns a non-root user, defaults to the current user.
+
+    If the current user is root, returns the username of the person who
+    ran the emerge command. If running using sudo, returns the username
+    of the person who ran the sudo command. If no non-root user is
+    found, returns None.
+    """
+    if is_root_user():
+        user = os.environ.get("PORTAGE_USERNAME", os.environ.get("SUDO_USER"))
+    else:
+        try:
+            user = pwd.getpwuid(os.getuid()).pw_name
+        except KeyError:
+            user = getpass.getuser()
+
+    if user == "root":
+        return None
+    else:
+        return user

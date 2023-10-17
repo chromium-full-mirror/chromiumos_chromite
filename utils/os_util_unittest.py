@@ -154,7 +154,7 @@ def test_non_root_user_home_as_root(as_root_user, monkeypatch, tmp_path: Path):
         return user_home
 
     monkeypatch.setattr(Path, "expanduser", expanduser)
-    monkeypatch.setenv("SUDO_USER", user)
+    monkeypatch.setenv("PORTAGE_USERNAME", user)
 
     assert user_home == os_util.non_root_home()
 
@@ -162,11 +162,41 @@ def test_non_root_user_home_as_root(as_root_user, monkeypatch, tmp_path: Path):
 def test_non_root_user_home_as_root_not_found(as_root_user, monkeypatch):
     """Test non-root-user-home as root user when no user found."""
     env = os.environ.copy()
+    env.pop("PORTAGE_USERNAME", None)
     env.pop("SUDO_USER", None)
     monkeypatch.setattr(os, "environ", env)
 
     with pytest.raises(os_util.UnknownNonRootUserError):
         os_util.non_root_home()
+
+
+def test_get_non_root_user_portage_username(as_root_user, monkeypatch):
+    """Test get_non_root_user from PORTAGE_USERNAME."""
+    user = "portage_username"
+    monkeypatch.setenv("PORTAGE_USERNAME", user)
+
+    assert user == os_util.get_non_root_user()
+
+
+def test_get_non_root_user_sudo_user(as_root_user, monkeypatch):
+    """Test get_non_root_user from SUDO_USER."""
+    user = "user"
+    env = os.environ.copy()
+    env.pop("PORTAGE_USERNAME", None)
+    env["SUDO_USER"] = user
+    monkeypatch.setattr(os, "environ", env)
+
+    assert user == os_util.get_non_root_user()
+
+
+def test_get_non_root_user_no_user(as_root_user, monkeypatch):
+    """Test get_non_root_user with no user."""
+    env = os.environ.copy()
+    env.pop("PORTAGE_USERNAME", None)
+    env.pop("SUDO_USER", None)
+    monkeypatch.setattr(os, "environ", env)
+
+    assert not os_util.get_non_root_user()
 
 
 # pylint: enable=unused-argument

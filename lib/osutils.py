@@ -9,13 +9,11 @@ import contextlib
 import ctypes
 import ctypes.util
 import errno
-import getpass
 import glob
 import hashlib
 import logging
 import os
 from pathlib import Path
-import pwd
 import re
 import shutil
 import stat
@@ -33,28 +31,6 @@ from chromite.utils import os_util
 # needs to match python's tempfile module and match normal
 # unix standards.
 _TEMPDIR_ENV_VARS = ("TMPDIR", "TEMP", "TMP")
-
-
-def GetNonRootUser():
-    """Returns a non-root user. Defaults to the current user.
-
-    If the current user is root, returns the username of the person who
-    ran the emerge command. If running using sudo, returns the username
-    of the person who ran the sudo command. If no non-root user is
-    found, returns None.
-    """
-    if IsRootUser():
-        user = os.environ.get("PORTAGE_USERNAME", os.environ.get("SUDO_USER"))
-    else:
-        try:
-            user = pwd.getpwuid(os.getuid()).pw_name
-        except KeyError:
-            user = getpass.getuser()
-
-    if user == "root":
-        return None
-    else:
-        return user
 
 
 def IsChildProcess(pid, name=None):
@@ -623,7 +599,7 @@ def SafeMakedirsNonRoot(path, mode=0o775, user=None):
     See SafeMakedirs for the arguments and returns.
     """
     if user is None:
-        user = GetNonRootUser()
+        user = os_util.get_non_root_user()
 
     if user is None or user == "root":
         raise MakingDirsAsRoot(
