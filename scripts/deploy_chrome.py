@@ -67,7 +67,6 @@ _UMOUNT_DIR_IF_MOUNTPOINT_CMD = (
     "if mountpoint -q %(dir)s; then umount %(dir)s; fi"
 )
 _BIND_TO_FINAL_DIR_CMD = "mount --rbind %s %s"
-_SET_MOUNT_FLAGS_CMD = "mount -o remount,exec,suid %s"
 _FIND_TEST_BIN_CMD = "find %s -maxdepth 1 -executable -type f" % (
     _CHROME_TEST_BIN_DIR
 )
@@ -665,7 +664,9 @@ class DeployChrome:
         )
 
         # Chrome needs partition to have exec and suid flags set
-        self.device.run(_SET_MOUNT_FLAGS_CMD % (self.options.mount_dir,))
+        self.device.run(
+            ["mount", "-o", "remount,exec,suid", self.options.mount_dir]
+        )
 
     def Cleanup(self):
         """Clean up RemoteDevice."""
