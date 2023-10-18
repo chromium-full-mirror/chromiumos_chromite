@@ -264,7 +264,6 @@ def BazelTest() -> bool:
     cmd = [
         constants.CHROMITE_BIN_DIR / "bazel",
         "test",
-        "--build_tests_only",
         "--keep_going",
         "--test_output=errors",
         "//bazel/...",
