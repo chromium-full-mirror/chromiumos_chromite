@@ -66,7 +66,6 @@ _CHROME_TEST_BIN_DIR = "/usr/local/libexec/chrome-binary-tests"
 _UMOUNT_DIR_IF_MOUNTPOINT_CMD = (
     "if mountpoint -q %(dir)s; then umount %(dir)s; fi"
 )
-_BIND_TO_FINAL_DIR_CMD = "mount --rbind %s %s"
 _FIND_TEST_BIN_CMD = "find %s -maxdepth 1 -executable -type f" % (
     _CHROME_TEST_BIN_DIR
 )
@@ -659,8 +658,12 @@ class DeployChrome:
             raise e
 
         self.device.run(
-            _BIND_TO_FINAL_DIR_CMD
-            % (self.options.target_dir, self.options.mount_dir)
+            [
+                "mount",
+                "--rbind",
+                self.options.target_dir,
+                self.options.mount_dir,
+            ]
         )
 
         # Chrome needs partition to have exec and suid flags set

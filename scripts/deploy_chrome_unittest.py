@@ -451,7 +451,7 @@ class TestMountTarget(DeployTest):
         )
         # Check for the 'mount -rbind' command not run.
         self.deploy_mock.rsh_mock.assertCommandContains(
-            (deploy_chrome._BIND_TO_FINAL_DIR_CMD % (target_dir, mount_dir)),
+            ["mount", "--rbind", target_dir, mount_dir],
             expected=False,
         )
         # Check for lsof command being called.
