@@ -23,7 +23,8 @@ from chromite.service import sysroot
 SUBTOOLS_CHROOT_VERSION_FILE = Path("/etc/cros_subtools_chroot_version")
 
 # Packages that the subtools builder should never rebuild. This is a superset of
-# sysroot._CRITICAL_SDK_PACKAGES.
+# sysroot._CRITICAL_SDK_PACKAGES. Packages here should only update when a new
+# SDK becomes available.
 EXCLUDE_PACKAGES = (
     "dev-embedded/hps-sdk",
     "dev-lang/rust",
@@ -32,6 +33,7 @@ EXCLUDE_PACKAGES = (
     "sys-devel/gcc",
     "sys-devel/binutils",
     "sys-kernel/linux-headers",
+    "sys-devel/llvm",
 )
 
 # Path in subtools chroot that holds export package manifests.
