@@ -20,7 +20,7 @@ import pwd
 import re
 import shlex
 import sys
-from typing import List
+from typing import List, Tuple
 import urllib.parse
 
 from chromite.cbuildbot import cbuildbot_alerts
@@ -422,7 +422,9 @@ def _ReExecuteIfNeeded(argv, opts):
         os.execvp(cmd[0], cmd)
 
 
-def _CreateParser(sdk_latest_version, bootstrap_latest_version):
+def _CreateParser(
+    sdk_latest_version: str, bootstrap_latest_version: str
+) -> Tuple[argparse.ArgumentParser, argparse._ArgumentGroup]:
     """Generate and return the parser with all the options."""
     usage = (
         "usage: %(prog)s [options] "
@@ -661,76 +663,12 @@ def _CreateParser(sdk_latest_version, bootstrap_latest_version):
     return parser, commands
 
 
-def main(argv):
-    # Turn on strict sudo checks.
-    cros_build_lib.STRICT_SUDO = True
-    conf = key_value_store.LoadFile(
-        constants.SDK_VERSION_FILE_FULL_PATH,
-        ignore_missing=True,
-    )
-    sdk_latest_version = conf.get("SDK_LATEST_VERSION", "<unknown>")
-    bootstrap_frozen_version = conf.get("BOOTSTRAP_FROZEN_VERSION", "<unknown>")
-
-    # Use latest SDK for bootstrapping if requested. Use a frozen version of SDK
-    # for bootstrapping if BOOTSTRAP_FROZEN_VERSION is set.
-    bootstrap_latest_version = (
-        sdk_latest_version
-        if bootstrap_frozen_version == "<unknown>"
-        else bootstrap_frozen_version
-    )
-    parser, commands = _CreateParser(
-        sdk_latest_version, bootstrap_latest_version
-    )
-    options = parser.parse_args(argv)
-    options.out_dir = options.out_dir.resolve()
-
-    # Some basic checks first, before we ask for sudo credentials.
-    cros_build_lib.AssertOutsideChroot()
-
-    host = os.uname()[4]
-    if host != "x86_64":
-        cros_build_lib.Die(
-            "cros_sdk is currently only supported on x86_64; you're running"
-            " %s.  Please find a x86_64 machine." % (host,)
-        )
-
-    goma = (
-        goma_lib.Goma(
-            options.goma_dir, chroot_dir=options.chroot, out_dir=options.out_dir
-        )
-        if options.goma_dir
-        else None
-    )
-
-    # Merge the outside PATH setting if we re-execed ourselves.
-    if "CHROMEOS_SUDO_PATH" in os.environ:
-        os.environ["PATH"] = "%s:%s" % (
-            os.environ.pop("CHROMEOS_SUDO_PATH"),
-            os.environ["PATH"],
-        )
-
-    _ReportMissing(osutils.FindMissingBinaries(NEEDED_TOOLS))
-    if options.proxy_sim:
-        _ReportMissing(osutils.FindMissingBinaries(PROXY_NEEDED_TOOLS))
-
-    if (
-        sdk_latest_version == "<unknown>"
-        or bootstrap_latest_version == "<unknown>"
-    ):
-        cros_build_lib.Die(
-            "No SDK version was found. "
-            "Are you in a Chromium source tree instead of Chromium OS?\n\n"
-            "Please change to a directory inside your Chromium OS source tree\n"
-            "and retry.  If you need to setup a Chromium OS source tree, see\n"
-            "  https://dev.chromium.org/chromium-os/developer-guide"
-        )
-
-    _ReExecuteIfNeeded([sys.argv[0]] + argv, options)
-
-    lock_path = os.path.dirname(options.chroot)
-    lock_path = os.path.join(
-        lock_path, ".%s_lock" % os.path.basename(options.chroot).lstrip(".")
-    )
+def _FinalizeOptions(
+    parser: argparse.ArgumentParser,
+    options: argparse.Namespace,
+    commands: argparse._ArgumentGroup,
+) -> None:
+    """Perform any options tweaking, and prevent further modification."""
 
     # Expand out the aliases...
     if options.replace:
@@ -766,17 +704,85 @@ def main(argv):
     options.Freeze()
 
     if options.reclient_dir and not options.reproxy_cfg_file:
-        cros_build_lib.Die("--reclient-dir requires --reproxy-cfg-file")
+        parser.error("--reclient-dir requires --reproxy-cfg-file")
     if not options.reclient_dir and options.reproxy_cfg_file:
+        parser.error("--reproxy-cfg-file only makes sense with --reclient-dir")
+
+
+def main(argv):
+    # Turn on strict sudo checks.
+    cros_build_lib.STRICT_SUDO = True
+    conf = key_value_store.LoadFile(
+        constants.SDK_VERSION_FILE_FULL_PATH,
+        ignore_missing=True,
+    )
+    sdk_latest_version = conf.get("SDK_LATEST_VERSION", "<unknown>")
+    bootstrap_frozen_version = conf.get("BOOTSTRAP_FROZEN_VERSION", "<unknown>")
+
+    # Use latest SDK for bootstrapping if requested. Use a frozen version of SDK
+    # for bootstrapping if BOOTSTRAP_FROZEN_VERSION is set.
+    bootstrap_latest_version = (
+        sdk_latest_version
+        if bootstrap_frozen_version == "<unknown>"
+        else bootstrap_frozen_version
+    )
+    parser, commands = _CreateParser(
+        sdk_latest_version, bootstrap_latest_version
+    )
+    options = parser.parse_args(argv)
+    options.out_dir = options.out_dir.resolve()
+
+    # Some basic checks first, before we ask for sudo credentials.
+    cros_build_lib.AssertOutsideChroot()
+
+    host = os.uname()[4]
+    if host != "x86_64":
         cros_build_lib.Die(
-            "--reproxy-cfg-file only makes sense with --reclient-dir"
+            "cros_sdk is currently only supported on x86_64; you're running"
+            " %s.  Please find a x86_64 machine." % (host,)
         )
+
+    # Merge the outside PATH setting if we re-execed ourselves.
+    if "CHROMEOS_SUDO_PATH" in os.environ:
+        os.environ["PATH"] = "%s:%s" % (
+            os.environ.pop("CHROMEOS_SUDO_PATH"),
+            os.environ["PATH"],
+        )
+
+    _ReportMissing(osutils.FindMissingBinaries(NEEDED_TOOLS))
+    if options.proxy_sim:
+        _ReportMissing(osutils.FindMissingBinaries(PROXY_NEEDED_TOOLS))
+
+    if (
+        sdk_latest_version == "<unknown>"
+        or bootstrap_latest_version == "<unknown>"
+    ):
+        cros_build_lib.Die(
+            "No SDK version was found. "
+            "Are you in a Chromium source tree instead of Chromium OS?\n\n"
+            "Please change to a directory inside your Chromium OS source tree\n"
+            "and retry.  If you need to setup a Chromium OS source tree, see\n"
+            "  https://dev.chromium.org/chromium-os/developer-guide"
+        )
+
+    _ReExecuteIfNeeded([sys.argv[0]] + argv, options)
+
+    # |options| cannot be modified after this.
+    _FinalizeOptions(parser, options, commands)
 
     remoteexec = (
         remoteexec_util.Remoteexec(
             options.reclient_dir, options.reproxy_cfg_file
         )
         if (options.reclient_dir and options.reproxy_cfg_file)
+        else None
+    )
+
+    goma = (
+        goma_lib.Goma(
+            options.goma_dir, chroot_dir=options.chroot, out_dir=options.out_dir
+        )
+        if options.goma_dir
         else None
     )
 
@@ -787,6 +793,11 @@ def main(argv):
         chrome_root=options.chrome_root,
         goma=goma,
         remoteexec=remoteexec,
+    )
+
+    lock_path = os.path.dirname(options.chroot)
+    lock_path = os.path.join(
+        lock_path, ".%s_lock" % os.path.basename(options.chroot).lstrip(".")
     )
 
     # Anything that needs to manipulate the main chroot mount or communicate

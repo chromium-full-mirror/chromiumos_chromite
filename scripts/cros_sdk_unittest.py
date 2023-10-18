@@ -7,6 +7,10 @@
 import os
 import re
 import sys
+from typing import List
+from unittest import mock
+
+import pytest  # type: ignore
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -130,3 +134,133 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
             sys.executable,
             self.ARGV0,
         ]
+
+
+# pylint: disable=protected-access
+
+
+def test_freeze_options():
+    """Test that we can't change options after finalization."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args([])
+    cros_sdk._FinalizeOptions(parser, options, commands)
+
+    with pytest.raises(Exception):
+        options.enter = True
+        options.enter = False
+
+
+def test_bootstrap_alias():
+    """Test the bootstrap/create alias."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(["--bootstrap"])
+    cros_sdk._FinalizeOptions(parser, options, commands)
+    assert options.create
+
+
+def test_replace_alias():
+    """Test the replace -> delete/create alias."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(["--replace"])
+    cros_sdk._FinalizeOptions(parser, options, commands)
+    assert options.delete
+    assert options.create
+
+
+def test_implied_download():
+    """Test that create implies download."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(["--create"])
+    cros_sdk._FinalizeOptions(parser, options, commands)
+    assert options.download
+
+
+@pytest.mark.parametrize(
+    "arglist",
+    (
+        [],
+        ["--enter"],
+        ["--working-dir", "."],
+        ["--goma-dir", ".", "emerge", "baz"],
+    ),
+)
+def test_implied_enter(arglist: List[str]):
+    """Test for implicit --enter."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(arglist)
+    cros_sdk._FinalizeOptions(parser, options, commands)
+    assert options.enter
+
+
+@pytest.mark.parametrize(
+    "command",
+    (
+        "--create",
+        "--bootstrap",
+        "--replace",
+        "--delete",
+        "--download",
+    ),
+)
+def test_commands(command: str):
+    """Test options that don't imply --enter."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args([command])
+    cros_sdk._FinalizeOptions(parser, options, commands)
+    assert not options.enter
+
+
+@pytest.mark.parametrize(
+    "arglist",
+    (["--delete", "--enter"],),
+)
+def test_conflicting_args(arglist: List[str]):
+    """Test args that conflict raise an error."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(arglist)
+    with pytest.raises(SystemExit):
+        cros_sdk._FinalizeOptions(parser, options, commands)
+
+
+def test_reclient_args(tmp_path):
+    """Test mismatched reclient/reproxy args."""
+    reclient_dir = tmp_path
+    cfg_file = tmp_path / "foo"
+    cfg_file.touch()
+
+    for arglist in (
+        ["--reclient-dir", str(reclient_dir)],  # without --reproxy-cfg-file
+        ["--reproxy-cfg-file", str(cfg_file)],  # without --reclient-dir
+    ):
+        parser, commands = cros_sdk._CreateParser("1", "2")
+        options = parser.parse_args(arglist)
+        with pytest.raises(SystemExit):
+            cros_sdk._FinalizeOptions(parser, options, commands)
+
+
+def test_chroot_ready():
+    """Ensure no implicit create when chroot is ready."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args([])
+
+    with mock.patch(
+        "chromite.lib.cros_sdk_lib.IsChrootReady", return_value=True
+    ):
+        cros_sdk._FinalizeOptions(parser, options, commands)
+
+    assert not options.create
+    assert options.enter
+
+
+def test_chroot_not_ready():
+    """Test implicit create when chroot isn't ready."""
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args([])
+
+    with mock.patch(
+        "chromite.lib.cros_sdk_lib.IsChrootReady", return_value=False
+    ):
+        cros_sdk._FinalizeOptions(parser, options, commands)
+
+    assert options.create
+    assert options.enter
