@@ -1304,7 +1304,7 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
     return result
 
 
-def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
+def starbase_find_and_uprev(package_path: str, gcs_name: str) -> List[str]:
     """Updates and uprevs the starbase artifacts ebuild.
 
     This is factored out of uprev_starbase_artifacts for unit testing.
@@ -1325,6 +1325,7 @@ def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
             break
     else:
         raise Error(f"Cannot find ebuild in {package_path}")
+
     logging.info(
         "Found ebuild %s, version %s, rev %s",
         ebuild_name,
@@ -1333,11 +1334,10 @@ def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
     )
 
     # Check that the fake git refs is as expected.
-    tarfile_pattern = r"^starbase-artifacts-\d{8}-rc\d{3}.tar.zst$"
-    if not re.match(tarfile_pattern, tarfile_name):
+    gcs_pattern = r"^starbase-artifacts-\d{8}-rc\d{3}$"
+    if not re.match(gcs_pattern, gcs_name):
         raise ValueError(
-            f"Pattern {tarfile_pattern} "
-            f"doesn't match fake git ref {tarfile_name}"
+            f"Pattern {gcs_pattern} doesn't match fake git ref {gcs_name}"
         )
 
     # Change SRC_URI in ebuild.
@@ -1346,7 +1346,8 @@ def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
     old_ebuild_path = os.path.join(package_path, ebuild_name)
     for line in osutils.ReadText(old_ebuild_path).splitlines():
         if line.startswith("SRC_URI="):
-            new_line = 'SRC_URI="${DISTFILES}/%s"' % tarfile_name
+            tarfile_name = "starbase_client_installation.tar.zst"
+            new_line = f'SRC_URI="${{DISTFILES}}/{gcs_name}/{tarfile_name}"'
             logging.info("Replacing %s with %s", line, new_line)
             lines.append(new_line)
         else:
@@ -1368,7 +1369,6 @@ def starbase_find_and_uprev(package_path: str, tarfile_name: str) -> List[str]:
 
     manifest_path = os.path.join(package_path, "Manifest")
     modified_files = [manifest_path, old_ebuild_path, new_ebuild_path]
-
     logging.info("Modified files: %s", modified_files)
     return modified_files
 

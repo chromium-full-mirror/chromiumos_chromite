@@ -2598,11 +2598,11 @@ oof
 
         # Create mock ebuild to be uprevved.
         self.WriteTempFile(old_ebuild_path, old_ebuild_content)
-        tarfile_name = "starbase-artifacts-20230101-rc123.tar.zst"
+        gcs_name = "starbase-artifacts-20230101-rc123"
         manifest_path = os.path.join(package_path, "Manifest")
 
         # Run the function under test.
-        modified = packages.starbase_find_and_uprev(package_path, tarfile_name)
+        modified = packages.starbase_find_and_uprev(package_path, gcs_name)
 
         # Check that the expected files were modified.
         new_revision = str(int(self.revision) + 1)
@@ -2613,6 +2613,7 @@ oof
         self.assertEqual(modified[1], old_ebuild_path)
         self.assertEqual(modified[2], new_ebuild_path)
 
+        tarfile_name = f"{gcs_name}/starbase_client_installation.tar.zst"
         # Check that the new ebuild file contains the expected content.
         new_ebuild_content = self.ebuild_content_format % tarfile_name
         found_content = osutils.ReadFile(new_ebuild_path)
