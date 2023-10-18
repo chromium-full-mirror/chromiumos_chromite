@@ -41,7 +41,7 @@ def IsChildProcess(pid, name=None):
         name: Name of the child process.
 
     Note:
-      This function is not fool proof. If the process tree contains wierd names,
+      This function is not foolproof. If the process tree contains wierd names,
       an incorrect match might be possible.
     """
     cmd = ["pstree", "-Ap", str(os.getpid())]
@@ -281,7 +281,7 @@ def Touch(
     if makedirs:
         SafeMakedirs(path.parent)
 
-    # Create the file if nonexistant.
+    # Create the file if nonexistent.
     try:
         path.open("ab").close()
     except PermissionError:
@@ -786,7 +786,7 @@ def MoveDirContents(
     Args:
         from_dir: The directory whose contents should be moved. Must exist.
         to_dir: The directory to which contents should be moved. Must exist.
-        remove_from_dir: Remove the from directory after the contents are moved.
+        remove_from_dir: Remove |from_dir| after the contents are moved.
         allow_nonempty: If True, do not die when to_dir is nonempty.
 
     Raises:
@@ -1575,7 +1575,7 @@ def GetDeviceSize(device_path, in_bytes=False):
         in_bytes: If set True, returns the size in bytes.
 
     Returns:
-        Size of the device in human readable format unless |in_bytes| is set.
+        Size of the device in human-readable format unless |in_bytes| is set.
     """
     devices = ListBlockDevices(device_path=device_path, in_bytes=in_bytes)
     for d in devices:
