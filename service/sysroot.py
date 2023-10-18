@@ -978,10 +978,8 @@ def BuildPackages(
                                 [
                                     bazel_cmd,
                                     "build",
-                                    (
-                                        "--execution_log_binary_file="
-                                        + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
-                                    ),
+                                    "--execution_log_binary_file="
+                                    + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
                                     "--execution_log_sort=false",
                                     "@portage//"
                                     + "target/app-crypt/nss:package_set",
