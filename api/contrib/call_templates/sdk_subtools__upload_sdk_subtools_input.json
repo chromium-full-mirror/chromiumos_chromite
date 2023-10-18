@@ -2,7 +2,11 @@
   "bundle_paths": [
     {
       "location": 2,
-      "path": "/usr/local/google/home/tapted/chromiumos/out/build/amd64-subtools-host/var/tmp/cros-subtools/rustfmt"
+      "path": "/usr/local/google/home/tapted/chromiumos/out/sdk/tmp/cros-subtools/rustfmt"
+    },
+    {
+      "location": 2,
+      "path": "/usr/local/google/home/tapted/chromiumos/out/sdk/tmp/cros-subtools/shellcheck"
     }
   ]
 }
