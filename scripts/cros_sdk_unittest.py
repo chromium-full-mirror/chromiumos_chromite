@@ -212,7 +212,10 @@ def test_commands(command: str):
 
 @pytest.mark.parametrize(
     "arglist",
-    (["--delete", "--enter"],),
+    (
+        ["--delete", "--enter"],
+        ["--force"],  # without --delete
+    ),
 )
 def test_conflicting_args(arglist: List[str]):
     """Test args that conflict raise an error."""

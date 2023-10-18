@@ -530,6 +530,14 @@ def _CreateParser(
         disabled_desc="Don't delete the SDK build state along with the chroot. "
         "Applies to --delete or --replace.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        default=False,
+        help="Force delete of the current SDK chroot even if "
+        "obtaining the write lock fails. Applies only to --delete or "
+        "--replace.",
+    )
     parser.add_bool_argument(
         "--read-only",
         default=False,
@@ -589,13 +597,6 @@ def _CreateParser(
         action="store_true",
         default=False,
         help="Delete the current SDK chroot and build state if they exist.",
-    )
-    group.add_argument(
-        "--force",
-        action="store_true",
-        default=False,
-        help="Force delete of the current SDK chroot even if "
-        "obtaining the write lock fails.",
     )
     group.add_argument(
         "--unmount",
@@ -692,6 +693,9 @@ def _FinalizeOptions(
             "Trying to enter the chroot when --delete "
             "was specified makes no sense."
         )
+
+    if options.force and not options.delete:
+        parser.error("Specifying --force without --delete does not make sense.")
 
     chroot_exists = cros_sdk_lib.IsChrootReady(options.chroot)
     # Finally, flip create if necessary.
