@@ -993,12 +993,10 @@ def _get_auth_args() -> List[str]:
         ["-v", f"{luci_context_location}:/tmp/luci/{luci_context_filename}"]
     )
     # Env variable for its location.
-    args.extend(
-        ["-env", f"LUCI_CONTEXT=/tmp/luci-context/{luci_context_filename}"]
-    )
+    args.extend(["-e", f"LUCI_CONTEXT=/tmp/luci/{luci_context_filename}"])
     # Next, pipe in all the auth env variables.
     for variable in _LUCI_AUTH_ENV_VARIABLES:
-        args.extend(["-env", f"{variable}={os.environ.get(variable)}"])
+        args.extend(["-e", f"{variable}={os.environ.get(variable)}"])
 
     return args
 
