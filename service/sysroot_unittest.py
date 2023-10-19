@@ -116,6 +116,9 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         # It has to be run inside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
+        # Don't write to the chroot.
+        self.PatchObject(cros_sdk_lib.ChrootUpdater, "ApplyUpdates")
+
         # A board we have a sysroot for already.
         self.board = "board"
         self.sysroot_path = os.path.join(self.tempdir, "build", self.board)
