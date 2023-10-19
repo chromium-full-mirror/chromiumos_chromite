@@ -82,7 +82,6 @@ COMPRESSED_ASH_OVERLAY_SUFFIX = "-compressed-ash"
 LACROS_DIR = "/usr/local/lacros-chrome"
 _CONF_FILE = "/etc/chrome_dev.conf"
 _KILL_LACROS_CHROME_CMD = "pkill -f %(lacros_dir)s/chrome"
-_RESET_LACROS_CHROME_CMD = "rm -rf /home/chronos/user/lacros"
 MODIFIED_CONF_FILE = f"modified {_CONF_FILE}"
 
 # This command checks if
@@ -280,7 +279,7 @@ class DeployChrome:
 
     def _ResetLacrosChrome(self):
         """Reset Lacros to fresh state by deleting user data dir."""
-        self.device.run(_RESET_LACROS_CHROME_CMD, check=False)
+        self.device.run(["rm", "-rf", "/home/chronos/user/lacros"], check=False)
 
     def _KillAshChromeIfNeeded(self):
         """This method kills ash-chrome on the device, if it's running.
