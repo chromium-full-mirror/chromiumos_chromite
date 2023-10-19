@@ -211,7 +211,7 @@
         {
           "builder": "RELEASE",
           "experimental": false,
-          "leader_board": false,
+          "leader_board": true,
           "board_group": "rauru",
           "arch": "ARM_INTERNAL",
           "build_cadence": "DAILY_CADENCE"
