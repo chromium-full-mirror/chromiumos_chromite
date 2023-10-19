@@ -232,7 +232,7 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="preserve",
             gid=253,
-            users={"root", "attestation", "tpm_manager"},
+            users={"root", "attestation", "tpm_manager", "rollback_cleanup"},
         ),
         GroupEntry(group="scanner", gid=255, users={_SCANNER_DAEMON}),
         GroupEntry(
@@ -467,7 +467,11 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="oobe_config",
             gid=428,
-            users={"oobe_config_save", "oobe_config_restore"},
+            users={
+                "oobe_config_save",
+                "oobe_config_restore",
+                "rollback_cleanup",
+            },
         ),
         GroupEntry(
             group="mmc_service", gid=20208, users={"mmc_service", "bluetooth"}
