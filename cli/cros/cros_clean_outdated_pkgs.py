@@ -72,6 +72,8 @@ SYSTEM_PACKAGES = {
     "dev-libs/libpcre2",
     # Needed by compiler (llvm).
     "dev-libs/libxml2",
+    # Many CrOS packages use pkgconf but do not depend on it.
+    "dev-util/pkgconf",
     # Portage requires git to install packages.
     "dev-vcs/",
     # net-dns packages needed for DNS resolution.
@@ -86,6 +88,9 @@ SYSTEM_PACKAGES = {
     "sys-libs/",
     # Portage uses `ps`.
     "sys-process/procps",
+    # Many packages require but do not depend on pkgconfig. Toolchain
+    # is installing from binary only, complicating reinstall.
+    "virtual/pkgconfig",
     # Many CrOS packages use chromite-sdk but do not depend on it.
     "chromeos-base/chromite-sdk",
 }
