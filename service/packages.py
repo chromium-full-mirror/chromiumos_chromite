@@ -1304,7 +1304,11 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
     return result
 
 
-def starbase_find_and_uprev(package_path: str, gcs_name: str) -> List[str]:
+def starbase_find_and_uprev(
+    package_path: str,
+    gcs_name: str,
+    chroot: "chroot_lib.Chroot",
+) -> List[str]:
     """Updates and uprevs the starbase artifacts ebuild.
 
     This is factored out of uprev_starbase_artifacts for unit testing.
@@ -1364,8 +1368,10 @@ def starbase_find_and_uprev(package_path: str, gcs_name: str) -> List[str]:
     osutils.WriteFile(new_ebuild_path, "\n".join(lines) + "\n")
     osutils.SafeUnlink(old_ebuild_path)
 
-    # Update Manifest
-    portage_util.UpdateEbuildManifest(package_path)
+    # Update Manifest.
+    releaseless_ebuild = f"starbase-artifacts-{ebuild_version}.ebuild"
+    releaseless_ebuild_path = os.path.join(package_path, releaseless_ebuild)
+    portage_util.UpdateEbuildManifest(releaseless_ebuild_path, chroot)
 
     manifest_path = os.path.join(package_path, "Manifest")
     modified_files = [manifest_path, old_ebuild_path, new_ebuild_path]
@@ -1377,7 +1383,7 @@ def starbase_find_and_uprev(package_path: str, gcs_name: str) -> List[str]:
 def uprev_starbase_artifacts(
     _build_targets: List["build_target_lib.BuildTarget"],
     refs: List[uprev_lib.GitRef],
-    _chroot: "chroot_lib.Chroot",
+    chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedPackageResult:
     """Updates the starbase-artifacts ebuild to fetch latest tar file.
 
@@ -1401,9 +1407,9 @@ def uprev_starbase_artifacts(
     )
 
     logging.info("Starbase uprev: refs[0] = %s", refs[0])
-    modified_files = starbase_find_and_uprev(package_path, refs[0].ref)
+    modified_files = starbase_find_and_uprev(package_path, refs[0].ref, chroot)
     result = uprev_lib.UprevVersionedPackageResult()
-    result.add_result(refs[0].revision, modified_files)
+    result.add_result(refs[0].ref[-14:], modified_files)
     return result
 
 

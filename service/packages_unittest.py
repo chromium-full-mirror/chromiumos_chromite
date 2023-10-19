@@ -2602,7 +2602,11 @@ oof
         manifest_path = os.path.join(package_path, "Manifest")
 
         # Run the function under test.
-        modified = packages.starbase_find_and_uprev(package_path, gcs_name)
+        modified = packages.starbase_find_and_uprev(
+            package_path,
+            gcs_name,
+            chroot_lib.Chroot(),
+        )
 
         # Check that the expected files were modified.
         new_revision = str(int(self.revision) + 1)
