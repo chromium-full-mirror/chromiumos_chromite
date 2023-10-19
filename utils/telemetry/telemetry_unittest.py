@@ -43,7 +43,7 @@ def test_no_exporter_for_non_google_host(monkeypatch, tmp_path):
     cfg.trace_config.update(enabled=True, reason="USER")
     cfg.flush()
 
-    telemetry.initialize(config_file, debug=False)
+    telemetry.initialize(config_file)
 
     assert len(processors) == 0
 
@@ -60,7 +60,7 @@ def test_console_exporter_for_non_google_host_on_debug(monkeypatch, tmp_path):
     )
     config_file = tmp_path / "telemetry.cfg"
 
-    telemetry.initialize(config_file, debug=True)
+    telemetry.initialize(config_file, log_traces=True)
 
     assert len(processors) == 1
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
@@ -78,7 +78,7 @@ def test_console_exporter_for_google_host_on_debug(monkeypatch, tmp_path):
     )
     config_file = tmp_path / "telemetry.cfg"
 
-    telemetry.initialize(config_file, debug=True)
+    telemetry.initialize(config_file, log_traces=True)
 
     assert len(processors) == 1
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
@@ -98,7 +98,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
         _spy_add_span_processor(processors),
     )
 
-    telemetry.initialize(config_file, debug=False)
+    telemetry.initialize(config_file)
 
     cfg = config.Config(config_file)
     assert len(processors) == 0
@@ -120,7 +120,7 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
         _spy_add_span_processor(processors),
     )
 
-    telemetry.initialize(config_file, debug=True)
+    telemetry.initialize(config_file, log_traces=True)
 
     cfg = config.Config(config_file)
     assert len(processors) == 1
@@ -147,7 +147,7 @@ def test_initialize_to_update_enabled_on_count_down_complete(
     cfg.root_config.update(notice_countdown=-1)
     cfg.flush()
 
-    telemetry.initialize(config_file, debug=False)
+    telemetry.initialize(config_file)
 
     cfg = config.Config(config_file)
     assert len(processors) == 1
@@ -177,7 +177,7 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     cfg.trace_config.update(enabled=False, reason="USER")
     cfg.flush()
 
-    telemetry.initialize(config_file, debug=False)
+    telemetry.initialize(config_file)
 
     cfg = config.Config(config_file)
     assert len(processors) == 0
@@ -285,7 +285,7 @@ def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
         _spy_add_span_processor(processors),
     )
 
-    telemetry.initialize(config_file, debug=False)
+    telemetry.initialize(config_file)
 
     cfg = config.Config(config_file)
     assert len(processors) == 0

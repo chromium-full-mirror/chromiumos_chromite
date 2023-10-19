@@ -47,7 +47,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     opts = parse_arguments(argv)
 
     chromite_config.initialize()
-    telemetry.initialize(chromite_config.TELEMETRY_CONFIG, opts.debug)
+    telemetry.initialize(chromite_config.TELEMETRY_CONFIG, opts.log_telemetry)
 
     with tracer.start_as_current_span("test") as span:
         time.sleep(opts.time / 2)

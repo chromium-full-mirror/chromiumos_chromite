@@ -165,7 +165,9 @@ def main(argv):
     cros_build_lib.AssertInsideChroot()
 
     chromite_config.initialize()
-    telemetry.initialize(chromite_config.TELEMETRY_CONFIG, debug=opts.debug)
+    telemetry.initialize(
+        chromite_config.TELEMETRY_CONFIG, log_traces=opts.log_telemetry
+    )
 
     with tracer.start_as_current_span("scripts.cros_run_unit_tests"):
         inner_main(opts)

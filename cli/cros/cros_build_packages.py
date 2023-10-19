@@ -494,7 +494,8 @@ class BuildPackagesCommand(command.CliCommand):
 
         chromite_config.initialize()
         telemetry.initialize(
-            chromite_config.TELEMETRY_CONFIG, debug=self.options.debug
+            chromite_config.TELEMETRY_CONFIG,
+            log_traces=self.options.log_telemetry,
         )
         try:
             build_packages(self.options)

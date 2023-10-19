@@ -14,7 +14,7 @@ _TRACING_INITIALIZED = False
 TRACEPARENT_ENVVAR = "traceparent"
 
 
-def initialize(enabled: bool = False, debug: bool = False):
+def initialize(enabled: bool = False, log_traces: bool = False):
     """Initialize opentelemetry tracing.
 
     For most use cases, `telemetry.initialize` should be used since that also
@@ -22,7 +22,7 @@ def initialize(enabled: bool = False, debug: bool = False):
 
     Args:
         enabled: Indicates is the traces should be enabled.
-        debug: Indicates if the traces should be printed to console.
+        log_traces: Indicates if the traces should be printed to console.
     """
 
     # The opentelemetry imports are moved inside this function to reduce the
@@ -75,9 +75,11 @@ def initialize(enabled: bool = False, debug: bool = False):
         )
     )
 
-    if debug:
+    if log_traces:
         otel_trace_api.get_tracer_provider().add_span_processor(
-            otel_export.BatchSpanProcessor(otel_export.ConsoleSpanExporter())
+            otel_export.BatchSpanProcessor(
+                otel_export.ConsoleSpanExporter(out=sys.stderr)
+            )
         )
 
     if not hostname_util.is_google_host():

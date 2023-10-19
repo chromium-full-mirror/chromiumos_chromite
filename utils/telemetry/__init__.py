@@ -28,7 +28,9 @@ TELEMETRY_VERSION = "3"
 
 
 def initialize(
-    config_file: os.PathLike, debug: bool = False, enable: Optional[bool] = None
+    config_file: os.PathLike,
+    log_traces: bool = False,
+    enable: Optional[bool] = None,
 ):
     """Initialize chromite telemetry.
 
@@ -47,7 +49,7 @@ def initialize(
     Args:
         config_file: The path to the telemetry cfg to load for initializing
         the telemetry.
-        debug: Indicates if the traces should be exported to console.
+        log_traces: Indicates if the traces should be exported to console.
         enable: Indicates if the traces should be enabled.
     """
 
@@ -75,4 +77,4 @@ def initialize(
 
         cfg.flush()
 
-    trace.initialize(enabled=cfg.trace_config.enabled, debug=debug)
+    trace.initialize(enabled=cfg.trace_config.enabled, log_traces=log_traces)
