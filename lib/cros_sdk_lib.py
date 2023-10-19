@@ -320,17 +320,11 @@ def MountChrootPaths(chroot: chroot_lib.Chroot):
         osutils.MS_BIND | osutils.MS_REC,
     )
 
-    # Make /run a temporary filesystem.
-    osutils.Mount("tmpfs", path / "run", "tmpfs", 0)
-
     for source_dir, dest_dir, mode in (
         ("tmp", "tmp", 0o1777),
         ("home", "home", None),
         ("build", "build", None),
         ("sdk/cache", "var/cache", None),
-        # We ensure /run/lock is backed by the out_dir filesystem, because the
-        # /run tmpfs is not shared between cros_sdk instances.
-        ("sdk/lock", "run/lock", 0o1777),
         ("sdk/logs", "var/log", None),
         ("sdk/tmp", "var/tmp", 0o1777),
     ):
