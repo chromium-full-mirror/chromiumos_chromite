@@ -7,7 +7,6 @@
 import logging
 import multiprocessing
 import os
-from typing import Dict, Set
 
 from chromite.third_party.opentelemetry import trace
 
@@ -150,31 +149,6 @@ def determine_packages(sysroot, virtual_packages):
     )
 
 
-def install_test_deps(board: str, pkgs: Set[str], extra_env: Dict[str, str]):
-    """Installs test dependencies of given packages.
-
-    Certain packages require extra dependencies when they are built with
-    USE=test. We need to install these dependencies without actually building
-    the depending packages with `test` enabled.
-
-    Args:
-        board: board where the deps will be installed.
-        pkgs: A set of portage packages in the form category/package_name.
-        extra_env: dict of extra environment variables to use.
-    """
-    if not pkgs:
-        return
-    logging.info("Installing test-only dependencies of %s", pkgs)
-    extra_env = extra_env.copy()
-    extra_env["USE"] = extra_env.get("USE", "") + " test"
-
-    emerge_cmd = "emerge"
-    if board:
-        emerge_cmd += f"-{board}"
-    cmd = [emerge_cmd] + list(pkgs)
-    cros_build_lib.sudo_run(cmd, extra_env=extra_env)
-
-
 def get_keep_going():
     """Check if should enable keep_going parameter.
 
@@ -286,16 +260,11 @@ def inner_main(opts: commandline.ArgumentNamespace):
     if features_flags:
         env["FEATURES"] = features_flags
 
-    sysroot = build_target_lib.get_default_sysroot_path(opts.board)
-    env["PKGDIR"] = os.path.join(sysroot, constants.UNITTEST_PKG_PATH)
-
     keep_going = get_keep_going()
 
     metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR)
     if metrics_dir:
         env[constants.CROS_METRICS_DIR_ENVVAR] = metrics_dir
-
-    install_test_deps(opts.board, pkg_with_test, extra_env=env)
 
     if opts.empty_sysroot:
         try:
