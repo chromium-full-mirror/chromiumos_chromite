@@ -210,7 +210,7 @@
       "configs": [
         {
           "builder": "RELEASE",
-          "experimental": false,
+          "experimental": true,
           "leader_board": true,
           "board_group": "rauru",
           "arch": "ARM_INTERNAL",
@@ -502,7 +502,7 @@
           "is_experimental": false
         }
       ],
-      "rubik_target_milestone": 106,
+      "rubik_target_milestone": 108,
       "stable_target_milestone": 91,
       "build_cadence": "DAILY_CADENCE"
     },
