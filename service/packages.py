@@ -1401,7 +1401,7 @@ def uprev_starbase_artifacts(
     Returns:
         UprevVersionedPackageResult: The result of updating this ebuild.
     """
-    relative_package_path = os.paths.join(
+    relative_package_path = os.path.join(
         "src",
         "private-overlays",
         "project-starline-private",
