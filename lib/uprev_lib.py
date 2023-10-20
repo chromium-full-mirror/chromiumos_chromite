@@ -22,13 +22,13 @@ from typing import (
 )
 
 from chromite.lib import chromeos_version
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
-from chromite.lib.chroot_lib import Chroot
 from chromite.utils import pms
 
 
@@ -331,7 +331,7 @@ class UprevChromeManager:
         version: str,
         build_targets: List["build_target_lib.BuildTarget"] = None,
         overlay_dir: str = None,
-        chroot: Chroot = None,
+        chroot: chroot_lib.Chroot = None,
     ):
         self._version = version
         self._build_targets = build_targets or []
@@ -531,7 +531,7 @@ class UprevOverlayManager:
         overlays: List[str],
         manifest: git.ManifestCheckout,
         build_targets: List["build_target_lib.BuildTarget"] = None,
-        chroot: Chroot = None,
+        chroot: chroot_lib.Chroot = None,
         output_dir: str = None,
     ):
         """Init function.
@@ -752,13 +752,13 @@ class UprevOverlayManager:
 def clean_stale_packages(
     new_package_atoms,
     build_targets: List["build_target_lib.BuildTarget"],
-    chroot: Chroot = None,
+    chroot: chroot_lib.Chroot = None,
 ) -> None:
     """Cleans up stale package info from a previous build."""
     if new_package_atoms:
         logging.info("Cleaning up stale packages %s.", new_package_atoms)
 
-    chroot = chroot or Chroot()
+    chroot = chroot or chroot_lib.Chroot()
 
     if cros_build_lib.IsOutsideChroot() and not chroot.exists():
         logging.warning("Unable to clean packages. No chroot to enter.")
@@ -920,7 +920,7 @@ def get_stable_ebuild_version(
 
 
 def uprev_ebuild_from_pin(
-    package_path: str, version_no_rev: str, chroot: Chroot
+    package_path: str, version_no_rev: str, chroot: chroot_lib.Chroot
 ) -> UprevVersionedPackageResult:
     """Changes the package ebuild's version to match the version pin file.
 
@@ -992,7 +992,7 @@ def uprev_ebuild_from_pin(
 def uprev_workon_ebuild_to_version(
     package_path: Union[str, "pathlib.Path"],
     target_version: str,
-    chroot: Optional[Chroot] = None,
+    chroot: chroot_lib.Chroot,
     *,
     allow_downrev: bool = True,
     ref: str = "HEAD",

@@ -13,13 +13,13 @@ from unittest import mock
 import pytest
 
 import chromite as cr
+from chromite.lib import build_target_lib
+from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import uprev_lib
-from chromite.lib.build_target_lib import BuildTarget
-from chromite.lib.chroot_lib import Chroot
 from chromite.lib.parser import package_info
 
 
@@ -277,7 +277,7 @@ class UprevManagerTest(cros_test_lib.MockTestCase):
 
     def test_clean_stale_packages_chroot_not_exists(self):
         """Cannot run the commands when the chroot does not exist."""
-        chroot = Chroot()
+        chroot = chroot_lib.Chroot()
         self.PatchObject(chroot, "exists", return_value=False)
         manager = uprev_lib.UprevOverlayManager([], None, chroot=chroot)
         self.PatchObject(parallel, "RunTasksInProcessPool")
@@ -291,7 +291,7 @@ class UprevManagerTest(cros_test_lib.MockTestCase):
 
     def test_clean_stale_packages_no_build_targets(self):
         """Make sure it behaves as expected with no build targets provided."""
-        chroot = Chroot()
+        chroot = chroot_lib.Chroot()
         self.PatchObject(chroot, "exists", return_value=True)
         manager = uprev_lib.UprevOverlayManager([], None, chroot=chroot)
         patch = self.PatchObject(parallel, "RunTasksInProcessPool")
@@ -305,8 +305,8 @@ class UprevManagerTest(cros_test_lib.MockTestCase):
     def test_clean_stale_packages_with_boards(self):
         """Test it cleans all boards as well as the chroot."""
         targets = ["board1", "board2"]
-        build_targets = [BuildTarget(t) for t in targets]
-        chroot = Chroot()
+        build_targets = [build_target_lib.BuildTarget(t) for t in targets]
+        chroot = chroot_lib.Chroot()
         self.PatchObject(chroot, "exists", return_value=True)
         manager = uprev_lib.UprevOverlayManager(
             [], None, chroot=chroot, build_targets=build_targets
@@ -607,7 +607,7 @@ def test_non_workon_fails_uprev_workon_ebuild_to_version(
         uprev_lib.uprev_workon_ebuild_to_version(
             pathlib.Path(unstable_package.category) / unstable_package.package,
             target_version="1",
-            chroot=None,
+            chroot=chroot_lib.Chroot(),
             chroot_src_root=overlay.path,
         )
 
@@ -640,7 +640,7 @@ def test_simple_uprev_workon_ebuild_to_version(overlay_stack, monkeypatch):
     res = uprev_lib.uprev_workon_ebuild_to_version(
         pathlib.Path(unstable_package.category) / unstable_package.package,
         target_version="1",
-        chroot=None,
+        chroot=chroot_lib.Chroot(),
         chroot_src_root=overlay.path,
     )
 
@@ -680,6 +680,7 @@ def test_uprev_workon_ebuild_to_version_newer_exists(
         "chromeos-base/uprev-test",
         "1.2.3",
         allow_downrev=False,
+        chroot=chroot_lib.Chroot(),
         chroot_src_root=overlay.path,
     )
 

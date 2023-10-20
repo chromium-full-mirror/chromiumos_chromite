@@ -3260,18 +3260,17 @@ def CalculatePackageSize(
 
 def UpdateEbuildManifest(
     ebuild_path: Union[str, os.PathLike],
-    chroot: Optional[chroot_lib.Chroot] = None,
+    chroot: chroot_lib.Chroot,
 ) -> cros_build_lib.CompletedProcess:
     """Updates the ebuild manifest for the provided ebuild path.
 
     Args:
         ebuild_path: The absolute path to the ebuild.
-        chroot: A chroot to enter.
+        chroot: The chroot to enter.
 
     Returns:
         The command result.
     """
 
-    chroot = chroot or chroot_lib.Chroot()
     command = ["ebuild", ebuild_path, "manifest", "--force"]
     return chroot.run(command)

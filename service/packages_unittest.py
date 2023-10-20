@@ -2052,7 +2052,7 @@ class UprevDrivefsTest(cros_test_lib.MockTestCase):
 
     def test_latest_version_returns_none(self):
         """Test no refs were supplied"""
-        output = packages.uprev_drivefs(None, [], None)
+        output = packages.uprev_drivefs(None, [], chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_drivefs_uprev_fails(self):
@@ -2062,7 +2062,7 @@ class UprevDrivefsTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[None, None],
         )
-        output = packages.uprev_drivefs(None, self.refs, None)
+        output = packages.uprev_drivefs(None, self.refs, chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_same_version_exists(self):
@@ -2073,7 +2073,7 @@ class UprevDrivefsTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[drivefs_outcome],
         )
-        output = packages.uprev_drivefs(None, self.refs, None)
+        output = packages.uprev_drivefs(None, self.refs, chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_revision_bump_both_packages(self):
@@ -2086,7 +2086,7 @@ class UprevDrivefsTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[drivefs_outcome],
         )
-        output = packages.uprev_drivefs(None, self.refs, None)
+        output = packages.uprev_drivefs(None, self.refs, chroot_lib.Chroot())
         self.assertTrue(output.uprevved)
 
     def test_major_bump_both_packages(self):
@@ -2097,7 +2097,7 @@ class UprevDrivefsTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[drivefs_outcome],
         )
-        output = packages.uprev_drivefs(None, self.refs, None)
+        output = packages.uprev_drivefs(None, self.refs, chroot_lib.Chroot())
         self.assertTrue(output.uprevved)
 
 
@@ -2269,7 +2269,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
 
     def test_latest_version_returns_none(self):
         """Test no refs were supplied"""
-        output = packages.uprev_perfetto(None, [], None)
+        output = packages.uprev_perfetto(None, [], chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_perfetto_uprev_fails(self):
@@ -2277,7 +2277,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             uprev_lib, "uprev_workon_ebuild_to_version", side_effect=[None]
         )
-        output = packages.uprev_perfetto(None, self.refs, None)
+        output = packages.uprev_perfetto(None, self.refs, chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_newer_version_exists(self):
@@ -2288,7 +2288,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[perfetto_outcome],
         )
-        output = packages.uprev_perfetto(None, self.refs, None)
+        output = packages.uprev_perfetto(None, self.refs, chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_same_version_exists(self):
@@ -2299,7 +2299,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[perfetto_outcome],
         )
-        output = packages.uprev_perfetto(None, self.refs, None)
+        output = packages.uprev_perfetto(None, self.refs, chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_revision_bump_perfetto_package(self):
@@ -2309,7 +2309,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=self.revisionBumpOutcome(),
         )
-        output = packages.uprev_perfetto(None, self.refs, None)
+        output = packages.uprev_perfetto(None, self.refs, chroot_lib.Chroot())
         self.assertTrue(output.uprevved)
         self.assertEqual(
             output.modified[0].files, [self.MOCK_PERFETTO_EBUILD_PATH]
@@ -2325,7 +2325,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=self.majorBumpOutcome(),
         )
-        output = packages.uprev_perfetto(None, self.refs, None)
+        output = packages.uprev_perfetto(None, self.refs, chroot_lib.Chroot())
         self.assertTrue(output.uprevved)
         self.assertEqual(
             output.modified[0].files, [self.MOCK_PERFETTO_EBUILD_PATH]
@@ -2349,7 +2349,7 @@ class UprevPerfettoTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=self.revisionBumpOutcome(),
         )
-        output = packages.uprev_perfetto(None, refs, None)
+        output = packages.uprev_perfetto(None, refs, chroot_lib.Chroot())
 
         self.assertTrue(output.uprevved)
         self.assertEqual(
@@ -2404,7 +2404,7 @@ class UprevLacrosTest(cros_test_lib.MockTestCase):
             uprev_lib, "uprev_workon_ebuild_to_version", side_effect=[None]
         )
         with self.assertRaises(IndexError):
-            packages.uprev_lacros(None, [], None)
+            packages.uprev_lacros(None, [], chroot_lib.Chroot())
 
     def test_lacros_uprev_revision_bump(self):
         """Test lacros package uprev."""
@@ -2414,7 +2414,7 @@ class UprevLacrosTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros(None, self.refs, None)
+        output = packages.uprev_lacros(None, self.refs, chroot_lib.Chroot())
         self.assertTrue(output.uprevved)
 
     def test_lacros_uprev_version_bump(self):
@@ -2425,7 +2425,7 @@ class UprevLacrosTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros(None, self.refs, None)
+        output = packages.uprev_lacros(None, self.refs, chroot_lib.Chroot())
         self.assertTrue(output.uprevved)
 
     def test_lacros_uprev_new_ebuild_created(self):
@@ -2438,7 +2438,7 @@ class UprevLacrosTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros(None, self.refs, None)
+        output = packages.uprev_lacros(None, self.refs, chroot_lib.Chroot())
         self.assertTrue(output.uprevved)
 
     def test_lacros_uprev_newer_version_exist(self):
@@ -2449,7 +2449,7 @@ class UprevLacrosTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros(None, self.refs, None)
+        output = packages.uprev_lacros(None, self.refs, chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
     def test_lacros_uprev_same_version_exist(self):
@@ -2460,7 +2460,7 @@ class UprevLacrosTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros(None, self.refs, None)
+        output = packages.uprev_lacros(None, self.refs, chroot_lib.Chroot())
         self.assertFalse(output.uprevved)
 
 
@@ -2506,7 +2506,7 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
             uprev_lib, "uprev_workon_ebuild_to_version", side_effect=[None]
         )
         with self.assertRaises(uprev_lib.NoRefsError):
-            packages.uprev_lacros_in_parallel(None, [], None)
+            packages.uprev_lacros_in_parallel(None, [], chroot_lib.Chroot())
 
     def test_lacros_uprev_revision_bump(self):
         """Test lacros package uprev."""
@@ -2516,7 +2516,9 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros_in_parallel(None, self.refs, None)
+        output = packages.uprev_lacros_in_parallel(
+            None, self.refs, chroot_lib.Chroot()
+        )
         self.assertTrue(output.uprevved)
 
     def test_lacros_uprev_version_bump(self):
@@ -2527,7 +2529,9 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros_in_parallel(None, self.refs, None)
+        output = packages.uprev_lacros_in_parallel(
+            None, self.refs, chroot_lib.Chroot()
+        )
         self.assertTrue(output.uprevved)
 
     def test_lacros_uprev_new_ebuild_created(self):
@@ -2540,7 +2544,9 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros_in_parallel(None, self.refs, None)
+        output = packages.uprev_lacros_in_parallel(
+            None, self.refs, chroot_lib.Chroot()
+        )
         self.assertTrue(output.uprevved)
 
     def test_lacros_uprev_newer_version_exist(self):
@@ -2551,7 +2557,9 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros_in_parallel(None, self.refs, None)
+        output = packages.uprev_lacros_in_parallel(
+            None, self.refs, chroot_lib.Chroot()
+        )
         self.assertFalse(output.uprevved)
 
     def test_lacros_uprev_same_version_exist(self):
@@ -2562,7 +2570,9 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
             "uprev_workon_ebuild_to_version",
             side_effect=[lacros_outcome],
         )
-        output = packages.uprev_lacros_in_parallel(None, self.refs, None)
+        output = packages.uprev_lacros_in_parallel(
+            None, self.refs, chroot_lib.Chroot()
+        )
         self.assertFalse(output.uprevved)
 
 
