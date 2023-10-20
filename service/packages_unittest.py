@@ -2604,6 +2604,7 @@ oof
         # Run the function under test.
         modified = packages.starbase_find_and_uprev(
             package_path,
+            package_path,
             gcs_name,
             chroot_lib.Chroot(),
         )

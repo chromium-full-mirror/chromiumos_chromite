@@ -1306,6 +1306,7 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
 
 def starbase_find_and_uprev(
     package_path: str,
+    chroot_package_path: str,
     gcs_name: str,
     chroot: "chroot_lib.Chroot",
 ) -> List[str]:
@@ -1368,9 +1369,13 @@ def starbase_find_and_uprev(
     osutils.WriteFile(new_ebuild_path, "\n".join(lines) + "\n")
     osutils.SafeUnlink(old_ebuild_path)
 
-    # Update Manifest.
+    # Update Manifest.  The "ebuild manifest" command runs inside
+    # the chroot, and therefore needs the chroot path name.
     releaseless_ebuild = f"starbase-artifacts-{ebuild_version}.ebuild"
-    releaseless_ebuild_path = os.path.join(package_path, releaseless_ebuild)
+    releaseless_ebuild_path = os.path.join(
+        chroot_package_path,
+        releaseless_ebuild,
+    )
     portage_util.UpdateEbuildManifest(releaseless_ebuild_path, chroot)
 
     manifest_path = os.path.join(package_path, "Manifest")
@@ -1396,20 +1401,32 @@ def uprev_starbase_artifacts(
     Returns:
         UprevVersionedPackageResult: The result of updating this ebuild.
     """
-    package_path = str(
-        constants.SOURCE_ROOT.joinpath(
-            "src",
-            "private-overlays",
-            "project-starline-private",
-            "chromeos-base",
-            "starbase-artifacts",
-        )
+    relative_package_path = os.paths.join(
+        "src",
+        "private-overlays",
+        "project-starline-private",
+        "chromeos-base",
+        "starbase-artifacts",
+    )
+    package_path = str(constants.SOURCE_ROOT.joinpath(relative_package_path))
+    chroot_package_path = str(
+        constants.CHROOT_SOURCE_ROOT.joinpath(relative_package_path)
     )
 
     logging.info("Starbase uprev: refs[0] = %s", refs[0])
-    modified_files = starbase_find_and_uprev(package_path, refs[0].ref, chroot)
+    # gcs_name is the GCS directory of the artifacts.
+    gcs_name = refs[0].ref
+    # Extract the version from the GCS name (YYYYMMDD-rc###).
+    # AFAICT, artifacts_version is only used in the commit message.
+    artifacts_version = refs[0].ref[-14:]
+    modified_files = starbase_find_and_uprev(
+        package_path,
+        chroot_package_path,
+        gcs_name,
+        chroot,
+    )
     result = uprev_lib.UprevVersionedPackageResult()
-    result.add_result(refs[0].ref[-14:], modified_files)
+    result.add_result(artifacts_version, modified_files)
     return result
 
 
