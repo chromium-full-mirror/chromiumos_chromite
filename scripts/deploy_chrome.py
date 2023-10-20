@@ -66,9 +66,15 @@ _CHROME_TEST_BIN_DIR = "/usr/local/libexec/chrome-binary-tests"
 _UMOUNT_DIR_IF_MOUNTPOINT_CMD = (
     "if mountpoint -q %(dir)s; then umount %(dir)s; fi"
 )
-_FIND_TEST_BIN_CMD = "find %s -maxdepth 1 -executable -type f" % (
-    _CHROME_TEST_BIN_DIR
-)
+_FIND_TEST_BIN_CMD = [
+    "find",
+    _CHROME_TEST_BIN_DIR,
+    "-maxdepth",
+    "1",
+    "-executable",
+    "-type",
+    "f",
+]
 
 # This constants are related to an experiment of running compressed ash chrome
 # to save rootfs space. See b/247397013

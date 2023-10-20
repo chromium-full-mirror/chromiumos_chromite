@@ -731,7 +731,7 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
         # Simulate having the binaries both on the device and in our local build
         # dir.
         self.rc.AddCmdResult(
-            partial_mock.In(deploy_chrome._FIND_TEST_BIN_CMD),
+            partial_mock.ListRegex(" ".join(deploy_chrome._FIND_TEST_BIN_CMD)),
             stdout="\n".join(test_binaries),
         )
         for binary in test_binaries:
@@ -754,7 +754,8 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
     def testFindError(self):
         """Ensure an error is thrown if we can't inspect the device."""
         self.rc.AddCmdResult(
-            partial_mock.In(deploy_chrome._FIND_TEST_BIN_CMD), 1
+            partial_mock.ListRegex(" ".join(deploy_chrome._FIND_TEST_BIN_CMD)),
+            returncode=1,
         )
         self.assertRaises(
             deploy_chrome.DeployFailure, self.deploy._DeployTestBinaries
