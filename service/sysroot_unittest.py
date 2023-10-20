@@ -1425,8 +1425,7 @@ def test_CollectBazelPerformanceArtifacts(monkeypatch, tmp_path):
         sysroot.BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
     )
     created_files = [
-        chroot_path / file[1:] if file[0] == "/" else file
-        for file in sysroot_bazel_files
+        chroot.full_path(artifact) for artifact in sysroot_bazel_files
     ]
     for created_file in created_files:
         osutils.Touch(created_file, makedirs=True)

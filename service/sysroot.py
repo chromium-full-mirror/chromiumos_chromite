@@ -1493,7 +1493,7 @@ def CollectBazelPerformanceArtifacts(
         BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
     ]
     raw_artifacts = [
-        chroot.path + artifact for artifact in chroot_raw_artifacts
+        chroot.full_path(artifact) for artifact in chroot_raw_artifacts
     ]
 
     osutils.SafeMakedirs(output_dir)
