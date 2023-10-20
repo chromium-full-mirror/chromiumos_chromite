@@ -86,6 +86,9 @@ def MarkStable(
     android_build_branch = input_proto.android_build_branch
     android_version = input_proto.android_version
     skip_commit = input_proto.skip_commit
+    ignore_data_collector_artifacts = (
+        input_proto.ignore_data_collector_artifacts
+    )
 
     # Assume success.
     output_proto.status = android_pb2.MARK_STABLE_STATUS_SUCCESS
@@ -100,6 +103,7 @@ def MarkStable(
             android_build_branch=android_build_branch,
             android_version=android_version,
             skip_commit=skip_commit,
+            ignore_data_collector_artifacts=ignore_data_collector_artifacts,
         )
         if result.revved:
             android_atom_to_build = result.android_atom

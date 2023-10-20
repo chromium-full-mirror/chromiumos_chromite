@@ -96,6 +96,7 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.input_proto.build_targets.add().name = "foo"
         self.input_proto.build_targets.add().name = "bar"
         self.input_proto.skip_commit = True
+        self.input_proto.ignore_data_collector_artifacts = False
 
         self.build_targets = [
             build_target_lib.BuildTarget("foo"),
@@ -150,6 +151,9 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             android_build_branch=self.input_proto.android_build_branch,
             android_version=self.input_proto.android_version,
             skip_commit=self.input_proto.skip_commit,
+            ignore_data_collector_artifacts=(
+                self.input_proto.ignore_data_collector_artifacts
+            ),
         )
         self.assertEqual(self.response.android_atom, atom)
         self.assertEqual(
@@ -167,6 +171,9 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             android_build_branch=self.input_proto.android_build_branch,
             android_version=self.input_proto.android_version,
             skip_commit=self.input_proto.skip_commit,
+            ignore_data_collector_artifacts=(
+                self.input_proto.ignore_data_collector_artifacts
+            ),
         )
         self.assertEqual(
             self.response.status, android_pb2.MARK_STABLE_STATUS_EARLY_EXIT
@@ -189,6 +196,9 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             android_build_branch=self.input_proto.android_build_branch,
             android_version=self.input_proto.android_version,
             skip_commit=self.input_proto.skip_commit,
+            ignore_data_collector_artifacts=(
+                self.input_proto.ignore_data_collector_artifacts
+            ),
         )
         self.assertEqual(self.response.android_atom, atom)
         self.assertEqual(

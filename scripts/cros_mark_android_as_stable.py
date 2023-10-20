@@ -84,7 +84,9 @@ def FindAndroidCandidates(package_dir):
 
 
 def UpdateDataCollectorArtifacts(
-    android_version, runtime_artifacts_bucket_url, package_name
+    android_version,
+    runtime_artifacts_bucket_url,
+    package_name,
 ):
     r"""Finds and includes into variables artifacts from arc.DataCollector.
 
@@ -151,6 +153,7 @@ def MarkAndroidEBuildAsStable(
     build_branch,
     arc_bucket_url,
     runtime_artifacts_bucket_url,
+    ignore_data_collector_artifacts,
 ):
     r"""Uprevs the Android ebuild.
 
@@ -169,6 +172,8 @@ def MarkAndroidEBuildAsStable(
         build_branch: branch of Android builds.
         arc_bucket_url: URL of the target ARC build gs bucket.
         runtime_artifacts_bucket_url: root of runtime artifacts
+        ignore_data_collector_artifacts: whether or not to ignore artifacts
+            from previous DataCollector runs for generating variables
 
     Returns:
         Tuple[str, List[str], List[str]] if revved, or None
@@ -208,13 +213,16 @@ def MarkAndroidEBuildAsStable(
         # TODO(b/255705023): Have MirrorArtifacts generate the mapping for us.
         variables[var] = f"{build_branch}-linux-{target}"
 
-    variables.update(
-        UpdateDataCollectorArtifacts(
-            android_version,
-            runtime_artifacts_bucket_url,
-            android_package,
+    if ignore_data_collector_artifacts:
+        logging.info("Ignoring DataCollector artifacts")
+    else:
+        variables.update(
+            UpdateDataCollectorArtifacts(
+                android_version,
+                runtime_artifacts_bucket_url,
+                android_package,
+            )
         )
-    )
 
     portage_util.EBuild.MarkAsStable(
         unstable_ebuild.ebuild_path,
@@ -314,6 +322,11 @@ def GetParser():
         action="store_true",
         help="Skip committing uprev changes to git",
     )
+    parser.add_argument(
+        "--ignore_data_collector_artifacts",
+        action="store_true",
+        help="Ignore artifacts generated from DataCollector",
+    )
     return parser
 
 
@@ -365,6 +378,7 @@ def main(argv):
         android_build_branch,
         options.arc_bucket_url,
         options.runtime_artifacts_bucket_url,
+        options.ignore_data_collector_artifacts,
     )
 
     output = dict(revved=bool(revved))

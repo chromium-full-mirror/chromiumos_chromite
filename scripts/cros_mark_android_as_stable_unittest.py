@@ -135,6 +135,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
             self.android_branch,
             self.arc_bucket_url,
             self.runtime_artifacts_bucket_url,
+            False,
         )
 
         self.assertIsNotNone(revved)
@@ -147,6 +148,32 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
             files_to_add, [self.new, os.path.join(package_dir, "Manifest")]
         )
         self.assertEqual(files_to_remove, [self.old2])
+        self.mock_find_data_collector_artifacts.assert_called()
+
+    def testMarkAndroidEBuildAsStableIgnoreDataCollector(self):
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
+        self.PatchObject(
+            portage_util.EBuild, "GetCrosWorkonVars", return_value=None
+        )
+        stable_candidate = portage_util.EBuild(self.old2)
+        unstable = portage_util.EBuild(self.unstable)
+        android_version = self.new_version
+        package_dir = self.mock_android_dir
+
+        cros_mark_android_as_stable.MarkAndroidEBuildAsStable(
+            stable_candidate,
+            unstable,
+            self.android_package,
+            android_version,
+            package_dir,
+            self.android_branch,
+            self.arc_bucket_url,
+            self.runtime_artifacts_bucket_url,
+            True,
+        )
+
+        self.mock_find_data_collector_artifacts.assert_not_called()
 
     def testUpdateDataCollectorArtifacts(self):
         android_version = "100"

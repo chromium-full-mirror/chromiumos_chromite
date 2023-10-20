@@ -168,6 +168,7 @@ def uprev_android(
     android_build_branch: Optional[str] = None,
     android_version: Optional[str] = None,
     skip_commit: bool = False,
+    ignore_data_collector_artifacts: bool = False,
 ) -> UprevAndroidResult:
     """Performs an Android uprev by calling cros_mark_android_as_stable.
 
@@ -181,6 +182,8 @@ def uprev_android(
             available version is used.
         skip_commit: Whether to skip committing the change after a successful
             uprev.
+        ignore_data_collector_artifacts: whether or not to ignore artifacts
+            from previous DataCollector runs for generating variables.
 
     Returns:
         The uprev result containing:
@@ -201,6 +204,8 @@ def uprev_android(
         command.append(f"--force_version={android_version}")
     if skip_commit:
         command.append("--skip_commit")
+    if ignore_data_collector_artifacts:
+        command.append("--ignore_data_collector_artifacts")
 
     result = chroot.run(command, stdout=True, encoding="utf-8")
 
