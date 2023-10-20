@@ -9,8 +9,8 @@ import os
 
 from chromite.cbuildbot import commands
 from chromite.lib import config_lib
-from chromite.lib import gs
 from chromite.lib import osutils
+from chromite.utils import gs_urls_util
 
 
 def GetBaseUploadURI(config, archive_base=None, bot_id=None):
@@ -132,7 +132,7 @@ class Archive:
             # for b/27653354. If that is ultimately fixed, revisit this
             # workaround. This download link works for directories.
             return self.upload_url.replace(
-                "gs://", gs.PRIVATE_BASE_HTTPS_DOWNLOAD_URL
+                "gs://", gs_urls_util.PRIVATE_BASE_HTTPS_DOWNLOAD_URL
             )
         else:
             return self.archive_path
@@ -144,7 +144,9 @@ class Archive:
             # TODO(akeshet): The use of a special download url is a workaround
             # for b/27653354. If that is ultimately fixed, revisit this
             # workaround. This download link works for files.
-            return self.upload_url.replace("gs://", gs.PRIVATE_BASE_HTTPS_URL)
+            return self.upload_url.replace(
+                "gs://", gs_urls_util.PRIVATE_BASE_HTTPS_URL
+            )
         else:
             return self.archive_path
 

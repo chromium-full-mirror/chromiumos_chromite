@@ -13,6 +13,7 @@ from chromite.lib import config_lib
 from chromite.lib import config_lib_unittest
 from chromite.lib import cros_test_lib
 from chromite.lib import parallel
+from chromite.utils import gs_urls_util
 
 
 DEFAULT_ARCHIVE_GS_PATH = "bogus_bucket/TheArchiveBase"
@@ -269,7 +270,7 @@ class BuilderRunTest(_BuilderRunTestCase):
 
             # Check archive.download_url.
             expected = "%s%s/%s/%s" % (
-                cbuildbot_run.archive_lib.gs.PRIVATE_BASE_HTTPS_DOWNLOAD_URL,
+                gs_urls_util.PRIVATE_BASE_HTTPS_DOWNLOAD_URL,
                 DEFAULT_ARCHIVE_GS_PATH,
                 DEFAULT_BOT_NAME,
                 DEFAULT_VERSION,

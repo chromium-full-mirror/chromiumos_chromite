@@ -17,13 +17,13 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
-from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel_unittest
 from chromite.lib import portage_util
 from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
 from chromite.service import binhost
+from chromite.utils import gs_urls_util
 
 
 class GetPrebuiltAclArgsTest(cros_test_lib.MockTempDirTestCase):
@@ -745,15 +745,15 @@ class LookupBinhostsTest(
 @pytest.mark.parametrize(
     "uri,expected",
     [
-        ("gs://garbage", f"{gs.PUBLIC_BASE_HTTPS_URL}garbage"),
+        ("gs://garbage", f"{gs_urls_util.PUBLIC_BASE_HTTPS_URL}garbage"),
         (
             "gs://chromeos-dev-installer",
-            f"{gs.PUBLIC_BASE_HTTPS_URL}chromeos-dev-installer",
+            f"{gs_urls_util.PUBLIC_BASE_HTTPS_URL}chromeos-dev-installer",
         ),
         ("https://google.com", "https://google.com"),
         (
-            f"{gs.PUBLIC_BASE_HTTPS_URL}chromeos-dev-installer",
-            f"{gs.PUBLIC_BASE_HTTPS_URL}chromeos-dev-installer",
+            f"{gs_urls_util.PUBLIC_BASE_HTTPS_URL}chromeos-dev-installer",
+            f"{gs_urls_util.PUBLIC_BASE_HTTPS_URL}chromeos-dev-installer",
         ),
     ],
 )

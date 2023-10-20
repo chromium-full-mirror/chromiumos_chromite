@@ -20,9 +20,9 @@ from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.utils import gs_urls_util
 
 
 class TestShutDownException(cros_test_lib.TestCase):
@@ -89,33 +89,34 @@ class GSPathTest(cros_test_lib.OutputTestCase):
 
     def testNoGSPathCorrectionNeeded(self):
         """Test case where GS path correction is not needed."""
-        gs_path = "%s/%s" % (gs.BASE_GS_URL, self.GS_REL_PATH)
+        gs_path = "%s/%s" % (gs_urls_util.BASE_GS_URL, self.GS_REL_PATH)
         self._RunGSPathTestCase(gs_path, gs_path)
 
     def testTrailingSlashRemoval(self):
         """Test case where GS path ends with /."""
-        gs_path = "%s/%s/" % (gs.BASE_GS_URL, self.GS_REL_PATH)
+        gs_path = "%s/%s/" % (gs_urls_util.BASE_GS_URL, self.GS_REL_PATH)
         self._RunGSPathTestCase(gs_path, gs_path.rstrip("/"))
 
     def testDuplicateSlashesRemoved(self):
         """Test case where GS path contains many / in a row."""
         self._RunGSPathTestCase(
-            "%s/a/dir/with//////////slashes" % gs.BASE_GS_URL,
-            "%s/a/dir/with/slashes" % gs.BASE_GS_URL,
+            "%s/a/dir/with//////////slashes" % gs_urls_util.BASE_GS_URL,
+            "%s/a/dir/with/slashes" % gs_urls_util.BASE_GS_URL,
         )
 
     def testRelativePathsRemoved(self):
         """Test case where GS path contain /../ logic."""
         self._RunGSPathTestCase(
-            "%s/a/dir/up/here/.././../now/down/there" % gs.BASE_GS_URL,
-            "%s/a/dir/now/down/there" % gs.BASE_GS_URL,
+            "%s/a/dir/up/here/.././../now/down/there"
+            % gs_urls_util.BASE_GS_URL,
+            "%s/a/dir/now/down/there" % gs_urls_util.BASE_GS_URL,
         )
 
     def testCorrectionNeeded(self):
         """Test case where GS path correction is needed."""
         self._RunGSPathTestCase(
-            "%s/%s/" % (gs.PRIVATE_BASE_HTTPS_URL, self.GS_REL_PATH),
-            "%s/%s" % (gs.BASE_GS_URL, self.GS_REL_PATH),
+            "%s/%s/" % (gs_urls_util.PRIVATE_BASE_HTTPS_URL, self.GS_REL_PATH),
+            "%s/%s" % (gs_urls_util.BASE_GS_URL, self.GS_REL_PATH),
         )
 
     def testInvalidPath(self):

@@ -16,11 +16,11 @@ from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
-from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import repo_util
+from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
 
@@ -527,9 +527,9 @@ def ConvertGsUploadUri(upload_uri: str) -> str:
     Returns:
         A new https URL if a gs URI was provided and original URI otherwise.
     """
-    if not gs.PathIsGs(upload_uri):
+    if not gs_urls_util.PathIsGs(upload_uri):
         return upload_uri
-    return gs.GsUrlToHttp(upload_uri)
+    return gs_urls_util.GsUrlToHttp(upload_uri)
 
 
 def CreateFilteredPackageIndex(

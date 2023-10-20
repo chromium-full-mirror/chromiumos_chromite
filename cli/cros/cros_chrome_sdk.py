@@ -33,6 +33,7 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import path_util
 from chromite.lib import portage_util
+from chromite.utils import gs_urls_util
 from chromite.utils import memoize
 from chromite.utils import pformat
 
@@ -548,7 +549,7 @@ class SDKFetcher:
             if ref.Exists(lock=True):
                 manifest = osutils.ReadFile(ref.path)
             else:
-                manifest_path = gs.GetGsURL(
+                manifest_path = gs_urls_util.GetGsURL(
                     bucket=constants.SDK_GS_BUCKET,
                     suburl="cros-sdk-%s.tar.xz.Manifest"
                     % self._GetSDKVersion(version),
@@ -574,7 +575,7 @@ class SDKFetcher:
             # Storage.
             return None
         package_version = self._GetManifest(version)["packages"][key][0][0]
-        return gs.GetGsURL(
+        return gs_urls_util.GetGsURL(
             bucket="chromeos-prebuilt",
             suburl="board/amd64-host/chroot-%s/packages/%s-%s.tbz2"
             % (self._GetSDKVersion(version), key, package_version),

@@ -45,7 +45,7 @@ import os
 import shutil
 
 from chromite.third_party import lddtree
-from chromite.third_party.pyelftools.elftools.elf.elffile import ELFFile
+from chromite.third_party.pyelftools.elftools.elf import elffile
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -54,6 +54,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
+from chromite.utils import gs_urls_util
 
 
 # Directory in sysroot's /tmp directory that this script will use for files it
@@ -581,7 +582,7 @@ def IsInstrumentedWithClangCoverage(binary_path):
         True if the binary is instrumented with clang source based coverage.
     """
     with open(binary_path, "rb") as file_handle:
-        elf_file = ELFFile(file_handle)
+        elf_file = elffile.ELFFile(file_handle)
         return elf_file.get_section_by_name(b"__llvm_covmap") is not None
 
 
@@ -723,7 +724,7 @@ def DownloadFuzzerCorpus(fuzzer, dest_directory=None):
 
     clusterfuzz_gcs_corpus_bucket = "chromeos-corpus"
     suburl = "libfuzzer/%s" % fuzzer
-    gcs_path = gs.GetGsURL(
+    gcs_path = gs_urls_util.GetGsURL(
         clusterfuzz_gcs_corpus_bucket,
         for_gsutil=True,
         public=False,

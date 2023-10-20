@@ -23,6 +23,7 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
 from chromite.lib.parser import package_info
+from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
 
@@ -460,7 +461,7 @@ def _get_remote_latest_file_value(key: str) -> str:
     Raises:
         ValueError: If the given key is not found in the file.
     """
-    uri = gs.GetGsURL(
+    uri = gs_urls_util.GetGsURL(
         constants.SDK_GS_BUCKET,
         for_gsutil=True,
         suburl="cros-sdk-latest.conf",
@@ -536,7 +537,7 @@ def _uprev_local_host_prebuilts_files(
     Returns:
         A list of files that were actually modified, if any.
     """
-    if not gs.PathIsGs(binhost_gs_bucket):
+    if not gs_urls_util.PathIsGs(binhost_gs_bucket):
         raise ValueError(
             "binhost_gs_bucket doesn't look like a gs path: %s"
             % binhost_gs_bucket

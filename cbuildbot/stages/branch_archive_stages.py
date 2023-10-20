@@ -26,6 +26,7 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import timeout_util
+from chromite.utils import gs_urls_util
 from chromite.utils import pformat
 
 
@@ -330,7 +331,7 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
         logging.info("Archive build as: %s", self.branch_config)
 
         # Link branch build artifacts from build.
-        branch_http_url = gs.GsUrlToHttp(
+        branch_http_url = gs_urls_util.GsUrlToHttp(
             self.branch_archive_url, public=False, directory=True
         )
 

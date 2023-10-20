@@ -20,12 +20,12 @@ from typing import List, Optional
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import ebuild_license
 from chromite.lib.parser import package_info
+from chromite.utils import gs_urls_util
 
 
 # See https://crbug.com/207004 for discussion.
@@ -1520,11 +1520,11 @@ after fixing the license."""
         reciprocal_txt = ""
         if os_version and milestone_version:
             env = {
-                "chromeos-manifest-link": gs.GsUrlToHttp(
+                "chromeos-manifest-link": gs_urls_util.GsUrlToHttp(
                     "gs://chromeos-manifest-versions/buildspecs/"
                     f"{milestone_version}/{os_version}.xml"
                 ),
-                "chromiumos-manifest-link": gs.GsUrlToHttp(
+                "chromiumos-manifest-link": gs_urls_util.GsUrlToHttp(
                     "gs://chromiumos-manifest-versions/buildspecs/"
                     f"{milestone_version}/{os_version}.xml"
                 ),

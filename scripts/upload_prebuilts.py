@@ -43,6 +43,7 @@ from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import toolchain
 from chromite.lib.parser import package_info
+from chromite.utils import gs_urls_util
 from chromite.utils import pformat
 
 
@@ -277,7 +278,10 @@ def GenerateHtmlIndex(files, index, board, version, remote_location):
         "..|",
     ]
     commands.GenerateHtmlIndex(
-        index, files, title=title, url_base=gs.GsUrlToHttp(remote_location)
+        index,
+        files,
+        title=title,
+        url_base=gs_urls_util.GsUrlToHttp(remote_location),
     )
 
 
@@ -447,8 +451,8 @@ class PrebuiltUploader:
 
             link_name = "Prebuilts[%s]: %s" % (self._target, self._version)
             url = "%s%s/index.html" % (
-                gs.PUBLIC_BASE_HTTPS_URL,
-                remote_location[len(gs.BASE_GS_URL) :],
+                gs_urls_util.PUBLIC_BASE_HTTPS_URL,
+                remote_location[len(gs_urls_util.BASE_GS_URL) :],
             )
             cbuildbot_alerts.PrintBuildbotLink(link_name, url)
 

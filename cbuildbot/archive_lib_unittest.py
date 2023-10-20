@@ -12,6 +12,7 @@ from chromite.lib import config_lib
 from chromite.lib import config_lib_unittest
 from chromite.lib import cros_test_lib
 from chromite.lib import parallel_unittest
+from chromite.utils import gs_urls_util
 
 
 DEFAULT_ARCHIVE_PREFIX = "bogus_bucket/TheArchiveBase"
@@ -200,7 +201,7 @@ class ArchiveTest(cros_test_lib.TestCase):
     def testDownloadURLBuildbot(self):
         value = self._GetAttributeValue("download_url")
         expected_value = "%s%s/%s/%s" % (
-            archive_lib.gs.PRIVATE_BASE_HTTPS_DOWNLOAD_URL,
+            gs_urls_util.PRIVATE_BASE_HTTPS_DOWNLOAD_URL,
             DEFAULT_ARCHIVE_PREFIX,
             DEFAULT_BOT_NAME,
             self._VERSION,
@@ -210,7 +211,7 @@ class ArchiveTest(cros_test_lib.TestCase):
     def testDownloadURLFileBuildbot(self):
         value = self._GetAttributeValue("download_url_file")
         expected_value = "%s%s/%s/%s" % (
-            archive_lib.gs.PRIVATE_BASE_HTTPS_URL,
+            gs_urls_util.PRIVATE_BASE_HTTPS_URL,
             DEFAULT_ARCHIVE_PREFIX,
             DEFAULT_BOT_NAME,
             self._VERSION,

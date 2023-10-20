@@ -22,6 +22,7 @@ from chromite.lib import parallel_unittest
 from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.scripts import upload_prebuilts as prebuilt
+from chromite.utils import gs_urls_util
 
 
 # pylint: disable=protected-access
@@ -207,7 +208,7 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
 
     def testCanonicalUrl(self):
         """If the URL is in a different format, should still find duplicates."""
-        self.dup.header["URI"] = gs.PUBLIC_BASE_HTTPS_URL + "example"
+        self.dup.header["URI"] = gs_urls_util.PUBLIC_BASE_HTTPS_URL + "example"
         self.assertAllDuplicates([self.dup])
 
     def testMissingSHA1(self):

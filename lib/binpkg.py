@@ -30,6 +30,7 @@ from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import sysroot_lib
+from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
 
@@ -77,7 +78,7 @@ class PackageIndex:
             expires: The time at which prebuilts expire from the binhost.
         """
 
-        uri = gs.CanonicalizeURL(self.header["URI"])
+        uri = gs_urls_util.CanonicalizeURL(self.header["URI"])
         for pkg in self.packages:
             cpv, sha1, mtime = pkg["CPV"], pkg.get("SHA1"), pkg.get("MTIME")
             oldpkg = db.get(sha1, _Package(0, None, False))
@@ -237,9 +238,9 @@ class PackageIndex:
         db = {}
         now = int(time.time())
         expires = now - TWO_WEEKS
-        base_uri = gs.CanonicalizeURL(self.header["URI"])
+        base_uri = gs_urls_util.CanonicalizeURL(self.header["URI"])
         for pkgindex in pkgindexes:
-            if gs.CanonicalizeURL(pkgindex.header["URI"]) == base_uri:
+            if gs_urls_util.CanonicalizeURL(pkgindex.header["URI"]) == base_uri:
                 # pylint: disable=protected-access
                 pkgindex._PopulateDuplicateDB(db, expires)
 

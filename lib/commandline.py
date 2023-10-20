@@ -24,11 +24,11 @@ import urllib.parse
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import terminal
 from chromite.utils import attrs_freezer
+from chromite.utils import gs_urls_util
 from chromite.utils import path_filter
 
 
@@ -88,16 +88,16 @@ class ExecRequiredError(Exception):
 
 def NormalizeGSPath(value):
     """Normalize GS paths."""
-    url = gs.CanonicalizeURL(value, strict=True)
+    url = gs_urls_util.CanonicalizeURL(value, strict=True)
     return "%s%s" % (
-        gs.BASE_GS_URL,
-        os.path.normpath(url[len(gs.BASE_GS_URL) :]),
+        gs_urls_util.BASE_GS_URL,
+        os.path.normpath(url[len(gs_urls_util.BASE_GS_URL) :]),
     )
 
 
 def NormalizeLocalOrGSPath(value):
     """Normalize a local or GS path."""
-    ptype = "gs_path" if gs.PathIsGs(value) else "path"
+    ptype = "gs_path" if gs_urls_util.PathIsGs(value) else "path"
     return VALID_TYPES[ptype](value)
 
 

@@ -9,7 +9,6 @@ import datetime
 import functools
 import numbers
 import os
-from pathlib import Path
 import string
 import sys
 from unittest import mock
@@ -142,118 +141,6 @@ class AbstractGSContextTest(cros_test_lib.MockTempDirTestCase):
         self.gs_mock = self.StartPatcher(GSContextMock())
         self.gs_mock.SetDefaultCmdResult()
         self.ctx = gs.GSContext()
-
-
-class CanonicalizeURLTest(cros_test_lib.TestCase):
-    """Tests for the CanonicalizeURL function."""
-
-    def _checkit(self, in_url, exp_url):
-        self.assertEqual(gs.CanonicalizeURL(in_url), exp_url)
-
-    def testPublicUrl(self):
-        """Test public https URLs."""
-        self._checkit(
-            "https://commondatastorage.googleapis.com/releases/some/file/t.gz",
-            "gs://releases/some/file/t.gz",
-        )
-
-    def testPrivateUrl(self):
-        """Test private https URLs."""
-        self._checkit(
-            "https://storage.cloud.google.com/releases/some/file/t.gz",
-            "gs://releases/some/file/t.gz",
-        )
-        self._checkit(
-            "https://pantheon.corp.google.com/storage/browser/releases/some/"
-            "file/t.gz",
-            "gs://releases/some/file/t.gz",
-        )
-        self._checkit(
-            "https://stainless.corp.google.com/browse/releases/some/file/t.gz",
-            "gs://releases/some/file/t.gz",
-        )
-
-    def testDuplicateBase(self):
-        """Test multiple prefixes in a single URL."""
-        self._checkit(
-            (
-                "https://storage.cloud.google.com/releases/some/"
-                "https://storage.cloud.google.com/some/file/t.gz"
-            ),
-            (
-                "gs://releases/some/"
-                "https://storage.cloud.google.com/some/file/t.gz"
-            ),
-        )
-
-
-class PathIsGsTests(cros_test_lib.TestCase):
-    """Tests for the PathIsGs function."""
-
-    def testString(self):
-        """Test strings!"""
-        self.assertTrue(gs.PathIsGs("gs://foo"))
-        self.assertFalse(gs.PathIsGs("/tmp/f"))
-
-    def testPath(self):
-        """Test Path objects!"""
-        self.assertFalse(gs.PathIsGs(Path.cwd()))
-        self.assertFalse(gs.PathIsGs(Path("gs://foo")))
-
-
-class GsUrlToHttpTest(cros_test_lib.TestCase):
-    """Tests for the GsUrlToHttp function."""
-
-    def setUp(self):
-        self.testUrls = [
-            "gs://releases",
-            "gs://releases/",
-            "gs://releases/path",
-            "gs://releases/path/",
-            "gs://releases/path/file",
-        ]
-
-    def testPublicUrls(self):
-        """Test public https URLs."""
-        expected = [
-            "https://storage.googleapis.com/releases",
-            "https://storage.googleapis.com/releases/",
-            "https://storage.googleapis.com/releases/path",
-            "https://storage.googleapis.com/releases/path/",
-            "https://storage.googleapis.com/releases/path/file",
-        ]
-
-        for gs_url, http_url in zip(self.testUrls, expected):
-            self.assertEqual(gs.GsUrlToHttp(gs_url), http_url)
-            self.assertEqual(gs.GsUrlToHttp(gs_url, directory=True), http_url)
-
-    def testPrivateUrls(self):
-        """Test private https URLs."""
-        expected = [
-            "https://storage.cloud.google.com/releases",
-            "https://stainless.corp.google.com/browse/releases/",
-            "https://storage.cloud.google.com/releases/path",
-            "https://stainless.corp.google.com/browse/releases/path/",
-            "https://storage.cloud.google.com/releases/path/file",
-        ]
-
-        for gs_url, http_url in zip(self.testUrls, expected):
-            self.assertEqual(gs.GsUrlToHttp(gs_url, public=False), http_url)
-
-    def testPrivateDirectoryUrls(self):
-        """Test private https directory URLs."""
-        expected = [
-            "https://stainless.corp.google.com/browse/releases",
-            "https://stainless.corp.google.com/browse/releases/",
-            "https://stainless.corp.google.com/browse/releases/path",
-            "https://stainless.corp.google.com/browse/releases/path/",
-            "https://stainless.corp.google.com/browse/releases/path/file",
-        ]
-
-        for gs_url, http_url in zip(self.testUrls, expected):
-            self.assertEqual(
-                gs.GsUrlToHttp(gs_url, public=False, directory=True), http_url
-            )
 
 
 class VersionTest(AbstractGSContextTest):

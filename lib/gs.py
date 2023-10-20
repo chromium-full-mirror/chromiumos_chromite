@@ -19,7 +19,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import Dict, NamedTuple, Optional, Union
+from typing import Dict, NamedTuple, Optional
 import urllib.parse
 
 from chromite.lib import cache
@@ -31,23 +31,12 @@ from chromite.lib import retry_stats
 from chromite.lib import retry_util
 from chromite.lib import signals
 from chromite.lib import timeout_util
+from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
 
 # This bucket has the allAuthenticatedUsers:READER ACL.
 AUTHENTICATION_BUCKET = "gs://chromeos-authentication-bucket/"
-
-# Public path, only really works for files.
-PUBLIC_BASE_HTTPS_URL = "https://storage.googleapis.com/"
-
-# Private path for files.
-PRIVATE_BASE_HTTPS_URL = "https://storage.cloud.google.com/"
-
-# Private path for directories.
-# TODO(akeshet): this is a workaround for b/27653354. If that is ultimately
-# fixed, revisit this workaround.
-PRIVATE_BASE_HTTPS_DOWNLOAD_URL = "https://stainless.corp.google.com/browse/"
-BASE_GS_URL = "gs://"
 
 # Format used by "gsutil ls -l" when reporting modified time.
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
@@ -78,94 +67,6 @@ LS_RE = re.compile(
 # Format used by ContainsWildCard, which is duplicated from
 # https://github.com/GoogleCloudPlatform/gsutil/blob/v4.21/gslib/storage_url.py#L307.
 WILDCARD_REGEX = re.compile(r"[*?\[\]]")
-
-
-def PathIsGs(path: Union[str, os.PathLike]):
-    """Determine if |path| is a Google Storage URI.
-
-    We accept pathlib objects because our GS APIs handle local filesystem paths.
-    """
-    return isinstance(path, str) and path.startswith(BASE_GS_URL)
-
-
-def CanonicalizeURL(url, strict=False):
-    """Convert provided URL to gs:// URL, if it follows a known format.
-
-    Args:
-        url: URL to canonicalize.
-        strict: Raises exception if URL cannot be canonicalized.
-    """
-    for prefix in (
-        PUBLIC_BASE_HTTPS_URL,
-        PRIVATE_BASE_HTTPS_URL,
-        PRIVATE_BASE_HTTPS_DOWNLOAD_URL,
-        "https://pantheon.corp.google.com/storage/browser/",
-        "https://commondatastorage.googleapis.com/",
-    ):
-        if url.startswith(prefix):
-            return url.replace(prefix, BASE_GS_URL, 1)
-
-    if not PathIsGs(url) and strict:
-        raise ValueError("Url %r cannot be canonicalized." % url)
-
-    return url
-
-
-def GetGsURL(bucket, for_gsutil=False, public=True, suburl=""):
-    """Construct a Google Storage URL
-
-    Args:
-        bucket: The Google Storage bucket to use
-        for_gsutil: Do you want a URL for passing to `gsutil`?
-        public: Do we want the public or private url
-        suburl: A url fragment to tack onto the end
-
-    Returns:
-        The fully constructed URL
-    """
-    url = "gs://%s/%s" % (bucket, suburl)
-
-    if for_gsutil:
-        return url
-    else:
-        return GsUrlToHttp(url, public=public)
-
-
-def GsUrlToHttp(path, public=True, directory=False):
-    """Convert a GS URL to a HTTP URL for the same resource.
-
-    Because the HTTP Urls are not fixed (and may not always be simple prefix
-    replacements), use this method to centralize the conversion.
-
-    Directories need to have different URLs from files, because the Web UIs for
-    GS are weird and really inconsistent. Also, public directories probably
-    don't work, and probably never will (permissions as well as UI).
-
-    e.g. 'gs://chromeos-image-archive/path/file' ->
-         'https://pantheon/path/file'
-
-    Args:
-        path: GS URL to convert.
-        public: Is this URL for Googler access, or publicly visible?
-        directory: Force this URL to be treated as a directory?
-            We try to autodetect on False.
-
-    Returns:
-        https URL as a string.
-    """
-    assert PathIsGs(path)
-    directory = directory or path.endswith("/")
-
-    # Public HTTP URls for directories don't work'
-    # assert not public or not directory,
-
-    if public:
-        return path.replace(BASE_GS_URL, PUBLIC_BASE_HTTPS_URL, 1)
-    else:
-        if directory:
-            return path.replace(BASE_GS_URL, PRIVATE_BASE_HTTPS_DOWNLOAD_URL, 1)
-        else:
-            return path.replace(BASE_GS_URL, PRIVATE_BASE_HTTPS_URL, 1)
 
 
 class GSContextException(Exception):
@@ -364,7 +265,7 @@ class GSContext:
     GSUTIL_VERSION = "5.23"
     GSUTIL_TAR = "gsutil_%s.tar.gz" % GSUTIL_VERSION
     GSUTIL_URL = (
-        PUBLIC_BASE_HTTPS_URL
+        gs_urls_util.PUBLIC_BASE_HTTPS_URL
         + "chromeos-mirror/gentoo/distfiles/%s" % GSUTIL_TAR
     )
     GSUTIL_API_SELECTOR = "JSON"
@@ -790,7 +691,7 @@ wheel: <
         kwargs.setdefault("stdout", True)
         encoding = kwargs.setdefault("encoding", None)
         errors = kwargs.setdefault("errors", None)
-        if not PathIsGs(path):
+        if not gs_urls_util.PathIsGs(path):
             # gsutil doesn't support cat-ting a local path, so read it
             # ourselves.
             mode = "rb" if encoding is None else "r"
@@ -825,7 +726,7 @@ wheel: <
         Yields:
             The file content, chunk by chunk, as bytes.
         """
-        assert PathIsGs(path)
+        assert gs_urls_util.PathIsGs(path)
 
         if self.dry_run:
             return (lambda: (yield ""))()
@@ -1253,7 +1154,10 @@ wheel: <
 
             cmd += ["--", src_path, dest_path]
 
-            if not (PathIsGs(src_path) or PathIsGs(dest_path)):
+            if not (
+                gs_urls_util.PathIsGs(src_path)
+                or gs_urls_util.PathIsGs(dest_path)
+            ):
                 # Don't retry on local copies.
                 kwargs.setdefault("retries", 0)
 
@@ -1319,7 +1223,7 @@ wheel: <
         if self.dry_run:
             return []
 
-        if not PathIsGs(path):
+        if not gs_urls_util.PathIsGs(path):
             # gsutil doesn't support listing a local path, so just run 'ls'.
             kwargs.pop("retries", None)
             kwargs.pop("headers", None)
@@ -1404,7 +1308,7 @@ wheel: <
 
     def GetSize(self, path, **kwargs):
         """Returns size of a single object (local or GS)."""
-        if not PathIsGs(path):
+        if not gs_urls_util.PathIsGs(path):
             return os.path.getsize(path)
         else:
             return self.Stat(path, **kwargs).content_length
@@ -1508,7 +1412,7 @@ wheel: <
         Returns:
             True if the path exists; otherwise returns False.
         """
-        if not PathIsGs(path):
+        if not gs_urls_util.PathIsGs(path):
             return os.path.exists(path)
 
         try:

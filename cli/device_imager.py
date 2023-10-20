@@ -34,6 +34,7 @@ from chromite.lib.paygen import partition_lib
 from chromite.lib.paygen import paygen_stateful_payload_lib
 from chromite.lib.xbuddy import devserver_constants
 from chromite.lib.xbuddy import xbuddy
+from chromite.utils import gs_urls_util
 from chromite.utils import timer
 
 
@@ -194,7 +195,7 @@ class DeviceImager:
                 f"{self._image}: input must be a disk image, not a directory."
             )
 
-        if gs.PathIsGs(self._image):
+        if gs_urls_util.PathIsGs(self._image):
             # TODO(b/172212406): Check whether it is a directory. If it wasn't a
             # directory download the image into some temp location and use it
             # instead.
@@ -525,7 +526,7 @@ class GsFileCopier(ReaderBase):
     def run(self):
         """Runs the download and write into the output pipe."""
         try:
-            if gs.PathIsGs(self._image):
+            if gs_urls_util.PathIsGs(self._image):
                 gs.GSContext().Copy(self._image, self._Source())
             else:
                 with open(self._image, "rb") as fsrc:

@@ -18,6 +18,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import retry_util
+from chromite.utils import gs_urls_util
 
 
 # pylint: disable=protected-access
@@ -336,7 +337,7 @@ class RemoteCache(DiskCache):
         # as it only fetches files via non-gs URIs.
         from chromite.lib import gs
 
-        if gs.PathIsGs(url):
+        if gs_urls_util.PathIsGs(url):
             ctx = gs.GSContext()
             ctx.Copy(url, local_path)
         else:

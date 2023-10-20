@@ -20,7 +20,6 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
 from chromite.lib import goma_lib
-from chromite.lib import gs
 from chromite.lib import metadata_lib
 from chromite.lib import metrics
 from chromite.lib import osutils
@@ -29,6 +28,7 @@ from chromite.lib import results_lib
 from chromite.lib import retry_stats
 from chromite.lib import toolchain
 from chromite.lib import uri_lib
+from chromite.utils import gs_urls_util
 from chromite.utils import hostname_util
 from chromite.utils import key_value_store
 
@@ -609,7 +609,7 @@ class ReportStage(
                 index,
                 files,
                 title=title,
-                url_base=gs.GsUrlToHttp(archive.upload_url),
+                url_base=gs_urls_util.GsUrlToHttp(archive.upload_url),
             )
             commands.UploadArchivedFile(
                 archive_path,

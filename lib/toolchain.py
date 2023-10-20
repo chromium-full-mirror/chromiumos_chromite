@@ -12,10 +12,10 @@ from typing import List, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import toolchain_list
+from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
 
@@ -144,7 +144,7 @@ def GetSdkURL(for_gsutil=False, suburl=""):
     Returns:
         The fully constructed URL
     """
-    return gs.GetGsURL(
+    return gs_urls_util.GetGsURL(
         constants.SDK_GS_BUCKET, for_gsutil=for_gsutil, suburl=suburl
     )
 

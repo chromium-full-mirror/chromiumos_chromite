@@ -10,8 +10,8 @@ from typing import ContextManager, Sequence
 
 from chromite.lib import cache
 from chromite.lib import cros_build_lib
-from chromite.lib import gs
 from chromite.lib import path_util
+from chromite.utils import gs_urls_util
 
 
 CLANG_FORMAT_BUCKET = "gs://chromium-clang-format"
@@ -42,7 +42,7 @@ def GetClangFormatCache() -> ClangFormatCache:
 def ClangFormat() -> ContextManager[str]:
     """Context manager returning the clang-format binary."""
     key = (CLANG_FORMAT_SHA1,)
-    url = gs.GsUrlToHttp(f"{CLANG_FORMAT_BUCKET}/{CLANG_FORMAT_SHA1}")
+    url = gs_urls_util.GsUrlToHttp(f"{CLANG_FORMAT_BUCKET}/{CLANG_FORMAT_SHA1}")
     with GetClangFormatCache().Lookup(key) as ref:
         if not ref.Exists(lock=True):
             ref.SetDefault(url, lock=True)

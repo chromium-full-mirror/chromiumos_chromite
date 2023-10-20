@@ -17,10 +17,10 @@ from chromite.api.gen.chromite.api import binhost_pb2
 from chromite.lib import binpkg
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import sysroot_lib
 from chromite.service import binhost
+from chromite.utils import gs_urls_util
 
 
 if TYPE_CHECKING:
@@ -130,7 +130,7 @@ def PrepareBinhostUploads(
 
     uri = input_proto.uri
     # For now, we enforce that all input URIs are Google Storage buckets.
-    if not gs.PathIsGs(uri):
+    if not gs_urls_util.PathIsGs(uri):
         raise ValueError("Upload URI %s must be Google Storage." % uri)
 
     package_index_paths = [f.path.path for f in input_proto.package_index_files]
@@ -139,7 +139,10 @@ def PrepareBinhostUploads(
         return controller.RETURN_CODE_VALID_INPUT
 
     parsed_uri = urllib.parse.urlparse(uri)
-    upload_uri = gs.GetGsURL(parsed_uri.netloc, for_gsutil=True).rstrip("/")
+    upload_uri = gs_urls_util.GetGsURL(
+        parsed_uri.netloc,
+        for_gsutil=True,
+    ).rstrip("/")
     upload_path = parsed_uri.path.lstrip("/")
 
     # Read all packages and update the index. The index must be uploaded to the
@@ -196,14 +199,16 @@ def PrepareDevInstallBinhostUploads(
 
     uri = input_proto.uri
     # For now, we enforce that all input URIs are Google Storage buckets.
-    if not gs.PathIsGs(uri):
+    if not gs_urls_util.PathIsGs(uri):
         raise ValueError("Upload URI %s must be Google Storage." % uri)
 
     if config.validate_only:
         return controller.RETURN_CODE_VALID_INPUT
 
     parsed_uri = urllib.parse.urlparse(uri)
-    upload_uri = gs.GetGsURL(parsed_uri.netloc, for_gsutil=True).rstrip("/")
+    upload_uri = gs_urls_util.GetGsURL(
+        parsed_uri.netloc, for_gsutil=True
+    ).rstrip("/")
     upload_path = parsed_uri.path.lstrip("/")
 
     # Calculate the filename for the to-be-created Packages file, which will
@@ -273,10 +278,12 @@ def PrepareChromeBinhostUploads(
 
     uri = input_proto.uri
     # For now, we enforce that all input URIs are Google Storage buckets.
-    if not gs.PathIsGs(uri):
+    if not gs_urls_util.PathIsGs(uri):
         raise ValueError("Upload URI %s must be Google Storage." % uri)
     parsed_uri = urllib.parse.urlparse(uri)
-    gs_bucket = gs.GetGsURL(parsed_uri.netloc, for_gsutil=True).rstrip("/")
+    gs_bucket = gs_urls_util.GetGsURL(
+        parsed_uri.netloc, for_gsutil=True
+    ).rstrip("/")
     upload_path = parsed_uri.path.lstrip("/")
 
     # Determine the filename for the to-be-created Packages file, which will
@@ -334,7 +341,9 @@ def UpdatePackageIndex(
             raise ValueError("set_upload_location is True, but no uri provided")
         parsed_uri = urllib.parse.urlparse(input_proto.uri)
         pkgindex.SetUploadLocation(
-            gs.GetGsURL(parsed_uri.netloc, for_gsutil=True).rstrip("/"),
+            gs_urls_util.GetGsURL(parsed_uri.netloc, for_gsutil=True).rstrip(
+                "/"
+            ),
             parsed_uri.path.lstrip("/"),
         )
 
