@@ -2628,7 +2628,7 @@ oof
         self.assertEqual(modified[1], old_ebuild_path)
         self.assertEqual(modified[2], new_ebuild_path)
 
-        tarfile_name = f"{gcs_name}/starbase_client_installation.tar.zst"
+        tarfile_name = f"{gcs_name}/starbase_client_tarfile.tar.zst"
         # Check that the new ebuild file contains the expected content.
         new_ebuild_content = self.ebuild_content_format % tarfile_name
         found_content = osutils.ReadFile(new_ebuild_path)
