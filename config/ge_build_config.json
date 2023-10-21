@@ -11420,6 +11420,24 @@
         },
         {
           "board_name": "nissa-arc-t",
+          "name": "quandiso",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7278,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-arc-t",
+          "name": "quandiso360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7278,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-arc-t",
           "name": "uldren",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -11868,6 +11886,24 @@
         },
         {
           "board_name": "nissa-kernelnext",
+          "name": "quandiso",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-kernelnext",
+          "name": "quandiso360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-kernelnext",
           "name": "uldren",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -12084,6 +12120,26 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
           "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "quandiso",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "stable_target_milestone": 123,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "quandiso360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
