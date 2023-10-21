@@ -172,6 +172,7 @@ class StageTestCase(
         build_config["manifest_repo_url"] = "fake_url"
         if extra_config:
             build_config.update(extra_config)
+        options.managed_chrome = build_config["sync_chrome"]
 
         self._boards = build_config["boards"]
         self._current_board = self._boards[0] if self._boards else None

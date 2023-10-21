@@ -121,6 +121,22 @@ def _RunBuildStagesWrapper(options, site_config, build_config):
         )
         options.chrome_rev = constants.CHROME_REV_SPEC
 
+    # If it's likely we'll need to build Chrome, fetch the source.
+    if build_config["sync_chrome"] is None:
+        options.managed_chrome = chrome_rev != constants.CHROME_REV_LOCAL and (
+            not build_config["usepkg_build_packages"]
+            or chrome_rev
+            or build_config["profile"]
+        )
+    else:
+        options.managed_chrome = build_config["sync_chrome"]
+
+    chrome_root_mgr = None
+    if options.managed_chrome:
+        # Create a temp directory for syncing Chrome source.
+        chrome_root_mgr = osutils.TempDir(prefix="chrome_root_")
+        options.chrome_root = chrome_root_mgr.tempdir
+
     # We are done munging options values, so freeze options object now to avoid
     # further abuse of it.
     # TODO(mtennant): one by one identify each options value override and see if
@@ -155,8 +171,12 @@ def _RunBuildStagesWrapper(options, site_config, build_config):
         else:
             builder = builders.Builder(builder_run, build_store)
 
-        if not builder.Run():
-            sys.exit(1)
+        try:
+            if not builder.Run():
+                sys.exit(1)
+        finally:
+            if chrome_root_mgr:
+                chrome_root_mgr.Cleanup()
 
 
 def _CheckChromeVersionOption(_option, _opt_str, value, parser):
