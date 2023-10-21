@@ -970,12 +970,7 @@ def uprev_ebuild_from_pin(
     osutils.SafeUnlink(stable_ebuild.ebuild_path)
 
     try:
-        # UpdateEbuildManifest runs inside the chroot and therefore needs a
-        # chroot-relative path.
-        new_ebuild_chroot_path = os.path.join(
-            constants.CHROOT_SOURCE_ROOT, new_ebuild_path
-        )
-        portage_util.UpdateEbuildManifest(new_ebuild_chroot_path, chroot=chroot)
+        portage_util.UpdateEbuildManifest(new_ebuild_src_path, chroot=chroot)
     except cros_build_lib.RunCommandError as e:
         raise EbuildManifestError(
             "Unable to update manifest for %s: %s" % (package, e.stderr)
@@ -996,7 +991,6 @@ def uprev_workon_ebuild_to_version(
     *,
     allow_downrev: bool = True,
     ref: str = "HEAD",
-    chroot_src_root: str = str(constants.CHROOT_SOURCE_ROOT),
 ) -> UprevResult:
     """Uprev a cros-workon ebuild to a specified version.
 
@@ -1011,8 +1005,6 @@ def uprev_workon_ebuild_to_version(
             target version is older than the existing version, abort this
             downrev.
         ref: The target version's ref tag in the git repository to be used.
-        chroot_src_root: Path to the root of the source checkout when inside the
-            chroot. Only override for testing.
     """
     package_path = str(package_path)
     package = os.path.basename(package_path)
@@ -1102,10 +1094,7 @@ def uprev_workon_ebuild_to_version(
         osutils.SafeUnlink(stable_ebuild.ebuild_path)
 
     try:
-        # UpdateEbuildManifest runs inside the chroot and therefore needs a
-        # chroot-relative path.
-        new_ebuild_chroot_path = os.path.join(chroot_src_root, new_ebuild_path)
-        portage_util.UpdateEbuildManifest(new_ebuild_chroot_path, chroot=chroot)
+        portage_util.UpdateEbuildManifest(new_ebuild_src_path, chroot=chroot)
     except cros_build_lib.RunCommandError as e:
         raise EbuildManifestError(
             f"Unable to update manifest for {package}: {e.stderr}"

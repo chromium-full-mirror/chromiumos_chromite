@@ -608,7 +608,6 @@ def test_non_workon_fails_uprev_workon_ebuild_to_version(
             pathlib.Path(unstable_package.category) / unstable_package.package,
             target_version="1",
             chroot=chroot_lib.Chroot(),
-            chroot_src_root=overlay.path,
         )
 
     stable_package = package_info.PackageInfo(
@@ -641,7 +640,6 @@ def test_simple_uprev_workon_ebuild_to_version(overlay_stack, monkeypatch):
         pathlib.Path(unstable_package.category) / unstable_package.package,
         target_version="1",
         chroot=chroot_lib.Chroot(),
-        chroot_src_root=overlay.path,
     )
 
     assert res.outcome is uprev_lib.Outcome.NEW_EBUILD_CREATED
@@ -681,7 +679,6 @@ def test_uprev_workon_ebuild_to_version_newer_exists(
         "1.2.3",
         allow_downrev=False,
         chroot=chroot_lib.Chroot(),
-        chroot_src_root=overlay.path,
     )
 
     assert not result

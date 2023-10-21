@@ -1306,7 +1306,6 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
 
 def starbase_find_and_uprev(
     package_path: str,
-    chroot_package_path: str,
     gcs_name: str,
     chroot: "chroot_lib.Chroot",
 ) -> List[str]:
@@ -1369,11 +1368,10 @@ def starbase_find_and_uprev(
     osutils.WriteFile(new_ebuild_path, "\n".join(lines) + "\n")
     osutils.SafeUnlink(old_ebuild_path)
 
-    # Update Manifest.  The "ebuild manifest" command runs inside
-    # the chroot, and therefore needs the chroot path name.
+    # Update Manifest.
     releaseless_ebuild = f"starbase-artifacts-{ebuild_version}.ebuild"
     releaseless_ebuild_path = os.path.join(
-        chroot_package_path,
+        package_path,
         releaseless_ebuild,
     )
     portage_util.UpdateEbuildManifest(releaseless_ebuild_path, chroot)
@@ -1409,9 +1407,6 @@ def uprev_starbase_artifacts(
         "starbase-artifacts",
     )
     package_path = str(constants.SOURCE_ROOT.joinpath(relative_package_path))
-    chroot_package_path = str(
-        constants.CHROOT_SOURCE_ROOT.joinpath(relative_package_path)
-    )
 
     logging.info("Starbase uprev: refs[0] = %s", refs[0])
     # gcs_name is the GCS directory of the artifacts.
@@ -1421,7 +1416,6 @@ def uprev_starbase_artifacts(
     artifacts_version = refs[0].ref[-14:]
     modified_files = starbase_find_and_uprev(
         package_path,
-        chroot_package_path,
         gcs_name,
         chroot,
     )

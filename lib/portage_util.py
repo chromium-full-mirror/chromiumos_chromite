@@ -3265,12 +3265,13 @@ def UpdateEbuildManifest(
     """Updates the ebuild manifest for the provided ebuild path.
 
     Args:
-        ebuild_path: The absolute path to the ebuild.
+        ebuild_path: The outside-chroot absolute path to the ebuild.
         chroot: The chroot to enter.
 
     Returns:
         The command result.
     """
 
-    command = ["ebuild", ebuild_path, "manifest", "--force"]
+    chroot_ebuild_path = chroot.chroot_path(ebuild_path)
+    command = ["ebuild", chroot_ebuild_path, "manifest", "--force"]
     return chroot.run(command)
