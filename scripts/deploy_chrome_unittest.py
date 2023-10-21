@@ -814,7 +814,7 @@ class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
             self._ran_start_command = True
 
         self.rc.AddCmdResult(
-            partial_mock.In("start ui"), side_effect=start_ui_side_effect
+            partial_mock.ListRegex("start ui"), side_effect=start_ui_side_effect
         )
 
     def prepareDeploy(self, options=None):

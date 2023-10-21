@@ -289,7 +289,7 @@ class DeployChrome:
         """
         if self._CheckUiJobStarted():
             logging.info("Shutting down Chrome...")
-            self.device.run("stop ui")
+            self.device.run(["stop", "ui"])
 
         # Developers sometimes run session_manager manually, in which case we'll
         # need to help shut the chrome processes down.
@@ -509,7 +509,7 @@ class DeployChrome:
         if self.options.startui and self._stopped_ui:
             last_login = self._GetLastLogin()
             logging.info("Starting UI...")
-            self.device.run("start ui")
+            self.device.run(["start", "ui"])
 
             if self.options.unlock_password:
                 logging.info("Unlocking...")
@@ -731,7 +731,7 @@ class DeployChrome:
             if not self.device.IsDirWritable(self.options.target_dir):
                 if self.options.startui and self._stopped_ui:
                     logging.info("Restarting Chrome...")
-                    self.device.run("start ui")
+                    self.device.run(["start", "ui"])
                 raise DeployFailure(
                     "Target location is not writable. Aborting."
                 )
