@@ -30,6 +30,7 @@ PROTOC_MAJOR_VERSION = "4"
 
 _CIPD_PACKAGE = "infra/3pp/tools/protoc/linux-amd64"
 _CIPD_PACKAGE_VERSION = f"version:2@{PROTOC_VERSION}"
+_CHROMEOS_CONFIG_PATH = constants.SOURCE_ROOT / "src" / "config"
 
 
 class Error(Exception):
@@ -124,7 +125,8 @@ def check_upstream_changes(repo: Path) -> None:
         ["ls-remote", upstream.remote, upstream.ref],
     ).stdout.split(maxsplit=1)[0]
     logging.notice(
-        "Ensuring proto dir contains %s from %s",
+        "Ensuring proto dir %s contains %s from %s",
+        repo.relative_to(constants.SOURCE_ROOT),
         upstream.ref,
         upstream.remote,
     )
@@ -207,7 +209,7 @@ def _GenerateFiles(
 
     targets = []
 
-    chromeos_config_path = constants.SOURCE_ROOT / "src" / "config"
+    chromeos_config_path = _CHROMEOS_CONFIG_PATH
 
     with tempfile.TemporaryDirectory() as tempdir:
         if not chromeos_config_path.exists():
@@ -470,6 +472,8 @@ def main(argv):
         # Validate here to avoid checking again inside the chroot.
         if opts.check_upstream_proto_changes_included:
             check_upstream_changes(ProtocVersion.CHROMITE.get_proto_dir())
+            if _CHROMEOS_CONFIG_PATH.exists():
+                check_upstream_changes(_CHROMEOS_CONFIG_PATH)
 
         # Compile the chromite bindings.
         try:
