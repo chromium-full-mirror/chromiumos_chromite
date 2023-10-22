@@ -6,6 +6,7 @@
 
 import os
 from pathlib import Path
+from typing import Optional
 
 from chromite.api import field_handler
 from chromite.api.gen.chromite.api import build_api_test_pb2
@@ -411,8 +412,8 @@ class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(file_content, osutils.ReadFile(self.sf_src_file))
 
 
-class ExtractResultsTest(cros_test_lib.MockTempDirTestCase):
-    """Tests for extract_results."""
+class ExtractResultsTestBase(cros_test_lib.MockTempDirTestCase):
+    """Base class to set up tests for extract_results."""
 
     def setUp(self):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
@@ -457,6 +458,10 @@ class ExtractResultsTest(cros_test_lib.MockTempDirTestCase):
             path=self.chroot_dir, out_path=self.tempdir / "out"
         )
         osutils.SafeMakedirs(self.chroot.tmp)
+
+
+class ExtractResultsTest(ExtractResultsTestBase):
+    """Tests for extract_results."""
 
     def _path_checks(self, path, destination, contents=None):
         self.assertTrue(path)
@@ -594,3 +599,66 @@ class ExtractResultsTest(cros_test_lib.MockTempDirTestCase):
         expected = os.listdir(self.chroot_source)
         expected.extend(os.listdir(self.chroot_source2))
         self.assertCountEqual(expected, os.listdir(self.response.artifact.path))
+
+
+class TransferResultsTest(ExtractResultsTestBase):
+    """Tests extract_results when ResultPath.transfer is TRANSFER_TRANSLATE."""
+
+    def setUp(self) -> None:
+        self.request.result_path.path.path = ""
+        self.request.result_path.transfer = (
+            common_pb2.ResultPath.TRANSFER_TRANSLATE
+        )
+
+    def extract_results(
+        self, check_exists: Optional[bool] = True
+    ) -> common_pb2.Path:
+        """Helper to extract_results() with data member proto messages."""
+        field_handler.extract_results(self.request, self.response, self.chroot)
+
+        # Validate the output path on the response when no error raised.
+        self.assertTrue(self.response.artifact.path)
+        if check_exists:
+            self.assertExists(self.response.artifact.path)
+        return self.response.artifact
+
+    def test_non_empty_result_path(self) -> None:
+        """Ensure exception raised if ResultPath proto has a destination."""
+        self.request.result_path.path.path = "/tmp"
+        with self.assertRaises(field_handler.InvalidResultPathError):
+            self.extract_results()
+
+    def test_file_inside(self) -> None:
+        """Test path translation of a single file inside the chroot."""
+        self.response.artifact.path = self.source_file1_inside
+        self.response.artifact.location = common_pb2.Path.INSIDE
+
+        path = self.extract_results()
+
+        self.assertEqual(path.path, self.source_file1)
+        self.assertEqual(path.location, common_pb2.Path.OUTSIDE)
+
+    def test_file_outside(self) -> None:
+        """Test outside paths are unchanged."""
+        self.response.artifact.path = self.source_file1
+        self.response.artifact.location = common_pb2.Path.OUTSIDE
+
+        path = self.extract_results()
+
+        self.assertEqual(path.path, self.source_file1)
+        self.assertEqual(path.location, common_pb2.Path.OUTSIDE)
+
+    def test_dir_in_stateful_output_dir(self) -> None:
+        """Test a folder in a stateful out dir is mapped."""
+        osutils.SafeMakedirs(os.path.join(self.chroot_dir, "var", "tmp", "foo"))
+        self.response.artifact.path = "/var/tmp/foo"
+        self.response.artifact.location = common_pb2.Path.INSIDE
+
+        # The bind mounts don't exist in the test harness temp dir, so the file
+        # will not actually exist at the remapped path.
+        path = self.extract_results(check_exists=False)
+
+        self.assertEqual(
+            path.path, os.path.join(self.tempdir, "out", "sdk", "tmp", "foo")
+        )
+        self.assertEqual(path.location, common_pb2.Path.OUTSIDE)

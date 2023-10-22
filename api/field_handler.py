@@ -35,6 +35,10 @@ class MissingChrootMessage(Error):
     """Message is missing Chroot field."""
 
 
+class InvalidPathHandlerError(Error):
+    """PathHandler params are invalid."""
+
+
 class ChrootHandler:
     """Translate a Chroot message to chroot enter arguments and env."""
 
@@ -107,7 +111,7 @@ def handle_remoteexec(message: protobuf_message.Message):
 
 
 class PathHandler:
-    """Handles copying a file or directory into or out of the chroot."""
+    """Handles transferring a file or directory into or out of the chroot."""
 
     INSIDE = common_pb2.Path.INSIDE
     OUTSIDE = common_pb2.Path.OUTSIDE
@@ -124,7 +128,8 @@ class PathHandler:
 
         Args:
             field: The Path message.
-            destination: The destination base path.
+            destination: The destination base path. If not set, paths are
+                translated only.
             delete: Whether the copied file(s) should be deleted on cleanup.
             chroot: Chroot object to use for translating the paths in/out of
                 the chroot as necessary -- modifying the destination path when
@@ -135,6 +140,10 @@ class PathHandler:
         assert isinstance(field, common_pb2.Path)
         assert field.path
         assert field.location
+        if delete and not destination:
+            raise InvalidPathHandlerError(
+                "`delete` cannot be set with no destination."
+            )
 
         self.field = field
         self.destination = destination
@@ -177,24 +186,32 @@ class PathHandler:
         if direction == self.OUTSIDE and self.chroot:
             source = self.chroot.full_path(source)
 
-        if os.path.isfile(source):
-            # File - use the old file name, just copy it into the destination.
-            dest_path = os.path.join(destination, os.path.basename(source))
-            copy_fn = shutil.copy
+        if not destination:
+            # Handle TRANSFER_TRANSLATE. Either `Chroot.full_path` or
+            # `Chroot.chroot_path` will do the actual translation.
+            dest_path = source
         else:
-            # Directory - just copy everything into the new location.
-            dest_path = destination
-            copy_fn = functools.partial(
-                osutils.CopyDirContents, allow_nonempty=True
-            )
+            if os.path.isfile(source):
+                # File - use old file name, just copy it into the destination.
+                dest_path = os.path.join(destination, os.path.basename(source))
+                copy_fn = shutil.copy
+            else:
+                # Directory - just copy everything into the new location.
+                dest_path = destination
+                copy_fn = functools.partial(
+                    osutils.CopyDirContents, allow_nonempty=True
+                )
 
-        logging.debug("Copying %s to %s", source, dest_path)
-        copy_fn(source, dest_path)
+            logging.debug("Copying %s to %s", source, dest_path)
+            copy_fn(source, dest_path)
 
         # Clean up the destination path for returning, if applicable.
         return_path = dest_path
         if direction == self.INSIDE and self.chroot:
             return_path = self.chroot.chroot_path(return_path)
+
+        if not destination:
+            logging.debug("Translated %s to %s", self.field.path, return_path)
 
         self.field.path = return_path
         self.field.location = direction
@@ -353,8 +370,14 @@ def extract_results(
         return
 
     destination = result_path_message.path.path
-    # ResultPath wasn't filled; don't copy to undefined location.
-    if not destination:
+    if result_path_message.transfer == common_pb2.ResultPath.TRANSFER_TRANSLATE:
+        if destination:
+            raise InvalidResultPathError(
+                "ResultPath.path must be empty for TRANSFER_TRANSLATE."
+                f" Value=`{destination}`."
+            )
+    elif not destination:
+        # ResultPath wasn't filled; don't copy to undefined location.
         return
 
     handlers = _extract_handlers(
@@ -398,9 +421,10 @@ def _extract_handlers(
         )
         return [handler]
     elif is_synced_target and isinstance(message, common_pb2.SyncedDir):
-        if not message.dir:
+        if not message.dir or not destination:
             logging.debug(
-                "Skipping %s; no directory given.", field_name or "message"
+                "Skipping %s; no directory given or missing destination.",
+                field_name or "message",
             )
             return []
 
