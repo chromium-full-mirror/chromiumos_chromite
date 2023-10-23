@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 import * as vscode from 'vscode';
+import * as eclass from '../../../common/chromiumos/portage/eclass';
 import * as parse from '../../../common/chromiumos/portage/parse';
 
 export function activate(
@@ -38,6 +39,25 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
       // Does not provide link for ebuild file failed to be parsed (e.g. edit-
       // in-progress file has open parenthesis or quotes).
       return [];
+    }
+
+    for (const parsedEclass of parsedEbuild.inherits) {
+      const path = eclass.findEclassFilePath(
+        parsedEclass.name,
+        this.chromiumosRoot
+      );
+      if (path !== undefined) {
+        links.push(
+          ...this.createLinks(
+            parsedEclass.range,
+            path.substring(
+              path.lastIndexOf(this.chromiumosRoot) +
+                this.chromiumosRoot.length +
+                1 // Trailing directory delimiter after path to CrOS root.
+            )
+          )
+        );
+      }
     }
 
     // Support only one (the last) localname assignment.

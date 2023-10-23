@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import dedent from 'dedent';
 import {EbuildLinkProvider} from '../../../../../features/chromiumos/ebuild/ebuild_link_provider';
+import * as testing from '../../../../testing';
 import {
   FakeCancellationToken,
   FakeTextDocument,
@@ -39,7 +40,11 @@ function openFolderCmdUri(path: string): vscode.Uri {
 /**
  * Return the pair of external codesearch link and vscode document link for given range and file path.
  */
-function links(range: vscode.Range, path: string): vscode.DocumentLink[] {
+function links(
+  range: vscode.Range,
+  path: string,
+  pathToCros = '/path/to/cros'
+): vscode.DocumentLink[] {
   return [
     documentLink(
       range,
@@ -48,13 +53,13 @@ function links(range: vscode.Range, path: string): vscode.DocumentLink[] {
     ),
     documentLink(
       range,
-      openFolderCmdUri(`/path/to/cros/${path}`),
+      openFolderCmdUri(`${pathToCros}/${path}`),
       `Open ${path} in New VS Code Window`
     ),
   ];
 }
 
-describe('Ebuild Link Provider', () => {
+describe('Ebuild Link Provider for CROS_WORKON variables', () => {
   it('extracts links from string-type value', async () => {
     const CONTENT = dedent`# copyright
         EAPI=7
@@ -142,8 +147,6 @@ CROS_WORKON_LOCALNAME=(
 \t"aosp/system/core/libcutils"
 )
 
-inherit cros-constants
-
 CROS_WORKON_INCREMENTAL_BUILD="1"
 
 CROS_WORKON_DESTDIR=(
@@ -171,10 +174,10 @@ PLATFORM_SUBDIR="arc/keymint"
     const RANGE_PLATFORM2 = new vscode.Range(4, 3, 4, 12);
     const RANGE_SYSTEM_KEYMINT = new vscode.Range(5, 3, 5, 22);
     const RANGE_LIBCUTILS = new vscode.Range(6, 3, 6, 29);
-    const RANGE_COMMONMK = new vscode.Range(20, 3, 20, 12);
-    const RANGE_FEATURED = new vscode.Range(20, 13, 20, 21);
-    const RANGE_ARC_KEYMINT = new vscode.Range(20, 22, 20, 33);
-    const RANGE_GN = new vscode.Range(20, 34, 20, 37);
+    const RANGE_COMMONMK = new vscode.Range(18, 3, 18, 12);
+    const RANGE_FEATURED = new vscode.Range(18, 13, 18, 21);
+    const RANGE_ARC_KEYMINT = new vscode.Range(18, 22, 18, 33);
+    const RANGE_GN = new vscode.Range(18, 34, 18, 37);
 
     const PLATFORM2 = 'src/platform2';
     const SYSTEM_KEYMINT = 'src/aosp/system/keymint';
@@ -202,8 +205,6 @@ PLATFORM_SUBDIR="arc/keymint"
 EAPI="7"
 CROS_WORKON_PROJECT="chromiumos/platform/tpm"
 CROS_WORKON_LOCALNAME="../third_party/tpm"
-
-inherit cros-sanitizers cros-workon toolchain-funcs
     `;
 
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
@@ -255,5 +256,99 @@ PLATFORM_SUBDIR="arc/keymint"
         links(RANGE_SYSTEM_KEYMINT, SYSTEM_KEYMINT),
       ].flat()
     );
+  });
+});
+
+describe('Ebuild Link Provider for inherits', () => {
+  const tempDir = testing.tempDir();
+  it('handles single inherit', async () => {
+    await testing.putFiles(tempDir.path, {
+      'src/third_party/eclass-overlay/eclass/cros-constants.eclass':
+        'cros-constants',
+    });
+
+    const CONTENT = `# copyright
+EAPI=7
+inherit cros-constants
+  `;
+    const ebuildLinkProvider = new EbuildLinkProvider(tempDir.path);
+    const textDocument = new FakeTextDocument({text: CONTENT});
+
+    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+      textDocument,
+      new FakeCancellationToken()
+    );
+
+    expect(documentLinks).toEqual(
+      [
+        // cros-constants
+        links(
+          new vscode.Range(2, 8, 2, 22),
+          'src/third_party/eclass-overlay/eclass/cros-constants.eclass',
+          tempDir.path
+        ),
+      ].flat()
+    );
+  });
+
+  it('handles multiple inherit', async () => {
+    await testing.putFiles(tempDir.path, {
+      'src/third_party/chromiumos-overlay/eclass/cros-sanitizers.eclass':
+        'cros-sanitizers',
+      'src/third_party/chromiumos-overlay/eclass/cros-workon.eclass':
+        'cros-workon',
+      'src/third_party/chromiumos-overlay/eclass/toolchain-funcs.eclass':
+        'toolchain-funcs',
+    });
+    const CONTENT = `# copyright
+EAPI=7
+inherit cros-sanitizers cros-workon toolchain-funcs
+  `;
+    const ebuildLinkProvider = new EbuildLinkProvider(tempDir.path);
+    const textDocument = new FakeTextDocument({text: CONTENT});
+
+    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+      textDocument,
+      new FakeCancellationToken()
+    );
+
+    expect(documentLinks).toEqual(
+      [
+        // cros-sanitizers
+        links(
+          new vscode.Range(2, 8, 2, 23),
+          'src/third_party/chromiumos-overlay/eclass/cros-sanitizers.eclass',
+          tempDir.path
+        ),
+        // cros-workon
+        links(
+          new vscode.Range(2, 24, 2, 35),
+          'src/third_party/chromiumos-overlay/eclass/cros-workon.eclass',
+          tempDir.path
+        ),
+        // toolchain-funcs
+        links(
+          new vscode.Range(2, 36, 2, 51),
+          'src/third_party/chromiumos-overlay/eclass/toolchain-funcs.eclass',
+          tempDir.path
+        ),
+      ].flat()
+    );
+  });
+
+  it('does not generate link when eclass not found', async () => {
+    const CONTENT = `# copyright
+EAPI=7
+inherit non-exist-eclass
+  `;
+    const ebuildLinkProvider = new EbuildLinkProvider(tempDir.path);
+    const textDocument = new FakeTextDocument({text: CONTENT});
+
+    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+      textDocument,
+      new FakeCancellationToken()
+    );
+
+    expect(documentLinks).toEqual([]);
   });
 });
