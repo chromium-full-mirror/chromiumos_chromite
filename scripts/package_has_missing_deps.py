@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import enum
 import logging
 import os
 from pathlib import Path
@@ -39,6 +40,7 @@ from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
+from chromite.utils import pformat
 
 
 VIRTUALS = {
@@ -122,6 +124,19 @@ VIRTUALS = {
 }
 
 
+class OutputFormat(enum.Enum):
+    """Type for the requested output format."""
+
+    # Automatically determine the format based on what the user might want.
+    # This is PRETTY if attached to a terminal, RAW otherwise.
+    AUTO = enum.auto()
+    AUTOMATIC = AUTO
+    # Output packages one per line, suitable for mild scripting.
+    RAW = enum.auto()
+    # Suitable for viewing in a color terminal.
+    PRETTY = enum.auto()
+
+
 T = TypeVar("T")
 
 
@@ -130,6 +145,16 @@ class ResultSet(Generic[T], NamedTuple):
 
     target: Set[T]
     sdk: Set[T]
+
+
+class MissingDependencyDetails(NamedTuple):
+    """Information about a package with missing dependencies."""
+
+    package: str
+    unsatisfied_libs: List[str]
+    unsatisfied_sdk_libs: List[str]
+    depend: List[str]
+    bdepend: List[str]
 
 
 def is_sdk_path(path: str) -> bool:
@@ -515,6 +540,14 @@ def get_parser() -> commandline.ArgumentParser:
         help="Number of parallel processes",
     )
 
+    parser.set_defaults(format=OutputFormat.AUTO)
+    parser.add_argument(
+        "--format",
+        action="enum",
+        enum=OutputFormat,
+        help="Output format to use.",
+    )
+
     return parser
 
 
@@ -528,6 +561,11 @@ def parse_arguments(argv: List[str]) -> argparse.Namespace:
         parser.error("--image requires --board-info")
     if opts.build_info or len(opts.package) == 1:
         opts.jobs = 1
+    if opts.format is OutputFormat.AUTO:
+        if sys.stdout.isatty():
+            opts.format = OutputFormat.PRETTY
+        else:
+            opts.format = OutputFormat.RAW
     return opts
 
 
@@ -536,55 +574,73 @@ def check_package(
     implicit: Set[str],
     resolver: DotSoResolver,
     match: bool,
-    debug: bool,
-) -> bool:
+) -> Optional[MissingDependencyDetails]:
     """Returns false if the package has missing dependencies"""
     if not package:
         print("Package not installed")
-        return False
+        return None
 
     provided, sdk_provided = resolver.get_provided_from_all_deps(package)
-    if debug:
-        print("provided")
-        pprint.pprint(sorted(provided))
+    logging.debug("provided: %s", pprint.pformat(sorted(provided)))
 
     available = provided.union(implicit)
     sdk_available = sdk_provided.union(implicit)
     required, sdk_required = resolver.get_required_libs(package)
-    if debug:
-        print("required")
-        pprint.pprint(sorted(required))
-    unsatisfied = required - available
-    sdk_unsatisfied = sdk_required - sdk_available
-    cpvr = package.package_info.cpvr
-    if unsatisfied:
-        print(
-            f"'{cpvr}': Package is linked against libraries that are not "
-            "listed as dependencies in the ebuild:"
-        )
-        pprint.pprint(sorted(unsatisfied))
-        if match:
-            missing = set()
-            for lib in unsatisfied:
-                missing.update(resolver.lib_to_package(lib, from_sdk=False))
-            if missing:
-                print(f"'{cpvr}': needs the following added to DEPEND/RDEPEND:")
-                pprint.pprint(sorted(missing))
-    if sdk_unsatisfied:
-        print(
-            f"'{cpvr}': Package is linked against sdk libraries that are not "
-            "listed as build dependencies in the ebuild:"
-        )
-        pprint.pprint(sorted(sdk_unsatisfied))
-        if match:
-            missing = set()
-            for lib in sdk_unsatisfied:
-                missing.update(resolver.lib_to_package(lib, from_sdk=True))
-            if missing:
-                print(f"'{cpvr}': needs the following added to BDEPEND:")
-                pprint.pprint(sorted(missing))
+    logging.debug("required: %s", pprint.pformat(sorted(required)))
+    unsatisfied = sorted(required - available)
+    sdk_unsatisfied = sorted(sdk_required - sdk_available)
+    details = {
+        "package": package.package_info.cpvr,
+        "unsatisfied_libs": unsatisfied,
+        "unsatisfied_sdk_libs": sdk_unsatisfied,
+        "depend": [],
+        "bdepend": [],
+    }
+    if match:
+        missing = set()
+        for lib in unsatisfied:
+            missing.update(resolver.lib_to_package(lib, from_sdk=False))
+        details["depend"] = sorted(missing)
 
-    return not unsatisfied and not sdk_unsatisfied
+        missing = set()
+        for lib in sdk_unsatisfied:
+            missing.update(resolver.lib_to_package(lib, from_sdk=True))
+        details["bdepend"] = sorted(missing)
+    return (
+        MissingDependencyDetails(**details)
+        if unsatisfied or sdk_unsatisfied
+        else None
+    )
+
+
+def pretty_print(details: MissingDependencyDetails):
+    """Handle --format=pretty"""
+    if details.unsatisfied_libs:
+        print(
+            f"'{details.package}': Package is linked against libraries that "
+            "are not listed as dependencies in the ebuild:"
+        )
+        pprint.pprint(details.unsatisfied_libs)
+    if details.depend:
+        print(
+            f"'{details.package}': needs the following added to DEPEND/RDEPEND:"
+        )
+        pprint.pprint(details.depend)
+    if details.unsatisfied_sdk_libs:
+        print(
+            f"'{details.package}': Package is linked against sdk libraries "
+            "that are not listed as build dependencies in the ebuild:"
+        )
+        pprint.pprint(details.unsatisfied_sdk_libs)
+    if details.bdepend:
+        print(f"'{details.package}': needs the following added to BDEPEND:")
+        pprint.pprint(details.bdepend)
+
+
+def raw_print(details: MissingDependencyDetails):
+    """Handle --format=raw"""
+    pformat.json(details._asdict(), fp=sys.stdout, compact=True)
+    print()
 
 
 def main(argv: Optional[List[str]]):
@@ -623,22 +679,27 @@ def main(argv: Optional[List[str]]):
         # Pre initialize the map before starting jobs.
         resolver.lib_to_package()
     for package in packages:
-        if not check_package(
+        details = check_package(
             package,
             implicit,
             resolver,
             opts.match,
-            opts.debug,
-        ):
+        )
+        if details:
             failed = True
+            if opts.format == OutputFormat.PRETTY:
+                pretty_print(details)
+            else:
+                raw_print(details)
 
     if failed:
-        print(
-            """\
+        if opts.format == OutputFormat.PRETTY:
+            print(
+                """\
 For more information about DEPEND vs. RDEPEND in ebuilds see:
 https://chromium.googlesource.com/chromiumos/docs/+/HEAD/portage/\
 ebuild_faq.md#dependency-types"""
-        )
+            )
         sys.exit(1)
 
 
