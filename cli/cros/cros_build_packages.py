@@ -448,6 +448,11 @@ class BuildPackagesCommand(command.CliCommand):
             options.internal_chrome = True
             options.use_any_chrome = False
 
+        if options.cleanbuild:
+            # Turn off incremental builds when force replacing the sysroot since
+            # they can't be incremental.
+            options.withrevdeps = False
+
         options.setup_board_run_config = sysroot.SetupBoardRunConfig(
             force=options.cleanbuild,
             usepkg=options.usepkg,
@@ -475,7 +480,6 @@ class BuildPackagesCommand(command.CliCommand):
             autosetgov_sticky=options.autosetgov_sticky,
             use_any_chrome=options.use_any_chrome,
             internal_chrome=options.internal,
-            clean_build=options.cleanbuild,
             eclean=options.eclean,
             jobs=options.jobs,
             local_pkg=options.reuse_pkgs_from_local_boards,
@@ -517,16 +521,21 @@ def build_packages(opts: commandline.ArgumentNamespace):
     build_target = build_target_lib.BuildTarget(
         opts.board, build_root=opts.sysroot
     )
+    board_root = sysroot_lib.Sysroot(build_target.root)
+    if not board_root.Exists():
+        # Disable incremental builds when the sysroot doesn't exist.
+        opts.build_run_config.is_incremental = False
+
     span.set_attributes(
         {
             "board": build_target.name,
             "packages": opts.packages or [],
+            "is_complete": not opts.packages,
+            "is_incremental": opts.build_run_config.is_incremental,
             "workon": opts.workon is True,
             "bazel": opts.bazel is True,
         }
     )
-
-    board_root = sysroot_lib.Sysroot(build_target.root)
 
     # TODO(xcl): Update run_configs to have a common base set of configs for
     # setup_board and cros build-packages.

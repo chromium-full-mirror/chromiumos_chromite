@@ -206,7 +206,6 @@ class BuildPackagesRunConfig:
         autosetgov_sticky: bool = False,
         use_any_chrome: bool = True,
         internal_chrome: bool = False,
-        clean_build: bool = False,
         eclean: bool = True,
         jobs: Optional[int] = None,
         local_pkg: bool = False,
@@ -246,8 +245,6 @@ class BuildPackagesRunConfig:
             use_any_chrome: Use any Chrome prebuilt available, even if the
                 prebuilt doesn't match exactly.
             internal_chrome: Build the internal version of chrome.
-            clean_build: Perform a clean build; delete sysroot if it exists
-                before building.
             eclean: Run eclean to delete old binpkgs.
             jobs: How many packages to build in parallel at maximum.
             local_pkg: Bootstrap from local packages instead of remote packages.
@@ -277,7 +274,6 @@ class BuildPackagesRunConfig:
         self.autosetgov_sticky = autosetgov_sticky
         self.use_any_chrome = use_any_chrome
         self.internal_chrome = internal_chrome
-        self.clean_build = clean_build
         self.eclean = eclean
         self.jobs = jobs
         self.local_pkg = local_pkg
@@ -397,12 +393,9 @@ class BuildPackagesRunConfig:
                 )
                 force_local_build_packages.update(reverse_dependencies)
 
-        # Determine base install packages and reverse dependencies if
-        # incremental build (--withdevdeps) and clean build (--cleanbuild) is
-        # not specified or the sysroot path exists.
-        if self.is_incremental and (
-            not self.clean_build or sysroot_path.exists()
-        ):
+        # Determine base install packages and reverse dependencies when doing an
+        # incremental build.
+        if self.is_incremental:
             logging.info("Starting reverse dependency calculations...")
 
             # Temporarily modify the emerge flags so we can calculate the
@@ -1074,7 +1067,9 @@ def _GetCrosWorkonPackages(sysroot: Union[str, os.PathLike]) -> _PACKAGE_LIST:
 
 
 def _GetBaseInstallPackages(
-    sysroot: Union[str, os.PathLike], emerge_flags: str, packages: List[str]
+    sysroot: Union[str, os.PathLike],
+    emerge_flags: List[str],
+    packages: List[str],
 ) -> List[Optional[str]]:
     """Get packages to determine reverse dependencies for.
 

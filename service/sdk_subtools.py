@@ -125,7 +125,6 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
         packages=packages,
         jobs=jobs,
         usepkg=False,
-        clean_build=False,
         eclean=False,
     )
 

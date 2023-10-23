@@ -618,19 +618,6 @@ class BuildPackagesRunConfigTest(
                 inverted=True,
             )
 
-        # Test base install packages and their reverse dependencies are skipped
-        # when --cleanbuild is specified and the sysroot does not exist.
-        instance = sysroot.BuildPackagesRunConfig(clean_build=True)
-
-        with cros_test_lib.LoggingCapturer() as logs:
-            instance.GetForceLocalBuildPackages(test_sysroot)
-
-            self.AssertLogsContain(
-                logs,
-                "Starting reverse dependency calculations...",
-                inverted=True,
-            )
-
     def testGetEmergeFlags(self):
         """Test building the emerge flags."""
         # Test the default config.
