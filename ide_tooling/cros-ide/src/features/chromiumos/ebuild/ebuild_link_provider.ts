@@ -11,7 +11,7 @@ export function activate(
 ): void {
   context.subscriptions.push(
     vscode.languages.registerDocumentLinkProvider(
-      {language: 'shellscript', pattern: '**/*.ebuild'},
+      {language: 'shellscript', pattern: '**/*.{ebuild,eclass}'},
       new EbuildLinkProvider(chromiumosRoot)
     )
   );

@@ -95,7 +95,7 @@ export function parseEbuildOrThrow(content: string): ParsedEbuild {
   const positions = indexToPositions(content);
 
   // RE for matching lines with variable assignment or inherits eclass.
-  const focusLineStartRE = /^(?:([\w_][\w\d_]*)=|inherit )/gm;
+  const focusLineStartRE = /(?:([\w_][\w\d_]*)=|inherit )/gm;
 
   const assignments = [];
   const inherits = [];
