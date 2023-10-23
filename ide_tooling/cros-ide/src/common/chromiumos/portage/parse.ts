@@ -4,6 +4,11 @@
 
 import * as vscode from 'vscode';
 
+export type EclassName = {
+  name: string;
+  range: vscode.Range;
+};
+
 export type EbuildVarName = {
   name: string;
   range: vscode.Range;
@@ -29,7 +34,10 @@ type EbuildAssignment = {
 };
 
 export class ParsedEbuild {
-  constructor(readonly assignments: readonly EbuildAssignment[]) {}
+  constructor(
+    readonly assignments: readonly EbuildAssignment[],
+    readonly inherits: readonly EclassName[] = []
+  ) {}
 
   // Return the last assignment if there are multiple matches.
   getValue(variableName: string): EbuildValue | undefined {
@@ -86,39 +94,46 @@ function indexToPositions(content: string): vscode.Position[] {
 export function parseEbuildOrThrow(content: string): ParsedEbuild {
   const positions = indexToPositions(content);
 
-  const assignmentStartRe = /^([\w_][\w\d_]*)=/gm;
+  // RE for matching lines with variable assignment or inherits eclass.
+  const focusLineStartRE = /^(?:([\w_][\w\d_]*)=|inherit )/gm;
 
   const assignments = [];
+  const inherits = [];
 
   let m;
-  while ((m = assignmentStartRe.exec(content))) {
-    const name = {
-      name: m[1],
-      range: new vscode.Range(
-        // Range of variable name starts from index of matched string and ends at that
-        // of the matched last index, minus 1 for trailing '='.
-        positions[m.index],
-        positions[assignmentStartRe.lastIndex - 1]
-      ),
-    };
+  while ((m = focusLineStartRE.exec(content))) {
+    const scanner = new Scanner(content, positions, focusLineStartRE.lastIndex);
 
-    const scanner = new Scanner(
-      content,
-      positions,
-      assignmentStartRe.lastIndex
-    );
+    if (m[0] === 'inherit ') {
+      let eclass = scanner.nextEclass();
+      while (eclass !== undefined) {
+        inherits.push(eclass);
+        eclass = scanner.nextEclass();
+      }
+      focusLineStartRE.lastIndex = scanner.lastIndex;
+    } else {
+      const name = {
+        name: m[1],
+        range: new vscode.Range(
+          // Range of variable name starts from index of matched string and ends at that
+          // of the matched last index, minus 1 for trailing '='.
+          positions[m.index],
+          positions[focusLineStartRE.lastIndex - 1]
+        ),
+      };
 
-    const value = scanner.nextValue();
+      const value = scanner.nextValue();
 
-    assignmentStartRe.lastIndex = scanner.lastIndex;
+      focusLineStartRE.lastIndex = scanner.lastIndex;
 
-    assignments.push({
-      name,
-      value,
-    });
+      assignments.push({
+        name,
+        value,
+      });
+    }
   }
 
-  return new ParsedEbuild(assignments);
+  return new ParsedEbuild(assignments, inherits);
 }
 
 class Scanner {
@@ -169,6 +184,23 @@ class Scanner {
     }
 
     return this.nextString();
+  }
+
+  /**
+   * Return eclass string starting at current position, or undefined if none.
+   * Skip spaces after the found eclass.
+   *
+   */
+  nextEclass(): EclassName | undefined {
+    const eclass = this.nextString();
+    if (!eclass.value) return undefined;
+    // If a non-empty string is parsed (i.e. eclass), skip all spaces until end of line.
+    if (this.peek() !== '\n') {
+      this.skipSpaces();
+    }
+    const name = eclass.value;
+    const range = eclass.range;
+    return {name, range};
   }
 
   private skipSpaces(): void {

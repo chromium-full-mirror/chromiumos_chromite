@@ -198,13 +198,13 @@ PLATFORM_SUBDIR="arc/keymint"
   });
 
   it('handles local name with leading two dots', async () => {
-    const CONTENT = dedent`# copyright
-        EAPI="7"
-        CROS_WORKON_PROJECT="chromiumos/platform/tpm"
-        CROS_WORKON_LOCALNAME="../third_party/tpm"
+    const CONTENT = `# copyright
+EAPI="7"
+CROS_WORKON_PROJECT="chromiumos/platform/tpm"
+CROS_WORKON_LOCALNAME="../third_party/tpm"
 
-        inherit cros-sanitizers cros-workon toolchain-funcs
-        `;
+inherit cros-sanitizers cros-workon toolchain-funcs
+    `;
 
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: CONTENT});
