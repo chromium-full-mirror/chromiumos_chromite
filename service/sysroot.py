@@ -983,6 +983,8 @@ def BuildPackages(
                                 [
                                     bazel_cmd,
                                     "build",
+                                    "--profile="
+                                    + BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
                                     "--execution_log_binary_file="
                                     + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
                                     "--execution_log_sort=false",
