@@ -339,9 +339,10 @@ def ChromitePytest(_input_proto, _output_proto, _config):
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
-def BazelTest(_input_proto, _output_proto, _config):
+def BazelTest(input_proto, _output_proto, _config):
     """Run the Bazel tests."""
-    if test.BazelTest():
+    output_user_root = input_proto.bazel_output_user_root or None
+    if test.BazelTest(output_user_root=output_user_root):
         return controller.RETURN_CODE_SUCCESS
     else:
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY

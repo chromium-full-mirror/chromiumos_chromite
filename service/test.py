@@ -255,19 +255,30 @@ def ChromiteUnitTest() -> bool:
     return result.returncode == 0
 
 
-def BazelTest() -> bool:
+def BazelTest(output_user_root: Optional[str]) -> bool:
     """Run Bazel tests.
+
+    Args:
+        output_user_root: Path to the Bazel's output user directory where Bazel
+            stores cache of Bazel installation manifests and build outputs.
+            If it is None, the default path ($HOME/.cache/bazel/_bazel_$USER) is
+            used.
+            https://bazel.build/remote/output-directories?hl=en#layout
 
     Returns:
         True iff all tests passed, False otherwise.
     """
-    cmd = [
-        constants.CHROMITE_BIN_DIR / "bazel",
-        "test",
-        "--keep_going",
-        "--test_output=errors",
-        "//bazel/...",
-    ]
+    cmd = [constants.CHROMITE_BIN_DIR / "bazel"]
+    if output_user_root:
+        cmd.append(f"--output_user_root={output_user_root}")
+    cmd.extend(
+        [
+            "test",
+            "--keep_going",
+            "--test_output=errors",
+            "//bazel/...",
+        ]
+    )
     result = cros_build_lib.run(
         cmd, cwd=constants.BAZEL_WORKSPACE_ROOT, check=False
     )
