@@ -6,13 +6,12 @@
 
 from pathlib import Path
 
-from chromite.lib import chromeos_version
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import sdk_builder_lib
 
 
-class BuildSdkTarballTest(cros_test_lib.MockTempDirTestCase):
+class BuildSdkTarballTest(cros_test_lib.MockTestCase):
     """Tests for BuildSdkTarball."""
 
     def testSuccess(self):
@@ -35,12 +34,8 @@ class BuildSdkTarballTest(cros_test_lib.MockTempDirTestCase):
             sdk_builder_lib, "CreateTarballForSdk", side_effect=_mock_tar
         )
 
-        sdk_path = self.tempdir / "build" / "amd64-host"
-        sdk_path.mkdir(exist_ok=True, parents=True)
-        returned_tarball_path = sdk_builder_lib.BuildSdkTarball(
-            sdk_path,
-            "FAKE_VERSION",
-        )
+        sdk_path = Path("/fake/chroot/build/amd64-host")
+        returned_tarball_path = sdk_builder_lib.BuildSdkTarball(sdk_path)
         mock_tar.assert_called_once_with(returned_tarball_path, sdk_path)
 
 
@@ -113,24 +108,3 @@ class CreateTarballForSdkTest(cros_test_lib.TempDirTestCase):
         self.assertTrue((t / "usr/lib").exists())
         self.assertFalse((t / "tmp/tempfile").exists())
         self.assertFalse((t / "usr/lib/debug/libxyz.so.dwp").exists())
-
-
-def test_os_release(tmp_path):
-    output_path = tmp_path / "os-release"
-    version_info = chromeos_version.VersionInfo(
-        version_string="12345.67.0",
-        chrome_branch="123",
-    )
-    sdk_builder_lib.write_os_release(output_path, version_info, "FAKE_VERSION")
-    contents = output_path.read_text(encoding="utf-8")
-    assert (
-        contents
-        == """\
-BUILD_ID=FAKE_VERSION
-ID=cros_sdk
-ID_LIKE=gentoo
-NAME='CrOS SDK'
-VERSION=123
-VERSION_ID=12345.67.0
-"""
-    )
