@@ -572,6 +572,16 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
             resolver.ToChroot(os.path.join(constants.SOURCE_ROOT, "out/tmp")),
         )
         self.assertEqual(
+            "/run/lock/foo",
+            resolver.ToChroot(
+                os.path.join(constants.SOURCE_ROOT, "out/sdk/run/lock/foo")
+            ),
+        )
+        self.assertEqual(
+            os.path.join(constants.SOURCE_ROOT, "out/sdk/run/lock/foo"),
+            resolver.FromChroot("/run/lock/foo"),
+        )
+        self.assertEqual(
             "/var/cache/foo",
             resolver.ToChroot(
                 os.path.join(constants.SOURCE_ROOT, "out/sdk/cache/foo")

@@ -263,6 +263,12 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
                     osutils.MS_BIND | osutils.MS_REC,
                 ),
                 mock.call(
+                    self.chroot.out_path / "sdk" / "run",
+                    Path(self.chroot.path) / "run",
+                    None,
+                    osutils.MS_BIND | osutils.MS_REC,
+                ),
+                mock.call(
                     self.chroot.out_path / "sdk" / "logs",
                     Path(self.chroot.path) / "var" / "log",
                     None,

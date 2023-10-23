@@ -327,6 +327,7 @@ def MountChrootPaths(chroot: chroot_lib.Chroot):
         ("build", "build", None),
         ("sdk/bin", "usr/local/bin", None),
         ("sdk/cache", "var/cache", None),
+        ("sdk/run", "run", None),
         ("sdk/logs", "var/log", None),
         ("sdk/tmp", "var/tmp", 0o1777),
     ):
