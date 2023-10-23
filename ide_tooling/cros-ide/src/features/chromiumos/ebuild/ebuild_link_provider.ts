@@ -42,10 +42,7 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
 
     // Support only one (the last) localname assignment.
     // Cast string-type value to array for unified handling later.
-    const localnames = parsedEbuild.getAsStringValues(
-      CROS_WORKON_LOCALNAME,
-      true
-    );
+    const localnames = parsedEbuild.getAsStringValues(CROS_WORKON_LOCALNAME);
     if (!localnames) {
       return links;
     }
@@ -66,10 +63,8 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
 
     // Support only one (the last) subtree assignment.
     // Cast string-type value to array for unified handling later.
-    const subtreesPerLocalname = parsedEbuild.getAsStringValues(
-      CROS_WORKON_SUBTREE,
-      true
-    );
+    const subtreesPerLocalname =
+      parsedEbuild.getAsStringValues(CROS_WORKON_SUBTREE);
     if (!subtreesPerLocalname) {
       return links;
     }
