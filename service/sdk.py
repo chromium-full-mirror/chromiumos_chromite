@@ -101,6 +101,11 @@ class CreateArguments:
             self.chroot.path,
             "--out-dir",
             str(self.chroot.out_path),
+            # Builders want to exercise a read-only SDK, even if developers may
+            # not, for ease of use. Rather than plumb this through every
+            # builder API call, we make this sticky at creation time.
+            "--read-only",
+            "--read-only-sticky",
         ]
         if self.chroot.cache_dir:
             args.extend(["--cache-dir", self.chroot.cache_dir])

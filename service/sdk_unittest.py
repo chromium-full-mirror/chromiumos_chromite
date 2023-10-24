@@ -109,6 +109,8 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 constants.DEFAULT_CHROOT_PATH,
                 "--out-dir",
                 str(constants.DEFAULT_OUT_PATH),
+                "--read-only",
+                "--read-only-sticky",
                 "--skip-chroot-upgrade",
             ],
             sdk.CreateArguments(
@@ -134,6 +136,8 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 constants.DEFAULT_CHROOT_PATH,
                 "--out-dir",
                 str(constants.DEFAULT_OUT_PATH),
+                "--read-only",
+                "--read-only-sticky",
                 "--skip-chroot-upgrade",
                 "--sdk-version",
                 "foo",
@@ -154,6 +158,8 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 constants.DEFAULT_CHROOT_PATH,
                 "--out-dir",
                 str(constants.DEFAULT_OUT_PATH),
+                "--read-only",
+                "--read-only-sticky",
             ],
             self._GetArgsList(replace=False, bootstrap=True),
         )
