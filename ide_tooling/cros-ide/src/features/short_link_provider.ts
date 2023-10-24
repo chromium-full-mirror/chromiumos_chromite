@@ -22,16 +22,19 @@ export class ShortLinkProvider implements vscode.DocumentLinkProvider {
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
     // TODO(b/216429126): add caching
-    return this.extractLinks(document, shortLinkPattern, shortLinkUri).concat(
-      this.extractLinks(document, trackerBugPattern, trackerBugUri),
-      this.extractLinks(document, todoLdapPattern, todoLdapUri)
+    return this.extractLinks(document, shortLinkPattern, shortLink).concat(
+      this.extractLinks(document, trackerBugPattern, trackerBugLink),
+      this.extractLinks(document, todoLdapPattern, todoLdapLink)
     );
   }
 
   private extractLinks(
     document: vscode.TextDocument,
     pattern: RegExp,
-    generateUri: (match: RegExpMatchArray) => vscode.Uri
+    generateLink: (
+      match: RegExpMatchArray,
+      range: vscode.Range
+    ) => vscode.DocumentLink
   ): vscode.DocumentLink[] {
     const links: vscode.DocumentLink[] = [];
     const text = document.getText();
@@ -40,12 +43,8 @@ export class ShortLinkProvider implements vscode.DocumentLinkProvider {
       if (match.index !== undefined) {
         const linkStart = document.positionAt(match.index);
         const linkEnd = document.positionAt(match.index + match[0].length);
-        links.push(
-          new vscode.DocumentLink(
-            new vscode.Range(linkStart, linkEnd),
-            generateUri(match)
-          )
-        );
+        const range = new vscode.Range(linkStart, linkEnd);
+        links.push(generateLink(match, range));
       }
     }
     return links;
@@ -63,24 +62,40 @@ export class ShortLinkProvider implements vscode.DocumentLinkProvider {
 // match b:123. Note that b/123#comment3 will work via the other pattern though.
 const trackerBugPattern = /(?<=^|\s|\()(b|chromium):([0-9]+)/g;
 
-// Extract the uri from matches to trackerBugPattern.
-function trackerBugUri(match: RegExpMatchArray): vscode.Uri {
+/** Create a link from matches to trackerBugPattern. */
+function trackerBugLink(
+  match: RegExpMatchArray,
+  range: vscode.Range
+): vscode.DocumentLink {
   let tracker = match[1];
   if (tracker === 'chromium') {
     tracker = 'crbug';
   }
   const id = match[2];
-  return vscode.Uri.parse(`http://${tracker}/${id}`);
+  const docLink = new vscode.DocumentLink(
+    range,
+    vscode.Uri.parse(`http://${tracker}/${id}`)
+  );
+  docLink.tooltip = `${tracker}/${id}`;
+  return docLink;
 }
 
 // Matches ldaps in todos. Lookahead and lookbehind are used to restrict
 // the match to the ldap.
 const todoLdapPattern = /(?<=TODO\()([a-z]+)(?=\))/g;
 
-// Extract the uri from matches to todoLdapPattern.
-function todoLdapUri(match: RegExpMatchArray): vscode.Uri {
+/** Create a link from matches to todoLdapPattern. */
+function todoLdapLink(
+  match: RegExpMatchArray,
+  range: vscode.Range
+): vscode.DocumentLink {
   const ldap = match[1];
-  return vscode.Uri.parse(`http://teams/${ldap}`);
+  const docLink = new vscode.DocumentLink(
+    range,
+    vscode.Uri.parse(`http://teams/${ldap}`)
+  );
+  docLink.tooltip = `teams/${ldap}`;
+  return docLink;
 }
 
 // Match link.com/path and (b|go|crrrev|...)/path. There are two capturing groups:
@@ -95,9 +110,18 @@ function todoLdapUri(match: RegExpMatchArray): vscode.Uri {
 const shortLinkPattern =
   /(?<=^|\s|\()\b([a-z]+\.com|b|go|crbug|crrev)\/([^)\s.,;'"]+)/g;
 
-// Extract the uri from matches to shortLinkPattern.
-function shortLinkUri(match: RegExpMatchArray): vscode.Uri {
+/** Create a link from matches to shortLinkPattern. */
+function shortLink(
+  match: RegExpMatchArray,
+  range: vscode.Range
+): vscode.DocumentLink {
   const host = match[1];
   const path = match[2];
-  return vscode.Uri.parse(`http://${host}/${path}`);
+  vscode.Uri.parse(`http://${host}/${path}`);
+  const docLink = new vscode.DocumentLink(
+    range,
+    vscode.Uri.parse(`http://${host}/${path}`)
+  );
+  docLink.tooltip = `${host}/${path}`;
+  return docLink;
 }

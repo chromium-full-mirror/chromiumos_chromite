@@ -20,18 +20,20 @@ function link(
   startCharacter: number,
   endLine: number,
   endCharacter: number,
-  target: string
+  rawTarget: string
 ): vscode.DocumentLink {
-  return new vscode.DocumentLink(
+  const link = new vscode.DocumentLink(
     new vscode.Range(startLine, startCharacter, endLine, endCharacter),
-    vscode.Uri.parse(target)
+    vscode.Uri.parse(`http://${rawTarget}`)
   );
+  link.tooltip = rawTarget;
+  return link;
 }
 
 describe('Short Link Provider', () => {
   it('extracts a Buganizer link', async () => {
     const links = await getLinks('Duplicate of b/123456.');
-    expect(links).toEqual([link(0, 13, 0, 21, 'http://b/123456')]);
+    expect(links).toEqual([link(0, 13, 0, 21, 'b/123456')]);
   });
 
   it('extracts two links', async () => {
@@ -41,8 +43,8 @@ describe('Short Link Provider', () => {
     );
 
     expect(links).toEqual([
-      link(0, 11, 0, 19, 'http://b/123456'),
-      link(1, 14, 1, 26, 'http://crbug/987654'),
+      link(0, 11, 0, 19, 'b/123456'),
+      link(1, 14, 1, 26, 'crbug/987654'),
     ]);
   });
 
@@ -50,15 +52,15 @@ describe('Short Link Provider', () => {
     const links = await getLinks('TODO(chromium:123313): see also b:6527146.');
 
     expect(links).toEqual([
-      link(0, 5, 0, 20, 'http://crbug/123313'),
-      link(0, 32, 0, 41, 'http://b/6527146'),
+      link(0, 5, 0, 20, 'crbug/123313'),
+      link(0, 32, 0, 41, 'b/6527146'),
     ]);
   });
 
   it('extracts teams link from a todo with ldap', async () => {
     const links = await getLinks('// TODO(hiroshi): create a chat app.');
 
-    expect(links).toEqual([link(0, 8, 0, 15, 'http://teams/hiroshi')]);
+    expect(links).toEqual([link(0, 8, 0, 15, 'teams/hiroshi')]);
   });
 
   it('extracts crrev and crbug links', async () => {
@@ -66,9 +68,9 @@ describe('Short Link Provider', () => {
       'TODO(crbug.com/123456) crrev/c/3406219\n' + 'crrev.com/c/3406220'
     );
     expect(links).toEqual([
-      link(0, 5, 0, 21, 'http://crbug.com/123456'),
-      link(0, 23, 0, 38, 'http://crrev/c/3406219'),
-      link(1, 0, 1, 19, 'http://crrev.com/c/3406220'),
+      link(0, 5, 0, 21, 'crbug.com/123456'),
+      link(0, 23, 0, 38, 'crrev/c/3406219'),
+      link(1, 0, 1, 19, 'crrev.com/c/3406220'),
     ]);
   });
 
@@ -83,9 +85,9 @@ describe('Short Link Provider', () => {
     // so we need `arrayWithExactContents`.
     expect(links).toEqual(
       jasmine.arrayWithExactContents([
-        link(0, 13, 0, 21, 'http://b/123456'),
-        link(1, 5, 1, 11, 'http://teams/sundar'),
-        link(2, 5, 2, 20, 'http://crbug/123456'),
+        link(0, 13, 0, 21, 'b/123456'),
+        link(1, 5, 1, 11, 'teams/sundar'),
+        link(2, 5, 2, 20, 'crbug/123456'),
       ])
     );
   });
