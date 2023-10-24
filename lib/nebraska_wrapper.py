@@ -372,7 +372,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
 
         nebraska_path = os.path.join(source_dir, NEBRASKA_FILENAME)
         checkout = path_util.DetermineCheckout()
-        if checkout.type == path_util.CHECKOUT_TYPE_REPO:
+        if checkout.type == path_util.CheckoutType.REPO:
             # ChromeOS checkout. Copy existing file to destination.
             local_src = os.path.join(
                 constants.SOURCE_ROOT,

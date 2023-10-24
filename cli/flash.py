@@ -28,7 +28,7 @@ def GetDefaultBoard():
     In a chrome checkout, return $SDK_BOARD. In a chromeos checkout,
     return the contents of .default_board.
     """
-    if path_util.DetermineCheckout().type == path_util.CHECKOUT_TYPE_GCLIENT:
+    if path_util.DetermineCheckout().type == path_util.CheckoutType.GCLIENT:
         return os.environ.get(cros_chrome_sdk.SDKFetcher.SDK_BOARD_ENV)
     return cros_build_lib.GetDefaultBoard()
 

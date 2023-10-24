@@ -7,7 +7,6 @@
 import itertools
 import os
 from pathlib import Path
-import tempfile
 from unittest import mock
 
 from chromite.lib import constants
@@ -64,21 +63,21 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
             dir_struct,
             "a/b/c",
             "a/b/c",
-            path_util.CHECKOUT_TYPE_GCLIENT,
+            path_util.CheckoutType.GCLIENT,
             "a/b/c/src",
         )
         self.RunTest(
             dir_struct,
             "a/b/c/d",
             "a/b/c",
-            path_util.CHECKOUT_TYPE_GCLIENT,
+            path_util.CheckoutType.GCLIENT,
             "a/b/c/src",
         )
         self.RunTest(
-            dir_struct, "a/b", "a/b", path_util.CHECKOUT_TYPE_REPO, None
+            dir_struct, "a/b", "a/b", path_util.CheckoutType.REPO, None
         )
         self.RunTest(
-            dir_struct, "a", "a", path_util.CHECKOUT_TYPE_GCLIENT, "a/src"
+            dir_struct, "a", "a", path_util.CheckoutType.GCLIENT, "a/src"
         )
 
     def testGitUnderGclient(self):
@@ -91,7 +90,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
             "a/src/.git/",
         ]
         self.RunTest(
-            dir_struct, "a/src", "a", path_util.CHECKOUT_TYPE_GCLIENT, "a/src"
+            dir_struct, "a/src", "a", path_util.CheckoutType.GCLIENT, "a/src"
         )
 
     def testGitUnderRepo(self):
@@ -103,12 +102,12 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
             "a/.repo/",
             "a/b/.git/",
         ]
-        self.RunTest(dir_struct, "a/b", "a", path_util.CHECKOUT_TYPE_REPO, None)
+        self.RunTest(dir_struct, "a/b", "a", path_util.CheckoutType.REPO, None)
 
     def testBadGit1(self):
         """.git is not a directory."""
         self.RunTest(
-            ["a/.git"], "a", None, path_util.CHECKOUT_TYPE_UNKNOWN, None
+            ["a/.git"], "a", None, path_util.CheckoutType.UNKNOWN, None
         )
 
     def testBadGit2(self):
@@ -117,7 +116,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
             ["a/.repo/", "a/b/.git/"],
             "a/b",
             "a",
-            path_util.CHECKOUT_TYPE_REPO,
+            path_util.CheckoutType.REPO,
             None,
         )
 
@@ -125,7 +124,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
         """'git config' returns error."""
         self.rc_mock.AddCmdResult(partial_mock.In("config"), returncode=5)
         self.RunTest(
-            ["a/.git/"], "a", None, path_util.CHECKOUT_TYPE_UNKNOWN, None
+            ["a/.git/"], "a", None, path_util.CheckoutType.UNKNOWN, None
         )
 
 

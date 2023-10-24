@@ -1116,7 +1116,7 @@ def InterpretPath(
     # end. Similarly, local/remote are well-known and must start the path list.
     # Default to remote for chrome checkout.
     is_local = (
-        path_util.DetermineCheckout().type != path_util.CHECKOUT_TYPE_GCLIENT
+        path_util.DetermineCheckout().type != path_util.CheckoutType.GCLIENT
     )
     if path_list and path_list[0] in (REMOTE, LOCAL):
         is_local = path_list.pop(0) == LOCAL

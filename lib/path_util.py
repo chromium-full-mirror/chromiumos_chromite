@@ -5,6 +5,7 @@
 """Handle path inference and translation."""
 
 import collections
+import enum
 import os
 from pathlib import Path
 from typing import Callable, Iterator, List, Optional, Union
@@ -20,9 +21,19 @@ from chromite.utils import xdg_util
 GENERAL_CACHE_DIR = ".cache"
 CHROME_CACHE_DIR = "cros_cache"
 
-CHECKOUT_TYPE_UNKNOWN = "unknown"
-CHECKOUT_TYPE_GCLIENT = "gclient"
-CHECKOUT_TYPE_REPO = "repo"
+
+class CheckoutType(enum.IntEnum):
+    """The checkout type chromite is running under."""
+
+    # A Chromium browser checkout.
+    GCLIENT = enum.auto()
+
+    # A standard CrOS checkout using repo.
+    REPO = enum.auto()
+
+    # We don't know what kind of checkout this is.
+    UNKNOWN = enum.auto()
+
 
 CheckoutInfo = collections.namedtuple(
     "CheckoutInfo", ["type", "root", "chrome_src_dir"]
@@ -324,38 +335,38 @@ class ChrootPathResolver:
 def DetermineCheckout(cwd=None) -> CheckoutInfo:
     """Gather information on the checkout we are in.
 
-    There are several checkout types, as defined by CHECKOUT_TYPE_XXX variables.
+    There are several checkout types, as defined by CheckoutType.
     This function determines what checkout type |cwd| is in, for example, if
     |cwd| belongs to a `repo` checkout.
 
     Returns:
         CheckoutInfo object with these attributes:
-            type: The type of checkout.  Valid values are CHECKOUT_TYPE_*.
+            type: The type of checkout.  Valid values are CheckoutType.
             root: The root of the checkout.
             chrome_src_dir: If the checkout is a Chrome checkout, the path to
                 the Chrome src/ directory.
     """
-    checkout_type = CHECKOUT_TYPE_UNKNOWN
+    checkout_type = CheckoutType.UNKNOWN
     root, path = None, None
 
     cwd = cwd or os.getcwd()
     for path in osutils.IteratePathParents(cwd):
         gclient_file = os.path.join(path, ".gclient")
         if os.path.exists(gclient_file):
-            checkout_type = CHECKOUT_TYPE_GCLIENT
+            checkout_type = CheckoutType.GCLIENT
             break
         repo_dir = os.path.join(path, ".repo")
         if os.path.isdir(repo_dir):
-            checkout_type = CHECKOUT_TYPE_REPO
+            checkout_type = CheckoutType.REPO
             break
 
-    if checkout_type != CHECKOUT_TYPE_UNKNOWN:
+    if checkout_type != CheckoutType.UNKNOWN:
         # TODO(vapier): Change this function to pathlib Path.
         root = str(path)
 
     # Determine the chrome src directory.
     chrome_src_dir = None
-    if checkout_type == CHECKOUT_TYPE_GCLIENT:
+    if checkout_type == CheckoutType.GCLIENT:
         chrome_src_dir = os.path.join(root, "src")
 
     return CheckoutInfo(checkout_type, root, chrome_src_dir)
@@ -366,14 +377,14 @@ def get_global_cache_dir() -> Path:
     return xdg_util.CACHE_HOME / "cros" / "chromite"
 
 
-def FindCacheDir() -> str:
+def FindCacheDir() -> CheckoutType:
     """Returns the cache directory location based on the checkout type."""
     checkout = DetermineCheckout()
-    if checkout.type == CHECKOUT_TYPE_REPO:
+    if checkout.type == CheckoutType.REPO:
         return os.path.join(checkout.root, GENERAL_CACHE_DIR)
-    elif checkout.type == CHECKOUT_TYPE_GCLIENT:
+    elif checkout.type == CheckoutType.GCLIENT:
         return os.path.join(checkout.chrome_src_dir, "build", CHROME_CACHE_DIR)
-    elif checkout.type == CHECKOUT_TYPE_UNKNOWN:
+    elif checkout.type == CheckoutType.UNKNOWN:
         return str(get_global_cache_dir())
     else:
         raise AssertionError("Unexpected type %s" % checkout.type)

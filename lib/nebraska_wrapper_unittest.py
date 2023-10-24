@@ -187,7 +187,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
     def testGetNebraskaSrcLocal(self):
         """Tests GetNebraskaSrcFile local copy."""
         self.assertEqual(
-            path_util.DetermineCheckout().type, path_util.CHECKOUT_TYPE_REPO
+            path_util.DetermineCheckout().type, path_util.CheckoutType.REPO
         )
         src_file = os.path.abspath(
             os.path.join(
@@ -213,7 +213,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
         path_util,
         "DetermineCheckout",
         return_value=path_util.CheckoutInfo(
-            path_util.CHECKOUT_TYPE_GCLIENT, None, None
+            path_util.CheckoutType.GCLIENT, None, None
         ),
     )
     @mock.patch.object(gob_util, "FetchUrl", return_value="")
@@ -233,7 +233,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
         path_util,
         "DetermineCheckout",
         return_value=path_util.CheckoutInfo(
-            path_util.CHECKOUT_TYPE_GCLIENT, None, None
+            path_util.CheckoutType.GCLIENT, None, None
         ),
     )
     def testGetNebraskaSrcDownload(self, _):

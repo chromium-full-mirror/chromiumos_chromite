@@ -254,10 +254,7 @@ Examples:
         For non-chrome, use 'latest'. For chrome, look up the
         full version in the misc cache.
         """
-        if (
-            path_util.DetermineCheckout().type
-            != path_util.CHECKOUT_TYPE_GCLIENT
-        ):
+        if path_util.DetermineCheckout().type != path_util.CheckoutType.GCLIENT:
             return "latest"
 
         board = self.options.board or flash.GetDefaultBoard()

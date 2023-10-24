@@ -341,7 +341,7 @@ class xBuddyTest(cros_test_lib.TestCase):
             path_util,
             "DetermineCheckout",
             return_value=path_util.CheckoutInfo(
-                path_util.CHECKOUT_TYPE_GCLIENT, None, None
+                path_util.CheckoutType.GCLIENT, None, None
             ),
         ):
             path = ""

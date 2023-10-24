@@ -1450,7 +1450,7 @@ def GenerateUpdatePayload(
         Returns a list of payload remote result paths, or an empty list if none
         were generated.
     """
-    if path_util.DetermineCheckout().type != path_util.CHECKOUT_TYPE_REPO:
+    if path_util.DetermineCheckout().type != path_util.CheckoutType.REPO:
         raise Error("Need a chromeos checkout to generate payloads.")
 
     tgt_image = gspaths.Image(uri=tgt_image)

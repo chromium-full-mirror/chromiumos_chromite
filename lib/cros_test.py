@@ -180,7 +180,7 @@ class CrOSTest:
             )
             if (
                 path_util.DetermineCheckout().type
-                != path_util.CHECKOUT_TYPE_REPO
+                != path_util.CheckoutType.REPO
             ):
                 # Try flashing to the full version of the board used in the
                 # Simple Chrome SDK if it's present in the cache. Otherwise
