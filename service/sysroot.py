@@ -988,6 +988,7 @@ def BuildPackages(
                                     "--execution_log_binary_file="
                                     + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
                                     "--execution_log_sort=false",
+                                    "--keep_going",
                                     "@portage//"
                                     + "target/app-crypt/nss:package_set",
                                 ],
