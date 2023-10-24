@@ -12,6 +12,7 @@ a file containing serialized data into a protobuf message instance, and
 writing serialized data from a message instance out to a file.
 """
 
+import json
 import logging
 import os
 from typing import Optional, TYPE_CHECKING
@@ -19,6 +20,7 @@ from typing import Optional, TYPE_CHECKING
 from chromite.third_party.google.protobuf import json_format
 
 from chromite.lib import osutils
+from chromite.utils import pformat
 
 
 if TYPE_CHECKING:
@@ -143,12 +145,13 @@ class JsonSerializer(Serializer):
 
         See: Serializer.serialize
         """
-        return (
-            json_format.MessageToJson(
-                message, sort_keys=True, use_integers_for_enums=True
-            )
-            or "{}"
+        result = json_format.MessageToJson(
+            message, sort_keys=True, use_integers_for_enums=True
         )
+        if not result:
+            return "{}"
+
+        return pformat.json(json.loads(result), compact=True)
 
 
 class MessageHandler:

@@ -37,6 +37,25 @@ class JsonSerializerTest(cros_test_lib.TestCase):
         self.assertEqual(deserialized, msg)
         self.assertEqual(deserialized, deserialized2)
 
+    def test_compact_message(self):
+        """Serilaized messages using JSON should be compact."""
+
+        serializer = message_util.JsonSerializer()
+
+        # Build a message.
+        msg = build_api_test_pb2.TestRequestMessage()
+        msg.id = "foo"
+
+        # Make sure it's compact.
+        serialized = serializer.serialize(msg)
+        assert "\n" not in serialized
+        assert " " not in serialized
+
+        # Make sure the serialization creates an identical message.
+        deserialized = build_api_test_pb2.TestRequestMessage()
+        serializer.deserialize(serialized, deserialized)
+        self.assertEqual(msg, deserialized)
+
 
 class BinarySerializerTest(cros_test_lib.TestCase):
     """Tests for the binary serializer."""
