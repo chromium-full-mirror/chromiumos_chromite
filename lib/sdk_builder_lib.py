@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 import re
 
+from chromite.lib import chromeos_version
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -57,16 +58,55 @@ def CreateTarballForSdk(tarball_path: Path, board_location: Path) -> None:
     osutils.Chmod(tarball_path, 0o644, sudo=True)
 
 
-def BuildSdkTarball(sdk_path: Path) -> Path:
+def write_os_release(
+    output_path: Path,
+    version_info: chromeos_version.VersionInfo,
+    sdk_version: str,
+) -> None:
+    """Create an /etc/os-release file.
+
+    Args:
+        output_path: The location to write the file.
+        version_info: A VersionInfo to populate fields using.
+        sdk_version: The BUILD_ID.
+    """
+    entries = {
+        "NAME": "CrOS SDK",
+        "ID": "cros_sdk",
+        "ID_LIKE": "gentoo",
+        "VERSION_ID": version_info.VersionString(),
+        "BUILD_ID": sdk_version,
+    }
+    if version_info.chrome_branch:
+        entries["VERSION"] = version_info.chrome_branch
+
+    lines = []
+    for key, value in sorted(entries.items()):
+        lines.append(f"{key}={cros_build_lib.ShellQuote(value)}\n")
+
+    osutils.WriteFile(
+        output_path, "".join(lines), encoding="utf-8", sudo=True, makedirs=True
+    )
+
+
+def BuildSdkTarball(sdk_path: Path, sdk_version: str) -> Path:
     """Package a previously built (e.g. by BuildPrebuilts) SDK into a tarball.
 
     Args:
         sdk_path: The path that contains the SDK to package.
+        sdk_version: The version to be included as BUILD_ID in /etc/os-release.
 
     Returns:
         The path to the tarball that has been created.
     """
     tarball_path = constants.SOURCE_ROOT / constants.SDK_TARBALL_NAME
+    write_os_release(
+        output_path=sdk_path / "etc" / "os-release",
+        version_info=chromeos_version.VersionInfo.from_repo(
+            constants.SOURCE_ROOT
+        ),
+        sdk_version=sdk_version,
+    )
     CleanupMakeConfBoardSetup(sdk_path)
     CreateTarballForSdk(tarball_path, sdk_path)
     return tarball_path

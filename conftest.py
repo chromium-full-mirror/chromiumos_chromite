@@ -21,6 +21,7 @@ import chromite as cr
 from chromite.lib import cidb
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
+from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import retry_stats
 from chromite.lib.parser import package_info
@@ -235,3 +236,18 @@ def _check_network_test(request):
         if item.get_closest_marker("network_test") is not None:
             cros_test_lib.NETWORK_TESTS_ENABLED = True
             break
+
+
+@pytest.fixture
+def tmp_path_cleanup_sudo(tmp_path):
+    """A tmp_path, but safely handles cleanup of contents created with sudo.
+
+    This fixture will chown all contents back to the current user once finished,
+    allowing the contents to be removed if pytest decides to do so.
+    """
+    yield tmp_path
+
+    if tmp_path.exists():
+        osutils.Chown(
+            tmp_path, user=os.geteuid(), group=os.getegid(), recursive=True
+        )
