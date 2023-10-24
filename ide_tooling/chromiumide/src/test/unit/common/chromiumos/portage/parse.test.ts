@@ -10,6 +10,7 @@ import {
   ParsedEbuild,
   parseEbuildOrThrow,
 } from '../../../../../common/chromiumos/portage/parse';
+import {FakeTextDocument} from '../../../../testing/fakes';
 
 describe('Ebuild parser', () => {
   // Helper functions to concisely define test case expectations.
@@ -224,15 +225,16 @@ describe('Ebuild parser', () => {
 
   for (const tc of testCases) {
     it(tc.name, () => {
+      const document = new FakeTextDocument({text: tc.content});
       // Separate into two cases so that the unexpected error thrown will be logged.
       if (tc.wantError) {
         try {
-          parseEbuildOrThrow(tc.content);
+          parseEbuildOrThrow(document);
         } catch (e) {
           expect(tc.wantError).toEqual(true);
         }
       } else {
-        const got = parseEbuildOrThrow(tc.content);
+        const got = parseEbuildOrThrow(document);
         expect(got).toEqual(tc.want!);
       }
     });

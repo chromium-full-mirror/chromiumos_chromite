@@ -72,27 +72,11 @@ export class ParsedEbuild {
   }
 }
 
-function indexToPositions(content: string): vscode.Position[] {
-  const positions: vscode.Position[] = [];
-  let row = 0;
-  let col = 0;
-  for (const c of content) {
-    positions.push(new vscode.Position(row, col));
-    if (c === '\n') {
-      row += 1;
-      col = 0;
-    } else if (c === '\t') {
-      // Tab \t occupies 2 spaces in vscode range.
-      col += 2;
-    } else {
-      col += 1;
-    }
-  }
-  return positions;
-}
-
-export function parseEbuildOrThrow(content: string): ParsedEbuild {
-  const positions = indexToPositions(content);
+export function parseEbuildOrThrow(
+  document: vscode.TextDocument
+): ParsedEbuild {
+  const content = document.getText();
+  const positions = [...content].map((_c, i) => document.positionAt(i));
 
   // RE for matching lines with variable assignment or inherits eclass.
   const focusLineStartRE = /(?:([\w_][\w\d_]*)=|inherit )/gm;

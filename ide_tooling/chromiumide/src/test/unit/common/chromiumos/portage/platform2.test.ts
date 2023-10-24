@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as fs from 'fs';
 import * as path from 'path';
 import {BoardOrHost} from '../../../../../common/chromiumos/board_or_host';
 import {
@@ -9,6 +10,8 @@ import {
   platform2TestWorkingDirectory,
   parsePlatform2EbuildOrThrow,
 } from '../../../../../common/chromiumos/portage/platform2';
+import * as testing from '../../../../testing';
+import {FakeTextDocument} from '../../../../testing/fakes';
 
 describe('platform2TestWorkingDirectory works for', () => {
   const testCases: {
@@ -71,13 +74,20 @@ describe('platform2TestWorkingDirectory works for', () => {
 });
 
 describe('parsePlatform2EbuildOrThrow works for', () => {
-  it(' testing ebuild', async () => {
-    const parsedPackage = await parsePlatform2EbuildOrThrow(
-      path.join(
-        __dirname,
-        '../../../../../../src/test/testdata/portage/portage-9999.ebuild'
-      )
+  const {vscodeSpy} = testing.installVscodeDouble();
+  const ebuildPath = path.join(
+    __dirname,
+    '../../../../../../src/test/testdata/portage/portage-9999.ebuild'
+  );
+  beforeEach(async () => {
+    vscodeSpy.workspace.openTextDocument.and.returnValue(
+      new FakeTextDocument({
+        text: await fs.promises.readFile(ebuildPath, 'utf8'),
+      })
     );
+  });
+  it('testing ebuild', async () => {
+    const parsedPackage = await parsePlatform2EbuildOrThrow(ebuildPath);
     expect(parsedPackage).toEqual({
       // EbuildPackage (and ParsedPackageName) contents.
       category: 'testdata',

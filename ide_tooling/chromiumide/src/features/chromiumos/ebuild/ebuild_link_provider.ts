@@ -34,7 +34,7 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
     const links: vscode.DocumentLink[] = [];
     let parsedEbuild: parse.ParsedEbuild;
     try {
-      parsedEbuild = parse.parseEbuildOrThrow(document.getText());
+      parsedEbuild = parse.parseEbuildOrThrow(document);
     } catch (e) {
       // Does not provide link for ebuild file failed to be parsed (e.g. edit-
       // in-progress file has open parenthesis or quotes).

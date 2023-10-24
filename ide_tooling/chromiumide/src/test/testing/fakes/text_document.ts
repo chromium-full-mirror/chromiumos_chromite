@@ -98,6 +98,8 @@ export class FakeTextDocument implements vscode.TextDocument {
     return offset + position.character;
   }
 
+  // In real implementation, \t expands to different width depending on user
+  // settings, while it is hard-coded to be 2 here.
   positionAt(offset: number): vscode.Position {
     let line = 0;
     while (offset > this.lines[line].length) {
@@ -105,10 +107,16 @@ export class FakeTextDocument implements vscode.TextDocument {
       if (line < this.lines.length - 1) {
         line += 1;
       } else {
-        return new vscode.Position(line, this.lines[line].length);
+        return new vscode.Position(
+          line,
+          this.lines[line].length + (this.lines[line].match(/\t/g) || []).length // \t has width 2.
+        );
       }
     }
-    return new vscode.Position(line, offset);
+    return new vscode.Position(
+      line,
+      offset + (this.lines[line].slice(0, offset).match(/\t/g) || []).length // \t has width 2.
+    );
   }
 
   validateRange(range: vscode.Range): vscode.Range {

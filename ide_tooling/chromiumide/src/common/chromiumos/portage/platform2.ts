@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import * as fs from 'fs';
+import * as vscode from 'vscode';
 import {BoardOrHost} from '../board_or_host';
 import {
   EbuildPackage,
@@ -86,9 +86,9 @@ export async function parsePlatform2EbuildOrThrow(
 ): Promise<Platform2Package> {
   const {pkg} = ParsedEbuildFilepath.parseOrThrow(ebuildFilepath);
 
-  const content = await fs.promises.readFile(ebuildFilepath, 'utf8');
+  const document = await vscode.workspace.openTextDocument(ebuildFilepath);
 
-  const parsedEbuild = parseEbuildOrThrow(content);
+  const parsedEbuild = parseEbuildOrThrow(document);
 
   const platformSubdir = parsedEbuild.getString('PLATFORM_SUBDIR') ?? '';
 
