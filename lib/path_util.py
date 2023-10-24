@@ -25,6 +25,9 @@ CHROME_CACHE_DIR = "cros_cache"
 class CheckoutType(enum.IntEnum):
     """The checkout type chromite is running under."""
 
+    # A citc checkout.
+    CITC = enum.auto()
+
     # A Chromium browser checkout.
     GCLIENT = enum.auto()
 
@@ -351,13 +354,14 @@ def DetermineCheckout(cwd=None) -> CheckoutInfo:
 
     cwd = cwd or os.getcwd()
     for path in osutils.IteratePathParents(cwd):
-        gclient_file = os.path.join(path, ".gclient")
-        if os.path.exists(gclient_file):
+        if (path / ".gclient").exists():
             checkout_type = CheckoutType.GCLIENT
             break
-        repo_dir = os.path.join(path, ".repo")
-        if os.path.isdir(repo_dir):
+        if (path / ".repo").is_dir():
             checkout_type = CheckoutType.REPO
+            break
+        if (path.parent / ".citc").is_dir():
+            checkout_type = CheckoutType.CITC
             break
 
     if checkout_type != CheckoutType.UNKNOWN:
@@ -384,6 +388,9 @@ def FindCacheDir() -> CheckoutType:
         return os.path.join(checkout.root, GENERAL_CACHE_DIR)
     elif checkout.type == CheckoutType.GCLIENT:
         return os.path.join(checkout.chrome_src_dir, "build", CHROME_CACHE_DIR)
+    elif checkout.type == CheckoutType.CITC:
+        # TODO(b/307590748): Do better.
+        return str(get_global_cache_dir())
     elif checkout.type == CheckoutType.UNKNOWN:
         return str(get_global_cache_dir())
     else:
