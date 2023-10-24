@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import assert from 'assert';
 import * as vscode from 'vscode';
 import {ShortLinkProvider} from '../../../features/short_link_provider';
 import {FakeCancellationToken, FakeTextDocument} from '../../testing/fakes';
@@ -16,18 +15,23 @@ function getLinks(text: string): vscode.ProviderResult<vscode.DocumentLink[]> {
   );
 }
 
+function link(
+  startLine: number,
+  startCharacter: number,
+  endLine: number,
+  endCharacter: number,
+  target: string
+): vscode.DocumentLink {
+  return new vscode.DocumentLink(
+    new vscode.Range(startLine, startCharacter, endLine, endCharacter),
+    vscode.Uri.parse(target)
+  );
+}
+
 describe('Short Link Provider', () => {
   it('extracts a Buganizer link', async () => {
     const links = await getLinks('Duplicate of b/123456.');
-    assert.ok(links);
-    assert.strictEqual(links.length, 1);
-    const link = links[0];
-    assert.deepStrictEqual(link.target, vscode.Uri.parse('http://b/123456'));
-    const expectedRange = new vscode.Range(
-      new vscode.Position(0, 13),
-      new vscode.Position(0, 21)
-    );
-    assert.deepStrictEqual(link.range, expectedRange);
+    expect(links).toEqual([link(0, 13, 0, 21, 'http://b/123456')]);
   });
 
   it('extracts two links', async () => {
@@ -36,85 +40,36 @@ describe('Short Link Provider', () => {
         'Migrated from crbug/987654 because Monorail is deprecated.'
     );
 
-    assert.ok(links);
-    assert.strictEqual(links.length, 2);
-    const [b, crbug] = links;
-
-    assert.deepStrictEqual(b.target, vscode.Uri.parse('http://b/123456'));
-    const expectedBRange = new vscode.Range(
-      new vscode.Position(0, 11),
-      new vscode.Position(0, 19)
-    );
-    assert.deepStrictEqual(b.range, expectedBRange);
-
-    assert.deepStrictEqual(
-      crbug.target,
-      vscode.Uri.parse('http://crbug/987654')
-    );
-    const expectedCrbugRange = new vscode.Range(
-      new vscode.Position(1, 14),
-      new vscode.Position(1, 26)
-    );
-    assert.deepStrictEqual(crbug.range, expectedCrbugRange);
+    expect(links).toEqual([
+      link(0, 11, 0, 19, 'http://b/123456'),
+      link(1, 14, 1, 26, 'http://crbug/987654'),
+    ]);
   });
 
   it('extracts bugs with numbers for chromium and b', async () => {
     const links = await getLinks('TODO(chromium:123313): see also b:6527146.');
-    assert.ok(links);
-    assert.strictEqual(links.length, 2);
-    const expectedLinks = [
-      new vscode.DocumentLink(
-        new vscode.Range(new vscode.Position(0, 5), new vscode.Position(0, 20)),
-        vscode.Uri.parse('http://crbug/123313')
-      ),
-      new vscode.DocumentLink(
-        new vscode.Range(
-          new vscode.Position(0, 32),
-          new vscode.Position(0, 41)
-        ),
-        vscode.Uri.parse('http://b/6527146')
-      ),
-    ];
-    assert.deepStrictEqual(links, expectedLinks);
+
+    expect(links).toEqual([
+      link(0, 5, 0, 20, 'http://crbug/123313'),
+      link(0, 32, 0, 41, 'http://b/6527146'),
+    ]);
   });
 
   it('extracts teams link from a todo with ldap', async () => {
     const links = await getLinks('// TODO(hiroshi): create a chat app.');
-    assert.ok(links);
-    assert.strictEqual(links.length, 1);
-    const expectedLinks = [
-      new vscode.DocumentLink(
-        new vscode.Range(new vscode.Position(0, 8), new vscode.Position(0, 15)),
-        vscode.Uri.parse('http://teams/hiroshi')
-      ),
-    ];
-    assert.deepStrictEqual(links, expectedLinks);
+
+    expect(links).toEqual([link(0, 8, 0, 15, 'http://teams/hiroshi')]);
   });
 
   it('extracts crrev and crbug links', async () => {
     const links = await getLinks(
       'TODO(crbug.com/123456) crrev/c/3406219\n' + 'crrev.com/c/3406220'
     );
-    assert.ok(links);
-    assert.strictEqual(links.length, 3);
-    const expectedLinks = [
-      new vscode.DocumentLink(
-        new vscode.Range(new vscode.Position(0, 5), new vscode.Position(0, 21)),
-        vscode.Uri.parse('http://crbug.com/123456')
-      ),
-      new vscode.DocumentLink(
-        new vscode.Range(
-          new vscode.Position(0, 23),
-          new vscode.Position(0, 38)
-        ),
-        vscode.Uri.parse('http://crrev/c/3406219')
-      ),
-      new vscode.DocumentLink(
-        new vscode.Range(new vscode.Position(1, 0), new vscode.Position(1, 19)),
-        vscode.Uri.parse('http://crrev.com/c/3406220')
-      ),
-    ];
-    assert.deepStrictEqual(links, expectedLinks);
+    expect(links).toEqual([
+      link(0, 5, 0, 21, 'http://crbug.com/123456'),
+      link(0, 23, 0, 38, 'http://crrev/c/3406219'),
+      link(1, 0, 1, 19, 'http://crrev.com/c/3406220'),
+    ]);
   });
 
   it('handles mixed link types', async () => {
@@ -124,11 +79,15 @@ describe('Short Link Provider', () => {
         'TODO(sundar): fight spam\n' +
         'TODO(chromium:123456): some text'
     );
-    assert.ok(links);
-    // Verify only the number of results. The order of links depends on
-    // the order in which the extractors are run, so verifying an array would
-    // make the test fragile.
-    assert.strictEqual(links.length, 3);
+    // The order of links depends on the order in which the extractors are run,
+    // so we need `arrayWithExactContents`.
+    expect(links).toEqual(
+      jasmine.arrayWithExactContents([
+        link(0, 13, 0, 21, 'http://b/123456'),
+        link(1, 5, 1, 11, 'http://teams/sundar'),
+        link(2, 5, 2, 20, 'http://crbug/123456'),
+      ])
+    );
   });
 
   it('ignores negative examples', async () => {
@@ -142,15 +101,13 @@ describe('Short Link Provider', () => {
         'Text usb:1234556 more text\n' +
         'Text 70:88:6b:92:34:70 more text'
     );
-    assert.ok(links);
-    assert.deepStrictEqual(links, []);
+    expect(links).toEqual([]);
   });
 
   it('ignores paths', async () => {
     const links = await getLinks(
       'Text obj/somepath more text; text obj/multi/level more text'
     );
-    assert.ok(links);
-    assert.deepStrictEqual(links, []);
+    expect(links).toEqual([]);
   });
 });
