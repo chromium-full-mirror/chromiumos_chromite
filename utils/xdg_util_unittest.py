@@ -44,6 +44,12 @@ def reset_xdg_util_caches():
 def test_chrome_bot_paths(as_chrome_bot):  # pylint: disable=unused-argument
     """Check paths when run as chrome-bot."""
     assert xdg_util._is_chrome_bot()
+
+    d = xdg_util._get_cache_home()
+    assert d.name == ".cache"
+    # NB: This will crash if it isn't relative to the tempdir.
+    d.relative_to(tempfile.tempdir)
+
     d = xdg_util._get_config_home()
     assert d.name == ".config"
     # NB: This will crash if it isn't relative to the tempdir.
@@ -54,6 +60,12 @@ def test_chrome_bot_paths(as_chrome_bot):  # pylint: disable=unused-argument
 def test_non_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
     """Check paths when run as non-root user."""
     assert not xdg_util._is_chrome_bot()
+
+    d = xdg_util._get_cache_home()
+    assert d.name == ".cache"
+    # NB: This will crash if it isn't relative to the tempdir.
+    d.relative_to(Path("~").expanduser())
+
     d = xdg_util._get_config_home()
     assert d.name == ".config"
     # NB: This will crash if it isn't relative to the tempdir.
@@ -66,4 +78,5 @@ def test_non_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
 def test_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
     """Check paths when run as root user."""
     assert not xdg_util._is_chrome_bot()
+    assert xdg_util._get_cache_home() == Path("/foo/.cache")
     assert xdg_util._get_config_home() == Path("/foo/.config")

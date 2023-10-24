@@ -70,9 +70,19 @@ def _get_path(subdir: str, xdg_property: str) -> Path:
     return _get_homedir() / subdir
 
 
+def _get_cache_home() -> Path:
+    """The $XDG_CACHE_HOME."""
+    return _get_path(".cache", "xdg_cache_home")
+
+
 def _get_config_home() -> Path:
     """The $XDG_CONFIG_HOME."""
     return _get_path(".config", "xdg_config_home")
+
+
+# The base directory relative to which user-specific non-essential data files
+# should be stored.
+CACHE_HOME = _get_cache_home()
 
 
 # The base directory relative to which user-specific configuration files should

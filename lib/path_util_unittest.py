@@ -168,7 +168,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
         """Test when we are not in any checkout."""
         self.cwd_mock.return_value = self.nocheckout_root
         self.assertStartsWith(
-            path_util.FindCacheDir(), os.path.join(tempfile.gettempdir(), "")
+            path_util.FindCacheDir(), os.path.expanduser("~/")
         )
 
 

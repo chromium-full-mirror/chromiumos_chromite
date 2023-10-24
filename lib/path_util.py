@@ -7,7 +7,6 @@
 import collections
 import os
 from pathlib import Path
-import tempfile
 from typing import Callable, Iterator, List, Optional, Union
 
 from chromite.lib import constants
@@ -15,6 +14,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.utils import memoize
+from chromite.utils import xdg_util
 
 
 GENERAL_CACHE_DIR = ".cache"
@@ -369,7 +369,7 @@ def FindCacheDir() -> str:
     elif checkout.type == CHECKOUT_TYPE_GCLIENT:
         return os.path.join(checkout.chrome_src_dir, "build", CHROME_CACHE_DIR)
     elif checkout.type == CHECKOUT_TYPE_UNKNOWN:
-        return os.path.join(tempfile.gettempdir(), "chromeos-cache")
+        return str(xdg_util.CACHE_HOME / "cros" / "chromite")
     else:
         raise AssertionError("Unexpected type %s" % checkout.type)
 
