@@ -87,7 +87,6 @@ COMPRESSED_ASH_OVERLAY_SUFFIX = "-compressed-ash"
 
 LACROS_DIR = "/usr/local/lacros-chrome"
 _CONF_FILE = "/etc/chrome_dev.conf"
-_KILL_LACROS_CHROME_CMD = "pkill -f %(lacros_dir)s/chrome"
 MODIFIED_CONF_FILE = f"modified {_CONF_FILE}"
 
 # This command checks if
@@ -279,7 +278,7 @@ class DeployChrome:
                 check=False,
             )
         self.device.run(
-            _KILL_LACROS_CHROME_CMD % {"lacros_dir": self.options.target_dir},
+            ["pkill", "-f", f"{self.options.target_dir}/chrome"],
             check=False,
         )
 
