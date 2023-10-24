@@ -168,10 +168,12 @@ class StandardBoolTest(cros_test_lib.TestCase):
 
     def setUp(self):
         self.parser = commandline.ArgumentParser()
-        # Use names "DT" (default-true) and "DF" (default-false). Abbreviated
-        # because the test is hard to read if boolean strings are everywhere.
+        # Use names "DT" (default-true), "DF" (default-false), and "DN"
+        # (default-None). Abbreviated because the test is hard to read if
+        # boolean strings are everywhere.
         self.parser.add_bool_argument("--dt-var", True, "Yes DT", "No DT")
         self.parser.add_bool_argument("--df-var", False, "Yes DF", "No DF")
+        self.parser.add_bool_argument("--dn-var", None, "Yes DN", "No DN")
 
     def add_flag(self, flag: str) -> Callable:
         """Returns a closure that adds a bool argument using `flag`."""
@@ -184,12 +186,15 @@ class StandardBoolTest(cros_test_lib.TestCase):
     def testNormalUsage(self):
         """Test end-to-end usage with 2 args with different defaults."""
 
-        def verify(argv: List[str], dt: bool, df: bool):
+        def verify(
+            argv: List[str], dt: bool, df: bool, dn: Optional[bool] = None
+        ):
             options = self.parser.parse_args(argv)
             self.assertEqual(options.dt_var, dt)
             self.assertEqual(options.df_var, df)
+            self.assertEqual(options.dn_var, dn)
 
-        verify([], dt=True, df=False)
+        verify([], dt=True, df=False, dn=None)
 
         verify(["--df-var"], dt=True, df=True)
         verify(["--no-df-var"], dt=True, df=False)
@@ -199,6 +204,9 @@ class StandardBoolTest(cros_test_lib.TestCase):
         verify(["--no-dt-var"], dt=False, df=False)
         verify(["--dt-var", "--no-dt-var"], dt=False, df=False)
 
+        verify(["--dn-var"], dt=True, df=False, dn=True)
+        verify(["--no-dn-var"], dt=True, df=False, dn=False)
+
     def testHelpStrings(self):
         """Test help strings are set correctly."""
         help_string = self.parser.format_help()
@@ -206,6 +214,9 @@ class StandardBoolTest(cros_test_lib.TestCase):
         self.assertIn("No DT\n", help_string)
         self.assertIn("Yes DF\n", help_string)
         self.assertIn("No DF (DEFAULT)\n", help_string)
+        # Default=None is treated as not having a default.
+        self.assertIn("Yes DN\n", help_string)
+        self.assertIn("No DN\n", help_string)
 
     def testNoPrefixRaises(self):
         """Ensure flags that are not prefixed with `--` raise ValueError."""

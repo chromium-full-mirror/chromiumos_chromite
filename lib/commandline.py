@@ -1242,20 +1242,29 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
         return action
 
     def add_bool_argument(
-        self, flag: str, default: bool, enabled_desc: str, disabled_desc: str
+        self,
+        flag: str,
+        default: Optional[bool],
+        enabled_desc: str,
+        disabled_desc: str,
     ) -> None:
         """Adds a boolean argument conforming to chromite recommendations.
 
         This will add both --flag and --no-flag, storing into dest="flag", and
-        with corresponding help strings. " (DEFAULT)" is appended to the help
-        string of the one that is default when no flag is provided.
+        with corresponding help strings. Tristate options are also supported
+        (default=None), to differentiate presence of flags (either --flag or
+        --no-flag) from absence. For boolean (non-tristate) flags, " (DEFAULT)"
+        is appended to the help string of the one that is default when no flag
+        is provided. For tristate flags, callers should make sure to explain
+        the default behavior in their enabled_desc and/or disabled_desc.
 
         See
         https://chromium.googlesource.com/chromiumos/chromite/+/HEAD/docs/cli-guidelines.md#Boolean-Options
 
         Args:
             flag: The name of the flag in kebab case (e.g. "--my-bool").
-            default: The default value when no flag is provided.
+            default: The default value when no flag is provided. If None, this
+                is treated as tristate.
             enabled_desc: The help text to use for "--my-bool".
             disabled_desc: The help text to use for "--no-my-bool".
         """
@@ -1263,8 +1272,8 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
             raise ValueError(f"Bool flag `{flag}` must start with `--`")
         if "_" in flag:
             raise ValueError(f"Bool flag `{flag}` must be kebab-case")
-        enabled_desc += " (DEFAULT)" if default else ""
-        disabled_desc += " (DEFAULT)" if not default else ""
+        enabled_desc += " (DEFAULT)" if default is True else ""
+        disabled_desc += " (DEFAULT)" if default is False else ""
         flag = flag.lstrip("-")
         dest = flag.replace("-", "_")
         self.add_argument(
