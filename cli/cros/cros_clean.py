@@ -23,6 +23,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.utils import pformat
 from chromite.utils import timer
 
@@ -282,6 +283,10 @@ class CleanCommand(command.CliCommand):
                 Empty(chroot.tmp)
 
         if self.options.cache:
+            logging.debug("Clean the global cache.")
+            with timer.timer("Clean the global cache", logging.debug):
+                Empty(path_util.get_global_cache_dir(), ignore_mount=True)
+
             logging.debug("Clean the common cache.")
             with timer.timer("Clean the common cache", logging.debug):
                 Empty(self.options.cache_dir, ignore_mount=True)

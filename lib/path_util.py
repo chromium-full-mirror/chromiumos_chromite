@@ -361,6 +361,11 @@ def DetermineCheckout(cwd=None) -> CheckoutInfo:
     return CheckoutInfo(checkout_type, root, chrome_src_dir)
 
 
+def get_global_cache_dir() -> Path:
+    """Returns the global cache directory location."""
+    return xdg_util.CACHE_HOME / "cros" / "chromite"
+
+
 def FindCacheDir() -> str:
     """Returns the cache directory location based on the checkout type."""
     checkout = DetermineCheckout()
@@ -369,7 +374,7 @@ def FindCacheDir() -> str:
     elif checkout.type == CHECKOUT_TYPE_GCLIENT:
         return os.path.join(checkout.chrome_src_dir, "build", CHROME_CACHE_DIR)
     elif checkout.type == CHECKOUT_TYPE_UNKNOWN:
-        return str(xdg_util.CACHE_HOME / "cros" / "chromite")
+        return str(get_global_cache_dir())
     else:
         raise AssertionError("Unexpected type %s" % checkout.type)
 
