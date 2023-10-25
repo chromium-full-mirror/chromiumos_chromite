@@ -1338,7 +1338,7 @@ def starbase_find_and_uprev(
     )
 
     # Check that the fake git refs is as expected.
-    gcs_pattern = r"^starbase-artifacts-\d{8}-rc\d{3}$"
+    gcs_pattern = r"^starbase-artifacts-\d{8}-r\d{2}-rc\d{3}$"
     if not re.match(gcs_pattern, gcs_name):
         raise ValueError(
             f"Pattern {gcs_pattern} doesn't match fake git ref {gcs_name}"

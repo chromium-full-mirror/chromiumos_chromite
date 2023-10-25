@@ -2608,7 +2608,7 @@ oof
 
         # Create mock ebuild to be uprevved.
         self.WriteTempFile(old_ebuild_path, old_ebuild_content)
-        gcs_name = "starbase-artifacts-20230101-rc123"
+        gcs_name = "starbase-artifacts-20230101-r42-rc123"
         manifest_path = os.path.join(package_path, "Manifest")
 
         # Run the function under test.
