@@ -14,6 +14,7 @@ import functools
 import json
 import logging
 import os
+from pathlib import Path
 import re
 import sys
 from typing import Iterable, List, NamedTuple, Optional, TYPE_CHECKING, Union
@@ -1333,85 +1334,77 @@ def uprev_protofiles(_build_targets, refs, _chroot):
 
 
 def starbase_find_and_uprev(
-    package_path: str,
-    gcs_name: str,
+    tarfile_name: str,
+    tarfile_hash: str,
+    category: str,
+    package_name: str,
+    version_id: str,
+    overlay_root: str,
     chroot: "chroot_lib.Chroot",
 ) -> List[str]:
     """Updates and uprevs the starbase artifacts ebuild.
 
     This is factored out of uprev_starbase_artifacts for unit testing.
+    See uprev_starbase_artifacts() for the meaning of the parameters.
     """
 
     # Find ebuild.
-    ebuild_pattern = r"starbase-artifacts-(\d+\.\d+\.\d+)-r(\d+).ebuild$"
-    ebuild_name: str
-    ebuild_version: str
-    ebuild_revision: int
-    for file_or_dir_path in osutils.DirectoryIterator(package_path):
-        file_or_dir = str(file_or_dir_path)
-        m = re.search(ebuild_pattern, file_or_dir)
-        if m:
-            ebuild_name = file_or_dir
-            ebuild_version = m.group(1)
-            ebuild_revision = int(m.group(2))
-            break
-    else:
-        raise Error(f"Cannot find ebuild in {package_path}")
-
-    logging.info(
-        "Found ebuild %s, version %s, rev %s",
-        ebuild_name,
-        ebuild_version,
-        ebuild_revision,
-    )
-
-    # Check that the fake git refs is as expected.
-    gcs_pattern = r"^starbase-artifacts-\d{8}-r\d{2}-rc\d{3}$"
-    if not re.match(gcs_pattern, gcs_name):
-        raise ValueError(
-            f"Pattern {gcs_pattern} doesn't match fake git ref {gcs_name}"
-        )
+    package_dir = Path(overlay_root, category, package_name)
+    ebuilds = list(package_dir.glob("*.ebuild"))
+    if not ebuilds:
+        raise Error(f"No ebuilds found in {package_dir}")
+    # Find the -rX symlink.
+    old_pkg = max(package_info.parse(x) for x in ebuilds)
+    logging.info("Package info: %s", old_pkg)
+    rev0_pkg = old_pkg.with_rev0()
 
     # Change SRC_URI in ebuild.
     lines = []
     new_line = None
-    old_ebuild_path = os.path.join(package_path, ebuild_name)
-    for line in osutils.ReadText(old_ebuild_path).splitlines():
+    rev0_ebuild_path = package_dir / rev0_pkg.ebuild
+    for line in osutils.ReadText(rev0_ebuild_path).splitlines():
         if line.startswith("SRC_URI="):
-            tarfile_name = "starbase_prod_tarfile.tar.zst"
-            new_line = f'SRC_URI="${{DISTFILES}}/{gcs_name}/{tarfile_name}"'
+            src_uri = f"${{DISTFILES}}/starbase/{version_id}/{tarfile_name}"
+            new_line = f'SRC_URI="{src_uri}"'
             logging.info("Replacing %s with %s", line, new_line)
             lines.append(new_line)
         else:
             lines.append(line)
     if not new_line:
-        raise Error(f"SRC_URI not found in ebuild {ebuild_name}")
+        raise Error(f"SRC_URI not found in ebuild {rev0_ebuild_path}")
 
-    releaseless_ebuild_name = f"starbase-artifacts-{ebuild_version}.ebuild"
-    releaseless_ebuild_path = os.path.join(
-        package_path,
-        releaseless_ebuild_name,
-    )
-    osutils.WriteFile(releaseless_ebuild_path, "\n".join(lines) + "\n")
+    osutils.WriteFile(rev0_ebuild_path, "\n".join(lines) + "\n")
 
-    new_revision = ebuild_revision + 1
-    new_ebuild_name = "starbase-artifacts-%s-r%s.ebuild" % (
-        ebuild_version,
-        new_revision,
-    )
-    new_ebuild_path = os.path.join(package_path, new_ebuild_name)
-    osutils.SafeSymlink(releaseless_ebuild_name, new_ebuild_path)
+    revbumped_pkg = old_pkg.revision_bump()
+    logging.info("Revbumped package info: %s", revbumped_pkg)
+
+    revbumped_ebuild_path = package_dir / revbumped_pkg.ebuild
+    old_ebuild_path = package_dir / old_pkg.ebuild
+    osutils.SafeSymlink(rev0_pkg.ebuild, revbumped_ebuild_path)
     osutils.SafeUnlink(old_ebuild_path)
 
     # Update Manifest.
-    portage_util.UpdateEbuildManifest(releaseless_ebuild_path, chroot)
+    portage_util.UpdateEbuildManifest(rev0_ebuild_path, chroot)
 
-    manifest_path = os.path.join(package_path, "Manifest")
+    # Compare Manifest hash against the one passed by Rapid.
+    found_hash = portage_util.EbuildManifestFileHash(
+        package_dir, tarfile_name, "SHA512"
+    )
+    if found_hash != tarfile_hash:
+        logging.error(
+            "Manifest hash and passed hash do not match.\n"
+            "Manifest hash:\n%s\npassed hash:\n%s",
+            found_hash,
+            tarfile_hash,
+        )
+        raise ValueError("Hash mismatch")
+
+    manifest_path = os.path.join(package_dir, "Manifest")
     modified_files = [
-        manifest_path,
-        releaseless_ebuild_path,
-        old_ebuild_path,
-        new_ebuild_path,
+        str(manifest_path),
+        str(rev0_ebuild_path),
+        str(old_ebuild_path),
+        str(revbumped_ebuild_path),
     ]
     logging.info("Modified files: %s", modified_files)
     return modified_files
@@ -1423,39 +1416,99 @@ def uprev_starbase_artifacts(
     refs: List[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedPackageResult:
-    """Updates the starbase-artifacts ebuild to fetch latest tar file.
+    """Updates one or more starbase ebuilds to fetch their latest tar file.
 
-    The Rapid workflow that builds a new version of the starbase artifacts tar
-    file and uploads it to chromeos-localmirror-private also triggers this
-    uprev, so that the next CrOS build can pick up the new artifacts.
+    Additional documentation at go/starbase-rapid-pupr.
 
-    See: uprev_versioned_package.
+    This function is triggered by a Rapid workflow that builds a one or more
+    tar files and uploads them to chromeos-localmirror-private, so that the
+    next CrOS build can pick up these tar files and install their content on
+    the CrOS image.
+
+    The function takes one "refs" argument of type GitRef, but there is no git
+    tag push in the Rapid workflow.  Instead "refs" is repurposed for our
+    needs as follows.  Let's define these variables (they are all strings):
+
+    CATEGORY = package category.  Example: chromeos-base
+    PACKAGE_NAME = name of the package.  Example: starbase-artifacts
+    PACKAGE_VERSION = package version, excluding revision.  Example: 0.0.1
+
+    TARFILE_NAME = name of the tarfile created for a package.  Example:
+      starbase_client_tarfile.tar.zst
+    TARFILE_HASH = cryptographic hash of the tarfile.
+
+    The ebuild file name is PACKAGE_NAME-PACKAGE_VERSION.ebuild, and its
+    directory (relative to the overlay root) is CATEGORY/PACKAGE_NAME.  Thus
+    the relative pathname of the ebuild can be, for instance:
+
+    chromeos-base/starbase-artifacts/starbase-artifacts-0.0.1.ebuild
+
+    We pass these values in the ref (the / characters appear literally in the
+    string, and the first one is the delimiter):
+
+    refs[i].path = TARFILE_NAME/TARFILE_HASH
+    refs[i].ref = CATEGORY/PACKAGE_NAME
+    refs[i].revision = VERSION_ID
+
+    (Note that the "gitiles" dictionary passed from the Rapid executor uses
+    "repo" instead of "path".)
+
+    (Also note that we'd really like to pass 5 parameters, but we only have
+    room for 3, so we marshall a few.)
+
+    Define a few more variables:
+
+    PACKAGE_VERSION = whatever the current ebuild uses.  It can only be
+    changed with a manual CL.
+
+    VERSION_ID = the version ID of the tar file, which is also the version ID
+    of the Rapid "release candidate" of the workflow that generated and
+    uploaded the file.
+
+    GS_MIRROR = gs://chromeos-localmirror-private
+
+    The tar file stored at this GS path:
+
+    GS_MIRROR/distfiles/starbase/VERSION_ID/PACKAGE_NAME.tar.zst
+
+    For instance:
+
+    GS_MIRROR/distfiles/starbase/20230101-r00-rc001/starbase-artifacts.tar.zst
+
+    Note that each directory can contain multiple tar files.  The "refs"
+    parameter is a list with one element for each tar file (or package).  Only
+    the packages included in "refs" are uprevved.
 
     Returns:
         UprevVersionedPackageResult: The result of updating this ebuild.
     """
-    relative_package_path = os.path.join(
+    overlay_path = os.path.join(
         "src",
         "private-overlays",
         "project-starline-private",
-        "chromeos-base",
-        "starbase-artifacts",
     )
-    package_path = str(constants.SOURCE_ROOT.joinpath(relative_package_path))
+    overlay_root = str(constants.SOURCE_ROOT.joinpath(overlay_path))
 
-    logging.info("Starbase uprev: refs[0] = %s", refs[0])
-    # gcs_name is the GCS directory of the artifacts.
-    gcs_name = refs[0].ref
-    # Extract the version from the GCS name (YYYYMMDD-rc###).
-    # AFAICT, artifacts_version is only used in the commit message.
-    artifacts_version = refs[0].ref[-14:]
-    modified_files = starbase_find_and_uprev(
-        package_path,
-        gcs_name,
-        chroot,
-    )
+    logging.info("Starbase uprev: %d refs[] = %s", len(refs), refs)
+
     result = uprev_lib.UprevVersionedPackageResult()
-    result.add_result(artifacts_version, modified_files)
+    for ref in refs:
+        # We're ignoring the meaning of the `ref` fields and reusing them for
+        # our purposes.  See absurdly long comment above.
+        tarfile_name, tarfile_hash = ref.path.split("/", 1)
+        category, package_name = ref.ref.split("/", 1)
+        version_id = ref.revision
+        modified_files = starbase_find_and_uprev(
+            tarfile_name,
+            tarfile_hash,
+            category,
+            package_name,
+            version_id,
+            overlay_root,
+            chroot,
+        )
+        # AFAICT, version_id in the "result" is only used in the commit message.
+        result.add_result(version_id, modified_files)
     return result
 
 

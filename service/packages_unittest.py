@@ -2579,10 +2579,15 @@ class UprevLacrosInParallelTest(cros_test_lib.MockTestCase):
 class UprevStarbaseArtifactsTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests of uprev of starbase artifacts ebuild."""
 
-    package_name = "chromeos-base/starbase-artifacts"
+    simple_name = "apps"
+    component = "chromeos-base"
+    package_name = f"starbase-{simple_name}"
     version = "2.4.6"
     revision = "111"
-    ebuild_name_format = "starbase-artifacts-%s%s.ebuild"
+    tarfile_name = f"starbase_{simple_name}_tarfile.tar.zst"
+    tarfile_hash = "42"
+    ebuild_name_format = f"starbase-{simple_name}-%s%s.ebuild"
+    rev0_ebuild_name = ebuild_name_format % (version, "")
     old_ebuild_name = ebuild_name_format % (version, f"-r{revision}")
     ebuild_content_format = """# Buildable ebuild
 foo
@@ -2593,28 +2598,49 @@ zab
 rab
 oof
 """
+    manifest_content = f"DIST {tarfile_name} 7 BLAH 123 SHA512 42"
 
     def test_uprev(self):
         """Test that the ebuild is modified and uprevved."""
 
         # Create ebuild directory.
         directory_tree = (
-            D(self.package_name, [self.old_ebuild_name, "Manifest"]),
+            D(
+                self.component,
+                [
+                    D(
+                        self.package_name,
+                        [
+                            self.rev0_ebuild_name,
+                            self.old_ebuild_name,
+                            "Manifest",
+                        ],
+                    ),
+                ],
+            ),
         )
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, directory_tree)
-        package_path = os.path.join(self.tempdir, self.package_name)
-        old_ebuild_path = os.path.join(package_path, self.old_ebuild_name)
+        package_path = os.path.join(
+            self.tempdir, self.component, self.package_name
+        )
         old_ebuild_content = self.ebuild_content_format % "to-be-clobbered"
+        rev0_ebuild_path = os.path.join(package_path, self.rev0_ebuild_name)
+        old_ebuild_path = os.path.join(package_path, self.old_ebuild_name)
 
         # Create mock ebuild to be uprevved.
-        self.WriteTempFile(old_ebuild_path, old_ebuild_content)
-        gcs_name = "starbase-artifacts-20230101-r42-rc123"
+        self.WriteTempFile(rev0_ebuild_path, old_ebuild_content)
+        version_id = "20230101-r42-rc123"
         manifest_path = os.path.join(package_path, "Manifest")
+        self.WriteTempFile(manifest_path, self.manifest_content)
 
         # Run the function under test.
         modified = packages.starbase_find_and_uprev(
-            package_path,
-            gcs_name,
+            self.tarfile_name,
+            self.tarfile_hash,
+            self.component,
+            self.package_name,
+            version_id,
+            self.tempdir,
             chroot_lib.Chroot(),
         )
 
@@ -2622,18 +2648,15 @@ oof
         new_rev = f"-r{str(int(self.revision) + 1)}"
         new_ebuild_name = self.ebuild_name_format % (self.version, new_rev)
         new_ebuild_path = os.path.join(package_path, new_ebuild_name)
-        releaseless_ebuild_name = self.ebuild_name_format % (self.version, "")
-        releaseless_ebuild_path = os.path.join(
-            package_path, releaseless_ebuild_name
-        )
 
         self.assertEqual(modified[0], manifest_path)
-        self.assertEqual(modified[1], releaseless_ebuild_path)
+        self.assertEqual(modified[1], rev0_ebuild_path)
         self.assertEqual(modified[2], old_ebuild_path)
         self.assertEqual(modified[3], new_ebuild_path)
 
-        tarfile_name = f"{gcs_name}/starbase_prod_tarfile.tar.zst"
+        tarfile_path = f"starbase/{version_id}/{self.tarfile_name}"
+
         # Check that the new ebuild file contains the expected content.
-        new_ebuild_content = self.ebuild_content_format % tarfile_name
+        new_ebuild_content = self.ebuild_content_format % tarfile_path
         found_content = osutils.ReadFile(new_ebuild_path)
         self.assertEqual(new_ebuild_content, found_content)

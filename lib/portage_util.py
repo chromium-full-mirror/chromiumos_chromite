@@ -3264,3 +3264,34 @@ def UpdateEbuildManifest(
     chroot_ebuild_path = chroot.chroot_path(ebuild_path)
     command = ["ebuild", chroot_ebuild_path, "manifest", "--force"]
     return chroot.run(command)
+
+
+def EbuildManifestFileHash(
+    ebuild_dir: Union[str, os.PathLike],
+    archive_file: str,
+    hash_type: str,
+    entry_type: str = "DIST",
+) -> str:
+    manifest_path = os.path.join(ebuild_dir, "Manifest")
+    manifest_content = osutils.ReadText(manifest_path)
+    for line in manifest_content.splitlines():
+        # The general form of each line is:
+        # <type> <filename> <size> <hash-type> <hash> [<hash-type> <hash> ...]
+        # Example: "DIST <filename> <size> BLAKE2B <hash> SHA512 <hash>"
+        fields = line.split()
+        if fields[0] != entry_type or fields[1] != archive_file:
+            continue
+        for found_type, digest in zip(fields[3::2], fields[4::2]):
+            if found_type == hash_type:
+                return digest
+
+    # Log the entire manifest file content, since this is rare.
+    logging.error(
+        'no %s hash for %s (type %s) in "%s": file content:\n%s',
+        hash_type,
+        archive_file,
+        entry_type,
+        manifest_path,
+        manifest_content,
+    )
+    raise ValueError("unexpected Manifest file content")
