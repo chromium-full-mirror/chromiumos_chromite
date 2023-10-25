@@ -376,6 +376,11 @@ def DetermineCheckout(cwd=None) -> CheckoutInfo:
     return CheckoutInfo(checkout_type, root, chrome_src_dir)
 
 
+def get_global_cog_base_dir() -> Path:
+    """Returns the base directory for cog output."""
+    return xdg_util.STATE_HOME / "cros" / "cog"
+
+
 def get_global_cache_dir() -> Path:
     """Returns the global cache directory location."""
     return xdg_util.CACHE_HOME / "cros" / "chromite"
@@ -389,8 +394,7 @@ def FindCacheDir() -> CheckoutType:
     elif checkout.type == CheckoutType.GCLIENT:
         return os.path.join(checkout.chrome_src_dir, "build", CHROME_CACHE_DIR)
     elif checkout.type == CheckoutType.CITC:
-        # TODO(b/307590748): Do better.
-        return str(get_global_cache_dir())
+        return str(get_global_cog_base_dir() / "cache")
     elif checkout.type == CheckoutType.UNKNOWN:
         return str(get_global_cache_dir())
     else:
