@@ -15,7 +15,7 @@ from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/android.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"T\n\x15GetLatestBuildRequest\x12\x1c\n\x14\x61ndroid_build_branch\x18\x02 \x01(\t\x12\x17\n\x0f\x61ndroid_package\x18\x03 \x01(\tJ\x04\x08\x01\x10\x02\"1\n\x16GetLatestBuildResponse\x12\x17\n\x0f\x61ndroid_version\x18\x01 \x01(\t\"\x8c\x02\n\x11MarkStableRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x1b\n\x0ftracking_branch\x18\x02 \x01(\tB\x02\x18\x01\x12\x14\n\x0cpackage_name\x18\x03 \x01(\t\x12\x1c\n\x14\x61ndroid_build_branch\x18\x04 \x01(\t\x12\x17\n\x0f\x61ndroid_version\x18\x05 \x01(\t\x12$\n\x18\x61ndroid_gts_build_branch\x18\x06 \x01(\tB\x02\x18\x01\x12.\n\rbuild_targets\x18\x07 \x03(\x0b\x32\x17.chromiumos.BuildTarget\x12\x13\n\x0bskip_commit\x18\x08 \x01(\x08\"w\n\x12MarkStableResponse\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".chromite.api.MarkStableStatusType\x12-\n\x0c\x61ndroid_atom\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"9\n\x13UnpinVersionRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\"\x16\n\x14UnpinVersionResponse\"\\\n\x10WriteLKGBRequest\x12\x17\n\x0f\x61ndroid_package\x18\x01 \x01(\t\x12\x17\n\x0f\x61ndroid_version\x18\x02 \x01(\t\x12\x16\n\x0e\x61ndroid_branch\x18\x03 \x01(\t\"+\n\x11WriteLKGBResponse\x12\x16\n\x0emodified_files\x18\x01 \x03(\t*\x9c\x01\n\x14MarkStableStatusType\x12\"\n\x1eMARK_STABLE_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n\x1aMARK_STABLE_STATUS_SUCCESS\x10\x01\x12\x1d\n\x19MARK_STABLE_STATUS_PINNED\x10\x02\x12!\n\x1dMARK_STABLE_STATUS_EARLY_EXIT\x10\x03\x32\x94\x03\n\x0e\x41ndroidService\x12\x63\n\x0eGetLatestBuild\x12#.chromite.api.GetLatestBuildRequest\x1a$.chromite.api.GetLatestBuildResponse\"\x06\xc2\xed\x1a\x02\x10\x02\x12W\n\nMarkStable\x12\x1f.chromite.api.MarkStableRequest\x1a .chromite.api.MarkStableResponse\"\x06\xc2\xed\x1a\x02\x10\x02\x12]\n\x0cUnpinVersion\x12!.chromite.api.UnpinVersionRequest\x1a\".chromite.api.UnpinVersionResponse\"\x06\xc2\xed\x1a\x02\x10\x01\x12T\n\tWriteLKGB\x12\x1e.chromite.api.WriteLKGBRequest\x1a\x1f.chromite.api.WriteLKGBResponse\"\x06\xc2\xed\x1a\x02\x10\x02\x1a\x0f\xc2\xed\x1a\x0b\n\x07\x61ndroid\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/android.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"T\n\x15GetLatestBuildRequest\x12\x1c\n\x14\x61ndroid_build_branch\x18\x02 \x01(\t\x12\x17\n\x0f\x61ndroid_package\x18\x03 \x01(\tJ\x04\x08\x01\x10\x02\"1\n\x16GetLatestBuildResponse\x12\x17\n\x0f\x61ndroid_version\x18\x01 \x01(\t\"\xb5\x02\n\x11MarkStableRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x1b\n\x0ftracking_branch\x18\x02 \x01(\tB\x02\x18\x01\x12\x14\n\x0cpackage_name\x18\x03 \x01(\t\x12\x1c\n\x14\x61ndroid_build_branch\x18\x04 \x01(\t\x12\x17\n\x0f\x61ndroid_version\x18\x05 \x01(\t\x12$\n\x18\x61ndroid_gts_build_branch\x18\x06 \x01(\tB\x02\x18\x01\x12.\n\rbuild_targets\x18\x07 \x03(\x0b\x32\x17.chromiumos.BuildTarget\x12\x13\n\x0bskip_commit\x18\x08 \x01(\x08\x12\'\n\x1fignore_data_collector_artifacts\x18\t \x01(\x08\"w\n\x12MarkStableResponse\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".chromite.api.MarkStableStatusType\x12-\n\x0c\x61ndroid_atom\x18\x02 \x01(\x0b\x32\x17.chromiumos.PackageInfo\"9\n\x13UnpinVersionRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\"\x16\n\x14UnpinVersionResponse\"\\\n\x10WriteLKGBRequest\x12\x17\n\x0f\x61ndroid_package\x18\x01 \x01(\t\x12\x17\n\x0f\x61ndroid_version\x18\x02 \x01(\t\x12\x16\n\x0e\x61ndroid_branch\x18\x03 \x01(\t\"+\n\x11WriteLKGBResponse\x12\x16\n\x0emodified_files\x18\x01 \x03(\t*\x9c\x01\n\x14MarkStableStatusType\x12\"\n\x1eMARK_STABLE_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n\x1aMARK_STABLE_STATUS_SUCCESS\x10\x01\x12\x1d\n\x19MARK_STABLE_STATUS_PINNED\x10\x02\x12!\n\x1dMARK_STABLE_STATUS_EARLY_EXIT\x10\x03\x32\x94\x03\n\x0e\x41ndroidService\x12\x63\n\x0eGetLatestBuild\x12#.chromite.api.GetLatestBuildRequest\x1a$.chromite.api.GetLatestBuildResponse\"\x06\xc2\xed\x1a\x02\x10\x02\x12W\n\nMarkStable\x12\x1f.chromite.api.MarkStableRequest\x1a .chromite.api.MarkStableResponse\"\x06\xc2\xed\x1a\x02\x10\x02\x12]\n\x0cUnpinVersion\x12!.chromite.api.UnpinVersionRequest\x1a\".chromite.api.UnpinVersionResponse\"\x06\xc2\xed\x1a\x02\x10\x01\x12T\n\tWriteLKGB\x12\x1e.chromite.api.WriteLKGBRequest\x1a\x1f.chromite.api.WriteLKGBResponse\"\x06\xc2\xed\x1a\x02\x10\x02\x1a\x0f\xc2\xed\x1a\x0b\n\x07\x61ndroid\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.android_pb2', globals())
@@ -37,24 +37,24 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _ANDROIDSERVICE.methods_by_name['UnpinVersion']._serialized_options = b'\302\355\032\002\020\001'
   _ANDROIDSERVICE.methods_by_name['WriteLKGB']._options = None
   _ANDROIDSERVICE.methods_by_name['WriteLKGB']._serialized_options = b'\302\355\032\002\020\002'
-  _MARKSTABLESTATUSTYPE._serialized_start=851
-  _MARKSTABLESTATUSTYPE._serialized_end=1007
+  _MARKSTABLESTATUSTYPE._serialized_start=892
+  _MARKSTABLESTATUSTYPE._serialized_end=1048
   _GETLATESTBUILDREQUEST._serialized_start=99
   _GETLATESTBUILDREQUEST._serialized_end=183
   _GETLATESTBUILDRESPONSE._serialized_start=185
   _GETLATESTBUILDRESPONSE._serialized_end=234
   _MARKSTABLEREQUEST._serialized_start=237
-  _MARKSTABLEREQUEST._serialized_end=505
-  _MARKSTABLERESPONSE._serialized_start=507
-  _MARKSTABLERESPONSE._serialized_end=626
-  _UNPINVERSIONREQUEST._serialized_start=628
-  _UNPINVERSIONREQUEST._serialized_end=685
-  _UNPINVERSIONRESPONSE._serialized_start=687
-  _UNPINVERSIONRESPONSE._serialized_end=709
-  _WRITELKGBREQUEST._serialized_start=711
-  _WRITELKGBREQUEST._serialized_end=803
-  _WRITELKGBRESPONSE._serialized_start=805
-  _WRITELKGBRESPONSE._serialized_end=848
-  _ANDROIDSERVICE._serialized_start=1010
-  _ANDROIDSERVICE._serialized_end=1414
+  _MARKSTABLEREQUEST._serialized_end=546
+  _MARKSTABLERESPONSE._serialized_start=548
+  _MARKSTABLERESPONSE._serialized_end=667
+  _UNPINVERSIONREQUEST._serialized_start=669
+  _UNPINVERSIONREQUEST._serialized_end=726
+  _UNPINVERSIONRESPONSE._serialized_start=728
+  _UNPINVERSIONRESPONSE._serialized_end=750
+  _WRITELKGBREQUEST._serialized_start=752
+  _WRITELKGBREQUEST._serialized_end=844
+  _WRITELKGBRESPONSE._serialized_start=846
+  _WRITELKGBRESPONSE._serialized_end=889
+  _ANDROIDSERVICE._serialized_start=1051
+  _ANDROIDSERVICE._serialized_end=1455
 # @@protoc_insertion_point(module_scope)
