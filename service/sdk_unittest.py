@@ -319,7 +319,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(expected_version, version)
         self.assertCommandContains(expected_args)
 
-    def runCreateExtractingCcacheCommand(self, replace, ccache_disable):
+    def runCreateExtractingCcacheSetting(self, replace, ccache_disable):
         """Run `sdk.Create`, extracting the ccache enable/disable command."""
         arguments = sdk.CreateArguments(
             replace=replace, ccache_disable=ccache_disable
@@ -337,7 +337,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         version = sdk.Create(arguments)
         self.assertEqual(expected_version, version)
 
-        found_ccache_command = None
+        found_ccache_setting = None
         for i, call_args in enumerate(self.rc.call_args_list):
             positionals = call_args.args[0]
             self.assertTrue(
@@ -347,47 +347,51 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
                 f"Call {positionals} (#{i+1}) does not contain {chroot_args}",
             )
 
-            ccache_positional = next(
+            str_positionals = [x for x in positionals if isinstance(x, str)]
+            if not any("CCACHE_DIR=" in x for x in str_positionals):
+                continue
+
+            ccache_setting = next(
                 (
                     x
-                    for x in positionals
-                    if isinstance(x, str) and " CCACHE_DIR=" in x
+                    for x in reversed(str_positionals)
+                    if x.startswith("--set-config=disable=")
                 ),
                 None,
             )
 
-            if not ccache_positional:
+            if not ccache_setting:
                 continue
 
             self.assertIsNone(
-                found_ccache_command,
+                found_ccache_setting,
                 f"Found multiple ccache commands in {self.rc.call_args_list}",
             )
-            found_ccache_command = ccache_positional
+            found_ccache_setting = ccache_setting
 
         self.assertIsNotNone(
-            found_ccache_command,
+            found_ccache_setting,
             f"No ccache invocation found in any of {self.rc.call_args_list}",
         )
-        return found_ccache_command
+        return found_ccache_setting
 
     def testDisablingCcacheWorks(self):
         """Ensure we issue a ccache disable command if it's requested."""
-        ccache_command = self.runCreateExtractingCcacheCommand(
+        ccache_setting = self.runCreateExtractingCcacheSetting(
             replace=True, ccache_disable=True
         )
-        self.assertIn("disable=true", ccache_command)
+        self.assertIn("disable=true", ccache_setting)
 
     def testCcacheIsReenabledIfDisablingIsntRequested(self):
         """Ensure we issue a ccache enable command if it's requested."""
-        ccache_command = self.runCreateExtractingCcacheCommand(
+        ccache_setting = self.runCreateExtractingCcacheSetting(
             replace=True, ccache_disable=False
         )
-        self.assertIn("disable=false", ccache_command)
+        self.assertIn("disable=false", ccache_setting)
 
     def testCcacheCommandIsIssuedEvenIfNoReplacementHappens(self):
         """Check that Create enables ccache if the chroot isn't remade."""
-        ccache_command = self.runCreateExtractingCcacheCommand(
+        ccache_command = self.runCreateExtractingCcacheSetting(
             replace=False, ccache_disable=False
         )
         self.assertIn("disable=false", ccache_command)

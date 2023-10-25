@@ -316,9 +316,10 @@ def Create(arguments: CreateArguments) -> Optional[int]:
     ccache_cmd.extend(
         (
             "--",
-            "sudo"
-            " CCACHE_DIR=/var/cache/distfiles/ccache"
-            f" ccache --set-config=disable={disable_arg}",
+            "sudo",
+            "CCACHE_DIR=/var/cache/distfiles/ccache",
+            "ccache",
+            f"--set-config=disable={disable_arg}",
         )
     )
     if cros_build_lib.run(ccache_cmd, check=False).returncode:
