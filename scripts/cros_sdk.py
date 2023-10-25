@@ -34,6 +34,7 @@ from chromite.lib import goma_lib
 from chromite.lib import locking
 from chromite.lib import namespaces
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib import process_util
 from chromite.lib import remoteexec_util
 from chromite.lib import retry_util
@@ -439,16 +440,19 @@ def _CreateParser(
     parser.add_argument(
         "--chroot",
         dest="chroot",
-        default=constants.DEFAULT_CHROOT_PATH,
-        type="path",
-        help=("SDK chroot dir name [%s]" % constants.DEFAULT_CHROOT_DIR),
+        default=None,
+        type=Path,
+        help=f"SDK chroot dir name [.../{constants.DEFAULT_CHROOT_DIR}]",
     )
     parser.add_argument(
         "--out-dir",
         metavar="DIR",
-        default=constants.DEFAULT_OUT_PATH,
+        default=None,
         type=Path,
-        help="Use DIR for build state and output files",
+        help=(
+            "Use DIR for build state and output files "
+            f"[.../{constants.DEFAULT_OUT_DIR}]"
+        ),
     )
     parser.add_argument(
         "--nouse-image",
@@ -705,6 +709,37 @@ def _FinalizeOptions(
     if options.force and not options.delete:
         parser.error("Specifying --force without --delete does not make sense.")
 
+    # Resolve default output directories.
+    chroot_path = (
+        constants.DEFAULT_CHROOT_PATH
+        if options.chroot is None
+        else options.chroot
+    )
+    out_path = (
+        constants.DEFAULT_OUT_PATH
+        if options.out_dir is None
+        else options.out_dir
+    )
+
+    checkout = path_util.DetermineCheckout()
+    if checkout.type == path_util.CheckoutType.CITC:
+        # If running in a citc client, set default output paths to ~/.
+        workspace_id_path = (
+            Path(checkout.root).parent / ".citc" / "workspace_id"
+        )
+        workspace_id = workspace_id_path.read_text(encoding="utf-8")
+        workspace_path = (
+            path_util.get_global_cog_base_dir() / "workspaces" / workspace_id
+        )
+        workspace_path.mkdir(parents=True, exist_ok=True)
+        chroot_path = workspace_path / constants.DEFAULT_CHROOT_DIR
+        out_path = workspace_path / constants.DEFAULT_OUT_DIR
+
+    options.chroot = osutils.ExpandPath(chroot_path)
+    options.out_dir = osutils.ExpandPath(out_path)
+    logging.debug("Configuring chroot to %s", options.chroot)
+    logging.debug("Configuring output dir to %s", options.out_dir)
+
     chroot_exists = cros_sdk_lib.IsChrootReady(options.chroot)
     # Finally, flip create if necessary.
     if options.enter:
@@ -766,7 +801,6 @@ def main(argv):
         sdk_latest_version, bootstrap_latest_version
     )
     options = parser.parse_args(argv)
-    options.out_dir = options.out_dir.resolve()
 
     # Some basic checks first, before we ask for sudo credentials.
     cros_build_lib.AssertOutsideChroot()
