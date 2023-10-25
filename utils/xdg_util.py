@@ -80,6 +80,11 @@ def _get_config_home() -> Path:
     return _get_path(".config", "xdg_config_home")
 
 
+def _get_state_home() -> Path:
+    """The $XDG_STATE_HOME."""
+    return _get_path(".local/state", "xdg_state_home")
+
+
 # The base directory relative to which user-specific non-essential data files
 # should be stored.
 CACHE_HOME = _get_cache_home()
@@ -88,3 +93,8 @@ CACHE_HOME = _get_cache_home()
 # The base directory relative to which user-specific configuration files should
 # be stored.
 CONFIG_HOME = _get_config_home()
+
+
+# The base directory relative to which user-specific state files should be
+# stored.
+STATE_HOME = _get_state_home()

@@ -55,6 +55,11 @@ def test_chrome_bot_paths(as_chrome_bot):  # pylint: disable=unused-argument
     # NB: This will crash if it isn't relative to the tempdir.
     d.relative_to(tempfile.tempdir)
 
+    d = xdg_util._get_state_home()
+    assert d.parts[-2:] == (".local", "state")
+    # NB: This will crash if it isn't relative to the tempdir.
+    d.relative_to(tempfile.tempdir)
+
 
 @mock.patch.multiple(os_util, is_root_user=lambda: False)
 def test_non_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
@@ -71,6 +76,11 @@ def test_non_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
     # NB: This will crash if it isn't relative to the tempdir.
     d.relative_to(Path("~").expanduser())
 
+    d = xdg_util._get_state_home()
+    assert d.parts[-2:] == (".local", "state")
+    # NB: This will crash if it isn't relative to the tempdir.
+    d.relative_to(Path("~").expanduser())
+
 
 @mock.patch.multiple(
     os_util, is_root_user=lambda: True, non_root_home=lambda: Path("/foo")
@@ -80,3 +90,4 @@ def test_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
     assert not xdg_util._is_chrome_bot()
     assert xdg_util._get_cache_home() == Path("/foo/.cache")
     assert xdg_util._get_config_home() == Path("/foo/.config")
+    assert xdg_util._get_state_home() == Path("/foo/.local/state")
