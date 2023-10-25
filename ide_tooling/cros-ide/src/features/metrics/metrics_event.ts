@@ -252,8 +252,9 @@ type EbuildEvent = EventBase & {
   category: 'background';
   name:
     | 'show_portage_predefined_read_only_variable_hover'
-    | 'show_ebuild_defined_variable_hover';
-  variable: string;
+    | 'show_ebuild_defined_variable_hover'
+    | 'show_ebuild_phase_function_hover';
+  word: string;
 };
 
 type GerritEvent = EventBase & {

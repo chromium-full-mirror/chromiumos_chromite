@@ -3,15 +3,17 @@
 // found in the LICENSE file.
 
 import * as vscode from 'vscode';
-import {
-  EBUILD_DEFINED_VARIABLES_HOVER_STRING,
-  PORTAGE_PREDEFINED_READ_ONLY_VARIABLES_HOVER_STRING,
-  PortageReferenceHoverProvider,
-} from '../../../../../features/chromiumos/ebuild/portage_reference';
+import * as portage_reference from '../../../../../features/chromiumos/ebuild/portage_reference';
 import {
   FakeCancellationToken,
   FakeTextDocument,
 } from '../../../../testing/fakes';
+
+const {
+  EBUILD_DEFINED_VARIABLES_HOVER_STRING,
+  EBUILD_PHASE_FUNCTIONS_HOVER_STRING,
+  PORTAGE_PREDEFINED_READ_ONLY_VARIABLES_HOVER_STRING,
+} = portage_reference.TEST_ONLY;
 
 const SIMPLE_EBUILD = `
 EAPI=7
@@ -27,11 +29,26 @@ RDEPEND=""
 DEPEND=""
 
 S=\${WORKDIR}
+
+src_compile() {
+\tarc-build-constants-configure
+}
+
+install_pc_file() {
+\tprefix="\${ARC_PREFIX}/usr"
+\tsed \
+\t\t-e "s|@lib@|$(get_libdir)|g" \
+\t\t-e "s|@prefix@|\${prefix}|g" \
+\t\t"\${PC_SRC_DIR}"/"$1" > "$1" || die
+\tdoins "$1"
+}
+
 `;
 
 describe('Portage Reference Hover Provider', () => {
   it('show hover', async () => {
-    const portageReferenceHoverProvider = new PortageReferenceHoverProvider();
+    const portageReferenceHoverProvider =
+      new portage_reference.PortageReferenceHoverProvider();
     const textDocument = new FakeTextDocument({text: SIMPLE_EBUILD});
 
     let position = new vscode.Position(1, 1); // Of EAPI
@@ -42,7 +59,7 @@ describe('Portage Reference Hover Provider', () => {
     );
     expect(hoverEapi).toEqual(
       new vscode.Hover(
-        'EAPI' + EBUILD_DEFINED_VARIABLES_HOVER_STRING,
+        EBUILD_DEFINED_VARIABLES_HOVER_STRING('EAPI'),
         new vscode.Range(1, 0, 1, 4)
       )
     );
@@ -55,8 +72,20 @@ describe('Portage Reference Hover Provider', () => {
     );
     expect(hoverWorkdir).toEqual(
       new vscode.Hover(
-        'WORKDIR' + PORTAGE_PREDEFINED_READ_ONLY_VARIABLES_HOVER_STRING,
+        PORTAGE_PREDEFINED_READ_ONLY_VARIABLES_HOVER_STRING('WORKDIR'),
         new vscode.Range(13, 4, 13, 11)
+      )
+    );
+    position = new vscode.Position(15, 5); // Of src_compile
+    const hoverSrcCompile = portageReferenceHoverProvider.provideHover(
+      textDocument,
+      position,
+      new FakeCancellationToken()
+    );
+    expect(hoverSrcCompile).toEqual(
+      new vscode.Hover(
+        EBUILD_PHASE_FUNCTIONS_HOVER_STRING('src_compile'),
+        new vscode.Range(15, 0, 15, 11)
       )
     );
   });
