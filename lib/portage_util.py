@@ -80,7 +80,6 @@ CrosWorkonVars = collections.namedtuple(
         "subdir",
         "always_live",
         "commit",
-        "rev_subdirs",
         "subtrees",
     ),
 )
@@ -773,7 +772,6 @@ class EBuild:
             "CROS_WORKON_SUBDIR",  # Obsolete, used for older branches.
             "CROS_WORKON_ALWAYS_LIVE",
             "CROS_WORKON_COMMIT",
-            "CROS_WORKON_SUBDIRS_TO_REV",
             "CROS_WORKON_SUBTREE",
         )
         env = {
@@ -790,13 +788,10 @@ class EBuild:
         # thing, but at least this covers some types of failures.
         projects = []
         subdirs = []
-        rev_subdirs = []
         if "CROS_WORKON_PROJECT" in settings:
             projects = settings["CROS_WORKON_PROJECT"].split(",")
         if "CROS_WORKON_SUBDIR" in settings:
             subdirs = settings["CROS_WORKON_SUBDIR"].split(",")
-        if "CROS_WORKON_SUBDIRS_TO_REV" in settings:
-            rev_subdirs = settings["CROS_WORKON_SUBDIRS_TO_REV"].split(",")
 
         if not projects:
             raise EbuildFormatIncorrectError(
@@ -811,12 +806,6 @@ class EBuild:
             tuple(subtree.split() or [""])
             for subtree in settings.get("CROS_WORKON_SUBTREE", "").split(",")
         ]
-        if len(projects) > 1 and rev_subdirs:
-            raise EbuildFormatIncorrectError(
-                ebuild_path,
-                "Must not define CROS_WORKON_SUBDIRS_TO_REV if defining "
-                "multiple cros_workon projects or source paths.",
-            )
 
         return CrosWorkonVars(
             localname=localnames,
@@ -824,7 +813,6 @@ class EBuild:
             subdir=subdirs,
             always_live=live,
             commit=commit,
-            rev_subdirs=rev_subdirs,
             subtrees=subtrees,
         )
 
@@ -1311,8 +1299,7 @@ class EBuild:
     def _ShouldRevEBuild(self, commit_ids, srcdirs, subdirs_to_rev):
         """Determine whether we should attempt to rev |ebuild|.
 
-        If CROS_WORKON_SUBDIRS_TO_REV is not defined for |ebuild|, and
-        subdirs_to_rev is empty, this function trivially returns True.
+        If subdirs_to_rev is empty, this function trivially returns True.
 
         Args:
             commit_ids: Commit ID of the tip of tree for the source dir.
@@ -1331,7 +1318,7 @@ class EBuild:
             return True
         if len(srcdirs) != 1:
             return True
-        if not subdirs_to_rev and not self.cros_workon_vars.rev_subdirs:
+        if not subdirs_to_rev:
             return True
 
         current_commit_hash = commit_ids[0]
@@ -1339,7 +1326,6 @@ class EBuild:
         srcdir = srcdirs[0]
         logrange = "%s..%s" % (stable_commit_hash, current_commit_hash)
         dirs = []
-        dirs.extend(self.cros_workon_vars.rev_subdirs)
         dirs.extend(subdirs_to_rev)
         if dirs:
             # Any change to the unstable ebuild must generate an uprev. If there
