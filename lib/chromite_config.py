@@ -32,10 +32,12 @@ else:
     # Running as root, fall back to hardcoded, most common answer for the user.
     try:
         XDG_CONFIG_HOME = os_util.non_root_home() / ".config"
-    except os_util.UnknownNonRootUserError:
+    except os_util.Error as e:
         logging.warning(
-            "Unable to identify non-root user, falling back to root's configs."
+            "Unable to locate a non-root user home, "
+            "falling back to root's configs."
         )
+        logging.debug(e)
 
 
 DIR = XDG_CONFIG_HOME / "chromite"

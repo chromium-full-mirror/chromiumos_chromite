@@ -17,6 +17,10 @@ class Error(Exception):
     """Base error class for the module."""
 
 
+class UnknownHomeDirectoryError(Error):
+    """Unable to locate the non-root user's home directory."""
+
+
 class UnknownNonRootUserError(Error):
     """Unable to identify the non-root user."""
 
@@ -116,7 +120,12 @@ def non_root_home() -> Path:
 
     non_root_user = get_non_root_user()
     if non_root_user:
-        return Path(f"~{non_root_user}").expanduser()
+        try:
+            return Path(f"~{non_root_user}").expanduser()
+        except RuntimeError as e:
+            raise UnknownHomeDirectoryError(
+                f"Could not find home directory for {non_root_user}."
+            ) from e
 
     raise UnknownNonRootUserError("Unable to identify the non-root user.")
 

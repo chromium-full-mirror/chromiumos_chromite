@@ -170,6 +170,18 @@ def test_non_root_user_home_as_root_not_found(as_root_user, monkeypatch):
         os_util.non_root_home()
 
 
+def test_non_root_user_home_as_root_pwd_error(as_root_user, monkeypatch):
+    def expanduser(self, *_args, **_kwargs):
+        """expanduser patch."""
+        raise RuntimeError("Error")
+
+    monkeypatch.setattr(Path, "expanduser", expanduser)
+    monkeypatch.setenv("PORTAGE_USERNAME", "user")
+
+    with pytest.raises(os_util.UnknownHomeDirectoryError):
+        os_util.non_root_home()
+
+
 def test_get_non_root_user_portage_username(as_root_user, monkeypatch):
     """Test get_non_root_user from PORTAGE_USERNAME."""
     user = "portage_username"
