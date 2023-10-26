@@ -259,7 +259,6 @@ async function buildAndUpload(preRelease: boolean, remoteBranch?: string) {
     const ovsxArgs = ['ovsx', 'publish', vsixFile];
     const vsceArgs = ['vsce', 'publish', '-i', vsixFile];
     if (preRelease) {
-      ovsxArgs.push('--pre-release');
       vsceArgs.push('--pre-release');
     }
 
