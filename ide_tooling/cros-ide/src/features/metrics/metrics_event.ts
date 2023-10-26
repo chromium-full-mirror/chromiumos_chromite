@@ -210,26 +210,32 @@ interface DebuggingEvent extends EventBase {
   tests_count: number;
 }
 
-interface DeviceManagementEvent extends EventBase {
+type DeviceManagementEvent = EventBase & {
   category: 'interactive';
   group: 'device';
-  name:
-    | 'device_management_abandon_lease'
-    | 'device_management_add_device'
-    | 'device_management_add_existing_hosts'
-    | 'device_management_add_lease'
-    | 'device_management_connect_to_device_ssh'
-    | 'device_management_connect_to_device_vnc'
-    | 'device_management_copy_hostname'
-    | 'device_management_debug_tast_tests'
-    | 'device_management_delete_device'
-    | 'device_management_flash_prebuilt_image'
-    | 'device_management_log_in_to_crosfleet'
-    | 'device_management_refresh_leases'
-    | 'device_management_run_tast_tests'
-    | 'device_management_syslog_viewer_copy'
-    | 'device_management_syslog_viewer_open';
-}
+} & (
+    | {
+        name:
+          | 'device_management_abandon_lease'
+          | 'device_management_add_device'
+          | 'device_management_add_existing_hosts'
+          | 'device_management_add_lease'
+          | 'device_management_connect_to_device_ssh'
+          | 'device_management_connect_to_device_vnc'
+          | 'device_management_copy_hostname'
+          | 'device_management_debug_tast_tests'
+          | 'device_management_delete_device'
+          | 'device_management_log_in_to_crosfleet'
+          | 'device_management_refresh_leases'
+          | 'device_management_run_tast_tests'
+          | 'device_management_syslog_viewer_copy'
+          | 'device_management_syslog_viewer_open';
+      }
+    | {
+        name: 'device_management_flash_prebuilt_image';
+        image_type: string;
+      }
+  );
 
 type ExtensionSuggestionEvent = EventBase & {
   group: 'misc';

@@ -6,11 +6,12 @@ import * as vscode from 'vscode';
 import * as services from '../../services';
 
 /**
- * Returns a list of prebuilt release images available for the given board.
+ * Returns a list of prebuilt images available for the given board and image type.
  * Returned versions are sorted in the reverse-chronological order (newest first).
  */
 export async function listPrebuiltVersions(
   board: string,
+  imageType: string,
   chrootService: services.chromiumos.ChrootService,
   logger: vscode.OutputChannel
 ): Promise<string[]> {
@@ -18,7 +19,7 @@ export async function listPrebuiltVersions(
   // https://chromium.googlesource.com/chromiumos/docs/+/HEAD/gsutil.md
   const result = await chrootService.exec(
     'gsutil',
-    ['ls', `gs://chromeos-image-archive/${board}-release/`],
+    ['ls', `gs://chromeos-image-archive/${board}-${imageType}/`],
     {
       logger: logger,
       sudoReason: 'to list available prebuilt images',
@@ -28,7 +29,7 @@ export async function listPrebuiltVersions(
     throw result;
   }
 
-  const versionRegexp = /\/(R\d+-\d+\.\d+\.\d+)\/$/gm;
+  const versionRegexp = /\/(R\d+-\d+\.\d+\.\d+(-\d+-\d+)?)\/$/gm;
   const versions = [];
   for (;;) {
     const match = versionRegexp.exec(result.stdout);
@@ -55,10 +56,11 @@ function compareCrosVersions(a: string, b: string): number {
 }
 
 function parseCrosVersion(s: string): number[] {
-  const versionRegexp = /^R(\d+)-(\d+)\.(\d+)\.(\d+)$/;
+  const versionRegexp = /^R(\d+)-(\d+)\.(\d+)\.(\d+)(?:-(\d+)-(\d+))?$/;
   const match = versionRegexp.exec(s);
   if (!match) {
     throw new Error(`Invalid CrOS version string: ${s}`);
   }
-  return match.slice(1).map(t => Number(t));
+  // Release image version without snapshot id and buildbucket id will have them as 0.
+  return match.slice(1).map(t => Number(t) || 0);
 }

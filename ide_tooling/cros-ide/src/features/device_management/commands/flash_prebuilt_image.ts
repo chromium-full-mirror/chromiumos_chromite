@@ -27,13 +27,6 @@ export async function flashPrebuiltImage(
     return;
   }
 
-  Metrics.send({
-    category: 'interactive',
-    group: 'device',
-    name: 'device_management_flash_prebuilt_image',
-    description: 'flash prebuilt image',
-  });
-
   const source = chrootService.source;
 
   const hostname = await promptKnownHostnameIfNeeded(
@@ -61,6 +54,24 @@ export async function flashPrebuiltImage(
     return;
   }
 
+  const imageType = await vscode.window.showQuickPick([
+    'release',
+    'postsubmit',
+    'snapshot',
+    'cq',
+  ]);
+  if (!imageType) {
+    return;
+  }
+
+  Metrics.send({
+    category: 'interactive',
+    group: 'device',
+    name: 'device_management_flash_prebuilt_image',
+    description: 'flash prebuilt image',
+    image_type: imageType,
+  });
+
   const versions = await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -69,6 +80,7 @@ export async function flashPrebuiltImage(
     async () => {
       return await prebuiltUtil.listPrebuiltVersions(
         board,
+        imageType,
         chrootService,
         context.output
       );
@@ -88,7 +100,7 @@ export async function flashPrebuiltImage(
     cwd: source.root,
   });
   terminal.sendText(
-    `env BOTO_CONFIG=${source.root}/${BOTO_PATH} cros flash ssh://${hostname} xbuddy://remote/${board}-release/${version}/test`
+    `env BOTO_CONFIG=${source.root}/${BOTO_PATH} cros flash ssh://${hostname} xbuddy://remote/${board}-${imageType}/${version}/test`
   );
   terminal.show();
 }
