@@ -1168,17 +1168,32 @@ def _BazelBuild(
     extra_env = {**extra_env, "BOARD": target_name}
 
     if bazel_lite:
-        # Query dependencies of chromeos-chrome.
-        # TODO(b:303161688): Build more packages: all except chromeos-chrome
-        # and packages which depend on it.
+        # Find the real chromeos-chrome target.
+        chrome_target = cros_build_lib.run(
+            [
+                BAZEL_COMMAND,
+                "query",
+                'kind("ebuild",deps(@portage//chromeos-base/chromeos-chrome)) '
+                "intersect "
+                "@portage//internal/packages/stage2/target/board/"
+                "chromiumos/chromeos-base/chromeos-chrome/...",
+            ],
+            extra_env=extra_env,
+            capture_output=True,
+            encoding="utf-8",
+        ).stdout.strip()
+
+        # We want to build all dependencies of virtual/target-os,
+        # except chromeos-chrome and package that depend on it.
+        # TODO(b:303161688): consider also virtual/target-os-dev, etc.
         query_result = cros_build_lib.run(
             [
                 BAZEL_COMMAND,
                 "query",
-                "@portage//internal/packages/stage2/target/... intersect  "
-                'kind("ebuild", deps(@portage//chromeos-base/chromeos-chrome)) '
-                "except @portage//internal/packages/stage2/target/board/"
-                "chromiumos/chromeos-base/chromeos-chrome/...",
+                'kind("ebuild",deps(@portage//virtual/target-os)) '
+                f"except allrdeps({chrome_target}) "
+                f"except {chrome_target} ",
+                "--universe_scope=@portage//virtual/target-os",
             ],
             extra_env=extra_env,
             capture_output=True,
