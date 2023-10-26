@@ -249,6 +249,12 @@ class PackageInfo:
         e.g. {c}/{p} or {atom} for a package's atom (i.e.
         category/package_name).
         """
+        if not format_spec:
+            # f"{pkg_info}" calls pkg_info.format with an empty format spec.
+            # Since we wouldn't be otherwise calling format like that, just
+            # redirect to __str__ instead.
+            return str(self)
+
         fmtter = string.Formatter()
         base_dict = {
             "c": self.category,
