@@ -1086,7 +1086,7 @@ def _create_graph_from_deps(
         sysroot_path = getattr(sysroot, "path", sysroot)
         board = os.path.basename(sysroot_path)
         src_paths = dependency_lib.get_source_path_mapping(
-            packages=deps.keys(), sysroot_path=sysroot_path, board=board
+            packages=list(deps.keys()), sysroot_path=sysroot_path, board=board
         )
 
     for pkg_cpv, pkg_instances in deps.items():
@@ -1105,8 +1105,6 @@ def _create_graph_from_deps(
             for dep_cpv, pkg_deps in pkg_data["deps"].items():
                 dep_info = package_info.parse(dep_cpv)
                 for dep_data in pkg_deps:
-                    if dep_data["root"] not in node_dict[dep_info]:
-                        print(pkg_data, dep_data)
                     dep_node = node_dict[dep_info][dep_data["root"]]
                     pkg_node.add_dependency(dep_node)
 
