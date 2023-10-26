@@ -12,6 +12,7 @@ import struct
 from unittest import mock
 
 from chromite.cbuildbot import commands
+from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -775,9 +776,8 @@ class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
     def setUp(self):
         self._board = "test-board"
         self._buildroot = os.path.join(self.tempdir, "buildroot")
-        self._debug_base = os.path.join(
-            os.path.sep, "build", self._board, "usr", "lib"
-        )
+        self._sysroot = self.tempdir / "build" / self._board
+        self._debug_base = os.path.join(self._sysroot, "usr", "lib")
 
         self._files = [
             "debug/s1",
@@ -789,6 +789,11 @@ class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
 
         self._tarball_dir = self.tempdir
 
+        self.PatchObject(
+            build_target_lib,
+            "get_default_sysroot_path",
+            return_value=self._sysroot,
+        )
         if cros_build_lib.IsInsideChroot():
             cros_test_lib.CreateOnDiskHierarchy(self._debug_base, self._files)
 

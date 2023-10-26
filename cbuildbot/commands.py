@@ -1137,7 +1137,9 @@ def GenerateDebugTarballInsideChroot(
     # Generate debug tarball. This needs to run as root because some of the
     # symbols are only readable by root.
     board_dir = path_util.FromChrootPath(
-        os.path.join(os.path.sep, "build", board, "usr", "lib"),
+        os.path.join(
+            build_target_lib.get_default_sysroot_path(board), "usr", "lib"
+        ),
         source_path=buildroot,
     )
     debug_tarball = os.path.join(archive_path, archive_name)
