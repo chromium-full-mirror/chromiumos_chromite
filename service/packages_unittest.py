@@ -2582,8 +2582,8 @@ class UprevStarbaseArtifactsTest(cros_test_lib.RunCommandTempDirTestCase):
     package_name = "chromeos-base/starbase-artifacts"
     version = "2.4.6"
     revision = "111"
-    ebuild_name_format = "starbase-artifacts-%s-r%s.ebuild"
-    old_ebuild_name = ebuild_name_format % (version, revision)
+    ebuild_name_format = "starbase-artifacts-%s%s.ebuild"
+    old_ebuild_name = ebuild_name_format % (version, f"-r{revision}")
     ebuild_content_format = """# Buildable ebuild
 foo
 bar
@@ -2619,13 +2619,18 @@ oof
         )
 
         # Check that the expected files were modified.
-        new_revision = str(int(self.revision) + 1)
-        new_ebuild_name = self.ebuild_name_format % (self.version, new_revision)
+        new_rev = f"-r{str(int(self.revision) + 1)}"
+        new_ebuild_name = self.ebuild_name_format % (self.version, new_rev)
         new_ebuild_path = os.path.join(package_path, new_ebuild_name)
+        releaseless_ebuild_name = self.ebuild_name_format % (self.version, "")
+        releaseless_ebuild_path = os.path.join(
+            package_path, releaseless_ebuild_name
+        )
 
         self.assertEqual(modified[0], manifest_path)
-        self.assertEqual(modified[1], old_ebuild_path)
-        self.assertEqual(modified[2], new_ebuild_path)
+        self.assertEqual(modified[1], releaseless_ebuild_path)
+        self.assertEqual(modified[2], old_ebuild_path)
+        self.assertEqual(modified[3], new_ebuild_path)
 
         tarfile_name = f"{gcs_name}/starbase_client_tarfile.tar.zst"
         # Check that the new ebuild file contains the expected content.

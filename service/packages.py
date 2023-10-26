@@ -1359,25 +1359,32 @@ def starbase_find_and_uprev(
     if not new_line:
         raise Error(f"SRC_URI not found in ebuild {ebuild_name}")
 
+    releaseless_ebuild_name = f"starbase-artifacts-{ebuild_version}.ebuild"
+    releaseless_ebuild_path = os.path.join(
+        package_path,
+        releaseless_ebuild_name,
+    )
+    osutils.WriteFile(releaseless_ebuild_path, "\n".join(lines) + "\n")
+
     new_revision = ebuild_revision + 1
     new_ebuild_name = "starbase-artifacts-%s-r%s.ebuild" % (
         ebuild_version,
         new_revision,
     )
     new_ebuild_path = os.path.join(package_path, new_ebuild_name)
-    osutils.WriteFile(new_ebuild_path, "\n".join(lines) + "\n")
+    osutils.SafeSymlink(releaseless_ebuild_name, new_ebuild_path)
     osutils.SafeUnlink(old_ebuild_path)
 
     # Update Manifest.
-    releaseless_ebuild = f"starbase-artifacts-{ebuild_version}.ebuild"
-    releaseless_ebuild_path = os.path.join(
-        package_path,
-        releaseless_ebuild,
-    )
     portage_util.UpdateEbuildManifest(releaseless_ebuild_path, chroot)
 
     manifest_path = os.path.join(package_path, "Manifest")
-    modified_files = [manifest_path, old_ebuild_path, new_ebuild_path]
+    modified_files = [
+        manifest_path,
+        releaseless_ebuild_path,
+        old_ebuild_path,
+        new_ebuild_path,
+    ]
     logging.info("Modified files: %s", modified_files)
     return modified_files
 
