@@ -453,7 +453,9 @@ class GetToolchainsForBoardTest(
             "nondefault-b": {"default": False},
         }
         self.PatchObject(
-            toolchain_lib, "GetToolchainsForBoard", return_value=toolchain_info
+            toolchain_lib,
+            "get_toolchains_for_build_target",
+            return_value=toolchain_info,
         )
 
         request = self._GetRequest()

@@ -781,10 +781,7 @@ class Sysroot:
             o for o in portdir_overlays if prefix not in o.parents
         ]
 
-        toolchains = toolchain_list.ToolchainList(
-            overlays=portdir_overlays
-        ).GetMergedToolchainSettings()
-
+        toolchains = toolchain.get_toolchains_for_build_target(build_target)
         header = (
             "# Created by cros_sysroot_utils from --board=%s."
             % build_target.name
