@@ -952,62 +952,11 @@ def BuildPackages(
                     )
 
                     if run_configs.bazel:
-                        logging.info(
-                            "Building packages with Bazel: %s.", packages
-                        )
-
-                        # Bazel needs amd64-host sysroot with sdk/bootstrap
-                        # profile.
-                        cros_build_lib.run(
-                            [
-                                constants.CROSUTILS_DIR
-                                / "create_sdk_board_root",
-                                "--board",
-                                "amd64-host",
-                                "--profile",
-                                "sdk/bootstrap",
-                            ]
-                        )
-
-                        extra_env["BOARD"] = target.name
-                        bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
-
-                        if not run_configs.bazel_lite:
-                            # Generate an exec log for a single package,
-                            # to help us debug cache misses. We may eventually
-                            # want to account for the possibility that
-                            # sys-lib/zlib isn't in packages and so this means
-                            # we're doing extra work, but we won't worry
-                            # about that for now.
-                            cros_build_lib.run(
-                                [
-                                    bazel_cmd,
-                                    "build",
-                                    "--profile="
-                                    + BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
-                                    "--execution_log_binary_file="
-                                    + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
-                                    "--execution_log_sort=false",
-                                    "--keep_going",
-                                    "@portage//"
-                                    + "target/app-crypt/nss:package_set",
-                                ],
-                                extra_env=extra_env,
-                            )
-
-                        # TODO(b:303161688): We may want to skip installing
-                        # to sysroot entirely in the case of lite build
-                        # because we don't build images anyway.
-                        cros_build_lib.run(
-                            [
-                                constants.SOURCE_ROOT
-                                / "src/bazel/portage/tools"
-                                / "install_packages_to_sysroot.py",
-                                "--board",
-                                target.name,
-                            ]
-                            + packages,
-                            extra_env=extra_env,
+                        _BazelBuild(
+                            packages,
+                            target.name,
+                            run_configs.bazel_lite,
+                            extra_env,
                         )
                     else:
                         cros_build_lib.sudo_run(
@@ -1196,6 +1145,67 @@ def _GetEmergeCommand(
             ]
         )
     return cmd
+
+
+def _BazelBuild(
+    packages: List[str],
+    target_name: str,
+    bazel_lite: bool,
+    extra_env: Dict[str, str],
+):
+    """Build packages with Bazel."""
+
+    logging.info("Building packages with Bazel: %s.", packages)
+
+    # Bazel needs amd64-host sysroot with sdk/bootstrap profile.
+    cros_build_lib.run(
+        [
+            constants.CROSUTILS_DIR / "create_sdk_board_root",
+            "--board",
+            "amd64-host",
+            "--profile",
+            "sdk/bootstrap",
+        ]
+    )
+
+    extra_env = {**extra_env, "BOARD": target_name}
+    bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
+
+    if not bazel_lite:
+        # Generate an exec log for a single package,
+        # to help us debug cache misses. We may eventually
+        # want to account for the possibility that
+        # sys-lib/zlib isn't in packages and so this means
+        # we're doing extra work, but we won't worry
+        # about that for now.
+        cros_build_lib.run(
+            [
+                bazel_cmd,
+                "build",
+                "--profile=" + BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
+                "--execution_log_binary_file="
+                + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
+                "--execution_log_sort=false",
+                "--keep_going",
+                "@portage//target/app-crypt/nss:package_set",
+            ],
+            extra_env=extra_env,
+        )
+
+    # TODO(b:303161688): We may want to skip installing
+    # to sysroot entirely in the case of lite build
+    # because we don't build images anyway.
+    cros_build_lib.run(
+        [
+            constants.SOURCE_ROOT
+            / "src/bazel/portage/tools"
+            / "install_packages_to_sysroot.py",
+            "--board",
+            target_name,
+        ]
+        + packages,
+        extra_env=extra_env,
+    )
 
 
 def _CreateSysrootSkeleton(sysroot: sysroot_lib.Sysroot) -> None:
