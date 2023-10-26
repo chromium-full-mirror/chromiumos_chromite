@@ -85,6 +85,7 @@ BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE = "/tmp/appcryptnss_command.profile.gz"
 BAZEL_APPCRYPTNSS_EXEC_LOG_FILE = "/tmp/bazel_build_appcryptnss_exec.log"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
 BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec.log"
+BAZEL_COMMAND = constants.CHROMITE_BIN_DIR / "bazel"
 
 
 class Error(Exception):
@@ -929,18 +930,7 @@ def BuildPackages(
             logging.info("Merging board packages now.")
             try:
                 with metrics_lib.timer(f"{metrics_prefix}.emerge"):
-                    # In a lite build we change the set of packages passed to
-                    # install_packages_to_sysroot.py
-                    # TODO(b:303161688): Choose more packages. Options:
-                    #  - a list of selected packages
-                    #  - dependencies of chromeos-chrome
-                    #  - all packages except chromeos-chrome and
-                    #    packages which depend on it
-                    packages = (
-                        ["chromeos-base/metrics"]
-                        if run_configs.bazel and run_configs.bazel_lite
-                        else run_configs.GetPackages()
-                    )
+                    packages = run_configs.GetPackages()
 
                     span = trace.get_current_span()
                     span.set_attributes(
@@ -1153,9 +1143,16 @@ def _BazelBuild(
     bazel_lite: bool,
     extra_env: Dict[str, str],
 ):
-    """Build packages with Bazel."""
+    """Build packages with Bazel.
 
-    logging.info("Building packages with Bazel: %s.", packages)
+    Args:
+        packages: Packages to build, for example `[virtual/target-os, ...]`.
+            They are ignored if `bazel_lite == True`.
+        target_name: Target board, for example, `amd64-generic`.
+        bazel_lite: Whether to perform lite build, which targets a reduced
+            set of packages and skips sysroot installation.
+        extra_env: Environment in which commands should be executed.
+    """
 
     # Bazel needs amd64-host sysroot with sdk/bootstrap profile.
     cros_build_lib.run(
@@ -1169,9 +1166,36 @@ def _BazelBuild(
     )
 
     extra_env = {**extra_env, "BOARD": target_name}
-    bazel_cmd = "/mnt/host/source/chromite/bin/bazel"
 
-    if not bazel_lite:
+    if bazel_lite:
+        # Query dependencies of chromeos-chrome.
+        # TODO(b:303161688): Build more packages: all except chromeos-chrome
+        # and packages which depend on it.
+        query_result = cros_build_lib.run(
+            [
+                BAZEL_COMMAND,
+                "query",
+                "@portage//internal/packages/stage2/target/... intersect  "
+                'kind("ebuild", deps(@portage//chromeos-base/chromeos-chrome)) '
+                "except @portage//internal/packages/stage2/target/board/"
+                "chromiumos/chromeos-base/chromeos-chrome/...",
+            ],
+            extra_env=extra_env,
+            capture_output=True,
+            encoding="utf-8",
+        )
+
+        cros_build_lib.run(
+            [
+                BAZEL_COMMAND,
+                "build",
+                "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+                "--keep_going",
+            ]
+            + query_result.stdout.splitlines(),
+            extra_env=extra_env,
+        )
+    else:
         # Generate an exec log for a single package,
         # to help us debug cache misses. We may eventually
         # want to account for the possibility that
@@ -1180,7 +1204,7 @@ def _BazelBuild(
         # about that for now.
         cros_build_lib.run(
             [
-                bazel_cmd,
+                BAZEL_COMMAND,
                 "build",
                 "--profile=" + BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
                 "--execution_log_binary_file="
@@ -1192,20 +1216,17 @@ def _BazelBuild(
             extra_env=extra_env,
         )
 
-    # TODO(b:303161688): We may want to skip installing
-    # to sysroot entirely in the case of lite build
-    # because we don't build images anyway.
-    cros_build_lib.run(
-        [
-            constants.SOURCE_ROOT
-            / "src/bazel/portage/tools"
-            / "install_packages_to_sysroot.py",
-            "--board",
-            target_name,
-        ]
-        + packages,
-        extra_env=extra_env,
-    )
+        cros_build_lib.run(
+            [
+                constants.SOURCE_ROOT
+                / "src/bazel/portage/tools"
+                / "install_packages_to_sysroot.py",
+                "--board",
+                target_name,
+            ]
+            + packages,
+            extra_env=extra_env,
+        )
 
 
 def _CreateSysrootSkeleton(sysroot: sysroot_lib.Sysroot) -> None:
