@@ -28,6 +28,7 @@ from chromite.lib import git
 from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
+from chromite.lib import protofiles_lib
 from chromite.lib import replication_lib
 from chromite.lib import uprev_lib
 from chromite.lib.parser import package_info
@@ -1306,6 +1307,26 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
     updated_files = uprev_manager.modified_ebuilds
     result = uprev_lib.UprevVersionedPackageResult()
     result.add_result(refs[0].revision, updated_files)
+    return result
+
+
+@uprevs_versioned_package("chromeos-base/protofiles")
+def uprev_protofiles(_build_targets, refs, _chroot):
+    """Uprevs chromeos-base/protofiles package.
+
+    Uprevs protofiles package with ToT hashes of components/policy,
+    third_party/private_membership, third_party/shell-encryption.
+
+    chromeos-base/protofiles package is special in a sense, that it depends on
+    three other projects in CROS_WORK_ON_[COMMIT|TREE].
+
+    The dependencies are not tagged in git. chromeos-base/protofiles is updated
+    to the latest commit on the main branch for each project.
+    """
+    protofiles_lib.ProtofilesLib().Uprev(constants.SOURCE_ROOT)
+
+    result = uprev_lib.UprevVersionedPackageResult()
+    result.add_result(refs[0].revision, ["protofiles"])
     return result
 
 
