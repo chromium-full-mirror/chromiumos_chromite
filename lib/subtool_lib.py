@@ -106,11 +106,14 @@ class CipdMetadata:
         package: The CIPD package prefix.
         tags: Tags to associate with the package upload.
         refs: Refs to associate with the package upload.
+        search_tags: Tag keys that determine whether an existing instance is
+            equivalent. If this is empty, all (known) `tags` are used.
     """
 
     package: str = ""
     tags: Dict[str, str] = dataclasses.field(default_factory=dict)
     refs: List[str] = dataclasses.field(default_factory=list)
+    search_tags: List[str] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
@@ -335,14 +338,21 @@ class Subtool:
         if not self.stamp("bundled").exists():
             raise ManifestBundlingError("Bundling incomplete.", self)
 
+        BUILDER_TAG = "builder_source"
+        EBUILD_TAG = "ebuild_source"
+        CHANGE_REVISION_ONLY = subtools_pb2.SubtoolPackage.CHANGE_REVISION_ONLY
+
         metadata = UploadMetadata()
         metadata.cipd_package.package = self.cipd_package
         metadata.cipd_package.refs = ["latest"]
         metadata.cipd_package.tags = {
-            "builder_source": "sdk_subtools",
-            "ebuild_source": ",".join(self.source_packages),
+            BUILDER_TAG: "sdk_subtools",
+            EBUILD_TAG: ",".join(self.source_packages),
             "subtools_hash": self._calculate_digest(),
         }
+        if self.package.upload_trigger == CHANGE_REVISION_ONLY:
+            metadata.cipd_package.search_tags = [BUILDER_TAG, EBUILD_TAG]
+
         metadata_path = self.metadata_dir / UPLOAD_METADATA_FILE
         with metadata_path.open("w", encoding="utf-8") as fp:
             json.dump(dataclasses.asdict(metadata), fp)
@@ -617,10 +627,13 @@ class BundledSubtools:
             return
 
         service_url = None if use_production else cipd.STAGING_SERVICE_URL
+        search_tags = cipd_package.tags
+        if cipd_package.search_tags:
+            search_tags = {k: search_tags[k] for k in cipd_package.search_tags}
         instances = cipd.search_instances(
             self.cipd_path,
             cipd_package.package,
-            cipd_package.tags,
+            search_tags,
             service_url=service_url,
         )
         if instances:

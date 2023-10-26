@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
-from typing import Dict, Iterator, List, Optional, Tuple, Union
+from typing import Dict, Iterator, List, Optional, Set, Tuple, Union
 from unittest import mock
 
 from chromite.third_party.google.protobuf import text_format
@@ -168,6 +168,19 @@ def set_run_results(
             returncode=result.returncode or 0,
             stdout=result.stdout or "",
         )
+
+
+def get_cipd_search_tag_keys(
+    run_mock: cros_test_lib.RunCommandMock,
+) -> Set[str]:
+    """Returns all -tag keys passed to the first `cipd search` invocation."""
+    CMD = [FAKE_CIPD_PATH, "search"]
+    run_mock.assertCommandContains(CMD)
+    cmd_args = [x.args[0] for x in run_mock.call_args_list]
+    cmd: List[str] = next((x for x in cmd_args if x[:2] == CMD), [])
+    return set(
+        x.split(":")[0] for i, x in enumerate(cmd) if i and cmd[i - 1] == "-tag"
+    )
 
 
 class Wrapper:
@@ -721,10 +734,10 @@ def test_upload_successful(
     run_mock.assertCommandContains([FAKE_CIPD_PATH, "create"])
 
 
-def test_upload_skipped_when_all_tags_match_instance(
+def test_upload_skipped_when_instance_found(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
-    """Test no upload attempt if CIPD search reports instance with same tags."""
+    """Test no upload attempt if CIPD search reports matching instance."""
     search_result = "Instances:\n  some/package:instance-hash\n"
     set_run_results(
         run_mock,
@@ -733,6 +746,23 @@ def test_upload_skipped_when_all_tags_match_instance(
     template_proto.export_e2e(writes_files=True)
     run_mock.assertCommandContains([FAKE_CIPD_PATH, "search"])
     run_mock.assertCommandContains([FAKE_CIPD_PATH, "create"], expected=False)
+    assert get_cipd_search_tag_keys(run_mock) == set(
+        ("builder_source", "ebuild_source", "subtools_hash")
+    )
+
+
+def test_search_excludes_hash_with_revision_only(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test search excludes subtools_hash with CHANGE_REVISION_ONLY."""
+    set_run_results(run_mock)
+    template_proto.proto.upload_trigger = (
+        subtools_pb2.SubtoolPackage.CHANGE_REVISION_ONLY
+    )
+    template_proto.export_e2e(writes_files=True)
+    assert get_cipd_search_tag_keys(run_mock) == set(
+        ("builder_source", "ebuild_source")
+    )
 
 
 def test_upload_fails_cipd(
