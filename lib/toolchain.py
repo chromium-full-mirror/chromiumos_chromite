@@ -10,7 +10,6 @@ from pathlib import Path
 import subprocess
 from typing import List, Optional, TYPE_CHECKING, Union
 
-from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -74,33 +73,31 @@ def GetAllTargets():
     Returns:
         The list of cross targets for the current tree
     """
-    overlays = portage_util.FindOverlays(constants.BOTH_OVERLAYS)
-    toolchains = toolchain_list.ToolchainList(overlays=overlays)
-    targets = toolchains.GetMergedToolchainSettings()
+    targets = GetToolchainsForBoard("all")
 
     # Remove the host target as that is not a cross-target. Replace with 'host'.
     del targets[GetHostTuple()]
     return targets
 
 
-def get_toolchains_for_build_target(
-    build_target: build_target_lib.BuildTarget,
-    source_root=constants.SOURCE_ROOT,
-):
+def GetToolchainsForBoard(board, buildroot=constants.SOURCE_ROOT):
     """Get a dictionary mapping toolchain targets to their options for a board.
 
     Args:
-        build_target: BuildTarget of interest.
-        source_root: If provided, use an alternative SOURCE_ROOT (useful for
-            testing).
+        board: board name in question (e.g. 'daisy').
+        buildroot: path to buildroot.
 
     Returns:
         The list of toolchain tuples for the given board
     """
-    overlays = build_target.find_overlays(source_root=source_root)
+    overlays = portage_util.FindOverlays(
+        constants.BOTH_OVERLAYS,
+        None if board in ("all", "sdk") else board,
+        buildroot=buildroot,
+    )
     toolchains = toolchain_list.ToolchainList(overlays=overlays)
     targets = toolchains.GetMergedToolchainSettings()
-    if build_target.is_host():
+    if board == "sdk":
         targets = FilterToolchains(targets, "sdk", True)
     return targets
 
@@ -116,11 +113,7 @@ def GetToolchainTupleForBoard(board, buildroot=constants.SOURCE_ROOT):
         The tuples of toolchain targets ordered default, non-default for the
         board.
     """
-    # TODO: This function should take a BuildTarget instead of a raw board name.
-    build_target = build_target_lib.BuildTarget(board)
-    toolchains = get_toolchains_for_build_target(
-        build_target, source_root=buildroot
-    )
+    toolchains = GetToolchainsForBoard(board, buildroot)
     return list(FilterToolchains(toolchains, "default", True)) + list(
         FilterToolchains(toolchains, "default", False)
     )

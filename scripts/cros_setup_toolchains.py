@@ -15,7 +15,6 @@ import shutil
 
 from chromite.third_party import lddtree
 
-from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -781,10 +780,7 @@ def UpdateToolchains(
         # Now re-add any targets that might be from this board. This is to
         # allow unofficial boards to declare their own toolchains.
         for board in boards_wanted:
-            build_target = build_target_lib.BuildTarget(board)
-            targets.update(
-                toolchain.get_toolchains_for_build_target(build_target)
-            )
+            targets.update(toolchain.GetToolchainsForBoard(board))
 
         # First check and initialize all cross targets that need to be.
         for target in targets:
@@ -832,8 +828,7 @@ def ShowConfig(name):
     Args:
         name: The board name to query.
     """
-    build_target = build_target_lib.BuildTarget(name)
-    toolchains = toolchain.get_toolchains_for_build_target(build_target)
+    toolchains = toolchain.GetToolchainsForBoard(name)
     # Make sure we display the default toolchain first.
     # Note: Do not use logging here as this is meant to be used by other tools.
     print(
