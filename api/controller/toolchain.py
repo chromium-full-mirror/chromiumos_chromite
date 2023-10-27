@@ -17,6 +17,7 @@ from chromite.api.gen.chromite.api import artifacts_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
 from chromite.api.gen.chromiumos import builder_config_pb2
 from chromite.api.gen.chromiumos import common_pb2
+from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import toolchain as toolchain_lib
 from chromite.lib import toolchain_util
@@ -480,7 +481,8 @@ def GetToolchainsForBoard(
         output_proto: The output proto where findings are stored.
         _config: The API call config (unused).
     """
-    toolchains = toolchain_lib.GetToolchainsForBoard(input_proto.board)
+    build_target = build_target_lib.BuildTarget(input_proto.board)
+    toolchains = toolchain_lib.get_toolchains_for_build_target(build_target)
     output_proto.default_toolchains.extend(
         list(toolchain_lib.FilterToolchains(toolchains, "default", True))
     )

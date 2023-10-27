@@ -61,7 +61,7 @@ class BuildReexecutionStageTest(generic_stages_unittest.AbstractStageTestCase):
             "GetVersionInfo",
             return_value=fake_versioninfo,
         )
-        self.PatchObject(toolchain, "GetToolchainsForBoard")
+        self.PatchObject(toolchain, "get_toolchains_for_build_target")
         self.PatchObject(
             toolchain,
             "GetToolchainTupleForBoard",
@@ -155,7 +155,7 @@ class BuildStartStageTest(generic_stages_unittest.AbstractStageTestCase):
             "master_build", 1, "master_build_config", "bot_hostname"
         )
 
-        self.PatchObject(toolchain, "GetToolchainsForBoard")
+        self.PatchObject(toolchain, "get_toolchains_for_build_target")
         self.PatchObject(toolchain, "GetArchForTarget", return_value="x86")
 
         self._Prepare(build_id=None, master_build_id=master_build_id)
@@ -239,7 +239,7 @@ class AbstractReportStageTestCase(
         self.PatchObject(
             report_stages.ReportStage, "_GetBuildDuration", return_value=1000
         )
-        self.PatchObject(toolchain, "GetToolchainsForBoard")
+        self.PatchObject(toolchain, "get_toolchains_for_build_target")
         self.PatchObject(toolchain, "GetArchForTarget", return_value="x86")
 
         # Set up a general purpose cidb mock. Tests with more specific

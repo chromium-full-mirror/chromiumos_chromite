@@ -14,6 +14,7 @@ from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import completion_stages
 from chromite.cbuildbot.stages import generic_stages
+from chromite.lib import build_target_lib
 from chromite.lib import cidb
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -770,8 +771,9 @@ class ReportStage(
         # the build.
         arches = []
         for board in self._run.config["boards"]:
-            toolchains = toolchain.GetToolchainsForBoard(
-                board, buildroot=src_root
+            build_target = build_target_lib.BuildTarget(board)
+            toolchains = toolchain.get_toolchains_for_build_target(
+                build_target, source_root=src_root
             )
             default = list(
                 toolchain.FilterToolchains(toolchains, "default", True)

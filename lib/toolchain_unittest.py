@@ -7,6 +7,7 @@
 import os
 from unittest import mock
 
+from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -91,7 +92,8 @@ target=foo
         ]:
             osutils.WriteFile(os.path.join(overlay, "toolchain.conf"), contents)
         find_overlays_mock.return_value = overlays
-        actual_targets = toolchain.GetToolchainsForBoard("board_value")
+        build_target = build_target_lib.BuildTarget("board_value")
+        actual_targets = toolchain.get_toolchains_for_build_target(build_target)
         self.assertEqual(EXPECTED_TOOLCHAINS, actual_targets)
 
 
