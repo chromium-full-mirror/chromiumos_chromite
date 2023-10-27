@@ -7,7 +7,6 @@
 import os
 from typing import Iterable, List, Optional, Tuple
 
-from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -329,8 +328,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
             self.sysroot, "GenerateBoardSetupConfig", return_value="#foo"
         )
 
-        build_target = build_target_lib.BuildTarget("board")
-        self.sysroot.InstallMakeConfBoardSetup(build_target)
+        self.sysroot.InstallMakeConfBoardSetup("board")
 
         filepath = os.path.join(
             self.tempdir, sysroot_lib._MAKE_CONF_BOARD_SETUP

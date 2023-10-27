@@ -1254,7 +1254,7 @@ def _InstallConfigs(
         target: The build target being setup in the sysroot.
     """
     sysroot.InstallMakeConf()
-    sysroot.InstallMakeConfBoardSetup(target)
+    sysroot.InstallMakeConfBoardSetup(target.name)
     sysroot.InstallMakeConfUser()
 
 

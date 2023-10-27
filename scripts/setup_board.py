@@ -77,18 +77,6 @@ def GetParser():
     )
     target.add_argument("--variant", help="Board variant.")
     target.add_argument("--board-root", type="path", help="Board root.")
-    target.add_argument(
-        "--public",
-        action="store_true",
-        default=False,
-        help=(
-            "Simulate a public build by selecting only public overlays.  Note "
-            "behavior differences may still exist when using an actual public "
-            "checkout, i.e., this is for convenience only.  Don't use this to "
-            "produce a build which is guaranteed to be free of all private "
-            "artifacts."
-        ),
-    )
 
     # Arguments related to the build itself.
     build = parser.add_argument_group("Advanced Build Modification Options")
@@ -178,10 +166,7 @@ def _ParseArgs(args):
     # Translate raw options to config objects.
     name = "%s_%s" % (opts.board, opts.variant) if opts.variant else opts.board
     opts.build_target = build_target_lib.BuildTarget(
-        name,
-        build_root=opts.board_root,
-        profile=opts.profile,
-        public=opts.public,
+        name, build_root=opts.board_root, profile=opts.profile
     )
 
     opts.run_config = sysroot.SetupBoardRunConfig(

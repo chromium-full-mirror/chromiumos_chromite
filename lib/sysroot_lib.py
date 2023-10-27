@@ -19,19 +19,18 @@ from typing import (
     Union,
 )
 
-from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import toolchain
-from chromite.lib import toolchain_list
 from chromite.lib.parser import package_info
 
 
 if TYPE_CHECKING:
     from chromite.lib import chroot_lib
+    from chromite.lib import toolchain_list
 
 
 class ConfigurationError(Exception):
@@ -699,16 +698,13 @@ class Sysroot:
             make_conf_path, "%s\n%s\n" % (board_conf, binhost_conf), sudo=True
         )
 
-    def InstallMakeConfBoardSetup(
-        self,
-        build_target: build_target_lib.BuildTarget,
-    ) -> None:
+    def InstallMakeConfBoardSetup(self, board: str) -> None:
         """Make sure the sysroot has the make.conf.board_setup file.
 
         Args:
-            build_target: The BuildTarget to use.
+            board: The name of the board being setup in the sysroot.
         """
-        self.WriteConfig(self.GenerateBoardSetupConfig(build_target))
+        self.WriteConfig(self.GenerateBoardSetupConfig(board))
 
     def InstallMakeConfUser(self) -> None:
         """Make sure the sysroot has the make.conf.user file.
@@ -724,9 +720,9 @@ class Sysroot:
 
     def _GenerateConfig(
         self,
-        toolchains: toolchain_list.ToolchainList,
-        board_overlays: List[Path],
-        portdir_overlays: List[Path],
+        toolchains: "toolchain_list.ToolchainList",
+        board_overlays: List[str],
+        portdir_overlays: List[str],
         header: str,
         **kwargs: Any,
     ) -> str:
@@ -755,8 +751,8 @@ class Sysroot:
         config["CHOST"] = list(default_toolchains)[0]
         config["ARCH"] = toolchain.GetArchForTarget(config["CHOST"])
 
-        config["BOARD_OVERLAY"] = "\n".join(str(x) for x in board_overlays)
-        config["PORTDIR_OVERLAY"] = "\n".join(str(x) for x in portdir_overlays)
+        config["BOARD_OVERLAY"] = "\n".join(board_overlays)
+        config["PORTDIR_OVERLAY"] = "\n".join(portdir_overlays)
 
         config["MAKEOPTS"] = "-j%s" % str(multiprocessing.cpu_count())
         config["ROOT"] = self.path + "/"
@@ -766,35 +762,30 @@ class Sysroot:
 
         return "\n".join((header, _DictToKeyValue(config)))
 
-    def GenerateBoardSetupConfig(
-        self, build_target: build_target_lib.BuildTarget
-    ) -> str:
+    def GenerateBoardSetupConfig(self, board: str) -> str:
         """Generates the setup configuration for a given board.
 
         Args:
-            build_target: BuildTarget to use to generate the configuration.
+            board: board name to use to generate the configuration.
         """
+        toolchains = toolchain.GetToolchainsForBoard(board)
+
         # Compute the overlay list.
-        portdir_overlays = list(build_target.find_overlays())
-        prefix = constants.SOURCE_ROOT / "src" / "third_party"
+        portdir_overlays = portage_util.FindOverlays(
+            constants.BOTH_OVERLAYS, board
+        )
+        prefix = os.path.join(constants.SOURCE_ROOT, "src", "third_party")
         board_overlays = [
-            o for o in portdir_overlays if prefix not in o.parents
+            o for o in portdir_overlays if not o.startswith(prefix)
         ]
 
-        toolchains = toolchain_list.ToolchainList(
-            overlays=portdir_overlays
-        ).GetMergedToolchainSettings()
-
-        header = (
-            "# Created by cros_sysroot_utils from --board=%s."
-            % build_target.name
-        )
+        header = "# Created by cros_sysroot_utils from --board=%s." % board
         return self._GenerateConfig(
             toolchains,
             board_overlays,
             portdir_overlays,
             header,
-            BOARD_USE=build_target.name,
+            BOARD_USE=board,
         )
 
     def WriteConfig(self, config: str) -> None:

@@ -5,12 +5,8 @@
 """Build target class and related functionality."""
 
 import os
-from pathlib import Path
 import re
-from typing import Iterator, Optional
-
-from chromite.lib import constants
-from chromite.lib import portage_util
+from typing import Optional
 
 
 class Error(Exception):
@@ -25,7 +21,6 @@ class BuildTarget:
         name: Optional[str],
         profile: Optional[str] = None,
         build_root: Optional[str] = None,
-        public: bool = False,
     ):
         """Build Target init.
 
@@ -33,11 +28,9 @@ class BuildTarget:
             name: The full name of the target.
             profile: The profile name.
             build_root: The path to the buildroot.
-            public: If true, simulate a public checkout.
         """
         self._name = name or None
         self.profile = profile
-        self.public = public
 
         if build_root:
             self.root = os.path.normpath(build_root)
@@ -50,7 +43,6 @@ class BuildTarget:
                 self.name == other.name
                 and self.profile == other.profile
                 and self.root == other.root
-                and self.public == other.public
             )
 
         return NotImplemented
@@ -88,28 +80,6 @@ class BuildTarget:
             return base_command
 
         return "%s-%s" % (base_command, self.name)
-
-    def find_overlays(
-        self, source_root: Path = constants.SOURCE_ROOT
-    ) -> Iterator[Path]:
-        """Find the overlays for this build target.
-
-        Args:
-            source_root: If provided, use an alternative SOURCE_ROOT (useful for
-                testing).
-
-        Yields:
-            Paths to the overlays.
-        """
-        overlay_type = (
-            constants.PUBLIC_OVERLAYS
-            if self.public
-            else constants.BOTH_OVERLAYS
-        )
-        for overlay in portage_util.FindOverlays(
-            overlay_type, self.name, buildroot=source_root
-        ):
-            yield Path(overlay)
 
     def is_host(self) -> bool:
         """Check if the build target refers to the host."""
