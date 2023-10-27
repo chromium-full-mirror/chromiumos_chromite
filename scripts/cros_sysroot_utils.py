@@ -6,6 +6,7 @@
 
 import sys
 
+from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -105,7 +106,11 @@ def main(argv):
     if opts.command == "create-wrappers":
         sysroot.CreateAllWrappers(opts.friendlyname)
     elif opts.command == "generate-config":
-        output.write("\n" + sysroot.GenerateBoardSetupConfig(opts.board))
+        build_target = build_target_lib.BuildTarget(
+            opts.board,
+            build_root=opts.sysroot,
+        )
+        output.write("\n" + sysroot.GenerateBoardSetupConfig(build_target))
     elif opts.command == "generate-make-conf":
         output.write(
             "\n" + sysroot.GenerateBoardMakeConf(opts.accepted_licenses)

@@ -6,9 +6,12 @@
 
 import os
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib.build_target_lib import BuildTarget
+from chromite.test import portage_testables
 
 
 class BuildTargetTest(cros_test_lib.TempDirTestCase):
@@ -64,3 +67,40 @@ class BuildTargetTest(cros_test_lib.TempDirTestCase):
         path1 = "some/path"
         result = build_target.full_path(path1, "/abc", "def", "/g/h/i")
         self.assertEqual(result, "/build/board/some/path/abc/def/g/h/i")
+
+
+@pytest.mark.parametrize(["public"], [(True,), (False,)])
+def test_find_overlays_public(tmp_path, public):
+    """Test find_overlays() called on a public target."""
+    build_target = BuildTarget("board", public=public)
+
+    portage_path = tmp_path / "src" / "third_party" / "portage-stable"
+    portage_testables.Overlay(portage_path, "portage-stable")
+
+    cros_path = tmp_path / "src" / "third_party" / "chromiumos-overlay"
+    portage_testables.Overlay(cros_path, "chromiumos")
+
+    eclass_path = tmp_path / "src" / "third_party" / "eclass-overlay"
+    portage_testables.Overlay(eclass_path, "eclass-overlay")
+
+    public_path = tmp_path / "src" / "overlays" / "overlay-board"
+    public_overlay = portage_testables.Overlay(public_path, "board")
+
+    private_path = (
+        tmp_path / "src" / "private-overlays" / "overlay-board-private"
+    )
+    portage_testables.Overlay(
+        private_path, "board-private", parent_overlays=[public_overlay]
+    )
+
+    chromeos_path = tmp_path / "src" / "private-overlays" / "chromeos-overlay"
+    portage_testables.Overlay(chromeos_path, "chromeos")
+
+    overlays = set(build_target.find_overlays(source_root=tmp_path))
+
+    expected_overlays = {portage_path, cros_path, eclass_path, public_path}
+    if not public:
+        expected_overlays.add(private_path)
+        expected_overlays.add(chromeos_path)
+
+    assert overlays == expected_overlays

@@ -58,6 +58,8 @@ def ParseCommandLine(argv):
         "package": options.package.split()[0].replace(PACKAGE_SEPARATOR, "_"),
     }
 
+    options.build_target = build_target_lib.BuildTarget(options.board)
+
     return options
 
 
@@ -93,7 +95,7 @@ class GenerateSysroot:
 
     def _WriteConfig(self, sysroot):
         sysroot.WriteConfig(
-            sysroot.GenerateBoardSetupConfig(self.options.board)
+            sysroot.GenerateBoardSetupConfig(self.options.build_target)
         )
         # For the config to be correctly read, a stub make.conf is needed.
         # pylint: disable=protected-access
