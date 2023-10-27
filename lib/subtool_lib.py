@@ -395,7 +395,11 @@ class Subtool:
         self.is_valid = True
 
     def _copy_into_bundle(
-        self, src: Path, destdir: Path, strip: re.Pattern
+        self,
+        src: Path,
+        destdir: Path,
+        strip: re.Pattern,
+        mapping: subtools_pb2.SubtoolPackage.PathMapping,
     ) -> int:
         """Copies a file on disk into the bundling folder.
 
@@ -417,7 +421,7 @@ class Subtool:
         self._content_hashes[str(dest)] = hash_string
         logger.debug("subtools_hash(%s) = '%s'", src, hash_string)
 
-        if file_type == "binary/elf/dynamic-bin":
+        if not mapping.opaque_data and file_type == "binary/elf/dynamic-bin":
             return self._lddtree_into_bundle(src, dest.parent)
 
         logger.debug(
@@ -435,6 +439,7 @@ class Subtool:
         # Output of the main script is always `bin`, so avoid `bin/bin`.
         if destdir.name == "bin":
             destdir = destdir.parent
+        logger.debug("Using lddtree to copy dynamic elf %s to %s", elf, destdir)
         lddtree.main(LDDTREE_ARGS + ["--copy-to-tree", str(destdir), str(elf)])
         # The globbing is done already, so there's no big concern about
         # accidentally bundling the entire filesystem. Count as "1 file".
@@ -475,13 +480,17 @@ class Subtool:
                 path = Path(f"/{relative_path}")
                 if not path.match(glob):
                     continue
-                file_count += self._copy_into_bundle(path, destdir, strip)
+                file_count += self._copy_into_bundle(
+                    path, destdir, strip, mapping
+                )
                 self._check_counts(file_count)
             if file_count:
                 self._source_ebuilds.add(package.package_info.cpvr)
         else:
             for path in Path("/").glob(glob):
-                added_files = self._copy_into_bundle(path, destdir, strip)
+                added_files = self._copy_into_bundle(
+                    path, destdir, strip, mapping
+                )
                 if not added_files:
                     continue
                 file_count += added_files

@@ -674,6 +674,19 @@ def test_lddtree_bundling(template_proto: Wrapper) -> None:
     assert subtool.source_packages[0].startswith("sys-apps/coreutils-")
 
 
+def test_lddtree_skipped_for_opqaque_data(template_proto: Wrapper) -> None:
+    """Test dynamic ELFs are copied as-is if in an opaque_data PathMapping."""
+    entry = path_mapping("/bin/cat")
+    entry.opaque_data = True
+    template_proto.set_paths([entry])
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool, has_ebuild_match=True) == [
+        "<license>",
+        "bin",
+        "bin/cat",
+    ]
+
+
 @mock.patch("chromite.lib.subtool_lib.Subtool.prepare_upload")
 def test_upload_filter(mock_upload: mock.Mock, template_proto: Wrapper) -> None:
     """Test that InstalledSubtools filters uploads."""
