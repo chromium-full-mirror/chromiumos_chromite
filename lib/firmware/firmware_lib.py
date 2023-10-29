@@ -71,7 +71,7 @@ def deploy(
     ip = None
     if device:
         port = device.port
-        if device.scheme == commandline.DEVICE_SCHEME_SSH:
+        if device.scheme == commandline.DeviceScheme.SSH:
             ip = device.hostname
             port = port or device.port
     else:

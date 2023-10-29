@@ -428,7 +428,7 @@ def Flash(
     # The user may not have specified a source image, use version as the
     # default.
     image = image or version
-    if not device or device.scheme == commandline.DEVICE_SCHEME_SSH:
+    if not device or device.scheme == commandline.DeviceScheme.SSH:
         if device:
             hostname, port = device.hostname, device.port
         else:
@@ -452,12 +452,12 @@ def Flash(
                 delta=delta,
                 reboot_timeout=reboot_timeout,
             ).Run()
-    elif device.scheme == commandline.DEVICE_SCHEME_USB:
+    elif device.scheme == commandline.DeviceScheme.USB:
         path = osutils.ExpandPath(device.path) if device.path else ""
         logging.info("Preparing to image the removable device %s", path)
         imager = USBImager(path, board, image, version, debug=debug, yes=yes)
         imager.Run()
-    elif device.scheme == commandline.DEVICE_SCHEME_FILE:
+    elif device.scheme == commandline.DeviceScheme.FILE:
         logging.info("Preparing to copy image to %s", device.path)
         imager = FileImager(
             device.path, board, image, version, debug=debug, yes=yes

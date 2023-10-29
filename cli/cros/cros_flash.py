@@ -83,9 +83,9 @@ Examples:
             parser,
             positional=True,
             schemes=[
-                commandline.DEVICE_SCHEME_FILE,
-                commandline.DEVICE_SCHEME_SSH,
-                commandline.DEVICE_SCHEME_USB,
+                commandline.DeviceScheme.FILE,
+                commandline.DeviceScheme.SSH,
+                commandline.DeviceScheme.USB,
             ],
         )
         parser.add_argument(

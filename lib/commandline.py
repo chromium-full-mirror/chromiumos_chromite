@@ -11,6 +11,7 @@ what is used for chromite.bin.*).
 import argparse
 import collections
 import datetime
+import enum
 import functools
 import logging
 import optparse  # pylint: disable=deprecated-module
@@ -32,11 +33,13 @@ from chromite.utils import gs_urls_util
 from chromite.utils import path_filter
 
 
-# TODO(build): Convert this to enum module.
-DEVICE_SCHEME_FILE = "file"
-DEVICE_SCHEME_SERVO = "servo"
-DEVICE_SCHEME_SSH = "ssh"
-DEVICE_SCHEME_USB = "usb"
+class DeviceScheme(enum.IntEnum):
+    """An enum for device scheme type."""
+
+    FILE = enum.auto()
+    SERVO = enum.auto()
+    SSH = enum.auto()
+    USB = enum.auto()
 
 
 class ChrootRequiredError(Exception):
@@ -218,9 +221,8 @@ class Device(NamedTuple):
     separate device classes instead.
     """
 
-    # DEVICE_SCHEME_SSH, DEVICE_SCHEME_USB, DEVICE_SCHEME_SERVO, or
-    # DEVICE_SCHEME_FILE.
-    scheme: str
+    # DeviceScheme.*.
+    scheme: Optional[DeviceScheme] = None
 
     # SSH username.
     username: Optional[str] = None
@@ -269,13 +271,13 @@ class DeviceParser:
 
         parser.add_argument(
             'ssh_device',
-            type=commandline.DeviceParser(commandline.DEVICE_SCHEME_SSH)
+            type=commandline.DeviceParser(commandline.DeviceScheme.SSH)
         )
 
         parser.add_argument(
             "usb_or_file_device",
             type=commandline.DeviceParser(
-                [commandline.DEVICE_SCHEME_USB, commandline.DEVICE_SCHEME_FILE]
+                [commandline.DeviceScheme.USB, commandline.DeviceScheme.FILE]
             ),
         )
     """
@@ -288,7 +290,9 @@ class DeviceParser:
         Args:
             schemes: A scheme or list of schemes to accept.
         """
-        self.schemes = [schemes] if isinstance(schemes, str) else schemes
+        self.schemes = (
+            [schemes] if isinstance(schemes, DeviceScheme) else schemes
+        )
         # Provide __name__ for argparse to print on failure, or else it will use
         # repr() which creates a confusing error message.
         self.__name__ = type(self).__name__
@@ -340,7 +344,7 @@ class DeviceParser:
         if device.scheme not in self.schemes:
             raise ValueError(
                 'Unsupported scheme "%s" for device "%s"'
-                % (device.scheme, value)
+                % (device.scheme.name.lower(), value)
             )
 
     def _ParseDevice(self, value):
@@ -375,18 +379,21 @@ class DeviceParser:
         ):
             # Default to a file scheme for absolute paths, SSH scheme otherwise.
             if value and value[0] == "/":
-                scheme = DEVICE_SCHEME_FILE
+                scheme = DeviceScheme.FILE
             else:
                 # urlparse won't provide hostname/username/port unless a scheme
                 # is specified, so we need to reparse.
                 parsed = urllib.parse.urlparse(
-                    "%s://%s" % (DEVICE_SCHEME_SSH, value)
+                    "%s://%s" % (DeviceScheme.SSH.name.lower(), value)
                 )
-                scheme = DEVICE_SCHEME_SSH
+                scheme = DeviceScheme.SSH
         else:
-            scheme = parsed.scheme.lower()
+            try:
+                scheme = DeviceScheme[parsed.scheme.upper()]
+            except KeyError:
+                scheme = None
 
-        if scheme == DEVICE_SCHEME_SSH:
+        if scheme == DeviceScheme.SSH:
             hostname = parsed.hostname
             if not hostname and parsed.netloc.count(":") >= 2:
                 # Likely an IPv6 address that is missing brackets.  Remind the
@@ -417,16 +424,16 @@ class DeviceParser:
                 port=port,
                 raw=value,
             )
-        elif scheme == DEVICE_SCHEME_USB:
+        elif scheme == DeviceScheme.USB:
             path = parsed.netloc + parsed.path
             # Change path '' to None for consistency.
             return Device(scheme=scheme, path=path if path else None, raw=value)
-        elif scheme == DEVICE_SCHEME_FILE:
+        elif scheme == DeviceScheme.FILE:
             path = parsed.netloc + parsed.path
             if not path:
                 raise ValueError('Path is required for "%s"' % value)
             return Device(scheme=scheme, path=path, raw=value)
-        elif scheme == DEVICE_SCHEME_SERVO:
+        elif scheme == DeviceScheme.SERVO:
             # Parse the identifier type and value.
             servo_type, _, servo_id = parsed.path.partition(":")
             # Don't want to do the netloc before the split in case of serial
@@ -436,7 +443,7 @@ class DeviceParser:
             return self._parse_servo(servo_type, servo_id)
         else:
             raise ValueError(
-                'Unknown device scheme "%s" in "%s"' % (scheme, value)
+                'Unknown device scheme "%s" in "%s"' % (parsed.scheme, value)
             )
 
     @staticmethod
@@ -470,7 +477,7 @@ class DeviceParser:
             raise ValueError("Invalid servo type given: %s" % servo_type)
 
         return Device(
-            scheme=DEVICE_SCHEME_SERVO,
+            scheme=DeviceScheme.SERVO,
             port=servo_port,
             serial_number=serial_number,
         )

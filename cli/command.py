@@ -154,7 +154,7 @@ class CliCommand:
 
     @classmethod
     def AddDeviceArgument(
-        cls, parser, schemes=commandline.DEVICE_SCHEME_SSH, positional=False
+        cls, parser, schemes=commandline.DeviceScheme.SSH, positional=False
     ):
         """Add a device argument to the parser.
 
@@ -167,21 +167,21 @@ class CliCommand:
         """
         help_strings = []
         schemes = list(cros_build_lib.iflatten_instance(schemes))
-        if commandline.DEVICE_SCHEME_SSH in schemes:
+        if commandline.DeviceScheme.SSH in schemes:
             help_strings.append(
                 "Target a device with [user@]hostname[:port]. "
                 "IPv4/IPv6 addresses are allowed, but IPv6 must "
                 "use brackets (e.g. [::1])."
             )
-        if commandline.DEVICE_SCHEME_USB in schemes:
+        if commandline.DeviceScheme.USB in schemes:
             help_strings.append("Target removable media with usb://[path].")
-        if commandline.DEVICE_SCHEME_SERVO in schemes:
+        if commandline.DeviceScheme.SERVO in schemes:
             help_strings.append(
                 "Target a servo by port or serial number with "
                 "servo:port[:port] or servo:serial:serial-number. "
                 "e.g. servo:port:1234 or servo:serial:C1230024192."
             )
-        if commandline.DEVICE_SCHEME_FILE in schemes:
+        if commandline.DeviceScheme.FILE in schemes:
             help_strings.append("Target a local file with file://path.")
         if positional:
             parser.add_argument(

@@ -141,8 +141,8 @@ The example below supports USB and File, but not SSH or Servo.
 ```python
 parser.add_argument(
     '-d', '--device',
-    type=commandline.DeviceParser([commandline.DEVICE_SCHEME_USB,
-                                   commandline.DEVICE_SCHEME_FILE]))
+    type=commandline.DeviceParser([commandline.DeviceScheme.USB,
+                                   commandline.DeviceScheme.FILE]))
 ```
 
 #### Packages

@@ -861,7 +861,7 @@ def _CreateParser():
     parser.add_argument(
         "-d",
         "--device",
-        type=commandline.DeviceParser(commandline.DEVICE_SCHEME_SSH),
+        type=commandline.DeviceParser(commandline.DeviceScheme.SSH),
         help="Device hostname or IP in the format hostname[:port].",
     )
     parser.add_argument(

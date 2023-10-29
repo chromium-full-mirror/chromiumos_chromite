@@ -142,7 +142,7 @@ class Device:
         parser.add_argument(
             "-d",
             "--device",
-            type=commandline.DeviceParser(commandline.DEVICE_SCHEME_SSH),
+            type=commandline.DeviceParser(commandline.DeviceScheme.SSH),
             help="Hostname or device IP in format hostname[:port]. If not "
             "specified, a VM will be launched for the duration of the test.",
         )

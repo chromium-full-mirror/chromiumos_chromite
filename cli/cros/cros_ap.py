@@ -145,8 +145,8 @@ class ReadSubcommand(command.CliCommand):
         cls.AddDeviceArgument(
             parser,
             schemes=[
-                commandline.DEVICE_SCHEME_SSH,
-                commandline.DEVICE_SCHEME_SERVO,
+                commandline.DeviceScheme.SSH,
+                commandline.DeviceScheme.SERVO,
             ],
         )
         parser.add_argument(
@@ -189,7 +189,7 @@ To read a specific region from DUT via SERVO on default port(9999):
         ip = None
         if self.options.device:
             port = self.options.device.port
-            if self.options.device.scheme == commandline.DEVICE_SCHEME_SSH:
+            if self.options.device.scheme == commandline.DeviceScheme.SSH:
                 ip = self.options.device.hostname
                 port = port or self.options.device.port
         else:
@@ -263,8 +263,8 @@ class FlashSubcommand(command.CliCommand):
         cls.AddDeviceArgument(
             parser,
             schemes=[
-                commandline.DEVICE_SCHEME_SSH,
-                commandline.DEVICE_SCHEME_SERVO,
+                commandline.DeviceScheme.SSH,
+                commandline.DeviceScheme.SERVO,
             ],
         )
         parser.add_argument(

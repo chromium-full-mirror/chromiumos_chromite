@@ -54,7 +54,7 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
     def Device(self, path):
         """Create a USB device for passing to flash.Flash()."""
         return commandline.Device(
-            scheme=commandline.DEVICE_SCHEME_USB, path=path
+            scheme=commandline.DeviceScheme.USB, path=path
         )
 
     def setUp(self):

@@ -240,16 +240,16 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
     """Test device parsing functionality."""
 
     _ALL_SCHEMES = (
-        commandline.DEVICE_SCHEME_FILE,
-        commandline.DEVICE_SCHEME_SERVO,
-        commandline.DEVICE_SCHEME_SSH,
-        commandline.DEVICE_SCHEME_USB,
+        commandline.DeviceScheme.FILE,
+        commandline.DeviceScheme.SERVO,
+        commandline.DeviceScheme.SSH,
+        commandline.DeviceScheme.USB,
     )
 
     def _CheckDeviceParse(
         self,
         device_input: str,
-        scheme: str,
+        scheme: Optional[commandline.DeviceScheme] = None,
         username: Optional[str] = None,
         hostname: Optional[str] = None,
         port: Optional[int] = None,
@@ -305,7 +305,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Test SSH hostname-only device specification."""
         self._CheckDeviceParse(
             "192.168.1.200",
-            scheme=commandline.DEVICE_SCHEME_SSH,
+            scheme=commandline.DeviceScheme.SSH,
             hostname="192.168.1.200",
         )
 
@@ -313,7 +313,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Test SSH hostname and port device specification."""
         self._CheckDeviceParse(
             "192.168.1.200:9999",
-            scheme=commandline.DEVICE_SCHEME_SSH,
+            scheme=commandline.DeviceScheme.SSH,
             hostname="192.168.1.200",
             port=9999,
         )
@@ -322,7 +322,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Test SSH username and hostname device specification."""
         self._CheckDeviceParse(
             "me@foo_host",
-            scheme=commandline.DEVICE_SCHEME_SSH,
+            scheme=commandline.DeviceScheme.SSH,
             username="me",
             hostname="foo_host",
         )
@@ -331,7 +331,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Test SSH username, hostname, and port device specification."""
         self._CheckDeviceParse(
             "me@foo_host:4500",
-            scheme=commandline.DEVICE_SCHEME_SSH,
+            scheme=commandline.DeviceScheme.SSH,
             username="me",
             hostname="foo_host",
             port=4500,
@@ -341,7 +341,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Test SSH, username, hostname, and port device specification."""
         self._CheckDeviceParse(
             "ssh://me@foo_host:4500",
-            scheme=commandline.DEVICE_SCHEME_SSH,
+            scheme=commandline.DeviceScheme.SSH,
             username="me",
             hostname="foo_host",
             port=4500,
@@ -360,7 +360,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Test SSH with an IPv6 address, all proper with the brackets."""
         self._CheckDeviceParse(
             "ssh://[::1]:2222",
-            scheme=commandline.DEVICE_SCHEME_SSH,
+            scheme=commandline.DeviceScheme.SSH,
             hostname="::1",
             port=2222,
         )
@@ -374,19 +374,19 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
     def testServoPort(self):
         """Test valid servo port values."""
         self._CheckDeviceParse(
-            "servo:port", scheme=commandline.DEVICE_SCHEME_SERVO, port=None
+            "servo:port", scheme=commandline.DeviceScheme.SERVO, port=None
         )
         self._CheckDeviceParse(
-            "servo:port:1", scheme=commandline.DEVICE_SCHEME_SERVO, port=1
+            "servo:port:1", scheme=commandline.DeviceScheme.SERVO, port=1
         )
         self._CheckDeviceParse(
             "servo:port:12345",
-            scheme=commandline.DEVICE_SCHEME_SERVO,
+            scheme=commandline.DeviceScheme.SERVO,
             port=12345,
         )
         self._CheckDeviceParse(
             "servo:port:65535",
-            scheme=commandline.DEVICE_SCHEME_SERVO,
+            scheme=commandline.DeviceScheme.SERVO,
             port=65535,
         )
 
@@ -403,18 +403,18 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         # Some known serial number formats.
         self._CheckDeviceParse(
             "servo:serial:C1234567890",
-            scheme=commandline.DEVICE_SCHEME_SERVO,
+            scheme=commandline.DeviceScheme.SERVO,
             serial="C1234567890",
         )
         self._CheckDeviceParse(
             "servo:serial:123456-12345",
-            scheme=commandline.DEVICE_SCHEME_SERVO,
+            scheme=commandline.DeviceScheme.SERVO,
             serial="123456-12345",
         )
         # Make sure we don't fall back to a port when it looks like one.
         self._CheckDeviceParse(
             "servo:serial:12345",
-            scheme=commandline.DEVICE_SCHEME_SERVO,
+            scheme=commandline.DeviceScheme.SERVO,
             serial="12345",
         )
 
@@ -424,13 +424,13 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
 
     def testUsbScheme(self):
         """Test USB scheme-only device specification."""
-        self._CheckDeviceParse("usb://", scheme=commandline.DEVICE_SCHEME_USB)
+        self._CheckDeviceParse("usb://", scheme=commandline.DeviceScheme.USB)
 
     def testUsbSchemePath(self):
         """Test USB scheme and path device specification."""
         self._CheckDeviceParse(
             "usb://path/to/my/device",
-            scheme=commandline.DEVICE_SCHEME_USB,
+            scheme=commandline.DeviceScheme.USB,
             path="path/to/my/device",
         )
 
@@ -442,7 +442,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Test file scheme and path device specification."""
         self._CheckDeviceParse(
             "file://foo/bar",
-            scheme=commandline.DEVICE_SCHEME_FILE,
+            scheme=commandline.DeviceScheme.FILE,
             path="foo/bar",
         )
 
@@ -450,20 +450,20 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Verify that an absolute path defaults to file scheme."""
         self._CheckDeviceParse(
             "/path/to/my/device",
-            scheme=commandline.DEVICE_SCHEME_FILE,
+            scheme=commandline.DeviceScheme.FILE,
             path="/path/to/my/device",
         )
 
     def testUnsupportedScheme(self):
         """Verify that an unsupported scheme fails."""
         self._CheckDeviceParseFails(
-            "ssh://192.168.1.200", schemes=commandline.DEVICE_SCHEME_USB
+            "ssh://192.168.1.200", schemes=commandline.DeviceScheme.USB
         )
         self._CheckDeviceParseFails(
             "usb://path/to/my/device",
             schemes=[
-                commandline.DEVICE_SCHEME_SSH,
-                commandline.DEVICE_SCHEME_FILE,
+                commandline.DeviceScheme.SSH,
+                commandline.DeviceScheme.FILE,
             ],
         )
 
@@ -475,7 +475,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """Verify that schemes are case-insensitive."""
         self._CheckDeviceParse(
             "SSH://foo_host",
-            scheme=commandline.DEVICE_SCHEME_SSH,
+            scheme=commandline.DeviceScheme.SSH,
             hostname="foo_host",
         )
 

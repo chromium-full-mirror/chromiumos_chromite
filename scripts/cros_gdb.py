@@ -697,7 +697,7 @@ def main(argv):
     parser.add_argument(
         "--remote",
         default=None,
-        type=commandline.DeviceParser(commandline.DEVICE_SCHEME_SSH),
+        type=commandline.DeviceParser(commandline.DeviceScheme.SSH),
         help=(
             "Remote device on which to run the binary. Use"
             ' "--remote=localhost:9222" to debug in a ChromeOS image in an'

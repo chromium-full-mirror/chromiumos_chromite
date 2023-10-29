@@ -132,7 +132,7 @@ def parse_args(raw_args: Iterable[str]):
     )
 
     # Device parsing aids.
-    device_parser = commandline.DeviceParser(commandline.DEVICE_SCHEME_SSH)
+    device_parser = commandline.DeviceParser(commandline.DeviceScheme.SSH)
     device_host_help = "Device host, in the format '[ssh://]hostname[:port]'"
 
     subparsers = parser.add_subparsers()

@@ -184,7 +184,7 @@ def get_parser() -> commandline.ArgumentParser:
     )
     parser.add_argument(
         "device",
-        type=commandline.DeviceParser([commandline.DEVICE_SCHEME_SSH]),
+        type=commandline.DeviceParser([commandline.DeviceScheme.SSH]),
         help="Target a device with hostname",
     )
     parser.add_argument("packages", help="Packages to install", nargs="+")
