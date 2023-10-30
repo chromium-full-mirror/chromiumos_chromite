@@ -1376,7 +1376,7 @@ def starbase_find_and_uprev(
     old_ebuild_path = os.path.join(package_path, ebuild_name)
     for line in osutils.ReadText(old_ebuild_path).splitlines():
         if line.startswith("SRC_URI="):
-            tarfile_name = "starbase_client_tarfile.tar.zst"
+            tarfile_name = "starbase_prod_tarfile.tar.zst"
             new_line = f'SRC_URI="${{DISTFILES}}/{gcs_name}/{tarfile_name}"'
             logging.info("Replacing %s with %s", line, new_line)
             lines.append(new_line)
