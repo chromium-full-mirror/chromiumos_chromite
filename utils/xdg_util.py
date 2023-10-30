@@ -50,12 +50,15 @@ def _get_homedir() -> Path:
     return Path("~").expanduser()
 
 
-def _get_path(subdir: str, xdg_property: str) -> Path:
+def _get_path(
+    subdir: str, xdg_property: str, xdg_optional: bool = False
+) -> Path:
     """Get the xdg path.
 
     Args:
         subdir: The subdir name if XDG APIs are not available.
         xdg_property: The XDG module API to use if available.
+        xdg_optional: Whether to ignore missing XDG APIs.
     """
     if _is_chrome_bot() or os_util.is_root_user():
         return _get_homedir() / subdir
@@ -63,7 +66,14 @@ def _get_path(subdir: str, xdg_property: str) -> Path:
     try:
         import xdg.BaseDirectory
 
-        return Path(getattr(xdg.BaseDirectory, xdg_property))
+        attr = getattr(xdg.BaseDirectory, xdg_property, None)
+        if attr:
+            return Path(attr)
+        elif not xdg_optional:
+            raise AttributeError(
+                f"xdg.BaseDirectory.{xdg_property} does not exist; "
+                "is your pyxdg old?"
+            )
     except ImportError:
         pass
 
@@ -72,17 +82,20 @@ def _get_path(subdir: str, xdg_property: str) -> Path:
 
 def _get_cache_home() -> Path:
     """The $XDG_CACHE_HOME."""
+    # pyxdg has always supported this API.
     return _get_path(".cache", "xdg_cache_home")
 
 
 def _get_config_home() -> Path:
     """The $XDG_CONFIG_HOME."""
+    # pyxdg has always supported this API.
     return _get_path(".config", "xdg_config_home")
 
 
 def _get_state_home() -> Path:
     """The $XDG_STATE_HOME."""
-    return _get_path(".local/state", "xdg_state_home")
+    # pyxdg introduced xdg_state_home in 0.28 in Jun 2022.
+    return _get_path(".local/state", "xdg_state_home", xdg_optional=True)
 
 
 # The base directory relative to which user-specific non-essential data files
