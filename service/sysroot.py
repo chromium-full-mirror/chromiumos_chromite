@@ -1180,20 +1180,27 @@ def _BazelBuild(
 
         # We want to build all dependencies of virtual/target-os,
         # except chromeos-chrome and package that depend on it.
+        # `cquery` handles `select`, instead of returning both branches.
+        # Therefore it does not return stage1 targets which we
+        # should not build.
         # TODO(b:303161688): consider also virtual/target-os-dev, etc.
         query_result = cros_build_lib.run(
             [
                 BAZEL_COMMAND,
-                "query",
+                "cquery",
                 'kind("ebuild",deps(@portage//virtual/target-os)) '
-                f"except allrdeps({chrome_target}) "
-                f"except {chrome_target} ",
-                "--universe_scope=@portage//virtual/target-os",
+                f"except rdeps(@portage//virtual/target-os, {chrome_target}) "
+                f"except {chrome_target}",
             ],
             extra_env=extra_env,
             capture_output=True,
             encoding="utf-8",
         )
+
+        # The results look like this
+        # @portage//internal/(...)/chromeos-base/crosid:0.0.1-r209 (7729267)
+        # and we need to remove the id at the end.
+        targets = re.findall("(.*) \\(", query_result.stdout)
 
         cros_build_lib.run(
             [
@@ -1202,7 +1209,7 @@ def _BazelBuild(
                 "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
                 "--keep_going",
             ]
-            + query_result.stdout.splitlines(),
+            + targets,
             extra_env=extra_env,
         )
     else:
