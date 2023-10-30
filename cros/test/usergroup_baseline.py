@@ -351,6 +351,11 @@ GROUP_BASELINE = dict(
             },
         ),
         GroupEntry(
+            group="fbpreprocessor-user-access",
+            gid=429,
+            users={"crash", "debugd", "fbpreprocessor"},
+        ),
+        GroupEntry(
             group="wayland", gid=601, users={"chronos", "crosvm", "pluginvm"}
         ),
         GroupEntry(group="arc-bridge", gid=602, users={"chronos"}),
