@@ -995,7 +995,7 @@ def GetImagesToBuild(image_types: List[str]) -> Set[str]:
 
     Raises:
         ValueError: if an invalid image type is given as input or if factory
-        shim image is requested along with any other image type.
+        shim image is requested along with any other image type, except test.
     """
     image_names = set()
 
@@ -1004,9 +1004,17 @@ def GetImagesToBuild(image_types: List[str]) -> Set[str]:
             raise ValueError(f"Invalid image type : {image}")
         image_names.add(constants.IMAGE_TYPE_TO_NAME[image])
 
-    if constants.FACTORY_IMAGE_BIN in image_names and len(image_names) > 1:
+    # Allow building test image with factory image. This supports older
+    # factory branches that do not separate calls for factory and core images.
+    allowed_image_count = 2 if constants.TEST_IMAGE_BIN in image_names else 1
+
+    if (
+        constants.FACTORY_IMAGE_BIN in image_names
+        and len(image_names) > allowed_image_count
+    ):
         raise ValueError(
-            f"Can't build {constants.FACTORY_IMAGE_BIN} with any other image."
+            f"Can't build {constants.FACTORY_IMAGE_BIN} with any other image"
+            "except test image."
         )
 
     return image_names

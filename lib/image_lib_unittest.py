@@ -741,6 +741,12 @@ class GetImagesToBuildTests(cros_test_lib.MockTestCase):
                 [constants.IMAGE_TYPE_DEV, constants.FACTORY_IMAGE_BIN]
             )
 
+    def testValidImageCombination(self):
+        """Verify a valid image type combination succeeds."""
+        image_lib.GetImagesToBuild(
+            [constants.IMAGE_TYPE_TEST, constants.IMAGE_TYPE_FACTORY_SHIM]
+        )
+
 
 class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
     """Tests the GetBuildImageEnvvars function."""
