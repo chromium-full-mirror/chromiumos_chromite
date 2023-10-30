@@ -4,6 +4,7 @@
 
 """Unit tests for the sdk_subtools service layer."""
 
+import contextlib
 import unittest
 
 import pytest
@@ -17,7 +18,13 @@ from chromite.service import sdk_subtools
 @unittest.mock.patch(
     "chromite.service.sdk_subtools.is_inside_subtools_chroot", return_value=True
 )
-def test_install_packages(_, run_mock: cros_test_lib.RunCommandMock) -> None:
+@unittest.mock.patch(
+    "chromite.lib.cros_sdk_lib.ChrootReadWrite",
+    return_value=contextlib.nullcontext(),
+)
+def test_install_packages(
+    _, __, run_mock: cros_test_lib.RunCommandMock
+) -> None:
     """Test that arguments are passed correctly to emerge."""
     run_mock.SetDefaultCmdResult(0)
     sdk_subtools.update_packages(["some-category/package-name"])
@@ -32,8 +39,12 @@ def test_install_packages(_, run_mock: cros_test_lib.RunCommandMock) -> None:
 @unittest.mock.patch(
     "chromite.service.sdk_subtools.is_inside_subtools_chroot", return_value=True
 )
+@unittest.mock.patch(
+    "chromite.lib.cros_sdk_lib.ChrootReadWrite",
+    return_value=contextlib.nullcontext(),
+)
 def test_install_packages_failure(
-    _, run_mock: cros_test_lib.RunCommandMock
+    _, __, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test that PackageInstallError is raised on emerge failure."""
     run_mock.AddCmdResult(

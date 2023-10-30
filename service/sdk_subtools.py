@@ -73,7 +73,8 @@ def setup_base_sdk(
         content = Path(cros_sdk_lib.CHROOT_VERSION_FILE).read_text(
             encoding="utf-8"
         )
-        osutils.WriteFile(SUBTOOLS_CHROOT_VERSION_FILE, content, sudo=sudo)
+        with cros_sdk_lib.ChrootReadWrite():
+            osutils.WriteFile(SUBTOOLS_CHROOT_VERSION_FILE, content, sudo=sudo)
 
     if setup_chroot:
         logging.info("Setting up subtools SDK in %s.", build_target.root)
@@ -139,13 +140,14 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
         ]
     )
     cmd = emerge + emerge_flags + config.GetPackages()
-    _run_system_emerge(
-        cmd,
-        extra_env,
-        config.use_goma,
-        config.use_remoteexec,
-        reason="subtools builder SDK packages",
-    )
+    with cros_sdk_lib.ChrootReadWrite():
+        _run_system_emerge(
+            cmd,
+            extra_env,
+            config.use_goma,
+            config.use_remoteexec,
+            reason="subtools builder SDK packages",
+        )
 
 
 def bundle_and_prepare_upload(
