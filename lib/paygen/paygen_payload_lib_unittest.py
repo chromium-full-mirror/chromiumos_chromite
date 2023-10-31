@@ -329,15 +329,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         self.assertEqual(gen.src_image_file, "/foo/src_image.bin")
         self.assertEqual(gen.tgt_image_file, "/foo/tgt_image.bin")
-        self.assertEqual(gen.payload_file, "/foo/delta.bin")
         self.assertEqual(gen.log_file, "/foo/delta.log")
-
-        # Siged image specific values.
-        self.assertEqual(gen.signed_payload_file, "/foo/delta.bin.signed")
-        self.assertEqual(
-            gen.metadata_signature_file,
-            "/foo/delta.bin.signed.metadata-signature",
-        )
 
     def testWorkingDirNamesNonStatic(self):
         """Make sure that files we create have the expected names."""
@@ -345,17 +337,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         self.assertEqual(gen.src_image_file, "/foo/src_image-<random1>.bin")
         self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random1>.bin")
-        self.assertEqual(gen.payload_file, "/foo/delta-<random1>.bin")
         self.assertEqual(gen.log_file, "/foo/delta-<random1>.log")
-
-        # Siged image specific values.
-        self.assertEqual(
-            gen.signed_payload_file, "/foo/delta-<random1>.bin.signed"
-        )
-        self.assertEqual(
-            gen.metadata_signature_file,
-            "/foo/delta-<random1>.bin.signed.metadata-signature",
-        )
 
     def testWorkingDirNamesMiniOS(self):
         """Make sure that files we create have the expected names."""
@@ -363,17 +345,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         self.assertEqual(gen.src_image_file, "/foo/src_image-<random1>.bin")
         self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random1>.bin")
-        self.assertEqual(gen.payload_file, "/foo/delta-<random1>.bin")
         self.assertEqual(gen.log_file, "/foo/delta-<random1>.log")
-
-        # Siged image specific values.
-        self.assertEqual(
-            gen.signed_payload_file, "/foo/delta-<random1>.bin.signed"
-        )
-        self.assertEqual(
-            gen.metadata_signature_file,
-            "/foo/delta-<random1>.bin.signed.metadata-signature",
-        )
 
     def testUriManipulators(self):
         """Validate _MetadataUri."""
@@ -772,13 +744,14 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         run_mock = self.PatchObject(gen, "_RunGeneratorCmd")
 
         # Run the test.
-        gen._GenerateUnsignedPayload()
+        payload_file = "/foo/delta-<random1>.bin"
+        gen._GenerateUnsignedPayload(payload_file)
 
         # Check the expected function calls.
         cmd = [
             "delta_generator",
             "--major_version=2",
-            "--out_file=" + gen.payload_file,
+            "--out_file=" + payload_file,
             "--partition_names=" + ":".join(gen.partition_names),
             "--new_partitions=" + ":".join(gen.tgt_partitions),
             "--new_postinstall_config_file=" + gen._postinst_config_file,
@@ -795,13 +768,14 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         run_mock = self.PatchObject(gen, "_RunGeneratorCmd")
 
         # Run the test.
-        gen._GenerateUnsignedPayload()
+        payload_file = "/foo/delta-<random1>.bin"
+        gen._GenerateUnsignedPayload(payload_file)
 
         # Check the expected function calls.
         cmd = [
             "delta_generator",
             "--major_version=2",
-            "--out_file=" + gen.payload_file,
+            "--out_file=" + payload_file,
             "--partition_names=" + ":".join(gen.partition_names),
             "--new_partitions=" + ":".join(gen.tgt_partitions),
             "--old_partitions=" + ":".join(gen.src_partitions),
@@ -824,13 +798,14 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         # Run the test.
         _, gen._minor_version = gen._GetPlatformImageParams(gen.tgt_image_file)
-        gen._GenerateUnsignedPayload()
+        payload_file = "/foo/delta-<random1>.bin"
+        gen._GenerateUnsignedPayload(payload_file)
 
         # Check the expected function calls.
         cmd = [
             "delta_generator",
             "--major_version=2",
-            "--out_file=" + gen.payload_file,
+            "--out_file=" + payload_file,
             "--partition_names=" + ":".join(gen.partition_names),
             "--new_partitions=" + ":".join(gen.tgt_partitions),
             "--old_partitions=" + ":".join(gen.src_partitions),
@@ -847,16 +822,35 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         run_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_RunGeneratorCmd"
         )
-        osutils.WriteFile(gen.payload_hash_file, "payload")
-        osutils.WriteFile(gen.metadata_hash_file, "hash")
+
+        payload_hash_file = os.path.join(self.tempdir, "payload_hash")
+        metadata_hash_file = os.path.join(self.tempdir, "metadata_hash")
+        osutils.WriteFile(payload_hash_file, "payload")
+        osutils.WriteFile(metadata_hash_file, "hash")
+
+        payload_hash_file_mock = mock.MagicMock()
+        payload_hash_file_mock.__enter__.return_value.name = payload_hash_file
+        metadata_hash_file_mock = mock.MagicMock()
+        metadata_hash_file_mock.__enter__.return_value.name = metadata_hash_file
+
+        named_temporary_file_mock = self.PatchObject(
+            paygen_payload_lib.tempfile, "NamedTemporaryFile"
+        )
+        named_temporary_file_mock.side_effect = [
+            metadata_hash_file_mock,
+            payload_hash_file_mock,
+        ]
 
         # Run the test.
-        self.assertEqual(gen._GenerateHashes(), (b"payload", b"hash"))
+        payload_file = "/foo/delta-<random1>.bin"
+        self.assertEqual(
+            gen._GenerateHashes(payload_file), (b"payload", b"hash")
+        )
 
         # Check the expected function calls.
         cmd = [
             "delta_generator",
-            "--in_file=" + gen.payload_file,
+            "--in_file=" + payload_file,
             "--signature_size=256",
             partial_mock.HasString("--out_hash_file="),
             partial_mock.HasString("--out_metadata_hash_file="),
@@ -913,24 +907,27 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
 
         # Run the test.
+        payload_file = "/foo/delta-<random1>.bin"
         gen._InsertSignaturesIntoPayload(
-            payload_signatures, metadata_signatures
+            payload_file, payload_signatures, metadata_signatures
         )
 
         # Check the expected function calls.
         cmd = [
             "delta_generator",
-            "--in_file=" + gen.payload_file,
+            "--in_file=" + payload_file,
             "--signature_size=256",
             partial_mock.HasString("payload_signature_file"),
             partial_mock.HasString("metadata_signature_file"),
-            "--out_file=" + gen.signed_payload_file,
+            "--out_file=" + payload_file + ".signed",
         ]
         run_mock.assert_called_once_with(cmd)
 
     def testStoreMetadataSignatures(self):
         """Test how we store metadata signatures."""
-        gen = self._GetStdGenerator(payload=self.delta_payload)
+        gen = self._GetStdGenerator(
+            payload=self.delta_payload, work_dir=self.tempdir
+        )
         metadata_signatures = (b"1" * 256,)
         encoded_metadata_signature = (
             "MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMT"
@@ -941,10 +938,15 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             "ExMTExMTExMQ=="
         )
 
-        gen._StoreMetadataSignatures(metadata_signatures)
+        metadata_signature_file = os.path.join(
+            self.tempdir, "delta.bin.singed.metadata-signature"
+        )
+        gen._StoreMetadataSignatures(
+            metadata_signature_file, metadata_signatures
+        )
 
         self.assertEqual(
-            osutils.ReadFile(gen.metadata_signature_file),
+            osutils.ReadFile(metadata_signature_file),
             encoded_metadata_signature,
         )
 
@@ -959,12 +961,14 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen.metadata_size = 10
 
         # Run the test.
-        gen._VerifyPayload()
+        signed_payload_file = "/foo/delta-<random1>.bin.signed"
+        metadata_signature_file = "/foo/delta.bin.signed.metadata-signature"
+        gen._VerifyPayload(signed_payload_file, metadata_signature_file)
 
         # Check the expected function calls.
         cmd = [
             "check_update_payload",
-            gen.signed_payload_file,
+            signed_payload_file,
             "--check",
             "--type",
             "delta",
@@ -977,7 +981,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             "/work/tgt_root.bin",
             "/work/tgt_kernel.bin",
             "--meta-sig",
-            gen.metadata_signature_file,
+            metadata_signature_file,
             "--metadata-size",
             "10",
             "--src_part_paths",
@@ -997,12 +1001,14 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen.metadata_size = 10
 
         # Run the test.
-        gen._VerifyPayload()
+        signed_payload_file = "/foo/delta-<random1>.bin.signed"
+        metadata_signature_file = "/foo/delta.bin.signed.metadata-signature"
+        gen._VerifyPayload(signed_payload_file, metadata_signature_file)
 
         # Check the expected function calls.
         cmd = [
             "check_update_payload",
-            gen.signed_payload_file,
+            signed_payload_file,
             "--check",
             "--type",
             "full",
@@ -1015,7 +1021,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             "/work/tgt_root.bin",
             "/work/tgt_kernel.bin",
             "--meta-sig",
-            gen.metadata_signature_file,
+            metadata_signature_file,
             "--metadata-size",
             "10",
         ]
@@ -1034,7 +1040,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen.signer.public_key = public_key
 
         # Run the test.
-        gen._VerifyPayload()
+        signed_payload_file = "/foo/delta-<random1>.bin.signed"
+        metadata_signature_file = "/foo/delta.bin.signed.metadata-signature"
+        gen._VerifyPayload(signed_payload_file, metadata_signature_file)
 
         # Check the expected function calls.
         cmd = [mock.ANY] * 17
@@ -1064,29 +1072,43 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             return_value=[payload_sigs, metadata_sigs],
         )
 
+        payload_file = "/foo/delta-<random1>.bin"
         ins_mock = self.PatchObject(
-            paygen_payload_lib.PaygenPayload, "_InsertSignaturesIntoPayload"
+            paygen_payload_lib.PaygenPayload,
+            "_InsertSignaturesIntoPayload",
+            return_value=payload_file + ".signed",
         )
         store_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_StoreMetadataSignatures"
         )
 
         # Run the test.
-        result_payload_sigs, result_metadata_sigs = gen._SignPayload()
+        result_payload_info, result_metadata_info = gen._SignPayload(
+            payload_file
+        )
 
-        self.assertEqual(payload_sigs, result_payload_sigs)
-        self.assertEqual(metadata_sigs, result_metadata_sigs)
+        self.assertEqual(
+            (payload_file + ".signed", payload_sigs), result_payload_info
+        )
+        self.assertEqual(
+            (payload_file + ".signed.metadata-signature", metadata_sigs),
+            result_metadata_info,
+        )
 
         # Check expected calls.
-        gen_mock.assert_called_once_with()
+        gen_mock.assert_called_once_with(payload_file)
         sign_mock.assert_called_once_with([payload_hash, metadata_hash])
-        ins_mock.assert_called_once_with(payload_sigs, metadata_sigs)
-        store_mock.assert_called_once_with(metadata_sigs)
+        ins_mock.assert_called_once_with(
+            payload_file, payload_sigs, metadata_sigs
+        )
+        store_mock.assert_called_once_with(
+            payload_file + ".signed.metadata-signature", metadata_sigs
+        )
 
     def testCreateSignedDelta(self):
         """Test the overall payload generation process."""
         payload = self.delta_payload
-        gen = self._GetStdGenerator(payload=payload, work_dir="/work")
+        gen = self._GetStdGenerator(payload=payload, work_dir=self.tempdir)
 
         # Set up stubs.
         prep_image_mock = self.PatchObject(
@@ -1098,17 +1120,25 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_GenerateUnsignedPayload"
         )
+        payload_file = os.path.join(self.tempdir, "delta-<random1>.bin")
         sign_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_SignPayload",
-            return_value=(["payload_sigs"], ["metadata_sigs"]),
+            return_value=[
+                (payload_file + ".signed", ["payload_sigs"]),
+                (
+                    payload_file + ".signed.metadata-signature",
+                    ["metadata_sigs"],
+                ),
+            ],
         )
         store_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_StorePayloadJson"
         )
 
         # Run the test.
-        gen._Create()
+        description_file = os.path.join(self.tempdir, "delta-<random1>.json")
+        gen._Create(payload_file, description_file)
 
         # Check expected calls.
         self.assertEqual(
@@ -1118,9 +1148,13 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                 mock.call(payload.src_image, gen.src_image_file),
             ],
         )
-        gen_mock.assert_called_once_with()
-        sign_mock.assert_called_once_with()
-        store_mock.assert_called_once_with(["metadata_sigs"])
+        gen_mock.assert_called_once_with(payload_file)
+        sign_mock.assert_called_once_with(payload_file)
+        store_mock.assert_called_once_with(
+            payload_file + ".signed",
+            payload_file.replace(".bin", ".json"),
+            ["metadata_sigs"],
+        )
         prep_part_mock.assert_called_once()
 
     def testCreateSignedMiniOSFullWithoutMiniOSPartition(self):
@@ -1188,7 +1222,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
     def testCreateSignedMiniOSFullWithMiniOSPartition(self):
         """Test the overall payload generation process with miniOS."""
         payload = self.full_minios_payload
-        gen = self._GetStdGenerator(payload=payload, work_dir="/work")
+        gen = self._GetStdGenerator(payload=payload, work_dir=self.tempdir)
 
         # Set up stubs.
         prep_image_mock = self.PatchObject(
@@ -1204,17 +1238,24 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_GenerateUnsignedPayload"
         )
+        payload_file = os.path.join(self.tempdir, "delta-<random1>.bin")
         sign_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_SignPayload",
-            return_value=(["payload_sigs"], ["metadata_sigs"]),
+            return_value=[
+                (payload_file + ".signed", ["payload_sigs"]),
+                (
+                    payload_file + ".signed.metadata-signature",
+                    ["metadata_sigs"],
+                ),
+            ],
         )
         store_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_StorePayloadJson"
         )
 
         # Run the test.
-        gen._Create()
+        gen._Create(payload_file, "delta-<random1>.json")
 
         # Check expected calls.
         self.assertEqual(
@@ -1224,9 +1265,11 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ],
         )
         check_minios_mock.assert_called_once_with()
-        gen_mock.assert_called_once_with()
-        sign_mock.assert_called_once_with()
-        store_mock.assert_called_once_with(["metadata_sigs"])
+        gen_mock.assert_called_once_with(payload_file)
+        sign_mock.assert_called_once_with(payload_file)
+        store_mock.assert_called_once_with(
+            payload_file + ".signed", "delta-<random1>.json", ["metadata_sigs"]
+        )
         prep_part_mock.assert_called_once()
 
     def testUploadResults(self):
@@ -1238,8 +1281,12 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         copy_mock = self.PatchObject(urilib, "Copy")
 
         # Run the test.
-        gen_sign._UploadResults()
-        gen_nosign._UploadResults()
+        gen_sign._UploadResults(
+            "/work/delta.bin.signed", "/work/delta.log", "/work/delta.json"
+        )
+        gen_nosign._UploadResults(
+            "/work/delta.bin", "/work/delta.log", "/work/delta.json"
+        )
 
         self.assertEqual(
             copy_mock.call_args_list,
@@ -1268,8 +1315,16 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         copy_mock = self.PatchObject(urilib, "Copy")
 
         # Run the test.
-        gen_sign._UploadResults()
-        gen_nosign._UploadResults()
+        gen_sign._UploadResults(
+            "/work/delta-<random1>.bin.signed",
+            "/work/delta-<random1>.log",
+            "/work/delta-<random1>.json",
+        )
+        gen_nosign._UploadResults(
+            "/work/delta-<random2>.bin",
+            "/work/delta-<random2>.log",
+            "/work/delta-<random2>.json",
+        )
 
         self.assertEqual(
             copy_mock.call_args_list,
@@ -1316,8 +1371,16 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         copy_mock = self.PatchObject(urilib, "Copy")
 
         # Run the test.
-        gen_sign._UploadResults()
-        gen_nosign._UploadResults()
+        gen_sign._UploadResults(
+            "/work/delta-<random1>.bin.signed",
+            "/work/delta-<random1>.log",
+            "/work/delta-<random1>.json",
+        )
+        gen_nosign._UploadResults(
+            "/work/delta-<random2>.bin",
+            "/work/delta-<random2>.log",
+            "/work/delta-<random2>.json",
+        )
 
         self.assertEqual(
             copy_mock.call_args_list,
@@ -1476,8 +1539,22 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
         sign_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_SignPayload",
-            return_value=(["payload_sigs"], ["metadata_sigs"]),
         )
+        rand_suffixes = ["-<random2>", "-<random4>"]
+        payload_files = [
+            (os.path.join(self.tempdir, f"delta{rand}.bin"))
+            for rand in rand_suffixes
+        ]
+        sign_mock.side_effect = [
+            (
+                [payload_file + ".signed", ["payload_sigs"]],
+                [
+                    payload_file + ".signed.metadata-signature",
+                    ["metadata_sigs"],
+                ],
+            )
+            for payload_file in payload_files
+        ]
         store_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_StorePayloadJson"
         )
@@ -1506,13 +1583,24 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
                 mock.call(False),
             ],
         )
-        self.assertEqual(gen_mock.call_args_list, mock.call(), mock.call())
-        self.assertEqual(sign_mock.call_args_list, mock.call(), mock.call())
+
+        self.assertEqual(
+            gen_mock.call_args_list,
+            [mock.call(payload_file) for payload_file in payload_files],
+        )
+        self.assertEqual(
+            sign_mock.call_args_list,
+            [mock.call(payload_file) for payload_file in payload_files],
+        )
         self.assertEqual(
             store_mock.call_args_list,
             [
-                mock.call(["metadata_sigs"]),
-                mock.call(["metadata_sigs"]),
+                mock.call(
+                    payload_file + ".signed",
+                    payload_file.replace(".bin", ".json"),
+                    ["metadata_sigs"],
+                )
+                for payload_file in payload_files
             ],
         )
 

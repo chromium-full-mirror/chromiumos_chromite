@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import threading
 import time
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.lib import cgpt
@@ -273,6 +273,7 @@ class PaygenPayload:
         self._SetupNewFileNames()
 
         # How big will the signatures be.
+        # TODO(b/299105459): Constant doesn't need to be an instance variable.
         self._signature_sizes = [
             str(size) for size in self.PAYLOAD_SIGNATURE_SIZES_BYTES
         ]
@@ -285,8 +286,13 @@ class PaygenPayload:
             cache_dir, cache_size=PaygenPayload.CACHE_SIZE
         )
 
-    def _SetupNewFileNames(self):
-        """Initializes files with static names or with random suffixes."""
+    def _SetupNewFileNames(self) -> Tuple[str, str]:
+        """Initializes files with static names or with random suffixes.
+
+        Returns:
+            Name of the payload file, name of the
+            description file.
+        """
         self.rand = not self.static or self.payload.minios
         rand = f"-{cros_build_lib.GetRandomString()}" if self.rand else ""
 
@@ -297,26 +303,19 @@ class PaygenPayload:
             self.work_dir, f"tgt_image{rand}.bin"
         )
 
-        self.payload_file = os.path.join(self.work_dir, f"delta{rand}.bin")
-        self.log_file = os.path.join(self.work_dir, f"delta{rand}.log")
-        self.description_file = os.path.join(self.work_dir, f"delta{rand}.json")
+        base_file = os.path.join(self.work_dir, f"delta{rand}")
+        payload_file = base_file + ".bin"
+        # TODO(b/299105459): Make log_file not an instance variable.
+        self.log_file = base_file + ".log"
+        description_file = base_file + ".json"
 
         self.metadata_size = 0
-        self.metadata_hash_file = os.path.join(
-            self.work_dir, f"metadata_hash{rand}"
-        )
-        self.payload_hash_file = os.path.join(
-            self.work_dir, f"payload_hash{rand}"
-        )
 
         self._postinst_config_file = os.path.join(
             self.work_dir, f"postinst_config{rand}"
         )
 
-        self.signed_payload_file = self.payload_file + ".signed"
-        self.metadata_signature_file = self._MetadataUri(
-            self.signed_payload_file
-        )
+        return (payload_file, description_file)
 
     def _MetadataUri(self, uri):
         """Given a payload uri, find the uri for the metadata signature."""
@@ -794,7 +793,7 @@ class PaygenPayload:
             logging.info("Removing %s", download_file)
             os.remove(download_file)
 
-    def _GeneratePostinstConfig(self, run_postinst):
+    def _GeneratePostinstConfig(self, run_postinst: bool):
         """Generates the postinstall config file
 
         This file is used in update engine's major version 2.
@@ -809,15 +808,15 @@ class PaygenPayload:
             "RUN_POSTINSTALL_root=%s\n" % ("true" if run_postinst else "false"),
         )
 
-    def _GenerateUnsignedPayload(self):
-        """Generate the unsigned delta into self.payload_file."""
+    def _GenerateUnsignedPayload(self, payload_file: str):
+        """Generate the unsigned delta into payload_file."""
         # Note that the command run here requires sudo access.
-        logging.info("Generating unsigned payload as %s", self.payload_file)
+        logging.info("Generating unsigned payload as %s", payload_file)
 
         cmd = [
             "delta_generator",
             "--major_version=2",
-            "--out_file=" + self.chroot.chroot_path(self.payload_file),
+            "--out_file=" + self.chroot.chroot_path(payload_file),
             # Target image args: (The order of partitions are important.)
             "--partition_names=" + ":".join(self.partition_names),
             "--new_partitions="
@@ -844,7 +843,7 @@ class PaygenPayload:
         # This can take a very long time with no output, so wrap the call.
         self._RunGeneratorCmd(cmd, squawk_wrap=True)
 
-    def _GenerateHashes(self):
+    def _GenerateHashes(self, payload_file: str) -> Tuple[bytes, bytes]:
         """Generate a payload hash and a metadata hash.
 
         Works from an unsigned update payload.
@@ -852,32 +851,39 @@ class PaygenPayload:
         Returns:
             Tuple of (payload_hash, metadata_hash) as bytes.
         """
-        logging.info("Calculating hashes on %s.", self.payload_file)
+        logging.info("Calculating hashes on %s.", payload_file)
 
-        cmd = [
-            "delta_generator",
-            "--in_file=" + self.chroot.chroot_path(self.payload_file),
-            "--signature_size=" + ":".join(self._signature_sizes),
-            "--out_hash_file="
-            + self.chroot.chroot_path(self.payload_hash_file),
-            "--out_metadata_hash_file="
-            + self.chroot.chroot_path(self.metadata_hash_file),
-        ]
+        with tempfile.NamedTemporaryFile(
+            prefix="metadata_hash",
+            dir=self.work_dir,
+        ) as metadata_hash_file, tempfile.NamedTemporaryFile(
+            prefix="payload_hash",
+            dir=self.work_dir,
+        ) as payload_hash_file:
+            cmd = [
+                "delta_generator",
+                "--in_file=" + self.chroot.chroot_path(payload_file),
+                "--signature_size=" + ":".join(self._signature_sizes),
+                "--out_hash_file="
+                + self.chroot.chroot_path(payload_hash_file.name),
+                "--out_metadata_hash_file="
+                + self.chroot.chroot_path(metadata_hash_file.name),
+            ]
 
-        self._RunGeneratorCmd(cmd)
+            self._RunGeneratorCmd(cmd)
 
-        return (
-            osutils.ReadFile(self.payload_hash_file, mode="rb"),
-            osutils.ReadFile(self.metadata_hash_file, mode="rb"),
-        )
+            return (
+                osutils.ReadFile(payload_hash_file.name, mode="rb"),
+                osutils.ReadFile(metadata_hash_file.name, mode="rb"),
+            )
 
-    def _GenerateSignerResultsError(self, format_str, *args):
+    def _GenerateSignerResultsError(self, format_str: str, *args):
         """Helper for reporting errors with signer results."""
         msg = format_str % args
         logging.error(msg)
         raise UnexpectedSignerResultsError(msg)
 
-    def _SignHashes(self, hashes):
+    def _SignHashes(self, hashes: List[bytes]) -> List[List[bytes]]:
         """Get the signer to sign the hashes with the update payload key via GS.
 
         May sign each hash with more than one key, based on how many keysets are
@@ -935,7 +941,7 @@ class PaygenPayload:
 
         return hashes_sigs
 
-    def _WriteSignaturesToFile(self, signatures):
+    def _WriteSignaturesToFile(self, signatures: List[bytes]) -> List[str]:
         """Write each signature into a temp file in the chroot.
 
         Args:
@@ -957,17 +963,25 @@ class PaygenPayload:
         return file_paths
 
     def _InsertSignaturesIntoPayload(
-        self, payload_signatures, metadata_signatures
-    ):
+        self,
+        payload_file: str,
+        payload_signatures: List[bytes],
+        metadata_signatures: List[bytes],
+    ) -> str:
         """Put payload and metadata signatures into the payload we sign.
 
         Args:
+            payload_file: The unsigned payload file.
             payload_signatures: List of signatures as bytes for the payload.
             metadata_signatures: List of signatures as bytes for the metadata.
+
+        Returns:
+            (str) The signed payload file.
         """
+        signed_payload_file = payload_file + ".signed"
         logging.info(
             "Inserting payload and metadata signatures into %s.",
-            self.signed_payload_file,
+            signed_payload_file,
         )
 
         payload_signature_file_names = self._WriteSignaturesToFile(
@@ -979,24 +993,28 @@ class PaygenPayload:
 
         cmd = [
             "delta_generator",
-            "--in_file=" + self.chroot.chroot_path(self.payload_file),
+            "--in_file=" + self.chroot.chroot_path(payload_file),
             "--signature_size=" + ":".join(self._signature_sizes),
             "--payload_signature_file="
             + ":".join(payload_signature_file_names),
             "--metadata_signature_file="
             + ":".join(metadata_signature_file_names),
-            "--out_file=" + self.chroot.chroot_path(self.signed_payload_file),
+            "--out_file=" + self.chroot.chroot_path(signed_payload_file),
         ]
 
         self._RunGeneratorCmd(cmd)
+        return signed_payload_file
 
-    def _StoreMetadataSignatures(self, signatures):
+    def _StoreMetadataSignatures(
+        self, metadata_signature_file: str, signatures: List[bytes]
+    ):
         """Store metadata signatures related to the payload.
 
         Our current format for saving metadata signatures only supports a single
         signature at this time.
 
         Args:
+            metadata_signature_file: The file to store metadata in.
             signatures: A list of metadata signatures in binary string format.
         """
         if len(signatures) != 1:
@@ -1007,15 +1025,15 @@ class PaygenPayload:
             )
 
         logging.info(
-            "Saving metadata signatures in %s.", self.metadata_signature_file
+            "Saving metadata signatures in %s.", metadata_signature_file
         )
 
         encoded_signature = base64.b64encode(signatures[0])
 
-        with open(self.metadata_signature_file, "w+b") as f:
+        with open(metadata_signature_file, "w+b") as f:
             f.write(encoded_signature)
 
-    def GetPayloadPropertiesMap(self, payload_path):
+    def GetPayloadPropertiesMap(self, payload_path: str):
         """Returns the payload's properties attributes in dictionary.
 
         The payload description contains a dictionary of key/values describing
@@ -1093,17 +1111,20 @@ class PaygenPayload:
 
         return props_map
 
-    def _StorePayloadJson(self, metadata_signatures):
+    def _StorePayloadJson(
+        self,
+        payload_file: str,
+        description_file: str,
+        metadata_signatures: List[bytes],
+    ):
         """Generate the payload description json file.
 
         Args:
+            payload_file: File name of the payload to store JSON for
+                (signed or unsigned).
+            description_file: Name of the file to write metadata to.
             metadata_signatures: A list of signatures in binary string format.
         """
-        # Decide if we use the signed or unsigned payload file.
-        payload_file = self.payload_file
-        if self.signer:
-            payload_file = self.signed_payload_file
-
         # Currently we have no way of getting the appid from the payload itself.
         # So just put what we got from the image itself (if any).
         props_map = self.GetPayloadPropertiesMap(payload_file)
@@ -1127,9 +1148,9 @@ class PaygenPayload:
                 )
 
         # Convert to Json & write out the results.
-        pformat.json(props_map, fp=self.description_file, compact=True)
+        pformat.json(props_map, fp=description_file, compact=True)
 
-    def _StoreLog(self, log):
+    def _StoreLog(self, log: str):
         """Store any log related to the payload.
 
         Write out the log to a known file name. Mostly in its own function
@@ -1147,20 +1168,23 @@ class PaygenPayload:
             logging.error("flattened: %r", flat)
             logging.error("expanded: %r", list(flat))
 
-    def _SignPayload(self):
+    def _SignPayload(
+        self, payload_file: str
+    ) -> Tuple[Tuple[str, List[bytes], Tuple[str, List[bytes]]]]:
         """Wrap all the steps for signing an existing payload.
 
         Returns:
-            List of payload signatures, List of metadata signatures.
+            * Tuple(Signed payload file, List of payload signatures)
+            * Tuple(Metadata signature file, List of metadata signatures)
         """
         # Create hashes to sign or even if signing not needed.
         # TODO(ahassani): In practice we don't need to generate hashes if we are
         #   not signing, so when devserver stopped depending on
         #   cros_generate_update_payload. this can be reverted.
-        payload_hash, metadata_hash = self._GenerateHashes()
+        payload_hash, metadata_hash = self._GenerateHashes(payload_file)
 
         if not self.signer:
-            return (None, None)
+            return (None, None), (None, None)
 
         # Sign them.
         # pylint: disable=unpacking-non-sequence
@@ -1170,20 +1194,36 @@ class PaygenPayload:
         # pylint: enable=unpacking-non-sequence
 
         # Insert payload and metadata signature(s).
-        self._InsertSignaturesIntoPayload(
-            payload_signatures, metadata_signatures
+        signed_payload_file = self._InsertSignaturesIntoPayload(
+            payload_file, payload_signatures, metadata_signatures
         )
 
         # Store metadata signature(s).
-        self._StoreMetadataSignatures(metadata_signatures)
+        metadata_signature_file = self._MetadataUri(signed_payload_file)
+        self._StoreMetadataSignatures(
+            metadata_signature_file, metadata_signatures
+        )
 
-        return (payload_signatures, metadata_signatures)
+        return (signed_payload_file, payload_signatures), (
+            metadata_signature_file,
+            metadata_signatures,
+        )
 
-    def _Create(self, part_a=True):
+    def _Create(
+        self, payload_file: str, description_file: str, part_a: bool = True
+    ) -> Tuple[str, str]:
         """Create a given payload, if it doesn't already exist.
 
         Args:
+            payload_file: Name of the payload file to generate.
+            description_file: Name of the description file to write metadata to.
             part_a: True to extract default/A partition.
+
+        Returns:
+            Tuple of the form
+                (name of the signed payload file,
+                 name of the metadata signature file).
+            The values will be None if signing did not occur.
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
@@ -1244,7 +1284,7 @@ class PaygenPayload:
             self._PreparePartitions(part_a)
 
             # Generate the unsigned payload.
-            self._GenerateUnsignedPayload()
+            self._GenerateUnsignedPayload(payload_file)
         except PayloadGenerationSkippedException:
             logging.info("Skipping payload generation.")
             raise
@@ -1257,24 +1297,29 @@ class PaygenPayload:
             )
 
         # Sign the payload, if needed.
-        _, metadata_signatures = self._SignPayload()
+        signed_payload_info, metadata_signature_info = self._SignPayload(
+            payload_file
+        )
+        metadata_signature_file, metadata_signatures = metadata_signature_info
+        signed_payload_file = signed_payload_info[0]
 
         # Store hash and signatures json.
-        self._StorePayloadJson(metadata_signatures)
+        self._StorePayloadJson(
+            signed_payload_file or payload_file,
+            description_file,
+            metadata_signatures,
+        )
 
-    def _VerifyPayload(self):
+        return (signed_payload_file, metadata_signature_file)
+
+    def _VerifyPayload(
+        self, payload_file_name: str, metadata_signature_file_name: str
+    ):
         """Checks the integrity of the generated payload.
 
         Raises:
             PayloadVerificationError when the payload fails to verify.
         """
-        if self.signer:
-            payload_file_name = self.signed_payload_file
-            metadata_sig_file_name = self.metadata_signature_file
-        else:
-            payload_file_name = self.payload_file
-            metadata_sig_file_name = None
-
         is_delta = bool(self.payload.src_image)
 
         logging.info(
@@ -1297,10 +1342,10 @@ class PaygenPayload:
         cmd.extend(self.partition_names)
         cmd += ["--dst_part_paths"]
         cmd.extend(self.chroot.chroot_path(x) for x in self.tgt_partitions)
-        if metadata_sig_file_name:
+        if metadata_signature_file_name:
             cmd += [
                 "--meta-sig",
-                self.chroot.chroot_path(metadata_sig_file_name),
+                self.chroot.chroot_path(metadata_signature_file_name),
             ]
 
         cmd += ["--metadata-size", str(self.metadata_size)]
@@ -1315,13 +1360,20 @@ class PaygenPayload:
 
         self._RunGeneratorCmd(cmd)
 
-    def _UploadResults(self):
+    def _UploadResults(
+        self, payload_file: str, log_file: str, description_file: str
+    ) -> str:
         """Copy the payload generation results to the specified destination.
+
+        Args:
+            payload_file: File name of the payload to upload
+                (signed or unsigned).
+            log_file: Filename of the log file.
+            description_file: Filename of the description file.
 
         Returns:
             A string uri to uploaded payload.
         """
-
         if self.payload.uri is None:
             logging.info("Not uploading payload.")
             return
@@ -1336,18 +1388,15 @@ class PaygenPayload:
         logging.info("Uploading payload to %s.", uri)
 
         # Deliver the payload to the final location.
-        if self.signer:
-            urilib.Copy(self.signed_payload_file, uri)
-        else:
-            urilib.Copy(self.payload_file, uri)
+        urilib.Copy(payload_file, uri)
 
         # Upload payload related artifacts.
-        urilib.Copy(self.log_file, self._LogsUri(uri))
-        urilib.Copy(self.description_file, self._JsonUri(uri))
+        urilib.Copy(log_file, self._LogsUri(uri))
+        urilib.Copy(description_file, self._JsonUri(uri))
 
         return uri
 
-    def _Run(self, part_a: bool = True):
+    def _Run(self, part_a: bool = True) -> Tuple[str, str]:
         """Run* method helper to create, verify, and upload results.
 
         Args:
@@ -1361,13 +1410,21 @@ class PaygenPayload:
             PayloadGenerationSkippedException: If paygen was skipped for any
             reason.
         """
-        self._SetupNewFileNames()
+        payload_file, description_file = self._SetupNewFileNames()
+
         try:
-            self._Create(part_a=part_a)
+            signed_payload_file, metadata_signature_file = self._Create(
+                payload_file, description_file, part_a=part_a
+            )
+            payload_file = signed_payload_file or payload_file
             if self._verify:
-                self._VerifyPayload()
+                self._VerifyPayload(
+                    payload_file or payload_file, metadata_signature_file
+                )
             if self._upload:
-                ret_uri = self._UploadResults()
+                ret_uri = self._UploadResults(
+                    payload_file, self.log_file, description_file
+                )
         except PayloadGenerationSkippedException as ex:
             if self._verify:
                 print("Not verifying payload, because paygen was skipped.")
@@ -1375,7 +1432,7 @@ class PaygenPayload:
                 print("Not uploading payload, because paygen was skipped.")
             raise ex
 
-        return (self.payload_file, ret_uri)
+        return (payload_file, ret_uri)
 
     def Run(self):
         """Create, verify, and upload the results.
