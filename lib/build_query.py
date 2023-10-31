@@ -652,6 +652,24 @@ class Board(QueryTarget):
 
         yield from boards.values()
 
+    @classmethod
+    def get(cls, name: str):
+        """Convenience function to get a board by name.
+
+        Args:
+            name: The board name.
+
+        Returns:
+            The corresponding Board object.
+
+        Raises:
+            ValueError: when the board does not exist.
+        """
+        try:
+            return Query(cls, board=name).filter(lambda x: x.name == name).one()
+        except StopIteration as e:
+            raise ValueError(f"No such board: {name}") from e
+
     @property
     def top_level_overlay(self) -> Optional[Overlay]:
         """The top-level overlay for this board."""

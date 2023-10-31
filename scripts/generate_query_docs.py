@@ -5,6 +5,7 @@
 """Generate documentation for `cros query` types in Markdown."""
 
 import functools
+import inspect
 import io
 from pathlib import Path
 import typing
@@ -107,6 +108,11 @@ def _gen_docs(output: TextIO):
                 continue
             method = getattr(target, attr)
             if not method.__doc__:
+                continue
+            if inspect.ismethod(method):
+                # We expect unbound methods (i.e., function attributes), not
+                # bound methods (which are likely a classmethod).  Skip bound
+                # methods.
                 continue
             if isinstance(method, property):
                 _doc_prop(method.fget)

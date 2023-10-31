@@ -374,6 +374,18 @@ def test_masked_use_flags(fake_overlays):
     assert board.top_level_profile.masked_use_flags == {"masked"}
 
 
+def test_board_get(fake_overlays):
+    """Test Board.get() convenience classmethod."""
+    board = build_query.Board.get("fake")
+    assert board.name == "fake"
+
+
+def test_board_get_fail(fake_overlays):
+    """Test Board.get() convenience classmethod on a bad board name."""
+    with pytest.raises(ValueError):
+        build_query.Board.get("notfake")
+
+
 def test_query_one(fake_overlays):
     """Test .one() on a query which yields one result."""
     board = (
