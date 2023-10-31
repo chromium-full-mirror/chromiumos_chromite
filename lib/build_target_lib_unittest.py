@@ -10,6 +10,7 @@ import pytest
 
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import portage_util
 from chromite.lib.build_target_lib import BuildTarget
 from chromite.test import portage_testables
 
@@ -69,8 +70,8 @@ class BuildTargetTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(result, "/build/board/some/path/abc/def/g/h/i")
 
 
-@pytest.mark.parametrize(["public"], [(True,), (False,)])
-def test_find_overlays_public(tmp_path, public):
+@pytest.mark.parametrize(["public"], [(True,), (False,), (None,)])
+def test_find_overlays_public(tmp_path, monkeypatch, public):
     """Test find_overlays() called on a public target."""
     build_target = BuildTarget("board", public=public)
 
@@ -95,6 +96,14 @@ def test_find_overlays_public(tmp_path, public):
 
     chromeos_path = tmp_path / "src" / "private-overlays" / "chromeos-overlay"
     portage_testables.Overlay(chromeos_path, "chromeos")
+
+    real_find_overlays = portage_util.FindOverlays
+
+    def fake_find_overlays(*args, **kwargs):
+        kwargs["buildroot"] = tmp_path
+        return real_find_overlays(*args, **kwargs)
+
+    monkeypatch.setattr(portage_util, "FindOverlays", fake_find_overlays)
 
     overlays = set(build_target.find_overlays(source_root=tmp_path))
 

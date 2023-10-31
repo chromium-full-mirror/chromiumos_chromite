@@ -77,16 +77,19 @@ def GetParser():
     )
     target.add_argument("--variant", help="Board variant.")
     target.add_argument("--board-root", type="path", help="Board root.")
-    target.add_argument(
+    target.add_bool_argument(
         "--public",
-        action="store_true",
-        default=False,
-        help=(
+        default=None,
+        enabled_desc=(
             "Simulate a public build by selecting only public overlays.  Note "
             "behavior differences may still exist when using an actual public "
             "checkout, i.e., this is for convenience only.  Don't use this to "
             "produce a build which is guaranteed to be free of all private "
-            "artifacts."
+            "artifacts.  By default, this is enabled for boards without a "
+            "private overlay."
+        ),
+        disabled_desc=(
+            "Disable --public on a normally-public board (e.g., amd64-generic)."
         ),
     )
 

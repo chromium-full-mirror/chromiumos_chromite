@@ -4,11 +4,15 @@
 
 """Build target class and related functionality."""
 
+from __future__ import annotations
+
+import functools
 import os
 from pathlib import Path
 import re
 from typing import Iterator, Optional
 
+from chromite.lib import build_query
 from chromite.lib import constants
 from chromite.lib import portage_util
 
@@ -25,7 +29,7 @@ class BuildTarget:
         name: Optional[str],
         profile: Optional[str] = None,
         build_root: Optional[str] = None,
-        public: bool = False,
+        public: Optional[bool] = None,
     ):
         """Build Target init.
 
@@ -33,11 +37,12 @@ class BuildTarget:
             name: The full name of the target.
             profile: The profile name.
             build_root: The path to the buildroot.
-            public: If true, simulate a public checkout.
+            public: If true, simulate a public checkout.  By default, enable
+                for boards without a private overlay.
         """
         self._name = name or None
         self.profile = profile
-        self.public = public
+        self._public = public
 
         if build_root:
             self.root = os.path.normpath(build_root)
@@ -50,7 +55,7 @@ class BuildTarget:
                 self.name == other.name
                 and self.profile == other.profile
                 and self.root == other.root
-                and self.public == other.public
+                and self._public == other._public
             )
 
         return NotImplemented
@@ -64,6 +69,22 @@ class BuildTarget:
     @property
     def name(self):
         return self._name
+
+    @functools.cached_property
+    def board(self) -> build_query.Board:
+        """The build_query.Board corresponding to this target."""
+        board_name = self.name
+        if self.is_host():
+            board_name = "amd64-host"
+        return build_query.Board.get(board_name)
+
+    @property
+    def public(self) -> bool:
+        """True if this build should be done from public sources only."""
+        if self._public is not None:
+            return self._public
+
+        return not self.board.private_overlay
 
     def full_path(self, *args):
         """Turn a sysroot-relative path into an absolute path."""

@@ -92,7 +92,7 @@ target=foo
         ]:
             osutils.WriteFile(os.path.join(overlay, "toolchain.conf"), contents)
         find_overlays_mock.return_value = overlays
-        build_target = build_target_lib.BuildTarget("board_value")
+        build_target = build_target_lib.BuildTarget("board_value", public=False)
         actual_targets = toolchain.get_toolchains_for_build_target(build_target)
         self.assertEqual(EXPECTED_TOOLCHAINS, actual_targets)
 
