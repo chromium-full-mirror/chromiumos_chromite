@@ -809,7 +809,6 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
     DLC_1_ID = "dlc-1-id"
     DLC_1_IMAGELOADER_JSON_DATA = """{
   "critical-update": false,
-  "days-to-purge": 0,
   "description": "",
   "factory-install": false,
   "fs-type": "squashfs",
@@ -830,14 +829,12 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
   "size": "4243456",
   "table-sha256-hash": "5dafa30c89cef2f7f78c6b73117e234acbb9919ec3a5250d9c0a966cac09adae",
   "use-logical-volume": true,
-  "used-by": "",
   "version": "1.0.0"
 }"""
 
     DLC_2_ID = "dlc-2-id"
     DLC_2_IMAGELOADER_JSON_DATA = """{
   "critical-update": false,
-  "days-to-purge": 0,
   "description": "",
   "factory-install": false,
   "fs-type": "squashfs",
@@ -858,7 +855,6 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
   "size": "4243456",
   "table-sha256-hash": "000000000000000000000000000000000000000000000000000000000000beef",
   "use-logical-volume": true,
-  "used-by": "",
   "version": "1.0.0"
 }"""
 
