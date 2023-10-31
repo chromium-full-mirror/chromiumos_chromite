@@ -1264,7 +1264,9 @@
     "test": {
       "dependencies": [
         "unit-test",
-        "integration-test"
+        "integration-test",
+        "check",
+        "lint"
       ]
     },
     "unit-test": {
@@ -1296,8 +1298,6 @@
     },
     "preupload": {
       "dependencies": [
-        "check",
-        "lint",
         "test"
       ]
     },
