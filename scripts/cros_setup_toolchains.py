@@ -727,14 +727,14 @@ def ExpandTargets(targets_wanted):
         Dictionary of concrete targets and their toolchain tuples.
     """
     targets_wanted = set(targets_wanted)
-    if targets_wanted == set(["boards"]):
+    if targets_wanted == {"boards"}:
         # Only pull targets from the included boards.
         return {}
 
     all_targets = toolchain.GetAllTargets()
-    if targets_wanted == set(["all"]):
+    if targets_wanted == {"all"}:
         return all_targets
-    if targets_wanted == set(["sdk"]):
+    if targets_wanted == {"sdk"}:
         # Filter out all the non-sdk toolchains as we don't want to mess
         # with those in all of our builds.
         return toolchain.FilterToolchains(all_targets, "sdk", True)
@@ -803,7 +803,7 @@ def UpdateToolchains(
         # have all the tuples that the packages expect.  We don't define the
         # "full" set of tuples currently other than "whatever the full sdk has
         # normally".
-        if usepkg or set(("all", "sdk")) & targets_wanted:
+        if usepkg or {"all", "sdk"} & targets_wanted:
             # Since we have cross-compilers now, we can update these packages.
             targets["host-post-cross"] = {}
 
