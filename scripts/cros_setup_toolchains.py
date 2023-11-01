@@ -267,6 +267,19 @@ class Crossdev:
             usepkg: Copies the commandline opts.
             config_only: Just update.
         """
+        if usepkg and not config_only:
+            # Run a single, arbitrary target with --fetchonly to try to
+            # pre-populate common binpkgs to help avoid race conditions that
+            # cause flakes. See b/299321780.
+            target_name = list(targets.keys()).pop()
+            cls._UpdateTarget(
+                target_name,
+                targets[target_name],
+                usepkg,
+                config_only,
+                fetch_only=True,
+            )
+
         configured_targets = cls._CACHE.setdefault("configured_targets", [])
         started_targets = set()
 
@@ -285,7 +298,9 @@ class Crossdev:
                 started_targets.add(target_name)
 
     @classmethod
-    def _UpdateTarget(cls, target_name, target, usepkg, config_only):
+    def _UpdateTarget(
+        cls, target_name, target, usepkg, config_only, fetch_only=False
+    ):
         """Calls crossdev to initialize a cross target.
 
         Args:
@@ -293,6 +308,7 @@ class Crossdev:
             target: The target info for initializing.
             usepkg: Copies the commandline opts.
             config_only: Just update.
+            fetch_only: Just fetch binpkgs.
         """
         configured_targets = cls._CACHE.setdefault("configured_targets", [])
         cmdbase = ["crossdev", "--stable", "--show-fail-log"]
@@ -303,6 +319,8 @@ class Crossdev:
             cmdbase.extend(
                 ["-P", "--getbinpkg", "-P", "--usepkgonly", "--without-headers"]
             )
+            if fetch_only:
+                cmdbase.extend(["-P", "--fetchonly"])
 
         overlays = " ".join(
             (CHROMIUMOS_OVERLAY, ECLASS_OVERLAY, STABLE_OVERLAY)
