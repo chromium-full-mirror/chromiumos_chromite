@@ -728,6 +728,7 @@ class Sysroot:
         board_overlays: List[Path],
         portdir_overlays: List[Path],
         header: str,
+        use_internal: bool,
         **kwargs: Any,
     ) -> str:
         """Create common config settings for boards and bricks.
@@ -737,6 +738,8 @@ class Sysroot:
             board_overlays: List of board overlays.
             portdir_overlays: List of portage overlays.
             header: Header comment string; must start with #.
+            use_internal: Whether this build configuration should try
+                USE=internal features.
             **kwargs: Additional configuration values to set.
 
         Returns:
@@ -762,6 +765,11 @@ class Sysroot:
         config["ROOT"] = self.path + "/"
         config["PKG_CONFIG"] = self._WrapperPath("pkg-config")
 
+        if not use_internal:
+            config[
+                "USE"
+            ] = "${USE} -ondevice_speech -ondevice_image_content_annotation"
+
         config.update(kwargs)
 
         return "\n".join((header, _DictToKeyValue(config)))
@@ -786,11 +794,18 @@ class Sysroot:
             "# Created by cros_sysroot_utils from --board=%s."
             % build_target.name
         )
+
+        # NB: Do not touch this w/out build consult.
+        use_internal = (
+            os.path.isfile(_CHROMEOS_INTERNAL_BOTO_PATH)
+            and not build_target.public
+        )
         return self._GenerateConfig(
             toolchains,
             board_overlays,
             portdir_overlays,
             header,
+            use_internal=use_internal,
             BOARD_USE=build_target.name,
         )
 
@@ -834,10 +849,6 @@ class Sysroot:
         # will have access to the most stuff.
         if os.path.isfile(_CHROMEOS_INTERNAL_BOTO_PATH):
             boto_config = _CHROMEOS_INTERNAL_BOTO_PATH
-        else:
-            # NB: Do not touch this w/out build consult.  Pretend this doesn't
-            # exist.
-            config.append('USE="$USE -ondevice_speech"')
 
         gs_fetch_binpkg = os.path.join(
             constants.SOURCE_ROOT, "chromite", "bin", "gs_fetch_binpkg"

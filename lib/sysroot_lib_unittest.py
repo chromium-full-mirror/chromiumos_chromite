@@ -140,7 +140,7 @@ baz
         with self.assertRaises(sysroot_lib.ConfigurationError):
             # pylint: disable=protected-access
             self.sysroot._GenerateConfig(
-                {}, ["foo_overlay"], ["foo_overlay"], ""
+                {}, ["foo_overlay"], ["foo_overlay"], "", use_internal=False
             )
 
     def testExists(self):
