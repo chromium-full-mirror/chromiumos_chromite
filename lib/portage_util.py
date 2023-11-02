@@ -22,6 +22,7 @@ from typing import (
     List,
     NamedTuple,
     Optional,
+    Set,
     Tuple,
     Union,
 )
@@ -2797,7 +2798,9 @@ def _CheckHasTest(cp, sysroot, require_workon: bool = False):
     return None
 
 
-def PackagesWithTest(sysroot, packages, require_workon: bool = False):
+def PackagesWithTest(
+    sysroot, packages: Iterable[str], require_workon: bool = False
+) -> Set[str]:
     """Returns the subset of |packages| that have unit tests.
 
     Args:

@@ -116,7 +116,7 @@ class BuildTarget:
         return not self.name
 
 
-def get_default_sysroot_path(build_target_name=None):
+def get_default_sysroot_path(build_target_name: Optional[str] = None) -> str:
     """Get the default sysroot location or / if |build_target_name| is None."""
     if build_target_name is None:
         return "/"

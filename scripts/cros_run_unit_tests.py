@@ -8,6 +8,7 @@ import contextlib
 import logging
 import multiprocessing
 import os
+from typing import Set
 
 from chromite.third_party.opentelemetry import trace
 
@@ -194,7 +195,7 @@ def inner_main(opts: commandline.ArgumentNamespace):
     if opts.skip_packages:
         skipped_packages |= set(opts.skip_packages.split())
 
-    packages = set()
+    packages: Set[str] = set()
     # The list of packages to test can be passed as a file containing a
     # space-separated list of package names.
     # This is used by the builder to test only the packages that were uprevved.

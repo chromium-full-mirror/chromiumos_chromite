@@ -71,7 +71,7 @@ class In(Comparator):
             return False
 
     def __repr__(self):
-        return "<sequence or map containing %r>" % str(self._key)
+        return "<sequence or map containing %r>" % self._key
 
 
 class InOrder(Comparator):
