@@ -177,7 +177,7 @@ def main(argv):
             if opts.host
             else contextlib.nullcontext()
         ):
-            inner_main(opts)
+            return inner_main(opts)
 
 
 def inner_main(opts: commandline.ArgumentNamespace):
