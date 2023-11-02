@@ -9,7 +9,7 @@ import ctypes.util
 import enum
 import errno
 import os
-from typing import List, Optional
+from typing import Any, List, Optional, Union
 
 
 class Option(enum.IntEnum):
@@ -51,8 +51,8 @@ class PrctlError(OSError, Error):
         self,
         option: Option,
         returncode: int,
-        prargs: List[int] = None,
-        errno: int = None,
+        prargs: Optional[List[Any]] = None,
+        errno: Optional[int] = None,
     ):
         if errno is None:
             errno = ctypes.get_errno()
@@ -88,9 +88,16 @@ class PrctlError(OSError, Error):
         )
 
 
+PrctlType = Union["ctypes._CArgObject", int]
+
+
 def prctl(
-    option: Option, arg2: int = 0, arg3: int = 0, arg4: int = 0, arg5: int = 0
-) -> Optional[int]:
+    option: Option,
+    arg2: PrctlType = 0,
+    arg3: PrctlType = 0,
+    arg4: PrctlType = 0,
+    arg5: PrctlType = 0,
+) -> int:
     """Wrapper around prctl().
 
     See the man page for documentation:
