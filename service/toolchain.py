@@ -78,7 +78,7 @@ class LinterFinding(NamedTuple):
 def emerge_and_upload_lints(board: str, start_time: int) -> str:
     """Lints all platform2 packages, returns the GS bucket uploaded to."""
     cros_build_lib.run(
-        ["cros build-packages", "--board", board],
+        ["cros", "build-packages", f"--board={board}"],
         extra_env={"WITH_TIDY": "tricium"},
     )
 
