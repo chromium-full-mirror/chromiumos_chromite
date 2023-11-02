@@ -4,6 +4,7 @@
 
 """Tool to run ebuild unittests."""
 
+import contextlib
 import logging
 import multiprocessing
 import os
@@ -16,6 +17,7 @@ from chromite.lib import chroot_util
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import workon_helper
@@ -170,7 +172,12 @@ def main(argv):
     )
 
     with tracer.start_as_current_span("scripts.cros_run_unit_tests"):
-        inner_main(opts)
+        with (
+            cros_sdk_lib.ChrootReadWrite()
+            if opts.host
+            else contextlib.nullcontext()
+        ):
+            inner_main(opts)
 
 
 def inner_main(opts: commandline.ArgumentNamespace):
