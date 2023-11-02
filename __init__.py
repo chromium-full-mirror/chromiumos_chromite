@@ -19,7 +19,7 @@ assert sys.version_info >= (3, 8), "Chromite requires Python 3.8+"
 NOTICE = 25
 
 
-class ChromiteLogger(logging.getLoggerClass()):
+class ChromiteLogger(logging.getLoggerClass()):  # type: ignore
     """Logger subclass that provides the additional `notice` level."""
 
     @staticmethod
@@ -46,6 +46,6 @@ logging.setLoggerClass(ChromiteLogger)
 # all logging calls in chromite are done via methods on a Logger instance, e.g.
 # `log = logging.getLogger(); log.notice(...)`, rather than the top-level helper
 # functions such as `logging.notice(...)` directly.
-logging.notice = functools.partial(logging.log, NOTICE)
-logging.NOTICE = NOTICE
-logging.addLevelName(logging.NOTICE, "NOTICE")
+logging.notice = functools.partial(logging.log, NOTICE)  # type: ignore
+logging.NOTICE = NOTICE  # type: ignore
+logging.addLevelName(NOTICE, "NOTICE")
