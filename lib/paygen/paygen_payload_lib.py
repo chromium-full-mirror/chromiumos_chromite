@@ -1209,21 +1209,12 @@ class PaygenPayload:
             metadata_signatures,
         )
 
-    def _Create(
-        self, payload_file: str, description_file: str, part_a: bool = True
-    ) -> Tuple[str, str]:
+    def _Create(self, payload_file: str, part_a: bool = True) -> None:
         """Create a given payload, if it doesn't already exist.
 
         Args:
             payload_file: Name of the payload file to generate.
-            description_file: Name of the description file to write metadata to.
             part_a: True to extract default/A partition.
-
-        Returns:
-            Tuple of the form
-                (name of the signed payload file,
-                 name of the metadata signature file).
-            The values will be None if signing did not occur.
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
@@ -1296,6 +1287,23 @@ class PaygenPayload:
                 "* Finished payload generation in %s", end_time - start_time
             )
 
+    def _SignAndFinalizePayload(
+        self,
+        payload_file: str,
+        description_file: str,
+    ) -> Tuple[str, str]:
+        """Sign and finalize metadata for the given payload.
+
+        Args:
+            payload_file: Name of the payload file to generate.
+            description_file: Name of the description file to write metadata to.
+
+        Returns:
+            Tuple of the form
+                (name of the signed payload file,
+                 name of the metadata signature file).
+            The values will be None if signing did not occur.
+        """
         # Sign the payload, if needed.
         signed_payload_info, metadata_signature_info = self._SignPayload(
             payload_file
@@ -1413,18 +1421,12 @@ class PaygenPayload:
         payload_file, description_file = self._SetupNewFileNames()
 
         try:
-            signed_payload_file, metadata_signature_file = self._Create(
-                payload_file, description_file, part_a=part_a
-            )
-            payload_file = signed_payload_file or payload_file
-            if self._verify:
-                self._VerifyPayload(
-                    payload_file or payload_file, metadata_signature_file
-                )
-            if self._upload:
-                ret_uri = self._UploadResults(
-                    payload_file, self.log_file, description_file
-                )
+            self._Create(payload_file, part_a=part_a)
+            (
+                signed_payload_file,
+                metadata_signature_file,
+            ) = self._SignAndFinalizePayload(payload_file, description_file)
+
         except PayloadGenerationSkippedException as ex:
             if self._verify:
                 print("Not verifying payload, because paygen was skipped.")
@@ -1432,6 +1434,13 @@ class PaygenPayload:
                 print("Not uploading payload, because paygen was skipped.")
             raise ex
 
+        payload_file = signed_payload_file or payload_file
+        if self._verify:
+            self._VerifyPayload(payload_file, metadata_signature_file)
+        if self._upload:
+            ret_uri = self._UploadResults(
+                payload_file, self.log_file, description_file
+            )
         return (payload_file, ret_uri)
 
     def Run(self):

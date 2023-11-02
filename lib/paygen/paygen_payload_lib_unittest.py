@@ -1138,7 +1138,8 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         # Run the test.
         description_file = os.path.join(self.tempdir, "delta-<random1>.json")
-        gen._Create(payload_file, description_file)
+        gen._Create(payload_file)
+        gen._SignAndFinalizePayload(payload_file, description_file)
 
         # Check expected calls.
         self.assertEqual(
@@ -1255,7 +1256,8 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
 
         # Run the test.
-        gen._Create(payload_file, "delta-<random1>.json")
+        gen._Create(payload_file)
+        gen._SignAndFinalizePayload(payload_file, "delta-<random1>.json")
 
         # Check expected calls.
         self.assertEqual(
