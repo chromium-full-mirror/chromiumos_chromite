@@ -236,6 +236,34 @@ class StandardBoolTest(cros_test_lib.TestCase):
         self.assertIn("Use `add_bool_argument()`", str(context.exception))
 
 
+def test_add_bool_argument_in_group():
+    """Test using add_bool_argument in an argument group."""
+    parser = commandline.ArgumentParser()
+    group = parser.add_argument_group()
+    group.add_bool_argument(
+        "--default-true",
+        default=True,
+        enabled_desc="Enabled",
+        disabled_desc="Disabled",
+    )
+    opts = parser.parse_args(["--no-default-true"])
+    assert not opts.default_true
+
+
+def test_add_bool_argument_in_mutually_exclusive_group():
+    """Test using add_bool_argument in a mutually exclusive argument group."""
+    parser = commandline.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+    group.add_bool_argument(
+        "--default-true",
+        default=True,
+        enabled_desc="Enabled",
+        disabled_desc="Disabled",
+    )
+    opts = parser.parse_args(["--no-default-true"])
+    assert not opts.default_true
+
+
 class DeviceParseTest(cros_test_lib.OutputTestCase):
     """Test device parsing functionality."""
 

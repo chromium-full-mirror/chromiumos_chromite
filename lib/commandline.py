@@ -20,6 +20,7 @@ from pathlib import Path
 import re
 import signal
 import sys
+import types
 from typing import List, NamedTuple, Optional
 import urllib.parse
 
@@ -1230,7 +1231,11 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
                 "Unquoted `add_argument(...type=bool)` is not recommended."
                 ' Use `add_bool_argument()` (preferred), or use `type="bool"`.'
             )
-        return super().add_argument(*args, **kwargs)
+
+        # We need a dynamic super() below as this method is bound to other types
+        # by _add_cros_methods_to_group.
+        # pylint: disable=bad-super-call
+        return super(type(self), self).add_argument(*args, **kwargs)
 
     def add_common_argument_to_group(self, group, *args, **kwargs):
         """Adds the given argument to the group.
@@ -1289,6 +1294,24 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
         self.add_argument(
             f"--no-{flag}", action="store_false", dest=dest, help=disabled_desc
         )
+
+    def _add_cros_methods_to_group(self, group):
+        """Given an argument group, patch in our customized methods."""
+        for method_name in ["add_argument", "add_bool_argument"]:
+            unbound = getattr(type(self), method_name)
+            setattr(group, method_name, types.MethodType(unbound, group))
+
+    def add_argument_group(self, *args, **kwargs):
+        """Patch in our customizations to add_argument_group."""
+        group = super().add_argument_group(*args, **kwargs)
+        self._add_cros_methods_to_group(group)
+        return group
+
+    def add_mutually_exclusive_group(self, *args, **kwargs):
+        """Patch in our customizations to add_mutually_exclusive_group."""
+        group = super().add_mutually_exclusive_group(*args, **kwargs)
+        self._add_cros_methods_to_group(group)
+        return group
 
     def parse_args(self, args=None, namespace=None):
         """Translates OptionParser call to equivalent ArgumentParser call."""
