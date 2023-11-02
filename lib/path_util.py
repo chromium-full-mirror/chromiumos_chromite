@@ -330,7 +330,7 @@ class ChrootPathResolver:
 
     def FromChroot(self, path: Union[str, os.PathLike]) -> str:
         """Resolves chroot |path| for use in the current environment."""
-        return os.path.realpath(
+        return os.path.abspath(
             self._ConvertPath(path, self._GetHostPath, inbound=False)
         )
 

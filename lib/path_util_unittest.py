@@ -700,8 +700,8 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
         # On inbound, translate symlinks on the host side, before chroot
         # translation.
         self.assertEqual("/usr/bin/foo", resolver.ToChroot(target))
-        # On outbound, only translate links after chroot translation.
-        self.assertEqual(str(source), resolver.FromChroot("/bin/foo"))
+        # On outbound, don't resolve symlinks at all. See b/308121733#comment5.
+        self.assertEqual(str(target), resolver.FromChroot("/bin/foo"))
 
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
