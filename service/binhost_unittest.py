@@ -194,6 +194,25 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
                 "coral", "BINHOST_KEY", "gs://prebuilts", max_uris=None
             )
 
+    def testSetBinhostForHost(self):
+        """SetBinhost returns host path and sets the binhost."""
+        binhost.SetBinhost(
+            "amd64-generic",
+            "POSTSUBMIT_BINHOST",
+            "gs://prebuilts1/host",
+            max_uris=1,
+        )
+        actual = binhost.SetBinhost(
+            "amd64-generic",
+            "POSTSUBMIT_BINHOST",
+            "gs://prebuilts2/host",
+            max_uris=1,
+        )
+        self.assertEqual(
+            osutils.ReadFile(actual),
+            'POSTSUBMIT_BINHOST="gs://prebuilts2/host"',
+        )
+
 
 class GetBinhostConfPathTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GetBinhostConfPath."""

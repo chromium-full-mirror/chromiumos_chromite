@@ -280,19 +280,23 @@ def SetBinhost(
         Path to the updated .conf file.
     """
     _ValidateBinhostMaxURIs(max_uris)
-    conf_path = GetBinhostConfPath(target, key, private)
+    host = bool("/host/" in uri and key == "POSTSUBMIT_BINHOST")
+    conf_path = GetBinhostConfPath(target, key, private, host)
     uris = _get_current_uris(conf_path, key) + [uri]
     osutils.WriteFile(conf_path, '%s="%s"' % (key, " ".join(uris[-max_uris:])))
     return str(conf_path)
 
 
-def GetBinhostConfPath(target: str, key: str, private: bool = True) -> Path:
+def GetBinhostConfPath(
+    target: str, key: str, private: bool = True, host: bool = False
+) -> Path:
     """Returns binhost conf file path.
 
     Args:
         target: The build target to get configuration file path for.
         key: The binhost key to get, e.g. POSTSUBMIT_BINHOST.
         private: Whether the build target is private.
+        host: Whether to return the path for the host.
 
     Returns:
         Path to the .conf file.
@@ -302,10 +306,11 @@ def GetBinhostConfPath(target: str, key: str, private: bool = True) -> Path:
         if private
         else constants.PUBLIC_BINHOST_CONF_DIR
     )
+    binhost_type = "host" if host else "target"
     conf_path = (
         constants.SOURCE_ROOT
         / conf_dir_name
-        / "target"
+        / binhost_type
         / f"{target}-{key}.conf"
     )
     _ValidateBinhostConf(conf_path, key)
