@@ -1180,19 +1180,28 @@ def _BazelBuild(
             encoding="utf-8",
         ).stdout.strip()
 
-        # We want to build all dependencies of virtual/target-os,
-        # except chromeos-chrome and package that depend on it.
+        # We want to build all dependencies of virtual/target-os, -dev, and
+        # -test except chromeos-chrome and packages that depend on it.
         # `cquery` handles `select`, instead of returning both branches.
         # Therefore it does not return stage1 targets which we
         # should not build.
-        # TODO(b:303161688): consider also virtual/target-os-dev, etc.
         query_result = cros_build_lib.run(
             [
                 BAZEL_COMMAND,
                 "cquery",
                 'kind("ebuild",deps(@portage//virtual/target-os)) '
-                f"except rdeps(@portage//virtual/target-os, {chrome_target}) "
-                f"except {chrome_target}",
+                "union "
+                'kind("ebuild",deps(@portage//virtual/target-os-dev)) '
+                "union "
+                'kind("ebuild",deps(@portage//virtual/target-os-test)) '
+                "except "
+                f"rdeps(@portage//virtual/target-os, {chrome_target}) "
+                "except "
+                f"rdeps(@portage//virtual/target-os-dev, {chrome_target}) "
+                "except "
+                f"rdeps(@portage//virtual/target-os-test, {chrome_target}) "
+                "except "
+                f"{chrome_target}",
             ],
             extra_env=extra_env,
             capture_output=True,
