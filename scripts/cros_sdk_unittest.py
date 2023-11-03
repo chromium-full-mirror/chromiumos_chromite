@@ -352,3 +352,26 @@ def test_readonly_sticky(
     cros_sdk._FinalizeOptions(parser, options, commands)
 
     assert conf_file.exists() == expect_conf_exists
+
+
+@pytest.mark.parametrize(
+    ["args", "expected"],
+    (
+        (["--replace"], True),
+        (["--update"], False),
+        (["--replace", "--no-delete-out-dir"], False),
+        (["--update", "--delete-out-dir"], True),
+    ),
+)
+def test_delete_out(args, expected):
+    """Test the resolved value for --delete-out-dir/--no-delete-out-dir.
+
+    Args:
+        args: The command line args.
+        expected: The expected opts.delete_out_dir.
+    """
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    opts = parser.parse_args(args)
+    cros_sdk._FinalizeOptions(parser, opts, commands)
+
+    assert opts.delete_out_dir is expected

@@ -530,11 +530,11 @@ def _CreateParser(
     )
     parser.add_bool_argument(
         "--delete-out-dir",
-        default=True,
+        default=None,
         enabled_desc="Delete the SDK build state along with the chroot. "
-        "Applies to --delete or --replace.",
+        "Applies to --delete, --replace, or --update.",
         disabled_desc="Don't delete the SDK build state along with the chroot. "
-        "Applies to --delete or --replace.",
+        "Applies to --delete, --replace, or --update. Default for --update.",
     )
     parser.add_argument(
         "--force",
@@ -618,6 +618,12 @@ def _CreateParser(
         deprecated="loopback-image (--use-image) is no longer supported "
         "(b/266878468). If needed, consider `cros unmount /path/to/chroot`.",
         help=argparse.SUPPRESS,
+    )
+    group.add_bool_argument(
+        "--update",
+        default=False,
+        enabled_desc="Update the SDK upon entry",
+        disabled_desc="Do not update the SDK upon entry",
     )
     group.add_argument(
         "--download",
@@ -709,6 +715,13 @@ def _FinalizeOptions(
 
     if options.force and not options.delete:
         parser.error("Specifying --force without --delete does not make sense.")
+
+    # Resolve --delete-out-dir.  This argument is default-on for
+    # --delete/--replace, but default-off for --update.
+    if options.update:
+        options.delete_out_dir = options.delete_out_dir is True
+    else:
+        options.delete_out_dir = options.delete_out_dir is not False
 
     # Resolve default output directories.
     chroot_path = (
@@ -872,10 +885,34 @@ def main(argv):
         lock_path, ".%s_lock" % os.path.basename(options.chroot).lstrip(".")
     )
 
+    if not options.sdk_version:
+        sdk_version = (
+            bootstrap_latest_version
+            if options.bootstrap
+            else sdk_latest_version
+        )
+    else:
+        sdk_version = options.sdk_version
+    if options.buildbot_log_version:
+        cbuildbot_alerts.PrintBuildbotStepText(sdk_version)
+
+    replace_for_update = False
+
+    if options.update:
+        replace_for_update = sdk_version != chroot.tarball_version
+        if replace_for_update:
+            logging.notice(
+                "Replacing the chroot for version update %s -> %s",
+                chroot.tarball_version,
+                sdk_version,
+            )
+        else:
+            logging.debug("--update: Replace not required")
+
     # Anything that needs to manipulate the main chroot mount or communicate
     # with LVM needs to be done here before we enter the new namespaces.
 
-    if options.delete:
+    if replace_for_update or options.delete:
         # Set a timeout of 300 seconds when getting the lock.
         with locking.FileLock(
             lock_path, "chroot lock", blocking_timeout=300
@@ -908,20 +945,9 @@ def main(argv):
     # affect the hosts's mounts or alter LVM volumes.
     namespaces.SimpleUnshare(net=options.ns_net, pid=options.ns_pid)
 
-    if not options.sdk_version:
-        sdk_version = (
-            bootstrap_latest_version
-            if options.bootstrap
-            else sdk_latest_version
-        )
-    else:
-        sdk_version = options.sdk_version
-    if options.buildbot_log_version:
-        cbuildbot_alerts.PrintBuildbotStepText(sdk_version)
-
     # Based on selections, determine the tarball to fetch.
     urls = []
-    if options.download:
+    if replace_for_update or options.download:
         if options.sdk_url:
             urls = [options.sdk_url]
         else:
@@ -970,7 +996,7 @@ def main(argv):
         cros_sdk_lib.MigrateStatePaths(chroot, lock)
 
         mounted = False
-        if options.create:
+        if replace_for_update or options.create:
             lock.write_lock()
             # Recheck if the chroot is set up here before creating to make sure
             # we account for whatever the various delete/cleanup steps above
