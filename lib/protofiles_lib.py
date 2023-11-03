@@ -26,14 +26,14 @@ _REMOTE_BRANCH_CROS_MAIN = "cros/main"
 class ProtofilesLib:
     """Handles chromeos-base/protofiles uprevs."""
 
-    _UPREV_PROJECTS_PATHS = [
+    _UPREV_PROJECTS_PATHS = (
         "components/policy",
         "third_party/private_membership",
         "third_party/shell-encryption",
-    ]
+    )
     _VERSION_URL = (
         "https://chromium.googlesource.com/chromium/src.git"
-        + "/+/refs/heads/main/chrome/VERSION?format=TEXT"
+        "/+/refs/heads/main/chrome/VERSION?format=TEXT"
     )
 
     class _GitObjectType(enum.Enum):
@@ -52,9 +52,10 @@ class ProtofilesLib:
             cros_path: absolute path to ChromeOS repo checkout
         """
 
-        chromium_path = cros_path / "chromium/src"
+        cros_src_path = cros_path / "src"
+        chromium_src_path = cros_src_path / "chromium/src"
         project_full_path_list = [
-            chromium_path / project_path
+            chromium_src_path / project_path
             for project_path in self._UPREV_PROJECTS_PATHS
         ]
 
@@ -70,7 +71,7 @@ class ProtofilesLib:
 
         package_name = "protofiles"
         package_path = (
-            cros_path
+            cros_src_path
             / "third_party/chromiumos-overlay/chromeos-base"
             / package_name
         )
@@ -105,17 +106,19 @@ class ProtofilesLib:
         }
 
         object_hashes: Dict[Path, str] = {}
-        git_log_cmd = (
-            f"git log -1 --format={object_type_to_git_format[object_type]} "
-            + f"{_REMOTE_BRANCH_CROS_MAIN}"
-        )
+        git_log_cmd = [
+            "git",
+            "log",
+            "-1",
+            f"--format={object_type_to_git_format[object_type]}",
+            _REMOTE_BRANCH_CROS_MAIN,
+        ]
         for project_full_path in project_full_path_list:
             object_hash = cros_build_lib.run(
                 git_log_cmd,
                 capture_output=True,
                 cwd=project_full_path,
                 encoding="utf-8",
-                shell=True,
             ).stdout.rstrip()
             object_hashes[project_full_path] = object_hash
 
@@ -147,35 +150,34 @@ class ProtofilesLib:
             TooManyStableEbuildsError: if multiple stable ebuild files found
         """
 
-        with osutils.ChdirContext(package_path):
-            ebuild_pattern = f"{package_name}-0.0.*.ebuild"
-            ebuild_files = glob.glob(ebuild_pattern)
-            if len(ebuild_files) < 1:
-                raise uprev_lib.NoEbuildsError(
-                    f"Have not found a single ebuild file in {package_path}"
-                )
-            if len(ebuild_files) > 1:
-                raise uprev_lib.TooManyStableEbuildsError(
-                    f"Found too many ebuild files in {package_path}"
-                )
-
-            old_filename = Path(ebuild_files[0])
-            old_package_info = package_info.parse(old_filename)
-            old_last_version_component = int(
-                old_package_info.version.split(".")[-1]
+        ebuild_full_path_pattern = package_path / f"{package_name}-0.0.*.ebuild"
+        ebuild_files = glob.glob(str(ebuild_full_path_pattern))
+        if not ebuild_files:
+            raise uprev_lib.NoEbuildsError(
+                f"Have not found a single ebuild file in {package_path}"
             )
-            new_last_version_component = old_last_version_component + 1
-            new_package_info = package_info.PackageInfo(
-                old_package_info.category,
-                old_package_info.package,
-                f"0.0.{new_last_version_component}",
+        if len(ebuild_files) > 1:
+            raise uprev_lib.TooManyStableEbuildsError(
+                f"Found too many ebuild files in {package_path}"
             )
 
-            new_ebuild_path = package_path / new_package_info.ebuild
-            old_ebuild_path = package_path / old_filename
-            shutil.move(old_ebuild_path, new_ebuild_path)
+        old_filename = Path(ebuild_files[0])
+        old_package_info = package_info.parse(old_filename)
+        old_last_version_component = int(
+            old_package_info.version.split(".")[-1]
+        )
+        new_last_version_component = old_last_version_component + 1
+        new_package_info = package_info.PackageInfo(
+            old_package_info.category,
+            old_package_info.package,
+            f"0.0.{new_last_version_component}",
+        )
 
-            self._ReplaceHashes(new_ebuild_path, commit_hashes, tree_hashes)
+        new_ebuild_path = package_path / new_package_info.ebuild
+        old_ebuild_path = package_path / old_filename
+        shutil.move(old_ebuild_path, new_ebuild_path)
+
+        self._ReplaceHashes(new_ebuild_path, commit_hashes, tree_hashes)
 
     def _ReplaceHashes(
         self,
@@ -215,7 +217,7 @@ class ProtofilesLib:
             )
             assert commit_hash in ebuild_content, (
                 f"commit hash {commit_hash} for {project_name} "
-                + "not found in output"
+                "not found in output"
             )
 
             tree_hash = tree_hashes[project_full_path]
