@@ -172,7 +172,8 @@ class PayloadConfig:
             #     2: (local_path, remote_uri),
             #     ...
             # }
-            return self.paygen.Run()
+            unsigned_payloads = self.paygen.CreateUnsignedPayloads()
+            return self.paygen.FinalizePayloads(unsigned_payloads)
 
 
 def _ImageTypeToStr(image_type_n: int) -> str:

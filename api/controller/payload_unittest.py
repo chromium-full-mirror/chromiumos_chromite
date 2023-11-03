@@ -107,8 +107,11 @@ class PayloadApiTests(
         """Check that a call is made successfully."""
         # Deep patch the paygen lib, this is a full run through service as well.
         patch_obj = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch_obj.return_value.Run.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "gs://something")
+        patch_obj.return_value.CreateUnsignedPayloads.return_value = {
+            ("/tmp/aohiwdadoi/delta.bin", "/tmp/aohiwdadoi/delta.json")
+        }
+        patch_obj.return_value.FinalizePayload.return_value = {
+            ("/tmp/aohiwdadoi/delta.bin", "gs://something")
         }
         res = payload.GeneratePayload(self.req, self.result, self.api_config)
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
@@ -136,8 +139,11 @@ class PayloadApiTests(
     def testMiniOSSuccess(self):
         """Test a miniOS paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch.return_value.Run.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
+        patch.return_value.CreateUnsignedPayloads.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "/tmp/aohiwdadoi/delta.json")
+        }
+        patch.return_value.FinalizePayload.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "gs://something")
         }
         res = payload.GeneratePayload(
             self.minios_req, self.result, self.api_config
@@ -208,7 +214,10 @@ class PayloadApiTests(
     def testLocalSigningSuccess(self):
         """Test a local signing paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch.return_value.Run.return_value = {
+        patch.return_value.CreateUnsignedPayloads.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "/tmp/aohiwdadoi/delta.json")
+        }
+        patch.return_value.FinalizePayload.return_value = {
             1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
         }
 
@@ -224,7 +233,10 @@ class PayloadApiTests(
     def testLocalSigningFailure(self):
         """Test a local signing paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch.return_value.Run.return_value = {
+        patch.return_value.CreateUnsignedPayloads.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "/tmp/aohiwdadoi/delta.json")
+        }
+        patch.return_value.FinalizePayloads.return_value = {
             1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
         }
 

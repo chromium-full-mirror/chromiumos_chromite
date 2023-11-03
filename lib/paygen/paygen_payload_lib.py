@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import threading
 import time
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.lib import cgpt
@@ -1404,15 +1404,15 @@ class PaygenPayload:
 
         return uri
 
-    def _Run(self, part_a: bool = True) -> Tuple[str, str]:
-        """Run* method helper to create, verify, and upload results.
+    def _CreateUnsignedPayload(self, part_a: bool = True) -> Tuple[str, str]:
+        """CreateUnsignedPayloads method helper to create an unsigned payload.
 
         Args:
             part_a: True to extract default/A partition.
 
         Returns:
-            A tuple of local payload path and remote URI. If not uploaded, the
-            remote URI will be None.
+            A tuple of local path to the payload and the local path to the
+            description file.
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
@@ -1420,35 +1420,15 @@ class PaygenPayload:
         """
         payload_file, description_file = self._SetupNewFileNames()
 
-        try:
-            self._Create(payload_file, part_a=part_a)
-            (
-                signed_payload_file,
-                metadata_signature_file,
-            ) = self._SignAndFinalizePayload(payload_file, description_file)
+        self._Create(payload_file, part_a=part_a)
+        return payload_file, description_file
 
-        except PayloadGenerationSkippedException as ex:
-            if self._verify:
-                print("Not verifying payload, because paygen was skipped.")
-            if self._upload:
-                print("Not uploading payload, because paygen was skipped.")
-            raise ex
-
-        payload_file = signed_payload_file or payload_file
-        if self._verify:
-            self._VerifyPayload(payload_file, metadata_signature_file)
-        if self._upload:
-            ret_uri = self._UploadResults(
-                payload_file, self.log_file, description_file
-            )
-        return (payload_file, ret_uri)
-
-    def Run(self):
-        """Create, verify, and upload the results.
+    def CreateUnsignedPayloads(self) -> Dict[int, Tuple[str, str]]:
+        """Create unsigned payload(s).
 
         Returns:
-            A dict() of recovery key to tuple of payload local path and remote
-            URI. Remote URI will be None if it wasn't uploaded.
+            A dict() of recovery key to tuple of payload local path and
+            description file local path.
 
             The keys will always be a positive integer starting from 1.
 
@@ -1463,26 +1443,81 @@ class PaygenPayload:
             PayloadGenerationSkippedException: If paygen was skipped for any
             reason.
         """
-        logging.info("* Starting payload generation")
+        logging.info("* Starting unsigned payload generation")
         start_time = datetime.datetime.now()
 
         if not self.payload.minios:
             ret = {
-                1: self._Run(),
+                1: self._CreateUnsignedPayload(),
             }
         else:
             ret = {
-                1: self._Run(part_a=True),
-                2: self._Run(part_a=False),
+                1: self._CreateUnsignedPayload(part_a=True),
+                2: self._CreateUnsignedPayload(part_a=False),
             }
         logging.info(
-            "Generated payload(s): %s", pformat.json(ret, compact=False)
+            "Generated unsigned payload(s): %s",
+            pformat.json(ret, compact=False),
         )
 
         end_time = datetime.datetime.now()
         logging.info(
             "* Total elapsed payload generation in %s", end_time - start_time
         )
+        return ret
+
+    def _FinalizePayload(
+        self, payload_file: str, description_file: str
+    ) -> Tuple[str, str]:
+        """Helper method for FinalizePayloads to finalize a payload.
+
+        Returns:
+            A tuple of local payload path and remote URI. If not uploaded, the
+            remote URI will be None.
+        """
+        logging.info("* Finalizing payload %s", payload_file)
+        (
+            signed_payload_file,
+            metadata_signature_file,
+        ) = self._SignAndFinalizePayload(payload_file, description_file)
+
+        payload_file = signed_payload_file or payload_file
+        if self._verify:
+            self._VerifyPayload(payload_file, metadata_signature_file)
+        if self._upload:
+            ret_uri = self._UploadResults(
+                payload_file, self.log_file, description_file
+            )
+        return (payload_file, ret_uri)
+
+    def FinalizePayloads(
+        self, payload_info: List[Tuple[str, str]]
+    ) -> Dict[int, Tuple[str, str]]:
+        """Sign, verify, and upload the given payload.
+
+        Args:
+            payload_info: List of tuples of payload file, description file.
+
+        Returns:
+            A dict() of recovery key to tuple of payload local path and remote
+            URI. Remote URI will be None if it wasn't uploaded.
+
+            The keys will always be a positive integer starting from 1.
+
+            e.g.
+            {
+                1: ("<local_path>", "<remote_path>"),
+                2: ("<local_path>", "<remote_path>"),
+                ...
+            }
+        """
+        logging.info("* Finalizing payloads")
+        ret = {}
+        for recovery_key, payload in payload_info.items():
+            payload_file, description_file = payload
+            ret[recovery_key] = self._FinalizePayload(
+                payload_file, description_file
+            )
         return ret
 
 
@@ -1537,13 +1572,14 @@ def GenerateUpdatePayload(
             chroot, payload, work_dir, signer=signer, verify=check
         )
         try:
-            results = paygen.Run()
-            remote_paths = [paths[1] for paths in results.values()]
+            unsigned_payloads = paygen.CreateUnsignedPayloads()
+            signed_payloads = paygen.FinalizePayloads(unsigned_payloads)
+            return [
+                payload_info[1] for payload_info in signed_payloads.values()
+            ]
         except PayloadGenerationSkippedException:
             logging.info("No payload generated.")
             return []
-
-    return remote_paths
 
 
 def GenerateUpdatePayloadPropertiesFile(payload, output=None):

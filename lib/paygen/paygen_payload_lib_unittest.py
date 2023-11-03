@@ -297,9 +297,11 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
     def testPaygenPayloadRunOSPayload(self):
         gen = self._GetStdGenerator(work_dir="/foo", minios=False)
 
-        mock_inner_run = self.PatchObject(gen, "_Run", return_value=None)
+        mock_inner_run = self.PatchObject(
+            gen, "_CreateUnsignedPayload", return_value=None
+        )
 
-        gen.Run()
+        gen.CreateUnsignedPayloads()
 
         self.assertEqual(
             mock_inner_run.call_args_list,
@@ -311,9 +313,11 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
     def testPaygenPayloadRunMiniOSPayload(self):
         gen = self._GetStdGenerator(work_dir="/foo", minios=True)
 
-        mock_inner_run = self.PatchObject(gen, "_Run", return_value=None)
+        mock_inner_run = self.PatchObject(
+            gen, "_CreateUnsignedPayload", return_value=None
+        )
 
-        gen.Run()
+        gen.CreateUnsignedPayloads()
 
         self.assertEqual(
             mock_inner_run.call_args_list,
@@ -1177,7 +1181,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         # Run the test.
         with self.assertRaises(paygen_payload_lib.NoMiniOSPartitionException):
-            gen.Run()
+            gen.CreateUnsignedPayloads()
 
         # Check expected calls.
         self.assertEqual(
@@ -1209,7 +1213,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         with self.assertRaises(
             paygen_payload_lib.MiniOSPartitionMismatchException
         ):
-            gen.Run()
+            gen.CreateUnsignedPayloads()
 
         # Check expected calls.
         self.assertEqual(
@@ -1542,7 +1546,7 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
             paygen_payload_lib.PaygenPayload,
             "_SignPayload",
         )
-        rand_suffixes = ["-<random2>", "-<random4>"]
+        rand_suffixes = ["-<random2>", "-<random3>"]
         payload_files = [
             (os.path.join(self.tempdir, f"delta{rand}.bin"))
             for rand in rand_suffixes
@@ -1585,7 +1589,6 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
                 mock.call(False),
             ],
         )
-
         self.assertEqual(
             gen_mock.call_args_list,
             [mock.call(payload_file) for payload_file in payload_files],
@@ -1609,7 +1612,7 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
         self.assertEqual(
             result_paths,
             [
-                str(self.full_payload.uri) + "-<random3>",
+                str(self.full_payload.uri) + "-<random4>",
                 str(self.full_payload.uri) + "-<random5>",
             ],
         )

@@ -22,7 +22,12 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         """Set up a payload test with the Run method mocked."""
         self.PatchObject(
             paygen_payload_lib.PaygenPayload,
-            "Run",
+            "CreateUnsignedPayloads",
+            return_value={1: ("/foo/path.bin", "foo/path.json")},
+        )
+        self.PatchObject(
+            paygen_payload_lib.PaygenPayload,
+            "FinalizePayloads",
             return_value={1: ("/foo/path", None)},
         )
 
