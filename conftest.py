@@ -20,6 +20,7 @@ import pytest
 import chromite as cr
 from chromite.lib import cidb
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
@@ -251,3 +252,9 @@ def tmp_path_cleanup_sudo(tmp_path):
         osutils.Chown(
             tmp_path, user=os.geteuid(), group=os.getegid(), recursive=True
         )
+
+
+@pytest.fixture
+def outside_sdk(monkeypatch):
+    """Fixture to make it look like the test is running outside the SDK."""
+    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: False)

@@ -207,6 +207,25 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotEqual(chroot3, chroot5)
 
 
+def test_tarball_version(tmp_path, outside_sdk):
+    """Test chroot.tarball_version."""
+    del outside_sdk
+    chroot = chroot_lib.Chroot(path=tmp_path)
+    osutils.WriteFile(
+        tmp_path / "etc" / "os-release",
+        "BUILD_ID=1234_56",
+        makedirs=True,
+    )
+    assert chroot.tarball_version == "1234_56"
+
+
+def test_tarball_version_missing(tmp_path, outside_sdk):
+    """Test chroot.tarball_version on a chroot missing /etc/os-release."""
+    del outside_sdk
+    chroot = chroot_lib.Chroot(path=tmp_path)
+    assert chroot.tarball_version is None
+
+
 class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
     """Chroot tests with mock run()."""
 

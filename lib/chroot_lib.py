@@ -8,6 +8,7 @@ This is currently a very sparse class, but there's a significant amount of
 functionality that can eventually be centralized here.
 """
 
+import functools
 import os
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Union
@@ -16,6 +17,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.utils import key_value_store
 
 
 if TYPE_CHECKING:
@@ -124,6 +126,19 @@ class Chroot:
     def has_path(self, *args: str) -> bool:
         """Check if a chroot-relative path exists inside the chroot."""
         return os.path.exists(self.full_path(*args))
+
+    @functools.cached_property
+    def _os_release_props(self) -> Dict[str, str]:
+        """The variables contained within /etc/os-release."""
+        return key_value_store.LoadFile(
+            self.full_path("/etc/os-release"),
+            ignore_missing=True,
+        )
+
+    @property
+    def tarball_version(self) -> Optional[str]:
+        """The tarball version the chroot was created from."""
+        return self._os_release_props.get("BUILD_ID")
 
     def get_enter_args(self, for_shell: bool = False) -> List[str]:
         """Build the arguments to enter this chroot.
