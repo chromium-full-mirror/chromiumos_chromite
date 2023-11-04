@@ -1309,6 +1309,15 @@
         },
         {
           "board_name": "brya",
+          "name": "dochi",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 459,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brya",
           "name": "felwinter",
           "test_suites": [
             "sanity",
@@ -1956,6 +1965,15 @@
         {
           "board_name": "brya-connectivitynext",
           "name": "crota360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7259,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-connectivitynext",
+          "name": "dochi",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7259,
@@ -2715,6 +2733,15 @@
             "bvt-perbuild",
             "bvt-tast-informational"
           ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7230,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-kernelnext",
+          "name": "dochi",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7230,
