@@ -17,7 +17,10 @@ import threading
 import time
 from typing import Dict, List, Optional, Tuple, Union
 
+from chromite.third_party.google.protobuf import json_format
+
 from chromite.api.gen.chromite.api import payload_pb2
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cgpt
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -314,6 +317,7 @@ class PaygenPayload:
         """
         self.rand = not self.static or self.payload.minios
         rand = f"-{cros_build_lib.GetRandomString()}" if self.rand else ""
+        self.rand_suffix = rand
 
         self.src_image_file = os.path.join(
             self.work_dir, f"src_image{rand}.bin"
@@ -591,7 +595,7 @@ class PaygenPayload:
             if self.payload.minios:
                 logging.info("Extracting the MINIOS partition.")
                 self.partition_names = (self._MINIOS,)
-                self._GetPartitionFiles()
+                self._GetPartitionFiles(self.partition_names)
                 partition_lib.ExtractMiniOS(
                     self.tgt_image_file, self.tgt_partitions[0], part_a=part_a
                 )
@@ -603,7 +607,7 @@ class PaygenPayload:
                     )
             else:
                 self.partition_names = (self._ROOTFS, self._KERNEL)
-                self._GetPartitionFiles()
+                self._GetPartitionFiles(self.partition_names)
                 partition_lib.ExtractRoot(
                     self.tgt_image_file, self.tgt_partitions[0]
                 )
@@ -640,15 +644,19 @@ class PaygenPayload:
         else:
             raise Error("Invalid image type %s" % tgt_image_type)
 
-    def _GetPartitionFiles(self):
-        """Creates the target and source file paths for each partition."""
+    def _GetPartitionFiles(self, partition_names: List[str]):
+        """Creates the target and source file paths for each partition.
+
+        Args:
+            partition_names: List of partition names.
+        """
         self.tgt_partitions = tuple(
-            os.path.join(self.work_dir, "tgt_%s.bin" % name)
-            for name in self.partition_names
+            os.path.join(self.work_dir, f"tgt_%s-{self.rand_suffix}.bin" % name)
+            for name in partition_names
         )
         self.src_partitions = tuple(
-            os.path.join(self.work_dir, "src_%s.bin" % name)
-            for name in self.partition_names
+            os.path.join(self.work_dir, f"src_%s-{self.rand_suffix}.bin" % name)
+            for name in partition_names
         )
 
     def _RunGeneratorCmd(self, cmd, squawk_wrap=False):
@@ -1227,12 +1235,17 @@ class PaygenPayload:
             metadata_signatures,
         )
 
-    def _Create(self, payload_file: str, part_a: bool = True) -> None:
+    def _Create(
+        self, payload_file: str, part_a: bool = True
+    ) -> payload_pb2.UnsignedPayload:
         """Create a given payload, if it doesn't already exist.
 
         Args:
             payload_file: Name of the payload file to generate.
             part_a: True to extract default/A partition.
+
+        Returns:
+            Information about the unsigned payload.
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
@@ -1305,6 +1318,29 @@ class PaygenPayload:
                 "* Finished payload generation in %s", end_time - start_time
             )
 
+        unsigned_payload = payload_pb2.UnsignedPayload(
+            payload_file_path=common_pb2.Path(
+                path=payload_file,
+                location=common_pb2.Path.OUTSIDE,
+            ),
+            partition_names=self.partition_names,
+            src_partitions=[
+                common_pb2.Path(
+                    path=partition_file,
+                    location=common_pb2.Path.OUTSIDE,
+                )
+                for partition_file in (self.src_partitions or [])
+            ],
+            tgt_partitions=[
+                common_pb2.Path(
+                    path=partition_file,
+                    location=common_pb2.Path.OUTSIDE,
+                )
+                for partition_file in (self.tgt_partitions or [])
+            ],
+        )
+        return unsigned_payload
+
     def _SignAndFinalizePayload(
         self,
         payload_file: str,
@@ -1336,9 +1372,17 @@ class PaygenPayload:
         return (signed_payload_file, metadata_signature_file)
 
     def _VerifyPayload(
-        self, payload_file_name: str, metadata_signature_file_name: str
+        self,
+        payload_file_name: str,
+        metadata_signature_file_name: str,
+        payload_info: payload_pb2.UnsignedPayload,
     ):
         """Checks the integrity of the generated payload.
+
+        Args:
+            payload_file_name: Name of the payload file.
+            metadata_signature_file_name: Name of the metadata signature file.
+            payload_info: Information about the payload.
 
         Raises:
             PayloadVerificationError when the payload fails to verify.
@@ -1362,9 +1406,11 @@ class PaygenPayload:
             "move-same-src-dst-block",
             "--part_names",
         ]
-        cmd.extend(self.partition_names)
+        cmd.extend(payload_info.partition_names)
         cmd += ["--dst_part_paths"]
-        cmd.extend(self.chroot.chroot_path(x) for x in self.tgt_partitions)
+        cmd.extend(
+            self.chroot.chroot_path(x.path) for x in payload_info.tgt_partitions
+        )
         if metadata_signature_file_name:
             cmd += [
                 "--meta-sig",
@@ -1375,7 +1421,10 @@ class PaygenPayload:
 
         if is_delta:
             cmd += ["--src_part_paths"]
-            cmd.extend(self.chroot.chroot_path(x) for x in self.src_partitions)
+            cmd.extend(
+                self.chroot.chroot_path(x.path)
+                for x in payload_info.src_partitions
+            )
 
         # We signed it with the private key, now verify it with the public key.
         if self.signer and self.signer.public_key:
@@ -1417,14 +1466,16 @@ class PaygenPayload:
 
         return uri
 
-    def _CreateUnsignedPayload(self, part_a: bool = True) -> Tuple[str, str]:
+    def _CreateUnsignedPayload(
+        self, part_a: bool = True
+    ) -> payload_pb2.UnsignedPayload:
         """CreateUnsignedPayloads method helper to create an unsigned payload.
 
         Args:
             part_a: True to extract default/A partition.
 
         Returns:
-            The local path to the payload.
+            Information about the unsigned payload.
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
@@ -1432,23 +1483,15 @@ class PaygenPayload:
         """
         payload_file = self._SetupNewFileNames()
 
-        self._Create(payload_file, part_a=part_a)
-        return payload_file
+        return self._Create(payload_file, part_a=part_a)
 
-    def CreateUnsignedPayloads(self) -> Dict[int, Tuple[str, str]]:
+    def CreateUnsignedPayloads(self) -> Dict[int, payload_pb2.UnsignedPayload]:
         """Create unsigned payload(s).
 
         Returns:
-            A dict() of recovery key to payload local path.
+            A dict() of recovery key to payload_pb2.UnsignedPayload.
 
             The keys will always be a positive integer starting from 1.
-
-            e.g.
-            {
-                1: "<local_path>",
-                2: "<local_path>",
-                ...
-            }
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
@@ -1466,9 +1509,14 @@ class PaygenPayload:
                 1: self._CreateUnsignedPayload(part_a=True),
                 2: self._CreateUnsignedPayload(part_a=False),
             }
+
+        loggable_ret = {
+            k: json_format.MessageToJson(v, sort_keys=True) if v else "None"
+            for k, v in ret.items()
+        }
         logging.info(
             "Generated unsigned payload(s): %s",
-            pformat.json(ret, compact=False),
+            str(loggable_ret),
         )
 
         end_time = datetime.datetime.now()
@@ -1477,13 +1525,17 @@ class PaygenPayload:
         )
         return ret
 
-    def _FinalizePayload(self, payload_file: str) -> Tuple[str, str]:
+    def _FinalizePayload(
+        self, payload: payload_pb2.UnsignedPayload
+    ) -> Tuple[str, str]:
         """Helper method for FinalizePayloads to finalize a payload.
 
         Returns:
             A tuple of local payload path and remote URI. If not uploaded, the
             remote URI will be None.
         """
+        payload_file = payload.payload_file_path.path
+
         logging.info("* Finalizing payload %s", payload_file)
         (
             signed_payload_file,
@@ -1492,18 +1544,18 @@ class PaygenPayload:
 
         payload_file = signed_payload_file or payload_file
         if self._verify:
-            self._VerifyPayload(payload_file, metadata_signature_file)
+            self._VerifyPayload(payload_file, metadata_signature_file, payload)
         if self._upload:
             ret_uri = self._UploadResults(payload_file, self.log_file)
         return (payload_file, ret_uri)
 
     def FinalizePayloads(
-        self, payload_info: List[Tuple[str, str]]
+        self, payload_info: List["payload_pb2.UnsignedPayload"]
     ) -> Dict[int, Tuple[str, str]]:
         """Sign, verify, and upload the given payload.
 
         Args:
-            payload_info: List of tuples of payload file, description file.
+            payload_info: List of payload_pb2.UnsignedPayload objects.
 
         Returns:
             A dict() of recovery key to tuple of payload local path and remote

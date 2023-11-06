@@ -11,6 +11,8 @@ import subprocess
 import tempfile
 from unittest import mock
 
+from chromite.api.gen.chromite.api import payload_pb2
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -985,9 +987,22 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen.metadata_size = 10
 
         # Run the test.
+        payload = payload_pb2.UnsignedPayload(
+            partition_names=["foo-root", "foo-kernel"],
+            tgt_partitions=[
+                common_pb2.Path(path="/work/tgt_root.bin"),
+                common_pb2.Path(path="/work/tgt_kernel.bin"),
+            ],
+            src_partitions=[
+                common_pb2.Path(path="/work/src_root.bin"),
+                common_pb2.Path(path="/work/src_kernel.bin"),
+            ],
+        )
         signed_payload_file = "/foo/delta-<random1>.bin.signed"
         metadata_signature_file = "/foo/delta.bin.signed.metadata-signature"
-        gen._VerifyPayload(signed_payload_file, metadata_signature_file)
+        gen._VerifyPayload(
+            signed_payload_file, metadata_signature_file, payload
+        )
 
         # Check the expected function calls.
         cmd = [
@@ -1025,9 +1040,18 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen.metadata_size = 10
 
         # Run the test.
+        payload = payload_pb2.UnsignedPayload(
+            partition_names=["foo-root", "foo-kernel"],
+            tgt_partitions=[
+                common_pb2.Path(path="/work/tgt_root.bin"),
+                common_pb2.Path(path="/work/tgt_kernel.bin"),
+            ],
+        )
         signed_payload_file = "/foo/delta-<random1>.bin.signed"
         metadata_signature_file = "/foo/delta.bin.signed.metadata-signature"
-        gen._VerifyPayload(signed_payload_file, metadata_signature_file)
+        gen._VerifyPayload(
+            signed_payload_file, metadata_signature_file, payload
+        )
 
         # Check the expected function calls.
         cmd = [
@@ -1064,9 +1088,18 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen.signer.public_key = public_key
 
         # Run the test.
+        payload = payload_pb2.UnsignedPayload(
+            partition_names=["foo-root", "foo-kernel"],
+            tgt_partitions=[
+                common_pb2.Path(path="/work/tgt_root.bin"),
+                common_pb2.Path(path="/work/tgt_kernel.bin"),
+            ],
+        )
         signed_payload_file = "/foo/delta-<random1>.bin.signed"
         metadata_signature_file = "/foo/delta.bin.signed.metadata-signature"
-        gen._VerifyPayload(signed_payload_file, metadata_signature_file)
+        gen._VerifyPayload(
+            signed_payload_file, metadata_signature_file, payload
+        )
 
         # Check the expected function calls.
         cmd = [mock.ANY] * 17

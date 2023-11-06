@@ -129,8 +129,39 @@ class PayloadConfig:
         if self.upload:
             self.payload.uri = paygen_build_lib.DefaultPayloadUri(self.payload)
 
-    def GeneratePayload(self) -> Dict[int, Tuple[str, str]]:
-        """Do payload generation (& maybe sign) on Google Storage CrOS images.
+    def GenerateUnsignedPayload(
+        self,
+    ) -> Dict[int, "payload_pb2.UnsignedPayload"]:
+        """Do payload generation on Google Storage CrOS images.
+
+        Returns:
+            A dict mapping version number to payload.
+
+        Raises:
+            paygen_payload_lib.PayloadGenerationSkippedException: If paygen was
+                skipped for any reason.
+        """
+        # Leave the generated artifact local. This is ok because if we're
+        # testing it's likely we want the artifact anyway, and in production
+        # this is ran on single shot bots in the context of an overlayfs and
+        # will get cleaned up anyway.
+        with self.chroot.tempdir(delete=False) as temp_dir:
+            self.paygen = paygen_payload_lib.PaygenPayload(
+                self.chroot,
+                self.payload,
+                temp_dir,
+                cache_dir=self.cache_dir,
+            )
+            return self.paygen.CreateUnsignedPayloads()
+
+    def FinalizePayload(
+        self, unsigned_payloads: Dict[int, "payload_pb2.UnsignedPayload"]
+    ) -> Dict[int, Tuple[str, str]]:
+        """(Maybe) sign, (maybe) verify, and upload the given payload(s).
+
+        Args:
+            unsigned_payloads: A dict containing mapping version number to
+                payload.
 
         Returns:
             A dict containing tuples of the following format:
@@ -139,10 +170,6 @@ class PayloadConfig:
                 The remote location that the payload was uploaded or None.
                     (e.g. 'gs://cr/beta-channel/coral/12345.0.1/payloads/...')
             Keyed by a version number.
-
-        Raises:
-            paygen_payload_lib.PayloadGenerationSkippedException: If paygen was
-                skipped for any reason.
         """
         # Leave the generated artifact local. This is ok because if we're
         # testing it's likely we want the artifact anyway, and in production
@@ -166,13 +193,6 @@ class PayloadConfig:
                 cache_dir=self.cache_dir,
             )
 
-            # The return from paygen will look like:
-            # {
-            #     1: (local_path, remote_uri),
-            #     2: (local_path, remote_uri),
-            #     ...
-            # }
-            unsigned_payloads = self.paygen.CreateUnsignedPayloads()
             return self.paygen.FinalizePayloads(unsigned_payloads)
 
 

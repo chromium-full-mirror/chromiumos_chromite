@@ -133,7 +133,8 @@ def GeneratePayload(
     # Do payload generation.
     artifacts = {}
     try:
-        artifacts = payload_config.GeneratePayload()
+        unsigned_payloads = payload_config.GenerateUnsignedPayload()
+        artifacts = payload_config.FinalizePayload(unsigned_payloads)
     except paygen_payload_lib.PayloadGenerationSkippedException as e:
         # If paygen was skipped, provide a reason if possible.
         if isinstance(e, paygen_payload_lib.MiniOSException):
