@@ -670,7 +670,9 @@ class BuildPackagesTest(
         monkeypatch.setattr(
             trace,
             "get_current_span",
-            lambda: trace.NonRecordingSpan(otel_context.get_current()),
+            lambda *_args, **_kwargs: trace.NonRecordingSpan(
+                otel_context.get_current()
+            ),
         )
 
     def setUp(self):
