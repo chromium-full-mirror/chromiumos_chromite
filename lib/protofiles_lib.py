@@ -42,7 +42,7 @@ class ProtofilesLib:
         COMMIT = 0
         TREE = 1
 
-    def Uprev(self, cros_path: Path) -> None:
+    def Uprev(self, cros_path: Path) -> Path:
         """Uprevs chromeos-base/protofiles package.
 
         Uprevs protofiles package with ToT hashes of components/policy,
@@ -50,6 +50,9 @@ class ProtofilesLib:
 
         Args:
             cros_path: absolute path to ChromeOS repo checkout
+
+        Returns:
+            Absolute path to a new chromeos-base/protofiles ebuild file.
         """
 
         cros_src_path = cros_path / "src"
@@ -77,7 +80,7 @@ class ProtofilesLib:
         )
 
         logging.info("Updating ebuild file for %s.", package_path)
-        self._UpdateEbuildFile(
+        new_ebuild_path = self._UpdateEbuildFile(
             package_path, package_name, commit_hashes, tree_hashes
         )
 
@@ -86,6 +89,8 @@ class ProtofilesLib:
 
         logging.info("Updating version file %s.", version_file_path)
         osutils.WriteFile(version_file_path, version_content, "wb")
+
+        return new_ebuild_path
 
     def _FetchLatestCommitHashes(
         self, project_full_path_list: List[Path], object_type: _GitObjectType
@@ -130,7 +135,7 @@ class ProtofilesLib:
         package_name: str,
         commit_hashes: Dict[Path, str],
         tree_hashes: Dict[Path, str],
-    ) -> None:
+    ) -> Path:
         """Updates a stable ebuild file in the |package_path| with new hashes.
 
         Searches for the stable ebuild file with |package_name| prefix
@@ -140,10 +145,13 @@ class ProtofilesLib:
             and |tree_hashes|.
 
         Args:
-            package_path: path to the protofiles package
+            package_path: absolute path to the protofiles package
             package_name: name of the protofiles package
             commit_hashes: dictionary of projects mapped to latest commit hashes
             tree_hashes: dictionary of projects mapped to latest tree hashes
+
+        Returns:
+            Absolute path to a new chromeos-base/protofiles ebuild file.
 
         Raises:
             NoEbuildsError: if there are no stable ebuild files found
@@ -178,6 +186,8 @@ class ProtofilesLib:
         shutil.move(old_ebuild_path, new_ebuild_path)
 
         self._ReplaceHashes(new_ebuild_path, commit_hashes, tree_hashes)
+
+        return new_ebuild_path
 
     def _ReplaceHashes(
         self,

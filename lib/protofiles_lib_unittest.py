@@ -67,10 +67,12 @@ PATCH=0
         return_value={fetch_chrome_version_return_value},
     ).start()
 
-    protofiles_lib_obj.Uprev(cros_path)
+    new_ebuild_path = protofiles_lib_obj.Uprev(cros_path)
 
-    new_ebuild_path = package_path / "protofiles-0.0.119.ebuild"
-    assert os.path.exists(new_ebuild_path)
+    expected_new_ebuild_path = package_path / "protofiles-0.0.119.ebuild"
+    assert new_ebuild_path.absolute()
+    assert expected_new_ebuild_path.exists()
+    assert new_ebuild_path == expected_new_ebuild_path
     assert not os.path.exists(ebuild_path)
     expected_ebuild_content = """CROS_WORKON_COMMIT=(
 "e2594b65e49b64b7fe100f7fd439ec93ff937a3d" # policy

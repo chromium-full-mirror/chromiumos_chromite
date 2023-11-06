@@ -1323,10 +1323,12 @@ def uprev_protofiles(_build_targets, refs, _chroot):
     The dependencies are not tagged in git. chromeos-base/protofiles is updated
     to the latest commit on the main branch for each project.
     """
-    protofiles_lib.ProtofilesLib().Uprev(constants.SOURCE_ROOT)
+    new_ebuild_path = protofiles_lib.ProtofilesLib().Uprev(
+        constants.SOURCE_ROOT
+    )
 
     result = uprev_lib.UprevVersionedPackageResult()
-    result.add_result(refs[0].revision, ["protofiles"])
+    result.add_result(refs[0].revision, [new_ebuild_path])
     return result
 
 
