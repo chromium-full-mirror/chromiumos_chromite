@@ -157,6 +157,11 @@ class MissingDependencyDetails(NamedTuple):
     bdepend: List[str]
 
 
+def is_debug_path(path: str) -> bool:
+    """Match debug symbol paths."""
+    return path.startswith("/usr/lib/debug/")
+
+
 def is_sdk_path(path: str) -> bool:
     """Match paths for files built for the SDK/builder."""
     return bool(
@@ -253,6 +258,8 @@ class DotSoResolver:
         needed = package.needed
         if needed is not None:
             for file, libs in needed.items():
+                if is_debug_path(file):
+                    continue
                 if is_sdk_path(file):
                     sdk.update(libs)
                 elif not is_guest_os_path(file):
