@@ -41,6 +41,7 @@ from chromite.lib import retry_util
 from chromite.lib import timeout_util
 from chromite.lib import toolchain
 from chromite.utils import key_value_store
+from chromite.utils import xdg_util
 
 
 # Which compression algos the SDK tarball uses.  We've used xz since 2012.
@@ -755,6 +756,7 @@ def _FinalizeOptions(
         )
 
     chromite_config.initialize()
+    osutils.SafeMakedirsNonRoot(xdg_util.CACHE_HOME)
     ro_cfg = chromite_config.SDK_READONLY_STICKY_CONFIG
     if options.read_only is None:
         # Defer to sticky configuration file only if --read-only/--no-read-only
