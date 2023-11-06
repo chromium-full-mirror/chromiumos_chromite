@@ -33,6 +33,26 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 # pylint: disable=protected-access
 
 
+class PayloadFileToDescriptionFileTest(cros_test_lib.RunCommandTempDirTestCase):
+    """_payload_file_to_description_file tests."""
+
+    def testUnsigned(self):
+        description_file = paygen_payload_lib._payload_file_to_description_file(
+            "delta1.bin"
+        )
+        self.assertEqual(description_file, "delta1.json")
+
+    def testSigned(self):
+        description_file = paygen_payload_lib._payload_file_to_description_file(
+            "delta1.bin.signed"
+        )
+        self.assertEqual(description_file, "delta1.json")
+
+    def testBadValue(self):
+        with self.assertRaises(ValueError):
+            paygen_payload_lib._payload_file_to_description_file("foo")
+
+
 class PaygenLibTest(cros_test_lib.RunCommandTempDirTestCase):
     """PaygenPayloadLib tests base class."""
 
@@ -1141,9 +1161,8 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
 
         # Run the test.
-        description_file = os.path.join(self.tempdir, "delta-<random1>.json")
         gen._Create(payload_file)
-        gen._SignAndFinalizePayload(payload_file, description_file)
+        gen._SignAndFinalizePayload(payload_file)
 
         # Check expected calls.
         self.assertEqual(
@@ -1157,7 +1176,6 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         sign_mock.assert_called_once_with(payload_file)
         store_mock.assert_called_once_with(
             payload_file + ".signed",
-            payload_file.replace(".bin", ".json"),
             ["metadata_sigs"],
         )
         prep_part_mock.assert_called_once()
@@ -1261,7 +1279,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         # Run the test.
         gen._Create(payload_file)
-        gen._SignAndFinalizePayload(payload_file, "delta-<random1>.json")
+        gen._SignAndFinalizePayload(payload_file)
 
         # Check expected calls.
         self.assertEqual(
@@ -1274,7 +1292,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen_mock.assert_called_once_with(payload_file)
         sign_mock.assert_called_once_with(payload_file)
         store_mock.assert_called_once_with(
-            payload_file + ".signed", "delta-<random1>.json", ["metadata_sigs"]
+            payload_file + ".signed", ["metadata_sigs"]
         )
         prep_part_mock.assert_called_once()
 
@@ -1288,10 +1306,12 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         # Run the test.
         gen_sign._UploadResults(
-            "/work/delta.bin.signed", "/work/delta.log", "/work/delta.json"
+            "/work/delta.bin.signed",
+            "/work/delta.log",
         )
         gen_nosign._UploadResults(
-            "/work/delta.bin", "/work/delta.log", "/work/delta.json"
+            "/work/delta.bin",
+            "/work/delta.log",
         )
 
         self.assertEqual(
@@ -1324,12 +1344,10 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen_sign._UploadResults(
             "/work/delta-<random1>.bin.signed",
             "/work/delta-<random1>.log",
-            "/work/delta-<random1>.json",
         )
         gen_nosign._UploadResults(
             "/work/delta-<random2>.bin",
             "/work/delta-<random2>.log",
-            "/work/delta-<random2>.json",
         )
 
         self.assertEqual(
@@ -1380,12 +1398,10 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen_sign._UploadResults(
             "/work/delta-<random1>.bin.signed",
             "/work/delta-<random1>.log",
-            "/work/delta-<random1>.json",
         )
         gen_nosign._UploadResults(
             "/work/delta-<random2>.bin",
             "/work/delta-<random2>.log",
-            "/work/delta-<random2>.json",
         )
 
         self.assertEqual(
@@ -1602,7 +1618,6 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
             [
                 mock.call(
                     payload_file + ".signed",
-                    payload_file.replace(".bin", ".json"),
                     ["metadata_sigs"],
                 )
                 for payload_file in payload_files

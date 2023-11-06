@@ -197,6 +197,25 @@ class PaygenSigner:
         return self._signer.GetHashSignatures(*args, **kwargs)
 
 
+def _payload_file_to_description_file(payload_file: str) -> str:
+    """Determine the corresponding description file for the given payload file.
+
+    Args:
+        payload_file: The name of the payload file, e.g. "delta1.bin".
+
+    Returns:
+        The name of the description file, e.g. "delta1.json".
+    """
+    if payload_file.endswith(".bin"):
+        return payload_file[: -len(".bin")] + ".json"
+    elif payload_file.endswith(".bin.signed"):
+        return payload_file[: -len(".bin.signed")] + ".json"
+    raise ValueError(
+        "`payload_file` does not end with '.bin' or '.bin.signed': "
+        f"{payload_file}"
+    )
+
+
 class PaygenPayload:
     """Class to manage the process of generating and signing a payload."""
 
@@ -307,7 +326,6 @@ class PaygenPayload:
         payload_file = base_file + ".bin"
         # TODO(b/299105459): Make log_file not an instance variable.
         self.log_file = base_file + ".log"
-        description_file = base_file + ".json"
 
         self.metadata_size = 0
 
@@ -315,7 +333,7 @@ class PaygenPayload:
             self.work_dir, f"postinst_config{rand}"
         )
 
-        return (payload_file, description_file)
+        return payload_file
 
     def _MetadataUri(self, uri):
         """Given a payload uri, find the uri for the metadata signature."""
@@ -1114,7 +1132,6 @@ class PaygenPayload:
     def _StorePayloadJson(
         self,
         payload_file: str,
-        description_file: str,
         metadata_signatures: List[bytes],
     ):
         """Generate the payload description json file.
@@ -1122,9 +1139,10 @@ class PaygenPayload:
         Args:
             payload_file: File name of the payload to store JSON for
                 (signed or unsigned).
-            description_file: Name of the file to write metadata to.
             metadata_signatures: A list of signatures in binary string format.
         """
+        description_file = _payload_file_to_description_file(payload_file)
+
         # Currently we have no way of getting the appid from the payload itself.
         # So just put what we got from the image itself (if any).
         props_map = self.GetPayloadPropertiesMap(payload_file)
@@ -1290,13 +1308,11 @@ class PaygenPayload:
     def _SignAndFinalizePayload(
         self,
         payload_file: str,
-        description_file: str,
     ) -> Tuple[str, str]:
         """Sign and finalize metadata for the given payload.
 
         Args:
             payload_file: Name of the payload file to generate.
-            description_file: Name of the description file to write metadata to.
 
         Returns:
             Tuple of the form
@@ -1314,7 +1330,6 @@ class PaygenPayload:
         # Store hash and signatures json.
         self._StorePayloadJson(
             signed_payload_file or payload_file,
-            description_file,
             metadata_signatures,
         )
 
@@ -1368,16 +1383,13 @@ class PaygenPayload:
 
         self._RunGeneratorCmd(cmd)
 
-    def _UploadResults(
-        self, payload_file: str, log_file: str, description_file: str
-    ) -> str:
+    def _UploadResults(self, payload_file: str, log_file: str) -> str:
         """Copy the payload generation results to the specified destination.
 
         Args:
             payload_file: File name of the payload to upload
                 (signed or unsigned).
             log_file: Filename of the log file.
-            description_file: Filename of the description file.
 
         Returns:
             A string uri to uploaded payload.
@@ -1400,6 +1412,7 @@ class PaygenPayload:
 
         # Upload payload related artifacts.
         urilib.Copy(log_file, self._LogsUri(uri))
+        description_file = _payload_file_to_description_file(payload_file)
         urilib.Copy(description_file, self._JsonUri(uri))
 
         return uri
@@ -1411,31 +1424,29 @@ class PaygenPayload:
             part_a: True to extract default/A partition.
 
         Returns:
-            A tuple of local path to the payload and the local path to the
-            description file.
+            The local path to the payload.
 
         Raises:
             PayloadGenerationSkippedException: If paygen was skipped for any
             reason.
         """
-        payload_file, description_file = self._SetupNewFileNames()
+        payload_file = self._SetupNewFileNames()
 
         self._Create(payload_file, part_a=part_a)
-        return payload_file, description_file
+        return payload_file
 
     def CreateUnsignedPayloads(self) -> Dict[int, Tuple[str, str]]:
         """Create unsigned payload(s).
 
         Returns:
-            A dict() of recovery key to tuple of payload local path and
-            description file local path.
+            A dict() of recovery key to payload local path.
 
             The keys will always be a positive integer starting from 1.
 
             e.g.
             {
-                1: ("<local_path>", "<remote_path>"),
-                2: ("<local_path>", "<remote_path>"),
+                1: "<local_path>",
+                2: "<local_path>",
                 ...
             }
 
@@ -1466,9 +1477,7 @@ class PaygenPayload:
         )
         return ret
 
-    def _FinalizePayload(
-        self, payload_file: str, description_file: str
-    ) -> Tuple[str, str]:
+    def _FinalizePayload(self, payload_file: str) -> Tuple[str, str]:
         """Helper method for FinalizePayloads to finalize a payload.
 
         Returns:
@@ -1479,15 +1488,13 @@ class PaygenPayload:
         (
             signed_payload_file,
             metadata_signature_file,
-        ) = self._SignAndFinalizePayload(payload_file, description_file)
+        ) = self._SignAndFinalizePayload(payload_file)
 
         payload_file = signed_payload_file or payload_file
         if self._verify:
             self._VerifyPayload(payload_file, metadata_signature_file)
         if self._upload:
-            ret_uri = self._UploadResults(
-                payload_file, self.log_file, description_file
-            )
+            ret_uri = self._UploadResults(payload_file, self.log_file)
         return (payload_file, ret_uri)
 
     def FinalizePayloads(
@@ -1513,11 +1520,8 @@ class PaygenPayload:
         """
         logging.info("* Finalizing payloads")
         ret = {}
-        for recovery_key, payload in payload_info.items():
-            payload_file, description_file = payload
-            ret[recovery_key] = self._FinalizePayload(
-                payload_file, description_file
-            )
+        for recovery_key, payload_file in payload_info.items():
+            ret[recovery_key] = self._FinalizePayload(payload_file)
         return ret
 
 
