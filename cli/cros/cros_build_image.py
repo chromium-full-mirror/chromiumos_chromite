@@ -33,7 +33,7 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import List, Optional
+from typing import Iterable, List, Optional, TYPE_CHECKING
 
 from chromite.third_party.opentelemetry import trace
 from chromite.third_party.opentelemetry.trace import status
@@ -48,6 +48,24 @@ from chromite.lib import path_util
 from chromite.service import image
 from chromite.utils import telemetry
 from chromite.utils import timer
+
+
+if TYPE_CHECKING:
+    from chromite.lib.parser import package_info
+
+
+class Error(Exception):
+    """Base error class for the module."""
+
+
+class FailedPackageError(Error):
+    """Failed packages error."""
+
+    def __init__(
+        self, msg: str, failed_packages: Iterable["package_info.PackageInfo"]
+    ):
+        super().__init__(msg)
+        self.failed_packages = failed_packages
 
 
 def build_shell_bool_style_args(
@@ -179,25 +197,6 @@ def build_shell_string_style_args(
 
 
 tracer = trace.get_tracer(__name__)
-
-
-@timer.timed("Elapsed time (cros build-image)")
-def inner_main(options: commandline.ArgumentNamespace) -> image.BuildResult:
-    """Inner main that processes building the image."""
-
-    # If the opts.board is not set, then it means user hasn't specified a
-    # default board in 'src/scripts/.default_board' and didn't specify it as
-    # input argument.
-    if not options.board:
-        options.parser.error("--board is required")
-
-    invalid_image = [
-        x for x in options.images if x not in constants.IMAGE_TYPE_TO_NAME
-    ]
-    if invalid_image:
-        options.parser.error(f"Invalid image type argument(s) {invalid_image}")
-
-    return image.Build(options.board, options.images, options.build_run_config)
 
 
 @command.command_decorator("build-image")
@@ -405,7 +404,18 @@ class BuildImageCommand(command.CliCommand):
     @classmethod
     def ProcessOptions(cls, parser, options):
         """Post-process options prior to freeze."""
-        options.parser = parser
+
+        # If the opts.board is not set, then it means the user hasn't specified
+        # a default board and didn't specify it as an input argument.
+        if not options.board:
+            parser.error("--board is required")
+
+        invalid_image = [
+            x for x in options.images if x not in constants.IMAGE_TYPE_TO_NAME
+        ]
+        if invalid_image:
+            parser.error(f"Invalid image type argument(s) {invalid_image}")
+
         options.build_run_config = image.BuildConfig(
             adjust_partition=options.adjust_part,
             output_root=options.output_root,
@@ -442,16 +452,23 @@ class BuildImageCommand(command.CliCommand):
         result = None
 
         with tracer.start_as_current_span("cli.cros.cros_build_image.Run") as s:
+            s.set_attributes({"build_target": self.options.board})
             with namespaces.use_network_sandbox():
-                result = inner_main(self.options)
+                with timer.timer("Elapsed time (cros build-image)"):
+                    result = image.Build(
+                        self.options.board,
+                        self.options.images,
+                        self.options.build_run_config,
+                    )
 
             if result and result.run_error:
                 s.record_exception(
                     # TODO(zland): capture underlying exception details/runtime
                     # errors to stringify for trace data.
-                    cros_build_lib.RunCommandError(
+                    FailedPackageError(
                         "an exception occurred when running "
-                        "chromite.service.image.Build."
+                        "chromite.service.image.Build.",
+                        result.failed_packages,
                     )
                 )
                 s.set_status(status.StatusCode.ERROR)
