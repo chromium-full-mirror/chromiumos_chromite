@@ -716,12 +716,10 @@ def _FinalizeOptions(
     if options.force and not options.delete:
         parser.error("Specifying --force without --delete does not make sense.")
 
-    # Resolve --delete-out-dir.  This argument is default-on for
-    # --delete/--replace, but default-off for --update.
-    if options.update:
-        options.delete_out_dir = options.delete_out_dir is True
-    else:
-        options.delete_out_dir = options.delete_out_dir is not False
+    # Resolve tri-state --delete-out-dir to a boolean.  This argument is
+    # default-on for --delete/--replace, but default-off for --update.
+    if options.delete_out_dir is None:
+        options.delete_out_dir = not options.update
 
     # Resolve default output directories.
     chroot_path = (
