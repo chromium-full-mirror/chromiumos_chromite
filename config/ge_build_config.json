@@ -1174,15 +1174,6 @@
         },
         {
           "board_name": "brask-labstation",
-          "name": "kuldax",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7260,
-          "is_active": true,
-          "is_experimental": true
-        },
-        {
-          "board_name": "brask-labstation",
           "name": "lisbon",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
