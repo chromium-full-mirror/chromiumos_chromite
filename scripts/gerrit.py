@@ -954,50 +954,6 @@ class ActionDelete(_ActionSimpleParallelCLs):
         helper.Delete(cl, dryrun=opts.dryrun)
 
 
-class ActionReviewed(_ActionSimpleParallelCLs):
-    """Mark CLs as reviewed"""
-
-    COMMAND = "reviewed"
-
-    @staticmethod
-    def _process_one(helper, cl, opts):
-        """Use |helper| to process the single |cl|."""
-        helper.ReviewedChange(cl, dryrun=opts.dryrun)
-
-
-class ActionUnreviewed(_ActionSimpleParallelCLs):
-    """Mark CLs as unreviewed"""
-
-    COMMAND = "unreviewed"
-
-    @staticmethod
-    def _process_one(helper, cl, opts):
-        """Use |helper| to process the single |cl|."""
-        helper.UnreviewedChange(cl, dryrun=opts.dryrun)
-
-
-class ActionIgnore(_ActionSimpleParallelCLs):
-    """Ignore CLs (suppress notifications/dashboard/etc...)"""
-
-    COMMAND = "ignore"
-
-    @staticmethod
-    def _process_one(helper, cl, opts):
-        """Use |helper| to process the single |cl|."""
-        helper.IgnoreChange(cl, dryrun=opts.dryrun)
-
-
-class ActionUnignore(_ActionSimpleParallelCLs):
-    """Unignore CLs (enable notifications/dashboard/etc...)"""
-
-    COMMAND = "unignore"
-
-    @staticmethod
-    def _process_one(helper, cl, opts):
-        """Use |helper| to process the single |cl|."""
-        helper.UnignoreChange(cl, dryrun=opts.dryrun)
-
-
 class ActionCherryPick(UserAction):
     """Cherry-pick CLs to branches."""
 

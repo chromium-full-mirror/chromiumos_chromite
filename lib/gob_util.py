@@ -666,30 +666,6 @@ def PublishChangeEdit(host: str, change: str) -> Dict[str, Any]:
     return FetchUrlJson(host, path, body=body, reqtype="POST", expect=204)
 
 
-def ReviewedChange(host, change):
-    """Mark a gerrit change as reviewed."""
-    path = "%s/reviewed" % _GetChangePath(change)
-    return FetchUrlJson(host, path, reqtype="PUT", ignore_404=False)
-
-
-def UnreviewedChange(host, change):
-    """Mark a gerrit change as unreviewed."""
-    path = "%s/unreviewed" % _GetChangePath(change)
-    return FetchUrlJson(host, path, reqtype="PUT", ignore_404=False)
-
-
-def IgnoreChange(host, change):
-    """Ignore a gerrit change."""
-    path = "%s/ignore" % _GetChangePath(change)
-    return FetchUrlJson(host, path, reqtype="PUT", ignore_404=False)
-
-
-def UnignoreChange(host, change):
-    """Unignore a gerrit change."""
-    path = "%s/unignore" % _GetChangePath(change)
-    return FetchUrlJson(host, path, reqtype="PUT", ignore_404=False)
-
-
 def AbandonChange(host, change, msg="", notify=None):
     """Abandon a gerrit change."""
     path = "%s/abandon" % _GetChangePath(change)
