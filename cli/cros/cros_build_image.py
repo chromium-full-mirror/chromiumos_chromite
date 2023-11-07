@@ -462,17 +462,20 @@ class BuildImageCommand(command.CliCommand):
                     )
 
             if result and result.run_error:
-                s.record_exception(
-                    # TODO(zland): capture underlying exception details/runtime
-                    # errors to stringify for trace data.
-                    FailedPackageError(
-                        "an exception occurred when running "
-                        "chromite.service.image.Build.",
-                        result.failed_packages,
-                    )
-                )
                 s.set_status(status.StatusCode.ERROR)
-                cros_build_lib.Die(
-                    "Error running build-image. "
-                    f"Exit Code: {result.return_code}"
-                )
+                if result.exception:
+                    s.record_exception(result.exception)
+                    logging.error(result.exception)
+                else:
+                    s.record_exception(
+                        FailedPackageError(
+                            "an exception occurred when running "
+                            "chromite.service.image.Build.",
+                            result.failed_packages,
+                        )
+                    )
+                    logging.error(
+                        "Error running build-image. Exit Code: %s",
+                        {result.return_code},
+                    )
+                return result.return_code

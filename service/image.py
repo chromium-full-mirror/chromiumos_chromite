@@ -61,6 +61,10 @@ class InvalidArgumentError(Error, ValueError):
     """Invalid argument values."""
 
 
+class InvalidImageTypeError(InvalidArgumentError):
+    """Invalid image type(s) specified."""
+
+
 class MissingImageError(Error):
     """An image that was expected to exist was not found."""
 
@@ -195,6 +199,7 @@ class BuildResult:
         self.return_code = None
         self._failed_packages = []
         self.output_dir = None
+        self.exception = None
 
     @property
     def failed_packages(self) -> List[package_info.PackageInfo]:
@@ -283,8 +288,11 @@ def Build(
     try:
         image_names = image_lib.GetImagesToBuild(images)
     except ValueError:
-        logging.error("Invalid image types requested: %s", " ".join(images))
+        build_result.exception = InvalidImageTypeError(
+            f"Invalid image types requested: {' '.join(images)}"
+        )
         build_result.return_code = errno.EINVAL
+        logging.error(str(build_result.exception))
         return build_result
     logging.info("The following images will be built %s", " ".join(image_names))
 
@@ -309,8 +317,12 @@ def Build(
             config.build_attempt,
             config.output_dir_suffix,
         )
-    except FileExistsError:
+    except (FileExistsError, IsADirectoryError) as e:
+        # IsADirectoryError: Can occur if someone manually creates the
+        # build/images/${BOARD}/latest directory.
+        logging.error(e)
         build_result.return_code = errno.EEXIST
+        build_result.exception = e
         return build_result
     build_result.output_dir = output_dir
 
@@ -323,10 +335,15 @@ def Build(
         extra_env_local[
             constants.PARALLEL_EMERGE_STATUS_FILE_ENVVAR
         ] = status_file
-        result = cros_build_lib.run(
-            cmd, enter_chroot=True, check=False, extra_env=extra_env_local
-        )
-        build_result.return_code = result.returncode
+        try:
+            result = cros_build_lib.run(
+                cmd, enter_chroot=True, extra_env=extra_env_local
+            )
+            build_result.return_code = result.returncode
+        except cros_build_lib.RunCommandError as e:
+            build_result.exception = e
+            build_result.return_code = e.returncode
+
         try:
             content = osutils.ReadFile(status_file).strip()
         except IOError:
