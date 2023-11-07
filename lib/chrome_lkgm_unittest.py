@@ -23,8 +23,10 @@ class ChromeOSVersionFinderTest(
     RECENT_VERSION_MISSING = "3542.0.0"
     RECENT_VERSION_FOUND = "3541.0.0"
     FULL_VERSION_RECENT = "R55-%s" % RECENT_VERSION_FOUND
-    NON_CANARY_VERSION = "3543.2.1"
-    FULL_VERSION_NON_CANARY = "R55-%s" % NON_CANARY_VERSION
+    BRANCH_VERSION = "3541.68.0"
+    FILL_VERSION_BRANCH = "R55-%s" % BRANCH_VERSION
+    MINI_BRANCH_VERSION = "3543.2.1"
+    FULL_VERSION_MINI_BRANCH = "R55-%s" % MINI_BRANCH_VERSION
     BOARD = "eve"
 
     VERSION_BASE = "gs://chromeos-image-archive/%s-release/LATEST-%s" % (
@@ -107,24 +109,53 @@ class ChromeOSVersionFinderTest(
                 self.finder.GetFullVersionFromLatest(self.VERSION),
             )
 
-    def testNonCanaryFullVersion(self):
-        """Test full version calculation for a non canary version."""
+    def testBranchFallbackVersions(self):
+        """Test full version calculation for a branch version with fallbacks."""
         self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex(
-                "cat .*/LATEST-%s" % self.NON_CANARY_VERSION
-            ),
-            stdout=self.FULL_VERSION_NON_CANARY,
+            partial_mock.ListRegex("cat .*/LATEST-%s" % "12345.89.0"),
+            side_effect=gs.GSNoSuchKey,
+        )
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-%s" % "12345.88.0"),
+            side_effect=gs.GSNoSuchKey,
+        )
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-%s" % "12345.87.0"),
+            stdout="R123-12345.87.0",
         )
         self.assertEqual(
-            self.FULL_VERSION_NON_CANARY,
-            self.finder.GetFullVersionFromLatest(self.NON_CANARY_VERSION),
+            self.finder.GetFullVersionFromLatest("12345.89.0"),
+            "R123-12345.87.0",
         )
 
-    def testNonCanaryNoLatestVersion(self):
-        """There is no matching latest non canary."""
+    def testBranchNoFallbackVersions(self):
+        """Test version calculation for a branch version with no fallbacks."""
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-*"),
+            side_effect=gs.GSNoSuchKey,
+        )
+        self.assertEqual(
+            self.finder.GetFullVersionFromLatest("12345.89.0"), None
+        )
+
+    def testMiniBranchFullVersion(self):
+        """Test full version calculation for a mini branch version."""
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex(
-                "cat .*/LATEST-%s" % self.NON_CANARY_VERSION
+                "cat .*/LATEST-%s" % self.MINI_BRANCH_VERSION
+            ),
+            stdout=self.FULL_VERSION_MINI_BRANCH,
+        )
+        self.assertEqual(
+            self.FULL_VERSION_MINI_BRANCH,
+            self.finder.GetFullVersionFromLatest(self.MINI_BRANCH_VERSION),
+        )
+
+    def testMiniBranchNoLatestVersion(self):
+        """There is no matching latest mini branch."""
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex(
+                "cat .*/LATEST-%s" % self.MINI_BRANCH_VERSION
             ),
             stdout="",
             stderr=self.CAT_ERROR,
@@ -132,7 +163,7 @@ class ChromeOSVersionFinderTest(
         )
         # Set any other query to return a valid version, but we don't expect
         # that to occur for non canary versions.
-        self.gs_mock.SetDefaultCmdResult(stdout=self.FULL_VERSION_NON_CANARY)
+        self.gs_mock.SetDefaultCmdResult(stdout=self.FULL_VERSION_MINI_BRANCH)
         self.assertEqual(
-            None, self.finder.GetFullVersionFromLatest(self.NON_CANARY_VERSION)
+            None, self.finder.GetFullVersionFromLatest(self.MINI_BRANCH_VERSION)
         )

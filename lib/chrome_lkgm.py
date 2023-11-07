@@ -149,15 +149,23 @@ class ChromeOSVersionFinder:
         Returns:
             Version number in the format 'R30-3929.0.0' or None.
         """
+        if version.endswith(".0.0"):
+            version_num_position = 0  # Decrement tip build num on canaries.
+        elif version.endswith(".0"):
+            version_num_position = 1  # Decrement branch build num on branches.
+        else:
+            return None  # We're on a mini-branch? No fallback for that.
 
-        # If version does not end in .0.0 it is not a canary so fail.
-        if not version.endswith(".0.0"):
-            return None
-        version_base = int(version.split(".")[0])
+        version_base = int(version.split(".")[version_num_position])
         version_base_min = max(version_base - self.fallback_versions, 0)
+        version_file_base = f"{self.gs_base}/LATEST-"
+        version_parts = version.split(".")
 
         for v in range(version_base - 1, version_base_min, -1):
-            version_file = f"{self.gs_base}/LATEST-{v}.0.0"
+            version_parts[version_num_position] = v
+            version_parts = [str(p) for p in version_parts]
+            version_file = version_file_base + ".".join(version_parts)
+
             logging.info("Trying: %s", version_file)
             full_version = self._GetFullVersionFromStorage(version_file)
             if full_version is not None:
