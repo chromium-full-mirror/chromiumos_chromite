@@ -1,6 +1,7 @@
 include /OWNERS.build
-include /OWNERS.ci
-include /OWNERS.testplatform
+
+# Add individuals outside Build who want OWNERS privileges
+engeg@google.com
 
 per-file OWNERS.arc = file://OWNERS.arc
 per-file OWNERS.au = file://OWNERS.au
