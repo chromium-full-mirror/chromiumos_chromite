@@ -4,7 +4,7 @@
 
 """Payload API Service."""
 
-from typing import Dict, Tuple, TYPE_CHECKING
+from typing import Dict, Tuple, TYPE_CHECKING, Union
 
 from chromite.api import controller
 from chromite.api import faux
@@ -40,26 +40,31 @@ _VALID_MINIOS_PAIRS = (
 _DEFAULT_PAYGEN_CACHE_DIR = ".paygen_cache"
 
 
-# We have more fields we might validate however, they're either
-# 'oneof' or allowed to be the empty value by design. If @validate
-# gets more complex in the future we can add more here.
-@faux.empty_success
-@faux.empty_completed_unsuccessfully_error
-@validate.require("bucket")
-def GeneratePayload(
-    input_proto: payload_pb2.GenerationRequest,
-    output_proto: payload_pb2.GenerationResponse,
-    config: "api_config.ApiConfig",
-) -> int:
-    """Generate a update payload ('do paygen').
+def _ValidateImages(
+    input_proto: Union[
+        payload_pb2.GenerationRequest,
+        payload_pb2.GenerateUnsignedPayloadRequest,
+        payload_pb2.FinalizePayloadRequest,
+    ]
+) -> Tuple[
+    Union[
+        payload_pb2.UnsignedImage,
+        payload_pb2.SignedImage,
+        payload_pb2.DLCImage,
+    ],
+    Union[
+        payload_pb2.UnsignedImage,
+        payload_pb2.SignedImage,
+        payload_pb2.DLCImage,
+    ],
+]:
+    """Validate src and tgt image fields.
 
     Args:
-        input_proto: Input proto.
-        output_proto: Output proto.
-        config: The API call config.
+        input_proto: The BAPI input proto.
 
     Returns:
-        A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
+        Tuple of src_image, tgt_image.
     """
 
     # Resolve the tgt image oneof.
@@ -95,6 +100,32 @@ def GeneratePayload(
             src_image,
             tgt_image,
         )
+
+    return src_image, tgt_image
+
+
+# We have more fields we might validate however, they're either
+# 'oneof' or allowed to be the empty value by design. If @validate
+# gets more complex in the future we can add more here.
+@faux.empty_success
+@faux.empty_completed_unsuccessfully_error
+@validate.require("bucket")
+def GeneratePayload(
+    input_proto: payload_pb2.GenerationRequest,
+    output_proto: payload_pb2.GenerationResponse,
+    config: "api_config.ApiConfig",
+) -> int:
+    """Generate a update payload ('do paygen').
+
+    Args:
+        input_proto: Input proto.
+        output_proto: Output proto.
+        config: The API call config.
+
+    Returns:
+        A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
+    """
+    src_image, tgt_image = _ValidateImages(input_proto)
 
     if input_proto.use_local_signing and not input_proto.docker_image:
         cros_build_lib.Die(
@@ -134,7 +165,7 @@ def GeneratePayload(
     artifacts = {}
     try:
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
-        artifacts = payload_config.FinalizePayload(unsigned_payloads)
+        artifacts = payload_config.FinalizePayload(unsigned_payloads.values())
     except paygen_payload_lib.PayloadGenerationSkippedException as e:
         # If paygen was skipped, provide a reason if possible.
         if isinstance(e, paygen_payload_lib.MiniOSException):
@@ -186,3 +217,140 @@ def _SetGeneratePayloadOutputProto(
             versioned_artifact.file_path.path = artifact[0]
             versioned_artifact.file_path.location = common_pb2.Path.INSIDE
         versioned_artifact.remote_uri = artifact[1] or ""
+
+
+# We have more fields we might validate however, they're either
+# 'oneof' or allowed to be the empty value by design. If @validate
+# gets more complex in the future we can add more here.
+@faux.empty_success
+@faux.empty_completed_unsuccessfully_error
+def GenerateUnsignedPayload(
+    input_proto: payload_pb2.GenerateUnsignedPayloadRequest,
+    output_proto: payload_pb2.GenerateUnsignedPayloadResponse,
+    config: "api_config.ApiConfig",
+) -> int:
+    """Generate an unsigned payload.
+
+    Args:
+        input_proto: Input proto.
+        output_proto: Output proto.
+        config: The API call config.
+
+    Returns:
+        A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
+    """
+    src_image, tgt_image = _ValidateImages(input_proto)
+
+    chroot = controller_util.ParseChroot(input_proto.chroot)
+
+    # There's a potential that some paygen_lib library might raise here, but
+    # since we're still involved in config we'll keep it before the
+    # validate_only.
+    payload_config = payload.PayloadConfig(
+        chroot,
+        tgt_image,
+        src_image,
+        minios=input_proto.minios,
+        verify=False,
+        upload=False,
+        cache_dir=_DEFAULT_PAYGEN_CACHE_DIR,
+    )
+
+    # If configured for validation only we're done here.
+    if config.validate_only:
+        return controller.RETURN_CODE_VALID_INPUT
+
+    # Do payload generation.
+    unsigned_payloads = None
+    try:
+        unsigned_payloads = payload_config.GenerateUnsignedPayload()
+        output_proto.unsigned_payloads.extend(unsigned_payloads.values())
+    except paygen_payload_lib.PayloadGenerationSkippedException as e:
+        # If paygen was skipped, provide a reason if possible.
+        if isinstance(e, paygen_payload_lib.MiniOSException):
+            reason = e.return_code()
+            output_proto.failure_reason = reason
+
+    if _SuccessfulUnsignedPaygen(unsigned_payloads):
+        return controller.RETURN_CODE_SUCCESS
+    elif output_proto.failure_reason:
+        return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
+    else:
+        return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
+
+
+def _SuccessfulUnsignedPaygen(
+    unsigned_payloads: Dict[int, payload_pb2.UnsignedPayload]
+) -> bool:
+    """Check to see if the payload generation was successful.
+
+    Args:
+        unsigned_payloads: a dict containing an UnsignedPayload keyed by its
+            version.
+        dryrun: whether or not this was a dry run job.
+    """
+    if not unsigned_payloads:
+        return False
+    for unsigned_payload in unsigned_payloads.values():
+        if (
+            not unsigned_payload.payload_file_path.path
+            or not unsigned_payload.partition_names
+            or not unsigned_payload.tgt_partitions
+        ):
+            return False
+    return True
+
+
+@faux.empty_success
+@faux.empty_completed_unsuccessfully_error
+@validate.require("payloads")
+def FinalizePayload(
+    input_proto: payload_pb2.FinalizePayloadRequest,
+    output_proto: payload_pb2.FinalizePayloadResponse,
+    config: "api_config.ApiConfig",
+) -> int:
+    """Sign, verify, and upload an unsigned payload.
+
+    Args:
+        input_proto: Input proto.
+        output_proto: Output proto.
+        config: The API call config.
+
+    Returns:
+        A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
+    """
+    src_image, tgt_image = _ValidateImages(input_proto)
+
+    # Find the value of bucket or default to 'chromeos-releases'.
+    destination_bucket = input_proto.bucket or "chromeos-releases"
+
+    chroot = controller_util.ParseChroot(input_proto.chroot)
+
+    # There's a potential that some paygen_lib library might raise here, but
+    # since we're still involved in config we'll keep it before the
+    # validate_only.
+    payload_config = payload.PayloadConfig(
+        chroot,
+        tgt_image=tgt_image,
+        src_image=src_image,
+        minios=input_proto.minios,
+        dest_bucket=destination_bucket,
+        verify=input_proto.verify,
+        upload=not input_proto.dryrun,
+        cache_dir=_DEFAULT_PAYGEN_CACHE_DIR,
+    )
+
+    # If configured for validation only we're done here.
+    if config.validate_only:
+        return controller.RETURN_CODE_VALID_INPUT
+
+    # Finalize payloads.
+    artifacts = payload_config.FinalizePayload(input_proto.payloads)
+
+    _SetGeneratePayloadOutputProto(output_proto, artifacts)
+    if _SuccessfulPaygen(artifacts, input_proto.dryrun):
+        return controller.RETURN_CODE_SUCCESS
+    elif output_proto.failure_reason:
+        return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
+    else:
+        return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY

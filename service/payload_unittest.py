@@ -72,7 +72,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
-        payload_config.FinalizePayload(unsigned_payloads)
+        payload_config.FinalizePayload(unsigned_payloads.values())
 
     def testLocalSigning(self):
         """Test the local signing flow (using unsigned images)."""
@@ -98,7 +98,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
-        payload_config.FinalizePayload(unsigned_payloads)
+        payload_config.FinalizePayload(unsigned_payloads.values())
 
     def testLocalSigningFails(self):
         """Test that local signing fails when no docker image is specified."""
@@ -145,7 +145,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual("cave-mp-v4", payload_config.payload.tgt_image.key)
 
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
-        payload_config.FinalizePayload(unsigned_payloads)
+        payload_config.FinalizePayload(unsigned_payloads.values())
 
     def testFullUpdate(self):
         """Test the happy path on full updates."""
@@ -165,7 +165,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
-        payload_config.FinalizePayload(unsigned_payloads)
+        payload_config.FinalizePayload(unsigned_payloads.values())
 
     def testSignedMiniOS(self):
         """Test the happy path on signed minios images."""
@@ -189,7 +189,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
-        payload_config.FinalizePayload(unsigned_payloads)
+        payload_config.FinalizePayload(unsigned_payloads.values())
         self.assertTrue(gspaths.IsMiniOSImage(payload_config.payload.tgt_image))
 
     def testUnsignedMiniOS(self):
@@ -214,7 +214,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
 
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
-        payload_config.FinalizePayload(unsigned_payloads)
+        payload_config.FinalizePayload(unsigned_payloads.values())
         self.assertTrue(
             gspaths.IsUnsignedMiniOSImageArchive(
                 payload_config.payload.tgt_image

@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import threading
 import time
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from chromite.third_party.google.protobuf import json_format
 
@@ -39,6 +39,11 @@ from chromite.lib.paygen import utils
 from chromite.scripts import cros_set_lsb_release
 from chromite.utils import pformat
 
+
+# Recovery key versions.
+# Part A is the default (used for all non-minios payloads).
+PART_A_KEY = 1
+PART_B_KEY = 2
 
 DESCRIPTION_FILE_VERSION = 2
 
@@ -660,11 +665,11 @@ class PaygenPayload:
         )
 
     def _RunGeneratorCmd(self, cmd, squawk_wrap=False):
-        """Wrapper for run in chroot.
+        """Wrapper for run (maybe in chroot).
 
-        Run the given command inside the chroot. It will automatically log the
-        command output. Note that the command's stdout and stderr are combined
-        into a single string.
+        Run the given command, inside the chroot if we have one.
+        It will automatically log the command output. Note that the command's
+        stdout and stderr are combined into a single string.
 
         For context on why this is so complex see: crbug.com/1035799
 
@@ -1321,20 +1326,20 @@ class PaygenPayload:
         unsigned_payload = payload_pb2.UnsignedPayload(
             payload_file_path=common_pb2.Path(
                 path=payload_file,
-                location=common_pb2.Path.OUTSIDE,
+                location=common_pb2.Path.INSIDE,
             ),
             partition_names=self.partition_names,
             src_partitions=[
                 common_pb2.Path(
                     path=partition_file,
-                    location=common_pb2.Path.OUTSIDE,
+                    location=common_pb2.Path.INSIDE,
                 )
                 for partition_file in (self.src_partitions or [])
             ],
             tgt_partitions=[
                 common_pb2.Path(
                     path=partition_file,
-                    location=common_pb2.Path.OUTSIDE,
+                    location=common_pb2.Path.INSIDE,
                 )
                 for partition_file in (self.tgt_partitions or [])
             ],
@@ -1466,6 +1471,22 @@ class PaygenPayload:
 
         return uri
 
+    def _SetVersion(
+        self, payload: payload_pb2.UnsignedPayload, version: int
+    ) -> payload_pb2.UnsignedPayload:
+        """Set the `version` field for the given payload.
+
+        Args:
+            payload: The payload to modify.
+            version: The version to set.
+
+        Returns:
+            The modified payload.
+        """
+        if payload:
+            payload.version = version
+        return payload
+
     def _CreateUnsignedPayload(
         self, part_a: bool = True
     ) -> payload_pb2.UnsignedPayload:
@@ -1502,12 +1523,18 @@ class PaygenPayload:
 
         if not self.payload.minios:
             ret = {
-                1: self._CreateUnsignedPayload(),
+                PART_A_KEY: self._SetVersion(
+                    self._CreateUnsignedPayload(), PART_A_KEY
+                ),
             }
         else:
             ret = {
-                1: self._CreateUnsignedPayload(part_a=True),
-                2: self._CreateUnsignedPayload(part_a=False),
+                PART_A_KEY: self._SetVersion(
+                    self._CreateUnsignedPayload(part_a=True), PART_A_KEY
+                ),
+                PART_B_KEY: self._SetVersion(
+                    self._CreateUnsignedPayload(part_a=False), PART_B_KEY
+                ),
             }
 
         loggable_ret = {
@@ -1550,7 +1577,7 @@ class PaygenPayload:
         return (payload_file, ret_uri)
 
     def FinalizePayloads(
-        self, payload_info: List["payload_pb2.UnsignedPayload"]
+        self, payload_info: Iterable["payload_pb2.UnsignedPayload"]
     ) -> Dict[int, Tuple[str, str]]:
         """Sign, verify, and upload the given payload.
 
@@ -1572,8 +1599,8 @@ class PaygenPayload:
         """
         logging.info("* Finalizing payloads")
         ret = {}
-        for recovery_key, payload_file in payload_info.items():
-            ret[recovery_key] = self._FinalizePayload(payload_file)
+        for payload in payload_info:
+            ret[payload.version] = self._FinalizePayload(payload)
         return ret
 
 
@@ -1629,7 +1656,9 @@ def GenerateUpdatePayload(
         )
         try:
             unsigned_payloads = paygen.CreateUnsignedPayloads()
-            signed_payloads = paygen.FinalizePayloads(unsigned_payloads)
+            signed_payloads = paygen.FinalizePayloads(
+                unsigned_payloads.values()
+            )
             return [
                 payload_info[1] for payload_info in signed_payloads.values()
             ]

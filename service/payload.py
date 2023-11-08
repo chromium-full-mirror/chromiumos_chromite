@@ -6,11 +6,12 @@
 
 import copy
 import re
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import chroot_lib
+from chromite.lib import osutils
 from chromite.lib.paygen import gspaths
 from chromite.lib.paygen import paygen_build_lib
 from chromite.lib.paygen import paygen_payload_lib
@@ -33,7 +34,7 @@ class PayloadConfig:
 
     def __init__(
         self,
-        chroot: chroot_lib.Chroot,
+        chroot: Optional[chroot_lib.Chroot] = None,
         tgt_image: Optional[
             Union[
                 payload_pb2.UnsignedImage,
@@ -129,6 +130,15 @@ class PayloadConfig:
         if self.upload:
             self.payload.uri = paygen_build_lib.DefaultPayloadUri(self.payload)
 
+    def _GetTempdir(self, **kwargs) -> osutils.TempDir:
+        """Create a tempdir.
+
+        Dir will be inside the chroot if we have one.
+        """
+        if self.chroot:
+            return self.chroot.tempdir(**kwargs)
+        return osutils.TempDir(**kwargs)
+
     def GenerateUnsignedPayload(
         self,
     ) -> Dict[int, "payload_pb2.UnsignedPayload"]:
@@ -145,7 +155,7 @@ class PayloadConfig:
         # testing it's likely we want the artifact anyway, and in production
         # this is ran on single shot bots in the context of an overlayfs and
         # will get cleaned up anyway.
-        with self.chroot.tempdir(delete=False) as temp_dir:
+        with self._GetTempdir(delete=False) as temp_dir:
             self.paygen = paygen_payload_lib.PaygenPayload(
                 self.chroot,
                 self.payload,
@@ -155,13 +165,12 @@ class PayloadConfig:
             return self.paygen.CreateUnsignedPayloads()
 
     def FinalizePayload(
-        self, unsigned_payloads: Dict[int, "payload_pb2.UnsignedPayload"]
+        self, unsigned_payloads: List["payload_pb2.UnsignedPayload"]
     ) -> Dict[int, Tuple[str, str]]:
         """(Maybe) sign, (maybe) verify, and upload the given payload(s).
 
         Args:
-            unsigned_payloads: A dict containing mapping version number to
-                payload.
+            unsigned_payloads: A list of unsigned payloads.
 
         Returns:
             A dict containing tuples of the following format:
@@ -175,7 +184,7 @@ class PayloadConfig:
         # testing it's likely we want the artifact anyway, and in production
         # this is ran on single shot bots in the context of an overlayfs and
         # will get cleaned up anyway.
-        with self.chroot.tempdir(delete=False) as temp_dir:
+        with self._GetTempdir(delete=False) as temp_dir:
             signer = paygen_payload_lib.PaygenSigner(
                 chroot=self.chroot,
                 work_dir=temp_dir,
