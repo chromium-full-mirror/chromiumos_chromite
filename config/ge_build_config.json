@@ -2265,6 +2265,15 @@
         },
         {
           "board_name": "brya-gki",
+          "name": "omniknight",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7256,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-gki",
           "name": "osiris",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -2515,6 +2524,15 @@
         {
           "board_name": "brya-hibernate",
           "name": "omnigul",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7229,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-hibernate",
+          "name": "omniknight",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
@@ -3119,7 +3137,6 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
-          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -3174,6 +3191,16 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
           "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-pvs",
+          "name": "omniknight",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7263,
+          "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
