@@ -18,49 +18,72 @@ class TelemetryCommand(command.CliCommand):
     @classmethod
     def AddParser(cls, parser):
         super(cls, TelemetryCommand).AddParser(parser)
-        opts = parser.add_mutually_exclusive_group(required=True)
-        opts.add_argument(
+        actions = parser.add_mutually_exclusive_group(required=True)
+        actions.add_argument(
             "--enable",
             help="Enable telemetry collection.",
             action="store_true",
         )
-        opts.add_argument(
+        actions.add_argument(
             "--disable",
             help="Disable telemetry collection.",
             action="store_true",
         )
-        opts.add_argument(
+        actions.add_argument(
             "--show",
             help="Show telemetry related information.",
             action="store_true",
         )
+        actions.add_argument(
+            "--start-dev",
+            action="store_true",
+            help="Set the development attribute for all spans. Allows tagging "
+            "spans as in development so they can be easily filtered out.",
+        )
+        actions.add_argument(
+            "--stop-dev",
+            action="store_true",
+            help="Stop setting the development attribute.",
+        )
+        actions.add_argument(
+            "--regen-ids",
+            action="store_true",
+            help="Regenerate UUIDs.",
+        )
 
-    def _UpdateTelemetry(self, enable: bool):
-        chromite_config.initialize()
-        cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
-        cfg.trace_config.update(enabled=enable, reason="USER")
-        cfg.flush()
-
-    def _ShowTelemetry(self):
-        chromite_config.initialize()
-        cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
-
+    @staticmethod
+    def _show_telemetry(cfg: config.Config):
         if cfg.trace_config.has_enabled():
-            print(f"enabled = {cfg.trace_config.enabled}")
-            print(f"enabled_reason = {cfg.trace_config.enabled_reason}")
+            print(f"{config.ENABLED_KEY} = {cfg.trace_config.enabled}")
+            print(
+                f"{config.ENABLED_REASON_KEY} = "
+                f"{cfg.trace_config.enabled_reason}"
+            )
+            if cfg.trace_config.dev_flag:
+                print(f"{config.KEY_DEV} = True")
         else:
             print(f"notice_countdown = {cfg.root_config.notice_countdown}")
 
     def Run(self):
         """Run cros telemetry."""
+        chromite_config.initialize()
+        cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
 
         if self.options.enable:
-            self._UpdateTelemetry(enable=True)
+            cfg.trace_config.update(enabled=True, reason="USER")
             logging.notice("Telemetry enabled successfully.")
-
-        if self.options.disable:
-            self._UpdateTelemetry(enable=False)
+        elif self.options.disable:
+            cfg.trace_config.update(enabled=False, reason="USER")
             logging.notice("Telemetry disabled successfully.")
+        elif self.options.show:
+            self._show_telemetry(cfg)
+        elif self.options.start_dev:
+            cfg.trace_config.set_dev(True)
+            logging.notice("Development flag enabled successfully.")
+        elif self.options.stop_dev:
+            cfg.trace_config.set_dev(False)
+            logging.notice("Development flag disabled successfully.")
+        elif self.options.regen_ids:
+            cfg.trace_config.gen_id(regen=True)
 
-        if self.options.show:
-            self._ShowTelemetry()
+        cfg.flush()

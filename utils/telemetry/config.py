@@ -6,7 +6,8 @@
 
 import configparser
 import os
-from typing import Literal
+from typing import Literal, Optional
+import uuid
 
 
 ROOT_SECTION_KEY = "root"
@@ -18,35 +19,62 @@ DEFAULT_CONFIG = {
     ROOT_SECTION_KEY: {NOTICE_COUNTDOWN_KEY: 10},
     TRACE_SECTION_KEY: {},
 }
+# The "telemetry in development" config to allow publishing the telemetry, but
+# easily filtering it out later.
+KEY_DEV = "development"
+# Can be set, but the value is unused, pending approvals.
+KEY_USER_UUID = "user_uuid"
 
 
 class TraceConfig:
     """Tracing specific config in Telemetry config."""
 
-    def __init__(self, config):
+    def __init__(self, config: configparser.ConfigParser):
         self._config = config
 
     def update(self, enabled: bool, reason: Literal["AUTO", "USER"]):
         """Update the config."""
         self._config.set(TRACE_SECTION_KEY, ENABLED_KEY, str(enabled))
         self._config.set(TRACE_SECTION_KEY, ENABLED_REASON_KEY, reason)
+        if enabled:
+            self.gen_id()
+
+    def set_dev(self, enabled: bool):
+        """Set or delete the development flag."""
+        if enabled:
+            self._config.set(TRACE_SECTION_KEY, KEY_DEV, str(enabled))
+        elif KEY_DEV in self._config[TRACE_SECTION_KEY]:
+            del self._config[TRACE_SECTION_KEY][KEY_DEV]
+
+    def gen_id(self, regen=False):
+        """[Re]generate UUIDs."""
+        if regen or KEY_USER_UUID not in self._config[TRACE_SECTION_KEY]:
+            self._config.set(
+                TRACE_SECTION_KEY, KEY_USER_UUID, str(uuid.uuid4())
+            )
 
     def has_enabled(self) -> bool:
         """Checks if the enabled property exists in config."""
-
         return ENABLED_KEY in self._config[TRACE_SECTION_KEY]
 
     @property
     def enabled(self) -> bool:
         """Value of trace.enabled property in telemetry.cfg."""
-
         return self._config[TRACE_SECTION_KEY].getboolean(ENABLED_KEY, False)
 
     @property
     def enabled_reason(self) -> Literal["AUTO", "USER"]:
         """Value of trace.enabled_reason property in telemetry.cfg."""
-
         return self._config[TRACE_SECTION_KEY].get(ENABLED_REASON_KEY, "AUTO")
+
+    @property
+    def dev_flag(self):
+        """Check the telemetry development flag."""
+        return self._config[TRACE_SECTION_KEY].getboolean(KEY_DEV, False)
+
+    def user_uuid(self) -> Optional[str]:
+        """Get the user UUID value."""
+        return self._config[TRACE_SECTION_KEY].get(KEY_USER_UUID)
 
 
 class RootConfig:
