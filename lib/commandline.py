@@ -923,7 +923,7 @@ class BaseParser:
             self.add_common_argument_to_group(
                 self.debug_group,
                 "--log-telemetry",
-                action="store_false",
+                action="store_true",
                 help="Log telemetry spans.",
             )
 

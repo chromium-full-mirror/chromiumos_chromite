@@ -198,3 +198,21 @@ class SDKSourceDetector(resources.ResourceDetector):
                 resource[f"workon_{board}"] = atoms
 
         return resources.Resource(resource)
+
+
+class DevelopmentDetector(resources.ResourceDetector):
+    """Capture development related info."""
+
+    def __init__(self, *args, force_dev: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.force_dev = force_dev
+
+    def detect(self) -> resources.Resource:
+        resource = {
+            "development.ignore_span": (
+                self.force_dev
+                or os.environ.get("CHROMITE_TELEMETRY_IGNORE") == "1"
+            ),
+        }
+
+        return resources.Resource(resource)

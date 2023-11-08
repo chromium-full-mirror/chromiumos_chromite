@@ -14,7 +14,11 @@ _TRACING_INITIALIZED = False
 TRACEPARENT_ENVVAR = "traceparent"
 
 
-def initialize(enabled: bool = False, log_traces: bool = False):
+def initialize(
+    enabled: bool = False,
+    log_traces: bool = False,
+    development_mode: bool = False,
+):
     """Initialize opentelemetry tracing.
 
     For most use cases, `telemetry.initialize` should be used since that also
@@ -23,6 +27,8 @@ def initialize(enabled: bool = False, log_traces: bool = False):
     Args:
         enabled: Indicates is the traces should be enabled.
         log_traces: Indicates if the traces should be printed to console.
+        development_mode: Mark the telemetry as in development, so it can be
+            easily identified as such later, e.g. filtered out of queries.
     """
 
     # The opentelemetry imports are moved inside this function to reduce the
@@ -65,6 +71,7 @@ def initialize(enabled: bool = False, log_traces: bool = False):
             detector.ProcessDetector(),
             detector.SDKSourceDetector(),
             detector.SystemDetector(),
+            detector.DevelopmentDetector(force_dev=development_mode),
         ]
     )
 
