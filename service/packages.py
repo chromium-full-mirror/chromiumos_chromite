@@ -1328,7 +1328,7 @@ def uprev_protofiles(_build_targets, refs, _chroot):
     )
 
     result = uprev_lib.UprevVersionedPackageResult()
-    result.add_result(refs[0].revision, [new_ebuild_path])
+    result.add_result(refs[0].revision, [str(new_ebuild_path)])
     return result
 
 
