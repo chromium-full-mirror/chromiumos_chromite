@@ -1165,21 +1165,6 @@ def _BazelBuild(
     extra_env = {**extra_env, "BOARD": target_name}
 
     if bazel_lite:
-        # Find the real chromeos-chrome target.
-        chrome_target = cros_build_lib.run(
-            [
-                BAZEL_COMMAND,
-                "query",
-                'kind("ebuild",deps(@portage//chromeos-base/chromeos-chrome)) '
-                "intersect "
-                "@portage//internal/packages/stage2/target/board/"
-                "chromiumos/chromeos-base/chromeos-chrome/...",
-            ],
-            extra_env=extra_env,
-            capture_output=True,
-            encoding="utf-8",
-        ).stdout.strip()
-
         # We want to build all dependencies of virtual/target-os, -dev, and
         # -test except chromeos-chrome and packages that depend on it.
         # `cquery` handles `select`, instead of returning both branches.
@@ -1189,19 +1174,29 @@ def _BazelBuild(
             [
                 BAZEL_COMMAND,
                 "cquery",
+                "let chrome_target = "
+                'filter("'
+                "//internal/packages/stage2/target/board/"
+                "chromiumos/chromeos-base/chromeos-chrome:"
+                '", '
+                'kind("ebuild", '
+                "deps(@portage//chromeos-base/chromeos-chrome)"
+                ")"
+                ") "
+                "in "
                 'kind("ebuild",deps(@portage//virtual/target-os)) '
                 "union "
                 'kind("ebuild",deps(@portage//virtual/target-os-dev)) '
                 "union "
                 'kind("ebuild",deps(@portage//virtual/target-os-test)) '
                 "except "
-                f"rdeps(@portage//virtual/target-os, {chrome_target}) "
+                "rdeps(@portage//virtual/target-os, $chrome_target) "
                 "except "
-                f"rdeps(@portage//virtual/target-os-dev, {chrome_target}) "
+                "rdeps(@portage//virtual/target-os-dev, $chrome_target) "
                 "except "
-                f"rdeps(@portage//virtual/target-os-test, {chrome_target}) "
+                "rdeps(@portage//virtual/target-os-test, $chrome_target) "
                 "except "
-                f"{chrome_target}",
+                "$chrome_target",
             ],
             extra_env=extra_env,
             capture_output=True,
