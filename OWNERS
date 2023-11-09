@@ -1,7 +1,9 @@
 include /OWNERS.build
 
-# Add individuals outside Build who want OWNERS privileges
-engeg@google.com
+# Add individuals outside Build who want OWNERS privileges.
+# Keep sorted.  The LAST_RESORT_SUGGESTION should be applied to each
+# user so that people see our GWSQ instead.
+engeg@google.com #{LAST_RESORT_SUGGESTION}
 
 per-file OWNERS.arc = file://OWNERS.arc
 per-file OWNERS.au = file://OWNERS.au
