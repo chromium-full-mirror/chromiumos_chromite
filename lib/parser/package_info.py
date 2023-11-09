@@ -237,7 +237,7 @@ class PackageInfo:
         return f"PackageInfo<{str(self)}>"
 
     def __str__(self):
-        return self.cpvr or self.atom
+        return self.cpvr or self.atom or self.pvr or self.package
 
     @functools.lru_cache()
     def __format__(self, format_spec):
