@@ -405,6 +405,32 @@ def GetBinhosts(build_target: "build_target_lib.BuildTarget") -> List[str]:
     return binhosts.split() if binhosts else []
 
 
+def GetHostBinhosts() -> List[Optional[str]]:
+    """Get the binhosts for the host.
+
+    Returns:
+        The host's binhosts.
+    """
+    # Get the current value for PORTAGE_BINHOST.
+    portage_binhost = portage_util.PortageqEnvvar("PORTAGE_BINHOST")
+    binhosts = portage_binhost.split() if portage_binhost else []
+
+    # Read the host BINHOST.conf file storing additional host binhosts to use.
+    # Currently, only amd64-generic-snapshot updates the contents of the
+    # BINHOST.conf file.
+    host_binhost_conf = (
+        Path(constants.PUBLIC_BINHOST_CONF_DIR)
+        / "host"
+        / "amd64-generic-POSTSUBMIT_BINHOST.conf"
+    )
+    kvs = key_value_store.LoadFile(str(host_binhost_conf), ignore_missing=True)
+    value = kvs.get("POSTSUBMIT_BINHOST")
+    if value:
+        binhosts.extend(value.split())
+
+    return binhosts
+
+
 def ReadDevInstallPackageFile(filename: str) -> List[str]:
     """Parse the dev-install package file.
 

@@ -20,6 +20,7 @@ from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
 from chromite.lib.parser import package_info
+from chromite.service import binhost
 from chromite.service import sdk
 
 
@@ -439,7 +440,9 @@ class DeleteTest(cros_test_lib.RunCommandTestCase):
         self.assertCommandContains(["--delete", "--force", "--chroot", path])
 
 
-class UpdateTest(cros_test_lib.RunCommandTempDirTestCase):
+class UpdateTest(
+    cros_test_lib.RunCommandTempDirTestCase, cros_test_lib.LoggingTestCase
+):
     """Update function tests."""
 
     def setUp(self):
@@ -490,6 +493,31 @@ class UpdateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertFalse(result.success)
         self.assertEqual(expected_rc, result.return_code)
         self.assertCountEqual(pkgs, result.failed_pkgs)
+
+    def testLoggingPortageBinhosts(self):
+        """Test logging portage binhosts."""
+        self.PatchObject(
+            binhost,
+            "GetHostBinhosts",
+            return_value=["gs://binhost1", "gs://binhost2"],
+        )
+        with cros_test_lib.LoggingCapturer() as logs:
+            sdk.Update(sdk.UpdateArguments())
+
+            self.AssertLogsContain(
+                logs,
+                "PORTAGE_BINHOST: gs://binhost1 gs://binhost2",
+            )
+
+        self.PatchObject(binhost, "GetHostBinhosts", return_value=[])
+        with cros_test_lib.LoggingCapturer() as logs:
+            sdk.Update(sdk.UpdateArguments())
+
+            self.AssertLogsContain(
+                logs,
+                "PORTAGE_BINHOST",
+                inverted=True,
+            )
 
 
 class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):

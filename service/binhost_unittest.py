@@ -449,6 +449,59 @@ CPV: package/prebuilt
         )
 
 
+class GetHostBinhostsTest(cros_test_lib.MockTempDirTestCase):
+    """Unittests for GetHostBinhosts."""
+
+    def setUp(self):
+        self.portageq_envvar_mock = self.PatchObject(
+            portage_util, "PortageqEnvvar"
+        )
+        self.PatchObject(constants, "PUBLIC_BINHOST_CONF_DIR", new=self.tempdir)
+        self.test_host_binhost_conf = (
+            self.tempdir / "host" / "amd64-generic-POSTSUBMIT_BINHOST.conf"
+        )
+
+    def testReadAndParseBinhosts(self):
+        """Tests that binhosts are parsed from the BINHOST.conf file."""
+        self.portageq_envvar_mock.return_value = None
+        binhost_conf_file_content = """\
+POSTSUBMIT_BINHOST="gs://binhost1 gs://binhost2"
+"""
+        osutils.WriteFile(
+            self.test_host_binhost_conf,
+            binhost_conf_file_content,
+            makedirs=True,
+        )
+
+        binhosts = binhost.GetHostBinhosts()
+
+        self.assertEqual(binhosts, ["gs://binhost1", "gs://binhost2"])
+
+    def testIncorrectKey(self):
+        """Tests when the BINHOST.conf does not contain the correct key."""
+        self.portageq_envvar_mock.return_value = "gs://binhost1"
+        binhost_conf_file_content = """\
+WRONG_KEY="gs://binhost1 gs://binhost2"
+"""
+        osutils.WriteFile(
+            self.test_host_binhost_conf,
+            binhost_conf_file_content,
+            makedirs=True,
+        )
+
+        binhosts = binhost.GetHostBinhosts()
+
+        self.assertEqual(binhosts, ["gs://binhost1"])
+
+    def testMissingFile(self):
+        """Tests when the BINHOST.conf does not exist."""
+        self.portageq_envvar_mock.return_value = "gs://binhost1"
+
+        binhosts = binhost.GetHostBinhosts()
+
+        self.assertEqual(binhosts, ["gs://binhost1"])
+
+
 class RegenBuildCacheTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for RegenBuildCache."""
 

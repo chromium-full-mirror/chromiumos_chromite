@@ -23,6 +23,7 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
 from chromite.lib.parser import package_info
+from chromite.service import binhost
 from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
@@ -408,9 +409,6 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
 
     logging.info("Updating chroot in %s.", arguments.root)
 
-    portage_binhost = portage_util.PortageqEnvvar("PORTAGE_BINHOST")
-    logging.info("PORTAGE_BINHOST: %s", portage_binhost)
-
     with cros_sdk_lib.ChrootReadWrite():
         return _Update(arguments)
 
@@ -441,6 +439,12 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     existing = os.environ.get("FEATURES", "")
     features = " ".join((existing, "-separatedebug splitdebug")).strip()
     extra_env = {"FEATURES": features}
+
+    portage_binhosts = binhost.GetHostBinhosts()
+    if portage_binhosts:
+        binhosts = " ".join(portage_binhosts)
+        logging.info("PORTAGE_BINHOST: %s", binhosts)
+        extra_env["PORTAGE_BINHOST"] = binhosts
 
     # Set up the failed package status file.
     with osutils.TempDir() as tempdir:
