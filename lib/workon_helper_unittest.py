@@ -47,7 +47,9 @@ InstalledPackageMock = collections.namedtuple(
 class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
     """Tests for chromite.lib.workon_helper."""
 
-    def _MakeFakeEbuild(self, overlay, atom, version, is_workon=True):
+    def _MakeFakeEbuild(
+        self, overlay, atom, version, is_workon=True, multiline_inherit=False
+    ):
         """Makes fake ebuilds with minimal real content.
 
         Args:
@@ -56,6 +58,8 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             version: version suffix for the ebuild (e.g. '9999').
             is_workon: True iff this should be a workon-able package (i.e.
                 inherits cros-workon).
+            multiline_inherit: Make the ebuild with a multiline inherit
+                statement. Only has an effect if is_workon is true.
         """
         category, package = atom.split("/", 1)
         ebuild_path = os.path.join(
@@ -68,7 +72,10 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         )
         content = 'KEYWORDS="~*"\n'
         if is_workon:
-            content += "inherit cros-workon\n"
+            if multiline_inherit:
+                content += "inherit \\\ncros-workon\n"
+            else:
+                content += "inherit cros-workon\n"
         osutils.WriteFile(ebuild_path, content, makedirs=True)
         if atom not in self._valid_atoms:
             self._valid_atoms[atom] = ebuild_path
@@ -124,7 +131,9 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         self._MakeFakeEbuild(
             BOARD_OVERLAY_DIR, NOT_WORKON_ATOM, "0.0.1-r1", is_workon=False
         )
-        self._MakeFakeEbuild(HOST_OVERLAY_DIR, HOST_ATOM, "9999")
+        self._MakeFakeEbuild(
+            HOST_OVERLAY_DIR, HOST_ATOM, "9999", multiline_inherit=True
+        )
         # Patch the modules interfaces to the rest of the world.
         self.PatchObject(
             portage_util, "FindEbuildForPackage", self._MockFindEbuildForPackage

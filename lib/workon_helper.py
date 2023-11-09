@@ -76,7 +76,9 @@ def _IsWorkonEbuild(include_chrome, ebuild_path, ebuild_contents=None):
         workon_eclasses += "|chromium-source"
 
     ebuild_contents = ebuild_contents or osutils.ReadFile(ebuild_path)
-    if re.search("^inherit .*(%s)" % workon_eclasses, ebuild_contents, re.M):
+    if re.search(
+        "^inherit (.|\\\n)*(%s)" % workon_eclasses, ebuild_contents, re.M
+    ):
         return True
 
     return False
