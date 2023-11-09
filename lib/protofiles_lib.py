@@ -5,6 +5,7 @@
 """Logic to handle chromeos-base/protofiles uprev."""
 
 import base64
+import dataclasses
 import enum
 import glob
 import logging
@@ -21,6 +22,15 @@ from chromite.lib.parser import package_info
 
 
 _REMOTE_BRANCH_CROS_MAIN = "cros/main"
+
+
+@dataclasses.dataclass(frozen=True)
+class ProtofilesModifiedPaths:
+    """Paths to files modified by ProtofilesLib.Uprev()"""
+
+    version_file_path: Path
+    new_ebuild_path: Path
+    old_ebuild_path: Path
 
 
 class ProtofilesLib:
@@ -42,7 +52,7 @@ class ProtofilesLib:
         COMMIT = 0
         TREE = 1
 
-    def Uprev(self, cros_path: Path) -> Path:
+    def Uprev(self, cros_path: Path) -> ProtofilesModifiedPaths:
         """Uprevs chromeos-base/protofiles package.
 
         Uprevs protofiles package with ToT hashes of components/policy,
@@ -52,7 +62,8 @@ class ProtofilesLib:
             cros_path: absolute path to ChromeOS repo checkout
 
         Returns:
-            Absolute path to a new chromeos-base/protofiles ebuild file.
+            ProtofilesModifiedPaths with absolute paths to a version file,
+            and a new and an old chromeos-base/protofiles ebuild files.
         """
 
         cros_src_path = cros_path / "src"
@@ -80,7 +91,7 @@ class ProtofilesLib:
         )
 
         logging.info("Updating ebuild file for %s.", package_path)
-        new_ebuild_path = self._UpdateEbuildFile(
+        modified_ebuilds = self._UpdateEbuildFile(
             package_path, package_name, commit_hashes, tree_hashes
         )
 
@@ -90,7 +101,11 @@ class ProtofilesLib:
         logging.info("Updating version file %s.", version_file_path)
         osutils.WriteFile(version_file_path, version_content, "wb")
 
-        return new_ebuild_path
+        return ProtofilesModifiedPaths(
+            version_file_path=version_file_path,
+            new_ebuild_path=modified_ebuilds[0],
+            old_ebuild_path=modified_ebuilds[1],
+        )
 
     def _FetchLatestCommitHashes(
         self, project_full_path_list: List[Path], object_type: _GitObjectType
@@ -135,7 +150,7 @@ class ProtofilesLib:
         package_name: str,
         commit_hashes: Dict[Path, str],
         tree_hashes: Dict[Path, str],
-    ) -> Path:
+    ) -> List[Path]:
         """Updates a stable ebuild file in the |package_path| with new hashes.
 
         Searches for the stable ebuild file with |package_name| prefix
@@ -151,7 +166,8 @@ class ProtofilesLib:
             tree_hashes: dictionary of projects mapped to latest tree hashes
 
         Returns:
-            Absolute path to a new chromeos-base/protofiles ebuild file.
+            List with absolute paths to a new and an old
+            chromeos-base/protofiles ebuild files, respectively.
 
         Raises:
             NoEbuildsError: if there are no stable ebuild files found
@@ -187,7 +203,7 @@ class ProtofilesLib:
 
         self._ReplaceHashes(new_ebuild_path, commit_hashes, tree_hashes)
 
-        return new_ebuild_path
+        return [new_ebuild_path, old_ebuild_path]
 
     def _ReplaceHashes(
         self,

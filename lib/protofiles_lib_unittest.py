@@ -4,7 +4,6 @@
 
 """Test the protofiles_lib module."""
 
-import os
 from pathlib import Path
 from unittest import mock
 
@@ -36,14 +35,14 @@ CROS_WORKON_TREE=(
     osutils.Touch(ebuild_path, True)
     osutils.WriteFile(ebuild_path, ebuild_content, "w")
     # Create an initial version file.
-    version_path = package_path / "files/VERSION"
+    version_file_path = package_path / "files/VERSION"
     version_content = """MAJOR=120
 MINOR=0
 BUILD=6091
 PATCH=0
 """
-    osutils.Touch(version_path, True)
-    osutils.WriteFile(version_path, version_content, "w")
+    osutils.Touch(version_file_path, True)
+    osutils.WriteFile(version_file_path, version_content, "w")
     # Mock fetchers.
     protofiles_lib_obj = protofiles_lib.ProtofilesLib()
     fetch_latest_commit_hashes_return_value = {
@@ -67,14 +66,21 @@ PATCH=0
         return_value={fetch_chrome_version_return_value},
     ).start()
 
-    new_ebuild_path = protofiles_lib_obj.Uprev(cros_path)
+    modified_paths: protofiles_lib.ProtofilesModifiedPaths = (
+        protofiles_lib_obj.Uprev(cros_path)
+    )
 
+    # Verify that the returned path to the old ebuild file is correct.
+    assert modified_paths.old_ebuild_path.absolute()
+    assert modified_paths.old_ebuild_path == ebuild_path
+    assert not modified_paths.old_ebuild_path.exists()
+    # Verify that the returned path to the new ebuild file is correct.
+    assert modified_paths.new_ebuild_path.absolute()
+    assert modified_paths.new_ebuild_path.exists()
     expected_new_ebuild_path = package_path / "protofiles-0.0.119.ebuild"
-    assert new_ebuild_path.absolute()
-    assert expected_new_ebuild_path.exists()
-    assert new_ebuild_path == expected_new_ebuild_path
-    assert not os.path.exists(ebuild_path)
-    expected_ebuild_content = """CROS_WORKON_COMMIT=(
+    assert modified_paths.new_ebuild_path == expected_new_ebuild_path
+    # Verify the contents of the new ebuild file.
+    expected_new_ebuild_content = """CROS_WORKON_COMMIT=(
 "e2594b65e49b64b7fe100f7fd439ec93ff937a3d" # policy
 "8e541f07f697cfb8efe47560ae810b4cb3628cce" # private_membership
 "4fdad30678093c984bd8b21258bbd0b2c993f60f" # shell-encryption
@@ -85,8 +91,12 @@ CROS_WORKON_TREE=(
 "4fdad30678093c984bd8b21258bbd0b2c993f60f" # shell-encryption
 )
 """
+    actual_new_ebuild_content = osutils.ReadFile(modified_paths.new_ebuild_path)
+    assert actual_new_ebuild_content == expected_new_ebuild_content
+    # Verify that the returned path to the version file is correct.
+    assert modified_paths.version_file_path.absolute()
+    assert modified_paths.version_file_path == version_file_path
+    # Verify the contents of the new version file.
     expected_version_content = str(fetch_chrome_version_return_value, "utf-8")
-    modified_ebuild_content = osutils.ReadFile(new_ebuild_path)
-    modified_version_content = osutils.ReadFile(version_path)
-    assert modified_ebuild_content == expected_ebuild_content
-    assert modified_version_content, expected_version_content
+    actual_version_content = osutils.ReadFile(modified_paths.version_file_path)
+    assert actual_version_content, expected_version_content
