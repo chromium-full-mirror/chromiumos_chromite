@@ -1,4 +1,13 @@
 {
+  "black-formatter.path": [
+    "${workspaceFolder}/scripts/black"
+  ],
+  "pylint.path": [
+    "${workspaceFolder}/scripts/pylint"
+  ],
+  "pylint.severity": {
+    "refactor": "Warning"
+  },
   "python.formatting.blackPath": "${workspaceFolder}/scripts/black",
   "python.formatting.provider": "black",
   "python.linting.pylintEnabled": true,
