@@ -57,6 +57,7 @@ IMAGE_ADDITIONAL_SYSROOT_FILES = {
 }
 
 TAST_BUNDLE_NAME = "tast_bundles.tar.bz2"
+TAST_INTEL_BUNDLE_NAME = "tast_intel_bundles.tar.bz2"
 TAST_COMPRESSOR = cros_build_lib.CompressionType.BZIP2
 
 CpeResult = collections.namedtuple("CpeResult", ["report", "warnings"])
@@ -823,13 +824,58 @@ def BundleTastFiles(
     cwd = chroot.full_path(sysroot.JoinPath("build"))
 
     dirs = []
-    for d in ("libexec/tast", "share/tast"):
+    srcs = [
+        "libexec/tast/bundles/local/crosint",
+        "share/tast/metadata/local/crosint.pb",
+        "share/tast/data/go.chromium.org/tast-tests-private",
+    ]
+    for d in srcs:
         if os.path.exists(os.path.join(cwd, d)):
             dirs.append(d)
     if not dirs:
         return None
 
     tarball = os.path.join(output_dir, TAST_BUNDLE_NAME)
+    cros_build_lib.CreateTarball(
+        tarball,
+        cwd,
+        compression=TAST_COMPRESSOR,
+        chroot=chroot.path,
+        inputs=dirs,
+    )
+
+    return tarball
+
+
+def BundleTastIntelFiles(
+    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot", output_dir: str
+) -> Optional[str]:
+    """Tar up the Tast Intel private test bundles.
+
+    Args:
+        chroot: Chroot containing the sysroot.
+        sysroot: Sysroot whose files are being archived.
+        output_dir: Location for storing the result tarball.
+
+    Returns:
+        Path of the generated tarball, or None if there is no private test
+            bundles.
+    """
+    cwd = chroot.full_path(sysroot.JoinPath("build"))
+
+    dirs = []
+    srcs = [
+        "libexec/tast/bundles/local/crosint_intel",
+        "share/tast/metadata/local/crosint_intel.pb",
+        "share/tast/data/go.chromium.org/partner-intel-private/",
+    ]
+    for d in srcs:
+        if os.path.exists(os.path.join(cwd, d)):
+            dirs.append(d)
+    if not dirs:
+        return None
+
+    tarball = os.path.join(output_dir, TAST_INTEL_BUNDLE_NAME)
     cros_build_lib.CreateTarball(
         tarball,
         cwd,

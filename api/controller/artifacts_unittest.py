@@ -349,7 +349,7 @@ class BundleTastFilesTest(BundleTestCase):
             self.sysroot_request, self.response, self.mock_call_config
         )
         patch.assert_not_called()
-        self.assertEqual(len(self.response.artifacts), 1)
+        self.assertEqual(len(self.response.artifacts), 2)
         self.assertEqual(
             self.response.artifacts[0].artifact_path.path,
             os.path.join(self.output_dir, "tast_bundles.tar.gz"),

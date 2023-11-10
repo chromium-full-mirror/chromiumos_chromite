@@ -1156,12 +1156,16 @@ class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
         """Successfully create a tast tarball.
 
         /build/board/build/{libexec/tast,share/tast}/* ->
-          libexec/tast/*
-          share/tast/*
+          libexec/tast/undles/local/crosint
+          share/tast/metadata/local/crosint.pb
+          share/tast/data/go.chromium.org/tast-tests-private/*
         """
         sysroot_files = (
-            cros_test_lib.Directory("libexec/tast", ("foo", "bar")),
-            cros_test_lib.Directory("share/tast", ("baz",)),
+            "libexec/tast/bundles/local/crosint",
+            "share/tast/metadata/local/crosint.pb",
+            cros_test_lib.Directory(
+                "share/tast/data/go.chromium.org/tast-tests-private", ("baz",)
+            ),
         )
 
         cros_test_lib.CreateOnDiskHierarchy(
@@ -1176,6 +1180,54 @@ class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
         # Verify location and content of the tarball.
         self.assertEqual(
             tarball, str(self.output_dir / artifacts.TAST_BUNDLE_NAME)
+        )
+        cros_test_lib.VerifyTarball(tarball, sysroot_files)
+
+
+class BundleTastIntelFilesTest(cros_test_lib.MockTempDirTestCase):
+    """BundleTastIntelFiles tests."""
+
+    def setUp(self):
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+        self.sysroot = sysroot_lib.Sysroot("/build/board")
+        self.output_dir = self.tempdir / "output_dir"
+
+        osutils.SafeMakedirs(self.output_dir)
+
+    def testSuccess(self):
+        """Successfully create a tast tarball.
+
+        /build/board/build/{libexec/tast,share/tast}/* ->
+          libexec/tast/undles/local/crosint_intel
+          share/tast/metadata/local/crosint_intel.pb
+          share/tast/data/go.chromium.org/partner-intel-private/*
+        """
+        sysroot_files = (
+            "libexec/tast/bundles/local/crosint_intel",
+            "share/tast/metadata/local/crosint_intel.pb",
+            cros_test_lib.Directory(
+                "share/tast/data/go.chromium.org/partner-intel-private",
+                ("baz",),
+            ),
+        )
+
+        cros_test_lib.CreateOnDiskHierarchy(
+            self.chroot.full_path(self.sysroot.JoinPath("build")),
+            sysroot_files,
+        )
+
+        tarball = artifacts.BundleTastIntelFiles(
+            self.chroot, self.sysroot, self.output_dir
+        )
+
+        # Verify location and content of the tarball.
+        self.assertEqual(
+            tarball, str(self.output_dir / artifacts.TAST_INTEL_BUNDLE_NAME)
         )
         cros_test_lib.VerifyTarball(tarball, sysroot_files)
 

@@ -417,6 +417,16 @@ def _BundleTastFilesResponse(input_proto, output_proto, _config) -> None:
         )
     )
 
+    # Add test tast intel private files to a successful response.
+    output_proto.artifacts.add(
+        artifact_path=common_pb2.Path(
+            path=os.path.join(
+                input_proto.result_path.path.path, "tast_intel_bundles.tar.gz"
+            ),
+            location=common_pb2.Path.OUTSIDE,
+        )
+    )
+
 
 @faux.success(_BundleTastFilesResponse)
 @faux.empty_error
@@ -437,10 +447,24 @@ def BundleTastFiles(
         logging.warning("Sysroot does not exist: %s", sysroot.path)
         return
 
+    # Add test tast private files to a successful response.
     archive = artifacts.BundleTastFiles(chroot, sysroot, output_dir)
 
     if not archive:
         logging.warning("Found no tast files for %s.", sysroot.path)
+        return
+
+    output_proto.artifacts.add(
+        artifact_path=common_pb2.Path(
+            path=archive, location=common_pb2.Path.OUTSIDE
+        )
+    )
+
+    # Add test tast intel private files to a successful response.
+    archive = artifacts.BundleTastIntelFiles(chroot, sysroot, output_dir)
+
+    if not archive:
+        logging.warning("Found no tast intel files for %s.", sysroot.path)
         return
 
     output_proto.artifacts.add(
