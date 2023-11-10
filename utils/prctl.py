@@ -9,7 +9,10 @@ import ctypes.util
 import enum
 import errno
 import os
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
+
+
+PrctlType = Union["ctypes._CArgObject", int]
 
 
 class Option(enum.IntEnum):
@@ -44,14 +47,14 @@ class PrctlError(OSError, Error):
     option: Option
     returncode: int
     # NB: Can't call |args| as Error.args already takes that over.
-    prargs: List[int]
+    prargs: List[Union[PrctlType, str]]
 
     # pylint: disable=redefined-outer-name
     def __init__(
         self,
         option: Option,
         returncode: int,
-        prargs: Optional[List[Any]] = None,
+        prargs: Optional[List[Union[PrctlType, str]]] = None,
         errno: Optional[int] = None,
     ):
         if errno is None:
@@ -86,9 +89,6 @@ class PrctlError(OSError, Error):
             f"PrctlError({self.option.name}, {self.returncode}, "
             f"{self.prargs}{str_errno})"
         )
-
-
-PrctlType = Union["ctypes._CArgObject", int]
 
 
 def prctl(
