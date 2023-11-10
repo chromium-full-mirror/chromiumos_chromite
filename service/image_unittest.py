@@ -28,37 +28,33 @@ class BuildImageTest(cros_test_lib.RunCommandTempDirTestCase):
   def testInsideChrootCommand(self):
     """Test the build_image command when called from inside the chroot."""
     self.PatchObject(cros_build_lib, 'IsInsideChroot', return_value=True)
-    image.Build(board='board')
+    image.Build('board', [constants.IMAGE_TYPE_BASE])
     self.assertCommandContains(
         [os.path.join(constants.CROSUTILS_DIR, 'build_image')])
 
   def testOutsideChrootCommand(self):
     """Test the build_image command when called from outside the chroot."""
     self.PatchObject(cros_build_lib, 'IsInsideChroot', return_value=False)
-    image.Build(board='board')
+    image.Build('board', [constants.IMAGE_TYPE_BASE])
     self.assertCommandContains(['./build_image'])
 
   def testBuildBoardHandling(self):
     """Test the argument handling."""
     # No board and no default should raise an error.
-    self.PatchObject(cros_build_lib, 'GetDefaultBoard', return_value=None)
     with self.assertRaises(image.InvalidArgumentError):
-      image.Build()
+      image.Build(None, [constants.IMAGE_TYPE_BASE])
 
-    # Falls back to default when no board provided.
-    self.PatchObject(cros_build_lib, 'GetDefaultBoard', return_value='default')
-    image.Build()
-    self.assertCommandContains(['--board', 'default'])
+    with self.assertRaises(image.InvalidArgumentError):
+      image.Build('', [constants.IMAGE_TYPE_BASE])
 
-    # Should be using the passed board before the default.
-    image.Build('board')
+    # Should be using the passed board.
+    image.Build('board', [constants.IMAGE_TYPE_BASE])
     self.assertCommandContains(['--board', 'board'])
 
   def testBuildImageTypes(self):
     """Test the image type handling."""
-    # Should default to building the base image.
-    image.Build('board')
-    self.assertCommandContains([constants.IMAGE_TYPE_BASE])
+    result = image.Build('board', [])
+    assert result.all_built and not result.build_run
 
     # Should be using the argument when passed.
     image.Build('board', [constants.IMAGE_TYPE_DEV])
