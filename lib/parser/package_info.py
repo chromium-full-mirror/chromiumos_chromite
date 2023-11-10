@@ -11,7 +11,6 @@ import collections
 import functools
 import re
 import string
-from typing import Union
 
 # Define data structures for holding PV and CPV objects.
 _PV_FIELDS = ['pv', 'package', 'version', 'version_no_rev', 'rev']
@@ -31,7 +30,7 @@ _ver = (r'(?P<version>'
 _pvr_re = re.compile(r'^(?P<pv>%s-%s)$' % (_pkg, _ver), re.VERBOSE)
 
 
-def _SplitPV(pv, strict=True):
+def SplitPV(pv, strict=True):
   """Takes a PV value and splits it into individual components.
 
   Deprecated, use parse() instead.
@@ -79,7 +78,7 @@ def SplitCPV(cpv, strict=True):
   else:
     category = chunks[0]
 
-  m = _SplitPV(chunks[-1], strict=strict)
+  m = SplitPV(chunks[-1], strict=strict)
   if strict and (category is None or m is None):
     return None
 
@@ -96,23 +95,9 @@ def SplitCPV(cpv, strict=True):
   return CPV(category=category, cp=cp, cpv=real_cpv, cpf=cpf, **m._asdict())
 
 
-def parse(cpv: Union[str, CPV, 'PackageInfo']):
-  """Parse a package to a PackageInfo object.
-
-  Args:
-    cpv: Any package type. This function can parse strings, translate CPVs to a
-      PackageInfo instance, and will simply return the argument if given a
-      PackageInfo instance.
-
-  Returns:
-    PackageInfo
-  """
-  if isinstance(cpv, PackageInfo):
-    return cpv
-  elif isinstance(cpv, CPV):
-    parsed = cpv
-  else:
-    parsed = SplitCPV(cpv, strict=False)
+def parse(cpv):
+  """Parse a CPV string as a PackageInfo object."""
+  parsed = SplitCPV(cpv, strict=False)
   # Temporary measure. SplitCPV parses X-r1 with the revision as r1.
   # Once the SplitCPV function has been fully deprecated we can switch
   # the regex to exclude the r from what it parses as the revision instead.
@@ -147,12 +132,6 @@ class PackageInfo(object):
 
   def __hash__(self):
     return hash((self._category, self._package, self._version, self._revision))
-
-  def __repr__(self):
-    return f'PackageInfo<{str(self)}>'
-
-  def __str__(self):
-    return self.cpvr or self.atom
 
   @functools.lru_cache()
   def __format__(self, format_spec):
