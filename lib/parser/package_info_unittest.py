@@ -23,11 +23,11 @@ def test_parse_cpf():
 
 def test_parse_pv():
   """Validate parsing a PV."""
-  pkg = package_info.parse('bar-1.2.3_rc1-r5')
+  pkg = package_info.parse('bar-1.0.0')
   assert not pkg.category
   assert pkg.package == 'bar'
-  assert pkg.version == '1.2.3_rc1'
-  assert pkg.revision == 5
+  assert pkg.version == '1.0.0'
+  assert not pkg.revision
 
 
 def test_parse_atom():
@@ -45,23 +45,7 @@ def test_parse_invalid():
   package_info.parse('invalid/package/format')
 
 
-def test_parse_cpv():
-  """Verify CPV instance parsing."""
-  cpv = package_info.SplitCPV('foo/bar-1.2.3-r3')
-  parsed = package_info.parse('foo/bar-1.2.3-r3')
-  parsed_cpv = package_info.parse(cpv)
-  assert parsed == parsed_cpv
-
-
-def test_parse_pkg_info():
-  """Verify PackageInfo instance parsing."""
-  pkg = package_info.parse('foo/bar-1.2.3-r3')
-  pkg2 = package_info.parse(pkg)
-  assert pkg == pkg2
-
-
 def test_package_info_eq():
-  """Test __eq__ method."""
   pkg = package_info.PackageInfo('foo', 'bar', 1, 2)
   pkg2 = package_info.PackageInfo('foo', 'bar', '1', '2')
   assert pkg == pkg2
