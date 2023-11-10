@@ -1352,7 +1352,8 @@ def starbase_find_and_uprev(
     package_dir = Path(overlay_root, category, package_name)
     ebuilds = list(package_dir.glob("*.ebuild"))
     if not ebuilds:
-        raise Error(f"No ebuilds found in {package_dir}")
+        logging.error("No ebuilds found in %s", package_dir)
+        return []
     # Find the -rX symlink.
     old_pkg = max(package_info.parse(x) for x in ebuilds)
     logging.info("Package info: %s", old_pkg)
@@ -1482,13 +1483,12 @@ def uprev_starbase_artifacts(
     Returns:
         UprevVersionedPackageResult: The result of updating this ebuild.
     """
-    overlay_path = os.path.join(
-        "src",
-        "private-overlays",
-        "project-starline-private",
+    overlay_root = str(
+        constants.SOURCE_ROOT
+        / "src"
+        / "private-overlays"
+        / "project-starline-private"
     )
-    overlay_root = str(constants.SOURCE_ROOT.joinpath(overlay_path))
-
     logging.info("Starbase uprev: %d refs[] = %s", len(refs), refs)
 
     result = uprev_lib.UprevVersionedPackageResult()
