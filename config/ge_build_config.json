@@ -3776,6 +3776,24 @@
       "models": [
         {
           "board_name": "corsola",
+          "name": "chinchou",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7211,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "corsola",
+          "name": "chinchou360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7211,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "corsola",
           "name": "kingler",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -3952,6 +3970,24 @@
       "builder": "RELEASE",
       "experimental": true,
       "models": [
+        {
+          "board_name": "corsola-arc-t",
+          "name": "chinchou",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7276,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "corsola-arc-t",
+          "name": "chinchou360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7276,
+          "is_active": true,
+          "is_experimental": true
+        },
         {
           "board_name": "corsola-arc-t",
           "name": "kingler",
