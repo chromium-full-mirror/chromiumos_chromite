@@ -2791,6 +2791,24 @@
       "models": [
         {
           "board_name": "corsola-kernelnext",
+          "name": "chinchou",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7257,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "corsola-kernelnext",
+          "name": "chinchou360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7257,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "corsola-kernelnext",
           "name": "kingler",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -7748,6 +7766,15 @@
         },
         {
           "board_name": "nissa-kernelnext",
+          "name": "gothraxcs",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-kernelnext",
           "name": "joxer",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -7978,6 +8005,15 @@
         {
           "board_name": "nissa-pvs",
           "name": "gothrax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "gothraxcs",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7268,
