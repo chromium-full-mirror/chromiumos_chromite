@@ -19,7 +19,7 @@ CLANG_FORMAT_BUCKET = "gs://chromium-clang-format"
 # The SHA-1 checksum of the clang-format binary.
 # Refer to clang-format.sha1 to see what chromium uses:
 # https://chromium.googlesource.com/chromium/src/+/HEAD/buildtools/linux64/clang-format.sha1
-CLANG_FORMAT_SHA1 = "6ef2183a178a53e47e4448dbe192b1d8d5290222"
+CLANG_FORMAT_SHA1 = "b42097ca924d1f1736a5a7806068fed9d7345eb4"
 
 
 class ClangFormatCache(cache.RemoteCache):
