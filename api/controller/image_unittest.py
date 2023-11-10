@@ -84,24 +84,26 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
     request = self._GetRequest(board='board')
 
     # Failed result to avoid the success handling logic.
-    result = image_service.BuildResult(1, [])
+    result = image_service.BuildResult([constants.IMAGE_TYPE_BASE])
+    result.return_code = 1
     build_patch = self.PatchObject(image_service, 'Build', return_value=result)
 
     image_controller.Create(request, self.response, self.api_config)
-    build_patch.assert_called_with(images=[constants.IMAGE_TYPE_BASE],
-                                   board='board', config=mock.ANY)
+    build_patch.assert_any_call(
+        'board', [constants.IMAGE_TYPE_BASE], config=mock.ANY)
 
   def testSingleTypeSpecified(self):
     """Test it's properly using a specified type."""
     request = self._GetRequest(board='board', types=[common_pb2.DEV])
 
     # Failed result to avoid the success handling logic.
-    result = image_service.BuildResult(1, [])
+    result = image_service.BuildResult([constants.IMAGE_TYPE_DEV])
+    result.return_code = 1
     build_patch = self.PatchObject(image_service, 'Build', return_value=result)
 
     image_controller.Create(request, self.response, self.api_config)
-    build_patch.assert_called_with(images=[constants.IMAGE_TYPE_DEV],
-                                   board='board', config=mock.ANY)
+    build_patch.assert_any_call(
+        'board', [constants.IMAGE_TYPE_DEV], config=mock.ANY)
 
   def testMultipleAndImpliedTypes(self):
     """Test multiple types and implied type handling."""
@@ -112,16 +114,18 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
     request = self._GetRequest(board='board', types=types)
 
     # Failed result to avoid the success handling logic.
-    result = image_service.BuildResult(1, [])
+    result = image_service.BuildResult(expected_images)
+    result.return_code = 1
     build_patch = self.PatchObject(image_service, 'Build', return_value=result)
 
     image_controller.Create(request, self.response, self.api_config)
-    build_patch.assert_called_with(images=expected_images, board='board',
-                                   config=mock.ANY)
+    build_patch.assert_any_call('board', expected_images, config=mock.ANY)
 
   def testFailedPackageHandling(self):
     """Test failed packages are populated correctly."""
-    result = image_service.BuildResult(1, ['foo/bar', 'cat/pkg'])
+    result = image_service.BuildResult([])
+    result.return_code = 1
+    result.failed_packages = ['foo/bar', 'cat/pkg']
     expected_packages = [('foo', 'bar'), ('cat', 'pkg')]
     self.PatchObject(image_service, 'Build', return_value=result)
 
@@ -135,7 +139,8 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
 
   def testNoPackagesFailureHandling(self):
     """Test failed packages are populated correctly."""
-    result = image_service.BuildResult(1, [])
+    result = image_service.BuildResult([])
+    result.return_code = 1
     self.PatchObject(image_service, 'Build', return_value=result)
 
     input_proto = image_pb2.CreateImageRequest()
