@@ -10,7 +10,11 @@ The image related API endpoints should generally be found here.
 
 from __future__ import print_function
 
+import copy
+import logging
 import os
+import sys
+from typing import List, NamedTuple, Set
 
 from chromite.api import controller
 from chromite.api import faux
@@ -61,16 +65,50 @@ _VM_IMAGE_MAPPING = {
     _TEST_GUEST_VM_ID: _IMAGE_MAPPING[_TEST_ID],
 }
 
-# Supported image types for PushImage.
-SUPPORTED_IMAGE_TYPES = {
-    common_pb2.IMAGE_TYPE_RECOVERY: constants.IMAGE_TYPE_RECOVERY,
-    common_pb2.IMAGE_TYPE_FACTORY: constants.IMAGE_TYPE_FACTORY,
-    common_pb2.IMAGE_TYPE_FIRMWARE: constants.IMAGE_TYPE_FIRMWARE,
-    common_pb2.IMAGE_TYPE_ACCESSORY_USBPD: constants.IMAGE_TYPE_ACCESSORY_USBPD,
-    common_pb2.IMAGE_TYPE_ACCESSORY_RWSIG: constants.IMAGE_TYPE_ACCESSORY_RWSIG,
-    common_pb2.IMAGE_TYPE_BASE: constants.IMAGE_TYPE_BASE,
-    common_pb2.IMAGE_TYPE_GSC_FIRMWARE: constants.IMAGE_TYPE_GSC_FIRMWARE
+# Dict to describe the prerequisite built images for each mod image type.
+_MOD_IMAGE_MAPPING = {
+    _RECOVERY_ID: _IMAGE_MAPPING[_BASE_ID],
 }
+
+
+# Built image directory symlink names. These names allow specifying a static
+# location for creation to simplify later archival stages. In practice, this
+# sets the symlink argument to build_packages.
+# Core are the build/dev/test images.
+# Use "latest" until we do a better job of passing through image directories,
+# e.g. for artifacts.
+LOCATION_CORE = 'latest'
+# The factory_install image.
+LOCATION_FACTORY = 'factory_shim'
+
+
+class ImageTypes(NamedTuple):
+  """Parsed image types."""
+  images: Set[str]
+  vms: Set[int]
+  mod_images: Set[int]
+
+  @property
+  def core_images(self) -> List[str]:
+    """The core images (base/dev/test) as a list."""
+    return list(self.images - {_IMAGE_MAPPING[_FACTORY_ID]}) or []
+
+  @property
+  def has_factory(self) -> bool:
+    """Whether the factory image is present."""
+    return _IMAGE_MAPPING[_FACTORY_ID] in self.images
+
+  @property
+  def factory(self) -> List[str]:
+    """A list with the factory type if set."""
+    return [_IMAGE_MAPPING[_FACTORY_ID]] if self.has_factory else []
+
+def _add_image_to_proto(output_proto, path, image_type, board):
+  """Quick helper function to add a new image to the output proto."""
+  new_image = output_proto.images.add()
+  new_image.path = path
+  new_image.type = image_type
+  new_image.build_target.name = board
 
 
 def _CreateResponse(_input_proto, output_proto, _config):
@@ -96,35 +134,71 @@ def Create(input_proto, output_proto, _config):
   # Build the base image if no images provided.
   to_build = input_proto.image_types or [_BASE_ID]
 
-  image_types, vm_types = _ParseImagesToCreate(to_build)
+  image_types = _ParseImagesToCreate(to_build)
   build_config = _ParseCreateBuildConfig(input_proto)
+  factory_build_config = copy.copy(build_config)
+  build_config.symlink = LOCATION_CORE
+  factory_build_config.symlink = LOCATION_FACTORY
 
+  # Try building the core and factory images.
   # Sorted isn't really necessary here, but it's much easier to test.
-  result = image.Build(
-      board=board, images=sorted(list(image_types)), config=build_config)
+  core_result = image.Build(
+      board, sorted(image_types.core_images), config=build_config)
+  logging.debug('Core Result Images: %s', core_result.images)
 
-  output_proto.success = result.success
+  factory_result = image.Build(
+      board, image_types.factory, config=factory_build_config)
+  logging.debug('Factory Result Images: %s', factory_result.images)
 
-  if result.success:
-    # Success -- we need to list out the images we built in the output.
-    _PopulateBuiltImages(board, image_types, output_proto)
+  # A successful run will have no images missing, will have run at least one
+  # of the two image sets, and neither attempt errored. The no error condition
+  # should be redundant with no missing images, but is cheap insurance.
+  all_built = core_result.all_built and factory_result.all_built
+  one_ran = core_result.build_run or factory_result.build_run
+  no_errors = not core_result.run_error and not factory_result.run_error
+  output_proto.success = success = all_built and one_ran and no_errors
 
-    if vm_types:
-      for vm_type in vm_types:
-        is_test = vm_type in [_TEST_VM_ID, _TEST_GUEST_VM_ID]
-        try:
-          if vm_type in [_BASE_GUEST_VM_ID, _TEST_GUEST_VM_ID]:
-            vm_path = image.CreateGuestVm(board, is_test=is_test)
-          else:
-            vm_path = image.CreateVm(
-                board, disk_layout=build_config.disk_layout, is_test=is_test)
-        except image.ImageToVmError as e:
-          cros_build_lib.Die(e)
+  if success:
+    # Success! We need to record the images we built in the output.
+    all_images = {**core_result.images, **factory_result.images}
+    for img_name, img_path in all_images.items():
+      _add_image_to_proto(output_proto, str(img_path), _IMAGE_MAPPING[img_name],
+                          board)
 
-        new_image = output_proto.images.add()
-        new_image.path = vm_path
-        new_image.type = vm_type
-        new_image.build_target.name = board
+    # Build and record VMs as necessary.
+    for vm_type in image_types.vms:
+      is_test = vm_type in [_TEST_VM_ID, _TEST_GUEST_VM_ID]
+      img_type = _IMAGE_MAPPING[_TEST_ID if is_test else _BASE_ID]
+      img_dir = core_result.images[img_type].parent.resolve()
+      try:
+        if vm_type in [_BASE_GUEST_VM_ID, _TEST_GUEST_VM_ID]:
+          vm_path = image.CreateGuestVm(
+              board, is_test=is_test, image_dir=img_dir)
+        else:
+          vm_path = image.CreateVm(
+              board,
+              disk_layout=build_config.disk_layout,
+              is_test=is_test,
+              image_dir=img_dir)
+      except image.ImageToVmError as e:
+        cros_build_lib.Die(e)
+
+      _add_image_to_proto(output_proto, vm_path, vm_type, board)
+
+    # Build and record any mod images.
+    for mod_type in image_types.mod_images:
+      if mod_type == _RECOVERY_ID:
+        base_image_path = core_result.images[constants.IMAGE_TYPE_BASE]
+        result = image.BuildRecoveryImage(
+            board=board, image_path=base_image_path)
+        if result.all_built:
+          _add_image_to_proto(output_proto,
+                              result.images[_IMAGE_MAPPING[mod_type]], mod_type,
+                              board)
+        else:
+          cros_build_lib.Die('Failed to create recovery image.')
+      else:
+        cros_build_lib.Die('_RECOVERY_ID is the only mod_image_type.')
 
     # Read metric events log and pipe them into output_proto.events.
     deserialize_metrics_log(output_proto.events, prefix=board)
@@ -132,36 +206,43 @@ def Create(input_proto, output_proto, _config):
 
   else:
     # Failure, include all of the failed packages in the output when available.
-    if not result.failed_packages:
+    packages = core_result.failed_packages + factory_result.failed_packages
+    if not packages:
       return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
-    for package in result.failed_packages:
+    for package in packages:
       current = output_proto.failed_packages.add()
       controller_util.serialize_package_info(package, current)
 
     return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
 
 
-def _ParseImagesToCreate(to_build):
+def _ParseImagesToCreate(to_build: List[int]) -> ImageTypes:
   """Helper function to parse the image types to build.
 
-  This function exists just to clean up the Create function.
+  This function expresses the dependencies of each image type and adds
+  the requisite image types if they're not explicitly defined.
 
   Args:
-    to_build (list[int]): The image type list.
+    to_build: The image type list.
 
   Returns:
-    (set, set): The image and vm types, respectively, that need to be built.
+    ImageTypes: The parsed images to build.
   """
   image_types = set()
   vm_types = set()
+  mod_image_types = set()
   for current in to_build:
-    if current in _IMAGE_MAPPING:
-      image_types.add(_IMAGE_MAPPING[current])
-    elif current in _VM_IMAGE_MAPPING:
+    # Find out if it's a special case (vm, img mod), or just any old image.
+    if current in _VM_IMAGE_MAPPING:
       vm_types.add(current)
       # Make sure we build the image required to build the VM.
       image_types.add(_VM_IMAGE_MAPPING[current])
+    elif current in _MOD_IMAGE_MAPPING:
+      mod_image_types.add(current)
+      image_types.add(_MOD_IMAGE_MAPPING[current])
+    elif current in _IMAGE_MAPPING:
+      image_types.add(_IMAGE_MAPPING[current])
     else:
       # Not expected, but at least it will be obvious if this comes up.
       cros_build_lib.Die(
@@ -173,7 +254,8 @@ def _ParseImagesToCreate(to_build):
   if vm_types.issuperset({_BASE_VM_ID, _TEST_VM_ID}):
     cros_build_lib.Die('Cannot create more than one VM.')
 
-  return image_types, vm_types
+  return ImageTypes(
+      images=image_types, vms=vm_types, mod_images=mod_image_types)
 
 
 def _ParseCreateBuildConfig(input_proto):
@@ -189,24 +271,6 @@ def _ParseCreateBuildConfig(input_proto):
       disk_layout=disk_layout,
       builder_path=builder_path,
   )
-
-
-def _PopulateBuiltImages(board, image_types, output_proto):
-  """Helper to list out built images for Create."""
-  # Build out the ImageType->ImagePath mapping in the output.
-  # We're using the default path, so just fetch that, but read the symlink so
-  # the path we're returning is somewhat more permanent.
-  latest_link = image_lib.GetLatestImageLink(board)
-  base_path = os.path.realpath(latest_link)
-
-  for current in image_types:
-    type_id = _IMAGE_MAPPING[current]
-    path = os.path.join(base_path, constants.IMAGE_TYPE_TO_NAME[current])
-
-    new_image = output_proto.images.add()
-    new_image.path = path
-    new_image.type = type_id
-    new_image.build_target.name = board
 
 
 def _SignerTestResponse(_input_proto, output_proto, _config):
