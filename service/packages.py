@@ -1341,7 +1341,7 @@ def starbase_find_and_uprev(
     version_id: str,
     overlay_root: str,
     chroot: "chroot_lib.Chroot",
-) -> List[str]:
+) -> List[Optional[str]]:
     """Updates and uprevs the starbase artifacts ebuild.
 
     This is factored out of uprev_starbase_artifacts for unit testing.
@@ -1365,8 +1365,8 @@ def starbase_find_and_uprev(
     rev0_ebuild_path = package_dir / rev0_pkg.ebuild
     for line in osutils.ReadText(rev0_ebuild_path).splitlines():
         if line.startswith("SRC_URI="):
-            src_uri = f"${{DISTFILES}}/starbase/{version_id}/{tarfile_name}"
-            new_line = f'SRC_URI="{src_uri}"'
+            src_uri_dir = f"${{DISTFILES}}/starbase-artifacts-{version_id}"
+            new_line = f'SRC_URI="{src_uri_dir}/{tarfile_name}"'
             logging.info("Replacing %s with %s", line, new_line)
             lines.append(new_line)
         else:
