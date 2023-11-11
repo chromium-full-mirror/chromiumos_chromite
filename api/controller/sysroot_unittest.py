@@ -431,6 +431,102 @@ class GenerateArchiveTest(
         patch.assert_called_once()
 
 
+class ExtractArchiveTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """ExtractArchive function tests."""
+
+    def setUp(self):
+        self.chroot_path = "/path/to/chroot"
+        self.board = "board"
+        self.sysroot_archive = "/path/to/archive"
+
+    def _InputProto(
+        self, build_target=None, chroot_path=None, sysroot_archive=None
+    ):
+        """Helper to build and input proto instance."""
+
+        return sysroot_pb2.SysrootExtractArchiveRequest(
+            build_target={"name": build_target},
+            chroot={"path": chroot_path},
+            sysroot_archive={
+                "path": sysroot_archive,
+                "location": common_pb2.Path.Location.OUTSIDE,
+            },
+        )
+
+    def _OutputProto(self):
+        """Helper to build output proto instance."""
+        return sysroot_pb2.SysrootExtractArchiveResponse()
+
+    def testValidateOnly(self):
+        """Verify a validate-only call does not execute any logic."""
+        patch = self.PatchObject(sysroot_service, "ExtractSysroot")
+
+        in_proto = self._InputProto(
+            build_target=self.board,
+            chroot_path=self.chroot_path,
+            sysroot_archive=self.sysroot_archive,
+        )
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            sysroot_controller.ExtractArchive(
+                in_proto, self._OutputProto(), self.validate_only_config
+            )
+        patch.assert_not_called()
+
+    def testMockCall(self):
+        """Sanity check that a mock call does not execute any logic."""
+        patch = self.PatchObject(sysroot_service, "ExtractSysroot")
+
+        in_proto = self._InputProto(
+            build_target=self.board,
+            chroot_path=self.chroot_path,
+            sysroot_archive=self.sysroot_archive,
+        )
+        sysroot_controller.ExtractArchive(
+            in_proto, self._OutputProto(), self.mock_call_config
+        )
+        patch.assert_not_called()
+
+    def testArgumentValidation(self):
+        """Test the input argument validation."""
+        # Error when no build target provided.
+        in_proto = self._InputProto()
+        out_proto = self._OutputProto()
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            sysroot_controller.ExtractArchive(
+                in_proto, out_proto, self.api_config
+            )
+
+        # Error when sysroot_archive is not existed.
+        in_proto = self._InputProto(
+            build_target="board",
+            chroot_path=self.chroot_path,
+            sysroot_archive=self.sysroot_archive,
+        )
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            sysroot_controller.ExtractArchive(
+                in_proto, out_proto, self.api_config
+            )
+
+        # Valid when board, chroot path, and sysroot_archive are specified.
+        tmpfile = self.tempdir / "tmp.tar.zst"
+        osutils.Touch(tmpfile)
+        patch = self.PatchObject(
+            sysroot_service,
+            "ExtractSysroot",
+            return_value=self.chroot_path,
+        )
+        in_proto = self._InputProto(
+            build_target="board",
+            chroot_path=self.chroot_path,
+            sysroot_archive=str(tmpfile),
+        )
+        out_proto = self._OutputProto()
+        sysroot_controller.ExtractArchive(in_proto, out_proto, self.api_config)
+        patch.assert_called_once()
+
+
 class InstallToolchainTest(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
 ):

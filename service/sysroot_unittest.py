@@ -1576,3 +1576,52 @@ class ArchiveSysrootTest(cros_test_lib.TempDirTestCase):
             self.tempdir,
         )
         self.assertIsNone(archive_file)
+
+
+class ExtractSysrootTest(cros_test_lib.TempDirTestCase):
+    """ExtractSysroot tests."""
+
+    def setUp(self):
+        chroot_path = self.tempdir / "chroot"
+        self.chroot = chroot_lib.Chroot(path=chroot_path)
+        self.sysroot_path = chroot_path / "build" / "testBoard"
+        self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
+        self.sysroot_archive_path = chroot_path / "build" / "tmp"
+        self.sysroot_archive = sysroot_lib.Sysroot(self.sysroot_archive_path)
+        self.build_target = build_target_lib.BuildTarget("testBoard")
+        self.archive_dir_structure = [
+            cros_test_lib.Directory(".", []),
+            cros_test_lib.Directory("test", ["foo.bar"]),
+        ]
+        self.sysroot_dir_structure = [
+            cros_test_lib.Directory(".", ["test", "test2"]),
+        ]
+        self.expected_dir_structure = [
+            cros_test_lib.Directory("test", ["foo.bar"]),
+            "test2",
+        ]
+
+    def testExtractSysroot(self):
+        """Extract a simple tar."""
+        sysroot_archive = None
+        cros_test_lib.CreateOnDiskHierarchy(
+            self.sysroot_archive_path, self.archive_dir_structure
+        )
+        sysroot_archive = sysroot.ArchiveSysroot(
+            self.chroot,
+            self.sysroot_archive,
+            build_target_lib.BuildTarget("tmp"),
+            self.tempdir,
+        )
+
+        cros_test_lib.CreateOnDiskHierarchy(
+            self.sysroot_path, self.sysroot_dir_structure
+        )
+        result = sysroot.ExtractSysroot(
+            self.chroot, self.sysroot, sysroot_archive
+        )
+        self.assertTrue(Path(result).exists())
+        self.assertEqual(str(result), self.sysroot.path)
+        cros_test_lib.VerifyOnDiskHierarchy(
+            self.sysroot_path, self.expected_dir_structure
+        )

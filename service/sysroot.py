@@ -1851,3 +1851,29 @@ def ArchiveSysroot(
     )
 
     return archive_path
+
+
+def ExtractSysroot(
+    chroot: "chroot_lib.Chroot",
+    sysroot: "sysroot_lib.Sysroot",
+    sysroot_archive: "os.PathLike",
+) -> Optional[os.PathLike]:
+    """Extract the given sysroot archive.
+
+    Args:
+        chroot: The chroot in which the sysroot exists.
+        sysroot: Sysroot that needs to be extracted.
+        sysroot_archive: The path of sysroot archive.
+
+    Returns:
+        The sysroot path or None if the sysroot directory doesn't exist.
+    """
+    sysroot_path = Path(chroot.full_path(sysroot.path))
+    if not sysroot_path.is_dir():
+        return None
+
+    cros_build_lib.ExtractTarball(
+        Path(sysroot_archive),
+        sysroot_path,
+    )
+    return sysroot_path

@@ -259,6 +259,24 @@ def GenerateArchive(input_proto, output_proto, _config):
     output_proto.sysroot_archive.location = common_pb2.Path.INSIDE
 
 
+@faux.all_empty
+@validate.exists("sysroot_archive.path")
+@validate.require("build_target.name")
+@validate.validation_complete
+def ExtractArchive(input_proto, output_proto, _config):
+    """Extract archive to sysroot."""
+    chroot = controller_util.ParseChroot(input_proto.chroot)
+    board = input_proto.build_target.name
+    sysroot_path = build_target_lib.get_default_sysroot_path(board)
+    sysroot_archive = input_proto.sysroot_archive.path
+
+    response = sysroot.ExtractSysroot(
+        chroot, sysroot_lib.Sysroot(sysroot_path), sysroot_archive
+    )
+    output_proto.sysroot_archive.path = response
+    output_proto.sysroot_archive.location = common_pb2.Path.INSIDE
+
+
 def _MockFailedPackagesResponse(_input_proto, output_proto, _config):
     """Mock error response that populates failed packages."""
     fail = output_proto.failed_package_data.add()
