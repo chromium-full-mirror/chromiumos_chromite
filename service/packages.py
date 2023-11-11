@@ -1411,7 +1411,7 @@ def starbase_find_and_uprev(
     return modified_files
 
 
-@uprevs_versioned_package("chromeos-base/starbase-artifacts")
+@uprevs_versioned_package("chromeos-base/starbase-apps")
 def uprev_starbase_artifacts(
     _build_targets: List["build_target_lib.BuildTarget"],
     refs: List[uprev_lib.GitRef],
