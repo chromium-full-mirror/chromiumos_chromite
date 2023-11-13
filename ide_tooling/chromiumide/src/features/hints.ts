@@ -85,7 +85,7 @@ async function onDidChangeWorkspaceFolders({
       const openSubdirectory = 'Open subdirectory';
       const dontAskAgain = "Don't ask again";
       const choice = await vscode.window.showWarningMessage(
-        'Opening the entire chromiumos directory can cause performance problem; we recommend to open a subdirectory',
+        'Opening the entire chromiumos directory can cause performance problems; we recommend opening a subdirectory',
         openSubdirectory,
         dontAskAgain
       );

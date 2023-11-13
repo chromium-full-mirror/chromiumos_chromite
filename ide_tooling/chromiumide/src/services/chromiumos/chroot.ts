@@ -107,7 +107,7 @@ export class ChrootService implements vscode.Disposable {
     const source = this.source;
     if (source === undefined) {
       return new Error(
-        'cros_sdk not found; open a directory under which chroot has been set up'
+        'cros_sdk was not found; open a directory under which chroot has been set up'
       );
     }
     return await execInChroot(source.root, name, args, options);
@@ -117,7 +117,7 @@ export class ChrootService implements vscode.Disposable {
 async function showChrootNotFoundError(root: string) {
   const OPEN = 'Open';
   const answer = await vscode.window.showErrorMessage(
-    `chroot not found under ${root}: follow the developer guide to create a chroot`,
+    `A chroot was not found under ${root}: follow the developer guide to create a chroot`,
     OPEN
   );
   if (answer === OPEN) {
@@ -130,7 +130,7 @@ async function showChrootNotFoundError(root: string) {
 }
 
 /**
- * Holds accessors to files related to chromiumOS.
+ * Holds accessors to files related to ChromiumOS.
  */
 export type CrosFs = {
   readonly chroot: WrapFs<commonUtil.Chroot>;

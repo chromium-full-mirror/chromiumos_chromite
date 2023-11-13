@@ -54,7 +54,7 @@ export async function getOrSelectTargetBoard(
 export class NoBoardError extends Error {
   constructor() {
     super(
-      'no board has been setup; run setup_board for the board you want to use, ' +
+      'No board has been setup; run setup_board for the board you want to use, ' +
         'and revisit the editor'
     );
   }
@@ -100,7 +100,7 @@ async function selectBoard(
     const mostRecent = boards[0];
     const selection = await commonUtil.withTimeout(
       vscode.window.showWarningMessage(
-        `Target board is not set. Do you use ${mostRecent}?`,
+        `Target board is not set. Do you want to use ${mostRecent}?`,
         {
           title: 'Yes',
         },
@@ -163,7 +163,7 @@ export function vscodeExecutablePath(
   } else if (appName === 'Visual Studio Code - Insiders') {
     executableName = 'code-insiders';
   } else {
-    return new Error(`vscode app name not recognized: ${appName}`);
+    return new Error(`VS Code app name not recognized: ${appName}`);
   }
   const executableSubPath =
     remoteName === 'ssh-remote'
