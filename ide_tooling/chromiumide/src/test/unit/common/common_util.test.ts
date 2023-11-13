@@ -222,14 +222,19 @@ describe('Logging exec', () => {
       'python3',
       [
         '-c',
-        `import os; os.popen("python3 -c 'import time; time.sleep(10) # ${MARKER}'").read(); # ${MARKER}`,
+        `import os; os.popen("python3 -c 'import time; time.sleep(10) # ${MARKER}'").read();`,
       ],
       {
         treeKillWhenCancelling: true,
         cancellationToken: tokenSource.token,
       }
     );
-    expect(promise).toBeInstanceOf(Promise);
+
+    // Wait until the child process is spawned by the executed process.
+    await testing.flushMicrotasksUntil(
+      async () => (await countRunning()) === 2,
+      500
+    );
     expect(await countRunning()).toBe(2);
 
     tokenSource.cancel();
