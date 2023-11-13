@@ -808,7 +808,7 @@ class ChrootCreator:
         chroot: chroot_lib.Chroot,
         sdk_tarball: Path,
         usepkg: bool = True,
-        chroot_upgrade: bool = True,
+        chroot_upgrade: bool = False,
     ):
         """Initialize.
 
@@ -841,10 +841,6 @@ class ChrootCreator:
             cmd.append("--nousepkg")
 
         if not self.chroot_upgrade:
-            logging.warning(
-                "Skipping SDK and toolchain update. "
-                "Chroot is not guaranteed to work."
-            )
             cmd.append("--skip_chroot_upgrade")
 
         try:

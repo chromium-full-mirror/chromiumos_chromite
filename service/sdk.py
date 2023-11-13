@@ -80,8 +80,7 @@ class CreateArguments:
             chroot: chroot_lib.Chroot object representing the paths for the
                 chroot to create.
             sdk_version: Specific SDK version to use, e.g. 2022.01.20.073008.
-            skip_chroot_upgrade: Whether to skip any chroot upgrades (using
-                the --skip-chroot-upgrade arg to cros_sdk).
+            skip_chroot_upgrade: If false, pass --chroot-upgrade to cros_sdk.
             ccache_disable: Whether ccache should be disabled after chroot
                 creation.
         """
@@ -111,8 +110,8 @@ class CreateArguments:
         if self.chroot.cache_dir:
             args.extend(["--cache-dir", self.chroot.cache_dir])
 
-        if self.skip_chroot_upgrade:
-            args.append("--skip-chroot-upgrade")
+        if not self.skip_chroot_upgrade:
+            args.append("--chroot-upgrade")
         return args
 
     def GetArgList(self) -> List[str]:

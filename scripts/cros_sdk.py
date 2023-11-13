@@ -520,13 +520,18 @@ def _CreateParser(
         type="file_exists",
         help="Config file for re-client's reproxy used for remoteexec.",
     )
+    parser.add_bool_argument(
+        "--chroot-upgrade",
+        default=False,
+        enabled_desc="Upgrade the chroot during SDK creation (deprecated).",
+        disabled_desc="Do not upgrade the chroot during SDK creation.",
+    )
     parser.add_argument(
         "--skip-chroot-upgrade",
-        dest="chroot_upgrade",
         action="store_false",
-        default=True,
-        help="Skip automatic SDK and toolchain upgrade when entering the "
-        "chroot. Never guaranteed to work, especially as ToT moves forward.",
+        dest="chroot_upgrade",
+        deprecated="Alias for --no-chroot-upgrade.",
+        help=argparse.SUPPRESS,
     )
     parser.add_bool_argument(
         "--delete-out-dir",
