@@ -40,7 +40,7 @@ For help, run `cros try help` (with no hyphens).
         super().AddParser(parser)
         parser.add_argument(
             "--try-version",
-            default="prod",
+            default="latest",
             help="CIPD version of the try CLI. Can be instance ID or ref. "
             "Must be provided before other try subcommands/flags.",
         )

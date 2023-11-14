@@ -78,7 +78,7 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
         self._cipd_install_patch.assert_called_with(
             cipd.GetCIPDFromCache(),
             cros_try.CIPD_TRY_PACKAGE,
-            "prod",
+            "latest",
         )
         self.runCrosTry(
             ["--try-version", "my-cool-version", "release", "--staging"]
