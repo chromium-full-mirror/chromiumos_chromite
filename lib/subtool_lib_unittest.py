@@ -26,14 +26,14 @@ from chromite.licensing import licenses_lib
 
 
 def path_mapping(
-    inputs: Union[Path, str, None],
+    glob: Union[Path, str, None],
     dest: Union[Path, str, None] = None,
     strip_regex: Union[Path, str, None] = None,
     ebuild_filter: Optional[str] = None,
 ) -> subtools_pb2.SubtoolPackage.PathMapping:
     """Helper to make a PathMapping message from paths."""
     return subtools_pb2.SubtoolPackage.PathMapping(
-        input=None if inputs is None else str(inputs),
+        input=None if glob is None else [str(glob)],
         dest=None if dest is None else str(dest),
         strip_prefix_regex=None if strip_regex is None else str(strip_regex),
         ebuild_filter=ebuild_filter,
@@ -497,6 +497,21 @@ def test_bundle_custom_strip_prefix(template_proto: Wrapper) -> None:
         "bin/subdir",
         "bin/subdir/ebuild_owned.file",
         "bin/subdir/subdir.file",
+    ]
+
+
+def test_bundle_plural_inputs(template_proto: Wrapper) -> None:
+    """Test a manifest using the list version of `inputs`."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([])
+    template_proto.proto.paths.add().input.extend(
+        [str(fs.regular_file), str(fs.subdir_file)]
+    )
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == [
+        "bin",
+        "bin/regular.file",
+        "bin/subdir.file",
     ]
 
 

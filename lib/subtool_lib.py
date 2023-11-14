@@ -259,6 +259,11 @@ class Subtool:
         # character hex string.
         self._content_hashes: Dict[str, str] = {}
 
+        # A count of files matched against globs during bundling. This is
+        # tracked while gathering files to provide an early exit for globs that
+        # inadvertently match too many files.
+        self._file_count = 0
+
         try:
             text_format.Parse(message, self.package)
         except text_format.ParseError as e:
@@ -400,14 +405,13 @@ class Subtool:
         destdir: Path,
         strip: re.Pattern,
         mapping: subtools_pb2.SubtoolPackage.PathMapping,
-    ) -> int:
+    ) -> None:
         """Copies a file on disk into the bundling folder.
 
         Copies only files (follows symlinks). Ensures files are not clobbered.
-        Returns the number of files copied.
         """
         if not src.is_file():
-            return 0
+            return
 
         # Apply the regex, and ensure the result is not an absolute path.
         dest = destdir / strip.sub("", src.as_posix()).lstrip("/")
@@ -415,6 +419,11 @@ class Subtool:
             raise ManifestBundlingError(
                 f"{dest} exists: refusing to copy {src}.", self
             )
+
+        # Increment here: lddtree may add more than one file, but there will be
+        # an upper bound, so no conerns about overly greedy globs.
+        self._increment_file_count()
+
         osutils.SafeMakedirs(dest.parent)
         file_type = self.get_file_type(src)
         hash_string = extract_hash(src, file_type)
@@ -422,7 +431,8 @@ class Subtool:
         logger.debug("subtools_hash(%s) = '%s'", src, hash_string)
 
         if not mapping.opaque_data and file_type == "binary/elf/dynamic-bin":
-            return self._lddtree_into_bundle(src, dest.parent)
+            self._lddtree_into_bundle(src, dest.parent)
+            return
 
         logger.debug(
             "Copy file %s -> %s (type=%s, hash=%s).",
@@ -432,33 +442,27 @@ class Subtool:
             hash_string,
         )
         shutil.copy2(src, dest)
-        return 1
 
-    def _lddtree_into_bundle(self, elf: Path, destdir: Path) -> int:
+    def _lddtree_into_bundle(self, elf: Path, destdir: Path) -> None:
         """Copies a dynamic elf into the bundle."""
         # Output of the main script is always `bin`, so avoid `bin/bin`.
         if destdir.name == "bin":
             destdir = destdir.parent
         logger.debug("Using lddtree to copy dynamic elf %s to %s", elf, destdir)
         lddtree.main(LDDTREE_ARGS + ["--copy-to-tree", str(destdir), str(elf)])
-        # The globbing is done already, so there's no big concern about
-        # accidentally bundling the entire filesystem. Count as "1 file".
-        return 1
 
-    def _check_counts(self, file_count: int) -> None:
-        """Raise an error if files violate the manifest spec."""
-        if file_count > self.package.max_files:
+    def _increment_file_count(self) -> None:
+        """Increment the file count, and raise an error if it violates spec."""
+        self._file_count += 1
+        if self._file_count > self.package.max_files:
             raise ManifestBundlingError(
                 f"Max file count ({self.package.max_files}) exceeded.", self
             )
 
     def _bundle_mapping(
         self, mapping: subtools_pb2.SubtoolPackage.PathMapping
-    ) -> int:
-        """Bundle files for the provided `mapping`.
-
-        Returns the number of files matched.
-        """
+    ) -> None:
+        """Bundle files for the provided `mapping`."""
         subdir = mapping.dest if mapping.HasField("dest") else _DEFAULT_DEST
         destdir = self.bundle_dir / subdir.lstrip("/")
         strip_prefix_regex = (
@@ -469,40 +473,54 @@ class Subtool:
         strip = re.compile(strip_prefix_regex)
 
         # Any leading '/' must be stripped from the glob (pathlib only supports
-        # relative patterns when matching). Steps below effectively restore it.
-        glob = mapping.input.lstrip("/")
+        # relative patterns when matching). Later steps effectively restore it.
+        globs = [x.lstrip("/") for x in mapping.input]
 
-        file_count = 0
+        for glob in globs:
+            # For each input, detect if it is usefully adding files. If it
+            # matches nothing, the entry should be removed.
+            file_count_before_entry = self._file_count
 
-        if mapping.ebuild_filter:
-            package = get_installed_package(mapping.ebuild_filter, self)
-            for _file_type, relative_path in package.ListContents():
-                path = Path(f"/{relative_path}")
-                if not path.match(glob):
-                    continue
-                file_count += self._copy_into_bundle(
-                    path, destdir, strip, mapping
+            if mapping.ebuild_filter:
+                self._bundle_with_ebuild_filter(glob, destdir, strip, mapping)
+            else:
+                self._bundle_with_all_disk(glob, destdir, strip, mapping)
+
+            if self._file_count == file_count_before_entry:
+                raise ManifestBundlingError(
+                    f"Input field {glob} matched no files.", self
                 )
-                self._check_counts(file_count)
-            if file_count:
-                self._source_ebuilds.add(package.package_info.cpvr)
-        else:
-            for path in Path("/").glob(glob):
-                added_files = self._copy_into_bundle(
-                    path, destdir, strip, mapping
-                )
-                if not added_files:
-                    continue
-                file_count += added_files
-                self._check_counts(file_count)
-                self._unmatched_paths.append(str(path))
 
-        if file_count == 0:
-            raise ManifestBundlingError(
-                f"Input field {mapping.input} matched no files.", self
-            )
-        logger.info("Glob '%s' matched %d files.", mapping.input, file_count)
-        return file_count
+        logger.info("After %s, bundle has %d files.", globs, self._file_count)
+
+    def _bundle_with_ebuild_filter(
+        self,
+        glob: str,
+        destdir: Path,
+        strip: re.Pattern,
+        mapping: subtools_pb2.SubtoolPackage.PathMapping,
+    ) -> None:
+        """Matches `glob` against files installed by a portage package."""
+        package = get_installed_package(mapping.ebuild_filter, self)
+        for _file_type, relative_path in package.ListContents():
+            path = Path(f"/{relative_path}")
+            if path.match(glob):
+                self._copy_into_bundle(path, destdir, strip, mapping)
+
+        # Assumes something added. The entry is invalid (error raised) if not.
+        self._source_ebuilds.add(package.package_info.cpvr)
+
+    def _bundle_with_all_disk(
+        self,
+        glob: str,
+        destdir: Path,
+        strip: re.Pattern,
+        mapping: subtools_pb2.SubtoolPackage.PathMapping,
+    ) -> None:
+        """Matches `glob` against all files on disk."""
+        for path in Path("/").glob(glob):
+            self._copy_into_bundle(path, destdir, strip, mapping)
+            self._unmatched_paths.append(str(path))
 
     def _collect_files(self) -> None:
         """Collect files described by the package manifest in the work dir."""
@@ -514,12 +532,14 @@ class Subtool:
         )
         # Emit the full .textproto to debug logs.
         logger.debug(self)
-        file_count = 0
+        assert self._file_count == 0  # Consistency check.
         self._source_ebuilds = set()
         self._unmatched_paths = []
         for path in self.package.paths:
-            file_count += self._bundle_mapping(path)
-        logger.notice("%s: Copied %d files.", self.package.name, file_count)
+            self._bundle_mapping(path)
+        logger.notice(
+            "%s: Copied %d files.", self.package.name, self._file_count
+        )
 
     def _match_ebuilds(self) -> None:
         """Match up unmatched paths to the package names that provided them."""
