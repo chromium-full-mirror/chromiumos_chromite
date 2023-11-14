@@ -210,10 +210,20 @@ class DeviceImager:
         )
 
         xb = xbuddy.XBuddy(board=board, version=self._version)
-        build_id, local_file = xb.Translate([self._image])
+        xb_component = xbuddy.InterpretPath(self._image)
+        func = (
+            xb.Get if xb_component.image_type == xbuddy.SIGNED else xb.Translate
+        )
+
+        build_id, local_file = func([self._image])
+
         if build_id is None:
             raise Error(f"{self._image}: unable to find matching xBuddy path.")
-        logging.info("XBuddy path translated to build ID %s", build_id)
+        logging.info(
+            "XBuddy path translated to build ID %s with local file %s",
+            build_id,
+            local_file,
+        )
 
         if local_file:
             self._image = local_file

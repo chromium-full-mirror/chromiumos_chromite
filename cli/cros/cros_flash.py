@@ -67,6 +67,9 @@ Examples:
 
   For more information and known problems/fixes, please see:
   https://chromium.googlesource.com/chromiumos/docs/+/HEAD/cros_flash.md
+
+Note: When flashing a signed image, ssh connection to the device will be lost
+  and flash must be invoked with --no-stateful-update.
 """
 
     # Override base class property to use cache related commandline options.
