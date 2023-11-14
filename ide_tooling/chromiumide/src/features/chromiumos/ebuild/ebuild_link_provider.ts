@@ -1,6 +1,7 @@
 // Copyright 2023 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+import * as os from 'os';
 import * as vscode from 'vscode';
 import * as eclass from '../../../common/chromiumos/portage/eclass';
 import * as parse from '../../../common/chromiumos/portage/parse';
@@ -25,7 +26,11 @@ const CROS_WORKON_SUBTREE = 'CROS_WORKON_SUBTREE';
  * They open CodeSearch and new VS Code windows.
  */
 export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
-  constructor(private chromiumosRoot: string) {}
+  constructor(
+    private chromiumosRoot: string,
+    // injected to simplify testing
+    private remoteName = () => vscode.env.remoteName
+  ) {}
 
   provideDocumentLinks(
     document: vscode.TextDocument,
@@ -133,7 +138,7 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
     // TODO(b:303398643): path can be a file, in which case we should open it as a file
     // TODO(b:303398643): path may not exist, in which case we shouldn't link it
     const args = [
-      vscode.Uri.file(`${this.chromiumosRoot}/${path}`),
+      this.getFolderUri(path),
       {
         forceNewWindow: true,
       },
@@ -149,5 +154,16 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
     vscodeDocumentLink.tooltip = `Open ${path} in New VS Code Window`;
 
     return [csDocumentLink, vscodeDocumentLink];
+  }
+
+  /** Get `Uri` taking into account that we might need to open ssh remote. */
+  private getFolderUri(path: string): vscode.Uri {
+    const fullPath = `${this.chromiumosRoot}/${path}`;
+    if (this.remoteName() === 'ssh-remote') {
+      return vscode.Uri.parse(
+        `vscode-remote://ssh-remote+${os.hostname()}${fullPath}`
+      );
+    }
+    return vscode.Uri.file(fullPath);
   }
 }

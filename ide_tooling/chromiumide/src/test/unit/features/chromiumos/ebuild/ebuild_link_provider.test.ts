@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as os from 'os';
 import * as vscode from 'vscode';
 import dedent from 'dedent';
 import {EbuildLinkProvider} from '../../../../../features/chromiumos/ebuild/ebuild_link_provider';
@@ -24,11 +25,17 @@ function documentLink(
   return link;
 }
 
-function openFolderCmdUri(path: string): vscode.Uri {
+function openFolderCmdUri(
+  path: string,
+  remoteHost: string | undefined
+): vscode.Uri {
+  const uri = remoteHost
+    ? vscode.Uri.parse(`vscode-remote://ssh-remote+${remoteHost}${path}`)
+    : vscode.Uri.file(path);
   return vscode.Uri.parse(
     `command:vscode.openFolder?${encodeURIComponent(
       JSON.stringify([
-        vscode.Uri.file(path),
+        uri,
         {
           forceNewWindow: true,
         },
@@ -43,7 +50,8 @@ function openFolderCmdUri(path: string): vscode.Uri {
 function links(
   range: vscode.Range,
   path: string,
-  pathToCros = '/path/to/cros'
+  pathToCros = '/path/to/cros',
+  remoteHost: string | undefined = undefined
 ): vscode.DocumentLink[] {
   return [
     documentLink(
@@ -53,7 +61,7 @@ function links(
     ),
     documentLink(
       range,
-      openFolderCmdUri(`${pathToCros}/${path}`),
+      openFolderCmdUri(`${pathToCros}/${path}`, remoteHost),
       `Open ${path} in New VS Code Window`
     ),
   ];
@@ -350,5 +358,49 @@ inherit non-exist-eclass
     );
 
     expect(documentLinks).toEqual([]);
+  });
+
+  it('generates remote links', async () => {
+    const CONTENT = dedent`# copyright
+    EAPI=7
+    CROS_WORKON_PROJECT=("chromiumos/platform2")
+    CROS_WORKON_LOCALNAME=("platform2")
+    CROS_WORKON_DESTDIR=("\${S}/platform2")
+    CROS_WORKON_SUBTREE=("common-mk .gn")
+
+    PLATFORM_SUBDIR="vpd"
+    `;
+
+    const CHROOT = '/path/to/cros';
+
+    const ebuildLinkProvider = new EbuildLinkProvider(
+      CHROOT,
+      // 'ssh-remote' will change the links to open folders
+      () => 'ssh-remote'
+    );
+    const textDocument = new FakeTextDocument({text: CONTENT});
+
+    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+      textDocument,
+      new FakeCancellationToken()
+    );
+
+    const RANGE_PLATFORM2 = new vscode.Range(3, 24, 3, 33);
+    const RANGE_COMMONMK = new vscode.Range(5, 22, 5, 31);
+    const RANGE_GN = new vscode.Range(5, 32, 5, 35);
+
+    const PLATFORM2 = 'src/platform2';
+    const COMMONMK = PLATFORM2 + '/common-mk';
+    const GN = PLATFORM2 + '/.gn';
+
+    const HOSTNAME = os.hostname();
+
+    expect(documentLinks).toEqual(
+      [
+        links(RANGE_PLATFORM2, PLATFORM2, CHROOT, HOSTNAME),
+        links(RANGE_COMMONMK, COMMONMK, CHROOT, HOSTNAME),
+        links(RANGE_GN, GN, CHROOT, HOSTNAME),
+      ].flat()
+    );
   });
 });
