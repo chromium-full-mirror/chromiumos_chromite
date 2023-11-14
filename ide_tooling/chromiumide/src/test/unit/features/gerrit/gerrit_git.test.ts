@@ -3,7 +3,12 @@
 // found in the LICENSE file.
 
 import 'jasmine';
-import {Hunk, TEST_ONLY} from '../../../../features/gerrit/git';
+import * as vscode from 'vscode';
+import * as commonUtil from '../../../../common/common_util';
+import {Hunk, TEST_ONLY, getRepoId} from '../../../../features/gerrit/git';
+import {Sink} from '../../../../features/gerrit/sink';
+import * as testing from '../../../testing';
+import {FakeStatusManager} from '../../../testing/fakes';
 
 const {parseDiffHunks} = TEST_ONLY;
 
@@ -133,5 +138,122 @@ index 7898192..0000000
         }),
       ],
     });
+  });
+});
+
+describe('RepoId calculation', () => {
+  const tempDir = testing.tempDir();
+
+  const subscriptions: vscode.Disposable[] = [];
+  afterEach(() => {
+    vscode.Disposable.from(...subscriptions.reverse()).dispose();
+    subscriptions.length = 0;
+  });
+
+  (['chromium', 'cros', 'cros-internal'] as const).forEach(wantRepoId => {
+    it(`calculates repo id for ${wantRepoId} correctly`, async () => {
+      const git = new testing.Git(tempDir.path);
+      await git.init({repoId: wantRepoId});
+
+      const sink = new Sink(new FakeStatusManager(), subscriptions);
+      const repoId = await getRepoId(git.root, sink);
+      expect(repoId).toEqual(wantRepoId);
+    });
+  });
+
+  (
+    [
+      {name: 'no remotes', remotes: [], wantRepoId: undefined},
+      {
+        name: 'chromium remote',
+        remotes: [
+          {
+            name: 'origin',
+            url: 'https://chromium.googlesource.com/chromium/src.git',
+          },
+        ],
+        wantRepoId: 'chromium',
+      },
+      {
+        name: 'unknown remote',
+        remotes: [
+          {
+            name: 'origin',
+            url: 'https://chromium.googlesource.com/src.git',
+          },
+        ],
+        wantRepoId: undefined,
+      },
+      {
+        name: 'cros remote',
+        remotes: [
+          {
+            name: 'cros',
+            url: 'https://chromium.googlesource.com/chromiumos/chromite.git',
+          },
+        ],
+        wantRepoId: 'cros',
+      },
+      {
+        name: 'cros-internal remote',
+        remotes: [
+          {
+            name: 'cros-internal',
+            url: 'https://chrome-internal.googlesource.com/chromiumos/chromite.git',
+          },
+        ],
+        wantRepoId: 'cros-internal',
+      },
+      {
+        name: 'ignores unknown remotes',
+        remotes: [
+          {
+            name: 'github',
+            url: 'git@github.com:foo/chromium.git',
+          },
+          {
+            name: 'origin',
+            url: 'https://chromium.googlesource.com/chromium/src.git',
+          },
+        ],
+        wantRepoId: 'chromium',
+      },
+    ] as const
+  ).forEach(({remotes, wantRepoId, name}) => {
+    it(`calculates repo id correctly: ${name}`, async () => {
+      const git = new testing.Git(tempDir.path);
+      await git.init({repoId: null});
+      for (const {name, url} of remotes) {
+        await git.addRemote(name, url);
+      }
+
+      const sink = new Sink(new FakeStatusManager(), subscriptions);
+      const repoId = await getRepoId(git.root, sink);
+      expect(repoId).toEqual(wantRepoId);
+    });
+  });
+
+  it('ignores other remotes the user has in addition to the canonical remotes', async () => {
+    const git = new testing.Git(tempDir.path);
+    await git.init({repoId: null});
+    await git.addRemote('github', 'git@github.com:foo/chromium.git');
+    await git.addRemote(
+      'origin',
+      'https://chromium.googlesource.com/chromium/src.git'
+    );
+
+    expect(
+      (await commonUtil.execOrThrow('git', ['remote', '-v'], {cwd: git.root}))
+        .stdout
+    ).toBe(`\
+github\tgit@github.com:foo/chromium.git (fetch)
+github\tgit@github.com:foo/chromium.git (push)
+origin\thttps://chromium.googlesource.com/chromium/src.git (fetch)
+origin\thttps://chromium.googlesource.com/chromium/src.git (push)
+`);
+
+    const sink = new Sink(new FakeStatusManager(), subscriptions);
+    const repoId = await getRepoId(git.root, sink);
+    expect(repoId).toEqual('chromium');
   });
 });

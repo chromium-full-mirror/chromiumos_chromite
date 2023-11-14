@@ -14,25 +14,48 @@ import * as git from '../../features/gerrit/git';
 export class Git {
   constructor(readonly root: string) {}
 
-  /** Creates the root directory and runs `git init`. */
-  async init(opts?: {repoId?: git.RepoId}): Promise<void> {
+  /**
+   * Creates the root directory and runs `git init`.
+   * If `opts.repoId` is set to an id, a remote is added matching that id. If `opts.repoId` is undefined, then it defaults to `cros`. If it is `null`, no remote will be set up.
+   */
+  async init(opts?: {repoId?: git.RepoId | null}): Promise<void> {
     await fs.promises.mkdir(this.root, {recursive: true});
     await commonUtil.execOrThrow('git', ['init', '--initial-branch=main'], {
       cwd: this.root,
     });
+
+    if (opts?.repoId === null) {
+      return;
+    }
+
     const repoId = opts?.repoId ?? 'cros';
-    const remoteName = repoId === 'chromium' ? 'origin' : repoId;
-    const remoteUrl =
-      repoId === 'cros' || repoId === 'chromium'
-        ? 'https://chromium.googlesource.com/foo'
-        : 'https://chrome-internal.googlesource.com/foo';
-    await commonUtil.execOrThrow(
-      'git',
-      ['remote', 'add', remoteName, remoteUrl],
-      {
-        cwd: this.root,
-      }
-    );
+    let remoteName;
+    let remoteUrl;
+    switch (repoId) {
+      case 'chromium':
+        remoteName = 'origin';
+        remoteUrl = 'https://chromium.googlesource.com/chromium/foo.git';
+        break;
+      case 'cros':
+        remoteName = 'cros';
+        remoteUrl = 'https://chromium.googlesource.com/foo';
+        break;
+      case 'cros-internal':
+        remoteName = 'cros-internal';
+        remoteUrl = 'https://chrome-internal.googlesource.com/foo';
+        break;
+      default:
+        ((_: never) => {
+          throw new Error(`Unknown repoId: ${repoId}`);
+        })(repoId);
+    }
+    await this.addRemote(remoteName, remoteUrl);
+  }
+
+  async addRemote(name: string, url: string): Promise<void> {
+    await commonUtil.execOrThrow('git', ['remote', 'add', name, url], {
+      cwd: this.root,
+    });
   }
 
   async addAll(): Promise<void> {

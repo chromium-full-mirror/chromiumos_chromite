@@ -43,27 +43,35 @@ export async function getRepoId(
     });
     return;
   }
-  const [remoteName, repoUrl] = gitRemote.stdout.split('\n')[0].split(/\s+/);
-  if (
-    (remoteName === 'cros' &&
-      repoUrl.startsWith('https://chromium.googlesource.com/')) ||
-    (remoteName === 'cros-internal' &&
-      repoUrl.startsWith('https://chrome-internal.googlesource.com/'))
-  ) {
-    const repoKind = remoteName === 'cros' ? 'Public' : 'Internal';
-    sink.appendLine(`${repoKind} ChromeOS remote repo detected at ${gitDir}`);
+  for (const gitRemoteLine of gitRemote.stdout.split('\n')) {
+    const [remoteName, repoUrl] = gitRemoteLine.split(/\s+/);
+    if (remoteName === undefined || repoUrl === undefined) {
+      continue;
+    }
+    if (
+      (remoteName === 'cros' &&
+        repoUrl.startsWith('https://chromium.googlesource.com/')) ||
+      (remoteName === 'cros-internal' &&
+        repoUrl.startsWith('https://chrome-internal.googlesource.com/'))
+    ) {
+      const repoKind = remoteName === 'cros' ? 'Public' : 'Internal';
+      sink.appendLine(`${repoKind} ChromeOS remote repo detected at ${gitDir}`);
 
-    return remoteName;
-  }
-  if (repoUrl.startsWith('https://chromium.googlesource.com/chromium/')) {
-    sink.appendLine(`Public Chromium remote repo detected at ${gitDir}`);
-    return 'chromium';
+      return remoteName;
+    }
+    if (repoUrl.startsWith('https://chromium.googlesource.com/chromium/')) {
+      sink.appendLine(`Public Chromium remote repo detected at ${gitDir}`);
+      return 'chromium';
+    }
+    sink.appendLine(
+      `Unknown remote repo detected at ${gitDir}, remote name: ${remoteName}, url: ${repoUrl}`
+    );
   }
 
   sink.show({
     log:
       'Unknown remote repo detected: ' +
-      `remote name ${remoteName}, url ${repoUrl}.\n` +
+      `${gitRemote}\n` +
       'Gerrit comments in this repo are not supported.',
     metrics: '(warning) unknown git remote result',
     noErrorStatus: true,
