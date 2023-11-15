@@ -69,7 +69,7 @@ def BuildSdkSubtools(
 @validate.validation_complete
 def UploadSdkSubtools(
     input_proto: sdk_subtools_pb2.UploadSdkSubtoolsRequest,
-    _output_proto: sdk_subtools_pb2.UploadSdkSubtoolsResponse,
+    output_proto: sdk_subtools_pb2.UploadSdkSubtoolsResponse,
     config: api_config.ApiConfig,
 ) -> Optional[int]:
     """Uploads a list of bundled subtools."""
@@ -84,5 +84,19 @@ def UploadSdkSubtools(
     if config.validate_only:
         return controller.RETURN_CODE_VALID_INPUT
 
-    sdk_subtools.upload_prepared_bundles(input_proto.use_production, bundles)
+    result = sdk_subtools.upload_prepared_bundles(
+        input_proto.use_production, bundles
+    )
+    unchanged_count = len(bundles) - len(result.uploaded_subtool_names)
+    if result.uploaded_instances_markdown:
+        summary = step_text = "Uploaded: "
+        summary += ", ".join(result.uploaded_instances_markdown)
+        summary += f" ({unchanged_count} bundled but unchanged)."
+        step_text += ", ".join(result.uploaded_subtool_names)
+    else:
+        summary = f"{unchanged_count} tools bundled. No interesting changes."
+        step_text = summary
+
+    output_proto.step_text = step_text
+    output_proto.summary_markdown = summary
     return None

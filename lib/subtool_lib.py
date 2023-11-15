@@ -73,6 +73,9 @@ LDDTREE_ARGS = ["--libdir", "/lib", "--bindir", "/bin", "--generate-wrappers"]
 # Path (relative to the metadata work dir) of serialized upload metadata.
 UPLOAD_METADATA_FILE = Path("subtool_upload.json")
 
+# CIPD metadata tag key for storing the hash calculated by the subtools builder.
+SUBTOOLS_HASH_TAG = "subtools_hash"
+
 # Valid names. A stricter version of `packageNameRe` in
 # https://crsrc.org/i/go/src/go.chromium.org/luci/cipd/common/common.go
 # Diallows slashes and starting with a ".".
@@ -356,7 +359,7 @@ class Subtool:
         metadata.cipd_package.tags = {
             BUILDER_TAG: "sdk_subtools",
             EBUILD_TAG: ",".join(self.source_packages),
-            "subtools_hash": self._calculate_digest(),
+            SUBTOOLS_HASH_TAG: self._calculate_digest(),
         }
         if self.package.upload_trigger == CHANGE_REVISION_ONLY:
             metadata.cipd_package.search_tags = [BUILDER_TAG, EBUILD_TAG]
@@ -643,6 +646,10 @@ class BundledSubtools:
         cipd_path: Path to the cipd binary, defaulting to the pin in cipd.py.
         built_packages: Updated with a path when the upload process creates a
             local .zip rather than performing an upload.
+        uploaded_package_names: List of subtool names that were successfully
+            uploaded.
+        uploaded_instances_markdown: List of markdown-formatted strings for each
+            package linking to the full URL of the uploaded instance.
     """
 
     def __init__(self, bundles: List[Path]):
@@ -650,6 +657,8 @@ class BundledSubtools:
         self.bundles = bundles
         self.cipd_path = cipd.GetCIPDFromCache()
         self.built_packages: List[Path] = []
+        self.uploaded_subtool_names: List[str] = []
+        self.uploaded_instances_markdown: List[str] = []
 
     def upload(self, use_production: bool, dryrun: bool = False) -> None:
         """Uploads each valid, bundled subtool.
@@ -717,3 +726,13 @@ class BundledSubtools:
             service_url=service_url,
         )
         (path / ".uploaded").touch()
+
+        _, _, package_shortname = cipd_package.package.rpartition("/")
+        origin = service_url or "https://chrome-infra-packages.appspot.com"
+        subtools_hash = cipd_package.tags[SUBTOOLS_HASH_TAG]
+        url = (
+            f"{origin}/p/{cipd_package.package}"
+            f"/+/{SUBTOOLS_HASH_TAG}:{subtools_hash}"
+        )
+        self.uploaded_subtool_names.append(package_shortname)
+        self.uploaded_instances_markdown.append(f"[{package_shortname}]({url})")

@@ -16,6 +16,7 @@ from chromite.api.controller import sdk_subtools
 from chromite.api.gen.chromite.api import sdk_subtools_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_build_lib
+from chromite.lib import subtool_lib
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 
@@ -81,6 +82,9 @@ def mock_service_fixture() -> Iterator[MockService]:
     ) as dict_of_mocks:
         # Default to a "successful" return with an empty list of bundle paths.
         dict_of_mocks["bundle_and_prepare_upload"].return_value = ([], None)
+        dict_of_mocks[
+            "upload_prepared_bundles"
+        ].return_value = subtool_lib.BundledSubtools([])
         yield dict_of_mocks
 
 
@@ -177,4 +181,31 @@ def test_upload_to_production(mock_service: MockService) -> None:
     upload_sdk_subtools(request)
     mock_service["upload_prepared_bundles"].assert_called_once_with(
         True, [Path("/path/to/bundle")]
+    )
+
+
+def test_upload_reports_summary_no_uploads(mock_service: MockService) -> None:
+    """Test the upload response fields when there were no upload attempts."""
+    response = upload_sdk_subtools(make_upload_request(["/b1", "b2"]))
+    mock_service["upload_prepared_bundles"].assert_called()
+    assert response.step_text == "2 tools bundled. No interesting changes."
+    assert (
+        response.summary_markdown == "2 tools bundled. No interesting changes."
+    )
+
+
+def test_upload_reports_summary(mock_service: MockService) -> None:
+    """Test the upload response fields when uploads occurred."""
+    result = mock_service["upload_prepared_bundles"].return_value
+    result.uploaded_subtool_names = ["b1", "b2"]
+    result.uploaded_instances_markdown = [
+        "[b1](go/subtool/b1)",
+        "[b2](go/subtool/b2)",
+    ]
+    response = upload_sdk_subtools(make_upload_request(["/b1", "/b2", "/b3"]))
+    assert response.step_text == "Uploaded: b1, b2"
+    assert (
+        response.summary_markdown
+        == "Uploaded: [b1](go/subtool/b1), [b2](go/subtool/b2)"
+        " (1 bundled but unchanged)."
     )

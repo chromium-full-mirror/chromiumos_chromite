@@ -810,6 +810,23 @@ def test_upload_dryrun_builds_package(
     assert uploader.built_packages == [
         Path(template_proto.work_root / "my_subtool" / "my_subtool.zip")
     ]
+    assert not uploader.uploaded_subtool_names
+    assert not uploader.uploaded_instances_markdown
+
+
+def test_upload_reports_summary(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test upload includes summary of upload results."""
+    set_run_results(run_mock)
+    uploader = bundle_and_upload(template_proto.create(writes_files=True))
+    assert not uploader.built_packages
+    assert uploader.uploaded_subtool_names == ["my_subtool"]
+    assert len(uploader.uploaded_instances_markdown) == 1
+    assert uploader.uploaded_instances_markdown[0].startswith(
+        "[my_subtool](https://chrome-infra-packages-dev.appspot.com/"
+        "p/chromiumos/infra/tools/my_subtool/+/subtools_hash:"
+    )
 
 
 def test_upload_fails_cipd(

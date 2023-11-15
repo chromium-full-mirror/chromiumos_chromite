@@ -202,6 +202,17 @@ def _run_inside_subtools_chroot(opts: Options) -> None:
             "Built packages:%s",
             "".join(f"\n\t{x}" for x in packaged_subtools.built_packages),
         )
+    # Note when run from the CLI script, it's unlikely (but possible) that the
+    # developer will have access to write to the CIPD prefix. So this will
+    # normally output nothing. A --dry-run will output "built_packages" above.
+    if packaged_subtools.uploaded_instances_markdown:
+        logger.notice(
+            "Uploaded instances:%s",
+            "".join(
+                f"\n\t{x}"
+                for x in packaged_subtools.uploaded_instances_markdown
+            ),
+        )
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
