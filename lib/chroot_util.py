@@ -167,7 +167,6 @@ def RunUnittests(
     extra_env=None,
     keep_going=False,
     verbose=False,
-    retries=None,
     jobs=None,
 ):
     """Runs the unit tests for |packages|.
@@ -180,8 +179,6 @@ def RunUnittests(
         keep_going: Tolerate package failure from parallel_emerge.
         verbose: If True, show the output from emerge, even when the tests
             succeed.
-        retries: Number of time we should retry a failed packages. If None, use
-            parallel_emerge's default.
         jobs: Max number of parallel jobs. (optional)
 
     Raises:
@@ -193,7 +190,6 @@ def RunUnittests(
             "sysroot": sysroot,
             "packages": packages,
             "keep_going": keep_going,
-            "retries": retries,
             "jobs": jobs,
         }
     )
@@ -218,9 +214,6 @@ def RunUnittests(
     if verbose:
         command += ["--show-output"]
         command += ["--verbose"]
-
-    if retries is not None:
-        command += ["--retries=%s" % retries]
 
     if jobs is not None:
         command += ["--jobs=%s" % jobs]
