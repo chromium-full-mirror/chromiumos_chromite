@@ -458,27 +458,30 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
                         ["stat", "--", path], side_effect=_RaiseGSNoSuchKey
                     )
 
-        _UREADAHEAD_DATA = "ureadahead_pack_host"
+        _UREADAHEAD_DATAS = {"ureadahead_pack_host", "ureadahead_pack"}
         _BINARY_TRANSLATION_TYPES = ("houdini", "ndk", "native")
-        for arch in _ARCHS:
-            for build_type in _BUILD_TYPES:
-                for binary_translation_type in _BINARY_TRANSLATION_TYPES:
-                    if (
-                        "x86" in arch and binary_translation_type == "native"
-                    ) or (
-                        "arm" in arch and binary_translation_type != "native"
-                    ):
-                        continue
+        for data in _UREADAHEAD_DATAS:
+            for arch in _ARCHS:
+                for build_type in _BUILD_TYPES:
+                    for binary_translation_type in _BINARY_TRANSLATION_TYPES:
+                        if (
+                            "x86" in arch
+                            and binary_translation_type == "native"
+                        ) or (
+                            "arm" in arch
+                            and binary_translation_type != "native"
+                        ):
+                            continue
 
-                    path = (
-                        f"{self.runtime_artifacts_bucket_url}/"
-                        f"{self.android_package}/"
-                        f"{_UREADAHEAD_DATA}_{arch}_{binary_translation_type}_"
-                        f"{build_type}_{android_version}.tar"
-                    )
-                    self.gs_mock.AddCmdResult(
-                        ["stat", "--", path], side_effect=_RaiseGSNoSuchKey
-                    )
+                        path = (
+                            f"{self.runtime_artifacts_bucket_url}/"
+                            f"{self.android_package}/"
+                            f"{data}_{arch}_{binary_translation_type}_"
+                            f"{build_type}_{android_version}.tar"
+                        )
+                        self.gs_mock.AddCmdResult(
+                            ["stat", "--", path], side_effect=_RaiseGSNoSuchKey
+                        )
 
     def setupMockRuntimeArtifactsPin(self, pin_version):
         """Helper to mock a runtime artifacts pin on GS."""
@@ -536,6 +539,14 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
             "packages_reference_x64only_userdebug_100.tar"
         )
         path9 = "gs://r/android-package/gms_core_cache_arm64only_user_100.tar"
+        path10 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_x64only_houdini_userdebug_100.tar"
+        )
+        path11 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_arm64only_native_user_100.tar"
+        )
 
         self.gs_mock.AddCmdResult(
             ["stat", "--", path0], stdout=_STAT_OUTPUT % path0
@@ -566,6 +577,12 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         )
         self.gs_mock.AddCmdResult(
             ["stat", "--", path9], stdout=_STAT_OUTPUT % path9
+        )
+        self.gs_mock.AddCmdResult(
+            ["stat", "--", path10], stdout=_STAT_OUTPUT % path10
+        )
+        self.gs_mock.AddCmdResult(
+            ["stat", "--", path11], stdout=_STAT_OUTPUT % path11
         )
 
         variables = android.FindDataCollectorArtifacts(
@@ -606,6 +623,14 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         expectation9 = (
             "gs://r/android-package/gms_core_cache_arm64only_user_${PV}.tar"
         )
+        expectation10 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_x64only_houdini_userdebug_${PV}.tar"
+        )
+        expectation11 = (
+            "gs://r/android-package/"
+            "ureadahead_pack_host_arm64only_native_user_${PV}.tar"
+        )
 
         self.assertDictEqual(
             variables,
@@ -620,6 +645,8 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
                 "X86_USER_DEX_OPT_CACHE": expectation7,
                 "X64ONLY_USERDEBUG_PACKAGES_REFERENCE": expectation8,
                 "ARM64ONLY_USER_GMS_CORE_CACHE": expectation9,
+                "X64ONLY_HOUDINI_USERDEBUG_UREADAHEAD_PACK": expectation10,
+                "ARM64ONLY_NATIVE_USER_UREADAHEAD_PACK_HOST": expectation11,
             },
         )
 
