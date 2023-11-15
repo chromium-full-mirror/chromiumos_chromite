@@ -48,7 +48,8 @@ class TreeView<T> implements vscode.TreeView<T> {
   ];
 
   selection: readonly T[] = [];
-  visible = true;
+  // Assume the tree view is not visible until an item in it is revealed.
+  visible = false;
   message?: string | undefined;
   title?: string | undefined;
   description?: string | undefined;
@@ -128,6 +129,13 @@ class TreeView<T> implements vscode.TreeView<T> {
     if (options?.select !== false) {
       this.selection = [element];
       this.onDidChangeSelectionEmitter.fire({selection: this.selection});
+    }
+
+    if (!this.visible) {
+      this.visible = true;
+      this.onDidChangeVisibilityEmitter.fire({
+        visible: true,
+      });
     }
   }
 

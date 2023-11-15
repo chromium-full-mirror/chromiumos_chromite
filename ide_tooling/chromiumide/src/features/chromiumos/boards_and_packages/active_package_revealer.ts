@@ -25,6 +25,11 @@ export class ActivePackageRevealer implements vscode.Disposable {
    */
   private revealed = false;
 
+  /**
+   * Whether the tree view is visible.
+   */
+  private isVisible = false;
+
   constructor(
     chrootService: ChrootService,
     private readonly treeView: vscode.TreeView<Breadcrumbs>,
@@ -54,14 +59,22 @@ export class ActivePackageRevealer implements vscode.Disposable {
       // board item.
       treeView.onDidExpandElement(() => {
         this.reveal(board, pkg);
+      }),
+      treeView.onDidChangeVisibility(e => {
+        this.isVisible = e.visible;
+        this.reveal(board, pkg);
       })
     );
   }
 
+  /**
+   * Reveal the item corresponding to the board and the package. If the tree view is not currently
+   * visible in the view container, this method is no-op (not to stale the focus from the file
+   * explorer for example). If this method is called twice in a row with the same arguments, the
+   * second call will be no-op.
+   */
   private reveal(board?: BoardOrHost, pkg?: ParsedPackageName): void {
-    if (!board || !pkg) return;
-
-    if (this.revealed) return;
+    if (!board || !pkg || !this.isVisible || this.revealed) return;
 
     // Reveal it only when the category item below the board has been already revealed, because
     // revealing a category level item for the first time requires sudo. Rather than revealing the
