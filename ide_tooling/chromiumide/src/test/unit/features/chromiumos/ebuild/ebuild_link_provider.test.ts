@@ -5,6 +5,7 @@
 import * as os from 'os';
 import * as vscode from 'vscode';
 import dedent from 'dedent';
+import mockFs from 'mock-fs';
 import {EbuildLinkProvider} from '../../../../../features/chromiumos/ebuild/ebuild_link_provider';
 import * as testing from '../../../../testing';
 import {
@@ -45,9 +46,10 @@ function openFolderCmdUri(
 }
 
 /**
- * Return the pair of external codesearch link and vscode document link for given range and file path.
+ * Return the pair of external codesearch link and vscode document link
+ * for given range and file path, assuming it is a directory.
  */
-function links(
+function dirLinks(
   range: vscode.Range,
   path: string,
   pathToCros = '/path/to/cros',
@@ -67,7 +69,53 @@ function links(
   ];
 }
 
+/**
+ * Return the pair of external codesearch link and vscode document link
+ * for given range and file path, assuming it is a file.
+ */
+function fileLinks(
+  range: vscode.Range,
+  path: string,
+  pathToCros = '/path/to/cros'
+): vscode.DocumentLink[] {
+  return [
+    documentLink(
+      range,
+      vscode.Uri.parse(csBase + path),
+      `Open ${path} in CodeSearch`
+    ),
+    documentLink(
+      range,
+      vscode.Uri.file(`${pathToCros}/${path}`),
+      `Open ${path} in New Tab`
+    ),
+  ];
+}
+
+/** Wrapper for mock-fs. */
+function mockEbuildFs(root: string, opts: {dirs?: string[]; files?: string[]}) {
+  // Directories are configure by `{path: {}}` objects.
+  const dirConfig = opts.dirs
+    ? opts.dirs
+        .map(dir => root + dir)
+        .reduce((obj, key) => ({...obj, [key]: {}}), {})
+    : {};
+
+  // Regular files are configure by `{path: ''}` objects.
+  const fileConfig = opts.files
+    ? opts.files
+        .map(f => root + f)
+        .reduce((obj, key) => ({...obj, [key]: ''}), {})
+    : {};
+
+  mockFs({...dirConfig, ...fileConfig});
+}
+
 describe('Ebuild Link Provider for CROS_WORKON variables', () => {
+  afterEach(() => {
+    mockFs.restore();
+  });
+
   it('extracts links from string-type value', async () => {
     const CONTENT = dedent`# copyright
         EAPI=7
@@ -79,10 +127,19 @@ describe('Ebuild Link Provider for CROS_WORKON variables', () => {
         PLATFORM_SUBDIR="biod"
         `;
 
+    const PLATFORM2 = 'src/platform2';
+    const COMMONMK = PLATFORM2 + '/common-mk';
+    const BIOD = PLATFORM2 + '/biod';
+    const GN = PLATFORM2 + '/.gn';
+    mockEbuildFs('/path/to/cros/', {
+      dirs: [PLATFORM2, COMMONMK, BIOD],
+      files: [GN],
+    });
+
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
@@ -92,17 +149,12 @@ describe('Ebuild Link Provider for CROS_WORKON variables', () => {
     const RANGE_BIOD = new vscode.Range(6, 31, 6, 35);
     const RANGE_GN = new vscode.Range(6, 36, 6, 39);
 
-    const PLATFORM2 = 'src/platform2';
-    const COMMONMK = PLATFORM2 + '/common-mk';
-    const BIOD = PLATFORM2 + '/biod';
-    const GN = PLATFORM2 + '/.gn';
-
     expect(documentLinks).toEqual(
       [
-        links(RANGE_PLATFORM2, PLATFORM2),
-        links(RANGE_COMMONMK, COMMONMK),
-        links(RANGE_BIOD, BIOD),
-        links(RANGE_GN, GN),
+        dirLinks(RANGE_PLATFORM2, PLATFORM2),
+        dirLinks(RANGE_COMMONMK, COMMONMK),
+        dirLinks(RANGE_BIOD, BIOD),
+        fileLinks(RANGE_GN, GN),
       ].flat()
     );
   });
@@ -117,10 +169,20 @@ describe('Ebuild Link Provider for CROS_WORKON variables', () => {
 
         PLATFORM_SUBDIR="vpd"
         `;
+
+    const PLATFORM2 = 'src/platform2';
+    const VPD = 'src/platform/vpd';
+    const COMMONMK = PLATFORM2 + '/common-mk';
+    const GN = PLATFORM2 + '/.gn';
+    mockEbuildFs('/path/to/cros/', {
+      dirs: [PLATFORM2, VPD, COMMONMK],
+      files: [GN],
+    });
+
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
@@ -130,17 +192,12 @@ describe('Ebuild Link Provider for CROS_WORKON variables', () => {
     const RANGE_COMMONMK = new vscode.Range(5, 22, 5, 31);
     const RANGE_GN = new vscode.Range(5, 32, 5, 35);
 
-    const PLATFORM2 = 'src/platform2';
-    const VPD = 'src/platform/vpd';
-    const COMMONMK = PLATFORM2 + '/common-mk';
-    const GN = PLATFORM2 + '/.gn';
-
     expect(documentLinks).toEqual(
       [
-        links(RANGE_PLATFORM2, PLATFORM2),
-        links(RANGE_VPD, VPD),
-        links(RANGE_COMMONMK, COMMONMK),
-        links(RANGE_GN, GN),
+        dirLinks(RANGE_PLATFORM2, PLATFORM2),
+        dirLinks(RANGE_VPD, VPD),
+        dirLinks(RANGE_COMMONMK, COMMONMK),
+        fileLinks(RANGE_GN, GN),
       ].flat()
     );
   });
@@ -171,10 +228,29 @@ CROS_WORKON_SUBTREE=(
 PLATFORM_SUBDIR="arc/keymint"
     `;
 
+    const PLATFORM2 = 'src/platform2';
+    const SYSTEM_KEYMINT = 'src/aosp/system/keymint';
+    const LIBCUTILS = 'src/aosp/system/core/libcutils';
+    const COMMONMK = PLATFORM2 + '/common-mk';
+    const FEATURED = PLATFORM2 + '/featured';
+    const ARC_KEYMINT = PLATFORM2 + '/arc/keymint';
+    const GN = PLATFORM2 + '/.gn';
+    mockEbuildFs('/path/to/cros/', {
+      dirs: [
+        PLATFORM2,
+        SYSTEM_KEYMINT,
+        LIBCUTILS,
+        COMMONMK,
+        FEATURED,
+        ARC_KEYMINT,
+      ],
+      files: [GN],
+    });
+
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
@@ -187,23 +263,15 @@ PLATFORM_SUBDIR="arc/keymint"
     const RANGE_ARC_KEYMINT = new vscode.Range(18, 22, 18, 33);
     const RANGE_GN = new vscode.Range(18, 34, 18, 37);
 
-    const PLATFORM2 = 'src/platform2';
-    const SYSTEM_KEYMINT = 'src/aosp/system/keymint';
-    const LIBCUTILS = 'src/aosp/system/core/libcutils';
-    const COMMONMK = PLATFORM2 + '/common-mk';
-    const FEATURED = PLATFORM2 + '/featured';
-    const ARC_KEYMINT = PLATFORM2 + '/arc/keymint';
-    const GN = PLATFORM2 + '/.gn';
-
     expect(documentLinks).toEqual(
       [
-        links(RANGE_PLATFORM2, PLATFORM2),
-        links(RANGE_SYSTEM_KEYMINT, SYSTEM_KEYMINT),
-        links(RANGE_LIBCUTILS, LIBCUTILS),
-        links(RANGE_COMMONMK, COMMONMK),
-        links(RANGE_FEATURED, FEATURED),
-        links(RANGE_ARC_KEYMINT, ARC_KEYMINT),
-        links(RANGE_GN, GN),
+        dirLinks(RANGE_PLATFORM2, PLATFORM2),
+        dirLinks(RANGE_SYSTEM_KEYMINT, SYSTEM_KEYMINT),
+        dirLinks(RANGE_LIBCUTILS, LIBCUTILS),
+        dirLinks(RANGE_COMMONMK, COMMONMK),
+        dirLinks(RANGE_FEATURED, FEATURED),
+        dirLinks(RANGE_ARC_KEYMINT, ARC_KEYMINT),
+        fileLinks(RANGE_GN, GN),
       ].flat()
     );
   });
@@ -215,18 +283,20 @@ CROS_WORKON_PROJECT="chromiumos/platform/tpm"
 CROS_WORKON_LOCALNAME="../third_party/tpm"
     `;
 
+    const TPM = 'src/third_party/tpm';
+    mockEbuildFs('/path/to/cros/', {dirs: [TPM]});
+
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
 
     const RANGE_TPM = new vscode.Range(3, 23, 3, 41);
-    const TPM = 'src/third_party/tpm';
 
-    expect(documentLinks).toEqual([links(RANGE_TPM, TPM)].flat());
+    expect(documentLinks).toEqual([dirLinks(RANGE_TPM, TPM)].flat());
   });
 
   it('does not generate subtree links when length does not match localname', async () => {
@@ -244,10 +314,16 @@ CROS_WORKON_SUBTREE=(
 PLATFORM_SUBDIR="arc/keymint"
         `;
 
+    const PLATFORM2 = 'src/platform2';
+    const SYSTEM_KEYMINT = 'src/aosp/system/keymint';
+    mockEbuildFs('/path/to/cros/', {
+      dirs: [PLATFORM2, SYSTEM_KEYMINT],
+    });
+
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
@@ -255,13 +331,57 @@ PLATFORM_SUBDIR="arc/keymint"
     const RANGE_PLATFORM2 = new vscode.Range(4, 3, 4, 12);
     const RANGE_SYSTEM_KEYMINT = new vscode.Range(5, 3, 5, 22);
 
+    expect(documentLinks).toEqual(
+      [
+        dirLinks(RANGE_PLATFORM2, PLATFORM2),
+        dirLinks(RANGE_SYSTEM_KEYMINT, SYSTEM_KEYMINT),
+      ].flat()
+    );
+  });
+
+  it('generates remote links', async () => {
+    const CONTENT = dedent`# copyright
+    EAPI=7
+    CROS_WORKON_PROJECT=("chromiumos/platform2")
+    CROS_WORKON_LOCALNAME=("platform2")
+    CROS_WORKON_DESTDIR=("\${S}/platform2")
+    CROS_WORKON_SUBTREE=("common-mk .gn")
+
+    PLATFORM_SUBDIR="vpd"
+    `;
+
     const PLATFORM2 = 'src/platform2';
-    const SYSTEM_KEYMINT = 'src/aosp/system/keymint';
+    const COMMONMK = PLATFORM2 + '/common-mk';
+    const GN = PLATFORM2 + '/.gn';
+    const CHROOT = '/path/to/cros';
+    mockEbuildFs('/path/to/cros/', {
+      dirs: [PLATFORM2, COMMONMK],
+      files: [GN],
+    });
+
+    const ebuildLinkProvider = new EbuildLinkProvider(
+      CHROOT,
+      // 'ssh-remote' will change the links to open folders
+      () => 'ssh-remote'
+    );
+    const textDocument = new FakeTextDocument({text: CONTENT});
+
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
+      textDocument,
+      new FakeCancellationToken()
+    );
+
+    const RANGE_PLATFORM2 = new vscode.Range(3, 24, 3, 33);
+    const RANGE_COMMONMK = new vscode.Range(5, 22, 5, 31);
+    const RANGE_GN = new vscode.Range(5, 32, 5, 35);
+
+    const HOSTNAME = os.hostname();
 
     expect(documentLinks).toEqual(
       [
-        links(RANGE_PLATFORM2, PLATFORM2),
-        links(RANGE_SYSTEM_KEYMINT, SYSTEM_KEYMINT),
+        dirLinks(RANGE_PLATFORM2, PLATFORM2, CHROOT, HOSTNAME),
+        dirLinks(RANGE_COMMONMK, COMMONMK, CHROOT, HOSTNAME),
+        fileLinks(RANGE_GN, GN),
       ].flat()
     );
   });
@@ -277,35 +397,32 @@ PLATFORM_SUBDIR="arc/keymint"
         PLATFORM_SUBDIR="biod"
         `;
 
+    const PLATFORM2 = 'src/platform2';
+    const BIOD = PLATFORM2 + '/biod';
+    mockEbuildFs('/path/to/cros/', {
+      dirs: [PLATFORM2, BIOD],
+    });
+
     const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
 
     const RANGE_PLATFORM2 = new vscode.Range(3, 23, 3, 32);
     const RANGE_BIOD = new vscode.Range(6, 21, 6, 25);
-    const RANGE_MISSING = new vscode.Range(6, 26, 6, 33);
-
-    const PLATFORM2 = 'src/platform2';
-    const BIOD = PLATFORM2 + '/biod';
-    const MISSING = PLATFORM2 + '/missing';
 
     expect(documentLinks).toEqual(
-      [
-        links(RANGE_PLATFORM2, PLATFORM2),
-        links(RANGE_BIOD, BIOD),
-        // TODO(b:303398643): the following link should not be extracted
-        links(RANGE_MISSING, MISSING),
-      ].flat()
+      [dirLinks(RANGE_PLATFORM2, PLATFORM2), dirLinks(RANGE_BIOD, BIOD)].flat()
     );
   });
 });
 
 describe('Ebuild Link Provider for inherits', () => {
   const tempDir = testing.tempDir();
+
   it('handles single inherit', async () => {
     await testing.putFiles(tempDir.path, {
       'src/third_party/eclass-overlay/eclass/cros-constants.eclass':
@@ -319,7 +436,7 @@ inherit cros-constants
     const ebuildLinkProvider = new EbuildLinkProvider(tempDir.path);
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
@@ -327,7 +444,7 @@ inherit cros-constants
     expect(documentLinks).toEqual(
       [
         // cros-constants
-        links(
+        fileLinks(
           new vscode.Range(2, 8, 2, 22),
           'src/third_party/eclass-overlay/eclass/cros-constants.eclass',
           tempDir.path
@@ -352,7 +469,7 @@ inherit cros-sanitizers cros-workon toolchain-funcs
     const ebuildLinkProvider = new EbuildLinkProvider(tempDir.path);
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
@@ -360,19 +477,19 @@ inherit cros-sanitizers cros-workon toolchain-funcs
     expect(documentLinks).toEqual(
       [
         // cros-sanitizers
-        links(
+        fileLinks(
           new vscode.Range(2, 8, 2, 23),
           'src/third_party/chromiumos-overlay/eclass/cros-sanitizers.eclass',
           tempDir.path
         ),
         // cros-workon
-        links(
+        fileLinks(
           new vscode.Range(2, 24, 2, 35),
           'src/third_party/chromiumos-overlay/eclass/cros-workon.eclass',
           tempDir.path
         ),
         // toolchain-funcs
-        links(
+        fileLinks(
           new vscode.Range(2, 36, 2, 51),
           'src/third_party/chromiumos-overlay/eclass/toolchain-funcs.eclass',
           tempDir.path
@@ -389,55 +506,11 @@ inherit non-exist-eclass
     const ebuildLinkProvider = new EbuildLinkProvider(tempDir.path);
     const textDocument = new FakeTextDocument({text: CONTENT});
 
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+    const documentLinks = await ebuildLinkProvider.provideDocumentLinks(
       textDocument,
       new FakeCancellationToken()
     );
 
     expect(documentLinks).toEqual([]);
-  });
-
-  it('generates remote links', async () => {
-    const CONTENT = dedent`# copyright
-    EAPI=7
-    CROS_WORKON_PROJECT=("chromiumos/platform2")
-    CROS_WORKON_LOCALNAME=("platform2")
-    CROS_WORKON_DESTDIR=("\${S}/platform2")
-    CROS_WORKON_SUBTREE=("common-mk .gn")
-
-    PLATFORM_SUBDIR="vpd"
-    `;
-
-    const CHROOT = '/path/to/cros';
-
-    const ebuildLinkProvider = new EbuildLinkProvider(
-      CHROOT,
-      // 'ssh-remote' will change the links to open folders
-      () => 'ssh-remote'
-    );
-    const textDocument = new FakeTextDocument({text: CONTENT});
-
-    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
-      textDocument,
-      new FakeCancellationToken()
-    );
-
-    const RANGE_PLATFORM2 = new vscode.Range(3, 24, 3, 33);
-    const RANGE_COMMONMK = new vscode.Range(5, 22, 5, 31);
-    const RANGE_GN = new vscode.Range(5, 32, 5, 35);
-
-    const PLATFORM2 = 'src/platform2';
-    const COMMONMK = PLATFORM2 + '/common-mk';
-    const GN = PLATFORM2 + '/.gn';
-
-    const HOSTNAME = os.hostname();
-
-    expect(documentLinks).toEqual(
-      [
-        links(RANGE_PLATFORM2, PLATFORM2, CHROOT, HOSTNAME),
-        links(RANGE_COMMONMK, COMMONMK, CHROOT, HOSTNAME),
-        links(RANGE_GN, GN, CHROOT, HOSTNAME),
-      ].flat()
-    );
   });
 });

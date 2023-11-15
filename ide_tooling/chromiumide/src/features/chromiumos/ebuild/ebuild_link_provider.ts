@@ -1,6 +1,7 @@
 // Copyright 2023 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+import * as fs from 'fs';
 import * as os from 'os';
 import * as vscode from 'vscode';
 import * as eclass from '../../../common/chromiumos/portage/eclass';
@@ -32,10 +33,10 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
     private remoteName = () => vscode.env.remoteName
   ) {}
 
-  provideDocumentLinks(
+  async provideDocumentLinks(
     document: vscode.TextDocument,
     _token: vscode.CancellationToken
-  ): vscode.ProviderResult<vscode.DocumentLink[]> {
+  ): Promise<vscode.DocumentLink[] | null | undefined> {
     const links: vscode.DocumentLink[] = [];
     let parsedEbuild: parse.ParsedEbuild;
     try {
@@ -53,14 +54,14 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
       );
       if (path !== undefined) {
         links.push(
-          ...this.createLinks(
+          ...(await this.createLinks(
             parsedEclass.range,
             path.substring(
               path.lastIndexOf(this.chromiumosRoot) +
                 this.chromiumosRoot.length +
                 1 // Trailing directory delimiter after path to CrOS root.
             )
-          )
+          ))
         );
       }
     }
@@ -83,7 +84,7 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
         ? localname.value.substring(3)
         : localname.value;
       pathsFromSrc.push(path);
-      links.push(...this.createLinks(localname.range, `src/${path}`));
+      links.push(...(await this.createLinks(localname.range, `src/${path}`)));
     }
 
     // Support only one (the last) subtree assignment.
@@ -118,7 +119,7 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
           );
           const range = new vscode.Range(start, end);
           links.push(
-            ...this.createLinks(range, `src/${pathFromSrc}/${subtree}`)
+            ...(await this.createLinks(range, `src/${pathFromSrc}/${subtree}`))
           );
         }
       }
@@ -127,43 +128,55 @@ export class EbuildLinkProvider implements vscode.DocumentLinkProvider {
     return links;
   }
 
-  private createLinks(
+  private async createLinks(
     range: vscode.Range,
     path: string
-  ): vscode.DocumentLink[] {
+  ): Promise<vscode.DocumentLink[]> {
     // TODO(b:303398643): support public CS and other things
     const targetCs = vscode.Uri.parse(
       `http://source.corp.google.com/h/chromium/chromiumos/codesearch/+/main:${path}`
     );
-    // TODO(b:303398643): path can be a file, in which case we should open it as a file
-    // TODO(b:303398643): path may not exist, in which case we shouldn't link it
-    const args = [
-      this.getFolderUri(path),
-      {
-        forceNewWindow: true,
-      },
-    ];
-    const targetVSCode = vscode.Uri.parse(
-      `command:vscode.openFolder?${encodeURIComponent(JSON.stringify(args))}`
-    );
+    const absPath = `${this.chromiumosRoot}/${path}`;
+    if (!fs.existsSync(absPath)) {
+      return [];
+    }
 
     const csDocumentLink = new vscode.DocumentLink(range, targetCs);
     csDocumentLink.tooltip = `Open ${path} in CodeSearch`;
 
-    const vscodeDocumentLink = new vscode.DocumentLink(range, targetVSCode);
-    vscodeDocumentLink.tooltip = `Open ${path} in New VS Code Window`;
+    let vscodeUri: vscode.Uri;
+    let vscodeTooltip: string;
+    if ((await fs.promises.stat(absPath)).isFile()) {
+      // Files have simple Uris that open a new tab.
+      vscodeUri = vscode.Uri.file(absPath);
+      vscodeTooltip = `Open ${path} in New Tab`;
+    } else {
+      // Directories require a Uri with a command that opens a new window.
+      const args = [
+        this.getFolderUri(absPath),
+        {
+          forceNewWindow: true,
+        },
+      ];
+      vscodeUri = vscode.Uri.parse(
+        `command:vscode.openFolder?${encodeURIComponent(JSON.stringify(args))}`
+      );
+      vscodeTooltip = `Open ${path} in New VS Code Window`;
+    }
+
+    const vscodeDocumentLink = new vscode.DocumentLink(range, vscodeUri);
+    vscodeDocumentLink.tooltip = vscodeTooltip;
 
     return [csDocumentLink, vscodeDocumentLink];
   }
 
   /** Get `Uri` taking into account that we might need to open ssh remote. */
-  private getFolderUri(path: string): vscode.Uri {
-    const fullPath = `${this.chromiumosRoot}/${path}`;
+  private getFolderUri(absPath: string): vscode.Uri {
     if (this.remoteName() === 'ssh-remote') {
       return vscode.Uri.parse(
-        `vscode-remote://ssh-remote+${os.hostname()}${fullPath}`
+        `vscode-remote://ssh-remote+${os.hostname()}${absPath}`
       );
     }
-    return vscode.Uri.file(fullPath);
+    return vscode.Uri.file(absPath);
   }
 }
