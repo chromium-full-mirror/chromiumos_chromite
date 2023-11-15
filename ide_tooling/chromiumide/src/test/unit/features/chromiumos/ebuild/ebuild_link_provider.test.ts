@@ -265,6 +265,43 @@ PLATFORM_SUBDIR="arc/keymint"
       ].flat()
     );
   });
+
+  it('ignores missing files', async () => {
+    const CONTENT = dedent`# copyright
+        EAPI=7
+        CROS_WORKON_USE_VCSID="1"
+        CROS_WORKON_LOCALNAME="platform2"
+        CROS_WORKON_PROJECT="chromiumos/platform2"
+        CROS_WORKON_OUTOFTREE_BUILD=1
+        CROS_WORKON_SUBTREE="biod missing"
+        PLATFORM_SUBDIR="biod"
+        `;
+
+    const ebuildLinkProvider = new EbuildLinkProvider('/path/to/cros');
+    const textDocument = new FakeTextDocument({text: CONTENT});
+
+    const documentLinks = ebuildLinkProvider.provideDocumentLinks(
+      textDocument,
+      new FakeCancellationToken()
+    );
+
+    const RANGE_PLATFORM2 = new vscode.Range(3, 23, 3, 32);
+    const RANGE_BIOD = new vscode.Range(6, 21, 6, 25);
+    const RANGE_MISSING = new vscode.Range(6, 26, 6, 33);
+
+    const PLATFORM2 = 'src/platform2';
+    const BIOD = PLATFORM2 + '/biod';
+    const MISSING = PLATFORM2 + '/missing';
+
+    expect(documentLinks).toEqual(
+      [
+        links(RANGE_PLATFORM2, PLATFORM2),
+        links(RANGE_BIOD, BIOD),
+        // TODO(b:303398643): the following link should not be extracted
+        links(RANGE_MISSING, MISSING),
+      ].flat()
+    );
+  });
 });
 
 describe('Ebuild Link Provider for inherits', () => {
