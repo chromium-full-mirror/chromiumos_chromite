@@ -130,7 +130,7 @@ describe('getOrSelectTargetBoard', () => {
 
     vscodeSpy.window.showWarningMessage
       .withArgs(
-        'Target board is not set. Do you use amd64-generic?',
+        'Target board is not set. Do you want to use amd64-generic?',
         {title: 'Yes'},
         {title: 'Customize'}
       )
@@ -153,7 +153,9 @@ describe('getOrSelectTargetBoard', () => {
 
     vscodeSpy.window.showWarningMessage
       .withArgs(
-        jasmine.stringContaining('Target board is not set. Do you use '),
+        jasmine.stringContaining(
+          'Target board is not set. Do you want to use '
+        ),
         {title: 'Yes'},
         {title: 'Customize'}
       )
@@ -179,7 +181,7 @@ describe('getOrSelectTargetBoard', () => {
 
     vscodeSpy.window.showWarningMessage
       .withArgs(
-        'Target board is not set. Do you use amd64-generic?',
+        'Target board is not set. Do you want to use amd64-generic?',
         {title: 'Yes'},
         {title: 'Customize'}
       )
