@@ -26,7 +26,7 @@ DEFAULT = {
     "/build/libexec",
     "/build/manatee",
     "/build/opt",
-    "/build/rootfs",
+    "/build/rootfs/dlc*",
     "/build/share",
     "/etc/init.d",
     "/etc/runlevels",
