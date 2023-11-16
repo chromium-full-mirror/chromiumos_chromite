@@ -10,7 +10,9 @@ Handles test related functionality.
 import json
 import logging
 import os
+from pathlib import Path
 import shutil
+import tempfile
 import traceback
 from typing import (
     Dict,
@@ -38,6 +40,9 @@ if TYPE_CHECKING:
     from chromite.lib import goma_lib
     from chromite.lib import sysroot_lib
     from chromite.lib.parser import package_info
+
+
+_PKG_ARTIFACTS_DIR = Path("var/lib/chromeos/package-artifacts")
 
 
 class Error(Exception):
@@ -491,6 +496,72 @@ def _VMTestChrome(board: str, sdk_cmd: commands.ChromeSDK) -> None:
         sdk_cmd.VMTest(image_path)
 
 
+def bundle_e2e_code_coverage(
+    chroot: "chroot_lib.Chroot",
+    sysroot_class: "sysroot_lib.Sysroot",
+    output_dir: Union[str, Path],
+) -> Optional[str]:
+    """Bundle E2E coverage files into a tarball.
+
+    E2E artifacts include gcov files from kernel codebase and json files
+    from other packages and are generated with certain USE flags during emerge.
+
+    Args:
+        chroot: The chroot class used for these artifacts.
+        sysroot_class: The sysroot class used for these artifacts.
+        output_dir: The path to write artifacts to.
+
+    Returns:
+        A string path to the output code_coverage.tar.xz artifact or
+        None if there are no E2E artifacts.
+
+    Raises:
+        BundleCoverageError whenever we fail to generate the tarball.
+    """
+    base_path = chroot.full_path(sysroot_class.path)
+    cov_dir = chroot.out_path / base_path / _PKG_ARTIFACTS_DIR
+    logging.info("Looking for E2E artifacts under %s", cov_dir)
+
+    tmp_path = chroot.out_path / "tmp"
+    with tempfile.TemporaryDirectory(dir=tmp_path) as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        for path in cov_dir.glob("**/hpt_coverage/*.json"):
+            cov_json = code_coverage_util.GetLlvmJsonCoverageDataIfValid(path)
+            if not cov_json:
+                logging.info("Did not find a valid JSON for: %s", path)
+                continue
+
+            rel_path = path.relative_to(cov_dir)
+            pkg_name = list(rel_path.parents)[-3].name
+            logging.info("Found %s path and package %s", path, pkg_name)
+            filename = tmpdir_path / f"{pkg_name}.json"
+            filename.write_text(json.dumps(cov_json), encoding="utf-8")
+
+        for path in cov_dir.glob("**/hpt_coverage/*.gcov"):
+            filename = tmpdir_path / path.name
+            path.replace(filename)
+
+        # If no artifacts found, return None.
+        if not any(tmpdir_path.iterdir()):
+            logging.info("No E2E artifact found.")
+            return None
+
+        tarball_path = (
+            Path(output_dir) / constants.CODE_COVERAGE_LLVM_JSON_SYMBOLS_TAR
+        )
+        result = cros_build_lib.CreateTarball(tarball_path, tmpdir)
+        if result.returncode != 0:
+            logging.error(
+                "Error (%d) when creating tarball %s from %s",
+                result.returncode,
+                tarball_path,
+                tmpdir,
+            )
+            return None
+        logging.info("Created tarball at %s", tarball_path)
+        return str(tarball_path)
+
+
 def BundleCodeCoverageGolang(
     chroot: "chroot_lib.Chroot",
     output_dir: str,
@@ -509,7 +580,7 @@ def BundleCodeCoverageGolang(
     # Gather host code coverage
     # Builder sets build target to Brya, code coverage currently only
     # supports Golang host packages
-    coverage_dir = chroot.full_path("/var/lib/chromeos/package-artifacts")
+    coverage_dir = chroot.full_path(_PKG_ARTIFACTS_DIR)
     go_coverage_data_list = GatherCodeCoverageGolang(coverage_dir)
     # Create tarball
     with osutils.TempDir() as dest_tmpdir:
@@ -633,9 +704,7 @@ def _BundleCodeCoverageLlvmJson(
                 constants.ZERO_COVERAGE_EXCLUDE_FILES_SUFFIXES,
             )
         )
-        search_directory = os.path.join(
-            base_path, "var/lib/chromeos/package-artifacts"
-        )
+        search_directory = base_path / _PKG_ARTIFACTS_DIR
         path_mapping = code_coverage_util.GatherPathMapping(search_directory)
 
         cleaned_cov_json = code_coverage_util.CleanLlvmFileNames(
@@ -749,7 +818,7 @@ def GatherCodeCoverageLlvmJsonFile(path: str):
     for root, _, files in os.walk(path):
         for f in files:
             # Make sure the file contents match the llvm json format.
-            path_to_file = os.path.join(root, f)
+            path_to_file = Path(root) / f
             file_data = code_coverage_util.GetLlvmJsonCoverageDataIfValid(
                 path_to_file
             )

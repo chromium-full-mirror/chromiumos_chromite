@@ -535,7 +535,7 @@ def GenerateZeroCoverageLlvm(
     return CreateLlvmCoverageJson(coverage_data)
 
 
-def GetLlvmJsonCoverageDataIfValid(path_to_file: str):
+def GetLlvmJsonCoverageDataIfValid(path_to_file: Path):
     """Gets the content of a file if it matches the llvm coverage json format.
 
     Args:
@@ -544,18 +544,18 @@ def GetLlvmJsonCoverageDataIfValid(path_to_file: str):
     Returns:
         The file contents if they match the llvm json structure, otherwise None.
     """
+    # Only coverage.json files matter for llvm json coverage.
+    if path_to_file.name != "coverage.json":
+        return None
+
+    # Make sure the file exists.
+    if not path_to_file.is_file():
+        return None
+
     try:
-        # Only coverage.json files matter for llvm json coverage.
-        if os.path.basename(path_to_file) != "coverage.json":
-            return None
-
-        # Make sure the file exists.
-        if not os.path.isfile(path_to_file):
-            return None
-
         # Attempt to parse as json. It's fine for this to fail,
         # it means we can't manipulate it rather than an actual error.
-        data = json.loads(Path(path_to_file).read_text(encoding="utf-8"))
+        data = json.loads(path_to_file.read_text(encoding="utf-8"))
 
         # Validate the file structure is:
         # { data: [...], type: "..", version: "..." }.

@@ -26,7 +26,6 @@ from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import test
-from chromite.service.test import GatherCodeCoverageLlvmJsonFileResult
 from chromite.utils import code_coverage_util
 
 
@@ -312,6 +311,89 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         # self.goma_mock.Stop.assert_called_once()
 
 
+class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
+    """bundle_e2e_code_coverage Tests."""
+
+    def setUp(self):
+        """Set up the class for tests."""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        chroot_dir = self.tempdir / "chroot"
+        out_dir = self.tempdir / "out"
+        self.output_dir = self.tempdir / "output"
+        self.cov_dir = (
+            out_dir
+            / "build/board/var/lib/chromeos/package-artifacts"
+            / "category/package/cros-artifacts/hpt_coverage"
+        )
+        osutils.SafeMakedirs(chroot_dir)
+        osutils.SafeMakedirs(out_dir)
+        osutils.SafeMakedirs(self.output_dir)
+        osutils.SafeMakedirs(self.cov_dir)
+
+        self.chroot = chroot_lib.Chroot(chroot_dir, out_path=out_dir)
+        osutils.SafeMakedirs(self.chroot.tmp)
+
+        sysroot_path = Path("build/board")
+        osutils.SafeMakedirs(self.chroot.full_path(sysroot_path))
+        self.sysroot = sysroot_lib.Sysroot(sysroot_path)
+
+    def test_bundle_e2e_code_coverage_returns_none(self):
+        """Verify bundle_e2e_code_coverage returns None for no e2e artifact."""
+        path = test.bundle_e2e_code_coverage(
+            self.chroot, self.sysroot, self.output_dir.as_posix()
+        )
+        self.assertIsNone(path)
+
+    def test_bundle_e2e_code_coverage_throws_exception(self):
+        """Verify bundle_e2e_code_coverage throws exception."""
+        self.PatchObject(
+            cros_build_lib,
+            "CreateTarball",
+            side_effect=cros_build_lib.TarballError("err"),
+        )
+        (self.cov_dir / "abc.gcov").write_text("some text", encoding="utf-8")
+
+        with self.assertRaises(cros_build_lib.TarballError):
+            test.bundle_e2e_code_coverage(
+                self.chroot, self.sysroot, self.output_dir
+            )
+
+    def test_bundle_e2e_code_coverage_invalid_json(self):
+        """Verify bundle_e2e_code_coverage returns none for invalid JSON."""
+        json_file = self.cov_dir / "coverage.json"
+        json_file.write_text("invalid_json", encoding="utf-8")
+        path = test.bundle_e2e_code_coverage(
+            self.chroot, self.sysroot, self.output_dir
+        )
+        self.assertIsNone(path)
+
+    def test_bundle_e2e_code_coverage_returns_tarball(self):
+        """Verify that we can create tarball in bundle_e2e_code_coverage."""
+        create_tarball_result = cros_build_lib.CompletedProcess(returncode=0)
+        self.PatchObject(
+            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+        )
+        json_file = self.cov_dir / "coverage.json"
+        content = json.dumps(
+            {
+                "data": [{"files": [{"filename": "abc"}]}],
+                "version": "1",
+                "type": "llvm.coverage.json.export",
+            }
+        )
+        json_file.write_text(content, encoding="utf-8")
+        (self.cov_dir / "abc.gcov").write_text("some text", encoding="utf-8")
+        path = test.bundle_e2e_code_coverage(
+            self.chroot, self.sysroot, self.output_dir
+        )
+        self.assertEqual(
+            path,
+            f"{str(self.output_dir)}/"
+            f"{constants.CODE_COVERAGE_LLVM_JSON_SYMBOLS_TAR}",
+        )
+
+
 class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
     """BundleCodeCoverageLlvmJson Tests."""
 
@@ -356,7 +438,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testCreateTarballIsCalled1Time(self):
         """Test that CreateTarball is called once."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )
@@ -387,7 +469,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateZeroCoverageLlvmCalled1Time(self):
         """Test that GenerateZeroCoverageLlvm is called once."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )
@@ -419,7 +501,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testShouldReturnNoneWhenCreateTarballFails(self):
         """Test that None is returned when CreateTarball fails."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )
@@ -436,7 +518,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testShouldReturnPathToTarballOnSuccess(self):
         """Test that the path to the tarball is returned on success."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )
@@ -516,7 +598,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testCreateTarballIsCalled1Time(self):
         """Test that CreateTarball is called once."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )
@@ -547,7 +629,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateZeroCoverageLlvmCalled1Time(self):
         """Test that GenerateZeroCoverageLlvm is called once."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )
@@ -579,7 +661,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testShouldReturnNoneWhenCreateTarballFails(self):
         """Test that None is returned when CreateTarball fails."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )
@@ -596,7 +678,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
     def testShouldReturnPathToTarballOnSuccess(self):
         """Test that the path to the tarball is returned on success."""
-        gather_result = GatherCodeCoverageLlvmJsonFileResult({})
+        gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
         )

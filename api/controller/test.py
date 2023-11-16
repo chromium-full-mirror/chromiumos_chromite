@@ -18,12 +18,12 @@ from chromite.third_party.google.protobuf import json_format
 
 from chromite.api import controller
 from chromite.api import faux
+from chromite.api import metrics
 from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import test_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.api.gen.chromiumos.build.api import container_metadata_pb2
-from chromite.api.metrics import deserialize_metrics_log
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -142,7 +142,9 @@ def BuildTargetUnitTest(input_proto, output_proto, _config):
         else:
             return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
-    deserialize_metrics_log(output_proto.events, prefix=build_target.name)
+    metrics.deserialize_metrics_log(
+        output_proto.events, prefix=build_target.name
+    )
 
 
 SRC_DIR = os.path.join(constants.SOURCE_ROOT, "src")
@@ -477,6 +479,7 @@ def GetArtifacts(
         in_proto.ArtifactType.CODE_COVERAGE_GOLANG: functools.partial(
             test.BundleCodeCoverageGolang
         ),
+        in_proto.ArtifactType.CODE_COVERAGE_E2E: test.bundle_e2e_code_coverage,
     }
 
     for output_artifact in in_proto.output_artifacts:

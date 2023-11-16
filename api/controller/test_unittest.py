@@ -805,6 +805,7 @@ class GetArtifactsTest(cros_test_lib.MockTempDirTestCase):
         common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_RUST_LLVM_JSON: test_service.BundleCodeCoverageRustLlvmJson,
         common_pb2.ArtifactsByService.Test.ArtifactType.HWQUAL: test_service.BundleHwqualTarball,
         common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_GOLANG: test_service.BundleCodeCoverageGolang,
+        common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_E2E: test_service.bundle_e2e_code_coverage,
     }
     # pylint: enable=line-too-long
 

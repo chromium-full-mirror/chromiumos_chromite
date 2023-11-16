@@ -6,6 +6,7 @@
 
 import json
 import os
+from pathlib import Path
 from typing import List
 
 from chromite.lib import constants
@@ -94,28 +95,28 @@ class GetLlvmJsonCoverageDataIfValidTest(cros_test_lib.TempDirTestCase):
 
     def testIgnoresIfFileIsNotCoverageJsonFileName(self):
         """Verify that files not named coverage.json are ignored."""
-        file = os.path.join(self.tempdir, "file.json")
-        osutils.WriteFile(file, "Test")
+        file = self.tempdir / "file.json"
+        file.write_text("Test", encoding="utf-8")
         result = code_coverage_util.GetLlvmJsonCoverageDataIfValid(file)
         self.assertIsNone(result)
 
     def testIgnoresIfNotAFile(self):
         """Verify non-files are ignored."""
         result = code_coverage_util.GetLlvmJsonCoverageDataIfValid(
-            "coverage.json"
+            Path("coverage.json")
         )
         self.assertIsNone(result)
 
     def testIgnoresIfFileIsNotValidJson(self):
         """Verify files with invalid JSON are ignored."""
-        file = os.path.join(self.tempdir, "coverage.json")
-        osutils.WriteFile(file, "Test")
+        file = self.tempdir / "coverage.json"
+        file.write_text("Test", encoding="utf-8")
         result = code_coverage_util.GetLlvmJsonCoverageDataIfValid(file)
         self.assertIsNone(result)
 
     def testReturnsDataWhenInProperFormat(self):
         """Verify files in the right structure have their contents returned."""
-        file = os.path.join(self.tempdir, "coverage.json")
+        file = self.tempdir / "coverage.json"
         content = json.dumps(
             {
                 "data": [{"files": [{"filename": "abc"}]}],
@@ -123,7 +124,7 @@ class GetLlvmJsonCoverageDataIfValidTest(cros_test_lib.TempDirTestCase):
                 "type": "llvm.coverage.json.export",
             }
         )
-        osutils.WriteFile(file, content)
+        file.write_text(content, encoding="utf-8")
         result = code_coverage_util.GetLlvmJsonCoverageDataIfValid(file)
         self.assertIsNotNone(result)
 
