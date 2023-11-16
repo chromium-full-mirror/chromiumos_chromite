@@ -6,6 +6,7 @@ import assert from 'assert';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import {Mutex} from '../../common/common_util';
 import {vscodeRegisterCommand} from '../../common/vscode/commands';
 import {Metrics} from '../../features/metrics/metrics';
 import * as bgTaskStatus from '../../ui/bg_task_status';
@@ -393,6 +394,7 @@ export class OutputDirectoriesDataProvider
   implements vscode.TreeDataProvider<Node>
 {
   private nodeCache: NodeCache | null = null;
+  private nodeCacheMutex = new Mutex<NodeCache>();
 
   private _onDidChangeTreeData = new vscode.EventEmitter<Node | void>();
   onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -424,24 +426,13 @@ export class OutputDirectoriesDataProvider
       return [];
     }
 
-    // Rebuild the node cache if it does not yet exist.
-    if (this.nodeCache === null) {
-      const newNodeCache = await this.buildNodeCache();
+    // Build the node cache if it does not yet exist.
+    this.nodeCache = await this.nodeCacheMutex.runExclusive(async () => {
       if (this.nodeCache !== null) {
-        // This should never happen, because VSCode does not call `getChildren` concurrently. Log an
-        // error just in case.
-        this.outputChannel.appendLine(
-          'Error: Node cache was rebuilt concurrently.'
-        );
-        Metrics.send({
-          category: 'error',
-          group: 'chromium.outputDirectories',
-          description: 'race condition while rebuilding node cache',
-          name: 'chromium_outputDirectories_race_condition_at_rebuild',
-        });
+        return this.nodeCache;
       }
-      this.nodeCache = newNodeCache;
-    }
+      return this.buildNodeCache();
+    });
 
     return this.nodeCache.nodes;
   };

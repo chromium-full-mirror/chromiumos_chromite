@@ -114,7 +114,6 @@ type ChromiumOutputDirectoriesEvent = EventBase & {
         name:
           | 'chromium_outputDirectories_invalid_directory_name'
           | 'chromium_outputDirectories_not_a_symlink'
-          | 'chromium_outputDirectories_race_condition_at_rebuild'
           | 'chromium_outputDirectories_symlink_not_linked';
       }
     | {
