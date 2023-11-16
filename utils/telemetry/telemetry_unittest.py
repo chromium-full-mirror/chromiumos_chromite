@@ -9,6 +9,7 @@ import os
 from chromite.third_party.opentelemetry import trace as trace_api
 from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
 from chromite.third_party.opentelemetry.sdk.trace import export
+import pytest
 
 from chromite.utils import hostname_util
 from chromite.utils import telemetry
@@ -16,27 +17,27 @@ from chromite.utils.telemetry import config
 from chromite.utils.telemetry import exporter
 
 
-_ORIGINAL_ADD_SPAN_PROCESSOR = trace_sdk.TracerProvider.add_span_processor
-
-
 def _spy_add_span_processor(processors):
-    def inner(self, processor):
+    def inner(_self, processor):
         processors.append(processor)
-        _ORIGINAL_ADD_SPAN_PROCESSOR(self, processor)
 
     return inner
 
 
-def test_no_exporter_for_non_google_host(monkeypatch, tmp_path):
-    """Test initialize to not add exporters on non google host."""
-
+@pytest.fixture(name="processors")
+def _processors(monkeypatch):
     processors = []
-    monkeypatch.setattr(hostname_util, "is_google_host", lambda: False)
     monkeypatch.setattr(
         trace_sdk.TracerProvider,
         "add_span_processor",
         _spy_add_span_processor(processors),
     )
+    yield processors
+
+
+def test_no_exporter_for_non_google_host(monkeypatch, tmp_path, processors):
+    """Test initialize to not add exporters on non google host."""
+    monkeypatch.setattr(hostname_util, "is_google_host", lambda: False)
 
     config_file = tmp_path / "telemetry.cfg"
     cfg = config.Config(config_file)
@@ -48,16 +49,11 @@ def test_no_exporter_for_non_google_host(monkeypatch, tmp_path):
     assert len(processors) == 0
 
 
-def test_console_exporter_for_non_google_host_on_debug(monkeypatch, tmp_path):
+def test_console_exporter_for_non_google_host_on_debug(
+    monkeypatch, tmp_path, processors
+):
     """Test initialize to print span to console on debug on non google host."""
-
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: False)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
     config_file = tmp_path / "telemetry.cfg"
 
     telemetry.initialize(config_file, log_traces=True)
@@ -66,16 +62,11 @@ def test_console_exporter_for_non_google_host_on_debug(monkeypatch, tmp_path):
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
 
 
-def test_console_exporter_for_google_host_on_debug(monkeypatch, tmp_path):
+def test_console_exporter_for_google_host_on_debug(
+    monkeypatch, tmp_path, processors
+):
     """Test initialize to print span to console on debug."""
-
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
     config_file = tmp_path / "telemetry.cfg"
 
     telemetry.initialize(config_file, log_traces=True)
@@ -85,18 +76,11 @@ def test_console_exporter_for_google_host_on_debug(monkeypatch, tmp_path):
 
 
 def test_initialize_to_display_notice_to_user_on_google_host(
-    capsys, monkeypatch, tmp_path
+    capsys, monkeypatch, tmp_path, processors
 ):
     """Test initialize display notice to user."""
-
     config_file = tmp_path / "telemetry.cfg"
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
 
     telemetry.initialize(config_file)
 
@@ -107,18 +91,11 @@ def test_initialize_to_display_notice_to_user_on_google_host(
 
 
 def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
-    capsys, monkeypatch, tmp_path
+    capsys, monkeypatch, tmp_path, processors
 ):
     """Test initialize display notice to user and print span on debug."""
-
     config_file = tmp_path / "telemetry.cfg"
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
 
     telemetry.initialize(config_file, log_traces=True)
 
@@ -130,17 +107,10 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
 
 
 def test_initialize_to_update_enabled_on_count_down_complete(
-    capsys, monkeypatch, tmp_path
+    capsys, monkeypatch, tmp_path, processors
 ):
     """Test initialize auto enable telemetry on countdown complete."""
-
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
 
     config_file = tmp_path / "telemetry.cfg"
     cfg = config.Config(config_file)
@@ -160,17 +130,10 @@ def test_initialize_to_update_enabled_on_count_down_complete(
 
 
 def test_initialize_to_skip_notice_when_trace_enabled_is_present(
-    capsys, monkeypatch, tmp_path
+    capsys, monkeypatch, tmp_path, processors
 ):
     """Test initialize to skip notice on enabled flag present."""
-
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
 
     config_file = tmp_path / "telemetry.cfg"
     cfg = config.Config(config_file)
@@ -187,17 +150,10 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
 
 
 def test_initialize_to_enable_telemetry_based_on_optin(
-    capsys, monkeypatch, tmp_path
+    capsys, monkeypatch, tmp_path, processors
 ):
     """Test initialize enable telemetry based on optin."""
-
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
 
     config_file = tmp_path / "telemetry.cfg"
     cfg = config.Config(config_file)
@@ -217,17 +173,10 @@ def test_initialize_to_enable_telemetry_based_on_optin(
 
 
 def test_initialize_to_disable_telemetry_based_on_optin(
-    capsys, monkeypatch, tmp_path
+    capsys, monkeypatch, tmp_path, processors
 ):
     """Test initialize disable telemetry based on optin."""
-
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
 
     config_file = tmp_path / "telemetry.cfg"
     cfg = config.Config(config_file)
@@ -269,21 +218,15 @@ def test_initialize_to_set_parent_from_traceparent_env(monkeypatch, tmp_path):
 
 
 def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
-    capsys, monkeypatch, tmp_path
+    capsys, monkeypatch, tmp_path, processors
 ):
     """Test initialize to skip notice if run with tracecontext."""
     parent = {
         "traceparent": "00-6e9d1daccc58d878b74c78b363ed2cf8-65d3ef7761438b6f-01"
     }
     config_file = tmp_path / "telemetry.cfg"
-    processors = []
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
     monkeypatch.setattr(os, "environ", parent)
-    monkeypatch.setattr(
-        trace_sdk.TracerProvider,
-        "add_span_processor",
-        _spy_add_span_processor(processors),
-    )
 
     telemetry.initialize(config_file)
 
