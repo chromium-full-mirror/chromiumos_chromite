@@ -874,7 +874,7 @@
         "chromiumide.ebuildSupport.enabled": {
           "type": "boolean",
           "description": "Enable features for ChromeOS EBuilds",
-          "default": false
+          "default": true
         },
         "chromiumide.gerrit.enabled": {
           "type": "boolean",
