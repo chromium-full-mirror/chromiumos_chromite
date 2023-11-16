@@ -824,6 +824,17 @@ def test_upload_fails_cipd(
     assert f"command: {FAKE_CIPD_PATH} create" in str(error_info.value)
 
 
+def test_export_checks_textproto_ebuild(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test that the .textproto path is queried for belongs when not bundled."""
+    set_run_results(run_mock)
+    template_proto.export_e2e(writes_files=True)
+    run_mock.assertCommandContains(
+        ["equery", "belongs", "test_subtool_package.textproto", "/etc/profile"]
+    )
+
+
 def test_export_multiple_ebuilds(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:

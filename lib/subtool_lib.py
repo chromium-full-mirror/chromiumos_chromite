@@ -239,7 +239,7 @@ class Subtool:
 
         Args:
             message: The contents of the .textproto file.
-            path: The source file (for logging).
+            path: The source file.
             work_root: Location on disk where packages are built.
         """
         self.manifest_path = path
@@ -250,8 +250,11 @@ class Subtool:
 
         # Set of c/p-v-r strings that provided the bundle contents.
         self._source_ebuilds: Set[str] = set()
-        # Paths bundled, but not yet attributed to a source ebuild.
-        self._unmatched_paths: List[str] = []
+
+        # Paths bundled, but not yet attributed to a source ebuild. Always
+        # include the .textproto path: it may belong to a bespoke ebuild, so
+        # this ensures it gets included on metadata tags as well.
+        self._unmatched_paths = [str(path)]
 
         # Running digest of accumulated hashes from file contents, maps the
         # destination file to its hash. Not all destination files may be hashed:
@@ -532,9 +535,14 @@ class Subtool:
         )
         # Emit the full .textproto to debug logs.
         logger.debug(self)
-        assert self._file_count == 0  # Consistency check.
+
+        # Internal consistency checks. When collection of files begins, count of
+        # bundled files should be 0, and there should be one unmatched file (the
+        # textproto providing the subtool manifest).
+        assert self._file_count == 0
+        assert len(self._unmatched_paths) == 1
+
         self._source_ebuilds = set()
-        self._unmatched_paths = []
         for path in self.package.paths:
             self._bundle_mapping(path)
         logger.notice(
