@@ -49,15 +49,15 @@ def test_parse_path():
     assert pkg.revision == 3
 
 
-@pytest.mark.xfail(raises=package_info.ParseTypeError)
 def test_parse_bad_path():
-    package_info.parse(Path("not/an/ebuild.txt"))
+    with pytest.raises(package_info.ParseTypeError):
+        package_info.parse(Path("not/an/ebuild.txt"))
 
 
-@pytest.mark.xfail(raises=ValueError)
 def test_parse_invalid():
     """Invalid package format."""
-    package_info.parse("invalid/package/format")
+    with pytest.raises(ValueError):
+        package_info.parse("invalid/package/format")
 
 
 def test_parse_cpv():

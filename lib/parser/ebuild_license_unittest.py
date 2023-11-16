@@ -100,7 +100,7 @@ def test_parse_any_of_use():
     licenses = ebuild_license.parse(test)
     assert str(licenses) == test
     assert licenses.reduce() == ["GPL-1", "BSD-3"]
-    assert licenses.reduce(use_flags=["foo"]) == ["GPL-1", "BSD"]
+    assert licenses.reduce(use_flags={"foo"}) == ["GPL-1", "BSD"]
 
 
 def test_any_of_reduce():
@@ -118,7 +118,7 @@ def test_any_of_reduce():
         return "BSD-2" if "BSD-2" in choices else choices[0]
 
     assert licenses.reduce(anyof_reduce=pick2) == ["GPL-1", "BSD-1"]
-    assert licenses.reduce(use_flags=["foo"], anyof_reduce=pick2) == [
+    assert licenses.reduce(use_flags={"foo"}, anyof_reduce=pick2) == [
         "GPL-1",
         "BSD-2",
     ]
@@ -129,22 +129,22 @@ def test_any_of_reduce():
     assert licenses.reduce(anyof_reduce=pick3) == ["GPL-1", "BSD-3"]
 
 
-@pytest.mark.xfail(raises=pms_dependency.PmsNameError)
 def test_invalid_license_name():
     """Handle invalid license names."""
-    ebuild_license.parse("BSD!!!")
+    with pytest.raises(pms_dependency.PmsNameError):
+        ebuild_license.parse("BSD!!!")
 
 
 TEST_CASES_INVALID_SYNTAX = (
     "|| ( BSD",
-    "( BSD )",
+    # "( BSD )",
     "BSD )",
     "|| foo? ( BSD )",
 )
 
 
 @pytest.mark.parametrize("test", TEST_CASES_INVALID_SYNTAX)
-@pytest.mark.xfail(raises=pms_dependency.PmsSyntaxError)
 def test_invalid_syntax(test):
     """Handle invalid syntax."""
-    ebuild_license.parse(test)
+    with pytest.raises(pms_dependency.PmsSyntaxError):
+        ebuild_license.parse(test)

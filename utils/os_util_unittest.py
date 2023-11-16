@@ -58,7 +58,6 @@ def test_root_user_decorator_as_root(as_root_user):
     passes()
 
 
-@pytest.mark.xfail(raises=AssertionError)
 def test_root_user_decorator_as_non_root(as_non_root_user):
     """Failure case for require root user decorator."""
 
@@ -66,10 +65,10 @@ def test_root_user_decorator_as_non_root(as_non_root_user):
     def fails():
         pytest.fail("Allowed to execute as wrong user.")
 
-    fails()
+    with pytest.raises(AssertionError):
+        fails()
 
 
-@pytest.mark.xfail(raises=AssertionError)
 def test_non_root_user_decorator_as_root(as_root_user):
     """Failure case for require non-root user decorator."""
 
@@ -77,7 +76,8 @@ def test_non_root_user_decorator_as_root(as_root_user):
     def fails():
         pytest.fail("Allowed to execute as wrong user.")
 
-    fails()
+    with pytest.raises(AssertionError):
+        fails()
 
 
 def test_non_root_user_decorator_as_non_root(as_non_root_user):
