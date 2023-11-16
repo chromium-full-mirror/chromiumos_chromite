@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import * as services from '../../../services';
 import {Metrics} from '../../metrics/metrics';
@@ -44,6 +46,48 @@ function matchInputAsImageVersion(
   };
 }
 
+/*
+ * Return full path of local image to flash with, or undefined if user exits prematurely.
+ */
+async function showAllLocalImagesInputBox(
+  board: string,
+  chrootService: services.chromiumos.ChrootService,
+  options?: {
+    title?: string;
+  }
+): Promise<string | undefined> {
+  const imagesDir = path.join(
+    chrootService.chromiumosRoot,
+    '/src/build/images/',
+    board
+  );
+  let images = await fs
+    .readdirSync(imagesDir)
+    .filter(image =>
+      fs.existsSync(path.join(imagesDir, image, 'chromiumos_test_image.bin'))
+    );
+  if (images.length === 0) {
+    throw new Error(`No image available at ${imagesDir}.`);
+  }
+
+  // Move 'latest' (symlink to the most recent image) to beginning of array since it is the most
+  // popular workflow and should be the most accessible.
+  if (images.includes('latest')) {
+    images = images.filter(image => image !== 'latest');
+    images.unshift('latest');
+  }
+
+  const image = await vscode.window.showQuickPick(images, {
+    ignoreFocusOut: true,
+    ...options,
+  });
+  if (!image) return undefined;
+  return path.join(imagesDir, image, 'chromiumos_test_image.bin');
+}
+
+/*
+ * Return full path of remote image to flash with, or undefined if user exits prematurely.
+ */
 function showImageVersionInputBoxWithDynamicSuggestions(
   board: string,
   imageType: string,
@@ -106,7 +150,8 @@ function showImageVersionInputBoxWithDynamicSuggestions(
         picker.items = versions.map(label => new SimplePickItem(label));
       }),
       picker.onDidAccept(() => {
-        resolve(picker.activeItems[0].label);
+        const version = picker.activeItems[0].label;
+        resolve(`xbuddy://remote/${board}-${imageType}/${version}/test`);
       }),
       picker.onDidHide(() => {
         resolve(undefined);
@@ -165,27 +210,33 @@ export async function flashPrebuiltImage(
     'postsubmit',
     'snapshot',
     'cq',
+    'local',
   ]);
   if (!imageType) {
     return;
   }
 
-  const version = await showImageVersionInputBoxWithDynamicSuggestions(
-    board,
-    imageType,
-    chrootService,
-    context.output,
-    {
-      title: `Image version: available images on gs://chromeos-image-archive/${board}-${imageType}/ will be listed given sufficient version number for matching, e.g. 'R99', 'R102', 'R12-', and optionally ChromeOS version number, e.g. 'R119-15608.'; remaining of the version string is optional.`,
-      placeholder:
-        imageType === 'release'
-          ? 'Rxxx-yyyyy.0.0'
-          : 'Rxxx-yyyyy.0.0-zzzzz-wwwwwwwwwwwwwwwwwww',
-    }
-  );
+  const imagePath =
+    imageType === 'local'
+      ? await showAllLocalImagesInputBox(board, chrootService, {
+          title: `Image version: available images in src/build/images/${board}/`,
+        })
+      : await showImageVersionInputBoxWithDynamicSuggestions(
+          board,
+          imageType,
+          chrootService,
+          context.output,
+          {
+            title: `Image version: available images on gs://chromeos-image-archive/${board}-${imageType}/ will be listed given sufficient version number for matching, e.g. 'R99', 'R102', 'R12-', and optionally ChromeOS version number, e.g. 'R119-15608.'; remaining of the version string is optional.`,
+            placeholder:
+              imageType === 'release'
+                ? 'Rxxx-yyyyy.0.0'
+                : 'Rxxx-yyyyy.0.0-zzzzz-wwwwwwwwwwwwwwwwwww',
+          }
+        );
 
   // Version is undefined because user hide the picker (by pressing esc).
-  if (!version) return;
+  if (!imagePath) return;
 
   Metrics.send({
     category: 'interactive',
@@ -201,7 +252,7 @@ export async function flashPrebuiltImage(
     cwd: source.root,
   });
   terminal.sendText(
-    `env BOTO_CONFIG=${source.root}/${BOTO_PATH} cros flash ssh://${hostname} xbuddy://remote/${board}-${imageType}/${version}/test`
+    `env BOTO_CONFIG=${source.root}/${BOTO_PATH} cros flash ssh://${hostname} ${imagePath}`
   );
   terminal.show();
 }
