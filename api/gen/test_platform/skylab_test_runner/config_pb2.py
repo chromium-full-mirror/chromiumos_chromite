@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform.skylab_test_runner',
   syntax='proto3',
   serialized_options=_b('ZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runner'),
-  serialized_pb=_b('\n-test_platform/skylab_test_runner/config.proto\x12 test_platform.skylab_test_runner\x1a%test_platform/phosphorus/common.proto\"\x97\x05\n\x06\x43onfig\x12\x39\n\x03lab\x18\x01 \x01(\x0b\x32,.test_platform.skylab_test_runner.Config.Lab\x12\x41\n\x07harness\x18\x02 \x01(\x0b\x32\x30.test_platform.skylab_test_runner.Config.Harness\x12?\n\x06output\x18\x03 \x01(\x0b\x32/.test_platform.skylab_test_runner.Config.Output\x12K\n\x12result_flow_pubsub\x18\x04 \x01(\x0b\x32/.test_platform.skylab_test_runner.Config.PubSub\x12I\n\x14log_data_upload_step\x18\x05 \x01(\x0b\x32+.test_platform.phosphorus.LogDataUploadStep\x1aV\n\x03Lab\x12\x15\n\radmin_service\x18\x01 \x01(\t\x12\x1e\n\x16\x63ros_inventory_service\x18\x02 \x01(\t\x12\x18\n\x10\x63ros_ufs_service\x18\x03 \x01(\t\x1a{\n\x07Harness\x12\x14\n\x0c\x61utotest_dir\x18\x01 \x01(\t\x12\x1c\n\x14synch_offload_subdir\x18\x02 \x01(\t\x12\x1b\n\x13ssp_base_image_name\x18\x03 \x01(\t\x12\x1f\n\x17prejob_deadline_seconds\x18\x04 \x01(\x03\x1a\x37\n\x06Output\x12\x13\n\x0bgs_root_dir\x18\x01 \x01(\t\x12\x18\n\x10log_data_gs_root\x18\x02 \x01(\t\x1a(\n\x06PubSub\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\r\n\x05topic\x18\x02 \x01(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runnerb\x06proto3')
+  serialized_pb=_b('\n-test_platform/skylab_test_runner/config.proto\x12 test_platform.skylab_test_runner\x1a%test_platform/phosphorus/common.proto\"\x93\x05\n\x06\x43onfig\x12\x39\n\x03lab\x18\x01 \x01(\x0b\x32,.test_platform.skylab_test_runner.Config.Lab\x12\x41\n\x07harness\x18\x02 \x01(\x0b\x32\x30.test_platform.skylab_test_runner.Config.Harness\x12?\n\x06output\x18\x03 \x01(\x0b\x32/.test_platform.skylab_test_runner.Config.Output\x12K\n\x12result_flow_pubsub\x18\x04 \x01(\x0b\x32/.test_platform.skylab_test_runner.Config.PubSub\x12I\n\x14log_data_upload_step\x18\x05 \x01(\x0b\x32+.test_platform.phosphorus.LogDataUploadStep\x1aV\n\x03Lab\x12\x15\n\radmin_service\x18\x01 \x01(\t\x12\x1e\n\x16\x63ros_inventory_service\x18\x02 \x01(\t\x12\x18\n\x10\x63ros_ufs_service\x18\x03 \x01(\t\x1ay\n\x07Harness\x12\x14\n\x0c\x61utotest_dir\x18\x01 \x01(\t\x12\x1b\n\x13ssp_base_image_name\x18\x03 \x01(\t\x12\x1f\n\x17prejob_deadline_seconds\x18\x04 \x01(\x03J\x04\x08\x02\x10\x03R\x14synch_offload_subdir\x1a\x35\n\x06Output\x12\x18\n\x10log_data_gs_root\x18\x02 \x01(\tJ\x04\x08\x01\x10\x02R\x0bgs_root_dir\x1a(\n\x06PubSub\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\r\n\x05topic\x18\x02 \x01(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runnerb\x06proto3')
   ,
   dependencies=[test__platform_dot_phosphorus_dot_common__pb2.DESCRIPTOR,])
 
@@ -86,21 +86,14 @@ _CONFIG_HARNESS = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='synch_offload_subdir', full_name='test_platform.skylab_test_runner.Config.Harness.synch_offload_subdir', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='ssp_base_image_name', full_name='test_platform.skylab_test_runner.Config.Harness.ssp_base_image_name', index=2,
+      name='ssp_base_image_name', full_name='test_platform.skylab_test_runner.Config.Harness.ssp_base_image_name', index=1,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='prejob_deadline_seconds', full_name='test_platform.skylab_test_runner.Config.Harness.prejob_deadline_seconds', index=3,
+      name='prejob_deadline_seconds', full_name='test_platform.skylab_test_runner.Config.Harness.prejob_deadline_seconds', index=2,
       number=4, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -119,7 +112,7 @@ _CONFIG_HARNESS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=564,
-  serialized_end=687,
+  serialized_end=685,
 )
 
 _CONFIG_OUTPUT = _descriptor.Descriptor(
@@ -130,14 +123,7 @@ _CONFIG_OUTPUT = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='gs_root_dir', full_name='test_platform.skylab_test_runner.Config.Output.gs_root_dir', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='log_data_gs_root', full_name='test_platform.skylab_test_runner.Config.Output.log_data_gs_root', index=1,
+      name='log_data_gs_root', full_name='test_platform.skylab_test_runner.Config.Output.log_data_gs_root', index=0,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -155,8 +141,8 @@ _CONFIG_OUTPUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=689,
-  serialized_end=744,
+  serialized_start=687,
+  serialized_end=740,
 )
 
 _CONFIG_PUBSUB = _descriptor.Descriptor(
@@ -192,8 +178,8 @@ _CONFIG_PUBSUB = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=746,
-  serialized_end=786,
+  serialized_start=742,
+  serialized_end=782,
 )
 
 _CONFIG = _descriptor.Descriptor(
@@ -251,7 +237,7 @@ _CONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=123,
-  serialized_end=786,
+  serialized_end=782,
 )
 
 _CONFIG_LAB.containing_type = _CONFIG

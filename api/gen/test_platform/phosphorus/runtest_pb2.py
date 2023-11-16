@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform.phosphorus',
   syntax='proto3',
   serialized_options=_b('ZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorus'),
-  serialized_pb=_b('\n&test_platform/phosphorus/runtest.proto\x12\x18test_platform.phosphorus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a%test_platform/phosphorus/common.proto\"\xa8\x04\n\x0eRunTestRequest\x12\x30\n\x06\x63onfig\x18\x01 \x01(\x0b\x32 .test_platform.phosphorus.Config\x12\x15\n\rdut_hostnames\x18\x02 \x03(\t\x12\x45\n\x08\x61utotest\x18\x03 \x01(\x0b\x32\x31.test_platform.phosphorus.RunTestRequest.AutotestH\x00\x12I\n\x0b\x65nvironment\x18\x04 \x01(\x0b\x32\x34.test_platform.phosphorus.RunTestRequest.Environment\x12,\n\x08\x64\x65\x61\x64line\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a\xda\x01\n\x08\x41utotest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\t\x12\x16\n\x0eis_client_test\x18\x04 \x01(\x08\x12O\n\x07keyvals\x18\x05 \x03(\x0b\x32>.test_platform.phosphorus.RunTestRequest.Autotest.KeyvalsEntry\x1a.\n\x0cKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a(\n\x0b\x45nvironment\x12\x13\n\x0bgs_root_dir\x18\x02 \x01(\tJ\x04\x08\x01\x10\x02\x42\x06\n\x04test\"\xbd\x01\n\x0fRunTestResponse\x12>\n\x05state\x18\x01 \x01(\x0e\x32/.test_platform.phosphorus.RunTestResponse.State\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\"U\n\x05State\x12\x15\n\x11STATE_UNSPECIFIED\x10\x00\x12\r\n\tSUCCEEDED\x10\x01\x12\n\n\x06\x46\x41ILED\x10\x02\x12\r\n\tTIMED_OUT\x10\x03\x12\x0b\n\x07\x41\x42ORTED\x10\x04\x42\x44ZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorusb\x06proto3')
+  serialized_pb=_b('\n&test_platform/phosphorus/runtest.proto\x12\x18test_platform.phosphorus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a%test_platform/phosphorus/common.proto\"\xc6\x03\n\x0eRunTestRequest\x12\x30\n\x06\x63onfig\x18\x01 \x01(\x0b\x32 .test_platform.phosphorus.Config\x12\x15\n\rdut_hostnames\x18\x02 \x03(\t\x12\x45\n\x08\x61utotest\x18\x03 \x01(\x0b\x32\x31.test_platform.phosphorus.RunTestRequest.AutotestH\x00\x12,\n\x08\x64\x65\x61\x64line\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a\xda\x01\n\x08\x41utotest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\t\x12\x16\n\x0eis_client_test\x18\x04 \x01(\x08\x12O\n\x07keyvals\x18\x05 \x03(\x0b\x32>.test_platform.phosphorus.RunTestRequest.Autotest.KeyvalsEntry\x1a.\n\x0cKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x06\n\x04testJ\x04\x08\x04\x10\x05R\x0b\x65nvironment\"\xbd\x01\n\x0fRunTestResponse\x12>\n\x05state\x18\x01 \x01(\x0e\x32/.test_platform.phosphorus.RunTestResponse.State\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\"U\n\x05State\x12\x15\n\x11STATE_UNSPECIFIED\x10\x00\x12\r\n\tSUCCEEDED\x10\x01\x12\n\n\x06\x46\x41ILED\x10\x02\x12\r\n\tTIMED_OUT\x10\x03\x12\x0b\n\x07\x41\x42ORTED\x10\x04\x42\x44ZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorusb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,test__platform_dot_phosphorus_dot_common__pb2.DESCRIPTOR,])
 
@@ -56,8 +56,8 @@ _RUNTESTRESPONSE_STATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=800,
-  serialized_end=885,
+  serialized_start=702,
+  serialized_end=787,
 )
 _sym_db.RegisterEnumDescriptor(_RUNTESTRESPONSE_STATE)
 
@@ -95,8 +95,8 @@ _RUNTESTREQUEST_AUTOTEST_KEYVALSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=597,
-  serialized_end=643,
+  serialized_start=522,
+  serialized_end=568,
 )
 
 _RUNTESTREQUEST_AUTOTEST = _descriptor.Descriptor(
@@ -153,38 +153,8 @@ _RUNTESTREQUEST_AUTOTEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=425,
-  serialized_end=643,
-)
-
-_RUNTESTREQUEST_ENVIRONMENT = _descriptor.Descriptor(
-  name='Environment',
-  full_name='test_platform.phosphorus.RunTestRequest.Environment',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='gs_root_dir', full_name='test_platform.phosphorus.RunTestRequest.Environment.gs_root_dir', index=0,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=645,
-  serialized_end=685,
+  serialized_start=350,
+  serialized_end=568,
 )
 
 _RUNTESTREQUEST = _descriptor.Descriptor(
@@ -216,14 +186,7 @@ _RUNTESTREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='environment', full_name='test_platform.phosphorus.RunTestRequest.environment', index=3,
-      number=4, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='deadline', full_name='test_platform.phosphorus.RunTestRequest.deadline', index=4,
+      name='deadline', full_name='test_platform.phosphorus.RunTestRequest.deadline', index=3,
       number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -232,7 +195,7 @@ _RUNTESTREQUEST = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_RUNTESTREQUEST_AUTOTEST, _RUNTESTREQUEST_ENVIRONMENT, ],
+  nested_types=[_RUNTESTREQUEST_AUTOTEST, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -245,7 +208,7 @@ _RUNTESTREQUEST = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=141,
-  serialized_end=693,
+  serialized_end=595,
 )
 
 
@@ -283,17 +246,15 @@ _RUNTESTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=696,
-  serialized_end=885,
+  serialized_start=598,
+  serialized_end=787,
 )
 
 _RUNTESTREQUEST_AUTOTEST_KEYVALSENTRY.containing_type = _RUNTESTREQUEST_AUTOTEST
 _RUNTESTREQUEST_AUTOTEST.fields_by_name['keyvals'].message_type = _RUNTESTREQUEST_AUTOTEST_KEYVALSENTRY
 _RUNTESTREQUEST_AUTOTEST.containing_type = _RUNTESTREQUEST
-_RUNTESTREQUEST_ENVIRONMENT.containing_type = _RUNTESTREQUEST
 _RUNTESTREQUEST.fields_by_name['config'].message_type = test__platform_dot_phosphorus_dot_common__pb2._CONFIG
 _RUNTESTREQUEST.fields_by_name['autotest'].message_type = _RUNTESTREQUEST_AUTOTEST
-_RUNTESTREQUEST.fields_by_name['environment'].message_type = _RUNTESTREQUEST_ENVIRONMENT
 _RUNTESTREQUEST.fields_by_name['deadline'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _RUNTESTREQUEST.oneofs_by_name['test'].fields.append(
   _RUNTESTREQUEST.fields_by_name['autotest'])
@@ -319,13 +280,6 @@ RunTestRequest = _reflection.GeneratedProtocolMessageType('RunTestRequest', (_me
     # @@protoc_insertion_point(class_scope:test_platform.phosphorus.RunTestRequest.Autotest)
     ))
   ,
-
-  Environment = _reflection.GeneratedProtocolMessageType('Environment', (_message.Message,), dict(
-    DESCRIPTOR = _RUNTESTREQUEST_ENVIRONMENT,
-    __module__ = 'test_platform.phosphorus.runtest_pb2'
-    # @@protoc_insertion_point(class_scope:test_platform.phosphorus.RunTestRequest.Environment)
-    ))
-  ,
   DESCRIPTOR = _RUNTESTREQUEST,
   __module__ = 'test_platform.phosphorus.runtest_pb2'
   # @@protoc_insertion_point(class_scope:test_platform.phosphorus.RunTestRequest)
@@ -333,7 +287,6 @@ RunTestRequest = _reflection.GeneratedProtocolMessageType('RunTestRequest', (_me
 _sym_db.RegisterMessage(RunTestRequest)
 _sym_db.RegisterMessage(RunTestRequest.Autotest)
 _sym_db.RegisterMessage(RunTestRequest.Autotest.KeyvalsEntry)
-_sym_db.RegisterMessage(RunTestRequest.Environment)
 
 RunTestResponse = _reflection.GeneratedProtocolMessageType('RunTestResponse', (_message.Message,), dict(
   DESCRIPTOR = _RUNTESTRESPONSE,

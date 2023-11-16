@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chromite.api',
   syntax='proto3',
   serialized_options=_b('Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api'),
-  serialized_pb=_b('\n\x1a\x63hromite/api/payload.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"h\n\x05\x42uild\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0e\n\x06\x62ucket\x18\x03 \x01(\t\x12\x0f\n\x07\x63hannel\x18\x04 \x01(\t\"f\n\x08\x44LCImage\x12\"\n\x05\x62uild\x18\x01 \x01(\x0b\x32\x13.chromite.api.Build\x12\x0e\n\x06\x64lc_id\x18\x02 \x01(\t\x12\x13\n\x0b\x64lc_package\x18\x03 \x01(\t\x12\x11\n\tdlc_image\x18\x04 \x01(\t\"i\n\x0bSignedImage\x12\"\n\x05\x62uild\x18\x01 \x01(\x0b\x32\x13.chromite.api.Build\x12)\n\nimage_type\x18\x02 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x0b\n\x03key\x18\x03 \x01(\t\"q\n\rUnsignedImage\x12\"\n\x05\x62uild\x18\x01 \x01(\x0b\x32\x13.chromite.api.Build\x12)\n\nimage_type\x18\x02 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x11\n\tmilestone\x18\x03 \x01(\t\"\xd6\x03\n\x11GenerationRequest\x12\x15\n\x0b\x66ull_update\x18\x01 \x01(\x08H\x00\x12\x35\n\x10src_signed_image\x18\x02 \x01(\x0b\x32\x19.chromite.api.SignedImageH\x00\x12\x39\n\x12src_unsigned_image\x18\x03 \x01(\x0b\x32\x1b.chromite.api.UnsignedImageH\x00\x12/\n\rsrc_dlc_image\x18\n \x01(\x0b\x32\x16.chromite.api.DLCImageH\x00\x12\x35\n\x10tgt_signed_image\x18\x04 \x01(\x0b\x32\x19.chromite.api.SignedImageH\x01\x12\x39\n\x12tgt_unsigned_image\x18\x05 \x01(\x0b\x32\x1b.chromite.api.UnsignedImageH\x01\x12/\n\rtgt_dlc_image\x18\x0b \x01(\x0b\x32\x16.chromite.api.DLCImageH\x01\x12\x0e\n\x06\x62ucket\x18\x06 \x01(\t\x12\x0e\n\x06verify\x18\x07 \x01(\x08\x12\x0e\n\x06keyset\x18\x08 \x01(\t\x12\x0e\n\x06\x64ryrun\x18\t \x01(\x08\x42\x11\n\x0fsrc_image_oneofB\x11\n\x0ftgt_image_oneof\"M\n\x12GenerationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x12\n\nlocal_path\x18\x02 \x01(\t\x12\x12\n\nremote_uri\x18\x03 \x01(\t2w\n\x0ePayloadService\x12T\n\x0fGeneratePayload\x12\x1f.chromite.api.GenerationRequest\x1a .chromite.api.GenerationResponse\x1a\x0f\xc2\xed\x1a\x0b\n\x07payload\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+  serialized_pb=_b('\n\x1a\x63hromite/api/payload.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"h\n\x05\x42uild\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0e\n\x06\x62ucket\x18\x03 \x01(\t\x12\x0f\n\x07\x63hannel\x18\x04 \x01(\t\"\x91\x01\n\x08\x44LCImage\x12\"\n\x05\x62uild\x18\x01 \x01(\x0b\x32\x13.chromite.api.Build\x12\x0e\n\x06\x64lc_id\x18\x02 \x01(\t\x12\x13\n\x0b\x64lc_package\x18\x03 \x01(\t\x12\x11\n\tdlc_image\x18\x04 \x01(\t\x12)\n\nimage_type\x18\x05 \x01(\x0e\x32\x15.chromiumos.ImageType\"i\n\x0bSignedImage\x12\"\n\x05\x62uild\x18\x01 \x01(\x0b\x32\x13.chromite.api.Build\x12)\n\nimage_type\x18\x02 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x0b\n\x03key\x18\x03 \x01(\t\"q\n\rUnsignedImage\x12\"\n\x05\x62uild\x18\x01 \x01(\x0b\x32\x13.chromite.api.Build\x12)\n\nimage_type\x18\x02 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x11\n\tmilestone\x18\x03 \x01(\t\"\xd6\x03\n\x11GenerationRequest\x12\x15\n\x0b\x66ull_update\x18\x01 \x01(\x08H\x00\x12\x35\n\x10src_signed_image\x18\x02 \x01(\x0b\x32\x19.chromite.api.SignedImageH\x00\x12\x39\n\x12src_unsigned_image\x18\x03 \x01(\x0b\x32\x1b.chromite.api.UnsignedImageH\x00\x12/\n\rsrc_dlc_image\x18\n \x01(\x0b\x32\x16.chromite.api.DLCImageH\x00\x12\x35\n\x10tgt_signed_image\x18\x04 \x01(\x0b\x32\x19.chromite.api.SignedImageH\x01\x12\x39\n\x12tgt_unsigned_image\x18\x05 \x01(\x0b\x32\x1b.chromite.api.UnsignedImageH\x01\x12/\n\rtgt_dlc_image\x18\x0b \x01(\x0b\x32\x16.chromite.api.DLCImageH\x01\x12\x0e\n\x06\x62ucket\x18\x06 \x01(\t\x12\x0e\n\x06verify\x18\x07 \x01(\x08\x12\x0e\n\x06keyset\x18\x08 \x01(\t\x12\x0e\n\x06\x64ryrun\x18\t \x01(\x08\x42\x11\n\x0fsrc_image_oneofB\x11\n\x0ftgt_image_oneof\"M\n\x12GenerationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x12\n\nlocal_path\x18\x02 \x01(\t\x12\x12\n\nremote_uri\x18\x03 \x01(\t2w\n\x0ePayloadService\x12T\n\x0fGeneratePayload\x12\x1f.chromite.api.GenerationRequest\x1a .chromite.api.GenerationResponse\x1a\x0f\xc2\xed\x1a\x0b\n\x07payload\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
   ,
   dependencies=[chromite_dot_api_dot_build__api__pb2.DESCRIPTOR,chromiumos_dot_common__pb2.DESCRIPTOR,])
 
@@ -115,6 +115,13 @@ _DLCIMAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='image_type', full_name='chromite.api.DLCImage.image_type', index=4,
+      number=5, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -127,8 +134,8 @@ _DLCIMAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=205,
-  serialized_end=307,
+  serialized_start=206,
+  serialized_end=351,
 )
 
 
@@ -172,8 +179,8 @@ _SIGNEDIMAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=309,
-  serialized_end=414,
+  serialized_start=353,
+  serialized_end=458,
 )
 
 
@@ -217,8 +224,8 @@ _UNSIGNEDIMAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=416,
-  serialized_end=529,
+  serialized_start=460,
+  serialized_end=573,
 )
 
 
@@ -324,8 +331,8 @@ _GENERATIONREQUEST = _descriptor.Descriptor(
       name='tgt_image_oneof', full_name='chromite.api.GenerationRequest.tgt_image_oneof',
       index=1, containing_type=None, fields=[]),
   ],
-  serialized_start=532,
-  serialized_end=1002,
+  serialized_start=576,
+  serialized_end=1046,
 )
 
 
@@ -369,12 +376,13 @@ _GENERATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1004,
-  serialized_end=1081,
+  serialized_start=1048,
+  serialized_end=1125,
 )
 
 _BUILD.fields_by_name['build_target'].message_type = chromiumos_dot_common__pb2._BUILDTARGET
 _DLCIMAGE.fields_by_name['build'].message_type = _BUILD
+_DLCIMAGE.fields_by_name['image_type'].enum_type = chromiumos_dot_common__pb2._IMAGETYPE
 _SIGNEDIMAGE.fields_by_name['build'].message_type = _BUILD
 _SIGNEDIMAGE.fields_by_name['image_type'].enum_type = chromiumos_dot_common__pb2._IMAGETYPE
 _UNSIGNEDIMAGE.fields_by_name['build'].message_type = _BUILD
@@ -465,8 +473,8 @@ _PAYLOADSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=_b('\302\355\032\013\n\007payload\020\001'),
-  serialized_start=1083,
-  serialized_end=1202,
+  serialized_start=1127,
+  serialized_end=1246,
   methods=[
   _descriptor.MethodDescriptor(
     name='GeneratePayload',

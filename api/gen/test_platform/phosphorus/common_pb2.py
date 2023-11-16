@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform.phosphorus',
   syntax='proto3',
   serialized_options=_b('ZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorus'),
-  serialized_pb=_b('\n%test_platform/phosphorus/common.proto\x12\x18test_platform.phosphorus\"&\n\x0e\x42otEnvironment\x12\x14\n\x0c\x61utotest_dir\x18\x01 \x01(\t\"~\n\x0fTaskEnvironment\x12\x1f\n\x17synchronous_offload_dir\x18\x01 \x01(\t\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\x12\x18\n\x10test_results_dir\x18\x03 \x01(\t\x12\x1b\n\x13ssp_base_image_name\x18\x04 \x01(\t\"3\n\x11LogDataUploadStep\x12\x1e\n\x16max_concurrent_uploads\x18\x01 \x01(\x05\"\xc3\x01\n\x06\x43onfig\x12\x35\n\x03\x62ot\x18\x01 \x01(\x0b\x32(.test_platform.phosphorus.BotEnvironment\x12\x37\n\x04task\x18\x02 \x01(\x0b\x32).test_platform.phosphorus.TaskEnvironment\x12I\n\x14log_data_upload_step\x18\x03 \x01(\x0b\x32+.test_platform.phosphorus.LogDataUploadStepBDZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorusb\x06proto3')
+  serialized_pb=_b('\n%test_platform/phosphorus/common.proto\x12\x18test_platform.phosphorus\"&\n\x0e\x42otEnvironment\x12\x14\n\x0c\x61utotest_dir\x18\x01 \x01(\t\"|\n\x0fTaskEnvironment\x12\x13\n\x0bresults_dir\x18\x02 \x01(\t\x12\x18\n\x10test_results_dir\x18\x03 \x01(\t\x12\x1b\n\x13ssp_base_image_name\x18\x04 \x01(\tJ\x04\x08\x01\x10\x02R\x17synchronous_offload_dir\"3\n\x11LogDataUploadStep\x12\x1e\n\x16max_concurrent_uploads\x18\x01 \x01(\x05\"\xc3\x01\n\x06\x43onfig\x12\x35\n\x03\x62ot\x18\x01 \x01(\x0b\x32(.test_platform.phosphorus.BotEnvironment\x12\x37\n\x04task\x18\x02 \x01(\x0b\x32).test_platform.phosphorus.TaskEnvironment\x12I\n\x14log_data_upload_step\x18\x03 \x01(\x0b\x32+.test_platform.phosphorus.LogDataUploadStepBDZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorusb\x06proto3')
 )
 
 
@@ -64,22 +64,22 @@ _TASKENVIRONMENT = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='synchronous_offload_dir', full_name='test_platform.phosphorus.TaskEnvironment.synchronous_offload_dir', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='results_dir', full_name='test_platform.phosphorus.TaskEnvironment.results_dir', index=1,
+      name='results_dir', full_name='test_platform.phosphorus.TaskEnvironment.results_dir', index=0,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='test_results_dir', full_name='test_platform.phosphorus.TaskEnvironment.test_results_dir', index=2,
+      name='test_results_dir', full_name='test_platform.phosphorus.TaskEnvironment.test_results_dir', index=1,
       number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ssp_base_image_name', full_name='test_platform.phosphorus.TaskEnvironment.ssp_base_image_name', index=2,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -104,7 +104,7 @@ _TASKENVIRONMENT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=107,
-  serialized_end=233,
+  serialized_end=231,
 )
 
 
@@ -134,8 +134,8 @@ _LOGDATAUPLOADSTEP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=235,
-  serialized_end=286,
+  serialized_start=233,
+  serialized_end=284,
 )
 
 
@@ -179,8 +179,8 @@ _CONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=289,
-  serialized_end=484,
+  serialized_start=287,
+  serialized_end=482,
 )
 
 _CONFIG.fields_by_name['bot'].message_type = _BOTENVIRONMENT
