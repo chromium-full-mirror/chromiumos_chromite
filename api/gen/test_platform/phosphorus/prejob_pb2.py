@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform.phosphorus',
   syntax='proto3',
   serialized_options=_b('ZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorus'),
-  serialized_pb=_b('\n%test_platform/phosphorus/prejob.proto\x12\x18test_platform.phosphorus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a%test_platform/phosphorus/common.proto\"\x8c\x05\n\rPrejobRequest\x12\x30\n\x06\x63onfig\x18\x01 \x01(\x0b\x32 .test_platform.phosphorus.Config\x12\x14\n\x0c\x64ut_hostname\x18\x02 \x01(\t\x12\x62\n\x14provisionable_labels\x18\x03 \x03(\x0b\x32@.test_platform.phosphorus.PrejobRequest.ProvisionableLabelsEntryB\x02\x18\x01\x12m\n\x1c\x64\x65sired_provisionable_labels\x18\x04 \x03(\x0b\x32G.test_platform.phosphorus.PrejobRequest.DesiredProvisionableLabelsEntry\x12o\n\x1d\x65xisting_provisionable_labels\x18\x05 \x03(\x0b\x32H.test_platform.phosphorus.PrejobRequest.ExistingProvisionableLabelsEntry\x12,\n\x08\x64\x65\x61\x64line\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a:\n\x18ProvisionableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x41\n\x1f\x44\x65siredProvisionableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x42\n ExistingProvisionableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa6\x01\n\x0ePrejobResponse\x12=\n\x05state\x18\x01 \x01(\x0e\x32..test_platform.phosphorus.PrejobResponse.State\"U\n\x05State\x12\x15\n\x11STATE_UNSPECIFIED\x10\x00\x12\r\n\tSUCCEEDED\x10\x01\x12\n\n\x06\x46\x41ILED\x10\x02\x12\r\n\tTIMED_OUT\x10\x03\x12\x0b\n\x07\x41\x42ORTED\x10\x04\x42\x44ZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorusb\x06proto3')
+  serialized_pb=_b('\n%test_platform/phosphorus/prejob.proto\x12\x18test_platform.phosphorus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a%test_platform/phosphorus/common.proto\"\x9d\x05\n\rPrejobRequest\x12\x30\n\x06\x63onfig\x18\x01 \x01(\x0b\x32 .test_platform.phosphorus.Config\x12\x14\n\x0c\x64ut_hostname\x18\x02 \x01(\t\x12\x62\n\x14provisionable_labels\x18\x03 \x03(\x0b\x32@.test_platform.phosphorus.PrejobRequest.ProvisionableLabelsEntryB\x02\x18\x01\x12m\n\x1c\x64\x65sired_provisionable_labels\x18\x04 \x03(\x0b\x32G.test_platform.phosphorus.PrejobRequest.DesiredProvisionableLabelsEntry\x12o\n\x1d\x65xisting_provisionable_labels\x18\x05 \x03(\x0b\x32H.test_platform.phosphorus.PrejobRequest.ExistingProvisionableLabelsEntry\x12,\n\x08\x64\x65\x61\x64line\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0f\n\x07use_tls\x18\x07 \x01(\x08\x1a:\n\x18ProvisionableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x41\n\x1f\x44\x65siredProvisionableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x42\n ExistingProvisionableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa6\x01\n\x0ePrejobResponse\x12=\n\x05state\x18\x01 \x01(\x0e\x32..test_platform.phosphorus.PrejobResponse.State\"U\n\x05State\x12\x15\n\x11STATE_UNSPECIFIED\x10\x00\x12\r\n\tSUCCEEDED\x10\x01\x12\n\n\x06\x46\x41ILED\x10\x02\x12\r\n\tTIMED_OUT\x10\x03\x12\x0b\n\x07\x41\x42ORTED\x10\x04\x42\x44ZBgo.chromium.org/chromiumos/infra/proto/go/test_platform/phosphorusb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,test__platform_dot_phosphorus_dot_common__pb2.DESCRIPTOR,])
 
@@ -56,8 +56,8 @@ _PREJOBRESPONSE_STATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=876,
-  serialized_end=961,
+  serialized_start=893,
+  serialized_end=978,
 )
 _sym_db.RegisterEnumDescriptor(_PREJOBRESPONSE_STATE)
 
@@ -95,8 +95,8 @@ _PREJOBREQUEST_PROVISIONABLELABELSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=599,
-  serialized_end=657,
+  serialized_start=616,
+  serialized_end=674,
 )
 
 _PREJOBREQUEST_DESIREDPROVISIONABLELABELSENTRY = _descriptor.Descriptor(
@@ -132,8 +132,8 @@ _PREJOBREQUEST_DESIREDPROVISIONABLELABELSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=659,
-  serialized_end=724,
+  serialized_start=676,
+  serialized_end=741,
 )
 
 _PREJOBREQUEST_EXISTINGPROVISIONABLELABELSENTRY = _descriptor.Descriptor(
@@ -169,8 +169,8 @@ _PREJOBREQUEST_EXISTINGPROVISIONABLELABELSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=726,
-  serialized_end=792,
+  serialized_start=743,
+  serialized_end=809,
 )
 
 _PREJOBREQUEST = _descriptor.Descriptor(
@@ -222,6 +222,13 @@ _PREJOBREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='use_tls', full_name='test_platform.phosphorus.PrejobRequest.use_tls', index=6,
+      number=7, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -235,7 +242,7 @@ _PREJOBREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=140,
-  serialized_end=792,
+  serialized_end=809,
 )
 
 
@@ -266,8 +273,8 @@ _PREJOBRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=795,
-  serialized_end=961,
+  serialized_start=812,
+  serialized_end=978,
 )
 
 _PREJOBREQUEST_PROVISIONABLELABELSENTRY.containing_type = _PREJOBREQUEST
