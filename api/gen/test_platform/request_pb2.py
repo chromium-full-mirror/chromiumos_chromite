@@ -24,7 +24,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform',
   syntax='proto3',
   serialized_options=_b('Z7go.chromium.org/chromiumos/infra/proto/go/test_platform'),
-  serialized_pb=_b('\n\x1btest_platform/request.proto\x12\rtest_platform\x1a chromite/api/test_metadata.proto\x1a\x17\x63lient/request_id.proto\x1a\x17\x63lient/profile_id.proto\x1a\x17\x63hromiumos/common.proto\x1a\x1egoogle/protobuf/duration.proto\"\xcd\x16\n\x07Request\x12-\n\x06params\x18\x01 \x01(\x0b\x32\x1d.test_platform.Request.Params\x12\x32\n\ttest_plan\x18\x05 \x01(\x0b\x32\x1f.test_platform.Request.TestPlan\x12,\n\x11\x63lient_request_id\x18\x06 \x01(\x0b\x32\x11.client.RequestId\x12,\n\x11\x63lient_profile_id\x18\x07 \x01(\x0b\x32\x11.client.ProfileId\x1a\xd5\x0f\n\x06Params\x12M\n\x13hardware_attributes\x18\x01 \x01(\x0b\x32\x30.test_platform.Request.Params.HardwareAttributes\x12M\n\x13software_attributes\x18\x02 \x01(\x0b\x32\x30.test_platform.Request.Params.SoftwareAttributes\x12M\n\x13\x66reeform_attributes\x18\t \x01(\x0b\x32\x30.test_platform.Request.Params.FreeformAttributes\x12O\n\x15software_dependencies\x18\x03 \x03(\x0b\x32\x30.test_platform.Request.Params.SoftwareDependency\x12<\n\nscheduling\x18\x04 \x01(\x0b\x32(.test_platform.Request.Params.Scheduling\x12\x32\n\x05retry\x18\x05 \x01(\x0b\x32#.test_platform.Request.Params.Retry\x12\x38\n\x08metadata\x18\x06 \x01(\x0b\x32&.test_platform.Request.Params.Metadata\x12\x30\n\x04time\x18\x07 \x01(\x0b\x32\".test_platform.Request.Params.Time\x12>\n\x0b\x64\x65\x63orations\x18\x08 \x01(\x0b\x32).test_platform.Request.Params.Decorations\x12\x34\n\x06legacy\x18\n \x01(\x0b\x32$.test_platform.Request.Params.Legacy\x12@\n\x0cnotification\x18\x0b \x01(\x0b\x32*.test_platform.Request.Params.Notification\x12<\n\nmigrations\x18\x0c \x01(\x0b\x32(.test_platform.Request.Params.Migrations\x1a#\n\x12HardwareAttributes\x12\r\n\x05model\x18\x01 \x01(\t\x1a\x43\n\x12SoftwareAttributes\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x1a\x31\n\x12\x46reeformAttributes\x12\x1b\n\x13swarming_dimensions\x18\x01 \x03(\t\x1ao\n\x12SoftwareDependency\x12\x18\n\x0e\x63hromeos_build\x18\x03 \x01(\tH\x00\x12\x1b\n\x11ro_firmware_build\x18\x04 \x01(\tH\x00\x12\x1b\n\x11rw_firmware_build\x18\x05 \x01(\tH\x00\x42\x05\n\x03\x64\x65p\x1a\xbb\x03\n\nScheduling\x12L\n\x0cmanaged_pool\x18\x01 \x01(\x0e\x32\x34.test_platform.Request.Params.Scheduling.ManagedPoolH\x00\x12\x18\n\x0eunmanaged_pool\x18\x02 \x01(\tH\x00\x12\x1b\n\rquota_account\x18\x03 \x01(\tB\x02\x18\x01H\x00\x12\x10\n\x08priority\x18\x04 \x01(\x03\x12\x12\n\nqs_account\x18\x05 \x01(\t\"\xf9\x01\n\x0bManagedPool\x12\x1c\n\x18MANAGED_POOL_UNSPECIFIED\x10\x00\x12\x13\n\x0fMANAGED_POOL_CQ\x10\x01\x12\x14\n\x10MANAGED_POOL_BVT\x10\x02\x12\x17\n\x13MANAGED_POOL_SUITES\x10\x03\x12\x14\n\x10MANAGED_POOL_CTS\x10\x04\x12\x1d\n\x19MANAGED_POOL_CTS_PERBUILD\x10\x05\x12\x1b\n\x17MANAGED_POOL_CONTINUOUS\x10\x06\x12\x1e\n\x1aMANAGED_POOL_ARC_PRESUBMIT\x10\x07\x12\x16\n\x12MANAGED_POOL_QUOTA\x10\x08\x42\x06\n\x04pool\x1a#\n\x05Retry\x12\r\n\x05\x61llow\x18\x01 \x01(\x08\x12\x0b\n\x03max\x18\x02 \x01(\x05\x1aH\n\x08Metadata\x12\x19\n\x11test_metadata_url\x18\x01 \x01(\t\x12!\n\x19\x64\x65\x62ug_symbols_archive_url\x18\x02 \x01(\t\x1a;\n\x04Time\x12\x33\n\x10maximum_duration\x18\x01 \x01(\x0b\x32\x19.google.protobuf.Duration\x1a\xad\x01\n\x0b\x44\x65\x63orations\x12X\n\x10\x61utotest_keyvals\x18\x01 \x03(\x0b\x32>.test_platform.Request.Params.Decorations.AutotestKeyvalsEntry\x12\x0c\n\x04tags\x18\x02 \x03(\t\x1a\x36\n\x14\x41utotestKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a \n\x06Legacy\x12\x16\n\x0e\x61utotest_suite\x18\x01 \x01(\t\x1a$\n\x0cNotification\x12\x14\n\x0cpubsub_topic\x18\x01 \x01(\t\x1aI\n\nMigrations\x12\x17\n\x0fuse_test_runner\x18\x01 \x01(\x08\x12\"\n\x1a\x65nable_synchronous_offload\x18\x02 \x01(\x08\x1a\x15\n\x05Suite\x12\x0c\n\x04name\x18\x01 \x01(\t\x1a\x8e\x01\n\x04Test\x12\x38\n\x08\x61utotest\x18\x01 \x01(\x0b\x32$.test_platform.Request.Test.AutotestH\x00\x1a\x41\n\x08\x41utotest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\tB\t\n\x07harness\x1a\xe4\x02\n\x0b\x45numeration\x12S\n\x14\x61utotest_invocations\x18\x02 \x03(\x0b\x32\x35.test_platform.Request.Enumeration.AutotestInvocation\x1a\xff\x01\n\x12\x41utotestInvocation\x12(\n\x04test\x18\x01 \x01(\x0b\x32\x1a.chromite.api.AutotestTest\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\t\x12`\n\x0eresult_keyvals\x18\x04 \x03(\x0b\x32H.test_platform.Request.Enumeration.AutotestInvocation.ResultKeyvalsEntry\x1a\x34\n\x12ResultKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x9b\x01\n\x08TestPlan\x12+\n\x05suite\x18\x01 \x03(\x0b\x32\x1c.test_platform.Request.Suite\x12)\n\x04test\x18\x02 \x03(\x0b\x32\x1b.test_platform.Request.Test\x12\x37\n\x0b\x65numeration\x18\x03 \x01(\x0b\x32\".test_platform.Request.EnumerationB9Z7go.chromium.org/chromiumos/infra/proto/go/test_platformb\x06proto3')
+  serialized_pb=_b('\n\x1btest_platform/request.proto\x12\rtest_platform\x1a chromite/api/test_metadata.proto\x1a\x17\x63hromiumos/common.proto\x1a\x1egoogle/protobuf/duration.proto\"\xcc\x15\n\x07Request\x12-\n\x06params\x18\x01 \x01(\x0b\x32\x1d.test_platform.Request.Params\x12\x32\n\ttest_plan\x18\x05 \x01(\x0b\x32\x1f.test_platform.Request.TestPlan\x1a\x8f\x0f\n\x06Params\x12M\n\x13hardware_attributes\x18\x01 \x01(\x0b\x32\x30.test_platform.Request.Params.HardwareAttributes\x12M\n\x13software_attributes\x18\x02 \x01(\x0b\x32\x30.test_platform.Request.Params.SoftwareAttributes\x12M\n\x13\x66reeform_attributes\x18\t \x01(\x0b\x32\x30.test_platform.Request.Params.FreeformAttributes\x12O\n\x15software_dependencies\x18\x03 \x03(\x0b\x32\x30.test_platform.Request.Params.SoftwareDependency\x12<\n\nscheduling\x18\x04 \x01(\x0b\x32(.test_platform.Request.Params.Scheduling\x12\x32\n\x05retry\x18\x05 \x01(\x0b\x32#.test_platform.Request.Params.Retry\x12\x38\n\x08metadata\x18\x06 \x01(\x0b\x32&.test_platform.Request.Params.Metadata\x12\x30\n\x04time\x18\x07 \x01(\x0b\x32\".test_platform.Request.Params.Time\x12>\n\x0b\x64\x65\x63orations\x18\x08 \x01(\x0b\x32).test_platform.Request.Params.Decorations\x12\x34\n\x06legacy\x18\n \x01(\x0b\x32$.test_platform.Request.Params.Legacy\x12<\n\nmigrations\x18\x0c \x01(\x0b\x32(.test_platform.Request.Params.Migrations\x1a#\n\x12HardwareAttributes\x12\r\n\x05model\x18\x01 \x01(\t\x1a\x43\n\x12SoftwareAttributes\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x1a\x31\n\x12\x46reeformAttributes\x12\x1b\n\x13swarming_dimensions\x18\x01 \x03(\t\x1ao\n\x12SoftwareDependency\x12\x18\n\x0e\x63hromeos_build\x18\x03 \x01(\tH\x00\x12\x1b\n\x11ro_firmware_build\x18\x04 \x01(\tH\x00\x12\x1b\n\x11rw_firmware_build\x18\x05 \x01(\tH\x00\x42\x05\n\x03\x64\x65p\x1a\xbb\x03\n\nScheduling\x12L\n\x0cmanaged_pool\x18\x01 \x01(\x0e\x32\x34.test_platform.Request.Params.Scheduling.ManagedPoolH\x00\x12\x18\n\x0eunmanaged_pool\x18\x02 \x01(\tH\x00\x12\x1b\n\rquota_account\x18\x03 \x01(\tB\x02\x18\x01H\x00\x12\x10\n\x08priority\x18\x04 \x01(\x03\x12\x12\n\nqs_account\x18\x05 \x01(\t\"\xf9\x01\n\x0bManagedPool\x12\x1c\n\x18MANAGED_POOL_UNSPECIFIED\x10\x00\x12\x13\n\x0fMANAGED_POOL_CQ\x10\x01\x12\x14\n\x10MANAGED_POOL_BVT\x10\x02\x12\x17\n\x13MANAGED_POOL_SUITES\x10\x03\x12\x14\n\x10MANAGED_POOL_CTS\x10\x04\x12\x1d\n\x19MANAGED_POOL_CTS_PERBUILD\x10\x05\x12\x1b\n\x17MANAGED_POOL_CONTINUOUS\x10\x06\x12\x1e\n\x1aMANAGED_POOL_ARC_PRESUBMIT\x10\x07\x12\x16\n\x12MANAGED_POOL_QUOTA\x10\x08\x42\x06\n\x04pool\x1a#\n\x05Retry\x12\r\n\x05\x61llow\x18\x01 \x01(\x08\x12\x0b\n\x03max\x18\x02 \x01(\x05\x1aH\n\x08Metadata\x12\x19\n\x11test_metadata_url\x18\x01 \x01(\t\x12!\n\x19\x64\x65\x62ug_symbols_archive_url\x18\x02 \x01(\t\x1a;\n\x04Time\x12\x33\n\x10maximum_duration\x18\x01 \x01(\x0b\x32\x19.google.protobuf.Duration\x1a\xad\x01\n\x0b\x44\x65\x63orations\x12X\n\x10\x61utotest_keyvals\x18\x01 \x03(\x0b\x32>.test_platform.Request.Params.Decorations.AutotestKeyvalsEntry\x12\x0c\n\x04tags\x18\x02 \x03(\t\x1a\x36\n\x14\x41utotestKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a \n\x06Legacy\x12\x16\n\x0e\x61utotest_suite\x18\x01 \x01(\t\x1ak\n\nMigrations\x12\x17\n\x0fuse_test_runner\x18\x01 \x01(\x08\x12\"\n\x1a\x65nable_synchronous_offload\x18\x02 \x01(\x08\x12 \n\x18notificationless_offload\x18\x03 \x01(\x08\x1a\x15\n\x05Suite\x12\x0c\n\x04name\x18\x01 \x01(\t\x1a\x8e\x01\n\x04Test\x12\x38\n\x08\x61utotest\x18\x01 \x01(\x0b\x32$.test_platform.Request.Test.AutotestH\x00\x1a\x41\n\x08\x41utotest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\tB\t\n\x07harness\x1a\xe4\x02\n\x0b\x45numeration\x12S\n\x14\x61utotest_invocations\x18\x02 \x03(\x0b\x32\x35.test_platform.Request.Enumeration.AutotestInvocation\x1a\xff\x01\n\x12\x41utotestInvocation\x12(\n\x04test\x18\x01 \x01(\x0b\x32\x1a.chromite.api.AutotestTest\x12\x11\n\ttest_args\x18\x02 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x03 \x01(\t\x12`\n\x0eresult_keyvals\x18\x04 \x03(\x0b\x32H.test_platform.Request.Enumeration.AutotestInvocation.ResultKeyvalsEntry\x1a\x34\n\x12ResultKeyvalsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x9b\x01\n\x08TestPlan\x12+\n\x05suite\x18\x01 \x03(\x0b\x32\x1c.test_platform.Request.Suite\x12)\n\x04test\x18\x02 \x03(\x0b\x32\x1b.test_platform.Request.Test\x12\x37\n\x0b\x65numeration\x18\x03 \x01(\x0b\x32\".test_platform.Request.EnumerationJ\x04\x08\x0b\x10\x0cJ\x04\x08\x06\x10\x07J\x04\x08\x07\x10\x08R\rnotificationsB9Z7go.chromium.org/chromiumos/infra/proto/go/test_platformb\x06proto3')
   ,
   dependencies=[chromite_dot_api_dot_test__metadata__pb2.DESCRIPTOR,client_dot_request__id__pb2.DESCRIPTOR,client_dot_profile__id__pb2.DESCRIPTOR,chromiumos_dot_common__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,])
 
@@ -75,8 +75,8 @@ _REQUEST_PARAMS_SCHEDULING_MANAGEDPOOL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1644,
-  serialized_end=1893,
+  serialized_start=1436,
+  serialized_end=1685,
 )
 _sym_db.RegisterEnumDescriptor(_REQUEST_PARAMS_SCHEDULING_MANAGEDPOOL)
 
@@ -107,8 +107,8 @@ _REQUEST_PARAMS_HARDWAREATTRIBUTES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1187,
-  serialized_end=1222,
+  serialized_start=979,
+  serialized_end=1014,
 )
 
 _REQUEST_PARAMS_SOFTWAREATTRIBUTES = _descriptor.Descriptor(
@@ -137,8 +137,8 @@ _REQUEST_PARAMS_SOFTWAREATTRIBUTES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1224,
-  serialized_end=1291,
+  serialized_start=1016,
+  serialized_end=1083,
 )
 
 _REQUEST_PARAMS_FREEFORMATTRIBUTES = _descriptor.Descriptor(
@@ -167,8 +167,8 @@ _REQUEST_PARAMS_FREEFORMATTRIBUTES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1293,
-  serialized_end=1342,
+  serialized_start=1085,
+  serialized_end=1134,
 )
 
 _REQUEST_PARAMS_SOFTWAREDEPENDENCY = _descriptor.Descriptor(
@@ -214,8 +214,8 @@ _REQUEST_PARAMS_SOFTWAREDEPENDENCY = _descriptor.Descriptor(
       name='dep', full_name='test_platform.Request.Params.SoftwareDependency.dep',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1344,
-  serialized_end=1455,
+  serialized_start=1136,
+  serialized_end=1247,
 )
 
 _REQUEST_PARAMS_SCHEDULING = _descriptor.Descriptor(
@@ -276,8 +276,8 @@ _REQUEST_PARAMS_SCHEDULING = _descriptor.Descriptor(
       name='pool', full_name='test_platform.Request.Params.Scheduling.pool',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1458,
-  serialized_end=1901,
+  serialized_start=1250,
+  serialized_end=1693,
 )
 
 _REQUEST_PARAMS_RETRY = _descriptor.Descriptor(
@@ -313,8 +313,8 @@ _REQUEST_PARAMS_RETRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1903,
-  serialized_end=1938,
+  serialized_start=1695,
+  serialized_end=1730,
 )
 
 _REQUEST_PARAMS_METADATA = _descriptor.Descriptor(
@@ -350,8 +350,8 @@ _REQUEST_PARAMS_METADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1940,
-  serialized_end=2012,
+  serialized_start=1732,
+  serialized_end=1804,
 )
 
 _REQUEST_PARAMS_TIME = _descriptor.Descriptor(
@@ -380,8 +380,8 @@ _REQUEST_PARAMS_TIME = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2014,
-  serialized_end=2073,
+  serialized_start=1806,
+  serialized_end=1865,
 )
 
 _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY = _descriptor.Descriptor(
@@ -417,8 +417,8 @@ _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2195,
-  serialized_end=2249,
+  serialized_start=1987,
+  serialized_end=2041,
 )
 
 _REQUEST_PARAMS_DECORATIONS = _descriptor.Descriptor(
@@ -454,8 +454,8 @@ _REQUEST_PARAMS_DECORATIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2076,
-  serialized_end=2249,
+  serialized_start=1868,
+  serialized_end=2041,
 )
 
 _REQUEST_PARAMS_LEGACY = _descriptor.Descriptor(
@@ -484,38 +484,8 @@ _REQUEST_PARAMS_LEGACY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2251,
-  serialized_end=2283,
-)
-
-_REQUEST_PARAMS_NOTIFICATION = _descriptor.Descriptor(
-  name='Notification',
-  full_name='test_platform.Request.Params.Notification',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='pubsub_topic', full_name='test_platform.Request.Params.Notification.pubsub_topic', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=2285,
-  serialized_end=2321,
+  serialized_start=2043,
+  serialized_end=2075,
 )
 
 _REQUEST_PARAMS_MIGRATIONS = _descriptor.Descriptor(
@@ -539,6 +509,13 @@ _REQUEST_PARAMS_MIGRATIONS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='notificationless_offload', full_name='test_platform.Request.Params.Migrations.notificationless_offload', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -551,8 +528,8 @@ _REQUEST_PARAMS_MIGRATIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2323,
-  serialized_end=2396,
+  serialized_start=2077,
+  serialized_end=2184,
 )
 
 _REQUEST_PARAMS = _descriptor.Descriptor(
@@ -633,14 +610,7 @@ _REQUEST_PARAMS = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='notification', full_name='test_platform.Request.Params.notification', index=10,
-      number=11, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='migrations', full_name='test_platform.Request.Params.migrations', index=11,
+      name='migrations', full_name='test_platform.Request.Params.migrations', index=10,
       number=12, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -649,7 +619,7 @@ _REQUEST_PARAMS = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_REQUEST_PARAMS_HARDWAREATTRIBUTES, _REQUEST_PARAMS_SOFTWAREATTRIBUTES, _REQUEST_PARAMS_FREEFORMATTRIBUTES, _REQUEST_PARAMS_SOFTWAREDEPENDENCY, _REQUEST_PARAMS_SCHEDULING, _REQUEST_PARAMS_RETRY, _REQUEST_PARAMS_METADATA, _REQUEST_PARAMS_TIME, _REQUEST_PARAMS_DECORATIONS, _REQUEST_PARAMS_LEGACY, _REQUEST_PARAMS_NOTIFICATION, _REQUEST_PARAMS_MIGRATIONS, ],
+  nested_types=[_REQUEST_PARAMS_HARDWAREATTRIBUTES, _REQUEST_PARAMS_SOFTWAREATTRIBUTES, _REQUEST_PARAMS_FREEFORMATTRIBUTES, _REQUEST_PARAMS_SOFTWAREDEPENDENCY, _REQUEST_PARAMS_SCHEDULING, _REQUEST_PARAMS_RETRY, _REQUEST_PARAMS_METADATA, _REQUEST_PARAMS_TIME, _REQUEST_PARAMS_DECORATIONS, _REQUEST_PARAMS_LEGACY, _REQUEST_PARAMS_MIGRATIONS, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -658,8 +628,8 @@ _REQUEST_PARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=391,
-  serialized_end=2396,
+  serialized_start=249,
+  serialized_end=2184,
 )
 
 _REQUEST_SUITE = _descriptor.Descriptor(
@@ -688,8 +658,8 @@ _REQUEST_SUITE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2398,
-  serialized_end=2419,
+  serialized_start=2186,
+  serialized_end=2207,
 )
 
 _REQUEST_TEST_AUTOTEST = _descriptor.Descriptor(
@@ -732,8 +702,8 @@ _REQUEST_TEST_AUTOTEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2488,
-  serialized_end=2553,
+  serialized_start=2276,
+  serialized_end=2341,
 )
 
 _REQUEST_TEST = _descriptor.Descriptor(
@@ -765,8 +735,8 @@ _REQUEST_TEST = _descriptor.Descriptor(
       name='harness', full_name='test_platform.Request.Test.harness',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=2422,
-  serialized_end=2564,
+  serialized_start=2210,
+  serialized_end=2352,
 )
 
 _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY = _descriptor.Descriptor(
@@ -802,8 +772,8 @@ _REQUEST_ENUMERATION_AUTOTESTINVOCATION_RESULTKEYVALSENTRY = _descriptor.Descrip
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2871,
-  serialized_end=2923,
+  serialized_start=2659,
+  serialized_end=2711,
 )
 
 _REQUEST_ENUMERATION_AUTOTESTINVOCATION = _descriptor.Descriptor(
@@ -853,8 +823,8 @@ _REQUEST_ENUMERATION_AUTOTESTINVOCATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2668,
-  serialized_end=2923,
+  serialized_start=2456,
+  serialized_end=2711,
 )
 
 _REQUEST_ENUMERATION = _descriptor.Descriptor(
@@ -883,8 +853,8 @@ _REQUEST_ENUMERATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2567,
-  serialized_end=2923,
+  serialized_start=2355,
+  serialized_end=2711,
 )
 
 _REQUEST_TESTPLAN = _descriptor.Descriptor(
@@ -927,8 +897,8 @@ _REQUEST_TESTPLAN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2926,
-  serialized_end=3081,
+  serialized_start=2714,
+  serialized_end=2869,
 )
 
 _REQUEST = _descriptor.Descriptor(
@@ -978,8 +948,8 @@ _REQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=188,
-  serialized_end=3081,
+  serialized_start=138,
+  serialized_end=2902,
 )
 
 _REQUEST_PARAMS_HARDWAREATTRIBUTES.containing_type = _REQUEST_PARAMS
@@ -1016,7 +986,6 @@ _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY.containing_type = _REQUEST_PARA
 _REQUEST_PARAMS_DECORATIONS.fields_by_name['autotest_keyvals'].message_type = _REQUEST_PARAMS_DECORATIONS_AUTOTESTKEYVALSENTRY
 _REQUEST_PARAMS_DECORATIONS.containing_type = _REQUEST_PARAMS
 _REQUEST_PARAMS_LEGACY.containing_type = _REQUEST_PARAMS
-_REQUEST_PARAMS_NOTIFICATION.containing_type = _REQUEST_PARAMS
 _REQUEST_PARAMS_MIGRATIONS.containing_type = _REQUEST_PARAMS
 _REQUEST_PARAMS.fields_by_name['hardware_attributes'].message_type = _REQUEST_PARAMS_HARDWAREATTRIBUTES
 _REQUEST_PARAMS.fields_by_name['software_attributes'].message_type = _REQUEST_PARAMS_SOFTWAREATTRIBUTES
@@ -1028,7 +997,6 @@ _REQUEST_PARAMS.fields_by_name['metadata'].message_type = _REQUEST_PARAMS_METADA
 _REQUEST_PARAMS.fields_by_name['time'].message_type = _REQUEST_PARAMS_TIME
 _REQUEST_PARAMS.fields_by_name['decorations'].message_type = _REQUEST_PARAMS_DECORATIONS
 _REQUEST_PARAMS.fields_by_name['legacy'].message_type = _REQUEST_PARAMS_LEGACY
-_REQUEST_PARAMS.fields_by_name['notification'].message_type = _REQUEST_PARAMS_NOTIFICATION
 _REQUEST_PARAMS.fields_by_name['migrations'].message_type = _REQUEST_PARAMS_MIGRATIONS
 _REQUEST_PARAMS.containing_type = _REQUEST
 _REQUEST_SUITE.containing_type = _REQUEST
@@ -1136,13 +1104,6 @@ Request = _reflection.GeneratedProtocolMessageType('Request', (_message.Message,
       ))
     ,
 
-    Notification = _reflection.GeneratedProtocolMessageType('Notification', (_message.Message,), dict(
-      DESCRIPTOR = _REQUEST_PARAMS_NOTIFICATION,
-      __module__ = 'test_platform.request_pb2'
-      # @@protoc_insertion_point(class_scope:test_platform.Request.Params.Notification)
-      ))
-    ,
-
     Migrations = _reflection.GeneratedProtocolMessageType('Migrations', (_message.Message,), dict(
       DESCRIPTOR = _REQUEST_PARAMS_MIGRATIONS,
       __module__ = 'test_platform.request_pb2'
@@ -1220,7 +1181,6 @@ _sym_db.RegisterMessage(Request.Params.Time)
 _sym_db.RegisterMessage(Request.Params.Decorations)
 _sym_db.RegisterMessage(Request.Params.Decorations.AutotestKeyvalsEntry)
 _sym_db.RegisterMessage(Request.Params.Legacy)
-_sym_db.RegisterMessage(Request.Params.Notification)
 _sym_db.RegisterMessage(Request.Params.Migrations)
 _sym_db.RegisterMessage(Request.Suite)
 _sym_db.RegisterMessage(Request.Test)

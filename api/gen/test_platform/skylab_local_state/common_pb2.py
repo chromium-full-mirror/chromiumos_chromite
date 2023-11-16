@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform.skylab_local_state',
   syntax='proto3',
   serialized_options=_b('ZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_state'),
-  serialized_pb=_b('\n-test_platform/skylab_local_state/common.proto\x12 test_platform.skylab_local_state\"U\n\x06\x43onfig\x12\x15\n\radmin_service\x18\x01 \x01(\t\x12\x14\n\x0c\x61utotest_dir\x18\x02 \x01(\t\x12\x1e\n\x16\x63ros_inventory_service\x18\x03 \x01(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_stateb\x06proto3')
+  serialized_pb=_b('\n-test_platform/skylab_local_state/common.proto\x12 test_platform.skylab_local_state\"o\n\x06\x43onfig\x12\x15\n\radmin_service\x18\x01 \x01(\t\x12\x14\n\x0c\x61utotest_dir\x18\x02 \x01(\t\x12\x1e\n\x16\x63ros_inventory_service\x18\x03 \x01(\t\x12\x18\n\x10\x63ros_ufs_service\x18\x04 \x01(\tBLZJgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_local_stateb\x06proto3')
 )
 
 
@@ -53,6 +53,13 @@ _CONFIG = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='cros_ufs_service', full_name='test_platform.skylab_local_state.Config.cros_ufs_service', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -66,7 +73,7 @@ _CONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=83,
-  serialized_end=168,
+  serialized_end=194,
 )
 
 DESCRIPTOR.message_types_by_name['Config'] = _CONFIG
