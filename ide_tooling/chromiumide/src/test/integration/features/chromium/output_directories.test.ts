@@ -180,19 +180,35 @@ describe('OutputDirectoriesDataProvider', () => {
   for (const testCase of [
     {
       name: 'shows warning if code is compiled locally',
-      gnArgs: [{name: 'foo_bar', current: {value: 'true'}}],
+      gnArgs: [
+        {name: 'foo_bar', current: {value: 'true'}},
+        {name: 'target_os', current: {value: '"android"'}},
+      ],
       wantIcon: 'warning',
       wantWarnings: [
         'Neither Goma, Siso, nor Reclient is enabled. Your builds will compile on your local machine only.',
       ],
-      wantArgs: {use_siso: false, use_goma: false, use_remoteexec: false},
+      wantArgs: {
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: 'android' as const,
+      },
     },
     {
       name: 'shows no warning if code is compiled in the cloud',
-      gnArgs: [{name: 'use_goma', current: {value: 'true'}}],
+      gnArgs: [
+        {name: 'use_goma', current: {value: 'true'}},
+        {name: 'target_os', current: {value: '"android"'}},
+      ],
       wantIcon: 'file-directory',
       wantWarnings: [],
-      wantArgs: {use_siso: false, use_goma: true, use_remoteexec: false},
+      wantArgs: {
+        useSiso: false,
+        useGoma: true,
+        useRemoteexec: false,
+        computedTargetOs: 'android' as const,
+      },
     },
   ]) {
     it(`queries GN args correctly and ${testCase.name}`, async () => {
@@ -206,7 +222,6 @@ describe('OutputDirectoriesDataProvider', () => {
           path.join(tempDir.path, 'out', 'dir1'),
           '--list',
           '--short',
-          '--overrides-only',
           '--json',
         ],
         JSON.stringify(testCase.gnArgs),

@@ -10,6 +10,8 @@ import * as config from '../../../../services/config';
 import * as testing from '../../../testing';
 
 describe('gn args', () => {
+  const hostOS: gnArgs.TargetOs = gnArgs.TEST_ONLY.getTargetOsFromHost();
+
   const tempDir = testing.tempDir();
   const {fakeExec} = testing.installFakeExec();
 
@@ -25,9 +27,10 @@ describe('gn args', () => {
         jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
       ],
       wantArgs: {
-        use_siso: false,
-        use_goma: false,
-        use_remoteexec: false,
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: hostOS,
       },
     },
     {
@@ -37,9 +40,10 @@ describe('gn args', () => {
         jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
       ],
       wantArgs: {
-        use_siso: false,
-        use_goma: false,
-        use_remoteexec: false,
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: hostOS,
       },
     },
     {
@@ -49,9 +53,10 @@ describe('gn args', () => {
         jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
       ],
       wantArgs: {
-        use_siso: false,
-        use_goma: false,
-        use_remoteexec: false,
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: hostOS,
       },
     },
     {
@@ -59,9 +64,10 @@ describe('gn args', () => {
       gnArgs: [{name: 'use_goma', current: {value: 'true'}}],
       wantWarnings: [],
       wantArgs: {
-        use_siso: false,
-        use_goma: true,
-        use_remoteexec: false,
+        useSiso: false,
+        useGoma: true,
+        useRemoteexec: false,
+        computedTargetOs: hostOS,
       },
     },
     {
@@ -69,9 +75,10 @@ describe('gn args', () => {
       gnArgs: [{name: 'use_siso', current: {value: 'true'}}],
       wantWarnings: [],
       wantArgs: {
-        use_siso: true,
-        use_goma: false,
-        use_remoteexec: false,
+        useSiso: true,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: hostOS,
       },
     },
     {
@@ -79,9 +86,84 @@ describe('gn args', () => {
       gnArgs: [{name: 'use_remoteexec', current: {value: 'true'}}],
       wantWarnings: [],
       wantArgs: {
-        use_siso: false,
-        use_goma: false,
-        use_remoteexec: true,
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: true,
+        computedTargetOs: hostOS,
+      },
+    },
+    {
+      name: 'calculates target_os if set explicitly',
+      gnArgs: [
+        {
+          name: 'target_os',
+          current: {value: '"android"'},
+          default: {value: '"ios"'},
+        },
+      ],
+      wantWarnings: [
+        jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
+      ],
+      wantArgs: {
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: 'android' as const,
+      },
+    },
+    {
+      name: 'calculates target_os if only set as default',
+      gnArgs: [{name: 'target_os', default: {value: '"ios"'}}],
+      wantWarnings: [
+        jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
+      ],
+      wantArgs: {
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: 'ios' as const,
+      },
+    },
+    {
+      name: 'prefers target_os if host_os is set as well',
+      gnArgs: [
+        {name: 'target_os', current: {value: '"android"'}},
+        {name: 'host_os', current: {value: '"ios"'}},
+      ],
+      wantWarnings: [
+        jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
+      ],
+      wantArgs: {
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: 'android' as const,
+      },
+    },
+    {
+      name: 'falls back to host_os if target_os is not set',
+      gnArgs: [{name: 'host_os', current: {value: '"ios"'}}],
+      wantWarnings: [
+        jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
+      ],
+      wantArgs: {
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: 'ios' as const,
+      },
+    },
+    {
+      name: 'can deal with unknown target_os values',
+      gnArgs: [{name: 'target_os', current: {value: '"unknown-os-value"'}}],
+      wantWarnings: [
+        jasmine.stringContaining('Neither Goma, Siso, nor Reclient is enabled'),
+      ],
+      wantArgs: {
+        useSiso: false,
+        useGoma: false,
+        useRemoteexec: false,
+        computedTargetOs: null,
       },
     },
   ]) {
@@ -96,7 +178,6 @@ describe('gn args', () => {
           path.join(tempDir.path, 'out', 'dir1'),
           '--list',
           '--short',
-          '--overrides-only',
           '--json',
         ],
         JSON.stringify(testCase.gnArgs),
@@ -143,7 +224,6 @@ The build continued as if that argument was unspecified.
         path.join(tempDir.path, 'out', 'dir1'),
         '--list',
         '--short',
-        '--overrides-only',
         '--json',
       ],
       STDOUT_WITH_WARNING,
@@ -161,7 +241,12 @@ The build continued as if that argument was unspecified.
       warnings: [
         jasmine.stringMatching(/^WARNING at [/][/]build.*was unspecified[.]$/s),
       ],
-      args: {use_goma: false, use_remoteexec: false, use_siso: true},
+      args: {
+        useGoma: false,
+        useRemoteexec: false,
+        useSiso: true,
+        computedTargetOs: hostOS,
+      },
     });
   });
 
@@ -173,7 +258,6 @@ The build continued as if that argument was unspecified.
         path.join(tempDir.path, 'out', 'dir1'),
         '--list',
         '--short',
-        '--overrides-only',
         '--json',
       ],
       'not actually json',
@@ -200,7 +284,6 @@ The build continued as if that argument was unspecified.
         path.join(tempDir.path, 'out', 'dir1'),
         '--list',
         '--short',
-        '--overrides-only',
         '--json',
       ],
       'not actually json [ "it looks like json starts here, but this is a lie and still invalid"',

@@ -291,6 +291,9 @@ export class DirNode extends BaseNode {
       label = '>> ' + this.name;
       tooltip = new vscode.MarkdownString('current output directory');
     }
+    if (this.gnArgsInfo.type === 'success') {
+      label += ` (${this.gnArgsInfo.args.computedTargetOs ?? 'OS unknown'})`;
+    }
 
     let icon = new vscode.ThemeIcon(
       'file-directory',

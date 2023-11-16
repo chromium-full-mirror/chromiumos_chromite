@@ -2,23 +2,49 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commonUtil from '../../common/common_util';
 import {envForDepotTools} from '../../common/depot_tools';
 
+export type TargetOs =
+  | 'linux'
+  | 'win'
+  | 'mac'
+  | 'android'
+  | 'ios'
+  | 'chromeos'
+  | 'fuchsia'
+  | null;
+
 // This type represents the subset of GN args that we keep track of. Currently, we only keep track
-// of the external compile systems (Goma, Siso, Reclient).
+// of the external compile systems (Goma, Siso, Reclient) and the computed target OS.
 export type GnArgs = {
-  use_goma: boolean;
-  use_siso: boolean;
-  use_remoteexec: boolean;
+  useGoma: boolean;
+  useSiso: boolean;
+  useRemoteexec: boolean;
+  // This parameter is computed based on the `target_os` and `host_os` GN args, as well as the
+  // actual OS of the user's machine if neither `target_os` nor `host_os` are set.
+  computedTargetOs: TargetOs;
 };
 
 export type GnArgsInfo =
   | {type: 'error'; error: string}
   | {type: 'unknown'}
   | {type: 'success'; warnings: string[]; args: GnArgs};
+
+type GnArgsJson = Array<{
+  current: {
+    // This is a JSON-encoded string
+    value: string;
+  };
+  default: {
+    // This is a JSON-encoded string
+    value: string;
+  };
+  name: string;
+}>;
 
 // TODO(cmfcmf): Test whether this also works on Windows.
 export async function readGnArgs(
@@ -33,7 +59,6 @@ export async function readGnArgs(
       path.join(srcPath, outputDirectoryName),
       '--list',
       '--short',
-      '--overrides-only',
       '--json',
     ],
     {
@@ -62,11 +87,7 @@ export async function readGnArgs(
 
   // TODO(cmfcmf): It would be nice to validate at runtime that the JSON actually follows this
   // schema.
-  let gnArgs: Array<{
-    current: {value: string};
-    default: {value: string};
-    name: string;
-  }> | null = null;
+  let gnArgs: GnArgsJson | null = null;
   try {
     gnArgs = JSON.parse(result.stdout);
   } catch (error) {
@@ -97,16 +118,16 @@ export async function readGnArgs(
   }
 
   const args = {
-    use_goma:
-      gnArgs.find(each => each.name === 'use_goma')?.current.value === 'true',
-    use_siso:
-      gnArgs.find(each => each.name === 'use_siso')?.current.value === 'true',
-    use_remoteexec:
-      gnArgs.find(each => each.name === 'use_remoteexec')?.current.value ===
-      'true',
+    useGoma: getValue(gnArgs, 'use_goma') === true,
+    useSiso: getValue(gnArgs, 'use_siso') === true,
+    useRemoteexec: getValue(gnArgs, 'use_remoteexec') === true,
+    computedTargetOs: computeTargetOsFromArgs(
+      getValue(gnArgs, 'target_os'),
+      getValue(gnArgs, 'host_os')
+    ),
   };
 
-  if (!args.use_goma && !args.use_siso && !args.use_remoteexec) {
+  if (!args.useGoma && !args.useSiso && !args.useRemoteexec) {
     warnings.push(
       'Neither Goma, Siso, nor Reclient is enabled. Your builds will compile on your local machine only.'
     );
@@ -118,3 +139,58 @@ export async function readGnArgs(
     args,
   };
 }
+
+function getValue(args: GnArgsJson, name: string): unknown {
+  const arg = args.find(each => each.name === name);
+  return JSON.parse(arg?.current?.value ?? arg?.default?.value ?? 'null');
+}
+
+function computeTargetOsFromArgs(targetOS: unknown, hostOS: unknown): TargetOs {
+  switch (targetOS) {
+    case null:
+    case '':
+      if (hostOS) {
+        return computeTargetOsFromArgs(hostOS, null);
+      }
+      // Sometimes neither `host_os` nor `target_os` are set. In this case, GN will use the host's
+      // OS.
+      return getTargetOsFromHost();
+    case 'linux':
+      return 'linux';
+    case 'android':
+      return 'android';
+    case 'win':
+      return 'win';
+    case 'ios':
+      return 'ios';
+    case 'mac':
+      return 'mac';
+    case 'fuchsia':
+      return 'fuchsia';
+    case 'chromeos':
+      return 'chromeos';
+    default:
+      return null;
+  }
+}
+
+function getTargetOsFromHost(): TargetOs {
+  switch (os.platform()) {
+    case 'win32':
+    case 'cygwin':
+      return 'win';
+    case 'darwin':
+      return 'mac';
+    case 'linux':
+    case 'freebsd':
+    case 'netbsd':
+    case 'openbsd':
+      return 'linux';
+    default:
+      return null;
+  }
+}
+
+export const TEST_ONLY = {
+  getTargetOsFromHost,
+};
