@@ -137,7 +137,6 @@ def test_invalid_license_name():
 
 TEST_CASES_INVALID_SYNTAX = (
     "|| ( BSD",
-    # "( BSD )",
     "BSD )",
     "|| foo? ( BSD )",
 )
