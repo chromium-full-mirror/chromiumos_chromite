@@ -13,10 +13,6 @@ import shutil
 from typing import Optional, Union
 from unittest import mock
 
-from chromite.third_party.opentelemetry import context as otel_context
-from chromite.third_party.opentelemetry import trace
-import pytest
-
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -659,21 +655,6 @@ class BuildPackagesTest(
     cros_test_lib.RunCommandTestCase, cros_test_lib.LoggingTestCase
 ):
     """Test BuildPackages function."""
-
-    @pytest.fixture(autouse=True)
-    def ignore_telemetry_collection(self, monkeypatch):
-        """Mock OpenTelemetry library functions as necessary."""
-        # pylint: disable=unnecessary-lambda
-        monkeypatch.setattr(
-            otel_context, "get_current", lambda: otel_context.Context()
-        )
-        monkeypatch.setattr(
-            trace,
-            "get_current_span",
-            lambda *_args, **_kwargs: trace.NonRecordingSpan(
-                otel_context.get_current()
-            ),
-        )
 
     def setUp(self):
         # Currently just used to keep the parallel emerge status file from being
