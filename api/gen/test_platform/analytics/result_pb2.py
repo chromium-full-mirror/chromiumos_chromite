@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform.analytics',
   syntax='proto3',
   serialized_options=_b('ZAgo.chromium.org/chromiumos/infra/proto/go/test_platform/analytics'),
-  serialized_pb=_b('\n$test_platform/analytics/result.proto\x12\x17test_platform.analytics\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf8\x01\n\x0bTestPlanRun\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x10\n\x08\x62uild_id\x18\x02 \x01(\x03\x12\r\n\x05suite\x18\x03 \x01(\t\x12\x15\n\rexecution_url\x18\x04 \x01(\t\x12\x10\n\x08\x64ut_pool\x18\x05 \x01(\t\x12\x14\n\x0c\x62uild_target\x18\x06 \x01(\t\x12\x16\n\x0e\x63hromeos_build\x18\x07 \x01(\t\x12/\n\x06status\x18\x08 \x01(\x0b\x32\x1f.test_platform.analytics.Status\x12\x33\n\x08timeline\x18\t \x01(\x0b\x32!.test_platform.analytics.Timeline\"\x90\x03\n\x07TestRun\x12\x10\n\x08\x62uild_id\x18\x01 \x01(\x03\x12\x14\n\x0c\x64isplay_name\x18\x02 \x01(\t\x12\x15\n\rexecution_url\x18\x03 \x01(\t\x12\x12\n\nparent_uid\x18\x04 \x01(\t\x12\r\n\x05model\x18\x05 \x01(\t\x12\x33\n\x08timeline\x18\x06 \x01(\x0b\x32!.test_platform.analytics.Timeline\x12/\n\x06status\x18\x07 \x01(\x0b\x32\x1f.test_platform.analytics.Status\x12\x31\n\x07verdict\x18\x08 \x01(\x0b\x32 .test_platform.analytics.Verdict\x12\x14\n\x0c\x66ull_log_url\x18\t \x01(\t\x12\x37\n\x06prejob\x18\n \x01(\x0b\x32\'.test_platform.analytics.TestRun.Prejob\x1a;\n\x06Prejob\x12\x31\n\x07verdict\x18\x01 \x01(\x0b\x32 .test_platform.analytics.Verdict\"\x9f\x01\n\x0eTestCaseResult\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x02 \x01(\t\x12\x17\n\x0fparent_build_id\x18\x03 \x01(\x03\x12\x31\n\x07verdict\x18\x04 \x01(\x0b\x32 .test_platform.analytics.Verdict\x12\x1e\n\x16human_readable_summary\x18\x05 \x01(\t\"\xcb\x01\n\x08Timeline\x12/\n\x0b\x63reate_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x61\x62\x61ndon_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x17\n\x06Status\x12\r\n\x05value\x18\x01 \x01(\t\"\x18\n\x07Verdict\x12\r\n\x05value\x18\x01 \x01(\tBCZAgo.chromium.org/chromiumos/infra/proto/go/test_platform/analyticsb\x06proto3')
+  serialized_pb=_b('\n$test_platform/analytics/result.proto\x12\x17test_platform.analytics\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8b\x03\n\x0bTestPlanRun\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x10\n\x08\x62uild_id\x18\x02 \x01(\x03\x12\r\n\x05suite\x18\x03 \x01(\t\x12\x15\n\rexecution_url\x18\x04 \x01(\t\x12\x10\n\x08\x64ut_pool\x18\x05 \x01(\t\x12\x14\n\x0c\x62uild_target\x18\x06 \x01(\t\x12\x16\n\x0e\x63hromeos_build\x18\x07 \x01(\t\x12/\n\x06status\x18\x08 \x01(\x0b\x32\x1f.test_platform.analytics.Status\x12\x37\n\x08timeline\x18\t \x01(\x0b\x32!.test_platform.analytics.TimelineB\x02\x18\x01\x12/\n\x0b\x63reate_time\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nstart_time\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x0c \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa3\x04\n\x07TestRun\x12\x10\n\x08\x62uild_id\x18\x01 \x01(\x03\x12\x14\n\x0c\x64isplay_name\x18\x02 \x01(\t\x12\x15\n\rexecution_url\x18\x03 \x01(\t\x12\x12\n\nparent_uid\x18\x04 \x01(\t\x12\r\n\x05model\x18\x05 \x01(\t\x12\x37\n\x08timeline\x18\x06 \x01(\x0b\x32!.test_platform.analytics.TimelineB\x02\x18\x01\x12/\n\x06status\x18\x07 \x01(\x0b\x32\x1f.test_platform.analytics.Status\x12\x31\n\x07verdict\x18\x08 \x01(\x0b\x32 .test_platform.analytics.Verdict\x12\x14\n\x0c\x66ull_log_url\x18\t \x01(\t\x12\x37\n\x06prejob\x18\n \x01(\x0b\x32\'.test_platform.analytics.TestRun.Prejob\x12/\n\x0b\x63reate_time\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nstart_time\x18\x0c \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\r \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a;\n\x06Prejob\x12\x31\n\x07verdict\x18\x01 \x01(\x0b\x32 .test_platform.analytics.Verdict\"\xd0\x01\n\x0eTestCaseResult\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x14\n\x0c\x64isplay_name\x18\x02 \x01(\t\x12\x17\n\x0fparent_build_id\x18\x03 \x01(\x03\x12\x31\n\x07verdict\x18\x04 \x01(\x0b\x32 .test_platform.analytics.Verdict\x12\x1e\n\x16human_readable_summary\x18\x05 \x01(\t\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xcb\x01\n\x08Timeline\x12/\n\x0b\x63reate_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x61\x62\x61ndon_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x17\n\x06Status\x12\r\n\x05value\x18\x01 \x01(\t\"\x18\n\x07Verdict\x12\r\n\x05value\x18\x01 \x01(\tBCZAgo.chromium.org/chromiumos/infra/proto/go/test_platform/analyticsb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -96,6 +96,27 @@ _TESTPLANRUN = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
+      serialized_options=_b('\030\001'), file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='create_time', full_name='test_platform.analytics.TestPlanRun.create_time', index=9,
+      number=10, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='start_time', full_name='test_platform.analytics.TestPlanRun.start_time', index=10,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='end_time', full_name='test_platform.analytics.TestPlanRun.end_time', index=11,
+      number=12, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
@@ -110,7 +131,7 @@ _TESTPLANRUN = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=99,
-  serialized_end=347,
+  serialized_end=494,
 )
 
 
@@ -140,8 +161,8 @@ _TESTRUN_PREJOB = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=691,
-  serialized_end=750,
+  serialized_start=985,
+  serialized_end=1044,
 )
 
 _TESTRUN = _descriptor.Descriptor(
@@ -192,7 +213,7 @@ _TESTRUN = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      serialized_options=_b('\030\001'), file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='status', full_name='test_platform.analytics.TestRun.status', index=6,
       number=7, type=11, cpp_type=10, label=1,
@@ -221,6 +242,27 @@ _TESTRUN = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='create_time', full_name='test_platform.analytics.TestRun.create_time', index=10,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='start_time', full_name='test_platform.analytics.TestRun.start_time', index=11,
+      number=12, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='end_time', full_name='test_platform.analytics.TestRun.end_time', index=12,
+      number=13, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -233,8 +275,8 @@ _TESTRUN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=350,
-  serialized_end=750,
+  serialized_start=497,
+  serialized_end=1044,
 )
 
 
@@ -280,6 +322,13 @@ _TESTCASERESULT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='create_time', full_name='test_platform.analytics.TestCaseResult.create_time', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -292,8 +341,8 @@ _TESTCASERESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=753,
-  serialized_end=912,
+  serialized_start=1047,
+  serialized_end=1255,
 )
 
 
@@ -344,8 +393,8 @@ _TIMELINE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=915,
-  serialized_end=1118,
+  serialized_start=1258,
+  serialized_end=1461,
 )
 
 
@@ -375,8 +424,8 @@ _STATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1120,
-  serialized_end=1143,
+  serialized_start=1463,
+  serialized_end=1486,
 )
 
 
@@ -406,19 +455,26 @@ _VERDICT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1145,
-  serialized_end=1169,
+  serialized_start=1488,
+  serialized_end=1512,
 )
 
 _TESTPLANRUN.fields_by_name['status'].message_type = _STATUS
 _TESTPLANRUN.fields_by_name['timeline'].message_type = _TIMELINE
+_TESTPLANRUN.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_TESTPLANRUN.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_TESTPLANRUN.fields_by_name['end_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TESTRUN_PREJOB.fields_by_name['verdict'].message_type = _VERDICT
 _TESTRUN_PREJOB.containing_type = _TESTRUN
 _TESTRUN.fields_by_name['timeline'].message_type = _TIMELINE
 _TESTRUN.fields_by_name['status'].message_type = _STATUS
 _TESTRUN.fields_by_name['verdict'].message_type = _VERDICT
 _TESTRUN.fields_by_name['prejob'].message_type = _TESTRUN_PREJOB
+_TESTRUN.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_TESTRUN.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_TESTRUN.fields_by_name['end_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TESTCASERESULT.fields_by_name['verdict'].message_type = _VERDICT
+_TESTCASERESULT.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TIMELINE.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TIMELINE.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TIMELINE.fields_by_name['end_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
@@ -483,4 +539,6 @@ _sym_db.RegisterMessage(Verdict)
 
 
 DESCRIPTOR._options = None
+_TESTPLANRUN.fields_by_name['timeline']._options = None
+_TESTRUN.fields_by_name['timeline']._options = None
 # @@protoc_insertion_point(module_scope)

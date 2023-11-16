@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='test_platform.config',
   syntax='proto3',
   serialized_options=_b('Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/config'),
-  serialized_pb=_b('\n!test_platform/config/config.proto\x12\x14test_platform.config\x1a\x30test_platform/migration/test_runner/config.proto\"\x85\x08\n\x06\x43onfig\x12>\n\x0fskylab_swarming\x18\x01 \x01(\x0b\x32%.test_platform.config.Config.Swarming\x12<\n\x0eskylab_isolate\x18\x03 \x01(\x0b\x32$.test_platform.config.Config.Isolate\x12@\n\rskylab_worker\x18\x04 \x01(\x0b\x32).test_platform.config.Config.SkylabWorker\x12;\n\nversioning\x18\x07 \x01(\x0b\x32\'.test_platform.config.Config.Versioning\x12<\n\x0btest_runner\x18\x08 \x01(\x0b\x32\'.test_platform.config.Config.TestRunner\x12J\n\x15test_runner_migration\x18\t \x01(\x0b\x32+.test_platform.migration.test_runner.Config\x12\x33\n\x06pubsub\x18\n \x01(\x0b\x32#.test_platform.config.Config.PubSub\x1a\x32\n\x08Swarming\x12\x0e\n\x06server\x18\x01 \x01(\t\x12\x16\n\x0e\x61uth_json_path\x18\x02 \x01(\t\x1a!\n\x07Isolate\x12\x16\n\x0e\x61uth_json_path\x18\x01 \x01(\t\x1a:\n\x0cSkylabWorker\x12\x14\n\x0cluci_project\x18\x01 \x01(\t\x12\x14\n\x0clog_dog_host\x18\x02 \x01(\t\x1a\x9d\x01\n\nVersioning\x12\x61\n\x19\x63ros_test_platform_binary\x18\x01 \x01(\x0b\x32>.test_platform.config.Config.Versioning.CrosTestPlatformBinary\x1a,\n\x16\x43rosTestPlatformBinary\x12\x12\n\ncipd_label\x18\x01 \x01(\t\x1aM\n\x0b\x42uildbucket\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x0f\n\x07project\x18\x02 \x01(\t\x12\x0e\n\x06\x62ucket\x18\x03 \x01(\t\x12\x0f\n\x07\x62uilder\x18\x04 \x01(\t\x1a(\n\x06PubSub\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\r\n\x05topic\x18\x02 \x01(\t\x1a\x80\x01\n\nTestRunner\x12=\n\x0b\x62uildbucket\x18\x01 \x01(\x0b\x32(.test_platform.config.Config.Buildbucket\x12\x33\n\x06pubsub\x18\x02 \x01(\x0b\x32#.test_platform.config.Config.PubSubJ\x04\x08\x02\x10\x03J\x04\x08\x05\x10\x06J\x04\x08\x06\x10\x07\x42@Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/configb\x06proto3')
+  serialized_pb=_b('\n!test_platform/config/config.proto\x12\x14test_platform.config\x1a\x30test_platform/migration/test_runner/config.proto\"\xd8\t\n\x06\x43onfig\x12>\n\x0fskylab_swarming\x18\x01 \x01(\x0b\x32%.test_platform.config.Config.Swarming\x12<\n\x0eskylab_isolate\x18\x03 \x01(\x0b\x32$.test_platform.config.Config.Isolate\x12@\n\rskylab_worker\x18\x04 \x01(\x0b\x32).test_platform.config.Config.SkylabWorker\x12;\n\nversioning\x18\x07 \x01(\x0b\x32\'.test_platform.config.Config.Versioning\x12<\n\x0btest_runner\x18\x08 \x01(\x0b\x32\'.test_platform.config.Config.TestRunner\x12J\n\x15test_runner_migration\x18\t \x01(\x0b\x32+.test_platform.migration.test_runner.Config\x12\x37\n\x06pubsub\x18\n \x01(\x0b\x32#.test_platform.config.Config.PubSubB\x02\x18\x01\x12@\n\x13result_flow_channel\x18\x0b \x01(\x0b\x32#.test_platform.config.Config.PubSub\x1a\x32\n\x08Swarming\x12\x0e\n\x06server\x18\x01 \x01(\t\x12\x16\n\x0e\x61uth_json_path\x18\x02 \x01(\t\x1a!\n\x07Isolate\x12\x16\n\x0e\x61uth_json_path\x18\x01 \x01(\t\x1a:\n\x0cSkylabWorker\x12\x14\n\x0cluci_project\x18\x01 \x01(\t\x12\x14\n\x0clog_dog_host\x18\x02 \x01(\t\x1a\x9d\x01\n\nVersioning\x12\x61\n\x19\x63ros_test_platform_binary\x18\x01 \x01(\x0b\x32>.test_platform.config.Config.Versioning.CrosTestPlatformBinary\x1a,\n\x16\x43rosTestPlatformBinary\x12\x12\n\ncipd_label\x18\x01 \x01(\t\x1aM\n\x0b\x42uildbucket\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x0f\n\x07project\x18\x02 \x01(\t\x12\x0e\n\x06\x62ucket\x18\x03 \x01(\t\x12\x0f\n\x07\x62uilder\x18\x04 \x01(\t\x1a(\n\x06PubSub\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\r\n\x05topic\x18\x02 \x01(\t\x1a\x8d\x02\n\nTestRunner\x12=\n\x0b\x62uildbucket\x18\x01 \x01(\x0b\x32(.test_platform.config.Config.Buildbucket\x12\x37\n\x06pubsub\x18\x02 \x01(\x0b\x32#.test_platform.config.Config.PubSubB\x02\x18\x01\x12@\n\x13result_flow_channel\x18\x03 \x01(\x0b\x32#.test_platform.config.Config.PubSub\x12\x45\n\x18\x62\x62_status_update_channel\x18\x04 \x01(\x0b\x32#.test_platform.config.Config.PubSubJ\x04\x08\x02\x10\x03J\x04\x08\x05\x10\x06J\x04\x08\x06\x10\x07\x42@Z>go.chromium.org/chromiumos/infra/proto/go/test_platform/configb\x06proto3')
   ,
   dependencies=[test__platform_dot_migration_dot_test__runner_dot_config__pb2.DESCRIPTOR,])
 
@@ -60,8 +60,8 @@ _CONFIG_SWARMING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=564,
-  serialized_end=614,
+  serialized_start=634,
+  serialized_end=684,
 )
 
 _CONFIG_ISOLATE = _descriptor.Descriptor(
@@ -90,8 +90,8 @@ _CONFIG_ISOLATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=616,
-  serialized_end=649,
+  serialized_start=686,
+  serialized_end=719,
 )
 
 _CONFIG_SKYLABWORKER = _descriptor.Descriptor(
@@ -127,8 +127,8 @@ _CONFIG_SKYLABWORKER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=651,
-  serialized_end=709,
+  serialized_start=721,
+  serialized_end=779,
 )
 
 _CONFIG_VERSIONING_CROSTESTPLATFORMBINARY = _descriptor.Descriptor(
@@ -157,8 +157,8 @@ _CONFIG_VERSIONING_CROSTESTPLATFORMBINARY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=825,
-  serialized_end=869,
+  serialized_start=895,
+  serialized_end=939,
 )
 
 _CONFIG_VERSIONING = _descriptor.Descriptor(
@@ -187,8 +187,8 @@ _CONFIG_VERSIONING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=712,
-  serialized_end=869,
+  serialized_start=782,
+  serialized_end=939,
 )
 
 _CONFIG_BUILDBUCKET = _descriptor.Descriptor(
@@ -238,8 +238,8 @@ _CONFIG_BUILDBUCKET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=871,
-  serialized_end=948,
+  serialized_start=941,
+  serialized_end=1018,
 )
 
 _CONFIG_PUBSUB = _descriptor.Descriptor(
@@ -275,8 +275,8 @@ _CONFIG_PUBSUB = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=950,
-  serialized_end=990,
+  serialized_start=1020,
+  serialized_end=1060,
 )
 
 _CONFIG_TESTRUNNER = _descriptor.Descriptor(
@@ -299,6 +299,20 @@ _CONFIG_TESTRUNNER = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
+      serialized_options=_b('\030\001'), file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='result_flow_channel', full_name='test_platform.config.Config.TestRunner.result_flow_channel', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='bb_status_update_channel', full_name='test_platform.config.Config.TestRunner.bb_status_update_channel', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
@@ -312,8 +326,8 @@ _CONFIG_TESTRUNNER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=993,
-  serialized_end=1121,
+  serialized_start=1063,
+  serialized_end=1332,
 )
 
 _CONFIG = _descriptor.Descriptor(
@@ -371,6 +385,13 @@ _CONFIG = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
+      serialized_options=_b('\030\001'), file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='result_flow_channel', full_name='test_platform.config.Config.result_flow_channel', index=7,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
@@ -385,7 +406,7 @@ _CONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=110,
-  serialized_end=1139,
+  serialized_end=1350,
 )
 
 _CONFIG_SWARMING.containing_type = _CONFIG
@@ -398,6 +419,8 @@ _CONFIG_BUILDBUCKET.containing_type = _CONFIG
 _CONFIG_PUBSUB.containing_type = _CONFIG
 _CONFIG_TESTRUNNER.fields_by_name['buildbucket'].message_type = _CONFIG_BUILDBUCKET
 _CONFIG_TESTRUNNER.fields_by_name['pubsub'].message_type = _CONFIG_PUBSUB
+_CONFIG_TESTRUNNER.fields_by_name['result_flow_channel'].message_type = _CONFIG_PUBSUB
+_CONFIG_TESTRUNNER.fields_by_name['bb_status_update_channel'].message_type = _CONFIG_PUBSUB
 _CONFIG_TESTRUNNER.containing_type = _CONFIG
 _CONFIG.fields_by_name['skylab_swarming'].message_type = _CONFIG_SWARMING
 _CONFIG.fields_by_name['skylab_isolate'].message_type = _CONFIG_ISOLATE
@@ -406,6 +429,7 @@ _CONFIG.fields_by_name['versioning'].message_type = _CONFIG_VERSIONING
 _CONFIG.fields_by_name['test_runner'].message_type = _CONFIG_TESTRUNNER
 _CONFIG.fields_by_name['test_runner_migration'].message_type = test__platform_dot_migration_dot_test__runner_dot_config__pb2._CONFIG
 _CONFIG.fields_by_name['pubsub'].message_type = _CONFIG_PUBSUB
+_CONFIG.fields_by_name['result_flow_channel'].message_type = _CONFIG_PUBSUB
 DESCRIPTOR.message_types_by_name['Config'] = _CONFIG
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -482,4 +506,6 @@ _sym_db.RegisterMessage(Config.TestRunner)
 
 
 DESCRIPTOR._options = None
+_CONFIG_TESTRUNNER.fields_by_name['pubsub']._options = None
+_CONFIG.fields_by_name['pubsub']._options = None
 # @@protoc_insertion_point(module_scope)
