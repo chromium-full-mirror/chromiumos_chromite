@@ -49,6 +49,10 @@ FAKE_CIPD_PATH = "/no_cipd_in_unittests"
 # Fake package used when mocking results of `equery belongs`.
 FAKE_BELONGS_PACKAGE = "some-category/some-package-0.1-r2"
 
+# Default overlay reported for `equery list` invocations. A real "public"
+# overlay is used to avoid tripping private-sources checks.
+FAKE_OVERLAY = "amd64-host"
+
 
 @dataclasses.dataclass
 class FakeChrootDiskLayout:
@@ -154,10 +158,16 @@ def set_run_results(
         "create": cros_build_lib.CompletedProcess(),
         "search": cros_build_lib.CompletedProcess(),
     }
-    equery_results = equery or {
-        "belongs": cros_build_lib.CompletedProcess(
-            stdout=f"{FAKE_BELONGS_PACKAGE}\n"
-        )
+    equery = equery or {}
+    equery_results = {
+        "belongs": equery.get(
+            "belongs",
+            cros_build_lib.CompletedProcess(stdout=f"{FAKE_BELONGS_PACKAGE}\n"),
+        ),
+        "list": equery.get(
+            "list",
+            cros_build_lib.CompletedProcess(stdout=f"{FAKE_OVERLAY}\n"),
+        ),
     }
     for cmd, result in cipd_results.items():
         run_mock.AddCmdResult(
@@ -873,7 +883,10 @@ def test_export_multiple_ebuilds(
         equery={
             "belongs": cros_build_lib.CompletedProcess(
                 stdout=f"{FAKE_BELONGS_PACKAGE}\n{fake_belongs_package2}\n"
-            )
+            ),
+            "list": cros_build_lib.CompletedProcess(
+                stdout=f"{FAKE_OVERLAY}\n{FAKE_OVERLAY}\n"
+            ),
         },
     )
     template_proto.export_e2e(writes_files=True)
@@ -896,6 +909,33 @@ def test_export_no_ebuilds(
     with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
         template_proto.export_e2e(writes_files=True)
     assert "Bundle cannot be attributed" in str(error_info.value)
+
+
+def test_private_ebuild_no_prefix(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test error raised if contents match an ebuild from a private overlay."""
+    set_run_results(
+        run_mock,
+        equery={"list": cros_build_lib.CompletedProcess(stdout="chromeos\n")},
+    )
+    with pytest.raises(subtool_lib.ManifestInvalidError) as error_info:
+        template_proto.export_e2e(writes_files=True)
+    assert "Contents may come from private sources" in str(error_info.value)
+
+
+def test_private_ebuild_with_explicit_prefix(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test private contents accepted if explicit cipd_prefix given."""
+    set_run_results(
+        run_mock,
+        equery={"list": cros_build_lib.CompletedProcess(stdout="chromeos\n")},
+    )
+    template_proto.proto.cipd_prefix = "foo_internal"
+    template_proto.export_e2e(writes_files=True)
+    metadata_dict = template_proto.load_upload_metadata_json()
+    assert metadata_dict["cipd_package"]["package"] == "foo_internal/my_subtool"
 
 
 def test_upload_skips_empty_metadata(tmp_path: Path, caplog) -> None:

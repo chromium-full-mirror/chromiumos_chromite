@@ -104,6 +104,19 @@ _DEFAULT_STRIP_PREFIX_REGEX = "^.*/"
 # Default CIPD prefix when unspecified.
 _DEFAULT_CIPD_PREFIX = "chromiumos/infra/tools"
 
+# Portage overlays known to be public. If files came from ebuilds outside of
+# these overlays then no default CIPD prefix will be provided.
+_KNOWN_PUBLIC_OVERLAYS = frozenset(
+    (
+        "amd64-host",
+        "chromiumos",
+        "crossdev",
+        "eclass-overlay",
+        "portage-stable",
+        "toolchains",
+    )
+)
+
 # Digest from hashlib to use for hashing files and accumulating hashes.
 _DIGEST = "sha1"
 
@@ -353,8 +366,8 @@ class Subtool:
         self._validate()
         self._collect_files()
         self._match_ebuilds()
+        self._validate_cipd_prefix()
         self._collect_licenses()
-        # TODO(b/277992359): hashing.
         self.stamp("bundled").touch()
 
     def prepare_upload(self) -> None:
@@ -584,6 +597,10 @@ class Subtool:
     def _match_ebuilds(self) -> None:
         """Match up unmatched paths to the package names that provided them."""
         if self._unmatched_paths:
+            logger.notice(
+                "%s: Attributing contents to ebuilds. This can take a while...",
+                self.package.name,
+            )
             ebuilds = portage_util.FindPackageNamesForFiles(
                 *self._unmatched_paths
             )
@@ -596,6 +613,24 @@ class Subtool:
                 "Bundle cannot be attributed to at least one package.", self
             )
         logger.notice("Contents provided by %s", self.source_packages)
+
+    def _validate_cipd_prefix(self) -> None:
+        """Raise an error if the cipd_prefix is missing, but required."""
+        if self.package.HasField("cipd_prefix"):
+            return
+
+        source_ebuilds = list(self._source_ebuilds)
+        overlays = portage_util.FindOverlaysForPackages(*source_ebuilds)
+        private = set(overlays) - _KNOWN_PUBLIC_OVERLAYS
+        if private:
+            culprit_idx = [i for i, v in enumerate(overlays) if v in private]
+            culprits = [source_ebuilds[i] for i in culprit_idx]
+            raise ManifestInvalidError(
+                "Contents may come from private sources."
+                " An explicit `cipd_prefix` must be provided."
+                f" {culprits} comes from {private}.",
+                self,
+            )
 
     def _collect_licenses(self) -> None:
         """Generates a license file from `source_packages`."""

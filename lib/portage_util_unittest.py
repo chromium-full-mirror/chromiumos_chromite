@@ -2041,6 +2041,51 @@ class FindPackageNamesForFilesTest(cros_test_lib.RunCommandTestCase):
         self.assertEqual(packages, [])
 
 
+class FindOverlaysForPackagesTest(cros_test_lib.RunCommandTestCase):
+    """Tests for FindOverlaysForPackages."""
+
+    list_cmd = [
+        "equery",
+        "--no-color",
+        "--no-pipe",
+        "--quiet",
+        "list",
+        "--format=$repo",
+    ]
+
+    def testFindOverlaysForPackagesSimple(self) -> None:
+        self.rc.AddCmdResult(
+            self.list_cmd + ["qemu", "rust"],
+            stdout="portage-stable\nchromiumos\n",
+        )
+        overlays = portage_util.FindOverlaysForPackages("qemu", "rust")
+        self.assertEqual(overlays, ["portage-stable", "chromiumos"])
+
+    def testFindOverlaysForPackagesNoResult(self) -> None:
+        # Equery list bails from processing further arguments if it hits an
+        # invalid / not-installed package. Error should propagate as there's no
+        # use case for this yet, and we'd need multiple executions to provide a
+        # meaningful result.
+        self.rc.AddCmdResult(self.list_cmd + ["fnord"], returncode=3, stdout="")
+        with self.assertRaises(cros_build_lib.RunCommandError):
+            portage_util.FindOverlaysForPackages("fnord")
+
+    def testFindOverlaysForPackagesNoArgs(self) -> None:
+        # The output of `equery list` is its help if no arg given. Ensure it is
+        # not processed.
+        self.rc.SetDefaultCmdResult(2, "equery\nhelp\ntext\n")
+        overlays = portage_util.FindOverlaysForPackages()
+        self.assertEqual(overlays, [])
+
+    def testFindOverlaysForPackagesInvalidResult(self) -> None:
+        # With a valid returncode, `equery list` should always report a line for
+        # each arg. This is validated principally to ensure any run mocks are
+        # set up correctly.
+        self.rc.AddCmdResult(self.list_cmd + ["fnord"], stdout="")
+        with self.assertRaises(ValueError):
+            portage_util.FindOverlaysForPackages("fnord")
+
+
 _EQUERY_OUTPUT_CORPUS = """
 
 virtual/editor-0:

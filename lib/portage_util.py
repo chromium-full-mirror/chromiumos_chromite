@@ -2236,6 +2236,28 @@ def FindPackageNamesForFiles(*args: str) -> List[package_info.PackageInfo]:
     return [package_info.parse(x) for x in result.stdout.strip().splitlines()]
 
 
+def FindOverlaysForPackages(*args: str) -> List[str]:
+    """Find the corresponding overlays that installed the provided packages.
+
+    Returns:
+        A same-sized list of strings with corresponding overlay repo names.
+    """
+    if not args:
+        return []
+    equery_args = ["--format=$repo"]
+    equery_args += args
+    result = _Equery("list", quiet=True, check=True, *equery_args)
+    overlays = result.stdout.strip().splitlines()
+    # If returncode was 0, output lines should match arg count. But not if it's
+    # been mocked incorrectly.
+    if len(args) != len(overlays):
+        raise ValueError(
+            "Incorrect line count in `equery list` output."
+            f" Args={args}, stdout='{result.stdout}'"
+        )
+    return overlays
+
+
 def FindEbuildForBoardPackage(
     pkg_str: str, board: str, buildroot: BuildrootType = constants.SOURCE_ROOT
 ):
