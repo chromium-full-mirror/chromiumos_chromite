@@ -671,6 +671,8 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 [
                     "--chroot",
                     str(self.chroot.path),
+                    "--out_dir",
+                    str(self.chroot.out_path),
                     "--cache_dir",
                     str(self.chroot.cache_dir),
                 ]
