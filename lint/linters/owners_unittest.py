@@ -19,6 +19,9 @@ GOOD_DATA = (
     # Shared owners includes.
     "include chromiumos/owners:v1:/OWNERS.foo\n"
     "include chromeos/owners:v1:/OWNERS.foo\n",
+    # LAST_RESORT_SUGGESTION for individual users.
+    "v@e.x #{LAST_RESORT_SUGGESTION}\n",
+    "per-file OWNERS.arc = v@e.x #{LAST_RESORT_SUGGESTION}\n",
 )
 
 
@@ -55,6 +58,9 @@ BAD_DATA = (
     "include chromeos/owners:v1:/foo/OWNERS\n",
     # Bots listed directly.
     "3su6n15k.default@developer.gserviceaccount.com\n",
+    # LAST_RESORT_SUGGESTION on include line or file:// line.
+    "include chromeos/owners:v1:/OWNERS.foo #{LAST_RESORT_SUGGESTION}\n",
+    "per-file OWNERS.arc = file://OWNERS.foo #{LAST_RESORT_SUGGESTION}\n",
 )
 
 

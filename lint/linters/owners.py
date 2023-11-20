@@ -29,6 +29,12 @@ _KNOWN_BOTS = {
     "chromeos-ci-release@chromeos-bot.iam.gserviceaccount.com",
 }
 
+# file:// string
+FILE_PREFIX = "file://"
+
+# Last resort suggestion string.
+LAST_RESORT_SUGGESTION = "#{LAST_RESORT_SUGGESTION}"
+
 
 def lint_data(path: Union[str, os.PathLike], data: str) -> bool:
     """Run basic checks on |data|.
@@ -108,6 +114,26 @@ def lint_data(path: Union[str, os.PathLike], data: str) -> bool:
                         i,
                         line,
                     )
+
+            if lstrip.endswith(LAST_RESORT_SUGGESTION):
+                ret = False
+                logging.error(
+                    "%s:%i: include lines do not support "
+                    'LAST_RESORT_SUGGESTION: "%s"',
+                    path,
+                    i,
+                    line,
+                )
+
+        if FILE_PREFIX in lstrip and lstrip.endswith(LAST_RESORT_SUGGESTION):
+            ret = False
+            logging.error(
+                "%s:%i: file:// lines do not support "
+                'LAST_RESORT_SUGGESTION: "%s"',
+                path,
+                i,
+                line,
+            )
 
     return ret
 

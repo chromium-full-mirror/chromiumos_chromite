@@ -1,5 +1,5 @@
 include /OWNERS.build
-include /OWNERS.bazel #{LAST_RESORT_SUGGESTION}
+include /OWNERS.bazel
 
 # Add individuals outside Build who want OWNERS privileges.
 # Keep sorted.  The LAST_RESORT_SUGGESTION should be applied to each
