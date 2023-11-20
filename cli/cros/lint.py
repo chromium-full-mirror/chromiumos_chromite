@@ -130,20 +130,14 @@ class EncodingChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable-next=multiple-statements
-    class _MessageR9150:
-        pass
-
     name = "encoding_checker"
-    priority = -1
     msgs = {
         "R9150": (
             "Missing explicit encoding='utf-8'",
-            ("encoding-missing"),
-            _MessageR9150,
+            "encoding-missing",
+            "Used when relying on default encoding.",
         ),
     }
-    options = ()
 
     def _extract_mode_encoding(
         self,
@@ -255,20 +249,14 @@ class MonkeypatchChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable-next=multiple-statements
-    class _MessageR9160:
-        pass
-
     name = "monkeypatch_checker"
-    priority = -1
     msgs = {
         "R9160": (
             "Do not monkeypatch cros_build_lib.%(func)s; use run_mock instead",
             "monkeypatch-cros-build-lib-run",
-            _MessageR9160,
+            "Used when run funcs are incorrectly mocked.",
         ),
     }
-    options = ()
 
     def visit_call(self, node: astroid.Call) -> None:
         """Check |node| call."""
@@ -330,61 +318,6 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable-next=multiple-statements
-    class _MessageCP002:
-        pass
-
-    class _MessageCP003:
-        pass
-
-    class _MessageCP004:
-        pass
-
-    class _MessageCP005:
-        pass
-
-    class _MessageCP006:
-        pass
-
-    class _MessageCP007:
-        pass
-
-    class _MessageCP008:
-        pass
-
-    class _MessageCP009:
-        pass
-
-    class _MessageCP010:
-        pass
-
-    class _MessageCP011:
-        pass
-
-    class _MessageCP012:
-        pass
-
-    class _MessageCP013:
-        pass
-
-    class _MessageCP014:
-        pass
-
-    class _MessageCP015:
-        pass
-
-    class _MessageCP016:
-        pass
-
-    class _MessageCP017:
-        pass
-
-    class _MessageCP018:
-        pass
-
-    class _MessageCP019:
-        pass
-
     # All the sections we recognize (and in this order).
     VALID_FUNC_SECTIONS = ("Examples", "Args", "Returns", "Yields", "Raises")
     VALID_CLASS_SECTIONS = ("Examples", "Attributes")
@@ -392,110 +325,107 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     # This is the section name in the pylintrc file.
     name = "doc_string_checker"
-    # Any pylintrc config options we accept.
-    options = ()
-    priority = -1
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
         "C9003": (
             "Trailing whitespace in docstring: " + MSG_ARGS,
-            ("docstring-trailing-whitespace"),
-            _MessageCP003,
+            "docstring-trailing-whitespace",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9004": (
             "Leading whitespace in docstring (excess or missing)"
             ": " + MSG_ARGS,
-            ("docstring-leading-whitespace"),
-            _MessageCP004,
+            "docstring-leading-whitespace",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9005": (
             "Closing triple quotes should not be cuddled",
-            ("docstring-cuddled-quotes"),
-            _MessageCP005,
+            "docstring-cuddled-quotes",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9006": (
             "Section names should be preceded by one blank line"
             ": " + MSG_ARGS,
-            ("docstring-section-newline"),
-            _MessageCP006,
+            "docstring-section-newline",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9007": (
             'Section names should be "%(section)s": ' + MSG_ARGS,
-            ("docstring-section-name"),
-            _MessageCP007,
+            "docstring-section-name",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9008": (
             "Sections should be in the order: %(sections)s",
-            ("docstring-section-order"),
-            _MessageCP008,
+            "docstring-section-order",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9009": (
             "First line should be a short summary",
-            ("docstring-first-line"),
-            _MessageCP009,
+            "docstring-first-line",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9010": (
             "Not all args mentioned in doc string: |%(arg)s|",
-            ("docstring-missing-args"),
-            _MessageCP010,
+            "docstring-missing-args",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9011": (
             "Variable args/keywords are named *args/**kwargs, not %(arg)s",
-            ("docstring-misnamed-args"),
-            _MessageCP011,
+            "docstring-misnamed-args",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9012": (
             "Incorrectly formatted Args section: %(arg)s",
-            ("docstring-arg-spacing"),
-            _MessageCP012,
+            "docstring-arg-spacing",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9013": (
             "Too many blank lines in a row: " + MSG_ARGS,
-            ("docstring-too-many-newlines"),
-            _MessageCP013,
+            "docstring-too-many-newlines",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9014": (
             "Second line should be blank",
-            ("docstring-second-line-blank"),
-            _MessageCP014,
+            "docstring-second-line-blank",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9015": (
             "Section indentation should be %(want_indent)s spaces, not "
             "%(curr_indent)s spaces: " + MSG_ARGS,
-            ("docstring-section-indent"),
-            _MessageCP015,
+            "docstring-section-indent",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9016": (
             "Closing triple quotes should be indented with %(want_indent)s "
             "spaces, not %(curr_indent)s",
-            ("docstring-trailing-quotes"),
-            _MessageCP016,
+            "docstring-trailing-quotes",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9017": (
             "Section %(section)s shows up more than once; previous at "
             "%(line_old)i",
-            ("docstring-duplicate-section"),
-            _MessageCP017,
+            "docstring-duplicate-section",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9018": (
             "Docstrings must start with exactly three quotes",
-            ("docstring-extra-quotes"),
-            _MessageCP018,
+            "docstring-extra-quotes",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9019": (
             "Use typing module instead of docstring annotations",
-            ("docstring-deprecated-annotations"),
-            _MessageCP019,
+            "docstring-deprecated-annotations",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9020": (
             "Duplicate arg documentation found: |%(arg)s|",
-            ("docstring-duplicate-argument"),
-            _MessageCP019,
+            "docstring-duplicate-argument",
+            "Used when docstrings are incorrectly formatted.",
         ),
         "C9021": (
             "Unknown arg documentation found: |%(arg)s|",
-            ("docstring-unknown-argument"),
-            _MessageCP019,
+            "docstring-unknown-argument",
+            "Used when docstrings are incorrectly formatted.",
         ),
     }
 
@@ -1018,62 +948,41 @@ class SourceChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable-next=multiple-statements
-    class _MessageR9200:
-        pass
-
-    class _MessageR9201:
-        pass
-
-    class _MessageR9202:
-        pass
-
-    class _MessageR9203:
-        pass
-
-    class _MessageR9205:
-        pass
-
-    class _MessageR9206:
-        pass
-
     name = "source_checker"
-    priority = -1
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
         "R9200": (
             'Shebang should be "#!/usr/bin/env python3" or '
             '"#!/usr/bin/env python"',
-            ("bad-shebang"),
-            _MessageR9200,
+            "bad-shebang",
+            "Used when the shebang is incorrect.",
         ),
         "R9201": (
             "Shebang is missing, but file is executable (chmod -x to fix)",
-            ("missing-shebang"),
-            _MessageR9201,
+            "missing-shebang",
+            "Used when the shebang is missing.",
         ),
         "R9202": (
             "Shebang is set, but file is not executable (chmod +x to fix)",
-            ("spurious-shebang"),
-            _MessageR9202,
+            "spurious-shebang",
+            "Used when the shebang is used on non-executable files.",
         ),
         "R9203": (
             "Unittest not named xxx_unittest.py",
-            ("unittest-misnamed"),
-            _MessageR9203,
+            "unittest-misnamed",
+            "Used when unittest files are misnamed.",
         ),
         "R9205": (
             "Omit the coding cookie (PEP 263) (Python 3 defaults to utf-8).",
-            ("omit-coding-cookie"),
-            _MessageR9205,
+            "omit-coding-cookie",
+            "Used when Python 2 logic is used.",
         ),
         "R9206": (
             "Use parens for long line wrapping, not backslashes",
-            ("parens-not-backslashes"),
-            _MessageR9206,
+            "parens-not-backslashes",
+            "Used when backslashes are found.",
         ),
     }
-    options = ()
 
     # Taken from PEP-263.
     _ENCODING_RE = re.compile(
@@ -1166,21 +1075,15 @@ class CommentChecker(pylint.checkers.BaseTokenChecker):
 
     __implements__ = pylint.interfaces.ITokenChecker
 
-    # pylint: disable-next=multiple-statements
-    class _MessageR9250:
-        pass
-
     name = "comment_checker"
-    priority = -1
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
         "R9250": (
             "One space needed at start of comment: %(comment)s",
-            ("comment-missing-leading-space"),
-            _MessageR9250,
+            "comment-missing-leading-space",
+            "Used when comment style is incorrect.",
         ),
     }
-    options = ()
 
     def _visit_comment(self, lineno, comment):
         """Process |comment| at |lineno|."""
@@ -1208,21 +1111,15 @@ class FormatStringChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable-next=multiple-statements
-    class _MessageR9100:
-        pass
-
     name = "format_string_checker"
-    priority = -1
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
         "R9100": (
             "Use f-strings or % interpolation, never .format()",
-            ("banned-string-format-function"),
-            _MessageR9100,
+            "banned-string-format-function",
+            "Used when incorrect string formatting is found.",
         ),
     }
-    options = ()
 
     def visit_const(self, node: astroid.nodes.Const) -> None:
         """Process a constant string node."""
@@ -1246,19 +1143,13 @@ class ModuleOnlyImportsChecker(pylint.checkers.BaseChecker):
 
     __implements__ = pylint.interfaces.IAstroidChecker
 
-    # pylint: disable-next=multiple-statements
-    class _MessageR9170:
-        pass
-
-    priority = -1
     msgs = {
         "R9170": (
             '"%(name)s" shouldn\'t be imported from %(module)s directly.',
-            ("import-modules-only"),
-            _MessageR9170,
+            "import-modules-only",
+            "Used when modules are not imported correctly.",
         ),
     }
-    options = ()
     EXCLUSIONS = frozenset(
         {
             "typing",
