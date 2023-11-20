@@ -559,7 +559,13 @@ class DocStringChecker(pylint.checkers.BaseChecker):
         if len(lines) > 1:
             indent = self._docstring_indent(node)
 
-            if lines[-1].strip() != "":
+            # One-liners should always be one-liners.
+            if len(lines) == 2:
+                margs = {"offset": 1, "line": lines[1]}
+                self.add_message(
+                    "C9003", node=node, line=node.fromlineno, args=margs
+                )
+            elif lines[-1].strip() != "":
                 self.add_message("C9005", node=node, line=node.fromlineno)
             elif lines[-1] != " " * indent:
                 # The -1 line holds the """ itself and that should be indented.

@@ -2,8 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Module containing methods and classes to interact with a devserver instance.
-"""
+"""Methods and classes to interact with a devserver instance."""
 
 import http.client
 import logging

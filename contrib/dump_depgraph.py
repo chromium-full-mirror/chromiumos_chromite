@@ -2,8 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Dump the graph of a board or the host SDK, including source file mapping.
-"""
+"""Dump a sysroot depgraph, including source file mapping."""
 
 import logging
 import sys

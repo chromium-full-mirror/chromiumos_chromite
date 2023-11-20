@@ -250,6 +250,8 @@ class DocStringCheckerTest(CheckerTestCase):
 
       Multiline tickles differently.
       """,
+        """One-liner is not one-line.
+""",
         """First line is OK, but too much trailing whitespace
 
       """,
