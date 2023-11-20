@@ -1180,21 +1180,23 @@ def _BazelBuild(
                 "chromiumos/chromeos-base/chromeos-chrome:"
                 '", '
                 'kind("ebuild", '
-                "deps(@portage//chromeos-base/chromeos-chrome)"
+                "deps(@portage//target/chromeos-base/chromeos-chrome)"
                 ")"
                 ") "
                 "in "
-                'kind("ebuild",deps(@portage//virtual/target-os)) '
+                'kind("ebuild",deps(@portage//target/virtual/target-os)) '
                 "union "
-                'kind("ebuild",deps(@portage//virtual/target-os-dev)) '
+                'kind("ebuild",deps(@portage//target/virtual/target-os-dev)) '
                 "union "
-                'kind("ebuild",deps(@portage//virtual/target-os-test)) '
+                'kind("ebuild",deps(@portage//target/virtual/target-os-test)) '
                 "except "
-                "rdeps(@portage//virtual/target-os, $chrome_target) "
+                "rdeps(@portage//target/virtual/target-os, $chrome_target) "
                 "except "
-                "rdeps(@portage//virtual/target-os-dev, $chrome_target) "
+                "rdeps(@portage//target/virtual/target-os-dev, $chrome_target) "
                 "except "
-                "rdeps(@portage//virtual/target-os-test, $chrome_target) "
+                "rdeps("
+                "@portage//target/virtual/target-os-test, $chrome_target"
+                ") "
                 "except "
                 "$chrome_target",
             ],
