@@ -1201,7 +1201,7 @@ def _BazelBuild(
                 "$chrome_target",
             ],
             extra_env=extra_env,
-            capture_output=True,
+            stdout=True,
             encoding="utf-8",
         )
 
