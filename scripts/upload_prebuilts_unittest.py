@@ -324,7 +324,6 @@ class TestUpdateRemoteSdkLatestFile(cros_test_lib.MockTestCase):
             "LoadKeyValueStore",
             return_value={
                 "LATEST_SDK": "1000",
-                "LATEST_SDK_UPREV_TARGET": "2000",
             },
         )
         self._uploader = prebuilt.PrebuiltUploader(
@@ -346,32 +345,14 @@ class TestUpdateRemoteSdkLatestFile(cros_test_lib.MockTestCase):
     def testNoChanges(self):
         self._uploader._UpdateRemoteSdkLatestFile()
         expected = prebuilt.PrebuiltUploader._CreateRemoteSdkLatestFileContents(
-            "1000", "2000"
+            "1000"
         )
         self._write_file_patch.assert_called_with(mock.ANY, expected)
 
     def testChangeLatestSdk(self):
         self._uploader._UpdateRemoteSdkLatestFile(latest_sdk="3000")
         expected = prebuilt.PrebuiltUploader._CreateRemoteSdkLatestFileContents(
-            "3000", "2000"
-        )
-        self._write_file_patch.assert_called_with(mock.ANY, expected)
-
-    def testChangeLatestUprevTarget(self):
-        self._uploader._UpdateRemoteSdkLatestFile(
-            latest_sdk_uprev_target="4000"
-        )
-        expected = prebuilt.PrebuiltUploader._CreateRemoteSdkLatestFileContents(
-            "1000", "4000"
-        )
-        self._write_file_patch.assert_called_with(mock.ANY, expected)
-
-    def testChangeBoth(self):
-        self._uploader._UpdateRemoteSdkLatestFile(
-            latest_sdk="3000", latest_sdk_uprev_target="4000"
-        )
-        expected = prebuilt.PrebuiltUploader._CreateRemoteSdkLatestFileContents(
-            "3000", "4000"
+            "3000"
         )
         self._write_file_patch.assert_called_with(mock.ANY, expected)
 
@@ -686,7 +667,6 @@ class TestSdk(cros_test_lib.MockTestCase):
             "LoadKeyValueStore",
             return_value={
                 "LATEST_SDK": "1000",
-                "LATEST_SDK_UPREV_TARGET": "2000",
             },
         )
         self.write_file_mock = self.PatchObject(osutils, "WriteFile")
@@ -767,11 +747,7 @@ class TestSdk(cros_test_lib.MockTestCase):
 
         expected_latest_file_contents = f"""\
 # The most recent SDK that is tested and ready for use.
-LATEST_SDK="{ver}"
-
-# The most recently built version. New uprev attempts should target this.
-# Warning: This version may not be tested yet.
-LATEST_SDK_UPREV_TARGET=\"2000\""""
+LATEST_SDK=\"{ver}\""""
         self.write_file_mock.assert_any_call(
             mock.ANY, expected_latest_file_contents
         )

@@ -535,7 +535,6 @@ class PrebuiltUploader:
     def _UpdateRemoteSdkLatestFile(
         self,
         latest_sdk: Optional[str] = None,
-        latest_sdk_uprev_target: Optional[str] = None,
     ) -> None:
         """Update the remote SDK pointer file on GS://.
 
@@ -545,9 +544,6 @@ class PrebuiltUploader:
         Args:
             latest_sdk: The latest SDK that is tested and ready to be used. If
                 None, then the existing value on GS:// will be retained.
-            latest_sdk_uprev_target: The latest SDK that has been built, which
-                new PUprs can try to test and uprev. If None, then the existing
-                value on GS:// will be retained.
         """
         # This would be a noop in dryrun mode -- or worse, it would fail to
         # parse the remote key-value store after pretending to download it.
@@ -556,11 +552,6 @@ class PrebuiltUploader:
             logging.debug("Not updating remote SDK latest file in dryrun mode.")
             if latest_sdk is not None:
                 logging.debug("Would have set LATEST_SDK=%s", latest_sdk)
-            if latest_sdk_uprev_target is not None:
-                logging.debug(
-                    "Would have set LATEST_SDK_UPREV_TARGET=%s",
-                    latest_sdk_uprev_target,
-                )
             return
 
         # Get existing values from the remote file.
@@ -571,8 +562,6 @@ class PrebuiltUploader:
             remote_pointerfile, acl=self._acl
         )
 
-        # TODO(b/274196697): When LATEST_SDK_UPREV_TARGET is more reliably found
-        # in the remote latest file, require that key too.
         for required_key in ("LATEST_SDK",):
             if required_key not in existing_keyval:
                 raise ValueError(
@@ -583,30 +572,20 @@ class PrebuiltUploader:
         # If any values were not specified in args, use the existing values.
         if latest_sdk is None:
             latest_sdk = existing_keyval["LATEST_SDK"]
-        if latest_sdk_uprev_target is None:
-            latest_sdk_uprev_target = existing_keyval.get(
-                "LATEST_SDK_UPREV_TARGET", None
-            )
 
         # Write a new local latest file with target values, and upload.
-        new_file_contents = self._CreateRemoteSdkLatestFileContents(
-            latest_sdk, latest_sdk_uprev_target
-        )
+        new_file_contents = self._CreateRemoteSdkLatestFileContents(latest_sdk)
         with osutils.TempDir() as tmpdir:
             local_pointerfile = os.path.join(tmpdir, "cros-sdk-latest.conf")
             osutils.WriteFile(local_pointerfile, new_file_contents)
             self._Upload(local_pointerfile, remote_pointerfile)
 
     @staticmethod
-    def _CreateRemoteSdkLatestFileContents(
-        latest_sdk: str, latest_sdk_uprev_target: str
-    ) -> str:
+    def _CreateRemoteSdkLatestFileContents(latest_sdk: str) -> str:
         """Generate file contents for a remote SDK file.
 
         Args:
             latest_sdk: The latest SDK that is tested and ready to be used.
-            latest_sdk_uprev_target: The latest SDK that has been built, which
-                new PUprs can try to test and uprev.
 
         Returns:
             The contents of a remote SDK latest file containing the given args
@@ -614,11 +593,7 @@ class PrebuiltUploader:
         """
         return f"""\
 # The most recent SDK that is tested and ready for use.
-LATEST_SDK=\"{latest_sdk}\"
-
-# The most recently built version. New uprev attempts should target this.
-# Warning: This version may not be tested yet.
-LATEST_SDK_UPREV_TARGET=\"{latest_sdk_uprev_target}\""""
+LATEST_SDK=\"{latest_sdk}\""""
 
     def _GetTargets(self):
         """Retuns the list of targets to use."""
