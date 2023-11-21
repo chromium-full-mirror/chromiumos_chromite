@@ -1215,6 +1215,9 @@ def _BazelBuild(
                 BAZEL_COMMAND,
                 "build",
                 "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+                "--execution_log_binary_file="
+                + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
+                "--execution_log_sort=false",
                 "--keep_going",
             ]
             + targets,
