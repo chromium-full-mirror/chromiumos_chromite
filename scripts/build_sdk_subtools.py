@@ -260,9 +260,7 @@ def build_sdk_subtools(opts: Options, argv: List[str]) -> int:
         # Ensure `cros_sdk` can check for a lock file on first use.
         osutils.SafeMakedirs(subtools_chroot.parent)
 
-        # Pass "--skip-chroot-upgrade": the SDK should initially be used
-        # "as-is", but later steps may upgrade packages in the subtools deptree.
-        cros_sdk_args = ["--create", "--skip-chroot-upgrade"]
+        cros_sdk_args = ["--create"]
         if opts.clean:
             # Subtools SDKs go under out/build, so if --no-delete-out-dir isn't
             # used, cros_sdk will try to delete the SDK it's also making.

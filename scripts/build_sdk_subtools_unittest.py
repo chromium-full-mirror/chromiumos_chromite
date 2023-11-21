@@ -85,7 +85,6 @@ def test_cros_sdk(run_mock, outside_chroot) -> None:
         "--chroot",
         SDK_CHROOT_ARG,
         "--create",
-        "--skip-chroot-upgrade",
     ]
 
 
