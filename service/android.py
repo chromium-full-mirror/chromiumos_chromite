@@ -676,33 +676,30 @@ def FindDataCollectorArtifacts(
                         (f"{arch}_{build_type}_{bucket}").upper()
                     ] = f"{root_path}_{version_reference}.tar"
 
-    _UREADAHEAD_BUCKETS = {"ureadahead_pack_host", "ureadahead_pack"}
+    _UREADAHEAD_BUCKET = "ureadahead_pack"
     _BINARY_TRANSLATION_TYPES = ("houdini", "ndk", "native")
     # Special format for _UREADAHEAD_BUCKETS.
-    for bucket in _UREADAHEAD_BUCKETS:
-        for arch in _ARCHES:
-            for build_type in _BUILD_TYPES:
-                for binary_translation_type in _BINARY_TRANSLATION_TYPES:
-                    if (
-                        "x86" in arch and binary_translation_type == "native"
-                    ) or (
-                        "arm" in arch and binary_translation_type != "native"
-                    ):
-                        # Ignore invalid format combinations.
-                        continue
+    for arch in _ARCHES:
+        for build_type in _BUILD_TYPES:
+            for binary_translation_type in _BINARY_TRANSLATION_TYPES:
+                if ("x86" in arch and binary_translation_type == "native") or (
+                    "arm" in arch and binary_translation_type != "native"
+                ):
+                    # Ignore invalid format combinations.
+                    continue
 
-                    root_path = (
-                        f"{runtime_artifacts_bucket_url}/{android_package}/"
-                        f"{bucket}_{arch}_{binary_translation_type}_"
-                        f"{build_type}"
-                    )
-                    if gs_context.Exists(f"{root_path}_{android_version}.tar"):
-                        variables[
-                            (
-                                f"{arch}_{binary_translation_type}_"
-                                f"{build_type}_{bucket}"
-                            ).upper()
-                        ] = f"{root_path}_{version_reference}.tar"
+                root_path = (
+                    f"{runtime_artifacts_bucket_url}/{android_package}/"
+                    f"{_UREADAHEAD_BUCKET}_{arch}_{binary_translation_type}_"
+                    f"{build_type}"
+                )
+                if gs_context.Exists(f"{root_path}_{android_version}.tar"):
+                    variables[
+                        (
+                            f"{arch}_{binary_translation_type}_"
+                            f"{build_type}_{_UREADAHEAD_BUCKET}"
+                        ).upper()
+                    ] = f"{root_path}_{version_reference}.tar"
 
     return variables
 
