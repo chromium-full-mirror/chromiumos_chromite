@@ -662,15 +662,9 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Test case for SdkService/Uprev() endpoint."""
 
     _binhost_gs_bucket = "gs://chromiumos-prebuilts/"
-    _latest_uprev_target_version = "2023.02.19.112358"
 
     def setUp(self):
         """Set up the test case."""
-        self.PatchObject(
-            sdk_service,
-            "get_latest_uprev_target_version",
-            return_value=self._latest_uprev_target_version,
-        )
         self._uprev_patch = self.PatchObject(
             sdk_service,
             "uprev_sdk_and_prebuilts",
@@ -724,12 +718,8 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             toolchain_tarball_template=toolchain_tarball_template
         )
         response = self.NewResponse()
-        sdk_controller.Uprev(request, response, self.api_config)
-        self._uprev_patch.assert_called_with(
-            binhost_gs_bucket=self._binhost_gs_bucket,
-            sdk_version=self._latest_uprev_target_version,
-            toolchain_tarball_template=toolchain_tarball_template,
-        )
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            sdk_controller.Uprev(request, response, self.api_config)
 
     def testWithoutToolchainTarballTemplate(self):
         """Test the endpoint with `toolchain_tarball_template` not specified."""

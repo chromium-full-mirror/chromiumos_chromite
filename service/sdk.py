@@ -491,11 +491,6 @@ def get_latest_version() -> str:
     return _get_remote_latest_file_value("LATEST_SDK")
 
 
-def get_latest_uprev_target_version() -> str:
-    """Return the latest-built target version for SDK uprevs form GS://."""
-    return _get_remote_latest_file_value("LATEST_SDK_UPREV_TARGET")
-
-
 def _uprev_local_sdk_version_file(
     new_sdk_version: str,
     new_toolchain_tarball_template: str,
