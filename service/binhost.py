@@ -419,8 +419,7 @@ def GetHostBinhosts() -> List[Optional[str]]:
     # Currently, only amd64-generic-snapshot updates the contents of the
     # BINHOST.conf file.
     host_binhost_conf = (
-        constants.SOURCE_ROOT
-        / constants.PUBLIC_BINHOST_CONF_DIR
+        Path(constants.PUBLIC_BINHOST_CONF_DIR)
         / "host"
         / "amd64-generic-POSTSUBMIT_BINHOST.conf"
     )
