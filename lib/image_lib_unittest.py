@@ -171,6 +171,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
                                 os.path.join(
                                     lb.destination, "dir-%s" % part.name
                                 ),
+                                sudo=True,
                             )
                         )
                         break

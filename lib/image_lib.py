@@ -494,7 +494,9 @@ class LoopbackPartitions:
         )
         self._mounted.add(part)
 
-        osutils.SafeSymlink(os.path.basename(dest_number), dest_label)
+        osutils.SafeSymlink(
+            os.path.basename(dest_number), dest_label, sudo=True
+        )
         self._symlinks.add(dest_label)
 
         return dest_number
@@ -534,7 +536,7 @@ class LoopbackPartitions:
 
             # We still need to remove some directories, since _Unmount did not.
             for link in self._symlinks:
-                osutils.SafeUnlink(link)
+                osutils.SafeUnlink(link, sudo=True)
             self._symlinks = set()
             for path in self._to_be_rmdir:
                 retry_util.RetryException(
