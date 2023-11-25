@@ -14,6 +14,8 @@
     brask-factory-brya-15231.B-factorybranch
     brya-factory-brya-15231.B-factorybranch
     constitution-factory-brya-15231.B-factorybranch
+  factory-brya-15684.B-buildspec
+    brya-factory-brya-15684.B-factorybranch
   factory-cherry-14455.B-buildspec
     cherry-factory-cherry-14455.B-factorybranch
   factory-coral-10122.B-buildspec
@@ -128,6 +130,7 @@
   brya-factory-brya-14517.B-factorybranch-tryjob
   brya-factory-brya-14909.124.B-factorybranch-tryjob
   brya-factory-brya-15231.B-factorybranch-tryjob
+  brya-factory-brya-15684.B-factorybranch-tryjob
   cherry-factory-cherry-14455.B-factorybranch-tryjob
   config-updater-tryjob
   constitution-factory-brya-15231.B-factorybranch-tryjob
@@ -158,6 +161,8 @@
     brask-factory-brya-15231.B-factorybranch-tryjob
     brya-factory-brya-15231.B-factorybranch-tryjob
     constitution-factory-brya-15231.B-factorybranch-tryjob
+  factory-brya-15684.B-buildspec-tryjob
+    brya-factory-brya-15684.B-factorybranch-tryjob
   factory-cherry-14455.B-buildspec-tryjob
     cherry-factory-cherry-14455.B-factorybranch-tryjob
   factory-coral-10122.B-buildspec-tryjob
