@@ -117,7 +117,6 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 replace=True,
                 bootstrap=True,
                 sdk_version="foo",
-                skip_chroot_upgrade=True,
                 ccache_disable=True,
             ).GetEntryArgList(),
         )
@@ -145,7 +144,6 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 replace=False,
                 bootstrap=False,
                 sdk_version="foo",
-                skip_chroot_upgrade=True,
             ),
         )
 
@@ -159,7 +157,6 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 str(constants.DEFAULT_OUT_PATH),
                 "--read-only",
                 "--read-only-sticky",
-                "--chroot-upgrade",
             ],
             self._GetArgsList(replace=False, bootstrap=True),
         )

@@ -42,7 +42,6 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         cache_path=None,
         chroot_path=None,
         sdk_version=None,
-        skip_chroot_upgrade=False,
         ccache_disable=False,
     ):
         """Helper to build a create request message."""
@@ -56,11 +55,10 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             request.chroot.path = chroot_path
         if sdk_version:
             request.sdk_version = sdk_version
-        if skip_chroot_upgrade:
-            request.skip_chroot_upgrade = skip_chroot_upgrade
         if ccache_disable:
             request.ccache_disable = ccache_disable
 
+        request.skip_chroot_upgrade = True
         return request
 
     def testValidateOnly(self):
@@ -111,7 +109,6 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             bootstrap=False,
             chroot=mock.ANY,
             sdk_version=mock.ANY,
-            skip_chroot_upgrade=mock.ANY,
             ccache_disable=mock.ANY,
         )
 
@@ -126,7 +123,6 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             no_replace=True,
             bootstrap=True,
             sdk_version="foo",
-            skip_chroot_upgrade=True,
             ccache_disable=True,
         )
         sdk_controller.Create(request, self.response, self.api_config)
@@ -135,7 +131,6 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             bootstrap=True,
             chroot=mock.ANY,
             sdk_version="foo",
-            skip_chroot_upgrade=True,
             ccache_disable=True,
         )
 

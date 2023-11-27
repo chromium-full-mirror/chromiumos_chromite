@@ -69,7 +69,6 @@ class CreateArguments:
         bootstrap: bool = False,
         chroot: Optional["chroot_lib.Chroot"] = None,
         sdk_version: Optional[str] = None,
-        skip_chroot_upgrade: Optional[bool] = False,
         ccache_disable: bool = False,
     ):
         """Create arguments init.
@@ -80,7 +79,6 @@ class CreateArguments:
             chroot: chroot_lib.Chroot object representing the paths for the
                 chroot to create.
             sdk_version: Specific SDK version to use, e.g. 2022.01.20.073008.
-            skip_chroot_upgrade: If false, pass --chroot-upgrade to cros_sdk.
             ccache_disable: Whether ccache should be disabled after chroot
                 creation.
         """
@@ -88,7 +86,6 @@ class CreateArguments:
         self.bootstrap = bootstrap
         self.chroot = chroot or chroot_lib.Chroot()
         self.sdk_version = sdk_version
-        self.skip_chroot_upgrade = skip_chroot_upgrade
         self.ccache_disable = ccache_disable
 
     def GetEntryArgList(self) -> List[str]:
@@ -110,8 +107,6 @@ class CreateArguments:
         if self.chroot.cache_dir:
             args.extend(["--cache-dir", self.chroot.cache_dir])
 
-        if not self.skip_chroot_upgrade:
-            args.append("--chroot-upgrade")
         return args
 
     def GetArgList(self) -> List[str]:

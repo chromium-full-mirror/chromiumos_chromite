@@ -102,6 +102,8 @@ def CreateManifestFromSdk(
 
 @faux.success(_ChrootVersionResponse)
 @faux.empty_error
+@validate.require("skip_chroot_upgrade")
+@validate.validation_complete
 def Create(
     input_proto: "sdk_pb2.CreateRequest",
     output_proto: "sdk_pb2.CreateResponse",
@@ -122,7 +124,6 @@ def Create(
     chroot = controller_util.ParseChroot(input_proto.chroot)
 
     sdk_version = input_proto.sdk_version
-    skip_chroot_upgrade = input_proto.skip_chroot_upgrade
     ccache_disable = input_proto.ccache_disable
 
     if config.validate_only:
@@ -133,7 +134,6 @@ def Create(
         bootstrap=bootstrap,
         chroot=chroot,
         sdk_version=sdk_version,
-        skip_chroot_upgrade=skip_chroot_upgrade,
         ccache_disable=ccache_disable,
     )
 
