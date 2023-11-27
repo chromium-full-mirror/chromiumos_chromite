@@ -370,9 +370,14 @@ _COPY_PATHS_COMMON = (
         "nacl_helper_bootstrap",
         exe=True,
         strip=False,
+        optional=True,
         cond=C.GnSetTo(_ENABLE_NACL, True),
     ),
-    Path("nacl_irt_*.nexe", cond=C.GnSetTo(_ENABLE_NACL, True)),
+    Path(
+        "nacl_irt_*.nexe",
+        optional=True,
+        cond=C.GnSetTo(_ENABLE_NACL, True),
+    ),
     Path(
         "nacl_helper",
         exe=True,
