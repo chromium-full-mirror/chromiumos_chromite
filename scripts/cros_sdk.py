@@ -484,12 +484,6 @@ def _CreateParser(
         help="Mount chrome into this path inside SDK chroot",
     )
     parser.add_argument(
-        "--nousepkg",
-        action="store_true",
-        default=False,
-        help="Do not use binary packages when creating a chroot.",
-    )
-    parser.add_argument(
         "-u",
         "--url",
         dest="sdk_url",
@@ -519,19 +513,6 @@ def _CreateParser(
         "--reproxy-cfg-file",
         type="file_exists",
         help="Config file for re-client's reproxy used for remoteexec.",
-    )
-    parser.add_bool_argument(
-        "--chroot-upgrade",
-        default=False,
-        enabled_desc="Upgrade the chroot during SDK creation (deprecated).",
-        disabled_desc="Do not upgrade the chroot during SDK creation.",
-    )
-    parser.add_argument(
-        "--skip-chroot-upgrade",
-        action="store_false",
-        dest="chroot_upgrade",
-        deprecated="Alias for --no-chroot-upgrade.",
-        help=argparse.SUPPRESS,
     )
     parser.add_bool_argument(
         "--delete-out-dir",
@@ -600,7 +581,7 @@ def _CreateParser(
         "that affects SDK creation itself (toolchain and "
         "build are typically the only folk who need this).  "
         "Note this will quite heavily slow down the build.  "
-        "This option implies --create --nousepkg.",
+        "This option implies --create.",
     )
     group.add_argument(
         "-r",
@@ -1011,8 +992,6 @@ def main(argv):
                 cros_sdk_lib.CreateChroot(
                     chroot,
                     Path(sdk_tarball),
-                    usepkg=not options.bootstrap and not options.nousepkg,
-                    chroot_upgrade=options.chroot_upgrade,
                 )
                 mounted = True
         elif options.download:

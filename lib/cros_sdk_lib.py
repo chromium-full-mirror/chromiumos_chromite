@@ -807,8 +807,6 @@ class ChrootCreator:
         self,
         chroot: chroot_lib.Chroot,
         sdk_tarball: Path,
-        usepkg: bool = True,
-        chroot_upgrade: bool = False,
     ):
         """Initialize.
 
@@ -816,15 +814,9 @@ class ChrootCreator:
             chroot: Chroot object representing the parameters for the chroot to
                 create.
             sdk_tarball: Path to a downloaded Chromium OS SDK tarball.
-            usepkg: If False, pass --nousepkg to cros_setup_toolchains inside
-                the chroot.
-            chroot_upgrade: If True, upgrade toolchain/SDK when entering the
-                chroot.
         """
         self.chroot = chroot
         self.sdk_tarball = sdk_tarball
-        self.usepkg = usepkg
-        self.chroot_upgrade = chroot_upgrade
 
     @metrics_lib.timed("cros_sdk_lib.ChrootCreator._make_chroot")
     def _make_chroot(self):
@@ -837,13 +829,10 @@ class ChrootCreator:
             str(self.chroot.out_path),
             "--cache_dir",
             str(self.chroot.cache_dir),
+            # TODO(b/309670443): Remove this flag once make_chroot.sh no longer
+            # takes it.
+            "--skip_chroot_upgrade",
         ]
-
-        if not self.usepkg:
-            cmd.append("--nousepkg")
-
-        if not self.chroot_upgrade:
-            cmd.append("--skip_chroot_upgrade")
 
         try:
             cros_build_lib.dbg_run(cmd)
