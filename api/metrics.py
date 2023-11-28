@@ -8,10 +8,12 @@ See infra/proto/metrics.proto for a description of the type of record that this
 module will be creating.
 """
 
+from typing import Iterable, Optional
+
 from chromite.lib import metrics_lib
 
 
-def deserialize_metrics_log(output_events, prefix=None):
+def deserialize_metrics_log(output_events, prefix: Optional[str] = None):
     """Read the current metrics events, adding to output_events.
 
     This layer facilitates converting between the internal
@@ -22,7 +24,12 @@ def deserialize_metrics_log(output_events, prefix=None):
         output_events: A chromiumos.MetricEvent protobuf message.
         prefix: A string to prepend to all metric event names.
     """
-    for entry in metrics_lib.deserialize_metrics_log(prefix=prefix):
+    populate_metrics(output_events, metrics_lib.deserialize_metrics_log(prefix))
+
+
+def populate_metrics(output_events, metrics: Iterable[metrics_lib.METRIC_TYPE]):
+    """Populate a metrics message with the given metrics."""
+    for entry in metrics:
         event = output_events.add()
         event.name = entry.name
         event.timestamp_milliseconds = entry.timestamp_epoch_millis

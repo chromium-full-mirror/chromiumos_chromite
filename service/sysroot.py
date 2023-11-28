@@ -885,7 +885,8 @@ def BuildPackages(
     with osutils.TempDir() as tempdir, cpupower_helper.ModifyCpuGovernor(
         run_configs.autosetgov, run_configs.autosetgov_sticky
     ):
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
+        metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR, tempdir)
+        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = metrics_dir
 
         cros_build_lib.ClearShadowLocks(sysroot.path)
 
@@ -951,7 +952,7 @@ def BuildPackages(
                         )
                 logging.info("Builds complete.")
             except cros_build_lib.RunCommandError as e:
-                failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
+                failed_pkgs = portage_util.ParseDieHookStatusFile(metrics_dir)
                 raise sysroot_lib.PackageInstallError(
                     "Merging board packages failed",
                     e.result,

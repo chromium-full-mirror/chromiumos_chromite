@@ -149,11 +149,11 @@ def BuildTargetUnitTest(
     extra_env["USE"] = " ".join(use_flags)
     # Set up the failed package status file.
     with osutils.TempDir() as tempdir:
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
-
+        metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR, tempdir)
+        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = metrics_dir
         result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
 
-        failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
+        failed_pkgs = portage_util.ParseDieHookStatusFile(metrics_dir)
 
     return BuildTargetUnitTestResult(result.returncode, failed_pkgs)
 

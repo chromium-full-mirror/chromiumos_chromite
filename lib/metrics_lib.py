@@ -13,16 +13,16 @@ import contextlib
 import functools
 import logging
 import os
-import tempfile
+from pathlib import Path
 import time
 from typing import List, NamedTuple, Optional, Union
 import uuid
 
+from chromite.lib import constants
 from chromite.lib import locking
+from chromite.lib import osutils
 from chromite.utils import timer as timer_util
 
-
-UTILS_METRICS_LOG_ENVVAR = "BUILD_API_METRICS_LOG"
 
 OP_START_TIMER = "start-timer"
 OP_STOP_TIMER = "stop-timer"
@@ -199,14 +199,15 @@ def parse_metric(line):
 
 def read_metrics_events():
     """Generate metric events by parsing the metrics log file."""
-    metrics_logfile = os.environ.get(UTILS_METRICS_LOG_ENVVAR)
-    if not metrics_logfile:
+    metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR)
+    if not metrics_dir:
+        return
+
+    metrics_logfile = Path(metrics_dir) / constants.METRICS_FILE
+    if not metrics_logfile.exists():
         return
 
     logging.info("reading metrics logs from %s", metrics_logfile)
-    # TODO(b/187788898): Drop this once it's stable.
-    with open(metrics_logfile, encoding="utf-8") as f:
-        logging.info("[metrics log file]\n%s", f.read())
     with open(metrics_logfile, "r", encoding="utf-8") as f:
         for line in f:
             yield parse_metric(line)
@@ -218,26 +219,25 @@ def collect_metrics(functor):
     @functools.wraps(functor)
     def wrapper(*args, **kwargs):
         """Wrapped function which implements collect_metrics behavior."""
-        metrics_logfile = os.environ.get(UTILS_METRICS_LOG_ENVVAR)
-        if metrics_logfile:
+        metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR)
+        if metrics_dir:
             # We are in a reentrant scenario, let's just pass the logfile name
             # along.
             return functor(*args, **kwargs)
         else:
             # Let's manage the lifetime of a logfile for consumption within
             # functor.
-            tmp_prefix = "build-metrics-"
-            with tempfile.NamedTemporaryFile(prefix=tmp_prefix) as temp_file:
-                os.environ[UTILS_METRICS_LOG_ENVVAR] = temp_file.name
+            with osutils.TempDir() as tmpdir:
+                os.environ[constants.CROS_METRICS_DIR_ENVVAR] = tmpdir
                 logging.info(
                     "Setting up metrics collection (%s=%s).",
-                    UTILS_METRICS_LOG_ENVVAR,
-                    temp_file.name,
+                    constants.CROS_METRICS_DIR_ENVVAR,
+                    tmpdir,
                 )
                 try:
                     return functor(*args, **kwargs)
                 finally:
-                    del os.environ[UTILS_METRICS_LOG_ENVVAR]
+                    del os.environ[constants.CROS_METRICS_DIR_ENVVAR]
 
     return wrapper
 
@@ -253,17 +253,20 @@ def append_metrics_log(timestamp, name, op, arg=None):
         op: One of the OP_* values, determining which type of event this is.
         arg: An accessory value for use based on the related |op|.
     """
-    metrics_log = os.environ.get(UTILS_METRICS_LOG_ENVVAR)
+    metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR)
+    if not metrics_dir:
+        return
+
+    metrics_log = Path(metrics_dir) / constants.METRICS_FILE
     terms = [timestamp, name.replace("|", "_"), op]
     if arg is not None:
         terms.append(arg)
 
     # Format the actual line to log.
     line = "|".join(str(x) for x in terms)
-    if metrics_log:
-        with locking.FileLock(metrics_log).write_lock():
-            with open(metrics_log, "a", encoding="utf-8") as f:
-                f.write("%s\n" % line)
+    with locking.FileLock(metrics_log).write_lock():
+        with open(metrics_log, "a", encoding="utf-8") as f:
+            f.write(f"{line}\n")
 
 
 @contextlib.contextmanager

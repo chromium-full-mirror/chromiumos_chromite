@@ -7,17 +7,20 @@
 import os
 from unittest import mock
 
+from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import metrics_lib
 
 
-class MetricsTest(cros_test_lib.TestCase):
+class MetricsTest(cros_test_lib.MockTestCase):
     """Tests for metrics_lib."""
 
     def testEndToEnd(self):
         """Test the normal usage pattern, end-to-end."""
         # We should start in a clean, unmeasured state.
-        self.assertFalse(os.environ.get(metrics_lib.UTILS_METRICS_LOG_ENVVAR))
+        env = os.environ.copy()
+        env.pop(constants.CROS_METRICS_DIR_ENVVAR, None)
+        self.PatchObject(os, "environ", new=env)
 
         with mock.patch(
             "chromite.lib.metrics_lib.current_milli_time"
@@ -32,7 +35,7 @@ class MetricsTest(cros_test_lib.TestCase):
                 # Now, in here, we should have set up this env-var. This is a
                 # bit of invasive white-box testing.
                 self.assertTrue(
-                    os.environ.get(metrics_lib.UTILS_METRICS_LOG_ENVVAR)
+                    os.environ.get(constants.CROS_METRICS_DIR_ENVVAR)
                 )
 
                 # Now, with our pretend timer, let's record some events.

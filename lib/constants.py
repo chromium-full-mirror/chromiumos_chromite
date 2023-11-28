@@ -59,6 +59,7 @@ PORTAGE_GID = 250
 # only if that environment variable is defined.
 CROS_METRICS_DIR_ENVVAR = "CROS_METRICS_DIR"
 DIE_HOOK_STATUS_FILE_NAME = "FAILED_PACKAGES"
+METRICS_FILE = "METRICS_FILE"
 
 CHROMEOS_CONFIG_FILE = os.path.join(CHROMITE_DIR, "config", "config_dump.json")
 WATERFALL_CONFIG_FILE = os.path.join(
