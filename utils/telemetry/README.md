@@ -8,16 +8,16 @@ Chromite code paths, as well as telemetry configuration settings.
 The Build team is actively working on instrumenting frequently used code paths
 in Chromite. Currently supported code paths include:
 
-- chromite/bin/build_packages
-- chromite/cli/cros/cros_build_packages
-- emerge-$board
-- cros_run_unit_test
-- chromite/scripts/cros_workon_make
+- `chromite/bin/build_packages`
+- `chromite/cli/cros/cros_build_packages`
+- `emerge-$board`
+- `cros_run_unit_test`
+- `chromite/scripts/cros_workon_make`
+- `chromite/bin/build_image`
 
 We intend to expand to the following code paths in 2023:
 
-- `cros` CLI commands
-- `chromite/bin/build_image`
+- `cros` CLI commands, namely `cros flash` and `cros deploy`
 
 If there is an application you want to instrument, you are empowered to do so!
 
@@ -84,3 +84,6 @@ is also a worthy read.
 
 If you are a Googler and have a reasonable need to access the telemetry dataset,
 contact chromeos-build-discuss@ to be added to the relevant MDB group.
+
+The dataset which supports most of the Build team's dashboards and monitoring
+from this dataset is `chromeos_ci_data.local_build_telemetry_trace_spans`.
