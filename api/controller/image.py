@@ -18,6 +18,7 @@ from typing import List, NamedTuple, Set, TYPE_CHECKING, Union
 
 from chromite.api import controller
 from chromite.api import faux
+from chromite.api import metrics
 from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromiumos import common_pb2
@@ -26,11 +27,11 @@ from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import image_lib
+from chromite.lib import metrics_lib
 from chromite.lib import sysroot_lib
 from chromite.scripts import pushimage
 from chromite.service import image
 from chromite.service import packages as packages_service
-from chromite.utils import timer
 
 
 if TYPE_CHECKING:
@@ -264,6 +265,7 @@ def _CreateResponse(_input_proto, output_proto, _config):
 @faux.empty_completed_unsuccessfully_error
 @validate.require("build_target.name")
 @validate.validation_complete
+@metrics_lib.collect_metrics
 def Create(
     input_proto: "image_pb2.CreateImageRequest",
     output_proto: "image_pb2.CreateImageResult",
@@ -287,15 +289,16 @@ def Create(
         symlink=LOCATION_FACTORY, output_dir_suffix=LOCATION_FACTORY
     )
 
+    metrics_prefix = "api.controller.image.create"
     # Try building the core and factory images.
     # Sorted isn't really necessary here, but it's much easier to test.
-    with timer.timer("build-base-dev-test-timer"):
+    with metrics_lib.timer(f"{metrics_prefix}.build-base-dev-test"):
         core_result = image.Build(
             board, sorted(image_types.core_images), config=build_config
         )
     logging.debug("Core Result Images: %s", core_result.images)
 
-    with timer.timer("factory-timer"):
+    with metrics_lib.timer(f"{metrics_prefix}.build-factory"):
         factory_result = image.Build(
             board, image_types.factory, config=factory_build_config
         )
@@ -322,7 +325,9 @@ def Create(
             is_test = vm_type in [_TEST_VM_ID, _TEST_GUEST_VM_ID]
             img_type = _IMAGE_MAPPING[_TEST_ID if is_test else _BASE_ID]
             img_dir = core_result.images[img_type].parent.resolve()
-            with timer.timer(f"vm-image-{vm_type}-timer"):
+            with metrics_lib.timer(
+                f"{metrics_prefix}.create-vm-image-{vm_type}"
+            ):
                 try:
                     if vm_type in [_BASE_GUEST_VM_ID, _TEST_GUEST_VM_ID]:
                         vm_path = image.CreateGuestVm(
@@ -345,7 +350,9 @@ def Create(
             if mod_type == _RECOVERY_ID:
                 base_image_path = core_result.images[constants.IMAGE_TYPE_BASE]
                 # For ChromeOS Flex special case.
-                with timer.timer("recovery-image-timer"):
+                with metrics_lib.timer(
+                    f"{metrics_prefix}.build-recovery-image"
+                ):
                     if build_config.base_is_recovery:
                         result = image.CopyBaseToRecovery(
                             board=board, image_path=base_image_path
@@ -367,7 +374,9 @@ def Create(
                 factory_shim_dir = os.path.dirname(
                     factory_result.images[constants.IMAGE_TYPE_FACTORY_SHIM]
                 )
-                with timer.timer("netboot-kernel-timer"):
+                with metrics_lib.timer(
+                    f"{metrics_prefix}.create-netboot-kernel"
+                ):
                     try:
                         image.create_netboot_kernel(board, factory_shim_dir)
                     except cros_build_lib.RunCommandError as e:
@@ -382,8 +391,9 @@ def Create(
             _parse_img_metrics_to_response(
                 output_proto, board, core_result.output_dir
             )
-        return controller.RETURN_CODE_SUCCESS
 
+        metrics.deserialize_metrics_log(output_proto.events)
+        return controller.RETURN_CODE_SUCCESS
     else:
         # Failure, include all the failed packages in the output when available.
         packages = core_result.failed_packages + factory_result.failed_packages
