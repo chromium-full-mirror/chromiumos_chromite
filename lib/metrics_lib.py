@@ -8,13 +8,14 @@ See infra/proto/metrics.proto for a description of the type of record that this
 module will be creating.
 """
 
+import collections
 import contextlib
 import functools
 import logging
 import os
 import tempfile
 import time
-from typing import List, NamedTuple, Union
+from typing import List, NamedTuple, Optional, Union
 import uuid
 
 from chromite.lib import locking
@@ -53,6 +54,28 @@ class MetricEvent(NamedTuple):
     name: str
     op: str
     arg: Union[int, str, None]
+
+
+class Metric(NamedTuple):
+    """Data class for a metric."""
+
+    timestamp_epoch_millis: int
+    name: str
+    value: int
+
+
+class NamedEvent(NamedTuple):
+    """Data class for an event."""
+
+    timestamp_epoch_millis: int
+    name: str
+
+
+class TimerMetric(Metric):
+    """Just to allow differentiating for cases where it may be valuable."""
+
+
+METRIC_TYPE = Union[NamedEvent, TimerMetric, Metric]
 
 
 class Error(Exception):
@@ -289,3 +312,94 @@ def event(name):
         name: A name for the timer event.
     """
     append_metrics_log(current_milli_time(), name, OP_NAMED_EVENT)
+
+
+def deserialize_metrics_log(
+    prefix: Optional[str] = None,
+) -> List[METRIC_TYPE]:
+    """Parse the metrics events from the metrics file.
+
+    Args:
+        prefix: A string to prepend to all metric event names.
+    """
+    counters = collections.defaultdict(int)
+    counter_times = {}
+    timers = {}
+    results = []
+
+    def make_name(name):
+        """Prepend a closed-over prefix to the given name."""
+        if prefix:
+            return f"{prefix}.{name}"
+        else:
+            return name
+
+    # Reduce over the input events to append output_events.
+    for input_event in read_metrics_events():
+        if input_event.op == OP_START_TIMER:
+            timers[input_event.arg] = (
+                input_event.name,
+                input_event.timestamp_epoch_millis,
+            )
+        elif input_event.op == OP_STOP_TIMER:
+            # TODO(b/187788898): Drop the None fallback.
+            start = timers.pop(input_event.arg, None)
+            if not start:
+                logging.error(
+                    "%s: stop timer recorded, but missing start timer!?",
+                    input_event.arg,
+                )
+            else:
+                assert input_event.name == start[0]
+                results.append(
+                    TimerMetric(
+                        input_event.timestamp_epoch_millis,
+                        make_name(input_event.name),
+                        input_event.timestamp_epoch_millis - start[1],
+                    )
+                )
+        elif input_event.op == OP_NAMED_EVENT:
+            results.append(
+                NamedEvent(
+                    input_event.timestamp_epoch_millis,
+                    make_name(input_event.name),
+                )
+            )
+        elif input_event.op == OP_GAUGE:
+            results.append(
+                Metric(
+                    input_event.timestamp_epoch_millis,
+                    make_name(input_event.name),
+                    input_event.arg,
+                )
+            )
+        elif input_event.op == OP_INCREMENT_COUNTER:
+            counters[input_event.name] += input_event.arg
+            counter_times[input_event.name] = max(
+                input_event.timestamp_epoch_millis,
+                counter_times.get(input_event.name, 0),
+            )
+        elif input_event.op == OP_DECREMENT_COUNTER:
+            counters[input_event.name] -= input_event.arg
+            counter_times[input_event.name] = max(
+                input_event.timestamp_epoch_millis,
+                counter_times.get(input_event.name, 0),
+            )
+        else:
+            logging.error(
+                'unexpected op "%s" found in metric event: %s',
+                input_event.op,
+                input_event,
+            )
+
+    for counter, value in counters.items():
+        results.append(
+            Metric(counter_times[counter], make_name(counter), value)
+        )
+
+    # Check for any unhandled timers.
+    # TODO(b/187788898): Turn this back into an assert.
+    if timers:
+        logging.error("excess timer metric data left over: %s", timers)
+
+    return results
