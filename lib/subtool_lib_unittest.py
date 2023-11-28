@@ -261,8 +261,7 @@ class Wrapper:
 
 @pytest.fixture(autouse=True)
 def use_fake_cipd() -> Iterator:
-    with mock.patch("chromite.lib.cipd.GetCIPDFromCache") as get_cipd:
-        get_cipd.return_value = FAKE_CIPD_PATH
+    with mock.patch.object(subtool_lib, "CIPD_PATH", FAKE_CIPD_PATH):
         yield
 
 

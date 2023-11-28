@@ -56,6 +56,11 @@ class ManifestBundlingError(Error):
     """The subtool could not be bundled."""
 
 
+# Use `cipd` from $PATH, which usually comes from a pin in depot_tools. An
+# alternative, cipd.GetCIPDFromCache(), could be used which has a version pinned
+# inside chromite. But there's no reason to pick it.
+CIPD_PATH = "cipd"
+
 # Default glob to find export package manifests under the config_dir.
 SUBTOOLS_EXPORTS_GLOB = "**/*.textproto"
 
@@ -643,7 +648,6 @@ class BundledSubtools:
 
     Attributes:
         bundles: Bundled paths, with the `bundle` file tree and metadata.
-        cipd_path: Path to the cipd binary, defaulting to the pin in cipd.py.
         built_packages: Updated with a path when the upload process creates a
             local .zip rather than performing an upload.
         uploaded_package_names: List of subtool names that were successfully
@@ -655,7 +659,6 @@ class BundledSubtools:
     def __init__(self, bundles: List[Path]):
         """Creates and initializes a BundledSubtools wrapper."""
         self.bundles = bundles
-        self.cipd_path = cipd.GetCIPDFromCache()
         self.built_packages: List[Path] = []
         self.uploaded_subtool_names: List[str] = []
         self.uploaded_instances_markdown: List[str] = []
@@ -688,7 +691,7 @@ class BundledSubtools:
         if cipd_package.search_tags:
             search_tags = {k: search_tags[k] for k in cipd_package.search_tags}
         instances = cipd.search_instances(
-            self.cipd_path,
+            CIPD_PATH,
             cipd_package.package,
             search_tags,
             service_url=service_url,
@@ -706,7 +709,7 @@ class BundledSubtools:
         if dryrun:
             out = path / f"{path.name}.zip"
             cipd.build_package(
-                self.cipd_path,
+                CIPD_PATH,
                 cipd_package.package,
                 path / "bundle",
                 out,
@@ -718,7 +721,7 @@ class BundledSubtools:
         # bundle contents matches an existing instance. In that case, CIPD will
         # still add the provided tags to the existing instance.
         cipd.CreatePackage(
-            self.cipd_path,
+            CIPD_PATH,
             cipd_package.package,
             path / "bundle",
             cipd_package.tags,
