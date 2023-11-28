@@ -12,6 +12,7 @@ import dataclasses
 import hashlib
 import json
 import logging
+import os
 from pathlib import Path
 import re
 import shutil
@@ -80,6 +81,14 @@ UPLOAD_METADATA_FILE = Path("subtool_upload.json")
 
 # CIPD metadata tag key for storing the hash calculated by the subtools builder.
 SUBTOOLS_HASH_TAG = "subtools_hash"
+
+# A generous hardcoded limit for bundles managed by the subtools builder. This
+# reflects the desire to be considerate with downstream resources such as CIPD
+# storage buckets and developer disk space, rather than a limit imposed by other
+# systems. If a use case arises for something bigger, there may be scope to add
+# a manifest attribute to permit a higher threshold. The full, uncompressed size
+# of bundle content is accumulated, before any upload to CIPD.
+MAX_BUNDLE_SIZE_BYTES = 500_000_000
 
 # Valid names. A stricter version of `packageNameRe` in
 # https://crsrc.org/i/go/src/go.chromium.org/luci/cipd/common/common.go
@@ -351,8 +360,7 @@ class Subtool:
     def prepare_upload(self) -> None:
         """Prepares metadata required to upload the bundle, e.g., to cipd."""
         self._validate()
-        if not self.stamp("bundled").exists():
-            raise ManifestBundlingError("Bundling incomplete.", self)
+        self._validate_bundle()
 
         BUILDER_TAG = "builder_source"
         EBUILD_TAG = "ebuild_source"
@@ -376,6 +384,22 @@ class Subtool:
         logger.notice("%s: Wrote %s.", self.package.name, metadata_path)
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Contents: `%s`", metadata_path.read_text())
+
+    def _validate_bundle(self) -> str:
+        """Validate the bundled contents."""
+        if not self.stamp("bundled").exists():
+            raise ManifestBundlingError("Bundling incomplete.", self)
+
+        apparent_size = 0
+        for file in self.bundle_dir.rglob("*"):
+            apparent_size += os.lstat(file).st_size
+        if apparent_size > MAX_BUNDLE_SIZE_BYTES:
+            raise ManifestBundlingError(
+                "Bundle is too big."
+                f" Apparent size={apparent_size} bytes,"
+                f" threshold={MAX_BUNDLE_SIZE_BYTES}.",
+                self,
+            )
 
     def _calculate_digest(self) -> str:
         """Calculates the digest of the bundled contents."""

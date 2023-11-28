@@ -370,6 +370,17 @@ def test_bundle_and_upload(
     assert (template_proto.work_root / "my_subtool" / ".uploaded").exists()
 
 
+@mock.patch.object(subtool_lib, "MAX_BUNDLE_SIZE_BYTES", 1)
+def test_bundle_max_size(
+    template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
+) -> None:
+    """Test that the maximum size is enforced."""
+    set_run_results(run_mock)
+    with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
+        template_proto.export_e2e(writes_files=True)
+    assert "Bundle is too big." in str(error_info.value)
+
+
 def test_clean_after_bundle_and_upload(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
