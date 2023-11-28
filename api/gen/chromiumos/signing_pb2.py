@@ -11,10 +11,11 @@ from chromite.third_party.google.protobuf import symbol_database as _symbol_data
 _sym_db = _symbol_database.Default()
 
 
+from chromite.api.gen.chromiumos import build_report_pb2 as chromiumos_dot_build__report__pb2
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18\x63hromiumos/signing.proto\x12\nchromiumos\x1a\x17\x63hromiumos/common.proto\"\xa3\x02\n\rSigningConfig\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\x0e\n\x06keyset\x18\x02 \x01(\t\x12$\n\x07\x63hannel\x18\n \x01(\x0e\x32\x13.chromiumos.Channel\x12\x0f\n\x07version\x18\x0b \x01(\t\x12)\n\nimage_type\x18\x03 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x14\n\x0crecovery_zip\x18\x04 \x01(\x08\x12\x1a\n\x12\x65nsure_no_password\x18\x05 \x01(\x08\x12\x17\n\x0f\x66irmware_update\x18\x06 \x01(\x08\x12\x13\n\x0binput_files\x18\x07 \x03(\t\x12\x14\n\x0coutput_names\x18\x08 \x03(\t\x12\x14\n\x0c\x61rchive_path\x18\t \x01(\t\"d\n\x18\x42uildTargetSigningConfig\x12\x14\n\x0c\x62uild_target\x18\x01 \x01(\t\x12\x32\n\x0fsigning_configs\x18\x02 \x03(\x0b\x32\x19.chromiumos.SigningConfig\"g\n\x19\x42uildTargetSigningConfigs\x12J\n\x1c\x62uild_target_signing_configs\x18\x01 \x03(\x0b\x32$.chromiumos.BuildTargetSigningConfig\"Y\n\x0eSignedArtifact\x12)\n\x06status\x18\x01 \x01(\x0e\x32\x19.chromiumos.SigningStatus\x12\x1c\n\x14signed_artifact_name\x18\x02 \x01(\t\"\xbb\x02\n\x10\x41rchiveArtifacts\x12\x1a\n\x12input_archive_name\x18\x01 \x01(\t\x12)\n\nimage_type\x18\x07 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x0e\n\x06keyset\x18\x02 \x01(\t\x12\x34\n\x10signed_artifacts\x18\x03 \x03(\x0b\x32\x1a.chromiumos.SignedArtifact\x12\x14\n\x0c\x62uild_target\x18\x04 \x01(\t\x12$\n\x07\x63hannel\x18\x05 \x01(\x0e\x32\x13.chromiumos.Channel\x12)\n\x06status\x18\x06 \x01(\x0e\x32\x19.chromiumos.SigningStatus\x12\x33\n\x0fkeyset_versions\x18\x08 \x01(\x0b\x32\x1a.chromiumos.KeysetVersions\"U\n\x1a\x42uildTargetSignedArtifacts\x12\x37\n\x11\x61rchive_artifacts\x18\x01 \x03(\x0b\x32\x1c.chromiumos.ArchiveArtifacts\"|\n\x0eKeysetVersions\x12\x1c\n\x14\x66irmware_key_version\x18\x01 \x01(\x05\x12\x18\n\x10\x66irmware_version\x18\x02 \x01(\x05\x12\x1a\n\x12kernel_key_version\x18\x03 \x01(\x05\x12\x16\n\x0ekernel_version\x18\x04 \x01(\x05*M\n\rSigningStatus\x12\x14\n\x10STATUS_UNDEFINED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x12\n\x0eSTATUS_FAILURE\x10\x02\x42Y\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18\x63hromiumos/signing.proto\x12\nchromiumos\x1a\x1d\x63hromiumos/build_report.proto\x1a\x17\x63hromiumos/common.proto\"\xa3\x02\n\rSigningConfig\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\x0e\n\x06keyset\x18\x02 \x01(\t\x12$\n\x07\x63hannel\x18\n \x01(\x0e\x32\x13.chromiumos.Channel\x12\x0f\n\x07version\x18\x0b \x01(\t\x12)\n\nimage_type\x18\x03 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x14\n\x0crecovery_zip\x18\x04 \x01(\x08\x12\x1a\n\x12\x65nsure_no_password\x18\x05 \x01(\x08\x12\x17\n\x0f\x66irmware_update\x18\x06 \x01(\x08\x12\x13\n\x0binput_files\x18\x07 \x03(\t\x12\x14\n\x0coutput_names\x18\x08 \x03(\t\x12\x14\n\x0c\x61rchive_path\x18\t \x01(\t\"d\n\x18\x42uildTargetSigningConfig\x12\x14\n\x0c\x62uild_target\x18\x01 \x01(\t\x12\x32\n\x0fsigning_configs\x18\x02 \x03(\x0b\x32\x19.chromiumos.SigningConfig\"g\n\x19\x42uildTargetSigningConfigs\x12J\n\x1c\x62uild_target_signing_configs\x18\x01 \x03(\x0b\x32$.chromiumos.BuildTargetSigningConfig\"Y\n\x0eSignedArtifact\x12)\n\x06status\x18\x01 \x01(\x0e\x32\x19.chromiumos.SigningStatus\x12\x1c\n\x14signed_artifact_name\x18\x02 \x01(\t\"\x8e\x03\n\x10\x41rchiveArtifacts\x12\x1a\n\x12input_archive_name\x18\x01 \x01(\t\x12)\n\nimage_type\x18\x07 \x01(\x0e\x32\x15.chromiumos.ImageType\x12\x0e\n\x06keyset\x18\x02 \x01(\t\x12\x34\n\x10signed_artifacts\x18\x03 \x03(\x0b\x32\x1a.chromiumos.SignedArtifact\x12\x14\n\x0c\x62uild_target\x18\x04 \x01(\t\x12$\n\x07\x63hannel\x18\x05 \x01(\x0e\x32\x13.chromiumos.Channel\x12)\n\x06status\x18\x06 \x01(\x0e\x32\x19.chromiumos.SigningStatus\x12\x33\n\x0fkeyset_versions\x18\x08 \x01(\x0b\x32\x1a.chromiumos.KeysetVersions\x12Q\n\x0esigning_status\x18\t \x01(\x0e\x32\x39.chromiumos.BuildReport.SignedBuildMetadata.SigningStatus\"U\n\x1a\x42uildTargetSignedArtifacts\x12\x37\n\x11\x61rchive_artifacts\x18\x01 \x03(\x0b\x32\x1c.chromiumos.ArchiveArtifacts\"|\n\x0eKeysetVersions\x12\x1c\n\x14\x66irmware_key_version\x18\x01 \x01(\x05\x12\x18\n\x10\x66irmware_version\x18\x02 \x01(\x05\x12\x1a\n\x12kernel_key_version\x18\x03 \x01(\x05\x12\x16\n\x0ekernel_version\x18\x04 \x01(\x05*M\n\rSigningStatus\x12\x14\n\x10STATUS_UNDEFINED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x12\n\x0eSTATUS_FAILURE\x10\x02\x42Y\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.signing_pb2', globals())
@@ -22,20 +23,20 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumos'
-  _SIGNINGSTATUS._serialized_start=1188
-  _SIGNINGSTATUS._serialized_end=1265
-  _SIGNINGCONFIG._serialized_start=66
-  _SIGNINGCONFIG._serialized_end=357
-  _BUILDTARGETSIGNINGCONFIG._serialized_start=359
-  _BUILDTARGETSIGNINGCONFIG._serialized_end=459
-  _BUILDTARGETSIGNINGCONFIGS._serialized_start=461
-  _BUILDTARGETSIGNINGCONFIGS._serialized_end=564
-  _SIGNEDARTIFACT._serialized_start=566
-  _SIGNEDARTIFACT._serialized_end=655
-  _ARCHIVEARTIFACTS._serialized_start=658
-  _ARCHIVEARTIFACTS._serialized_end=973
-  _BUILDTARGETSIGNEDARTIFACTS._serialized_start=975
-  _BUILDTARGETSIGNEDARTIFACTS._serialized_end=1060
-  _KEYSETVERSIONS._serialized_start=1062
-  _KEYSETVERSIONS._serialized_end=1186
+  _SIGNINGSTATUS._serialized_start=1302
+  _SIGNINGSTATUS._serialized_end=1379
+  _SIGNINGCONFIG._serialized_start=97
+  _SIGNINGCONFIG._serialized_end=388
+  _BUILDTARGETSIGNINGCONFIG._serialized_start=390
+  _BUILDTARGETSIGNINGCONFIG._serialized_end=490
+  _BUILDTARGETSIGNINGCONFIGS._serialized_start=492
+  _BUILDTARGETSIGNINGCONFIGS._serialized_end=595
+  _SIGNEDARTIFACT._serialized_start=597
+  _SIGNEDARTIFACT._serialized_end=686
+  _ARCHIVEARTIFACTS._serialized_start=689
+  _ARCHIVEARTIFACTS._serialized_end=1087
+  _BUILDTARGETSIGNEDARTIFACTS._serialized_start=1089
+  _BUILDTARGETSIGNEDARTIFACTS._serialized_end=1174
+  _KEYSETVERSIONS._serialized_start=1176
+  _KEYSETVERSIONS._serialized_end=1300
 # @@protoc_insertion_point(module_scope)

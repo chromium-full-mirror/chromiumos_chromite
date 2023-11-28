@@ -15,7 +15,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from chromite.api.gen_sdk.test_platform.suite_scheduler.v15 import events_pb2 as test__platform_dot_suite__scheduler_dot_v15_dot_events__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/test_platform/suite_scheduler/v15/metrics.proto\x12!test_platform.suite_scheduler.v15\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.test_platform/suite_scheduler/v15/events.proto\"\xc2\x02\n\x10SchedulingMetric\x12\x37\n\x07run_uid\x18\x01 \x01(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0c\x63onfig_names\x18\x04 \x03(\t\x12@\n\x10scheduled_suites\x18\x05 \x03(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12?\n\x0frejected_suites\x18\x06 \x03(\x0b\x32&.test_platform.suite_scheduler.v15.UIDBMZKgo.chromium.org/chromiumos/infra/proto/go/test_platform/suite_scheduler/v15b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/test_platform/suite_scheduler/v15/metrics.proto\x12!test_platform.suite_scheduler.v15\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.test_platform/suite_scheduler/v15/events.proto\"\xbf\x02\n\rSchedulingRun\x12\x37\n\x07run_uid\x18\x01 \x01(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0c\x63onfig_names\x18\x04 \x03(\t\x12@\n\x10scheduled_suites\x18\x05 \x03(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12?\n\x0frejected_suites\x18\x06 \x03(\x0b\x32&.test_platform.suite_scheduler.v15.UIDBMZKgo.chromium.org/chromiumos/infra/proto/go/test_platform/suite_scheduler/v15b\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'test_platform.suite_scheduler.v15.metrics_pb2', globals())
@@ -23,6 +23,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'ZKgo.chromium.org/chromiumos/infra/proto/go/test_platform/suite_scheduler/v15'
-  _SCHEDULINGMETRIC._serialized_start=168
-  _SCHEDULINGMETRIC._serialized_end=490
+  _SCHEDULINGRUN._serialized_start=168
+  _SCHEDULINGRUN._serialized_end=487
 # @@protoc_insertion_point(module_scope)
