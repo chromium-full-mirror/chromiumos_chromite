@@ -66,9 +66,6 @@ ALLOWLIST_NO_SYMBOL_FILE_VALIDATION = {
     # Built in a weird way, see comments at top of
     # https://source.chromium.org/chromium/chromium/src/+/main:native_client/src/trusted/service_runtime/linux/nacl_bootstrap.x
     "opt/google/chrome/nacl_helper_bootstrap",
-    # TODO(b/279645511): Investigate why this doesn't have STACK records on
-    # jacuzzi, scarlet, kukui, etc.
-    "usr/bin/rma_reset",
 }
 # Same but patterns not exact paths.
 ALLOWLIST_NO_SYMBOL_FILE_VALIDATION_RE = tuple(
