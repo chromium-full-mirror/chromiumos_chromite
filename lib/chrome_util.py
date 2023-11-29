@@ -391,7 +391,11 @@ _COPY_PATHS_COMMON = (
         cond=C.GnSetTo(_ENABLE_NACL, True),
     ),
     Path("natives_blob.bin", optional=True),
-    Path("pnacl/", cond=C.GnSetTo(_ENABLE_NACL, True)),
+    Path(
+        "pnacl/",
+        optional=True,
+        cond=C.GnSetTo(_ENABLE_NACL, True),
+    ),
     Path("snapshot_blob.bin", optional=True),
 )
 
