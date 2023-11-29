@@ -19,7 +19,7 @@ The format we enforce:
 * Single space between element name and attributes
 * Comments have spaces around the <!-- and --> markers
 * Comments are indented to the end of the <!-- marker
-* Non-whitespace text nodes are deleted
+* Non-whitespace text nodes are deleted, except for <notice> entries
 
 See the files in our manifest repos for living examples.
 """
@@ -68,6 +68,10 @@ def has_children(node) -> bool:
     """Determine whether |node| has any (useful) children."""
     if not node.childNodes:
         return False
+
+    # In this case, we expect to handle child text nodes separately.
+    if node.nodeName == "notice":
+        return True
 
     # Make sure the children aren't just whitespace text nodes.
     for child in node.childNodes:
@@ -202,6 +206,23 @@ def Data(
                 # Finally, strip non-whitespace characters.  There never should
                 # be any.
                 buffer.write(re.sub(r"[^\s]+", "", output))
+            elif node.nodeName == "notice":
+                # For a <notice> tag, we want to preserve the inner text as-is,
+                # without losing the opening and closing tags as appropriate.
+                node_start = f"{indent}<{node.nodeName}>"
+                buffer.write(node_start)
+
+                # Since all other text nodes strip non-whitespace characters,
+                # handle the text node(s) contained under notice separately.
+                assert has_children(node), "provided <notice> element is empty"
+                for child in node.childNodes:
+                    assert child.nodeType == node.TEXT_NODE, (
+                        "<notice> element contains children"
+                        f"that aren't text nodes: {repr(child)}"
+                    )
+                    buffer.write(child.data.strip())
+
+                buffer.write(f"\n{indent}</{node.nodeName}>")
             else:
                 # We don't expect any other node type in manifests currently.
                 assert node.nodeType == node.ELEMENT_NODE, str(node)

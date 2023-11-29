@@ -92,6 +92,28 @@ maybe -->
 <manifest/>
 """,
     ),
+    # Whitespace text nodes are handled as expected, and <notice> text nodes are
+    # only trimmed, and the closing block is aligned on a newline.
+    (
+        """<?xml version="1.0" encoding="UTF-8"?>
+        <manifest>
+
+        <project name="name" path="path" />
+
+
+<notice>An announcement!\t\t</notice>
+        </manifest>""",
+        """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <project path="path"
+           name="name" />
+
+  <notice>An announcement!
+  </notice>
+</manifest>
+""",
+    ),
 )
 
 
@@ -102,3 +124,27 @@ def test_check_format(data, exp):
     if exp is None:
         exp = data
     assert exp == repo_manifest.Data(data)
+
+
+FAILING_TEST_CASES = (
+    # Fails because <notice> should only contain text nodes
+    """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <notice>An announcement!
+    <project path="path"
+             name="name" />
+  </notice>
+</manifest>""",
+    # Fails because <notice> must contain a child text node
+    """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <notice/>
+</manifest>""",
+)
+
+
+@pytest.mark.parametrize("data", FAILING_TEST_CASES)
+def test_format_failures(data):
+    """Verify inputs raise AssertionErrors as expected."""
+    with pytest.raises(AssertionError):
+        repo_manifest.Data(data)
