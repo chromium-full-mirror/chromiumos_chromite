@@ -109,7 +109,13 @@ function showImageVersionInputBoxWithDynamicSuggestions(
 
     // Keep input box opened when lost focus since it is typical for user to change to another
     // window to search for or copy version string they want.
-    Object.assign(picker, {ignoreFocusOut: true, ...options});
+    // Disable sorting so that items (versions) are displayed in the original order, where images
+    // are listed from most recent to least.
+    Object.assign(picker, {
+      ignoreFocusOut: true,
+      sortByLabel: false,
+      ...options,
+    });
     picker.items = [];
 
     subscriptions.push(
@@ -200,18 +206,16 @@ export async function flashPrebuiltImage(
   const board = await vscode.window.showInputBox({
     title: 'Board Name to Flash',
     value: defaultBoard,
+    ignoreFocusOut: true,
   });
   if (!board) {
     return;
   }
 
-  const imageType = await vscode.window.showQuickPick([
-    'release',
-    'postsubmit',
-    'snapshot',
-    'cq',
-    'local',
-  ]);
+  const imageType = await vscode.window.showQuickPick(
+    ['release', 'postsubmit', 'snapshot', 'cq', 'local'],
+    {ignoreFocusOut: true}
+  );
   if (!imageType) {
     return;
   }
