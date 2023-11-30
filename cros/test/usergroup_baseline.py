@@ -308,6 +308,7 @@ GROUP_BASELINE = dict(
                 "power",
                 "typecd_ec",
                 "rgbkbd",
+                "ec_coredump",
             },
         ),
         GroupEntry(
