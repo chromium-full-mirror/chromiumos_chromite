@@ -25,6 +25,7 @@ from typing import (
 )
 
 from chromite.lib import constants
+from chromite.lib import git
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 from chromite.utils import key_value_store
@@ -528,6 +529,33 @@ class Ebuild(QueryTarget):
     def package_info(self) -> package_info.PackageInfo:
         """The PackageInfo for this ebuild."""
         return package_info.parse(self.ebuild_file)
+
+    @functools.cached_property
+    def portage_ebuild(self) -> portage_util.EBuild:
+        """Get the portage_util.EBuild corresponding to this ebuild.
+
+        Note this object is significantly less ergonomic to work with than a
+        build_query.Ebuild.
+        """
+        return portage_util.EBuild(str(self.ebuild_file))
+
+    @functools.cached_property
+    def source_info(self) -> portage_util.SourceInfo:
+        """The SourceInfo for this ebuild."""
+        return self.portage_ebuild.GetSourceInfo(
+            constants.SOURCE_ROOT / "src",
+            git.ManifestCheckout.Cached(constants.SOURCE_ROOT),
+        )
+
+    @property
+    def is_workon(self) -> bool:
+        """True if this is a cros-workon ebuild."""
+        return self.portage_ebuild.is_workon
+
+    @property
+    def is_manually_uprevved(self) -> bool:
+        """True if this ebuild sets `CROS_WORKON_MANUAL_UPREV`."""
+        return self.portage_ebuild.is_manually_uprevved
 
     @property
     def md5_cache_file(self) -> Path:

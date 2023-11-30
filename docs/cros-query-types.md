@@ -29,11 +29,19 @@
         Returns:
             The stability on this architecture.
 
+* `is_manually_uprevved` (`bool`): True if this ebuild sets `CROS_WORKON_MANUAL_UPREV`.
+* `is_workon` (`bool`): True if this is a cros-workon ebuild.
 * `iuse` (`Set[str]`): A set of the flags in IUSE.
 * `iuse_default` (`Set[str]`): A set of the flags enabled by default in IUSE.
 * `keywords` (`List[str]`): The KEYWORDS of this package.
 * `md5_cache_file` (`Path`): The path to the md5-cache file for this ebuild.
 * `package_info` (`PackageInfo`): The PackageInfo for this ebuild.
+* `portage_ebuild` (`EBuild`): Get the portage_util.EBuild corresponding to this ebuild.
+
+        Note this object is significantly less ergonomic to work with than a
+        build_query.Ebuild.
+
+* `source_info` (`SourceInfo`): The SourceInfo for this ebuild.
 * `vars` (`Dict[str, str]`): The raw variables from the md5-cache file.
 
 ## Profile
