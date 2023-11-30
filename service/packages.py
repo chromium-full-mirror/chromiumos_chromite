@@ -1520,6 +1520,39 @@ def uprev_starbase_artifacts(
     return result
 
 
+@uprevs_versioned_package("chromeos-base/crosh-extension")
+def uprev_libapps(
+    _build_targets: Optional[List["build_target_lib.BuildTarget"]],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> "uprev_lib.UprevVersionedPackageResult":
+    """Updates libapps to latest revision
+
+    This uses the same uprev process as cros_workon ebuilds use by default,
+    this just exists to force uprevs to go through the CQ since the libapps
+    repo doesn't use the ChromeOS CQ.
+
+    See: uprev_versioned_package.
+    """
+    overlay = os.path.join(
+        constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
+    )
+    repo_path = os.path.join(
+        constants.SOURCE_ROOT, "src", "third_party", "libapps"
+    )
+    manifest = git.ManifestCheckout.Cached(repo_path)
+
+    uprev_manager = uprev_lib.UprevOverlayManager([overlay], manifest)
+    uprev_manager.uprev(
+        package_list=["chromeos-base/crosh-extension"], force=True
+    )
+
+    updated_files = uprev_manager.modified_ebuilds
+    result = uprev_lib.UprevVersionedPackageResult()
+    result.add_result(refs[0].revision, updated_files)
+    return result
+
+
 def get_best_visible(
     atom: str, build_target: Optional["build_target_lib.BuildTarget"] = None
 ) -> package_info.PackageInfo:
