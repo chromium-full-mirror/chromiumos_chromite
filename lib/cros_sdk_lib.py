@@ -829,9 +829,6 @@ class ChrootCreator:
             str(self.chroot.out_path),
             "--cache_dir",
             str(self.chroot.cache_dir),
-            # TODO(b/309670443): Remove this flag once make_chroot.sh no longer
-            # takes it.
-            "--skip_chroot_upgrade",
         ]
 
         try:
