@@ -7,7 +7,6 @@
 import collections
 import contextlib
 import ctypes
-import ctypes.util
 import errno
 import glob
 import hashlib
@@ -24,6 +23,7 @@ from typing import Callable, Iterable, Iterator, List, Optional, Union
 from chromite.lib import cros_build_lib
 from chromite.lib import retry_util
 from chromite.utils import key_value_store
+from chromite.utils import libc
 from chromite.utils import os_util
 
 
@@ -1273,7 +1273,6 @@ def Mount(
             will convert some of these to MS_* flags for you e.g.
             "bind"->MS_BIND, but this function does not.
     """
-    libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
 
     # These fields might be a Path/string/bytes or None/0 (for NULL).
     # Convert to bytes or 0.
@@ -1297,7 +1296,7 @@ def Mount(
         return s
 
     if (
-        libc.mount(
+        libc.GetLibc().mount(
             _MaybeEncode(source, path_ok=True),
             _MaybeEncode(target, path_ok=True),
             _MaybeEncode(fstype),
@@ -1969,24 +1968,24 @@ def sync_storage(
         return result.returncode == 0
 
     # If not sudo, run code directly.
-    libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
+    clib = libc.GetLibc()
     if path:
         fd = None
         try:
             with OpenContext(path) as fd:
                 if data_only:
                     logging.debug("%s: syncing data only (no metadata)", path)
-                    ret = libc.fdatasync(fd) == 0
+                    ret = clib.fdatasync(fd) == 0
                 elif filesystem:
                     logging.debug("%s: syncing underlying filesystem", path)
-                    ret = libc.syncfs(fd) == 0
+                    ret = clib.syncfs(fd) == 0
                 else:
                     logging.debug("%s: syncing file & its metadata", path)
-                    ret = libc.fsync(fd) == 0
+                    ret = clib.fsync(fd) == 0
         except FileNotFoundError:
             return False
     else:
         # This is expensive, so log at a higher level.
         logging.info("syncing all data & filesystems & hardware in the system")
-        ret = libc.sync() == 0
+        ret = clib.sync() == 0
     return ret

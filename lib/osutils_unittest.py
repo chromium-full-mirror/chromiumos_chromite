@@ -5,7 +5,6 @@
 """Unittests for the osutils.py module (imagine that!)."""
 
 import collections
-import ctypes
 import errno
 import filecmp
 import glob
@@ -25,6 +24,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import partial_mock
+from chromite.utils import libc
 
 
 class TestOsutils(cros_test_lib.TempDirTestCase):
@@ -1927,27 +1927,27 @@ class TestMockSyncStorage(cros_test_lib.TestCase):
     def testSync(self):
         """Verify we call libc.sync()."""
         m = mock.MagicMock()
-        with mock.patch.object(ctypes, "CDLL", return_value=m):
+        with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage()
         m.sync.assert_called_once()
 
     def testFDataSync(self):
         """Verify we call libc.fdatasync()."""
         m = mock.MagicMock()
-        with mock.patch.object(ctypes, "CDLL", return_value=m):
+        with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage(".", data_only=True)
         m.fdatasync.assert_called_once()
 
     def testSyncfs(self):
         """Verify we call libc.syncfs()."""
         m = mock.MagicMock()
-        with mock.patch.object(ctypes, "CDLL", return_value=m):
+        with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage(".", filesystem=True)
         m.syncfs.assert_called_once()
 
     def testFsync(self):
         """Verify we call libc.fsync()."""
         m = mock.MagicMock()
-        with mock.patch.object(ctypes, "CDLL", return_value=m):
+        with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage(".")
         m.fsync.assert_called_once()

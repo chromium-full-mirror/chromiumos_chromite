@@ -5,11 +5,12 @@
 """Python API for the prctl() syscall."""
 
 import ctypes
-import ctypes.util
 import enum
 import errno
 import os
 from typing import List, Optional, Union
+
+from chromite.utils import libc
 
 
 PrctlType = Union["ctypes._CArgObject", int]
@@ -112,8 +113,7 @@ def prctl(
         prctl.prctl(prctl.Option.GET_PDEATHSIG, ctypes.byref(arg2))
         print(arg2.value)
     """
-    libc_name = ctypes.util.find_library("c")
-    libc = ctypes.CDLL(libc_name, use_errno=True)
+    clib = libc.GetLibc()
 
     # Clear the errno so the caller can determine whether this call failed.
     ctypes.set_errno(0)
@@ -121,7 +121,7 @@ def prctl(
     # NB: It's safe to call prctl with unused args as they'll get ignored, and
     # it's safer to explicitly specify a default of 0 rather than leave whatever
     # garbage is in the register.
-    ret = libc.prctl(option, arg2, arg3, arg4, arg5)
+    ret = clib.prctl(option, arg2, arg3, arg4, arg5)
 
     if not isinstance(ret, int):
         raise TypeError(

@@ -6,7 +6,6 @@
 
 import contextlib
 import ctypes
-import ctypes.util
 import errno
 import logging
 import os
@@ -24,6 +23,7 @@ from chromite.lib import commandline
 from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import process_util
+from chromite.utils import libc
 from chromite.utils import os_util
 from chromite.utils import proctitle_util
 
@@ -55,8 +55,7 @@ def SetNS(fd, nstype):
             fp = open(fd, "wb")  # pylint: disable=consider-using-with
             fd = fp.fileno()
 
-        libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
-        if libc.setns(ctypes.c_int(fd), ctypes.c_int(nstype)) != 0:
+        if libc.GetLibc().setns(ctypes.c_int(fd), ctypes.c_int(nstype)) != 0:
             e = ctypes.get_errno()
             raise OSError(e, os.strerror(e))
     finally:
@@ -73,8 +72,7 @@ def Unshare(flags):
     Raises:
         OSError: if unshare failed.
     """
-    libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
-    if libc.unshare(ctypes.c_int(flags)) != 0:
+    if libc.GetLibc().unshare(ctypes.c_int(flags)) != 0:
         e = ctypes.get_errno()
         raise OSError(e, os.strerror(e))
 
