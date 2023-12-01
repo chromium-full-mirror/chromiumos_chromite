@@ -1587,8 +1587,8 @@ def InstallDlcImages(
                     source_dlc_dir = os.path.join(
                         dlc_build_dir, d_id, d_package
                     )
-                    for filepath in (
-                        os.path.join(source_dlc_dir, fname)
+                    for filepath, fname in (
+                        (os.path.join(source_dlc_dir, fname), fname)
                         for fname in os.listdir(source_dlc_dir)
                         if fname.endswith(".img")
                     ):
@@ -1602,6 +1602,11 @@ def InstallDlcImages(
                             ["cp", filepath, install_stateful_dir],
                             print_cmd=False,
                             stderr=True,
+                        )
+                        osutils.Chmod(
+                            os.path.join(install_stateful_dir, fname),
+                            0o644,
+                            sudo=True,
                         )
 
                     # Change the owner + group of factory install directory.
