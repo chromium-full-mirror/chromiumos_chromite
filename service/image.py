@@ -372,9 +372,8 @@ def Build(
         "--board",
         board,
     ]
-    result = cros_build_lib.run(dlc_cmd, enter_chroot=True, check=False)
-    if result.returncode:
-        logging.warning("Copying DLC images to %s failed.", dlc_dir)
+    # During build image phase, the DLC images get finalized.
+    cros_build_lib.run(dlc_cmd)
 
     logging.info("Done. Image(s) created in %s\n", output_dir)
 
