@@ -187,6 +187,12 @@ def fake_build_query_overlays(tmp_path):
         ],
     )
 
+    overlay_foo_private = portage_testables.Overlay(
+        root_path=tmp_path / "overlay-foo-private",
+        name="foo-private",
+    )
+    overlay_foo_private.create_profile()
+
     overlays = [
         portage_stable,
         chromiumos_overlay,
@@ -196,6 +202,7 @@ def fake_build_query_overlays(tmp_path):
         baseboard_fake_private,
         overlay_fake_private,
         overlay_faux_private,
+        overlay_foo_private,
     ]
     with mock.patch(
         "chromite.lib.portage_util.FindOverlays",

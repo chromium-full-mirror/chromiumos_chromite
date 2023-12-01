@@ -279,7 +279,11 @@ def test_query_one_or_none(fake_build_query_overlays):
 def test_query_all(fake_build_query_overlays):
     """Test .all() on a query."""
     boards = build_query.Query(build_query.Board).all()
-    assert boards == [build_query.Board("fake"), build_query.Board("faux")]
+    assert boards == [
+        build_query.Board("fake"),
+        build_query.Board("faux"),
+        build_query.Board("foo"),
+    ]
 
 
 def test_resolve_incremental_variable(fake_build_query_overlays):
