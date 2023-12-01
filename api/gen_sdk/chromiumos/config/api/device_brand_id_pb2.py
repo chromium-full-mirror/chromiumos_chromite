@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/config/api/device_brand_id.proto\x12\x15\x63hromiumos.config.api\"\xd7\x01\n\rDeviceBrandId\x12\r\n\x05value\x18\x01 \x01(\t\x1a\xb6\x01\n\nScanConfig\x12\x16\n\x0ewhitelabel_tag\x18\x01 \x01(\t\x12^\n\x13\x66\x65\x61ture_device_type\x18\x02 \x01(\x0e\x32\x41.chromiumos.config.api.DeviceBrandId.ScanConfig.FeatureDeviceType\"0\n\x11\x46\x65\x61tureDeviceType\x12\x07\n\x03OFF\x10\x00\x12\n\n\x06LEGACY\x10\x01\x12\x06\n\x02ON\x10\x02\x42*Z(go.chromium.org/chromiumos/config/go/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/config/api/device_brand_id.proto\x12\x15\x63hromiumos.config.api\"\xf1\x01\n\rDeviceBrandId\x12\r\n\x05value\x18\x01 \x01(\t\x1a\xd0\x01\n\nScanConfig\x12\x16\n\x0ewhitelabel_tag\x18\x01 \x01(\t\x12^\n\x13\x66\x65\x61ture_device_type\x18\x02 \x01(\x0e\x32\x41.chromiumos.config.api.DeviceBrandId.ScanConfig.FeatureDeviceType\x12\x18\n\x10\x63ustom_label_tag\x18\x03 \x01(\t\"0\n\x11\x46\x65\x61tureDeviceType\x12\x07\n\x03OFF\x10\x00\x12\n\n\x06LEGACY\x10\x01\x12\x06\n\x02ON\x10\x02\x42*Z(go.chromium.org/chromiumos/config/go/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.config.api.device_brand_id_pb2', globals())
@@ -22,9 +22,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z(go.chromium.org/chromiumos/config/go/api'
   _DEVICEBRANDID._serialized_start=71
-  _DEVICEBRANDID._serialized_end=286
+  _DEVICEBRANDID._serialized_end=312
   _DEVICEBRANDID_SCANCONFIG._serialized_start=104
-  _DEVICEBRANDID_SCANCONFIG._serialized_end=286
-  _DEVICEBRANDID_SCANCONFIG_FEATUREDEVICETYPE._serialized_start=238
-  _DEVICEBRANDID_SCANCONFIG_FEATUREDEVICETYPE._serialized_end=286
+  _DEVICEBRANDID_SCANCONFIG._serialized_end=312
+  _DEVICEBRANDID_SCANCONFIG_FEATUREDEVICETYPE._serialized_start=264
+  _DEVICEBRANDID_SCANCONFIG_FEATUREDEVICETYPE._serialized_end=312
 # @@protoc_insertion_point(module_scope)
