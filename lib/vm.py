@@ -512,7 +512,8 @@ class VM(device.Device):
             "-device",
             "virtio-rng",
             "-device",
-            "scsi-hd,drive=hd",
+            # rotation_rate=1 is treated as "non-rotational"
+            "scsi-hd,drive=hd,rotation_rate=1",
             "-drive",
             "if=none,id=hd,file=%s,cache=unsafe,format=%s"
             % (image_path, image_format),

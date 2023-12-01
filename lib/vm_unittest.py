@@ -135,7 +135,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
                 "-device",
                 "virtio-scsi-pci,id=scsi",
                 "-device",
-                "scsi-hd,drive=hd",
+                "scsi-hd,drive=hd,rotation_rate=1",
                 "-drive",
                 "if=none,id=hd,file=%s,cache=unsafe,format=raw"
                 % self.TempFilePath(constants.TEST_IMAGE_BIN),
