@@ -704,6 +704,13 @@ class Board(QueryTarget):
         return self.private_overlay or self.public_overlay
 
     @property
+    def overlays(self) -> Iterator[Overlay]:
+        """All overlays accessible to this board."""
+        if self.top_level_overlay:
+            yield self.top_level_overlay
+            yield from self.top_level_overlay.parents
+
+    @property
     def top_level_profile(self) -> Optional[Profile]:
         """The top-level profile for this board."""
         if self.top_level_overlay:

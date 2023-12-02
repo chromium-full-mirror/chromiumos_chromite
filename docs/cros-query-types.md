@@ -11,6 +11,7 @@
 * `is_variant` (`bool`): True if this board has another board's top level overlay in its
         overlays parents.
 
+* `overlays` (`Iterator[Overlay]`): All overlays accessible to this board.
 * `top_level_overlay` (`Optional[Overlay]`): The top-level overlay for this board.
 * `top_level_profile` (`Optional[Profile]`): The top-level profile for this board.
 * `use_flags` (`Set[str]`): The fully-evaluated USE flags for this board.
