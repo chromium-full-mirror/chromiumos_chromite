@@ -1,0 +1,62 @@
+# Copyright 2023 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+"""Tests for relevancy controller."""
+
+from pathlib import Path
+from unittest import mock
+
+import pytest
+
+from chromite.api import api_config
+from chromite.api.controller import relevancy
+from chromite.api.gen.chromite.api import relevancy_pb2
+from chromite.api.gen.chromiumos import common_pb2
+from chromite.lib import build_target_lib
+from chromite.service import relevancy as relevancy_service
+
+
+_FAKE_INPUT_PROTO = relevancy_pb2.GetRelevantBuildTargetsRequest(
+    build_targets=[
+        common_pb2.BuildTarget(name="fake"),
+        common_pb2.BuildTarget(name="foo"),
+    ],
+    affected_paths=[
+        relevancy_pb2.Path(path="src/platform/fake/subdir/foo.c"),
+        relevancy_pb2.Path(path="src/overlays/overlay-fake/toolchains.conf"),
+    ],
+)
+_REASON_FUNDAMENTAL = relevancy_service.ReasonFundamental(
+    trigger=Path("chromite/bin/baz"),
+    subtree=Path("chromite"),
+)
+_RELEVANT_TARGET = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
+    build_target=common_pb2.BuildTarget(name="fake"),
+    reason=_REASON_FUNDAMENTAL.to_proto(),
+)
+
+
+@pytest.mark.parametrize(
+    ("mocked_results", "expected_output_proto"),
+    [
+        (
+            [(build_target_lib.BuildTarget("fake"), _REASON_FUNDAMENTAL)],
+            relevancy_pb2.GetRelevantBuildTargetsResponse(
+                build_targets=[_RELEVANT_TARGET],
+            ),
+        ),
+    ],
+)
+def test_get_relevant_build_targets(mocked_results, expected_output_proto):
+    with mock.patch(
+        "chromite.service.relevancy.get_relevant_build_targets",
+        return_value=mocked_results,
+    ):
+        output_proto = relevancy_pb2.GetRelevantBuildTargetsResponse()
+        relevancy.GetRelevantBuildTargets(
+            _FAKE_INPUT_PROTO,
+            output_proto,
+            api_config.ApiConfig(),
+        )
+        assert output_proto == expected_output_proto
