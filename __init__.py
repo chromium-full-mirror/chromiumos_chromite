@@ -35,7 +35,7 @@ class ChromiteLogger(logging.getLoggerClass()):  # type: ignore
         super().__init__(name, level=level)
         logging.addLevelName(NOTICE, "NOTICE")
 
-    def notice(self, msg, *args, **kwargs):
+    def notice(self, msg: str, *args, **kwargs) -> None:
         if self.isEnabledFor(NOTICE):
             self._log(NOTICE, msg, args, **kwargs)
 
