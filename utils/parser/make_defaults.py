@@ -10,7 +10,7 @@ profiles, you'll want to use lib/build_query.py.
 """
 
 import re
-from typing import Dict, Iterator
+from typing import Dict, Iterator, Match
 
 
 # This regex is used to do lexical analysis on make.defaults files.
@@ -83,9 +83,9 @@ def parse(contents: str) -> Dict[str, str]:
     Returns:
         A dictionary, mapping variable names to their values.
     """
-    variables = {}
+    variables: Dict[str, str] = {}
 
-    def _var_sub_fn(m):
+    def _var_sub_fn(m: Match[str]) -> str:
         var_name = m.group(1) or m.group(2)
         return variables.get(var_name, "")
 
