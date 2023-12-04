@@ -10,7 +10,7 @@ from chromite.lib import dependency_graph
 from chromite.lib.parser import package_info
 
 
-def _build_depgraph():
+def _build_depgraph() -> dependency_graph.DependencyGraph:
     """Build a DependencyGraph to test against."""
     sysroot = "/build/target/"
     sdk_root = "/"
@@ -47,7 +47,7 @@ def _build_depgraph():
     return dependency_graph.DependencyGraph(nodes, sysroot, [virtual])
 
 
-def test_dependency_graph_incorrect_sysroot():
+def test_dependency_graph_incorrect_sysroot() -> None:
     """Test building a graph with the wrong sysroot fails."""
     pkg = package_info.parse("foo/bar-1.0-r2")
     sdk_root = "/"
@@ -61,7 +61,7 @@ def test_dependency_graph_incorrect_sysroot():
         )
 
 
-def test_create_invalid_depgraph_too_many_roots():
+def test_create_invalid_depgraph_too_many_roots() -> None:
     """Test building a graph with too many roots fails."""
     pkg = package_info.parse("foo/bar-1.0-r2")
     n1 = dependency_graph.PackageNode(pkg, "/")
@@ -74,7 +74,7 @@ def test_create_invalid_depgraph_too_many_roots():
         )
 
 
-def test_create_invalid_depgraph_node_conflict():
+def test_create_invalid_depgraph_node_conflict() -> None:
     """Test building a graph with non-equivalent nodes for one package fails."""
     pkg = package_info.parse("foo/bar-1.0-r2")
     dep = package_info.parse("foo/baz-2.0")
@@ -92,7 +92,7 @@ def test_create_invalid_depgraph_node_conflict():
         )
 
 
-def test_create_valid_depgraph_duplicate_nodes():
+def test_create_valid_depgraph_duplicate_nodes() -> None:
     """Test deduplication of nodes in depgraph creation."""
     pkg = package_info.parse("foo/bar-1.0-r2")
     dep = package_info.parse("foo/baz-2.0")
@@ -120,7 +120,7 @@ def test_create_valid_depgraph_duplicate_nodes():
     assert len(graph) == 2
 
 
-def test_dependency_graph_roots():
+def test_dependency_graph_roots() -> None:
     """Test the roots get parsed correctly."""
     graph = _build_depgraph()
 
@@ -128,13 +128,13 @@ def test_dependency_graph_roots():
     assert graph.sysroot_path == "/build/target"
 
 
-def test_dependency_graph_len():
+def test_dependency_graph_len() -> None:
     """Test the graph size."""
     graph = _build_depgraph()
     assert len(graph) == 5
 
 
-def test_dependency_graph_in():
+def test_dependency_graph_in() -> None:
     """Test __contains__."""
     graph = _build_depgraph()
 
@@ -150,7 +150,7 @@ def test_dependency_graph_in():
     assert "not/in-1.0" not in graph
 
 
-def test_dependency_graph_iter():
+def test_dependency_graph_iter() -> None:
     """Test __iter__ BFS traversal."""
     graph = _build_depgraph()
 
@@ -174,13 +174,13 @@ def test_dependency_graph_iter():
         assert node.pkg_info in expected_order[i]
 
 
-def test_dependency_graph_get_nodes_default_values():
+def test_dependency_graph_get_nodes_default_values() -> None:
     """Test get_nodes retrieves the expected results with default args."""
     graph = _build_depgraph()
     assert len(graph.get_nodes()) == 5
 
 
-def test_dependency_graph_get_nodes():
+def test_dependency_graph_get_nodes() -> None:
     """Test get_nodes retrieves the expected results."""
     graph = _build_depgraph()
 
@@ -195,7 +195,7 @@ def test_dependency_graph_get_nodes():
     assert pi_nodes == cpvr_nodes == atom_nodes == pi_atom_nodes
 
 
-def test_dependency_graph_get_nodes_by_roots():
+def test_dependency_graph_get_nodes_by_roots() -> None:
     """Test get_nodes correctly filters by the root types."""
     graph = _build_depgraph()
 
@@ -218,7 +218,7 @@ def test_dependency_graph_get_nodes_by_roots():
     assert dep_sdk_node.root == "/"
 
 
-def test_dependency_graph_get_nodes_multi_version_package():
+def test_dependency_graph_get_nodes_multi_version_package() -> None:
     """Test handling of multiple packages with different versions."""
     virtual = package_info.parse("virtual/foo-1.0")
     pkg1 = package_info.parse("cat/pkg-1.0")
@@ -260,7 +260,7 @@ def test_dependency_graph_get_nodes_multi_version_package():
     assert all(p.pkg_info.atom == atom.atom for p in graph.get_nodes([atom]))
 
 
-def test_dependency_graph_dependencies():
+def test_dependency_graph_dependencies() -> None:
     """Tests for get_dependencies and get_reverse_dependencies."""
     graph = _build_depgraph()
 
@@ -284,7 +284,7 @@ def test_dependency_graph_dependencies():
     assert set(graph.get_reverse_dependencies(depdep)) == set(dep_nodes)
 
 
-def test_dependency_graph_is_dependency():
+def test_dependency_graph_is_dependency() -> None:
     """Test is_dependency method."""
     graph = _build_depgraph()
 
@@ -305,7 +305,7 @@ def test_dependency_graph_is_dependency():
     assert not graph.is_dependency(depdep, bdep)
 
 
-def test_dependency_graph_is_dependency_root_types():
+def test_dependency_graph_is_dependency_root_types() -> None:
     """Test is_dependency method when using the root type filters."""
     graph = _build_depgraph()
 
@@ -340,7 +340,7 @@ def test_dependency_graph_is_dependency_root_types():
     )
 
 
-def test_depedency_graph_is_relevant():
+def test_depedency_graph_is_relevant() -> None:
     """Test the is_relevant method."""
     graph = _build_depgraph()
     # Dependency.
@@ -356,7 +356,7 @@ def test_depedency_graph_is_relevant():
     assert not graph.is_relevant("/not/relevant")
 
 
-def test_dependency_graph_any_relevant():
+def test_dependency_graph_any_relevant() -> None:
     """Test the any_relevant method."""
     graph = _build_depgraph()
     # Both relevant.
@@ -367,7 +367,7 @@ def test_dependency_graph_any_relevant():
     assert not graph.any_relevant(["/not/relevant", "/also/not/relevant"])
 
 
-def test_get_relevant_nodes():
+def test_get_relevant_nodes() -> None:
     """Test the get_relevant_nodes method."""
     graph = _build_depgraph()
     dep = package_info.parse("cat/dep-1.0.0-r1")
