@@ -480,12 +480,12 @@ COMMON_CACHE = "common"
 
 
 # Artifact constants.
-def _SlashToUnderscore(string):
+def _SlashToUnderscore(string: str) -> str:
     return string.replace("/", "_")
 
 
 # GCE tar ball constants.
-def ImageBinToGceTar(image_bin):
+def ImageBinToGceTar(image_bin: str) -> str:
     assert image_bin.endswith(".bin"), (
         'Filename %s does not end with ".bin"' % image_bin
     )
