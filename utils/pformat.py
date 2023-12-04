@@ -6,13 +6,13 @@
 
 import datetime
 import json as mod_json
-import os
-from typing import Optional, TextIO, Union
+import pathlib
+from typing import Any, Optional, TextIO, Type, Union
 
 from chromite.utils import file_util
 
 
-def timedelta(delta):
+def timedelta(delta: datetime.timedelta) -> str:
     """Returns a more human-readable version of the datetime.timedelta.
 
     Useful when printing durations >= 1 second in logs.
@@ -39,9 +39,9 @@ def timedelta(delta):
 
 
 def json(
-    obj,
-    fp: Optional[Union[str, os.PathLike, TextIO]] = None,
-    cls: Optional[mod_json.JSONEncoder] = None,
+    obj: Any,
+    fp: Optional[Union[str, pathlib.PurePath, TextIO]] = None,
+    cls: Type[mod_json.JSONEncoder] = mod_json.JSONEncoder,
     compact: bool = False,
 ) -> Optional[str]:
     """Convert an object to JSON with the right format.
@@ -57,22 +57,23 @@ def json(
     Returns:
         A string if |fp| is not specified, else None.
     """
-    kwargs = {
-        "cls": cls,
+    encoder = cls(
         # JSON style guide says Unicode characters are fully allowed.
-        "ensure_ascii": False,
+        ensure_ascii=False,
         # We use 2 space indent to match JSON style guide.
-        "indent": None if compact else 2,
-        "separators": (",", ":") if compact else (",", ": "),
-        "sort_keys": True,
-    }
+        indent=None if compact else 2,
+        separators=(",", ":") if compact else (",", ": "),
+        sort_keys=True,
+    )
     if fp:
         with file_util.Open(fp, mode="w") as real_fp:
-            mod_json.dump(obj, real_fp, **kwargs)
+            for chunk in encoder.iterencode(obj):
+                real_fp.write(chunk)
             if not compact:
                 real_fp.write("\n")
+        return None
     else:
-        ret = mod_json.dumps(obj, **kwargs)
+        ret = encoder.encode(obj)
         if not compact:
             ret += "\n"
         return ret
