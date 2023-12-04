@@ -23,7 +23,16 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import List, NoReturn, Optional, Union
+from typing import (
+    Any,
+    Iterable,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import constants
@@ -58,7 +67,7 @@ _THRESHOLD_TO_USE_T_FOR_TAR = 50
 tracer = trace.get_tracer(__name__)
 
 
-def ShellQuote(s):
+def ShellQuote(s: Union[str, bytes, Path]) -> str:
     """Quote |s| in a way that is safe for use in a shell.
 
     We aim to be safe, but also to produce "nice" output.  That means we don't
@@ -101,7 +110,7 @@ def ShellQuote(s):
         if not s:
             return "''"
         else:
-            return s
+            return s  # type: ignore
 
     # See if we can use single quotes first.  Output is nicer.
     if "'" not in s:
@@ -115,7 +124,7 @@ def ShellQuote(s):
     return '"%s"' % s
 
 
-def ShellUnquote(s):
+def ShellUnquote(s: str) -> str:
     """Do the opposite of ShellQuote.
 
     This function assumes that the input is a valid, escaped string. The
@@ -148,7 +157,7 @@ def ShellUnquote(s):
     return output + s[i] if i < len(s) else output
 
 
-def CmdToStr(cmd):
+def CmdToStr(cmd: Union[List[Any], Tuple[Any]]) -> str:
     """Translate a command list into a space-separated string.
 
     The resulting string should be suitable for logging messages and for
@@ -185,16 +194,21 @@ class CompletedProcess(subprocess.CompletedProcess):
     defaults for |args| and |returncode|.
     """
 
-    def __init__(self, args=None, returncode=None, **kwargs):
+    def __init__(
+        self,
+        args: Optional[Sequence[str]] = None,
+        returncode: Optional[int] = None,
+        **kwargs: Any,
+    ):
         super().__init__(args=args, returncode=returncode, **kwargs)
 
     @property
-    def cmd(self):
+    def cmd(self) -> Sequence[str]:
         """Alias to self.args to better match other subprocess APIs."""
         return self.args
 
     @property
-    def cmdstr(self):
+    def cmdstr(self) -> str:
         """Return self.cmd as a well shell-quoted string.
 
         Especially useful for log messages.
@@ -204,7 +218,7 @@ class CompletedProcess(subprocess.CompletedProcess):
         else:
             return CmdToStr(self.args)
 
-    def check_returncode(self):
+    def check_returncode(self) -> None:
         """Raise CalledProcessError if the exit code is non-zero."""
         if self.returncode:
             raise CalledProcessError(
@@ -339,7 +353,12 @@ class RunCommandError(CalledProcessError):
         exception: The underlying Exception if available.
     """
 
-    def __init__(self, msg, result=None, exception=None):
+    def __init__(
+        self,
+        msg: str,
+        result: Optional[CompletedProcess] = None,
+        exception: Optional[Exception] = None,
+    ):
         # This makes mocking tests easier.
         if result is None:
             result = CompletedProcess()
@@ -1041,23 +1060,23 @@ def GetSysrootToolPath(sysroot, tool_name):
     return os.path.join(sysroot, "build", "bin", tool_name)
 
 
-def IsInsideChroot():
+def IsInsideChroot() -> bool:
     """Returns True if we are inside chroot."""
     return os.path.exists("/etc/cros_chroot_version")
 
 
-def IsOutsideChroot():
+def IsOutsideChroot() -> bool:
     """Returns True if we are outside chroot."""
     return not IsInsideChroot()
 
 
-def AssertInsideChroot():
+def AssertInsideChroot() -> None:
     """Die if we are outside the chroot"""
     if not IsInsideChroot():
         Die("%s: please run inside the chroot", os.path.basename(sys.argv[0]))
 
 
-def AssertOutsideChroot():
+def AssertOutsideChroot() -> None:
     """Die if we are inside the chroot"""
     if IsInsideChroot():
         Die("%s: please run outside the chroot", os.path.basename(sys.argv[0]))
@@ -1090,7 +1109,7 @@ class CompressionType(enum.IntEnum):
 
 
 def FindCompressor(
-    compression, chroot: Optional[Union[Path, str]] = None
+    compression: CompressionType, chroot: Optional[Union[Path, str]] = None
 ) -> str:
     """Locate a compressor utility program (possibly in a chroot).
 
@@ -1137,7 +1156,9 @@ def FindCompressor(
     return possible_progs[-1]
 
 
-def CompressionDetectType(path: Union[str, os.PathLike]) -> CompressionType:
+def CompressionDetectType(
+    path: Union[str, "os.PathLike[str]"]
+) -> CompressionType:
     """Detect the type of compression used by |path| by sniffing its data.
 
     Args:
@@ -1207,7 +1228,10 @@ def CompressionExtToType(file_name: Union[Path, str]) -> CompressionType:
     return _COMP_EXT.get(ext, CompressionType.NONE)
 
 
-def CompressFile(infile, outfile) -> CompletedProcess:
+def CompressFile(
+    infile: Union[str, "os.PathLike[str]"],
+    outfile: Union[str, "os.PathLike[str]"],
+) -> CompletedProcess:
     """Compress a file using compressor specified by |outfile| suffix.
 
     Args:
@@ -1221,7 +1245,10 @@ def CompressFile(infile, outfile) -> CompletedProcess:
     return run([comp, "-c", infile], stdout=outfile)
 
 
-def UncompressFile(infile, outfile) -> CompletedProcess:
+def UncompressFile(
+    infile: Union[str, "os.PathLike[str]"],
+    outfile: Union[str, "os.PathLike[str]"],
+) -> CompletedProcess:
     """Uncompress a file using compressor specified by |infile| suffix.
 
     Args:
@@ -1252,8 +1279,8 @@ def CreateTarball(
     inputs: Optional[List[str]] = None,
     timeout: int = 300,
     extra_args: Optional[List[str]] = None,
-    **kwargs,
-):
+    **kwargs: Any,
+) -> CompletedProcess:
     """Create a tarball.  Executes 'tar' on the commandline.
 
     Args:
@@ -1362,7 +1389,7 @@ def CreateTarball(
             "CreateTarball: tar: source modification time changed "
             "(see crbug.com/547055), retrying"
         )
-        cbuildbot_alerts.PrintBuildbotStepWarnings()
+        cbuildbot_alerts.PrintBuildbotStepWarnings()  # type: ignore
 
 
 def ExtractTarball(
@@ -1458,7 +1485,7 @@ def IsTarball(path: str) -> bool:
     return parts[-1] in ("tbz2", "tbz", "tgz", "txz")
 
 
-def GetChoice(title, options, group_size=0):
+def GetChoice(title: str, options: Iterable[str], group_size: int = 0) -> int:
     """Ask user to choose an option from the list.
 
     When |group_size| is 0, then all items in |options| will be extracted and
@@ -1476,7 +1503,7 @@ def GetChoice(title, options, group_size=0):
         An integer of the index in |options| the user picked.
     """
 
-    def PromptForChoice(max_choice, more):
+    def PromptForChoice(max_choice: int, more: bool) -> Optional[int]:
         prompt = "Please choose an option [0-%d]" % max_choice
         if more:
             prompt += " (Enter for more options)"
@@ -1487,14 +1514,14 @@ def GetChoice(title, options, group_size=0):
             if more and not choice.strip():
                 return None
             try:
-                choice = int(choice)
+                choice_val = int(choice)
             except ValueError:
                 print("Input is not an integer")
                 continue
-            if choice < 0 or choice > max_choice:
-                print("Choice %d out of range (0-%d)" % (choice, max_choice))
+            if choice_val < 0 or choice_val > max_choice:
+                print(f"Choice {choice_val:d} out of range (0-{max_choice:d})")
                 continue
-            return choice
+            return choice_val
 
     print(title)
     max_choice = 0
@@ -1510,12 +1537,12 @@ def GetChoice(title, options, group_size=0):
 
 
 def BooleanPrompt(
-    prompt="Do you want to continue?",
-    default=True,
-    true_value="yes",
-    false_value="no",
-    prolog=None,
-):
+    prompt: str = "Do you want to continue?",
+    default: bool = True,
+    true_value: str = "yes",
+    false_value: str = "no",
+    prolog: Optional[str] = None,
+) -> bool:
     """Helper function for processing boolean choice prompts.
 
     Args:
@@ -1567,7 +1594,9 @@ def BooleanPrompt(
             return False
 
 
-def BooleanShellValue(sval, default, msg=None):
+def BooleanShellValue(
+    sval: str, default: bool, msg: Optional[str] = None
+) -> bool:
     """See if the string value is a value users typically consider as boolean
 
     Often times people set shell variables to different values to mean "true"
@@ -1621,7 +1650,7 @@ class PrimaryPidContextManager:
     def __init__(self):
         self._invoking_pid = None
 
-    def __enter__(self):
+    def __enter__(self) -> Optional[Any]:
         self._invoking_pid = os.getpid()
         return self._enter()
 
@@ -1632,14 +1661,14 @@ class PrimaryPidContextManager:
         if curpid == self._invoking_pid:
             return self._exit(exc_type, exc, exc_tb)
 
-    def _enter(self):
+    def _enter(self) -> Optional[Any]:
         raise NotImplementedError(self, "_enter")
 
-    def _exit(self, exc_type, exc, exc_tb):
+    def _exit(self, exc_type, exc, exc_tb) -> Optional[Any]:
         raise NotImplementedError(self, "_exit")
 
 
-def iflatten_instance(iterable, terminate_on_kls=(str, bytes)):
+def iflatten_instance(iterable, terminate_on_kls=(str, bytes)) -> Iterable[Any]:
     """Derivative of snakeoil.lists.iflatten_instance; flatten an object.
 
     Given an object, flatten it into a single depth iterable,
@@ -1651,7 +1680,7 @@ def iflatten_instance(iterable, terminate_on_kls=(str, bytes)):
         [1, 2, "as", "4", 5]
     """
 
-    def descend_into(item):
+    def descend_into(item: Any) -> bool:
         if isinstance(item, terminate_on_kls):
             return False
         try:
@@ -1665,15 +1694,17 @@ def iflatten_instance(iterable, terminate_on_kls=(str, bytes)):
     if not descend_into(iterable):
         yield iterable
         return
-    for item in iterable:
-        if not descend_into(item):
-            yield item
+    for current in iterable:
+        if not descend_into(current):
+            yield current
         else:
-            for subitem in iflatten_instance(item, terminate_on_kls):
+            for subitem in iflatten_instance(current, terminate_on_kls):
                 yield subitem
 
 
-def UserDateTimeFormat(timeval=None):
+def UserDateTimeFormat(
+    timeval: Optional[Union[datetime.datetime, float]] = None
+) -> str:
     """Format a date meant to be viewed by a user
 
     The focus here is to have a format that is easily readable by humans,
@@ -1695,7 +1726,7 @@ def UserDateTimeFormat(timeval=None):
     )
 
 
-def ParseUserDateTimeFormat(time_string):
+def ParseUserDateTimeFormat(time_string) -> float:
     """Parse a time string into a floating point time value.
 
     This function is essentially the inverse of UserDateTimeFormat.
@@ -1710,7 +1741,7 @@ def ParseUserDateTimeFormat(time_string):
     return email.utils.mktime_tz(email.utils.parsedate_tz(time_string))
 
 
-def GetDefaultBoard():
+def GetDefaultBoard() -> Optional[str]:
     """Gets the default board.
 
     Returns:
@@ -1721,7 +1752,7 @@ def GetDefaultBoard():
         constants.SOURCE_ROOT, "src", "scripts", ".default_board"
     )
     try:
-        default_board = osutils.ReadFile(default_board_file_name).strip()
+        default_board = str(osutils.ReadFile(default_board_file_name).strip())
     except IOError:
         return None
 
@@ -1731,12 +1762,12 @@ def GetDefaultBoard():
             "Noticed invalid default board: |%s|. Ignoring this default.",
             default_board,
         )
-        default_board = None
+        return None
 
     return default_board
 
 
-def SetDefaultBoard(board: str):
+def SetDefaultBoard(board: str) -> bool:
     """Set the default board.
 
     Args:
@@ -1755,7 +1786,12 @@ def SetDefaultBoard(board: str):
     return True
 
 
-def GetBoard(device_board, override_board=None, force=False, strict=False):
+def GetBoard(
+    device_board: str,
+    override_board: Optional[str] = None,
+    force: bool = False,
+    strict: bool = False,
+) -> str:
     """Gets the board name to use.
 
     Ask user to confirm when |override_board| and |device_board| are
@@ -1790,7 +1826,7 @@ def GetBoard(device_board, override_board=None, force=False, strict=False):
     return board
 
 
-def GetRandomString():
+def GetRandomString() -> str:
     """Returns a random string.
 
     It will be 32 characters long, although callers shouldn't rely on this.
@@ -1805,7 +1841,7 @@ def GetRandomString():
     return base64.b32encode(stamp + data).decode("utf-8")[0:32].lower()
 
 
-def MachineDetails():
+def MachineDetails() -> str:
     """Returns a string to help identify the source of a job.
 
     This is not meant for machines to parse; instead, we want content that is
@@ -1854,7 +1890,7 @@ def UnbufferedNamedTemporaryFile(**kwargs):
     return tempfile.NamedTemporaryFile(buffering=0, **kwargs)
 
 
-def ClearShadowLocks(sysroot: Union[str, os.PathLike] = "/") -> None:
+def ClearShadowLocks(sysroot: Union[str, "os.PathLike[str]"] = "/") -> None:
     """Clears out stale shadow-utils locks in the given sysroot."""
     sysroot = Path(sysroot)
     logging.info("Clearing shadow-utils lockfiles under %s", sysroot)
