@@ -10,7 +10,7 @@ Keep this to a minimum as every chromite import will automatically load it.
 import functools
 import logging
 import sys
-from typing import Optional
+from typing import Any, Dict, Optional, Tuple
 
 
 assert sys.version_info >= (3, 8), "Chromite requires Python 3.8+"
@@ -35,7 +35,9 @@ class ChromiteLogger(logging.getLoggerClass()):  # type: ignore
         super().__init__(name, level=level)
         logging.addLevelName(NOTICE, "NOTICE")
 
-    def notice(self, msg: str, *args, **kwargs) -> None:
+    def notice(
+        self, msg: str, *args: Tuple[Any, ...], **kwargs: Dict[str, Any]
+    ) -> None:
         if self.isEnabledFor(NOTICE):
             self._log(NOTICE, msg, args, **kwargs)
 
