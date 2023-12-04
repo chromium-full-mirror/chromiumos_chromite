@@ -656,11 +656,11 @@ class PaygenPayload:
             partition_names: List of partition names.
         """
         self.tgt_partitions = tuple(
-            os.path.join(self.work_dir, f"tgt_%s-{self.rand_suffix}.bin" % name)
+            os.path.join(self.work_dir, f"tgt_%s{self.rand_suffix}.bin" % name)
             for name in partition_names
         )
         self.src_partitions = tuple(
-            os.path.join(self.work_dir, f"src_%s-{self.rand_suffix}.bin" % name)
+            os.path.join(self.work_dir, f"src_%s{self.rand_suffix}.bin" % name)
             for name in partition_names
         )
 
@@ -1334,7 +1334,9 @@ class PaygenPayload:
                     path=partition_file,
                     location=common_pb2.Path.INSIDE,
                 )
-                for partition_file in (self.src_partitions or [])
+                for partition_file in (
+                    self.src_partitions if self.payload.src_image else []
+                )
             ],
             tgt_partitions=[
                 common_pb2.Path(
