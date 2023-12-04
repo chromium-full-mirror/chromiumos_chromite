@@ -1549,7 +1549,7 @@ def uprev_libapps(
 
     updated_files = uprev_manager.modified_ebuilds
     result = uprev_lib.UprevVersionedPackageResult()
-    result.add_result(refs[0].revision, updated_files)
+    result.add_result(refs[-1].revision, updated_files)
     return result
 
 
