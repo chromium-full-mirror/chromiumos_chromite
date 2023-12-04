@@ -123,6 +123,11 @@ def prctl(
     # garbage is in the register.
     ret = libc.prctl(option, arg2, arg3, arg4, arg5)
 
+    if not isinstance(ret, int):
+        raise TypeError(
+            f"Expected an int return value from libc.prctl, got {ret!r}"
+        )
+
     c_errno = ctypes.get_errno()
     if c_errno:
         raise PrctlError(option, ret, [arg2, arg3, arg4, arg5], c_errno)
