@@ -226,6 +226,7 @@ def BundleFirmwareArtifacts(input_proto, output_proto, _config):
             (input_proto.artifacts.FIRMWARE_TARBALL, "tarball_info"),
             (input_proto.artifacts.FIRMWARE_LCOV, "lcov_info"),
             (input_proto.artifacts.CODE_COVERAGE_HTML, "coverage_html"),
+            (input_proto.artifacts.FIRMWARE_TOKEN_DATABASE, "token_info"),
         ):
             file_paths = [
                 full_path(x)
