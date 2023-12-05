@@ -18,8 +18,14 @@ class CompileProtoTest(
     """CompileProto tests."""
 
     def setUp(self) -> None:
-        self.request = api_pb2.CompileProtoRequest()
-        self.response = api_pb2.CompileProtoResponse()
+        # MyPy has been configured to ignore generated files, including proto
+        # bindings, so silence the error for proto constructs.
+        self.request = (
+            api_pb2.CompileProtoRequest()  # type: ignore[attr-defined]
+        )
+        self.response = (
+            api_pb2.CompileProtoResponse()  # type: ignore[attr-defined]
+        )
 
     def testCompileProto(self) -> None:
         """Quick CompileProto functional check."""
@@ -56,8 +62,12 @@ class GetMethodsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """GetMethods tests."""
 
     def setUp(self) -> None:
-        self.request = api_pb2.MethodGetRequest()
-        self.response = api_pb2.MethodGetResponse()
+        # MyPy has been configured to ignore generated files, including proto
+        # bindings, so silence the error for proto constructs.
+        self.request = api_pb2.MethodGetRequest()  # type: ignore[attr-defined]
+        self.response = (
+            api_pb2.MethodGetResponse()  # type: ignore[attr-defined]
+        )
 
     def testGetMethods(self) -> None:
         """Simple GetMethods check."""
@@ -89,8 +99,12 @@ class GetVersionTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.PatchObject(api_controller, "VERSION_MINOR", new=2)
         self.PatchObject(api_controller, "VERSION_BUG", new=3)
 
-        self.request = api_pb2.VersionGetRequest()
-        self.response = api_pb2.VersionGetResponse()
+        # MyPy has been configured to ignore generated files, including proto
+        # bindings, so silence the error for proto constructs.
+        self.request = api_pb2.VersionGetRequest()  # type: ignore[attr-defined]
+        self.response = (
+            api_pb2.VersionGetResponse()  # type: ignore[attr-defined]
+        )
 
     def testGetVersion(self) -> None:
         """Simple GetVersion check."""
