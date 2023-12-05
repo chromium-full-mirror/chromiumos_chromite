@@ -41,7 +41,7 @@ ALL_CONFIGS = {
 }
 
 
-def initialize():
+def initialize() -> None:
     """Initialize the config dir for use.
 
     Code does not need to invoke this all the time, but can be helpful when

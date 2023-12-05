@@ -5,6 +5,8 @@
 """Test creation of ~/.config/chromite and dir permissions."""
 
 import os
+from pathlib import Path
+from typing import Iterator
 
 import pytest
 
@@ -13,7 +15,9 @@ from chromite.lib import osutils
 
 
 @pytest.fixture(name="chromite_config_dir")
-def chromite_config_dir_fixture(monkeypatch, tmp_path):
+def chromite_config_dir_fixture(  # type: ignore[no-untyped-def]
+    monkeypatch, tmp_path: Path
+) -> Iterator[Path]:
     d = tmp_path / ".config" / "chromite"
     monkeypatch.setattr(chromite_config, "DIR", d)
 
@@ -23,12 +27,12 @@ def chromite_config_dir_fixture(monkeypatch, tmp_path):
     yield d
 
 
-def test_chromite_config_created(chromite_config_dir):
+def test_chromite_config_created(chromite_config_dir: Path) -> None:
     chromite_config.initialize()
     assert os.path.exists(chromite_config_dir)
 
 
-def test_chromite_config_chowns_to_non_root(chromite_config_dir):
+def test_chromite_config_chowns_to_non_root(chromite_config_dir: Path) -> None:
     osutils.SafeMakedirs(chromite_config_dir, sudo=True, user="root")
     assert chromite_config_dir.owner() == "root"
 
