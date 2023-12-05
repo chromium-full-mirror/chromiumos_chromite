@@ -7,7 +7,22 @@
 import collections
 import logging
 import os
+from pathlib import Path
 import re
+import types
+from typing import (
+    Any,
+    Callable,
+    Container,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 from unittest import mock
 
 from chromite.lib import cros_build_lib
@@ -15,7 +30,9 @@ from chromite.lib import osutils
 from chromite.utils import memoize
 
 
-def _PredicateSplit(func, iterable):
+def _PredicateSplit(
+    func: Callable[[Any], bool], iterable: Iterable[Any]
+) -> Tuple[List[Any], List[Any]]:
     """Splits an iterable into two groups based on a predicate return value.
 
     Args:
@@ -28,7 +45,8 @@ def _PredicateSplit(func, iterable):
         returned True for, and the second containing items that func() returned
         False for.
     """
-    trues, falses = [], []
+    trues: List[Any] = []
+    falses: List[Any] = []
     for x in iterable:
         (trues if func(x) else falses).append(x)
     return trues, falses
@@ -37,25 +55,25 @@ def _PredicateSplit(func, iterable):
 class Comparator:
     """Base class for all comparators."""
 
-    def Match(self, arg):
+    def Match(self, arg: Any) -> bool:
         """Match the comparator against an argument."""
         raise NotImplementedError("method must be implemented by a subclass.")
 
-    def Equals(self, rhs):
+    def Equals(self, rhs: object) -> bool:
         """Returns whether rhs compares the same thing."""
         return isinstance(rhs, type(self)) and self.__dict__ == rhs.__dict__
 
-    def __eq__(self, rhs):
+    def __eq__(self, rhs: object) -> bool:
         return self.Equals(rhs)
 
-    def __ne__(self, rhs):
+    def __ne__(self, rhs: object) -> bool:
         return not self.Equals(rhs)
 
 
 class In(Comparator):
     """Checks whether an item (or key) is in a list (or dict) parameter."""
 
-    def __init__(self, key):
+    def __init__(self, key: Any) -> None:
         """Initialize.
 
         Args:
@@ -64,20 +82,20 @@ class In(Comparator):
         Comparator.__init__(self)
         self._key = key
 
-    def Match(self, arg):
+    def Match(self, arg: Union[Container[Any], Iterable[Any]]) -> bool:
         try:
             return self._key in arg
         except TypeError:
             return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<sequence or map containing %r>" % self._key
 
 
 class InOrder(Comparator):
     """Checks whether every items of a list exists in a list/dict parameter."""
 
-    def __init__(self, items):
+    def __init__(self, items: Iterable[Any]) -> None:
         """Constructor.
 
         Args:
@@ -86,7 +104,7 @@ class InOrder(Comparator):
         super().__init__()
         self.items = items
 
-    def Match(self, arg):
+    def Match(self, arg: Iterable[Any]) -> bool:
         """Checks if args' item matches all expected items in sequence.
 
         Args:
@@ -104,14 +122,14 @@ class InOrder(Comparator):
                 to_match = items.pop(0)
         return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<sequence or map containing %r>" % str(self.items)
 
 
 class Regex(Comparator):
     """Checks if a string matches a regular expression."""
 
-    def __init__(self, pattern, flags=0):
+    def __init__(self, pattern: str, flags: int = 0):
         """Initialize.
 
         Args:
@@ -123,13 +141,13 @@ class Regex(Comparator):
         self.flags = flags
         self.regex = re.compile(pattern, flags=flags)
 
-    def Match(self, arg):
+    def Match(self, arg: str) -> bool:
         try:
             return self.regex.search(arg) is not None
         except TypeError:
             return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = "<regular expression %r" % self.regex.pattern
         if self.regex.flags:
             s += ", flags=%d" % self.regex.flags
@@ -145,12 +163,12 @@ class ListRegex(Regex):
     """
 
     @staticmethod
-    def _ProcessArg(arg):
+    def _ProcessArg(arg: Union[Iterable[str], str]) -> str:
         if not isinstance(arg, str):
             return " ".join(arg)
         return arg
 
-    def Match(self, arg):
+    def Match(self, arg: Union[Iterable[str], str]) -> bool:
         try:
             return self.regex.search(self._ProcessArg(arg)) is not None
         except TypeError:
@@ -160,10 +178,10 @@ class ListRegex(Regex):
 class Ignore(Comparator):
     """Used when we don't care about an argument of a method call."""
 
-    def Match(self, _arg):
+    def Match(self, _arg: Any) -> bool:
         return True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<IgnoreArg>"
 
 
@@ -179,11 +197,11 @@ class HasString(str):
         some_mock.assert_called_with(partial_mock.HasString('required_keyword'))
     """
 
-    def __eq__(self, target):
+    def __eq__(self, target: Any) -> bool:
         return self in target
 
 
-def _RecursiveCompare(lhs, rhs):
+def _RecursiveCompare(lhs: Any, rhs: Any) -> Union[bool, Any]:
     """Compare parameter specs recursively.
 
     Args:
@@ -204,7 +222,9 @@ def _RecursiveCompare(lhs, rhs):
         return lhs == rhs
 
 
-def ListContains(small, big, strict=False):
+def ListContains(
+    small: Union[str, Sequence[str]], big: Sequence[str], strict: bool = False
+) -> bool:
     """Looks for a sublist within a bigger list.
 
     Args:
@@ -229,7 +249,7 @@ def ListContains(small, big, strict=False):
         return True
 
 
-def DictContains(small, big):
+def DictContains(small: Dict[Any, Any], big: Dict[Any, Any]) -> bool:
     """Looks for a subset within a dictionary.
 
     Args:
@@ -260,26 +280,34 @@ class MockedCallResults:
         "MockedCall", ["params", "strict", "result", "side_effect"]
     )
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         """Initialize.
 
         Args:
             name: The name given to the mock.  Will be used in debug output.
         """
         self.name = name
-        self.mocked_calls = []
-        self.default_result, self.default_side_effect = None, None
+        self.mocked_calls: List[Any] = []
+        self.default_result: Any = None
+        self.default_side_effect: Optional[Callable[[Any], Any]] = None
 
     @staticmethod
-    def AssertArgs(args, kwargs):
+    def AssertArgs(
+        args: Tuple[Any], kwargs: Optional[Dict[Any, Any]] = None
+    ) -> None:
         """Verify arguments are of expected type."""
         assert isinstance(args, (tuple))
         if kwargs:
             assert isinstance(kwargs, dict)
 
     def AddResultForParams(
-        self, args, result, kwargs=None, side_effect=None, strict=True
-    ):
+        self,
+        args: Tuple[Any],
+        result: Any,
+        kwargs: Optional[Dict[Any, Any]] = None,
+        side_effect: Optional[Callable[[Any], Any]] = None,
+        strict: bool = True,
+    ) -> None:
         """Record the internal results of a given partial mock call.
 
         Args:
@@ -310,7 +338,10 @@ class MockedCallResults:
 
         params = self.Params(args=args, kwargs=kwargs)
         dup, filtered = _PredicateSplit(
-            lambda mc: mc.params == params, self.mocked_calls
+            # lambdas don't allow type hinting, so suppress inferred Any
+            # return type.
+            lambda mc: mc.params == params,  # type: ignore[no-any-return]
+            self.mocked_calls,
         )
 
         new = self.MockedCall(
@@ -328,7 +359,9 @@ class MockedCallResults:
                 new,
             )
 
-    def SetDefaultResult(self, result, side_effect=None):
+    def SetDefaultResult(
+        self, result: Any, side_effect: Optional[Callable[[Any], Any]] = None
+    ) -> None:
         """Set the default result for an unmatched partial mock call.
 
         Args:
@@ -337,7 +370,13 @@ class MockedCallResults:
         """
         self.default_result, self.default_side_effect = result, side_effect
 
-    def LookupResult(self, args, kwargs=None, hook_args=None, hook_kwargs=None):
+    def LookupResult(
+        self,
+        args: Tuple[Any],
+        kwargs: Optional[Dict[Any, Any]] = None,
+        hook_args: Optional[List[Any]] = None,
+        hook_kwargs: Optional[Any] = None,
+    ) -> Any:
         """For a given mocked function call get the recorded internal results.
 
         Args:
@@ -354,15 +393,19 @@ class MockedCallResults:
             than one mock that matches.
         """
 
-        def filter_fn(mc):
+        def filter_fn(
+            mc: self.MockedCall,  # type: ignore[name-defined]
+        ) -> bool:
             if mc.strict:
                 return _RecursiveCompare(mc.params, params)
 
-            return DictContains(mc.params.kwargs, kwargs) and _RecursiveCompare(
-                mc.params.args, args
-            )
+            return DictContains(
+                mc.params.kwargs,
+                # Nonetype param is redefined as empty dict below.
+                kwargs,  # type: ignore[arg-type]
+            ) and _RecursiveCompare(mc.params.args, args)
 
-        def is_exception(obj):
+        def is_exception(obj: object) -> bool:
             """Returns True if obj is an exception instance or class."""
             return (
                 isinstance(obj, BaseException)
@@ -443,11 +486,11 @@ class PartialMock:
     """
 
     # The import spec for the object being mocked.
-    TARGET = None
+    TARGET: Optional[str] = None
     # Tuples of attribute names on the target object to mock.
-    ATTRS = None
+    ATTRS: Optional[Tuple[str]] = None
 
-    def __init__(self, create_tempdir=False):
+    def __init__(self, create_tempdir: bool = False) -> None:
         """Initialize.
 
         Args:
@@ -456,19 +499,19 @@ class PartialMock:
                 self.tempdir to the path of the directory.  The directory is
                 deleted when stop() is called.
         """
-        self.backup = {}
-        self.patchers = {}
-        self.patched = {}
-        self.external_patchers = []
+        self.backup: Dict[str, Any] = {}
+        self.patchers: Dict[str, Any] = {}
+        self.patched: Dict[str, mock.Mock] = {}
+        self.external_patchers: List[mock.Mock] = []
         self.create_tempdir = create_tempdir
 
         # Set when start() is called.
-        self._tempdir_obj = None
-        self.tempdir = None
-        self.__saved_env__ = None
+        self._tempdir_obj: Optional[osutils.TempDir] = None
+        self.tempdir: Optional[Union[str, Path]] = None
+        self.__saved_env__: Any = None
         self.started = False
 
-        self._results = {}
+        self._results: Dict[str, Any] = {}
 
         if not all([self.TARGET, self.ATTRS]) and any(
             [self.TARGET, self.ATTRS]
@@ -482,50 +525,64 @@ class PartialMock:
             for attr in self.ATTRS:
                 self._results[attr] = MockedCallResults(attr)
 
-    def __enter__(self):
-        return self.start()
+    # Annotating function signature with PartialMock is not synctactically
+    # correct, so ignoring return type. In Python 3.11+, can use typing.Self
+    # instead.
+    def __enter__(self):  # type: ignore[no-untyped-def]
+        return self.start()  # type: ignore[no-untyped-call]
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[types.TracebackType],
+    ) -> None:
         self.stop()
 
-    def PreStart(self):
+    def PreStart(self) -> None:
         """Called at the beginning of start(). Child classes can override this.
 
         If __init__ was called with |create_tempdir| set, then self.tempdir will
         point to an existing temporary directory when this function is called.
         """
 
-    def PreStop(self):
+    def PreStop(self) -> None:
         """Called at the beginning of stop().  Child classes can override this.
 
         If __init__ was called with |create_tempdir| set, then self.tempdir will
         not be deleted until after this function returns.
         """
 
-    def StartPatcher(self, patcher):
+    def StartPatcher(self, patcher: mock.Mock) -> Any:
         """PartialMock will stop the patcher when stop() is called."""
         self.external_patchers.append(patcher)
         return patcher.start()
 
-    def PatchObject(self, *args, **kwargs):
+    def PatchObject(self, *args: Any, **kwargs: Any) -> Any:
         """Create and start a mock.patch.object().
 
         stop() will be called automatically during tearDown.
         """
-        return self.StartPatcher(mock.patch.object(*args, **kwargs))
+        return self.StartPatcher(
+            mock.patch.object(*args, **kwargs)  # type: ignore[arg-type]
+        )
 
-    def _start(self):
+    # Annotating function signature with PartialMock is not synctactically
+    # correct, so ignoring return type. In Python 3.11+, can use typing.Self
+    # instead.
+    def _start(self):  # type: ignore[no-untyped-def]
         if not all([self.TARGET, self.ATTRS]):
             return
 
-        name, member = self.TARGET.rsplit(".", 1)
+        name, member = self.TARGET.rsplit(".", 1)  # type: ignore[union-attr]
         module = __import__(name)
         # __import__('foo.bar') returns foo, so...
         for bit in name.split(".")[1:]:
             module = getattr(module, bit)
 
         cls = getattr(module, member)
-        for attr in self.ATTRS:  # pylint: disable=not-an-iterable
+        # pylint: disable-next=not-an-iterable
+        for attr in self.ATTRS:  # type: ignore[union-attr]
             self.backup[attr] = getattr(cls, attr)
             src_attr = "_target%s" % attr if attr.startswith("__") else attr
             if hasattr(self.backup[attr], "reset_mock"):
@@ -547,27 +604,33 @@ class PartialMock:
 
         return self
 
-    def start(self):
+    # Annotating function signature with PartialMock is not synctactically
+    # correct, so ignoring return type. In Python 3.11+, can use typing.Self
+    # instead.
+    def start(self):  # type: ignore[no-untyped-def]
         """Activates the mock context."""
         try:
             self.__saved_env__ = os.environ.copy()
-            self.tempdir = None
             if self.create_tempdir:
-                self._tempdir_obj = osutils.TempDir(set_global=True)
+                self._tempdir_obj = osutils.TempDir(
+                    set_global=True
+                )  # type: ignore[no-untyped-call]
                 self.tempdir = self._tempdir_obj.tempdir
 
             self.started = True
             self.PreStart()
-            return self._start()
+            return self._start()  # type: ignore[no-untyped-call]
         except:
             self.stop()
             raise
 
-    def stop(self):
+    def stop(self) -> None:
         """Restores namespace to the unmocked state."""
         try:
             if self.__saved_env__ is not None:
-                osutils.SetEnvironment(self.__saved_env__)
+                osutils.SetEnvironment(
+                    self.__saved_env__
+                )  # type: ignore[no-untyped-call]
 
             tasks = (
                 [self.PreStop]
@@ -576,17 +639,17 @@ class PartialMock:
             )
             if self._tempdir_obj is not None:
                 tasks += [self._tempdir_obj.Cleanup]
-            memoize.SafeRun(tasks)
+            memoize.SafeRun(tasks)  # type: ignore[no-untyped-call]
         finally:
             self.started = False
             self.tempdir, self._tempdir_obj = None, None
 
-    def UnMockAttr(self, attr):
+    def UnMockAttr(self, attr: str) -> None:
         """Unsetting the mock of an attribute/function."""
         self.patchers.pop(attr).stop()
 
 
-def CheckAttr(f):
+def CheckAttr(f):  # type: ignore[no-untyped-def] # mixed signatures in usage
     """Automatically set mock_attr based on class default.
 
     This function decorator automatically sets the mock_attr keyword argument
@@ -596,7 +659,7 @@ def CheckAttr(f):
     Raises an AssertionError if mock_attr is left unspecified.
     """
 
-    def new_f(self, *args, **kwargs):
+    def new_f(self: Any, *args: Any, **kwargs: Any) -> Any:
         mock_attr = kwargs.pop("mock_attr", None)
         if mock_attr is None:
             mock_attr = self.DEFAULT_ATTR
@@ -616,17 +679,17 @@ class PartialCmdMock(PartialMock):
     'returncode', 'output', 'error'.
     """
 
-    DEFAULT_ATTR = None
+    DEFAULT_ATTR: Optional[str] = None
 
-    @CheckAttr
+    @CheckAttr  # type: ignore[misc]
     def SetDefaultCmdResult(
         self,
-        returncode=0,
-        stdout="",
-        stderr="",
-        side_effect=None,
-        mock_attr=None,
-    ):
+        returncode: int = 0,
+        stdout: str = "",
+        stderr: str = "",
+        side_effect: Optional[Callable[[Any], Any]] = None,
+        mock_attr: Optional[str] = None,
+    ) -> None:
         """Specify the default command result if no command is matched.
 
         Args:
@@ -638,21 +701,23 @@ class PartialCmdMock(PartialMock):
         """
         result = cros_build_lib.CompletedProcess(
             returncode=returncode, stdout=stdout, stderr=stderr
+        )  # type: ignore[no-untyped-call]
+        self._results[mock_attr].SetDefaultResult(  # type: ignore[index]
+            result, side_effect
         )
-        self._results[mock_attr].SetDefaultResult(result, side_effect)
 
-    @CheckAttr
+    @CheckAttr  # type: ignore[misc]
     def AddCmdResult(
         self,
-        cmd,
-        returncode=0,
-        stdout="",
-        stderr="",
-        kwargs=None,
-        strict=False,
-        side_effect=None,
-        mock_attr=None,
-    ):
+        cmd: Union[str, Iterable[str]],
+        returncode: int = 0,
+        stdout: str = "",
+        stderr: str = "",
+        kwargs: Any = None,
+        strict: bool = False,
+        side_effect: Optional[Callable[[Any], Any]] = None,
+        mock_attr: Optional[str] = None,
+    ) -> None:
         """Specify the result to simulate for a given command.
 
         Args:
@@ -667,11 +732,11 @@ class PartialCmdMock(PartialMock):
         """
         result = cros_build_lib.CompletedProcess(
             returncode=returncode, stdout=stdout, stderr=stderr
-        )
+        )  # type: ignore[no-untyped-call]
         # NB: Keep in sync with RunCommandMock.run.
         if isinstance(cmd, (tuple, list)):
             cmd = [str(x) if isinstance(x, os.PathLike) else x for x in cmd]
-        self._results[mock_attr].AddResultForParams(
+        self._results[mock_attr].AddResultForParams(  # type: ignore[index]
             (cmd,),
             result,
             kwargs=kwargs,
@@ -679,8 +744,14 @@ class PartialCmdMock(PartialMock):
             strict=strict,
         )
 
-    @CheckAttr
-    def CommandContains(self, args, cmd_arg_index=-1, mock_attr=None, **kwargs):
+    @CheckAttr  # type: ignore[misc]
+    def CommandContains(
+        self,
+        args: Union[str, Sequence[str]],
+        cmd_arg_index: int = -1,
+        mock_attr: Optional[str] = None,
+        **kwargs: Any,
+    ) -> bool:
         """Verify that at least one command contains the specified args.
 
         Args:
@@ -690,17 +761,23 @@ class PartialCmdMock(PartialMock):
             **kwargs: Set of expected keyword arguments.
             mock_attr: Which attributes's mock is being referenced.
         """
-        for call_args, call_kwargs in self.patched[mock_attr].call_args_list:
+        for call_args, call_kwargs in self.patched[
+            mock_attr  # type: ignore[index]
+        ].call_args_list:
             if ListContains(
                 args, call_args[cmd_arg_index], strict=isinstance(args, str)
             ) and DictContains(kwargs, call_kwargs):
                 return True
         return False
 
-    @CheckAttr
+    @CheckAttr  # type: ignore[misc]
     def assertCommandContains(
-        self, args=(), expected=True, mock_attr=None, **kwargs
-    ):
+        self,
+        args: Union[str, Iterable[str]] = (),
+        expected: bool = True,
+        mock_attr: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         """Assert that run was called with the specified args.
 
         This verifies that at least one of the run calls contains the
@@ -718,12 +795,17 @@ class PartialCmdMock(PartialMock):
                 msg = "Expected to find %r in any of:\n%s"
             else:
                 msg = "Expected to not find %r in any of:\n%s"
-            patched = self.patched[mock_attr]
+            patched = self.patched[mock_attr]  # type: ignore[index]
             cmds = "\n".join(repr(x) for x in patched.call_args_list)
             raise AssertionError(msg % (mock.call(args, **kwargs), cmds))
 
-    @CheckAttr
-    def assertCommandCalled(self, args=(), mock_attr=None, **kwargs):
+    @CheckAttr  # type: ignore[misc]
+    def assertCommandCalled(
+        self,
+        args: Union[str, Iterable[str]] = (),
+        mock_attr: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         """Assert that run was called with the specified args.
 
         This verifies that at least one of the run calls exactly
@@ -735,7 +817,7 @@ class PartialCmdMock(PartialMock):
             **kwargs: Set of expected keyword arguments.
         """
         call = mock.call(args, **kwargs)
-        patched = self.patched[mock_attr]
+        patched = self.patched[mock_attr]  # type: ignore[index]
 
         for icall in patched.call_args_list:
             if call == icall:
@@ -747,17 +829,17 @@ class PartialCmdMock(PartialMock):
         )
 
     @property
-    @CheckAttr
-    def call_count(
-        self, mock_attr=None
-    ):  # pylint: disable=property-with-parameters
+    @CheckAttr  # type: ignore[misc]
+    def call_count(  # pylint: disable=property-with-parameters
+        self, mock_attr: Optional[str] = None
+    ) -> int:
         """Return the number of times we've been called."""
-        return self.patched[mock_attr].call_count
+        return self.patched[mock_attr].call_count  # type: ignore[index]
 
     @property
-    @CheckAttr
-    def call_args_list(
-        self, mock_attr=None
-    ):  # pylint: disable=property-with-parameters
+    @CheckAttr  # type: ignore[misc]
+    def call_args_list(  # pylint: disable=property-with-parameters
+        self, mock_attr: Optional[str] = None
+    ) -> Iterable[Any]:
         """Return the list of args we've been called with."""
-        return self.patched[mock_attr].call_args_list
+        return self.patched[mock_attr].call_args_list  # type: ignore[index]
