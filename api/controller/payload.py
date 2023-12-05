@@ -321,10 +321,20 @@ def FinalizePayload(
     """
     src_image, tgt_image = _ValidateImages(input_proto)
 
+    if input_proto.use_local_signing and not input_proto.docker_image:
+        cros_build_lib.Die(
+            "local signing enabled but no docker image specified"
+        )
+
     # Find the value of bucket or default to 'chromeos-releases'.
     destination_bucket = input_proto.bucket or "chromeos-releases"
 
     chroot = controller_util.ParseChroot(input_proto.chroot)
+
+    local_signing_kwargs = {}
+    if input_proto.use_local_signing:
+        local_signing_kwargs["use_local_signing"] = True
+        local_signing_kwargs["signing_docker_image"] = input_proto.docker_image
 
     # There's a potential that some paygen_lib library might raise here, but
     # since we're still involved in config we'll keep it before the
@@ -338,6 +348,7 @@ def FinalizePayload(
         verify=input_proto.verify,
         upload=not input_proto.dryrun,
         cache_dir=_DEFAULT_PAYGEN_CACHE_DIR,
+        **local_signing_kwargs,
     )
 
     # If configured for validation only we're done here.

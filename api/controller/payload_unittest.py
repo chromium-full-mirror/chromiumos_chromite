@@ -194,9 +194,6 @@ class GeneratePayloadTests(
     def testLocalSigningSuccessMock(self):
         """Test a local signing paygen request inits with the right values."""
         patch = self.PatchObject(payload_service, "PayloadConfig")
-        patch.return_value.GeneratePayload.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
-        }
 
         req = self.req
         req.use_local_signing = True
@@ -562,9 +559,6 @@ class FinalizePayloadTest(
     def testMiniOSSuccess(self):
         """Test a miniOS paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch.return_value.CreateUnsignedPayloads.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "/tmp/aohiwdadoi/delta.json")
-        }
         patch.return_value.FinalizePayload.return_value = {
             1: ("/tmp/aohiwdadoi/delta.bin", "gs://something")
         }
@@ -572,3 +566,59 @@ class FinalizePayloadTest(
             self.minios_req, self.result, self.api_config
         )
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
+
+    def testLocalSigningSuccessMock(self):
+        """Test a local signing paygen request inits with the right values."""
+        patch = self.PatchObject(payload_service, "PayloadConfig")
+
+        req = self.req
+        req.use_local_signing = True
+        req.docker_image = (
+            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        )
+
+        res = payload.FinalizePayload(req, self.result, self.api_config)
+        self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
+
+        patch.assert_called_with(
+            mock.ANY,  # chroot
+            tgt_image=mock.ANY,  # target image
+            src_image=mock.ANY,  # source image
+            minios=mock.ANY,  # minios
+            dest_bucket=mock.ANY,  # dest bucket
+            verify=mock.ANY,  # verify
+            upload=mock.ANY,
+            cache_dir=mock.ANY,
+            use_local_signing=True,
+            signing_docker_image=req.docker_image,
+        )
+
+    def testLocalSigningSuccess(self):
+        """Test a local signing paygen request."""
+        patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
+        patch.return_value.FinalizePayload.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "gs://something")
+        }
+
+        req = self.req
+        req.use_local_signing = True
+        req.docker_image = (
+            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        )
+
+        res = payload.FinalizePayload(req, self.result, self.api_config)
+        self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
+
+    def testLocalSigningFailure(self):
+        """Test a local signing paygen request."""
+        patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
+        patch.return_value.FinalizePayload.return_value = {
+            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
+        }
+
+        req = self.req
+        req.use_local_signing = True
+
+        # No docker image, will fail.
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            payload.FinalizePayload(self.req, self.result, self.api_config)
