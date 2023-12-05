@@ -285,7 +285,10 @@ def BazelTest(output_user_root: Optional[str]) -> bool:
         ]
     )
     result = cros_build_lib.run(
-        cmd, cwd=constants.BAZEL_WORKSPACE_ROOT, check=False
+        cmd,
+        cwd=constants.BAZEL_WORKSPACE_ROOT,
+        extra_env={"ALCHEMY_EXPERIMENTAL_OUTSIDE_CHROOT": "1"},
+        check=False,
     )
     return result.returncode == 0
 
