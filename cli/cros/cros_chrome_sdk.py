@@ -1104,12 +1104,13 @@ class ChromeSDKCommand(command.CliCommand):
             help='Do not run "gn gen", warns if args.gn is stale.',
         )
         parser.add_argument(
-            "--nogoma",
-            action="store_false",
-            default=True,
-            dest="goma",
-            help="Disables Goma in the shell by removing it from the PATH and "
-            "set use_goma=false to GN_ARGS.",
+            "--goma",
+            action="store_true",
+            default=False,
+            help="Enables Goma in the shell by adding it to the PATH and "
+            "set use_goma=true to GN_ARGS.",
+            deprecated="Goma is deprecated. "
+            "Please use --use-remoteexec instead.",
         )
         parser.add_argument(
             "--nostart-goma",
@@ -1117,18 +1118,21 @@ class ChromeSDKCommand(command.CliCommand):
             default=True,
             dest="start_goma",
             help="Skip starting goma and hope somebody else starts goma later.",
+            deprecated="Goma is deprecated. "
+            "Please use --use-remoteexec instead.",
         )
         parser.add_argument(
             "--gomadir",
             type="path",
             help="Use the goma installation at the specified PATH.",
+            deprecated="Goma is deprecated. "
+            "Please use --use-remoteexec instead.",
         )
-        parser.add_argument(
+        parser.add_bool_argument(
             "--use-remoteexec",
-            action="store_true",
-            default=False,
-            help="Enable RBE client for the build. "
-            "This automatically disables Goma.",
+            default=True,
+            enabled_desc="Enable RBE client for the build.",
+            disabled_desc="Disable RBE client for the build.",
         )
         parser.add_argument(
             "--version",
@@ -1663,8 +1667,7 @@ class ChromeSDKCommand(command.CliCommand):
         # adjustment made in _SetupTCEnvironment is for split debug which
         # is done with 'use_debug_fission'.
 
-        if options.use_remoteexec:
-            gn_args["use_remoteexec"] = True
+        gn_args["use_remoteexec"] = options.use_remoteexec
 
         # Enable goma if requested.
         if not options.goma or options.use_remoteexec:

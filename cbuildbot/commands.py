@@ -2307,8 +2307,6 @@ class ChromeSDK:
         if chrome_src:
             self.extra_args += ["--chrome-src", chrome_src]
         self.goma = goma
-        if not self.goma:
-            self.extra_args.append("--nogoma")
         self.debug_log = debug_log
         self.cache_dir = cache_dir
         self.target_tc = target_tc
