@@ -9,9 +9,10 @@ import os
 import signal
 import sys
 import time
+from typing import NoReturn
 
 
-def GetExitStatus(status):
+def GetExitStatus(status: int) -> int:
     """Get the exit status of a child from an os.waitpid call.
 
     Args:
@@ -28,7 +29,7 @@ def GetExitStatus(status):
         return os.WEXITSTATUS(status)
 
 
-def ExitAsStatus(status):
+def ExitAsStatus(status: int) -> NoReturn:
     """Exit the same way as |status|.
 
     If the status field says it was killed by a signal, then we'll do that to
