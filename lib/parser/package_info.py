@@ -4,6 +4,8 @@
 
 """Package Info (CPV) parsing."""
 
+from __future__ import annotations
+
 import collections
 import functools
 from pathlib import Path
@@ -118,7 +120,7 @@ def SplitCPV(cpv, strict=True):
     return CPV(category=category, cp=cp, cpv=real_cpv, cpf=cpf, **m._asdict())
 
 
-def parse(cpv: Union[str, Path, CPV, "PackageInfo"]):
+def parse(cpv: Union[str, Path, CPV, PackageInfo]) -> PackageInfo:
     """Parse a package to a PackageInfo object.
 
     Args:

@@ -54,7 +54,7 @@
 * `make_defaults_vars` (`Dict[str, str]`): A dictionary of the raw make.defaults variables.
 * `masked_use_flags` (`Set[str]`): The resolved set of masked USE flags for this profile.
 * `parents` (`List[Profile]`): A list of the immediate parent profiles of this profile.
-* `resolve_var(var: str, default: Optional[str]) -> Any`: Resolve a variable for this profile, similar to how Portage would.
+* `resolve_var(var: str, default: Optional[str]) -> Optional[str]`: Resolve a variable for this profile, similar to how Portage would.
 
         Note: this function resolves variables non-incrementally.  For
         incremental variables (e.g., USE, USE_EXPAND, etc), use
@@ -90,7 +90,7 @@
         board.  Otherwise, this is None.
 
 * `ebuilds` (`List[Ebuild]`): A list of all ebuilds in this overlay.
-* `get_profile(name: Union[Path, str]) -> Optional[Profile]`: Get a specific profile by name.
+* `get_profile(name: Union[str, os.PathLike[str]]) -> Optional[Profile]`: Get a specific profile by name.
 
         Args:
             name: The name of the profile (e.g., "base").

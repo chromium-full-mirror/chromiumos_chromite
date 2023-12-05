@@ -15,12 +15,14 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Iterable,
     Iterator,
     List,
     Optional,
     Set,
     Tuple,
     Type,
+    TYPE_CHECKING,
     Union,
 )
 
@@ -31,6 +33,10 @@ from chromite.lib.parser import package_info
 from chromite.utils import key_value_store
 from chromite.utils.parser import make_defaults
 from chromite.utils.parser import portage_profile_conf
+
+
+if TYPE_CHECKING:
+    import os
 
 
 # We use docstrings in this file frequently for property documentation, which
@@ -83,17 +89,19 @@ class QueryTarget(abc.ABC):
 class Overlay(QueryTarget):
     """An overlay, e.g., src/third_party/chromiumos-overlay."""
 
-    def __init__(self, path):
+    def __init__(self, path: Union[str, "os.PathLike[str]"]):
         self.path = Path(path)
 
     @classmethod
     def find_all(
-        cls, board=None, overlays=constants.BOTH_OVERLAYS
+        cls,
+        board: Optional[str] = None,
+        overlays: str = constants.BOTH_OVERLAYS,
     ) -> Iterator[Overlay]:
         for overlay_path in portage_util.FindOverlays(overlays, board=board):
             yield cls(overlay_path)
 
-    def tree(self):
+    def tree(self) -> Iterator[Overlay]:
         yield from self.parents
 
     @functools.cached_property
@@ -128,7 +136,7 @@ class Overlay(QueryTarget):
     @functools.cached_property
     def name(self) -> str:
         """The repo-name in metadata/layout.conf."""
-        return portage_util.GetOverlayName(self.path)
+        return portage_util.GetOverlayName(self.path) or ""
 
     @property
     def is_private(self) -> bool:
@@ -168,7 +176,7 @@ class Overlay(QueryTarget):
         if not self.profiles_dir.is_dir():
             return []
 
-        def _scan_profiles(path):
+        def _scan_profiles(path: Path) -> Iterator[Profile]:
             is_profile = False
             for ent in path.iterdir():
                 if ent.is_dir():
@@ -201,7 +209,9 @@ class Overlay(QueryTarget):
 
         return list(_scan_profiles(self.profiles_dir))
 
-    def get_profile(self, name: Union[Path, str]) -> Optional[Profile]:
+    def get_profile(
+        self, name: Union[str, "os.PathLike[str]"]
+    ) -> Optional[Profile]:
         """Get a specific profile by name.
 
         Args:
@@ -233,10 +243,12 @@ class Overlay(QueryTarget):
             return make_defaults.parse(contents)
         return {}
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.path)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Overlay):
+            return False
         return self.path == other.path
 
 
@@ -258,7 +270,7 @@ class Profile(QueryTarget):
 
     _obj_cache: Dict[Path, Profile] = {}
 
-    def __new__(cls, _name: str, path: Path, _overlay: Overlay):
+    def __new__(cls, _name: str, path: Path, _overlay: Overlay) -> Profile:
         # Caching the construction of profiles prevents a re-parse of
         # make.defaults when a profile is inherited multiple times,
         # which provides a significant speed-up during many queries.
@@ -272,7 +284,11 @@ class Profile(QueryTarget):
         self.overlay = overlay
 
     @classmethod
-    def find_all(cls, board=None, overlays=constants.BOTH_OVERLAYS):
+    def find_all(
+        cls,
+        board: Optional[str] = None,
+        overlays: str = constants.BOTH_OVERLAYS,
+    ) -> Iterator[Profile]:
         for overlay in Overlay.find_all(board=board, overlays=overlays):
             yield from overlay.profiles
 
@@ -285,7 +301,9 @@ class Profile(QueryTarget):
             return make_defaults.parse(contents)
         return {}
 
-    def resolve_var(self, var: str, default: Optional[str] = None) -> Any:
+    def resolve_var(
+        self, var: str, default: Optional[str] = None
+    ) -> Optional[str]:
         """Resolve a variable for this profile, similar to how Portage would.
 
         Note: this function resolves variables non-incrementally.  For
@@ -323,9 +341,9 @@ class Profile(QueryTarget):
 
         # portage_testables creates recursive overlays.  We don't technically
         # need to track visited overlays for well-formed overlays.
-        visited_overlays = set()
+        visited_overlays: Set[str] = set()
 
-        def _process_tokens(tokens):
+        def _process_tokens(tokens: Iterable[str]) -> None:
             for token in tokens:
                 if not token:
                     # Variable was unset, empty, or just whitespace.
@@ -337,14 +355,14 @@ class Profile(QueryTarget):
                 else:
                     result.add(token)
 
-        def _rec_profile(profile):
+        def _rec_profile(profile: Profile) -> None:
             tokens = profile.make_defaults_vars.get(var, "").split()
             if "-*" not in tokens:
                 for parent in profile.parents:
                     _rec_profile(parent)
             _process_tokens(tokens)
 
-        def _rec_overlay(overlay):
+        def _rec_overlay(overlay: Overlay) -> None:
             if overlay.name in visited_overlays:
                 return
             visited_overlays.add(overlay.name)
@@ -362,7 +380,7 @@ class Profile(QueryTarget):
     @property
     def arch(self) -> str:
         """The machine architecture of this profile."""
-        return self.resolve_var("ARCH")
+        return self.resolve_var("ARCH") or ""
 
     def _use_flag_changes(self) -> Tuple[Set[str], Set[str]]:
         """Compute the USE flags changed by this profile.
@@ -370,10 +388,10 @@ class Profile(QueryTarget):
         Returns:
             A 2-tuple: the set of flags set, and the flags unset.
         """
-        flags_set = set()
-        flags_unset = set()
+        flags_set: Set[str] = set()
+        flags_unset: Set[str] = set()
 
-        def _process_flag(flag, prefix=""):
+        def _process_flag(flag: str, prefix: str = "") -> None:
             flag_set = True
             if not flag:
                 return
@@ -426,9 +444,9 @@ class Profile(QueryTarget):
 
     def _resolve_use_conf(self, name: str) -> Set[str]:
         """Resolve a use.mask or use.force file."""
-        result = set()
+        result: Set[str] = set()
 
-        def _rec(profile):
+        def _rec(profile: Profile) -> None:
             for parent in profile.parents:
                 _rec(parent)
             # pylint: disable=protected-access
@@ -500,10 +518,10 @@ class Profile(QueryTarget):
             parents.append(profile)
         return parents
 
-    def tree(self):
+    def tree(self) -> Iterator[Profile]:
         yield from self.parents
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.overlay.name}:{self.name}"
 
 
@@ -516,12 +534,19 @@ class Ebuild(QueryTarget):
     to regenerate these cache files manually, should you require it.
     """
 
+    ebuild_file: Path
+    overlay: Overlay
+
     def __init__(self, ebuild_file: Path, overlay: Overlay):
         self.ebuild_file = ebuild_file
         self.overlay = overlay
 
     @classmethod
-    def find_all(cls, board=None, overlays=constants.BOTH_OVERLAYS):
+    def find_all(
+        cls,
+        board: Optional[str] = None,
+        overlays: str = constants.BOTH_OVERLAYS,
+    ) -> Iterator[Ebuild]:
         for overlay in Overlay.find_all(board=board, overlays=overlays):
             yield from overlay.ebuilds
 
@@ -643,10 +668,12 @@ class Ebuild(QueryTarget):
             }.get(keyword, stability)
         return stability
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.package_info.cpvr}::{self.overlay.name}"
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Ebuild):
+            return False
         return self.ebuild_file == other.ebuild_file
 
 
@@ -664,7 +691,11 @@ class Board(QueryTarget):
         self.public_overlay = public_overlay
 
     @classmethod
-    def find_all(cls, board=None, overlays=constants.BOTH_OVERLAYS):
+    def find_all(
+        cls,
+        board: Optional[str] = None,
+        overlays: str = constants.BOTH_OVERLAYS,
+    ) -> Iterator[Board]:
         boards = {}
 
         for overlay in Overlay.find_all(board=board, overlays=overlays):
@@ -681,7 +712,7 @@ class Board(QueryTarget):
         yield from boards.values()
 
     @classmethod
-    def get(cls, name: str):
+    def get(cls, name: str) -> Board:
         """Convenience function to get a board by name.
 
         Args:
@@ -693,10 +724,11 @@ class Board(QueryTarget):
         Raises:
             ValueError: when the board does not exist.
         """
-        try:
-            return Query(cls, board=name).filter(lambda x: x.name == name).one()
-        except StopIteration as e:
-            raise ValueError(f"No such board: {name}") from e
+        boards = [x for x in cls.find_all(board=name) if x.name == name]
+        if not boards:
+            raise ValueError(f"No such board: {name}")
+        assert len(boards) == 1
+        return boards[0]
 
     @property
     def top_level_overlay(self) -> Optional[Overlay]:
@@ -717,7 +749,7 @@ class Board(QueryTarget):
             return self.top_level_overlay.get_profile("base")
         return None
 
-    def tree(self):
+    def tree(self) -> Iterator[Profile]:
         if self.top_level_profile:
             yield self.top_level_profile
 
@@ -747,10 +779,12 @@ class Board(QueryTarget):
                     return True
         return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Board):
+            return False
         return self.name == other.name
 
 
