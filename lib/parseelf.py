@@ -15,12 +15,11 @@ from chromite.third_party.pyelftools.elftools.elf import elffile
 
 
 def GetSymbolTableSize(elf):
-    """Get Symbole Table size by parsing section header."""
+    """Get Symbol Table size by parsing section header."""
     for i in range(elf["e_shnum"]):
-        # pylint: disable=protected-access
-        section_header = elf._get_section_header(i)
-        if section_header["sh_type"] == "SHT_DYNSYM":
-            return section_header["sh_size"]
+        section = elf.get_section(i)
+        if section["sh_type"] == "SHT_DYNSYM":
+            return section["sh_size"]
     return 0
 
 
