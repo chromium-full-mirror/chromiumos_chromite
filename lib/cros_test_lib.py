@@ -4,6 +4,8 @@
 
 """Cros unit test library, with utility functions."""
 
+from __future__ import annotations
+
 import collections
 import contextlib
 import io
@@ -13,7 +15,7 @@ from pathlib import Path
 import re
 import sys
 import time
-from typing import List, Union
+from typing import Any, Dict, Iterable, Iterator, List, Sequence, Tuple, Union
 import unittest
 from unittest import mock
 
@@ -50,11 +52,11 @@ except (ImportError, AttributeError):
     # If Pytest is not present, or too old to allow pytest.mark,
     # define custom pytestmarks as null functions for test files to use.
     null_decorator = lambda obj: obj
-    pytest_skip = lambda allow_module_level: True
-    pytestmark_inside_only = null_decorator
-    pytestmark_network_test = null_decorator
-    pytestmark_skip = null_decorator
-    pytestmark_skipif = lambda condition, reason=None: None
+    pytest_skip = lambda allow_module_level: True  # type: ignore
+    pytestmark_inside_only = null_decorator  # type: ignore
+    pytestmark_network_test = null_decorator  # type: ignore
+    pytestmark_skip = null_decorator  # type: ignore
+    pytestmark_skipif = lambda condition, reason=None: None  # type: ignore
 
 
 # Whether the current test session has --network tests enabled.  Since pytest
@@ -73,7 +75,9 @@ class GlobalTestConfig:
     UPDATE_GENERATED_FILES = False
 
 
-def _FlattenStructure(base_path, dir_struct):
+def _FlattenStructure(
+    base_path: Union[str, Path], dir_struct: Sequence[Union[Directory, str]]
+) -> List[str]:
     """Converts a directory structure to a list of paths."""
     flattened = []
     for obj in dir_struct:
@@ -87,7 +91,9 @@ def _FlattenStructure(base_path, dir_struct):
     return flattened
 
 
-def CreateOnDiskHierarchy(base_path, dir_struct):
+def CreateOnDiskHierarchy(
+    base_path: Union[str, Path], dir_struct: Sequence[Union[Directory, str]]
+) -> None:
     """Creates on-disk representation of an in-memory directory structure.
 
     Args:
@@ -106,14 +112,14 @@ def CreateOnDiskHierarchy(base_path, dir_struct):
     for f in flattened:
         f = os.path.join(base_path, f)
         if f.endswith(os.sep):
-            osutils.SafeMakedirs(f)
+            osutils.SafeMakedirs(f)  # type: ignore[no-untyped-call]
         else:
             osutils.Touch(f, makedirs=True)
 
 
 def _VerifyDirectoryIterables(
-    existing: List[Union[str, os.PathLike]],
-    expected: List[Union[str, os.PathLike]],
+    existing: Iterable[Union[str, "os.PathLike[str]"]],
+    expected: Iterable[Union[str, "os.PathLike[str]"]],
 ) -> None:
     """Compare two iterables representing contents of a directory.
 
@@ -128,7 +134,7 @@ def _VerifyDirectoryIterables(
         |expected|.
     """
 
-    def FormatPaths(paths):
+    def FormatPaths(paths: Iterable[str]) -> str:
         return "\n".join(sorted(paths))
 
     existing = set(str(x) for x in existing)
@@ -137,17 +143,20 @@ def _VerifyDirectoryIterables(
     unexpected = existing - expected
     if unexpected:
         raise AssertionError(
-            "Found unexpected paths:\n%s" % FormatPaths(unexpected)
+            "Found unexpected paths:\n%s"
+            % FormatPaths(unexpected)  # type: ignore[arg-type]
         )
     missing = expected - existing
     if missing:
         raise AssertionError(
             "These files were expected but not found:\n%s"
-            % FormatPaths(missing)
+            % FormatPaths(missing)  # type: ignore[arg-type]
         )
 
 
-def VerifyOnDiskHierarchy(base_path, dir_struct):
+def VerifyOnDiskHierarchy(
+    base_path: Union[str, Path], dir_struct: Sequence[Union[Directory, str]]
+) -> None:
     """Verify that an on-disk directory tree exactly matches a given structure.
 
     Args:
@@ -161,13 +170,15 @@ def VerifyOnDiskHierarchy(base_path, dir_struct):
     # Make sure the arg ends with a / if it's a dir to more reliably assert.
     existing = [
         str(x) + "/" if x.is_dir() else str(x)
-        for x in osutils.DirectoryIterator(base_path)
+        for x in osutils.DirectoryIterator(Path(base_path))
     ]
     expected = _FlattenStructure(base_path, dir_struct)
     _VerifyDirectoryIterables(existing, expected)
 
 
-def VerifyTarball(tarball, dir_struct):
+def VerifyTarball(
+    tarball: Union[str, Path], dir_struct: Sequence[Union[Directory, str]]
+) -> None:
     """Compare the contents of a tarball against a directory structure.
 
     Args:
@@ -221,7 +232,7 @@ class StackedSetup(type):
 
     TEST_CASE_TIMEOUT = 10 * 60
 
-    def __new__(cls, clsname, bases, scope):
+    def __new__(cls, clsname, bases, scope):  # type: ignore
         """Generate new class with pointers to original funcs & our helpers."""
         if "setUp" in scope:
             scope["__raw_setUp__"] = scope.pop("setUp")
@@ -236,17 +247,19 @@ class StackedSetup(type):
         if timeout is not None:
             for name, func in scope.items():
                 if name.startswith("test") and hasattr(func, "__call__"):
-                    wrapper = timeout_util.TimeoutDecorator(timeout)
+                    # pylint: disable-next=line-too-long
+                    wrapper = timeout_util.TimeoutDecorator(timeout)  # type: ignore[no-untyped-call]
                     scope[name] = wrapper(func)
 
         return type.__new__(cls, clsname, bases, scope)
 
     @staticmethod
-    def _walk_mro_stacking(obj, attr, reverse=False):
+    def _walk_mro_stacking(obj: Any, attr: Any, reverse: bool = False) -> Any:
         """Walk the stacked classes (python method resolution order)"""
         iterator = iter if reverse else reversed
         methods = (
-            getattr(x, attr, None) for x in iterator(obj.__class__.__mro__)
+            getattr(x, attr, None)
+            for x in iterator(obj.__class__.__mro__)  # type: ignore[operator]
         )
         seen = set()
         for method in (x for x in methods if x):
@@ -256,7 +269,7 @@ class StackedSetup(type):
                 yield method
 
     @staticmethod
-    def _stacked_setUp(obj):
+    def _stacked_setUp(obj: Any) -> None:
         """Run all the setUp funcs; if any fail, run all the tearDown funcs"""
         obj.__test_was_run__ = False
         try:
@@ -274,7 +287,7 @@ class StackedSetup(type):
         obj.__test_was_run__ = True
 
     @staticmethod
-    def _stacked_tearDown(obj):
+    def _stacked_tearDown(obj: Any) -> None:
         """Run all tearDown funcs; if any fail, we move on to the next one."""
         exc_info = None
         for target in StackedSetup._walk_mro_stacking(
@@ -294,7 +307,9 @@ class StackedSetup(type):
         if exc_info:
             # Chuck the saved exception, w/ the same TB from
             # when it occurred.
-            raise exc_info[1].with_traceback(exc_info[2])
+            raise exc_info[1].with_traceback(  # type: ignore[union-attr]
+                exc_info[2]
+            )
 
 
 class TruthTable:
@@ -330,14 +345,14 @@ class TruthTable:
     class TruthTableInputIterator:
         """Class to support iteration over inputs of a TruthTable."""
 
-        def __init__(self, truth_table):
+        def __init__(self, truth_table: TruthTable) -> None:
             self.truth_table = truth_table
             self.next_line = 0
 
-        def __iter__(self):
+        def __iter__(self) -> Iterator[Tuple[bool]]:
             return self
 
-        def __next__(self):
+        def __next__(self) -> Tuple[bool]:
             if self.next_line < self.truth_table.num_lines:
                 self.next_line += 1
                 return self.truth_table.GetInputs(self.next_line - 1)
@@ -347,7 +362,9 @@ class TruthTable:
         # Python 2 glue.
         next = __next__
 
-    def __init__(self, inputs, input_result=True):
+    def __init__(
+        self, inputs: Sequence[Tuple[bool]], input_result: bool = True
+    ) -> None:
         """Construct a TruthTable from given inputs.
 
         Args:
@@ -379,13 +396,13 @@ class TruthTable:
         # Start generator index at 0.
         self.next_line = 0
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.num_lines
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Tuple[bool]]:
         return self.TruthTableInputIterator(self)
 
-    def GetInputs(self, inputs_index):
+    def GetInputs(self, inputs_index: int) -> Tuple[bool]:
         """Get the input line at the given input index.
 
         Args:
@@ -405,13 +422,13 @@ class TruthTable:
             for col in range(self.dimension - 1, -1, -1):
                 line_values.append(bool(inputs_index // pow(2, col) % 2))
 
-            return tuple(line_values)
+            return tuple(line_values)  # type: ignore[return-value]
 
         raise ValueError(
             "This truth table has no line at index %r." % inputs_index
         )
 
-    def GetOutput(self, inputs):
+    def GetOutput(self, inputs: Tuple[bool]) -> bool:
         """Get the boolean output for the given inputs.
 
         Args:
@@ -540,7 +557,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
         self.__test_was_run__ = False
 
     @staticmethod
-    def _CheckTestEnv(msg):
+    def _CheckTestEnv(msg: str) -> None:
         """Sanity check the environment.  https://crbug.com/1015450"""
         # Note: We use print+sys.exit here instead of logging/Die because it
         # might cause errors in tests that expect their own setUp to run before
@@ -564,7 +581,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
             )
             sys.exit(1)
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._CheckTestEnv("%s.setUp" % (self.id(),))
 
         self.__saved_cwd__ = os.getcwd()
@@ -585,7 +602,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
         for p in self.__global_config_patchers__:
             p.start()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self._CheckTestEnv("%s.tearDown" % (self.id(),))
 
         os.chdir(self.__saved_cwd__)
@@ -600,11 +617,11 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
             # "stop called on unstarted patcher".
             pass
 
-    def id(self):
+    def id(self) -> str:
         """Return a name that can be passed in via the command line."""
         return "%s.%s" % (self.__class__.__name__, self._testMethodName)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a pretty name that can be passed in via the command line."""
         return "[%s] %s" % (self.__module__, self.id())
 
@@ -742,7 +759,9 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     # Upstream deprecated these in Python 3, but left them in Python 2.
     # Deprecate them ourselves to help with migration.  We can delete these
     # once upstream drops them.
-    def _disable(deprecated, replacement):  # pylint: disable=no-self-argument
+    def _disable(  # type: ignore[misc] # complaining about no self argument
+        deprecated: str, replacement: str
+    ):  # pylint: disable=no-self-argument
         def disable_func(*_args, **_kwargs):
             raise RuntimeError(
                 "%s() is removed in Python 3; use %s() instead"
@@ -773,7 +792,9 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
     # Python 3 renamed these.
     if sys.version_info.major < 3:
-        assertCountEqual = unittest.TestCase.assertItemsEqual
+        assertCountEqual = (
+            unittest.TestCase.assertItemsEqual  # type: ignore[attr-defined]
+        )
         assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
         assertRegex = unittest.TestCase.assertRegexpMatches
 
@@ -1221,23 +1242,23 @@ class FakeSDKCache:
 class MockTestCase(TestCase):
     """Python-mock based test case; compatible with StackedSetup"""
 
-    def setUp(self):
-        self._patchers = []
+    def setUp(self) -> None:
+        self._patchers: List[mock.Mock] = []
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # We can't just run stopall() by itself, and need to stop our patchers
         # manually since stopall() doesn't handle repatching.
         memoize.SafeRun(
             [p.stop for p in reversed(self._patchers)] + [mock.patch.stopall]
         )
 
-    def StartPatcher(self, patcher):
+    def StartPatcher(self, patcher: Any) -> Any:
         """Call start() on the patcher, and stop() in tearDown."""
         m = patcher.start()
         self._patchers.append(patcher)
         return m
 
-    def PatchObject(self, *args, **kwargs):
+    def PatchObject(self, *args: Any, **kwargs: Any) -> Any:
         """Create and start a mock.patch.object().
 
         stop() will be called automatically during tearDown.
@@ -1285,7 +1306,7 @@ class MockTestCase(TestCase):
         )
         return self.StartPatcher(mock.patch.object(*args, **kwargs))
 
-    def PatchDict(self, *args, **kwargs):
+    def PatchDict(self, *args: Any, **kwargs: Any):
         """Create and start a mock.patch.dict().
 
         stop() will be called automatically during tearDown.
@@ -1401,7 +1422,7 @@ class ListTestSuite(unittest.BaseTestSuite):
 class ListTestLoader(unittest.TestLoader):
     """Stub test loader to list all possible tests"""
 
-    suiteClass = ListTestSuite
+    suiteClass = ListTestSuite  # type: ignore[assignment]
 
 
 class ListTestRunner:
@@ -1421,7 +1442,7 @@ class TraceTestRunner(unittest.TextTestRunner):
     and setUp), and we want to trace that code too.
     """
 
-    TRACE_KWARGS = {}
+    TRACE_KWARGS: Dict[Any, Any] = {}
 
     def run(self, test):
         import trace
@@ -1439,8 +1460,8 @@ class ProfileTestRunner(unittest.TextTestRunner):
     heavy by invoking expensive setup logic.
     """
 
-    PROFILE_KWARGS = {}
-    SORT_STATS_KEYS = ()
+    PROFILE_KWARGS: Dict[Any, Any] = {}
+    SORT_STATS_KEYS: Sequence[Any] = ()
 
     def run(self, test):
         import cProfile
@@ -1679,7 +1700,7 @@ class TestProgram(unittest.TestProgram):
 
         self.createTests()
 
-    def runTests(self):
+    def runTests(self) -> None:
         # If cidb has been imported, stub it out.  We do this dynamically so we
         # don't have to import cidb in every single test module.
         if "chromite.lib.cidb" in sys.modules:
@@ -1708,10 +1729,10 @@ class PopenMock(partial_mock.PartialCmdMock):
     ATTRS = ("__init__",)
     DEFAULT_ATTR = "__init__"
 
-    def __init__(self):
+    def __init__(self) -> None:
         partial_mock.PartialCmdMock.__init__(self, create_tempdir=True)
 
-    def _target__init__(self, inst, cmd, *args, **kwargs):
+    def _target__init__(self, inst, cmd, *args: Any, **kwargs: Any) -> None:
         result = self._results["__init__"].LookupResult(
             (cmd,),
             hook_args=(
@@ -1722,19 +1743,19 @@ class PopenMock(partial_mock.PartialCmdMock):
             hook_kwargs=kwargs,
         )
 
-        script = os.path.join(self.tempdir, "mock_cmd.sh")
-        stdout = os.path.join(self.tempdir, "output")
-        stderr = os.path.join(self.tempdir, "error")
+        script = os.path.join(str(self.tempdir), "mock_cmd.sh")
+        stdout = os.path.join(str(self.tempdir), "output")
+        stderr = os.path.join(str(self.tempdir), "error")
 
         # This encoding handling might appear a bit wonky, but it's OK, I
         # promise. The purpose of this mock is to stuff data into files so that
         # we can run a fake script in place of the real command.  So any
         # cros_build_lib.run() settings will still be fully checked including
         # encoding.  This code just takes care of writing the data from
-        # AddCmdResult objects.  Those might be specified in strings or in
-        # bytes, but there's no value in forcing all code to use the same
-        # encoding with the mocks.
-        def _MaybeEncode(src):
+        # AddCmdResult objects.  The data might be specified in strings or in
+        # bytes, and for easier typing enforcement with osutils, we decode any
+        # bytestrings as of 2023.
+        def _MaybeEncode(src: Union[str, bytes]) -> bytes:
             return src.encode("utf-8") if isinstance(src, str) else src
 
         osutils.WriteFile(stdout, _MaybeEncode(result.stdout), mode="wb")
@@ -1761,15 +1782,20 @@ class RunCommandMock(partial_mock.PartialCmdMock):
     ATTRS = ("run",)
     DEFAULT_ATTR = "run"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._called = False
 
     @property
-    def called(self):
+    def called(self) -> bool:
         return self._called
 
-    def run(self, cmd, *args, **kwargs):
+    def run(
+        self,
+        cmd: Iterable[Union[str, "os.PathLike[str]"]],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
         # NB: Keep in sync with PartialCmdMock.AddCmdResult.
         if isinstance(cmd, (tuple, list)):
             cmd = [str(x) if isinstance(x, os.PathLike) else x for x in cmd]
@@ -1795,7 +1821,7 @@ class RunCommandMock(partial_mock.PartialCmdMock):
 class RunCommandTestCase(MockTestCase):
     """MockTestCase that mocks out run by default."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc = self.StartPatcher(RunCommandMock())
         self.rc.SetDefaultCmdResult()
         self.assertCommandCalled = self.rc.assertCommandCalled
@@ -1808,7 +1834,7 @@ class RunCommandTestCase(MockTestCase):
             if e in os.environ
         }
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Restore hidden ENVs.
         if hasattr(self, "_old_envs"):
             os.environ.update(self._old_envs)

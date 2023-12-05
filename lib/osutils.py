@@ -115,7 +115,7 @@ _VALID_WRITE_MODES = {
 
 def WriteFile(
     path: Union[Path, str],
-    content: Union[str, Iterable[str]],
+    content: Union[str, Iterable[str], bytes],
     mode="w",
     encoding=None,
     errors=None,
