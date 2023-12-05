@@ -44,7 +44,7 @@ class FirmwareConfig(NamedTuple):
     force_flashrom: bool
     flash_extra_flags_futility: List[str]
     flash_extra_flags_flashrom: List[str]
-    workon_packages: List[str]
+    workon_packages: Optional[List[str]]
     build_packages: List[str]
 
 
