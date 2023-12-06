@@ -6,12 +6,13 @@
 
 import logging
 import socket
+from typing import Optional
 
 
 GOOGLE_HOSTNAME_SUFFIX = (".google.com", ".googler.com", ".googlers.com")
 
 
-def get_host_name(fully_qualified=False):
+def get_host_name(fully_qualified: bool = False) -> str:
     """Return hostname of current machine, with domain if |fully_qualified|."""
     hostname = socket.gethostname()
     try:
@@ -30,7 +31,7 @@ def get_host_name(fully_qualified=False):
         return hostname.partition(".")[0]
 
 
-def get_host_domain():
+def get_host_domain() -> str:
     """Return domain of current machine.
 
     If there is no domain, return 'localdomain'.
@@ -41,7 +42,11 @@ def get_host_domain():
     return domain if domain else "localdomain"
 
 
-def host_is_ci_builder(fq_hostname=None, golo_only=False, gce_only=False):
+def host_is_ci_builder(
+    fq_hostname: Optional[str] = None,
+    golo_only: bool = False,
+    gce_only: bool = False,
+) -> bool:
     """Return True iff a host is a continuous-integration builder.
 
     Args:
@@ -71,7 +76,7 @@ def host_is_ci_builder(fq_hostname=None, golo_only=False, gce_only=False):
         return in_golo or in_gce
 
 
-def is_google_host():
+def is_google_host() -> bool:
     """Checks if the code is running on google host."""
 
     hostname = get_host_name(fully_qualified=True)
