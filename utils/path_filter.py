@@ -5,9 +5,12 @@
 """Path filter module to support --include, --exclude flags in commands."""
 
 import fnmatch
-import os
 import re
-from typing import Any, List, NamedTuple, Optional, Union
+from typing import Any, List, NamedTuple, Optional, TYPE_CHECKING, Union
+
+
+if TYPE_CHECKING:
+    import os
 
 
 class _Rule(NamedTuple):
@@ -19,17 +22,17 @@ class _Rule(NamedTuple):
     regex: Any
     includes: bool
 
-    def match(self, path: Union[str, os.PathLike]) -> Optional[bool]:
+    def match(self, path: Union[str, "os.PathLike[str]"]) -> Optional[bool]:
         """Returns whether path should be included, None if indecisive."""
         return self.includes if self.regex.fullmatch(str(path)) else None
 
 
-def exclude(pattern):
+def exclude(pattern: str) -> _Rule:
     """Returns an exclusion rule for the pattern."""
     return _Rule(re.compile(fnmatch.translate(pattern)), includes=False)
 
 
-def include(pattern):
+def include(pattern: str) -> _Rule:
     """Returns an inclusion rule for the pattern."""
     return _Rule(re.compile(fnmatch.translate(pattern)), includes=True)
 
@@ -43,7 +46,7 @@ class PathFilter(NamedTuple):
 
     rules: List[_Rule]
 
-    def match(self, path: Union[str, os.PathLike]) -> bool:
+    def match(self, path: Union[str, "os.PathLike[str]"]) -> bool:
         """Returns whether the given path name is included"""
         for rule in self.rules:
             result = rule.match(path)
@@ -53,7 +56,7 @@ class PathFilter(NamedTuple):
         return True
 
     def filter(
-        self, paths: List[Union[str, os.PathLike]]
-    ) -> List[Union[str, os.PathLike]]:
+        self, paths: List[Union[str, "os.PathLike[str]"]]
+    ) -> List[Union[str, "os.PathLike[str]"]]:
         """Returns a subset of names that should be included"""
         return [x for x in paths if self.match(x)]
