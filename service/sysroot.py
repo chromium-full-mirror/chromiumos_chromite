@@ -1171,6 +1171,7 @@ def _BazelBuild(
         # `cquery` handles `select`, instead of returning both branches.
         # Therefore it does not return stage1 targets which we
         # should not build.
+        # b/315142814: target-os-dev is dropped temporarily.
         query_result = cros_build_lib.run(
             [
                 BAZEL_COMMAND,
@@ -1180,7 +1181,6 @@ def _BazelBuild(
 let targets =
     kind("ebuild",
         deps(@portage//target/virtual/target-os)
-        union deps(@portage//target/virtual/target-os-dev)
         union deps(@portage//target/virtual/target-os-test)
     )
 in
