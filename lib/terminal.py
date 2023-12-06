@@ -9,6 +9,7 @@ This module handles terminal interaction including ANSI color codes.
 
 import os
 import sys
+from typing import Optional
 
 from chromite.lib import cros_build_lib
 
@@ -24,7 +25,7 @@ class Color:
     RESET = "\033[0m"
     BACKGROUND_RESET = "\u001b[0m"
 
-    def __init__(self, enabled=None):
+    def __init__(self, enabled: Optional[bool] = None):
         """Create a new Color object, optionally disabling color output.
 
         Args:
@@ -37,7 +38,7 @@ class Color:
             if self._enabled is None:
                 self._enabled = sys.stdout.isatty()
 
-    def Start(self, color):
+    def Start(self, color: int) -> str:
         """Returns a start color code.
 
         Args:
@@ -51,7 +52,7 @@ class Color:
             return self.COLOR_START % (color + 30)
         return ""
 
-    def Stop(self):
+    def Stop(self) -> str:
         """Returns a stop color code.
 
         Returns:
@@ -62,7 +63,9 @@ class Color:
             return self.RESET
         return ""
 
-    def Color(self, color, text, background_color=None):
+    def Color(
+        self, color: int, text: str, background_color: Optional[int] = None
+    ) -> str:
         """Returns text with conditionally added color escape sequences.
 
         Keyword arguments:
@@ -90,7 +93,7 @@ class Color:
         return start + text + end
 
     @staticmethod
-    def UserEnabled():
+    def UserEnabled() -> Optional[bool]:
         """See if the global colorization preference is enabled.
 
         Uses the $NOCOLOR envvar.
