@@ -210,7 +210,7 @@ class DeviceImager:
         )
 
         xb = xbuddy.XBuddy(board=board, version=self._version)
-        xb_component = xbuddy.InterpretPath(self._image)
+        xb_component = xbuddy.InterpretPath(self._image, board, self._version)
         func = (
             xb.Get if xb_component.image_type == xbuddy.SIGNED else xb.Translate
         )
