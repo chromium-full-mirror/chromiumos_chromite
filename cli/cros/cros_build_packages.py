@@ -40,6 +40,7 @@ def build_shell_bool_style_args(
     help_str: str,
     deprecation_note: str,
     alternate_name: Optional[str] = None,
+    deprecated: bool = False,
 ) -> None:
     """Build the shell boolean input argument equivalent.
 
@@ -66,6 +67,7 @@ def build_shell_bool_style_args(
         help_str: The help string for the input argument.
         deprecation_note: A deprecation note to use.
         alternate_name: Alternate argument to be used after deprecation.
+        deprecated: If True, the argument is no longer used.
     """
     arg = f"--{name}"
     shell_narg = f"--no{name}"
@@ -81,12 +83,14 @@ def build_shell_bool_style_args(
             default=default_val,
             dest=name,
             help=default_val_str,
+            deprecated="This flag is ignored." if deprecated else None,
         )
         parser.add_argument(
             alt_py_narg,
             action="store_false",
             dest=name,
             help="Don't " + help_str.lower(),
+            deprecated="This flag is ignored." if deprecated else None,
         )
 
     parser.add_argument(
@@ -113,6 +117,7 @@ def build_shell_bool_style_args(
             action="store_false",
             dest=name,
             help="Don't " + help_str.lower(),
+            deprecated="This flag is ignored." if deprecated else None,
         )
 
 
@@ -232,6 +237,7 @@ class BuildPackagesCommand(command.CliCommand):
             "match exactly.",
             deprecation_note,
             alternate_name="use-any-chrome",
+            deprecated=True,
         )
         build_shell_bool_style_args(
             group,
@@ -245,8 +251,7 @@ class BuildPackagesCommand(command.CliCommand):
             group,
             "chrome",
             False,
-            "Ensure chrome instead of chromium. Alias for "
-            "--internal --no-use-any-chrome.",
+            "Ensure chrome instead of chromium. Alias for --internal.",
             deprecation_note,
         )
 
@@ -446,7 +451,6 @@ class BuildPackagesCommand(command.CliCommand):
 
         if options.chrome:
             options.internal_chrome = True
-            options.use_any_chrome = False
 
         if options.cleanbuild:
             # Turn off incremental builds when force replacing the sysroot since
@@ -478,7 +482,6 @@ class BuildPackagesCommand(command.CliCommand):
             install_auto_test=options.withautotest,
             autosetgov=options.autosetgov,
             autosetgov_sticky=options.autosetgov_sticky,
-            use_any_chrome=options.use_any_chrome,
             internal_chrome=options.internal,
             eclean=options.eclean,
             jobs=options.jobs,

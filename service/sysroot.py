@@ -206,7 +206,6 @@ class BuildPackagesRunConfig:
         install_auto_test: bool = True,
         autosetgov: bool = False,
         autosetgov_sticky: bool = False,
-        use_any_chrome: bool = True,
         internal_chrome: bool = False,
         eclean: bool = True,
         jobs: Optional[int] = None,
@@ -244,8 +243,6 @@ class BuildPackagesRunConfig:
             install_auto_test: Build autotest client code.
             autosetgov: Automatically set cpu governor to 'performance'.
             autosetgov_sticky: Remember --autosetgov setting for future runs.
-            use_any_chrome: Use any Chrome prebuilt available, even if the
-                prebuilt doesn't match exactly.
             internal_chrome: Build the internal version of chrome.
             eclean: Run eclean to delete old binpkgs.
             jobs: How many packages to build in parallel at maximum.
@@ -274,7 +271,6 @@ class BuildPackagesRunConfig:
         self.install_auto_test = install_auto_test
         self.autosetgov = autosetgov
         self.autosetgov_sticky = autosetgov_sticky
-        self.use_any_chrome = use_any_chrome
         self.internal_chrome = internal_chrome
         self.eclean = eclean
         self.jobs = jobs
@@ -464,10 +460,6 @@ class BuildPackagesRunConfig:
             "--with-test-deps",
             "y",
         ]
-
-        if self.use_any_chrome:
-            for pkg in _CHROME_PACKAGES:
-                flags.append(f"--force-remote-binary={pkg}")
 
         extra_board_flags = os.environ.get("EXTRA_BOARD_FLAGS", "").split()
         if extra_board_flags:

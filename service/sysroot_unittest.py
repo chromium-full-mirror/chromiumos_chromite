@@ -626,16 +626,6 @@ class BuildPackagesRunConfigTest(
         self.assertIn("--with-bdeps", flags)
         self.assertIn("--usepkg", flags)
 
-        # Test when use_any_chrome is specified.
-        instance = sysroot.BuildPackagesRunConfig(use_any_chrome=True)
-
-        flags = instance.GetEmergeFlags()
-
-        self.assertIn(
-            "--force-remote-binary=chromeos-base/chromeos-chrome", flags
-        )
-        self.assertIn("--force-remote-binary=chromeos-base/chrome-icu", flags)
-
         # Test when usepkgonly is specified.
         instance = sysroot.BuildPackagesRunConfig(usepkgonly=True)
 
