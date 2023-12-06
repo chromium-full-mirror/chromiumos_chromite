@@ -741,8 +741,8 @@ source make.conf.host_setup
     def setUp(self):
         self._write_file_patch = self.PatchObject(osutils, "WriteFile")
 
-        def _read_file_response(filepath: str) -> str:
-            """Mock responses for osutils.ReadFile based on input filepath."""
+        def _read_text_response(filepath: str) -> str:
+            """Mock responses for osutils.ReadText based on input filepath."""
             self.assertIn(
                 filepath.name,
                 ("sdk_version.conf", "prebuilt.conf", "make.conf.amd64-host"),
@@ -761,9 +761,9 @@ source make.conf.host_setup
                 return self._make_conf_amd64_template % {
                     "version": self._old_version
                 }
-            raise ValueError(f"Unexpected path in mock ReadFile: {filepath}")
+            raise ValueError(f"Unexpected path in mock ReadText: {filepath}")
 
-        self.PatchObject(osutils, "ReadFile", side_effect=_read_file_response)
+        self.PatchObject(osutils, "ReadText", side_effect=_read_text_response)
 
     def test_noop(self):
         """Test trying to update to the existing version."""

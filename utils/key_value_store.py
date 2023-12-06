@@ -11,7 +11,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Dict, Generator, Optional, Tuple, Union
+from typing import cast, Dict, Generator, List, Optional, Tuple, Union
 
 from chromite.lib import osutils
 
@@ -24,14 +24,14 @@ QUOTE_CHARS = [SINGLE_QUOTE, DOUBLE_QUOTE]
 
 @contextlib.contextmanager
 def _Open(
-    obj: Union[str, os.PathLike, io.TextIOWrapper],
+    obj: Union[str, "os.PathLike[str]", io.TextIOWrapper],
     mode: str = "r",
     encoding: str = "utf-8",
 ) -> Generator[io.TextIOWrapper, None, None]:
     """Convenience ctx that accepts a file path or an open file object."""
     if isinstance(obj, (str, os.PathLike)):
         with open(obj, mode=mode, encoding=encoding) as f:
-            yield f
+            yield cast(io.TextIOWrapper, f)
     else:
         yield obj
 
@@ -95,7 +95,7 @@ def LoadData(
 
 
 def LoadFile(
-    obj: Union[str, os.PathLike, io.TextIOWrapper],
+    obj: Union[str, "os.PathLike[str]", io.TextIOWrapper],
     ignore_missing: bool = False,
     multiline: bool = False,
 ) -> Dict[str, str]:
@@ -117,7 +117,11 @@ def LoadFile(
     """
     try:
         with _Open(obj) as f:
-            return LoadData(f.read(), multiline=multiline, source=obj)
+            if isinstance(obj, (str, os.PathLike)):
+                source = str(obj)
+            else:
+                source = "<already-open file>"
+            return LoadData(f.read(), multiline=multiline, source=source)
     except EnvironmentError as e:
         if not (ignore_missing and e.errno == errno.ENOENT):
             raise
@@ -204,10 +208,10 @@ def UpdateKeyInLocalFile(
     new_lines = []
 
     # Read current lines.
+    current_lines: List[str] = []
     try:
-        current_lines = osutils.ReadFile(filepath).splitlines()
+        current_lines = osutils.ReadText(filepath).splitlines()
     except FileNotFoundError:
-        current_lines = []
         logging.info("Creating new file %s", filepath)
 
     # Scan current lines, copy all vars to new_lines, change the line with
