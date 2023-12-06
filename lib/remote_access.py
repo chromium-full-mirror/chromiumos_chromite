@@ -232,7 +232,9 @@ def CompileSSHConnectSettings(**kwargs):
         "StrictHostKeyChecking": "no",
         "UserKnownHostsFile": "/dev/null",
         "ControlMaster": "auto",
-        "ControlPath": "~/.ssh/ctrl-%C",
+        # TODO(b/315190229): switch back to %C once bots upgrade past OpenSSH
+        # v6.7.
+        "ControlPath": "~/.ssh/ctrl-%l%h%p%r",
         "ControlPersist": 120,
     }
     settings.update(kwargs)
