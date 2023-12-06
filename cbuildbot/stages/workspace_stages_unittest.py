@@ -614,7 +614,7 @@ class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
             enter_chroot=True,
             chroot_args=["--cache-dir", "/cache"],
             extra_env={
-                "USE": "-cros-debug chrome_internal thinlto",
+                "USE": "-cros-debug chrome_internal",
                 "FEATURES": " -separatedebug splitdebug",
             },
             cwd=self.workspace,
@@ -643,7 +643,7 @@ class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
             extra_env={
                 "CHROME_ORIGIN": "LOCAL_SOURCE",
                 "FEATURES": " -separatedebug splitdebug",
-                "USE": "-cros-debug chrome_internal thinlto",
+                "USE": "-cros-debug chrome_internal",
             },
             cwd=self.workspace,
         )

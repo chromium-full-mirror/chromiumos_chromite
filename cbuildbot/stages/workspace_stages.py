@@ -672,10 +672,20 @@ class WorkspaceUpdateSDKStage(WorkspaceStageBase):
 
     def PerformStage(self):
         """Do the work of updating the chroot."""
+        extra_env = self._portage_extra_env.copy()
+        # The thinlto USE flag is fine for later steps, but drop it in the
+        # SDK update step because it's not needed and can cause toolchain
+        # problems. This is a hack because CBB is going away soon.
+        if "thinlto" in extra_env.get("USE", ""):
+            # Drop "thinlto" and "-thinlto", different toolchain packages may
+            # have different thinlto settings.
+            extra_env["USE"] = " ".join(
+                [x for x in extra_env["USE"].split() if "thinlto" not in x]
+            )
         commands.UpdateChroot(
             self._build_root,
             usepkg=not self._latest_toolchain,
-            extra_env=self._portage_extra_env,
+            extra_env=extra_env,
             chroot_args=["--cache-dir", self._run.options.cache_dir],
         )
 
