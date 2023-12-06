@@ -5,12 +5,12 @@
 """cros clean-outdated-pkgs purges outdated and unsatisfiable packages."""
 
 import itertools
-import logging
 import multiprocessing
 import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
+import chromite
 from chromite.cli import command
 from chromite.lib import build_target_lib
 from chromite.lib import chromite_config
@@ -24,6 +24,8 @@ from chromite.lib.parser import pms_dependency
 from chromite.scripts import cros_setup_toolchains
 from chromite.utils import pms
 
+
+logging = chromite.ChromiteLogger.getLogger(__name__)
 
 IGNORED_REPOSITORIES = frozenset(["crossdev", "toolchains"])
 
@@ -345,7 +347,7 @@ class CleanOutdatedCommand(command.CliCommand):
                     logging.fatal(
                         "anyof_reduce called on empty list: %s", choices
                     )
-                    return
+                    return None
 
                 # Pick either a slotless dep, if available.
                 for choice in choices:
@@ -466,10 +468,10 @@ class CleanOutdatedCommand(command.CliCommand):
         portage_db: portage_util.PortageDB,
         pkg_cp: str,
         min_version: str,
-    ):
+    ) -> None:
         """Upgrade |pkg_cp| to |min_version|; exit the program if failed."""
 
-        def pkg_is_at_min_version():
+        def pkg_is_at_min_version() -> bool:
             for pkg in portage_db.InstalledPackages():
                 if pkg.package_info.cp == pkg_cp:
                     if pms.version_ge(pkg.package_info.version, min_version):
