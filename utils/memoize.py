@@ -6,9 +6,10 @@
 
 import functools
 import sys
+from typing import Any, Callable, Iterable
 
 
-def MemoizedSingleCall(functor):
+def MemoizedSingleCall(functor: Callable[[Any], Any]) -> Callable[[Any], Any]:
     """Decorator for simple functor targets, caching the results
 
     The functor must accept no arguments beyond either a class or self
@@ -23,8 +24,8 @@ def MemoizedSingleCall(functor):
 
     # pylint: disable=protected-access
     @functools.wraps(functor)
-    def wrapper(obj):
-        key = wrapper._cache_key
+    def wrapper(obj: object) -> Any:
+        key = getattr(wrapper, "_cache_key")
         val = getattr(obj, key, None)
         if val is None:
             val = functor(obj)
@@ -32,11 +33,13 @@ def MemoizedSingleCall(functor):
         return val
 
     # Use name mangling to store the cached value in a (hopefully) unique place.
-    wrapper._cache_key = "_%s_cached" % (functor.__name__.lstrip("_"),)
+    setattr(
+        wrapper, "_cache_key", "_%s_cached" % (functor.__name__.lstrip("_"),)
+    )
     return wrapper
 
 
-def Memoize(f):
+def Memoize(f: Callable[[Any], Any]) -> Callable[[Any], Any]:
     """Decorator for memoizing a function.
 
     Caches all calls to the function using a ._memo_cache dict mapping (args,
@@ -50,26 +53,33 @@ def Memoize(f):
     notice updates to the cache.
     """
     # pylint: disable=protected-access
-    f._memo_cache = {}
+    setattr(f, "_memo_cache", {})
 
     @functools.wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         # Make sure that the key is hashable... as long as the contents of args
         # and kwargs are hashable.
         # TODO(phobbs) we could add an option to use the id(...) of an object if
         # it's not hashable.  Then "MemoizedSingleCall" would be obsolete.
         key = (tuple(args), tuple(sorted(kwargs.items())))
-        if key in f._memo_cache:
-            return f._memo_cache[key]
+        if key in getattr(f, "_memo_cache"):
+            # getattr() doesn't allow an overloaded signature, even when the key
+            # is hashable (as the key tuple is).
+            return f._memo_cache[key]  # type: ignore[attr-defined]
 
         result = f(*args, **kwargs)
-        f._memo_cache[key] = result
+
+        # setattr() doesn't allow an overloaded signature, even when the key is
+        # hashable (as the key tuple is).
+        f._memo_cache[key] = result  # type: ignore[attr-defined]
         return result
 
     return wrapper
 
 
-def SafeRun(functors, combine_exceptions=False) -> None:
+def SafeRun(
+    functors: Iterable[Callable[[], Any]], combine_exceptions: bool = False
+) -> None:
     """Executes a list of functors, continuing on exceptions.
 
     Args:
