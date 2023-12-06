@@ -48,7 +48,7 @@ class Builder:
         self,
         kernel_flags: List[str],
         use_flags_override: Optional[List[str]] = None,
-    ):
+    ) -> None:
         """Builds a custom kernel and initramfs.
 
         Args:
@@ -81,7 +81,7 @@ class Builder:
         pkgdir: str,
         kernel_flags: List[str],
         use_flags_override: Optional[List[str]] = None,
-    ):
+    ) -> None:
         """Internal function for CreateCustomKernel()
 
         This code is mainly borrowed from
@@ -197,7 +197,7 @@ class Builder:
         private_key: str = constants.KERNEL_DATA_PRIVATE_KEY,
         keyblock: str = constants.KERNEL_KEYBLOCK,
         disable_rootfs_verification: bool = False,
-    ):
+    ) -> None:
         """Builds the final initramfs kernel image.
 
         Args:

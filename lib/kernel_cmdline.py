@@ -6,6 +6,7 @@
 
 import collections
 import re
+from typing import Iterable, Optional, Union
 
 
 class KernelArg:
@@ -56,7 +57,7 @@ class KernelArg:
     def __hash__(self):
         return hash(str(self))
 
-    def Format(self):
+    def Format(self) -> str:
         """Return the arg(=value) as a string.
 
         Values with whitespace will have double-quotes added if not present.
@@ -98,7 +99,9 @@ class KernelArgList(
             |element.key| == |index| is used.
     """
 
-    def __init__(self, data=None):
+    def __init__(
+        self, data: Optional[Union[str, Iterable[KernelArg]]] = None
+    ) -> None:
         """Initialize the KernelArgList.
 
         Args:
@@ -325,7 +328,7 @@ class KernelArgList(
     def __str__(self):
         return self.Format()
 
-    def Format(self, separator=" "):
+    def Format(self, separator: str = " ") -> str:
         """Return the list of key(=value)s as a string.
 
         Args:
