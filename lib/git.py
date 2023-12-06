@@ -4,6 +4,8 @@
 
 """Common functions for interacting with git and repo."""
 
+from __future__ import annotations
+
 import collections
 import datetime
 import errno
@@ -15,13 +17,29 @@ from pathlib import Path
 import re
 import string
 import subprocess
-from typing import Iterable, List, NamedTuple, Optional, Union
+from typing import (
+    Any,
+    BinaryIO,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    TextIO,
+    Tuple,
+    Union,
+)
 from xml import sax
 
+import chromite
 from chromite.lib import config_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.utils import file_util
+
+
+logger = chromite.ChromiteLogger.getLogger(__name__)
 
 
 class GitException(Exception):
@@ -40,11 +58,15 @@ _RemoteRef = collections.namedtuple(
 class RemoteRef(_RemoteRef):
     """Object representing a remote ref."""
 
-    def __new__(cls, remote, ref, project_name=None):
+    def __new__(
+        cls, remote: str, ref: str, project_name: Optional[str] = None
+    ) -> RemoteRef:
         return super(RemoteRef, cls).__new__(cls, remote, ref, project_name)
 
 
-def FindRepoDir(path):
+def FindRepoDir(
+    path: Union[str, "os.PathLike[str]"]
+) -> Optional[Union[str, "os.PathLike[str]"]]:
     """Returns the nearest higher-level repo dir from the specified path.
 
     Args:
@@ -53,7 +75,7 @@ def FindRepoDir(path):
     return osutils.FindInPathParents(".repo", path, test_func=os.path.isdir)
 
 
-def FindRepoCheckoutRoot(path):
+def FindRepoCheckoutRoot(path: Union[str, "os.PathLike[str]"]) -> Optional[str]:
     """Get the root of your repo managed checkout."""
     repo_dir = FindRepoDir(path)
     if repo_dir:
@@ -62,7 +84,9 @@ def FindRepoCheckoutRoot(path):
         return None
 
 
-def IsSubmoduleCheckoutRoot(path, remote, url):
+def IsSubmoduleCheckoutRoot(
+    path: Union[str, "os.PathLike[str]"], remote: str, url: str
+) -> bool:
     """Tests to see if a directory is the root of a git submodule checkout.
 
     Args:
@@ -83,7 +107,7 @@ def IsSubmoduleCheckoutRoot(path, remote, url):
     return False
 
 
-def GetGitGitdir(pwd):
+def GetGitGitdir(pwd: Union[str, "os.PathLike[str]"]) -> Optional[str]:
     """Probes for a git gitdir directory rooted at a directory.
 
     Args:
@@ -108,11 +132,11 @@ def GetGitGitdir(pwd):
     if os.path.isdir(os.path.join(pwd, "objects")) and os.path.isdir(
         os.path.join(pwd, "refs")
     ):
-        return pwd
+        return str(pwd)
     return None
 
 
-def IsGitRepositoryCorrupted(cwd):
+def IsGitRepositoryCorrupted(cwd: Union[str, "os.PathLike[str]"]) -> bool:
     """Verify that the specified git repository is not corrupted.
 
     Args:
@@ -127,14 +151,14 @@ def IsGitRepositoryCorrupted(cwd):
         RunGit(cwd, cmd)
         return False
     except cros_build_lib.RunCommandError as ex:
-        logging.warning(str(ex))
+        logger.warning(str(ex))
         return True
 
 
 _HEX_CHARS = frozenset(string.hexdigits)
 
 
-def IsSHA1(value, full=True):
+def IsSHA1(value: str, full: bool = True) -> bool:
     """Returns True if the given value looks like a sha1.
 
     If full is True, then it must be full length- 40 chars.  If False, >=6, and
@@ -148,7 +172,7 @@ def IsSHA1(value, full=True):
     return 6 <= l <= 40
 
 
-def IsRefsTags(value):
+def IsRefsTags(value: str) -> bool:
     """Return True if the given value looks like a tag.
 
     Currently this is identified via refs/tags/ prefixing.
@@ -156,7 +180,11 @@ def IsRefsTags(value):
     return value.startswith("refs/tags/")
 
 
-def GetGitRepoRevision(cwd, branch="HEAD", short=False):
+def GetGitRepoRevision(
+    cwd: Union[str, "os.PathLike[str]"],
+    branch: str = "HEAD",
+    short: bool = False,
+) -> str:
     """Find the revision of a branch.
 
     Args:
@@ -170,10 +198,14 @@ def GetGitRepoRevision(cwd, branch="HEAD", short=False):
     cmd = ["rev-parse", branch]
     if short:
         cmd.insert(1, "--short")
-    return RunGit(cwd, cmd).stdout.strip()
+    stdout = RunGit(cwd, cmd).stdout.strip()
+    assert isinstance(stdout, str)
+    return stdout
 
 
-def IsReachable(cwd, to_ref, from_ref):
+def IsReachable(
+    cwd: Union[str, "os.PathLike[str]"], to_ref: str, from_ref: str
+) -> bool:
     """Determine whether one commit ref is reachable from another.
 
     Args:
@@ -197,7 +229,9 @@ def IsReachable(cwd, to_ref, from_ref):
     return True
 
 
-def DoesCommitExistInRepo(cwd, commit):
+def DoesCommitExistInRepo(
+    cwd: Union[str, "os.PathLike[str]"], commit: str
+) -> bool:
     """Determine whether a commit (SHA1 or ref) exists in a repo.
 
     Args:
@@ -216,7 +250,7 @@ def DoesCommitExistInRepo(cwd, commit):
     return True
 
 
-def GetCurrentBranchOrId(cwd):
+def GetCurrentBranchOrId(cwd: Union[str, "os.PathLike[str]"]) -> str:
     """Returns the current branch, or commit ID if repo is on detached HEAD."""
     return (
         GetCurrentBranch(cwd)
@@ -224,7 +258,7 @@ def GetCurrentBranchOrId(cwd):
     )
 
 
-def GetCurrentBranch(cwd):
+def GetCurrentBranch(cwd: Union[str, "os.PathLike[str]"]) -> Optional[str]:
     """Returns the current branch, or None if repo is on detached HEAD."""
     try:
         ret = RunGit(cwd, ["symbolic-ref", "-q", "HEAD"])
@@ -235,7 +269,7 @@ def GetCurrentBranch(cwd):
         return None
 
 
-def StripRefsHeads(ref, strict=True):
+def StripRefsHeads(ref: str, strict: bool = True) -> str:
     """Remove leading 'refs/heads/' from a ref name.
 
     If strict is True, an Exception is thrown if the ref doesn't start with
@@ -247,7 +281,7 @@ def StripRefsHeads(ref, strict=True):
     return ref.replace("refs/heads/", "")
 
 
-def StripRefs(ref):
+def StripRefs(ref: str) -> str:
     """Remove leading 'refs/heads', 'refs/remotes/[^/]+/' from a ref name."""
     ref = StripRefsHeads(ref, False)
     if ref.startswith("refs/remotes/"):
@@ -255,7 +289,7 @@ def StripRefs(ref):
     return ref
 
 
-def NormalizeRemoteRef(remote, ref):
+def NormalizeRemoteRef(remote: str, ref: str) -> str:
     """Convert git branch refs into fully qualified remote form."""
     if ref:
         # Support changing local ref to remote ref, or changing the remote
@@ -274,7 +308,7 @@ class ProjectCheckout(dict):
     TODO(davidjames): Convert this into an ordinary object instead of a dict.
     """
 
-    def __init__(self, attrs):
+    def __init__(self, attrs: Dict[str, Any]):
         """Constructor.
 
         Args:
@@ -283,13 +317,13 @@ class ProjectCheckout(dict):
         """
         dict.__init__(self, attrs)
 
-    def AssertPushable(self):
+    def AssertPushable(self) -> None:
         """Verify that it is safe to push changes to this repository."""
         if not self["pushable"]:
             remote = self["remote"]
             raise AssertionError("Remote %s is not pushable." % (remote,))
 
-    def GetPath(self, absolute=False):
+    def GetPath(self, absolute: bool = False) -> Any:
         """Get the path to the checkout.
 
         Args:
@@ -318,9 +352,23 @@ class Manifest:
             this will be TOT.
     """
 
-    _instance_cache = {}
+    _instance_cache: Dict[
+        Optional[str], Tuple[Manifest, Tuple[Tuple[str, Optional[str]], ...]]
+    ] = {}
+    default: Dict[str, str]
+    _annotations: Dict[str, str]
+    checkouts_by_path: Dict[str, ProjectCheckout]
+    checkouts_by_name: Dict[str, List[ProjectCheckout]]
+    remotes: Dict[str, Dict[str, str]]
+    includes: Union[List[Tuple[str, str]], Tuple[Tuple[str, str], ...]]
+    _current_project_path: Optional[str]
+    _current_project_name: Optional[str]
 
-    def __init__(self, source, manifest_include_dir=None):
+    def __init__(
+        self,
+        source: Union[str, "os.PathLike[str]", TextIO],
+        manifest_include_dir: Optional[Union[str, "os.PathLike[str]"]] = None,
+    ):
         """Initialize this instance.
 
         Args:
@@ -342,7 +390,7 @@ class Manifest:
         self._RunParser(source)
         self.includes = tuple(self.includes)
 
-    def _RequireAttr(self, attr, attrs):
+    def _RequireAttr(self, attr: Any, attrs: Dict[str, Any]) -> None:
         name = attrs.get("name")
         assert attr in attrs, '%s is missing a "%s" attribute; attrs: %r' % (
             name,
@@ -350,11 +398,15 @@ class Manifest:
             attrs,
         )
 
-    def _RunParser(self, source, finalize=True):
+    def _RunParser(
+        self,
+        source: Union[str, "os.PathLike[str]", TextIO],
+        finalize: bool = True,
+    ) -> None:
         parser = sax.make_parser()
         handler = sax.handler.ContentHandler()
-        handler.startElement = self._StartElement
-        handler.endElement = self._EndElement
+        handler.startElement = self._StartElement  # type: ignore
+        handler.endElement = self._EndElement  # type: ignore
         parser.setContentHandler(handler)
 
         # Python 2 seems to expect either a file name (as a string) or an
@@ -367,7 +419,7 @@ class Manifest:
         if finalize:
             self._FinalizeAllProjectData()
 
-    def _StartElement(self, name, attrs):
+    def _StartElement(self, name: str, attrs: Dict[str, Any]) -> None:
         """Stores the default manifest properties and per-project overrides."""
         attrs = dict(attrs.items())
         if name == "default":
@@ -378,13 +430,17 @@ class Manifest:
             self.remotes[attrs["name"]] = attrs
         elif name == "project":
             self._RequireAttr("name", attrs)
-            self._current_project_path = attrs.get("path", attrs["name"])
-            self._current_project_name = attrs["name"]
-            self.checkouts_by_path[self._current_project_path] = attrs
-            checkout = self.checkouts_by_name.setdefault(
+            # Upcast from dictionary to a ProjectCheckout.
+            checkout = ProjectCheckout({})
+            checkout.update(attrs)
+            name = str(checkout["name"])
+            self._current_project_path = str(checkout.get("path", name))
+            self._current_project_name = name
+            self.checkouts_by_path[self._current_project_path] = checkout
+            checkouts = self.checkouts_by_name.setdefault(
                 self._current_project_name, []
             )
-            checkout.append(attrs)
+            checkouts.append(checkout)
             self._annotations = {}
         elif name == "annotation":
             self._RequireAttr("name", attrs)
@@ -408,10 +464,10 @@ class Manifest:
             )
             # TODO: self.includes is cast to a tuple in __init__, so this
             #  doesn't work. Is this never called?
-            self.includes.append((attrs["name"], include_path))
+            self.includes.append((attrs["name"], include_path))  # type: ignore
             self._RunParser(include_path, finalize=False)
 
-    def _EndElement(self, name):
+    def _EndElement(self, name: str) -> None:
         """Store any child element properties into the parent element."""
         if name == "project":
             assert (
@@ -426,12 +482,12 @@ class Manifest:
             self._current_project_path = None
             self._current_project_name = None
 
-    def _FinalizeAllProjectData(self):
+    def _FinalizeAllProjectData(self) -> None:
         """Rewrite projects mixing defaults in and adding our attributes."""
         for path_data in self.checkouts_by_path.values():
             self._FinalizeProjectData(path_data)
 
-    def _FinalizeProjectData(self, attrs):
+    def _FinalizeProjectData(self, attrs: Dict[str, Any]) -> None:
         """Sets up useful properties for a project.
 
         Args:
@@ -489,10 +545,12 @@ class Manifest:
         # class, and in consuming code.
         attrs.setdefault("path", attrs["name"])
         for key in ("name", "path"):
-            attrs[key] = os.path.normpath(attrs[key])
+            attrs[key] = os.path.normpath(str(attrs[key]))
 
     @staticmethod
-    def _GetManifestHash(source, ignore_missing=False):
+    def _GetManifestHash(
+        source: Union[str, BinaryIO], ignore_missing: bool = False
+    ) -> Optional[str]:
         if isinstance(source, str):
             try:
                 # TODO(build): convert this to osutils.ReadFile once these
@@ -510,7 +568,11 @@ class Manifest:
         return md5
 
     @classmethod
-    def Cached(cls, source, manifest_include_dir=None):
+    def Cached(
+        cls,
+        source: str,
+        manifest_include_dir: Optional[Union[str, "os.PathLike[str]"]] = None,
+    ) -> Manifest:
         """Return an instance, reusing an existing one if possible.
 
         May be a seekable filehandle, or a filepath.
@@ -542,9 +604,17 @@ class Manifest:
 class ManifestCheckout(Manifest):
     """A Manifest Handler for a specific manifest checkout."""
 
-    _instance_cache = {}
+    _instance_cache: Dict[
+        Tuple[str, Optional[str]],
+        Tuple[ManifestCheckout, Tuple[Tuple[str, Optional[str]], ...]],
+    ] = {}  # type: ignore[assignment]
 
-    def __init__(self, path, manifest_path=None, search=True):
+    def __init__(
+        self,
+        path: Union[str, "os.PathLike[str]"],
+        manifest_path: Optional[Union[str, "os.PathLike[str]"]] = None,
+        search: bool = True,
+    ):
         """Initialize this instance.
 
         Args:
@@ -567,13 +637,12 @@ class ManifestCheckout(Manifest):
         # The include dir is always the manifest repo, not where the manifest
         # file happens to live.
         manifest_include_dir = os.path.join(self.root, ".repo", "manifests")
-        self._content_merging = {}
         Manifest.__init__(
             self, self.manifest_path, manifest_include_dir=manifest_include_dir
         )
 
     @property
-    def manifest_branch(self):
+    def manifest_branch(self) -> str:
         # TODO: use functools.cached_property once min Python version is 3.8.
         if not hasattr(self, "_manifest_branch"):
             # pylint: disable=attribute-defined-outside-init
@@ -581,7 +650,11 @@ class ManifestCheckout(Manifest):
         return self._manifest_branch
 
     @staticmethod
-    def _NormalizeArgs(path, manifest_path=None, search=True):
+    def _NormalizeArgs(
+        path: Union[str, "os.PathLike[str]"],
+        manifest_path: Optional[Union[str, "os.PathLike[str]"]] = None,
+        search: bool = True,
+    ) -> Tuple[str, str]:
         root = FindRepoCheckoutRoot(path)
         if root is None:
             raise OSError(errno.ENOENT, "Couldn't find repo root: %s" % (path,))
@@ -595,9 +668,11 @@ class ManifestCheckout(Manifest):
                 )
         if manifest_path is None:
             manifest_path = os.path.join(root, ".repo", "manifest.xml")
-        return root, manifest_path
+        return root, str(manifest_path)
 
-    def FindCheckouts(self, project, branch=None):
+    def FindCheckouts(
+        self, project: str, branch: Optional[str] = None
+    ) -> List[ProjectCheckout]:
         """Returns the list of checkouts for a given |project|/|branch|.
 
         Args:
@@ -607,7 +682,7 @@ class ManifestCheckout(Manifest):
         Returns:
             A list of ProjectCheckout objects.
         """
-        checkouts = []
+        checkouts: List[ProjectCheckout] = []
         for checkout in self.checkouts_by_name.get(project, []):
             tracking_branch = checkout["tracking_branch"]
             if branch is None or StripRefs(branch) == StripRefs(
@@ -616,7 +691,9 @@ class ManifestCheckout(Manifest):
                 checkouts.append(checkout)
         return checkouts
 
-    def FindCheckout(self, project, branch=None, strict=True):
+    def FindCheckout(
+        self, project: str, branch: Optional[str] = None, strict: bool = True
+    ) -> Optional[ProjectCheckout]:
         """Returns the checkout associated with a given project/branch.
 
         Args:
@@ -642,7 +719,7 @@ class ManifestCheckout(Manifest):
             raise AssertionError("Too many checkouts found for %s" % project)
         return checkouts[0]
 
-    def ListCheckouts(self):
+    def ListCheckouts(self) -> List[ProjectCheckout]:
         """List the checkouts in the manifest.
 
         Returns:
@@ -650,7 +727,9 @@ class ManifestCheckout(Manifest):
         """
         return list(self.checkouts_by_path.values())
 
-    def FindCheckoutFromPath(self, path, strict=True):
+    def FindCheckoutFromPath(
+        self, path: Union[str, "os.PathLike[str]"], strict: bool = True
+    ) -> Optional[ProjectCheckout]:
         """Find the associated checkouts for a given |path|.
 
         The |path| can either be to the root of a project, or within the
@@ -687,20 +766,22 @@ class ManifestCheckout(Manifest):
         # the given pathway. Return that.
         return max(candidates)[1]
 
-    def _FinalizeAllProjectData(self):
+    def _FinalizeAllProjectData(self) -> None:
         """Rewrite projects mixing defaults in and adding our attributes."""
         Manifest._FinalizeAllProjectData(self)
-        for key, value in self.checkouts_by_path.items():
-            self.checkouts_by_path[key] = ProjectCheckout(value)
-        for key, value in self.checkouts_by_name.items():
-            self.checkouts_by_name[key] = [ProjectCheckout(x) for x in value]
+        for key, checkout in self.checkouts_by_path.items():
+            self.checkouts_by_path[key] = ProjectCheckout(checkout)
+        for key, checkouts in self.checkouts_by_name.items():
+            self.checkouts_by_name[key] = [
+                ProjectCheckout(x) for x in checkouts
+            ]
 
-    def _FinalizeProjectData(self, attrs):
+    def _FinalizeProjectData(self, attrs: Dict[str, Any]) -> None:
         Manifest._FinalizeProjectData(self, attrs)
         attrs["local_path"] = os.path.join(self.root, attrs["path"])
 
     @staticmethod
-    def _GetManifestsBranch(root):
+    def _GetManifestsBranch(root: Union[str, "os.PathLike[str]"]) -> str:
         """Get the tracking branch of the manifest repository.
 
         Returns:
@@ -744,7 +825,12 @@ class ManifestCheckout(Manifest):
 
     # pylint: disable=arguments-renamed
     @classmethod
-    def Cached(cls, path, manifest_path=None, search=True):
+    def Cached(
+        cls,
+        path: Union[str, "os.PathLike[str]"],
+        manifest_path: Optional[Union[str, "os.PathLike[str]"]] = None,
+        search: bool = True,
+    ) -> ManifestCheckout:
         """Return an instance, reusing an existing one if possible.
 
         Args:
@@ -777,7 +863,9 @@ class ManifestCheckout(Manifest):
 
 
 def RunGit(
-    git_repo: Optional[Union[str, os.PathLike]], cmd: List[str], **kwargs
+    git_repo: Optional[Union[str, "os.PathLike[str]"]],
+    cmd: Iterable[Union[str, "os.PathLike[str]"]],
+    **kwargs: Any,
 ) -> cros_build_lib.CompletedProcess:
     """Wrapper for git commands.
 
@@ -803,10 +891,12 @@ def RunGit(
         kwargs.setdefault("stdout", True)
         kwargs.setdefault("stderr", True)
     kwargs.setdefault("encoding", "utf-8")
-    return cros_build_lib.run(["git"] + cmd, **kwargs)
+    return cros_build_lib.run(["git", *cmd], **kwargs)
 
 
-def Init(git_repo, branch="main"):
+def Init(
+    git_repo: Union[str, "os.PathLike[str]"], branch: str = "main"
+) -> None:
     """Create a new git repository, in the given location.
 
     Args:
@@ -819,13 +909,13 @@ def Init(git_repo, branch="main"):
 
 
 def Clone(
-    dest_path,
-    git_url,
-    reference=None,
-    depth=None,
-    branch=None,
-    single_branch=False,
-):
+    dest_path: Union[str, "os.PathLike[str]"],
+    git_url: str,
+    reference: Optional[str] = None,
+    depth: Optional[Union[str, int]] = None,
+    branch: Optional[str] = None,
+    single_branch: bool = False,
+) -> None:
     """Clone a git repository, into the given directory.
 
     Args:
@@ -855,8 +945,11 @@ def Clone(
 
 
 def ShallowFetch(
-    git_repo, git_url, sparse_checkout=None, commit: Optional[str] = None
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    git_url: str,
+    sparse_checkout: Optional[List[str]] = None,
+    commit: Optional[str] = None,
+) -> None:
     """Fetch a shallow git repository.
 
     Args:
@@ -874,7 +967,7 @@ def ShallowFetch(
             os.path.join(git_repo, ".git/info/sparse-checkout"),
             "\n".join(sparse_checkout),
         )
-        logging.info("Sparse checkout: %s", sparse_checkout)
+        logger.info("Sparse checkout: %s", sparse_checkout)
 
     utcnow = datetime.datetime.utcnow
     start = utcnow()
@@ -897,26 +990,32 @@ def ShallowFetch(
         stderr=True,
         stdout=None,
     )
-    logging.info("ShallowFetch completed in %s.", utcnow() - start)
+    logger.info("ShallowFetch completed in %s.", utcnow() - start)
 
 
-def FindGitTopLevel(path):
+def FindGitTopLevel(path: Union[str, "os.PathLike[str]"]) -> Optional[str]:
     """Returns the top-level directory of the given git working tree path."""
     try:
         ret = RunGit(path, ["rev-parse", "--show-toplevel"])
-        return ret.stdout.strip()
+        stdout = ret.stdout
+        assert isinstance(stdout, str)
+        return stdout.strip()
     except cros_build_lib.RunCommandError:
         return None
 
 
-def GetProjectUserEmail(git_repo):
+def GetProjectUserEmail(
+    git_repo: Union[str, "os.PathLike[str]"]
+) -> Optional[str]:
     """Get the email configured for the project."""
     output = RunGit(git_repo, ["var", "GIT_COMMITTER_IDENT"]).stdout
     m = re.search(r"<([^>]*)>", output.strip())
     return m.group(1) if m else None
 
 
-def MatchBranchName(git_repo, pattern, namespace=""):
+def MatchBranchName(
+    git_repo: Union[str, "os.PathLike[str]"], pattern: str, namespace: str = ""
+) -> List[str]:
     """Return branches who match the specified regular expression.
 
     Args:
@@ -948,11 +1047,15 @@ class AmbiguousBranchName(Exception):
     """Error if given branch name matches too many branches."""
 
 
-def MatchSingleBranchName(*args, **kwargs):
+def MatchSingleBranchName(
+    git_repo: Union[str, "os.PathLike[str]"], pattern: str, namespace: str = ""
+) -> str:
     """Match exactly one branch name, else throw an exception.
 
     Args:
-        See MatchBranchName for more details; all args are passed on.
+        git_repo: The git repository to operate upon.
+        pattern: The regexp to search with.
+        namespace: The namespace to restrict search to (e.g. 'refs/heads/').
 
     Returns:
         The branch name.
@@ -960,19 +1063,19 @@ def MatchSingleBranchName(*args, **kwargs):
     Raises:
         raise AmbiguousBranchName if we did not match exactly one branch.
     """
-    ret = MatchBranchName(*args, **kwargs)
+    ret = MatchBranchName(git_repo, pattern, namespace)
     if len(ret) != 1:
         raise AmbiguousBranchName("Did not match exactly 1 branch: %r" % ret)
     return ret[0]
 
 
 def GetTrackingBranchViaGitConfig(
-    git_repo,
-    branch,
-    for_checkout=True,
-    allow_broken_merge_settings=False,
-    recurse=10,
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    branch: str,
+    for_checkout: bool = True,
+    allow_broken_merge_settings: bool = False,
+    recurse: int = 10,
+) -> Optional[RemoteRef]:
     """Pull the remote and upstream branch of a local branch
 
     Args:
@@ -1056,8 +1159,11 @@ def GetTrackingBranchViaGitConfig(
 
 
 def GetTrackingBranchViaManifest(
-    git_repo, for_checkout=True, for_push=False, manifest=None
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    for_checkout: bool = True,
+    for_push: bool = False,
+    manifest: Optional[ManifestCheckout] = None,
+) -> Optional[RemoteRef]:
     """Gets the appropriate push branch via the manifest if possible.
 
     Args:
@@ -1108,13 +1214,13 @@ def GetTrackingBranchViaManifest(
 
 
 def GetTrackingBranch(
-    git_repo,
-    branch=None,
-    for_checkout=True,
-    fallback=True,
-    manifest=None,
-    for_push=False,
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    branch: Optional[str] = None,
+    for_checkout: bool = True,
+    fallback: bool = True,
+    manifest: Optional[ManifestCheckout] = None,
+    for_push: bool = False,
+) -> Optional[RemoteRef]:
     """Gets the appropriate push branch for the specified directory.
 
     This function works on both repo projects and regular git checkouts.
@@ -1171,7 +1277,12 @@ def GetTrackingBranch(
     return RemoteRef("origin", "master")
 
 
-def CreateBranch(git_repo, branch, branch_point="HEAD", track=False):
+def CreateBranch(
+    git_repo: Union[str, "os.PathLike[str]"],
+    branch: str,
+    branch_point: str = "HEAD",
+    track: bool = False,
+) -> None:
     """Create a branch.
 
     Args:
@@ -1186,7 +1297,7 @@ def CreateBranch(git_repo, branch, branch_point="HEAD", track=False):
     RunGit(git_repo, cmd)
 
 
-def AddPath(path):
+def AddPath(path: Union[str, "os.PathLike[str]"]) -> None:
     """Use 'git add' on a path.
 
     Args:
@@ -1196,7 +1307,7 @@ def AddPath(path):
     RunGit(dirname, ["add", "--", filename])
 
 
-def RmPath(path):
+def RmPath(path: Union[str, "os.PathLike[str]"]) -> None:
     """Use 'git rm' on a file.
 
     Args:
@@ -1206,7 +1317,12 @@ def RmPath(path):
     RunGit(dirname, ["rm", "--", filename])
 
 
-def GetObjectAtRev(git_repo, obj, rev, binary=False):
+def GetObjectAtRev(
+    git_repo: Union[str, "os.PathLike[str]"],
+    obj: str,
+    rev: str,
+    binary: bool = False,
+) -> Union[str, bytes]:
     """Return the contents of a git object at a particular revision.
 
     This could be used to look at an old version of a file or directory, for
@@ -1223,10 +1339,16 @@ def GetObjectAtRev(git_repo, obj, rev, binary=False):
     """
     rev_obj = "%s:%s" % (rev, obj)
     encoding = None if binary else "utf-8"
-    return RunGit(git_repo, ["show", rev_obj], encoding=encoding).stdout
+    stdout = RunGit(git_repo, ["show", rev_obj], encoding=encoding).stdout
+    assert isinstance(stdout, bytes if binary else str)
+    return stdout
 
 
-def RevertPath(git_repo, filename, rev):
+def RevertPath(
+    git_repo: Union[str, "os.PathLike[str]"],
+    filename: Union[str, "os.PathLike[str]"],
+    rev: str,
+) -> None:
     """Revert a single file back to a particular revision and 'add' it with git.
 
     Args:
@@ -1241,17 +1363,17 @@ def RevertPath(git_repo, filename, rev):
 # git. Disable the nags from pylint.
 # pylint: disable=redefined-builtin
 def Log(
-    git_repo,
-    format=None,
-    after=None,
-    until=None,
-    reverse=False,
-    date=None,
-    max_count=None,
-    grep=None,
-    rev="HEAD",
-    paths=None,
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    format: Optional[str] = None,
+    after: Optional[str] = None,
+    until: Optional[str] = None,
+    reverse: bool = False,
+    date: Optional[str] = None,
+    max_count: Optional[Union[str, int]] = None,
+    grep: Optional[str] = None,
+    rev: str = "HEAD",
+    paths: Optional[Iterable[Union[str, "os.PathLike[str]"]]] = None,
+) -> str:
     """Return git log output for the given arguments.
 
     For more detailed description of the parameters, run `git help log`.
@@ -1271,7 +1393,7 @@ def Log(
     Returns:
         The raw log output as a string.
     """
-    cmd = ["log"]
+    cmd: List[Union[str, "os.PathLike[str]"]] = ["log"]
     if format:
         cmd.append("--format=%s" % format)
     if after:
@@ -1290,12 +1412,14 @@ def Log(
     if paths:
         cmd.append("--")
         cmd.extend(paths)
-    return RunGit(git_repo, cmd, errors="replace").stdout
+    stdout = RunGit(git_repo, cmd, errors="replace").stdout
+    assert isinstance(stdout, str)
+    return stdout
 
 
 def LsFiles(
-    cwd: Optional[Union[os.PathLike, str]] = None,
-    files: Iterable[Union[os.PathLike, str]] = (),
+    cwd: Optional[Union[Path, str]] = None,
+    files: Iterable[Union[Path, str]] = (),
     include_ignored: bool = False,
     staging: bool = True,
     untracked: bool = False,
@@ -1326,6 +1450,12 @@ def LsFiles(
     return [Path(x) for x in output.split("\0") if x]
 
 
+# Used by LsTreeEntry.
+# Each line will be:
+# <mode><space><type><space><hash><tab><file><NUL>
+_RE_SPLIT_LINE = re.compile(r"^([0-9]+)[^\t]+\t([^\0]+)\0?$")
+
+
 class LsTreeEntry(NamedTuple):
     """An entry from git-ls-tree."""
 
@@ -1334,14 +1464,12 @@ class LsTreeEntry(NamedTuple):
     is_file: bool
     is_symlink: bool
 
-    # Each line will be:
-    # <mode><space><type><space><hash><tab><file><NUL>
-    _RE_SPLIT_LINE = re.compile(r"^([0-9]+)[^\t]+\t([^\0]+)\0?$")
-
     @classmethod
     def from_line(cls, line: str) -> "LsTreeEntry":
         """Convert a single line from git-ls-tree output to an entry."""
-        m = cls._RE_SPLIT_LINE.match(line)
+        m = _RE_SPLIT_LINE.match(line)
+        if not m:
+            raise GitException(f"Line {line!r} does not match expected format")
         mode = m.group(1)
         return cls(
             Path(m.group(2)),
@@ -1352,9 +1480,9 @@ class LsTreeEntry(NamedTuple):
 
 
 def LsTree(
-    cwd: Optional[Union[os.PathLike, str]] = None,
+    cwd: Optional[Union[Path, str]] = None,
     commit: str = "",
-    files: Iterable[Union[os.PathLike, str]] = (),
+    files: Iterable[Union[Path, str]] = (),
 ) -> List[LsTreeEntry]:
     """Do a git ls-tree.
 
@@ -1370,8 +1498,14 @@ def LsTree(
     """
     output = RunGit(
         cwd,
-        ["ls-tree", "-r", "-z", "--", commit]
-        + (["--", *files] if files else []),
+        [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--",
+            commit,
+            *(["--", *files] if files else []),
+        ],
     ).stdout
     return [LsTreeEntry.from_line(x) for x in output.split("\0")[:-1]]
 
@@ -1379,7 +1513,9 @@ def LsTree(
 # pylint: enable=redefined-builtin
 
 
-def GetChangeId(git_repo, rev="HEAD"):
+def GetChangeId(
+    git_repo: Union[str, "os.PathLike[str]"], rev: str = "HEAD"
+) -> Optional[str]:
     """Retrieve the Change-Id from the commit message
 
     Args:
@@ -1390,7 +1526,9 @@ def GetChangeId(git_repo, rev="HEAD"):
         The Gerrit Change-Id assigned to the commit if it exists.
     """
     log = Log(git_repo, max_count=1, format="format:%B", rev=rev)
-    m = re.findall(r"^Change-Id: (I[a-fA-F0-9]{40})$", log, flags=re.M)
+    m: List[str] = re.findall(
+        r"^Change-Id: (I[a-fA-F0-9]{40})$", log, flags=re.M
+    )
     if not m:
         return None
     elif len(m) > 1:
@@ -1400,8 +1538,12 @@ def GetChangeId(git_repo, rev="HEAD"):
 
 
 def Commit(
-    git_repo, message, amend=False, allow_empty=False, reset_author=False
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    message: str,
+    amend: bool = False,
+    allow_empty: bool = False,
+    reset_author: bool = False,
+) -> Optional[str]:
     """Commit with git.
 
     Args:
@@ -1540,13 +1682,15 @@ def _match_commit(line: str) -> RawDiffEntry:
     # A regular expression is used to parse the normal commits.
     match = DIFF_RE.match(line)
     if match:
-        return RawDiffEntry(**match.groupdict())
+        return RawDiffEntry(**match.groupdict())  # type: ignore[arg-type]
 
     # If the match failed, it falls back to the merge commit function.
     return _match_merge_commit(line)
 
 
-def RawDiff(path, target):
+def RawDiff(
+    path: Union[str, "os.PathLike[str]"], target: Union[str, "os.PathLike[str]"]
+) -> List[RawDiffEntry]:
     """Return the parsed raw format diff of target
 
     Args:
@@ -1572,14 +1716,14 @@ def RawDiff(path, target):
 
 
 def UploadCL(
-    git_repo,
-    remote,
-    branch,
-    local_branch="HEAD",
-    draft=False,
-    reviewers=None,
-    **kwargs,
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    remote: str,
+    branch: str,
+    local_branch: str = "HEAD",
+    draft: bool = False,
+    reviewers: Optional[Iterable[str]] = None,
+    **kwargs: Any,
+) -> Optional[cros_build_lib.CompletedProcess]:
     """Upload a CL to gerrit. The CL should be checked out currently.
 
     Args:
@@ -1604,14 +1748,14 @@ def UploadCL(
 
 
 def GitPush(
-    git_repo,
-    refspec,
-    push_to,
-    force=False,
-    dry_run=False,
-    skip=False,
-    **kwargs,
-):
+    git_repo: Union[str, "os.PathLike[str]"],
+    refspec: str,
+    push_to: RemoteRef,
+    force: bool = False,
+    dry_run: bool = False,
+    skip: bool = False,
+    **kwargs: Any,
+) -> Optional[cros_build_lib.CompletedProcess]:
     """Wrapper for pushing to a branch.
 
     Args:
@@ -1630,14 +1774,19 @@ def GitPush(
         cmd.append("--dry-run")
 
     if skip:
-        logging.info('Would have run "%s"', cmd)
-        return
+        logger.info('Would have run "%s"', cmd)
+        return None
 
     return RunGit(git_repo, cmd, **kwargs)
 
 
 # TODO(build): Switch callers of this function to use CreateBranch instead.
-def CreatePushBranch(branch, git_repo, sync=True, remote_push_branch=None):
+def CreatePushBranch(
+    branch: str,
+    git_repo: Union[str, "os.PathLike[str]"],
+    sync: bool = True,
+    remote_push_branch: Optional[RemoteRef] = None,
+) -> None:
     """Create a local branch for pushing changes inside a repo repository.
 
     Args:
@@ -1650,6 +1799,10 @@ def CreatePushBranch(branch, git_repo, sync=True, remote_push_branch=None):
     """
     if not remote_push_branch:
         remote_push_branch = GetTrackingBranch(git_repo, for_push=True)
+        if not remote_push_branch:
+            raise RuntimeError(
+                f"Unable to determine tracking branch of {git_repo}."
+            )
 
     if sync:
         cmd = ["remote", "update", remote_push_branch.remote]
@@ -1658,7 +1811,13 @@ def CreatePushBranch(branch, git_repo, sync=True, remote_push_branch=None):
     RunGit(git_repo, ["checkout", "-B", branch, "-t", remote_push_branch.ref])
 
 
-def SyncPushBranch(git_repo, remote, target, use_merge=False, **kwargs):
+def SyncPushBranch(
+    git_repo: Union[str, "os.PathLike[str]"],
+    remote: str,
+    target: str,
+    use_merge: bool = False,
+    **kwargs: Any,
+) -> None:
     """Sync and rebase/merge a local push branch to the latest remote version.
 
     Args:
@@ -1693,8 +1852,12 @@ def SyncPushBranch(git_repo, remote, target, use_merge=False, **kwargs):
 
 
 def PushBranch(
-    branch, git_repo, dryrun=False, staging_branch=None, auto_merge=False
-):
+    branch: str,
+    git_repo: Union[str, "os.PathLike[str]"],
+    dryrun: bool = False,
+    staging_branch: Optional[str] = None,
+    auto_merge: bool = False,
+) -> None:
     """General method to push local git changes.
 
     This method only works with branches created via the CreatePushBranch
@@ -1719,9 +1882,17 @@ def PushBranch(
     remote_ref = GetTrackingBranch(
         git_repo, branch, for_checkout=False, for_push=True
     )
+    if not remote_ref:
+        raise GitException(
+            f"Unable to get remote ref for {branch} in {git_repo}"
+        )
     # Don't like invoking this twice, but there is a bit of API
     # impedence here; cros_mark_as_stable
     local_ref = GetTrackingBranch(git_repo, branch, for_push=True)
+    if not local_ref:
+        raise GitException(
+            f"Unable to get local ref for {branch} in {git_repo}"
+        )
 
     if not remote_ref.ref.startswith("refs/heads/"):
         raise Exception(
@@ -1740,9 +1911,7 @@ def PushBranch(
     if staging_branch is not None:
         remote_ref = remote_ref._replace(ref=staging_branch)
 
-    logging.debug(
-        "Trying to push %s to %s:%s", git_repo, branch, remote_ref.ref
-    )
+    logger.debug("Trying to push %s to %s:%s", git_repo, branch, remote_ref.ref)
 
     if dryrun:
         dryrun = True
@@ -1761,7 +1930,7 @@ def PushBranch(
     except cros_build_lib.RunCommandError:
         raise
 
-    logging.info(
+    logger.info(
         "Successfully pushed %s to %s %s:%s",
         git_repo,
         remote_ref.remote,
@@ -1770,7 +1939,7 @@ def PushBranch(
     )
 
 
-def CleanAndDetachHead(git_repo):
+def CleanAndDetachHead(git_repo: Union[str, "os.PathLike[str]"]) -> None:
     """Remove all local changes and checkout a detached head.
 
     Args:
@@ -1782,7 +1951,9 @@ def CleanAndDetachHead(git_repo):
     RunGit(git_repo, ["checkout", "--detach", "-f", "HEAD"])
 
 
-def CleanAndCheckoutUpstream(git_repo, refresh_upstream=True):
+def CleanAndCheckoutUpstream(
+    git_repo: Union[str, "os.PathLike[str]"], refresh_upstream: bool = True
+) -> None:
     """Remove all local changes and checkout the latest origin.
 
     All local changes in the supplied repo will be removed. The branch will
@@ -1794,12 +1965,16 @@ def CleanAndCheckoutUpstream(git_repo, refresh_upstream=True):
     """
     remote_ref = GetTrackingBranch(git_repo, for_push=refresh_upstream)
     CleanAndDetachHead(git_repo)
+    if not remote_ref:
+        raise GitException(
+            f"Unable to get remote tracking branch in {git_repo}"
+        )
     if refresh_upstream:
         RunGit(git_repo, ["remote", "update", remote_ref.remote])
     RunGit(git_repo, ["checkout", remote_ref.ref])
 
 
-def GetChromiteTrackingBranch():
+def GetChromiteTrackingBranch() -> str:
     """Returns the remote branch associated with chromite."""
     cwd = os.path.dirname(os.path.realpath(__file__))
     result_ref = GetTrackingBranch(cwd, for_checkout=False, fallback=False)
@@ -1822,7 +1997,7 @@ def GetChromiteTrackingBranch():
             raise
 
     # Not a manifest checkout.
-    logging.notice(
+    logger.notice(
         f"Chromite checkout at {cwd} isn't controlled by repo, nor is it on a "
         f"branch (or if it is, the tracking configuration is missing or "
         f"broken).  Falling back to assuming the chromite checkout is derived "
@@ -1831,7 +2006,9 @@ def GetChromiteTrackingBranch():
     return "main"
 
 
-def GarbageCollection(git_repo, prune_all=False):
+def GarbageCollection(
+    git_repo: Union[str, "os.PathLike[str]"], prune_all: bool = False
+) -> None:
     """Cleanup unnecessary files and optimize the local repository.
 
     Args:
@@ -1846,7 +2023,7 @@ def GarbageCollection(git_repo, prune_all=False):
     RunGit(git_repo, cmd)
 
 
-def DeleteStaleLocks(git_repo):
+def DeleteStaleLocks(git_repo: Union[str, "os.PathLike[str]"]) -> None:
     """Clean up stale locks left behind in a git repo.
 
     This might occur if an earlier git command was killed during an operation.
@@ -1864,11 +2041,11 @@ def DeleteStaleLocks(git_repo):
     for root, _, filenames in os.walk(git_gitdir):
         for filename in fnmatch.filter(filenames, "*.lock"):
             p = os.path.join(root, filename)
-            logging.info("Found stale git lock, removing: %s", p)
+            logger.info("Found stale git lock, removing: %s", p)
             os.remove(p)
 
 
-def GetUrlFromRemoteOutput(remote_output: str) -> str:
+def GetUrlFromRemoteOutput(remote_output: str) -> Optional[str]:
     """Retrieve the change URL from the git remote output.
 
     The URL must begin with https://.
@@ -1898,7 +2075,7 @@ class CommitEntry(NamedTuple):
     change_id: Optional[str] = None
 
     @classmethod
-    def ParseFuller(cls, out: str) -> Iterable["CommitEntry"]:
+    def ParseFuller(cls, out: str) -> Iterator[CommitEntry]:
         """Parse commits from git log --format=fuller --date=iso8601-strict.
 
         The parser can parse commit entries from a git log. The method
@@ -1912,7 +2089,9 @@ class CommitEntry(NamedTuple):
             An instance of CommitEntry for each commit that is parsed.
         """
 
-        def _build_entry(data, tags):
+        def _build_entry(
+            data: Dict[str, str], tags: Dict[str, str]
+        ) -> CommitEntry:
             return CommitEntry(
                 sha=data["sha"],
                 author=data.get("Author", None),
@@ -1932,7 +2111,8 @@ class CommitEntry(NamedTuple):
 
         # data holds the git commit metadata while tags is used to capture
         # the metadata added to commit message.
-        data, tags = {}, {}
+        data: Dict[str, str] = {}
+        tags: Dict[str, str] = {}
         for line in out.strip().splitlines():
             if line.startswith("commit"):
                 # A commit entry begins with "commit". If we find the line
@@ -1965,7 +2145,9 @@ class CommitEntry(NamedTuple):
             yield _build_entry(data, tags)
 
 
-def GetLastCommit(git_repo: os.PathLike) -> Optional[CommitEntry]:
+def GetLastCommit(
+    git_repo: Union[str, "os.PathLike[str]"]
+) -> Optional[CommitEntry]:
     """Returns the last commit on git_repo.
 
     Args:

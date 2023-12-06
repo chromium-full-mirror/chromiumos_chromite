@@ -236,7 +236,11 @@ class MarkAsStableCMDTest(cros_test_lib.MockTempDirTestCase):
             parallel, "RunTasksInProcessPool"
         )
         self.PatchObject(os.path, "isdir", return_value=True)
-        self.PatchObject(git, "RunGit")
+        self.PatchObject(
+            git,
+            "RunGit",
+            return_value=cros_build_lib.CompletedProcess(stdout=""),
+        )
         self.PatchObject(
             cros_mark_as_stable, "_WorkOnEbuild", return_value=None
         )
