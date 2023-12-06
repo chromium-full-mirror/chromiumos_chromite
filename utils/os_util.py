@@ -10,7 +10,14 @@ import os
 from pathlib import Path
 import pwd
 import sys
-from typing import Optional
+from typing import Callable, Optional, TYPE_CHECKING, TypeVar
+
+
+if TYPE_CHECKING:
+    from typing_extensions import ParamSpec
+
+    _P = ParamSpec("_P")
+_T = TypeVar("_T")
 
 
 class Error(Exception):
@@ -51,24 +58,26 @@ def is_non_root_user() -> bool:
     return not is_root_user()
 
 
-def assert_root_user(name: Optional[str] = None):
+def assert_root_user(name: Optional[str] = None) -> None:
     """Assert root user."""
     name = name or Path(sys.argv[0]).name
     assert is_root_user(), f"{name}: please run as root user"
 
 
-def assert_non_root_user(name: Optional[str] = None):
+def assert_non_root_user(name: Optional[str] = None) -> None:
     """Assert root user."""
     name = name or Path(sys.argv[0]).name
     assert is_non_root_user(), f"{name}: please run as non root user"
 
 
-def require_root_user(_reason):
+def require_root_user(
+    _reason: str,
+) -> Callable[["Callable[_P, _T]"], "Callable[_P, _T]"]:
     """Decorator to note/assert a function must be called as the root user."""
 
-    def outer(func):
+    def outer(func: "Callable[_P, _T]") -> "Callable[_P, _T]":
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: "_P.args", **kwargs: "_P.kwargs") -> _T:
             assert_root_user(func.__name__)
             return func(*args, **kwargs)
 
@@ -77,12 +86,14 @@ def require_root_user(_reason):
     return outer
 
 
-def require_non_root_user(_reason):
+def require_non_root_user(
+    _reason: str,
+) -> Callable[["Callable[_P, _T]"], "Callable[_P, _T]"]:
     """Decorator to note/assert a function must be called as a non-root user."""
 
-    def outer(func):
+    def outer(func: "Callable[_P, _T]") -> "Callable[_P, _T]":
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: "_P.args", **kwargs: "_P.kwargs") -> _T:
             assert_non_root_user(func.__name__)
             return func(*args, **kwargs)
 
