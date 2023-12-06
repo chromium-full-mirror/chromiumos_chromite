@@ -1175,31 +1175,23 @@ def _BazelBuild(
             [
                 BAZEL_COMMAND,
                 "cquery",
-                "let chrome_target = "
-                'filter("'
-                "//internal/packages/stage2/target/board/"
-                "chromiumos/chromeos-base/chromeos-chrome:"
-                '", '
-                'kind("ebuild", '
-                "deps(@portage//target/chromeos-base/chromeos-chrome)"
-                ")"
-                ") "
-                "in "
-                'kind("ebuild",deps(@portage//target/virtual/target-os)) '
-                "union "
-                'kind("ebuild",deps(@portage//target/virtual/target-os-dev)) '
-                "union "
-                'kind("ebuild",deps(@portage//target/virtual/target-os-test)) '
-                "except "
-                "rdeps(@portage//target/virtual/target-os, $chrome_target) "
-                "except "
-                "rdeps(@portage//target/virtual/target-os-dev, $chrome_target) "
-                "except "
-                "rdeps("
-                "@portage//target/virtual/target-os-test, $chrome_target"
-                ") "
-                "except "
-                "$chrome_target",
+                # pylint: disable=line-too-long
+                """
+let targets =
+    kind("ebuild",
+        deps(@portage//target/virtual/target-os)
+        union deps(@portage//target/virtual/target-os-dev)
+        union deps(@portage//target/virtual/target-os-test)
+    )
+in
+    $targets except rdeps(
+        $targets,
+        filter(
+            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/chromeos-chrome:",
+            kind("ebuild", deps(@portage//target/chromeos-base/chromeos-chrome))
+        )
+    )
+                """,
             ],
             extra_env=extra_env,
             stdout=True,
