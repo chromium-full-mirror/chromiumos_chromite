@@ -140,7 +140,7 @@ class PaygenSigner:
         self._work_dir = work_dir
         self._private_key = private_key
         self._payload_build = payload_build
-        self._local_signing = local_signing
+        self.local_signing = local_signing
         self._docker_image = docker_image
 
         self._signer = None
@@ -148,7 +148,7 @@ class PaygenSigner:
 
     def _Initialize(self):
         """Initializes based on which bucket the payload is supposed to go."""
-        if self._local_signing:
+        if self.local_signing:
             logging.info("Using local signer (prototype).")
             self._signer = signer_payloads_client.LocalSignerPayloadsClient(
                 self._docker_image, self._payload_build, self._work_dir
@@ -161,6 +161,9 @@ class PaygenSigner:
                     "A private key should not be passed for official builds."
                 )
             self._private_key = None
+            self.public_key = (
+                constants.CHROMITE_DIR / "ssh_keys" / "update_signer_dev.pub"
+            )
         else:
             if (
                 self._payload_build
@@ -281,6 +284,8 @@ class PaygenPayload:
         self.payload = payload
         self.work_dir = work_dir
         self._verify = verify
+        # Only used by CreateUnsignedPayload, fine to leave as an instance
+        # variable for now.
         self._minor_version = None
         self._upload = upload
         self.static = static
@@ -932,6 +937,12 @@ class PaygenPayload:
         """
         keysets = self.PAYLOAD_SIGNATURE_KEYSETS
         logging.info("Signing payload hashes with %s.", ", ".join(keysets))
+        logging.info("Payload hashes: %s", hashes)
+
+        if self.signer.local_signing:
+            # TODO(b/299105459): Use `update_signer` once we have a way of
+            # distinguishing between dev and prod.
+            keysets = ("DevPreMPKeys",)
 
         # Results look like:
         #  [[hash_1_sig_1, hash_1_sig_2], [hash_2_sig_1, hash_2_sig_2]]

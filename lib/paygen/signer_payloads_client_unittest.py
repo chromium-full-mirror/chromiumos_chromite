@@ -751,6 +751,7 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                     build_target="foo-board",
                     signing_configs=[
                         signing_pb2.SigningConfig(
+                            image_type=common_pb2.IMAGE_TYPE_UPDATE_PAYLOAD,
                             keyset="update_signer",
                             channel=common_pb2.CHANNEL_DEV,
                             version="foo-version",
@@ -759,10 +760,8 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                                 "1.payload.hash",
                                 "2.payload.hash",
                             ],
-                            output_names=["@BASENAME@.@KEYSET@.signed"],
-                            archive_path=os.path.join(
-                                client._work_dir, "hashes"
-                            ),
+                            output_names=["@BASENAME@.@KEYSET_VER@.signed"],
+                            archive_path="hashes.tar.bz2",
                         )
                     ],
                 )

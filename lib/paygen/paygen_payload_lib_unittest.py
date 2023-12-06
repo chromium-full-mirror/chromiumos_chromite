@@ -299,6 +299,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         signer_mock = None
         if sign:
             signer_mock = self.PatchObject(paygen_payload_lib, "PaygenSigner")
+            signer_mock.local_signing = False
             signer_mock.public_key = None
 
         gen = paygen_payload_lib.PaygenPayload(

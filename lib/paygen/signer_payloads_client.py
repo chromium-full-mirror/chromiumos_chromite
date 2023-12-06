@@ -16,6 +16,7 @@ import time
 from typing import List
 
 from chromite.api.gen.chromite.api import payload_pb2
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -624,7 +625,7 @@ class LocalSignerPayloadsClient:
         channel = f"CHANNEL_{channel.upper()}"
 
         # Create and upload the archive of hashes to sign.
-        archive_path = os.path.join(self._work_dir, "hashes")
+        archive_path = os.path.join(self._work_dir, "hashes.tar.bz2")
         hash_filenames = self._CreateArchive(archive_path, hashes)
 
         signing_configs = []
@@ -633,11 +634,11 @@ class LocalSignerPayloadsClient:
                 signing_pb2.SigningConfig(
                     keyset=keyset,
                     channel=channel,
-                    # TODO(b/299105459): Figure out what to pass for image_type.
+                    image_type=common_pb2.IMAGE_TYPE_UPDATE_PAYLOAD,
                     version=self._build.version,
                     input_files=hash_filenames,
-                    output_names=["@BASENAME@.@KEYSET@.signed"],
-                    archive_path=archive_path,
+                    output_names=["@BASENAME@.@KEYSET_VER@.signed"],
+                    archive_path=os.path.basename(archive_path),
                 )
             )
 
