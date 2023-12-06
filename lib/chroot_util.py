@@ -4,49 +4,25 @@
 
 """Utilities for updating and building in the chroot environment."""
 
-import logging
 import os
+from typing import Dict, List, Optional, Union
 
 from chromite.third_party.opentelemetry import trace
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import cros_sdk_lib
-from chromite.lib import osutils
-from chromite.lib import path_util
 from chromite.lib import sysroot_lib
 
+
+if cros_build_lib.IsInsideChroot():
+    # These import libraries outside chromite.
+    from chromite.scripts import cros_list_modified_packages as workon
+    from chromite.scripts import cros_setup_toolchains as toolchain
 
 tracer = trace.get_tracer(__name__)
 
 
-if cros_build_lib.IsInsideChroot():
-    # These import libraries outside chromite. See brbug.com/472.
-    from chromite.scripts import cros_list_modified_packages as workon
-    from chromite.scripts import cros_setup_toolchains as toolchain
-
-
-_HOST_PKGS = (
-    "virtual/target-sdk",
-    "world",
-)
-
-_DEFAULT_MAKE_CONF_USER = """
-# This file is useful for doing global (chroot and all board) changes.
-# Tweak emerge settings, ebuild env, etc...
-#
-# Make sure to append variables unless you really want to clobber all
-# existing settings.  e.g. You most likely want:
-#   FEATURES="${FEATURES} ..."
-#   USE="${USE} foo"
-# and *not*:
-#   USE="foo"
-#
-# This also is a good place to setup ACCEPT_LICENSE.
-"""
-
-
-def _GetToolchainPackages():
+def _GetToolchainPackages() -> List[str]:
     """Get a list of host toolchain packages."""
     # Load crossdev cache first for faster performance.
     toolchain.Crossdev.Load(False)
@@ -54,24 +30,28 @@ def _GetToolchainPackages():
     return [toolchain.GetPortagePackage("host", x) for x in packages]
 
 
-def GetEmergeCommand(sysroot=None):
+def GetEmergeCommand(
+    sysroot: Optional[str] = None,
+) -> List[Union[str, "os.PathLike[str]"]]:
     """Returns the emerge command to use for |sysroot| (host if None)."""
-    cmd = [constants.CHROMITE_BIN_DIR / "parallel_emerge"]
+    cmd: List[Union[str, "os.PathLike[str]"]] = [
+        constants.CHROMITE_BIN_DIR / "parallel_emerge"
+    ]
     if sysroot and sysroot != "/":
-        cmd += ["--sysroot=%s" % sysroot]
+        cmd.append(f"--sysroot={sysroot}")
     return cmd
 
 
 @tracer.start_as_current_span("chroot_util.Emerge")
 def Emerge(
-    packages,
-    sysroot,
-    with_deps=True,
-    rebuild_deps=True,
-    use_binary=True,
-    jobs=None,
-    debug_output=False,
-):
+    packages: List[str],
+    sysroot: str,
+    with_deps: bool = True,
+    rebuild_deps: bool = True,
+    use_binary: bool = True,
+    jobs: int = 0,
+    debug_output: bool = False,
+) -> None:
     """Emerge the specified |packages|.
 
     Args:
@@ -128,7 +108,7 @@ def Emerge(
     if rebuild_deps:
         cmd.append("--rebuild-if-unbuilt")
     if jobs:
-        cmd.append("--jobs=%d" % jobs)
+        cmd.append(f"--jobs={jobs}")
     if debug_output:
         cmd.append("--show-output")
 
@@ -136,39 +116,15 @@ def Emerge(
     cros_build_lib.sudo_run(cmd + packages, preserve_env=True)
 
 
-def UpdateChroot(board=None, update_host_packages=True):
-    """Update the chroot."""
-    # Run chroot update hooks.
-    logging.notice("Updating the chroot. This may take several minutes.")
-    cros_sdk_lib.RunChrootVersionHooks()
-
-    # Update toolchains.
-    cmd = [constants.CHROMITE_BIN_DIR / "cros_setup_toolchains"]
-    if board:
-        cmd += ["--targets=boards", "--include-boards=%s" % board]
-    cros_build_lib.sudo_run(cmd, debug_level=logging.DEBUG)
-
-    # Update the host before updating the board.
-    if update_host_packages:
-        Emerge(list(_HOST_PKGS), "/", rebuild_deps=False)
-
-    # Automatically discard all CONFIG_PROTECT'ed files. Those that are
-    # protected should not be overwritten until the variable is changed.
-    # Autodiscard is option "-9" followed by the "YES" confirmation.
-    cros_build_lib.sudo_run(
-        ["etc-update"], input="-9\nYES\n", debug_level=logging.DEBUG
-    )
-
-
 @tracer.start_as_current_span("chroot_util.RunUnittests")
 def RunUnittests(
-    sysroot,
-    packages,
-    extra_env=None,
-    keep_going=False,
-    verbose=False,
-    jobs=None,
-):
+    sysroot: str,
+    packages: List[str],
+    extra_env: Optional[Dict[str, str]] = None,
+    keep_going: bool = False,
+    verbose: bool = False,
+    jobs: int = 0,
+) -> None:
     """Runs the unit tests for |packages|.
 
     Args:
@@ -215,19 +171,9 @@ def RunUnittests(
         command += ["--show-output"]
         command += ["--verbose"]
 
-    if jobs is not None:
-        command += ["--jobs=%s" % jobs]
+    if jobs:
+        command += [f"--jobs={jobs}"]
 
     command += list(packages)
 
     cros_build_lib.sudo_run(command, extra_env=env)
-
-
-def CreateMakeConfUser():
-    """Create default make.conf.user file in the chroot if it does not exist."""
-    path = "/etc/make.conf.user"
-    if not cros_build_lib.IsInsideChroot():
-        path = path_util.FromChrootPath(path)
-
-    if not os.path.exists(path):
-        osutils.WriteFile(path, _DEFAULT_MAKE_CONF_USER, sudo=True)
