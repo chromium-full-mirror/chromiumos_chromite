@@ -46,8 +46,10 @@ SYSTEM_PACKAGES = {
     # Do not delete shells.
     "app-shells/",
     # Packages listed in virtual/target-sdk-nobdeps aren't reinstalled.
+    "app-emulation/renode",
     "dev-embedded/coreboot-sdk",
     "dev-embedded/ti50-sdk",
+    "dev-util/shellcheck",
     # Python is required for our scripts.
     "dev-lang/python",
     # Basic crypto primitives used by python, curl, etc… to download binpkgs
