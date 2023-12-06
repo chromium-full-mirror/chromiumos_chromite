@@ -9,7 +9,7 @@ import logging
 import multiprocessing
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Tuple, Union
 
 from chromite.cli import command
 from chromite.lib import build_target_lib
@@ -104,7 +104,7 @@ PORTAGE_UTILS_VERSION = "0.96"
 class OverlayPathFinder:
     """Finds an overlay of specific repository."""
 
-    def __init__(self, board: str):
+    def __init__(self, board: Optional[str]):
         list_of_overlay_paths = portage_util.FindOverlays("both", board)
 
         self.overlay_to_path = {}
@@ -114,7 +114,7 @@ class OverlayPathFinder:
 
     def repo_to_path(self, repo: str) -> Path:
         """Returns Path to a given portage repository."""
-        return self.overlay_to_path[repo]
+        return Path(self.overlay_to_path[repo])
 
 
 def is_dep_satisfiable(dep: str, root_path: str, board: str) -> bool:
@@ -136,7 +136,11 @@ class CleanOutdatedCommand(command.CliCommand):
     """Runs various portage-related functions."""
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(
+        cls,
+        parser: commandline.ArgumentParser,
+        options: commandline.ArgumentNamespace,
+    ) -> None:
         """Post process options."""
         if options.auto is not None:
             return
@@ -145,8 +149,8 @@ class CleanOutdatedCommand(command.CliCommand):
             parser.error("--host or --board=BOARD required")
 
     def find_outdated_packages(
-        self, board: str, pkgs: List[portage_util.InstalledPackage]
-    ) -> Set[str]:
+        self, board: Optional[str], pkgs: List[portage_util.InstalledPackage]
+    ) -> List[str]:
         """Returns CPVs of installed packages that don't have an ebuild."""
         overlay_paths = OverlayPathFinder(board)
         outdated_CPs = []
@@ -165,9 +169,7 @@ class CleanOutdatedCommand(command.CliCommand):
             # Find the folder with ebuilds.
 
             try:
-                path_to_overlay = Path(
-                    overlay_paths.repo_to_path(pkg.repository)
-                )
+                path_to_overlay = overlay_paths.repo_to_path(pkg.repository)
             except KeyError:
                 logging.debug(
                     "Cannot find overlay %s. Deleting package %s/%s.",
@@ -218,10 +220,10 @@ class CleanOutdatedCommand(command.CliCommand):
 
     def find_slot_conflicted_packages(
         self,
-        root_path: os.PathLike,
+        root_path: str,
         board: Optional[str],
         pkgs: List[portage_util.InstalledPackage],
-    ) -> Set[str]:
+    ) -> List[str]:
         # Look at all InstalledPackages' DEPENDs with slots and find
         # unstatisfiable ones. We can look at all depends, but that is
         # slower, and should not be necessary, given that we just synced
@@ -246,9 +248,11 @@ class CleanOutdatedCommand(command.CliCommand):
 
         def flatten_deps(deps: List[str]) -> List[str]:
             # Flattens the list without splitting strings
-            return itertools.chain.from_iterable(
-                itertools.repeat(dep, 1) if isinstance(dep, str) else dep
-                for dep in deps
+            return list(
+                itertools.chain.from_iterable(
+                    itertools.repeat(dep, 1) if isinstance(dep, str) else dep
+                    for dep in deps
+                )
             )
 
         # Assume all version-related deps are satisfied, which they should be,
@@ -272,7 +276,9 @@ class CleanOutdatedCommand(command.CliCommand):
             if not depend:
                 continue
 
-            def anyof_reduce_gatherer(choices: List[str]) -> str:
+            def anyof_reduce_gatherer(
+                choices: List[str],
+            ) -> Union[str, None, Tuple[str, ...]]:
                 """Reduce func for dep parser to gather dependencies."""
                 # If there is a slotless dep -> pick it, so it can be ignored
                 # later.
@@ -333,13 +339,13 @@ class CleanOutdatedCommand(command.CliCommand):
         # Now use the compiled slot_dep_sat to find packages that can't be
         # satisfied.
         def is_depend_slot_satisfiable(depend: str) -> bool:
-            def anyof_reduce(choices: List[str]) -> str:
+            def anyof_reduce(choices: List[str]) -> Optional[str]:
                 """Reduce func for dep parser."""
                 if not choices:
                     logging.fatal(
                         "anyof_reduce called on empty list: %s", choices
                     )
-                    return None
+                    return
 
                 # Pick either a slotless dep, if available.
                 for choice in choices:
@@ -403,8 +409,8 @@ class CleanOutdatedCommand(command.CliCommand):
         return list(set(conflicted_pkgs))
 
     def filter_packages_to_purge(
-        self, board: Optional[str], pkgs: Set[str]
-    ) -> Set[str]:
+        self, board: Optional[str], pkgs: List[str]
+    ) -> List[str]:
         if not board:
             # Only filter system packages for SDK.
             pkgs_before = len(pkgs)
@@ -431,7 +437,7 @@ class CleanOutdatedCommand(command.CliCommand):
                 )
         return pkgs
 
-    def purge_packages(self, board: Optional[str], pkgs: Set[str]):
+    def purge_packages(self, board: Optional[str], pkgs: List[str]) -> None:
         if not pkgs:
             logging.notice("No packages to purge")
             return
@@ -497,7 +503,7 @@ class CleanOutdatedCommand(command.CliCommand):
             min_version,
         )
 
-    def ensure_portage_utils_version(self, ver: str):
+    def ensure_portage_utils_version(self, ver: str) -> None:
         """Ensure portage-utils version |ver| is installed."""
         self.ensure_pkg_min_version(
             portage_util.PortageDB(
@@ -526,7 +532,7 @@ class CleanOutdatedCommand(command.CliCommand):
                 "automatically during update_chroot and build_packages."
             )
 
-    def Run(self):
+    def Run(self) -> None:
         """Perform the command."""
         commandline.RunInsideChroot(self)
 
@@ -603,7 +609,7 @@ class CleanOutdatedCommand(command.CliCommand):
                     )
 
     @classmethod
-    def AddParser(cls, parser: commandline.ArgumentParser):
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Add parser arguments."""
         super().AddParser(parser)
 
