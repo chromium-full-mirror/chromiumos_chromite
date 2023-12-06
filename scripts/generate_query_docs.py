@@ -50,6 +50,9 @@ def _repr_type(type_: Any) -> str:
         if name:
             return name
 
+        if isinstance(type_, typing.ForwardRef):
+            return type_.__forward_arg__
+
         return type_.__origin__._name
 
     name = _get_type_name()
