@@ -17,10 +17,10 @@ DELTA = 1.0
 
 
 @pytest.fixture(autouse=True)
-def time_mock_fixture(monkeypatch):
+def time_mock_fixture(monkeypatch):  # type: ignore[no-untyped-def]
     last_t = 0.0
 
-    def time_mock():
+    def time_mock() -> float:
         nonlocal last_t
         last_t += DELTA
         return last_t
@@ -28,7 +28,7 @@ def time_mock_fixture(monkeypatch):
     monkeypatch.setattr(time, "perf_counter", time_mock)
 
 
-def test_timer_delta(caplog):
+def test_timer_delta(caplog) -> None:  # type: ignore[no-untyped-def]
     """Test basic usage of a Timer."""
     with timer.timer() as t:
         pass
@@ -37,7 +37,7 @@ def test_timer_delta(caplog):
     assert t.timedelta.total_seconds() == DELTA
 
 
-def test_timer_average():
+def test_timer_average() -> None:
     """Test the timer __add__ and __truediv__ functions."""
     timers = []
     range_len = 10
@@ -50,20 +50,20 @@ def test_timer_average():
     assert (sum(timers, start=timer.Timer()) / len(timers)).delta == DELTA
 
 
-def test_timer_decorator():
+def test_timer_decorator() -> None:
     """Test the timed decorator."""
     name = "name"
     output_fn_called = False
 
     # Output function to check the value.
-    def output_fn(value):
+    def output_fn(value: str) -> None:
         nonlocal output_fn_called
         output_fn_called = True
         assert re.match(f"{name}: {DELTA}[0-9]*s", value) is not None
 
     # The decorated function.
     @timer.timed(name, output_fn)
-    def timed_fn():
+    def timed_fn() -> None:
         pass
 
     # Run the function to trigger the test.
@@ -72,14 +72,14 @@ def test_timer_decorator():
     assert output_fn_called
 
 
-def test_timer_decorator_with_exception_calls_output():
+def test_timer_decorator_with_exception_calls_output() -> None:
     """Test the timed decorator with exception handling."""
     name = "test_name"
     output_fn = mock.MagicMock()
 
     # The decorated function.
     @timer.timer(name, output_fn)
-    def timed_fn():
+    def timed_fn() -> None:
         raise Exception("test exception")
 
     # Run the function to trigger the test.
