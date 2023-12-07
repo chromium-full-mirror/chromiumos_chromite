@@ -4,7 +4,13 @@
 
 """Common functions for interacting with repo manifest XML files."""
 
+import io
+from typing import cast, Dict, Generator, Optional, Tuple, TYPE_CHECKING, Union
 from xml.etree import ElementTree
+
+
+if TYPE_CHECKING:
+    import os
 
 
 class Error(Exception):
@@ -19,12 +25,20 @@ class UnsupportedFeature(Error):
     """The manifest data uses features that are not supported by this code."""
 
 
+class MissingRequiredAttribute(Error):
+    """A manifest element was missing a required attribute."""
+
+
 class Manifest:
     """Manifest represents the contents of a repo manifest XML file."""
 
     # https://chromium.googlesource.com/external/repo/+/HEAD/docs/manifest-format.md
 
-    def __init__(self, etree, allow_unsupported_features=False):
+    def __init__(
+        self,
+        etree: ElementTree.ElementTree,
+        allow_unsupported_features: bool = False,
+    ) -> None:
         """Initialize Manifest.
 
         Args:
@@ -38,21 +52,21 @@ class Manifest:
 
     # These __*state__ pickle protocol methods are intended for multiprocessing.
 
-    def __getstate__(self):
+    def __getstate__(self) -> Tuple[str, bool]:
         """Return pickleable state for this Manifest."""
         return (
             ElementTree.tostring(self._etree.getroot(), encoding="unicode"),
             self._allow_unsupported_features,
         )
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Tuple[str, bool]) -> None:
         """Set the state from pickle for this Manifest."""
         tree_string, allow_unsupported_features = state
         root = ElementTree.fromstring(tree_string)
         self._etree = ElementTree.ElementTree(root)
         self._allow_unsupported_features = allow_unsupported_features
 
-    def _ValidateTree(self):
+    def _ValidateTree(self) -> None:
         """Raise Error if self._etree is not a valid manifest tree."""
         root = self._etree.getroot()
         if root is None:
@@ -73,7 +87,11 @@ class Manifest:
                     raise UnsupportedFeature("<%s>" % unsupported_tag)
 
     @classmethod
-    def FromFile(cls, source, allow_unsupported_features=False):
+    def FromFile(
+        cls,
+        source: Union[str, "os.PathLike[str]", io.TextIOBase],
+        allow_unsupported_features: bool = False,
+    ) -> "Manifest":
         """Parse XML into a Manifest.
 
         Args:
@@ -90,7 +108,9 @@ class Manifest:
         )
 
     @classmethod
-    def FromString(cls, data, allow_unsupported_features=False):
+    def FromString(
+        cls, data: str, allow_unsupported_features: bool = False
+    ) -> "Manifest":
         """Parse XML into a Manifest.
 
         Args:
@@ -107,7 +127,9 @@ class Manifest:
             allow_unsupported_features=allow_unsupported_features,
         )
 
-    def Write(self, dest):
+    def Write(
+        self, dest: Union[str, "os.PathLike[str]", io.TextIOWrapper]
+    ) -> None:
         """Write the Manifest as XML.
 
         Args:
@@ -119,14 +141,14 @@ class Manifest:
         self._ValidateTree()
         self._etree.write(dest, encoding="UTF-8", xml_declaration=True)
 
-    def Default(self):
+    def Default(self) -> "Default":
         """Return this Manifest's Default or an empty Default."""
         default_element = self._etree.find("default")
         if default_element is None:
             default_element = ElementTree.fromstring("<default/>")
         return Default(self, default_element)
 
-    def Includes(self):
+    def Includes(self) -> Generator["Include", None, None]:
         """Yield an Include for each <include> element in the manifest.
 
         This class does NOT process includes, so they are considered an
@@ -140,12 +162,12 @@ class Manifest:
         for include_element in self._etree.iterfind("include"):
             yield Include(self, include_element)
 
-    def Remotes(self):
+    def Remotes(self) -> Generator["Remote", None, None]:
         """Yield a Remote for each <remote> element in the manifest."""
         for remote_element in self._etree.iterfind("remote"):
             yield Remote(self, remote_element)
 
-    def GetRemote(self, name):
+    def GetRemote(self, name: str) -> "Remote":
         """Return the Remote with the given name.
 
         Raises:
@@ -163,12 +185,14 @@ class Manifest:
                 return True
         return False
 
-    def Projects(self):
+    def Projects(self) -> Generator["Project", None, None]:
         """Yield a Project for each <project> element in the manifest."""
         for project_element in self._etree.iterfind("project"):
             yield Project(self, project_element)
 
-    def GetUniqueProject(self, name, branch=None):
+    def GetUniqueProject(
+        self, name: str, branch: Optional[str] = None
+    ) -> "Project":
         """Return the unique Project with the given name and optional branch.
 
         Args:
@@ -200,10 +224,12 @@ class Manifest:
 class _ManifestElement:
     """Subclasses of _ManifestElement wrap Manifest child XML elements."""
 
-    ATTRS = ()
+    ATTRS: Tuple[str, ...] = ()
     TAG = None
 
-    def __init__(self, manifest, element):
+    def __init__(
+        self, manifest: Manifest, element: ElementTree.Element
+    ) -> None:
         tag = self.TAG or self.__class__.__name__.lower()
         if element.tag != tag:
             raise ValueError(
@@ -214,19 +240,19 @@ class _ManifestElement:
 
     # These __*state__ pickle protocol methods are intended for multiprocessing.
 
-    def __getstate__(self):
+    def __getstate__(self) -> Tuple[Manifest, str]:
         """Return pickleable state for this element."""
         return (
             self._manifest,
             ElementTree.tostring(self._el, encoding="unicode"),
         )
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Tuple[Manifest, str]) -> None:
         """Set the state from pickle for this element."""
         self._manifest, xml_data = state
         self._el = ElementTree.fromstring(xml_data)
 
-    def _XMLAttrName(self, name):
+    def _XMLAttrName(self, name: str) -> str:
         """Return the XML attr name for the given Python attr name."""
         if name not in self.ATTRS:
             raise AttributeError(
@@ -234,29 +260,45 @@ class _ManifestElement:
             )
         return name.replace("_", "-")
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Optional[str]:
         return self._el.get(self._XMLAttrName(name))
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: str) -> None:
         if name.startswith("_"):
             super().__setattr__(name, value)
         else:
             self._el.set(self._XMLAttrName(name), value)
 
-    def __delattr__(self, name):
+    def __delattr__(self, name: str) -> None:
         if name.startswith("_"):
             super().__delattr__(name)
         else:
             self._el.attrib.pop(self._XMLAttrName(name))
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = self.__class__.__name__
         if "name" in self.ATTRS:
             s = "%s %r" % (s, self.name)
         return "<%s>" % s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return ElementTree.tostring(self._el, encoding="unicode")
+
+    def get_required(self, name: str) -> str:
+        """Get an attribute value from the element, or fail if it's not found.
+
+        Args:
+            name: The name of the attribute.
+
+        Raises:
+            MissingRequiredAttribute: If the attribute was not found.
+        """
+        value = cast(Optional[str], getattr(self, name))
+        if value is None:
+            raise MissingRequiredAttribute(
+                f"{self.TAG} element is missing required attribute {name}"
+            )
+        return value
 
 
 class Remote(_ManifestElement):
@@ -264,11 +306,11 @@ class Remote(_ManifestElement):
 
     ATTRS = ("name", "alias", "fetch", "pushurl", "review", "revision")
 
-    def GitName(self):
+    def GitName(self) -> Optional[str]:
         """Return the git remote name for this Remote."""
-        return self.alias or self.name
+        return self.alias or self.get_required("name")
 
-    def PushURL(self):
+    def PushURL(self) -> Optional[str]:
         """Return the effective push URL of this Remote."""
         return self.pushurl or self.fetch
 
@@ -302,19 +344,25 @@ class Project(_ManifestElement):
         "force_path",
     )
 
-    def Path(self):
+    def Path(self) -> Optional[str]:
         """Return the effective filesystem path of this Project."""
-        return self.path or self.name
+        return self.path or self.get_required("name")
 
-    def RemoteName(self):
+    def RemoteName(self) -> Optional[str]:
         """Return the effective remote name of this Project."""
         return self.remote or self._manifest.Default().remote
 
-    def Remote(self):
+    def Remote(self) -> Remote:
         """Return the Remote for this Project."""
-        return self._manifest.GetRemote(self.RemoteName())
+        remote_name = self.RemoteName()
+        if remote_name is None:
+            raise InvalidManifest(
+                f"No remote found for project {str(self)}, "
+                f"nor in default {str(self._manifest.Default())}"
+            )
+        return self._manifest.GetRemote(remote_name)
 
-    def Revision(self):
+    def Revision(self) -> Optional[str]:
         """Return the effective revision of this Project."""
         return (
             self.revision
@@ -322,10 +370,17 @@ class Project(_ManifestElement):
             or self._manifest.Default().revision
         )
 
-    def Annotations(self):
+    def Annotations(self) -> Dict[str, str]:
         """Return a dictionary from annotation key to annotation value."""
-        return {
-            child.get("name"): child.get("value")
-            for child in self._el
-            if child.tag == "annotation"
-        }
+        annotations = {}
+        for child in self._el:
+            if child.tag != "annotation":
+                continue
+            name: Optional[str] = child.get("name")
+            value: Optional[str] = child.get("value")
+            if name is None or value is None:
+                raise MissingRequiredAttribute(
+                    f"Annotation child of {self} is missing key and/or value"
+                )
+            annotations[name] = value
+        return annotations
