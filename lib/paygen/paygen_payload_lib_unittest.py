@@ -586,10 +586,10 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         postinst_mock = self.PatchObject(gen, "_GeneratePostinstConfig")
         tgt_image_file = gen.tgt_image_file
 
-        gen._PreparePartitions()
+        appid = gen._PreparePartitions()
 
         # Check the appid was correctly set.
-        self.assertEqual(gen._appid, "foo-appid")
+        self.assertEqual(appid, "foo-appid")
         # Check extract partition functions are called correctly.
         root_ext_mock.assert_called_once_with(
             tgt_image_file, gen.tgt_partitions[0]
@@ -651,9 +651,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
         postinst_mock = self.PatchObject(gen, "_GeneratePostinstConfig")
 
-        gen._PreparePartitions()
+        appid = gen._PreparePartitions()
 
-        self.assertEqual(gen._appid, "foo-appid")
+        self.assertEqual(appid, "foo-appid")
         self.assertEqual(gen.partition_names, ("dlc/foo-id/foo-package",))
         self.assertFalse(postinst_mock.called)
         get_params_mock.assert_called_once()
@@ -679,9 +679,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
         minios_ext_mock = self.PatchObject(partition_lib, "ExtractMiniOS")
         tgt_image_file = gen.tgt_image_file
-        gen._PreparePartitions()
+        appid = gen._PreparePartitions()
         # Check the appid was correctly set.
-        self.assertEqual(gen._appid, "foo-appid_minios")
+        self.assertEqual(appid, "foo-appid_minios")
         # Check extract partition function is called correctly.
         self.assertEqual(len(gen.tgt_partitions), 1)
         minios_ext_mock.assert_called_once_with(
@@ -1159,7 +1159,8 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             payload_file, payload_sigs, metadata_sigs
         )
         store_mock.assert_called_once_with(
-            payload_file + ".signed.metadata-signature", metadata_sigs
+            payload_file + ".signed.metadata-signature",
+            metadata_sigs,
         )
 
     def testCreateSignedDelta(self):
@@ -1174,6 +1175,8 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         prep_part_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_PreparePartitions"
         )
+        prep_part_mock.return_value = "appid"
+
         gen_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_GenerateUnsignedPayload"
         )
@@ -1195,7 +1198,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         # Run the test.
         gen._Create(payload_file)
-        gen._SignAndFinalizePayload(payload_file)
+        gen._SignAndFinalizePayload(payload_file, "foo-appid")
 
         # Check expected calls.
         self.assertEqual(
@@ -1210,6 +1213,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         store_mock.assert_called_once_with(
             payload_file + ".signed",
             ["metadata_sigs"],
+            "foo-appid",
         )
         prep_part_mock.assert_called_once()
 
@@ -1291,6 +1295,8 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         prep_part_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_PreparePartitions"
         )
+        prep_part_mock.return_value = "appid"
+
         gen_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_GenerateUnsignedPayload"
         )
@@ -1312,7 +1318,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         # Run the test.
         gen._Create(payload_file)
-        gen._SignAndFinalizePayload(payload_file)
+        gen._SignAndFinalizePayload(payload_file, "foo-appid")
 
         # Check expected calls.
         self.assertEqual(
@@ -1325,7 +1331,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         gen_mock.assert_called_once_with(payload_file)
         sign_mock.assert_called_once_with(payload_file)
         store_mock.assert_called_once_with(
-            payload_file + ".signed", ["metadata_sigs"]
+            payload_file + ".signed", ["metadata_sigs"], "foo-appid"
         )
         prep_part_mock.assert_called_once()
 
@@ -1480,7 +1486,6 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
     def testGetPayloadPropertiesMap(self):
         """Tests getting the payload properties as a dict."""
         gen = self._GetStdGenerator(sign=False)
-        gen._appid = "foo-appid"
         run_mock = self.PatchObject(gen, "_RunGeneratorCmd")
 
         props_file = os.path.join(self.tempdir, "properties.json")
@@ -1489,7 +1494,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             json.dumps({"metadata_signature": "", "metadata_size": 10}),
         )
         payload_path = "/foo"
-        props_map = gen.GetPayloadPropertiesMap(payload_path)
+        props_map = gen.GetPayloadPropertiesMap(payload_path, "foo-appid")
 
         cmd = [
             "delta_generator",
@@ -1513,7 +1518,6 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
     def testGetDeltaPayloadPropertiesMap(self):
         """Tests getting the delta payload properties as a dict."""
         gen = self._GetStdGenerator(sign=False, payload=self.delta_payload)
-        gen._appid = "foo-appid"
         run_mock = self.PatchObject(gen, "_RunGeneratorCmd")
 
         props_file = os.path.join(self.tempdir, "properties.json")
@@ -1522,7 +1526,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             json.dumps({"metadata_signature": "", "metadata_size": 10}),
         )
         payload_path = "/foo"
-        props_map = gen.GetPayloadPropertiesMap(payload_path)
+        props_map = gen.GetPayloadPropertiesMap(payload_path, "foo-appid")
 
         cmd = [
             "delta_generator",
@@ -1557,7 +1561,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         osutils.WriteFile(gen.signer.public_key, "foo-pubkey")
 
         payload_path = "/foo"
-        props_map = gen.GetPayloadPropertiesMap(payload_path)
+        props_map = gen.GetPayloadPropertiesMap(payload_path, "")
         self.assertEqual(
             props_map,
             {
@@ -1588,6 +1592,8 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
         prep_part_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_PreparePartitions"
         )
+        prep_part_mock.return_value = "appid"
+
         gen_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_GenerateUnsignedPayload"
         )
@@ -1652,6 +1658,7 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
                 mock.call(
                     payload_file + ".signed",
                     ["metadata_sigs"],
+                    "appid",
                 )
                 for payload_file in payload_files
             ],

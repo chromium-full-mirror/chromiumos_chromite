@@ -294,8 +294,6 @@ class PaygenPayload:
         self.tgt_image_file = None
         self.src_image_file = None
 
-        self._appid = ""
-
         # Make linter happy.
         self._SetupNewFileNames()
 
@@ -560,7 +558,7 @@ class PaygenPayload:
             logging.info("MiniOS partition count did not match.")
             raise MiniOSPartitionMismatchException
 
-    def _PreparePartitions(self, part_a: bool = True):
+    def _PreparePartitions(self, part_a: bool = True) -> str:
         """Prepares parameters related to partitions of the given image.
 
         This function basically distinguishes between normal platform images and
@@ -568,7 +566,12 @@ class PaygenPayload:
 
         Args:
             part_a: True to extract default/A partition.
+
+        Returns:
+            The appid.
         """
+        appid = ""
+
         tgt_image_type = partition_lib.LookupImageType(self.tgt_image_file)
         if self.payload.src_image:
             src_image_type = partition_lib.LookupImageType(self.src_image_file)
@@ -585,7 +588,7 @@ class PaygenPayload:
             logging.info("Detected a DLC image.")
 
             # DLC module image has only one partition which is the image itself.
-            dlc_id, dlc_package, self._appid = self._GetDlcImageParams(
+            dlc_id, dlc_package, appid = self._GetDlcImageParams(
                 self.tgt_image_file,
                 src_image=self.src_image_file
                 if self.payload.src_image
@@ -595,6 +598,7 @@ class PaygenPayload:
             self.tgt_partitions = (self.tgt_image_file,)
             self.src_partitions = (self.src_image_file,)
 
+            return appid
         elif tgt_image_type == partition_lib.CROS_IMAGE:
             logging.info("Detected a Chromium OS image.")
             if self.payload.minios:
@@ -633,19 +637,18 @@ class PaygenPayload:
             # This step should be done after extracting partitions, look at the
             # _GetPlatformImageParams() documentation for more info.
             if self.payload.src_image:
-                self._appid, self._minor_version = self._GetPlatformImageParams(
+                appid, self._minor_version = self._GetPlatformImageParams(
                     self.src_image_file
                 )
             else:
                 # Full payloads do not need the minor version and should use the
                 # target image.
-                self._appid, _ = self._GetPlatformImageParams(
-                    self.tgt_image_file
-                )
+                appid, _ = self._GetPlatformImageParams(self.tgt_image_file)
 
             # Reset the target image file path so no one uses it later.
             self.tgt_image_file = None
 
+            return appid
         else:
             raise Error("Invalid image type %s" % tgt_image_type)
 
@@ -1064,7 +1067,7 @@ class PaygenPayload:
         with open(metadata_signature_file, "w+b") as f:
             f.write(encoded_signature)
 
-    def GetPayloadPropertiesMap(self, payload_path: str):
+    def GetPayloadPropertiesMap(self, payload_path: str, appid: str):
         """Returns the payload's properties attributes in dictionary.
 
         The payload description contains a dictionary of key/values describing
@@ -1079,6 +1082,7 @@ class PaygenPayload:
 
         Args:
             payload_path: The path to the payload file.
+            appid: The appid for the payload.
 
         Returns:
             A map of payload properties that can be directly used to create the
@@ -1115,7 +1119,7 @@ class PaygenPayload:
         if not props_map[key]:
             props_map[key] = None
 
-        props_map["appid"] = self._appid
+        props_map["appid"] = appid
 
         if self.payload.tgt_image.build:
             props_map["target_version"] = self.payload.tgt_image.build.version
@@ -1146,6 +1150,7 @@ class PaygenPayload:
         self,
         payload_file: str,
         metadata_signatures: List[bytes],
+        appid: str,
     ):
         """Generate the payload description json file.
 
@@ -1153,12 +1158,13 @@ class PaygenPayload:
             payload_file: File name of the payload to store JSON for
                 (signed or unsigned).
             metadata_signatures: A list of signatures in binary string format.
+            appid: The appid for the payload.
         """
         description_file = _payload_file_to_description_file(payload_file)
 
         # Currently we have no way of getting the appid from the payload itself.
         # So just put what we got from the image itself (if any).
-        props_map = self.GetPayloadPropertiesMap(payload_file)
+        props_map = self.GetPayloadPropertiesMap(payload_file, appid)
 
         # Check that the calculated metadata signature is the same as the one on
         # the payload.
@@ -1308,7 +1314,7 @@ class PaygenPayload:
 
             # Setup parameters about the payload like whether it is a DLC or
             # not. Or parameters like the APPID, etc.
-            self._PreparePartitions(part_a)
+            appid = self._PreparePartitions(part_a)
 
             # Generate the unsigned payload.
             self._GenerateUnsignedPayload(payload_file)
@@ -1345,17 +1351,20 @@ class PaygenPayload:
                 )
                 for partition_file in (self.tgt_partitions or [])
             ],
+            appid=appid,
         )
         return unsigned_payload
 
     def _SignAndFinalizePayload(
         self,
         payload_file: str,
+        appid: str,
     ) -> Tuple[str, str]:
         """Sign and finalize metadata for the given payload.
 
         Args:
             payload_file: Name of the payload file to generate.
+            appid: The appid for the payload.
 
         Returns:
             Tuple of the form
@@ -1374,6 +1383,7 @@ class PaygenPayload:
         self._StorePayloadJson(
             signed_payload_file or payload_file,
             metadata_signatures,
+            appid,
         )
 
         return (signed_payload_file, metadata_signature_file)
@@ -1569,7 +1579,7 @@ class PaygenPayload:
         (
             signed_payload_file,
             metadata_signature_file,
-        ) = self._SignAndFinalizePayload(payload_file)
+        ) = self._SignAndFinalizePayload(payload_file, payload.appid)
 
         payload_file = signed_payload_file or payload_file
         if self._verify:
@@ -1683,5 +1693,7 @@ def GenerateUpdatePayloadPropertiesFile(payload, output=None):
     chroot = chroot_lib.Chroot()
     with chroot.tempdir() as work_dir:
         paygen = PaygenPayload(chroot, None, work_dir)
-        properties_map = paygen.GetPayloadPropertiesMap(payload)
+        # Currently we have no way of getting the appid from the payload itself.
+        # So just leave it blank.
+        properties_map = paygen.GetPayloadPropertiesMap(payload, "")
         pformat.json(properties_map, fp=output, compact=True)
