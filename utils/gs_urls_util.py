@@ -4,9 +4,11 @@
 
 """Library to make common google storage operations more reliable."""
 
-import os
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
+
+if TYPE_CHECKING:
+    import os
 
 # Public path, only really works for files.
 PUBLIC_BASE_HTTPS_URL = "https://storage.googleapis.com/"
@@ -21,7 +23,7 @@ PRIVATE_BASE_HTTPS_DOWNLOAD_URL = "https://stainless.corp.google.com/browse/"
 BASE_GS_URL = "gs://"
 
 
-def PathIsGs(path: Union[str, os.PathLike]):
+def PathIsGs(path: Union[str, "os.PathLike[str]"]) -> bool:
     """Determine if |path| is a Google Storage URI.
 
     We accept pathlib objects because our GS APIs handle local filesystem paths.
@@ -29,7 +31,7 @@ def PathIsGs(path: Union[str, os.PathLike]):
     return isinstance(path, str) and path.startswith(BASE_GS_URL)
 
 
-def CanonicalizeURL(url, strict=False):
+def CanonicalizeURL(url: str, strict: bool = False) -> str:
     """Convert provided URL to gs:// URL, if it follows a known format.
 
     Args:
@@ -52,7 +54,9 @@ def CanonicalizeURL(url, strict=False):
     return url
 
 
-def GetGsURL(bucket, for_gsutil=False, public=True, suburl=""):
+def GetGsURL(
+    bucket: str, for_gsutil: bool = False, public: bool = True, suburl: str = ""
+) -> str:
     """Construct a Google Storage URL
 
     Args:
@@ -72,7 +76,7 @@ def GetGsURL(bucket, for_gsutil=False, public=True, suburl=""):
         return GsUrlToHttp(url, public=public)
 
 
-def GsUrlToHttp(path, public=True, directory=False):
+def GsUrlToHttp(path: str, public: bool = True, directory: bool = False) -> str:
     """Convert a GS URL to a HTTP URL for the same resource.
 
     Because the HTTP Urls are not fixed (and may not always be simple prefix

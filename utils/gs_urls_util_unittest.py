@@ -13,17 +13,17 @@ from chromite.utils import gs_urls_util
 class CanonicalizeURLTest(cros_test_lib.TestCase):
     """Tests for the CanonicalizeURL function."""
 
-    def _checkit(self, in_url, exp_url):
+    def _checkit(self, in_url: str, exp_url: str) -> None:
         self.assertEqual(gs_urls_util.CanonicalizeURL(in_url), exp_url)
 
-    def testPublicUrl(self):
+    def testPublicUrl(self) -> None:
         """Test public https URLs."""
         self._checkit(
             "https://commondatastorage.googleapis.com/releases/some/file/t.gz",
             "gs://releases/some/file/t.gz",
         )
 
-    def testPrivateUrl(self):
+    def testPrivateUrl(self) -> None:
         """Test private https URLs."""
         self._checkit(
             "https://storage.cloud.google.com/releases/some/file/t.gz",
@@ -39,7 +39,7 @@ class CanonicalizeURLTest(cros_test_lib.TestCase):
             "gs://releases/some/file/t.gz",
         )
 
-    def testDuplicateBase(self):
+    def testDuplicateBase(self) -> None:
         """Test multiple prefixes in a single URL."""
         self._checkit(
             (
@@ -56,12 +56,12 @@ class CanonicalizeURLTest(cros_test_lib.TestCase):
 class PathIsGsTests(cros_test_lib.TestCase):
     """Tests for the PathIsGs function."""
 
-    def testString(self):
+    def testString(self) -> None:
         """Test strings!"""
         self.assertTrue(gs_urls_util.PathIsGs("gs://foo"))
         self.assertFalse(gs_urls_util.PathIsGs("/tmp/f"))
 
-    def testPath(self):
+    def testPath(self) -> None:
         """Test Path objects!"""
         self.assertFalse(gs_urls_util.PathIsGs(Path.cwd()))
         self.assertFalse(gs_urls_util.PathIsGs(Path("gs://foo")))
@@ -70,7 +70,7 @@ class PathIsGsTests(cros_test_lib.TestCase):
 class GsUrlToHttpTest(cros_test_lib.TestCase):
     """Tests for the GsUrlToHttp function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.testUrls = [
             "gs://releases",
             "gs://releases/",
@@ -79,7 +79,7 @@ class GsUrlToHttpTest(cros_test_lib.TestCase):
             "gs://releases/path/file",
         ]
 
-    def testPublicUrls(self):
+    def testPublicUrls(self) -> None:
         """Test public https URLs."""
         expected = [
             "https://storage.googleapis.com/releases",
@@ -95,7 +95,7 @@ class GsUrlToHttpTest(cros_test_lib.TestCase):
                 gs_urls_util.GsUrlToHttp(gs_url, directory=True), http_url
             )
 
-    def testPrivateUrls(self):
+    def testPrivateUrls(self) -> None:
         """Test private https URLs."""
         expected = [
             "https://storage.cloud.google.com/releases",
@@ -110,7 +110,7 @@ class GsUrlToHttpTest(cros_test_lib.TestCase):
                 gs_urls_util.GsUrlToHttp(gs_url, public=False), http_url
             )
 
-    def testPrivateDirectoryUrls(self):
+    def testPrivateDirectoryUrls(self) -> None:
         """Test private https directory URLs."""
         expected = [
             "https://stainless.corp.google.com/browse/releases",
