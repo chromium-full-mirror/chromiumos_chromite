@@ -111,6 +111,16 @@ class Builder:
         logging.info("Building initramfs package.")
         try:
             cros_build_lib.run(
+                [
+                    emerge,
+                    self.jobs,
+                    "--pretend",
+                    "chromeos-base/chromeos-initramfs",
+                ],
+                enter_chroot=True,
+                extra_env=extra_env,
+            )
+            cros_build_lib.run(
                 [emerge, self.jobs, "chromeos-base/chromeos-initramfs"],
                 enter_chroot=True,
                 extra_env=extra_env,
@@ -171,6 +181,18 @@ class Builder:
         )
         # Install the custom kernel to the provided install root.
         try:
+            cros_build_lib.run(
+                [
+                    emerge,
+                    self.jobs,
+                    "--pretend",
+                    "--usepkgonly",
+                    f"--root={self._install_root}",
+                    kernel,
+                ],
+                enter_chroot=True,
+                extra_env=extra_env,
+            )
             cros_build_lib.run(
                 [
                     emerge,
