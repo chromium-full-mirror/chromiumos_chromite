@@ -7,7 +7,8 @@
 import functools
 import importlib
 import sys
-from typing import Any, Callable, Tuple
+import types
+from typing import Any, Callable, Optional, Tuple
 
 
 class ForFunctions:
@@ -25,21 +26,21 @@ class ForFunctions:
         Args:
             name: The module name to import.
         """
-        self._mod = None
+        self._mod: Optional[types.ModuleType] = None
         self._modname = name
 
-    def _get_mod(self):
+    def _get_mod(self) -> types.ModuleType:
         """Load the module and return it."""
         if self._mod is None:
             self._mod = importlib.import_module(self._modname)
         return self._mod
 
-    def _wrapped_func(self, name: str, *args, **kwargs) -> Any:
+    def _wrapped_func(self, name: str, *args: Any, **kwargs: Any) -> Any:
         """Load the module and then call |name|."""
         mod = self._get_mod()
         return getattr(mod, name)(*args, **kwargs)
 
-    def __getattr__(self, name: str) -> Callable:
+    def __getattr__(self, name: str) -> Callable[..., Any]:
         """Return a callable to the module function."""
         return functools.partial(self._wrapped_func, name)
 
