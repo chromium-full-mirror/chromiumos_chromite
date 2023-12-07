@@ -585,44 +585,6 @@
       "build_cadence": "DAILY_CADENCE"
     },
     {
-      "name": "asurada64",
-      "reference_board_name": "asurada64",
-      "arch": "UNKNOWN",
-      "builder": "RELEASE",
-      "experimental": true,
-      "models": [
-        {
-          "board_name": "asurada64",
-          "name": "asurada",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7266,
-          "is_active": true,
-          "is_experimental": true
-        },
-        {
-          "board_name": "asurada64",
-          "name": "hayato",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7266,
-          "is_active": true,
-          "is_experimental": true
-        },
-        {
-          "board_name": "asurada64",
-          "name": "spherion",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7266,
-          "is_active": true,
-          "is_experimental": true
-        }
-      ],
-      "rubik_target_milestone": 108,
-      "build_cadence": "DAILY_CADENCE"
-    },
-    {
       "name": "atlas",
       "reference_board_name": "atlas",
       "arch": "X86_INTERNAL",
