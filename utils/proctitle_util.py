@@ -12,7 +12,7 @@ import __main__ as main
 # Import the relevant funcs into our namespace for callers.
 try:
     # pylint: disable=unused-import, no-name-in-module
-    from setproctitle import getproctitle
+    from setproctitle import getproctitle  # type: ignore[import]
     from setproctitle import setproctitle
 except ImportError:
     # Module not available -> use basic prctl API.
@@ -30,7 +30,7 @@ _SCRIPT_NAME = os.path.basename(getattr(main, "__file__", "chromite"))
 _TITLE_PID = os.getpid()
 
 
-def settitle(*args):
+def settitle(*args: str) -> None:
     """Set the process title to something useful to make `ps` output easy."""
     base = ("%s/%s" % (_SCRIPT_NAME, _TITLE_PID),)
     setproctitle(": ".join(base + args))
