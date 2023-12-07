@@ -6,6 +6,7 @@
 
 import configparser
 import os
+from typing import Optional
 
 from chromite.lib import constants
 
@@ -28,7 +29,9 @@ CROS_SIGNING_BIN_DIR = os.path.join(
 )
 
 
-def GetDefaultVbootStableHash(config_file=None):
+def GetDefaultVbootStableHash(
+    config_file: Optional[str] = None,
+) -> Optional[str]:
     """Get the default signer vboot_stable_hash config value."""
     config = configparser.ConfigParser()
     config.read(config_file or CROS_SIGNING_CONFIG)
