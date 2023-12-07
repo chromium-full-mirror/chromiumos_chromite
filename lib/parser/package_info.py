@@ -6,23 +6,52 @@
 
 from __future__ import annotations
 
-import collections
+import dataclasses
 import functools
 from pathlib import Path
 import re
 import string
-from typing import Union
+from typing import Any, Optional, Union
 
 from chromite.utils import pms
 
 
-# Define data structures for holding PV and CPV objects.
-_PV_FIELDS = ["pv", "package", "version", "version_no_rev", "rev"]
-PV = collections.namedtuple("PV", _PV_FIELDS)
-# See ebuild(5) man page for the field specs these fields are based on.
-# Notably, cpv does not include the revision, cpf does.
-_CPV_FIELDS = ["category", "cp", "cpv", "cpf"] + _PV_FIELDS
-CPV = collections.namedtuple("CPV", _CPV_FIELDS)
+@dataclasses.dataclass(frozen=True)
+class _PV:
+    """Data type for holding a package version.
+
+    Note: you shouldn't use this type directly.  Newer code should use
+    PackageInfo (created by parse()).
+    """
+
+    pv: Optional[str]
+    package: str
+    version: Optional[str]
+    version_no_rev: Optional[str]
+    rev: Optional[str]
+
+
+@dataclasses.dataclass(frozen=True)
+class CPV(_PV):
+    """Data type for holding category/package-version.
+
+    See ebuild(5) man page for the field specs these fields are based on.
+    Notably, cpv does not include the revision, cpf does.
+
+    Note: you shouldn't use this type directly.  Newer code should use
+    PackageInfo (created by parse()).
+    """
+
+    category: Optional[str]
+    cp: Optional[str]
+    cpv: Optional[str]
+    cpf: Optional[str]
+
+    def __lt__(self, other: Any) -> bool:
+        if not isinstance(other, CPV):
+            return False
+        return dataclasses.astuple(self) < dataclasses.astuple(other)
+
 
 # Package matching regexp, as dictated by package manager specification:
 # https://www.gentoo.org/proj/en/qa/pms.xml
@@ -48,7 +77,7 @@ class ParseTypeError(Error, TypeError):
     """Attempted parse of a type that could not be handled."""
 
 
-def _SplitPV(pv, strict=True):
+def _SplitPV(pv: str, strict: bool = True) -> Optional[_PV]:
     """Takes a PV value and splits it into individual components.
 
     Deprecated, use parse() instead.
@@ -68,20 +97,24 @@ def _SplitPV(pv, strict=True):
         return None
 
     if m is None:
-        return PV(
-            **{
-                "pv": None,
-                "package": pv,
-                "version": None,
-                "version_no_rev": None,
-                "rev": None,
-            }
+        return _PV(
+            pv=None,
+            package=pv,
+            version=None,
+            version_no_rev=None,
+            rev=None,
         )
 
-    return PV(**m.groupdict())
+    return _PV(
+        pv=m["pv"],
+        package=m["package"],
+        version=m["version"],
+        version_no_rev=m["version_no_rev"],
+        rev=m["rev"],
+    )
 
 
-def SplitCPV(cpv, strict=True):
+def SplitCPV(cpv: str, strict: bool = True) -> Optional[CPV]:
     """Splits a CPV value into components.
 
     Deprecated, use parse() instead.
@@ -103,21 +136,33 @@ def SplitCPV(cpv, strict=True):
     else:
         category = chunks[0]
 
-    m = _SplitPV(chunks[-1], strict=strict)
-    if strict and (category is None or m is None):
+    pv = _SplitPV(chunks[-1], strict=strict)
+    if pv is None:
+        return None
+    if strict and category is None:
         return None
 
     # Gather parts and build each field. See ebuild(5) man page for spec.
-    cp_fields = (category, m.package)
+    cp_fields = (category, pv.package)
     cp = "%s/%s" % cp_fields if all(cp_fields) else None
 
-    cpv_fields = (cp, m.version_no_rev)
+    cpv_fields = (cp, pv.version_no_rev)
     real_cpv = "%s-%s" % cpv_fields if all(cpv_fields) else None
 
-    cpf_fields = (real_cpv, m.rev)
+    cpf_fields = (real_cpv, pv.rev)
     cpf = "%s-%s" % cpf_fields if all(cpf_fields) else real_cpv
 
-    return CPV(category=category, cp=cp, cpv=real_cpv, cpf=cpf, **m._asdict())
+    return CPV(
+        category=category,
+        cp=cp,
+        cpv=real_cpv,
+        cpf=cpf,
+        pv=pv.pv,
+        package=pv.package,
+        version=pv.version,
+        version_no_rev=pv.version_no_rev,
+        rev=pv.rev,
+    )
 
 
 def parse(cpv: Union[str, Path, CPV, PackageInfo]) -> PackageInfo:
@@ -141,7 +186,10 @@ def parse(cpv: Union[str, Path, CPV, PackageInfo]) -> PackageInfo:
     elif isinstance(cpv, CPV):
         parsed = cpv
     elif isinstance(cpv, str):
-        parsed = SplitCPV(cpv, strict=False)
+        parsed_cpv = SplitCPV(cpv, strict=False)
+        if not parsed_cpv:
+            raise ValueError(f"Unable to parse value as CPV: {cpv}")
+        parsed = parsed_cpv
     else:
         raise ParseTypeError(f"Unable to parse type: {type(cpv)}")
 
@@ -162,16 +210,20 @@ class PackageInfo:
     """Read-only class to hold and format commonly used package information."""
 
     def __init__(
-        self, category=None, package=None, version=None, revision=None
+        self,
+        category: Optional[str] = None,
+        package: Optional[str] = None,
+        version: Optional[Union[str, int]] = None,
+        revision: Optional[Union[str, int]] = None,
     ):
         # Private attributes to enforce read-only. Particularly to allow use of
         # lru_cache for formatting.
         self._category = category
-        self._package = package
-        self._version = str(version) if version is not None else None
+        self._package = package or ""
+        self._version = str(version) if version is not None else ""
         self._revision = int(revision) if revision else 0
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, PackageInfo):
             try:
                 return self == parse(other)
@@ -194,10 +246,10 @@ class PackageInfo:
         else:
             return self.version == other.version
 
-    def __ge__(self, other):
-        return self == other or self > other
+    def __ge__(self, other: Any) -> bool:
+        return bool(self == other or self > other)
 
-    def __gt__(self, other):
+    def __gt__(self, other: Any) -> bool:
         if not isinstance(other, PackageInfo):
             raise InvalidComparisonTypeError(
                 f"'>' not supported between '{type(self)}' and '{type(other)}'."
@@ -207,7 +259,7 @@ class PackageInfo:
         if self.atom and other.atom and self.atom != other.atom:
             return self.atom > other.atom
         elif self.category != other.category:
-            return self.category > other.category
+            return (self.category or "") > (other.category or "")
         elif self.package != other.package:
             return self.package > other.package
 
@@ -218,10 +270,10 @@ class PackageInfo:
             # Simple compare since only one or neither has a version.
             return self.vr > other.vr
 
-    def __le__(self, other):
-        return self == other or self < other
+    def __le__(self, other: Any) -> bool:
+        return bool(self == other or self < other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any) -> bool:
         if isinstance(other, PackageInfo):
             # x < y == y > x, so just do that when we can.
             return other > self
@@ -230,19 +282,19 @@ class PackageInfo:
                 f"'<' not supported between '{type(self)}' and '{type(other)}'."
             )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(
             (self._category, self._package, self._version, self._revision)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"PackageInfo<{str(self)}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.cpvr or self.atom or self.pvr or self.package
 
     @functools.lru_cache()
-    def __format__(self, format_spec):
+    def __format__(self, format_spec: str) -> str:
         """Formatter function.
 
         The format |spec| is a format string containing any combination of:
@@ -279,48 +331,48 @@ class PackageInfo:
         return format_spec.format(**fmt_dict)
 
     @property
-    def category(self):
+    def category(self) -> Optional[str]:
         return self._category
 
     @property
-    def package(self):
+    def package(self) -> str:
         return self._package
 
     @property
-    def version(self):
+    def version(self) -> str:
         return self._version
 
     @property
-    def revision(self):
+    def revision(self) -> int:
         return self._revision
 
     @property
-    def cpv(self):
+    def cpv(self) -> str:
         return format(self, "{c}/{p}-{v}")
 
     @property
-    def cpvr(self):
+    def cpvr(self) -> str:
         return format(self, "{cpv}-r{r}") or self.cpv
 
     @property
-    def cpf(self):
+    def cpf(self) -> str:
         """CPF is the portage name for cpvr, provided to simplify transition."""
         return self.cpvr
 
     @property
-    def atom(self):
+    def atom(self) -> str:
         return format(self, "{c}/{p}")
 
     @property
-    def cp(self):
+    def cp(self) -> str:
         return self.atom
 
     @property
-    def pv(self):
+    def pv(self) -> str:
         return format(self, "{p}-{v}")
 
     @property
-    def pvr(self):
+    def pvr(self) -> str:
         """This is PF in Gentoo variable definitions.
 
         From Gentoo docs: PF - Full package name. e.g. 'vim-6.3-r1' or
@@ -329,7 +381,7 @@ class PackageInfo:
         return format(self, "{pv}-r{r}") or self.pv
 
     @property
-    def vr(self):
+    def vr(self) -> str:
         """This is PVR in Gentoo variable definitions.
 
         From Gentoo docs: PVR - Package version and revision (if any). e.g.
@@ -338,33 +390,33 @@ class PackageInfo:
         return format(self, "{v}-r{r}") or self.version
 
     @property
-    def ebuild(self):
+    def ebuild(self) -> str:
         return format(self, "{pvr}.ebuild")
 
     @property
-    def relative_path(self):
+    def relative_path(self) -> str:
         """Path of the ebuild relative to its overlay."""
         return format(self, "{c}/{p}/{ebuild}")
 
-    def revision_bump(self):
+    def revision_bump(self) -> PackageInfo:
         """Get a PackageInfo instance with an incremented revision."""
         return PackageInfo(
             self.category, self.package, self.version, self.revision + 1
         )
 
-    def with_version(self, version):
+    def with_version(self, version: str) -> PackageInfo:
         """Get a PackageInfo instance with the new, specified version."""
         return PackageInfo(self.category, self.package, version)
 
-    def with_rev0(self):
+    def with_rev0(self) -> PackageInfo:
         """Get a -r0 instance of the package."""
         return self.with_version(self.version) if self.revision else self
 
-    def to_cpv(self):
+    def to_cpv(self) -> Optional[CPV]:
         """Get a CPV instance of this PackageInfo.
 
         This method is provided only to allow compatibility with functions that
         have not yet been converted to use PackageInfo objects. This function
-        will be removed when the CPV namedtuple is removed.
+        will be removed when the CPV dataclass is removed.
         """
         return SplitCPV(self.cpvr)
