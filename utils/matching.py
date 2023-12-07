@@ -7,22 +7,29 @@
 import difflib
 import fnmatch
 import os
-from typing import Any, Callable, Iterable, List
+from typing import Hashable, Iterable, List, Sequence, TypeVar
+
+
+# _SequenceOfHashables is what difflib.SequenceMatcher operates on. The most
+# common type to use here is a string (i.e., a sequence of chars). In practice,
+# almost any iterable will do.
+# It's useful to define a type var, rather than annotating directly with
+# Sequence[Hashable], to show static type checkers the relationship between
+# different params and/or the return type: for example,
+# GetMostLikelyMatchedObject returns a list of the same type as the haystack.
+_SequenceOfHashables = TypeVar("_SequenceOfHashables", bound=Sequence[Hashable])
 
 
 def GetMostLikelyMatchedObject(
-    haystack: List[Any],
-    needle: str,
-    name_func: Callable[[Any], str] = lambda x: x,
+    haystack: Iterable[_SequenceOfHashables],
+    needle: _SequenceOfHashables,
     matched_score_threshold: float = 0.4,
-) -> List[Any]:
+) -> List[_SequenceOfHashables]:
     """Matches objects whose names are most likely matched with target.
 
     Args:
         haystack: Objects to search against.
         needle: The name to match.
-        name_func: Function to get object name to match. Default is the identity
-            function.
         matched_score_threshold: The threshold of likelihood to match. Must be
             in the range [0,1].
 
@@ -30,10 +37,10 @@ def GetMostLikelyMatchedObject(
         A list of entities from |haystack| whose names are likely |needle|.
     """
 
-    def _Score(obj):
-        return difflib.SequenceMatcher(a=name_func(obj), b=needle).ratio()
+    def _Score(obj: _SequenceOfHashables) -> float:
+        return difflib.SequenceMatcher(a=obj, b=needle).ratio()
 
-    return sorted(o for o in haystack if _Score(o) > matched_score_threshold)
+    return [o for o in haystack if _Score(o) > matched_score_threshold]
 
 
 def FindFilesMatching(
