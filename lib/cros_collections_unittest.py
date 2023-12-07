@@ -13,7 +13,7 @@ from chromite.lib import cros_test_lib
 class GroupNamedtuplesByKeyTests(cros_test_lib.TestCase):
     """Tests for GroupNamedtuplesByKey"""
 
-    def testGroupNamedtuplesByKey(self):
+    def testGroupNamedtuplesByKey(self) -> None:
         """Test GroupNamedtuplesByKey."""
         TestTuple = collections.namedtuple("TestTuple", ("key1", "key2"))
         r1 = TestTuple("t1", "val1")
@@ -24,20 +24,17 @@ class GroupNamedtuplesByKeyTests(cros_test_lib.TestCase):
         r6 = TestTuple("t3", "val3")
         input_iter = [r1, r2, r3, r4, r5, r6]
 
-        expected_result = {"t1": [r1], "t2": [r2, r3], "t3": [r4, r5, r6]}
         self.assertDictEqual(
             cros_collections.GroupNamedtuplesByKey(input_iter, "key1"),
-            expected_result,
+            {"t1": [r1], "t2": [r2, r3], "t3": [r4, r5, r6]},
         )
 
-        expected_result = {"val1": [r1], "val2": [r2, r3], "val3": [r4, r5, r6]}
         self.assertDictEqual(
             cros_collections.GroupNamedtuplesByKey(input_iter, "key2"),
-            expected_result,
+            {"val1": [r1], "val2": [r2, r3], "val3": [r4, r5, r6]},
         )
 
-        expected_result = {None: [r1, r2, r3, r4, r5, r6]}
         self.assertDictEqual(
             cros_collections.GroupNamedtuplesByKey(input_iter, "test"),
-            expected_result,
+            {None: [r1, r2, r3, r4, r5, r6]},
         )

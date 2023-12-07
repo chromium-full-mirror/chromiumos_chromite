@@ -4,8 +4,12 @@
 
 """Chromite extensions on top of the collections module."""
 
+from typing import Dict, Iterable, List, NamedTuple, Optional
 
-def GroupNamedtuplesByKey(input_iter, key):
+
+def GroupNamedtuplesByKey(
+    input_iter: Iterable[NamedTuple], key: str
+) -> Dict[Optional[str], List[NamedTuple]]:
     """Split an iterable of namedtuples, based on value of a key.
 
     Args:
@@ -17,7 +21,7 @@ def GroupNamedtuplesByKey(input_iter, key):
         was encountered in |input_iter| to a list of entries that had
         that value.
     """
-    split_dict = {}
+    split_dict: Dict[Optional[str], List[NamedTuple]] = {}
     for entry in input_iter:
         split_dict.setdefault(getattr(entry, key, None), []).append(entry)
     return split_dict
