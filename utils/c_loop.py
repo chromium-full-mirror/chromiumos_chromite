@@ -9,8 +9,11 @@ See /usr/include/linux/loop.h header for more info.
 
 import enum
 import fcntl
-import os
-from typing import Union
+from typing import TYPE_CHECKING, Union
+
+
+if TYPE_CHECKING:
+    import os
 
 
 class Command(enum.IntEnum):
@@ -35,7 +38,7 @@ class Command(enum.IntEnum):
     CTL_GET_FREE = 0x4C82
 
 
-def detach(path: Union[str, os.PathLike]) -> None:
+def detach(path: Union[str, "os.PathLike[str]"]) -> None:
     """Detach the loopdev |path|."""
     with open(path, "wb") as f:
         fcntl.ioctl(f.fileno(), Command.CLR_FD)
