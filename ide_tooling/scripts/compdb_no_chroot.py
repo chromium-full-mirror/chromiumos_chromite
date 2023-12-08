@@ -215,7 +215,7 @@ def generate(
     return converted
 
 
-def main():
+def main() -> None:
     text = sys.stdin.read()
     data = json.loads(text)
     external_trunk_path = sys.argv[1]

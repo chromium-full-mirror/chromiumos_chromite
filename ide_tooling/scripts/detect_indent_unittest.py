@@ -69,7 +69,7 @@ if a:
 class GenerateTest(cros_test_lib.TestCase):
     """Tests detect_indentation()"""
 
-    def testAll(self):
+    def testAll(self) -> None:
         cases = {
             TEXT_EMPTY: None,
             TEXT_NO_INDENT: None,

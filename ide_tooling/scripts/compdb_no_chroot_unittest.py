@@ -38,7 +38,7 @@ def custom_which(exe: str) -> str:
 class GenerateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests generate()"""
 
-    def testAll(self):
+    def testAll(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         chroot = chroot_lib.Chroot(
