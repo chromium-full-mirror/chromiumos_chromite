@@ -26,7 +26,7 @@ class BoardBuildDependencyTest(
 ):
     """Unittests for board_build_dependency."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = depgraph_pb2.GetBuildDependencyGraphResponse()
         self.json_deps = {
             "target_board": "deathstar",
@@ -81,7 +81,7 @@ class BoardBuildDependencyTest(
             },
         }
 
-    def testCreateDepGraphProtoFromJsonMap(self):
+    def testCreateDepGraphProtoFromJsonMap(self) -> None:
         """Test creating DepGraph protobuf from json map."""
         depgraph_proto = depgraph_pb2.DepGraph()
         dependency.AugmentDepGraphProtoFromJsonMap(
@@ -103,7 +103,7 @@ class BoardBuildDependencyTest(
             darthvader_dep.dependency_source_paths[0].path, "/control/room"
         )
 
-    def testGetBuildDependencyGraph(self):
+    def testGetBuildDependencyGraph(self) -> None:
         """GetBuildDependencyGraph calls helper method with correct args."""
         patch = self.PatchObject(
             dependency_service,
@@ -118,7 +118,7 @@ class BoardBuildDependencyTest(
         self.assertEqual(self.response.dep_graph.build_target.name, "deathstar")
         patch.assert_called_once()
 
-    def testGetBuildDependencyGraphForPackages(self):
+    def testGetBuildDependencyGraphForPackages(self) -> None:
         """GetBuildDependencyGraph calls helper method with correct args."""
         get_dep = self.PatchObject(
             dependency_service,
@@ -139,7 +139,7 @@ class BoardBuildDependencyTest(
         self.assertEqual(self.response.dep_graph.build_target.name, "deathstar")
         get_dep.assert_called_once_with("/build/target", "target", (pkg_atom,))
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Test that a validate only call does not execute any logic."""
         patch = self.PatchObject(dependency_service, "GetBuildDependency")
         input_proto = depgraph_pb2.GetBuildDependencyGraphRequest()
@@ -149,7 +149,7 @@ class BoardBuildDependencyTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(dependency_service, "GetBuildDependency")
         input_proto = depgraph_pb2.GetBuildDependencyGraphRequest()
@@ -166,13 +166,13 @@ class BoardBuildDependencyTest(
 class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
     """Unittests for the List endpoint."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = depgraph_pb2.ListResponse()
         self.build_target = common_pb2.BuildTarget(name="target")
         self.sysroot = os.path.join(self.tempdir, "target")
         osutils.SafeMakedirs(self.sysroot)
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Test that a validate only call does not execute any logic."""
         sysroot = sysroot_pb2.Sysroot(
             path=self.sysroot, build_target=self.build_target
@@ -180,14 +180,14 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         input_proto = depgraph_pb2.ListRequest(sysroot=sysroot)
         dependency.List(input_proto, self.response, self.validate_only_config)
 
-    def testArgumentValidationMissingSysrootPath(self):
+    def testArgumentValidationMissingSysrootPath(self) -> None:
         """Test missing sysroot path."""
         sysroot = sysroot_pb2.Sysroot(build_target=self.build_target)
         input_proto = depgraph_pb2.ListRequest(sysroot=sysroot)
         with self.assertRaises(cros_build_lib.DieSystemExit):
             dependency.List(input_proto, self.response, self.api_config)
 
-    def testArgumentValidationMissingBuildTarget(self):
+    def testArgumentValidationMissingBuildTarget(self) -> None:
         """Test missing build target name."""
         sysroot = sysroot_pb2.Sysroot(
             path=self.sysroot, build_target=common_pb2.BuildTarget()
@@ -196,7 +196,7 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         with self.assertRaises(cros_build_lib.DieSystemExit):
             dependency.List(input_proto, self.response, self.api_config)
 
-    def testDefaultArguments(self):
+    def testDefaultArguments(self) -> None:
         """Test with default arguments."""
         sysroot = sysroot_pb2.Sysroot(
             path=self.sysroot, build_target=self.build_target
@@ -211,7 +211,7 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             include_affected_pkgs=False,
         )
 
-    def testListResponse(self):
+    def testListResponse(self) -> None:
         """Test calls helper method with correct args."""
         sysroot = sysroot_pb2.Sysroot(
             path=self.sysroot, build_target=self.build_target

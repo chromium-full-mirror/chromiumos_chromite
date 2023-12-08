@@ -15,7 +15,7 @@ from chromite.lib import metrics_lib
 class MetricsTest(cros_test_lib.TestCase):
     """Test Metrics deserialization functionality at the API layer."""
 
-    def testDeserializeTimer(self):
+    def testDeserializeTimer(self) -> None:
         """Test timer math and deserialization into proto objects."""
         response = build_api_test_pb2.TestResultMessage()
         mock_events = [
@@ -38,7 +38,7 @@ class MetricsTest(cros_test_lib.TestCase):
                 response.events[0].duration_milliseconds, 1000 - 600
             )
 
-    def testDeserializeNamedEvent(self):
+    def testDeserializeNamedEvent(self) -> None:
         """Test deserialization of a named event.
 
         This test also includes a prefix to test for proper prepending.
@@ -61,7 +61,7 @@ class MetricsTest(cros_test_lib.TestCase):
             self.assertEqual(response.events[0].timestamp_milliseconds, 1000)
             self.assertFalse(response.events[0].duration_milliseconds)
 
-    def testDeserializeGauge(self):
+    def testDeserializeGauge(self) -> None:
         """Test deserialization of a gauge."""
         response = build_api_test_pb2.TestResultMessage()
         mock_events = [
@@ -79,7 +79,7 @@ class MetricsTest(cros_test_lib.TestCase):
             self.assertEqual(response.events[0].timestamp_milliseconds, 1000)
             self.assertEqual(response.events[0].gauge, 17)
 
-    def testDeserializeCounter(self):
+    def testDeserializeCounter(self) -> None:
         """Test deserialization of a counter."""
         response = build_api_test_pb2.TestResultMessage()
         mock_events = [

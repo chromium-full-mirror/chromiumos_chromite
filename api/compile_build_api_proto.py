@@ -162,7 +162,9 @@ def InstallProtoc(protoc_version: ProtocVersion) -> Path:
     return protoc_version.get_protoc_command(cipd_root)
 
 
-def _CleanTargetDirectory(directory: Path, protoc_version: ProtocVersion):
+def _CleanTargetDirectory(
+    directory: Path, protoc_version: ProtocVersion
+) -> None:
     """Remove any existing generated files in the directory.
 
     This clean only removes the generated files to avoid accidentally destroying
@@ -194,7 +196,7 @@ def _GenerateFiles(
     protoc_version: ProtocVersion,
     dir_subset: SubdirectorySet,
     protoc_bin_path: Path,
-):
+) -> None:
     """Generate the proto files from the |source| tree into |output|.
 
     Args:
@@ -252,7 +254,9 @@ def _GenerateFiles(
             )
 
 
-def _InstallMissingInits(directory: Path, protoc_version: ProtocVersion):
+def _InstallMissingInits(
+    directory: Path, protoc_version: ProtocVersion
+) -> None:
     """Add missing __init__.py files in the generated protobuf folders."""
     if protoc_version is ProtocVersion.CHROMITE_PYI:
         # For pyi, rely on module markers left behind by CHROMITE flows to avoid
@@ -265,7 +269,7 @@ def _InstallMissingInits(directory: Path, protoc_version: ProtocVersion):
         (current / "__init__.py").touch()
 
 
-def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion):
+def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion) -> None:
     """Do postprocessing on the generated files.
 
     Args:
@@ -326,7 +330,7 @@ def CompileProto(
     output: Optional[Path] = None,
     dir_subset: SubdirectorySet = SubdirectorySet.DEFAULT,
     postprocess: bool = True,
-):
+) -> None:
     """Compile the Build API protobuf files.
 
     By default, this will compile from infra/proto/src to api/gen. The output

@@ -24,10 +24,10 @@ from chromite.service import binhost as binhost_service
 class GetBinhostsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Unittests for GetBinhosts."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = binhost_pb2.BinhostGetResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         patch = self.PatchObject(binhost_service, "GetBinhosts")
 
@@ -36,7 +36,7 @@ class GetBinhostsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         binhost.GetBinhosts(request, self.response, self.validate_only_config)
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "GetBinhosts")
 
@@ -49,7 +49,7 @@ class GetBinhostsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(self.response.binhosts[0].package_index, "Packages")
         patch.assert_not_called()
 
-    def testGetBinhosts(self):
+    def testGetBinhosts(self) -> None:
         """GetBinhosts calls service with correct args."""
         # pylint: disable=line-too-long
         binhost_list = [
@@ -76,10 +76,10 @@ class GetPrivatePrebuiltAclArgsTest(
 ):
     """Unittests for GetPrivatePrebuiltAclArgs."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = binhost_pb2.AclArgsResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         patch = self.PatchObject(binhost_service, "GetPrebuiltAclArgs")
 
@@ -90,7 +90,7 @@ class GetPrivatePrebuiltAclArgsTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "GetPrebuiltAclArgs")
 
@@ -106,7 +106,7 @@ class GetPrivatePrebuiltAclArgsTest(
         self.assertEqual(self.response.args[0].value, "group1:READ")
         patch.assert_not_called()
 
-    def testGetPrivatePrebuiltAclArgs(self):
+    def testGetPrivatePrebuiltAclArgs(self) -> None:
         """GetPrivatePrebuildAclsArgs calls service with correct args."""
         argvalue_list = [["-g", "group1:READ"]]
         get_binhost = self.PatchObject(
@@ -131,7 +131,7 @@ class PrepareBinhostUploadsTest(
 ):
     """Unittests for PrepareBinhostUploads."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(
             binhost_service,
             "GetPrebuiltsRoot",
@@ -150,7 +150,7 @@ class PrepareBinhostUploadsTest(
 
         self.response = binhost_pb2.PrepareBinhostUploadsResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         patch = self.PatchObject(binhost_service, "GetPrebuiltsRoot")
 
@@ -163,7 +163,7 @@ class PrepareBinhostUploadsTest(
         patch.assert_not_called()
         self.assertEqual(rc, 0)
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "GetPrebuiltsRoot")
 
@@ -178,7 +178,7 @@ class PrepareBinhostUploadsTest(
         patch.assert_not_called()
         self.assertEqual(rc, 0)
 
-    def testPrepareBinhostUploads(self):
+    def testPrepareBinhostUploads(self) -> None:
         """PrepareBinhostUploads returns Packages and tar files."""
         input_proto = binhost_pb2.PrepareBinhostUploadsRequest()
         input_proto.build_target.name = "target"
@@ -192,7 +192,7 @@ class PrepareBinhostUploadsTest(
             ["Packages", "foo.tbz2", "bar.tbz2"],
         )
 
-    def testPrepareBinhostUploadsNonGsUri(self):
+    def testPrepareBinhostUploadsNonGsUri(self) -> None:
         """PrepareBinhostUploads dies when URI does not point to GS."""
         input_proto = binhost_pb2.PrepareBinhostUploadsRequest()
         input_proto.build_target.name = "target"
@@ -208,7 +208,7 @@ class UpdatePackageIndexTest(
 ):
     """Unit tests for BinhostService/UpdatePackageIndex."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._original_pkg_index = binpkg.PackageIndex()
         self._original_pkg_index.header["A"] = "B"
         self._original_pkg_index.packages = [
@@ -226,7 +226,7 @@ class UpdatePackageIndexTest(
             "path/to/packages/Packages",
         )
 
-    def _write_original_package_index(self):
+    def _write_original_package_index(self) -> None:
         """Write the package index to the tempdir.
 
         Note that if an input_proto specifies location=INSIDE, then they will
@@ -236,7 +236,7 @@ class UpdatePackageIndexTest(
         osutils.Touch(self._pkg_index_fp, makedirs=True)
         self._original_pkg_index.WriteFile(self._pkg_index_fp)
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         self._write_original_package_index()
         patch = self.PatchObject(binpkg.PackageIndex, "ReadFilePath")
@@ -251,7 +251,7 @@ class UpdatePackageIndexTest(
         binhost.UpdatePackageIndex(request, response, self.validate_only_config)
         patch.assert_not_called()
 
-    def testMustProvideSomeCommand(self):
+    def testMustProvideSomeCommand(self) -> None:
         """Test that an error is raised if no update types are specified."""
         self._write_original_package_index()
         request = binhost_pb2.UpdatePackageIndexRequest(
@@ -265,7 +265,7 @@ class UpdatePackageIndexTest(
         with self.assertRaises(cros_build_lib.DieSystemExit):
             binhost.UpdatePackageIndex(request, response, self.api_config)
 
-    def testSetUploadLocation(self):
+    def testSetUploadLocation(self) -> None:
         """Test setting the package upload location in the index file.
 
         This test includes correctly parsing the input uri.
@@ -310,10 +310,10 @@ class UpdatePackageIndexTest(
 class SetBinhostTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Unittests for SetBinhost."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = binhost_pb2.SetBinhostResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         patch = self.PatchObject(binhost_service, "SetBinhost")
 
@@ -324,7 +324,7 @@ class SetBinhostTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         binhost.SetBinhost(request, self.response, self.validate_only_config)
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "SetBinhost")
 
@@ -337,7 +337,7 @@ class SetBinhostTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertEqual(self.response.output_file, "/path/to/BINHOST.conf")
 
-    def testSetBinhost(self):
+    def testSetBinhost(self) -> None:
         """SetBinhost calls service with correct args."""
         set_binhost = self.PatchObject(
             binhost_service, "SetBinhost", return_value="/path/to/BINHOST.conf"
@@ -366,10 +366,10 @@ class GetBinhostConfPathTest(
 ):
     """Unittests for GetBinhostConfPath."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = binhost_pb2.GetBinhostConfPathResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         patch = self.PatchObject(binhost_service, "GetBinhostConfPath")
 
@@ -381,7 +381,7 @@ class GetBinhostConfPathTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "GetBinhostConfPath")
 
@@ -394,7 +394,7 @@ class GetBinhostConfPathTest(
         patch.assert_not_called()
         self.assertEqual(self.response.conf_path, "/path/to/BINHOST.conf")
 
-    def testGetBinhostConfPath(self):
+    def testGetBinhostConfPath(self) -> None:
         """GetBinhostConfPath calls service with correct args."""
         get_binhost_conf_path = self.PatchObject(
             binhost_service,
@@ -420,10 +420,10 @@ class RegenBuildCacheTest(
 ):
     """Unittests for RegenBuildCache."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = binhost_pb2.RegenBuildCacheResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         patch = self.PatchObject(binhost_service, "RegenBuildCache")
 
@@ -434,7 +434,7 @@ class RegenBuildCacheTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "RegenBuildCache")
 
@@ -447,7 +447,7 @@ class RegenBuildCacheTest(
             self.response.modified_overlays[0].path, "/path/to/BuildCache"
         )
 
-    def testRegenBuildCache(self):
+    def testRegenBuildCache(self) -> None:
         """RegenBuildCache calls service with the correct args."""
         regen_cache = self.PatchObject(binhost_service, "RegenBuildCache")
 
@@ -457,7 +457,7 @@ class RegenBuildCacheTest(
         binhost.RegenBuildCache(input_proto, self.response, self.api_config)
         regen_cache.assert_called_once_with(mock.ANY, "both")
 
-    def testRequiresOverlayType(self):
+    def testRequiresOverlayType(self) -> None:
         """RegenBuildCache dies if overlay_type not specified."""
         regen_cache = self.PatchObject(binhost_service, "RegenBuildCache")
 
@@ -474,7 +474,7 @@ class PrepareChromeBinhostUploadsTest(
 ):
     """Tests for BinhostService/PrepareChromeBinhostUploads."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.create_chrome_package_index_mock = self.PatchObject(
             binhost_service, "CreateChromePackageIndex"
@@ -511,7 +511,7 @@ class PrepareChromeBinhostUploadsTest(
             makedirs=True,
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         binhost.PrepareChromeBinhostUploads(
             self.input_proto, self.response, self.validate_only_config
@@ -519,7 +519,7 @@ class PrepareChromeBinhostUploadsTest(
 
         self.create_chrome_package_index_mock.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         binhost.PrepareChromeBinhostUploads(
             self.input_proto, self.response, self.mock_call_config
@@ -529,7 +529,7 @@ class PrepareChromeBinhostUploadsTest(
         self.assertEqual(self.response.upload_targets[3].path, "Packages")
         self.create_chrome_package_index_mock.assert_not_called()
 
-    def testChromeUpload(self):
+    def testChromeUpload(self) -> None:
         """Test uploads of Chrome prebuilts."""
         expected_upload_targets = [
             "chromeos-base/chromeos-chrome-100-r1.tbz2",
@@ -549,7 +549,7 @@ class PrepareChromeBinhostUploadsTest(
             expected_upload_targets + ["Packages"],
         )
 
-    def testPrepareBinhostUploadsNonGsUri(self):
+    def testPrepareBinhostUploadsNonGsUri(self) -> None:
         """PrepareBinhostUploads dies when URI does not point to GS."""
         self.input_proto.uri = "https://foo.bar"
 

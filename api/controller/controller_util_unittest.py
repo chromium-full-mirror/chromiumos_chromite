@@ -22,7 +22,7 @@ from chromite.lib.parser import package_info
 class ParseChrootTest(cros_test_lib.MockTestCase):
     """ParseChroot tests."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test successful handling case."""
         path = "/chroot/path"
         cache_dir = "/cache/dir"
@@ -52,7 +52,7 @@ class ParseChrootTest(cros_test_lib.MockTestCase):
 
         self.assertEqual(expected, result)
 
-    def testWrongMessage(self):
+    def testWrongMessage(self) -> None:
         """Test invalid message type given."""
         with self.assertRaises(AssertionError):
             controller_util.ParseChroot(common_pb2.BuildTarget())
@@ -61,7 +61,7 @@ class ParseChrootTest(cros_test_lib.MockTestCase):
 class ParseSysrootTest(cros_test_lib.MockTestCase):
     """ParseSysroot tests."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """test successful handling case."""
         path = "/build/rare_pokemon"
         sysroot_message = sysroot_pb2.Sysroot(path=path)
@@ -69,7 +69,7 @@ class ParseSysrootTest(cros_test_lib.MockTestCase):
         result = controller_util.ParseSysroot(sysroot_message)
         self.assertEqual(expected, result)
 
-    def testWrongMessage(self):
+    def testWrongMessage(self) -> None:
         with self.assertRaises(AssertionError):
             controller_util.ParseSysroot(common_pb2.BuildTarget())
 
@@ -77,7 +77,7 @@ class ParseSysrootTest(cros_test_lib.MockTestCase):
 class ParseBuildTargetTest(cros_test_lib.TestCase):
     """ParseBuildTarget tests."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test successful handling case."""
         name = "board"
         build_target_message = common_pb2.BuildTarget(name=name)
@@ -86,7 +86,7 @@ class ParseBuildTargetTest(cros_test_lib.TestCase):
 
         self.assertEqual(expected, result)
 
-    def testParseProfile(self):
+    def testParseProfile(self) -> None:
         """Test the parsing of a profile."""
         name = "build-target-name"
         profile = "profile"
@@ -100,7 +100,7 @@ class ParseBuildTargetTest(cros_test_lib.TestCase):
 
         self.assertEqual(expected, result)
 
-    def testWrongMessage(self):
+    def testWrongMessage(self) -> None:
         """Test invalid message type given."""
         with self.assertRaises(AssertionError):
             controller_util.ParseBuildTarget(
@@ -111,7 +111,7 @@ class ParseBuildTargetTest(cros_test_lib.TestCase):
 class ParseBuildTargetsTest(cros_test_lib.TestCase):
     """ParseBuildTargets tests."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test successful handling case."""
         names = ["foo", "bar", "baz"]
         message = build_api_test_pb2.TestRequestMessage()
@@ -123,7 +123,7 @@ class ParseBuildTargetsTest(cros_test_lib.TestCase):
         expected = [build_target_lib.BuildTarget(name) for name in names]
         self.assertCountEqual(expected, result)
 
-    def testWrongMessage(self):
+    def testWrongMessage(self) -> None:
         """Wrong message type handling."""
         message = common_pb2.Chroot()
         message.env.use_flags.add().flag = "foo"
@@ -136,7 +136,7 @@ class ParseBuildTargetsTest(cros_test_lib.TestCase):
 class PackageInfoToStringTest(cros_test_lib.TestCase):
     """PackageInfoToString tests."""
 
-    def testAllFields(self):
+    def testAllFields(self) -> None:
         """Test all fields present."""
         pi = common_pb2.PackageInfo()
         pi.package_name = "pkg"
@@ -147,7 +147,7 @@ class PackageInfoToStringTest(cros_test_lib.TestCase):
 
         self.assertEqual("cat/pkg-2.0.0", cpv_str)
 
-    def testNoVersion(self):
+    def testNoVersion(self) -> None:
         """Test no version provided."""
         pi = common_pb2.PackageInfo()
         pi.package_name = "pkg"
@@ -157,7 +157,7 @@ class PackageInfoToStringTest(cros_test_lib.TestCase):
 
         self.assertEqual("cat/pkg", cpv_str)
 
-    def testPackageOnly(self):
+    def testPackageOnly(self) -> None:
         """Test no version provided."""
         pi = common_pb2.PackageInfo()
         pi.package_name = "pkg"
@@ -166,7 +166,7 @@ class PackageInfoToStringTest(cros_test_lib.TestCase):
 
         self.assertEqual("pkg", cpv_str)
 
-    def testNoPackageName(self):
+    def testNoPackageName(self) -> None:
         """Test no package name given."""
         pi = common_pb2.PackageInfo()
 
@@ -174,7 +174,7 @@ class PackageInfoToStringTest(cros_test_lib.TestCase):
             controller_util.PackageInfoToString(pi)
 
 
-def test_serialize_package_info():
+def test_serialize_package_info() -> None:
     pkg_info = package_info.parse("foo/bar-1.2.3-r4")
     pkg_info_msg = common_pb2.PackageInfo()
     controller_util.serialize_package_info(pkg_info, pkg_info_msg)
@@ -183,7 +183,7 @@ def test_serialize_package_info():
     assert pkg_info_msg.version == "1.2.3-r4"
 
 
-def test_deserialize_package_info():
+def test_deserialize_package_info() -> None:
     pkg_info_msg = common_pb2.PackageInfo()
     pkg_info_msg.category = "foo"
     pkg_info_msg.package_name = "bar"
@@ -192,7 +192,7 @@ def test_deserialize_package_info():
     assert pkg_info.cpvr == "foo/bar-1.2.3-r4"
 
 
-def test_retrieve_package_log_paths():
+def test_retrieve_package_log_paths() -> None:
     packages = [
         package_info.parse("foo/bar%d-1.0-r1" % num) for num in range(1, 4)
     ]
@@ -204,7 +204,7 @@ def test_retrieve_package_log_paths():
     assert len(output_proto.failed_package_data) == 3
 
 
-def test_package_index_info():
+def test_package_index_info() -> None:
     """Quick check converting to/from protobuf works."""
     sha = "SHA"
     number = 5
@@ -235,7 +235,7 @@ class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
 
     chroot = common_pb2.Chroot(path="/path/to/chroot", out_path="/path/to/out")
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
     @staticmethod
@@ -248,7 +248,7 @@ class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
         )
         return common_pb2.Path(path=path, location=location)
 
-    def test_relative_inside(self):
+    def test_relative_inside(self) -> None:
         """Verify that passing in a relative path inside the chroot fails"""
         pb2_path = self.create_pb2_path(path="usr/bin", inside=True)
         with self.assertRaises(ValueError):
@@ -256,7 +256,7 @@ class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
                 pb2_path, chroot=self.chroot
             )
 
-    def test_relative_outside(self):
+    def test_relative_outside(self) -> None:
         """Verify that passing in a relative path outside the chroot fails"""
         pb2_path = self.create_pb2_path(path="usr/bin", inside=False)
         with self.assertRaises(ValueError):
@@ -264,7 +264,7 @@ class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
                 pb2_path, chroot=self.chroot
             )
 
-    def test_inside_with_chroot(self):
+    def test_inside_with_chroot(self) -> None:
         """Verify that we can convert an inside path with a chroot."""
         pb2_path = self.create_pb2_path(path="/usr/bin", inside=True)
         pathlib_path = controller_util.pb2_path_to_pathlib_path(
@@ -272,7 +272,7 @@ class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
         )
         self.assertEqual(pathlib_path, Path("/path/to/chroot/usr/bin"))
 
-    def test_outside_with_chroot(self):
+    def test_outside_with_chroot(self) -> None:
         """Verify that we can convert an outside path with a chroot."""
         pb2_path = self.create_pb2_path(path="/usr/bin", inside=False)
         pathlib_path = controller_util.pb2_path_to_pathlib_path(
@@ -280,13 +280,13 @@ class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
         )
         self.assertEqual(pathlib_path, Path("/usr/bin"))
 
-    def test_inside_without_chroot(self):
+    def test_inside_without_chroot(self) -> None:
         """Verify that we cannot convert an inside path without a chroot."""
         pb2_path = self.create_pb2_path(path="/usr/bin", inside=True)
         with self.assertRaises(ValueError):
             controller_util.pb2_path_to_pathlib_path(pb2_path)
 
-    def test_outside_without_chroot(self):
+    def test_outside_without_chroot(self) -> None:
         """Verify that we can convert an outside path without a chroot."""
         pb2_path = self.create_pb2_path(path="/usr/bin", inside=False)
         pathlib_path = controller_util.pb2_path_to_pathlib_path(pb2_path)

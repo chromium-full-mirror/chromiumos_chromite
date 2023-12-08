@@ -78,7 +78,7 @@ def _call_entry(fw_loc, metric_proto, subcmd, *args, **kwargs):
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
 
-def _BuildAllTotFirmwareResponse(_input_proto, output_proto, _config):
+def _BuildAllTotFirmwareResponse(_input_proto, output_proto, _config) -> None:
     """Add a fw region metric to a successful response."""
 
     metric = output_proto.success.value.add()
@@ -103,7 +103,7 @@ def BuildAllTotFirmware(input_proto, output_proto, _config):
     )
 
 
-def _TestAllTotFirmwareResponse(_input_proto, output_proto, _config):
+def _TestAllTotFirmwareResponse(_input_proto, output_proto, _config) -> None:
     """Add a fw region metric to a successful response."""
 
     metric = output_proto.success.value.add()
@@ -123,7 +123,7 @@ def TestAllTotFirmware(input_proto, output_proto, _config):
     )
 
 
-def _BuildAllFirmwareResponse(_input_proto, output_proto, _config):
+def _BuildAllFirmwareResponse(_input_proto, output_proto, _config) -> None:
     """Add a fw region metric to a successful response."""
 
     metric = output_proto.metrics.value.add()
@@ -148,7 +148,7 @@ def BuildAllFirmware(input_proto, output_proto, _config):
     )
 
 
-def _TestAllFirmwareResponse(_input_proto, output_proto, _config):
+def _TestAllFirmwareResponse(_input_proto, output_proto, _config) -> None:
     """Add a fw region metric to a successful response."""
 
     metric = output_proto.success.value.add()
@@ -168,7 +168,9 @@ def TestAllFirmware(input_proto, output_proto, _config):
     )
 
 
-def _BundleFirmwareArtifactsResponse(_input_proto, output_proto, _config):
+def _BundleFirmwareArtifactsResponse(
+    _input_proto, output_proto, _config
+) -> None:
     """Add a fw region metric to a successful response."""
 
     metric = output_proto.success.value.add()

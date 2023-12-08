@@ -17,11 +17,11 @@ class CompileProtoTest(
 ):
     """CompileProto tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.request = api_pb2.CompileProtoRequest()
         self.response = api_pb2.CompileProtoResponse()
 
-    def testCompileProto(self):
+    def testCompileProto(self) -> None:
         """Quick CompileProto functional check."""
         self.rc.SetDefaultCmdResult(stdout=" M foo/bar.py")
         expected = [str(constants.CHROMITE_DIR / "foo" / "bar.py")]
@@ -35,7 +35,7 @@ class CompileProtoTest(
         self.assertTrue(all(f in returned for f in expected))
         self.assertTrue(all(f in expected for f in returned))
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify validate only calls do not execute logic."""
         api_controller.CompileProto(
             self.request, self.response, self.validate_only_config
@@ -43,7 +43,7 @@ class CompileProtoTest(
 
         self.assertFalse(self.rc.call_count)
 
-    def testMockSuccess(self):
+    def testMockSuccess(self) -> None:
         """Verify mock success calls do not execute logic."""
         api_controller.CompileProto(
             self.request, self.response, self.mock_call_config
@@ -55,11 +55,11 @@ class CompileProtoTest(
 class GetMethodsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """GetMethods tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.request = api_pb2.MethodGetRequest()
         self.response = api_pb2.MethodGetResponse()
 
-    def testGetMethods(self):
+    def testGetMethods(self) -> None:
         """Simple GetMethods check."""
         methods = ["foo", "bar"]
         self.PatchObject(router.Router, "ListMethods", return_value=methods)
@@ -70,7 +70,7 @@ class GetMethodsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             methods, [m.method for m in self.response.methods]
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check validate_only_config calls only validate."""
         patch = self.PatchObject(router.Router, "ListMethods")
 
@@ -84,7 +84,7 @@ class GetMethodsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class GetVersionTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """GetVersion tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(api_controller, "VERSION_MAJOR", new=1)
         self.PatchObject(api_controller, "VERSION_MINOR", new=2)
         self.PatchObject(api_controller, "VERSION_BUG", new=3)
@@ -92,7 +92,7 @@ class GetVersionTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.request = api_pb2.VersionGetRequest()
         self.response = api_pb2.VersionGetResponse()
 
-    def testGetVersion(self):
+    def testGetVersion(self) -> None:
         """Simple GetVersion check."""
         api_controller.GetVersion(self.request, self.response, self.api_config)
 
@@ -100,7 +100,7 @@ class GetVersionTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(self.response.version.minor, 2)
         self.assertEqual(self.response.version.bug, 3)
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check validate_only_config calls only validate."""
         api_controller.GetVersion(
             self.request, self.response, self.validate_only_config

@@ -11,7 +11,7 @@ from chromite.lib import cros_test_lib
 class ApiConfigTest(cros_test_lib.TestCase):
     """ApiConfig tests."""
 
-    def test_do_validation(self):
+    def test_do_validation(self) -> None:
         """Sanity check for the do validation property being True."""
         # Should validate by default, and when only doing validation.
         config = ApiConfig()
@@ -19,7 +19,7 @@ class ApiConfigTest(cros_test_lib.TestCase):
         config = ApiConfig(call_type=ApiConfig.CALL_TYPE_VALIDATE_ONLY)
         self.assertTrue(config.do_validation)
 
-    def test_no_do_validation(self):
+    def test_no_do_validation(self) -> None:
         """Sanity check for skipping validation for mock calls."""
         config = ApiConfig(call_type=ApiConfig.CALL_TYPE_MOCK_SUCCESS)
         self.assertFalse(config.do_validation)

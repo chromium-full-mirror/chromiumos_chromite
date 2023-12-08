@@ -37,7 +37,7 @@ _OVERLAY_TYPE_TO_NAME = {
 _DEFAULT_BINHOST_MAX_URIS = 1
 
 
-def _GetBinhostsResponse(_input_proto, output_proto, _config):
+def _GetBinhostsResponse(_input_proto, output_proto, _config) -> None:
     """Add fake binhosts to a successful response."""
     new_binhost = output_proto.binhosts.add()
     new_binhost.uri = (
@@ -51,7 +51,7 @@ def _GetBinhostsResponse(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("build_target.name")
 @validate.validation_complete
-def GetBinhosts(input_proto, output_proto, _config):
+def GetBinhosts(input_proto, output_proto, _config) -> None:
     """Get a list of binhosts."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
 
@@ -63,7 +63,9 @@ def GetBinhosts(input_proto, output_proto, _config):
         new_binhost.package_index = "Packages"
 
 
-def _GetPrivatePrebuiltAclArgsResponse(_input_proto, output_proto, _config):
+def _GetPrivatePrebuiltAclArgsResponse(
+    _input_proto, output_proto, _config
+) -> None:
     """Add fake acls to a successful response."""
     new_arg = output_proto.args.add()
     new_arg.arg = "-g"
@@ -74,7 +76,7 @@ def _GetPrivatePrebuiltAclArgsResponse(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("build_target.name")
 @validate.validation_complete
-def GetPrivatePrebuiltAclArgs(input_proto, output_proto, _config):
+def GetPrivatePrebuiltAclArgs(input_proto, output_proto, _config) -> None:
     """Get the ACL args from the files in the private overlays."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
 
@@ -89,7 +91,7 @@ def GetPrivatePrebuiltAclArgs(input_proto, output_proto, _config):
         new_arg.value = value
 
 
-def _PrepareBinhostUploadsResponse(_input_proto, output_proto, _config):
+def _PrepareBinhostUploadsResponse(_input_proto, output_proto, _config) -> None:
     """Add fake binhost upload targets to a successful response."""
     output_proto.uploads_dir = "/upload/directory"
     output_proto.upload_targets.add().path = "upload_target"
@@ -166,7 +168,7 @@ def PrepareBinhostUploads(
 
 def _PrepareDevInstallBinhostUploadsResponse(
     _input_proto, output_proto, _config
-):
+) -> None:
     """Add fake binhost files to a successful response."""
     output_proto.upload_targets.add().path = "app-arch/zip-3.0-r3.tbz2"
     output_proto.upload_targets.add().path = "virtual/python-enum34-1.tbz2"
@@ -237,7 +239,9 @@ def PrepareDevInstallBinhostUploads(
     output_proto.upload_targets.add().path = "Packages"
 
 
-def _PrepareChromeBinhostUploadsResponse(_input_proto, output_proto, _config):
+def _PrepareChromeBinhostUploadsResponse(
+    _input_proto, output_proto, _config
+) -> None:
     """Add fake binhost files to a successful response."""
     output_proto.upload_targets.add().path = (
         "chromeos-base/chromeos-chrome-100-r1.tbz2"
@@ -312,7 +316,7 @@ def PrepareChromeBinhostUploads(
     output_proto.upload_targets.add().path = "Packages"
 
 
-def _UpdatePackageIndexResponse(_input_proto, _output_proto, _config):
+def _UpdatePackageIndexResponse(_input_proto, _output_proto, _config) -> None:
     """Set up a fake successful response."""
 
 
@@ -325,7 +329,7 @@ def UpdatePackageIndex(
     input_proto: binhost_pb2.UpdatePackageIndexRequest,
     _output_proto: binhost_pb2.UpdatePackageIndexResponse,
     _config: "api_config.ApiConfig",
-):
+) -> None:
     """Implementation for the BinhostService/UpdatePackageIndex endpoint."""
     # Load the index file.
     index_path = controller_util.pb2_path_to_pathlib_path(
@@ -351,7 +355,7 @@ def UpdatePackageIndex(
     pkgindex.WriteFile(index_path)
 
 
-def _SetBinhostResponse(_input_proto, output_proto, _config):
+def _SetBinhostResponse(_input_proto, output_proto, _config) -> None:
     """Add fake binhost file to a successful response."""
     output_proto.output_file = "/path/to/BINHOST.conf"
 
@@ -364,7 +368,7 @@ def SetBinhost(
     input_proto: binhost_pb2.SetBinhostRequest,
     output_proto: binhost_pb2.SetBinhostResponse,
     _config: "api_config.ApiConfig",
-):
+) -> None:
     """Set the URI for a given binhost key and build target.
 
     See BinhostService documentation in api/proto/binhost.proto.
@@ -385,7 +389,7 @@ def SetBinhost(
     )
 
 
-def _GetBinhostConfPathResponse(_input_proto, output_proto, _config):
+def _GetBinhostConfPathResponse(_input_proto, output_proto, _config) -> None:
     """Add fake binhost file to a successful response."""
     output_proto.conf_path = "/path/to/BINHOST.conf"
 
@@ -398,7 +402,7 @@ def GetBinhostConfPath(
     input_proto: binhost_pb2.GetBinhostConfPathRequest,
     output_proto: binhost_pb2.GetBinhostConfPathResponse,
     _config: "api_config.ApiConfig",
-):
+) -> None:
     target = input_proto.build_target.name
     key = binhost_pb2.BinhostKey.Name(input_proto.key)
     private = input_proto.private
@@ -407,7 +411,7 @@ def GetBinhostConfPath(
     )
 
 
-def _RegenBuildCacheResponse(_input_proto, output_proto, _config):
+def _RegenBuildCacheResponse(_input_proto, output_proto, _config) -> None:
     """Add fake binhosts cache path to a successful response."""
     output_proto.modified_overlays.add().path = "/path/to/BuildCache"
 
@@ -421,7 +425,7 @@ def RegenBuildCache(
     input_proto: binhost_pb2.RegenBuildCacheRequest,
     output_proto: binhost_pb2.RegenBuildCacheResponse,
     _config: "api_config.ApiConfig",
-):
+) -> None:
     """Regenerate the Build Cache for a build target.
 
     See BinhostService documentation in api/proto/binhost.proto.

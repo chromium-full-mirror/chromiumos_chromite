@@ -241,7 +241,7 @@ def Create(input_proto, output_proto, _config):
 @validate.require("build_target.name", "packages")
 @validate.require_each("packages", ["category", "package_name"])
 @validate.validation_complete
-def GenerateArchive(input_proto, output_proto, _config):
+def GenerateArchive(input_proto, output_proto, _config) -> None:
     """Generate a sysroot. Typically used by informational builders."""
     build_target_name = input_proto.build_target.name
     pkg_list = []
@@ -263,7 +263,7 @@ def GenerateArchive(input_proto, output_proto, _config):
 @validate.exists("sysroot_archive.path")
 @validate.require("build_target.name")
 @validate.validation_complete
-def ExtractArchive(input_proto, output_proto, _config):
+def ExtractArchive(input_proto, output_proto, _config) -> None:
     """Extract archive to sysroot."""
     chroot = controller_util.ParseChroot(input_proto.chroot)
     board = input_proto.build_target.name
@@ -277,7 +277,7 @@ def ExtractArchive(input_proto, output_proto, _config):
     output_proto.sysroot_archive.location = common_pb2.Path.INSIDE
 
 
-def _MockFailedPackagesResponse(_input_proto, output_proto, _config):
+def _MockFailedPackagesResponse(_input_proto, output_proto, _config) -> None:
     """Mock error response that populates failed packages."""
     fail = output_proto.failed_package_data.add()
     fail.name.package_name = "package"
@@ -462,7 +462,7 @@ def InstallPackages(
     )
 
 
-def _LogBinhost(board):
+def _LogBinhost(board) -> None:
     """Log the portage binhost for the given board."""
     binhost = portage_util.PortageqEnvvar(
         "PORTAGE_BINHOST", board=board, allow_undefined=True

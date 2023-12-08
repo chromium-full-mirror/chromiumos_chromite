@@ -37,7 +37,7 @@ def GetImageSizeData(
     input_proto: "observability_pb2.GetImageSizeDataRequest",
     output_proto: "observability_pb2.GetImageSizeDataResponse",
     _config: "api_config.ApiConfig",
-):
+) -> None:
     """Kick off data reshaping and retrieval for ImageSize dataset.
 
     Args:
@@ -65,7 +65,7 @@ def _build_package_size_output(
         str, Dict[observability_service.PackageIdentifier, Tuple[int, int]]
     ],
     output_proto: "observability_pb2.GetImageSizeDataResponse",
-):
+) -> None:
     """Convert package size data to equivalent proto format.
 
     Args:
@@ -100,7 +100,7 @@ def _build_package_size_output(
 def _get_package_identifier_proto(
     python_copy: observability_service.PackageIdentifier,
     proto_copy: "sizes_pb2.PackageIdentifier",
-):
+) -> None:
     """Convert PackageIdentifier named tuple to PackageIdentifier protobuf.
 
     Args:

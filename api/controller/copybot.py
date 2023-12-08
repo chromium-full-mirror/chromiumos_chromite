@@ -20,7 +20,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 
 
-def _MockSuccess(_input_proto, _output_proto, _config_proto):
+def _MockSuccess(_input_proto, _output_proto, _config_proto) -> None:
     """Mock success output for the RunCopybot endpoint."""
 
     # Successful response is the default protobuf, so no need to fill it out.

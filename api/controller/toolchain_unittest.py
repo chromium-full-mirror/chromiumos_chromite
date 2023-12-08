@@ -33,10 +33,10 @@ class UpdateEbuildWithAFDOArtifactsTest(
     """Unittests for UpdateEbuildWithAFDOArtifacts."""
 
     @staticmethod
-    def mock_die(message, *args):
+    def mock_die(message, *args) -> None:
         raise cros_build_lib.DieSystemExit(message % args)
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.board = "board"
         self.response = toolchain_pb2.VerifyAFDOArtifactsResponse()
         self.invalid_artifact_type = toolchain_pb2.BENCHMARK_AFDO
@@ -54,7 +54,7 @@ class PrepareForBuildTest(
 ):
     """Unittests for PrepareForBuild."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = toolchain_pb2.PrepareForToolchainBuildResponse()
         self.prep = self.PatchObject(
             toolchain_util,
@@ -94,7 +94,7 @@ class PrepareForBuildTest(
             additional_args=additional_args,
         )
 
-    def testRaisesForUnknown(self):
+    def testRaisesForUnknown(self) -> None:
         request = self._GetRequest([BuilderConfig.Artifacts.IMAGE_ARCHIVES])
         self.assertRaises(
             KeyError,
@@ -104,7 +104,7 @@ class PrepareForBuildTest(
             self.api_config,
         )
 
-    def testAcceptsNone(self):
+    def testAcceptsNone(self) -> None:
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
                 BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
@@ -117,7 +117,7 @@ class PrepareForBuildTest(
             "UnverifiedChromeBenchmarkAfdoFile", None, "", "", {}, {}
         )
 
-    def testHandlesUnknownInputArtifacts(self):
+    def testHandlesUnknownInputArtifacts(self) -> None:
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
                 BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
@@ -136,7 +136,7 @@ class PrepareForBuildTest(
             "UnverifiedChromeBenchmarkAfdoFile", None, "", "", {}, {}
         )
 
-    def testPassesProfileInfo(self):
+    def testPassesProfileInfo(self) -> None:
         # pylint: disable=line-too-long
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
@@ -179,7 +179,7 @@ class PrepareForBuildTest(
             },
         )
 
-    def testPassesProfileInfoAfdoRelease(self):
+    def testPassesProfileInfoAfdoRelease(self) -> None:
         # pylint: disable=line-too-long
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
@@ -226,7 +226,7 @@ class PrepareForBuildTest(
             },
         )
 
-    def testHandlesDuplicateInputArtifacts(self):
+    def testHandlesDuplicateInputArtifacts(self) -> None:
         # pylint: disable=line-too-long
         request = toolchain_pb2.PrepareForToolchainBuildRequest(
             artifact_types=[
@@ -268,7 +268,7 @@ class BundleToolchainTest(
 ):
     """Unittests for BundleToolchain."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = toolchain_pb2.BundleToolchainResponse()
         self.prep = self.PatchObject(
             toolchain_util,
@@ -307,14 +307,14 @@ class BundleToolchainTest(
             artifact_types=artifact_types,
         )
 
-    def testRaisesForUnknown(self):
+    def testRaisesForUnknown(self) -> None:
         request = self._GetRequest([BuilderConfig.Artifacts.IMAGE_ARCHIVES])
         self.assertEqual(
             controller.RETURN_CODE_UNRECOVERABLE,
             toolchain.BundleArtifacts(request, self.response, self.api_config),
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Sanity check that a validate only call does not execute any logic."""
         request = self._GetRequest(
             [BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE]
@@ -324,7 +324,7 @@ class BundleToolchainTest(
         )
         self.bundle.assert_not_called()
 
-    def testSetsArtifactsInfo(self):
+    def testSetsArtifactsInfo(self) -> None:
         artifact_type = (
             BuilderConfig.Artifacts.UNVERIFIED_CHROME_BENCHMARK_AFDO_FILE
         )
@@ -348,7 +348,7 @@ class GetUpdatedFilesTest(
 ):
     """Unittests for GetUpdatedFiles."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = toolchain_pb2.GetUpdatedFilesResponse()
         self.artifact_path = "/any/path/to/metadata"
         self.profile_info = common_pb2.ArtifactProfileInfo(
@@ -372,7 +372,7 @@ class GetUpdatedFilesTest(
             )
         return toolchain_pb2.GetUpdatedFilesRequest(uploaded_artifacts=uploaded)
 
-    def testRaisesForUnknown(self):
+    def testRaisesForUnknown(self) -> None:
         request = self._GetRequest(
             [
                 (
@@ -387,7 +387,7 @@ class GetUpdatedFilesTest(
             toolchain.GetUpdatedFiles(request, self.response, self.api_config),
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Sanity check that a validate only call does not execute any logic."""
         request = self._GetRequest(
             [
@@ -402,7 +402,7 @@ class GetUpdatedFilesTest(
             request, self.response, self.validate_only_config
         )
 
-    def testUpdateSuccess(self):
+    def testUpdateSuccess(self) -> None:
         updated_file = "/path/to/updated_file"
         self.update.return_value = ([updated_file], "Commit Message")
         request = self._GetRequest(
@@ -432,20 +432,20 @@ class GetToolchainsForBoardTest(
 ):
     """Unittests for GetToolchainsForBoard."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = toolchain_pb2.ToolchainsResponse()
 
     def _GetRequest(self, board="betty-pi-arc"):
         return toolchain_pb2.ToolchainsRequest(board=board)
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         request = self._GetRequest()
         toolchain.GetToolchainsForBoard(
             request, self.response, self.validate_only_config
         )
 
-    def testUpdateSuccess(self):
+    def testUpdateSuccess(self) -> None:
         toolchain_info = {
             "default-a": {"default": True},
             "default-b": {"default": True},

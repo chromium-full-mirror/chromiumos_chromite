@@ -25,33 +25,33 @@ from chromite.lib import osutils
 class ExistsTest(cros_test_lib.TempDirTestCase, api_config.ApiConfigMixin):
     """Tests for the exists validator."""
 
-    def test_not_exists(self):
+    def test_not_exists(self) -> None:
         """Test the validator fails when given a path that doesn't exist."""
         path = os.path.join(self.tempdir, "DOES_NOT_EXIST")
 
         @validate.exists("path")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(common_pb2.Chroot(path=path), None, self.api_config)
 
-    def test_exists(self):
+    def test_exists(self) -> None:
         """Test the validator fails when given a path that doesn't exist."""
         path = os.path.join(self.tempdir, "chroot")
         osutils.SafeMakedirs(path)
 
         @validate.exists("path")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(common_pb2.Chroot(path=path), None, self.api_config)
 
-    def test_skip_validation(self):
+    def test_skip_validation(self) -> None:
         """Test skipping validation case."""
 
         @validate.exists("path")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # This would otherwise raise an error for an invalid path.
@@ -61,11 +61,11 @@ class ExistsTest(cros_test_lib.TempDirTestCase, api_config.ApiConfigMixin):
 class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     """Tests for the eq validator."""
 
-    def test_eq(self):
+    def test_eq(self) -> None:
         """Test a valid value."""
 
         @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(
@@ -76,11 +76,11 @@ class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
             self.api_config,
         )
 
-    def test_not_eq(self):
+    def test_not_eq(self) -> None:
         """Test an invalid value."""
 
         @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Should be failing on the invalid value.
@@ -93,22 +93,22 @@ class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
                 self.api_config,
             )
 
-    def test_not_set(self):
+    def test_not_set(self) -> None:
         """Test an unset value."""
 
         @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Should be failing without a value set.
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(common_pb2.Path(path="/"), None, self.api_config)
 
-    def test_skip_validation(self):
+    def test_skip_validation(self) -> None:
         """Test skipping validation case."""
 
         @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # This would otherwise raise an error for an invalid path.
@@ -118,11 +118,11 @@ class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
 class IsInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     """Tests for the is_in validator."""
 
-    def test_in(self):
+    def test_in(self) -> None:
         """Test a valid value."""
 
         @validate.is_in("path", ["/chroot/path", "/other/chroot/path"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Make sure all of the values work.
@@ -131,33 +131,33 @@ class IsInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
             common_pb2.Chroot(path="/other/chroot/path"), None, self.api_config
         )
 
-    def test_not_in(self):
+    def test_not_in(self) -> None:
         """Test an invalid value."""
 
         @validate.is_in("path", ["/chroot/path", "/other/chroot/path"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Should be failing on the invalid value.
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(common_pb2.Chroot(path="/bad/value"), None, self.api_config)
 
-    def test_not_set(self):
+    def test_not_set(self) -> None:
         """Test an unset value."""
 
         @validate.is_in("path", ["/chroot/path", "/other/chroot/path"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Should be failing without a value set.
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(common_pb2.Chroot(), None, self.api_config)
 
-    def test_skip_validation(self):
+    def test_skip_validation(self) -> None:
         """Test skipping validation case."""
 
         @validate.is_in("path", ["/chroot/path", "/other/chroot/path"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # This would otherwise raise an error for an invalid path.
@@ -209,11 +209,11 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
 
         return request
 
-    def test_message_in(self):
+    def test_message_in(self) -> None:
         """Test valid values."""
 
         @validate.each_in("messages", "name", ["foo", "bar"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(self._message_request([1, "foo"]), None, self.api_config)
@@ -221,11 +221,11 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
             self._message_request([1, "foo"], [2, "bar"]), None, self.api_config
         )
 
-    def test_enum_in(self):
+    def test_enum_in(self) -> None:
         """Test valid enum values."""
 
         @validate.each_in("test_enums", None, [self.ENUM_FOO, self.ENUM_BAR])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(self._enums_request(self.ENUM_FOO), None, self.api_config)
@@ -235,21 +235,21 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
             self.api_config,
         )
 
-    def test_scalar_in(self):
+    def test_scalar_in(self) -> None:
         """Test valid scalar values."""
 
         @validate.each_in("numbers", None, [1, 2])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(self._numbers_request(1), None, self.api_config)
         impl(self._numbers_request(1, 2), None, self.api_config)
 
-    def test_message_not_in(self):
+    def test_message_not_in(self) -> None:
         """Test an invalid value."""
 
         @validate.each_in("messages", "name", ["foo", "bar"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Should be failing on the invalid value.
@@ -268,11 +268,11 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
                 self.api_config,
             )
 
-    def test_enum_not_in(self):
+    def test_enum_not_in(self) -> None:
         """Test an invalid enum value."""
 
         @validate.each_in("test_enums", None, [self.ENUM_FOO, self.ENUM_BAR])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Only invalid values.
@@ -286,11 +286,11 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
                 self.api_config,
             )
 
-    def test_scalar_not_in(self):
+    def test_scalar_not_in(self) -> None:
         """Test invalid scalar value."""
 
         @validate.each_in("numbers", None, [1, 2])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Only invalid values.
@@ -300,11 +300,11 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._numbers_request(1, 2, 3), None, self.api_config)
 
-    def test_not_set(self):
+    def test_not_set(self) -> None:
         """Test an unset value."""
 
         @validate.each_in("messages", "name", ["foo", "bar"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # Should be failing without a value set.
@@ -321,7 +321,7 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._message_request([1, "foo"], [2]), None, self.api_config)
 
-    def test_optional(self):
+    def test_optional(self) -> None:
         """Test optional argument."""
 
         @validate.each_in("messages", "name", ["foo", "bar"], optional=True)
@@ -329,7 +329,7 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
             "test_enums", None, [self.ENUM_FOO, self.ENUM_BAR], optional=True
         )
         @validate.each_in("numbers", None, [1, 2], optional=True)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # No entries in the field succeeds.
@@ -346,13 +346,13 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._message_request([1, "foo"], [2]), None, self.api_config)
 
-    def test_skip_validation(self):
+    def test_skip_validation(self) -> None:
         """Test skipping validation case."""
 
         @validate.each_in("messages", "name", ["foo", "bar"])
         @validate.each_in("test_enums", None, [self.ENUM_FOO, self.ENUM_BAR])
         @validate.each_in("numbers", None, [1, 2])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # This would otherwise raise an error for multiple invalid fields.
@@ -364,31 +364,31 @@ class EachInTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
 class RequireTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     """Tests for the require validator."""
 
-    def test_invalid_field(self):
+    def test_invalid_field(self) -> None:
         """Test validator fails when given an unset value."""
 
         @validate.require("does.not.exist")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(common_pb2.Chroot(), None, self.api_config)
 
-    def test_not_set(self):
+    def test_not_set(self) -> None:
         """Test validator fails when given an unset value."""
 
         @validate.require("env.use_flags")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(common_pb2.Chroot(), None, self.api_config)
 
-    def test_set(self):
+    def test_set(self) -> None:
         """Test validator passes when given set values."""
 
         @validate.require("path", "env.use_flags")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         in_proto = common_pb2.Chroot(
@@ -396,21 +396,21 @@ class RequireTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
         )
         impl(in_proto, None, self.api_config)
 
-    def test_mixed(self):
+    def test_mixed(self) -> None:
         """Test validator fails when given a set value and an unset value."""
 
         @validate.require("path", "env.use_flags")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(common_pb2.Chroot(path="/chroot/path"), None, self.api_config)
 
-    def test_skip_validation(self):
+    def test_skip_validation(self) -> None:
         """Test skipping validation case."""
 
         @validate.require("path", "env.use_flags")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         # This would otherwise raise an error for an invalid path.
@@ -435,31 +435,31 @@ class RequireAnyTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
 
         return request
 
-    def test_invalid_field(self):
+    def test_invalid_field(self) -> None:
         """Test validator fails when given an invalid field."""
 
         @validate.require_any("does.not.exist", "also.invalid")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._get_request(), None, self.api_config)
 
-    def test_not_set(self):
+    def test_not_set(self) -> None:
         """Test validator fails when given unset values."""
 
         @validate.require_any("id", "name")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._get_request(flag=True), None, self.api_config)
 
-    def test_set(self):
+    def test_set(self) -> None:
         """Test validator passes when given set values."""
 
         @validate.require_any("id", "name")
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(self._get_request(1), None, self.api_config)
@@ -492,89 +492,89 @@ class RequireEachTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
 
         return request
 
-    def test_invalid_field(self):
+    def test_invalid_field(self) -> None:
         """Test validator fails when given an invalid field."""
 
         @validate.require_each("does.not", ["exist"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._request(), None, self.api_config)
 
-    def test_invalid_call_no_subfields(self):
+    def test_invalid_call_no_subfields(self) -> None:
         """Test validator fails when given no subfields."""
 
         with self.assertRaises(AssertionError):
 
             @validate.require_each("does.not", [])
-            def _(_input_proto, _output_proto, _config):
+            def _(_input_proto, _output_proto, _config) -> None:
                 pass
 
-    def test_invalid_call_invalid_subfields(self):
+    def test_invalid_call_invalid_subfields(self) -> None:
         """Test validator fails when given subfields incorrectly."""
 
         with self.assertRaises(AssertionError):
 
             @validate.require_each("does.not", "exist")
-            def _(_input_proto, _output_proto, _config):
+            def _(_input_proto, _output_proto, _config) -> None:
                 pass
 
-    def test_not_set(self):
+    def test_not_set(self) -> None:
         """Test validator fails when given an unset value."""
 
         @validate.require_each("messages", ["id"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._request(count=2), None, self.api_config)
 
-    def test_no_elements_success(self):
+    def test_no_elements_success(self) -> None:
         """Test validator fails when given no messages in the repeated field."""
 
         @validate.require_each("messages", ["id"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(self._request(), None, self.api_config)
 
-    def test_no_elements_failure(self):
+    def test_no_elements_failure(self) -> None:
         """Test validator fails when given no messages in the repeated field."""
 
         @validate.require_each("messages", ["id"], allow_empty=False)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._request(), None, self.api_config)
 
-    def test_set(self):
+    def test_set(self) -> None:
         """Test validator passes when given set values."""
 
         @validate.require_each("messages", ["id"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         messages = [self._multi_field_message(msg_id=i) for i in range(1, 5)]
         impl(self._request(messages=messages), None, self.api_config)
 
-    def test_one_set_fails(self):
+    def test_one_set_fails(self) -> None:
         """Test validator passes when given set values."""
 
         @validate.require_each("messages", ["id", "name"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         messages = [self._multi_field_message(msg_id=i) for i in range(1, 5)]
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(self._request(messages=messages), None, self.api_config)
 
-    def test_multi_set(self):
+    def test_multi_set(self) -> None:
         """Test validator passes when all values set."""
 
         @validate.require_each("messages", ["id", "name"])
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         messages = [
@@ -582,11 +582,11 @@ class RequireEachTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
         ]
         impl(self._request(messages=messages), None, self.api_config)
 
-    def test_skip_validation(self):
+    def test_skip_validation(self) -> None:
         """Test skipping validation case."""
 
         @validate.require_each("messages", ["id"], allow_empty=False)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             pass
 
         impl(self._request(), None, self.no_validate_config)
@@ -595,7 +595,7 @@ class RequireEachTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
 class ValidateOnlyTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     """validate_only decorator tests."""
 
-    def test_validate_only(self):
+    def test_validate_only(self) -> None:
         """Test validate only."""
 
         @validate.require("path")
@@ -614,11 +614,11 @@ class ValidateOnlyTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
 
         self.assertEqual(0, rc)
 
-    def test_no_validate_only(self):
+    def test_no_validate_only(self) -> None:
         """Test no use of validate only."""
 
         @validate.validation_complete
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Incorrectly allowed method to execute.")
 
         # We will get an assertion error unless validate_only prevents the

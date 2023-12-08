@@ -60,7 +60,7 @@ def GenerateDlcArtifactsList(
 def _parse_dlc_artifacts_to_response(
     output: "dlc_pb2.GenerateDlcArtifactsListResponse",
     dlc_artifacts: List[image.DlcArtifactsMetadata],
-):
+) -> None:
     """Parse the DLC artifacts into the output proto.
 
     Args:

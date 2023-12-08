@@ -55,7 +55,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         """Helper to build output proto instance."""
         return sysroot_pb2.SysrootCreateResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "Create")
 
@@ -74,7 +74,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Verify a mock call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "Create")
         request = self._InputProto()
@@ -85,7 +85,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Verify a mock error does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "Create")
         request = self._InputProto()
@@ -98,7 +98,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_UNRECOVERABLE, rc)
 
-    def testArgumentValidation(self):
+    def testArgumentValidation(self) -> None:
         """Test the input argument validation."""
         # Error when no name provided.
         in_proto = self._InputProto()
@@ -114,7 +114,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         sysroot_controller.Create(in_proto, out_proto, self.api_config)
         patch.assert_called_once()
 
-    def testArgumentHandling(self):
+    def testArgumentHandling(self) -> None:
         """Test the arguments get processed and passed correctly."""
         sysroot_path = "/sysroot/path"
 
@@ -217,7 +217,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
     # pylint: enable=line-too-long
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._mocks = {}
         for artifact, func in self._artifact_funcs.items():
             self._mocks[artifact] = self.PatchObject(
@@ -237,7 +237,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             ]
         )
 
-    def testNoArtifacts(self):
+    def testNoArtifacts(self) -> None:
         """Test GetArtifacts with no artifact types."""
         in_proto = self._InputProto(artifact_types=[])
         sysroot_controller.GetArtifacts(
@@ -247,7 +247,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         for _, patch in self._mocks.items():
             patch.assert_not_called()
 
-    def testArtifactsSuccess(self):
+    def testArtifactsSuccess(self) -> None:
         """Test GetArtifacts with all artifact types."""
         sysroot_controller.GetArtifacts(
             self._InputProto(), None, None, "build_target", ""
@@ -256,7 +256,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         for _, patch in self._mocks.items():
             patch.assert_called_once()
 
-    def testArtifactsException(self):
+    def testArtifactsException(self) -> None:
         """Test with all artifact types when one type throws an exception."""
 
         self._mocks[
@@ -282,7 +282,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
                 self.assertEqual(data["failure_reason"], "foo bar")
         self.assertTrue(found_artifact)
 
-    def testArtifactsBreakpadDebugSymbols(self):
+    def testArtifactsBreakpadDebugSymbols(self) -> None:
         """Tests the extra parameters to BundleBreakpadSymbols"""
         proto = common_pb2.ArtifactsByService.Sysroot(
             output_artifacts=[
@@ -318,7 +318,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             ["LIBC", "CRASH_REPORTER"],
         )
 
-    def testArtifactsExpectedFileNames(self):
+    def testArtifactsExpectedFileNames(self) -> None:
         """Verify all BreakpadSymbolGenerationExpectedFile have valid names.
 
         _BundleBreakpadSymbols inside GetArtifacts assumes that all values of
@@ -338,7 +338,7 @@ class GenerateArchiveTest(
 ):
     """GenerateArchive function tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chroot_path = "/path/to/chroot"
         self.board = "board"
 
@@ -368,7 +368,7 @@ class GenerateArchiveTest(
         """Helper to build output proto instance."""
         return sysroot_pb2.SysrootGenerateArchiveResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "GenerateArchive")
 
@@ -382,7 +382,7 @@ class GenerateArchiveTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "GenerateArchive")
 
@@ -396,7 +396,7 @@ class GenerateArchiveTest(
         )
         patch.assert_not_called()
 
-    def testArgumentValidation(self):
+    def testArgumentValidation(self) -> None:
         """Test the input argument validation."""
         # Error when no build target provided.
         in_proto = self._InputProto()
@@ -436,7 +436,7 @@ class ExtractArchiveTest(
 ):
     """ExtractArchive function tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chroot_path = "/path/to/chroot"
         self.board = "board"
         self.sysroot_archive = "/path/to/archive"
@@ -459,7 +459,7 @@ class ExtractArchiveTest(
         """Helper to build output proto instance."""
         return sysroot_pb2.SysrootExtractArchiveResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "ExtractSysroot")
 
@@ -474,7 +474,7 @@ class ExtractArchiveTest(
             )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "ExtractSysroot")
 
@@ -488,7 +488,7 @@ class ExtractArchiveTest(
         )
         patch.assert_not_called()
 
-    def testArgumentValidation(self):
+    def testArgumentValidation(self) -> None:
         """Test the input argument validation."""
         # Error when no build target provided.
         in_proto = self._InputProto()
@@ -532,7 +532,7 @@ class InstallToolchainTest(
 ):
     """Install toolchain function tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         # Avoid running the portageq command.
         self.PatchObject(sysroot_controller, "_LogBinhost")
@@ -591,7 +591,7 @@ class InstallToolchainTest(
         )
         return path
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "InstallToolchain")
 
@@ -603,7 +603,7 @@ class InstallToolchainTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "InstallToolchain")
         request = self._InputProto()
@@ -616,7 +616,7 @@ class InstallToolchainTest(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Sanity check that a mock error does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "InstallToolchain")
         request = self._InputProto()
@@ -632,7 +632,7 @@ class InstallToolchainTest(
         )
         self.assertTrue(response.failed_package_data)
 
-    def testArgumentValidation(self):
+    def testArgumentValidation(self) -> None:
         """Test the argument validation."""
         # Test errors on missing inputs.
         out_proto = self._OutputProto()
@@ -666,7 +666,7 @@ class InstallToolchainTest(
                 in_proto, out_proto, self.api_config
             )
 
-    def testSuccessOutputHandling(self):
+    def testSuccessOutputHandling(self) -> None:
         """Test the output is processed and recorded correctly."""
         self.PatchObject(sysroot_service, "InstallToolchain")
         out_proto = self._OutputProto()
@@ -680,7 +680,7 @@ class InstallToolchainTest(
         self.assertFalse(rc)
         self.assertFalse(out_proto.failed_package_data)
 
-    def testErrorOutputHandling(self):
+    def testErrorOutputHandling(self) -> None:
         """Test the error output is processed and recorded correctly."""
         out_proto = self._OutputProto()
         in_proto = self._InputProto(
@@ -732,7 +732,7 @@ class InstallPackagesTest(
 ):
     """InstallPackages tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         # Avoid running the portageq command.
         self.PatchObject(sysroot_controller, "_LogBinhost")
@@ -806,7 +806,7 @@ class InstallPackagesTest(
         goma_log_dir: Union[str, os.PathLike],
         name: str,
         timestamp: datetime.datetime,
-    ):
+    ) -> None:
         """Creates a log file for testing.
 
         Args:
@@ -849,7 +849,7 @@ class InstallPackagesTest(
         )
         return path
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "BuildPackages")
 
@@ -861,7 +861,7 @@ class InstallPackagesTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "BuildPackages")
         request = self._InputProto()
@@ -874,7 +874,7 @@ class InstallPackagesTest(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Sanity check that a mock error does not execute any logic."""
         patch = self.PatchObject(sysroot_service, "BuildPackages")
         request = self._InputProto()
@@ -890,7 +890,7 @@ class InstallPackagesTest(
         )
         self.assertTrue(response.failed_package_data)
 
-    def testArgumentValidationAllMissing(self):
+    def testArgumentValidationAllMissing(self) -> None:
         """Test missing all arguments."""
         out_proto = self._OutputProto()
         in_proto = self._InputProto()
@@ -899,7 +899,7 @@ class InstallPackagesTest(
                 in_proto, out_proto, self.api_config
             )
 
-    def testArgumentValidationNoSysroot(self):
+    def testArgumentValidationNoSysroot(self) -> None:
         """Test missing sysroot path."""
         out_proto = self._OutputProto()
         in_proto = self._InputProto(build_target=self.build_target)
@@ -908,7 +908,7 @@ class InstallPackagesTest(
                 in_proto, out_proto, self.api_config
             )
 
-    def testArgumentValidationNoBuildTarget(self):
+    def testArgumentValidationNoBuildTarget(self) -> None:
         """Test missing build target name."""
         out_proto = self._OutputProto()
         in_proto = self._InputProto(sysroot_path=self.sysroot)
@@ -917,7 +917,7 @@ class InstallPackagesTest(
                 in_proto, out_proto, self.api_config
             )
 
-    def testArgumentValidationInvalidSysroot(self):
+    def testArgumentValidationInvalidSysroot(self) -> None:
         """Test sysroot that hasn't had the toolchain installed."""
         out_proto = self._OutputProto()
         in_proto = self._InputProto(
@@ -931,7 +931,7 @@ class InstallPackagesTest(
                 in_proto, out_proto, self.api_config
             )
 
-    def testArgumentValidationInvalidPackage(self):
+    def testArgumentValidationInvalidPackage(self) -> None:
         out_proto = self._OutputProto()
         in_proto = self._InputProto(
             build_target=self.build_target,
@@ -943,7 +943,7 @@ class InstallPackagesTest(
                 in_proto, out_proto, self.api_config
             )
 
-    def testSuccessOutputHandling(self):
+    def testSuccessOutputHandling(self) -> None:
         """Test successful call output handling."""
         # Prevent argument validation error.
         self.PatchObject(
@@ -962,7 +962,7 @@ class InstallPackagesTest(
         self.assertFalse(rc)
         self.assertFalse(out_proto.failed_package_data)
 
-    def testSuccessPackageIndexes(self):
+    def testSuccessPackageIndexes(self) -> None:
         """Test successful call with package_indexes."""
         # Prevent argument validation error.
         self.PatchObject(
@@ -1019,7 +1019,7 @@ class InstallPackagesTest(
             bazel_lite=False,
         )
 
-    def testSuccessWithGomaLogs(self):
+    def testSuccessWithGomaLogs(self) -> None:
         """Test successful call with goma."""
         self._CreateGomaLogFile(
             self.goma_dir,
@@ -1063,7 +1063,7 @@ class InstallPackagesTest(
         ]
         self.assertCountEqual(out_proto.goma_artifacts.log_files, expected)
 
-    def testSuccessWithGomaLogsAndStatsCounterzFiles(self):
+    def testSuccessWithGomaLogsAndStatsCounterzFiles(self) -> None:
         """Test successful call with goma including stats and counterz files."""
         self._CreateGomaLogFile(
             self.goma_dir,
@@ -1135,7 +1135,7 @@ class InstallPackagesTest(
             out_proto.goma_artifacts.stats_file, "stats.binaryproto"
         )
 
-    def testFailureMissingGomaStatsCounterzFiles(self):
+    def testFailureMissingGomaStatsCounterzFiles(self) -> None:
         """Test successful call with goma including stats and counterz files."""
         self._CreateGomaLogFile(
             self.goma_dir,
@@ -1184,7 +1184,7 @@ class InstallPackagesTest(
         self.assertFalse(out_proto.goma_artifacts.counterz_file)
         self.assertFalse(out_proto.goma_artifacts.stats_file)
 
-    def testFailureOutputHandling(self):
+    def testFailureOutputHandling(self) -> None:
         """Test failed package handling."""
         # Prevent argument validation error.
         self.PatchObject(
@@ -1232,7 +1232,7 @@ class InstallPackagesTest(
             self.assertIn(cat_pkg, expected)
             self.assertEqual(data.log_path.path, new_logs[package.cpvr])
 
-    def testNoPackageFailureOutputHandling(self):
+    def testNoPackageFailureOutputHandling(self) -> None:
         """Test failure handling without packages to report."""
         # Prevent argument validation error.
         self.PatchObject(

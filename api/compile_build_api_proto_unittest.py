@@ -11,7 +11,7 @@ from chromite.third_party.google import protobuf
 from chromite.api import compile_build_api_proto
 
 
-def test_versions_match():
+def test_versions_match() -> None:
     """Verify the versions match.
 
     The protoc version in the compile script needs to be compatible with the
@@ -32,7 +32,7 @@ def test_versions_match():
     )
 
 
-def test_compiles(tmpdir):
+def test_compiles(tmpdir) -> None:
     """Test the script successfully compiles something."""
     assert not os.listdir(tmpdir)
     compile_build_api_proto.main(["--destination", str(tmpdir)])

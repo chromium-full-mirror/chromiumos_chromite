@@ -13,7 +13,9 @@ from typing import Iterable, Optional
 from chromite.lib import metrics_lib
 
 
-def deserialize_metrics_log(output_events, prefix: Optional[str] = None):
+def deserialize_metrics_log(
+    output_events, prefix: Optional[str] = None
+) -> None:
     """Read the current metrics events, adding to output_events.
 
     This layer facilitates converting between the internal
@@ -27,7 +29,9 @@ def deserialize_metrics_log(output_events, prefix: Optional[str] = None):
     populate_metrics(output_events, metrics_lib.deserialize_metrics_log(prefix))
 
 
-def populate_metrics(output_events, metrics: Iterable[metrics_lib.METRIC_TYPE]):
+def populate_metrics(
+    output_events, metrics: Iterable[metrics_lib.METRIC_TYPE]
+) -> None:
     """Populate a metrics message with the given metrics."""
     for entry in metrics:
         event = output_events.add()

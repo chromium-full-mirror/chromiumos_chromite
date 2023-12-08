@@ -31,7 +31,7 @@ from chromite.service import image as image_service
 class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
     """Create image tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = image_pb2.CreateImageResult()
 
     def _GetRequest(
@@ -53,7 +53,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             base_is_recovery=base_is_recovery,
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(image_service, "Build")
 
@@ -63,7 +63,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns mocked value."""
         patch = self.PatchObject(image_service, "Build")
 
@@ -72,7 +72,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertEqual(self.response.success, True)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Test that mock call does not execute any logic, returns error."""
         patch = self.PatchObject(image_service, "Build")
 
@@ -83,7 +83,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
 
-    def testNoBoard(self):
+    def testNoBoard(self) -> None:
         """Test no board given fails."""
         request = self._GetRequest()
 
@@ -91,7 +91,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         with self.assertRaises(cros_build_lib.DieSystemExit):
             image_controller.Create(request, self.response, self.api_config)
 
-    def testNoTypeSpecified(self):
+    def testNoTypeSpecified(self) -> None:
         """Test the image type default."""
         request = self._GetRequest(board="board")
 
@@ -107,7 +107,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             "board", [constants.IMAGE_TYPE_BASE], config=mock.ANY
         )
 
-    def testSingleTypeSpecified(self):
+    def testSingleTypeSpecified(self) -> None:
         """Test it's properly using a specified type."""
         request = self._GetRequest(
             board="board", types=[common_pb2.IMAGE_TYPE_DEV]
@@ -125,7 +125,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             "board", [constants.IMAGE_TYPE_DEV], config=mock.ANY
         )
 
-    def testMultipleAndImpliedTypes(self):
+    def testMultipleAndImpliedTypes(self) -> None:
         """Test multiple types and implied type handling."""
         # The TEST_VM type should force it to build the test image.
         types = [common_pb2.IMAGE_TYPE_BASE, common_pb2.IMAGE_TYPE_TEST_VM]
@@ -143,7 +143,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         image_controller.Create(request, self.response, self.api_config)
         build_patch.assert_any_call("board", expected_images, config=mock.ANY)
 
-    def testRecoveryImpliedTypes(self):
+    def testRecoveryImpliedTypes(self) -> None:
         """Test implied type handling of recovery images."""
         # The TEST_VM type should force it to build the test image.
         types = [common_pb2.IMAGE_TYPE_RECOVERY]
@@ -162,7 +162,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             "board", [constants.IMAGE_TYPE_BASE], config=mock.ANY
         )
 
-    def testFailedPackageHandling(self):
+    def testFailedPackageHandling(self) -> None:
         """Test failed packages are populated correctly."""
         result = image_service.BuildResult([])
         result.return_code = 1
@@ -184,7 +184,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
                 (package.category, package.package_name), expected_packages
             )
 
-    def testNoPackagesFailureHandling(self):
+    def testNoPackagesFailureHandling(self) -> None:
         """Test failed packages are populated correctly."""
         result = image_service.BuildResult([])
         result.return_code = 1
@@ -202,7 +202,7 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         )
         self.assertFalse(self.response.failed_packages)
 
-    def testFactory(self):
+    def testFactory(self) -> None:
         """Test it's properly building factory."""
         request = self._GetRequest(
             board="board",
@@ -243,7 +243,7 @@ class GetArtifactsTest(
     }
     # pylint: enable=line-too-long
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._mocks = {}
         for artifact, func in self._artifact_funcs.items():
             self._mocks[artifact] = self.PatchObject(
@@ -272,7 +272,7 @@ class GetArtifactsTest(
             ]
         )
 
-    def testNoArtifacts(self):
+    def testNoArtifacts(self) -> None:
         """Test GetArtifacts with no artifact types."""
         in_proto = self._InputProto(artifact_types=[])
         image_controller.GetArtifacts(
@@ -282,7 +282,7 @@ class GetArtifactsTest(
         for _, patch in self._mocks.items():
             patch.assert_not_called()
 
-    def testArtifactsSuccess(self):
+    def testArtifactsSuccess(self) -> None:
         """Test GetArtifacts with all artifact types."""
         image_controller.GetArtifacts(
             self._InputProto(),
@@ -295,7 +295,7 @@ class GetArtifactsTest(
         for _, patch in self._mocks.items():
             patch.assert_called_once()
 
-    def testArtifactsException(self):
+    def testArtifactsException(self) -> None:
         """Test with all artifact types when one type throws an exception."""
 
         self._mocks[
@@ -331,7 +331,7 @@ class RecoveryImageTest(
 ):
     """Recovery image tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = image_pb2.CreateImageResult()
         self.types = [
             common_pb2.IMAGE_TYPE_BASE,
@@ -422,7 +422,7 @@ class RecoveryImageTest(
 
         return _build_result
 
-    def testBaseIsRecoveryTrue(self):
+    def testBaseIsRecoveryTrue(self) -> None:
         """Test that cp is called."""
         input_proto = self._GetRequest(
             board="board", types=self.types, base_is_recovery=True
@@ -434,7 +434,7 @@ class RecoveryImageTest(
             image_path=self.build_result.images[constants.IMAGE_TYPE_BASE],
         )
 
-    def testBaseIsRecoveryFalse(self):
+    def testBaseIsRecoveryFalse(self) -> None:
         """Test that mod_image_for_recovery.sh is called."""
         input_proto = self._GetRequest(
             board="board", types=self.types, base_is_recovery=False
@@ -452,14 +452,14 @@ class ImageSignerTestTest(
 ):
     """Image signer test tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.image_path = os.path.join(self.tempdir, "image.bin")
         self.result_directory = os.path.join(self.tempdir, "results")
 
         osutils.SafeMakedirs(self.result_directory)
         osutils.Touch(self.image_path)
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Sanity check that validate-only calls don't execute any logic."""
         patch = self.PatchObject(image_lib, "SecurityTest", return_value=True)
         input_proto = image_pb2.TestImageRequest()
@@ -472,7 +472,7 @@ class ImageSignerTestTest(
 
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns mocked value."""
         patch = self.PatchObject(image_lib, "SecurityTest", return_value=True)
         input_proto = image_pb2.TestImageRequest()
@@ -486,7 +486,7 @@ class ImageSignerTestTest(
         patch.assert_not_called()
         self.assertEqual(output_proto.success, True)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Test that mock call does not execute any logic, returns error."""
         patch = self.PatchObject(image_lib, "SecurityTest", return_value=True)
         input_proto = image_pb2.TestImageRequest()
@@ -500,7 +500,7 @@ class ImageSignerTestTest(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
 
-    def testSignerTestNoImage(self):
+    def testSignerTestNoImage(self) -> None:
         """Test function argument validation."""
         input_proto = image_pb2.TestImageRequest()
         output_proto = image_pb2.TestImageResult()
@@ -511,7 +511,7 @@ class ImageSignerTestTest(
                 input_proto, output_proto, self.api_config
             )
 
-    def testSignerTestSuccess(self):
+    def testSignerTestSuccess(self) -> None:
         """Test successful call handling."""
         self.PatchObject(image_lib, "SecurityTest", return_value=True)
         input_proto = image_pb2.TestImageRequest()
@@ -520,7 +520,7 @@ class ImageSignerTestTest(
 
         image_controller.SignerTest(input_proto, output_proto, self.api_config)
 
-    def testSignerTestFailure(self):
+    def testSignerTestFailure(self) -> None:
         """Test function output tests."""
         input_proto = image_pb2.TestImageRequest()
         input_proto.image.path = self.image_path
@@ -536,7 +536,7 @@ class ImageTestTest(
 ):
     """Image test tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.image_path = os.path.join(self.tempdir, "image.bin")
         self.board = "board"
         self.result_directory = os.path.join(self.tempdir, "results")
@@ -544,7 +544,7 @@ class ImageTestTest(
         osutils.SafeMakedirs(self.result_directory)
         osutils.Touch(self.image_path)
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(image_service, "Test")
 
@@ -559,7 +559,7 @@ class ImageTestTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns mocked value."""
         patch = self.PatchObject(image_service, "Test")
 
@@ -573,7 +573,7 @@ class ImageTestTest(
         patch.assert_not_called()
         self.assertEqual(output_proto.success, True)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Test that mock call does not execute any logic, returns error."""
         patch = self.PatchObject(image_service, "Test")
 
@@ -589,7 +589,7 @@ class ImageTestTest(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
 
-    def testTestArgumentValidation(self):
+    def testTestArgumentValidation(self) -> None:
         """Test function argument validation tests."""
         self.PatchObject(image_service, "Test", return_value=True)
         input_proto = image_pb2.TestImageRequest()
@@ -618,7 +618,7 @@ class ImageTestTest(
         input_proto.image.path = self.image_path
         image_controller.Test(input_proto, output_proto, self.api_config)
 
-    def testTestOutputHandling(self):
+    def testTestOutputHandling(self) -> None:
         """Test function output tests."""
         input_proto = image_pb2.TestImageRequest()
         input_proto.image.path = self.image_path
@@ -662,7 +662,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         return image_pb2.PushImageResponse()
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
-    def testValidateOnly(self, MockPushImage):
+    def testValidateOnly(self, MockPushImage) -> None:
         """Check that a validate only call does not execute any logic."""
         req = self._GetRequest(
             sign_types=[
@@ -683,7 +683,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(rc, controller.RETURN_CODE_VALID_INPUT)
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
-    def testValidateOnlyInvalid(self, MockPushImage):
+    def testValidateOnlyInvalid(self, MockPushImage) -> None:
         """Check that validate call rejects invalid sign types."""
         # Pass unsupported image type.
         req = self._GetRequest(sign_types=[common_pb2.IMAGE_TYPE_DLC])
@@ -694,7 +694,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(rc, controller.RETURN_CODE_INVALID_INPUT)
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
-    def testMockCall(self, MockPushImage):
+    def testMockCall(self, MockPushImage) -> None:
         """Test mock call does not execute any logic, returns mocked value."""
         rc = image_controller.PushImage(
             self._GetRequest(), self._GetResponse(), self.mock_call_config
@@ -703,7 +703,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
-    def testMockError(self, MockPushImage):
+    def testMockError(self, MockPushImage) -> None:
         """Test that mock call does not execute any logic, returns error."""
         rc = image_controller.PushImage(
             self._GetRequest(), self._GetResponse(), self.mock_error_config
@@ -712,7 +712,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
-    def testNoBuildTarget(self, _):
+    def testNoBuildTarget(self, _) -> None:
         """Test no build target given fails."""
         request = self._GetRequest(build_target_name="")
         with self.assertRaises(cros_build_lib.DieSystemExit):
@@ -721,7 +721,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             )
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
-    def testNoGsImageDir(self, _):
+    def testNoGsImageDir(self, _) -> None:
         """Test no image dir given fails."""
         request = self._GetRequest(gs_image_dir="")
         with self.assertRaises(cros_build_lib.DieSystemExit):
@@ -730,7 +730,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             )
 
     @mock.patch.object(pushimage, "PushImage", return_value={})
-    def testCallCorrect(self, MockPushImage):
+    def testCallCorrect(self, MockPushImage) -> None:
         """Check that a call is called with the correct parameters."""
         request = self._GetRequest(
             dryrun=False,
@@ -759,7 +759,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             "canary": ["gs://canary/instr1"],
         },
     )
-    def testOutput(self, _):
+    def testOutput(self, _) -> None:
         """Check that a call populates the response object."""
         request = self._GetRequest(
             profile="",
@@ -776,7 +776,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             ),
         )
 
-    def testCallSucceeds(self):
+    def testCallSucceeds(self) -> None:
         """Check that a (dry run) call is made successfully."""
         request = self._GetRequest(sign_types=[common_pb2.IMAGE_TYPE_RECOVERY])
         rc = image_controller.PushImage(
@@ -784,7 +784,7 @@ class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         self.assertEqual(rc, controller.RETURN_CODE_SUCCESS)
 
-    def testCallFailsWithBadImageDir(self):
+    def testCallFailsWithBadImageDir(self) -> None:
         """Check that a (dry run) call fails when given a bad gs_image_dir."""
         request = self._GetRequest(gs_image_dir="foo")
         rc = image_controller.PushImage(
@@ -798,7 +798,7 @@ class SignImageTest(
 ):
     """Sign image test."""
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         req = image_pb2.SignImageRequest(
             archive_dir=str(self.tempdir),
@@ -814,7 +814,7 @@ class SignImageTest(
         self.assertEqual(rc, controller.RETURN_CODE_VALID_INPUT)
 
     @mock.patch.object(image_controller.image, "SignImage")
-    def testSuccess(self, mock_sign_image: mock.MagicMock):
+    def testSuccess(self, mock_sign_image: mock.MagicMock) -> None:
         """Check that the endpoint finishes successfully."""
         docker_image = "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
         req = image_pb2.SignImageRequest(

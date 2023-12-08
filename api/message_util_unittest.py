@@ -14,7 +14,7 @@ from chromite.lib import cros_test_lib
 class JsonSerializerTest(cros_test_lib.TestCase):
     """Tests for the JSON serializer."""
 
-    def test_serialization(self):
+    def test_serialization(self) -> None:
         """Test json format serialization/deserialization."""
         serializer = message_util.JsonSerializer()
 
@@ -37,7 +37,7 @@ class JsonSerializerTest(cros_test_lib.TestCase):
         self.assertEqual(deserialized, msg)
         self.assertEqual(deserialized, deserialized2)
 
-    def test_compact_message(self):
+    def test_compact_message(self) -> None:
         """Serilaized messages using JSON should be compact."""
 
         serializer = message_util.JsonSerializer()
@@ -60,7 +60,7 @@ class JsonSerializerTest(cros_test_lib.TestCase):
 class BinarySerializerTest(cros_test_lib.TestCase):
     """Tests for the binary serializer."""
 
-    def test_serialization(self):
+    def test_serialization(self) -> None:
         """Test binary format serialization/deserialization."""
         serializer = message_util.BinarySerializer()
 
@@ -80,7 +80,7 @@ class BinarySerializerTest(cros_test_lib.TestCase):
 class MessageHandlerTest(cros_test_lib.TempDirTestCase):
     """MessageHandler tests."""
 
-    def test_binary_serialization(self):
+    def test_binary_serialization(self) -> None:
         """Test binary serialization/deserialization."""
         msg_path = os.path.join(self.tempdir, "proto")
 
@@ -104,7 +104,7 @@ class MessageHandlerTest(cros_test_lib.TempDirTestCase):
         # Make sure the data has not mutated.
         self.assertEqual(msg, deserialized)
 
-    def test_json_serialization(self):
+    def test_json_serialization(self) -> None:
         """Test json serialization/deserialization."""
         msg_path = os.path.join(self.tempdir, "proto")
 

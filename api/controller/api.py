@@ -20,7 +20,7 @@ VERSION_MINOR = 0
 VERSION_BUG = 0
 
 
-def _CompileProtoSuccess(_input_proto, output_proto, _config):
+def _CompileProtoSuccess(_input_proto, output_proto, _config) -> None:
     """Mock success response for CompileProto."""
     output_proto.modified_files.add().path = "/code/chromite/api/gen/foo_pb2.py"
 
@@ -28,7 +28,7 @@ def _CompileProtoSuccess(_input_proto, output_proto, _config):
 @faux.success(_CompileProtoSuccess)
 @faux.empty_error
 @validate.validation_complete
-def CompileProto(_input_proto, output_proto, _config):
+def CompileProto(_input_proto, output_proto, _config) -> None:
     """Compile the Build API proto, returning the list of modified files."""
     cmd = [constants.CHROMITE_DIR / "api" / "compile_build_api_proto"]
     cros_build_lib.run(cmd)
@@ -49,7 +49,7 @@ def CompileProto(_input_proto, output_proto, _config):
 
 @faux.all_empty
 @validate.validation_complete
-def GetMethods(_input_proto, output_proto, _config):
+def GetMethods(_input_proto, output_proto, _config) -> None:
     """List all of the registered methods."""
     router = router_lib.GetRouter()
     for method in router.ListMethods():
@@ -57,7 +57,7 @@ def GetMethods(_input_proto, output_proto, _config):
 
 
 @validate.validation_complete
-def GetVersion(_input_proto, output_proto, _config):
+def GetVersion(_input_proto, output_proto, _config) -> None:
     """Get the Build API major version number."""
     output_proto.version.major = VERSION_MAJOR
     output_proto.version.minor = VERSION_MINOR

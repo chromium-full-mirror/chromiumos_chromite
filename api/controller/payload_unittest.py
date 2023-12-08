@@ -22,7 +22,7 @@ class GeneratePayloadTests(
 ):
     """Unittests for the GeneratePayload endpoint."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = payload_pb2.GenerationResponse()
 
         src_build = payload_pb2.Build(
@@ -95,7 +95,7 @@ class GeneratePayloadTests(
             payload, "_DEFAULT_PAYGEN_CACHE_DIR", new=str(self.tempdir)
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Basic check that a validate only call does not execute any logic."""
 
         res = payload.GeneratePayload(
@@ -103,7 +103,7 @@ class GeneratePayloadTests(
         )
         self.assertEqual(res, controller.RETURN_CODE_VALID_INPUT)
 
-    def testCallSucceeds(self):
+    def testCallSucceeds(self) -> None:
         """Check that a call is made successfully."""
         # Deep patch the paygen lib, this is a full run through service as well.
         patch_obj = self.PatchObject(paygen_payload_lib, "PaygenPayload")
@@ -125,7 +125,7 @@ class GeneratePayloadTests(
         res = payload.GeneratePayload(self.req, self.result, self.api_config)
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Test mock error call does not execute any logic, returns error."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
 
@@ -135,7 +135,7 @@ class GeneratePayloadTests(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, res)
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns success."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
 
@@ -145,7 +145,7 @@ class GeneratePayloadTests(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_SUCCESS, res)
 
-    def testMiniOSSuccess(self):
+    def testMiniOSSuccess(self) -> None:
         """Test a miniOS paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.return_value.CreateUnsignedPayloads.return_value = {
@@ -159,7 +159,7 @@ class GeneratePayloadTests(
         )
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testNoMiniOSPartition(self):
+    def testNoMiniOSPartition(self) -> None:
         """Test a miniOS paygen request on an image with no miniOS part."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.side_effect = paygen_payload_lib.NoMiniOSPartitionException
@@ -175,7 +175,7 @@ class GeneratePayloadTests(
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
         )
 
-    def testNoMiniOSPartitionMismatch(self):
+    def testNoMiniOSPartitionMismatch(self) -> None:
         """Test a miniOS paygen request with a partition count mismatch."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.side_effect = paygen_payload_lib.MiniOSPartitionMismatchException
@@ -191,7 +191,7 @@ class GeneratePayloadTests(
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
         )
 
-    def testLocalSigningSuccessMock(self):
+    def testLocalSigningSuccessMock(self) -> None:
         """Test a local signing paygen request inits with the right values."""
         patch = self.PatchObject(payload_service, "PayloadConfig")
 
@@ -217,7 +217,7 @@ class GeneratePayloadTests(
             signing_docker_image=req.docker_image,
         )
 
-    def testLocalSigningSuccess(self):
+    def testLocalSigningSuccess(self) -> None:
         """Test a local signing paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.return_value.CreateUnsignedPayloads.return_value = {
@@ -236,7 +236,7 @@ class GeneratePayloadTests(
         res = payload.GeneratePayload(self.req, self.result, self.api_config)
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testLocalSigningFailure(self):
+    def testLocalSigningFailure(self) -> None:
         """Test a local signing paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.return_value.CreateUnsignedPayloads.return_value = {
@@ -259,7 +259,7 @@ class GenerateUnsignedPayloadTests(
 ):
     """Unittests for the GenerateUnsignedPayload endpoint."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = payload_pb2.GenerateUnsignedPayloadRequest()
 
         src_build = payload_pb2.Build(
@@ -323,7 +323,7 @@ class GenerateUnsignedPayloadTests(
             payload, "_DEFAULT_PAYGEN_CACHE_DIR", new=str(self.tempdir)
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Basic check that a validate only call does not execute any logic."""
 
         res = payload.GenerateUnsignedPayload(
@@ -331,7 +331,7 @@ class GenerateUnsignedPayloadTests(
         )
         self.assertEqual(res, controller.RETURN_CODE_VALID_INPUT)
 
-    def testCallSucceeds(self):
+    def testCallSucceeds(self) -> None:
         """Check that a call is made successfully."""
         # Deep patch the paygen lib, this is a full run through service as well.
         patch_obj = self.PatchObject(paygen_payload_lib, "PaygenPayload")
@@ -352,7 +352,7 @@ class GenerateUnsignedPayloadTests(
         )
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Test mock error call does not execute any logic, returns error."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
 
@@ -362,7 +362,7 @@ class GenerateUnsignedPayloadTests(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, res)
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns success."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
 
@@ -372,7 +372,7 @@ class GenerateUnsignedPayloadTests(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_SUCCESS, res)
 
-    def testMiniOSSuccess(self):
+    def testMiniOSSuccess(self) -> None:
         """Test a miniOS paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.return_value.CreateUnsignedPayloads.return_value = {
@@ -389,7 +389,7 @@ class GenerateUnsignedPayloadTests(
         )
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testNoMiniOSPartition(self):
+    def testNoMiniOSPartition(self) -> None:
         """Test a miniOS paygen request on an image with no miniOS part."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.side_effect = paygen_payload_lib.NoMiniOSPartitionException
@@ -405,7 +405,7 @@ class GenerateUnsignedPayloadTests(
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
         )
 
-    def testNoMiniOSPartitionMismatch(self):
+    def testNoMiniOSPartitionMismatch(self) -> None:
         """Test a miniOS paygen request with a partition count mismatch."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.side_effect = paygen_payload_lib.MiniOSPartitionMismatchException
@@ -427,7 +427,7 @@ class FinalizePayloadTest(
 ):
     """Unittests for the FinalizePayload endpoint."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = payload_pb2.FinalizePayloadResponse()
 
         src_build = payload_pb2.Build(
@@ -518,7 +518,7 @@ class FinalizePayloadTest(
             payload, "_DEFAULT_PAYGEN_CACHE_DIR", new=str(self.tempdir)
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Basic check that a validate only call does not execute any logic."""
 
         res = payload.FinalizePayload(
@@ -526,7 +526,7 @@ class FinalizePayloadTest(
         )
         self.assertEqual(res, controller.RETURN_CODE_VALID_INPUT)
 
-    def testCallSucceeds(self):
+    def testCallSucceeds(self) -> None:
         """Check that a call is made successfully."""
         # Deep patch the paygen lib, this is a full run through service as well.
         patch_obj = self.PatchObject(paygen_payload_lib, "PaygenPayload")
@@ -536,7 +536,7 @@ class FinalizePayloadTest(
         res = payload.FinalizePayload(self.req, self.result, self.api_config)
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testMockError(self):
+    def testMockError(self) -> None:
         """Test mock error call does not execute any logic, returns error."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
 
@@ -546,7 +546,7 @@ class FinalizePayloadTest(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, res)
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns success."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
 
@@ -556,7 +556,7 @@ class FinalizePayloadTest(
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_SUCCESS, res)
 
-    def testMiniOSSuccess(self):
+    def testMiniOSSuccess(self) -> None:
         """Test a miniOS paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.return_value.FinalizePayload.return_value = {
@@ -567,7 +567,7 @@ class FinalizePayloadTest(
         )
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testLocalSigningSuccessMock(self):
+    def testLocalSigningSuccessMock(self) -> None:
         """Test a local signing paygen request inits with the right values."""
         patch = self.PatchObject(payload_service, "PayloadConfig")
 
@@ -593,7 +593,7 @@ class FinalizePayloadTest(
             signing_docker_image=req.docker_image,
         )
 
-    def testLocalSigningSuccess(self):
+    def testLocalSigningSuccess(self) -> None:
         """Test a local signing paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.return_value.FinalizePayload.return_value = {
@@ -609,7 +609,7 @@ class FinalizePayloadTest(
         res = payload.FinalizePayload(req, self.result, self.api_config)
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testLocalSigningFailure(self):
+    def testLocalSigningFailure(self) -> None:
         """Test a local signing paygen request."""
         patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
         patch.return_value.FinalizePayload.return_value = {

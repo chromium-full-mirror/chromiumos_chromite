@@ -47,7 +47,7 @@ def _SystemImageMetadataResponse(_input_proto, output_proto, _config):
 @validate.exists("sysroot.path")
 @validate.require("sysroot.build_target.name")
 @validate.validation_complete
-def SystemImageMetadata(input_proto, output_proto, _config):
+def SystemImageMetadata(input_proto, output_proto, _config) -> None:
     sysroot = controller_util.ParseSysroot(input_proto.sysroot)
     build_target = controller_util.ParseBuildTarget(
         input_proto.sysroot.build_target

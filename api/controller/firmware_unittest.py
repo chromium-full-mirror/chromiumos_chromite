@@ -20,7 +20,7 @@ class BuildAllFirmwareTestCase(
 ):
     """BuildAllFirmware tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chroot_path = "/path/to/chroot"
 
     def _GetInput(
@@ -37,7 +37,7 @@ class BuildAllFirmwareTestCase(
         )
         return proto
 
-    def testBuildAllFirmware(self):
+    def testBuildAllFirmware(self) -> None:
         """Test endpoint by verifying call to cros_build_lib.run."""
         for fw_loc in common_pb2.FwLocation.values():
             fw_path = firmware.get_fw_loc(fw_loc)
@@ -67,7 +67,7 @@ class BuildAllFirmwareTestCase(
                 check=False,
             )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         for fw_loc in common_pb2.FwLocation.values():
             if not firmware.get_fw_loc(fw_loc):
@@ -83,7 +83,7 @@ class BuildAllFirmwareTestCase(
             )
             self.assertFalse(self.rc.called)
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         for fw_loc in common_pb2.FwLocation.values():
             if not firmware.get_fw_loc(fw_loc):

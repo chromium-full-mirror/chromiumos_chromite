@@ -20,7 +20,7 @@ from chromite.lib.parser import package_info
 from chromite.service import dependency
 
 
-def AugmentDepGraphProtoFromJsonMap(json_map, graph):
+def AugmentDepGraphProtoFromJsonMap(json_map, graph) -> None:
     """Augment package deps from |json_map| to graph object.
 
     Args:
@@ -51,7 +51,9 @@ def AugmentDepGraphProtoFromJsonMap(json_map, graph):
             source_path.path = path
 
 
-def _GetBuildDependencyGraphResponse(_input_proto, output_proto, _config):
+def _GetBuildDependencyGraphResponse(
+    _input_proto, output_proto, _config
+) -> None:
     """Add fake dep_graph data to a successful response."""
     output_proto.dep_graph.build_target.name = "target_board"
 
@@ -92,7 +94,7 @@ def GetBuildDependencyGraph(
     AugmentDepGraphProtoFromJsonMap(sdk_json_map, output_proto.sdk_dep_graph)
 
 
-def _ListResponse(_input_proto, output_proto, _config):
+def _ListResponse(_input_proto, output_proto, _config) -> None:
     """Add fake dependency data to a successful response."""
     package_dep = output_proto.package_deps.add()
     package_dep.category = "category"
@@ -110,7 +112,7 @@ def List(
     input_proto: depgraph_pb2.ListRequest,
     output_proto: depgraph_pb2.ListResponse,
     _config: api_config.ApiConfig,
-):
+) -> None:
     """Get a list of package dependencies.
 
     Args:
@@ -134,7 +136,7 @@ def List(
         controller_util.serialize_package_info(package, pkg_info_msg)
 
 
-def _StubGetToolchainPathsResponse(_input_proto, output_proto, _config):
+def _StubGetToolchainPathsResponse(_input_proto, output_proto, _config) -> None:
     """Create a fake successful response for GetToolchainPaths."""
     stub_entry = output_proto.paths.add()
     stub_entry.path = "src/third_party/stub-package"
@@ -143,7 +145,7 @@ def _StubGetToolchainPathsResponse(_input_proto, output_proto, _config):
 @faux.success(_StubGetToolchainPathsResponse)
 @faux.empty_error
 @validate.validation_complete
-def GetToolchainPaths(_input_proto, output_proto, _config):
+def GetToolchainPaths(_input_proto, output_proto, _config) -> None:
     """Get a list of paths that affect the toolchain."""
     toolchain_paths = dependency.DetermineToolchainSourcePaths()
     for p in toolchain_paths:

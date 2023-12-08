@@ -202,7 +202,7 @@ def _SuccessfulPaygen(
 def _SetGeneratePayloadOutputProto(
     output_proto: payload_pb2.GenerationResponse,
     artifacts: Dict[int, Tuple[str, str]],
-):
+) -> None:
     """Set the output proto with the results from the service class.
 
     Args:

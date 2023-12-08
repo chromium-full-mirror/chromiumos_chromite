@@ -17,7 +17,7 @@ class GenerateDlcArtifactsListTest(
 ):
     """Tests for GenerateDLcArtifactsList."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = dlc_pb2.GenerateDlcArtifactsListResponse()
         self.sysroot_path = "/build/target"
 
@@ -28,7 +28,7 @@ class GenerateDlcArtifactsListTest(
         in_proto.chroot.path = "path"
         return in_proto
 
-    def testNoDlcArtifacts(self):
+    def testNoDlcArtifacts(self) -> None:
         """Test for no artifacts being returned."""
         self.PatchObject(
             image, "generate_dlc_artifacts_metadata_list", return_value=[]
@@ -40,7 +40,7 @@ class GenerateDlcArtifactsListTest(
 
         self.assertEqual(len(self.response.dlc_artifacts), 0)
 
-    def testDlcArtifactsSuccess(self):
+    def testDlcArtifactsSuccess(self) -> None:
         """Test for successfully returning artifacts."""
         self.PatchObject(
             image,

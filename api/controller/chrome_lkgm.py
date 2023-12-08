@@ -12,14 +12,14 @@ from chromite.lib import chrome_lkgm
 from chromite.lib import path_util
 
 
-def _find_lkgm_success(_input_proto, output_proto, _config_proto):
+def _find_lkgm_success(_input_proto, output_proto, _config_proto) -> None:
     """Mock for a success case."""
     output_proto.config_name = "boardname-release"
     output_proto.full_version = "111.0.0.5678"
     output_proto.chromeos_lkgm = "111.0.0.5679"
 
 
-def _find_lkgm_error(_input_proto, output_proto, _config_proto):
+def _find_lkgm_error(_input_proto, output_proto, _config_proto) -> None:
     """Mock for a failed case."""
     output_proto.error = "something went wrong"
 
@@ -29,7 +29,7 @@ def _find_lkgm_error(_input_proto, output_proto, _config_proto):
 @validate.require("build_target")
 @validate.require("fallback_versions")
 @validate.validation_complete
-def FindLkgm(input_proto, output_proto, _config_proto):
+def FindLkgm(input_proto, output_proto, _config_proto) -> None:
     """Find LKGM or older version of image for a board."""
     checkout = path_util.DetermineCheckout(
         input_proto.chrome_src or os.getcwd()

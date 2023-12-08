@@ -89,14 +89,14 @@ def get_services():
     return list(services.values())
 
 
-def write_script(filename, service, method):
+def write_script(filename, service, method) -> None:
     contents = SCRIPT_TEMPLATE % {"SERVICE": service, "METHOD": method}
     script_path = os.path.join(OUTPUT_PATH, filename)
     osutils.WriteFile(script_path, contents, makedirs=True)
     os.chmod(script_path, 0o755)
 
 
-def write_scripts(build_target, force=False):
+def write_scripts(build_target, force=False) -> None:
     fmt_vars = {
         "build_target": build_target,
         "chroot": constants.DEFAULT_CHROOT_PATH,
@@ -135,7 +135,7 @@ def _input_file_empty(input_file):
     return not contents or contents == "{}"
 
 
-def write_config(call_type):
+def write_config(call_type) -> None:
     config = build_api_config_pb2.BuildApiConfig()
     config.call_type = call_type
     msg_handler = message_util.get_message_handler(
@@ -151,7 +151,7 @@ def read_build_target_file():
         return None
 
 
-def write_build_target_file(build_target_name):
+def write_build_target_file(build_target_name) -> None:
     osutils.WriteFile(BUILD_TARGET_FILE, build_target_name)
 
 
@@ -221,7 +221,7 @@ def _ParseArgs(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     opts = _ParseArgs(argv)
     write_scripts(opts.build_target.name, force=opts.force)
     write_build_target_file(opts.build_target.name)

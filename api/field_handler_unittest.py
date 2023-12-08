@@ -21,7 +21,7 @@ from chromite.lib import remoteexec_util
 class ChrootHandlerTest(cros_test_lib.TestCase):
     """ChrootHandler tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.path = "/chroot/dir"
         self.cache_dir = "/cache/dir"
         self.chrome_dir = "/chrome/dir"
@@ -33,7 +33,7 @@ class ChrootHandlerTest(cros_test_lib.TestCase):
             env=self.env,
         )
 
-    def test_parse_chroot_success(self):
+    def test_parse_chroot_success(self) -> None:
         """Test successful Chroot message parse."""
         chroot_msg = common_pb2.Chroot()
         chroot_msg.path = self.path
@@ -46,7 +46,7 @@ class ChrootHandlerTest(cros_test_lib.TestCase):
 
         self.assertEqual(self.expected_chroot, parsed_chroot)
 
-    def test_handle_success(self):
+    def test_handle_success(self) -> None:
         """Test a successful Chroot message parse from a parent message."""
         message = build_api_test_pb2.TestRequestMessage()
         message.chroot.path = self.path
@@ -68,7 +68,7 @@ class ChrootHandlerTest(cros_test_lib.TestCase):
         self.assertEqual(self.expected_chroot, chroot)
         self.assertFalse(message.chroot.path)
 
-    def test_handle_empty_chroot_message(self):
+    def test_handle_empty_chroot_message(self) -> None:
         """Test handling of an empty chroot message."""
         message = build_api_test_pb2.TestRequestMessage()
         empty_chroot = chroot_lib.Chroot()
@@ -78,7 +78,7 @@ class ChrootHandlerTest(cros_test_lib.TestCase):
 
         self.assertEqual(empty_chroot, chroot)
 
-    def test_handle_no_chroot_message(self):
+    def test_handle_no_chroot_message(self) -> None:
         """Test handling of a message with no Chroot field."""
         message = build_api_test_pb2.MultiFieldMessage()
 
@@ -94,7 +94,7 @@ class ChrootHandlerTest(cros_test_lib.TestCase):
 class HandleRemoteexec(cros_test_lib.TempDirTestCase):
     """Tests for handling remoteexec."""
 
-    def test_handle_remoteexec(self):
+    def test_handle_remoteexec(self) -> None:
         """Test handling remoteexec when there is a RemoteexecConfig."""
         reclient_dir = os.path.join(self.tempdir, "cipd/rbe")
         reproxy_cfg_file = os.path.join(
@@ -113,7 +113,7 @@ class HandleRemoteexec(cros_test_lib.TempDirTestCase):
         expected = remoteexec_util.Remoteexec(reclient_dir, reproxy_cfg_file)
         self.assertEqual(expected, field_handler.handle_remoteexec(message))
 
-    def test_handle_remoteexec_no_config(self):
+    def test_handle_remoteexec_no_config(self) -> None:
         """Test handling remoteexec when there is no RmoteexecConfig."""
         message = build_api_test_pb2.TestRequestMessage()
         self.assertIsNone(field_handler.handle_remoteexec(message))
@@ -122,7 +122,7 @@ class HandleRemoteexec(cros_test_lib.TempDirTestCase):
 class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
     """PathHandler tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.chroot = chroot_lib.Chroot(
@@ -144,7 +144,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
         self.source_file2 = os.path.join(self.source_dir, "file2")
         osutils.WriteFile(self.source_file2, self.file2_contents)
 
-    def _path_checks(self, source_file, dest_file, contents=None):
+    def _path_checks(self, source_file, dest_file, contents=None) -> None:
         """Set of common checks for the copied files/directories."""
         # Message should now reflect the new path.
         self.assertNotEqual(source_file, dest_file)
@@ -157,7 +157,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
             # The contents should be the same as the source file.
             self.assertFileContents(dest_file, contents)
 
-    def test_handle_file(self):
+    def test_handle_file(self) -> None:
         """Test handling of a single file."""
         message = build_api_test_pb2.TestRequestMessage()
         message.path.path = self.source_file1
@@ -174,7 +174,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
         # The path should get reset.
         self.assertEqual(message.path.path, self.source_file1)
 
-    def test_handle_files(self):
+    def test_handle_files(self) -> None:
         """Test handling of multiple files."""
         message = build_api_test_pb2.TestRequestMessage()
         message.path.path = self.source_file1
@@ -193,7 +193,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(new_path1)
         self.assertExists(new_path2)
 
-    def test_handle_nested_file(self):
+    def test_handle_nested_file(self) -> None:
         """Test the nested path handling."""
         message = build_api_test_pb2.TestRequestMessage()
         message.nested_path.path.path = self.source_file1
@@ -203,7 +203,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
             new_path = message.nested_path.path.path
             self._path_checks(self.source_file1, new_path, self.file1_contents)
 
-    def test_handle_directory(self):
+    def test_handle_directory(self) -> None:
         """Test handling of a directory."""
         message = build_api_test_pb2.TestRequestMessage()
         message.path.path = self.source_dir
@@ -218,7 +218,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
                 os.listdir(self.source_dir), os.listdir(new_path)
             )
 
-    def test_direction(self):
+    def test_direction(self) -> None:
         """Test the direction argument preventing copies."""
         message = build_api_test_pb2.TestRequestMessage()
         message.path.path = self.source_file1
@@ -231,7 +231,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
         # even with delete=True.
         self.assertExists(self.source_file1)
 
-    def test_inside_chroot(self):
+    def test_inside_chroot(self) -> None:
         """Test the transfer inside chroot handling."""
         message = build_api_test_pb2.TestRequestMessage()
         message.path.path = self.source_dir
@@ -248,7 +248,7 @@ class CopyPathInTest(cros_test_lib.MockTempDirTestCase):
 class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
     """Tests for sync_dirs."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         D = cros_test_lib.Directory
@@ -308,15 +308,15 @@ class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
 
         self.message = build_api_test_pb2.TestRequestMessage()
 
-    def _assertExist(self, files):
+    def _assertExist(self, files) -> None:
         for f in files:
             self.assertExists(f)
 
-    def _assertNotExist(self, files):
+    def _assertNotExist(self, files) -> None:
         for f in files:
             self.assertNotExists(f)
 
-    def testSingleFileTransfer(self):
+    def testSingleFileTransfer(self) -> None:
         """Single source file syncs."""
         self.message.synced_dir.dir = self.single_file_src
 
@@ -336,7 +336,7 @@ class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
         # Verify the files have all been copied out.
         self.assertExists(self.sf_src_file)
 
-    def testNestedFileSync(self):
+    def testNestedFileSync(self) -> None:
         """Nested directories and files sync."""
         self.message.synced_dir.dir = self.nested_dirs_src
 
@@ -352,7 +352,7 @@ class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.message.synced_dir.dir, self.nested_dirs_src)
         self._assertExist(self.nested_src_files)
 
-    def testDeletion(self):
+    def testDeletion(self) -> None:
         """Test file deletions are exported correctly."""
         self.message.synced_dir.dir = self.nested_dirs_src
 
@@ -373,7 +373,7 @@ class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
         self._assertExist(set(self.nested_src_files) - {deleted_src})
         self.assertNotExists(deleted_src)
 
-    def testCreation(self):
+    def testCreation(self) -> None:
         """Test file creations are exported correctly."""
         self.message.synced_dir.dir = self.nested_dirs_src
 
@@ -392,7 +392,7 @@ class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
         self._assertExist(self.nested_src_files)
         self.assertExists(new_src)
 
-    def testModification(self):
+    def testModification(self) -> None:
         """Test file modifications are exported correctly."""
         self.message.synced_dir.dir = self.single_file_src
 
@@ -415,7 +415,7 @@ class SyncDirsTest(cros_test_lib.MockTempDirTestCase):
 class ExtractResultsTestBase(cros_test_lib.MockTempDirTestCase):
     """Base class to set up tests for extract_results."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         # Setup the directories.
@@ -463,14 +463,14 @@ class ExtractResultsTestBase(cros_test_lib.MockTempDirTestCase):
 class ExtractResultsTest(ExtractResultsTestBase):
     """Tests for extract_results."""
 
-    def _path_checks(self, path, destination, contents=None):
+    def _path_checks(self, path, destination, contents=None) -> None:
         self.assertTrue(path)
         self.assertStartsWith(path, destination)
         self.assertExists(path)
         if contents:
             self.assertFileContents(path, contents)
 
-    def test_empty_result_path(self):
+    def test_empty_result_path(self) -> None:
         """Test an empty result path.
 
         Destination should be unchanged, and response message left as-is /
@@ -488,7 +488,7 @@ class ExtractResultsTest(ExtractResultsTestBase):
             common_pb2.Path.INSIDE, self.response.artifact.location
         )
 
-    def test_single_file(self):
+    def test_single_file(self) -> None:
         """Test a single file.
 
         Verify:
@@ -505,7 +505,7 @@ class ExtractResultsTest(ExtractResultsTestBase):
             contents=self.file1_contents,
         )
 
-    def test_tmp_file(self):
+    def test_tmp_file(self) -> None:
         """Test a file in chroot's /tmp."""
         contents = "tmpfile contents"
         tmpfile = os.path.join(self.chroot.tmp, "file")
@@ -523,7 +523,7 @@ class ExtractResultsTest(ExtractResultsTestBase):
             contents=contents,
         )
 
-    def test_single_directory(self):
+    def test_single_directory(self) -> None:
         """Test a single directory.
 
         Verify:
@@ -540,7 +540,7 @@ class ExtractResultsTest(ExtractResultsTestBase):
             os.listdir(self.response.artifact.path),
         )
 
-    def test_multiple_files(self):
+    def test_multiple_files(self) -> None:
         """Test multiple files.
 
         Verify:
@@ -576,7 +576,7 @@ class ExtractResultsTest(ExtractResultsTestBase):
                 artifact.path, self.dest_dir, contents=self.file3_contents
             )
 
-    def test_multiple_directories(self):
+    def test_multiple_directories(self) -> None:
         """Test multiple directories.
 
         Verify:

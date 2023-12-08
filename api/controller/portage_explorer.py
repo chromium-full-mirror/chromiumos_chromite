@@ -12,7 +12,7 @@ from chromite.api import validate
 from chromite.contrib import portage_explorer
 
 
-def _RunSpiders(_input_proto, output_proto, _config_proto):
+def _RunSpiders(_input_proto, output_proto, _config_proto) -> None:
     """Mock success output for the RunSpiders endpoint."""
     mock_build_target = output_proto.build_targets.add()
     mock_build_target.name = "board"
@@ -60,7 +60,7 @@ def _RunSpiders(_input_proto, output_proto, _config_proto):
 @faux.success(_RunSpiders)
 @faux.empty_error
 @validate.validation_complete
-def RunSpiders(_input_proto, output_proto, _config_proto):
+def RunSpiders(_input_proto, output_proto, _config_proto) -> None:
     """Run all the spiders from portage_explorer and enter data into proto."""
     spider_output = portage_explorer.execute()
     for build_target in spider_output.build_targets:

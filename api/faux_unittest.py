@@ -18,84 +18,84 @@ class MockResponsesTest(cros_test_lib.TestCase, ApiConfigMixin):
     _ERROR_RESULT = "error"
     _ALL_RESULT = "all"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.request = build_api_test_pb2.TestRequestMessage()
         self.response = build_api_test_pb2.TestResultMessage()
 
-    def _faux_success(self, _input_proto, output_proto, _config):
+    def _faux_success(self, _input_proto, output_proto, _config) -> None:
         """Faux success method."""
         output_proto.result = self._SUCCESS_RESULT
 
-    def _faux_error(self, _input_proto, output_proto, _config):
+    def _faux_error(self, _input_proto, output_proto, _config) -> None:
         """Faux error method."""
         output_proto.result = self._ERROR_RESULT
 
-    def _faux_all(self, _input_proto, output_proto, config):
+    def _faux_all(self, _input_proto, output_proto, config) -> None:
         """All responses method."""
         self.assertIn(config, [self.mock_call_config, self.mock_error_config])
         output_proto.result = self._ALL_RESULT
 
-    def test_call_called(self):
+    def test_call_called(self) -> None:
         """Test a faux call."""
 
         @faux.error(self._faux_error)
         @faux.success(self._faux_success)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Implementation was called.")
 
         impl(self.request, self.response, self.mock_call_config)
 
         self.assertEqual(self.response.result, self._SUCCESS_RESULT)
 
-    def test_error_called(self):
+    def test_error_called(self) -> None:
         """Test the faux error intercepts the call."""
 
         @faux.success(self._faux_success)
         @faux.error(self._faux_error)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Implementation was called.")
 
         impl(self.request, self.response, self.mock_error_config)
 
         self.assertEqual(self.response.result, self._ERROR_RESULT)
 
-    def test_impl_called(self):
+    def test_impl_called(self) -> None:
         """Test the call is not mocked when not requested."""
 
         @faux.error(self._faux_error)
         @faux.success(self._faux_success)
-        def impl(_input_proto, output_proto, _config):
+        def impl(_input_proto, output_proto, _config) -> None:
             output_proto.result = self._IMPL_RESULT
 
         impl(self.request, self.response, self.api_config)
 
         self.assertEqual(self.response.result, self._IMPL_RESULT)
 
-    def test_all_responses_success(self):
+    def test_all_responses_success(self) -> None:
         """Test the call is intercepted by the all responses decorator."""
 
         @faux.all_responses(self._faux_all)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Implementation was called.")
 
         impl(self.request, self.response, self.mock_call_config)
         self.assertEqual(self.response.result, self._ALL_RESULT)
 
-    def test_all_responses_error(self):
+    def test_all_responses_error(self) -> None:
         """Test the call is intercepted by the all responses decorator."""
 
         @faux.all_responses(self._faux_all)
-        def impl(_input_proto, _output_proto, _config):
+        def impl(_input_proto, _output_proto, _config) -> None:
             self.fail("Implementation was called.")
 
         impl(self.request, self.response, self.mock_error_config)
         self.assertEqual(self.response.result, self._ALL_RESULT)
 
-    def test_all_responses_impl(self):
+    def test_all_responses_impl(self) -> None:
         """Test the call is intercepted by the all responses decorator."""
 
         @faux.all_responses(self._faux_all)
-        def impl(_input_proto, output_proto, _config):
+        def impl(_input_proto, output_proto, _config) -> None:
             output_proto.result = self._IMPL_RESULT
 
         impl(self.request, self.response, self.api_config)

@@ -30,7 +30,7 @@ class UprevTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     _BOTH = binhost_pb2.OVERLAYTYPE_BOTH
     _NONE = binhost_pb2.OVERLAYTYPE_NONE
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.uprev_patch = self.PatchObject(
             packages_service, "uprev_build_targets"
         )
@@ -43,7 +43,7 @@ class UprevTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             output_dir=output_dir,
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(packages_service, "uprev_build_targets")
 
@@ -54,7 +54,7 @@ class UprevTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(packages_service, "uprev_build_targets")
         targets = ["foo", "bar"]
@@ -63,21 +63,21 @@ class UprevTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         patch.assert_not_called()
         self.assertTrue(self.response.modified_ebuilds)
 
-    def testNoOverlayTypeFails(self):
+    def testNoOverlayTypeFails(self) -> None:
         """No overlay type provided should fail."""
         request = self._GetRequest(targets=["foo"])
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             packages_controller.Uprev(request, self.response, self.api_config)
 
-    def testOverlayTypeNoneFails(self):
+    def testOverlayTypeNoneFails(self) -> None:
         """Overlay type none means nothing here and should fail."""
         request = self._GetRequest(targets=["foo"], overlay_type=self._NONE)
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
             packages_controller.Uprev(request, self.response, self.api_config)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test overall successful argument handling."""
         targets = ["foo", "bar"]
         output_dir = "/tmp/uprev_output_dir"
@@ -117,17 +117,17 @@ class UprevTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     """UprevVersionedPackage tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.UprevVersionedPackageResponse()
 
-    def _addVersion(self, request, version):
+    def _addVersion(self, request, version) -> None:
         """Helper method to add a full version message to the request."""
         ref = request.versions.add()
         ref.repository = "/some/path"
         ref.ref = "refs/tags/%s" % version
         ref.revision = "abc123"
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Sanity check validate only calls are working properly."""
         service = self.PatchObject(packages_service, "uprev_versioned_package")
 
@@ -142,7 +142,7 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         service.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(packages_service, "uprev_versioned_package")
         request = packages_pb2.UprevVersionedPackageRequest()
@@ -153,7 +153,7 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertTrue(self.response.responses)
         self.assertTrue(self.response.responses[0].modified_ebuilds)
 
-    def testNoVersions(self):
+    def testNoVersions(self) -> None:
         """Test no versions provided."""
         request = packages_pb2.UprevVersionedPackageRequest()
         request.package_info.category = "chromeos-base"
@@ -164,7 +164,7 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
                 request, self.response, self.api_config
             )
 
-    def testNoPackageName(self):
+    def testNoPackageName(self) -> None:
         """Test no package name provided."""
         request = packages_pb2.UprevVersionedPackageRequest()
         self._addVersion(request, "1.2.3.4")
@@ -175,7 +175,7 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
                 request, self.response, self.api_config
             )
 
-    def testNoCategory(self):
+    def testNoCategory(self) -> None:
         """Test no package category provided."""
         request = packages_pb2.UprevVersionedPackageRequest()
         self._addVersion(request, "1.2.3.4")
@@ -186,7 +186,7 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
                 request, self.response, self.api_config
             )
 
-    def testOutputHandling(self):
+    def testOutputHandling(self) -> None:
         """Test the modified files are getting correctly added to the output."""
         version = "1.2.3.4"
         result = uprev_lib.UprevVersionedPackageResult().add_result(
@@ -219,7 +219,7 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     """GetBestVisible tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.GetBestVisibleResponse()
 
     def _GetRequest(self, atom=None):
@@ -227,7 +227,7 @@ class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             atom=atom,
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(packages_service, "get_best_visible")
 
@@ -237,7 +237,7 @@ class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(packages_service, "get_best_visible")
         request = self._GetRequest(atom="chromeos-chrome")
@@ -250,7 +250,7 @@ class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertTrue(self.response.package_info.package_name)
         self.assertTrue(self.response.package_info.version)
 
-    def testNoAtomFails(self):
+    def testNoAtomFails(self) -> None:
         """No atom provided should fail."""
         request = self._GetRequest()
         with self.assertRaises(cros_build_lib.DieSystemExit):
@@ -258,7 +258,7 @@ class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
                 request, self.response, self.api_config
             )
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test overall success, argument handling, result forwarding."""
         pkg = package_info.PackageInfo("category", "package", "1.2.3.4", 5)
         self.PatchObject(packages_service, "get_best_visible", return_value=pkg)
@@ -278,7 +278,7 @@ class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
     """GetChromeVersion tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.GetChromeVersionResponse()
 
     def _GetRequest(self, board=None):
@@ -290,7 +290,7 @@ class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         chrome_version = self.PatchObject(
             packages_service, "determine_package_version"
@@ -301,7 +301,7 @@ class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         chrome_version.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         chrome_version = self.PatchObject(
             packages_service, "determine_package_version"
@@ -313,7 +313,7 @@ class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
         chrome_version.assert_not_called()
         self.assertTrue(self.response.version)
 
-    def testGetChromeVersion(self):
+    def testGetChromeVersion(self) -> None:
         """Verify basic return values."""
         chrome_version = "76.0.1.2"
         chrome_version_mock = self.PatchObject(
@@ -332,7 +332,7 @@ class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
             constants.CHROME_CP, build_target
         )
 
-    def testGetChromeVersionHandleNone(self):
+    def testGetChromeVersionHandleNone(self) -> None:
         """Verify basic return values."""
         self.PatchObject(
             packages_service, "determine_package_version", return_value=None
@@ -347,7 +347,7 @@ class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
 class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     """GetTargetVersions tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.GetTargetVersionsResponse()
 
     def _GetRequest(self, board=None):
@@ -359,7 +359,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Quick check that a validate only call does not execute any logic."""
         patch_version = self.PatchObject(
             packages_service, "get_target_versions"
@@ -371,7 +371,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         patch_version.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch_version = self.PatchObject(
             packages_service, "get_target_versions"
@@ -392,7 +392,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertTrue(self.response.milestone_version)
         self.assertTrue(self.response.full_version)
 
-    def testNoBuildTargetFails(self):
+    def testNoBuildTargetFails(self) -> None:
         """No build target argument should fail."""
         request = self._GetRequest()
 
@@ -401,7 +401,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
                 request, self.response, self.api_config
             )
 
-    def testGetTargetVersions(self):
+    def testGetTargetVersions(self) -> None:
         """Verify basic return values."""
         # Mock that chrome is built and set the chrome_version.
         self.PatchObject(packages_service, "builds", return_value=True)
@@ -465,7 +465,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         # Verify call to determine_android_branch passes a board name.
         android_branch_mock.assert_called_with("betty")
 
-    def testGetTargetVersionsWithPackagesSet(self):
+    def testGetTargetVersionsWithPackagesSet(self) -> None:
         """Verify packages pass through and basic return values."""
         # TODO(crbug.com/1124393): Migrate this test to use portage_testables
         # rather than mocking the boundary to portage calls such as
@@ -542,7 +542,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             ]
         )
 
-    def testGetTargetVersionNoAndroidNoChrome(self):
+    def testGetTargetVersionNoAndroidNoChrome(self) -> None:
         """Verify return values on a board that does not have android."""
         platform_version = "12345.1.2"
         self.PatchObject(
@@ -568,7 +568,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     """GetBuilderMetadata tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.GetBuilderMetadataResponse()
 
     def _GetRequest(self, board=None):
@@ -580,7 +580,7 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         request = self._GetRequest(board="betty")
         patch_version = self.PatchObject(
@@ -605,7 +605,7 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         patch_fingerprints.assert_not_called()
         patch_get_models.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         request = self._GetRequest(board="betty")
         patch_version = self.PatchObject(
@@ -639,7 +639,7 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertTrue(self.response.model_metadata[0].model_name)
         self.assertTrue(self.response.model_metadata[0].ec_firmware_version)
 
-    def testNoBuildTargetFails(self):
+    def testNoBuildTargetFails(self) -> None:
         """No build target argument should fail."""
         request = self._GetRequest()
 
@@ -708,7 +708,7 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         return android_version_mock, android_branch_mock, android_target_mock
 
-    def _patch_get_all_firmware(self, all_fw_versions):
+    def _patch_get_all_firmware(self, all_fw_versions) -> None:
         """Patch get_all_firmware_versions and related functions."""
         # Patch packages.get_models, packages.get_all_firmware_versions,
         # and packages.get_key_id for calls needed by model_metadata.
@@ -723,7 +723,7 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         self.PatchObject(packages_service, "get_key_id", return_value="key")
 
-    def testNoFirmware(self):
+    def testNoFirmware(self) -> None:
         """Test no firmware versions handled well."""
         android_version = "android_test_version"
         android_branch = "android_test_branch"
@@ -781,7 +781,7 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             self.response.model_metadata[1].main_readwrite_firmware_version
         )
 
-    def testGetBuilderMetadata(self):
+    def testGetBuilderMetadata(self) -> None:
         """Verify basic return values."""
         android_version = "android_test_version"
         android_branch = "android_test_branch"
@@ -921,7 +921,7 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 class HasChromePrebuiltTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     """HasChromePrebuilt tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.HasChromePrebuiltResponse()
 
     def _GetRequest(self, board=None):
@@ -933,7 +933,7 @@ class HasChromePrebuiltTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(packages_service, "has_prebuilt")
 
@@ -943,7 +943,7 @@ class HasChromePrebuiltTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(packages_service, "has_prebuilt")
 
@@ -954,7 +954,7 @@ class HasChromePrebuiltTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         patch.assert_not_called()
         self.assertTrue(self.response.has_prebuilt)
 
-    def testNoBuildTargetFails(self):
+    def testNoBuildTargetFails(self) -> None:
         """No build target argument should fail."""
         request = self._GetRequest()
 
@@ -967,7 +967,7 @@ class HasChromePrebuiltTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     """BuildsChrome tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.BuildsChromeResponse()
 
     def _GetRequest(self, board=None, packages=None):
@@ -982,7 +982,7 @@ class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(packages_service, "builds")
 
@@ -992,7 +992,7 @@ class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testNoBuildTargetFails(self):
+    def testNoBuildTargetFails(self) -> None:
         """No build target argument should fail."""
         request = self._GetRequest()
 
@@ -1001,7 +1001,7 @@ class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
                 request, self.response, self.api_config
             )
 
-    def testBuilds(self):
+    def testBuilds(self) -> None:
         """Test successful call handling."""
         patch = self.PatchObject(packages_service, "builds", return_value=True)
 
@@ -1014,7 +1014,7 @@ class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             constants.CHROME_CP, build_target_lib.BuildTarget("foo"), []
         )
 
-    def testBuildsChromeWithPackages(self):
+    def testBuildsChromeWithPackages(self) -> None:
         """Test successful call with packages handling."""
         patch = self.PatchObject(packages_service, "builds", return_value=True)
 
@@ -1038,7 +1038,7 @@ class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 class NeedsChromeSourceTest(cros_test_lib.MockTempDirTestCase, ApiConfigMixin):
     """NeedsChromeSource tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.NeedsChromeSourceResponse()
 
         self.board = "board"
@@ -1054,7 +1054,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTempDirTestCase, ApiConfigMixin):
 
         return request
 
-    def testAll(self):
+    def testAll(self) -> None:
         """Reason translation test."""
         result = packages_service.NeedsChromeSourceResult(
             needs_chrome_source=True,
@@ -1112,7 +1112,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTempDirTestCase, ApiConfigMixin):
 class GetAndroidMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     """GetAndroidMetadata tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.response = packages_pb2.GetAndroidMetadataResponse()
 
     def _GetRequest(self, board=None):
@@ -1124,7 +1124,7 @@ class GetAndroidMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
 
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         package_mock = self.PatchObject(
             packages_service, "determine_android_package"
@@ -1145,7 +1145,7 @@ class GetAndroidMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         branch_mock.assert_not_called()
         version_mock.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         package_mock = self.PatchObject(
             packages_service, "determine_android_package"
@@ -1170,7 +1170,7 @@ class GetAndroidMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertTrue(self.response.android_branch)
         self.assertTrue(self.response.android_version)
 
-    def testNoBuildTargetFails(self):
+    def testNoBuildTargetFails(self) -> None:
         """No build target argument should fail."""
         request = self._GetRequest()
         with self.assertRaises(cros_build_lib.DieSystemExit):
@@ -1178,7 +1178,7 @@ class GetAndroidMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
                 request, self.response, self.api_config
             )
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test a successful call."""
         board = "betty"
         package = "android-package"
@@ -1211,7 +1211,7 @@ class GetAndroidMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertEqual(self.response.android_branch, branch)
         self.assertEqual(self.response.android_version, version)
 
-    def testNoAndroid(self):
+    def testNoAndroid(self) -> None:
         """Test returns an empty response if given board has no Android."""
         board = "betty"
 

@@ -288,7 +288,7 @@ def BundleArtifacts(
             art_info.artifacts.add().path = artifact
 
 
-def _GetUpdatedFilesResponse(_input_proto, output_proto, _config):
+def _GetUpdatedFilesResponse(_input_proto, output_proto, _config) -> None:
     """Add successful status to the faux response."""
     file_info = output_proto.updated_files.add()
     file_info.path = "/any/modified/file"
@@ -383,7 +383,7 @@ def EmergeAndUploadLints(
     input_proto: toolchain_pb2.DashboardLintRequest,
     output_proto: toolchain_pb2.DashboardLintResponse,
     _config,
-):
+) -> None:
     """Lint all platform2 packages and uploads lints to GS"""
     board = input_proto.sysroot.build_target.name
     output_proto.gs_path = toolchain.emerge_and_upload_lints(
@@ -399,7 +399,7 @@ def EmergeWithLinting(
     input_proto: "toolchain_pb2.LinterRequest",
     output_proto: "toolchain_pb2.LinterResponse",
     _config: "api_config.ApiConfig",
-):
+) -> None:
     """Emerge packages with linter features enabled and retrieves all findings.
 
     Args:
@@ -473,7 +473,7 @@ def GetToolchainsForBoard(
     input_proto: "toolchain_pb2.ToolchainsRequest",
     output_proto: "toolchain_pb2.ToolchainsReponse",
     _config: "api_config.ApiConfig",
-):
+) -> None:
     """Get the default and non-default toolchains for a board.
 
     Args:
@@ -497,7 +497,7 @@ def SetupToolchains(
     input_proto: "toolchain_pb2.SetupToolchainsRequest",
     output_proto: "toolchain_pb2.SetupToolchainsResponse",
     config: "api_config.ApiConfig",
-):
+) -> None:
     """Run `cros_setup_toolchains`."""
     del output_proto, config  # Unused.
     cros_build_lib.AssertInsideChroot()

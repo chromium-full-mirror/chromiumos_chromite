@@ -25,7 +25,7 @@ class RouterTest(
 ):
     """Test Router functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.router = router.Router()
         self.router.Register(build_api_test_pb2)
 
@@ -97,10 +97,10 @@ class RouterTest(
         self.subprocess_tempdir = os.path.join(self.chroot_dir, "tempdir")
         osutils.SafeMakedirs(self.subprocess_tempdir)
 
-    def testJsonInputOutputMethod(self):
+    def testJsonInputOutputMethod(self) -> None:
         """Test json input/output handling."""
 
-        def impl(input_msg, output_msg, config):
+        def impl(input_msg, output_msg, config) -> None:
             self.assertIsInstance(
                 input_msg, build_api_test_pb2.TestRequestMessage
             )
@@ -121,10 +121,10 @@ class RouterTest(
             self.json_config_handler,
         )
 
-    def testBinaryInputOutputMethod(self):
+    def testBinaryInputOutputMethod(self) -> None:
         """Test binary input/output handling."""
 
-        def impl(input_msg, output_msg, config):
+        def impl(input_msg, output_msg, config) -> None:
             self.assertIsInstance(
                 input_msg, build_api_test_pb2.TestRequestMessage
             )
@@ -145,11 +145,11 @@ class RouterTest(
             self.binary_config_handler,
         )
 
-    def testMultipleOutputHandling(self):
+    def testMultipleOutputHandling(self) -> None:
         """Test multiple output handling."""
         expected_result = "Success!"
 
-        def impl(input_msg, output_msg, config):
+        def impl(input_msg, output_msg, config) -> None:
             self.assertIsInstance(
                 input_msg, build_api_test_pb2.TestRequestMessage
             )
@@ -186,7 +186,7 @@ class RouterTest(
         self.assertEqual(binary_msg.result, expected_result)
         self.assertEqual(json_msg.result, expected_result)
 
-    def testRenameMethod(self):
+    def testRenameMethod(self) -> None:
         """Test implementation name config."""
 
         def _GetMethod(_, method_name):
@@ -215,7 +215,7 @@ class RouterTest(
             The implementation.
         """
 
-        def impl(_input_msg, _output_msg, _config):
+        def impl(_input_msg, _output_msg, _config) -> None:
             self.assertTrue(
                 expect_called, "The implementation should not have been called."
             )
@@ -223,7 +223,7 @@ class RouterTest(
         return impl
 
     def _writeChrootCallOutput(self, content="{}", mode="w"):
-        def impl(*_args, **_kwargs):
+        def impl(*_args, **_kwargs) -> None:
             """Side effect for inside-chroot calls to the API."""
             osutils.WriteFile(
                 os.path.join(
@@ -235,7 +235,7 @@ class RouterTest(
 
         return impl
 
-    def testInsideServiceInsideMethodInsideChroot(self):
+    def testInsideServiceInsideMethodInsideChroot(self) -> None:
         """Test inside/inside/inside works correctly."""
         self.PatchObject(
             self.router,
@@ -252,7 +252,7 @@ class RouterTest(
             self.binary_config_handler,
         )
 
-    def testInsideServiceOutsideMethodOutsideChroot(self):
+    def testInsideServiceOutsideMethodOutsideChroot(self) -> None:
         """Test the outside method override works as expected."""
         self.PatchObject(
             self.router,
@@ -269,7 +269,7 @@ class RouterTest(
             self.binary_config_handler,
         )
 
-    def testInsideServiceInsideMethodOutsideChroot(self):
+    def testInsideServiceInsideMethodOutsideChroot(self) -> None:
         """Test calling an inside method from outside the chroot."""
         self.PatchObject(
             self.router,
@@ -294,7 +294,7 @@ class RouterTest(
             ["build_api", service_method], enter_chroot=True
         )
 
-    def testInsideServiceOutsideMethodInsideChroot(self):
+    def testInsideServiceOutsideMethodInsideChroot(self) -> None:
         """Test inside chroot for outside method raises an error."""
         self.PatchObject(
             self.router,
@@ -312,7 +312,7 @@ class RouterTest(
                 self.binary_config_handler,
             )
 
-    def testOutsideServiceOutsideMethodOutsideChroot(self):
+    def testOutsideServiceOutsideMethodOutsideChroot(self) -> None:
         """Test outside/outside/outside works correctly."""
         self.PatchObject(
             self.router,
@@ -329,7 +329,7 @@ class RouterTest(
             self.binary_config_handler,
         )
 
-    def testOutsideServiceInsideMethodInsideChroot(self):
+    def testOutsideServiceInsideMethodInsideChroot(self) -> None:
         """Test the inside method assertion override works properly."""
         self.PatchObject(
             self.router,
@@ -346,7 +346,7 @@ class RouterTest(
             self.binary_config_handler,
         )
 
-    def testOutsideServiceInsideMethodOutsideChroot(self):
+    def testOutsideServiceInsideMethodOutsideChroot(self) -> None:
         """Test calling an inside override method from outside the chroot."""
         self.PatchObject(
             self.router,
@@ -371,7 +371,7 @@ class RouterTest(
             ["build_api", service_method], enter_chroot=True
         )
 
-    def testReexecNonemptyOutput(self):
+    def testReexecNonemptyOutput(self) -> None:
         """Test calling an inside chroot method that produced output."""
         self.PatchObject(
             self.router,
@@ -425,7 +425,7 @@ class RouterTest(
         tempdir.tempdir = original
         del tempdir
 
-    def testReexecEmptyOutput(self):
+    def testReexecEmptyOutput(self) -> None:
         """Test calling an inside chroot method that produced no output."""
         self.PatchObject(
             self.router,
@@ -465,7 +465,7 @@ class RouterTest(
         self.binary_output_handler.read_into(output_msg)
         self.assertEqual(expected_output_msg, output_msg)
 
-    def testReexecNoOutput(self):
+    def testReexecNoOutput(self) -> None:
         """Test calling an inside chroot method that produced no output."""
         self.PatchObject(
             self.router,
@@ -496,7 +496,7 @@ class RouterTest(
         self.binary_output_handler.read_into(output_msg)
         self.assertEqual(empty_msg, output_msg)
 
-    def test_tot_service_tot_method(self):
+    def test_tot_service_tot_method(self) -> None:
         """Test no re-exec for ToT->ToT."""
         self.PatchObject(
             self.router,
@@ -515,7 +515,7 @@ class RouterTest(
             self.binary_config_handler,
         )
 
-    def test_tot_service_tot_method_inside(self):
+    def test_tot_service_tot_method_inside(self) -> None:
         """Test error raised when method runs ToT & inside the SDK."""
         self.PatchObject(
             self.router,
@@ -535,7 +535,7 @@ class RouterTest(
                 self.binary_config_handler,
             )
 
-    def test_tot_service_branched_method(self):
+    def test_tot_service_branched_method(self) -> None:
         """Re-execute branched BAPI."""
         self.PatchObject(
             self.router,
@@ -561,7 +561,7 @@ class RouterTest(
             [self.tempdir / "bin" / "build_api", f"{service}/{method}"]
         )
 
-    def test_branched_call_no_config(self):
+    def test_branched_call_no_config(self) -> None:
         """Re-execute branched BAPI with no config passed."""
         self.PatchObject(
             self.router,
@@ -596,7 +596,7 @@ class RouterTest(
             ["--config-binary", "--config-json"], expected=False
         )
 
-    def test_tot_service_branched_method_inside(self):
+    def test_tot_service_branched_method_inside(self) -> None:
         """Re-execute branched BAPI.
 
         Chroot handling delegated to the branched BAPI, so should be identical
@@ -626,7 +626,7 @@ class RouterTest(
             [self.tempdir / "bin" / "build_api", f"{service}/{method}"]
         )
 
-    def testInvalidService(self):
+    def testInvalidService(self) -> None:
         """Test invalid service call."""
         service = "chromite.api.DoesNotExist"
         method = "OutsideServiceInsideMethod"
@@ -641,7 +641,7 @@ class RouterTest(
                 self.binary_config_handler,
             )
 
-    def testInvalidMethod(self):
+    def testInvalidMethod(self) -> None:
         """Test invalid method call."""
         service = "chromite.api.OutsideChrootApiService"
         method = "DoesNotExist"
@@ -656,7 +656,7 @@ class RouterTest(
                 self.binary_config_handler,
             )
 
-    def testListVisibility(self):
+    def testListVisibility(self) -> None:
         """Test visibility options."""
         service = "HiddenService"
         method = "HiddenMethod"

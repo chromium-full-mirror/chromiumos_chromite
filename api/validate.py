@@ -206,7 +206,7 @@ def constraint(description):
 
     def decorator(func):
         @functools.wraps(func)
-        def _func(*args, **kwargs):
+        def _func(*args, **kwargs) -> None:
             func(*args, **kwargs)
 
         setattr(_func, "__constraint_description__", description)

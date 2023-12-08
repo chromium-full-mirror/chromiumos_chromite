@@ -217,7 +217,7 @@ class PathHandler:
         self.field.location = direction
         self._transferred = True
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Post-execution cleanup."""
         if self.tempdir:
             self.tempdir.Cleanup()
@@ -251,18 +251,18 @@ class SyncedDirHandler:
         self._original_message = common_pb2.SyncedDir()
         self._original_message.CopyFrom(self.field)
 
-    def _sync(self, src, dest):
+    def _sync(self, src, dest) -> None:
         logging.info("Syncing %s to %s", src, dest)
         # TODO: This would probably be more efficient with rsync.
         osutils.EmptyDir(dest)
         osutils.CopyDirContents(src, dest)
 
-    def sync_in(self):
+    def sync_in(self) -> None:
         """Sync files from the source directory to the destination directory."""
         self._sync(self.source, self.destination)
         self.field.dir = self.chroot.chroot_path(self.destination)
 
-    def sync_out(self):
+    def sync_out(self) -> None:
         """Sync files from the destination directory to the source directory."""
         self._sync(self.destination, self.source)
         self.field.CopyFrom(self._original_message)

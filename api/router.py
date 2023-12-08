@@ -171,7 +171,7 @@ class Router:
         )
         return method_extensions[self._method_options_ext]
 
-    def Register(self, proto_module: ModuleType):
+    def Register(self, proto_module: ModuleType) -> None:
         """Register the services from a generated proto module.
 
         Args:
@@ -600,7 +600,7 @@ class Router:
             raise MethodNotFoundError(str(e))
 
 
-def RegisterServices(router: Router):
+def RegisterServices(router: Router) -> None:
     """Register all the services.
 
     Args:

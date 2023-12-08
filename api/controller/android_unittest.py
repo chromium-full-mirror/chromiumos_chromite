@@ -22,7 +22,7 @@ from chromite.service import packages
 class GetLatestBuildTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Unittests for GetLatestBuild."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._mock = self.PatchObject(service_android, "GetLatestBuild")
         self._mock.return_value = ("7123456", {})
         self._output_proto = android_pb2.GetLatestBuildResponse()
@@ -35,7 +35,7 @@ class GetLatestBuildTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             req.android_package = android_package
         return req
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Test that a validate only call does not execute any logic."""
         req = self._GetRequest(android_package="android-package")
         android.GetLatestBuild(
@@ -43,34 +43,34 @@ class GetLatestBuildTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         self._mock.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         req = self._GetRequest(android_package="android-package")
         android.GetLatestBuild(req, self._output_proto, self.mock_call_config)
         self._mock.assert_not_called()
         self.assertEqual(self._output_proto.android_version, "7123456")
 
-    def testFailsIfBranchAndPackageMissing(self):
+    def testFailsIfBranchAndPackageMissing(self) -> None:
         """Fails if android_build_branch and android_package are missing."""
         req = self._GetRequest()
         with self.assertRaises(cros_build_lib.DieSystemExit):
             android.GetLatestBuild(req, self._output_proto, self.api_config)
         self._mock.assert_not_called()
 
-    def testFailsIfPackageMissing(self):
+    def testFailsIfPackageMissing(self) -> None:
         """Fails if android_package is missing."""
         req = self._GetRequest(android_build_branch="android-branch")
         with self.assertRaises(cros_build_lib.DieSystemExit):
             android.GetLatestBuild(req, self._output_proto, self.api_config)
         self._mock.assert_not_called()
 
-    def testPackageSpecified(self):
+    def testPackageSpecified(self) -> None:
         """Test calling with Android package specified."""
         req = self._GetRequest(android_package="android-package")
         android.GetLatestBuild(req, self._output_proto, self.api_config)
         self.assertEqual(self._output_proto.android_version, "7123456")
 
-    def testBranchAndPackageSpecified(self):
+    def testBranchAndPackageSpecified(self) -> None:
         """Test calling with both Android branch and package specified."""
         req = self._GetRequest(
             android_build_branch="android-branch",
@@ -86,7 +86,7 @@ class GetLatestBuildTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Unittests for MarkStable."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.uprev = self.PatchObject(packages, "uprev_android")
 
         self.input_proto = android_pb2.MarkStableRequest()
@@ -105,14 +105,14 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         self.response = android_pb2.MarkStableResponse()
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         android.MarkStable(
             self.input_proto, self.response, self.validate_only_config
         )
         self.uprev.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         android.MarkStable(
             self.input_proto, self.response, self.mock_call_config
@@ -127,14 +127,14 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         self.assertEqual(self.response.android_atom.version, "1.2")
 
-    def testFailsIfPackageNameMissing(self):
+    def testFailsIfPackageNameMissing(self) -> None:
         """Fails if package_name is missing."""
         self.input_proto.package_name = ""
         with self.assertRaises(cros_build_lib.DieSystemExit):
             android.MarkStable(self.input_proto, self.response, self.api_config)
         self.uprev.assert_not_called()
 
-    def testCallsCommandCorrectly(self):
+    def testCallsCommandCorrectly(self) -> None:
         """Test that packages.uprev_android is called correctly."""
         self.uprev.return_value = packages.UprevAndroidResult(
             revved=True, android_atom="cat/android-1.2.3"
@@ -160,7 +160,7 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             self.response.status, android_pb2.MARK_STABLE_STATUS_SUCCESS
         )
 
-    def testHandlesEarlyExit(self):
+    def testHandlesEarlyExit(self) -> None:
         """Test that early exit is handled correctly."""
         self.uprev.return_value = packages.UprevAndroidResult(revved=False)
         android.MarkStable(self.input_proto, self.response, self.api_config)
@@ -179,7 +179,7 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             self.response.status, android_pb2.MARK_STABLE_STATUS_EARLY_EXIT
         )
 
-    def testHandlesPinnedUprevError(self):
+    def testHandlesPinnedUprevError(self) -> None:
         """Test that pinned error is handled correctly."""
         self.uprev.side_effect = packages.AndroidIsPinnedUprevError(
             "pin/xx-1.1"
@@ -209,7 +209,7 @@ class MarkStableTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class UnpinVersionTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Unittests for UnpinVersion."""
 
-    def testCallsUnlink(self):
+    def testCallsUnlink(self) -> None:
         """SetAndroid calls service with correct args."""
         safeunlink = self.PatchObject(osutils, "SafeUnlink")
         self.PatchObject(constants, "_FindSourceRoot", return_value="SRCROOT")
@@ -219,14 +219,14 @@ class UnpinVersionTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         android.UnpinVersion(None, None, self.api_config)
         safeunlink.assert_called_once_with(android.ANDROIDPIN_MASK_PATH)
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         safeunlink = self.PatchObject(osutils, "SafeUnlink")
 
         android.UnpinVersion(None, None, self.validate_only_config)
         safeunlink.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test that a mock call does not execute logic."""
         safeunlink = self.PatchObject(osutils, "SafeUnlink")
 
@@ -238,7 +238,7 @@ class UnpinVersionTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Unittests for WriteLKGB."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._output_proto = android_pb2.WriteLKGBResponse()
 
         self.PatchObject(
@@ -259,7 +259,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             return_value="999",
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Test that a validate only call does not execute any logic."""
         mock_write_lkgb = self.PatchObject(service_android, "WriteLKGB")
 
@@ -270,7 +270,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         mock_write_lkgb.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         mock_write_lkgb = self.PatchObject(service_android, "WriteLKGB")
 
@@ -284,19 +284,19 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             self._output_proto.modified_files, ["fake_file"]
         )
 
-    def testFailsIfAndroidPackageMissing(self):
+    def testFailsIfAndroidPackageMissing(self) -> None:
         """Fails if android_package is missing."""
         req = android_pb2.WriteLKGBRequest(android_version="android-version")
         with self.assertRaises(cros_build_lib.DieSystemExit):
             android.WriteLKGB(req, self._output_proto, self.api_config)
 
-    def testFailsIfAndroidVersionMissing(self):
+    def testFailsIfAndroidVersionMissing(self) -> None:
         """Fails if android_version is missing."""
         req = android_pb2.WriteLKGBRequest(android_package="android-package")
         with self.assertRaises(cros_build_lib.DieSystemExit):
             android.WriteLKGB(req, self._output_proto, self.api_config)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Successful request."""
         mock_read_lkgb = self.PatchObject(
             service_android,
@@ -326,7 +326,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             self._output_proto.modified_files, ["mock_file"]
         )
 
-    def testSameVersion(self):
+    def testSameVersion(self) -> None:
         """Nothing is modified if LKGB is already the same version."""
         mock_read_lkgb = self.PatchObject(
             service_android,
@@ -357,7 +357,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_write_lkgb.assert_not_called()
         self.assertSequenceEqual(self._output_proto.modified_files, [])
 
-    def testMissingLKGB(self):
+    def testMissingLKGB(self) -> None:
         """Proceed if LKGB file is currently missing."""
         mock_read_lkgb = self.PatchObject(
             service_android,
@@ -387,7 +387,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             self._output_proto.modified_files, ["mock_file"]
         )
 
-    def testInvalidLKGB(self):
+    def testInvalidLKGB(self) -> None:
         """Proceed if LKGB file currently contains invalid content."""
         mock_read_lkgb = self.PatchObject(
             service_android,
@@ -417,7 +417,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             self._output_proto.modified_files, ["mock_file"]
         )
 
-    def testNewRuntimeArtifactsPin(self):
+    def testNewRuntimeArtifactsPin(self) -> None:
         """Proceed if a new runtime artifacts pin is found."""
         mock_read_lkgb = self.PatchObject(
             service_android,

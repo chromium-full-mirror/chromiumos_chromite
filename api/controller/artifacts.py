@@ -450,12 +450,12 @@ def BundleTastFiles(
     )
 
 
-def BundlePinnedGuestImages(_input_proto, _output_proto, _config):
+def BundlePinnedGuestImages(_input_proto, _output_proto, _config) -> None:
     # TODO(crbug/1034529): Remove this endpoint
     pass
 
 
-def FetchPinnedGuestImageUris(_input_proto, _output_proto, _config):
+def FetchPinnedGuestImageUris(_input_proto, _output_proto, _config) -> None:
     # TODO(crbug/1034529): Remove this endpoint
     pass
 
@@ -494,7 +494,7 @@ def FetchMetadata(
     return controller.RETURN_CODE_SUCCESS
 
 
-def _BundleFirmwareResponse(input_proto, output_proto, _config):
+def _BundleFirmwareResponse(input_proto, output_proto, _config) -> None:
     """Add test firmware image files to a successful response."""
     output_proto.artifacts.add(
         artifact_path=common_pb2.Path(

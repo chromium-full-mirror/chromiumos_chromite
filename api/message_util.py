@@ -86,7 +86,9 @@ def get_message_handler(path, msg_format):
 class Serializer:
     """Base (and null) serializer class."""
 
-    def deserialize(self, data: str, message: "google.protobuf.Message"):
+    def deserialize(
+        self, data: str, message: "google.protobuf.Message"
+    ) -> None:
         """Deserialize the data into the given message.
 
         Args:
@@ -110,7 +112,7 @@ class Serializer:
 class BinarySerializer(Serializer):
     """Protobuf binary serializer class."""
 
-    def deserialize(self, data, message):
+    def deserialize(self, data, message) -> None:
         """Deserialize the data into the given message.
 
         See: Serializer.deserialize
@@ -128,7 +130,7 @@ class BinarySerializer(Serializer):
 class JsonSerializer(Serializer):
     """Protobuf json serializer class."""
 
-    def deserialize(self, data, message):
+    def deserialize(self, data, message) -> None:
         """Deserialize the data into the given message.
 
         See: Serializer.deserialize
@@ -212,7 +214,7 @@ class MessageHandler:
 
     def read_into(
         self, message: "google.protobuf.Message", path: Optional[str] = None
-    ):
+    ) -> None:
         """Read a file containing serialized data into a message.
 
         Args:
@@ -243,7 +245,7 @@ class MessageHandler:
 
     def write_from(
         self, message: "google.protobuf.Message", path: Optional[str] = None
-    ):
+    ) -> None:
         """Write serialized data from the message to a file.
 
         Args:

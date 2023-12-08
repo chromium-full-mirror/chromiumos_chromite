@@ -69,7 +69,9 @@ def DebugInfoTest(input_proto, _output_proto, config):
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
 
-def _BuildTargetUnitTestFailedResponse(_input_proto, output_proto, _config):
+def _BuildTargetUnitTestFailedResponse(
+    _input_proto, output_proto, _config
+) -> None:
     """Add failed packages to a failed response."""
     packages = ["foo/bar", "cat/pkg"]
     for pkg in packages:
@@ -152,7 +154,9 @@ PLATFORM_DEV_DIR = os.path.join(SRC_DIR, "platform/dev")
 TEST_SERVICE_DIR = os.path.join(PLATFORM_DEV_DIR, "src/chromiumos/test")
 
 
-def _BuildTestServiceContainersResponse(input_proto, output_proto, _config):
+def _BuildTestServiceContainersResponse(
+    input_proto, output_proto, _config
+) -> None:
     """Fake success response"""
     # pylint: disable=unused-argument
     output_proto.results.append(
@@ -164,7 +168,7 @@ def _BuildTestServiceContainersResponse(input_proto, output_proto, _config):
 
 def _BuildTestServiceContainersFailedResponse(
     _input_proto, output_proto, _config
-):
+) -> None:
     """Fake failure response"""
 
     # pylint: disable=unused-argument
@@ -226,7 +230,7 @@ def BuildTestServiceContainers(
     input_proto: test_pb2.BuildTestServiceContainersRequest,
     output_proto: test_pb2.BuildTestServiceContainersResponse,
     _config,
-):
+) -> None:
     """Build docker containers for all test services and push them to gcr.io."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     chroot = controller_util.ParseChroot(input_proto.chroot)
@@ -388,7 +392,7 @@ def SimpleChromeWorkflowTest(input_proto, _output_proto, _config):
     "build_target.name", "vm_path.path", "test_harness", "vm_tests"
 )
 @validate.validation_complete
-def VmTest(input_proto, _output_proto, _config):
+def VmTest(input_proto, _output_proto, _config) -> None:
     """Run VM tests."""
     build_target_name = input_proto.build_target.name
     vm_path = input_proto.vm_path.path

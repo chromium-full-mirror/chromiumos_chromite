@@ -48,7 +48,9 @@ _RELEVANT_TARGET = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
         ),
     ],
 )
-def test_get_relevant_build_targets(mocked_results, expected_output_proto):
+def test_get_relevant_build_targets(
+    mocked_results, expected_output_proto
+) -> None:
     with mock.patch(
         "chromite.service.relevancy.get_relevant_build_targets",
         return_value=mocked_results,

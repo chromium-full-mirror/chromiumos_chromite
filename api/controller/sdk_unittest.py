@@ -29,7 +29,7 @@ from chromite.service import sdk as sdk_service
 class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Create tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup method."""
         # We need to run the command outside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
@@ -61,7 +61,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         request.skip_chroot_upgrade = True
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "Create")
 
@@ -70,7 +70,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "Create")
 
@@ -81,7 +81,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertFalse(rc)
         self.assertTrue(self.response.version.version)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test the successful call output handling."""
         self.PatchObject(sdk_service, "Create", return_value=1)
 
@@ -91,7 +91,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         self.assertEqual(1, self.response.version.version)
 
-    def testFalseArguments(self):
+    def testFalseArguments(self) -> None:
         """Test False argument handling."""
         # Create the patches.
         self.PatchObject(sdk_service, "Create", return_value=1)
@@ -112,7 +112,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             ccache_disable=mock.ANY,
         )
 
-    def testTrueArguments(self):
+    def testTrueArguments(self) -> None:
         """Test True arguments handling."""
         # Create the patches.
         self.PatchObject(sdk_service, "Create", return_value=1)
@@ -138,7 +138,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class SdkCleanTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Clean tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup method."""
         # We need to run the command outside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
@@ -154,7 +154,7 @@ class SdkCleanTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         return request
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "Clean")
 
@@ -164,7 +164,7 @@ class SdkCleanTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertFalse(rc)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test the successful call by verifying service invocation."""
         patch = self.PatchObject(sdk_service, "Clean", return_value=0)
 
@@ -183,7 +183,7 @@ class SdkCleanTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             incrementals=True,
         )
 
-    def testDefaults(self):
+    def testDefaults(self) -> None:
         """Test the successful call by verifying service invocation."""
         patch = self.PatchObject(sdk_service, "Clean", return_value=0)
 
@@ -196,7 +196,7 @@ class SdkCleanTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class SdkDeleteTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Delete tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup method."""
         # We need to run the command outside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
@@ -210,7 +210,7 @@ class SdkDeleteTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "Delete")
 
@@ -219,7 +219,7 @@ class SdkDeleteTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "Delete")
 
@@ -229,7 +229,7 @@ class SdkDeleteTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertFalse(rc)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test the successful call by verifying service invocation."""
         patch = self.PatchObject(sdk_service, "Delete", return_value=1)
 
@@ -243,7 +243,7 @@ class SdkDeleteTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class SdkUnmountTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """SDK Unmount tests."""
 
-    def testNoop(self):
+    def testNoop(self) -> None:
         """Unmount is a deprecated noop."""
         request = sdk_pb2.UnmountRequest()
         response = sdk_pb2.UnmountResponse()
@@ -254,7 +254,7 @@ class SdkUnmountTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 class SdkUnmountPathTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Update tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup method."""
         self.response = sdk_pb2.UnmountPathResponse()
 
@@ -265,7 +265,7 @@ class SdkUnmountPathTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             request.path.path = path
         return request
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "UnmountPath")
 
@@ -276,7 +276,7 @@ class SdkUnmountPathTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "UnmountPath")
 
@@ -286,7 +286,7 @@ class SdkUnmountPathTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         patch.assert_not_called()
         self.assertFalse(rc)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test the successful call by verifying service invocation."""
         patch = self.PatchObject(sdk_service, "UnmountPath", return_value=1)
 
@@ -300,7 +300,7 @@ class SdkUpdateTest(
 ):
     """Update tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup method."""
         # We need to run the command inside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
@@ -349,7 +349,7 @@ class SdkUpdateTest(
         )
         return path
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "Update")
 
@@ -358,7 +358,7 @@ class SdkUpdateTest(
         )
         patch.assert_not_called()
 
-    def testMockCall(self):
+    def testMockCall(self) -> None:
         """Sanity check that a mock call does not execute any logic."""
         patch = self.PatchObject(sdk_service, "Update")
 
@@ -369,7 +369,7 @@ class SdkUpdateTest(
         self.assertFalse(rc)
         self.assertTrue(self.response.version.version)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Successful call output handling test."""
         expected_version = 1
         expected_return = sdk_service.UpdateResult(
@@ -382,7 +382,7 @@ class SdkUpdateTest(
 
         self.assertEqual(expected_version, self.response.version.version)
 
-    def testNonPackageFailure(self):
+    def testNonPackageFailure(self) -> None:
         """Test output handling when the call fails."""
         expected_return = sdk_service.UpdateResult(return_code=1)
         self.PatchObject(sdk_service, "Update", return_value=expected_return)
@@ -392,7 +392,7 @@ class SdkUpdateTest(
         )
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
 
-    def testPackageFailure(self):
+    def testPackageFailure(self) -> None:
         """Test output handling when the call fails with a package failure."""
         pkgs = ["cat/pkg-1.0-r1", "foo/bar-2.0-r1"]
         cpvrs = [package_info.parse(pkg) for pkg in pkgs]
@@ -431,7 +431,7 @@ class SdkUpdateTest(
             self.assertEqual(data.log_path.path, new_logs[package.cpvr])
         self.assertCountEqual(expected_failed_pkgs, failed_pkgs)
 
-    def testArgumentHandling(self):
+    def testArgumentHandling(self) -> None:
         """Test the proto argument handling."""
         expected_return = sdk_service.UpdateResult(return_code=0, version=1)
         args = sdk_service.UpdateArguments()
@@ -487,7 +487,7 @@ class CreateManifestFromSdkTest(
     def _NewResponse(self) -> sdk_pb2.CreateManifestFromSdkResponse:
         return sdk_pb2.CreateManifestFromSdkResponse()
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.chroot = chroot_lib.Chroot(
@@ -495,7 +495,7 @@ class CreateManifestFromSdkTest(
             out_path=Path("/path/to/out"),
         )
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         impl_patch = self.PatchObject(sdk_service, "CreateManifestFromSdk")
         sdk_controller.CreateManifestFromSdk(
@@ -505,7 +505,7 @@ class CreateManifestFromSdkTest(
         )
         impl_patch.assert_not_called()
 
-    def testOutside(self):
+    def testOutside(self) -> None:
         """Check that a call with an outside path succeeds."""
         impl_patch = self.PatchObject(
             sdk_service,
@@ -528,7 +528,7 @@ class CreateManifestFromSdkTest(
         )
         self.assertEqual(response.manifest_path.path, self._manifest_path)
 
-    def testInside(self):
+    def testInside(self) -> None:
         """Check that an inside path parses correctly and the call succeeds."""
         impl_patch = self.PatchObject(
             sdk_service,
@@ -557,7 +557,7 @@ class BuildSdkToolchainTest(
 ):
     """Test the SdkService/BuildSdkToolchain endpoint."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the test case."""
         self._chroot_path = "/path/to/chroot"
         self._result_dir = "/out/toolchain-pkgs/"
@@ -611,7 +611,7 @@ class BuildSdkToolchainTest(
             )
         return response
 
-    def testValidateOnly(self):
+    def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         impl_patch = self.PatchObject(sdk_service, "BuildSdkToolchain")
         sdk_controller.BuildSdkToolchain(
@@ -619,7 +619,7 @@ class BuildSdkToolchainTest(
         )
         impl_patch.assert_not_called()
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Check that a normal call defers to the SDK service as expected."""
         impl_patch = self.PatchObject(sdk_service, "BuildSdkToolchain")
         request = self._NewRequest(use_flags=[])
@@ -634,7 +634,7 @@ class BuildSdkToolchainTest(
         impl_patch.assert_called_once()
         self.assertEqual(impl_patch.call_args.kwargs["extra_env"], {})
 
-    def testSuccessWithUseFlags(self):
+    def testSuccessWithUseFlags(self) -> None:
         """Check that a call with USE flags works as expected."""
         impl_patch = self.PatchObject(sdk_service, "BuildSdkToolchain")
         request = self._NewRequest(use_flags=["llvm-next", "another-flag"])
@@ -658,7 +658,7 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
     _binhost_gs_bucket = "gs://chromiumos-prebuilts/"
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the test case."""
         self._uprev_patch = self.PatchObject(
             sdk_service,
@@ -680,7 +680,7 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         """Return a new empty UprevResponse."""
         return sdk_pb2.UprevResponse()
 
-    def testWithVersion(self):
+    def testWithVersion(self) -> None:
         """Test the endpoint with `version` specified.
 
         In this case, we expect that sdk_controller.Uprev is called with the
@@ -700,7 +700,7 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             toolchain_tarball_template=toolchain_tarball_template,
         )
 
-    def testWithoutVersion(self):
+    def testWithoutVersion(self) -> None:
         """Test the endpoint with `version` not specified.
 
         In this case, we expect that sdk_controller.Uprev is called with the
@@ -716,7 +716,7 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         with self.assertRaises(cros_build_lib.DieSystemExit):
             sdk_controller.Uprev(request, response, self.api_config)
 
-    def testWithoutToolchainTarballTemplate(self):
+    def testWithoutToolchainTarballTemplate(self) -> None:
         """Test the endpoint with `toolchain_tarball_template` not specified."""
         request = self.NewRequest(version="1234")
         response = self.NewResponse()

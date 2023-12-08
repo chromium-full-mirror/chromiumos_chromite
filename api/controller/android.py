@@ -34,7 +34,7 @@ ANDROIDPIN_MASK_PATH = os.path.join(
 )
 
 
-def _GetLatestBuildResponse(_input_proto, output_proto, _config):
+def _GetLatestBuildResponse(_input_proto, output_proto, _config) -> None:
     """Fake GetLatestBuild response."""
     output_proto.android_version = "7123456"
 
@@ -43,7 +43,7 @@ def _GetLatestBuildResponse(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("android_package")
 @validate.validation_complete
-def GetLatestBuild(input_proto, output_proto, _config):
+def GetLatestBuild(input_proto, output_proto, _config) -> None:
     build_id, _ = android.GetLatestBuild(
         input_proto.android_package,
         build_branch=input_proto.android_build_branch,
@@ -51,7 +51,7 @@ def GetLatestBuild(input_proto, output_proto, _config):
     output_proto.android_version = build_id
 
 
-def _MarkStableResponse(_input_proto, output_proto, _config):
+def _MarkStableResponse(_input_proto, output_proto, _config) -> None:
     """Add fake status to a successful response."""
     output_proto.android_atom.category = "category"
     output_proto.android_atom.package_name = "android-package-name"
@@ -139,7 +139,7 @@ def UnpinVersion(
     osutils.SafeUnlink(ANDROIDPIN_MASK_PATH)
 
 
-def _WriteLKGBResponse(_input_proto, output_proto, _config):
+def _WriteLKGBResponse(_input_proto, output_proto, _config) -> None:
     """Fake WriteLKGB response."""
     output_proto.modified_files.append("fake_file")
 
@@ -148,7 +148,7 @@ def _WriteLKGBResponse(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("android_package", "android_version")
 @validate.validation_complete
-def WriteLKGB(input_proto, output_proto, _config):
+def WriteLKGB(input_proto, output_proto, _config) -> None:
     android_package = input_proto.android_package
     android_version = input_proto.android_version
     android_branch = (

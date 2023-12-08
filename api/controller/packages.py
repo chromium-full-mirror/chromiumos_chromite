@@ -27,7 +27,7 @@ _OVERLAY_TYPE_TO_NAME = {
 }
 
 
-def _UprevResponse(_input_proto, output_proto, _config):
+def _UprevResponse(_input_proto, output_proto, _config) -> None:
     """Add fake paths to a successful uprev response."""
     output_proto.modified_ebuilds.add().path = "/fake/path1"
     output_proto.modified_ebuilds.add().path = "/fake/path2"
@@ -38,7 +38,7 @@ def _UprevResponse(_input_proto, output_proto, _config):
 @validate.require("overlay_type")
 @validate.is_in("overlay_type", _OVERLAY_TYPE_TO_NAME)
 @validate.validation_complete
-def Uprev(input_proto, output_proto, _config):
+def Uprev(input_proto, output_proto, _config) -> None:
     """Uprev all cros workon ebuilds that have changes."""
     build_targets = controller_util.ParseBuildTargets(input_proto.build_targets)
     overlay_type = _OVERLAY_TYPE_TO_NAME[input_proto.overlay_type]
@@ -62,7 +62,7 @@ def Uprev(input_proto, output_proto, _config):
         controller_util.serialize_package_info(pkg_info, pkg_proto)
 
 
-def _UprevVersionedPackageResponse(_input_proto, output_proto, _config):
+def _UprevVersionedPackageResponse(_input_proto, output_proto, _config) -> None:
     """Add fake paths to a successful uprev versioned package response."""
     uprev_response = output_proto.responses.add()
     uprev_response.modified_ebuilds.add().path = "/uprev/response/path"
@@ -73,7 +73,7 @@ def _UprevVersionedPackageResponse(_input_proto, output_proto, _config):
 @validate.require("versions")
 @validate.require("package_info.package_name", "package_info.category")
 @validate.validation_complete
-def UprevVersionedPackage(input_proto, output_proto, _config):
+def UprevVersionedPackage(input_proto, output_proto, _config) -> None:
     """Uprev a versioned package.
 
     See go/pupr-generator for details about this endpoint.
@@ -105,7 +105,7 @@ def UprevVersionedPackage(input_proto, output_proto, _config):
 @faux.success(_UprevVersionedPackageResponse)
 @faux.empty_error
 @validate.validation_complete
-def RevBumpChrome(_input_proto, output_proto, _config):
+def RevBumpChrome(_input_proto, output_proto, _config) -> None:
     result = packages.revbump_chrome()
 
     for modified in result.modified:
@@ -115,7 +115,7 @@ def RevBumpChrome(_input_proto, output_proto, _config):
             uprev_response.modified_ebuilds.add().path = path
 
 
-def _GetBestVisibleResponse(_input_proto, output_proto, _config):
+def _GetBestVisibleResponse(_input_proto, output_proto, _config) -> None:
     """Add fake paths to a successful GetBestVisible response."""
     pkg_info_msg = common_pb2.PackageInfo(
         category="category",
@@ -129,7 +129,7 @@ def _GetBestVisibleResponse(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("atom")
 @validate.validation_complete
-def GetBestVisible(input_proto, output_proto, _config):
+def GetBestVisible(input_proto, output_proto, _config) -> None:
     """Returns the best visible PackageInfo for the indicated atom."""
     build_target = None
     if input_proto.build_target.name:
@@ -143,7 +143,7 @@ def GetBestVisible(input_proto, output_proto, _config):
     controller_util.serialize_package_info(best, output_proto.package_info)
 
 
-def _ChromeVersionResponse(_input_proto, output_proto, _config):
+def _ChromeVersionResponse(_input_proto, output_proto, _config) -> None:
     """Add a fake chrome version to a successful response."""
     output_proto.version = "78.0.3900.0"
 
@@ -152,7 +152,7 @@ def _ChromeVersionResponse(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("build_target.name")
 @validate.validation_complete
-def GetChromeVersion(input_proto, output_proto, _config):
+def GetChromeVersion(input_proto, output_proto, _config) -> None:
     """Returns the chrome version."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     chrome_version = packages.determine_package_version(
@@ -162,7 +162,7 @@ def GetChromeVersion(input_proto, output_proto, _config):
         output_proto.version = chrome_version
 
 
-def _GetTargetVersionsResponse(_input_proto, output_proto, _config):
+def _GetTargetVersionsResponse(_input_proto, output_proto, _config) -> None:
     """Add fake target version fields to a successful response."""
     output_proto.android_version = "5812377"
     output_proto.android_branch_version = "git_nyc-mr1-arc"
@@ -179,7 +179,7 @@ def _GetTargetVersionsResponse(_input_proto, output_proto, _config):
 @validate.require("build_target.name")
 @validate.require_each("packages", ["category", "package_name"])
 @validate.validation_complete
-def GetTargetVersions(input_proto, output_proto, _config):
+def GetTargetVersions(input_proto, output_proto, _config) -> None:
     """Returns the target versions."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     package_list = [
@@ -198,7 +198,7 @@ def GetTargetVersions(input_proto, output_proto, _config):
     output_proto.lacros_version = target_versions.lacros_version or ""
 
 
-def _GetBuilderMetadataResponse(input_proto, output_proto, _config):
+def _GetBuilderMetadataResponse(input_proto, output_proto, _config) -> None:
     """Add fake metadata fields to a successful response."""
     # Populate only a few fields to validate faux testing.
     build_target_metadata = output_proto.build_target_metadata.add()
@@ -213,7 +213,7 @@ def _GetBuilderMetadataResponse(input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("build_target.name")
 @validate.validation_complete
-def GetBuilderMetadata(input_proto, output_proto, _config):
+def GetBuilderMetadata(input_proto, output_proto, _config) -> None:
     """Returns the target builder metadata."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     build_target_metadata = output_proto.build_target_metadata.add()
@@ -273,7 +273,7 @@ def GetBuilderMetadata(input_proto, output_proto, _config):
                 model_metadata.main_readwrite_firmware_version = main_rw or ""
 
 
-def _HasPrebuiltSuccess(_input_proto, output_proto, _config):
+def _HasPrebuiltSuccess(_input_proto, output_proto, _config) -> None:
     """The mock success case for HasChromePrebuilt."""
     output_proto.has_prebuilt = True
 
@@ -282,7 +282,7 @@ def _HasPrebuiltSuccess(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("build_target.name")
 @validate.validation_complete
-def HasChromePrebuilt(input_proto, output_proto, _config):
+def HasChromePrebuilt(input_proto, output_proto, _config) -> None:
     """Checks if the most recent version of Chrome has a prebuilt."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     useflags = "chrome_internal" if input_proto.chrome else None
@@ -299,7 +299,7 @@ def HasChromePrebuilt(input_proto, output_proto, _config):
     "build_target.name", "package_info.category", "package_info.package_name"
 )
 @validate.validation_complete
-def HasPrebuilt(input_proto, output_proto, _config):
+def HasPrebuilt(input_proto, output_proto, _config) -> None:
     """Checks if the most recent version of Chrome has a prebuilt."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     package = controller_util.deserialize_package_info(input_proto.package_info)
@@ -311,7 +311,7 @@ def HasPrebuilt(input_proto, output_proto, _config):
     output_proto.has_prebuilt = exists
 
 
-def _BuildsChromeSuccess(_input_proto, output_proto, _config):
+def _BuildsChromeSuccess(_input_proto, output_proto, _config) -> None:
     """Mock success case for BuildsChrome."""
     output_proto.builds_chrome = True
 
@@ -321,7 +321,7 @@ def _BuildsChromeSuccess(_input_proto, output_proto, _config):
 @validate.require("build_target.name")
 @validate.require_each("packages", ["category", "package_name"])
 @validate.validation_complete
-def BuildsChrome(input_proto, output_proto, _config):
+def BuildsChrome(input_proto, output_proto, _config) -> None:
     """Check if the board builds chrome."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     pkgs = [
@@ -332,7 +332,7 @@ def BuildsChrome(input_proto, output_proto, _config):
     output_proto.builds_chrome = builds_chrome
 
 
-def _NeedsChromeSourceSuccess(_input_proto, output_proto, _config):
+def _NeedsChromeSourceSuccess(_input_proto, output_proto, _config) -> None:
     """Mock success case for NeedsChromeSource."""
     output_proto.needs_chrome_source = True
     output_proto.builds_chrome = True
@@ -358,7 +358,7 @@ def _NeedsChromeSourceSuccess(_input_proto, output_proto, _config):
 @validate.require("install_request.sysroot.build_target.name")
 @validate.exists("install_request.sysroot.path")
 @validate.validation_complete
-def NeedsChromeSource(input_proto, output_proto, _config):
+def NeedsChromeSource(input_proto, output_proto, _config) -> None:
     """Check if the build will need the chrome source."""
     # Input parsing.
     build_target = controller_util.ParseBuildTarget(
@@ -415,7 +415,7 @@ def NeedsChromeSource(input_proto, output_proto, _config):
         controller_util.serialize_package_info(pkg, pkg_info)
 
 
-def _GetAndroidMetadataResponse(_input_proto, output_proto, _config):
+def _GetAndroidMetadataResponse(_input_proto, output_proto, _config) -> None:
     """Mock Android metadata on successful run."""
     output_proto.android_package = "android-vm-rvc"
     output_proto.android_branch = "git_rvc-arc"
@@ -426,7 +426,7 @@ def _GetAndroidMetadataResponse(_input_proto, output_proto, _config):
 @faux.empty_error
 @validate.require("build_target.name")
 @validate.validation_complete
-def GetAndroidMetadata(input_proto, output_proto, _config):
+def GetAndroidMetadata(input_proto, output_proto, _config) -> None:
     """Returns Android-related metadata."""
     build_target = controller_util.ParseBuildTarget(input_proto.build_target)
     # This returns a full CPVR string, e.g.

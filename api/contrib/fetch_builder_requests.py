@@ -74,7 +74,7 @@ def _ParseArguments(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     opts = _ParseArguments(argv)
 
     analysis_service = analysis_service_pb2.AnalysisServiceEvent()

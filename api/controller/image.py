@@ -131,7 +131,7 @@ class ImageTypes(NamedTuple):
 
 def _add_image_to_proto(
     output_proto, path: Union["Path", str], image_type: int, board: str
-):
+) -> None:
     """Quick helper function to add a new image to the output proto."""
     new_image = output_proto.images.add()
     new_image.path = str(path)
@@ -256,7 +256,7 @@ def GetArtifacts(
     return generated
 
 
-def _CreateResponse(_input_proto, output_proto, _config):
+def _CreateResponse(_input_proto, output_proto, _config) -> None:
     """Set output_proto success field on a successful Create response."""
     output_proto.success = True
 
@@ -409,7 +409,7 @@ def Create(
 
 def _parse_img_metrics_to_response(
     output: "image_pb2.CreateImageResult", board: str, build_path: Path
-):
+) -> None:
     """Manually translate the package sizes file to the metrics events.
 
     This is a temporary hack to manually translate the package sizes file to
@@ -505,7 +505,7 @@ def _ParseCreateBuildConfig(input_proto):
 @faux.all_empty
 @validate.require("build_target.name")
 @validate.validation_complete
-def CreateNetboot(input_proto, _output_proto, _config):
+def CreateNetboot(input_proto, _output_proto, _config) -> None:
     """Create a netboot kernel.
 
     The netboot kernel currently needs network access because it's not building

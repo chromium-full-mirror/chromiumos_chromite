@@ -217,7 +217,7 @@ def deserialize_package_index_info(
 def serialize_package_info(
     pkg_info: package_info.PackageInfo,
     pkg_info_msg: Union[common_pb2.PackageInfo, "portage_pb2.Portage.Package"],
-):
+) -> None:
     """Serialize a PackageInfo object to a PackageInfo proto."""
     if not isinstance(pkg_info, package_info.PackageInfo):
         # Allows us to swap everything to serialize_package_info, and search the

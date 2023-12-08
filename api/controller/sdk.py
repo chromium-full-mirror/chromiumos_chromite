@@ -24,12 +24,12 @@ if TYPE_CHECKING:
     from chromite.api.gen.chromite.api import sdk_pb2
 
 
-def _ChrootVersionResponse(_input_proto, output_proto, _config):
+def _ChrootVersionResponse(_input_proto, output_proto, _config) -> None:
     """Add a fake chroot version to a successful response."""
     output_proto.version.version = 168
 
 
-def _BinhostCLs(_input_proto, output_proto, _config):
+def _BinhostCLs(_input_proto, output_proto, _config) -> None:
     """Add fake CL identifiers to a successful response."""
     output_proto.cls = [
         "fakecl:1",
@@ -37,7 +37,7 @@ def _BinhostCLs(_input_proto, output_proto, _config):
     ]
 
 
-def _BuildSdkTarballResponse(_input_proto, output_proto, _config):
+def _BuildSdkTarballResponse(_input_proto, output_proto, _config) -> None:
     """Populate a fake BuildSdkTarballResponse."""
     output_proto.sdk_tarball_path.path = "/fake/sdk/tarball.tar.gz"
     output_proto.sdk_tarball_path.location = common_pb2.Path.OUTSIDE
@@ -61,7 +61,7 @@ def BuildSdkTarball(
     output_proto.sdk_tarball_path.location = common_pb2.Path.OUTSIDE
 
 
-def _CreateManifestFromSdkResponse(_input_proto, output_proto, _config):
+def _CreateManifestFromSdkResponse(_input_proto, output_proto, _config) -> None:
     """Populate a fake CreateManifestFromSdkResponse."""
     output_proto.manifest_path.path = "/fake/sdk/tarball.tar.gz.Manifest"
     output_proto.manifest_path.location = common_pb2.Path.Location.INSIDE
@@ -79,7 +79,7 @@ def CreateManifestFromSdk(
 ) -> None:
     """Create a manifest file showing the ebuilds in an SDK."""
 
-    def _assert_path_is_absolute(path: str, name: str):
+    def _assert_path_is_absolute(path: str, name: str) -> None:
         """Raise an exception if the given path is not absolute."""
         if not os.path.isabs(path):
             cros_build_lib.Die(f"The {name} must be absolute; got {path}")
@@ -157,7 +157,7 @@ def Update(
     input_proto: "sdk_pb2.UpdateRequest",
     output_proto: "sdk_pb2.UpdateResponse",
     _config: "api_config.ApiConfig",
-):
+) -> None:
     """Update the chroot.
 
     Args:
@@ -193,7 +193,7 @@ def Update(
 @validate.require("toolchain_tarball_template")
 @validate.require("version")
 @validate.validation_complete
-def Uprev(input_proto, output_proto, _config):
+def Uprev(input_proto, output_proto, _config) -> None:
     """Update SDK version file and prebuilt files to point to the latest SDK.
 
     Files will be changed locally, but not committed.
@@ -215,7 +215,7 @@ def Uprev(input_proto, output_proto, _config):
 
 @faux.all_empty
 @validate.validation_complete
-def Delete(input_proto, _output_proto, _config):
+def Delete(input_proto, _output_proto, _config) -> None:
     """Delete a chroot."""
     chroot = controller_util.ParseChroot(input_proto.chroot)
     sdk.Delete(chroot, force=True)
@@ -223,7 +223,7 @@ def Delete(input_proto, _output_proto, _config):
 
 @faux.all_empty
 @validate.validation_complete
-def Unmount(_input_proto, _output_proto, _config):
+def Unmount(_input_proto, _output_proto, _config) -> None:
     """Unmount a chroot"""
     # Deprecated. Do nothing.
 
@@ -231,14 +231,14 @@ def Unmount(_input_proto, _output_proto, _config):
 @faux.all_empty
 @validate.require("path.path")
 @validate.validation_complete
-def UnmountPath(input_proto, _output_proto, _config):
+def UnmountPath(input_proto, _output_proto, _config) -> None:
     """Unmount a path"""
     sdk.UnmountPath(input_proto.path.path)
 
 
 @faux.all_empty
 @validate.validation_complete
-def Clean(input_proto, _output_proto, _config):
+def Clean(input_proto, _output_proto, _config) -> None:
     """Clean unneeded files from a chroot."""
     chroot = controller_util.ParseChroot(input_proto.chroot)
 
@@ -270,7 +270,7 @@ def Clean(input_proto, _output_proto, _config):
 
 @faux.all_empty
 @validate.validation_complete
-def BuildPrebuilts(input_proto, output_proto, _config):
+def BuildPrebuilts(input_proto, output_proto, _config) -> None:
     """Build the binary packages that comprise the Chromium OS SDK."""
     chroot = controller_util.ParseChroot(input_proto.chroot)
     host_path, target_path = sdk.BuildPrebuilts(
@@ -319,7 +319,7 @@ def CreateBinhostCLs(
 @faux.all_empty
 @validate.require("prepend_version", "version", "upload_location")
 @validate.validation_complete
-def UploadPrebuiltPackages(input_proto, _output_proto, _config):
+def UploadPrebuiltPackages(input_proto, _output_proto, _config) -> None:
     """Upload prebuilt packages."""
     sdk.UploadPrebuiltPackages(
         controller_util.ParseChroot(input_proto.chroot),
@@ -331,7 +331,7 @@ def UploadPrebuiltPackages(input_proto, _output_proto, _config):
 
 @faux.all_empty
 @validate.validation_complete
-def BuildSdkToolchain(input_proto, output_proto, _config):
+def BuildSdkToolchain(input_proto, output_proto, _config) -> None:
     """Build cross-compiler packages for the SDK."""
     extra_env: Dict[str, str] = {}
     if input_proto.use_flags:
