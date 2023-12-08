@@ -4,60 +4,103 @@
 
 """Helpers for constructing objects with frozen attributes."""
 
-import types
+from typing import Any, ClassVar, NoReturn
 
 
 class Error(Exception):
-    """Raised when frozen attribute value is modified."""
+    """Base class for exceptions related to freezable classes."""
 
 
-class Class(type):
-    """Metaclass for any class to support freezing attribute values.
+class CannotCreateFreezableClass(Error):
+    """Raised when the subclass could not be created."""
 
-    This metaclass can be used by any class to add the ability to
-    freeze attribute values with the Freeze method.
 
-    Use by including this line in the class signature:
-        class ...(..., metaclass=attrs_freezer.Class)
+class CannotModifyFrozenAttribute(Error):
+    """Raised when attempting to modify a frozen attribute."""
+
+
+class CannotSetFrozen(Error):
+    """Raised when someone tries to set Freezable._frozen.
+
+    This is a guardrail to make sure no subclasses coincidentally use
+    self._frozen for unrelated purposes.
     """
 
-    _FROZEN_ERR_MSG = "Attribute values are frozen, cannot alter %s."
 
-    def __new__(cls, clsname, bases, scope):
-        # Create Freeze method that freezes current attributes.
-        if "Freeze" in scope:
-            raise TypeError(
-                "Class %s has its own Freeze method, cannot use with"
-                " the attrs_freezer.Class metaclass." % clsname
+class Freezable:
+    """A class whose attributes can be frozen via the Freeze() method."""
+
+    _frozen: bool = False
+    _FROZEN_ERR_MSG: ClassVar[str]
+
+    def __init_subclass__(
+        cls,
+        frozen_err_msg: str = "Attribute values are frozen, cannot alter %s.",
+    ) -> None:
+        """Set up a subclass of Freezable.
+
+        Args:
+            frozen_err_msg: The message to raise if anyone tries to set
+                instance attributes after Freeze() has been called. Must contain
+                the literal "%s" exactly once; the attribute name will be
+                interpolated here.
+
+        Raises:
+            CannotCreateFreezableClass: If the subclass overrides any methods
+                that are needed for freezing (self.Freeze(), self.frozen).
+            CannotCreateFreezableClass: If the frozen_err_msg doesn't contain
+                exactly one '%s'.
+        """
+        for method_name in ("Freeze", "frozen"):
+            if getattr(cls, method_name) is not getattr(Freezable, method_name):
+                raise CannotCreateFreezableClass(
+                    f"Class {cls} has its own {method_name}() method."
+                    " Cannot use with the attrs_freezer.Class metaclass."
+                )
+
+        if frozen_err_msg is not None:
+            cls._FROZEN_ERR_MSG = frozen_err_msg
+        if cls._FROZEN_ERR_MSG.count("%s") != 1:
+            raise CannotCreateFreezableClass(
+                f"Invalid frozen_err_msg '{frozen_err_msg}'. Must contain the"
+                " string literal '%s' exactly once."
             )
 
-        # Make sure cls will have _FROZEN_ERR_MSG set.
-        scope.setdefault("_FROZEN_ERR_MSG", cls._FROZEN_ERR_MSG)
+        original_setattr = cls.__setattr__
 
-        # Create the class.
-        # pylint: disable=bad-super-call
-        newcls = super(Class, cls).__new__(cls, clsname, bases, scope)
+        def new_setattr(obj: "Freezable", name: str, value: Any) -> None:
+            """If the instance is frozen, refuse to set attributes.
 
-        # Replace cls.__setattr__ with the one that honors freezing.
-        orig_setattr = newcls.__setattr__
-
-        def SetAttr(obj, name, value) -> None:
-            """If the object is frozen then abort."""
-            # pylint: disable=protected-access
-            if getattr(obj, "_frozen", False):
-                raise Error(obj._FROZEN_ERR_MSG % name)
-            if isinstance(orig_setattr, types.MethodType):
-                orig_setattr(obj, name, value)
+            Raises:
+                CannotModifyFrozenAttribute: If Freeze() has been called.
+                CannotSetFrozen: If the caller is trying to set obj._frozen.
+            """
+            if obj.frozen:
+                obj.raise_cannot_modify_error(name)
+            elif name == "_frozen":
+                raise CannotSetFrozen(
+                    "Do not set Freezable()._frozen directly. Use .Freeze()."
+                )
             else:
-                super(newcls, obj).__setattr__(name, value)
+                original_setattr(obj, name, value)
 
-        newcls.__setattr__ = SetAttr
+        cls.__setattr__ = new_setattr  # type: ignore[method-assign, assignment]
 
-        # Add new newcls.Freeze method.
-        def Freeze(obj) -> None:
-            # pylint: disable=protected-access
-            obj._frozen = True
+    @property
+    def frozen(self) -> bool:
+        """Return whether the instance has been frozen."""
+        return self._frozen
 
-        newcls.Freeze = Freeze
+    def Freeze(self) -> None:
+        """Prevent this instance's attributes from being modified."""
+        # Invoke object.__setattr__ directly to avoid any strange behavior from
+        # subclasses' custom overrides.
+        object.__setattr__(self, "_frozen", True)
 
-        return newcls
+    def raise_cannot_modify_error(self, name: str) -> NoReturn:
+        """Raise a CannotModifyFrozenAttribute error.
+
+        Args:
+            name: The name of the attribute that cannot be modified.
+        """
+        raise CannotModifyFrozenAttribute(self._FROZEN_ERR_MSG % name)

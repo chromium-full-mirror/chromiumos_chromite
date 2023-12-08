@@ -1114,19 +1114,24 @@ class BaseParser:
         return path_util.FindCacheDir()
 
 
-class ArgumentNamespace(argparse.Namespace, metaclass=attrs_freezer.Class):
+class ArgumentNamespace(
+    argparse.Namespace,
+    attrs_freezer.Freezable,
+    frozen_err_msg="Option values are frozen, cannot alter %s.",
+):
     """Class to mimic argparse.Namespace with value freezing support."""
 
-    _FROZEN_ERR_MSG = "Option values are frozen, cannot alter %s."
 
-
-class OptionValues(optparse.Values, metaclass=attrs_freezer.Class):
+class OptionValues(
+    optparse.Values,
+    attrs_freezer.Freezable,
+    frozen_err_msg="Option values are frozen, cannot alter %s.",
+):
     """Class to mimic optparse.Values with value freezing support."""
-
-    _FROZEN_ERR_MSG = "Option values are frozen, cannot alter %s."
 
     def __init__(self, defaults, *args, **kwargs):
         optparse.Values.__init__(self, defaults, *args, **kwargs)
+        attrs_freezer.Freezable.__init__(self)
 
         # Used by FilteringParser.
         self.parsed_args = None
