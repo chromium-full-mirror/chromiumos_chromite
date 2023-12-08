@@ -391,6 +391,7 @@ def InstallPackages(
 
     use_flags = [u.flag for u in input_proto.use_flags]
     build_packages_config = sysroot.BuildPackagesRunConfig(
+        use_any_chrome=False,
         usepkg=not compile_source,
         install_debug_symbols=True,
         packages=packages,
