@@ -9,7 +9,7 @@ from chromite.utils import attrs_freezer
 
 
 class FrozenAttributesTest(cros_test_lib.TestCase):
-    """Tests FrozenAttributesMixin functionality."""
+    """Test FrozenAttributes functionality."""
 
     class StubClass:
         """Any class that does not override __setattr__."""
@@ -53,29 +53,3 @@ class FrozenAttributesTest(cros_test_lib.TestCase):
             """Class that freezes SetattrClass using metaclass construct."""
 
         self._TestBasics(SetattrByMeta)
-
-    def testFrozenByMixinFirst(self):
-        """Test attribute freezing with Mixin first in hierarchy."""
-
-        class Stub(attrs_freezer.Mixin, self.StubClass):
-            """Class that freezes StubClass using mixin construct."""
-
-        self._TestBasics(Stub)
-
-        class Setattr(attrs_freezer.Mixin, self.SetattrClass):
-            """Class that freezes SetattrClass using mixin construct."""
-
-        self._TestBasics(Setattr)
-
-    def testFrozenByMixinLast(self):
-        """Test attribute freezing with Mixin last in hierarchy."""
-
-        class Stub(self.StubClass, attrs_freezer.Mixin):
-            """Class that freezes StubClass using mixin construct."""
-
-        self._TestBasics(Stub)
-
-        class Setattr(self.SetattrClass, attrs_freezer.Mixin):
-            """Class that freezes SetattrClass using mixin construct."""
-
-        self._TestBasics(Setattr)

@@ -1120,15 +1120,12 @@ class ArgumentNamespace(argparse.Namespace, metaclass=attrs_freezer.Class):
     _FROZEN_ERR_MSG = "Option values are frozen, cannot alter %s."
 
 
-# Note that because optparse.Values is not a new-style class this class
-# must use the mixin rather than the metaclass.
-class OptionValues(attrs_freezer.Mixin, optparse.Values):
+class OptionValues(optparse.Values, metaclass=attrs_freezer.Class):
     """Class to mimic optparse.Values with value freezing support."""
 
     _FROZEN_ERR_MSG = "Option values are frozen, cannot alter %s."
 
     def __init__(self, defaults, *args, **kwargs):
-        attrs_freezer.Mixin.__init__(self)
         optparse.Values.__init__(self, defaults, *args, **kwargs)
 
         # Used by FilteringParser.
