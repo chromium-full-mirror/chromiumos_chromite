@@ -244,6 +244,7 @@ generated-members=REQUEST,acl_users,aq_parent,AndRaise,AndReturn,InAnyOrder,Mult
 #
 # pytest: Made available by our testing virtualenv and can be assumed exists.
 ignored-modules=
+    libcst,
     psutil,
     pytest,
     opentelemetry,
@@ -469,6 +470,7 @@ known-third-party=
     jinja2,
     jsonschema,
     lddtree,
+    libcst,
     magic,
     mock,
     oauth2client,
