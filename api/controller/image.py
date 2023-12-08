@@ -130,10 +130,10 @@ class ImageTypes(NamedTuple):
 
 
 def _add_image_to_proto(
-    output_proto, path: Union["Path", str], image_type: int, board: str
+    response, path: Union["Path", str], image_type: int, board: str
 ) -> None:
     """Quick helper function to add a new image to the output proto."""
-    new_image = output_proto.images.add()
+    new_image = response.images.add()
     new_image.path = str(path)
     new_image.type = image_type
     new_image.build_target.name = board
@@ -256,9 +256,9 @@ def GetArtifacts(
     return generated
 
 
-def _CreateResponse(_input_proto, output_proto, _config) -> None:
-    """Set output_proto success field on a successful Create response."""
-    output_proto.success = True
+def _CreateResponse(_request, response, _config) -> None:
+    """Set response success field on a successful Create response."""
+    response.success = True
 
 
 @faux.success(_CreateResponse)
@@ -267,24 +267,24 @@ def _CreateResponse(_input_proto, output_proto, _config) -> None:
 @validate.validation_complete
 @metrics_lib.collect_metrics
 def Create(
-    input_proto: "image_pb2.CreateImageRequest",
-    output_proto: "image_pb2.CreateImageResult",
+    request: "image_pb2.CreateImageRequest",
+    response: "image_pb2.CreateImageResult",
     _config: "api_config.ApiConfig",
 ):
     """Build images.
 
     Args:
-        input_proto: The input message.
-        output_proto: The output message.
+        request: The input message.
+        response: The output message.
         _config: The API call config.
     """
-    board = input_proto.build_target.name
+    board = request.build_target.name
 
     # Build the base image if no images provided.
-    to_build = input_proto.image_types or [_BASE_ID]
+    to_build = request.image_types or [_BASE_ID]
 
     image_types = _ParseImagesToCreate(to_build)
-    build_config = _ParseCreateBuildConfig(input_proto)
+    build_config = _ParseCreateBuildConfig(request)
     factory_build_config = build_config._replace(
         symlink=LOCATION_FACTORY, output_dir_suffix=LOCATION_FACTORY
     )
@@ -310,14 +310,14 @@ def Create(
     all_built = core_result.all_built and factory_result.all_built
     one_ran = core_result.build_run or factory_result.build_run
     no_errors = not core_result.run_error and not factory_result.run_error
-    output_proto.success = success = all_built and one_ran and no_errors
+    response.success = success = all_built and one_ran and no_errors
 
     if success:
         # Success! We need to record the images we built in the output.
         all_images = {**core_result.images, **factory_result.images}
         for img_name, img_path in all_images.items():
             _add_image_to_proto(
-                output_proto, img_path, _IMAGE_MAPPING[img_name], board
+                response, img_path, _IMAGE_MAPPING[img_name], board
             )
 
         # Build and record VMs as necessary.
@@ -343,7 +343,7 @@ def Create(
                 except image.ImageToVmError as e:
                     cros_build_lib.Die(e)
 
-            _add_image_to_proto(output_proto, vm_path, vm_type, board)
+            _add_image_to_proto(response, vm_path, vm_type, board)
 
         # Build and record any mod images.
         for mod_type in image_types.mod_images:
@@ -363,7 +363,7 @@ def Create(
                         )
                 if result.all_built:
                     _add_image_to_proto(
-                        output_proto,
+                        response,
                         result.images[_IMAGE_MAPPING[mod_type]],
                         mod_type,
                         board,
@@ -386,13 +386,13 @@ def Create(
                     "_RECOVERY_ID and _NETBOOT_ID are the only mod_image_type."
                 )
 
-        # Read metric events log and pipe them into output_proto.events.
+        # Read metric events log and pipe them into response.events.
         if core_result.build_run and core_result.output_dir:
             _parse_img_metrics_to_response(
-                output_proto, board, core_result.output_dir
+                response, board, core_result.output_dir
             )
 
-        metrics.deserialize_metrics_log(output_proto.events)
+        metrics.deserialize_metrics_log(response.events)
         return controller.RETURN_CODE_SUCCESS
     else:
         # Failure, include all the failed packages in the output when available.
@@ -401,7 +401,7 @@ def Create(
             return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
         for package in packages:
-            current = output_proto.failed_packages.add()
+            current = response.failed_packages.add()
             controller_util.serialize_package_info(package, current)
 
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
@@ -484,13 +484,13 @@ def _ParseImagesToCreate(to_build: List[int]) -> ImageTypes:
     )
 
 
-def _ParseCreateBuildConfig(input_proto):
+def _ParseCreateBuildConfig(request):
     """Helper to parse the image build config for Create."""
-    enable_rootfs_verification = not input_proto.disable_rootfs_verification
-    version = input_proto.version or None
-    disk_layout = input_proto.disk_layout or None
-    builder_path = input_proto.builder_path or None
-    base_is_recovery = input_proto.base_is_recovery or False
+    enable_rootfs_verification = not request.disable_rootfs_verification
+    version = request.version or None
+    disk_layout = request.disk_layout or None
+    builder_path = request.builder_path or None
+    base_is_recovery = request.base_is_recovery or False
     return image.BuildConfig(
         enable_rootfs_verification=enable_rootfs_verification,
         replace=True,
@@ -505,7 +505,7 @@ def _ParseCreateBuildConfig(input_proto):
 @faux.all_empty
 @validate.require("build_target.name")
 @validate.validation_complete
-def CreateNetboot(input_proto, _output_proto, _config) -> None:
+def CreateNetboot(request, _response, _config) -> None:
     """Create a netboot kernel.
 
     The netboot kernel currently needs network access because it's not building
@@ -513,9 +513,9 @@ def CreateNetboot(input_proto, _output_proto, _config) -> None:
     using Create to build the netboot kernel will be the expected workflow, and
     this endpoint will be deprecated (b/255397725).
     """
-    build_target = controller_util.ParseBuildTarget(input_proto.build_target)
-    if input_proto.factory_shim_path:
-        factory_shim_location = Path(input_proto.factory_shim_path).parent
+    build_target = controller_util.ParseBuildTarget(request.build_target)
+    if request.factory_shim_path:
+        factory_shim_location = Path(request.factory_shim_path).parent
     else:
         factory_shim_location = Path(
             image_lib.GetLatestImageLink(
@@ -531,9 +531,9 @@ def CreateNetboot(input_proto, _output_proto, _config) -> None:
     image.create_netboot_kernel(build_target.name, str(factory_shim_location))
 
 
-def _SignerTestResponse(_input_proto, output_proto, _config):
-    """Set output_proto success field on a successful SignerTest response."""
-    output_proto.success = True
+def _SignerTestResponse(_request, response, _config):
+    """Set response success field on a successful SignerTest response."""
+    response.success = True
     return controller.RETURN_CODE_SUCCESS
 
 
@@ -542,30 +542,30 @@ def _SignerTestResponse(_input_proto, output_proto, _config):
 @validate.exists("image.path")
 @validate.validation_complete
 def SignerTest(
-    input_proto: "image_pb2.ImageTestRequest",
-    output_proto: "image_pb2.ImageTestRequest",
+    request: "image_pb2.ImageTestRequest",
+    response: "image_pb2.ImageTestRequest",
     _config: "api_config.ApiConfig",
 ):
     """Run image tests.
 
     Args:
-        input_proto: The input message.
-        output_proto: The output message.
+        request: The input message.
+        response: The output message.
         _config: The API call config.
     """
-    image_path = input_proto.image.path
+    image_path = request.image.path
 
     result = image_lib.SecurityTest(image=image_path)
-    output_proto.success = result
+    response.success = result
     if result:
         return controller.RETURN_CODE_SUCCESS
     else:
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
 
-def _TestResponse(_input_proto, output_proto, _config):
-    """Set output_proto success field on a successful Test response."""
-    output_proto.success = True
+def _TestResponse(_request, response, _config):
+    """Set response success field on a successful Test response."""
+    response.success = True
     return controller.RETURN_CODE_SUCCESS
 
 
@@ -574,20 +574,20 @@ def _TestResponse(_input_proto, output_proto, _config):
 @validate.require("build_target.name", "result.directory")
 @validate.exists("image.path")
 def Test(
-    input_proto: "image_pb2.ImageTestRequest",
-    output_proto: "image_pb2.ImageTestResult",
+    request: "image_pb2.ImageTestRequest",
+    response: "image_pb2.ImageTestResult",
     config: "api_config.ApiConfig",
 ):
     """Run image tests.
 
     Args:
-        input_proto: The input message.
-        output_proto: The output message.
+        request: The input message.
+        response: The output message.
         config: The API call config.
     """
-    image_path = input_proto.image.path
-    board = input_proto.build_target.name
-    result_directory = input_proto.result.directory
+    image_path = request.image.path
+    board = request.build_target.name
+    result_directory = request.result.directory
 
     if not os.path.isfile(image_path) or not image_path.endswith(".bin"):
         cros_build_lib.Die(
@@ -599,7 +599,7 @@ def Test(
         return controller.RETURN_CODE_VALID_INPUT
 
     success = image.Test(board, result_directory, image_dir=image_path)
-    output_proto.success = success
+    response.success = success
 
     if success:
         return controller.RETURN_CODE_SUCCESS
@@ -611,8 +611,8 @@ def Test(
 @faux.empty_completed_unsuccessfully_error
 @validate.require("gs_image_dir", "sysroot.build_target.name")
 def PushImage(
-    input_proto: "image_pb2.PushImageRequest",
-    _output_proto: "image_pb2.PushImageResponse",
+    request: "image_pb2.PushImageRequest",
+    _response: "image_pb2.PushImageResponse",
     config: "api.config.ApiConfig",
 ):
     """Push artifacts from the archive bucket to the release bucket.
@@ -620,16 +620,16 @@ def PushImage(
     Wraps chromite/scripts/pushimage.py.
 
     Args:
-        input_proto: Input proto.
-        _output_proto: Output proto.
+        request: Input proto.
+        _response: Output proto.
         config: The API call config.
 
     Returns:
         A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
     """
     sign_types = []
-    if input_proto.sign_types:
-        for sign_type in input_proto.sign_types:
+    if request.sign_types:
+        for sign_type in request.sign_types:
             if sign_type not in SUPPORTED_IMAGE_TYPES:
                 logging.error("unsupported sign type %g", sign_type)
                 return controller.RETURN_CODE_INVALID_INPUT
@@ -640,20 +640,20 @@ def PushImage(
         return controller.RETURN_CODE_VALID_INPUT
 
     kwargs = {}
-    if input_proto.profile.name:
-        kwargs["profile"] = input_proto.profile.name
-    if input_proto.dest_bucket:
-        kwargs["dest_bucket"] = input_proto.dest_bucket
-    if input_proto.channels:
+    if request.profile.name:
+        kwargs["profile"] = request.profile.name
+    if request.dest_bucket:
+        kwargs["dest_bucket"] = request.dest_bucket
+    if request.channels:
         kwargs["force_channels"] = [
             common_pb2.Channel.Name(channel).lower()[len("channel_") :]
-            for channel in input_proto.channels
+            for channel in request.channels
         ]
     try:
         channel_to_uris = pushimage.PushImage(
-            input_proto.gs_image_dir,
-            input_proto.sysroot.build_target.name,
-            dryrun=input_proto.dryrun,
+            request.gs_image_dir,
+            request.sysroot.build_target.name,
+            dryrun=request.dryrun,
             sign_types=sign_types,
             **kwargs,
         )
@@ -663,7 +663,7 @@ def PushImage(
     if channel_to_uris:
         for uris in channel_to_uris.values():
             for uri in uris:
-                _output_proto.instructions.add().instructions_file_path = uri
+                _response.instructions.add().instructions_file_path = uri
     return controller.RETURN_CODE_SUCCESS
 
 
@@ -673,26 +673,26 @@ def PushImage(
 @validate.exists("archive_dir")
 @validate.validation_complete
 def SignImage(
-    input_proto: "image_pb2.SignImageRequest",
-    output_proto: "image_pb2.SignImageResponse",
+    request: "image_pb2.SignImageRequest",
+    response: "image_pb2.SignImageResponse",
     _config: "api.config.ApiConfig",
 ):
     """Sign artifacts based on the given config.
 
     Args:
-        input_proto: Input proto.
-        output_proto: Output proto.
+        request: Input proto.
+        response: Output proto.
         config: The API call config.
 
     Returns:
         A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
     """
     signed_artifacts = image.SignImage(
-        input_proto.signing_configs,
-        input_proto.archive_dir,
-        Path(input_proto.result_path.path.path),
-        input_proto.docker_image,
+        request.signing_configs,
+        request.archive_dir,
+        Path(request.result_path.path.path),
+        request.docker_image,
     )
-    output_proto.signed_artifacts.CopyFrom(signed_artifacts)
-    output_proto.output_archive_dir = input_proto.archive_dir
+    response.signed_artifacts.CopyFrom(signed_artifacts)
+    response.output_archive_dir = request.archive_dir
     return controller.RETURN_CODE_SUCCESS

@@ -100,9 +100,9 @@ class MethodNotFoundError(Error):
 class Router:
     """Encapsulates the request dispatching logic."""
 
-    REEXEC_INPUT_FILE = "input_proto"
-    REEXEC_OUTPUT_FILE = "output_proto"
-    REEXEC_CONFIG_FILE = "config_proto"
+    REEXEC_INPUT_FILE = "request"
+    REEXEC_OUTPUT_FILE = "response"
+    REEXEC_CONFIG_FILE = "config"
 
     def __init__(self):
         self._services = {}

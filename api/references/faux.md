@@ -63,22 +63,22 @@ The function needs to take the same arguments as an endpoint, but only ever
 need to use the response.
 
 ```python
-def _mock_endpoint_success(_input_proto, output_proto, _config_proto):
-    output_proto.success = 'Success :)'
+def _mock_endpoint_success(_request, response, _config):
+    response.success = 'Success :)'
 
 
-def _mock_endpoint_failure(_input_proto, output_proto, _config_proto):
-    output_proto.failure = 'Error :('
+def _mock_endpoint_failure(_request, response, _config):
+    response.failure = 'Error :('
 
 
 @faux.success(_mock_endpoint_success)
 @faux.error(_mock_endpoint_failure)
-def endpoint(input_proto, output_proto, _config_proto):
+def endpoint(request, response, _config):
   try:
     do_thing()
-    output_proto.success = 'Success :)'
+    response.success = 'Success :)'
   except Exception as e:
-    output_proto.failure = str(e)
+    response.failure = str(e)
 ```
 
 ### `@faux.empty_success` & `@faux.empty_error`
@@ -89,15 +89,15 @@ respective cases.
 They take no arguments.
 
 ```python
-def _mock_endpoint_success(_input_proto, output_proto, _config_proto):
-    output_proto.success = 'Success :)'
+def _mock_endpoint_success(_request, response, _config):
+    response.success = 'Success :)'
 
 
 @faux.success(_mock_endpoint_success)
 @faux.empty_error
-def endpoint(input_proto, output_proto, _config_proto):
+def endpoint(request, response, _config):
   do_thing()
-  output_proto.success = 'Success :)'
+  response.success = 'Success :)'
 ```
 
 ### `@faux.all_empty`
@@ -110,7 +110,7 @@ built into the endpoint.
 
 ```python
 @faux.all_empty
-def endpoint(input_proto, output_proto, config_proto):
+def endpoint(request, response, config):
     do_thing()
 ```
 

@@ -196,12 +196,12 @@ def test_retrieve_package_log_paths() -> None:
     packages = [
         package_info.parse("foo/bar%d-1.0-r1" % num) for num in range(1, 4)
     ]
-    output_proto = sysroot_pb2.InstallPackagesResponse()
+    response = sysroot_pb2.InstallPackagesResponse()
     target_sysroot = sysroot_lib.Sysroot(path="/path/to/sysroot")
     controller_util.retrieve_package_log_paths(
-        packages, output_proto, target_sysroot
+        packages, response, target_sysroot
     )
-    assert len(output_proto.failed_package_data) == 3
+    assert len(response.failed_package_data) == 3
 
 
 def test_package_index_info() -> None:

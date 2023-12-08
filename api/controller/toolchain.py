@@ -121,8 +121,8 @@ _TOOLCHAIN_COMMIT_HANDLERS = {
 # validation check because "all" values are valid.
 @validate.validation_complete
 def PrepareForBuild(
-    input_proto: "toolchain_pb2.PrepareForToolchainBuildRequest",
-    output_proto: "toolchain_pb2.PrepareForToolchainBuildResponse",
+    request: "toolchain_pb2.PrepareForToolchainBuildRequest",
+    response: "toolchain_pb2.PrepareForToolchainBuildResponse",
     _config: "api_config.ApiConfig",
 ):
     """Prepare to build toolchain artifacts.
@@ -146,32 +146,32 @@ def PrepareForBuild(
     being created, then return a value from
     toolchain_util.PrepareForBuildReturn.
 
-    This function sets output_proto.build_relevance to the result.
+    This function sets response.build_relevance to the result.
 
     Args:
-        input_proto: The input proto
-        output_proto: The output proto
+        request: The input proto
+        response: The output proto
         _config): The API call config.
     """
-    if input_proto.chroot.path:
-        chroot = controller_util.ParseChroot(input_proto.chroot)
+    if request.chroot.path:
+        chroot = controller_util.ParseChroot(request.chroot)
     else:
         chroot = None
 
     input_artifacts = collections.defaultdict(list)
-    for art in input_proto.input_artifacts:
+    for art in request.input_artifacts:
         item = _TOOLCHAIN_ARTIFACT_HANDLERS.get(art.input_artifact_type)
         if item:
             input_artifacts[item.name].extend(
                 ["gs://%s" % str(x) for x in art.input_artifact_gs_locations]
             )
 
-    profile_info = _GetProfileInfoDict(input_proto.profile_info)
+    profile_info = _GetProfileInfoDict(request.profile_info)
 
     results = set()
-    sysroot_path = input_proto.sysroot.path
-    build_target = input_proto.sysroot.build_target.name
-    for artifact_type in input_proto.artifact_types:
+    sysroot_path = request.sysroot.path
+    build_target = request.sysroot.build_target.name
+    for artifact_type in request.artifact_types:
         # Unknown artifact_types are an error.
         handler = _TOOLCHAIN_ARTIFACT_HANDLERS[artifact_type]
         if handler.prepare:
@@ -192,13 +192,13 @@ def PrepareForBuild(
     #   elif any POINTLESS => POINTLESS
     #   else UNKNOWN.
     if toolchain_util.PrepareForBuildReturn.NEEDED in results:
-        output_proto.build_relevance = PrepareForBuildResponse.NEEDED
+        response.build_relevance = PrepareForBuildResponse.NEEDED
     elif toolchain_util.PrepareForBuildReturn.UNKNOWN in results:
-        output_proto.build_relevance = PrepareForBuildResponse.UNKNOWN
+        response.build_relevance = PrepareForBuildResponse.UNKNOWN
     elif toolchain_util.PrepareForBuildReturn.POINTLESS in results:
-        output_proto.build_relevance = PrepareForBuildResponse.POINTLESS
+        response.build_relevance = PrepareForBuildResponse.POINTLESS
     else:
-        output_proto.build_relevance = PrepareForBuildResponse.UNKNOWN
+        response.build_relevance = PrepareForBuildResponse.UNKNOWN
     return controller.RETURN_CODE_SUCCESS
 
 
@@ -209,8 +209,8 @@ def PrepareForBuild(
 @validate.exists("output_dir")
 @validate.validation_complete
 def BundleArtifacts(
-    input_proto: "toolchain_pb2.BundleToolchainRequest",
-    output_proto: "toolchain_pb2.BundleToolchainResponse",
+    request: "toolchain_pb2.BundleToolchainRequest",
+    response: "toolchain_pb2.BundleToolchainResponse",
     _config: "api_config.ApiConfig",
 ):
     """Bundle valid toolchain artifacts.
@@ -230,17 +230,17 @@ def BundleArtifacts(
     Note: the actual upload to GS is done by CI, not here.
 
     Args:
-        input_proto: The input proto
-        output_proto: The output proto
+        request: The input proto
+        response: The output proto
         _config: The API call config.
     """
-    chroot = controller_util.ParseChroot(input_proto.chroot)
+    chroot = controller_util.ParseChroot(request.chroot)
 
-    profile_info = _GetProfileInfoDict(input_proto.profile_info)
+    profile_info = _GetProfileInfoDict(request.profile_info)
 
-    output_path = Path(input_proto.output_dir)
+    output_path = Path(request.output_dir)
 
-    for artifact_type in input_proto.artifact_types:
+    for artifact_type in request.artifact_types:
         if artifact_type not in _TOOLCHAIN_ARTIFACT_HANDLERS:
             logging.error("%s not understood", artifact_type)
             return controller.RETURN_CODE_UNRECOVERABLE
@@ -256,9 +256,9 @@ def BundleArtifacts(
         artifacts = handler.bundle(
             handler.name,
             chroot,
-            input_proto.sysroot.path,
-            input_proto.sysroot.build_target.name,
-            input_proto.output_dir,
+            request.sysroot.path,
+            request.sysroot.build_target.name,
+            request.output_dir,
             profile_info,
         )
         if not artifacts:
@@ -282,17 +282,17 @@ def BundleArtifacts(
             continue
 
         # Add all usable artifacts.
-        art_info = output_proto.artifacts_info.add()
+        art_info = response.artifacts_info.add()
         art_info.artifact_type = artifact_type
         for artifact in usable_artifacts:
             art_info.artifacts.add().path = artifact
 
 
-def _GetUpdatedFilesResponse(_input_proto, output_proto, _config) -> None:
+def _GetUpdatedFilesResponse(_request, response, _config) -> None:
     """Add successful status to the faux response."""
-    file_info = output_proto.updated_files.add()
+    file_info = response.updated_files.add()
     file_info.path = "/any/modified/file"
-    output_proto.commit_message = "Commit message"
+    response.commit_message = "Commit message"
 
 
 @faux.empty_error
@@ -300,8 +300,8 @@ def _GetUpdatedFilesResponse(_input_proto, output_proto, _config) -> None:
 @validate.require("uploaded_artifacts")
 @validate.validation_complete
 def GetUpdatedFiles(
-    input_proto: "toolchain_pb2.GetUpdatedFilesRequest",
-    output_proto: "toolchain_pb2.GetUpdatedFilesResponse",
+    request: "toolchain_pb2.GetUpdatedFilesRequest",
+    response: "toolchain_pb2.GetUpdatedFilesResponse",
     _config: "api_config.ApiConfig",
 ):
     """Use uploaded artifacts to update some updates in a chromeos checkout.
@@ -314,12 +314,12 @@ def GetUpdatedFiles(
     Note: the actual creation of the commit is done by CI, not here.
 
     Args:
-        input_proto: The input proto
-        output_proto: The output proto
+        request: The input proto
+        response: The output proto
         _config: The API call config.
     """
     commit_message = ""
-    for artifact in input_proto.uploaded_artifacts:
+    for artifact in request.uploaded_artifacts:
         artifact_type = artifact.artifact_info.artifact_type
         if artifact_type not in _TOOLCHAIN_COMMIT_HANDLERS:
             logging.error("%s not understood", artifact_type)
@@ -335,11 +335,11 @@ def GetUpdatedFiles(
                 _GetProfileInfoDict(artifact.profile_info),
             )
             for f in updated_files:
-                file_info = output_proto.updated_files.add()
+                file_info = response.updated_files.add()
                 file_info.path = f
 
             commit_message += message + "\n"
-        output_proto.commit_message = commit_message
+        response.commit_message = commit_message
         # No commit footer is added for now. Can add more here if needed
 
 
@@ -380,14 +380,14 @@ LINTER_CODES = {
 @validate.require("start_time")
 @validate.validation_complete
 def EmergeAndUploadLints(
-    input_proto: toolchain_pb2.DashboardLintRequest,
-    output_proto: toolchain_pb2.DashboardLintResponse,
+    request: toolchain_pb2.DashboardLintRequest,
+    response: toolchain_pb2.DashboardLintResponse,
     _config,
 ) -> None:
     """Lint all platform2 packages and uploads lints to GS"""
-    board = input_proto.sysroot.build_target.name
-    output_proto.gs_path = toolchain.emerge_and_upload_lints(
-        board, input_proto.start_time
+    board = request.sysroot.build_target.name
+    response.gs_path = toolchain.emerge_and_upload_lints(
+        board, request.start_time
     )
 
 
@@ -396,42 +396,38 @@ def EmergeAndUploadLints(
 @validate.require("packages")
 @validate.validation_complete
 def EmergeWithLinting(
-    input_proto: "toolchain_pb2.LinterRequest",
-    output_proto: "toolchain_pb2.LinterResponse",
+    request: "toolchain_pb2.LinterRequest",
+    response: "toolchain_pb2.LinterResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Emerge packages with linter features enabled and retrieves all findings.
 
     Args:
-        input_proto: The input proto with package and sysroot info.
-        output_proto: The output proto where findings are stored.
+        request: The input proto with package and sysroot info.
+        response: The output proto where findings are stored.
         _config: The API call config (unused).
     """
     packages = [
         controller_util.deserialize_package_info(package)
-        for package in input_proto.packages
+        for package in request.packages
     ]
 
     build_linter = toolchain.BuildLinter(
         packages,
-        input_proto.sysroot.path,
-        differential=input_proto.filter_modified,
+        request.sysroot.path,
+        differential=request.filter_modified,
     )
 
     use_clippy = (
-        toolchain_pb2.LinterFinding.CARGO_CLIPPY
-        not in input_proto.disabled_linters
+        toolchain_pb2.LinterFinding.CARGO_CLIPPY not in request.disabled_linters
     )
     use_tidy = (
-        toolchain_pb2.LinterFinding.CLANG_TIDY
-        not in input_proto.disabled_linters
+        toolchain_pb2.LinterFinding.CLANG_TIDY not in request.disabled_linters
     )
     use_golint = (
-        toolchain_pb2.LinterFinding.GO_LINT not in input_proto.disabled_linters
+        toolchain_pb2.LinterFinding.GO_LINT not in request.disabled_linters
     )
-    use_iwyu = (
-        toolchain_pb2.LinterFinding.IWYU not in input_proto.disabled_linters
-    )
+    use_iwyu = toolchain_pb2.LinterFinding.IWYU not in request.disabled_linters
 
     findings = build_linter.emerge_with_linting(
         use_clippy=use_clippy,
@@ -456,7 +452,7 @@ def EmergeWithLinting(
             pkg.category = finding.package.category
             pkg.package_name = finding.package.package
             pkg.version = finding.package.version
-        output_proto.findings.append(
+        response.findings.append(
             toolchain_pb2.LinterFinding(
                 message=finding.message,
                 locations=locations,
@@ -470,23 +466,23 @@ def EmergeWithLinting(
 @validate.require("board")
 @validate.validation_complete
 def GetToolchainsForBoard(
-    input_proto: "toolchain_pb2.ToolchainsRequest",
-    output_proto: "toolchain_pb2.ToolchainsReponse",
+    request: "toolchain_pb2.ToolchainsRequest",
+    response: "toolchain_pb2.ToolchainsReponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Get the default and non-default toolchains for a board.
 
     Args:
-        input_proto: The input proto with board and sysroot info.
-        output_proto: The output proto where findings are stored.
+        request: The input proto with board and sysroot info.
+        response: The output proto where findings are stored.
         _config: The API call config (unused).
     """
-    build_target = build_target_lib.BuildTarget(input_proto.board)
+    build_target = build_target_lib.BuildTarget(request.board)
     toolchains = toolchain_lib.get_toolchains_for_build_target(build_target)
-    output_proto.default_toolchains.extend(
+    response.default_toolchains.extend(
         list(toolchain_lib.FilterToolchains(toolchains, "default", True))
     )
-    output_proto.nondefault_toolchains.extend(
+    response.nondefault_toolchains.extend(
         list(toolchain_lib.FilterToolchains(toolchains, "default", False))
     )
 
@@ -494,12 +490,12 @@ def GetToolchainsForBoard(
 @faux.all_empty
 @validate.validation_complete
 def SetupToolchains(
-    input_proto: "toolchain_pb2.SetupToolchainsRequest",
-    output_proto: "toolchain_pb2.SetupToolchainsResponse",
+    request: "toolchain_pb2.SetupToolchainsRequest",
+    response: "toolchain_pb2.SetupToolchainsResponse",
     config: "api_config.ApiConfig",
 ) -> None:
     """Run `cros_setup_toolchains`."""
-    del output_proto, config  # Unused.
+    del response, config  # Unused.
     cros_build_lib.AssertInsideChroot()
-    include_boards = [bt.name for bt in input_proto.boards]
+    include_boards = [bt.name for bt in request.boards]
     toolchain.setup_toolchains(include_boards=include_boards)

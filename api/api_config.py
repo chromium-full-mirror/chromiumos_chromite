@@ -114,22 +114,22 @@ class ApiConfig:
 
 
 def build_config_from_proto(
-    config_proto: build_api_config_pb2.BuildApiConfig,
+    config: build_api_config_pb2.BuildApiConfig,
 ) -> ApiConfig:
     """Build an ApiConfig instance from a BuildApiConfig message.
 
     Args:
-        config_proto: The proto config.
+        config: The proto config.
     """
 
-    if config_proto.call_type not in ApiConfig.TYPE_ENUM_MAP:
+    if config.call_type not in ApiConfig.TYPE_ENUM_MAP:
         raise UnknownCallTypeEnumValue(
             "The given protobuf call_type value is not "
             "configured in api_config."
         )
     return ApiConfig(
-        call_type=ApiConfig.TYPE_ENUM_MAP[config_proto.call_type],
-        log_path=config_proto.log_path,
+        call_type=ApiConfig.TYPE_ENUM_MAP[config.call_type],
+        log_path=config.log_path,
     )
 
 

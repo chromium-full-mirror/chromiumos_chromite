@@ -61,18 +61,18 @@ def exists(*fields: str):
 
     def decorator(func):
         @functools.wraps(func)
-        def _exists(input_proto, output_proto, config, *args, **kwargs):
+        def _exists(request, response, config, *args, **kwargs):
             if config.do_validation:
                 for field in fields:
                     logging.debug("Validating %s exists.", field)
 
-                    value = _value(field, input_proto)
+                    value = _value(field, request)
                     if not value or not os.path.exists(value):
                         cros_build_lib.Die(
                             "%s path does not exist: %s", field, value
                         )
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _exists
 
@@ -90,12 +90,12 @@ def eq(field: str, expected_value: Any):
 
     def decorator(func):
         @functools.wraps(func)
-        def _eq(input_proto, output_proto, config, *args, **kwargs):
+        def _eq(request, response, config, *args, **kwargs):
             if config.do_validation:
                 logging.debug(
                     "Validating %s is equal to %r", field, expected_value
                 )
-                actual_value = _value(field, input_proto)
+                actual_value = _value(field, request)
 
                 if actual_value != expected_value:
                     cros_build_lib.Die(
@@ -105,7 +105,7 @@ def eq(field: str, expected_value: Any):
                         expected_value,
                     )
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _eq
 
@@ -124,17 +124,17 @@ def is_in(field: str, values: Iterable):
 
     def decorator(func):
         @functools.wraps(func)
-        def _is_in(input_proto, output_proto, config, *args, **kwargs):
+        def _is_in(request, response, config, *args, **kwargs):
             if config.do_validation:
                 logging.debug("Validating %s is in %r", field, values)
-                value = _value(field, input_proto)
+                value = _value(field, request)
 
                 if value not in values:
                     cros_build_lib.Die(
                         "%s (%r) must be in %r", field, value, values
                     )
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _is_in
 
@@ -161,9 +161,9 @@ def each_in(
 
     def decorator(func):
         @functools.wraps(func)
-        def _is_in(input_proto, output_proto, config, *args, **kwargs):
+        def _is_in(request, response, config, *args, **kwargs):
             if config.do_validation:
-                members = _value(field, input_proto) or []
+                members = _value(field, request) or []
                 if not optional and not members:
                     cros_build_lib.Die("The %s field is empty.", field)
                 for member in members:
@@ -183,7 +183,7 @@ def each_in(
                             values,
                         )
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _is_in
 
@@ -234,11 +234,9 @@ def check_constraint(field: str, checkfunc: Callable):
 
     def decorator(func):
         @functools.wraps(func)
-        def _check_constraint(
-            input_proto, output_proto, config, *args, **kwargs
-        ):
+        def _check_constraint(request, response, config, *args, **kwargs):
             if config.do_validation:
-                values = _value(field, input_proto) or []
+                values = _value(field, request) or []
 
                 failed = []
                 for val in values:
@@ -256,7 +254,7 @@ def check_constraint(field: str, checkfunc: Callable):
                         msg += "  %s: %s\n" % (value, msg)
                     cros_build_lib.Die(msg)
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _check_constraint
 
@@ -274,16 +272,16 @@ def require(*fields: str):
 
     def decorator(func):
         @functools.wraps(func)
-        def _require(input_proto, output_proto, config, *args, **kwargs):
+        def _require(request, response, config, *args, **kwargs):
             if config.do_validation:
                 for field in fields:
                     logging.debug("Validating %s is set.", field)
 
-                    value = _value(field, input_proto)
+                    value = _value(field, request)
                     if not value:
                         cros_build_lib.Die("%s is required.", field)
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _require
 
@@ -301,11 +299,11 @@ def require_any(*fields: str):
 
     def decorator(func):
         @functools.wraps(func)
-        def _require(input_proto, output_proto, config, *args, **kwargs):
+        def _require(request, response, config, *args, **kwargs):
             if config.do_validation:
                 for field in fields:
                     logging.debug("Validating %s is set.", field)
-                    value = _value(field, input_proto)
+                    value = _value(field, request)
                     if value:
                         break
                 else:
@@ -314,7 +312,7 @@ def require_any(*fields: str):
                         ", ".join(fields),
                     )
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _require
 
@@ -342,9 +340,9 @@ def require_each(
 
     def decorator(func):
         @functools.wraps(func)
-        def _require_each(input_proto, output_proto, config, *args, **kwargs):
+        def _require_each(request, response, config, *args, **kwargs):
             if config.do_validation:
-                members = _value(field, input_proto) or []
+                members = _value(field, request) or []
                 if not allow_empty and not members:
                     cros_build_lib.Die("The %s field is empty.", field)
                 for member in members:
@@ -356,7 +354,7 @@ def require_each(
                         if not value:
                             cros_build_lib.Die("%s is required.", field)
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _require_each
 

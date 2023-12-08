@@ -79,14 +79,14 @@ message ExampleRequest {
 ```python
 # Repeated scalar field, checks every `names` value is either 'foo' or 'bar'.
 # Python equivalent:
-#   input_proto.names and [x in ['foo', 'bar'] for x in input_proto.names]
+#   request.names and [x in ['foo', 'bar'] for x in request.names]
 @validate.each_in('names', None, ['foo', 'bar'])
 # Repeated message field, checks the `id` field of every `submessage` is in
 # 1-10, but `submessages` may be empty.
 # Python equivalent:
-#   all(x.id in range(10) for x in input_proto.submessages)
+#   all(x.id in range(10) for x in request.submessages)
 @validate.each_in('submessages', 'id', range(10), optional=True)
-def Example(input_proto, output_proto, config):
+def Example(request, response, config):
     pass
 ```
 
@@ -102,11 +102,11 @@ making `require` decorators for these fields redundant, but even so are not
 discouraged.
 
 ```python
-# Validate input_proto.path1 and input_proto.path2 exist.
+# Validate request.path1 and request.path2 exist.
 # Python equivalent:
-#   os.path.exists(x) for x in (input_proto.path1, input_proto.path2)
+#   os.path.exists(x) for x in (request.path1, request.path2)
 @validate.exists('path1', 'path2')
-def Example(input_proto, output_proto, config):
+def Example(request, response, config):
     pass
 ```
 
@@ -119,9 +119,9 @@ def Example(input_proto, output_proto, config):
 
 ```python
 # Python equivalent:
-#   input_proto.id in range(1, 10)
+#   request.id in range(1, 10)
 @validate.is_in('id', range(1, 10))
-def Example(input_proto, output_proto, config):
+def Example(request, response, config):
     pass
 ```
 
@@ -138,9 +138,9 @@ a falsey value (e.g. 0, empty string, False).
 ```python
 # Require `foo` and `bar` are set.
 # Python equivalent:
-#   input_proto.foo and input_proto.bar
+#   request.foo and request.bar
 @validate.require('foo', 'bar')
-def Example(input_proto, output_proto, config):
+def Example(request, response, config):
     pass
 ```
 
@@ -159,9 +159,9 @@ support using either of them, but the endpoint only needs one of them to be set.
 ```python
 # Require either 'id' or 'identifier' is set.
 # Python equivalent:
-#   input_proto.id or input_proto.identifier
+#   request.id or request.identifier
 @validate.require_any('id', 'identifier')
-def Example(input_proto, output_proto, config):
+def Example(request, response, config):
     pass
 ```
 
@@ -179,13 +179,13 @@ Setting `allow_empty` to False also requires the field itself is not empty.
 ```python
 # Require any `foos` have `bar` and `baz` set.
 # Python equivalent:
-#   all(x.bar and x.baz for x in input_proto.foos)
+#   all(x.bar and x.baz for x in request.foos)
 @validate.require('foos', ['bar', 'baz'])
 # Require all `points` have `x` and `y` set.
 # Python equivalent:
-#   input_proto.points and all(p.x and p.y for p in input_proto.points)
+#   request.points and all(p.x and p.y for p in request.points)
 @validate.require('points', ['x', 'y'], allow_empty=False)
-def Example(input_proto, output_proto, config):
+def Example(request, response, config):
     pass
 ```
 
@@ -202,6 +202,6 @@ It must be the last `validate` decorator when used.
 ```python
 @validate.require('foo')
 @validate.validation_complete
-def Example(input_proto, output_proto, config):
+def Example(request, response, config):
     pass
 ```

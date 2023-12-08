@@ -70,19 +70,17 @@ def success(
     def decorator(func: BuildAPIFunction) -> BuildAPIFunction:
         @functools.wraps(func)
         def _success(
-            input_proto: "protobuf_message.Message",
-            output_proto: "protobuf_message.Message",
+            request: "protobuf_message.Message",
+            response: "protobuf_message.Message",
             config: "api_config.ApiConfig",
             *args: Any,
             **kwargs: Any,
         ) -> int:
             if config.mock_call:
-                faux_result_factory(
-                    input_proto, output_proto, config, *args, **kwargs
-                )
+                faux_result_factory(request, response, config, *args, **kwargs)
                 return controller.RETURN_CODE_SUCCESS
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _success
 
@@ -94,8 +92,8 @@ def empty_success(func: BuildAPIFunction) -> BuildAPIFunction:
 
     @functools.wraps(func)
     def _empty_success(
-        input_proto: "protobuf_message.Message",
-        output_proto: "protobuf_message.Message",
+        request: "protobuf_message.Message",
+        response: "protobuf_message.Message",
         config: "api_config.ApiConfig",
         *args: Any,
         **kwargs: Any,
@@ -103,7 +101,7 @@ def empty_success(func: BuildAPIFunction) -> BuildAPIFunction:
         if config.mock_call:
             return controller.RETURN_CODE_SUCCESS
 
-        return func(input_proto, output_proto, config, *args, **kwargs)
+        return func(request, response, config, *args, **kwargs)
 
     return _empty_success
 
@@ -116,19 +114,17 @@ def error(
     def decorator(func: BuildAPIFunction) -> BuildAPIFunction:
         @functools.wraps(func)
         def _error(
-            input_proto: "protobuf_message.Message",
-            output_proto: "protobuf_message.Message",
+            request: "protobuf_message.Message",
+            response: "protobuf_message.Message",
             config: "api_config.ApiConfig",
             *args: Any,
             **kwargs: Any,
         ) -> int:
             if config.mock_error:
-                faux_error_factory(
-                    input_proto, output_proto, config, *args, **kwargs
-                )
+                faux_error_factory(request, response, config, *args, **kwargs)
                 return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
 
-            return func(input_proto, output_proto, config, *args, **kwargs)
+            return func(request, response, config, *args, **kwargs)
 
         return _error
 
@@ -140,8 +136,8 @@ def empty_error(func: BuildAPIFunction) -> BuildAPIFunction:
 
     @functools.wraps(func)
     def _empty_error(
-        input_proto: "protobuf_message.Message",
-        output_proto: "protobuf_message.Message",
+        request: "protobuf_message.Message",
+        response: "protobuf_message.Message",
         config: "api_config.ApiConfig",
         *args: Any,
         **kwargs: Any,
@@ -149,7 +145,7 @@ def empty_error(func: BuildAPIFunction) -> BuildAPIFunction:
         if config.mock_error:
             return controller.RETURN_CODE_UNRECOVERABLE
 
-        return func(input_proto, output_proto, config, *args, **kwargs)
+        return func(request, response, config, *args, **kwargs)
 
     return _empty_error
 
@@ -161,8 +157,8 @@ def empty_completed_unsuccessfully_error(
 
     @functools.wraps(func)
     def _empty_error(
-        input_proto: "protobuf_message.Message",
-        output_proto: "protobuf_message.Message",
+        request: "protobuf_message.Message",
+        response: "protobuf_message.Message",
         config: "api_config.ApiConfig",
         *args: Any,
         **kwargs: Any,
@@ -170,6 +166,6 @@ def empty_completed_unsuccessfully_error(
         if config.mock_error:
             return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
-        return func(input_proto, output_proto, config, *args, **kwargs)
+        return func(request, response, config, *args, **kwargs)
 
     return _empty_error

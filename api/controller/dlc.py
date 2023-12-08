@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     from chromite.api.gen.chromite.api import dlc_pb2
 
 
-def _GenerateDlcArtifactsResponse(_input_proto, output_proto, _config):
-    """Set output_proto success field on a successful SignerTest response."""
-    artifact = output_proto.dlc_artifacts.add()
+def _GenerateDlcArtifactsResponse(_request, response, _config):
+    """Set response success field on a successful SignerTest response."""
+    artifact = response.dlc_artifacts.add()
     artifact.image_hash = (
         "88d54cb6b5bba15a71ffda3ca75446eb453bf7fe393e3595d3bc52beb3b61711"
     )
@@ -35,24 +35,24 @@ def _GenerateDlcArtifactsResponse(_input_proto, output_proto, _config):
 @validate.require("sysroot")
 @validate.validation_complete
 def GenerateDlcArtifactsList(
-    input_proto: "dlc_pb2.GenerateDlcArtifactsListRequest",
-    output_proto: "dlc_pb2.GenerateDlcArtifactsListResponse",
+    request: "dlc_pb2.GenerateDlcArtifactsListRequest",
+    response: "dlc_pb2.GenerateDlcArtifactsListResponse",
     _config: "api_config.ApiConfig",
 ) -> Optional[int]:
     """Generate DLC Artifacts List.
 
     Args:
-        input_proto: the input message.
-        output_proto: the output message.
+        request: the input message.
+        response: the output message.
         config: the API call config.
 
     Returns:
         Return code (from __init__.py).
     """
-    sysroot = controller_util.ParseSysroot(input_proto.sysroot)
+    sysroot = controller_util.ParseSysroot(request.sysroot)
 
     dlc_artifacts = image.generate_dlc_artifacts_metadata_list(sysroot.path)
-    _parse_dlc_artifacts_to_response(output_proto, dlc_artifacts)
+    _parse_dlc_artifacts_to_response(response, dlc_artifacts)
 
     return controller.RETURN_CODE_SUCCESS
 

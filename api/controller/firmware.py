@@ -78,10 +78,10 @@ def _call_entry(fw_loc, metric_proto, subcmd, *args, **kwargs):
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
 
-def _BuildAllTotFirmwareResponse(_input_proto, output_proto, _config) -> None:
+def _BuildAllTotFirmwareResponse(_request, response, _config) -> None:
     """Add a fw region metric to a successful response."""
 
-    metric = output_proto.success.value.add()
+    metric = response.success.value.add()
     metric.target_name = "foo"
     metric.platform_name = "bar"
     fw_section = metric.fw_section.add()
@@ -94,19 +94,19 @@ def _BuildAllTotFirmwareResponse(_input_proto, output_proto, _config) -> None:
 @faux.empty_completed_unsuccessfully_error
 @validate.require("firmware_location")
 @validate.validation_complete
-def BuildAllTotFirmware(input_proto, output_proto, _config):
+def BuildAllTotFirmware(request, response, _config):
     """Build all of the firmware targets at the specified location."""
 
-    args = ["--code-coverage"] if input_proto.code_coverage else []
+    args = ["--code-coverage"] if request.code_coverage else []
     return _call_entry(
-        input_proto.firmware_location, output_proto.metrics, "build", *args
+        request.firmware_location, response.metrics, "build", *args
     )
 
 
-def _TestAllTotFirmwareResponse(_input_proto, output_proto, _config) -> None:
+def _TestAllTotFirmwareResponse(_request, response, _config) -> None:
     """Add a fw region metric to a successful response."""
 
-    metric = output_proto.success.value.add()
+    metric = response.success.value.add()
     metric.name = "foo-test"
 
 
@@ -114,19 +114,19 @@ def _TestAllTotFirmwareResponse(_input_proto, output_proto, _config) -> None:
 @faux.empty_completed_unsuccessfully_error
 @validate.require("firmware_location")
 @validate.validation_complete
-def TestAllTotFirmware(input_proto, output_proto, _config):
+def TestAllTotFirmware(request, response, _config):
     """Runs all of the firmware tests at the specified location."""
 
-    args = ["--code-coverage"] if input_proto.code_coverage else []
+    args = ["--code-coverage"] if request.code_coverage else []
     return _call_entry(
-        input_proto.firmware_location, output_proto.metrics, "test", *args
+        request.firmware_location, response.metrics, "test", *args
     )
 
 
-def _BuildAllFirmwareResponse(_input_proto, output_proto, _config) -> None:
+def _BuildAllFirmwareResponse(_request, response, _config) -> None:
     """Add a fw region metric to a successful response."""
 
-    metric = output_proto.metrics.value.add()
+    metric = response.metrics.value.add()
     metric.target_name = "foo"
     metric.platform_name = "bar"
     fw_section = metric.fw_section.add()
@@ -139,19 +139,19 @@ def _BuildAllFirmwareResponse(_input_proto, output_proto, _config) -> None:
 @faux.empty_completed_unsuccessfully_error
 @validate.require("firmware_location")
 @validate.validation_complete
-def BuildAllFirmware(input_proto, output_proto, _config):
+def BuildAllFirmware(request, response, _config):
     """Build all of the firmware targets at the specified location."""
 
-    args = ["--code-coverage"] if input_proto.code_coverage else []
+    args = ["--code-coverage"] if request.code_coverage else []
     return _call_entry(
-        input_proto.firmware_location, output_proto.metrics, "build", *args
+        request.firmware_location, response.metrics, "build", *args
     )
 
 
-def _TestAllFirmwareResponse(_input_proto, output_proto, _config) -> None:
+def _TestAllFirmwareResponse(_request, response, _config) -> None:
     """Add a fw region metric to a successful response."""
 
-    metric = output_proto.success.value.add()
+    metric = response.success.value.add()
     metric.name = "foo-test"
 
 
@@ -159,38 +159,36 @@ def _TestAllFirmwareResponse(_input_proto, output_proto, _config) -> None:
 @faux.empty_completed_unsuccessfully_error
 @validate.require("firmware_location")
 @validate.validation_complete
-def TestAllFirmware(input_proto, output_proto, _config):
+def TestAllFirmware(request, response, _config):
     """Runs all of the firmware tests at the specified location."""
 
-    args = ["--code-coverage"] if input_proto.code_coverage else []
+    args = ["--code-coverage"] if request.code_coverage else []
     return _call_entry(
-        input_proto.firmware_location, output_proto.metrics, "test", *args
+        request.firmware_location, response.metrics, "test", *args
     )
 
 
-def _BundleFirmwareArtifactsResponse(
-    _input_proto, output_proto, _config
-) -> None:
+def _BundleFirmwareArtifactsResponse(_request, response, _config) -> None:
     """Add a fw region metric to a successful response."""
 
-    metric = output_proto.success.value.add()
+    metric = response.success.value.add()
     metric.name = "foo-test"
 
 
 @faux.success(_BundleFirmwareArtifactsResponse)
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
-def BundleFirmwareArtifacts(input_proto, output_proto, _config):
+def BundleFirmwareArtifacts(request, response, _config):
     """Runs all of the firmware tests at the specified location."""
 
-    if len(input_proto.artifacts.output_artifacts) > 1:
+    if len(request.artifacts.output_artifacts) > 1:
         raise ValueError("Must have exactly one output_artifact entry")
 
     with osutils.TempDir(delete=False) as tmpdir:
-        info = input_proto.artifacts.output_artifacts[0]
+        info = request.artifacts.output_artifacts[0]
         metadata_path = os.path.join(tmpdir, "firmware_metadata.jsonpb")
         args = []
-        if input_proto.artifacts.FIRMWARE_LCOV in info.artifact_types:
+        if request.artifacts.FIRMWARE_LCOV in info.artifact_types:
             args += ["--code-coverage"]
         resp = _call_entry(
             info.location,
@@ -208,9 +206,9 @@ def BundleFirmwareArtifacts(input_proto, output_proto, _config):
                 )
         else:
             metadata = firmware_pb2.FirmwareArtifactInfo()
-        if input_proto.artifacts.FIRMWARE_TARBALL_INFO in info.artifact_types:
-            output_proto.artifacts.artifacts.add(
-                artifact_type=input_proto.artifacts.FIRMWARE_TARBALL_INFO,
+        if request.artifacts.FIRMWARE_TARBALL_INFO in info.artifact_types:
+            response.artifacts.artifacts.add(
+                artifact_type=request.artifacts.FIRMWARE_TARBALL_INFO,
                 location=info.location,
                 paths=[
                     common_pb2.Path(
@@ -225,10 +223,10 @@ def BundleFirmwareArtifacts(input_proto, output_proto, _config):
         )
 
         for typ, name in (
-            (input_proto.artifacts.FIRMWARE_TARBALL, "tarball_info"),
-            (input_proto.artifacts.FIRMWARE_LCOV, "lcov_info"),
-            (input_proto.artifacts.CODE_COVERAGE_HTML, "coverage_html"),
-            (input_proto.artifacts.FIRMWARE_TOKEN_DATABASE, "token_info"),
+            (request.artifacts.FIRMWARE_TARBALL, "tarball_info"),
+            (request.artifacts.FIRMWARE_LCOV, "lcov_info"),
+            (request.artifacts.CODE_COVERAGE_HTML, "coverage_html"),
+            (request.artifacts.FIRMWARE_TOKEN_DATABASE, "token_info"),
         ):
             file_paths = [
                 full_path(x)
@@ -236,7 +234,7 @@ def BundleFirmwareArtifacts(input_proto, output_proto, _config):
                 if x.WhichOneof("firmware_object_info") == name
             ]
             if file_paths and typ in info.artifact_types:
-                output_proto.artifacts.artifacts.add(
+                response.artifacts.artifacts.add(
                     artifact_type=typ, paths=file_paths, location=info.location
                 )
 

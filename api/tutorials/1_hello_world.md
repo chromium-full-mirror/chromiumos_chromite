@@ -71,15 +71,15 @@ endpoint function, and call through to our `hello_lib.hello` function.
 ```python
 from chromite.lib import hello_lib
 
-def Hello(input_proto, output_proto, config_proto):
+def Hello(request, response, config):
     hello_lib.hello()
 ```
 
-The input_proto, output_proto, and config_proto arguments are the same arguments
+The request, response, and config arguments are the same arguments
 passed to every endpoint function.
-As the names suggest, input_proto would be an instance of our `HelloRequest`
-message, and output_proto an instance of `HelloResponse`.
-The config_proto argument is a special config that's used to execute some
+As the names suggest, request would be an instance of our `HelloRequest`
+message, and response an instance of `HelloResponse`.
+The config argument is a special config that's used to execute some
 enhanced functionality that we will not cover here.
 
 Now we have our endpoint defined in the proto, the endpoint itself is in place,

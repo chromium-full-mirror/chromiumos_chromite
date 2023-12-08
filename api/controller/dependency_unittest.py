@@ -110,10 +110,10 @@ class BoardBuildDependencyTest(
             "GetBuildDependency",
             return_value=(self.json_deps, self.json_deps),
         )
-        input_proto = depgraph_pb2.GetBuildDependencyGraphRequest()
-        input_proto.build_target.name = "target"
+        request = depgraph_pb2.GetBuildDependencyGraphRequest()
+        request.build_target.name = "target"
         dependency.GetBuildDependencyGraph(
-            input_proto, self.response, self.api_config
+            request, self.response, self.api_config
         )
         self.assertEqual(self.response.dep_graph.build_target.name, "deathstar")
         patch.assert_called_once()
@@ -129,12 +129,12 @@ class BoardBuildDependencyTest(
         package = common_pb2.PackageInfo(
             package_name="chromeos-chrome", category="chromeos-base"
         )
-        input_proto = depgraph_pb2.GetBuildDependencyGraphRequest(
+        request = depgraph_pb2.GetBuildDependencyGraphRequest(
             build_target=common_pb2.BuildTarget(name="target"),
             packages=[package],
         )
         dependency.GetBuildDependencyGraph(
-            input_proto, self.response, self.api_config
+            request, self.response, self.api_config
         )
         self.assertEqual(self.response.dep_graph.build_target.name, "deathstar")
         get_dep.assert_called_once_with("/build/target", "target", (pkg_atom,))
@@ -142,20 +142,20 @@ class BoardBuildDependencyTest(
     def testValidateOnly(self) -> None:
         """Test that a validate only call does not execute any logic."""
         patch = self.PatchObject(dependency_service, "GetBuildDependency")
-        input_proto = depgraph_pb2.GetBuildDependencyGraphRequest()
-        input_proto.build_target.name = "target"
+        request = depgraph_pb2.GetBuildDependencyGraphRequest()
+        request.build_target.name = "target"
         dependency.GetBuildDependencyGraph(
-            input_proto, self.response, self.validate_only_config
+            request, self.response, self.validate_only_config
         )
         patch.assert_not_called()
 
     def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(dependency_service, "GetBuildDependency")
-        input_proto = depgraph_pb2.GetBuildDependencyGraphRequest()
-        input_proto.build_target.name = "target"
+        request = depgraph_pb2.GetBuildDependencyGraphRequest()
+        request.build_target.name = "target"
         dependency.GetBuildDependencyGraph(
-            input_proto, self.response, self.mock_call_config
+            request, self.response, self.mock_call_config
         )
         patch.assert_not_called()
         self.assertEqual(
@@ -177,33 +177,33 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         sysroot = sysroot_pb2.Sysroot(
             path=self.sysroot, build_target=self.build_target
         )
-        input_proto = depgraph_pb2.ListRequest(sysroot=sysroot)
-        dependency.List(input_proto, self.response, self.validate_only_config)
+        request = depgraph_pb2.ListRequest(sysroot=sysroot)
+        dependency.List(request, self.response, self.validate_only_config)
 
     def testArgumentValidationMissingSysrootPath(self) -> None:
         """Test missing sysroot path."""
         sysroot = sysroot_pb2.Sysroot(build_target=self.build_target)
-        input_proto = depgraph_pb2.ListRequest(sysroot=sysroot)
+        request = depgraph_pb2.ListRequest(sysroot=sysroot)
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            dependency.List(input_proto, self.response, self.api_config)
+            dependency.List(request, self.response, self.api_config)
 
     def testArgumentValidationMissingBuildTarget(self) -> None:
         """Test missing build target name."""
         sysroot = sysroot_pb2.Sysroot(
             path=self.sysroot, build_target=common_pb2.BuildTarget()
         )
-        input_proto = depgraph_pb2.ListRequest(sysroot=sysroot)
+        request = depgraph_pb2.ListRequest(sysroot=sysroot)
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            dependency.List(input_proto, self.response, self.api_config)
+            dependency.List(request, self.response, self.api_config)
 
     def testDefaultArguments(self) -> None:
         """Test with default arguments."""
         sysroot = sysroot_pb2.Sysroot(
             path=self.sysroot, build_target=self.build_target
         )
-        input_proto = depgraph_pb2.ListRequest(sysroot=sysroot)
+        request = depgraph_pb2.ListRequest(sysroot=sysroot)
         mock_get_deps = self.PatchObject(dependency_service, "GetDependencies")
-        dependency.List(input_proto, self.response, self.api_config)
+        dependency.List(request, self.response, self.api_config)
         mock_get_deps.assert_called_once_with(
             self.sysroot,
             src_paths=[],
@@ -231,7 +231,7 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             category="foo", package_name="bar"
         )
         input_package_info = package_info.parse("foo/bar")
-        input_proto = depgraph_pb2.ListRequest(
+        request = depgraph_pb2.ListRequest(
             sysroot=sysroot,
             src_paths=[
                 depgraph_pb2.SourcePath(path=path),
@@ -239,7 +239,7 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             packages=[input_package_info_proto],
             include_rev_deps=True,
         )
-        dependency.List(input_proto, self.response, self.api_config)
+        dependency.List(request, self.response, self.api_config)
         mock_get_deps.assert_called_once_with(
             self.sysroot,
             src_paths=[path],

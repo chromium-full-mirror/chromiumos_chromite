@@ -40,10 +40,10 @@ class GetBinhostsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "GetBinhosts")
 
-        input_proto = binhost_pb2.BinhostGetRequest()
-        input_proto.build_target.name = "target"
+        request = binhost_pb2.BinhostGetRequest()
+        request.build_target.name = "target"
 
-        binhost.GetBinhosts(input_proto, self.response, self.mock_call_config)
+        binhost.GetBinhosts(request, self.response, self.mock_call_config)
 
         self.assertEqual(len(self.response.binhosts), 1)
         self.assertEqual(self.response.binhosts[0].package_index, "Packages")
@@ -61,10 +61,10 @@ class GetBinhostsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             binhost_service, "GetBinhosts", return_value=binhost_list
         )
 
-        input_proto = binhost_pb2.BinhostGetRequest()
-        input_proto.build_target.name = "target"
+        request = binhost_pb2.BinhostGetRequest()
+        request.build_target.name = "target"
 
-        binhost.GetBinhosts(input_proto, self.response, self.api_config)
+        binhost.GetBinhosts(request, self.response, self.api_config)
 
         self.assertEqual(len(self.response.binhosts), 2)
         self.assertEqual(self.response.binhosts[0].package_index, "Packages")
@@ -94,11 +94,11 @@ class GetPrivatePrebuiltAclArgsTest(
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(binhost_service, "GetPrebuiltAclArgs")
 
-        input_proto = binhost_pb2.AclArgsRequest()
-        input_proto.build_target.name = "target"
+        request = binhost_pb2.AclArgsRequest()
+        request.build_target.name = "target"
 
         binhost.GetPrivatePrebuiltAclArgs(
-            input_proto, self.response, self.mock_call_config
+            request, self.response, self.mock_call_config
         )
 
         self.assertEqual(len(self.response.args), 1)
@@ -113,11 +113,11 @@ class GetPrivatePrebuiltAclArgsTest(
             binhost_service, "GetPrebuiltAclArgs", return_value=argvalue_list
         )
 
-        input_proto = binhost_pb2.AclArgsRequest()
-        input_proto.build_target.name = "target"
+        request = binhost_pb2.AclArgsRequest()
+        request.build_target.name = "target"
 
         binhost.GetPrivatePrebuiltAclArgs(
-            input_proto, self.response, self.api_config
+            request, self.response, self.api_config
         )
 
         self.assertEqual(len(self.response.args), 1)
@@ -180,12 +180,10 @@ class PrepareBinhostUploadsTest(
 
     def testPrepareBinhostUploads(self) -> None:
         """PrepareBinhostUploads returns Packages and tar files."""
-        input_proto = binhost_pb2.PrepareBinhostUploadsRequest()
-        input_proto.build_target.name = "target"
-        input_proto.uri = "gs://chromeos-prebuilt/target"
-        binhost.PrepareBinhostUploads(
-            input_proto, self.response, self.api_config
-        )
+        request = binhost_pb2.PrepareBinhostUploadsRequest()
+        request.build_target.name = "target"
+        request.uri = "gs://chromeos-prebuilt/target"
+        binhost.PrepareBinhostUploads(request, self.response, self.api_config)
         self.assertEqual(self.response.uploads_dir, "/build/target/packages")
         self.assertCountEqual(
             [ut.path for ut in self.response.upload_targets],
@@ -194,12 +192,12 @@ class PrepareBinhostUploadsTest(
 
     def testPrepareBinhostUploadsNonGsUri(self) -> None:
         """PrepareBinhostUploads dies when URI does not point to GS."""
-        input_proto = binhost_pb2.PrepareBinhostUploadsRequest()
-        input_proto.build_target.name = "target"
-        input_proto.uri = "https://foo.bar"
+        request = binhost_pb2.PrepareBinhostUploadsRequest()
+        request.build_target.name = "target"
+        request.uri = "https://foo.bar"
         with self.assertRaises(ValueError):
             binhost.PrepareBinhostUploads(
-                input_proto, self.response, self.api_config
+                request, self.response, self.api_config
             )
 
 
@@ -229,7 +227,7 @@ class UpdatePackageIndexTest(
     def _write_original_package_index(self) -> None:
         """Write the package index to the tempdir.
 
-        Note that if an input_proto specifies location=INSIDE, then they will
+        Note that if an request specifies location=INSIDE, then they will
         not be able to find the written file, since the tempdir isn't actually
         inside a chroot.
         """
@@ -343,13 +341,13 @@ class SetBinhostTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             binhost_service, "SetBinhost", return_value="/path/to/BINHOST.conf"
         )
 
-        input_proto = binhost_pb2.SetBinhostRequest()
-        input_proto.build_target.name = "target"
-        input_proto.private = True
-        input_proto.key = binhost_pb2.POSTSUBMIT_BINHOST
-        input_proto.uri = "gs://chromeos-prebuilt/target"
-        input_proto.max_uris = 4
-        binhost.SetBinhost(input_proto, self.response, self.api_config)
+        request = binhost_pb2.SetBinhostRequest()
+        request.build_target.name = "target"
+        request.private = True
+        request.key = binhost_pb2.POSTSUBMIT_BINHOST
+        request.uri = "gs://chromeos-prebuilt/target"
+        request.max_uris = 4
+        binhost.SetBinhost(request, self.response, self.api_config)
 
         self.assertEqual(self.response.output_file, "/path/to/BINHOST.conf")
         set_binhost.assert_called_once_with(
@@ -401,11 +399,11 @@ class GetBinhostConfPathTest(
             "GetBinhostConfPath",
             return_value="/path/to/BINHOST.conf",
         )
-        input_proto = binhost_pb2.GetBinhostConfPathRequest()
-        input_proto.build_target.name = "target"
-        input_proto.private = True
-        input_proto.key = binhost_pb2.POSTSUBMIT_BINHOST
-        binhost.GetBinhostConfPath(input_proto, self.response, self.api_config)
+        request = binhost_pb2.GetBinhostConfPathRequest()
+        request.build_target.name = "target"
+        request.private = True
+        request.key = binhost_pb2.POSTSUBMIT_BINHOST
+        binhost.GetBinhostConfPath(request, self.response, self.api_config)
 
         self.assertEqual(self.response.conf_path, "/path/to/BINHOST.conf")
         get_binhost_conf_path.assert_called_once_with(
@@ -451,21 +449,21 @@ class RegenBuildCacheTest(
         """RegenBuildCache calls service with the correct args."""
         regen_cache = self.PatchObject(binhost_service, "RegenBuildCache")
 
-        input_proto = binhost_pb2.RegenBuildCacheRequest()
-        input_proto.overlay_type = binhost_pb2.OVERLAYTYPE_BOTH
+        request = binhost_pb2.RegenBuildCacheRequest()
+        request.overlay_type = binhost_pb2.OVERLAYTYPE_BOTH
 
-        binhost.RegenBuildCache(input_proto, self.response, self.api_config)
+        binhost.RegenBuildCache(request, self.response, self.api_config)
         regen_cache.assert_called_once_with(mock.ANY, "both")
 
     def testRequiresOverlayType(self) -> None:
         """RegenBuildCache dies if overlay_type not specified."""
         regen_cache = self.PatchObject(binhost_service, "RegenBuildCache")
 
-        input_proto = binhost_pb2.RegenBuildCacheRequest()
-        input_proto.overlay_type = binhost_pb2.OVERLAYTYPE_UNSPECIFIED
+        request = binhost_pb2.RegenBuildCacheRequest()
+        request.overlay_type = binhost_pb2.OVERLAYTYPE_UNSPECIFIED
 
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            binhost.RegenBuildCache(input_proto, self.response, self.api_config)
+            binhost.RegenBuildCache(request, self.response, self.api_config)
         regen_cache.assert_not_called()
 
 
@@ -486,12 +484,12 @@ class PrepareChromeBinhostUploadsTest(
         )
         self.sysroot_path = "build/target"
         self.uploads_dir = self.tempdir / "uploads_dir"
-        self.input_proto = binhost_pb2.PrepareChromeBinhostUploadsRequest()
-        self.input_proto.uri = "gs://chromeos-prebuilt/target"
-        self.input_proto.chroot.path = str(self.chroot.path)
-        self.input_proto.chroot.out_path = str(self.chroot.out_path)
-        self.input_proto.sysroot.path = self.sysroot_path
-        self.input_proto.uploads_dir = str(self.uploads_dir)
+        self.request = binhost_pb2.PrepareChromeBinhostUploadsRequest()
+        self.request.uri = "gs://chromeos-prebuilt/target"
+        self.request.chroot.path = str(self.chroot.path)
+        self.request.chroot.out_path = str(self.chroot.out_path)
+        self.request.sysroot.path = self.sysroot_path
+        self.request.uploads_dir = str(self.uploads_dir)
         self.response = binhost_pb2.PrepareChromeBinhostUploadsResponse()
 
         self.packages_path = Path(
@@ -514,7 +512,7 @@ class PrepareChromeBinhostUploadsTest(
     def testValidateOnly(self) -> None:
         """Check that a validate only call does not execute any logic."""
         binhost.PrepareChromeBinhostUploads(
-            self.input_proto, self.response, self.validate_only_config
+            self.request, self.response, self.validate_only_config
         )
 
         self.create_chrome_package_index_mock.assert_not_called()
@@ -522,7 +520,7 @@ class PrepareChromeBinhostUploadsTest(
     def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
         binhost.PrepareChromeBinhostUploads(
-            self.input_proto, self.response, self.mock_call_config
+            self.request, self.response, self.mock_call_config
         )
 
         self.assertEqual(len(self.response.upload_targets), 4)
@@ -541,7 +539,7 @@ class PrepareChromeBinhostUploadsTest(
         )
 
         binhost.PrepareChromeBinhostUploads(
-            self.input_proto, self.response, self.api_config
+            self.request, self.response, self.api_config
         )
 
         self.assertCountEqual(
@@ -551,9 +549,9 @@ class PrepareChromeBinhostUploadsTest(
 
     def testPrepareBinhostUploadsNonGsUri(self) -> None:
         """PrepareBinhostUploads dies when URI does not point to GS."""
-        self.input_proto.uri = "https://foo.bar"
+        self.request.uri = "https://foo.bar"
 
         with self.assertRaises(ValueError):
             binhost.PrepareChromeBinhostUploads(
-                self.input_proto, self.response, self.api_config
+                self.request, self.response, self.api_config
             )

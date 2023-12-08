@@ -14,7 +14,7 @@ from chromite.lib.parser import package_info
 from chromite.service import packages
 
 
-def _SystemImageMetadataResponse(_input_proto, output_proto, _config):
+def _SystemImageMetadataResponse(_request, response, _config):
     response = system_image_pb2.SystemImage()
     portage_build_target = portage_pb2.Portage.BuildTarget(
         overlay_name="overlay-build-target",
@@ -32,11 +32,11 @@ def _SystemImageMetadataResponse(_input_proto, output_proto, _config):
         toolchain=BuildMetadata.Toolchain(version=None),
     )
 
-    output_proto.metadata.build_target = portage_build_target
-    output_proto.metadata.package_summary = package_summary
+    response.metadata.build_target = portage_build_target
+    response.metadata.package_summary = package_summary
     for cpvr in ["cat/pkg-1.2.3-r4", "foo/bar-5.6.7-r8"]:
         pkg = package_info.parse(cpvr)
-        msg = output_proto.metadata.packages.add()
+        msg = response.metadata.packages.add()
         controller_util.serialize_package_info(pkg, msg)
 
     return response
@@ -47,10 +47,10 @@ def _SystemImageMetadataResponse(_input_proto, output_proto, _config):
 @validate.exists("sysroot.path")
 @validate.require("sysroot.build_target.name")
 @validate.validation_complete
-def SystemImageMetadata(input_proto, output_proto, _config) -> None:
-    sysroot = controller_util.ParseSysroot(input_proto.sysroot)
+def SystemImageMetadata(request, response, _config) -> None:
+    sysroot = controller_util.ParseSysroot(request.sysroot)
     build_target = controller_util.ParseBuildTarget(
-        input_proto.sysroot.build_target
+        request.sysroot.build_target
     )
 
     portage_build_target = portage_pb2.Portage.BuildTarget(
@@ -75,13 +75,13 @@ def SystemImageMetadata(input_proto, output_proto, _config) -> None:
     )
 
     # pylint: disable=line-too-long
-    output_proto.system_image.metadata.build_target.portage_build_target.CopyFrom(
+    response.system_image.metadata.build_target.portage_build_target.CopyFrom(
         portage_build_target
     )
     # pylint: enable=line-too-long
-    output_proto.system_image.metadata.package_summary.CopyFrom(package_summary)
+    response.system_image.metadata.package_summary.CopyFrom(package_summary)
 
     portage_db = portage_util.PortageDB(sysroot.path)
     for pkg in portage_db.InstalledPackages():
-        msg = output_proto.system_image.metadata.packages.add()
+        msg = response.system_image.metadata.packages.add()
         controller_util.serialize_package_info(pkg.package_info, msg)

@@ -12,12 +12,12 @@ from chromite.api import validate
 from chromite.contrib import portage_explorer
 
 
-def _RunSpiders(_input_proto, output_proto, _config_proto) -> None:
+def _RunSpiders(_request, response, _config) -> None:
     """Mock success output for the RunSpiders endpoint."""
-    mock_build_target = output_proto.build_targets.add()
+    mock_build_target = response.build_targets.add()
     mock_build_target.name = "board"
     mock_build_target.profile_id.id = "profile:base"
-    mock_overlay = output_proto.overlays.add()
+    mock_overlay = response.overlays.add()
     mock_overlay.path = "src/overlays/overlay-board"
     mock_overlay.name = "board"
     mock_profile = mock_overlay.profiles.add()
@@ -60,15 +60,15 @@ def _RunSpiders(_input_proto, output_proto, _config_proto) -> None:
 @faux.success(_RunSpiders)
 @faux.empty_error
 @validate.validation_complete
-def RunSpiders(_input_proto, output_proto, _config_proto) -> None:
+def RunSpiders(_request, response, _config) -> None:
     """Run all the spiders from portage_explorer and enter data into proto."""
     spider_output = portage_explorer.execute()
     for build_target in spider_output.build_targets:
-        proto_build_target = output_proto.build_targets.add()
+        proto_build_target = response.build_targets.add()
         proto_build_target.name = build_target.name
         proto_build_target.profile_id.id = build_target.profile.id_
     for overlay in spider_output.overlays:
-        proto_overlay = output_proto.overlays.add()
+        proto_overlay = response.overlays.add()
         proto_overlay.path = str(overlay.path)
         proto_overlay.name = overlay.name
         for profile in overlay.profiles:

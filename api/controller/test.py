@@ -39,10 +39,10 @@ from chromite.service import test
 
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
-def DebugInfoTest(input_proto, _output_proto, config):
+def DebugInfoTest(request, _response, config):
     """Run the debug info tests."""
-    sysroot_path = input_proto.sysroot.path
-    target_name = input_proto.sysroot.build_target.name
+    sysroot_path = request.sysroot.path
+    target_name = request.sysroot.build_target.name
 
     if not sysroot_path:
         if target_name:
@@ -69,14 +69,12 @@ def DebugInfoTest(input_proto, _output_proto, config):
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
 
-def _BuildTargetUnitTestFailedResponse(
-    _input_proto, output_proto, _config
-) -> None:
+def _BuildTargetUnitTestFailedResponse(_request, response, _config) -> None:
     """Add failed packages to a failed response."""
     packages = ["foo/bar", "cat/pkg"]
     for pkg in packages:
         pkg_info = package_info.parse(pkg)
-        failed_pkg_data_msg = output_proto.failed_package_data.add()
+        failed_pkg_data_msg = response.failed_package_data.add()
         controller_util.serialize_package_info(
             pkg_info, failed_pkg_data_msg.name
         )
@@ -88,37 +86,37 @@ def _BuildTargetUnitTestFailedResponse(
 @validate.require_each("packages", ["category", "package_name"])
 @validate.validation_complete
 @metrics_lib.collect_metrics
-def BuildTargetUnitTest(input_proto, output_proto, _config):
+def BuildTargetUnitTest(request, response, _config):
     """Run a build target's ebuild unit tests."""
     # Method flags.
     # An empty sysroot means build packages was not run. This is used for
     # certain boards that need to use prebuilts (e.g. grunt's unittest-only).
-    was_built = not input_proto.flags.empty_sysroot
+    was_built = not request.flags.empty_sysroot
 
     # Packages to be tested.
     packages = [
         controller_util.deserialize_package_info(x).atom
-        for x in input_proto.packages
+        for x in request.packages
     ]
 
     # Skipped tests.
     blocklist = [
         controller_util.deserialize_package_info(x).atom
-        for x in input_proto.package_blocklist
+        for x in request.package_blocklist
     ]
 
     # Allow call to filter out non-cros_workon packages from the input packages.
-    filter_only_cros_workon = input_proto.flags.filter_only_cros_workon
+    filter_only_cros_workon = request.flags.filter_only_cros_workon
 
     # Allow call to succeed if no tests were found.
-    testable_packages_optional = input_proto.flags.testable_packages_optional
+    testable_packages_optional = request.flags.testable_packages_optional
 
-    build_target = controller_util.ParseBuildTarget(input_proto.build_target)
+    build_target = controller_util.ParseBuildTarget(request.build_target)
 
-    code_coverage = input_proto.flags.code_coverage
-    rust_code_coverage = input_proto.flags.rust_code_coverage
+    code_coverage = request.flags.code_coverage
+    rust_code_coverage = request.flags.rust_code_coverage
 
-    bazel = input_proto.flags.bazel
+    bazel = request.flags.bazel
 
     sysroot = sysroot_lib.Sysroot(build_target.root)
 
@@ -137,16 +135,14 @@ def BuildTargetUnitTest(input_proto, output_proto, _config):
     if not result.success:
         # Record all failed packages and retrieve log locations.
         controller_util.retrieve_package_log_paths(
-            result.failed_pkgs, output_proto, sysroot
+            result.failed_pkgs, response, sysroot
         )
         if result.failed_pkgs:
             return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
         else:
             return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
-    metrics.deserialize_metrics_log(
-        output_proto.events, prefix=build_target.name
-    )
+    metrics.deserialize_metrics_log(response.events, prefix=build_target.name)
 
 
 SRC_DIR = os.path.join(constants.SOURCE_ROOT, "src")
@@ -154,12 +150,10 @@ PLATFORM_DEV_DIR = os.path.join(SRC_DIR, "platform/dev")
 TEST_SERVICE_DIR = os.path.join(PLATFORM_DEV_DIR, "src/chromiumos/test")
 
 
-def _BuildTestServiceContainersResponse(
-    input_proto, output_proto, _config
-) -> None:
+def _BuildTestServiceContainersResponse(request, response, _config) -> None:
     """Fake success response"""
     # pylint: disable=unused-argument
-    output_proto.results.append(
+    response.results.append(
         test_pb2.TestServiceContainerBuildResult(
             success=test_pb2.TestServiceContainerBuildResult.Success()
         )
@@ -167,12 +161,12 @@ def _BuildTestServiceContainersResponse(
 
 
 def _BuildTestServiceContainersFailedResponse(
-    _input_proto, output_proto, _config
+    _request, response, _config
 ) -> None:
     """Fake failure response"""
 
     # pylint: disable=unused-argument
-    output_proto.results.append(
+    response.results.append(
         test_pb2.TestServiceContainerBuildResult(
             failure=test_pb2.TestServiceContainerBuildResult.Failure(
                 error_message="fake error"
@@ -227,17 +221,17 @@ def _ValidDockerLabelKey(key):
 @validate.check_constraint("labels", _ValidDockerLabelKey)
 @validate.validation_complete
 def BuildTestServiceContainers(
-    input_proto: test_pb2.BuildTestServiceContainersRequest,
-    output_proto: test_pb2.BuildTestServiceContainersResponse,
+    request: test_pb2.BuildTestServiceContainersRequest,
+    response: test_pb2.BuildTestServiceContainersResponse,
     _config,
 ) -> None:
     """Build docker containers for all test services and push them to gcr.io."""
-    build_target = controller_util.ParseBuildTarget(input_proto.build_target)
-    chroot = controller_util.ParseChroot(input_proto.chroot)
+    build_target = controller_util.ParseBuildTarget(request.build_target)
+    chroot = controller_util.ParseChroot(request.chroot)
     sysroot = sysroot_lib.Sysroot(build_target.root)
 
-    tags = ",".join(input_proto.tags)
-    labels = (f"{key}={value}" for key, value in input_proto.labels.items())
+    tags = ",".join(request.tags)
+    labels = (f"{key}={value}" for key, value in request.labels.items())
 
     build_script = os.path.join(
         TEST_SERVICE_DIR, "python/src/docker_libs/cli/build-dockerimages.py"
@@ -258,9 +252,9 @@ def BuildTestServiceContainers(
             chroot.out_path,
         ]
 
-        if input_proto.HasField("repository"):
-            cmd += ["--host", input_proto.repository.hostname]
-            cmd += ["--project", input_proto.repository.project]
+        if request.HasField("repository"):
+            cmd += ["--host", request.repository.hostname]
+            cmd += ["--project", request.repository.project]
 
         cmd += ["--tags", tags]
         cmd += ["--output", output_path]
@@ -291,7 +285,7 @@ def BuildTestServiceContainers(
                     error_message=cmd_result.stdout
                 )
             )
-            output_proto.results.append(result)
+            response.results.append(result)
 
         else:
             logging.debug(
@@ -319,13 +313,13 @@ def BuildTestServiceContainers(
                             image_info=image_info
                         )
                     )
-                    output_proto.results.append(result)
+                    response.results.append(result)
 
 
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
-def ChromiteUnitTest(_input_proto, _output_proto, _config):
+def ChromiteUnitTest(_request, _response, _config):
     """Run the chromite unit tests."""
     if test.ChromiteUnitTest():
         return controller.RETURN_CODE_SUCCESS
@@ -336,7 +330,7 @@ def ChromiteUnitTest(_input_proto, _output_proto, _config):
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
-def ChromitePytest(_input_proto, _output_proto, _config):
+def ChromitePytest(_request, _response, _config):
     """Run the chromite unit tests."""
     # TODO(vapier): Delete this stub.
     return controller.RETURN_CODE_SUCCESS
@@ -345,9 +339,9 @@ def ChromitePytest(_input_proto, _output_proto, _config):
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
-def BazelTest(input_proto, _output_proto, _config):
+def BazelTest(request, _response, _config):
     """Run the Bazel tests."""
-    output_user_root = input_proto.bazel_output_user_root or None
+    output_user_root = request.bazel_output_user_root or None
     if test.BazelTest(output_user_root=output_user_root):
         return controller.RETURN_CODE_SUCCESS
     else:
@@ -357,7 +351,7 @@ def BazelTest(input_proto, _output_proto, _config):
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
-def RulesCrosUnitTest(_input_proto, _output_proto, _config):
+def RulesCrosUnitTest(_request, _response, _config):
     """Run the rules_cros unit tests."""
     if test.RulesCrosUnitTest():
         return controller.RETURN_CODE_SUCCESS
@@ -368,21 +362,21 @@ def RulesCrosUnitTest(_input_proto, _output_proto, _config):
 @faux.all_empty
 @validate.require("sysroot.path", "sysroot.build_target.name", "chrome_root")
 @validate.validation_complete
-def SimpleChromeWorkflowTest(input_proto, _output_proto, _config):
+def SimpleChromeWorkflowTest(request, _response, _config):
     """Run SimpleChromeWorkflow tests."""
-    if input_proto.goma_config.goma_dir:
-        chromeos_goma_dir = input_proto.goma_config.chromeos_goma_dir or None
+    if request.goma_config.goma_dir:
+        chromeos_goma_dir = request.goma_config.chromeos_goma_dir or None
         goma = goma_lib.Goma(
-            input_proto.goma_config.goma_dir,
+            request.goma_config.goma_dir,
             stage_name="BuildApiTestSimpleChrome",
             chromeos_goma_dir=chromeos_goma_dir,
         )
     else:
         goma = None
     return test.SimpleChromeWorkflowTest(
-        input_proto.sysroot.path,
-        input_proto.sysroot.build_target.name,
-        input_proto.chrome_root,
+        request.sysroot.path,
+        request.sysroot.build_target.name,
+        request.chrome_root,
         goma,
     )
 
@@ -392,14 +386,14 @@ def SimpleChromeWorkflowTest(input_proto, _output_proto, _config):
     "build_target.name", "vm_path.path", "test_harness", "vm_tests"
 )
 @validate.validation_complete
-def VmTest(input_proto, _output_proto, _config) -> None:
+def VmTest(request, _response, _config) -> None:
     """Run VM tests."""
-    build_target_name = input_proto.build_target.name
-    vm_path = input_proto.vm_path.path
+    build_target_name = request.build_target.name
+    vm_path = request.vm_path.path
 
-    test_harness = input_proto.test_harness
+    test_harness = request.test_harness
 
-    vm_tests = input_proto.vm_tests
+    vm_tests = request.vm_tests
 
     cmd = [
         "cros_run_test",
@@ -414,13 +408,11 @@ def VmTest(input_proto, _output_proto, _config) -> None:
     ]
     cmd.extend(vm_test.pattern for vm_test in vm_tests)
 
-    if input_proto.ssh_options.port:
-        cmd.extend(["--ssh-port", str(input_proto.ssh_options.port)])
+    if request.ssh_options.port:
+        cmd.extend(["--ssh-port", str(request.ssh_options.port)])
 
-    if input_proto.ssh_options.private_key_path:
-        cmd.extend(
-            ["--private-key", input_proto.ssh_options.private_key_path.path]
-        )
+    if request.ssh_options.private_key_path:
+        cmd.extend(["--private-key", request.ssh_options.private_key_path.path])
 
     # TODO(evanhernandez): Find a nice way to pass test_that-args through
     # the build API. Or obviate them.
@@ -434,7 +426,7 @@ def VmTest(input_proto, _output_proto, _config) -> None:
 
 @faux.all_empty
 @validate.validation_complete
-def CrosSigningTest(_input_proto, _output_proto, _config):
+def CrosSigningTest(_request, _response, _config):
     """Run the cros-signing unit tests."""
     test_runner = os.path.join(
         constants.SOURCE_ROOT, "cros-signing", "signer", "run_tests.py"

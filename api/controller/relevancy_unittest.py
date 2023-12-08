@@ -17,7 +17,7 @@ from chromite.lib import build_target_lib
 from chromite.service import relevancy as relevancy_service
 
 
-_FAKE_INPUT_PROTO = relevancy_pb2.GetRelevantBuildTargetsRequest(
+_FAKE_request = relevancy_pb2.GetRelevantBuildTargetsRequest(
     build_targets=[
         common_pb2.BuildTarget(name="fake"),
         common_pb2.BuildTarget(name="foo"),
@@ -38,7 +38,7 @@ _RELEVANT_TARGET = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
 
 
 @pytest.mark.parametrize(
-    ("mocked_results", "expected_output_proto"),
+    ("mocked_results", "expected_response"),
     [
         (
             [(build_target_lib.BuildTarget("fake"), _REASON_FUNDAMENTAL)],
@@ -48,17 +48,15 @@ _RELEVANT_TARGET = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
         ),
     ],
 )
-def test_get_relevant_build_targets(
-    mocked_results, expected_output_proto
-) -> None:
+def test_get_relevant_build_targets(mocked_results, expected_response) -> None:
     with mock.patch(
         "chromite.service.relevancy.get_relevant_build_targets",
         return_value=mocked_results,
     ):
-        output_proto = relevancy_pb2.GetRelevantBuildTargetsResponse()
+        response = relevancy_pb2.GetRelevantBuildTargetsResponse()
         relevancy.GetRelevantBuildTargets(
-            _FAKE_INPUT_PROTO,
-            output_proto,
+            _FAKE_request,
+            response,
             api_config.ApiConfig(),
         )
-        assert output_proto == expected_output_proto
+        assert response == expected_response

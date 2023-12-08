@@ -203,18 +203,18 @@ def GetArtifacts(
 @faux.all_empty
 @validate.require("build_target.name")
 @validate.validation_complete
-def Create(input_proto, output_proto, _config):
+def Create(request, response, _config):
     """Create or replace a sysroot."""
-    update_chroot = not input_proto.flags.chroot_current
-    replace_sysroot = input_proto.flags.replace
-    use_cq_prebuilts = input_proto.flags.use_cq_prebuilts
+    update_chroot = not request.flags.chroot_current
+    replace_sysroot = request.flags.replace
+    use_cq_prebuilts = request.flags.use_cq_prebuilts
 
     build_target = controller_util.ParseBuildTarget(
-        input_proto.build_target, input_proto.profile
+        request.build_target, request.profile
     )
     package_indexes = [
         controller_util.deserialize_package_index_info(x)
-        for x in input_proto.package_indexes
+        for x in request.package_indexes
     ]
     run_configs = sysroot.SetupBoardRunConfig(
         force=replace_sysroot,
@@ -231,8 +231,8 @@ def Create(input_proto, output_proto, _config):
     except sysroot.Error as e:
         cros_build_lib.Die(e)
 
-    output_proto.sysroot.path = created.path
-    output_proto.sysroot.build_target.name = build_target.name
+    response.sysroot.path = created.path
+    response.sysroot.build_target.name = build_target.name
 
     return controller.RETURN_CODE_SUCCESS
 
@@ -241,11 +241,11 @@ def Create(input_proto, output_proto, _config):
 @validate.require("build_target.name", "packages")
 @validate.require_each("packages", ["category", "package_name"])
 @validate.validation_complete
-def GenerateArchive(input_proto, output_proto, _config) -> None:
+def GenerateArchive(request, response, _config) -> None:
     """Generate a sysroot. Typically used by informational builders."""
-    build_target_name = input_proto.build_target.name
+    build_target_name = request.build_target.name
     pkg_list = []
-    for package in input_proto.packages:
+    for package in request.packages:
         pkg_list.append("%s/%s" % (package.category, package.package_name))
 
     with osutils.TempDir(delete=False) as temp_output_dir:
@@ -254,32 +254,32 @@ def GenerateArchive(input_proto, output_proto, _config) -> None:
         )
 
     # By assigning this Path variable to the tar path, the tar file will be
-    # copied out to the input_proto's ResultPath location.
-    output_proto.sysroot_archive.path = sysroot_tar_path
-    output_proto.sysroot_archive.location = common_pb2.Path.INSIDE
+    # copied out to the request's ResultPath location.
+    response.sysroot_archive.path = sysroot_tar_path
+    response.sysroot_archive.location = common_pb2.Path.INSIDE
 
 
 @faux.all_empty
 @validate.exists("sysroot_archive.path")
 @validate.require("build_target.name")
 @validate.validation_complete
-def ExtractArchive(input_proto, output_proto, _config) -> None:
+def ExtractArchive(request, response, _config) -> None:
     """Extract archive to sysroot."""
-    chroot = controller_util.ParseChroot(input_proto.chroot)
-    board = input_proto.build_target.name
+    chroot = controller_util.ParseChroot(request.chroot)
+    board = request.build_target.name
     sysroot_path = build_target_lib.get_default_sysroot_path(board)
-    sysroot_archive = input_proto.sysroot_archive.path
+    sysroot_archive = request.sysroot_archive.path
 
-    response = sysroot.ExtractSysroot(
+    result = sysroot.ExtractSysroot(
         chroot, sysroot_lib.Sysroot(sysroot_path), sysroot_archive
     )
-    output_proto.sysroot_archive.path = response
-    output_proto.sysroot_archive.location = common_pb2.Path.INSIDE
+    response.sysroot_archive.path = result
+    response.sysroot_archive.location = common_pb2.Path.INSIDE
 
 
-def _MockFailedPackagesResponse(_input_proto, output_proto, _config) -> None:
+def _MockFailedPackagesResponse(_request, response, _config) -> None:
     """Mock error response that populates failed packages."""
-    fail = output_proto.failed_package_data.add()
+    fail = response.failed_package_data.add()
     fail.name.package_name = "package"
     fail.name.category = "category"
     fail.name.version = "1.0.0_rc-r1"
@@ -288,7 +288,7 @@ def _MockFailedPackagesResponse(_input_proto, output_proto, _config) -> None:
     )
     fail.log_path.location = common_pb2.Path.INSIDE
 
-    fail2 = output_proto.failed_package_data.add()
+    fail2 = response.failed_package_data.add()
     fail2.name.package_name = "bar"
     fail2.name.category = "foo"
     fail2.name.version = "3.7-r99"
@@ -301,16 +301,16 @@ def _MockFailedPackagesResponse(_input_proto, output_proto, _config) -> None:
 @validate.require("sysroot.path", "sysroot.build_target.name")
 @validate.exists("sysroot.path")
 @validate.validation_complete
-def InstallToolchain(input_proto, output_proto, _config):
+def InstallToolchain(request, response, _config):
     """Install the toolchain into a sysroot."""
     compile_source = (
-        input_proto.flags.compile_source or input_proto.flags.toolchain_changed
+        request.flags.compile_source or request.flags.toolchain_changed
     )
 
-    sysroot_path = input_proto.sysroot.path
+    sysroot_path = request.sysroot.path
 
     build_target = controller_util.ParseBuildTarget(
-        input_proto.sysroot.build_target
+        request.sysroot.build_target
     )
     target_sysroot = sysroot_lib.Sysroot(sysroot_path)
     run_configs = sysroot.SetupBoardRunConfig(usepkg=not compile_source)
@@ -321,7 +321,7 @@ def InstallToolchain(input_proto, output_proto, _config):
         sysroot.InstallToolchain(build_target, target_sysroot, run_configs)
     except sysroot_lib.ToolchainInstallError as e:
         controller_util.retrieve_package_log_paths(
-            e.failed_toolchain_info, output_proto, target_sysroot
+            e.failed_toolchain_info, response, target_sysroot
         )
 
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
@@ -338,50 +338,50 @@ def InstallToolchain(input_proto, output_proto, _config):
 @validate.validation_complete
 @metrics_lib.collect_metrics
 def InstallPackages(
-    input_proto: sysroot_pb2.InstallPackagesRequest,
-    output_proto: sysroot_pb2.InstallPackagesResponse,
+    request: sysroot_pb2.InstallPackagesRequest,
+    response: sysroot_pb2.InstallPackagesResponse,
     _config: "api_config.ApiConfig",
 ):
     """Install packages into a sysroot, building as necessary and permitted."""
     compile_source = (
-        input_proto.flags.compile_source or input_proto.flags.toolchain_changed
+        request.flags.compile_source or request.flags.toolchain_changed
     )
 
-    use_remoteexec = input_proto.HasField("remoteexec_config")
+    use_remoteexec = request.HasField("remoteexec_config")
 
     # Testing if Goma will support unknown compilers now.
-    use_goma = input_proto.flags.use_goma and not use_remoteexec
+    use_goma = request.flags.use_goma and not use_remoteexec
 
-    target_sysroot = sysroot_lib.Sysroot(input_proto.sysroot.path)
+    target_sysroot = sysroot_lib.Sysroot(request.sysroot.path)
     build_target = controller_util.ParseBuildTarget(
-        input_proto.sysroot.build_target
+        request.sysroot.build_target
     )
 
     # Get the package atom for each specified package. The field is optional, so
     # error only when we cannot parse an atom for each of the given packages.
     packages = [
         controller_util.deserialize_package_info(x).atom
-        for x in input_proto.packages
+        for x in request.packages
     ]
 
     package_indexes = [
         controller_util.deserialize_package_index_info(x)
-        for x in input_proto.package_indexes
+        for x in request.package_indexes
     ]
 
     # Calculate which packages would have been merged, but don't install
     # anything.
-    dryrun = input_proto.flags.dryrun
+    dryrun = request.flags.dryrun
 
     # Allow cros workon packages to build from the unstable ebuilds.
-    workon = input_proto.flags.workon
+    workon = request.flags.workon
 
     # Use Bazel to build packages.
-    bazel = input_proto.flags.bazel
+    bazel = request.flags.bazel
 
     # Lite build restricts the set of packages that will be built.
     bazel_lite = (
-        input_proto.bazel_targets == sysroot_pb2.InstallPackagesRequest.LITE
+        request.bazel_targets == sysroot_pb2.InstallPackagesRequest.LITE
     )
 
     if not target_sysroot.IsToolchainInstalled():
@@ -389,7 +389,7 @@ def InstallPackages(
 
     _LogBinhost(build_target.name)
 
-    use_flags = [u.flag for u in input_proto.use_flags]
+    use_flags = [u.flag for u in request.use_flags]
     build_packages_config = sysroot.BuildPackagesRunConfig(
         use_any_chrome=False,
         usepkg=not compile_source,
@@ -417,38 +417,36 @@ def InstallPackages(
             return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
         controller_util.retrieve_package_log_paths(
-            e.failed_packages, output_proto, target_sysroot
+            e.failed_packages, response, target_sysroot
         )
 
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
     finally:
         # Copy goma logs to specified directory if there is a goma_config and
         # it contains a log_dir to store artifacts.
-        if input_proto.goma_config.log_dir.dir:
+        if request.goma_config.log_dir.dir:
             log_source_dir = _GetGomaLogDirectory()
             archiver = goma_lib.LogsArchiver(
                 log_source_dir,
-                dest_dir=input_proto.goma_config.log_dir.dir,
-                stats_file=input_proto.goma_config.stats_file,
-                counterz_file=input_proto.goma_config.counterz_file,
+                dest_dir=request.goma_config.log_dir.dir,
+                stats_file=request.goma_config.stats_file,
+                counterz_file=request.goma_config.counterz_file,
             )
             archiver_tuple = archiver.Archive()
             if archiver_tuple.stats_file:
-                output_proto.goma_artifacts.stats_file = (
-                    archiver_tuple.stats_file
-                )
+                response.goma_artifacts.stats_file = archiver_tuple.stats_file
             if archiver_tuple.counterz_file:
-                output_proto.goma_artifacts.counterz_file = (
+                response.goma_artifacts.counterz_file = (
                     archiver_tuple.counterz_file
                 )
-            output_proto.goma_artifacts.log_files[:] = archiver_tuple.log_files
+            response.goma_artifacts.log_files[:] = archiver_tuple.log_files
 
-        if input_proto.remoteexec_config.log_dir.dir:
+        if request.remoteexec_config.log_dir.dir:
             archiver = remoteexec_lib.LogsArchiver(
-                dest_dir=Path(input_proto.remoteexec_config.log_dir.dir),
+                dest_dir=Path(request.remoteexec_config.log_dir.dir),
             )
             archived_logs = archiver.archive()
-            output_proto.remoteexec_artifacts.log_files[:] = [
+            response.remoteexec_artifacts.log_files[:] = [
                 str(x) for x in archived_logs
             ]
 
@@ -456,10 +454,8 @@ def InstallPackages(
     if dryrun:
         return controller.RETURN_CODE_SUCCESS
 
-    # Read metric events log and pipe them into output_proto.events.
-    metrics.deserialize_metrics_log(
-        output_proto.events, prefix=build_target.name
-    )
+    # Read metric events log and pipe them into response.events.
+    metrics.deserialize_metrics_log(response.events, prefix=build_target.name)
 
 
 def _LogBinhost(board) -> None:

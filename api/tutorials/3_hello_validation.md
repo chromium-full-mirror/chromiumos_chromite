@@ -76,14 +76,14 @@ from chromite.lib import hello_lib
 
 @validate.require('target')
 @validate.validation_complete
-def Hello(input_proto, output_proto, config_proto):
-    hello_lib.hello(target=input_proto.target)
+def Hello(request, response, config):
+    hello_lib.hello(target=request.target)
 ```
 
 So, what do we have here?
 
 `@validate.require('target')`:
-This line is our actual validation, requiring `input_proto.target` to have a
+This line is our actual validation, requiring `request.target` to have a
 value.
 
 `@validate.validation_complete`:

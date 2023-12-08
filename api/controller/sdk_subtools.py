@@ -26,13 +26,13 @@ from chromite.service import sdk_subtools
 @faux.empty_success
 @validate.validation_complete
 def BuildSdkSubtools(
-    _input_proto: sdk_subtools_pb2.BuildSdkSubtoolsRequest,
-    output_proto: sdk_subtools_pb2.BuildSdkSubtoolsResponse,
+    _request: sdk_subtools_pb2.BuildSdkSubtoolsRequest,
+    response: sdk_subtools_pb2.BuildSdkSubtoolsResponse,
     config: api_config.ApiConfig,
 ) -> Optional[int]:
     """Setup, and update packages in an SDK, then bundle subtools for upload."""
     build_target = build_target_lib.BuildTarget(
-        # Note `input_proto.chroot`` is not passed to `build_root` here:
+        # Note `request.chroot`` is not passed to `build_root` here:
         # api.router.py clears the `chroot` field when entering the chroot, so
         # it should always be empty when this endpoint is invoked.
         name="amd64-subtools-host",
@@ -52,13 +52,13 @@ def BuildSdkSubtools(
 
         host_sysroot = sysroot_lib.Sysroot("/")
         controller_util.retrieve_package_log_paths(
-            e.failed_packages, output_proto, host_sysroot
+            e.failed_packages, response, host_sysroot
         )
 
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
 
     (bundles, _) = sdk_subtools.bundle_and_prepare_upload()
-    output_proto.bundle_paths.extend(
+    response.bundle_paths.extend(
         common_pb2.Path(path=str(b), location=common_pb2.Path.INSIDE)
         for b in bundles
     )
@@ -68,24 +68,22 @@ def BuildSdkSubtools(
 @faux.empty_success
 @validate.validation_complete
 def UploadSdkSubtools(
-    input_proto: sdk_subtools_pb2.UploadSdkSubtoolsRequest,
-    output_proto: sdk_subtools_pb2.UploadSdkSubtoolsResponse,
+    request: sdk_subtools_pb2.UploadSdkSubtoolsRequest,
+    response: sdk_subtools_pb2.UploadSdkSubtoolsResponse,
     config: api_config.ApiConfig,
 ) -> Optional[int]:
     """Uploads a list of bundled subtools."""
-    if any(
-        p.location != common_pb2.Path.OUTSIDE for p in input_proto.bundle_paths
-    ):
+    if any(p.location != common_pb2.Path.OUTSIDE for p in request.bundle_paths):
         cros_build_lib.Die(
             "UploadSdkSubtools requires outside-chroot bundle paths."
         )
 
-    bundles = [Path(path.path) for path in input_proto.bundle_paths]
+    bundles = [Path(path.path) for path in request.bundle_paths]
     if config.validate_only:
         return controller.RETURN_CODE_VALID_INPUT
 
     result = sdk_subtools.upload_prepared_bundles(
-        input_proto.use_production, bundles
+        request.use_production, bundles
     )
     unchanged_count = len(bundles) - len(result.uploaded_subtool_names)
     if result.uploaded_instances_markdown:
@@ -97,6 +95,6 @@ def UploadSdkSubtools(
         summary = f"{unchanged_count} tools bundled. No interesting changes."
         step_text = summary
 
-    output_proto.step_text = step_text
-    output_proto.summary_markdown = summary
+    response.step_text = step_text
+    response.summary_markdown = summary
     return None

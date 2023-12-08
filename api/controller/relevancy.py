@@ -17,7 +17,7 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.service import relevancy
 
 
-def _MockSuccess(_input_proto, _output_proto, _config_proto) -> None:
+def _MockSuccess(_request, _response, _config) -> None:
     """Mock success output for the GetRelevantBuildTargets endpoint."""
 
     # Default protobuf happens to indicate no relevant targets, which is an
@@ -27,16 +27,16 @@ def _MockSuccess(_input_proto, _output_proto, _config_proto) -> None:
 @faux.success(_MockSuccess)
 @faux.empty_error
 @validate.validation_complete
-def GetRelevantBuildTargets(input_proto, output_proto, _config_proto) -> None:
+def GetRelevantBuildTargets(request, response, _config) -> None:
     """Get relevant build targets for a build using the relevancy service."""
 
-    build_targets = controller_util.ParseBuildTargets(input_proto.build_targets)
-    paths = (Path(x.path) for x in input_proto.affected_paths)
+    build_targets = controller_util.ParseBuildTargets(request.build_targets)
+    paths = (Path(x.path) for x in request.affected_paths)
 
     for build_target, reason in relevancy.get_relevant_build_targets(
         build_targets, paths
     ):
-        output_proto.build_targets.append(
+        response.build_targets.append(
             relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
                 build_target=common_pb2.BuildTarget(name=build_target.name),
                 reason=reason.to_proto(),

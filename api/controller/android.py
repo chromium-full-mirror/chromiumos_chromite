@@ -34,29 +34,29 @@ ANDROIDPIN_MASK_PATH = os.path.join(
 )
 
 
-def _GetLatestBuildResponse(_input_proto, output_proto, _config) -> None:
+def _GetLatestBuildResponse(_request, response, _config) -> None:
     """Fake GetLatestBuild response."""
-    output_proto.android_version = "7123456"
+    response.android_version = "7123456"
 
 
 @faux.success(_GetLatestBuildResponse)
 @faux.empty_error
 @validate.require("android_package")
 @validate.validation_complete
-def GetLatestBuild(input_proto, output_proto, _config) -> None:
+def GetLatestBuild(request, response, _config) -> None:
     build_id, _ = android.GetLatestBuild(
-        input_proto.android_package,
-        build_branch=input_proto.android_build_branch,
+        request.android_package,
+        build_branch=request.android_build_branch,
     )
-    output_proto.android_version = build_id
+    response.android_version = build_id
 
 
-def _MarkStableResponse(_input_proto, output_proto, _config) -> None:
+def _MarkStableResponse(_request, response, _config) -> None:
     """Add fake status to a successful response."""
-    output_proto.android_atom.category = "category"
-    output_proto.android_atom.package_name = "android-package-name"
-    output_proto.android_atom.version = "1.2"
-    output_proto.status = android_pb2.MARK_STABLE_STATUS_SUCCESS
+    response.android_atom.category = "category"
+    response.android_atom.package_name = "android-package-name"
+    response.android_atom.version = "1.2"
+    response.status = android_pb2.MARK_STABLE_STATUS_SUCCESS
 
 
 @faux.success(_MarkStableResponse)
@@ -64,8 +64,8 @@ def _MarkStableResponse(_input_proto, output_proto, _config) -> None:
 @validate.require("package_name")
 @validate.validation_complete
 def MarkStable(
-    input_proto: android_pb2.MarkStableRequest,
-    output_proto: android_pb2.MarkStableResponse,
+    request: android_pb2.MarkStableRequest,
+    response: android_pb2.MarkStableResponse,
     _config: "api_config.ApiConfig",
 ) -> None:
     """Uprev Android, if able.
@@ -76,22 +76,20 @@ def MarkStable(
     See AndroidService documentation in api/proto/android.proto.
 
     Args:
-        input_proto: The input proto.
-        output_proto: The output proto.
+        request: The input proto.
+        response: The output proto.
         _config: The call config.
     """
-    chroot = controller_util.ParseChroot(input_proto.chroot)
-    build_targets = controller_util.ParseBuildTargets(input_proto.build_targets)
-    package_name = input_proto.package_name
-    android_build_branch = input_proto.android_build_branch
-    android_version = input_proto.android_version
-    skip_commit = input_proto.skip_commit
-    ignore_data_collector_artifacts = (
-        input_proto.ignore_data_collector_artifacts
-    )
+    chroot = controller_util.ParseChroot(request.chroot)
+    build_targets = controller_util.ParseBuildTargets(request.build_targets)
+    package_name = request.package_name
+    android_build_branch = request.android_build_branch
+    android_version = request.android_version
+    skip_commit = request.skip_commit
+    ignore_data_collector_artifacts = request.ignore_data_collector_artifacts
 
     # Assume success.
-    output_proto.status = android_pb2.MARK_STABLE_STATUS_SUCCESS
+    response.status = android_pb2.MARK_STABLE_STATUS_SUCCESS
     # TODO(crbug/904939): This should move to service/android.py and the port
     # should be finished.
     android_atom_to_build = None
@@ -110,21 +108,21 @@ def MarkStable(
     except packages.AndroidIsPinnedUprevError as e:
         # If the uprev failed due to a pin, CI needs to unpin and retry.
         android_atom_to_build = e.new_android_atom
-        output_proto.status = android_pb2.MARK_STABLE_STATUS_PINNED
+        response.status = android_pb2.MARK_STABLE_STATUS_PINNED
 
     if android_atom_to_build:
         pkg = package_info.parse(android_atom_to_build)
-        controller_util.serialize_package_info(pkg, output_proto.android_atom)
+        controller_util.serialize_package_info(pkg, response.android_atom)
     else:
-        output_proto.status = android_pb2.MARK_STABLE_STATUS_EARLY_EXIT
+        response.status = android_pb2.MARK_STABLE_STATUS_EARLY_EXIT
 
 
-# We don't use @faux.success for UnpinVersion because output_proto is unused.
+# We don't use @faux.success for UnpinVersion because response is unused.
 @faux.all_empty
 @validate.validation_complete
 def UnpinVersion(
-    _input_proto: android_pb2.UnpinVersionRequest,
-    _output_proto: android_pb2.UnpinVersionResponse,
+    _request: android_pb2.UnpinVersionRequest,
+    _response: android_pb2.UnpinVersionResponse,
     _config: "api_config.ApiConfig",
 ) -> None:
     """Unpin the Android version.
@@ -132,27 +130,27 @@ def UnpinVersion(
     See AndroidService documentation in api/proto/android.proto.
 
     Args:
-        _input_proto: The input proto. (not used.)
-        _output_proto: The output proto. (not used.)
+        _request: The input proto. (not used.)
+        _response: The output proto. (not used.)
         _config: The call config.
     """
     osutils.SafeUnlink(ANDROIDPIN_MASK_PATH)
 
 
-def _WriteLKGBResponse(_input_proto, output_proto, _config) -> None:
+def _WriteLKGBResponse(_request, response, _config) -> None:
     """Fake WriteLKGB response."""
-    output_proto.modified_files.append("fake_file")
+    response.modified_files.append("fake_file")
 
 
 @faux.success(_WriteLKGBResponse)
 @faux.empty_error
 @validate.require("android_package", "android_version")
 @validate.validation_complete
-def WriteLKGB(input_proto, output_proto, _config) -> None:
-    android_package = input_proto.android_package
-    android_version = input_proto.android_version
+def WriteLKGB(request, response, _config) -> None:
+    android_package = request.android_package
+    android_version = request.android_version
     android_branch = (
-        input_proto.android_branch
+        request.android_branch
         or android.GetAndroidBranchForPackage(android_package)
     )
     android_package_dir = android.GetAndroidPackageDir(android_package)
@@ -195,4 +193,4 @@ def WriteLKGB(input_proto, output_proto, _config) -> None:
 
     # Actually update LKGB.
     modified = android.WriteLKGB(android_package_dir, lkgb)
-    output_proto.modified_files.append(modified)
+    response.modified_files.append(modified)

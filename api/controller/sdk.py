@@ -25,34 +25,34 @@ if TYPE_CHECKING:
 
 
 def _ChrootVersionResponse(
-    _input_proto: Union["sdk_pb2.CreateRequest", "sdk_pb2.UpdateRequest"],
-    output_proto: Union["sdk_pb2.CreateResponse", "sdk_pb2.UpdateResponse"],
+    _request: Union["sdk_pb2.CreateRequest", "sdk_pb2.UpdateRequest"],
+    response: Union["sdk_pb2.CreateResponse", "sdk_pb2.UpdateResponse"],
     _config: "api_config.ApiConfig",
 ) -> None:
     """Add a fake chroot version to a successful response."""
-    output_proto.version.version = 168
+    response.version.version = 168
 
 
 def _BinhostCLs(
-    _input_proto: "sdk_pb2.CreateBinhostCLsRequest",
-    output_proto: "sdk_pb2.CreateBinhostCLsResponse",
+    _request: "sdk_pb2.CreateBinhostCLsRequest",
+    response: "sdk_pb2.CreateBinhostCLsResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Add fake CL identifiers to a successful response."""
-    output_proto.cls = [
+    response.cls = [
         "fakecl:1",
         "fakecl:2",
     ]
 
 
 def _BuildSdkTarballResponse(
-    _input_proto: "sdk_pb2.BuildSdkTarballRequest",
-    output_proto: "sdk_pb2.BuildSdkTarballResponse",
+    _request: "sdk_pb2.BuildSdkTarballRequest",
+    response: "sdk_pb2.BuildSdkTarballResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Populate a fake BuildSdkTarballResponse."""
-    output_proto.sdk_tarball_path.path = "/fake/sdk/tarball.tar.gz"
-    output_proto.sdk_tarball_path.location = common_pb2.Path.OUTSIDE
+    response.sdk_tarball_path.path = "/fake/sdk/tarball.tar.gz"
+    response.sdk_tarball_path.location = common_pb2.Path.OUTSIDE
 
 
 @faux.success(_BuildSdkTarballResponse)
@@ -60,27 +60,27 @@ def _BuildSdkTarballResponse(
 @validate.require("sdk_version")
 @validate.validation_complete
 def BuildSdkTarball(
-    input_proto: "sdk_pb2.BuildSdkTarballRequest",
-    output_proto: "sdk_pb2.BuildSdkTarballResponse",
+    request: "sdk_pb2.BuildSdkTarballRequest",
+    response: "sdk_pb2.BuildSdkTarballResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
-    chroot = controller_util.ParseChroot(input_proto.chroot)
+    chroot = controller_util.ParseChroot(request.chroot)
     tarball_path = sdk.BuildSdkTarball(
         chroot=chroot,
-        sdk_version=input_proto.sdk_version,
+        sdk_version=request.sdk_version,
     )
-    output_proto.sdk_tarball_path.path = str(tarball_path)
-    output_proto.sdk_tarball_path.location = common_pb2.Path.OUTSIDE
+    response.sdk_tarball_path.path = str(tarball_path)
+    response.sdk_tarball_path.location = common_pb2.Path.OUTSIDE
 
 
 def _CreateManifestFromSdkResponse(
-    _input_proto: "sdk_pb2.BuildSdkTarballRequest",
-    output_proto: "sdk_pb2.BuildSdkTarballResponse",
+    _request: "sdk_pb2.BuildSdkTarballRequest",
+    response: "sdk_pb2.BuildSdkTarballResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Populate a fake CreateManifestFromSdkResponse."""
-    output_proto.manifest_path.path = "/fake/sdk/tarball.tar.gz.Manifest"
-    output_proto.manifest_path.location = common_pb2.Path.Location.INSIDE
+    response.manifest_path.path = "/fake/sdk/tarball.tar.gz.Manifest"
+    response.manifest_path.location = common_pb2.Path.Location.INSIDE
 
 
 @faux.success(_CreateManifestFromSdkResponse)
@@ -89,8 +89,8 @@ def _CreateManifestFromSdkResponse(
 @validate.require("dest_dir")
 @validate.validation_complete
 def CreateManifestFromSdk(
-    input_proto: "sdk_pb2.CreateManifestFromSdkRequest",
-    output_proto: "sdk_pb2.CreateManifestFromSdkResponse",
+    request: "sdk_pb2.CreateManifestFromSdkRequest",
+    response: "sdk_pb2.CreateManifestFromSdkResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Create a manifest file showing the ebuilds in an SDK."""
@@ -100,20 +100,20 @@ def CreateManifestFromSdk(
         if not os.path.isabs(path):
             cros_build_lib.Die(f"The {name} must be absolute; got {path}")
 
-    _assert_path_is_absolute(input_proto.chroot.path, "chroot path")
-    _assert_path_is_absolute(input_proto.sdk_path.path, "SDK path")
-    _assert_path_is_absolute(input_proto.dest_dir.path, "destination directory")
+    _assert_path_is_absolute(request.chroot.path, "chroot path")
+    _assert_path_is_absolute(request.sdk_path.path, "SDK path")
+    _assert_path_is_absolute(request.dest_dir.path, "destination directory")
 
     sdk_path = controller_util.pb2_path_to_pathlib_path(
-        input_proto.sdk_path, input_proto.chroot
+        request.sdk_path, request.chroot
     )
     dest_dir = controller_util.pb2_path_to_pathlib_path(
-        input_proto.dest_dir, input_proto.chroot
+        request.dest_dir, request.chroot
     )
 
     manifest_path = sdk.CreateManifestFromSdk(sdk_path, dest_dir)
-    output_proto.manifest_path.path = str(manifest_path)
-    output_proto.manifest_path.location = common_pb2.Path.Location.OUTSIDE
+    response.manifest_path.path = str(manifest_path)
+    response.manifest_path.location = common_pb2.Path.Location.OUTSIDE
 
 
 @faux.success(_ChrootVersionResponse)
@@ -121,26 +121,26 @@ def CreateManifestFromSdk(
 @validate.require("skip_chroot_upgrade")
 @validate.validation_complete
 def Create(
-    input_proto: "sdk_pb2.CreateRequest",
-    output_proto: "sdk_pb2.CreateResponse",
+    request: "sdk_pb2.CreateRequest",
+    response: "sdk_pb2.CreateResponse",
     config: "api_config.ApiConfig",
 ) -> Union[int, None]:
     """Chroot creation, includes support for replacing an existing chroot.
 
     Args:
-        input_proto: The input proto.
-        output_proto: The output proto.
+        request: The input proto.
+        response: The output proto.
         config: The API call config.
 
     Returns:
         An error code, None otherwise.
     """
-    replace = not input_proto.flags.no_replace
-    bootstrap = input_proto.flags.bootstrap
-    chroot = controller_util.ParseChroot(input_proto.chroot)
+    replace = not request.flags.no_replace
+    bootstrap = request.flags.bootstrap
+    chroot = controller_util.ParseChroot(request.chroot)
 
-    sdk_version = input_proto.sdk_version
-    ccache_disable = input_proto.ccache_disable
+    sdk_version = request.sdk_version
+    ccache_disable = request.ccache_disable
 
     if config.validate_only:
         return controller.RETURN_CODE_VALID_INPUT
@@ -156,7 +156,7 @@ def Create(
     version = sdk.Create(args)
 
     if version:
-        output_proto.version.version = version
+        response.version.version = version
     else:
         # This should be very rare, if ever used, but worth noting.
         cros_build_lib.Die(
@@ -171,23 +171,23 @@ def Create(
 @validate.require_each("toolchain_targets", ["name"])
 @validate.validation_complete
 def Update(
-    input_proto: "sdk_pb2.UpdateRequest",
-    output_proto: "sdk_pb2.UpdateResponse",
+    request: "sdk_pb2.UpdateRequest",
+    response: "sdk_pb2.UpdateResponse",
     _config: "api_config.ApiConfig",
 ) -> Union[int, None]:
     """Update the chroot.
 
     Args:
-        input_proto: The input proto.
-        output_proto: The output proto.
+        request: The input proto.
+        response: The output proto.
         _config: The API call config.
 
     Returns:
         An error code, None otherwise.
     """
-    build_source = input_proto.flags.build_source
-    targets = [target.name for target in input_proto.toolchain_targets]
-    toolchain_changed = input_proto.flags.toolchain_changed
+    build_source = request.flags.build_source
+    targets = [target.name for target in request.toolchain_targets]
+    toolchain_changed = request.flags.toolchain_changed
 
     args = sdk.UpdateArguments(
         build_source=build_source,
@@ -197,12 +197,12 @@ def Update(
 
     result = sdk.Update(args)
     if result.success:
-        output_proto.version.version = result.version
+        response.version.version = result.version
         return None
     elif result.failed_pkgs:
         sysroot = sysroot_lib.Sysroot("/")
         controller_util.retrieve_package_log_paths(
-            result.failed_pkgs, output_proto, sysroot
+            result.failed_pkgs, response, sysroot
         )
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
     else:
@@ -215,8 +215,8 @@ def Update(
 @validate.require("version")
 @validate.validation_complete
 def Uprev(
-    input_proto: "sdk_pb2.UprevRequest",
-    output_proto: "sdk_pb2.UprevResponse",
+    request: "sdk_pb2.UprevRequest",
+    response: "sdk_pb2.UprevResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Update SDK version file and prebuilt files to point to the latest SDK.
@@ -225,36 +225,36 @@ def Uprev(
     """
     # The main uprev logic occurs in service/sdk.py.
     modified_files = sdk.uprev_sdk_and_prebuilts(
-        binhost_gs_bucket=input_proto.binhost_gs_bucket,
-        sdk_version=input_proto.version,
-        toolchain_tarball_template=input_proto.toolchain_tarball_template,
+        binhost_gs_bucket=request.binhost_gs_bucket,
+        sdk_version=request.version,
+        toolchain_tarball_template=request.toolchain_tarball_template,
     )
 
     # Populate the UprevResponse object with the modified files.
     for modified_file in modified_files:
-        proto_path = output_proto.modified_files.add()
+        proto_path = response.modified_files.add()
         proto_path.path = str(modified_file)
         proto_path.location = common_pb2.Path.OUTSIDE
-    output_proto.version = input_proto.version
+    response.version = request.version
 
 
 @faux.all_empty
 @validate.validation_complete
 def Delete(
-    input_proto: "sdk_pb2.DeleteRequest",
-    _output_proto: "sdk_pb2.DeleteResponse",
+    request: "sdk_pb2.DeleteRequest",
+    _response: "sdk_pb2.DeleteResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Delete a chroot."""
-    chroot = controller_util.ParseChroot(input_proto.chroot)
+    chroot = controller_util.ParseChroot(request.chroot)
     sdk.Delete(chroot, force=True)
 
 
 @faux.all_empty
 @validate.validation_complete
 def Unmount(
-    _input_proto: "sdk_pb2.UnmountRequest",
-    _output_proto: "sdk_pb2.UnmountResponse",
+    _request: "sdk_pb2.UnmountRequest",
+    _response: "sdk_pb2.UnmountResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Unmount a chroot"""
@@ -265,78 +265,78 @@ def Unmount(
 @validate.require("path.path")
 @validate.validation_complete
 def UnmountPath(
-    input_proto: "sdk_pb2.UnmountPathRequest",
-    _output_proto: "sdk_pb2.UnmountPathResponse",
+    request: "sdk_pb2.UnmountPathRequest",
+    _response: "sdk_pb2.UnmountPathResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Unmount a path"""
-    sdk.UnmountPath(input_proto.path.path)
+    sdk.UnmountPath(request.path.path)
 
 
 @faux.all_empty
 @validate.validation_complete
 def Clean(
-    input_proto: "sdk_pb2.CleanRequest",
-    _output_proto: "sdk_pb2.CleanResponse",
+    request: "sdk_pb2.CleanRequest",
+    _response: "sdk_pb2.CleanResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Clean unneeded files from a chroot."""
-    chroot = controller_util.ParseChroot(input_proto.chroot)
+    chroot = controller_util.ParseChroot(request.chroot)
 
     # Default (flagless) call sets 'safe' and 'sysroots'.
     if not (
-        input_proto.safe
-        or input_proto.images
-        or input_proto.sysroots
-        or input_proto.tmp
-        or input_proto.cache
-        or input_proto.logs
-        or input_proto.workdirs
-        or input_proto.incrementals
+        request.safe
+        or request.images
+        or request.sysroots
+        or request.tmp
+        or request.cache
+        or request.logs
+        or request.workdirs
+        or request.incrementals
     ):
         sdk.Clean(chroot, safe=True, sysroots=True)
     else:
         sdk.Clean(
             chroot,
-            safe=input_proto.safe,
-            images=input_proto.images,
-            sysroots=input_proto.sysroots,
-            tmp=input_proto.tmp,
-            cache=input_proto.cache,
-            logs=input_proto.logs,
-            workdirs=input_proto.workdirs,
-            incrementals=input_proto.incrementals,
+            safe=request.safe,
+            images=request.images,
+            sysroots=request.sysroots,
+            tmp=request.tmp,
+            cache=request.cache,
+            logs=request.logs,
+            workdirs=request.workdirs,
+            incrementals=request.incrementals,
         )
 
 
 @faux.all_empty
 @validate.validation_complete
 def BuildPrebuilts(
-    input_proto: "sdk_pb2.BuildPrebuiltsRequest",
-    output_proto: "sdk_pb2.BuildPrebuiltsResponse",
+    request: "sdk_pb2.BuildPrebuiltsRequest",
+    response: "sdk_pb2.BuildPrebuiltsResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Build the binary packages that comprise the Chromium OS SDK."""
-    chroot = controller_util.ParseChroot(input_proto.chroot)
+    chroot = controller_util.ParseChroot(request.chroot)
     host_path, target_path = sdk.BuildPrebuilts(
         chroot,
-        board=input_proto.build_target.name,
+        board=request.build_target.name,
     )
     # Convert paths to OUTSIDE, rather than using the ResultPath, to avoid
     # unnecessary copying of several-gigabyte directories, and because
     # ResultPath doesn't support returning multiple directories.
     chroot_path_resolver = path_util.ChrootPathResolver(
-        chroot_path=Path(input_proto.chroot.path),
-        out_path=Path(input_proto.chroot.out_path),
+        chroot_path=Path(request.chroot.path),
+        out_path=Path(request.chroot.out_path),
     )
-    output_proto.host_prebuilts_path.path = str(
+    response.host_prebuilts_path.path = str(
         chroot_path_resolver.FromChroot(host_path),
     )
-    output_proto.host_prebuilts_path.location = common_pb2.Path.OUTSIDE
-    output_proto.target_prebuilts_path.path = str(
+    response.host_prebuilts_path.location = common_pb2.Path.OUTSIDE
+    response.target_prebuilts_path.path = str(
         chroot_path_resolver.FromChroot(target_path),
     )
-    output_proto.target_prebuilts_path.location = common_pb2.Path.OUTSIDE
+    response.target_prebuilts_path.location = common_pb2.Path.OUTSIDE
 
 
 @faux.success(_BinhostCLs)
@@ -346,17 +346,17 @@ def BuildPrebuilts(
 )
 @validate.validation_complete
 def CreateBinhostCLs(
-    input_proto: "sdk_pb2.CreateBinhostCLsRequest",
-    output_proto: "sdk_pb2.CreateBinhostCLsResponse",
+    request: "sdk_pb2.CreateBinhostCLsRequest",
+    response: "sdk_pb2.CreateBinhostCLsResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Create CLs to update the binhost to point at uploaded prebuilts."""
-    output_proto.cls.extend(
+    response.cls.extend(
         sdk.CreateBinhostCLs(
-            input_proto.prepend_version,
-            input_proto.version,
-            input_proto.upload_location,
-            input_proto.sdk_tarball_template,
+            request.prepend_version,
+            request.version,
+            request.upload_location,
+            request.sdk_tarball_template,
         )
     )
 
@@ -365,29 +365,29 @@ def CreateBinhostCLs(
 @validate.require("prepend_version", "version", "upload_location")
 @validate.validation_complete
 def UploadPrebuiltPackages(
-    input_proto: "sdk_pb2.UploadPrebuiltPackagesRequest",
-    _output_proto: "sdk_pb2.UploadPrebuiltPackagesResponse",
+    request: "sdk_pb2.UploadPrebuiltPackagesRequest",
+    _response: "sdk_pb2.UploadPrebuiltPackagesResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Upload prebuilt packages."""
     sdk.UploadPrebuiltPackages(
-        controller_util.ParseChroot(input_proto.chroot),
-        input_proto.prepend_version,
-        input_proto.version,
-        input_proto.upload_location,
+        controller_util.ParseChroot(request.chroot),
+        request.prepend_version,
+        request.version,
+        request.upload_location,
     )
 
 
 @faux.all_empty
 @validate.validation_complete
 def BuildSdkToolchain(
-    input_proto: "sdk_pb2.BuildSdkToolchainRequest",
-    output_proto: "sdk_pb2.BuildSdkToolchainResponse",
+    request: "sdk_pb2.BuildSdkToolchainRequest",
+    response: "sdk_pb2.BuildSdkToolchainResponse",
     _config: "api_config.ApiConfig",
 ) -> None:
     """Build cross-compiler packages for the SDK."""
     extra_env: Dict[str, str] = {}
-    if input_proto.use_flags:
-        extra_env["USE"] = " ".join(use.flag for use in input_proto.use_flags)
+    if request.use_flags:
+        extra_env["USE"] = " ".join(use.flag for use in request.use_flags)
     generated_files = sdk.BuildSdkToolchain(extra_env=extra_env)
-    output_proto.generated_files.extend(generated_files)
+    response.generated_files.extend(generated_files)

@@ -20,7 +20,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 
 
-def _MockSuccess(_input_proto, _output_proto, _config_proto) -> None:
+def _MockSuccess(_request, _response, _config) -> None:
     """Mock success output for the RunCopybot endpoint."""
 
     # Successful response is the default protobuf, so no need to fill it out.
@@ -29,57 +29,57 @@ def _MockSuccess(_input_proto, _output_proto, _config_proto) -> None:
 @faux.success(_MockSuccess)
 @faux.empty_error
 @validate.validation_complete
-def RunCopybot(input_proto, output_proto, _config_proto):
+def RunCopybot(request, response, _config):
     """Run copybot. Translate all fields in the input protobuf to CLI args."""
 
     cmd = [
         constants.SOURCE_ROOT / "src/platform/dev/contrib/copybot/copybot.py"
     ]
 
-    if input_proto.topic:
-        cmd.extend(["--topic", input_proto.topic])
+    if request.topic:
+        cmd.extend(["--topic", request.topic])
 
-    for label in input_proto.labels:
+    for label in request.labels:
         cmd.extend(["--label", label.label])
 
-    for reviewer in input_proto.reviewers:
+    for reviewer in request.reviewers:
         cmd.extend(["--re", reviewer.user])
 
-    for cc in input_proto.ccs:
+    for cc in request.ccs:
         cmd.extend(["--cc", cc.user])
 
-    if input_proto.prepend_subject:
-        cmd.extend(["--prepend-subject", input_proto.prepend_subject])
+    if request.prepend_subject:
+        cmd.extend(["--prepend-subject", request.prepend_subject])
 
     if (
-        input_proto.merge_conflict_behavior
+        request.merge_conflict_behavior
         == copybot_pb2.RunCopybotRequest.MERGE_CONFLICT_BEHAVIOR_SKIP
     ):
         cmd.extend(["--merge-conflict-behavior", "SKIP"])
 
     if (
-        input_proto.merge_conflict_behavior
+        request.merge_conflict_behavior
         == copybot_pb2.RunCopybotRequest.MERGE_CONFLICT_BEHAVIOR_FAIL
     ):
         cmd.extend(["--merge-conflict-behavior", "FAIL"])
 
-    for exclude in input_proto.exclude_file_patterns:
+    for exclude in request.exclude_file_patterns:
         cmd.extend(["--exclude-file-pattern", exclude.pattern])
 
-    for ph in input_proto.keep_pseudoheaders:
+    for ph in request.keep_pseudoheaders:
         cmd.extend(["--keep-pseudoheader", ph.name])
 
-    if input_proto.add_signed_off_by:
+    if request.add_signed_off_by:
         cmd.append("--add-signed-off-by")
 
-    if input_proto.dry_run:
+    if request.dry_run:
         cmd.append("--dry-run")
 
-    for po in input_proto.push_options:
+    for po in request.push_options:
         cmd.extend(["--push-option", po.opt])
 
-    cmd.append(f"{input_proto.upstream.url}:{input_proto.upstream.branch}")
-    cmd.append(f"{input_proto.downstream.url}:{input_proto.downstream.branch}")
+    cmd.append(f"{request.upstream.url}:{request.upstream.branch}")
+    cmd.append(f"{request.downstream.url}:{request.downstream.branch}")
 
     with tempfile.TemporaryDirectory() as temp_dir:
         json_output_path = Path(temp_dir) / "copybot_output.json"
@@ -97,5 +97,5 @@ def RunCopybot(input_proto, output_proto, _config_proto):
             if not json_output_path.exists():
                 return controller.RETURN_CODE_UNRECOVERABLE
 
-            json_format.Parse(json_output_path.read_text(), output_proto)
+            json_format.Parse(json_output_path.read_text(), response)
             return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE

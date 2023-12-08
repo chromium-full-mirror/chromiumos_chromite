@@ -241,7 +241,7 @@ def deserialize_package_info(pkg_info_msg):
 
 def retrieve_package_log_paths(
     packages: Iterable[package_info.PackageInfo],
-    output_proto: Union[
+    response: Union[
         sysroot_pb2.InstallPackagesResponse,
         sysroot_pb2.InstallToolchainResponse,
         sdk_subtools_pb2.BuildSdkSubtoolsResponse,
@@ -253,7 +253,7 @@ def retrieve_package_log_paths(
 
     Args:
         packages: A list of packages which failed to build.
-        output_proto: The Response message for a given API call. This response
+        response: The Response message for a given API call. This response
             proto must contain a failed_package_data field.
         target_sysroot: The sysroot used by the build step.
     """
@@ -262,7 +262,7 @@ def retrieve_package_log_paths(
         # sysroot.
         # Logs currently exist within the sysroot in the form of:
         # /build/${BOARD}/tmp/portage/logs/$CATEGORY:$PF:$TIMESTAMP.log
-        failed_pkg_data_msg = output_proto.failed_package_data.add()
+        failed_pkg_data_msg = response.failed_package_data.add()
         serialize_package_info(pkg_info, failed_pkg_data_msg.name)
         glob_path = os.path.join(
             target_sysroot.portage_logdir,

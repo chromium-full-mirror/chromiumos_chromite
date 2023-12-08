@@ -170,11 +170,9 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         expected_packages = [("foo", "bar"), ("cat", "pkg")]
         self.PatchObject(image_service, "Build", return_value=result)
 
-        input_proto = self._GetRequest(board="board")
+        request = self._GetRequest(board="board")
 
-        rc = image_controller.Create(
-            input_proto, self.response, self.api_config
-        )
+        rc = image_controller.Create(request, self.response, self.api_config)
 
         self.assertEqual(
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE, rc
@@ -190,12 +188,10 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         result.return_code = 1
         self.PatchObject(image_service, "Build", return_value=result)
 
-        input_proto = image_pb2.CreateImageRequest()
-        input_proto.build_target.name = "board"
+        request = image_pb2.CreateImageRequest()
+        request.build_target.name = "board"
 
-        rc = image_controller.Create(
-            input_proto, self.response, self.api_config
-        )
+        rc = image_controller.Create(request, self.response, self.api_config)
         self.assertTrue(rc)
         self.assertNotEqual(
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE, rc
@@ -424,10 +420,10 @@ class RecoveryImageTest(
 
     def testBaseIsRecoveryTrue(self) -> None:
         """Test that cp is called."""
-        input_proto = self._GetRequest(
+        request = self._GetRequest(
             board="board", types=self.types, base_is_recovery=True
         )
-        image_controller.Create(input_proto, self.response, self.api_config)
+        image_controller.Create(request, self.response, self.api_config)
 
         self.copy_image_mock.assert_called_with(
             board="board",
@@ -436,10 +432,10 @@ class RecoveryImageTest(
 
     def testBaseIsRecoveryFalse(self) -> None:
         """Test that mod_image_for_recovery.sh is called."""
-        input_proto = self._GetRequest(
+        request = self._GetRequest(
             board="board", types=self.types, base_is_recovery=False
         )
-        image_controller.Create(input_proto, self.response, self.api_config)
+        image_controller.Create(request, self.response, self.api_config)
 
         self.recov_image_mock.assert_called_with(
             board="board",
@@ -462,12 +458,12 @@ class ImageSignerTestTest(
     def testValidateOnly(self) -> None:
         """Sanity check that validate-only calls don't execute any logic."""
         patch = self.PatchObject(image_lib, "SecurityTest", return_value=True)
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        response = image_pb2.TestImageResult()
 
         image_controller.SignerTest(
-            input_proto, output_proto, self.validate_only_config
+            request, response, self.validate_only_config
         )
 
         patch.assert_not_called()
@@ -475,26 +471,24 @@ class ImageSignerTestTest(
     def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns mocked value."""
         patch = self.PatchObject(image_lib, "SecurityTest", return_value=True)
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        response = image_pb2.TestImageResult()
 
-        image_controller.SignerTest(
-            input_proto, output_proto, self.mock_call_config
-        )
+        image_controller.SignerTest(request, response, self.mock_call_config)
 
         patch.assert_not_called()
-        self.assertEqual(output_proto.success, True)
+        self.assertEqual(response.success, True)
 
     def testMockError(self) -> None:
         """Test that mock call does not execute any logic, returns error."""
         patch = self.PatchObject(image_lib, "SecurityTest", return_value=True)
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        response = image_pb2.TestImageResult()
 
         rc = image_controller.SignerTest(
-            input_proto, output_proto, self.mock_error_config
+            request, response, self.mock_error_config
         )
 
         patch.assert_not_called()
@@ -502,33 +496,31 @@ class ImageSignerTestTest(
 
     def testSignerTestNoImage(self) -> None:
         """Test function argument validation."""
-        input_proto = image_pb2.TestImageRequest()
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        response = image_pb2.TestImageResult()
 
         # Nothing provided.
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            image_controller.SignerTest(
-                input_proto, output_proto, self.api_config
-            )
+            image_controller.SignerTest(request, response, self.api_config)
 
     def testSignerTestSuccess(self) -> None:
         """Test successful call handling."""
         self.PatchObject(image_lib, "SecurityTest", return_value=True)
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        response = image_pb2.TestImageResult()
 
-        image_controller.SignerTest(input_proto, output_proto, self.api_config)
+        image_controller.SignerTest(request, response, self.api_config)
 
     def testSignerTestFailure(self) -> None:
         """Test function output tests."""
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        response = image_pb2.TestImageResult()
 
         self.PatchObject(image_lib, "SecurityTest", return_value=False)
-        image_controller.SignerTest(input_proto, output_proto, self.api_config)
-        self.assertFalse(output_proto.success)
+        image_controller.SignerTest(request, response, self.api_config)
+        self.assertFalse(response.success)
 
 
 class ImageTestTest(
@@ -548,91 +540,87 @@ class ImageTestTest(
         """Verify a validate-only call does not execute any logic."""
         patch = self.PatchObject(image_service, "Test")
 
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        input_proto.build_target.name = self.board
-        input_proto.result.directory = self.result_directory
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        request.build_target.name = self.board
+        request.result.directory = self.result_directory
+        response = image_pb2.TestImageResult()
 
-        image_controller.Test(
-            input_proto, output_proto, self.validate_only_config
-        )
+        image_controller.Test(request, response, self.validate_only_config)
         patch.assert_not_called()
 
     def testMockCall(self) -> None:
         """Test mock call does not execute any logic, returns mocked value."""
         patch = self.PatchObject(image_service, "Test")
 
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        input_proto.build_target.name = self.board
-        input_proto.result.directory = self.result_directory
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        request.build_target.name = self.board
+        request.result.directory = self.result_directory
+        response = image_pb2.TestImageResult()
 
-        image_controller.Test(input_proto, output_proto, self.mock_call_config)
+        image_controller.Test(request, response, self.mock_call_config)
         patch.assert_not_called()
-        self.assertEqual(output_proto.success, True)
+        self.assertEqual(response.success, True)
 
     def testMockError(self) -> None:
         """Test that mock call does not execute any logic, returns error."""
         patch = self.PatchObject(image_service, "Test")
 
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        input_proto.build_target.name = self.board
-        input_proto.result.directory = self.result_directory
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        request.build_target.name = self.board
+        request.result.directory = self.result_directory
+        response = image_pb2.TestImageResult()
 
-        rc = image_controller.Test(
-            input_proto, output_proto, self.mock_error_config
-        )
+        rc = image_controller.Test(request, response, self.mock_error_config)
         patch.assert_not_called()
         self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
 
     def testTestArgumentValidation(self) -> None:
         """Test function argument validation tests."""
         self.PatchObject(image_service, "Test", return_value=True)
-        input_proto = image_pb2.TestImageRequest()
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        response = image_pb2.TestImageResult()
 
         # Nothing provided.
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            image_controller.Test(input_proto, output_proto, self.api_config)
+            image_controller.Test(request, response, self.api_config)
 
         # Just one argument.
-        input_proto.build_target.name = self.board
+        request.build_target.name = self.board
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            image_controller.Test(input_proto, output_proto, self.api_config)
+            image_controller.Test(request, response, self.api_config)
 
         # Two arguments provided.
-        input_proto.result.directory = self.result_directory
+        request.result.directory = self.result_directory
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            image_controller.Test(input_proto, output_proto, self.api_config)
+            image_controller.Test(request, response, self.api_config)
 
         # Invalid image path.
-        input_proto.image.path = "/invalid/image/path"
+        request.image.path = "/invalid/image/path"
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            image_controller.Test(input_proto, output_proto, self.api_config)
+            image_controller.Test(request, response, self.api_config)
 
         # All valid arguments.
-        input_proto.image.path = self.image_path
-        image_controller.Test(input_proto, output_proto, self.api_config)
+        request.image.path = self.image_path
+        image_controller.Test(request, response, self.api_config)
 
     def testTestOutputHandling(self) -> None:
         """Test function output tests."""
-        input_proto = image_pb2.TestImageRequest()
-        input_proto.image.path = self.image_path
-        input_proto.build_target.name = self.board
-        input_proto.result.directory = self.result_directory
-        output_proto = image_pb2.TestImageResult()
+        request = image_pb2.TestImageRequest()
+        request.image.path = self.image_path
+        request.build_target.name = self.board
+        request.result.directory = self.result_directory
+        response = image_pb2.TestImageResult()
 
         self.PatchObject(image_service, "Test", return_value=True)
-        image_controller.Test(input_proto, output_proto, self.api_config)
-        self.assertTrue(output_proto.success)
+        image_controller.Test(request, response, self.api_config)
+        self.assertTrue(response.success)
 
         self.PatchObject(image_service, "Test", return_value=False)
-        image_controller.Test(input_proto, output_proto, self.api_config)
-        self.assertFalse(output_proto.success)
+        image_controller.Test(request, response, self.api_config)
+        self.assertFalse(response.success)
 
 
 class PushImageTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):

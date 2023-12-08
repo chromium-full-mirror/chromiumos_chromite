@@ -625,15 +625,15 @@ class BundleTestUpdatePayloadsTest(
             self.source_root, "src/build/images/target/latest"
         )
 
-        self.input_proto = artifacts_pb2.BundleRequest()
-        self.input_proto.build_target.name = self.target
-        self.input_proto.output_dir = self.archive_root
-        self.input_proto.result_path.path.path = self.archive_root
-        self.input_proto.result_path.path.location = (
+        self.request = artifacts_pb2.BundleRequest()
+        self.request.build_target.name = self.target
+        self.request.output_dir = self.archive_root
+        self.request.result_path.path.path = self.archive_root
+        self.request.result_path.path.location = (
             common_pb2.Path.Location.OUTSIDE
         )
 
-        self.output_proto = artifacts_pb2.BundleResponse()
+        self.response = artifacts_pb2.BundleResponse()
 
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
 
@@ -657,7 +657,7 @@ class BundleTestUpdatePayloadsTest(
         """Quick check that a validate only call does not execute any logic."""
         patch = self.PatchObject(artifacts_svc, "BundleTestUpdatePayloads")
         artifacts.BundleTestUpdatePayloads(
-            self.input_proto, self.output_proto, self.validate_only_config
+            self.request, self.response, self.validate_only_config
         )
         patch.assert_not_called()
 
@@ -665,20 +665,20 @@ class BundleTestUpdatePayloadsTest(
         """Test a mock call does not execute logic, returns mocked value."""
         patch = self.PatchObject(artifacts_svc, "BundleTestUpdatePayloads")
         artifacts.BundleTestUpdatePayloads(
-            self.input_proto, self.output_proto, self.mock_call_config
+            self.request, self.response, self.mock_call_config
         )
         patch.assert_not_called()
-        self.assertEqual(len(self.output_proto.artifacts), 3)
+        self.assertEqual(len(self.response.artifacts), 3)
         self.assertEqual(
-            self.output_proto.artifacts[0].artifact_path.path,
+            self.response.artifacts[0].artifact_path.path,
             os.path.join(self.archive_root, "payload1.bin"),
         )
         self.assertEqual(
-            self.output_proto.artifacts[1].artifact_path.path,
+            self.response.artifacts[1].artifact_path.path,
             os.path.join(self.archive_root, "payload1.json"),
         )
         self.assertEqual(
-            self.output_proto.artifacts[2].artifact_path.path,
+            self.response.artifacts[2].artifact_path.path,
             os.path.join(self.archive_root, "payload1.log"),
         )
 
@@ -688,12 +688,12 @@ class BundleTestUpdatePayloadsTest(
         osutils.WriteFile(image_path, "image!", makedirs=True)
 
         artifacts.BundleTestUpdatePayloads(
-            self.input_proto, self.output_proto, self.api_config
+            self.request, self.response, self.api_config
         )
 
         actual = [
             os.path.basename(artifact.artifact_path.path)
-            for artifact in self.output_proto.artifacts
+            for artifact in self.response.artifacts
         ]
         expected = ["payload1.bin", "payload2.bin"]
         self.assertCountEqual(actual, expected)
@@ -701,9 +701,7 @@ class BundleTestUpdatePayloadsTest(
         actual = [
             os.path.basename(path)
             for path in osutils.DirectoryIterator(
-                os.path.dirname(
-                    self.output_proto.artifacts[0].artifact_path.path
-                )
+                os.path.dirname(self.response.artifacts[0].artifact_path.path)
             )
         ]
         self.assertCountEqual(actual, expected)
@@ -712,9 +710,9 @@ class BundleTestUpdatePayloadsTest(
         """BundleTestUpdatePayloads dies if no image dir is found."""
         # Intentionally do not write image directory.
         artifacts.BundleTestUpdatePayloads(
-            self.input_proto, self.output_proto, self.api_config
+            self.request, self.response, self.api_config
         )
-        self.assertFalse(self.output_proto.artifacts)
+        self.assertFalse(self.response.artifacts)
 
     def testBundleTestUpdatePayloadsNoImage(self) -> None:
         """BundleTestUpdatePayloads dies if no usable image found for target."""
@@ -722,7 +720,7 @@ class BundleTestUpdatePayloadsTest(
         osutils.SafeMakedirs(self.image_root)
         with self.assertRaises(cros_build_lib.DieSystemExit):
             artifacts.BundleTestUpdatePayloads(
-                self.input_proto, self.output_proto, self.api_config
+                self.request, self.response, self.api_config
             )
 
 

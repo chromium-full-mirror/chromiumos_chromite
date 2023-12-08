@@ -27,7 +27,7 @@ verify their implementation without running full builds.
 
 Before we talk about implementing the mock calls, we'll look at how to execute
 them.
-The config_proto argument to the controllers is what controls the behavior.
+The config argument to the controllers is what controls the behavior.
 In general, endpoints shouldn't need to use it directly, the decorators will
 be able to handle any case where it's needed.
 We do have to be able to set it to execute the functionality, though.
@@ -61,8 +61,8 @@ from chromite.lib import hello_lib
 @faux.all_empty
 @validate.require('target')
 @validate.validation_complete
-def Hello(input_proto, output_proto, config_proto):
-    hello_lib.hello(target=input_proto.target)
+def Hello(request, response, config):
+    hello_lib.hello(target=request.target)
 ```
 
 The new decorator, `@faux.all_empty`, simply ensures an empty response for both
@@ -159,9 +159,9 @@ Now we can set the value in the response.
 @faux.all_empty
 @validate.require('target')
 @validate.validation_complete
-def Hello(input_proto, output_proto, config_proto):
-  hello_message = hello_lib.hello(target=input_proto.target)
-  output_proto.hello_message = hello_message
+def Hello(request, response, config):
+  hello_message = hello_lib.hello(target=request.target)
+  response.hello_message = hello_message
 ```
 
 Let's run the endpoint to make sure it works.
@@ -200,20 +200,20 @@ from chromite.api import faux
 from chromite.api import validate
 from chromite.lib import hello_lib
 
-def _hello_success(_input_proto, output_proto, _config_proto):
-  output_proto.hello_message = 'Hello, world!'
+def _hello_success(_request, response, _config):
+  response.hello_message = 'Hello, world!'
 
 @faux.success(_hello_success)
 @faux.empty_error
 @validate.require('target')
 @validate.validation_complete
-def Hello(input_proto, output_proto, _config_proto):
-  hello_message = hello_lib.hello(target=input_proto.target)
-  output_proto.hello_message = hello_message
+def Hello(request, response, _config):
+  hello_message = hello_lib.hello(target=request.target)
+  response.hello_message = hello_message
 ```
 
 You will notice the endpoint itself is untouched, except that have prefixed
-the config_proto argument with an underscore.
+the config argument with an underscore.
 This convention is used throughout chromite to denote unused arguments, and is
 added now for reasons discussed below.
 
@@ -225,7 +225,7 @@ the bulk of our change.
 
 The `@faux.success` decorator (and each of its error counterparts) takes a
 function to execute when the mock call is executed.
-For our success case, we need to populate `output_proto.hello_message`, just
+For our success case, we need to populate `response.hello_message`, just
 like we did when we added the output.
 You'll notice these success and error functions always have underscores
 prefixing their input and config arguments.

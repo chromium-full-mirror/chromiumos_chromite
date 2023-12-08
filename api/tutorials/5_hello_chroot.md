@@ -225,8 +225,8 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import hello_lib
 from chromite.lib import osutils
 
-def _hello_success(_input_proto, output_proto, _config_proto):
-  file_proto = output_proto.message_files.add()
+def _hello_success(_request, response, _config):
+  file_proto = response.message_files.add()
   file_proto.path = '/tmp/target'
   file_proto.location = common_pb2.Path.OUTSIDE
 
@@ -234,16 +234,16 @@ def _hello_success(_input_proto, output_proto, _config_proto):
 @faux.empty_error
 @validate.exists('targets_file.path')
 @validate.validation_complete
-def Hello(input_proto, output_proto, _config_proto):
+def Hello(request, response, _config):
   # Read targets, one per line.
-  targets = osutils.ReadFile(input_proto.targets_file.path).splitlines()
+  targets = osutils.ReadFile(request.targets_file.path).splitlines()
   # Don't delete since we need it to exist afterwords.
   with osutils.TempDir(delete=False) as tmp_dir:
     for target in targets:
       # Print the greeting and get the file it created.
       target_file = hello_lib.hello(target=target, output_dir=tmp_dir)
       # Add it to the response.
-      file_proto = output_proto.message_files.add()
+      file_proto = response.message_files.add()
       file_proto.path = target_file
       file_proto.location = common_pb2.Path.INSIDE
 ```
@@ -295,9 +295,9 @@ Running chromite.api.HelloService/Hello
 15:17:13: DEBUG: Services registered successfully.
 15:17:13: INFO: Re-executing the endpoint inside the chroot.
 15:17:13: DEBUG: Copying /tmp/targets-file to /usr/local/google/home/saklein/chromiumos/chroot/tmp/tmptdazkiqh/targets-file
-15:17:13: INFO: Writing input message to: /usr/local/google/home/saklein/chromiumos/chroot/tmp/tmpx9cumt3j/input_proto
-15:17:13: INFO: Writing config message to: /usr/local/google/home/saklein/chromiumos/chroot/tmp/tmpx9cumt3j/config_proto
-15:17:13: INFO: run: cros_sdk --chroot /usr/local/google/home/saklein/chromiumos/chroot -- build_api chromite.api.HelloService/Hello --input-json /tmp/tmpx9cumt3j/input_proto --output-binary /tmp/tmpx9cumt3j/output_proto --config-json /tmp/tmpx9cumt3j/config_proto --debug
+15:17:13: INFO: Writing input message to: /usr/local/google/home/saklein/chromiumos/chroot/tmp/tmpx9cumt3j/request
+15:17:13: INFO: Writing config message to: /usr/local/google/home/saklein/chromiumos/chroot/tmp/tmpx9cumt3j/config
+15:17:13: INFO: run: cros_sdk --chroot /usr/local/google/home/saklein/chromiumos/chroot -- build_api chromite.api.HelloService/Hello --input-json /tmp/tmpx9cumt3j/request --output-binary /tmp/tmpx9cumt3j/response --config-json /tmp/tmpx9cumt3j/config --debug
 15:17:15: DEBUG: Services registered successfully.
 15:17:15: DEBUG: Validating targets_file.path exists.
 Hello, world!

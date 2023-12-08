@@ -596,34 +596,34 @@ class SimpleChromeWorkflowTestTest(
 
     def testMissingBuildTarget(self) -> None:
         """Test SimpleChromeWorkflowTest dies when build_target not set."""
-        input_proto = self._Input(
+        request = self._Input(
             build_target=None,
             sysroot_path="/sysroot/dir",
             chrome_root="/chrome/path",
         )
         with self.assertRaises(cros_build_lib.DieSystemExit):
             test_controller.SimpleChromeWorkflowTest(
-                input_proto, None, self.api_config
+                request, None, self.api_config
             )
 
     def testMissingSysrootPath(self) -> None:
         """Test SimpleChromeWorkflowTest dies when build_target not set."""
-        input_proto = self._Input(
+        request = self._Input(
             build_target="board", sysroot_path=None, chrome_root="/chrome/path"
         )
         with self.assertRaises(cros_build_lib.DieSystemExit):
             test_controller.SimpleChromeWorkflowTest(
-                input_proto, None, self.api_config
+                request, None, self.api_config
             )
 
     def testMissingChromeRoot(self) -> None:
         """Test SimpleChromeWorkflowTest dies when build_target not set."""
-        input_proto = self._Input(
+        request = self._Input(
             build_target="board", sysroot_path="/sysroot/dir", chrome_root=None
         )
         with self.assertRaises(cros_build_lib.DieSystemExit):
             test_controller.SimpleChromeWorkflowTest(
-                input_proto, None, self.api_config
+                request, None, self.api_config
             )
 
     def testSimpleChromeWorkflowTest(self) -> None:
@@ -734,10 +734,8 @@ class VmTestTest(cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin):
 
     def testAutotestAllOptions(self) -> None:
         """Test VmTest for Autotest with all options set."""
-        input_proto = self._GetInput(
-            test_harness=test_pb2.VmTestRequest.AUTOTEST
-        )
-        test_controller.VmTest(input_proto, None, self.api_config)
+        request = self._GetInput(test_harness=test_pb2.VmTestRequest.AUTOTEST)
+        test_controller.VmTest(request, None, self.api_config)
         self.assertCommandContains(
             [
                 "cros_run_test",
@@ -760,29 +758,29 @@ class VmTestTest(cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin):
 
     def testMissingBuildTarget(self) -> None:
         """Test VmTest dies when build_target not set."""
-        input_proto = self._GetInput(build_target=None)
+        request = self._GetInput(build_target=None)
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            test_controller.VmTest(input_proto, None, self.api_config)
+            test_controller.VmTest(request, None, self.api_config)
 
     def testMissingVmImage(self) -> None:
         """Test VmTest dies when vm_image not set."""
-        input_proto = self._GetInput(vm_path=None)
+        request = self._GetInput(vm_path=None)
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            test_controller.VmTest(input_proto, None, self.api_config)
+            test_controller.VmTest(request, None, self.api_config)
 
     def testMissingTestHarness(self) -> None:
         """Test VmTest dies when test_harness not specified."""
-        input_proto = self._GetInput(
+        request = self._GetInput(
             test_harness=test_pb2.VmTestRequest.UNSPECIFIED
         )
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            test_controller.VmTest(input_proto, None, self.api_config)
+            test_controller.VmTest(request, None, self.api_config)
 
     def testMissingVmTests(self) -> None:
         """Test VmTest dies when vm_tests not set."""
-        input_proto = self._GetInput(vm_tests=[])
+        request = self._GetInput(vm_tests=[])
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            test_controller.VmTest(input_proto, None, self.api_config)
+            test_controller.VmTest(request, None, self.api_config)
 
     def testVmTest(self) -> None:
         """Call VmTest with valid args and temp dir."""
