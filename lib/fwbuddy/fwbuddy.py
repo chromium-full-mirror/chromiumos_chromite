@@ -10,8 +10,8 @@ import logging
 import os
 import re
 import shutil
-from textwrap import wrap
-from typing import List, NamedTuple
+import textwrap
+from typing import List, NamedTuple, Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
@@ -38,7 +38,7 @@ class URI(NamedTuple):
     firmware_name: str
     version: str
     image_type: str
-    firmware_type: str
+    firmware_type: Optional[str]
 
 
 class FieldDoc(NamedTuple):
@@ -57,9 +57,9 @@ class FwImage(NamedTuple):
     model: str
     firmware_name: str
     release: Release
-    branch: str
+    branch: Optional[str]
     image_type: str
-    firmware_type: str
+    firmware_type: Optional[str]
 
 
 FWBUDDY_URI_SCHEMA = (
@@ -176,7 +176,7 @@ def build_field_doc(field: str, indent: str, line_length: int) -> str:
     field_doc = f"{indent}{field} ({required_state}):\n"
     field_doc += description_newline
     description = description_newline.join(
-        wrap(FIELD_DOCS[field].description, line_length)
+        textwrap.wrap(FIELD_DOCS[field].description, line_length)
     )
     field_doc += f"{description}\n\n"
     field_doc += description_newline
@@ -309,7 +309,7 @@ FWBUDDY_URI_REGEX_PATTERN = re.compile(
 class FwBuddy:
     """Class that manages firmware archive retrieval from Google Storage"""
 
-    def __init__(self, uri: str):
+    def __init__(self, uri: str) -> None:
         """Initialize fwbuddy from an fwbuddy URI
 
         This constructor performs all manner of URI validation and resolves
@@ -326,9 +326,11 @@ class FwBuddy:
 
         # These paths are not populated until after we've downloaded and
         # extracted the contents of the firmware archive.
-        self.archive_path = None
-        self.ec_path = None
-        self.ap_path = None
+        self.archive_path: Optional[str] = None
+        self.ec_path: Optional[str] = None
+        self.ap_path: Optional[str] = None
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
 
         if uri in INTERACTIVE_MODE:
             uri = get_uri_interactive()
@@ -365,7 +367,7 @@ class FwBuddy:
             firmware_type=parse_firmware_type(self.uri.firmware_type),
         )
 
-    def lookup_branch(self) -> str:
+    def lookup_branch(self) -> Optional[str]:
         """Gets firmware branch for the given board/model combination from DLM.
 
         Some firmware archives are stored underneath branches that do not match
@@ -395,9 +397,9 @@ class FwBuddy:
             # Log but do not act on gcert and dremel errors and attempt to
             # continue so that people running this within chroot and partners
             # can still use fwbuddy in a majority of situations.
-            logging.warning(e)
+            self.logger.warning(e)
 
-        logging.warning(
+        self.logger.warning(
             (
                 "Unable to identify the firmware branch for %s "
                 "This may not be an issue, since the firmware branch is only "
@@ -436,14 +438,14 @@ class FwBuddy:
         Raises:
             FwbuddyException: If we couldn't find any real gspaths.
         """
-        logging.notice("Attempting to locate the firmware archive...")
+        self.logger.info("Attempting to locate the firmware archive...")
         possible_gspaths = generate_gspaths(self.fw_image)
         for gspath in possible_gspaths:
             try:
-                logging.notice("Checking %s...", gspath)
+                self.logger.info("Checking %s...", gspath)
                 self.gs.CheckPathAccess(gspath)
                 gspath = self.gs.LS(gspath)[0]
-                logging.notice(
+                self.logger.info(
                     "Succesfully located the firmware archive at %s", gspath
                 )
                 return gspath
@@ -459,7 +461,7 @@ class FwBuddy:
 
     def download(self) -> None:
         """Downloads the firmware archive from Google Storage to tmp"""
-        logging.notice(
+        self.logger.info(
             (
                 "Downloading firmware archive from: %s "
                 "This may take a few minutes..."
@@ -468,7 +470,7 @@ class FwBuddy:
         )
         self.gs.CheckPathAccess(self.gspath)
         self.gs.Copy(self.gspath, TMP_STORAGE_FOLDER)
-        logging.notice(
+        self.logger.info(
             "Successfully downloaded the firmware archive from: %s ",
             self.gspath,
         )
@@ -478,7 +480,7 @@ class FwBuddy:
         # as there's no real reason to expose this information to the API User.
         self.archive_path = f"{TMP_STORAGE_FOLDER}/{file_name}"
 
-    def extract(self, directory=DEFAULT_EXTRACTED_ARCHIVE_PATH) -> None:
+    def extract(self, directory: str = DEFAULT_EXTRACTED_ARCHIVE_PATH) -> None:
         """Extracts the firmware archive to a given directory
 
         Args:
@@ -487,7 +489,7 @@ class FwBuddy:
         Raises:
             FwBuddyException: If extract contents fails.
         """
-        logging.notice("Extracting firmware contents to: %s...", directory)
+        self.logger.info("Extracting firmware contents to: %s...", directory)
         result = cros_build_lib.run(
             ["tar", "-xf", self.archive_path, f"--directory={directory}"],
             check=False,
@@ -499,7 +501,7 @@ class FwBuddy:
                 "Encountered a fatal error while extracting firmware archive"
                 f" contents: {result.stderr}"
             )
-        logging.notice(
+        self.logger.info(
             "Successfully extracted firmware contents to: %s", directory
         )
         ap_path_schema = (
@@ -527,18 +529,20 @@ class FwBuddy:
         Raises:
             FwBuddyException: If firmware unexported or failed to copy image.
         """
-        chip = parse_chip(chip)
+        chip_name = parse_chip(chip)
         if (self.ec_path is None and chip == EC) or (
             self.ap_path is None and chip == AP
         ):
             raise FwBuddyException(
                 "Attempted to export firmware from an unextracted"
-                " archive.Please first extract the firmware archive by running"
+                " archive. Please first extract the firmware archive by running"
                 " fwbuddy.extract"
             )
 
         firmware_image_path = self.ec_path if chip == EC else self.ap_path
-        image_name = firmware_image_path.split("/")[-1]
+        image_name = ""
+        if firmware_image_path is not None:
+            image_name = firmware_image_path.split("/")[-1]
 
         # Get the absolute path, expanding any user or system
         # variables, like `~` to reference $HOME
@@ -556,15 +560,15 @@ class FwBuddy:
                 "Encountered a fatal error while exporting the firmware image:"
                 f" {result.stderr}"
             )
-        logging.notice(
+        self.logger.info(
             "Exported the %s firmware image to %s/%s",
-            chip,
+            chip_name,
             directory,
             image_name,
         )
 
 
-def get_uri_interactive():
+def get_uri_interactive() -> str:
     """Prompts for each field of the fwbuddy uri individually
 
     Returns:
@@ -685,7 +689,7 @@ def generate_gspaths(fw_image: FwImage) -> List[str]:
     return gspaths
 
 
-def parse_chip(chip: str):
+def parse_chip(chip: Optional[str]) -> Optional[str]:
     """Checks if the chip is supported and returns a lowercase copy of it.
 
     Args:
@@ -707,7 +711,7 @@ def parse_chip(chip: str):
     )
 
 
-def parse_firmware_type(firmware_type: str):
+def parse_firmware_type(firmware_type: Optional[str]) -> Optional[str]:
     """Checks if the firmware_type is supported and returns a lowercase copy
 
     Args:

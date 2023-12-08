@@ -10,6 +10,7 @@
 
 
 import builtins
+from pathlib import Path
 
 import pytest
 
@@ -24,7 +25,7 @@ GENERIC_VALID_URI = (
 
 
 @pytest.fixture(name="setup")
-def fixture_setup(monkeypatch) -> None:
+def fixture_setup(monkeypatch: "pytest.MonkeyPatch") -> None:
     monkeypatch.setattr(gs.GSContext, "LS", lambda *_,: ["some/path"])
     monkeypatch.setattr(gs.GSContext, "Copy", lambda *_,: None)
     monkeypatch.setattr(gs.GSContext, "CheckPathAccess", lambda *_,: None)
@@ -32,13 +33,13 @@ def fixture_setup(monkeypatch) -> None:
     monkeypatch.setattr(fwbuddy.FwBuddy, "cleanup", lambda *_,: None)
 
 
-def test_usage_string(setup) -> None:
+def test_usage_string(setup: Path) -> None:
     """Test that all of the URI fields are include in the usage doc."""
     for field in fwbuddy.FIELD_DOCS:
         assert field in fwbuddy.USAGE
 
 
-def test_parse_uri(setup) -> None:
+def test_parse_uri(setup: Path) -> None:
     """Tests that we can properly convert a uri string into a URI object"""
     assert fwbuddy.parse_uri(GENERIC_VALID_URI) == fwbuddy.URI(
         board="dedede",
@@ -71,7 +72,7 @@ def test_parse_uri(setup) -> None:
         )
 
 
-def test_parse_release_string(setup) -> None:
+def test_parse_release_string(setup: Path) -> None:
     """Tests that versions can be parsed into Release Objects"""
     assert fwbuddy.Release(
         "99", "123", "456", "0"
@@ -91,7 +92,7 @@ def test_parse_release_string(setup) -> None:
         fwbuddy.parse_release_string("R99-123.456")
 
 
-def test_generate_unsigned_gspaths(setup) -> None:
+def test_generate_unsigned_gspaths(setup: Path) -> None:
     """Tests that we can generate unsigned gspaths using our schemas."""
 
     fw_image = fwbuddy.FwImage(
@@ -136,7 +137,9 @@ def test_generate_unsigned_gspaths(setup) -> None:
     assert result == expected_gspaths
 
 
-def test_lookup_branch(setup, run_mock) -> None:
+def test_lookup_branch(
+    setup: Path, run_mock: cros_test_lib.RunCommandMock
+) -> None:
     """Tests that we correctly parse the SQL output from the branch lookup"""
     csv = "branch_name\nfirmware-icarus-12574.B\n"
     run_mock.SetDefaultCmdResult(stdout=csv)
@@ -144,14 +147,16 @@ def test_lookup_branch(setup, run_mock) -> None:
     assert f.lookup_branch() == "firmware-icarus-12574.B"
 
 
-def test_lookup_branch_fails(setup, run_mock) -> None:
+def test_lookup_branch_fails(
+    setup: Path, run_mock: cros_test_lib.RunCommandMock
+) -> None:
     """Tests that we return None when our dremel command fails to run"""
     run_mock.SetDefaultCmdResult(returncode=1)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     assert f.lookup_branch() is None
 
 
-def test_generate_signed_gspaths(setup) -> None:
+def test_generate_signed_gspaths(setup: Path) -> None:
     """Tests that we can generate signed gspaths using our schemas."""
     fw_image = fwbuddy.FwImage(
         board="dedede",
@@ -171,7 +176,9 @@ def test_generate_signed_gspaths(setup) -> None:
     assert fwbuddy.generate_gspaths(fw_image) == expected_gspaths
 
 
-def test_determine_gspath(setup, monkeypatch) -> None:
+def test_determine_gspath(
+    setup: Path, monkeypatch: "pytest.MonkeyPatch"
+) -> None:
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     assert f.determine_gspath() == "some/path"
 
@@ -180,13 +187,13 @@ def test_determine_gspath(setup, monkeypatch) -> None:
         f.determine_gspath()
 
 
-def test_download(setup) -> None:
+def test_download(setup: Path) -> None:
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     f.download()
     assert f.archive_path == f"{fwbuddy.TMP_STORAGE_FOLDER}/path"
 
 
-def test_extract(setup, run_mock: cros_test_lib.RunCommandMock) -> None:
+def test_extract(setup: Path, run_mock: cros_test_lib.RunCommandMock) -> None:
     run_mock.SetDefaultCmdResult(0)
     # Ap image path extraction with firmware_type
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
@@ -210,7 +217,7 @@ def test_extract(setup, run_mock: cros_test_lib.RunCommandMock) -> None:
 
 
 def test_export_firmware_image(
-    setup, run_mock: cros_test_lib.RunCommandMock
+    setup: Path, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     run_mock.SetDefaultCmdResult(0)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
@@ -232,7 +239,7 @@ def test_export_firmware_image(
         f.export_firmware_image("tmp", "EC")
 
 
-def test_parse_chip(setup) -> None:
+def test_parse_chip(setup: Path) -> None:
     assert "ec" == fwbuddy.parse_chip("EC")
     assert "ap" == fwbuddy.parse_chip("ap")
     assert None is fwbuddy.parse_chip(None)
@@ -241,18 +248,20 @@ def test_parse_chip(setup) -> None:
         fwbuddy.parse_chip("junk")
 
 
-def test_parse_firmware_type(setup) -> None:
+def test_parse_firmware_type(setup: Path) -> None:
     assert "serial" == fwbuddy.parse_firmware_type("SERIAL")
     assert None is fwbuddy.parse_firmware_type(None)
     with pytest.raises(fwbuddy.FwBuddyException):
         fwbuddy.parse_firmware_type("junk")
 
 
-def test_get_uri_interactive(setup, monkeypatch) -> None:
+def test_get_uri_interactive(
+    setup: Path, monkeypatch: "pytest.MonkeyPatch"
+) -> None:
     """Test that we can build an fwbuddy URI from an interactive prompt."""
     num = 0
 
-    def increment_num():
+    def increment_num() -> int:
         nonlocal num
         num += 1
         return num
@@ -264,7 +273,9 @@ def test_get_uri_interactive(setup, monkeypatch) -> None:
     assert fwbuddy.get_uri_interactive() == "fwbuddy://1/2/3/4/5/6/"
 
 
-def test_interactive_mode(setup, monkeypatch) -> None:
+def test_interactive_mode(
+    setup: Path, monkeypatch: "pytest.MonkeyPatch"
+) -> None:
     """Test that we can trigger interactive mode"""
     mock_input = GENERIC_VALID_URI
     monkeypatch.setattr(
