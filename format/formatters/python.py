@@ -38,7 +38,7 @@ def _custom_format_data(data: str) -> str:
     """Apply some custom rules that black doesn't handle."""
     lines = data.splitlines()
 
-    def _trim_blank_comments(i):
+    def _trim_blank_comments(i) -> None:
         """Trim blank lines & empty comment lines at the top of the file."""
         while len(lines) > i:
             if lines[i] in ("", "#"):

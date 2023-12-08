@@ -119,7 +119,7 @@ maybe -->
 
 # Use a separate variable to avoid pytest log spam.
 @pytest.mark.parametrize("data,exp", TEST_CASES)
-def test_check_format(data, exp):
+def test_check_format(data, exp) -> None:
     """Verify inputs match expected outputs."""
     if exp is None:
         exp = data
@@ -144,7 +144,7 @@ FAILING_TEST_CASES = (
 
 
 @pytest.mark.parametrize("data", FAILING_TEST_CASES)
-def test_format_failures(data):
+def test_format_failures(data) -> None:
     """Verify inputs raise AssertionErrors as expected."""
     with pytest.raises(AssertionError):
         repo_manifest.Data(data)

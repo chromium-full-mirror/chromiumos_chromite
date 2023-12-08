@@ -22,7 +22,7 @@ from chromite.format.formatters import json
         ("[1,\n2,4]", "[\n  1,\n  2,\n  4\n]\n"),
     ),
 )
-def test_check_format(data, exp):
+def test_check_format(data, exp) -> None:
     """Verify inputs match expected outputs."""
     if exp is None:
         exp = data

@@ -18,7 +18,7 @@ from chromite.format.formatters import star
         ('workspace(name="foo")\n', 'workspace(name = "foo")\n'),
     ),
 )
-def test_check_format(data, exp):
+def test_check_format(data, exp) -> None:
     """Verify inputs match expected outputs."""
     if exp is None:
         exp = data
@@ -53,5 +53,5 @@ LOAD_PREFIX = """load("@rules_cc//cc:defs.bzl", "cc_library")
         ("defs.bzl", LOAD_PREFIX + UNSPECIALIZED_OUTPUT),
     ),
 )
-def test_path_specialization(path, exp):
+def test_path_specialization(path, exp) -> None:
     assert star.Data(SPECIALIZATION_INPUT, path) == exp

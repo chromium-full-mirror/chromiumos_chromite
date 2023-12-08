@@ -27,7 +27,7 @@ from chromite.format.formatters import whitespace
         (" no leading space\n", "no leading space\n"),
     ),
 )
-def test_check_format(data, exp):
+def test_check_format(data, exp) -> None:
     """Verify inputs match expected outputs."""
     if exp is None:
         exp = data

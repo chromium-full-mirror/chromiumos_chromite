@@ -168,7 +168,9 @@ def Data(
     """
     ONE_LINE_NODES = {"annotation", "copyfile", "linkfile"}
 
-    def _format(buffer: io.StringIO, root: minidom.Node, level: int = 0):
+    def _format(
+        buffer: io.StringIO, root: minidom.Node, level: int = 0
+    ) -> None:
         """Recursively format the nodes starting at |root|."""
         indent = "  " * level
 

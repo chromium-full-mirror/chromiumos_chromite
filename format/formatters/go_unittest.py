@@ -18,7 +18,7 @@ from chromite.format.formatters import go
         ("func main(){os.Exit(0)}", "func main() { os.Exit(0) }"),
     ),
 )
-def test_check_format(data, exp):
+def test_check_format(data, exp) -> None:
     """Verify inputs match expected outputs."""
     if exp is None:
         exp = data

@@ -37,7 +37,7 @@ from chromite.format.formatters import python
         ),
     ),
 )
-def test_check_custom_format(data, exp):
+def test_check_custom_format(data, exp) -> None:
     """Verify inputs match expected outputs."""
     if exp is None:
         exp = data
