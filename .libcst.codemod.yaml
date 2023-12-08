@@ -1,0 +1,23 @@
+# This is the config to teach libcst about this project.  To run libcst, use
+# contrib/libcst_tool.  For more information, see the libcst documentation:
+# https://libcst.readthedocs.io/en/latest/index.html
+
+# String that LibCST should look for in code which indicates that the
+# module is generated code.
+generated_code_marker: 'DO NOT EDIT'
+
+# Command line and arguments for invoking a code formatter. Anything
+# specified here must be capable of taking code via stdin and returning
+# formatted code via stdout.
+# TODO: Change this to "cros format" once it accepts stdin.
+formatter: ['scripts/black', '-']
+
+# List of modules that contain codemods inside of them.
+modules:
+- 'libcst.codemod.commands'
+- 'chromite.contrib.codemod'
+
+# Absolute or relative path of the repository root, used for providing
+# full-repo metadata. Relative paths should be specified with this file
+# location as the base.
+repo_root: '.'
